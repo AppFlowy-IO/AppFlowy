@@ -36,29 +36,72 @@ class AFBaseButton extends StatefulWidget {
 }
 
 class _AFBaseButtonState extends State<AFBaseButton> {
+  final FocusNode focusNode = FocusNode();
+
   bool isHovering = false;
+  bool isFocused = false;
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color borderColor = _buildBorderColor(context);
     final Color backgroundColor = _buildBackgroundColor(context);
 
-    return MouseRegion(
-      cursor:
-          widget.disabled ? SystemMouseCursors.basic : SystemMouseCursors.click,
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
-      child: GestureDetector(
-        onTap: widget.disabled ? null : widget.onTap,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border.all(color: borderColor),
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-          ),
-          child: Padding(
-            padding: widget.padding,
-            child: widget.builder(context, isHovering, widget.disabled),
+    return Actions(
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            if (!widget.disabled) {
+              widget.onTap?.call();
+            }
+            return;
+          },
+        ),
+      },
+      child: Focus(
+        focusNode: focusNode,
+        onFocusChange: (isFocused) {
+          setState(() => this.isFocused = isFocused);
+        },
+        child: MouseRegion(
+          cursor: widget.disabled
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.click,
+          onEnter: (_) => setState(() => isHovering = true),
+          onExit: (_) => setState(() => isHovering = false),
+          child: GestureDetector(
+            onTap: widget.disabled ? null : widget.onTap,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                border: isFocused
+                    ? Border.all(
+                        color: AppFlowyTheme.of(context)
+                            .borderColorScheme
+                            .themeThick
+                            .withAlpha(128),
+                        width: 2,
+                        strokeAlign: BorderSide.strokeAlignOutside,
+                      )
+                    : null,
+              ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  border: Border.all(color: borderColor),
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                ),
+                child: Padding(
+                  padding: widget.padding,
+                  child: widget.builder(context, isHovering, widget.disabled),
+                ),
+              ),
+            ),
           ),
         ),
       ),
