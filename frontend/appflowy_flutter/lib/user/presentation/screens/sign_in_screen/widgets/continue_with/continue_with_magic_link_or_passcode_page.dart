@@ -1,7 +1,10 @@
+import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ContinueWithMagicLinkOrPasscodePage extends StatefulWidget {
   const ContinueWithMagicLinkOrPasscodePage({
@@ -26,6 +29,8 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   bool isEnteringPasscode = false;
 
+  ToastificationItem? toastificationItem;
+
   @override
   void dispose() {
     passcodeController.dispose();
@@ -35,22 +40,31 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SizedBox(
-          width: 320,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo, title and description
-              ..._buildLogoTitleAndDescription(),
+    return BlocListener<SignInBloc, SignInState>(
+      listener: (context, state) {
+        if (state.isSubmitting) {
+          _showLoadingDialog();
+        } else {
+          _dismissLoadingDialog();
+        }
+      },
+      child: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 320,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo, title and description
+                ..._buildLogoTitleAndDescription(),
 
-              // Enter code manually
-              ..._buildEnterCodeManually(),
+                // Enter code manually
+                ..._buildEnterCodeManually(),
 
-              // Back to login
-              ..._buildBackToLogin(),
-            ],
+                // Back to login
+                ..._buildBackToLogin(),
+              ],
+            ),
           ),
         ),
       ),
@@ -91,7 +105,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
       // continue to login
       AFFilledTextButton.primary(
-        text: 'Continue to sign up',
+        text: 'Continue to sign in',
         onTap: () => widget.onEnterPasscode(passcodeController.text),
         size: AFButtonSize.l,
         alignment: Alignment.center,
@@ -109,6 +123,9 @@ class _ContinueWithMagicLinkOrPasscodePageState
         onTap: widget.backToLogin,
         textColor: (context, isHovering, disabled) {
           final theme = AppFlowyTheme.of(context);
+          if (isHovering) {
+            return theme.fillColorScheme.themeThickHover;
+          }
           return theme.textColorScheme.theme;
         },
       ),
@@ -149,5 +166,20 @@ class _ContinueWithMagicLinkOrPasscodePageState
       ),
       spacing,
     ];
+  }
+
+  void _showLoadingDialog() {
+    _dismissLoadingDialog();
+
+    toastificationItem = showToastNotification(
+      message: 'Signing in...',
+    );
+  }
+
+  void _dismissLoadingDialog() {
+    final toastificationItem = this.toastificationItem;
+    if (toastificationItem != null) {
+      toastification.dismiss(toastificationItem);
+    }
   }
 }

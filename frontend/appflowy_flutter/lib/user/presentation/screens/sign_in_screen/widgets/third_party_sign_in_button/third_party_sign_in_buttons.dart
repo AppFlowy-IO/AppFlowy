@@ -104,6 +104,9 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
       AFGhostTextButton(
         text: 'More options',
         textColor: (context, isHovering, disabled) {
+          if (isHovering) {
+            return theme.fillColorScheme.themeThickHover;
+          }
           return theme.textColorScheme.theme;
         },
         onTap: () {
