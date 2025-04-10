@@ -15,7 +15,6 @@ void main() {
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
 
-      await tester.tapContinousAnotherWay();
       await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
