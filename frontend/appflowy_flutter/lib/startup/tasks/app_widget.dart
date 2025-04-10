@@ -226,6 +226,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     }
                   },
                   child: MaterialApp.router(
+                    debugShowCheckedModeBanner: false,
+                    theme: state.lightTheme,
+                    darkTheme: state.darkTheme,
+                    themeMode: state.themeMode,
+                    localizationsDelegates: context.localizationDelegates,
+                    supportedLocales: context.supportedLocales,
+                    locale: state.locale,
+                    routerConfig: routerConfig,
                     builder: (context, child) => AppFlowyTheme(
                       data: Theme.of(context).brightness == Brightness.light
                           ? AppFlowyThemeData.light()
@@ -246,14 +254,6 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                               : child,
                         ),
                       ),
-                      debugShowCheckedModeBanner: false,
-                      theme: state.lightTheme,
-                      darkTheme: state.darkTheme,
-                      themeMode: state.themeMode,
-                      localizationsDelegates: context.localizationDelegates,
-                      supportedLocales: context.supportedLocales,
-                      locale: state.locale,
-                      routerConfig: routerConfig,
                     ),
                   ),
                 ),
