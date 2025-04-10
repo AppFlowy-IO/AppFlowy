@@ -224,17 +224,17 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                       Tooltip.dismissAllToolTips();
                     }
                   },
-                  child: AppFlowyTheme(
-                    data: Theme.of(context).brightness == Brightness.light
-                        ? AppFlowyThemeData.light()
-                        : AppFlowyThemeData.dark(),
-                    child: MaterialApp.router(
-                      builder: (context, child) => MediaQuery(
-                        // use the 1.0 as the textScaleFactor to avoid the text size
-                        //  affected by the system setting.
-                        data: MediaQuery.of(context).copyWith(
-                          textScaler: TextScaler.linear(state.textScaleFactor),
-                        ),
+                  child: MaterialApp.router(
+                    builder: (context, child) => MediaQuery(
+                      // use the 1.0 as the textScaleFactor to avoid the text size
+                      //  affected by the system setting.
+                      data: MediaQuery.of(context).copyWith(
+                        textScaler: TextScaler.linear(state.textScaleFactor),
+                      ),
+                      child: AppFlowyTheme(
+                        data: Theme.of(context).brightness == Brightness.light
+                            ? AppFlowyThemeData.light()
+                            : AppFlowyThemeData.dark(),
                         child: overlayManagerBuilder(
                           context,
                           !UniversalPlatform.isMobile && FeatureFlag.search.isOn
@@ -245,15 +245,15 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                               : child,
                         ),
                       ),
-                      debugShowCheckedModeBanner: false,
-                      theme: state.lightTheme,
-                      darkTheme: state.darkTheme,
-                      themeMode: state.themeMode,
-                      localizationsDelegates: context.localizationDelegates,
-                      supportedLocales: context.supportedLocales,
-                      locale: state.locale,
-                      routerConfig: routerConfig,
                     ),
+                    debugShowCheckedModeBanner: false,
+                    theme: state.lightTheme,
+                    darkTheme: state.darkTheme,
+                    themeMode: state.themeMode,
+                    localizationsDelegates: context.localizationDelegates,
+                    supportedLocales: context.supportedLocales,
+                    locale: state.locale,
+                    routerConfig: routerConfig,
                   ),
                 ),
               ),
