@@ -199,6 +199,16 @@ where
     })
   }
 
+  fn sign_in_with_passcode(
+    &self,
+    _email: &str,
+    _passcode: &str,
+  ) -> FutureResult<GotrueTokenResponse, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("Can't sign in with passcode when using supabase"))
+    })
+  }
+
   fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::internal().with_context("Can't generate oauth url when using supabase"))

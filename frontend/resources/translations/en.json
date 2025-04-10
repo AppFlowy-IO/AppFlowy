@@ -37,6 +37,7 @@
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "anonymous": "Anonymous",
+    "anonymousMode": "Anonymous mode",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -68,7 +69,16 @@
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes.",
+    "tokenHasExpiredOrInvalid": "The token has expired or is invalid. Please try again.",
+    "signingIn": "Signing in...",
+    "checkYourEmail": "Check your email",
+    "temporaryVerificationSent": "A temporary verification link has been sent. Please check your inbox at",
+    "continueToSignIn": "Continue to sign in",
+    "backToLogin": "Back to login",
+    "enterCode": "Enter code",
+    "enterCodeManually": "Enter code manually",
+    "continueWithEmail": "Continue with email"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",

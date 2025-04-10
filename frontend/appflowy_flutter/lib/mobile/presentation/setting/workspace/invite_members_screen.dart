@@ -276,10 +276,11 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
   void _inviteMember(BuildContext context) {
     final email = emailController.text;
     if (!isEmail(email)) {
-      return showToastNotification(
+      showToastNotification(
         type: ToastificationType.error,
         message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
       );
+      return;
     }
     context
         .read<WorkspaceMemberBloc>()
