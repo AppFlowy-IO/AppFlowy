@@ -304,11 +304,14 @@ void showLinkCreateMenu(
   return (left, top, right, bottom, alignment);
 }
 
-ShapeDecoration buildToolbarLinkDecoration(BuildContext context) =>
+ShapeDecoration buildToolbarLinkDecoration(
+  BuildContext context, {
+  double radius = 12.0,
+}) =>
     ShapeDecoration(
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(radius),
       ),
       shadows: [
         const BoxShadow(

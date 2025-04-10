@@ -2019,7 +2019,28 @@
           "failedDuplicateFindView": "Failed to duplicate page - original view not found"
         }
       },
-      "cannotMoveToItsChildren": "Cannot move to its children"
+      "cannotMoveToItsChildren": "Cannot move to its children",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Paste as",
+          "mention": "Mention",
+          "URL": "URL",
+          "bookmark": "Bookmark",
+          "embed": "Embed"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Convert to Mention",
+          "toUrl": "Convert to URL",
+          "toEmbed": "Convert to Embed",
+          "toBookmark": "Convert to Bookmark",
+          "copyLink": "Copy Link",
+          "replace": "Replace",
+          "reload": "Reload",
+          "removeLink": "Remove Link",
+          "pasteHint": "Paste in https://...",
+          "refuseConnect": "refued to connect."
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -2513,6 +2534,7 @@
     "copyLink": "Copy link",
     "removeLink": "Remove link",
     "editLink": "Edit link",
+    "convertTo": "Convert to",
     "linkText": "Text",
     "linkTextHint": "Please enter text",
     "linkAddressHint": "Please enter URL",
