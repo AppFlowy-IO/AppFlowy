@@ -4,6 +4,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_user_pub::cloud::UserCloudServiceProvider;
 use std::sync::Weak;
 use std::time::Duration;
+use uuid::Uuid;
 
 /// `PeriodicallyCheckBillingState` is designed to periodically verify the subscription
 /// plan of a given workspace. It utilizes a cloud service provider to fetch the current
@@ -13,7 +14,7 @@ use std::time::Duration;
 /// at specified intervals until the expected plan is found or the maximum number of
 /// attempts is reached.
 pub struct PeriodicallyCheckBillingState {
-  workspace_id: String,
+  workspace_id: Uuid,
   cloud_service: Weak<dyn UserCloudServiceProvider>,
   expected_plan: Option<SubscriptionPlan>,
   user: Weak<AuthenticateUser>,
@@ -21,7 +22,7 @@ pub struct PeriodicallyCheckBillingState {
 
 impl PeriodicallyCheckBillingState {
   pub fn new(
-    workspace_id: String,
+    workspace_id: Uuid,
     expected_plan: Option<SubscriptionPlan>,
     cloud_service: Weak<dyn UserCloudServiceProvider>,
     user: Weak<AuthenticateUser>,
@@ -46,7 +47,7 @@ impl PeriodicallyCheckBillingState {
     while attempts < max_attempts {
       let plans = cloud_service
         .get_user_service()?
-        .get_workspace_plan(self.workspace_id.clone())
+        .get_workspace_plan(self.workspace_id)
         .await?;
 
       // If the expected plan is not set, return the plans immediately. Otherwise,

@@ -13,8 +13,10 @@ use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use tracing::{error, info};
+use uuid::Uuid;
 
 const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
@@ -68,14 +70,16 @@ impl AuthenticateUser {
     Ok(self.user_config.device_id.to_string())
   }
 
-  pub fn workspace_id(&self) -> FlowyResult<String> {
+  pub fn workspace_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.id.clone())
+    let workspace_uuid = Uuid::from_str(&session.user_workspace.id)?;
+    Ok(workspace_uuid)
   }
 
-  pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
+  pub fn workspace_database_object_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.workspace_database_id.clone())
+    let id = Uuid::from_str(&session.user_workspace.workspace_database_id)?;
+    Ok(id)
   }
 
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {

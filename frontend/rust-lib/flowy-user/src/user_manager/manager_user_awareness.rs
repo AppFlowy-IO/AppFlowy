@@ -8,13 +8,13 @@ use collab_entity::CollabType;
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
+use collab_integrate::CollabKVDB;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
-use tracing::{error, info, instrument, trace};
-
-use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
+use tracing::{error, info, instrument, trace};
+use uuid::Uuid;
 
 use crate::entities::ReminderPB;
 use crate::user_manager::UserManager;
@@ -122,8 +122,7 @@ impl UserManager {
     authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     let authenticator = authenticator.clone();
-    let object_id =
-      user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
+    let object_id = user_awareness_object_id(&session.user_uuid, &session.user_workspace.id);
 
     // Try to acquire mutable access to `is_loading_awareness`.
     // Thread-safety is ensured by DashMap
@@ -156,7 +155,7 @@ impl UserManager {
 
       let is_exist_on_disk = self
         .authenticate_user
-        .is_collab_on_disk(session.user_id, &object_id)?;
+        .is_collab_on_disk(session.user_id, &object_id.to_string())?;
       if authenticator.is_local() || is_exist_on_disk {
         trace!(
           "Initializing new user awareness from disk:{}, {:?}",
@@ -164,15 +163,13 @@ impl UserManager {
           authenticator
         );
         let collab_db = self.get_collab_db(session.user_id)?;
-        let doc_state = CollabPersistenceImpl::new(
-          collab_db.clone(),
-          session.user_id,
-          session.user_workspace.id.clone(),
-        )
-        .into_data_source();
+        let workspace_id = session.user_workspace.workspace_id()?;
+        let doc_state =
+          CollabPersistenceImpl::new(collab_db.clone(), session.user_id, workspace_id)
+            .into_data_source();
         let awareness = Self::collab_for_user_awareness(
           &self.collab_builder.clone(),
-          &session.user_workspace.id,
+          &workspace_id,
           session.user_id,
           &object_id,
           collab_db,
@@ -211,7 +208,7 @@ impl UserManager {
   fn load_awareness_from_server(
     &self,
     session: &Session,
-    object_id: String,
+    object_id: Uuid,
     authenticator: Authenticator,
   ) -> FlowyResult<()> {
     // Clone necessary data
@@ -231,16 +228,14 @@ impl UserManager {
         }
       };
 
+      let workspace_id = session.user_workspace.workspace_id()?;
       let create_awareness = if authenticator.is_local() {
-        let doc_state = CollabPersistenceImpl::new(
-          collab_db.clone(),
-          session.user_id,
-          session.user_workspace.id.clone(),
-        )
-        .into_data_source();
+        let doc_state =
+          CollabPersistenceImpl::new(collab_db.clone(), session.user_id, workspace_id)
+            .into_data_source();
         Self::collab_for_user_awareness(
           &weak_builder,
-          &session.user_workspace.id,
+          &workspace_id,
           session.user_id,
           &object_id,
           collab_db,
@@ -251,7 +246,7 @@ impl UserManager {
       } else {
         let result = cloud_services
           .get_user_service()?
-          .get_user_awareness_doc_state(session.user_id, &session.user_workspace.id, &object_id)
+          .get_user_awareness_doc_state(session.user_id, &workspace_id, &object_id)
           .await;
 
         match result {
@@ -259,7 +254,7 @@ impl UserManager {
             trace!("Fetched user awareness collab from remote: {}", data.len());
             Self::collab_for_user_awareness(
               &weak_builder,
-              &session.user_workspace.id,
+              &workspace_id,
               session.user_id,
               &object_id,
               collab_db,
@@ -271,15 +266,12 @@ impl UserManager {
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let doc_state = CollabPersistenceImpl::new(
-                collab_db.clone(),
-                session.user_id,
-                session.user_workspace.id.clone(),
-              )
-              .into_data_source();
+              let doc_state =
+                CollabPersistenceImpl::new(collab_db.clone(), session.user_id, workspace_id)
+                  .into_data_source();
               Self::collab_for_user_awareness(
                 &weak_builder,
-                &session.user_workspace.id,
+                &workspace_id,
                 session.user_id,
                 &object_id,
                 collab_db,
@@ -329,9 +321,9 @@ impl UserManager {
   /// user awareness.
   async fn collab_for_user_awareness(
     collab_builder: &Weak<AppFlowyCollabBuilder>,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
-    object_id: &str,
+    object_id: &Uuid,
     collab_db: Weak<CollabKVDB>,
     doc_state: DataSource,
     notifier: Option<UserAwarenessNotifier>,
@@ -375,8 +367,7 @@ impl UserManager {
         info!("User awareness is not loaded when trying to access it");
 
         let session = self.get_session()?;
-        let object_id =
-          user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
+        let object_id = user_awareness_object_id(&session.user_uuid, &session.user_workspace.id);
         let is_loading = self
           .is_loading_awareness
           .get(&object_id)

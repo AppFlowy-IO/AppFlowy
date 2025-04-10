@@ -44,6 +44,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::select;
@@ -53,11 +54,12 @@ use tokio::sync::{broadcast, oneshot};
 use tokio::task::yield_now;
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
+use uuid::Uuid;
 
 type OpenDatabaseResult = oneshot::Sender<FlowyResult<DatabasePB>>;
 
 pub struct DatabaseEditor {
-  database_id: String,
+  database_id: Uuid,
   pub(crate) database: Arc<RwLock<Database>>,
   pub cell_cache: CellCache,
   pub(crate) database_views: Arc<DatabaseViews>,
@@ -117,6 +119,7 @@ impl DatabaseEditor {
       .await?,
     );
 
+    let database_id = Uuid::from_str(&database_id)?;
     let collab_object = collab_builder.collab_object(
       &user.workspace_id()?,
       user.user_id()?,
@@ -130,7 +133,7 @@ impl DatabaseEditor {
       database.clone(),
     )?;
     let this = Arc::new(Self {
-      database_id: database_id.clone(),
+      database_id,
       user,
       database,
       cell_cache,
@@ -806,10 +809,11 @@ impl DatabaseEditor {
     let is_finalized = self.finalized_rows.get(row_id.as_str()).await.is_some();
     if !is_finalized {
       trace!("[Database]: finalize database row: {}", row_id);
+      let row_id = Uuid::from_str(row_id.as_str())?;
       let collab_object = self.collab_builder.collab_object(
         &self.user.workspace_id()?,
         self.user.user_id()?,
-        row_id,
+        &row_id,
         CollabType::DatabaseRow,
       )?;
 

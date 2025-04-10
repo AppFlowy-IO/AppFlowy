@@ -363,7 +363,6 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
   }) async {
     if (cloudUrl.isEmpty || webUrl.isEmpty) {
       showToastNotification(
-        context,
         message: LocaleKeys.settings_menu_pleaseInputValidURL.tr(),
         type: ToastificationType.error,
       );
@@ -375,7 +374,6 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
     if (mounted) {
       if (isValid) {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_menu_changeUrl.tr(args: [cloudUrl]),
         );
 
@@ -387,7 +385,6 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
         await runAppFlowy();
       } else {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_menu_pleaseInputValidURL.tr(),
           type: ToastificationType.error,
         );
@@ -522,7 +519,6 @@ class _SupportSettings extends StatelessWidget {
                   await getIt<FlowyCacheManager>().clearAllCache();
                   if (context.mounted) {
                     showToastNotification(
-                      context,
                       message: LocaleKeys
                           .settings_manageDataPage_cache_dialog_successHint
                           .tr(),

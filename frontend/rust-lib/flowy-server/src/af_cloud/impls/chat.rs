@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::{
   ChatQuestionQuery, CompleteTextParams, RepeatedRelatedQuestion, ResponseFormat,
@@ -18,6 +19,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 use tracing::trace;
+use uuid::Uuid;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
   pub inner: T,
@@ -30,10 +32,10 @@ where
 {
   async fn create_chat(
     &self,
-    _uid: &i64,
-    workspace_id: &str,
-    chat_id: &str,
-    rag_ids: Vec<String>,
+    uid: &i64,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
+    rag_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -52,13 +54,12 @@ where
 
   async fn create_question(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
     metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatMessageParams {
@@ -68,7 +69,7 @@ where
     };
 
     let message = try_get_client?
-      .create_question(&workspace_id, &chat_id, params)
+      .create_question(workspace_id, &chat_id, params)
       .await
       .map_err(FlowyError::from)?;
     Ok(message)
@@ -76,8 +77,8 @@ where
 
   async fn create_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
@@ -89,7 +90,7 @@ where
       question_message_id: question_id,
     };
     let message = try_get_client?
-      .save_answer(workspace_id, chat_id, params)
+      .save_answer(workspace_id, chat_id.to_string().as_str(), params)
       .await
       .map_err(FlowyError::from)?;
     Ok(message)
@@ -97,8 +98,8 @@ where
 
   async fn stream_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     message_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
@@ -129,13 +130,17 @@ where
 
   async fn get_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .get_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(
+        workspace_id,
+        chat_id.to_string().as_str(),
+        question_message_id,
+      )
       .await
       .map_err(FlowyError::from)?;
     Ok(resp)
@@ -143,14 +148,14 @@ where
 
   async fn get_chat_messages(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     offset: MessageCursor,
     limit: u64,
   ) -> Result<RepeatedChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .get_chat_messages(workspace_id, chat_id.to_string().as_str(), offset, limit)
       .await
       .map_err(FlowyError::from)?;
 
@@ -159,13 +164,17 @@ where
 
   async fn get_question_from_answer_id(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     answer_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client()?;
     let resp = try_get_client
-      .get_question_message_from_answer_id(workspace_id, chat_id, answer_message_id)
+      .get_question_message_from_answer_id(
+        workspace_id,
+        chat_id.to_string().as_str(),
+        answer_message_id,
+      )
       .await
       .map_err(FlowyError::from)?
       .ok_or_else(FlowyError::record_not_found)?;
@@ -175,13 +184,13 @@ where
 
   async fn get_related_message(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     message_id: i64,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .get_chat_related_question(workspace_id, chat_id, message_id)
+      .get_chat_related_question(workspace_id, chat_id.to_string().as_str(), message_id)
       .await
       .map_err(FlowyError::from)?;
 
@@ -190,7 +199,7 @@ where
 
   async fn stream_complete(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     params: CompleteTextParams,
     ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError> {
@@ -207,10 +216,10 @@ where
 
   async fn embed_file(
     &self,
-    _workspace_id: &str,
-    _file_path: &Path,
-    _chat_id: &str,
-    _metadata: Option<HashMap<String, Value>>,
+    workspace_id: &Uuid,
+    file_path: &Path,
+    chat_id: &Uuid,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     return Err(
       FlowyError::not_support()
@@ -218,7 +227,7 @@ where
     );
   }
 
-  async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
     let system = get_operating_system();
     let platform = match system {
       OperatingSystem::MacOS => "macos",
@@ -232,51 +241,51 @@ where
     let config = self
       .inner
       .try_get_client()?
-      .get_local_ai_config(workspace_id, platform)
+      .get_local_ai_config(workspace_id.to_string().as_str(), platform)
       .await?;
     Ok(config)
   }
 
   async fn get_workspace_plan(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     let plans = self
       .inner
       .try_get_client()?
-      .get_active_workspace_subscriptions(workspace_id)
+      .get_active_workspace_subscriptions(workspace_id.to_string().as_str())
       .await?;
     Ok(plans)
   }
 
   async fn get_chat_settings(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
   ) -> Result<ChatSettings, FlowyError> {
     let settings = self
       .inner
       .try_get_client()?
-      .get_chat_settings(workspace_id, chat_id)
+      .get_chat_settings(workspace_id, chat_id.to_string().as_str())
       .await?;
     Ok(settings)
   }
 
   async fn update_chat_settings(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    workspace_id: &Uuid,
+    chat_id: &Uuid,
     params: UpdateChatParams,
   ) -> Result<(), FlowyError> {
     self
       .inner
       .try_get_client()?
-      .update_chat_settings(workspace_id, chat_id, params)
+      .update_chat_settings(workspace_id, chat_id.to_string().as_str(), params)
       .await?;
     Ok(())
   }
 
-  async fn get_available_models(&self, workspace_id: &str) -> Result<ModelList, FlowyError> {
+  async fn get_available_models(&self, workspace_id: &Uuid) -> Result<ModelList, FlowyError> {
     let list = self
       .inner
       .try_get_client()?
@@ -285,11 +294,11 @@ where
     Ok(list)
   }
 
-  async fn get_workspace_default_model(&self, workspace_id: &str) -> Result<String, FlowyError> {
+  async fn get_workspace_default_model(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
     let setting = self
       .inner
       .try_get_client()?
-      .get_workspace_settings(workspace_id)
+      .get_workspace_settings(workspace_id.to_string().as_str())
       .await?;
     Ok(setting.ai_model)
   }

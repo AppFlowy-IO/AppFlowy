@@ -148,14 +148,12 @@ class ReminderReferenceService extends InlineActionsDelegate {
         start,
         end,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.date.name,
-            MentionBlockKeys.date: date.toIso8601String(),
-            MentionBlockKeys.reminderId: reminder.id,
-            MentionBlockKeys.reminderOption: ReminderOption.atTimeOfEvent.name,
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionDateAttributes(
+          date: date.toIso8601String(),
+          reminderId: reminder.id,
+          reminderOption: ReminderOption.atTimeOfEvent.name,
+          includeTime: false,
+        ),
       );
 
     await editorState.apply(transaction);

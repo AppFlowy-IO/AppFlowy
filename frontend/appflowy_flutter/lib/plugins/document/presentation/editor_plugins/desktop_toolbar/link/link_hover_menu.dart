@@ -241,7 +241,6 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         .setData(ClipboardServiceData(plainText: href));
     if (context.mounted) {
       showToastNotification(
-        context,
         message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
       );
     }

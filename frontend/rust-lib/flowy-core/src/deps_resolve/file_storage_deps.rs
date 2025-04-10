@@ -4,6 +4,7 @@ use flowy_storage::manager::{StorageManager, StorageUserService};
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use std::sync::{Arc, Weak};
+use uuid::Uuid;
 
 pub struct FileStorageResolver;
 
@@ -40,7 +41,7 @@ impl StorageUserService for FileStorageServiceImpl {
     self.upgrade_user()?.user_id()
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
   }
 

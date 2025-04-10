@@ -3,12 +3,11 @@ use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlanDetail}
 use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
 
 use std::convert::TryFrom;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
-use tracing::{error, info, instrument, trace, warn};
-
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::schema::user_workspace_table;
@@ -17,6 +16,8 @@ use flowy_user_pub::entities::{
   Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
   WorkspaceMember,
 };
+use tracing::{error, info, instrument, trace, warn};
+use uuid::Uuid;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
@@ -123,7 +124,7 @@ impl UserManager {
     match upload_collab_objects_data(
       user_id,
       weak_user_collab_db,
-      &current_session.user_workspace.id,
+      &current_session.user_workspace.workspace_id()?,
       &user.authenticator,
       collab_data,
       weak_user_cloud_service,
@@ -161,7 +162,7 @@ impl UserManager {
   }
 
   #[instrument(skip(self), err)]
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn open_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     info!("open workspace: {}", workspace_id);
     let user_workspace = self
       .cloud_services
@@ -221,7 +222,7 @@ impl UserManager {
 
   pub async fn patch_workspace(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     new_workspace_name: Option<&str>,
     new_workspace_icon: Option<&str>,
   ) -> FlowyResult<()> {
@@ -262,7 +263,7 @@ impl UserManager {
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn leave_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn leave_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     info!("leave workspace: {}", workspace_id);
     self
       .cloud_services
@@ -273,15 +274,15 @@ impl UserManager {
     // delete workspace from local sqlite db
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
-    delete_user_workspaces(conn, workspace_id)?;
+    delete_user_workspaces(conn, workspace_id.to_string().as_str())?;
 
     self
       .user_workspace_service
-      .did_delete_workspace(workspace_id.to_string())
+      .did_delete_workspace(workspace_id)
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     info!("delete workspace: {}", workspace_id);
     self
       .cloud_services
@@ -290,18 +291,18 @@ impl UserManager {
       .await?;
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
-    delete_user_workspaces(conn, workspace_id)?;
+    delete_user_workspaces(conn, workspace_id.to_string().as_str())?;
 
     self
       .user_workspace_service
-      .did_delete_workspace(workspace_id.to_string())?;
+      .did_delete_workspace(workspace_id)?;
 
     Ok(())
   }
 
   pub async fn invite_member_to_workspace(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     invitee_email: String,
     role: Role,
   ) -> FlowyResult<()> {
@@ -335,7 +336,7 @@ impl UserManager {
   pub async fn remove_workspace_member(
     &self,
     user_email: String,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) -> FlowyResult<()> {
     self
       .cloud_services
@@ -347,7 +348,7 @@ impl UserManager {
 
   pub async fn get_workspace_members(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) -> FlowyResult<Vec<WorkspaceMember>> {
     let members = self
       .cloud_services
@@ -359,7 +360,7 @@ impl UserManager {
 
   pub async fn get_workspace_member(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     uid: i64,
   ) -> FlowyResult<WorkspaceMember> {
     let member = self
@@ -373,7 +374,7 @@ impl UserManager {
   pub async fn update_workspace_member(
     &self,
     user_email: String,
-    workspace_id: String,
+    workspace_id: Uuid,
     role: Role,
   ) -> FlowyResult<()> {
     self
@@ -384,9 +385,9 @@ impl UserManager {
     Ok(())
   }
 
-  pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
+  pub fn get_user_workspace(&self, uid: i64, workspace_id: &Uuid) -> Option<UserWorkspace> {
     let conn = self.db_connection(uid).ok()?;
-    get_user_workspace_op(workspace_id, conn)
+    get_user_workspace_op(workspace_id.to_string().as_str(), conn)
   }
 
   pub async fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
@@ -581,10 +582,10 @@ impl UserManager {
   }
 
   pub async fn get_workspace_member_info(&self, uid: i64) -> FlowyResult<WorkspaceMember> {
-    let workspace_id = self.get_session()?.user_workspace.id.clone();
+    let workspace_id = self.get_session()?.user_workspace.workspace_id()?;
     let db = self.authenticate_user.get_sqlite_connection(uid)?;
     // Can opt in using memory cache
-    if let Ok(member_record) = select_workspace_member(db, &workspace_id, uid) {
+    if let Ok(member_record) = select_workspace_member(db, &workspace_id.to_string(), uid) {
       if is_older_than_n_minutes(member_record.updated_at, 10) {
         self
           .get_workspace_member_info_from_remote(&workspace_id, uid)
@@ -608,7 +609,7 @@ impl UserManager {
 
   async fn get_workspace_member_info_from_remote(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
   ) -> FlowyResult<WorkspaceMember> {
     trace!("get workspace member info from remote: {}", workspace_id);
@@ -638,8 +639,9 @@ impl UserManager {
     success: SuccessWorkspaceSubscriptionPB,
   ) -> FlowyResult<()> {
     // periodically check the billing state
+    let workspace_id = Uuid::from_str(&success.workspace_id)?;
     let plans = PeriodicallyCheckBillingState::new(
-      success.workspace_id,
+      workspace_id,
       success.plan.map(SubscriptionPlan::from),
       Arc::downgrade(&self.cloud_services),
       Arc::downgrade(&self.authenticate_user),

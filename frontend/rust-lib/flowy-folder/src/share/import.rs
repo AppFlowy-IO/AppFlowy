@@ -1,5 +1,6 @@
 use collab_folder::ViewLayout;
 use std::fmt::{Display, Formatter};
+use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub enum ImportType {
@@ -35,6 +36,6 @@ impl Display for ImportData {
 
 #[derive(Clone, Debug)]
 pub struct ImportParams {
-  pub parent_view_id: String,
+  pub parent_view_id: Uuid,
   pub items: Vec<ImportItem>,
 }

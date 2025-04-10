@@ -70,13 +70,12 @@ extension InsertDatabase on EditorState {
         node,
         selection.end.offset,
         0,
-        r'$',
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: view.id,
-          },
-        },
+        MentionBlockKeys.mentionChar,
+        attributes: MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page,
+          pageId: view.id,
+          blockId: null,
+        ),
       );
   }
 

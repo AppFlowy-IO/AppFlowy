@@ -70,7 +70,6 @@ class ShareButton extends StatelessWidget {
       case ShareType.html:
       case ShareType.csv:
         showToastNotification(
-          context,
           message: LocaleKeys.settings_files_exportFileSuccess.tr(),
         );
         break;
@@ -81,7 +80,6 @@ class ShareButton extends StatelessWidget {
 
   void _handleExportError(BuildContext context, FlowyError error) {
     showToastNotification(
-      context,
       message:
           '${LocaleKeys.settings_files_exportFileFail.tr()}: ${error.code}',
     );

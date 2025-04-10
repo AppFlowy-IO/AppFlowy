@@ -154,7 +154,6 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
 
   void _copyBlockContent() {
     showToastNotification(
-      context,
       message: LocaleKeys.document_errorBlock_blockContentHasBeenCopied.tr(),
     );
 

@@ -629,7 +629,8 @@
       "theme": {
         "title": "Theme",
         "description": "Select a preset theme, or upload your own custom theme.",
-        "uploadCustomThemeTooltip": "Upload a custom theme"
+        "uploadCustomThemeTooltip": "Upload a custom theme",
+        "failedToLoadThemes": "Failed to load themes, please check your permission settings in System Settings > Privacy and Security > Files and Folders > @:appName"
       },
       "workspaceFont": {
         "title": "Workspace font",
@@ -1648,9 +1649,8 @@
     },
     "url": {
       "launch": "Open link in browser",
-      "copy": "Copied link to clipboard",
-      "textFieldHint": "Enter a URL",
-      "copiedNotification": "Copied to clipboard!"
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",
@@ -2274,7 +2274,7 @@
   },
   "message": {
     "copy": {
-      "success": "Copied!",
+      "success": "Copied to clipboard",
       "fail": "Unable to copy"
     }
   },

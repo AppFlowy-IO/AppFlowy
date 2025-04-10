@@ -251,14 +251,14 @@
   "questionBubble": {
     "shortcuts": "Горячие клавиши",
     "whatsNew": "Что нового?",
-    "help": "Помощь и поддержка",
     "markdown": "Markdown",
     "debug": {
       "name": "Отладочная информация",
       "success": "Отладочная информация скопирована в буфер обмена!",
       "fail": "Не удалось скопировать отладочную информацию в буфер обмена"
     },
-    "feedback": "Обратная связь"
+    "feedback": "Обратная связь",
+    "help": "Помощь и поддержка"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Удалить, переименовать и другие действия...",
@@ -1420,8 +1420,7 @@
     "url": {
       "launch": "Открыть в браузере",
       "copy": "Скопировать URL",
-      "textFieldHint": "Введите URL-адрес",
-      "copiedNotification": "Скопировано в буфер обмена!"
+      "textFieldHint": "Введите URL-адрес"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Связанная база данных",

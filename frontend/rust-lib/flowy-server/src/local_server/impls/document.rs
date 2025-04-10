@@ -1,7 +1,9 @@
+#![allow(unused_variables)]
 use collab::entity::EncodedCollab;
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::async_trait::async_trait;
+use uuid::Uuid;
 
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
 
@@ -9,8 +11,8 @@ pub(crate) struct LocalServerDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
   async fn get_document_doc_state(
     &self,
-    document_id: &str,
-    _workspace_id: &str,
+    document_id: &Uuid,
+    workspace_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let document_id = document_id.to_string();
 
@@ -22,26 +24,26 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
 
   async fn get_document_snapshots(
     &self,
-    _document_id: &str,
-    _limit: usize,
-    _workspace_id: &str,
+    document_id: &Uuid,
+    limit: usize,
+    workspace_id: &str,
   ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
   async fn get_document_data(
     &self,
-    _document_id: &str,
-    _workspace_id: &str,
+    document_id: &Uuid,
+    workspace_id: &Uuid,
   ) -> Result<Option<DocumentData>, FlowyError> {
     Ok(None)
   }
 
   async fn create_document_collab(
     &self,
-    _workspace_id: &str,
-    _document_id: &str,
-    _encoded_collab: EncodedCollab,
+    workspace_id: &Uuid,
+    document_id: &Uuid,
+    encoded_collab: EncodedCollab,
   ) -> Result<(), FlowyError> {
     Ok(())
   }

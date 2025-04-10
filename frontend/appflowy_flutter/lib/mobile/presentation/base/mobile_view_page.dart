@@ -336,7 +336,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
 
@@ -366,7 +365,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
         }

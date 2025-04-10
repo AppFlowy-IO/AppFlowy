@@ -31,7 +31,6 @@ enum NotificationPaneActionType {
           size: 24.0,
           onPressed: (context) {
             showToastNotification(
-              context,
               message: LocaleKeys
                   .settings_notifications_markAsReadNotifications_success
                   .tr(),
@@ -55,7 +54,6 @@ enum NotificationPaneActionType {
           size: 24.0,
           onPressed: (context) {
             showToastNotification(
-              context,
               message: 'Unarchive notification success',
             );
 
@@ -168,7 +166,6 @@ class _NotificationMoreActions extends StatelessWidget {
     Navigator.of(context).pop();
 
     showToastNotification(
-      context,
       message: LocaleKeys.settings_notifications_markAsReadNotifications_success
           .tr(),
     );
@@ -191,7 +188,6 @@ class _NotificationMoreActions extends StatelessWidget {
 
   void _onArchive(BuildContext context) {
     showToastNotification(
-      context,
       message: LocaleKeys.settings_notifications_archiveNotifications_success
           .tr()
           .tr(),

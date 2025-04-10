@@ -226,14 +226,14 @@
   "questionBubble": {
     "shortcuts": "Phím tắt",
     "whatsNew": "Có gì mới?",
-    "help": "Trợ giúp &amp; Hỗ trợ",
     "markdown": "Markdown",
     "debug": {
       "name": "Thông tin gỡ lỗi",
       "success": "Đã sao chép thông tin gỡ lỗi vào khay nhớ tạm!",
       "fail": "Không thể sao chép thông tin gỡ lỗi vào khay nhớ tạm"
     },
-    "feedback": "Nhận xét"
+    "feedback": "Nhận xét",
+    "help": "Trợ giúp &amp; Hỗ trợ"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Xóa, đổi tên và hơn thế nữa...",
@@ -1439,8 +1439,7 @@
     "url": {
       "launch": "Mở liên kết trong trình duyệt",
       "copy": "Sao chép URL",
-      "textFieldHint": "Nhập một URL",
-      "copiedNotification": "Đã sao chép vào bảng tạm!"
+      "textFieldHint": "Nhập một URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Cơ sở dữ liệu liên quan",

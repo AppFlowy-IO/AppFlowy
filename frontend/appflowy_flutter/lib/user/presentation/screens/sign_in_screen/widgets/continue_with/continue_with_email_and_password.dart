@@ -76,7 +76,6 @@ class _ContinueWithEmailAndPasswordState
   ) {
     if (!isEmail(email)) {
       return showToastNotification(
-        context,
         message: LocaleKeys.signIn_invalidEmail.tr(),
         type: ToastificationType.error,
       );

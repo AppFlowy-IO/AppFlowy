@@ -133,7 +133,6 @@ Future<bool> _afLaunchLocalUri(
   };
   if (context != null && context.mounted) {
     showToastNotification(
-      context,
       message: message,
       type: result.type == ResultType.done
           ? ToastificationType.success

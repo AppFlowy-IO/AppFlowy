@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -143,7 +144,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     }
   }
 
-  async fn open_workspace(&self, _workspace_id: &str) -> Result<UserWorkspace, FlowyError> {
+  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
     Err(
       FlowyError::local_version_not_support()
         .with_context("local server doesn't support open workspace"),
@@ -156,11 +157,16 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   async fn get_user_awareness_doc_state(
     &self,
-    _uid: i64,
-    _workspace_id: &str,
-    object_id: &str,
+    uid: i64,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
-    let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
+    let collab = Collab::new_with_origin(
+      CollabOrigin::Empty,
+      object_id.to_string().as_str(),
+      vec![],
+      false,
+    );
     let awareness = UserAwareness::create(collab, None)?;
     let encode_collab = awareness.encode_collab_v1(|_collab| Ok::<_, FlowyError>(()))?;
     Ok(encode_collab.doc_state.to_vec())
@@ -180,8 +186,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   async fn batch_create_collab_object(
     &self,
-    _workspace_id: &str,
-    _objects: Vec<UserCollabParams>,
+    workspace_id: &Uuid,
+    objects: Vec<UserCollabParams>,
   ) -> Result<(), FlowyError> {
     Err(
       FlowyError::local_version_not_support()
@@ -196,7 +202,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     )
   }
 
-  async fn delete_workspace(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+  async fn delete_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     Err(
       FlowyError::local_version_not_support()
         .with_context("local server doesn't support multiple workspaces"),
@@ -205,9 +211,9 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   async fn patch_workspace(
     &self,
-    _workspace_id: &str,
-    _new_workspace_name: Option<&str>,
-    _new_workspace_icon: Option<&str>,
+    workspace_id: &Uuid,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
   ) -> Result<(), FlowyError> {
     Err(
       FlowyError::local_version_not_support()

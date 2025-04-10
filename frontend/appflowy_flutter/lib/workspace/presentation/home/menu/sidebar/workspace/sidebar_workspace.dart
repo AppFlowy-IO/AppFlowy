@@ -169,7 +169,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
 
     if (message != null) {
       showToastNotification(
-        context,
+        
         message: message,
         type: result.fold(
           (_) => ToastificationType.success,

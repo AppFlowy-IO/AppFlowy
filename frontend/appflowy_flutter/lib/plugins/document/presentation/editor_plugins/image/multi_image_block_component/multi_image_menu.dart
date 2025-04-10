@@ -218,7 +218,6 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
       ClipboardData(text: images[widget.indexNotifier.value].url),
     );
     showToastNotification(
-      context,
       message: LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
     );
   }

@@ -1,20 +1,20 @@
 #![allow(unused_doc_comments)]
 
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
-use flowy_search::services::manager::SearchManager;
-use std::sync::{Arc, Weak};
-use std::time::Duration;
-use sysinfo::System;
-use tokio::sync::RwLock;
-use tracing::{debug, error, event, info, instrument};
-
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
+use flowy_search::folder::indexer::FolderIndexManagerImpl;
+use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::ServerUser;
+use std::sync::{Arc, Weak};
+use std::time::Duration;
+use sysinfo::System;
+use tokio::sync::RwLock;
+use tracing::{debug, error, event, info, instrument};
+use uuid::Uuid;
 
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_storage::manager::StorageManager;
@@ -105,6 +105,8 @@ impl AppFlowyCore {
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    config.ensure_path();
+
     // Init the key value database
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
@@ -329,7 +331,7 @@ impl ServerUserImpl {
   }
 }
 impl ServerUser for ServerUserImpl {
-  fn workspace_id(&self) -> FlowyResult<String> {
+  fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
   }
 }

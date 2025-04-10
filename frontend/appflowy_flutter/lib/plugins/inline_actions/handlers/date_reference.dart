@@ -122,12 +122,12 @@ class DateReferenceService extends InlineActionsDelegate {
         start,
         end,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.date.name,
-            MentionBlockKeys.date: date.toIso8601String(),
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionDateAttributes(
+          date: date.toIso8601String(),
+          includeTime: false,
+          reminderId: null,
+          reminderOption: null,
+        ),
       );
 
     await editorState.apply(transaction);

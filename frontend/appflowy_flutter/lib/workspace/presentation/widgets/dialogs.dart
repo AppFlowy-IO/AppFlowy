@@ -157,7 +157,6 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
             onOkPressed: () {
               if (newValue.isEmpty) {
                 showToastNotification(
-                  context,
                   message: LocaleKeys.space_spaceNameCannotBeEmpty.tr(),
                 );
                 return;
@@ -363,8 +362,7 @@ class OkCancelButton extends StatelessWidget {
   }
 }
 
-void showToastNotification(
-  BuildContext context, {
+void showToastNotification({
   String? message,
   TextSpan? richMessage,
   String? description,
