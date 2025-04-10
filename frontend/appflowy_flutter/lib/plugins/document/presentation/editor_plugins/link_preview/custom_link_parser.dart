@@ -32,11 +32,12 @@ class LinkParser {
         imageUrl: previewData.image?.url,
         faviconUrl: favicon?.url,
       );
-      await _cache.set(url, linkInfo);
+      if (!linkInfo.isEmpty()) await _cache.set(url, linkInfo);
       refreshLinkInfo(linkInfo);
       return linkInfo;
     } catch (e, s) {
       Log.error('get link info error: ', e, s);
+      refreshLinkInfo(LinkInfo());
       return null;
     }
   }
@@ -99,6 +100,7 @@ class LinkInfo {
       return FlowyNetworkSvg(
         iconUrl,
         height: size.height,
+        width: size.width,
         errorWidget: const FlowySvg(FlowySvgs.toolbar_link_earth_m),
       );
     }
@@ -106,6 +108,7 @@ class LinkInfo {
       url: iconUrl,
       fit: BoxFit.contain,
       height: size.height,
+      width: size.width,
       errorWidgetBuilder: (context, error, stackTrace) =>
           const FlowySvg(FlowySvgs.toolbar_link_earth_m),
     );

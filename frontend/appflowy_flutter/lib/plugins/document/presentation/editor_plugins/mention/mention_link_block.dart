@@ -43,7 +43,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
   final parser = LinkParser();
   _LoadingStatus status = _LoadingStatus.loading;
   final previewController = PopoverController();
-  LinkInfo? linkInfo;
+  LinkInfo linkInfo = LinkInfo();
   bool isHovering = false;
   int previewFocusNum = 0;
   bool isPreviewHovering = false;
@@ -60,7 +60,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
   int get index => widget.index;
 
   bool get readyForPreview =>
-      status == _LoadingStatus.idle && !(linkInfo?.isEmpty() ?? true);
+      status == _LoadingStatus.idle && !linkInfo.isEmpty();
 
   @override
   void initState() {
@@ -69,10 +69,10 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     parser.addLinkInfoListener((v) {
       if (mounted) {
         setState(() {
-          linkInfo = v;
-          if (v.isEmpty()) {
+          if (v.isEmpty() && linkInfo.isEmpty()) {
             status = _LoadingStatus.error;
           } else {
+            linkInfo = v;
             status = _LoadingStatus.idle;
           }
         });
@@ -112,7 +112,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       borderRadius: BorderRadius.circular(16),
       popupBuilder: (context) => readyForPreview
           ? MentionLinkPreview(
-              linkInfo: linkInfo ?? LinkInfo(),
+              linkInfo: linkInfo,
               showAtBottom: showAtBottom,
               triggerSize: getSizeFromKey(),
               onEnter: (e) {
@@ -170,7 +170,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               HSpace(4),
               Flexible(
                 child: FlowyText(
-                  linkInfo?.siteName ?? url,
+                  linkInfo.siteName ?? url,
                   color: theme.textColorScheme.primary,
                   fontSize: 14,
                   figmaLineHeight: 20,
@@ -194,7 +194,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
         child: const CircularProgressIndicator(strokeWidth: 1),
       );
     } else {
-      icon = linkInfo?.buildIconWidget() ?? defaultWidget;
+      icon = linkInfo.buildIconWidget();
     }
     return SizedBox(
       height: 20,

@@ -64,10 +64,10 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
     parser.addLinkInfoListener((v) {
       if (mounted) {
         setState(() {
-          linkInfo = v;
-          if (v.isEmpty()) {
+          if (v.isEmpty() && linkInfo.isEmpty()) {
             status = EmbedLoadingStatus.error;
           } else {
+            linkInfo = v;
             status = EmbedLoadingStatus.idle;
           }
         });
@@ -197,27 +197,29 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
                 ),
               ),
               HSpace(12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FlowyText(
-                    linkInfo.siteName ?? '',
-                    color: textScheme.primary,
-                    fontSize: 14,
-                    figmaLineHeight: 20,
-                    fontWeight: FontWeight.w600,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  VSpace(4),
-                  FlowyText.regular(
-                    url,
-                    color: textScheme.secondary,
-                    fontSize: 12,
-                    figmaLineHeight: 16,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowyText(
+                      linkInfo.siteName ?? '',
+                      color: textScheme.primary,
+                      fontSize: 14,
+                      figmaLineHeight: 20,
+                      fontWeight: FontWeight.w600,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    VSpace(4),
+                    FlowyText.regular(
+                      url,
+                      color: textScheme.secondary,
+                      fontSize: 12,
+                      figmaLineHeight: 16,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

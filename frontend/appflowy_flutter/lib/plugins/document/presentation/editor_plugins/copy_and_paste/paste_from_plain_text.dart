@@ -73,8 +73,10 @@ extension PasteFromPlainText on EditorState {
   }
 
   void checkToShowPasteAsMenu(Node node) {
+    if (selection == null || !selection!.isCollapsed) return;
+    if (UniversalPlatform.isMobile) return;
     final href = _getLinkFromNode(node);
-    if (href != null && !UniversalPlatform.isMobile) {
+    if (href != null) {
       final context = document.root.context;
       if (context != null && context.mounted) {
         PasteAsMenuService(context: context, editorState: this).show(href);
