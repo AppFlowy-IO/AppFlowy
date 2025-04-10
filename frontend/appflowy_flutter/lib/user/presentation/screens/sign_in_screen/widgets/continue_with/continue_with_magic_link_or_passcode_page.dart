@@ -1,7 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,7 +80,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
     if (!isEnteringPasscode) {
       return [
         AFFilledTextButton.primary(
-          text: 'Enter code manually',
+          text: LocaleKeys.signIn_enterCodeManually.tr(),
           onTap: () => setState(() => isEnteringPasscode = true),
           size: AFButtonSize.l,
           alignment: Alignment.center,
@@ -90,10 +92,10 @@ class _ContinueWithMagicLinkOrPasscodePageState
     return [
       // Enter code manually
       SizedBox(
-        height: 40, // fixme: use the height from the designer
+        height: 40,
         child: AFTextField(
           controller: passcodeController,
-          hintText: 'Enter code',
+          hintText: LocaleKeys.signIn_enterCode.tr(),
           keyboardType: TextInputType.number,
           radius: 10,
           autoFocus: true,
@@ -118,7 +120,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
   List<Widget> _buildBackToLogin() {
     return [
       AFGhostTextButton(
-        text: 'Back to login',
+        text: LocaleKeys.signIn_backToLogin.tr(),
         size: AFButtonSize.s,
         onTap: widget.backToLogin,
         textColor: (context, isHovering, disabled) {
@@ -142,7 +144,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
       // title
       Text(
-        'Check your email',
+        LocaleKeys.signIn_checkYourEmail.tr(),
         style: theme.textStyle.heading.h3(
           color: theme.textColorScheme.primary,
         ),
@@ -151,7 +153,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
       // description
       Text(
-        'A temporary verification link has been sent. Please check your inbox at',
+        LocaleKeys.signIn_temporaryVerificationSent.tr(),
         style: theme.textStyle.body.standard(
           color: theme.textColorScheme.primary,
         ),
@@ -172,7 +174,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
     _dismissLoadingDialog();
 
     toastificationItem = showToastNotification(
-      message: 'Signing in...',
+      message: LocaleKeys.signIn_signingIn.tr(),
     );
   }
 

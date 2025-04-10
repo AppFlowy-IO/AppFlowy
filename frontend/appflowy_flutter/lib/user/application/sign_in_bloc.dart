@@ -280,10 +280,17 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emailError: null,
         );
       case ErrorCode.UserUnauthorized:
+        final errorMsg = error.msg;
+        String msg = LocaleKeys.signIn_generalError.tr();
+        if (errorMsg.contains('rate limit')) {
+          msg = LocaleKeys.signIn_limitRateError.tr();
+        } else if (errorMsg.contains('invalid')) {
+          msg = LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr();
+        }
         return state.copyWith(
           isSubmitting: false,
           successOrFail: FlowyResult.failure(
-            FlowyError(msg: LocaleKeys.signIn_limitRateError.tr()),
+            FlowyError(msg: msg),
           ),
         );
       default:
