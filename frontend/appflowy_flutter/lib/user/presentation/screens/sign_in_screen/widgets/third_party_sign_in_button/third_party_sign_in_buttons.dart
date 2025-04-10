@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -183,20 +181,22 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
   }
 
   List<Widget> _buildCollapsedButtons() {
+    final theme = AppFlowyTheme.of(context);
     return [
       const VSpace(padding * 2),
-      GestureDetector(
+      AFGhostTextButton(
+        text: 'More options',
+        textColor: (context, isHovering, disabled) {
+          if (isHovering) {
+            return theme.fillColorScheme.themeThickHover;
+          }
+          return theme.textColorScheme.theme;
+        },
         onTap: () {
           setState(() {
             isExpanded = !isExpanded;
           });
         },
-        child: FlowyText(
-          LocaleKeys.signIn_continueAnotherWay.tr(),
-          color: Theme.of(context).colorScheme.onSurface,
-          decoration: TextDecoration.underline,
-          fontSize: 14,
-        ),
       ),
     ];
   }

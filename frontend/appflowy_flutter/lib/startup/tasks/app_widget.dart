@@ -99,7 +99,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('zh', 'TW'),
           Locale('fa'),
           Locale('hin'),
-          Locale('mr','IN'),
+          Locale('mr', 'IN'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
@@ -226,7 +226,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     }
                   },
                   child: AppFlowyTheme(
-                    data: state.themeMode == ThemeMode.light
+                    data: Theme.of(context).brightness == Brightness.light
                         ? AppFlowyThemeData.light()
                         : AppFlowyThemeData.dark(),
                     child: MaterialApp.router(

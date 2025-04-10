@@ -26,8 +26,8 @@ class SignInAgreement extends StatelessWidget {
         children: [
           TextSpan(
             text: isLocalAuthEnabled
-                ? '${LocaleKeys.web_signInLocalAgreement.tr()} '
-                : '${LocaleKeys.web_signInAgreement.tr()} ',
+                ? '${LocaleKeys.web_signInLocalAgreement.tr()} \n'
+                : '${LocaleKeys.web_signInAgreement.tr()} \n',
             style: textStyle,
           ),
           TextSpan(
@@ -35,7 +35,7 @@ class SignInAgreement extends StatelessWidget {
             style: underlinedTextStyle,
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => afLaunchUrlString('https://appflowy.io/terms'),
+              ..onTap = () => afLaunchUrlString('https://appflowy.com/terms'),
           ),
           TextSpan(
             text: '${LocaleKeys.web_and.tr()} ',
@@ -46,7 +46,7 @@ class SignInAgreement extends StatelessWidget {
             style: underlinedTextStyle,
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => afLaunchUrlString('https://appflowy.io/privacy'),
+              ..onTap = () => afLaunchUrlString('https://appflowy.com/privacy'),
           ),
         ],
       ),
