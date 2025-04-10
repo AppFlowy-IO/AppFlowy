@@ -489,6 +489,13 @@ void main() {
     });
 
     test('replace markdown text with selection from start to end', () async {
+      final text1 =
+          '''The introduction of the World Wide Web in the early 1990s marked a turning point.''';
+      final text2 =
+          '''Tim Berners-Lee's invention made the internet accessible to non-technical users, opening the floodgates for mass adoption.''';
+      final text3 =
+          '''Email became widespread, and instant messaging services like ICQ and AOL Instant Messenger gained popularity, allowing for real-time text communication.''';
+
       final document = Document(
         root: pageNode(
           children: [
@@ -526,21 +533,21 @@ void main() {
       expect(d1.attributes, null);
       expect(nodes[0].type, NumberedListBlockKeys.type);
 
-      final d2 = nodes[1].delta!.toList()[1] as TextInsert;
+      final d2 = nodes[1].delta!.toList()[0] as TextInsert;
       expect(d2.text, text1);
       expect(d2.attributes, null);
       expect(nodes[1].type, NumberedListBlockKeys.type);
 
-      final d3 = nodes[2].delta!.toList()[2] as TextInsert;
+      final d3 = nodes[2].delta!.toList()[0] as TextInsert;
       expect(d3.text, text1);
       expect(d3.attributes, null);
       expect(nodes[2].type, NumberedListBlockKeys.type);
 
-      final d4 = nodes[3].delta!.toList()[3] as TextInsert;
+      final d4 = nodes[3].delta!.toList()[0] as TextInsert;
       expect(d4.text, text2);
       expect(d4.attributes, null);
 
-      final d5 = nodes[4].delta!.toList()[4] as TextInsert;
+      final d5 = nodes[4].delta!.toList()[0] as TextInsert;
       expect(d5.text, text3);
       expect(d5.attributes, null);
     });
