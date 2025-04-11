@@ -144,10 +144,7 @@ class _AFBaseButtonState extends State<AFBaseButton> {
     }
 
     if (isFocused) {
-      return AppFlowyTheme.of(context)
-          .borderColorScheme
-          .themeThick
-          .withAlpha(128);
+      return theme.borderColorScheme.themeThick.withAlpha(128);
     }
 
     return theme.borderColorScheme.transparent;
