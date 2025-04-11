@@ -7,8 +7,9 @@ use std::sync::Arc;
 use tracing::{trace, warn};
 use uuid::Uuid;
 
+use crate::entities::{CreateSearchResultPBArgs, SearchResultPB, SearchSourcePB, SearchSummaryPB};
 use crate::{
-  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResultPB},
+  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
   services::manager::{SearchHandler, SearchType},
 };
 
@@ -39,31 +40,32 @@ impl SearchHandler for DocumentSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> FlowyResult<Vec<SearchResultPB>> {
+  ) -> FlowyResult<SearchResultPB> {
     let filter = match filter {
       Some(filter) => filter,
-      None => return Ok(vec![]),
+      None => return Ok(CreateSearchResultPBArgs::default().build().unwrap()),
     };
 
     let workspace_id = match filter.workspace_id {
       Some(workspace_id) => workspace_id,
-      None => return Ok(vec![]),
+      None => return Ok(CreateSearchResultPBArgs::default().build().unwrap()),
     };
 
     let workspace_id = Uuid::from_str(&workspace_id)?;
-    let results = self
+    let result = self
       .cloud_service
       .document_search(&workspace_id, query)
       .await?;
-    trace!("[Search] remote search results: {:?}", results);
+    trace!("[Search] remote search results: {:?}", result);
 
     // Grab all views from folder cache
     // Notice that `get_all_view_pb` returns Views that don't include trashed and private views
     let views = self.folder_manager.get_all_views_pb().await?;
-    let mut search_results: Vec<SearchResultPB> = vec![];
+    let mut items: Vec<SearchResponseItemPB> = vec![];
+    let mut summaries: Vec<SearchSummaryPB> = vec![];
 
-    for result in results {
-      if let Some(view) = views.iter().find(|v| v.id == result.object_id.to_string()) {
+    for item in result.items {
+      if let Some(view) = views.iter().find(|v| v.id == item.object_id.to_string()) {
         // If there is no View for the result, we don't add it to the results
         // If possible we will extract the icon to display for the result
         let icon: Option<ResultIconPB> = match view.icon.clone() {
@@ -77,27 +79,50 @@ impl SearchHandler for DocumentSearchHandler {
           },
         };
 
-        search_results.push(SearchResultPB {
+        items.push(SearchResponseItemPB {
           index_type: IndexTypePB::Document,
-          view_id: result.object_id.to_string(),
-          id: result.object_id.to_string(),
+          view_id: item.object_id.to_string(),
+          id: item.object_id.to_string(),
           data: view.name.clone(),
           icon,
-          score: result.score,
-          workspace_id: result.workspace_id.to_string(),
-          preview: result.preview,
+          score: item.score,
+          workspace_id: item.workspace_id.to_string(),
+          preview: item.preview,
         });
       } else {
-        warn!("No view found for search result: {:?}", result);
+        warn!("No view found for search result: {:?}", item);
       }
     }
 
-    trace!("[Search] showing results: {:?}", search_results);
-    Ok(search_results)
-  }
+    for summary in result.summary {
+      let metadata = summary.metadata.as_object().and_then(|object| {
+        let id = object
+          .get("id")
+          .and_then(|v| v.as_str())
+          .filter(|s| !s.is_empty())
+          .map(|s| s.to_string())?;
+        let source = object
+          .get("source")
+          .and_then(|v| v.as_str())
+          .filter(|s| !s.is_empty())
+          .map(|s| s.to_string())?;
 
-  /// Ignore for [DocumentSearchHandler]
-  fn index_count(&self) -> u64 {
-    0
+        Some(SearchSourcePB { id, source })
+      });
+
+      summaries.push(SearchSummaryPB {
+        content: summary.content,
+        metadata,
+      })
+    }
+
+    trace!("[Search] showing results: {:?}", items);
+    Ok(
+      CreateSearchResultPBArgs::default()
+        .items(items)
+        .summaries(summaries)
+        .build()
+        .unwrap(),
+    )
   }
 }

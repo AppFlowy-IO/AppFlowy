@@ -73,17 +73,30 @@ class CommandPaletteBloc
               channel: _searchChannel,
             );
           } else {
-            emit(state.copyWith(query: null, isLoading: false, results: []));
+            emit(
+              state.copyWith(
+                query: null,
+                isLoading: false,
+                resultItems: [],
+                resultSummaries: [],
+              ),
+            );
           }
         },
-        resultsChanged: (results) {
+        resultsChanged: (SearchResultNotificationPB notification) {
           if (state.query != _oldQuery) {
-            emit(state.copyWith(results: [], isLoading: true));
+            emit(
+              state.copyWith(
+                resultItems: [],
+                resultSummaries: [],
+                isLoading: true,
+              ),
+            );
             _oldQuery = state.query;
             _messagesReceived = 0;
           }
 
-          if (state.query != results.query) {
+          if (state.query != notification.query) {
             return;
           }
 
@@ -91,17 +104,32 @@ class CommandPaletteBloc
 
           emit(
             state.copyWith(
-              results: _filterDuplicates(results.items),
-              isLoading: _messagesReceived != results.sends.toInt(),
+              resultItems: notification.result.items,
+              resultSummaries: notification.result.summaries,
+              isLoading: _messagesReceived != notification.sends.toInt(),
             ),
           );
         },
         workspaceChanged: (workspaceId) {
           _workspaceId = workspaceId;
-          emit(state.copyWith(results: [], query: '', isLoading: false));
+          emit(
+            state.copyWith(
+              resultItems: [],
+              resultSummaries: [],
+              query: '',
+              isLoading: false,
+            ),
+          );
         },
         clearSearch: () {
-          emit(state.copyWith(results: [], query: '', isLoading: false));
+          emit(
+            state.copyWith(
+              resultItems: [],
+              resultSummaries: [],
+              query: '',
+              isLoading: false,
+            ),
+          );
         },
       );
     });
@@ -127,27 +155,6 @@ class CommandPaletteBloc
       const Duration(milliseconds: 300),
       () => _performSearch(value),
     );
-  }
-
-  List<SearchResultPB> _filterDuplicates(List<SearchResultPB> results) {
-    final currentItems = [...state.results];
-    final res = [...results];
-
-    for (final item in results) {
-      final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
-      if (duplicateIndex == -1) {
-        continue;
-      }
-
-      final duplicate = currentItems[duplicateIndex];
-      if (item.score < duplicate.score) {
-        res.remove(item);
-      } else {
-        currentItems.remove(duplicate);
-      }
-    }
-
-    return res..addAll(currentItems);
   }
 
   void _performSearch(String value) =>
@@ -186,11 +193,13 @@ class CommandPaletteState with _$CommandPaletteState {
 
   const factory CommandPaletteState({
     @Default(null) String? query,
-    required List<SearchResultPB> results,
+    @Default([]) List<SearchResponseItemPB> resultItems,
+    @Default([]) List<SearchSummaryPB> resultSummaries,
     required bool isLoading,
     @Default([]) List<TrashPB> trash,
   }) = _CommandPaletteState;
 
-  factory CommandPaletteState.initial() =>
-      const CommandPaletteState(results: [], isLoading: false);
+  factory CommandPaletteState.initial() => CommandPaletteState(
+        isLoading: false,
+      );
 }

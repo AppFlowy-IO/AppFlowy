@@ -150,13 +150,14 @@ class CommandPaletteModal extends StatelessWidget {
                   ),
                 ),
               ],
-              if (state.results.isNotEmpty &&
+              if (state.resultItems.isNotEmpty &&
                   (state.query?.isNotEmpty ?? false)) ...[
                 const Divider(height: 0),
                 Flexible(
                   child: SearchResultsList(
                     trash: state.trash,
-                    results: state.results,
+                    resultItems: state.resultItems,
+                    resultSummaries: state.resultSummaries,
                   ),
                 ),
               ] else if ((state.query?.isNotEmpty ?? false) &&
@@ -164,7 +165,7 @@ class CommandPaletteModal extends StatelessWidget {
                 const _NoResultsHint(),
               ],
               _CommandPaletteFooter(
-                shouldShow: state.results.isNotEmpty &&
+                shouldShow: state.resultItems.isNotEmpty &&
                     (state.query?.isNotEmpty ?? false),
               ),
             ],

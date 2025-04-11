@@ -493,7 +493,7 @@ checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "bincode",
@@ -513,7 +513,7 @@ dependencies = [
 [[package]]
 name = "appflowy-ai-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "bytes",
@@ -604,7 +604,7 @@ dependencies = [
  "backoff",
  "base64 0.21.5",
  "bytes",
- "derive_builder",
+ "derive_builder 0.12.0",
  "futures",
  "rand 0.8.5",
  "reqwest 0.11.27",
@@ -1134,7 +1134,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "again",
  "anyhow",
@@ -1189,7 +1189,7 @@ dependencies = [
 [[package]]
 name = "client-api-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "collab-entity",
  "collab-rt-entity",
@@ -1202,7 +1202,7 @@ dependencies = [
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1474,7 +1474,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1496,7 +1496,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1761,7 +1761,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1817,12 +1817,12 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.20.8"
+version = "0.20.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54e36fcd13ed84ffdfda6f5be89b31287cbb80c439841fe69e04841435464391"
+checksum = "fc7f46116c46ff9ab3eb1597a45688b6715c6e628b5c133e288e709a29bcb4ee"
 dependencies = [
- "darling_core 0.20.8",
- "darling_macro 0.20.8",
+ "darling_core 0.20.11",
+ "darling_macro 0.20.11",
 ]
 
 [[package]]
@@ -1841,15 +1841,15 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.20.8"
+version = "0.20.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c2cf1c23a687a1feeb728783b993c4e1ad83d99f351801977dd809b48d0a70f"
+checksum = "0d00b9596d185e565c2207a0b01f8bd1a135483d02d9b7b0a54b11da8d53412e"
 dependencies = [
  "fnv",
  "ident_case",
  "proc-macro2",
  "quote",
- "strsim 0.10.0",
+ "strsim 0.11.1",
  "syn 2.0.94",
 ]
 
@@ -1866,11 +1866,11 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.20.8"
+version = "0.20.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a668eda54683121533a393014d8692171709ff57a7d61f187b6e782719f8933f"
+checksum = "fc34b93ccb385b40dc71c6fceac4b2ad23662c7eeb248cf10d529b7e055b6ead"
 dependencies = [
- "darling_core 0.20.8",
+ "darling_core 0.20.11",
  "quote",
  "syn 2.0.94",
 ]
@@ -1944,7 +1944,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "bincode",
  "bytes",
@@ -2027,7 +2027,16 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d67778784b508018359cbc8696edb3db78160bab2c2a28ba7f56ef6932997f8"
 dependencies = [
- "derive_builder_macro",
+ "derive_builder_macro 0.12.0",
+]
+
+[[package]]
+name = "derive_builder"
+version = "0.20.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "507dfb09ea8b7fa618fcf76e953f4f5e192547945816d5358edffe39f6f94947"
+dependencies = [
+ "derive_builder_macro 0.20.2",
 ]
 
 [[package]]
@@ -2043,13 +2052,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive_builder_core"
+version = "0.20.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d5bcf7b024d6835cfb3d473887cd966994907effbe9227e8c8219824d06c4e8"
+dependencies = [
+ "darling 0.20.11",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.94",
+]
+
+[[package]]
 name = "derive_builder_macro"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebcda35c7a396850a55ffeac740804b40ffec779b98fffbb1738f4033f0ee79e"
 dependencies = [
- "derive_builder_core",
+ "derive_builder_core 0.12.0",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "derive_builder_macro"
+version = "0.20.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab63b0e2bf4d5928aff72e83a7dace85d7bba5fe12dcc3c5a572d78caffd3f3c"
+dependencies = [
+ "derive_builder_core 0.20.2",
+ "syn 2.0.94",
 ]
 
 [[package]]
@@ -2861,6 +2892,7 @@ dependencies = [
  "bytes",
  "collab",
  "collab-folder",
+ "derive_builder 0.20.2",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
@@ -2874,7 +2906,7 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "strsim 0.11.0",
+ "strsim 0.11.1",
  "strum_macros 0.26.1",
  "tantivy",
  "tempfile",
@@ -3418,7 +3450,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "getrandom 0.2.10",
@@ -3433,7 +3465,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "app-error",
  "jsonwebtoken",
@@ -4054,7 +4086,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "bytes",
@@ -5167,7 +5199,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -5187,6 +5219,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.3",
  "phf_shared 0.11.2",
 ]
 
@@ -5252,6 +5285,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f84ac04429c13a7ff43785d75ad27569f2951ce0ffd30a3321230db2fc727216"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.94",
 ]
 
 [[package]]
@@ -6754,7 +6800,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=f300884#f300884dde348ce855712b8e5a3ff3066682d160"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=03117aa44472ec17df4b356d4d2bb84eede48980#03117aa44472ec17df4b356d4d2bb84eede48980"
 dependencies = [
  "anyhow",
  "app-error",
@@ -6967,9 +7013,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strsim"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
+checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "strum"
@@ -8213,7 +8259,7 @@ version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df0bcf92720c40105ac4b2dda2a4ea3aa717d4d6a862cc217da653a4bd5c6b10"
 dependencies = [
- "darling 0.20.8",
+ "darling 0.20.11",
  "once_cell",
  "proc-macro-error",
  "proc-macro2",
@@ -8227,7 +8273,7 @@ version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bac855a2ce6f843beb229757e6e570a42e837bcb15e5f449dd48d5747d41bf77"
 dependencies = [
- "darling 0.20.8",
+ "darling 0.20.11",
  "once_cell",
  "proc-macro-error2",
  "proc-macro2",

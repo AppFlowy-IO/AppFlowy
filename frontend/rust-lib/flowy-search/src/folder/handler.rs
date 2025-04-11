@@ -1,12 +1,9 @@
-use crate::{
-  entities::{SearchFilterPB, SearchResultPB},
-  services::manager::{SearchHandler, SearchType},
-};
+use super::indexer::FolderIndexManagerImpl;
+use crate::entities::{CreateSearchResultPBArgs, SearchFilterPB, SearchResultPB};
+use crate::services::manager::{SearchHandler, SearchType};
 use flowy_error::FlowyResult;
 use lib_infra::async_trait::async_trait;
 use std::sync::Arc;
-
-use super::indexer::FolderIndexManagerImpl;
 
 pub struct FolderSearchHandler {
   pub index_manager: Arc<FolderIndexManagerImpl>,
@@ -28,19 +25,20 @@ impl SearchHandler for FolderSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> FlowyResult<Vec<SearchResultPB>> {
-    let mut results = self.index_manager.search(query, filter.clone())?;
+  ) -> FlowyResult<SearchResultPB> {
+    let mut items = self.index_manager.search(query, filter.clone())?;
     if let Some(filter) = filter {
       if let Some(workspace_id) = filter.workspace_id {
         // Filter results by workspace ID
-        results.retain(|result| result.workspace_id == workspace_id);
+        items.retain(|result| result.workspace_id == workspace_id);
       }
     }
 
-    Ok(results)
-  }
-
-  fn index_count(&self) -> u64 {
-    self.index_manager.num_docs()
+    Ok(
+      CreateSearchResultPBArgs::default()
+        .items(items)
+        .build()
+        .unwrap(),
+    )
   }
 }

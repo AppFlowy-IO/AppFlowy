@@ -24,10 +24,7 @@ pub trait SearchHandler: Send + Sync + 'static {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> FlowyResult<Vec<SearchResultPB>>;
-
-  /// returns the number of indexed objects
-  fn index_count(&self) -> u64;
+  ) -> FlowyResult<SearchResultPB>;
 }
 
 /// The [SearchManager] is used to inject multiple [SearchHandler]'s
@@ -72,18 +69,16 @@ impl SearchManager {
       let notifier = self.notifier.clone();
 
       tokio::spawn(async move {
-        let res = handler.perform_search(q.clone(), f).await;
+        if let Ok(result) = handler.perform_search(q.clone(), f).await {
+          let notification = SearchResultNotificationPB {
+            result,
+            sends: max as u64,
+            channel: ch,
+            query: q,
+          };
 
-        let items = res.unwrap_or_default();
-
-        let notification = SearchResultNotificationPB {
-          items,
-          sends: max as u64,
-          channel: ch,
-          query: q,
-        };
-
-        let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));
+          let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));
+        }
       });
     }
   }

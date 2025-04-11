@@ -8,7 +8,7 @@ use std::{
 };
 
 use crate::{
-  entities::{ResultIconTypePB, SearchFilterPB, SearchResultPB},
+  entities::{ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
   folder::schema::{
     FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
     FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
@@ -211,7 +211,7 @@ impl FolderIndexManagerImpl {
     &self,
     query: String,
     _filter: Option<SearchFilterPB>,
-  ) -> Result<Vec<SearchResultPB>, FlowyError> {
+  ) -> Result<Vec<SearchResponseItemPB>, FlowyError> {
     let folder_schema = self.get_folder_schema()?;
 
     let (index, index_reader) = self
@@ -230,7 +230,7 @@ impl FolderIndexManagerImpl {
     let built_query = query_parser.parse_query(&query.clone())?;
 
     let searcher = index_reader.searcher();
-    let mut search_results: Vec<SearchResultPB> = vec![];
+    let mut search_results: Vec<SearchResponseItemPB> = vec![];
     let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
     for (_score, doc_address) in top_docs {
       let retrieved_doc: TantivyDocument = searcher.doc(doc_address)?;
@@ -246,7 +246,7 @@ impl FolderIndexManagerImpl {
       }
 
       let s = serde_json::to_string(&content)?;
-      let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
+      let result: SearchResponseItemPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
       let score = self.score_result(&query, &result.data);
       search_results.push(result.with_score(score));
     }

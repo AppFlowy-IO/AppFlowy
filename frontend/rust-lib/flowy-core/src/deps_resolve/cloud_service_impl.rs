@@ -1,6 +1,6 @@
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
-use client_api::entity::search_dto::SearchDocumentResponseItem;
+use client_api::entity::search_dto::{SearchDocumentResponseItem, SearchResult};
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
@@ -867,7 +867,7 @@ impl SearchCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     query: String,
-  ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
+  ) -> Result<SearchResult, FlowyError> {
     let server = self.get_server()?;
     match server.search_service() {
       Some(search_service) => search_service.document_search(workspace_id, query).await,
