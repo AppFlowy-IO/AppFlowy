@@ -8,6 +8,7 @@ import 'package:appflowy_ui/src/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/text/text_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/dimensions.dart';
+import 'package:appflowy_ui/src/theme/shadow/shadow.dart';
 import 'package:appflowy_ui/src/theme/spacing/spacing.dart';
 import 'package:flutter/material.dart';
 
@@ -320,5 +321,44 @@ class AppFlowyThemeBuilder {
       xl: AppFlowySpacingConstant.spacing500,
       xxl: AppFlowySpacingConstant.spacing600,
     );
+  }
+
+  AppFlowyShadow buildShadow(
+    Brightness brightness,
+  ) {
+    return switch (brightness) {
+      Brightness.light => AppFlowyShadow(
+          small: [
+            BoxShadow(
+              offset: Offset(0, 2),
+              blurRadius: 16,
+              color: Color(0x1F000000),
+            ),
+          ],
+          medium: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 32,
+              color: Color(0x1F000000),
+            ),
+          ],
+        ),
+      Brightness.dark => AppFlowyShadow(
+          small: [
+            BoxShadow(
+              offset: Offset(0, 2),
+              blurRadius: 16,
+              color: Color(0x7A000000),
+            ),
+          ],
+          medium: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 32,
+              color: Color(0x7A000000),
+            ),
+          ],
+        ),
+    };
   }
 }
