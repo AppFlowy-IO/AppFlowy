@@ -8,11 +8,13 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Empty', () {
-    testWidgets('set appflowy cloud', (tester) async {
+  group('Preset cloud env', () {
+    testWidgets('use self-hosted cloud', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
+
+      await tester.pumpAndSettle();
     });
   });
 }

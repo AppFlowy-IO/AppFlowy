@@ -58,6 +58,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
   @override
   void dispose() {
     aiWriterCubit.close();
+    throttler.dispose();
     super.dispose();
   }
 
