@@ -37,7 +37,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -90,7 +90,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.fillColorScheme.errorThick;
@@ -143,7 +143,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
             ? theme.textColorScheme.tertiary
             : theme.textColorScheme.primary;
       },
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -166,7 +166,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     );
   }
 
-  final AFBaseButtonColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? borderColor;
 
   @override
   Widget build(BuildContext context) {
