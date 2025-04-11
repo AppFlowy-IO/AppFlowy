@@ -1,7 +1,9 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:appflowy_ui_example/src/buttons/buttons_page.dart';
-import 'package:appflowy_ui_example/src/textfield/textfield_page.dart';
 import 'package:flutter/material.dart';
+
+import 'src/buttons/buttons_page.dart';
+import 'src/modal/modal_page.dart';
+import 'src/textfield/textfield_page.dart';
 
 enum ThemeMode {
   light,
@@ -60,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final tabs = [
     Tab(text: 'Button'),
     Tab(text: 'TextField'),
+    Tab(text: 'Modal'),
   ];
 
   @override
@@ -92,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             ButtonsPage(),
             TextFieldPage(),
+            ModalPage(),
           ],
         ),
         bottomNavigationBar: TabBar(
