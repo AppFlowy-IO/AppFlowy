@@ -36,9 +36,9 @@ abstract class AppFlowyBaseTheme {
 
   AppFlowySpacing get spacing;
 
-  AppFlowyBrandColorScheme get brandColorScheme;
-
   AppFlowyShadow get shadow;
+
+  AppFlowyBrandColorScheme get brandColorScheme;
 }
 
 class AppFlowyThemeData extends AppFlowyBaseTheme {
@@ -70,10 +70,11 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       colorScheme,
       Brightness.light,
     );
-    final shadow = themeBuilder.buildShadow(Brightness.light);
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
+    final shadow = themeBuilder.buildShadow(Brightness.light);
+
     return AppFlowyThemeData(
       colorScheme: colorScheme,
       textColorScheme: textColorScheme,
@@ -85,8 +86,8 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       surfaceColorScheme: surfaceColorScheme,
       borderRadius: borderRadius,
       spacing: spacing,
-      brandColorScheme: brandColorScheme,
       shadow: shadow,
+      brandColorScheme: brandColorScheme,
     );
   }
 
@@ -117,10 +118,11 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       colorScheme,
       Brightness.dark,
     );
-    final shadow = themeBuilder.buildShadow(Brightness.dark);
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
+    final shadow = themeBuilder.buildShadow(Brightness.dark);
+
     return AppFlowyThemeData(
       colorScheme: colorScheme,
       textColorScheme: textColorScheme,
@@ -132,8 +134,8 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       surfaceColorScheme: surfaceColorScheme,
       borderRadius: borderRadius,
       spacing: spacing,
-      brandColorScheme: brandColorScheme,
       shadow: shadow,
+      brandColorScheme: brandColorScheme,
     );
   }
 
@@ -146,10 +148,10 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
     required this.surfaceColorScheme,
     required this.borderRadius,
     required this.spacing,
+    required this.shadow,
     required this.brandColorScheme,
     required this.iconColorTheme,
     required this.backgroundColorScheme,
-    required this.shadow,
     this.brightness = Brightness.light,
   });
 
@@ -182,6 +184,9 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
   final AppFlowySpacing spacing;
 
   @override
+  final AppFlowyShadow shadow;
+
+  @override
   final AppFlowyBrandColorScheme brandColorScheme;
 
   @override
@@ -189,9 +194,6 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
 
   @override
   final AppFlowyBackgroundColorScheme backgroundColorScheme;
-
-  @override
-  final AppFlowyShadow shadow;
 
   static AppFlowyTextColorScheme buildTextColorScheme(
     AppFlowyBaseColorScheme colorScheme,
