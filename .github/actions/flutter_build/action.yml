@@ -98,5 +98,5 @@ runs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.run_id }}-${{ matrix.os }}
+        name: ${{ github.run_id }}-${{ inputs.os }}
         path: appflowy_flutter.tar.gz
