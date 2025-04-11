@@ -38,7 +38,7 @@ class AFOutlinedButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -79,7 +79,7 @@ class AFOutlinedButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.fillColorScheme.errorThick;
@@ -118,7 +118,7 @@ class AFOutlinedButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: true,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -148,7 +148,7 @@ class AFOutlinedButton extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double? borderRadius;
 
-  final AFBaseButtonColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? borderColor;
   final AFBaseButtonColorBuilder? backgroundColor;
 
   final AFOutlinedButtonWidgetBuilder builder;
