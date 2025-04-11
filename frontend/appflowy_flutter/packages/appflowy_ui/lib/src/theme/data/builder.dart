@@ -93,35 +93,6 @@ class AppFlowyThemeBuilder {
     };
   }
 
-  AppFlowyShadow buildShadow(Brightness brightness) {
-    return switch (brightness) {
-      Brightness.light => AppFlowyShadow(
-          small: const BoxShadow(
-            offset: Offset(0.0, 2.0),
-            blurRadius: 16.0,
-            color: Color(0x1F000000),
-          ),
-          medium: const BoxShadow(
-            offset: Offset(0.0, 4.0),
-            blurRadius: 32.0,
-            color: Color(0x1F000000),
-          ),
-        ),
-      Brightness.dark => AppFlowyShadow(
-          small: BoxShadow(
-            offset: Offset(0.0, 2.0),
-            blurRadius: 16.0,
-            color: Color(0x7A000000),
-          ),
-          medium: BoxShadow(
-            offset: Offset(0.0, 4.0),
-            blurRadius: 32.0,
-            color: Color(0x7A000000),
-          ),
-        ),
-    };
-  }
-
   AppFlowyBorderColorScheme buildBorderColorScheme(
     AppFlowyBaseColorScheme colorScheme,
     Brightness brightness,
@@ -350,5 +321,44 @@ class AppFlowyThemeBuilder {
       xl: AppFlowySpacingConstant.spacing500,
       xxl: AppFlowySpacingConstant.spacing600,
     );
+  }
+
+  AppFlowyShadow buildShadow(
+    Brightness brightness,
+  ) {
+    return switch (brightness) {
+      Brightness.light => AppFlowyShadow(
+          small: [
+            BoxShadow(
+              offset: Offset(0, 2),
+              blurRadius: 16,
+              color: Color(0x1F000000),
+            ),
+          ],
+          medium: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 32,
+              color: Color(0x1F000000),
+            ),
+          ],
+        ),
+      Brightness.dark => AppFlowyShadow(
+          small: [
+            BoxShadow(
+              offset: Offset(0, 2),
+              blurRadius: 16,
+              color: Color(0x7A000000),
+            ),
+          ],
+          medium: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 32,
+              color: Color(0x7A000000),
+            ),
+          ],
+        ),
+    };
   }
 }
