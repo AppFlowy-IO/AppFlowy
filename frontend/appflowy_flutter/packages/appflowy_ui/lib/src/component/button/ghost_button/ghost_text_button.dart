@@ -88,7 +88,7 @@ class AFGhostTextButton extends AFBaseTextButton {
     return AFBaseButton(
       disabled: disabled,
       backgroundColor: backgroundColor,
-      borderColor: (_, __, ___) => Colors.transparent,
+      borderColor: (_, __, ___, ____) => Colors.transparent,
       padding: padding ?? size.buildPadding(context),
       borderRadius: borderRadius ?? size.buildBorderRadius(context),
       onTap: onTap,

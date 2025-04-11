@@ -7,6 +7,13 @@ typedef AFBaseButtonColorBuilder = Color Function(
   bool disabled,
 );
 
+typedef AFBaseButtonBorderColorBuilder = Color Function(
+  BuildContext context,
+  bool isHovering,
+  bool disabled,
+  bool isFocused,
+);
+
 class AFBaseButton extends StatefulWidget {
   const AFBaseButton({
     super.key,
@@ -16,20 +23,25 @@ class AFBaseButton extends StatefulWidget {
     required this.borderRadius,
     this.borderColor,
     this.backgroundColor,
+    this.ringColor,
     this.disabled = false,
   });
 
   final VoidCallback? onTap;
 
-  final AFBaseButtonColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? ringColor;
   final AFBaseButtonColorBuilder? backgroundColor;
 
   final EdgeInsetsGeometry padding;
   final double borderRadius;
   final bool disabled;
 
-  final Widget Function(BuildContext context, bool isHovering, bool disabled)
-      builder;
+  final Widget Function(
+    BuildContext context,
+    bool isHovering,
+    bool disabled,
+  ) builder;
 
   @override
   State<AFBaseButton> createState() => _AFBaseButtonState();
@@ -51,6 +63,7 @@ class _AFBaseButtonState extends State<AFBaseButton> {
   Widget build(BuildContext context) {
     final Color borderColor = _buildBorderColor(context);
     final Color backgroundColor = _buildBackgroundColor(context);
+    final Color ringColor = _buildRingColor(context);
 
     return Actions(
       actions: {
@@ -81,10 +94,7 @@ class _AFBaseButtonState extends State<AFBaseButton> {
                 borderRadius: BorderRadius.circular(widget.borderRadius),
                 border: isFocused
                     ? Border.all(
-                        color: AppFlowyTheme.of(context)
-                            .borderColorScheme
-                            .themeThick
-                            .withAlpha(128),
+                        color: ringColor,
                         width: 2,
                         strokeAlign: BorderSide.strokeAlignOutside,
                       )
@@ -98,7 +108,11 @@ class _AFBaseButtonState extends State<AFBaseButton> {
                 ),
                 child: Padding(
                   padding: widget.padding,
-                  child: widget.builder(context, isHovering, widget.disabled),
+                  child: widget.builder(
+                    context,
+                    isHovering,
+                    widget.disabled,
+                  ),
                 ),
               ),
             ),
@@ -110,7 +124,8 @@ class _AFBaseButtonState extends State<AFBaseButton> {
 
   Color _buildBorderColor(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return widget.borderColor?.call(context, isHovering, widget.disabled) ??
+    return widget.borderColor
+            ?.call(context, isHovering, widget.disabled, isFocused) ??
         theme.borderColorScheme.greyTertiary;
   }
 
@@ -118,5 +133,23 @@ class _AFBaseButtonState extends State<AFBaseButton> {
     final theme = AppFlowyTheme.of(context);
     return widget.backgroundColor?.call(context, isHovering, widget.disabled) ??
         theme.fillColorScheme.transparent;
+  }
+
+  Color _buildRingColor(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    if (widget.ringColor != null) {
+      return widget.ringColor!
+          .call(context, isHovering, widget.disabled, isFocused);
+    }
+
+    if (isFocused) {
+      return AppFlowyTheme.of(context)
+          .borderColorScheme
+          .themeThick
+          .withAlpha(128);
+    }
+
+    return theme.borderColorScheme.transparent;
   }
 }
