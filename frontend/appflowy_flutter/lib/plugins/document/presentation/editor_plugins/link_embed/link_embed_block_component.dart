@@ -1,6 +1,9 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/default_selectable_mixin.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -37,11 +40,12 @@ class LinkEmbedBlockComponent extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<LinkEmbedBlockComponent> createState() =>
+  DefaultSelectableMixinState<LinkEmbedBlockComponent> createState() =>
       LinkEmbedBlockComponentState();
 }
 
-class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
+class LinkEmbedBlockComponentState
+    extends DefaultSelectableMixinState<LinkEmbedBlockComponent>
     with BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -51,7 +55,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
 
   String get url => widget.node.attributes[LinkPreviewBlockKeys.url]!;
 
-  EmbedLoadingStatus status = EmbedLoadingStatus.loading;
+  LinkLoadingStatus status = LinkLoadingStatus.loading;
   final parser = LinkParser();
   LinkInfo linkInfo = LinkInfo();
 
@@ -62,13 +66,14 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
   void initState() {
     super.initState();
     parser.addLinkInfoListener((v) {
+      final hasNewInfo = !v.isEmpty(), hasOldInfo = !linkInfo.isEmpty();
       if (mounted) {
         setState(() {
-          if (v.isEmpty() && linkInfo.isEmpty()) {
-            status = EmbedLoadingStatus.error;
-          } else {
+          if (hasNewInfo) {
             linkInfo = v;
-            status = EmbedLoadingStatus.idle;
+            status = LinkLoadingStatus.idle;
+          } else if (!hasOldInfo) {
+            status = LinkLoadingStatus.error;
           }
         });
       }
@@ -98,7 +103,13 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
       },
       child: buildChild(context),
     );
-    result = Padding(padding: padding, child: result);
+    final parent = node.parent;
+    EdgeInsets newPadding = padding;
+    if (parent?.type == CalloutBlockKeys.type) {
+      newPadding = padding.copyWith(right: padding.right + 10);
+    }
+    
+    result = Padding(padding: newPadding, child: result);
 
     if (widget.showActions && widget.actionBuilder != null) {
       result = BlockComponentActionWrapper(
@@ -115,7 +126,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
         fillSceme = theme.fillColorScheme,
         borderScheme = theme.borderColorScheme;
     Widget child;
-    final isIdle = status == EmbedLoadingStatus.idle;
+    final isIdle = status == LinkLoadingStatus.idle;
     if (isIdle) {
       child = buildContent(context);
     } else {
@@ -123,6 +134,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
     }
     return Container(
       height: 450,
+      key: widgetKey,
       decoration: BoxDecoration(
         color: isIdle ? Theme.of(context).cardColor : fillSceme.tertiaryHover,
         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -150,7 +162,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
             node: node,
             onReload: () {
               setState(() {
-                status = EmbedLoadingStatus.loading;
+                status = LinkLoadingStatus.loading;
               });
               Future.delayed(const Duration(milliseconds: 200), () {
                 if (mounted) parser.start(url);
@@ -185,43 +197,51 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
             ),
           ),
         ),
-        Container(
-          height: 64,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          child: Row(
-            children: [
-              SizedBox.square(
-                dimension: 40,
-                child: Center(
-                  child: linkInfo.buildIconWidget(size: Size.square(32)),
-                ),
-              ),
-              HSpace(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FlowyText(
-                      linkInfo.siteName ?? '',
-                      color: textScheme.primary,
-                      fontSize: 14,
-                      figmaLineHeight: 20,
-                      fontWeight: FontWeight.w600,
-                      overflow: TextOverflow.ellipsis,
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () =>
+                afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
+            child: Container(
+              height: 64,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              child: Row(
+                children: [
+                  SizedBox.square(
+                    dimension: 40,
+                    child: Center(
+                      child: linkInfo.buildIconWidget(size: Size.square(32)),
                     ),
-                    VSpace(4),
-                    FlowyText.regular(
-                      url,
-                      color: textScheme.secondary,
-                      fontSize: 12,
-                      figmaLineHeight: 16,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                  HSpace(12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FlowyText(
+                          linkInfo.siteName ?? '',
+                          color: textScheme.primary,
+                          fontSize: 14,
+                          figmaLineHeight: 20,
+                          fontWeight: FontWeight.w600,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        VSpace(4),
+                        FlowyText.regular(
+                          url,
+                          color: textScheme.secondary,
+                          fontSize: 12,
+                          figmaLineHeight: 16,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -230,7 +250,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
 
   Widget buildErrorLoadingWidget(BuildContext context) {
     final theme = AppFlowyTheme.of(context), textSceme = theme.textColorScheme;
-    final isLoading = status == EmbedLoadingStatus.loading;
+    final isLoading = status == LinkLoadingStatus.loading;
     return isLoading
         ? Center(
             child: SizedBox.square(
@@ -264,7 +284,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
                         ),
                         TextSpan(
                           text: LocaleKeys
-                              .document_plugins_linkPreview_linkPreviewMenu_refuseConnect
+                              .document_plugins_linkPreview_linkPreviewMenu_unableToDisplay
                               .tr(),
                           style: TextStyle(
                             color: textSceme.primary,
@@ -281,6 +301,10 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
             ),
           );
   }
-}
 
-enum EmbedLoadingStatus { loading, idle, error }
+  @override
+  Node get currentNode => node;
+
+  @override
+  EdgeInsets get boxPadding => padding;
+}

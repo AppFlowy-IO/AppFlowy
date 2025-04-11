@@ -3,7 +3,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_replace_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -94,14 +93,14 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
             preferBelow: false,
             onPressed: () => copyLink(context),
           ),
-          buildTurnIntoBotton(),
+          buildconvertBotton(),
           buildMoreOptionBotton(),
         ],
       ),
     );
   }
 
-  Widget buildTurnIntoBotton() {
+  Widget buildconvertBotton() {
     final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorTheme;
     return AppFlowyPopover(
       offset: Offset(0, 6),
@@ -117,22 +116,21 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
         turnintoMenuNum--;
         checkToHideMenu();
       },
-      popupBuilder: (context) => buildTurnIntoMenu(),
+      popupBuilder: (context) => buildConvertMenu(),
       child: FlowyIconButton(
         icon: FlowySvg(
           FlowySvgs.turninto_m,
           color: iconScheme.tertiary,
         ),
-        tooltipText: LocaleKeys.document_toolbar_turnInto.tr(),
+        tooltipText: LocaleKeys.editor_convertTo.tr(),
         preferBelow: false,
         onPressed: showTurnIntoMenu,
       ),
     );
   }
 
-  Widget buildTurnIntoMenu() {
-    final types =
-        PasteMenuType.values.where((e) => e != PasteMenuType.embed).toList();
+  Widget buildConvertMenu() {
+    final types = LinkEmbedConvertCommand.values;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SeparatedColumn(
@@ -149,16 +147,16 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
                 figmaLineHeight: 20,
               ),
               onTap: () {
-                if (command == PasteMenuType.bookmark) {
+                if (command == LinkEmbedConvertCommand.toBookmark) {
                   final transaction = editorState.transaction;
                   transaction.updateNode(node, {
                     LinkPreviewBlockKeys.url: url,
                     LinkEmbedKeys.previewType: '',
                   });
                   editorState.apply(transaction);
-                } else if (command == PasteMenuType.mention) {
+                } else if (command == LinkEmbedConvertCommand.toMention) {
                   convertUrlPreviewNodeToMention(editorState, node);
-                } else if (command == PasteMenuType.url) {
+                } else if (command == LinkEmbedConvertCommand.toURL) {
                   convertUrlPreviewNodeToLink(editorState, node);
                 }
               },
@@ -326,6 +324,27 @@ enum LinkEmbedMenuCommand {
       case removeLink:
         return LocaleKeys
             .document_plugins_linkPreview_linkPreviewMenu_removeLink
+            .tr();
+    }
+  }
+}
+
+enum LinkEmbedConvertCommand {
+  toMention,
+  toURL,
+  toBookmark;
+
+  String get title {
+    switch (this) {
+      case toMention:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toMetion
+            .tr();
+      case toURL:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl
+            .tr();
+      case toBookmark:
+        return LocaleKeys
+            .document_plugins_linkPreview_linkPreviewMenu_toBookmark
             .tr();
     }
   }

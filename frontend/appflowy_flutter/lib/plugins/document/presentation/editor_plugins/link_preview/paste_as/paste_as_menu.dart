@@ -28,11 +28,10 @@ class PasteAsMenuService {
 
   void dismiss() {
     if (_menuEntry != null) {
-      editorState.service.keyboardService?.enable();
-      editorState.service.scrollService?.enable();
       keepEditorFocusNotifier.decrease();
+      // editorState.service.scrollService?.enable();
+      // editorState.service.keyboardService?.enable();
     }
-
     _menuEntry?.remove();
     _menuEntry = null;
   }
@@ -58,6 +57,7 @@ class PasteAsMenuService {
             children: [
               ltrb.buildPositioned(
                 child: PasteAsMenu(
+                  editorState: editorState,
                   onSelect: (t) {
                     final selection = editorState.selection;
                     if (selection == null) return;
@@ -91,8 +91,9 @@ class PasteAsMenuService {
 
     Overlay.of(context).insert(_menuEntry!);
 
-    editorState.service.keyboardService?.disable(showCursor: true);
-    editorState.service.scrollService?.disable();
+    keepEditorFocusNotifier.increase();
+    // editorState.service.keyboardService?.disable(showCursor: true);
+    // editorState.service.scrollService?.disable();
   }
 }
 
@@ -101,9 +102,11 @@ class PasteAsMenu extends StatefulWidget {
     super.key,
     required this.onSelect,
     required this.onDismiss,
+    required this.editorState,
   });
   final ValueChanged<PasteMenuType?> onSelect;
   final VoidCallback onDismiss;
+  final EditorState editorState;
 
   @override
   State<PasteAsMenu> createState() => _PasteAsMenuState();
@@ -113,18 +116,22 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
   final focusNode = FocusNode(debugLabel: 'paste_as_menu');
   final ValueNotifier<int> selectedIndexNotifier = ValueNotifier(0);
 
+  EditorState get editorState => widget.editorState;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => focusNode.requestFocus(),
     );
+    editorState.selectionNotifier.addListener(dismiss);
   }
 
   @override
   void dispose() {
     focusNode.dispose();
     selectedIndexNotifier.dispose();
+    editorState.selectionNotifier.removeListener(dismiss);
     super.dispose();
   }
 
@@ -201,7 +208,10 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         length = PasteMenuType.values.length;
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       onSelect(PasteMenuType.values[index]);
+      return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      dismiss();
+    } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       dismiss();
     } else if ([LogicalKeyboardKey.arrowUp, LogicalKeyboardKey.arrowLeft]
         .contains(event.logicalKey)) {
@@ -211,6 +221,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         index--;
       }
       changeIndex(index);
+      return KeyEventResult.handled;
     } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.arrowRight]
         .contains(event.logicalKey)) {
       if (index == length - 1) {
@@ -219,8 +230,9 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         index++;
       }
       changeIndex(index);
+      return KeyEventResult.handled;
     }
-    return KeyEventResult.handled;
+    return KeyEventResult.ignored;
   }
 
   void onSelect(PasteMenuType type) => widget.onSelect.call(type);

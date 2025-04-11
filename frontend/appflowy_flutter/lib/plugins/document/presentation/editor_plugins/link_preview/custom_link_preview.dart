@@ -3,8 +3,10 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,6 +15,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+
+import 'custom_link_parser.dart';
 
 class CustomLinkPreviewWidget extends StatelessWidget {
   const CustomLinkPreviewWidget({
@@ -23,7 +27,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     this.description,
     this.imageUrl,
     this.isHovering = false,
-    this.status = LinkPreviewStatus.loading,
+    this.status = LinkLoadingStatus.loading,
   });
 
   final Node node;
@@ -32,7 +36,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
   final String? imageUrl;
   final String url;
   final bool isHovering;
-  final LinkPreviewStatus status;
+  final LinkLoadingStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
             .text
             .fontSize ??
         16.0;
+    final isInDarkCallout = node.parent?.type == CalloutBlockKeys.type &&
+        !Theme.of(context).isLightMode;
     final (fontSize, width) = UniversalPlatform.isDesktopOrWeb
         ? (documentFontSize, 160.0)
         : (documentFontSize - 2, 120.0);
@@ -53,7 +59,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         border: Border.all(
-          color: isHovering
+          color: isHovering || isInDarkCallout
               ? borderScheme.greyTertiaryHover
               : borderScheme.greyTertiary,
         ),
@@ -68,42 +74,43 @@ class CustomLinkPreviewWidget extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 60, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    buildLoadingOrErrorWidget(),
-                    if (title != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
-                        child: FlowyText.medium(
-                          title!,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: fontSize,
-                          color: textScheme.primary,
-                          figmaLineHeight: 20,
-                        ),
+                child: status != LinkLoadingStatus.idle
+                    ? buildLoadingOrErrorWidget()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (title != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4.0),
+                              child: FlowyText.medium(
+                                title!,
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: fontSize,
+                                color: textScheme.primary,
+                                figmaLineHeight: 20,
+                              ),
+                            ),
+                          if (description != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: FlowyText(
+                                description!,
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: fontSize - 4,
+                                figmaLineHeight: 16,
+                                color: textScheme.primary,
+                              ),
+                            ),
+                          FlowyText(
+                            url.toString(),
+                            overflow: TextOverflow.ellipsis,
+                            color: textScheme.secondary,
+                            fontSize: fontSize - 4,
+                            figmaLineHeight: 16,
+                          ),
+                        ],
                       ),
-                    if (description != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: FlowyText(
-                          description!,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: fontSize - 4,
-                          figmaLineHeight: 16,
-                          color: textScheme.primary,
-                        ),
-                      ),
-                    FlowyText(
-                      url.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      color: textScheme.secondary,
-                      fontSize: fontSize - 4,
-                      figmaLineHeight: 16,
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
@@ -184,26 +191,22 @@ class CustomLinkPreviewWidget extends StatelessWidget {
   }
 
   Widget buildLoadingOrErrorWidget() {
-    if (status == LinkPreviewStatus.loading) {
-      return Expanded(
-        child: const Center(
-          child: SizedBox(
-            height: 16,
-            width: 16,
-            child: CircularProgressIndicator.adaptive(),
-          ),
+    if (status == LinkLoadingStatus.loading) {
+      return const Center(
+        child: SizedBox(
+          height: 16,
+          width: 16,
+          child: CircularProgressIndicator.adaptive(),
         ),
       );
-    } else if (status == LinkPreviewStatus.error) {
-      return Expanded(
-        child: const Center(
-          child: SizedBox(
-            height: 16,
-            width: 16,
-            child: Icon(
-              Icons.error_outline,
-              color: Colors.red,
-            ),
+    } else if (status == LinkLoadingStatus.error) {
+      return const Center(
+        child: SizedBox(
+          height: 16,
+          width: 16,
+          child: Icon(
+            Icons.error_outline,
+            color: Colors.red,
           ),
         ),
       );
@@ -211,5 +214,3 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     return SizedBox.shrink();
   }
 }
-
-enum LinkPreviewStatus { loading, error, idle }

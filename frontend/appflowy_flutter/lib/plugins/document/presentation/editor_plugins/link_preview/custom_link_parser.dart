@@ -133,3 +133,9 @@ class LinkInfoCache {
     );
   }
 }
+
+enum LinkLoadingStatus {
+  loading,
+  idle,
+  error,
+}

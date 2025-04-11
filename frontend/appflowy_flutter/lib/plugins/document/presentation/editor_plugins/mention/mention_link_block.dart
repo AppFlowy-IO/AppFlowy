@@ -42,8 +42,8 @@ class MentionLinkBlock extends StatefulWidget {
 class _MentionLinkBlockState extends State<MentionLinkBlock> {
   final parser = LinkParser();
   _LoadingStatus status = _LoadingStatus.loading;
-  final previewController = PopoverController();
   LinkInfo linkInfo = LinkInfo();
+  final previewController = PopoverController();
   bool isHovering = false;
   int previewFocusNum = 0;
   bool isPreviewHovering = false;
@@ -67,13 +67,14 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     super.initState();
 
     parser.addLinkInfoListener((v) {
+      final hasNewInfo = !v.isEmpty(), hasOldInfo = !linkInfo.isEmpty();
       if (mounted) {
         setState(() {
-          if (v.isEmpty() && linkInfo.isEmpty()) {
-            status = _LoadingStatus.error;
-          } else {
+          if (hasNewInfo) {
             linkInfo = v;
             status = _LoadingStatus.idle;
+          } else if (!hasOldInfo) {
+            status = _LoadingStatus.error;
           }
         });
       }
