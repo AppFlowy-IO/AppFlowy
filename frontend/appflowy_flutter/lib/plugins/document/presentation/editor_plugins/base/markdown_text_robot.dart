@@ -118,7 +118,7 @@ class MarkdownTextRobot {
     }
 
     await _lock.synchronized(() async {
-      await _refresh(inMemoryUpdate: false);
+      await _refresh(inMemoryUpdate: false, updateSelection: true);
     });
 
     if (_enableDebug) {
@@ -156,7 +156,9 @@ class MarkdownTextRobot {
   }
 
   /// Discard the inserted content
-  Future<void> discard() async {
+  Future<void> discard({
+    Selection? afterSelection,
+  }) async {
     final start = _insertPosition;
     if (start == null) {
       return;
@@ -164,6 +166,8 @@ class MarkdownTextRobot {
     if (_insertedNodes.isEmpty) {
       return;
     }
+
+    afterSelection ??= Selection.collapsed(start);
 
     // fallback to the calculated position if the selection is null.
     final end = Position(
@@ -174,7 +178,7 @@ class MarkdownTextRobot {
     );
     final transaction = editorState.transaction
       ..deleteNodes(deletedNodes)
-      ..afterSelection = Selection.collapsed(start);
+      ..afterSelection = afterSelection;
 
     await editorState.apply(
       transaction,
