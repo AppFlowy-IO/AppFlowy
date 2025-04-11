@@ -5,6 +5,10 @@ typedef AFTextFieldValidator = (bool result, String errorText) Function(
   TextEditingController controller,
 );
 
+abstract class AFTextFieldState extends State<AFTextField> {
+  void syncError({bool hasError = false, String errorText = ''}) {}
+}
+
 class AFTextField extends StatefulWidget {
   const AFTextField({
     super.key,
@@ -52,7 +56,7 @@ class AFTextField extends StatefulWidget {
   State<AFTextField> createState() => _AFTextFieldState();
 }
 
-class _AFTextFieldState extends State<AFTextField> {
+class _AFTextFieldState extends AFTextFieldState {
   late final TextEditingController effectiveController;
 
   bool hasError = false;
@@ -148,6 +152,7 @@ class _AFTextFieldState extends State<AFTextField> {
 
     if (hasError && errorText.isNotEmpty) {
       child = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           child,
           SizedBox(height: theme.spacing.xs),
@@ -173,5 +178,16 @@ class _AFTextFieldState extends State<AFTextField> {
         errorText = result.$2;
       });
     }
+  }
+
+  @override
+  void syncError({
+    bool hasError = false,
+    String errorText = '',
+  }) {
+    setState(() {
+      this.hasError = hasError;
+      this.errorText = errorText;
+    });
   }
 }

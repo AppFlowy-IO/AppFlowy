@@ -2,6 +2,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_magic_link_or_passcode_page.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password_page.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -57,14 +59,13 @@ class _ContinueWithEmailAndPasswordState
             controller.text,
           ),
         ),
-        // Hide password sign in until we implement the reset password / forgot password
-        // VSpace(theme.spacing.l),
-        // ContinueWithPassword(
-        //   onTap: () => _pushContinueWithPasswordPage(
-        //     context,
-        //     controller.text,
-        //   ),
-        // ),
+        VSpace(theme.spacing.l),
+        ContinueWithPassword(
+          onTap: () => _pushContinueWithPasswordPage(
+            context,
+            controller.text,
+          ),
+        ),
       ],
     );
   }
@@ -106,28 +107,31 @@ class _ContinueWithEmailAndPasswordState
     );
   }
 
-  // void _pushContinueWithPasswordPage(
-  //   BuildContext context,
-  //   String email,
-  // ) {
-  //   final signInBloc = context.read<SignInBloc>();
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => ContinueWithPasswordPage(
-  //         email: email,
-  //         backToLogin: () => Navigator.pop(context),
-  //         onEnterPassword: (password) => signInBloc.add(
-  //           SignInEvent.signInWithEmailAndPassword(
-  //             email: email,
-  //             password: password,
-  //           ),
-  //         ),
-  //         onForgotPassword: () {
-  //           // todo: implement forgot password
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
+  void _pushContinueWithPasswordPage(
+    BuildContext context,
+    String email,
+  ) {
+    final signInBloc = context.read<SignInBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: signInBloc,
+          child: ContinueWithPasswordPage(
+            email: email,
+            backToLogin: () => Navigator.pop(context),
+            onEnterPassword: (password) => signInBloc.add(
+              SignInEvent.signInWithEmailAndPassword(
+                email: email,
+                password: password,
+              ),
+            ),
+            onForgotPassword: () {
+              // todo: implement forgot password
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -1,8 +1,10 @@
+import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ContinueWithPasswordPage extends StatefulWidget {
   const ContinueWithPasswordPage({
@@ -25,6 +27,7 @@ class ContinueWithPasswordPage extends StatefulWidget {
 
 class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   final passwordController = TextEditingController();
+  final inputPasswordKey = GlobalKey<AFTextFieldState>();
 
   @override
   void dispose() {
@@ -38,18 +41,30 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
       body: Center(
         child: SizedBox(
           width: 320,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo and title
-              ..._buildLogoAndTitle(),
+          child: BlocListener<SignInBloc, SignInState>(
+            listener: (context, state) {
+              if (state.passwordError != null) {
+                inputPasswordKey.currentState?.syncError(
+                  hasError: true,
+                  errorText: 'Incorrect password. Please try again.',
+                );
+              } else {
+                inputPasswordKey.currentState?.syncError();
+              }
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo and title
+                ..._buildLogoAndTitle(),
 
-              // Password input and buttons
-              ..._buildPasswordSection(),
+                // Password input and buttons
+                ..._buildPasswordSection(),
 
-              // Back to login
-              ..._buildBackToLogin(),
-            ],
+                // Back to login
+                ..._buildBackToLogin(),
+              ],
+            ),
           ),
         ),
       ),
@@ -100,25 +115,33 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
     return [
       // Password input
       AFTextField(
+        key: inputPasswordKey,
         controller: passwordController,
         hintText: 'Enter password',
         autoFocus: true,
         onSubmitted: widget.onEnterPassword,
       ),
       // todo: ask designer to provide the spacing
-      VSpace(12),
+      VSpace(8),
 
-      // todo: forgot password is not implemented yet
       // Forgot password button
-      // AFGhostTextButton(
-      //   text: 'Forget password?',
-      //   size: AFButtonSize.s,
-      //   onTap: widget.onForgotPassword,
-      //   textColor: (context, isHovering, disabled) {
-      //     return theme.textColorScheme.theme;
-      //   },
-      // ),
-      VSpace(12),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: AFGhostTextButton(
+          text: 'Forget password?',
+          size: AFButtonSize.s,
+          padding: EdgeInsets.zero,
+          onTap: widget.onForgotPassword,
+          textColor: (context, isHovering, disabled) {
+            final theme = AppFlowyTheme.of(context);
+            if (isHovering) {
+              return theme.fillColorScheme.themeThickHover;
+            }
+            return theme.textColorScheme.theme;
+          },
+        ),
+      ),
+      VSpace(20),
 
       // Continue button
       AFFilledTextButton.primary(
@@ -137,8 +160,12 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
         text: 'Back to Login',
         size: AFButtonSize.s,
         onTap: widget.backToLogin,
+        padding: EdgeInsets.zero,
         textColor: (context, isHovering, disabled) {
           final theme = AppFlowyTheme.of(context);
+          if (isHovering) {
+            return theme.fillColorScheme.themeThickHover;
+          }
           return theme.textColorScheme.theme;
         },
       ),
