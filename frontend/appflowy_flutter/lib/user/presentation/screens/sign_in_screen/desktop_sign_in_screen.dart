@@ -23,7 +23,6 @@ class DesktopSignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    const indicatorMinHeight = 4.0;
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
         return Scaffold(
@@ -54,15 +53,6 @@ class DesktopSignInScreen extends StatelessWidget {
 
                 // sign in agreement
                 const SignInAgreement(),
-
-                // loading status
-                const VSpace(indicatorMinHeight),
-                state.isSubmitting
-                    ? const LinearProgressIndicator(
-                        minHeight: indicatorMinHeight,
-                      )
-                    : const VSpace(indicatorMinHeight),
-                const VSpace(20),
 
                 const Spacer(),
 

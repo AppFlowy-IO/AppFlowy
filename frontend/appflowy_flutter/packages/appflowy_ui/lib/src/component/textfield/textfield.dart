@@ -5,6 +5,11 @@ typedef AFTextFieldValidator = (bool result, String errorText) Function(
   TextEditingController controller,
 );
 
+abstract class AFTextFieldState extends State<AFTextField> {
+  void syncError({required String errorText}) {}
+  void clearError() {}
+}
+
 class AFTextField extends StatefulWidget {
   const AFTextField({
     super.key,
@@ -17,7 +22,11 @@ class AFTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.autoFocus,
+    this.height = 40.0,
   });
+
+  /// The height of the text field.
+  final double height;
 
   /// The hint text to display when the text field is empty.
   final String? hintText;
@@ -52,7 +61,7 @@ class AFTextField extends StatefulWidget {
   State<AFTextField> createState() => _AFTextFieldState();
 }
 
-class _AFTextFieldState extends State<AFTextField> {
+class _AFTextFieldState extends AFTextFieldState {
   late final TextEditingController effectiveController;
 
   bool hasError = false;
@@ -146,8 +155,11 @@ class _AFTextFieldState extends State<AFTextField> {
       ),
     );
 
+    child = SizedBox(height: widget.height, child: child);
+
     if (hasError && errorText.isNotEmpty) {
       child = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           child,
           SizedBox(height: theme.spacing.xs),
@@ -173,5 +185,23 @@ class _AFTextFieldState extends State<AFTextField> {
         errorText = result.$2;
       });
     }
+  }
+
+  @override
+  void syncError({
+    required String errorText,
+  }) {
+    setState(() {
+      hasError = true;
+      this.errorText = errorText;
+    });
+  }
+
+  @override
+  void clearError() {
+    setState(() {
+      hasError = false;
+      errorText = '';
+    });
   }
 }

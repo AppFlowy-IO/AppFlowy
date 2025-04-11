@@ -199,7 +199,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     emit(
       result.fold(
-        (userProfile) => state.copyWith(isSubmitting: true),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+        ),
         (error) => _stateFromCode(error),
       ),
     );
@@ -282,8 +284,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       case ErrorCode.UserUnauthorized:
         final errorMsg = error.msg;
         String msg = LocaleKeys.signIn_generalError.tr();
-        if (errorMsg.contains('rate limit')) {
-          msg = LocaleKeys.signIn_limitRateError.tr();
+        if (errorMsg.contains('rate limit') ||
+            errorMsg.contains('For security purposes')) {
+          msg = LocaleKeys.signIn_tooFrequentVerificationCodeRequest.tr();
         } else if (errorMsg.contains('invalid')) {
           msg = LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr();
         }
