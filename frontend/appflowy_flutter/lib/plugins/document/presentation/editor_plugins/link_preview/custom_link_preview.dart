@@ -73,7 +73,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
             buildImage(context),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 60, 12),
+                padding: const EdgeInsets.fromLTRB(20, 12, 58, 12),
                 child: status != LinkLoadingStatus.idle
                     ? buildLoadingOrErrorWidget()
                     : Column(

@@ -150,8 +150,8 @@ class CustomLinkPreviewBlockComponentState
         child,
         if (showActions)
           Positioned(
-            top: 16,
-            right: 16,
+            top: 12,
+            right: 12,
             child: CustomLinkPreviewMenu(
               onMenuShowed: () {
                 isMenuShowing = true;

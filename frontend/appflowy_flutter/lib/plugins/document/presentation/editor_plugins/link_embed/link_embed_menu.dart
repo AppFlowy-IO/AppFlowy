@@ -69,7 +69,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         color: fillScheme.primaryAlpha80,
       ),
       child: Row(
