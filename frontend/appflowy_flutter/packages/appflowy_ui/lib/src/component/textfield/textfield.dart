@@ -6,7 +6,8 @@ typedef AFTextFieldValidator = (bool result, String errorText) Function(
 );
 
 abstract class AFTextFieldState extends State<AFTextField> {
-  void syncError({bool hasError = false, String errorText = ''}) {}
+  void syncError({required String errorText}) {}
+  void clearError() {}
 }
 
 class AFTextField extends StatefulWidget {
@@ -21,7 +22,11 @@ class AFTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.autoFocus,
+    this.height = 40.0,
   });
+
+  /// The height of the text field.
+  final double height;
 
   /// The hint text to display when the text field is empty.
   final String? hintText;
@@ -150,6 +155,8 @@ class _AFTextFieldState extends AFTextFieldState {
       ),
     );
 
+    child = SizedBox(height: widget.height, child: child);
+
     if (hasError && errorText.isNotEmpty) {
       child = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,12 +189,19 @@ class _AFTextFieldState extends AFTextFieldState {
 
   @override
   void syncError({
-    bool hasError = false,
-    String errorText = '',
+    required String errorText,
   }) {
     setState(() {
-      this.hasError = hasError;
+      hasError = true;
       this.errorText = errorText;
+    });
+  }
+
+  @override
+  void clearError() {
+    setState(() {
+      hasError = false;
+      errorText = '';
     });
   }
 }

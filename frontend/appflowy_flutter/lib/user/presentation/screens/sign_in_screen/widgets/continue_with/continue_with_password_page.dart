@@ -45,11 +45,10 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
             listener: (context, state) {
               if (state.passwordError != null) {
                 inputPasswordKey.currentState?.syncError(
-                  hasError: true,
                   errorText: 'Incorrect password. Please try again.',
                 );
               } else {
-                inputPasswordKey.currentState?.syncError();
+                inputPasswordKey.currentState?.clearError();
               }
             },
             child: Column(

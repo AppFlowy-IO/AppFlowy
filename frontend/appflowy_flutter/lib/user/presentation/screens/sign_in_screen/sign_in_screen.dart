@@ -36,7 +36,7 @@ class SignInScreen extends StatelessWidget {
 
   void _showSignInError(BuildContext context, SignInState state) {
     final successOrFail = state.successOrFail;
-    if (successOrFail != null) {
+    if (UniversalPlatform.isMobile && successOrFail != null) {
       handleUserProfileResult(
         successOrFail,
         context,
