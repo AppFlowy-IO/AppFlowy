@@ -4,6 +4,7 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/desktop_sign_in_screen.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/mobile_loading_screen.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/mobile_sign_in_screen.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -37,10 +38,17 @@ class SignInScreen extends StatelessWidget {
   void _showSignInError(BuildContext context, SignInState state) {
     final successOrFail = state.successOrFail;
     if (successOrFail != null) {
-      handleUserProfileResult(
-        successOrFail,
-        context,
-        getIt<AuthRouter>(),
+      successOrFail.fold(
+        (userProfile) {
+          if (userProfile.encryptionType == EncryptionTypePB.Symmetric) {
+            getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
+          } else {
+            getIt<AuthRouter>().goHomeScreen(context, userProfile);
+          }
+        },
+        (error) {
+          handleOpenWorkspaceError(context, error);
+        },
       );
     }
   }

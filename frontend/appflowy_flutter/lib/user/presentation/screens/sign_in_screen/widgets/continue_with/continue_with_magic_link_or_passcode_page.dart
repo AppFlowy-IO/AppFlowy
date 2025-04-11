@@ -33,6 +33,8 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   ToastificationItem? toastificationItem;
 
+  final inputPasscodeKey = GlobalKey<AFTextFieldState>();
+
   @override
   void dispose() {
     passcodeController.dispose();
@@ -44,10 +46,13 @@ class _ContinueWithMagicLinkOrPasscodePageState
   Widget build(BuildContext context) {
     return BlocListener<SignInBloc, SignInState>(
       listener: (context, state) {
-        if (state.isSubmitting) {
-          _showLoadingDialog();
-        } else {
-          _dismissLoadingDialog();
+        final successOrFail = state.successOrFail;
+        if (successOrFail != null && successOrFail.isFailure) {
+          successOrFail.onFailure((error) {
+            inputPasscodeKey.currentState?.syncError(
+              errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
+            );
+          });
         }
       },
       child: Scaffold(
@@ -91,24 +96,39 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
     return [
       // Enter code manually
-      SizedBox(
-        height: 40,
-        child: AFTextField(
-          controller: passcodeController,
-          hintText: LocaleKeys.signIn_enterCode.tr(),
-          keyboardType: TextInputType.number,
-          radius: 10,
-          autoFocus: true,
-          onSubmitted: widget.onEnterPasscode,
-        ),
+      AFTextField(
+        key: inputPasscodeKey,
+        controller: passcodeController,
+        hintText: LocaleKeys.signIn_enterCode.tr(),
+        keyboardType: TextInputType.number,
+        radius: 10,
+        autoFocus: true,
+        onSubmitted: (passcode) {
+          if (passcode.isEmpty) {
+            inputPasscodeKey.currentState?.syncError(
+              errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
+            );
+          } else {
+            widget.onEnterPasscode(passcode);
+          }
+        },
       ),
       // todo: ask designer to provide the spacing
       VSpace(12),
 
       // continue to login
       AFFilledTextButton.primary(
-        text: 'Continue to sign in',
-        onTap: () => widget.onEnterPasscode(passcodeController.text),
+        text: LocaleKeys.signIn_continueToSignIn.tr(),
+        onTap: () {
+          final passcode = passcodeController.text;
+          if (passcode.isEmpty) {
+            inputPasscodeKey.currentState?.syncError(
+              errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
+            );
+          } else {
+            widget.onEnterPasscode(passcode);
+          }
+        },
         size: AFButtonSize.l,
         alignment: Alignment.center,
       ),
@@ -123,6 +143,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
         text: LocaleKeys.signIn_backToLogin.tr(),
         size: AFButtonSize.s,
         onTap: widget.backToLogin,
+        padding: EdgeInsets.zero,
         textColor: (context, isHovering, disabled) {
           final theme = AppFlowyTheme.of(context);
           if (isHovering) {
@@ -137,51 +158,70 @@ class _ContinueWithMagicLinkOrPasscodePageState
   List<Widget> _buildLogoTitleAndDescription() {
     final theme = AppFlowyTheme.of(context);
     final spacing = VSpace(theme.spacing.xxl);
-    return [
-      // logo
-      const AFLogo(),
-      spacing,
+    if (!isEnteringPasscode) {
+      return [
+        // logo
+        const AFLogo(),
+        spacing,
 
-      // title
-      Text(
-        LocaleKeys.signIn_checkYourEmail.tr(),
-        style: theme.textStyle.heading.h3(
-          color: theme.textColorScheme.primary,
+        // title
+        Text(
+          LocaleKeys.signIn_checkYourEmail.tr(),
+          style: theme.textStyle.heading.h3(
+            color: theme.textColorScheme.primary,
+          ),
         ),
-      ),
-      spacing,
+        spacing,
 
-      // description
-      Text(
-        LocaleKeys.signIn_temporaryVerificationSent.tr(),
-        style: theme.textStyle.body.standard(
-          color: theme.textColorScheme.primary,
+        // description
+        Text(
+          LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
+          style: theme.textStyle.body.standard(
+            color: theme.textColorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        widget.email,
-        style: theme.textStyle.body.enhanced(
-          color: theme.textColorScheme.primary,
+        Text(
+          widget.email,
+          style: theme.textStyle.body.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
-      ),
-      spacing,
-    ];
-  }
+        spacing,
+      ];
+    } else {
+      return [
+        // logo
+        const AFLogo(),
+        spacing,
 
-  void _showLoadingDialog() {
-    _dismissLoadingDialog();
+        // title
+        Text(
+          LocaleKeys.signIn_enterCode.tr(),
+          style: theme.textStyle.heading.h3(
+            color: theme.textColorScheme.primary,
+          ),
+        ),
+        spacing,
 
-    toastificationItem = showToastNotification(
-      message: LocaleKeys.signIn_signingIn.tr(),
-    );
-  }
-
-  void _dismissLoadingDialog() {
-    final toastificationItem = this.toastificationItem;
-    if (toastificationItem != null) {
-      toastification.dismiss(toastificationItem);
+        // description
+        Text(
+          LocaleKeys.signIn_temporaryVerificationCodeSent.tr(),
+          style: theme.textStyle.body.standard(
+            color: theme.textColorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          widget.email,
+          style: theme.textStyle.body.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        spacing,
+      ];
     }
   }
 }
