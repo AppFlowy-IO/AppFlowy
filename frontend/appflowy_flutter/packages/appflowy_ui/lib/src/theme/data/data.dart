@@ -8,6 +8,7 @@ import 'package:appflowy_ui/src/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/text/text_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/data/builder.dart';
+import 'package:appflowy_ui/src/theme/shadow/shadow.dart';
 import 'package:appflowy_ui/src/theme/spacing/spacing.dart';
 import 'package:appflowy_ui/src/theme/text_style/text_style.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,8 @@ abstract class AppFlowyBaseTheme {
   AppFlowyBorderRadius get borderRadius;
 
   AppFlowySpacing get spacing;
+
+  AppFlowyShadow get shadow;
 
   AppFlowyBrandColorScheme get brandColorScheme;
 }
@@ -70,6 +73,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
+    final shadow = themeBuilder.buildShadow(Brightness.light);
 
     return AppFlowyThemeData(
       colorScheme: colorScheme,
@@ -82,6 +86,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       surfaceColorScheme: surfaceColorScheme,
       borderRadius: borderRadius,
       spacing: spacing,
+      shadow: shadow,
       brandColorScheme: brandColorScheme,
     );
   }
@@ -116,6 +121,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
+    final shadow = themeBuilder.buildShadow(Brightness.dark);
 
     return AppFlowyThemeData(
       colorScheme: colorScheme,
@@ -128,6 +134,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       surfaceColorScheme: surfaceColorScheme,
       borderRadius: borderRadius,
       spacing: spacing,
+      shadow: shadow,
       brandColorScheme: brandColorScheme,
     );
   }
@@ -141,6 +148,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
     required this.surfaceColorScheme,
     required this.borderRadius,
     required this.spacing,
+    required this.shadow,
     required this.brandColorScheme,
     required this.iconColorTheme,
     required this.backgroundColorScheme,
@@ -174,6 +182,9 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
 
   @override
   final AppFlowySpacing spacing;
+
+  @override
+  final AppFlowyShadow shadow;
 
   @override
   final AppFlowyBrandColorScheme brandColorScheme;
