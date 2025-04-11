@@ -45,16 +45,18 @@ Future<bool> afLaunchUri(
   }
 
   // try to launch the uri directly
-  bool result;
-  try {
-    result = await launcher.launchUrl(
-      uri,
-      mode: mode,
-      webOnlyWindowName: webOnlyWindowName,
-    );
-  } on PlatformException catch (e) {
-    Log.error('Failed to open uri: $e');
-    return false;
+  bool result = await launcher.canLaunchUrl(uri);
+  if (result) {
+    try {
+      result = await launcher.launchUrl(
+        uri,
+        mode: mode,
+        webOnlyWindowName: webOnlyWindowName,
+      );
+    } on PlatformException catch (e) {
+      Log.error('Failed to open uri: $e');
+      return false;
+    }
   }
 
   // if the uri is not a valid url, try to launch it with http scheme

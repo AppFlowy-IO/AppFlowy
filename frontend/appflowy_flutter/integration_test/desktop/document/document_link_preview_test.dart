@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/link_preview_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
@@ -397,7 +398,7 @@ void main() {
 
     Future<void> hoverAndConvert(
       WidgetTester tester,
-      PasteMenuType command,
+      LinkEmbedConvertCommand command,
     ) async {
       final embed = find.byType(LinkEmbedBlockComponent);
       expect(embed, findsOneWidget);
@@ -425,7 +426,7 @@ void main() {
       final link = avaliableLink;
       await preparePage(tester);
       await pasteAsEmbed(tester, link);
-      await hoverAndConvert(tester, PasteMenuType.mention);
+      await hoverAndConvert(tester, LinkEmbedConvertCommand.toMention);
       final node = tester.editor.getNodeAtPath([0]);
       checkMention(node, link);
     });
@@ -434,7 +435,7 @@ void main() {
       final link = avaliableLink;
       await preparePage(tester);
       await pasteAsEmbed(tester, link);
-      await hoverAndConvert(tester, PasteMenuType.url);
+      await hoverAndConvert(tester, LinkEmbedConvertCommand.toURL);
       final node = tester.editor.getNodeAtPath([0]);
       checkUrl(node, link);
     });
@@ -444,7 +445,7 @@ void main() {
       final link = avaliableLink;
       await preparePage(tester);
       await pasteAsEmbed(tester, link);
-      await hoverAndConvert(tester, PasteMenuType.bookmark);
+      await hoverAndConvert(tester, LinkEmbedConvertCommand.toBookmark);
       final node = tester.editor.getNodeAtPath([0]);
       checkBookmark(node, link);
     });
