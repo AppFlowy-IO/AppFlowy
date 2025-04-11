@@ -5,7 +5,7 @@ import 'emoji_actions_command.dart';
 import 'emoji_handler.dart';
 
 abstract class EmojiMenuService {
-  void show();
+  void show(String character);
 
   void dismiss();
 }
@@ -31,6 +31,7 @@ class EmojiMenu extends EmojiMenuService {
   Alignment _alignment = Alignment.topLeft;
   OverlayEntry? _menuEntry;
   bool selectionChangedByMenu = false;
+  String initialCharacter = '';
 
   @override
   void dismiss() {
@@ -56,7 +57,8 @@ class EmojiMenu extends EmojiMenuService {
   void _onSelectionUpdate() => selectionChangedByMenu = true;
 
   @override
-  void show() {
+  void show(String character) {
+    initialCharacter = character;
     WidgetsBinding.instance.addPostFrameCallback((_) => _show());
   }
 
@@ -97,6 +99,7 @@ class EmojiMenu extends EmojiMenuService {
                   onSelectionUpdate: _onSelectionUpdate,
                   startCharAmount: startCharAmount,
                   cancelBySpaceHandler: cancelBySpaceHandler,
+                  initialSearchText: initialCharacter,
                   onEmojiSelect: (
                     BuildContext context,
                     (int, int) replacement,
@@ -109,10 +112,14 @@ class EmojiMenu extends EmojiMenuService {
                         editorState.document.nodeAtPath(selection.end.path);
                     if (node == null) return;
                     final transaction = editorState.transaction
-                      ..replaceText(
+                      ..deleteText(
                         node,
                         replacement.$1,
-                        replacement.$2,
+                        replacement.$2 - replacement.$1,
+                      )
+                      ..insertText(
+                        node,
+                        replacement.$1,
                         emoji,
                       );
                     await editorState.apply(transaction);

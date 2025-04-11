@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
@@ -13,6 +14,7 @@ extension PasteFromHtml on EditorState {
     }
     if (nodes.length == 1) {
       await pasteSingleLineNode(nodes.first);
+      checkToShowPasteAsMenu(nodes.first);
     } else {
       await pasteMultiLineNodes(nodes.toList());
     }

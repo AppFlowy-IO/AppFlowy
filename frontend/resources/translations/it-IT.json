@@ -221,14 +221,14 @@
   "questionBubble": {
     "shortcuts": "Scorciatoie",
     "whatsNew": "Cosa c'è di nuovo?",
-    "help": "Aiuto & Supporto",
     "markdown": "Markdown",
     "debug": {
       "name": "Informazioni di debug",
       "success": "Informazioni di debug copiate negli appunti!",
       "fail": "Impossibile copiare le informazioni di debug negli appunti"
     },
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "help": "Aiuto & Supporto"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Rimuovi, rinomina e altro...",

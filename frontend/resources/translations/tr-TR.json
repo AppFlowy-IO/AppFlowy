@@ -288,14 +288,14 @@
   "questionBubble": {
     "shortcuts": "Kısayollar",
     "whatsNew": "Yenilikler",
-    "help": "Yardım ve Destek",
     "markdown": "Markdown",
     "debug": {
       "name": "Hata Ayıklama Bilgisi",
       "success": "Hata ayıklama bilgisi panoya kopyalandı!",
       "fail": "Hata ayıklama bilgisi panoya kopyalanamadı"
     },
-    "feedback": "Geri Bildirim"
+    "feedback": "Geri Bildirim",
+    "help": "Yardım ve Destek"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Kaldır, yeniden adlandır ve daha fazlası...",
@@ -1608,8 +1608,7 @@
     "url": {
       "launch": "Bağlantıyı tarayıcıda aç",
       "copy": "Bağlantıyı panoya kopyala",
-      "textFieldHint": "Bir URL girin",
-      "copiedNotification": "Panoya kopyalandı!"
+      "textFieldHint": "Bir URL girin"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "İlişkili Veritabanı",

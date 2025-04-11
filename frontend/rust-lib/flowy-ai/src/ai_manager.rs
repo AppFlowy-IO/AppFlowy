@@ -3,7 +3,7 @@ use crate::entities::{
   AIModelPB, AvailableModelsPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
   FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
-use crate::local_ai::controller::LocalAIController;
+use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 use std::collections::HashMap;
@@ -27,14 +27,16 @@ use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tracing::{error, info, instrument, trace};
+use uuid::Uuid;
 
 pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn device_id(&self) -> Result<String, FlowyError>;
-  fn workspace_id(&self) -> Result<String, FlowyError>;
+  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
@@ -44,18 +46,18 @@ pub trait AIUserService: Send + Sync + 'static {
 pub trait AIExternalService: Send + Sync + 'static {
   async fn query_chat_rag_ids(
     &self,
-    parent_view_id: &str,
-    chat_id: &str,
-  ) -> Result<Vec<String>, FlowyError>;
+    parent_view_id: &Uuid,
+    chat_id: &Uuid,
+  ) -> Result<Vec<Uuid>, FlowyError>;
 
   async fn sync_rag_documents(
     &self,
-    workspace_id: &str,
-    rag_ids: Vec<String>,
-    rag_metadata_map: HashMap<String, AFCollabMetadata>,
+    workspace_id: &Uuid,
+    rag_ids: Vec<Uuid>,
+    rag_metadata_map: HashMap<Uuid, AFCollabMetadata>,
   ) -> Result<Vec<AFCollabMetadata>, FlowyError>;
 
-  async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError>;
+  async fn notify_did_send_message(&self, chat_id: &Uuid, message: &str) -> Result<(), FlowyError>;
 }
 
 #[derive(Debug, Default)]
@@ -70,7 +72,7 @@ pub struct AIManager {
   pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
   pub external_service: Arc<dyn AIExternalService>,
-  chats: Arc<DashMap<String, Arc<Chat>>>,
+  chats: Arc<DashMap<Uuid, Arc<Chat>>>,
   pub local_ai: Arc<LocalAIController>,
   pub store_preferences: Arc<KVStorePreferences>,
   server_models: Arc<RwLock<ServerModelsCache>>,
@@ -132,11 +134,11 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
-    self.chats.entry(chat_id.to_string()).or_insert_with(|| {
+  pub async fn open_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
+    self.chats.entry(*chat_id).or_insert_with(|| {
       Arc::new(Chat::new(
         self.user_service.user_id().unwrap(),
-        chat_id.to_string(),
+        *chat_id,
         self.user_service.clone(),
         self.cloud_service_wm.clone(),
       ))
@@ -150,7 +152,7 @@ impl AIManager {
     let cloud_service_wm = self.cloud_service_wm.clone();
     let store_preferences = self.store_preferences.clone();
     let external_service = self.external_service.clone();
-    let chat_id = chat_id.to_string();
+    let chat_id = *chat_id;
     tokio::spawn(async move {
       match refresh_chat_setting(
         &user_service,
@@ -161,7 +163,12 @@ impl AIManager {
       .await
       {
         Ok(settings) => {
-          let _ = sync_chat_documents(user_service, external_service, settings.rag_ids).await;
+          let rag_ids = settings
+            .rag_ids
+            .into_iter()
+            .flat_map(|r| Uuid::from_str(&r).ok())
+            .collect();
+          let _ = sync_chat_documents(user_service, external_service, rag_ids).await;
         },
         Err(err) => {
           error!("failed to refresh chat settings: {}", err);
@@ -172,13 +179,13 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn close_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     trace!("close chat: {}", chat_id);
     self.local_ai.close_chat(chat_id);
     Ok(())
   }
 
-  pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn delete_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
 
@@ -212,8 +219,8 @@ impl AIManager {
   pub async fn create_chat(
     &self,
     uid: &i64,
-    parent_view_id: &str,
-    chat_id: &str,
+    parent_view_id: &Uuid,
+    chat_id: &Uuid,
   ) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     let rag_ids = self
@@ -231,11 +238,11 @@ impl AIManager {
 
     let chat = Arc::new(Chat::new(
       self.user_service.user_id()?,
-      chat_id.to_string(),
+      *chat_id,
       self.user_service.clone(),
       self.cloud_service_wm.clone(),
     ));
-    self.chats.insert(chat_id.to_string(), chat.clone());
+    self.chats.insert(*chat_id, chat.clone());
     Ok(chat)
   }
 
@@ -244,7 +251,7 @@ impl AIManager {
     params: StreamMessageParams,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(&params.chat_id).await?;
-    let ai_model = self.get_active_model(&params.chat_id).await;
+    let ai_model = self.get_active_model(&params.chat_id.to_string()).await;
     let question = chat.stream_chat_message(&params, ai_model).await?;
     let _ = self
       .external_service
@@ -255,7 +262,7 @@ impl AIManager {
 
   pub async fn stream_regenerate_response(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     answer_message_id: i64,
     answer_stream_port: i64,
     format: Option<PredefinedFormatPB>,
@@ -270,13 +277,31 @@ impl AIManager {
       || {
         self
           .store_preferences
-          .get_object::<AIModel>(&ai_available_models_key(chat_id))
+          .get_object::<AIModel>(&ai_available_models_key(&chat_id.to_string()))
       },
       |model| Some(model.into()),
     );
     chat
       .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
+    Ok(())
+  }
+
+  pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
+    let previous_model = self.local_ai.get_local_ai_setting().chat_model_name;
+    self.local_ai.update_local_ai_setting(setting).await?;
+    let current_model = self.local_ai.get_local_ai_setting().chat_model_name;
+
+    if previous_model != current_model {
+      info!(
+        "[AI Plugin] update global active model, previous: {}, current: {}",
+        previous_model, current_model
+      );
+      let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
+      let model = AIModel::local(current_model, "".to_string());
+      self.update_selected_model(source_key, model).await?;
+    }
+
     Ok(())
   }
 
@@ -358,6 +383,10 @@ impl AIManager {
   }
 
   pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
+    info!(
+      "[Model Selection] update {} selected model: {:?}",
+      source, model
+    );
     let source_key = ai_available_models_key(&source);
     self
       .store_preferences
@@ -418,9 +447,15 @@ impl AIManager {
 
     trace!("[Model Selection]: Available models: {:?}", models);
 
+    let mut current_active_local_ai_model = None;
+
     // If user enable local ai, then add local ai model to the list.
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-      models.push(AIModel::local(local_model, "".to_string()));
+      let model = AIModel::local(local_model, "".to_string());
+      current_active_local_ai_model = Some(model.clone());
+
+      trace!("[Model Selection] current local ai model: {}", model.name);
+      models.push(model);
     }
 
     if models.is_empty() {
@@ -454,8 +489,16 @@ impl AIManager {
           user_selected_model = local_ai_model.clone();
         }
       },
-      Some(model) => {
-        trace!("[Model Selection] user select model: {:?}", model);
+      Some(mut model) => {
+        trace!("[Model Selection] user previous select model: {:?}", model);
+        if model.is_local {
+          if let Some(local_ai_model) = &current_active_local_ai_model {
+            if local_ai_model.name != model.name {
+              model = local_ai_model.clone();
+            }
+          }
+        }
+
         user_selected_model = model;
       },
     }
@@ -484,17 +527,17 @@ impl AIManager {
     })
   }
 
-  pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
+  pub async fn get_or_create_chat_instance(&self, chat_id: &Uuid) -> Result<Arc<Chat>, FlowyError> {
     let chat = self.chats.get(chat_id).as_deref().cloned();
     match chat {
       None => {
         let chat = Arc::new(Chat::new(
           self.user_service.user_id()?,
-          chat_id.to_string(),
+          *chat_id,
           self.user_service.clone(),
           self.cloud_service_wm.clone(),
         ));
-        self.chats.insert(chat_id.to_string(), chat.clone());
+        self.chats.insert(*chat_id, chat.clone());
         Ok(chat)
       },
       Some(chat) => Ok(chat),
@@ -518,7 +561,7 @@ impl AIManager {
 
   pub async fn load_prev_chat_messages(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     limit: i64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
@@ -531,7 +574,7 @@ impl AIManager {
 
   pub async fn load_latest_chat_messages(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     limit: i64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
@@ -544,7 +587,7 @@ impl AIManager {
 
   pub async fn get_related_questions(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     message_id: i64,
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
@@ -554,7 +597,7 @@ impl AIManager {
 
   pub async fn generate_answer(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     question_message_id: i64,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
@@ -562,19 +605,19 @@ impl AIManager {
     Ok(resp)
   }
 
-  pub async fn stop_stream(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn stop_stream(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     chat.stop_stream_message().await;
     Ok(())
   }
 
-  pub async fn chat_with_file(&self, chat_id: &str, file_path: PathBuf) -> FlowyResult<()> {
+  pub async fn chat_with_file(&self, chat_id: &Uuid, file_path: PathBuf) -> FlowyResult<()> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     chat.index_file(file_path).await?;
     Ok(())
   }
 
-  pub async fn get_rag_ids(&self, chat_id: &str) -> FlowyResult<Vec<String>> {
+  pub async fn get_rag_ids(&self, chat_id: &Uuid) -> FlowyResult<Vec<String>> {
     if let Some(settings) = self
       .store_preferences
       .get_object::<ChatSettings>(&setting_store_key(chat_id))
@@ -592,7 +635,7 @@ impl AIManager {
     Ok(settings.rag_ids)
   }
 
-  pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
+  pub async fn update_rag_ids(&self, chat_id: &Uuid, rag_ids: Vec<String>) -> FlowyResult<()> {
     info!("[Chat] update chat:{} rag ids: {:?}", chat_id, rag_ids);
     let workspace_id = self.user_service.workspace_id()?;
     let update_setting = UpdateChatParams {
@@ -623,6 +666,10 @@ impl AIManager {
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
+    let rag_ids = rag_ids
+      .into_iter()
+      .flat_map(|r| Uuid::from_str(&r).ok())
+      .collect();
     sync_chat_documents(user_service, external_service, rag_ids).await?;
     Ok(())
   }
@@ -631,7 +678,7 @@ impl AIManager {
 async fn sync_chat_documents(
   user_service: Arc<dyn AIUserService>,
   external_service: Arc<dyn AIExternalService>,
-  rag_ids: Vec<String>,
+  rag_ids: Vec<Uuid>,
 ) -> FlowyResult<()> {
   if rag_ids.is_empty() {
     return Ok(());
@@ -661,7 +708,7 @@ async fn sync_chat_documents(
   Ok(())
 }
 
-fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
+fn save_chat(conn: DBConnection, chat_id: &Uuid) -> FlowyResult<()> {
   let row = ChatTable {
     chat_id: chat_id.to_string(),
     created_at: timestamp(),
@@ -680,7 +727,7 @@ async fn refresh_chat_setting(
   user_service: &Arc<dyn AIUserService>,
   cloud_service: &Arc<AICloudServiceMiddleware>,
   store_preferences: &Arc<KVStorePreferences>,
-  chat_id: &str,
+  chat_id: &Uuid,
 ) -> FlowyResult<ChatSettings> {
   info!("[Chat] refresh chat:{} setting", chat_id);
   let workspace_id = user_service.workspace_id()?;
@@ -692,7 +739,7 @@ async fn refresh_chat_setting(
     error!("failed to set chat settings: {}", err);
   }
 
-  chat_notification_builder(chat_id, ChatNotification::DidUpdateChatSettings)
+  chat_notification_builder(chat_id.to_string(), ChatNotification::DidUpdateChatSettings)
     .payload(ChatSettingsPB {
       rag_ids: settings.rag_ids.clone(),
     })
@@ -701,6 +748,6 @@ async fn refresh_chat_setting(
   Ok(settings)
 }
 
-fn setting_store_key(chat_id: &str) -> String {
+fn setting_store_key(chat_id: &Uuid) -> String {
   format!("chat_settings_{}", chat_id)
 }

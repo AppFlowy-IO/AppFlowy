@@ -107,14 +107,14 @@
   "questionBubble": {
     "shortcuts": "Genvägar",
     "whatsNew": "Vad nytt?",
-    "help": "Hjälp & Support",
     "markdown": "Prissänkning",
     "debug": {
       "name": "Felsökningsinfo",
       "success": "Kopierade felsökningsinfo till urklipp!",
       "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
     },
-    "feedback": "Återkoppling"
+    "feedback": "Återkoppling",
+    "help": "Hjälp & Support"
   },
   "menuAppHeader": {
     "addPageTooltip": "Lägg till en underliggande sida",

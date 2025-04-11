@@ -723,9 +723,8 @@
     },
     "url": {
       "launch": "Άνοιγμα συνδέσμου στο πρόγραμμα περιήγησης",
-      "copy": "Copied link to clipboard",
-      "textFieldHint": "Enter a URL",
-      "copiedNotification": "Copied to clipboard!"
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",

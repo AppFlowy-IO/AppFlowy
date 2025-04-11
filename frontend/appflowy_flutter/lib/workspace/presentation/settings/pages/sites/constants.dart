@@ -53,8 +53,7 @@ class SettingsPageSitesEvent {
     );
     getIt<ClipboardService>().setData(ClipboardServiceData(plainText: url));
     showToastNotification(
-      context,
-      message: LocaleKeys.grid_url_copy.tr(),
+      message: LocaleKeys.message_copy_success.tr(),
     );
   }
 }

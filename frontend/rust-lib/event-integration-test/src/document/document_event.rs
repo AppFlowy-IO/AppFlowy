@@ -1,8 +1,6 @@
 use collab::entity::EncodedCollab;
 use std::collections::HashMap;
 
-use serde_json::Value;
-
 use flowy_document::entities::*;
 use flowy_document::event_map::DocumentEvent;
 use flowy_document::parser::parser_entities::{
@@ -11,6 +9,8 @@ use flowy_document::parser::parser_entities::{
 };
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder::event_map::FolderEvent;
+use serde_json::Value;
+use uuid::Uuid;
 
 use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;
@@ -37,7 +37,7 @@ impl DocumentEventTest {
     Self { event_test: core }
   }
 
-  pub async fn get_encoded_v1(&self, doc_id: &str) -> EncodedCollab {
+  pub async fn get_encoded_v1(&self, doc_id: &Uuid) -> EncodedCollab {
     let doc = self
       .event_test
       .appflowy_core

@@ -1,6 +1,3 @@
-use std::fs;
-use std::path::PathBuf;
-
 use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
 use crate::completion::AICompletion;
 use crate::entities::*;
@@ -10,8 +7,12 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use std::fs;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use tracing::trace;
+use uuid::Uuid;
 use validator::Validate;
 
 fn upgrade_ai_manager(ai_manager: AFPluginState<Weak<AIManager>>) -> FlowyResult<Arc<AIManager>> {
@@ -70,6 +71,7 @@ pub(crate) async fn stream_chat_message_handler(
 
   trace!("Stream chat message with metadata: {:?}", metadata);
 
+  let chat_id = Uuid::from_str(&chat_id)?;
   let params = StreamMessageParams {
     chat_id,
     message,
@@ -91,11 +93,12 @@ pub(crate) async fn regenerate_response_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> FlowyResult<()> {
   let data = data.try_into_inner()?;
+  let chat_id = Uuid::from_str(&data.chat_id)?;
 
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   ai_manager
     .stream_regenerate_response(
-      &data.chat_id,
+      &chat_id,
       data.answer_message_id,
       data.answer_stream_port,
       data.format,
@@ -147,8 +150,9 @@ pub(crate) async fn load_prev_message_handler(
   let data = data.into_inner();
   data.validate()?;
 
+  let chat_id = Uuid::from_str(&data.chat_id)?;
   let messages = ai_manager
-    .load_prev_chat_messages(&data.chat_id, data.limit, data.before_message_id)
+    .load_prev_chat_messages(&chat_id, data.limit, data.before_message_id)
     .await?;
   data_result_ok(messages)
 }
@@ -162,8 +166,9 @@ pub(crate) async fn load_next_message_handler(
   let data = data.into_inner();
   data.validate()?;
 
+  let chat_id = Uuid::from_str(&data.chat_id)?;
   let messages = ai_manager
-    .load_latest_chat_messages(&data.chat_id, data.limit, data.after_message_id)
+    .load_latest_chat_messages(&chat_id, data.limit, data.after_message_id)
     .await?;
   data_result_ok(messages)
 }
@@ -175,8 +180,9 @@ pub(crate) async fn get_related_question_handler(
 ) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
+  let chat_id = Uuid::from_str(&data.chat_id)?;
   let messages = ai_manager
-    .get_related_questions(&data.chat_id, data.message_id)
+    .get_related_questions(&chat_id, data.message_id)
     .await?;
   data_result_ok(messages)
 }
@@ -188,8 +194,9 @@ pub(crate) async fn get_answer_handler(
 ) -> DataResult<ChatMessagePB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
+  let chat_id = Uuid::from_str(&data.chat_id)?;
   let message = ai_manager
-    .generate_answer(&data.chat_id, data.message_id)
+    .generate_answer(&chat_id, data.message_id)
     .await?;
   data_result_ok(message)
 }
@@ -203,7 +210,8 @@ pub(crate) async fn stop_stream_handler(
   data.validate()?;
 
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  ai_manager.stop_stream(&data.chat_id).await?;
+  let chat_id = Uuid::from_str(&data.chat_id)?;
+  ai_manager.stop_stream(&chat_id).await?;
   Ok(())
 }
 
@@ -273,7 +281,8 @@ pub(crate) async fn chat_file_handler(
 
   tracing::debug!("File size: {} bytes", file_size);
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  ai_manager.chat_with_file(&data.chat_id, file_path).await?;
+  let chat_id = Uuid::from_str(&data.chat_id)?;
+  ai_manager.chat_with_file(&chat_id, file_path).await?;
   Ok(())
 }
 
@@ -332,6 +341,7 @@ pub(crate) async fn get_chat_settings_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatSettingsPB, FlowyError> {
   let chat_id = data.try_into_inner()?.value;
+  let chat_id = Uuid::from_str(&chat_id)?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
   let pb = ChatSettingsPB { rag_ids };
@@ -345,9 +355,8 @@ pub(crate) async fn update_chat_settings_handler(
 ) -> FlowyResult<()> {
   let params = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  ai_manager
-    .update_rag_ids(&params.chat_id.value, params.rag_ids)
-    .await?;
+  let chat_id = Uuid::from_str(&params.chat_id.value)?;
+  ai_manager.update_rag_ids(&chat_id, params.rag_ids).await?;
 
   Ok(())
 }
@@ -369,9 +378,6 @@ pub(crate) async fn update_local_ai_setting_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  ai_manager
-    .local_ai
-    .update_local_ai_setting(data.into())
-    .await?;
+  ai_manager.update_local_ai_setting(data.into()).await?;
   Ok(())
 }

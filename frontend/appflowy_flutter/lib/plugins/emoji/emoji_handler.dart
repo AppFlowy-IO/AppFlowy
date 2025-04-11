@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
@@ -25,6 +24,7 @@ class EmojiHandler extends StatefulWidget {
     required this.onEmojiSelect,
     this.startCharAmount = 1,
     this.cancelBySpaceHandler,
+    this.initialSearchText = '',
   });
 
   final EditorState editorState;
@@ -33,6 +33,7 @@ class EmojiHandler extends StatefulWidget {
   final VoidCallback onSelectionUpdate;
   final SelectEmojiItemHandler onEmojiSelect;
   final int startCharAmount;
+  final String initialSearchText;
   final bool Function()? cancelBySpaceHandler;
 
   @override
@@ -47,7 +48,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   bool loaded = false;
   int invalidCounter = 0;
   late int startOffset;
-  String _search = '';
+  late String _search = widget.initialSearchText;
   double emojiHeight = 36.0;
   final configuration = EmojiPickerConfiguration(
     defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
@@ -67,7 +68,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       (_) => focusNode.requestFocus(),
     );
 
-    startOffset = widget.editorState.selection?.endIndex ?? 0;
+    startOffset = (widget.editorState.selection?.endIndex ?? 0) - 1;
 
     if (kCachedEmojiData != null) {
       loadEmojis(kCachedEmojiData!);
@@ -186,11 +187,14 @@ class _EmojiHandlerState extends State<EmojiHandler> {
         loaded = true;
       });
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _doSearch();
+    });
   }
 
-  Future<void> _doSearch() async {
-    if (!loaded) return;
-    if (_search.startsWith(' ')) {
+  void _doSearch() {
+    if (!loaded || !mounted) return;
+    if (_search.startsWith(' ') || _search.isEmpty) {
       widget.onDismiss.call();
       return;
     }
@@ -266,42 +270,13 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       return KeyEventResult.handled;
     }
 
-    if ([LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowRight]
-        .contains(event.logicalKey)) {
-      widget.onSelectionUpdate();
-
-      event.logicalKey == LogicalKeyboardKey.arrowLeft
-          ? widget.editorState.moveCursorForward()
-          : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
-
-      /// If cursor moves before @ then dismiss menu
-      /// If cursor moves after @search.length then dismiss menu
-      final selection = widget.editorState.selection;
-      if (selection != null &&
-          (selection.endIndex < startOffset ||
-              selection.endIndex > (startOffset + _search.length))) {
-        widget.onDismiss.call();
-      }
-
-      /// Workaround: When using the move cursor methods, it seems the
-      ///  focus goes back to the editor, this makes sure this handler
-      ///  receives the next keypress.
-      ///
-      focusNode.requestFocus();
-
-      return KeyEventResult.handled;
-    }
-
     return KeyEventResult.handled;
   }
 
   void onSelect(int index) {
     widget.onEmojiSelect.call(
       context,
-      (
-        startOffset - widget.startCharAmount,
-        _search.length + widget.startCharAmount
-      ),
+      (startOffset - widget.startCharAmount, startOffset + _search.length),
       emojiData.getEmojiById(searchedEmojis[index].id),
     );
     widget.onDismiss.call();
@@ -406,7 +381,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
     search = delta.toPlainText().substring(
           startOffset,
-          startOffset - 1 + _search.length,
+          startOffset + _search.length - 1,
         );
   }
 

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 
 class CustomLinkPreviewWidget extends StatelessWidget {
   const CustomLinkPreviewWidget({
@@ -21,6 +22,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     this.title,
     this.description,
     this.imageUrl,
+    this.isHovering = false,
+    this.status = LinkPreviewStatus.loading,
   });
 
   final Node node;
@@ -28,9 +31,14 @@ class CustomLinkPreviewWidget extends StatelessWidget {
   final String? description;
   final String? imageUrl;
   final String url;
+  final bool isHovering;
+  final LinkPreviewStatus status;
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context),
+        borderScheme = theme.borderColorScheme,
+        textScheme = theme.textColorScheme;
     final documentFontSize = context
             .read<EditorState>()
             .editorStyle
@@ -39,69 +47,60 @@ class CustomLinkPreviewWidget extends StatelessWidget {
             .fontSize ??
         16.0;
     final (fontSize, width) = UniversalPlatform.isDesktopOrWeb
-        ? (documentFontSize, 180.0)
+        ? (documentFontSize, 160.0)
         : (documentFontSize - 2, 120.0);
     final Widget child = Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface,
+          color: isHovering
+              ? borderScheme.greyTertiaryHover
+              : borderScheme.greyTertiary,
         ),
-        borderRadius: BorderRadius.circular(
-          6.0,
-        ),
+        borderRadius: BorderRadius.circular(16.0),
       ),
-      child: IntrinsicHeight(
+      child: SizedBox(
+        height: 96,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (imageUrl != null)
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(6.0),
-                  bottomLeft: Radius.circular(6.0),
-                ),
-                child: FlowyNetworkImage(
-                  url: imageUrl!,
-                  width: width,
-                ),
-              ),
+            buildImage(context),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(20, 12, 60, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    buildLoadingOrErrorWidget(),
                     if (title != null)
                       Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: 4.0,
-                          right: 10.0,
-                        ),
+                        padding: const EdgeInsets.only(bottom: 4.0),
                         child: FlowyText.medium(
                           title!,
-                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           fontSize: fontSize,
+                          color: textScheme.primary,
+                          figmaLineHeight: 20,
                         ),
                       ),
                     if (description != null)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
+                        padding: const EdgeInsets.only(bottom: 16.0),
                         child: FlowyText(
                           description!,
-                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           fontSize: fontSize - 4,
+                          figmaLineHeight: 16,
+                          color: textScheme.primary,
                         ),
                       ),
                     FlowyText(
                       url.toString(),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                      color: Theme.of(context).hintColor,
+                      color: textScheme.secondary,
                       fontSize: fontSize - 4,
+                      figmaLineHeight: 16,
                     ),
                   ],
                 ),
@@ -150,4 +149,67 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       ),
     ];
   }
+
+  Widget buildImage(BuildContext context) {
+    final theme = AppFlowyTheme.of(context),
+        fillScheme = theme.fillColorScheme,
+        iconScheme = theme.iconColorTheme;
+    final width = UniversalPlatform.isDesktopOrWeb ? 160.0 : 120.0;
+    Widget child;
+    if (imageUrl != null) {
+      child = FlowyNetworkImage(
+        url: imageUrl!,
+        width: width,
+      );
+    } else {
+      child = Center(
+        child: FlowySvg(
+          FlowySvgs.toolbar_link_earth_m,
+          color: iconScheme.secondary,
+          size: Size.square(30),
+        ),
+      );
+    }
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16.0),
+        bottomLeft: Radius.circular(16.0),
+      ),
+      child: Container(
+        width: width,
+        color: fillScheme.quaternary,
+        child: child,
+      ),
+    );
+  }
+
+  Widget buildLoadingOrErrorWidget() {
+    if (status == LinkPreviewStatus.loading) {
+      return Expanded(
+        child: const Center(
+          child: SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator.adaptive(),
+          ),
+        ),
+      );
+    } else if (status == LinkPreviewStatus.error) {
+      return Expanded(
+        child: const Center(
+          child: SizedBox(
+            height: 16,
+            width: 16,
+            child: Icon(
+              Icons.error_outline,
+              color: Colors.red,
+            ),
+          ),
+        ),
+      );
+    }
+    return SizedBox.shrink();
+  }
 }
+
+enum LinkPreviewStatus { loading, error, idle }

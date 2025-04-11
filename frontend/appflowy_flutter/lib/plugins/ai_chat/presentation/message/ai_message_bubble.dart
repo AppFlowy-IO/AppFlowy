@@ -376,8 +376,7 @@ class ChatAIMessagePopup extends StatelessWidget {
         }
         if (context.mounted) {
           showToastNotification(
-            context,
-            message: LocaleKeys.grid_url_copiedNotification.tr(),
+            message: LocaleKeys.message_copy_success.tr(),
           );
         }
       },

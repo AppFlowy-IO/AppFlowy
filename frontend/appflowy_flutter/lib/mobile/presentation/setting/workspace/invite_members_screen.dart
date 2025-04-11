@@ -201,7 +201,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       result.fold(
         (s) {
           showToastNotification(
-            context,
             message:
                 LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
             bottomPadding: keyboardHeight,
@@ -218,7 +217,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
           });
           showToastNotification(
-            context,
             type: ToastificationType.error,
             bottomPadding: keyboardHeight,
             message: message,
@@ -229,7 +227,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       result.fold(
         (s) {
           showToastNotification(
-            context,
             message:
                 LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
             bottomPadding: keyboardHeight,
@@ -247,7 +244,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
           });
           showToastNotification(
-            context,
             type: ToastificationType.error,
             message: message,
             bottomPadding: keyboardHeight,
@@ -258,7 +254,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       result.fold(
         (s) {
           showToastNotification(
-            context,
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceSuccess
                 .tr(),
@@ -267,7 +262,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         },
         (f) {
           showToastNotification(
-            context,
             type: ToastificationType.error,
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceFailed
@@ -282,11 +276,11 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
   void _inviteMember(BuildContext context) {
     final email = emailController.text;
     if (!isEmail(email)) {
-      return showToastNotification(
-        context,
+      showToastNotification(
         type: ToastificationType.error,
         message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
       );
+      return;
     }
     context
         .read<WorkspaceMemberBloc>()

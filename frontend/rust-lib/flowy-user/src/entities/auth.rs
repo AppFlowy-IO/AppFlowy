@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 
+use client_api::entity::GotrueTokenResponse;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
 
@@ -84,6 +85,53 @@ pub struct MagicLinkSignInPB {
 
   #[pb(index = 2)]
   pub redirect_to: String,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct PasscodeSignInPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub passcode: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct GotrueTokenResponsePB {
+  #[pb(index = 1)]
+  pub access_token: String,
+
+  #[pb(index = 2)]
+  pub token_type: String,
+
+  #[pb(index = 3)]
+  pub expires_in: i64,
+
+  #[pb(index = 4)]
+  pub expires_at: i64,
+
+  #[pb(index = 5)]
+  pub refresh_token: String,
+
+  #[pb(index = 6, one_of)]
+  pub provider_access_token: Option<String>,
+
+  #[pb(index = 7, one_of)]
+  pub provider_refresh_token: Option<String>,
+}
+
+impl From<GotrueTokenResponse> for GotrueTokenResponsePB {
+  fn from(response: GotrueTokenResponse) -> Self {
+    Self {
+      access_token: response.access_token,
+      token_type: response.token_type,
+      expires_in: response.expires_in,
+      expires_at: response.expires_at,
+      refresh_token: response.refresh_token,
+      provider_access_token: response.provider_access_token,
+      provider_refresh_token: response.provider_refresh_token,
+    }
+  }
 }
 
 #[derive(ProtoBuf, Default)]

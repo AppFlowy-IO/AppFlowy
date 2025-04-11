@@ -271,8 +271,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           return;
         }
 
-        if (options.inMemoryUpdate && enableDocumentInternalLog) {
-          Log.trace('skip transaction for in-memory update');
+        if (options.inMemoryUpdate) {
+          if (enableDocumentInternalLog) {
+            Log.trace('skip transaction for in-memory update');
+          }
           return;
         }
 
@@ -440,7 +442,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       final context = AppGlobals.rootNavKey.currentContext;
       if (context != null && context.mounted) {
         showToastNotification(
-          context,
           message: 'document integrity check failed',
           type: ToastificationType.error,
         );

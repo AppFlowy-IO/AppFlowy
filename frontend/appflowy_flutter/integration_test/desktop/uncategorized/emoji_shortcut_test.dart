@@ -43,12 +43,15 @@ void main() {
   });
 
   group('insert emoji by colon', () {
-    Future<void> createNewDocumentAndShowEmojiList(WidgetTester tester) async {
+    Future<void> createNewDocumentAndShowEmojiList(
+      WidgetTester tester, {
+      String? search,
+    }) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent();
       await tester.editor.tapLineOfEditorAt(0);
-      await tester.ime.insertText(':');
+      await tester.ime.insertText(':${search ?? 'a'}');
       await tester.pumpAndSettle(Duration(seconds: 1));
     }
 
@@ -106,11 +109,10 @@ void main() {
     });
 
     testWidgets('insert with searching', (tester) async {
-      await createNewDocumentAndShowEmojiList(tester);
+      await createNewDocumentAndShowEmojiList(tester, search: 's');
 
       /// search for `smiling eyes`, IME is not working, use keyboard input
       final searchText = [
-        LogicalKeyboardKey.keyS,
         LogicalKeyboardKey.keyM,
         LogicalKeyboardKey.keyI,
         LogicalKeyboardKey.keyL,
@@ -138,16 +140,10 @@ void main() {
     });
 
     testWidgets('start searching with sapce', (tester) async {
-      await createNewDocumentAndShowEmojiList(tester);
+      await createNewDocumentAndShowEmojiList(tester, search: ' ');
 
       /// emoji list is showing
       final emojiHandler = find.byType(EmojiHandler);
-      expect(emojiHandler, findsOneWidget);
-
-      /// input space
-      await tester.simulateKeyEvent(LogicalKeyboardKey.space);
-
-      /// emoji list is dismissed
       expect(emojiHandler, findsNothing);
     });
   });

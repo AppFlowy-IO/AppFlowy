@@ -203,7 +203,6 @@ class _PublishedViewSettingsDialogState
     result.fold(
       (s) {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
         );
         Navigator.of(context).pop();
@@ -212,7 +211,6 @@ class _PublishedViewSettingsDialogState
         Log.error('update path name failed: $f');
 
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
           type: ToastificationType.error,
           description: f.code.publishErrorMessage,

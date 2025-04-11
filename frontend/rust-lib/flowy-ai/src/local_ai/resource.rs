@@ -5,13 +5,13 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-use crate::local_ai::watch::{is_plugin_ready, ollama_plugin_path};
 #[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
 use af_local_ai::ollama_plugin::OllamaPluginConfig;
+use af_plugin::core::path::{is_plugin_ready, ollama_plugin_path};
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
 use serde::Deserialize;
@@ -139,12 +139,14 @@ impl LocalAIResourceController {
   pub async fn set_llm_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     self.resource_service.store_setting(setting)?;
     if let Some(resource) = self.calculate_pending_resources().await? {
+      let resource = LackOfAIResourcePB::from(resource);
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::LocalAIResourceUpdated,
       )
-      .payload(LackOfAIResourcePB::from(resource))
+      .payload(resource.clone())
       .send();
+      return Err(FlowyError::local_ai().with_context(format!("{:?}", resource)));
     }
     Ok(())
   }
@@ -193,9 +195,14 @@ impl LocalAIResourceController {
         let tags: TagsResponse = resp.json().await.inspect_err(|e| {
           log::error!("[LLM Resource] Failed to parse /api/tags JSON response: {e:?}")
         })?;
-        // Check each required model is present in the response.
+        // Check if each of our required models exists in the list of available models
+        trace!("[LLM Resource] ollama available models: {:?}", tags.models);
         for required in &required_models {
-          if !tags.models.iter().any(|m| m.name.contains(required)) {
+          if !tags
+            .models
+            .iter()
+            .any(|m| m.name == *required || m.name == format!("{}:latest", required))
+          {
             log::trace!(
               "[LLM Resource] required model '{}' not found in API response",
               required

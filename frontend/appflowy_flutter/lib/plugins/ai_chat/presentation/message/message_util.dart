@@ -14,7 +14,6 @@ import 'package:universal_platform/universal_platform.dart';
 void openPageFromMessage(BuildContext context, ViewPB? view) {
   if (view == null) {
     showToastNotification(
-      context,
       message: LocaleKeys.chat_openPagePreviewFailedToast.tr(),
       type: ToastificationType.error,
     );
@@ -36,7 +35,6 @@ void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
     return;
   }
   showToastNotification(
-    context,
     richMessage: TextSpan(
       children: [
         TextSpan(
