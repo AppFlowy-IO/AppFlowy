@@ -324,6 +324,12 @@ class MarkdownTextRobot {
     required Selection selection,
     required String markdownText,
   }) async {
+    if (markdownText.isEmpty) {
+      assert(false, 'Expected non-empty markdown text');
+      Log.error('Expected non-empty markdown text');
+      return;
+    }
+
     selection = selection.normalized;
 
     // If the selection is not a single node, do nothing.
@@ -376,15 +382,42 @@ class MarkdownTextRobot {
     //   }
     // ]
     final document = customMarkdownToDocument(markdownText);
+    final nodes = document.root.children;
     final decoder = DeltaMarkdownDecoder();
     final markdownDelta =
-        document.nodeAtPath([0])?.delta ?? decoder.convert(markdownText);
+        nodes.firstOrNull?.delta ?? decoder.convert(markdownText);
+
+    if (markdownDelta.isEmpty) {
+      assert(false, 'Expected non-empty markdown delta');
+      Log.error('Expected non-empty markdown delta');
+      return;
+    }
 
     // Replace the delta of the selected node.
     final transaction = editorState.transaction;
-    transaction
-      ..deleteText(node, startIndex, length)
-      ..insertTextDelta(node, startIndex, markdownDelta);
+
+    // it means the user selected the entire sentence, we just replace the node
+    if (startIndex == 0 && length == node.delta?.length) {
+      transaction
+        ..insertNodes(node.path.next, nodes)
+        ..deleteNode(node);
+    } else {
+      // it means the user selected a part of the sentence, we need to delete the
+      // selected part and insert the new delta.
+      transaction
+        ..deleteText(node, startIndex, length)
+        ..insertTextDelta(node, startIndex, markdownDelta);
+
+      // Add the remaining nodes to the document.
+      final remainingNodes = nodes.skip(1);
+      if (remainingNodes.isNotEmpty) {
+        transaction.insertNodes(
+          node.path.next,
+          remainingNodes,
+        );
+      }
+    }
+
     await editorState.apply(transaction);
   }
 
