@@ -365,32 +365,6 @@ jobs:
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
           rust_target: ${{ matrix.target }}
 
-  windows_integration_test:
-    needs: [prepare-windows]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest]
-        test_number: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        include:
-          - os: windows-latest
-            target: "x86_64-pc-windows-msvc"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test ${{ matrix.test_number }}
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          os: ${{ matrix.os }}
-          test_path: integration_test/desktop_runner_${{ matrix.test_number }}.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
   macos_integration_test:
     needs: [prepare-macos]
     if: github.event.pull_request.draft != true

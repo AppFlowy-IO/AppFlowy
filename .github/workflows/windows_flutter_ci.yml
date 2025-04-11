@@ -1,0 +1,116 @@
+name: Windows Tests (Flutter)
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - ".github/workflows/flutter_ci.yaml"
+      - ".github/actions/flutter_build/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - ".github/workflows/flutter_ci.yaml"
+      - ".github/actions/flutter_build/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.27.4"
+  RUST_TOOLCHAIN: "1.81.0"
+  CARGO_MAKE_VERSION: "0.37.18"
+  CLOUD_VERSION: 0.6.54-amd64
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows_tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        include:
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.target }}
+          override: true
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.os }}
+          workspaces: |
+            frontend/rust-lib
+          cache-all-crates: true
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
+
+      - name: Install prerequisites
+        working-directory: frontend
+        shell: bash
+        run: |
+          vcpkg integrate install
+          vcpkg update
+          cargo make appflowy-flutter-deps-tools
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
+        shell: bash
+
+      - name: Run code generation
+        working-directory: frontend
+        run: cargo make code_generation
+        shell: bash
+
+      - name: Flutter Analyzer
+        working-directory: frontend/appflowy_flutter
+        run: flutter analyze .
+        shell: bash
+
+      - name: Run Flutter unit tests
+        env:
+          DISABLE_EVENT_LOG: true
+          DISABLE_CI_TEST_LOG: "true"
+        working-directory: frontend
+        run: cargo make dart_unit_test_no_build
+        shell: bash
+
+      - name: Run Flutter integration tests
+        working-directory: frontend/appflowy_flutter
+        run: flutter test integration_test/runner.dart -d Windows --coverage
+        shell: bash
