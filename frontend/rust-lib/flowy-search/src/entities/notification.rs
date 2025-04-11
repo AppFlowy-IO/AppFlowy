@@ -1,11 +1,10 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-
 use super::SearchResultPB;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct SearchResultNotificationPB {
   #[pb(index = 1)]
-  pub items: Vec<SearchResultPB>,
+  pub result: SearchResultPB,
 
   #[pb(index = 2)]
   pub sends: u64,

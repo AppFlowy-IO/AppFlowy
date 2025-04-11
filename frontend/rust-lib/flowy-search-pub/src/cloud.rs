@@ -1,4 +1,4 @@
-use client_api::entity::search_dto::SearchDocumentResponseItem;
+use client_api::entity::search_dto::SearchResult;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
@@ -9,5 +9,5 @@ pub trait SearchCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     query: String,
-  ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError>;
+  ) -> Result<SearchResult, FlowyError>;
 }

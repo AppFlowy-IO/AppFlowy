@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-extension GetIcon on SearchResultPB {
+extension GetIcon on SearchResponseItemPB {
   Widget? getIcon() {
     final iconValue = icon.value, iconType = icon.ty;
     if (iconType == ResultIconTypePB.Emoji) {

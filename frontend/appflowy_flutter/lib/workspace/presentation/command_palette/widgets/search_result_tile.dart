@@ -16,12 +16,12 @@ import 'package:flutter/services.dart';
 class SearchResultTile extends StatefulWidget {
   const SearchResultTile({
     super.key,
-    required this.result,
+    required this.item,
     required this.onSelected,
     this.isTrashed = false,
   });
 
-  final SearchResultPB result;
+  final SearchResponseItemPB item;
   final VoidCallback onSelected;
   final bool isTrashed;
 
@@ -42,11 +42,11 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.result.data.orDefault(
+    final title = widget.item.data.orDefault(
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
     );
-    final icon = widget.result.getIcon();
-    final cleanedPreview = _cleanPreview(widget.result.preview);
+    final icon = widget.item.getIcon();
+    final cleanedPreview = _cleanPreview(widget.item.preview);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -55,7 +55,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
         getIt<ActionNavigationBloc>().add(
           ActionNavigationEvent.performAction(
-            action: NavigationAction(objectId: widget.result.viewId),
+            action: NavigationAction(objectId: widget.item.viewId),
           ),
         );
       },
@@ -70,7 +70,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
             getIt<ActionNavigationBloc>().add(
               ActionNavigationEvent.performAction(
-                action: NavigationAction(objectId: widget.result.viewId),
+                action: NavigationAction(objectId: widget.item.viewId),
               ),
             );
             return KeyEventResult.handled;

@@ -11,11 +11,13 @@ class SearchResultsList extends StatelessWidget {
   const SearchResultsList({
     super.key,
     required this.trash,
-    required this.results,
+    required this.resultItems,
+    required this.resultSummaries,
   });
 
   final List<TrashPB> trash;
-  final List<SearchResultPB> results;
+  final List<SearchResponseItemPB> resultItems;
+  final List<SearchSummaryPB> resultSummaries;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class SearchResultsList extends StatelessWidget {
       shrinkWrap: true,
       physics: const ClampingScrollPhysics(),
       separatorBuilder: (_, __) => const Divider(height: 0),
-      itemCount: results.length + 1,
+      itemCount: resultItems.length + 1,
       itemBuilder: (_, index) {
         if (index == 0) {
           return Padding(
@@ -35,11 +37,11 @@ class SearchResultsList extends StatelessWidget {
           );
         }
 
-        final result = results[index - 1];
+        final item = resultItems[index - 1];
         return SearchResultTile(
-          result: result,
+          item: item,
           onSelected: () => FlowyOverlay.pop(context),
-          isTrashed: trash.any((t) => t.id == result.viewId),
+          isTrashed: trash.any((t) => t.id == item.viewId),
         );
       },
     );
