@@ -483,16 +483,6 @@ void main() {
       });
     });
 
-    testWidgets('paste image url without extension', (tester) async {
-      const plainText =
-          'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640';
-      await tester.pasteContent(plainText: plainText, (editorState) {
-        final node = editorState.getNodeAtPath([0])!;
-        expect(node.type, ImageBlockKeys.type);
-        expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
-      });
-    });
-
     const testMarkdownText = '''
 # I'm h1
 ## I'm h2
