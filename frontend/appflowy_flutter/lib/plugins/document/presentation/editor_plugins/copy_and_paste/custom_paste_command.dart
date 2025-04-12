@@ -186,7 +186,7 @@ Future<bool> _pasteAsLinkPreview(
       node.delta?.toPlainText().isNotEmpty == true) {
     return false;
   }
-
+  if (!isMobile) return false;
   final bool isImageUrl;
   try {
     isImageUrl = await _isImageUrl(text);
@@ -195,7 +195,7 @@ Future<bool> _pasteAsLinkPreview(
     return false;
   }
 
-  if (!isMobile && !isImageUrl) return false;
+  if (!isImageUrl) return false;
 
   // insert the text with link format
   final textTransaction = editorState.transaction
