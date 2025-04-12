@@ -34,8 +34,8 @@ extension TextDeltaExtension on Delta {
             continue;
           } else if (mentionType == MentionType.externalLink.name) {
             final url = mention?[MentionBlockKeys.url] ?? '';
-            final info = await LinkInfoCache().get(url);
-            text += info?.siteName ?? url;
+            final info = await LinkInfoCache.get(url);
+            text += info?.title ?? url;
             continue;
           }
         }

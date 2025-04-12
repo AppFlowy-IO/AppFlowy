@@ -56,7 +56,9 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
         textColorScheme = theme.textColorScheme;
-
+    final imageUrl = linkInfo.imageUrl ?? '',
+        description = linkInfo.description ?? '';
+    final imageHeight = 120.0;
     final card = MouseRegion(
       onEnter: widget.onEnter,
       onExit: widget.onExit,
@@ -67,20 +69,21 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: FlowyNetworkImage(
-                url: linkInfo.imageUrl ?? '',
-                width: 280,
-                height: 120,
+            if (imageUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: FlowyNetworkImage(
+                  url: linkInfo.imageUrl ?? '',
+                  width: 280,
+                  height: imageHeight,
+                ),
               ),
-            ),
             VSpace(12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: FlowyText.semibold(
-                linkInfo.siteName ?? '',
+                linkInfo.title ?? linkInfo.siteName ?? '',
                 fontSize: 14,
                 figmaLineHeight: 20,
                 color: textColorScheme.primary,
@@ -88,18 +91,20 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
               ),
             ),
             VSpace(4),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: FlowyText(
-                linkInfo.description ?? '',
-                fontSize: 12,
-                figmaLineHeight: 16,
-                color: textColorScheme.secondary,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+            if (description.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: FlowyText(
+                  description,
+                  fontSize: 12,
+                  figmaLineHeight: 16,
+                  color: textColorScheme.secondary,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            VSpace(36),
+              VSpace(36),
+            ],
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               height: 28,
@@ -109,7 +114,7 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
                   HSpace(6),
                   Expanded(
                     child: FlowyText(
-                      linkInfo.description ?? '',
+                      linkInfo.siteName ?? linkInfo.url,
                       fontSize: 12,
                       figmaLineHeight: 16,
                       color: textColorScheme.primary,

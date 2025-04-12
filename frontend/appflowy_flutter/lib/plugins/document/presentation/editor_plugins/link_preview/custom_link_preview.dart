@@ -163,7 +163,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
         iconScheme = theme.iconColorTheme;
     final width = UniversalPlatform.isDesktopOrWeb ? 160.0 : 120.0;
     Widget child;
-    if (imageUrl != null) {
+    if (imageUrl?.isNotEmpty ?? false) {
       child = FlowyNetworkImage(
         url: imageUrl!,
         width: width,

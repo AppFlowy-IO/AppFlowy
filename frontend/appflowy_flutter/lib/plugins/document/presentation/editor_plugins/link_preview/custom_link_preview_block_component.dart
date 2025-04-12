@@ -70,7 +70,7 @@ class CustomLinkPreviewBlockComponentState
 
   final parser = LinkParser();
   LinkLoadingStatus status = LinkLoadingStatus.loading;
-  LinkInfo linkInfo = LinkInfo();
+  late LinkInfo linkInfo = LinkInfo(url: url);
 
   final showActionsNotifier = ValueNotifier<bool>(false);
   bool isMenuShowing = false, isHovering = false;

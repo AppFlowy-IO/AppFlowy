@@ -42,7 +42,7 @@ class MentionLinkBlock extends StatefulWidget {
 class _MentionLinkBlockState extends State<MentionLinkBlock> {
   final parser = LinkParser();
   _LoadingStatus status = _LoadingStatus.loading;
-  LinkInfo linkInfo = LinkInfo();
+  late LinkInfo linkInfo = LinkInfo(url: url);
   final previewController = PopoverController();
   bool isHovering = false;
   int previewFocusNum = 0;
@@ -149,6 +149,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
 
   Widget buildIconWithTitle(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
+    final siteName = linkInfo.siteName, linkTitle = linkInfo.title ?? url;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -170,12 +171,33 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               buildIcon(),
               HSpace(4),
               Flexible(
-                child: FlowyText(
-                  linkInfo.siteName ?? url,
-                  color: theme.textColorScheme.primary,
-                  fontSize: 14,
-                  figmaLineHeight: 20,
+                child: RichText(
                   overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    children: [
+                      if (siteName != null) ...[
+                        TextSpan(
+                          text: siteName,
+                          style: TextStyle(
+                            color: theme.textColorScheme.secondary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            height: 20 / 14,
+                          ),
+                        ),
+                        WidgetSpan(child: HSpace(2)),
+                      ],
+                      TextSpan(
+                        text: linkTitle,
+                        style: TextStyle(
+                          color: theme.textColorScheme.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 20 / 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               HSpace(2),
@@ -324,9 +346,10 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
         maxHeight: 48 + size.height,
       );
     }
+    final hasImage = linkInfo.imageUrl?.isNotEmpty ?? false;
     return BoxConstraints(
       maxWidth: max(300, size.width),
-      maxHeight: 300,
+      maxHeight: hasImage ? 300 : 180,
     );
   }
 }

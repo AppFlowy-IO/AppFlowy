@@ -5,39 +5,29 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/appflowy_network_svg.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:favicon/favicon.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_link_previewer/flutter_link_previewer.dart' hide Size;
+import 'link_parsers/default_parser.dart';
 
 class LinkParser {
-  static final LinkInfoCache _cache = LinkInfoCache();
   final Set<ValueChanged<LinkInfo>> _listeners = <ValueChanged<LinkInfo>>{};
 
-  Future<void> start(String url) async {
-    final data = await _cache.get(url);
+  Future<void> start(String url, {LinkInfoParser? parser}) async {
+    final data = await LinkInfoCache.get(url);
     if (data != null) {
       refreshLinkInfo(data);
     }
-    await _getLinkInfo(url);
+    await _getLinkInfo(url, parser ?? DefaultParser());
   }
 
-  Future<LinkInfo?> _getLinkInfo(String url) async {
+  Future<LinkInfo?> _getLinkInfo(String url, LinkInfoParser parser) async {
     try {
-      final previewData = await getPreviewData(url);
-      final favicon = await FaviconFinder.getBest(url);
-      final linkInfo = LinkInfo(
-        siteName: previewData.title,
-        description: previewData.description,
-        imageUrl: previewData.image?.url,
-        faviconUrl: favicon?.url,
-      );
-      if (!linkInfo.isEmpty()) await _cache.set(url, linkInfo);
+      final linkInfo = await parser.parse(url) ?? LinkInfo(url: url);
+      if (!linkInfo.isEmpty()) await LinkInfoCache.set(url, linkInfo);
       refreshLinkInfo(linkInfo);
       return linkInfo;
     } catch (e, s) {
       Log.error('get link info error: ', e, s);
-      refreshLinkInfo(LinkInfo());
+      refreshLinkInfo(LinkInfo(url: url));
       return null;
     }
   }
@@ -60,35 +50,45 @@ class LinkParser {
 class LinkInfo {
   factory LinkInfo.fromJson(Map<String, dynamic> json) => LinkInfo(
         siteName: json['siteName'],
+        url: json['url'] ?? '',
+        title: json['title'],
         description: json['description'],
         imageUrl: json['imageUrl'],
         faviconUrl: json['faviconUrl'],
       );
 
   LinkInfo({
+    required this.url,
     this.siteName,
+    this.title,
     this.description,
     this.imageUrl,
     this.faviconUrl,
   });
 
+  final String url;
   final String? siteName;
+  final String? title;
   final String? description;
   final String? imageUrl;
   final String? faviconUrl;
 
   Map<String, dynamic> toJson() => {
+        'url': url,
         'siteName': siteName,
+        'title': title,
         'description': description,
         'imageUrl': imageUrl,
         'faviconUrl': faviconUrl,
       };
 
+  @override
+  String toString() {
+    return 'LinkInfo{url: $url, siteName: $siteName, title: $title, description: $description, imageUrl: $imageUrl, faviconUrl: $faviconUrl}';
+  }
+
   bool isEmpty() {
-    return siteName == null ||
-        description == null ||
-        imageUrl == null ||
-        faviconUrl == null;
+    return title == null;
   }
 
   Widget buildIconWidget({Size size = const Size.square(20.0)}) {
@@ -116,9 +116,9 @@ class LinkInfo {
 }
 
 class LinkInfoCache {
-  final _linkInfoPrefix = 'link_info';
+  static const _linkInfoPrefix = 'link_info';
 
-  Future<LinkInfo?> get(String url) async {
+  static Future<LinkInfo?> get(String url) async {
     final option = await getIt<KeyValueStorage>().getWithFormat<LinkInfo?>(
       _linkInfoPrefix + url,
       (value) => LinkInfo.fromJson(jsonDecode(value)),
@@ -126,7 +126,7 @@ class LinkInfoCache {
     return option;
   }
 
-  Future<void> set(String url, LinkInfo data) async {
+  static Future<void> set(String url, LinkInfo data) async {
     await getIt<KeyValueStorage>().set(
       _linkInfoPrefix + url,
       jsonEncode(data.toJson()),

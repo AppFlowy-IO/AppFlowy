@@ -53,11 +53,11 @@ class LinkEmbedBlockComponentState
   @override
   Node get node => widget.node;
 
-  String get url => widget.node.attributes[LinkPreviewBlockKeys.url]!;
+  String get url => widget.node.attributes[LinkPreviewBlockKeys.url] ?? '';
 
   LinkLoadingStatus status = LinkLoadingStatus.loading;
   final parser = LinkParser();
-  LinkInfo linkInfo = LinkInfo();
+  late LinkInfo linkInfo = LinkInfo(url: url);
 
   final showActionsNotifier = ValueNotifier<bool>(false);
   bool isMenuShowing = false, isHovering = false;
@@ -108,7 +108,7 @@ class LinkEmbedBlockComponentState
     if (parent?.type == CalloutBlockKeys.type) {
       newPadding = padding.copyWith(right: padding.right + 10);
     }
-    
+
     result = Padding(padding: newPadding, child: result);
 
     if (widget.showActions && widget.actionBuilder != null) {

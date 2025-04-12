@@ -57,6 +57,9 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (editorState.selection == null) {
+      return const SizedBox.shrink();
+    }
     final selectionRectList = editorState.selectionRects();
     final top =
         selectionRectList.isEmpty ? 0.0 : selectionRectList.first.height;
