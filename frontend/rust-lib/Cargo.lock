@@ -345,7 +345,7 @@ dependencies = [
 [[package]]
 name = "af-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa#093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa"
 dependencies = [
  "af-plugin",
  "anyhow",
@@ -362,7 +362,7 @@ dependencies = [
 [[package]]
 name = "af-mcp"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa#093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -376,7 +376,7 @@ dependencies = [
 [[package]]
 name = "af-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa#093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa"
 dependencies = [
  "anyhow",
  "cfg-if",
