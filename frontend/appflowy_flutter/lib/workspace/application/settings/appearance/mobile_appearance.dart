@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
@@ -30,7 +29,6 @@ class MobileAppearance extends BaseAppearance {
     );
 
     final codeFontStyle = getFontStyle(fontFamily: codeFontFamily);
-    final isLight = brightness == Brightness.light;
 
     final theme = brightness == Brightness.light
         ? appTheme.lightTheme
@@ -285,11 +283,6 @@ class MobileAppearance extends BaseAppearance {
           toolbarHoverColor: theme.toolbarHoverColor,
         ),
         ToolbarColorExtension.fromBrightness(brightness),
-        isLight
-            ? lightAFThemeV2
-            : darkAFThemeV2.copyWith(
-                icon_primary: theme.icon,
-              ),
       ],
     );
   }

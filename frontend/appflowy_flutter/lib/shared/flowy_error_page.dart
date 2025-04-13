@@ -100,7 +100,6 @@ class _DesktopSyncErrorPage extends StatelessWidget {
       onTapUp: () {
         getIt<ClipboardService>().setPlainText(error.toString());
         showToastNotification(
-          
           message: LocaleKeys.message_copy_success.tr(),
           bottomPadding: 0,
         );

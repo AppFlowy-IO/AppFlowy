@@ -3,8 +3,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +137,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final themeV2 = AFThemeExtensionV2.of(context);
+    final theme = AppFlowyTheme.of(context);
     return Focus(
       focusNode: focusNode,
       onKeyEvent: onKeyEvent,
@@ -147,14 +147,8 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         padding: EdgeInsets.all(6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 4),
-              blurRadius: 16,
-              color: themeV2.shadow_medium,
-            ),
-          ],
+          color: theme.surfaceColorScheme.primary,
+          boxShadow: [theme.shadow.medium],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +157,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
               height: 32,
               padding: EdgeInsets.all(8),
               child: FlowyText.semibold(
-                color: themeV2.text_tertiary,
+                color: theme.textColorScheme.primary,
                 LocaleKeys.document_plugins_linkPreview_typeSelection_pasteAs
                     .tr(),
               ),

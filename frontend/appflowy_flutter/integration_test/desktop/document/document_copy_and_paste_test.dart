@@ -347,8 +347,9 @@ void main() {
             await tester.tapButton(menu);
 
             final convertToLinkButton = find.text(
-                LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl.tr(),
-              );
+              LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl
+                  .tr(),
+            );
             expect(convertToLinkButton, findsOneWidget);
             await tester.tapButton(convertToLinkButton);
           },
@@ -384,7 +385,6 @@ void main() {
           expect(node.attributes[LinkPreviewBlockKeys.url], url);
         });
 
-      
         await tester.simulateKeyEvent(
           LogicalKeyboardKey.keyZ,
           isControlPressed:
