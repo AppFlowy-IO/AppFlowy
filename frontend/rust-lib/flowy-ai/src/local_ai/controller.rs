@@ -13,9 +13,9 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::local_ai::watch::is_plugin_ready;
 use crate::stream_message::StreamMessage;
 use af_local_ai::ollama_plugin::OllamaAIPlugin;
+use af_plugin::core::path::is_plugin_ready;
 use af_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
 use futures_util::SinkExt;

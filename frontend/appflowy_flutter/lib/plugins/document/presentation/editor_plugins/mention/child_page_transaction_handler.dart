@@ -100,7 +100,6 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
         Log.error(error);
         if (context.mounted) {
           showToastNotification(
-            context,
             message: LocaleKeys.document_plugins_subPage_errors_failedDeletePage
                 .tr(),
           );
@@ -179,13 +178,6 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
 
     await duplicatedViewOrFailure.fold(
       (newView) async {
-        final newMentionAttributes = {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.childPage.name,
-            MentionBlockKeys.pageId: newView.id,
-          },
-        };
-
         // The index is the index of the delta, to get the index of the mention character
         // in all the text, we need to calculate it based on the deltas before the current delta.
         int mentionIndex = 0;
@@ -202,7 +194,11 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
           node,
           mentionIndex,
           MentionBlockKeys.mentionChar.length,
-          newMentionAttributes,
+          MentionBlockKeys.buildMentionPageAttributes(
+            mentionType: MentionType.childPage,
+            pageId: newView.id,
+            blockId: null,
+          ),
         );
         await editorState.apply(
           transaction,

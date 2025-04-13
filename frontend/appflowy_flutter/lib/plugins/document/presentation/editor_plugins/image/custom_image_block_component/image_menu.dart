@@ -117,14 +117,12 @@ class _ImageMenuState extends State<ImageMenu> {
 
         if (mounted) {
           showToastNotification(
-            context,
             message: LocaleKeys.message_copy_success.tr(),
           );
         }
       } catch (e) {
         if (mounted) {
           showToastNotification(
-            context,
             message: LocaleKeys.message_copy_fail.tr(),
             type: ToastificationType.error,
           );

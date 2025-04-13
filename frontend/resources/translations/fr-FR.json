@@ -269,14 +269,14 @@
   "questionBubble": {
     "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
-    "help": "Aide et Support",
     "markdown": "Rédaction",
     "debug": {
       "name": "Informations de Débogage",
       "success": "Informations de débogage copiées dans le presse-papiers !",
       "fail": "Impossible de copier les informations de débogage dans le presse-papiers"
     },
-    "feedback": "Retour"
+    "feedback": "Retour",
+    "help": "Aide et Support"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Supprimer, renommer et plus...",

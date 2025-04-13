@@ -1,5 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 class AuthServiceMapKeys {
@@ -23,7 +23,8 @@ abstract class AuthService {
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
 
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params,
@@ -73,6 +74,17 @@ abstract class AuthService {
   Future<FlowyResult<void, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params,
+  });
+
+  /// Authenticates a user with a passcode sent to their email.
+  ///
+  /// - `email`: The email address of the user.
+  /// - `passcode`: The passcode of the user.
+  ///
+  /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>> signInWithPasscode({
+    required String email,
+    required String passcode,
   });
 
   /// Signs out the currently authenticated user.

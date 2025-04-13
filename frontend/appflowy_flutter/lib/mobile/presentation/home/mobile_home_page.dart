@@ -329,7 +329,7 @@ class _HomePageState extends State<_HomePage> {
     }
 
     if (message != null) {
-      showToastNotification(context, message: message, type: toastType);
+      showToastNotification(message: message, type: toastType);
     }
   }
 }

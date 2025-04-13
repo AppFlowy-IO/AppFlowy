@@ -2,13 +2,13 @@ name: appflowy
 description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   AI collaborative workspace where you achieve more without losing control of
   your data. The best open source alternative to Notion.
-publish_to: "none"
+publish_to: 'none'
 
-version: 0.8.8
+version: 0.8.9
 
 environment:
-  flutter: ">=3.27.4"
-  sdk: ">=3.3.0 <4.0.0"
+  flutter: '>=3.27.4'
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   any_date: ^1.0.4
@@ -25,11 +25,13 @@ dependencies:
     path: packages/appflowy_popover
   appflowy_result:
     path: packages/appflowy_result
-
+  appflowy_ui:
+    path: packages/appflowy_ui
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
   auto_updater: ^1.0.0
   avatar_stack: ^3.0.0
+  favicon: ^1.1.2
 
   # BitsDojo Window for Windows
   bitsdojo_window: ^0.1.6
@@ -38,7 +40,7 @@ dependencies:
   calendar_view:
     git:
       url: https://github.com/Xazin/flutter_calendar_view
-      ref: "6fe0c98"
+      ref: '6fe0c98'
   collection: ^1.17.1
   connectivity_plus: ^5.0.2
   cross_file: ^0.3.4+1
@@ -74,7 +76,7 @@ dependencies:
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "355aa56"
+      ref: '355aa56'
   flutter_math_fork: ^0.7.3
   flutter_slidable: ^3.0.0
 
@@ -184,13 +186,13 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "552f95f"
+      ref: '361b99c38370abeeb19656f89e8c31cb3666623b'
 
   appflowy_editor_plugins:
     git:
       url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
-      path: "packages/appflowy_editor_plugins"
-      ref: "4efcff7"
+      path: 'packages/appflowy_editor_plugins'
+      ref: '4efcff7'
 
   sheet:
     git:

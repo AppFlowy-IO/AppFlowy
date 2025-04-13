@@ -37,6 +37,7 @@
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "anonymous": "Anonymous",
+    "anonymousMode": "Anonymous mode",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -68,7 +69,16 @@
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes.",
+    "tokenHasExpiredOrInvalid": "The token has expired or is invalid. Please try again.",
+    "signingIn": "Signing in...",
+    "checkYourEmail": "Check your email",
+    "temporaryVerificationSent": "A temporary verification link has been sent. Please check your inbox at",
+    "continueToSignIn": "Continue to sign in",
+    "backToLogin": "Back to login",
+    "enterCode": "Enter code",
+    "enterCodeManually": "Enter code manually",
+    "continueWithEmail": "Continue with email"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -628,7 +638,8 @@
       "theme": {
         "title": "Theme",
         "description": "Select a preset theme, or upload your own custom theme.",
-        "uploadCustomThemeTooltip": "Upload a custom theme"
+        "uploadCustomThemeTooltip": "Upload a custom theme",
+        "failedToLoadThemes": "Failed to load themes, please check your permission settings in System Settings > Privacy and Security > Files and Folders > @:appName"
       },
       "workspaceFont": {
         "title": "Workspace font",
@@ -884,7 +895,7 @@
         "pleaseFollowThese": "Please follow these",
         "instructions": "instructions",
         "installOllamaLai": "to set up Ollama and AppFlowy Local AI.",
-        "modelsMissing": "Cannot find the required models.",
+        "modelsMissing": "Cannot find the required models: ",
         "downloadModel": "to download them."
       }
     },
@@ -2008,7 +2019,28 @@
           "failedDuplicateFindView": "Failed to duplicate page - original view not found"
         }
       },
-      "cannotMoveToItsChildren": "Cannot move to its children"
+      "cannotMoveToItsChildren": "Cannot move to its children",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Paste as",
+          "mention": "Mention",
+          "URL": "URL",
+          "bookmark": "Bookmark",
+          "embed": "Embed"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Convert to Mention",
+          "toUrl": "Convert to URL",
+          "toEmbed": "Convert to Embed",
+          "toBookmark": "Convert to Bookmark",
+          "copyLink": "Copy Link",
+          "replace": "Replace",
+          "reload": "Reload",
+          "removeLink": "Remove Link",
+          "pasteHint": "Paste in https://...",
+          "refuseConnect": "refued to connect."
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -2502,6 +2534,7 @@
     "copyLink": "Copy link",
     "removeLink": "Remove link",
     "editLink": "Edit link",
+    "convertTo": "Convert to",
     "linkText": "Text",
     "linkTextHint": "Please enter text",
     "linkAddressHint": "Please enter URL",

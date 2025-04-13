@@ -253,7 +253,6 @@ class _FreePlanUpgradeButton extends StatelessWidget {
           onTap: () {
             if (isOwner) {
               showToastNotification(
-                context,
                 message:
                     LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
                 type: ToastificationType.info,
@@ -264,7 +263,6 @@ class _FreePlanUpgradeButton extends StatelessWidget {
                   );
             } else {
               showToastNotification(
-                context,
                 message: LocaleKeys
                     .settings_sites_namespace_pleaseAskOwnerToSetHomePage
                     .tr(),

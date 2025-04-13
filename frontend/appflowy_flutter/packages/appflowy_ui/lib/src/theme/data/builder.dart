@@ -151,7 +151,7 @@ class AppFlowyThemeBuilder {
     Brightness brightness,
   ) {
     return switch (brightness) {
-      Brightness.light => AppFlowyFillColorScheme(
+      Brightness.dark => AppFlowyFillColorScheme(
           primary: colorScheme.neutral.neutral100,
           primaryHover: colorScheme.neutral.neutral200,
           secondary: colorScheme.neutral.neutral300,
@@ -196,7 +196,7 @@ class AppFlowyThemeBuilder {
           purpleThick: colorScheme.purple.purple500,
           purpleThickHover: colorScheme.purple.purple600,
         ),
-      Brightness.dark => AppFlowyFillColorScheme(
+      Brightness.light => AppFlowyFillColorScheme(
           primary: colorScheme.neutral.neutral1000,
           primaryHover: colorScheme.neutral.neutral900,
           secondary: colorScheme.neutral.neutral600,

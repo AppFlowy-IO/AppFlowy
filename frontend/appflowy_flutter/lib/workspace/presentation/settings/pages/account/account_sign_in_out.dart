@@ -4,7 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email_and_password.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -122,7 +122,7 @@ class _SignInDialogContent extends StatelessWidget {
                 const _DialogHeader(),
                 const _DialogTitle(),
                 const VSpace(16),
-                const SignInWithMagicLinkButtons(),
+                const ContinueWithEmailAndPassword(),
                 if (isAuthEnabled) ...[
                   const VSpace(20),
                   const _OrDivider(),

@@ -6,6 +6,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,6 +17,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -139,6 +143,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
           isHoverMenuHovering = false;
           tryToDismissLinkHoverMenu();
         },
+        onConvertTo: (type) => convertLinkTo(editorState, selection, type),
         onOpenLink: openLink,
         onCopyLink: () => copyLink(context),
         onEditLink: showLinkEditMenu,
@@ -236,15 +241,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   Future<void> copyLink(BuildContext context) async {
     final href = widget.attribute.href ?? '';
-    if (href.isEmpty) return;
-    await getIt<ClipboardService>()
-        .setData(ClipboardServiceData(plainText: href));
-    if (context.mounted) {
-      showToastNotification(
-        context,
-        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
-      );
-    }
+    await context.copyLink(href);
     hoverMenuController.close();
   }
 
@@ -269,6 +266,26 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         },
       );
     editorState.apply(transaction);
+  }
+
+  Future<void> convertLinkTo(
+    EditorState editorState,
+    Selection selection,
+    LinkConvertMenuCommand type,
+  ) async {
+    final url = widget.attribute.href ?? '';
+    if (type == LinkConvertMenuCommand.toBookmark) {
+      await convertUrlToLinkPreview(editorState, selection, url);
+    } else if (type == LinkConvertMenuCommand.toMention) {
+      await convertUrlToMention(editorState, selection);
+    } else if (type == LinkConvertMenuCommand.toEmbed) {
+      await convertUrlToLinkPreview(
+        editorState,
+        selection,
+        url,
+        previewType: LinkEmbedKeys.embed,
+      );
+    }
   }
 
   void onRemoveAndReplaceLink(
@@ -308,6 +325,7 @@ class LinkHoverMenu extends StatefulWidget {
     required this.onOpenLink,
     required this.onEditLink,
     required this.onRemoveLink,
+    required this.onConvertTo,
   });
 
   final Attributes attribute;
@@ -318,6 +336,7 @@ class LinkHoverMenu extends StatefulWidget {
   final VoidCallback onOpenLink;
   final VoidCallback onEditLink;
   final VoidCallback onRemoveLink;
+  final ValueChanged<LinkConvertMenuCommand> onConvertTo;
 
   @override
   State<LinkHoverMenu> createState() => _LinkHoverMenuState();
@@ -327,11 +346,19 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
   ViewPB? currentView;
   late bool isPage = widget.attribute.isPage;
   late String href = widget.attribute.href ?? '';
+  final popoverController = PopoverController();
+  bool isConvertButtonSelected = false;
 
   @override
   void initState() {
     super.initState();
     if (isPage) getPageView();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    popoverController.close();
   }
 
   @override
@@ -365,6 +392,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_m),
                       tooltipText: LocaleKeys.editor_copyLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onCopyLink,
@@ -372,13 +400,16 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_edit_m),
                       tooltipText: LocaleKeys.editor_editLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onEditLink,
                     ),
+                    buildConvertButton(),
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_unlink_m),
                       tooltipText: LocaleKeys.editor_removeLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onRemoveLink,
@@ -445,6 +476,73 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
       ),
     );
   }
+
+  Widget buildConvertButton() {
+    return AppFlowyPopover(
+      offset: Offset(44, 10.0),
+      direction: PopoverDirection.bottomWithRightAligned,
+      margin: EdgeInsets.zero,
+      controller: popoverController,
+      onOpen: () => keepEditorFocusNotifier.increase(),
+      onClose: () => keepEditorFocusNotifier.decrease(),
+      popupBuilder: (context) => buildConvertMenu(),
+      child: FlowyIconButton(
+        icon: FlowySvg(FlowySvgs.turninto_m),
+        isSelected: isConvertButtonSelected,
+        tooltipText: LocaleKeys.editor_convertTo.tr(),
+        preferBelow: false,
+        width: 36,
+        height: 32,
+        onPressed: () {
+          setState(() {
+            isConvertButtonSelected = true;
+          });
+          showConvertMenu();
+        },
+      ),
+    );
+  }
+
+  Widget buildConvertMenu() {
+    return MouseRegion(
+      onEnter: widget.onEnter,
+      onExit: widget.onExit,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SeparatedColumn(
+          mainAxisSize: MainAxisSize.min,
+          separatorBuilder: () => const VSpace(0.0),
+          children:
+              List.generate(LinkConvertMenuCommand.values.length, (index) {
+            final command = LinkConvertMenuCommand.values[index];
+            return SizedBox(
+              height: 36,
+              child: FlowyButton(
+                text: FlowyText(
+                  command.title,
+                  fontWeight: FontWeight.w400,
+                  figmaLineHeight: 20,
+                ),
+                onTap: () {
+                  widget.onConvertTo(command);
+                  closeConvertMenu();
+                },
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  void showConvertMenu() {
+    keepEditorFocusNotifier.increase();
+    popoverController.show();
+  }
+
+  void closeConvertMenu() {
+    popoverController.close();
+  }
 }
 
 class HoverTriggerKey {
@@ -488,5 +586,50 @@ class LinkHoverTriggers {
     final callbacks = _map[key] ?? {};
     if (callbacks.isEmpty) return;
     callbacks.first.call();
+  }
+}
+
+enum LinkConvertMenuCommand {
+  toMention,
+  toBookmark,
+  toEmbed;
+
+  String get title {
+    switch (this) {
+      case toMention:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toMetion
+            .tr();
+      case toBookmark:
+        return LocaleKeys
+            .document_plugins_linkPreview_linkPreviewMenu_toBookmark
+            .tr();
+      case toEmbed:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toEmbed
+            .tr();
+    }
+  }
+
+  String get type {
+    switch (this) {
+      case toMention:
+        return MentionBlockKeys.type;
+      case toBookmark:
+        return LinkPreviewBlockKeys.type;
+      case toEmbed:
+        return LinkPreviewBlockKeys.type;
+    }
+  }
+}
+
+extension LinkExtension on BuildContext {
+  Future<void> copyLink(String link) async {
+    if (link.isEmpty) return;
+    await getIt<ClipboardService>()
+        .setData(ClipboardServiceData(plainText: link));
+    if (mounted) {
+      showToastNotification(
+        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+      );
+    }
   }
 }

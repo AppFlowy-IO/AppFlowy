@@ -632,7 +632,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewIconButton() {
     final iconData = widget.view.icon.toEmojiIconData();
     final icon = iconData.isNotEmpty
-        ? RawEmojiIconWidget(emoji: iconData, emojiSize: 16.0)
+        ? RawEmojiIconWidget(
+            emoji: iconData,
+            emojiSize: 16.0,
+            lineHeight: 18.0 / 16.0,
+          )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
     final Widget child = AppFlowyPopover(

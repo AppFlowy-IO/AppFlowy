@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// - support
 ///   - desktop
@@ -162,6 +163,7 @@ Future<bool> _pasteAsLinkPreview(
   EditorState editorState,
   String? text,
 ) async {
+  final isMobile = UniversalPlatform.isMobile;
   // the url should contain a protocol
   if (text == null || !isURL(text, {'require_protocol': true})) {
     return false;
@@ -192,6 +194,8 @@ Future<bool> _pasteAsLinkPreview(
     Log.info('unable to get content header');
     return false;
   }
+
+  if (!isMobile && !isImageUrl) return false;
 
   // insert the text with link format
   final textTransaction = editorState.transaction
@@ -250,6 +254,7 @@ Future<void> doPlainPaste(EditorState editorState) async {
 }
 
 Future<bool> _isImageUrl(String text) async {
+  if (isNotImageUrl(text)) return false;
   final response = await http.head(Uri.parse(text));
 
   if (response.statusCode == 200) {

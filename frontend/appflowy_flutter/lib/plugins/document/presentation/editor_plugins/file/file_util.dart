@@ -104,10 +104,10 @@ Future<void> downloadMediaFile(
     await afLaunchUrlString(file.url);
   } else {
     if (userProfile == null) {
-      return showToastNotification(
-        context,
+      showToastNotification(
         message: LocaleKeys.grid_media_downloadFailedToken.tr(),
       );
+      return;
     }
 
     final uri = Uri.parse(file.url);
@@ -128,14 +128,12 @@ Future<void> downloadMediaFile(
 
         if (result != null && context.mounted) {
           showToastNotification(
-            context,
             type: ToastificationType.error,
             message: LocaleKeys.grid_media_downloadSuccess.tr(),
           );
         }
       } else if (context.mounted) {
         showToastNotification(
-          context,
           type: ToastificationType.error,
           message: LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
         );
@@ -159,13 +157,11 @@ Future<void> downloadMediaFile(
 
         if (context.mounted) {
           showToastNotification(
-            context,
             message: LocaleKeys.grid_media_downloadSuccess.tr(),
           );
         }
       } else if (context.mounted) {
         showToastNotification(
-          context,
           type: ToastificationType.error,
           message: LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
         );

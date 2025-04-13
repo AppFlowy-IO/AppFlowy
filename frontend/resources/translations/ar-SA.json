@@ -311,14 +311,16 @@
   "questionBubble": {
     "shortcuts": "الاختصارات",
     "whatsNew": "ما هو الجديد؟",
-    "help": "المساعدة والدعم",
+    "helpAndDocumentation": "المساعدة والتوثيق",
+    "getSupport": "احصل على الدعم",
     "markdown": "Markdown",
     "debug": {
       "name": "معلومات التصحيح",
       "success": "تم نسخ معلومات التصحيح إلى الحافظة!",
       "fail": "تعذر نسخ معلومات التصحيح إلى الحافظة"
     },
-    "feedback": "تعليق"
+    "feedback": "تعليق",
+    "help": "المساعدة والدعم"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "إزالة وإعادة تسمية والمزيد...",
@@ -513,6 +515,8 @@
       "settings": "إعدادات",
       "members": "الأعضاء",
       "trash": "سلة المحذوفات",
+      "helpAndDocumentation": "المساعدة والتوثيق",
+      "getSupport": "احصل على الدعم",
       "helpAndSupport": "المساعدة والدعم"
     },
     "sites": {

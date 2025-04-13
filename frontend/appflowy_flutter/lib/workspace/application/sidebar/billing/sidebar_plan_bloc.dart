@@ -188,6 +188,9 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
       UserEventGetWorkspaceUsage(payload).send().then((result) {
         result.onSuccess(
           (usage) {
+            if (isClosed) {
+              return;
+            }
             add(SidebarPlanEvent.updateWorkspaceUsage(usage));
           },
         );

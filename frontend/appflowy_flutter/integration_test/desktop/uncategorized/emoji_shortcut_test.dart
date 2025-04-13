@@ -43,7 +43,10 @@ void main() {
   });
 
   group('insert emoji by colon', () {
-    Future<void> createNewDocumentAndShowEmojiList(WidgetTester tester, {String? search}) async {
+    Future<void> createNewDocumentAndShowEmojiList(
+      WidgetTester tester, {
+      String? search,
+    }) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent();
