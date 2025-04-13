@@ -601,6 +601,7 @@ impl UserManager {
   }
 
   pub async fn active_anon_user(&self) -> FlowyResult<()> {
+    info!("Active anon user");
     let anon_session = self.get_anon_session().await?;
     self
       .authenticate_user

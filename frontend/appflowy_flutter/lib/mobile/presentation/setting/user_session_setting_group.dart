@@ -32,12 +32,6 @@ class UserSessionSettingGroup extends StatelessWidget {
         if (showThirdPartyLogin) _buildThirdPartySignInButtons(context),
         const VSpace(8.0),
 
-        // logout button
-        MobileLogoutButton(
-          text: LocaleKeys.settings_menu_logout.tr(),
-          onPressed: () async => _showLogoutDialog(),
-        ),
-
         // delete account button
         // only show the delete account button in cloud mode
         if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
@@ -77,31 +71,6 @@ class UserSessionSettingGroup extends StatelessWidget {
       useRootNavigator: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => const _DeleteAccountBottomSheet(),
-    );
-  }
-
-  Future<void> _showLogoutDialog() async {
-    return showFlowyCupertinoConfirmDialog(
-      title: LocaleKeys.settings_menu_logoutPrompt.tr(),
-      leftButton: FlowyText(
-        LocaleKeys.button_cancel.tr(),
-        fontSize: 17.0,
-        figmaLineHeight: 24.0,
-        fontWeight: FontWeight.w500,
-        color: const Color(0xFF007AFF),
-      ),
-      rightButton: FlowyText(
-        LocaleKeys.button_logout.tr(),
-        fontSize: 17.0,
-        figmaLineHeight: 24.0,
-        fontWeight: FontWeight.w400,
-        color: const Color(0xFFFE0220),
-      ),
-      onRightButtonPressed: (context) async {
-        Navigator.of(context).pop();
-        await getIt<AuthService>().signOut();
-        await runAppFlowy();
-      },
     );
   }
 }
