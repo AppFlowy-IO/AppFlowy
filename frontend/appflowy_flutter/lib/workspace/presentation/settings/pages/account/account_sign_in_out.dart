@@ -65,16 +65,8 @@ class AccountSignInOutButton extends StatelessWidget {
       fontWeight: FontWeight.w500,
       radius: 8.0,
       onTap: () {
-        // If current mode is anonymous, we need to pop the dialog and restart app again.
-        // After restarting, the app will switch to non-anonymous mode.
-        if (userProfile.authenticator == AuthenticatorPB.Local) {
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
-          runAppFlowy();
-        } else {
-          signIn ? _showSignInDialog(context) : _showLogoutDialog(context);
-        }
+        signIn ? _showSignInDialog(context) : _showLogoutDialog(context);
+        // }
       },
     );
   }

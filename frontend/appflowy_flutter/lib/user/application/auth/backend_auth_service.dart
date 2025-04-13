@@ -62,20 +62,6 @@ class BackendAuthService implements AuthService {
     Map<String, String> params = const {},
   }) async {
     await runAppFlowy(isAnon: true);
-    // const password = "Guest!@123456";
-    // final userEmail = "anon@appflowy.io";
-
-    // final request = SignUpPayloadPB.create()
-    //   ..name = LocaleKeys.defaultUsername.tr()
-    //   ..email = userEmail
-    //   ..password = password
-    //   // When sign up as guest, the auth type is always local.
-    //   ..authType = AuthenticatorPB.Local
-    //   ..deviceId = await getDeviceId();
-    // final response = await UserEventSignUp(request).send().then(
-    //       (value) => value,
-    //     );
-    // return response;
   }
 
   @override
