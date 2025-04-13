@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -307,17 +308,13 @@ void showLinkCreateMenu(
 ShapeDecoration buildToolbarLinkDecoration(
   BuildContext context, {
   double radius = 12.0,
-}) =>
-    ShapeDecoration(
-      color: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      shadows: [
-        const BoxShadow(
-          color: LinkStyle.shadowMedium,
-          blurRadius: 24,
-          offset: Offset(0, 4),
-        ),
-      ],
-    );
+}) {
+  final theme = AppFlowyTheme.of(context);
+  return ShapeDecoration(
+    color: theme.surfaceColorScheme.primary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+    ),
+    shadows: [theme.shadow.small],
+  );
+}

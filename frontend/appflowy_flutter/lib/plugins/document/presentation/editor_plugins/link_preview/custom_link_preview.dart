@@ -119,9 +119,12 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     );
 
     if (UniversalPlatform.isDesktopOrWeb) {
-      return InkWell(
-        onTap: () => afLaunchUrlString(url),
-        child: child,
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => afLaunchUrlString(url),
+          child: child,
+        ),
       );
     }
 
