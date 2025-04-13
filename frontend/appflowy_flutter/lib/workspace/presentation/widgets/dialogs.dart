@@ -125,7 +125,9 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
   @override
   Widget build(BuildContext context) {
     return StyledDialog(
+      shrinkWrap: false,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           FlowyText.medium(
             widget.title,
