@@ -8,7 +8,6 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/contin
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -20,12 +19,12 @@ class AccountSignInOutSection extends StatelessWidget {
     super.key,
     required this.userProfile,
     required this.onAction,
-    this.signIn = true,
+    this.displaySignIn = true,
   });
 
   final UserProfilePB userProfile;
   final VoidCallback onAction;
-  final bool signIn;
+  final bool displaySignIn;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,7 @@ class AccountSignInOutSection extends StatelessWidget {
         AccountSignInOutButton(
           userProfile: userProfile,
           onAction: onAction,
-          signIn: signIn,
+          signIn: displaySignIn,
         ),
       ],
     );

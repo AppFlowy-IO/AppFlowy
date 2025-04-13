@@ -70,21 +70,20 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               // Account section (email or login)
               if (isAuthEnabled) ...[
                 SettingsCategory(
-                  title:
-                      state.userProfile.authenticator != AuthenticatorPB.Local
-                          ? LocaleKeys.settings_accountPage_email_title.tr()
-                          : LocaleKeys.settings_accountPage_login_title.tr(),
+                  title: LocaleKeys.settings_accountPage_login_title.tr(),
                   children: [
+                    // show user email
                     if (state.userProfile.authenticator !=
                         AuthenticatorPB.Local)
                       FlowyText.regular(state.userProfile.email),
+
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
                       onAction: state.userProfile.authenticator ==
                               AuthenticatorPB.Local
                           ? widget.didLogin
                           : widget.didLogout,
-                      signIn: state.userProfile.authenticator ==
+                      displaySignIn: state.userProfile.authenticator ==
                           AuthenticatorPB.Local,
                     ),
                   ],

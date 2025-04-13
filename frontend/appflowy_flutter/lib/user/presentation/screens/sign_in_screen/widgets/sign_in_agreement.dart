@@ -19,6 +19,7 @@ class SignInAgreement extends StatelessWidget {
     final underlinedTextStyle = theme.textStyle.caption.underline(
       color: theme.textColorScheme.secondary,
     );
+
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(

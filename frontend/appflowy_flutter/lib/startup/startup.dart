@@ -32,6 +32,21 @@ class FlowyRunnerContext {
   final Directory applicationDataDirectory;
 }
 
+/// Launches AppFlowy application with optional anonymous mode.
+///
+/// [isAnon] When set to true, the application runs in anonymous mode where:
+/// - No user authentication is required
+/// - All data is stored locally in a separate anonymous directory
+/// - The data is isolated from the main application storage
+///
+/// Example:
+/// ```dart
+/// // Launch in normal mode
+/// await runAppFlowy();
+///
+/// // Launch in anonymous mode
+/// await runAppFlowy(isAnon: true);
+/// ```
 Future<void> runAppFlowy({bool isAnon = false}) async {
   Log.info('restart AppFlowy: isAnon: $isAnon');
 

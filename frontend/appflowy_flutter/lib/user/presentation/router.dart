@@ -21,10 +21,6 @@ class AuthRouter {
     getIt<SplashRouter>().pushWorkspaceStartScreen(context, userProfile);
   }
 
-  void pushSignUpScreen(BuildContext context) {
-    context.push(SignUpScreen.routeName);
-  }
-
   /// Navigates to the home screen based on the current workspace and platform.
   ///
   /// This function takes in a [BuildContext] and a [UserProfilePB] object to

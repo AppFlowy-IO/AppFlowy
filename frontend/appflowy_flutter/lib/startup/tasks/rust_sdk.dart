@@ -27,7 +27,7 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final root = await getApplicationSupportDirectory();
 
-    // Determine application paths in parallel rather than sequentially
+    // Only one anon user no matter what the cloud URL is
     final applicationPath = isAnon
         ? await appFlowyAnonDirectory()
         : await appFlowyApplicationDataDirectory();
@@ -96,6 +96,7 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
   }
 }
 
+/// The anon directory.
 Future<Directory> appFlowyAnonDirectory() async {
   final Directory documentsDir =
       await getApplicationSupportDirectory().then((directory) => directory);
