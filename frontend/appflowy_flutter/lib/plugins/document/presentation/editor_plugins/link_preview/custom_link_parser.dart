@@ -7,27 +7,36 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'link_parsers/default_parser.dart';
+import 'link_parsers/youtube_parser.dart';
 
 class LinkParser {
   final Set<ValueChanged<LinkInfo>> _listeners = <ValueChanged<LinkInfo>>{};
+  static final Map<String, LinkInfoParser> _hostToParsers = {
+    'www.youtube.com': YoutubeParser(),
+    'youtube.com': YoutubeParser(),
+  };
 
   Future<void> start(String url, {LinkInfoParser? parser}) async {
-    final data = await LinkInfoCache.get(url);
+    final uri = Uri.tryParse(LinkInfoParser.formatUrl(url)) ?? Uri.parse(url);
+    final data = await LinkInfoCache.get(uri);
     if (data != null) {
       refreshLinkInfo(data);
     }
-    await _getLinkInfo(url, parser ?? DefaultParser());
+
+    final host = uri.host;
+    final currentParser = parser ?? _hostToParsers[host] ?? DefaultParser();
+    await _getLinkInfo(uri, currentParser);
   }
 
-  Future<LinkInfo?> _getLinkInfo(String url, LinkInfoParser parser) async {
+  Future<LinkInfo?> _getLinkInfo(Uri uri, LinkInfoParser parser) async {
     try {
-      final linkInfo = await parser.parse(url) ?? LinkInfo(url: url);
-      if (!linkInfo.isEmpty()) await LinkInfoCache.set(url, linkInfo);
+      final linkInfo = await parser.parse(uri) ?? LinkInfo(url: '$uri');
+      if (!linkInfo.isEmpty()) await LinkInfoCache.set(uri, linkInfo);
       refreshLinkInfo(linkInfo);
       return linkInfo;
     } catch (e, s) {
       Log.error('get link info error: ', e, s);
-      refreshLinkInfo(LinkInfo(url: url));
+      refreshLinkInfo(LinkInfo(url: '$uri'));
       return null;
     }
   }
@@ -118,17 +127,17 @@ class LinkInfo {
 class LinkInfoCache {
   static const _linkInfoPrefix = 'link_info';
 
-  static Future<LinkInfo?> get(String url) async {
+  static Future<LinkInfo?> get(Uri uri) async {
     final option = await getIt<KeyValueStorage>().getWithFormat<LinkInfo?>(
-      _linkInfoPrefix + url,
+      '$_linkInfoPrefix$uri',
       (value) => LinkInfo.fromJson(jsonDecode(value)),
     );
     return option;
   }
 
-  static Future<void> set(String url, LinkInfo data) async {
+  static Future<void> set(Uri uri, LinkInfo data) async {
     await getIt<KeyValueStorage>().set(
-      _linkInfoPrefix + url,
+      '$_linkInfoPrefix$uri',
       jsonEncode(data.toJson()),
     );
   }

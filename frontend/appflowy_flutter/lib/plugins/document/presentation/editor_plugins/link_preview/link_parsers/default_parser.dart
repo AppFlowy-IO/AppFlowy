@@ -6,15 +6,11 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 
 abstract class LinkInfoParser {
-  LinkInfoParser({
-    this.timeout = const Duration(seconds: 8),
-    this.headers,
+  Future<LinkInfo?> parse(
+    Uri link, {
+    Duration timeout = const Duration(seconds: 8),
+    Map<String, String>? headers,
   });
-
-  final Duration timeout;
-  final Map<String, String>? headers;
-
-  Future<LinkInfo?> parse(String link);
 
   static String formatUrl(String url) {
     Uri? uri = Uri.tryParse(url);
@@ -28,16 +24,17 @@ abstract class LinkInfoParser {
   }
 }
 
-class DefaultParser extends LinkInfoParser {
-  DefaultParser({super.timeout, super.headers});
-
+class DefaultParser implements LinkInfoParser {
   @override
-  Future<LinkInfo?> parse(String link) async {
-    final uri = Uri.tryParse(LinkInfoParser.formatUrl(link)) ?? Uri.parse(link);
+  Future<LinkInfo?> parse(
+    Uri link, {
+    Duration timeout = const Duration(seconds: 8),
+    Map<String, String>? headers,
+  }) async {
     try {
-      final isHome = (uri.hasEmptyPath || uri.path == '/') && !uri.hasQuery;
+      final isHome = (link.hasEmptyPath || link.path == '/') && !link.hasQuery;
       final http.Response response =
-          await http.get(uri, headers: headers).timeout(timeout);
+          await http.get(link, headers: headers).timeout(timeout);
       final code = response.statusCode;
       if (code != 200 && isHome) {
         throw Exception('Http request error: $code');
@@ -69,13 +66,14 @@ class DefaultParser extends LinkInfoParser {
           .querySelector('meta[property="og:image"]')
           ?.attributes['content'];
       if (imageUrl != null && !imageUrl.startsWith('http')) {
-        imageUrl = uri.resolve(imageUrl).toString();
+        imageUrl = link.resolve(imageUrl).toString();
       }
 
       final favicon =
-          'https://www.google.com/s2/favicons?sz=64&domain=${uri.host}';
+          'https://www.google.com/s2/favicons?sz=64&domain=${link.host}';
+
       return LinkInfo(
-        url: '$uri',
+        url: '$link',
         siteName: siteName,
         title: title,
         description: description,
@@ -83,7 +81,7 @@ class DefaultParser extends LinkInfoParser {
         faviconUrl: favicon,
       );
     } catch (e) {
-      Log.error('Parse link $uri error: $e');
+      Log.error('Parse link $link error: $e');
       return null;
     }
   }

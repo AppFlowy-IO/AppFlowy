@@ -32,7 +32,8 @@ void main() async {
       int i = 1;
       for (final link in links) {
         final formatLink = LinkInfoParser.formatUrl(link);
-        final siteInfo = await parser.parse(formatLink);
+        final siteInfo = await parser
+            .parse(Uri.tryParse(formatLink) ?? Uri.parse(formatLink));
         if (siteInfo?.isEmpty() ?? true) {
           debugPrint('$i : $formatLink ---- empty \n');
         } else {
