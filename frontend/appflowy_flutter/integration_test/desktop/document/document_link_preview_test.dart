@@ -121,8 +121,9 @@ void main() {
       final link = avaliableLink;
       await preparePage(tester);
       await pasteLink(tester, link);
-      final convertToLinkButton = find
-          .text(LocaleKeys.document_plugins_linkPreview_typeSelection_URL.tr());
+      final convertToLinkButton = find.text(
+        LocaleKeys.document_plugins_linkPreview_typeSelection_URL.tr(),
+      );
       await tester.tapButton(convertToLinkButton);
       final node = tester.editor.getNodeAtPath([0]);
       checkUrl(node, link);
