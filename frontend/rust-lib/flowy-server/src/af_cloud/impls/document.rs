@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -5,12 +6,12 @@ use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::document::Document;
 use collab_entity::CollabType;
-use std::sync::Arc;
-use tracing::instrument;
-
 use flowy_document_pub::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
+use std::sync::Arc;
+use tracing::instrument;
+use uuid::Uuid;
 
 use crate::af_cloud::define::ServerUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
@@ -29,12 +30,12 @@ where
   #[instrument(level = "debug", skip_all, fields(document_id = %document_id))]
   async fn get_document_doc_state(
     &self,
-    document_id: &str,
-    workspace_id: &str,
+    document_id: &Uuid,
+    workspace_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let params = QueryCollabParams {
-      workspace_id: workspace_id.to_string(),
-      inner: QueryCollab::new(document_id.to_string(), CollabType::Document),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*document_id, CollabType::Document),
     };
     let doc_state = self
       .inner
@@ -57,9 +58,9 @@ where
 
   async fn get_document_snapshots(
     &self,
-    _document_id: &str,
-    _limit: usize,
-    _workspace_id: &str,
+    document_id: &Uuid,
+    limit: usize,
+    workspace_id: &str,
   ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
@@ -67,12 +68,12 @@ where
   #[instrument(level = "debug", skip_all)]
   async fn get_document_data(
     &self,
-    document_id: &str,
-    workspace_id: &str,
+    document_id: &Uuid,
+    workspace_id: &Uuid,
   ) -> Result<Option<DocumentData>, FlowyError> {
     let params = QueryCollabParams {
-      workspace_id: workspace_id.to_string(),
-      inner: QueryCollab::new(document_id.to_string(), CollabType::Document),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*document_id, CollabType::Document),
     };
     let doc_state = self
       .inner
@@ -89,7 +90,7 @@ where
     )?;
     let collab = Collab::new_with_source(
       CollabOrigin::Empty,
-      document_id,
+      document_id.to_string().as_str(),
       DataSource::DocStateV1(doc_state),
       vec![],
       false,
@@ -100,13 +101,13 @@ where
 
   async fn create_document_collab(
     &self,
-    workspace_id: &str,
-    document_id: &str,
+    workspace_id: &Uuid,
+    document_id: &Uuid,
     encoded_collab: EncodedCollab,
   ) -> Result<(), FlowyError> {
     let params = CreateCollabParams {
-      workspace_id: workspace_id.to_string(),
-      object_id: document_id.to_string(),
+      workspace_id: *workspace_id,
+      object_id: *document_id,
       encoded_collab_v1: encoded_collab
         .encode_to_bytes()
         .map_err(|err| FlowyError::internal().with_context(err))?,

@@ -339,7 +339,6 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
     context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
 
     showToastNotification(
-      context,
       message: LocaleKeys.space_success_duplicateSpace.tr(),
     );
 
@@ -374,7 +373,6 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
                 .add(SpaceEvent.rename(space: widget.space, name: name));
 
             showToastNotification(
-              context,
               message: LocaleKeys.space_success_renameSpace.tr(),
             );
           },
@@ -424,7 +422,6 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
             );
 
         showToastNotification(
-          context,
           message: LocaleKeys.space_success_updateSpace.tr(),
         );
 
@@ -457,7 +454,6 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
         context.read<SpaceBloc>().add(SpaceEvent.delete(widget.space));
 
         showToastNotification(
-          context,
           message: LocaleKeys.space_success_deleteSpace.tr(),
         );
 

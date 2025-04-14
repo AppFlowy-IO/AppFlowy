@@ -9,5 +9,5 @@ edition = "2021"
 lib-infra = { workspace = true }
 flowy-error = { workspace = true }
 collab-document = { workspace = true }
-anyhow.workspace = true
 collab = { workspace = true }
+uuid.workspace = true

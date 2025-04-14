@@ -103,7 +103,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
     Log.info('Open row page(${widget.documentId})');
 
     if (view == null) {
-      showToastNotification(context, message: 'Failed to open row page');
+      showToastNotification(message: 'Failed to open row page');
       // reload the view again
       unawaited(_preloadView(context));
       Log.error('Failed to open row page(${widget.documentId})');

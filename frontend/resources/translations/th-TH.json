@@ -1570,8 +1570,7 @@
     "url": {
       "launch": "เปิดในเบราว์เซอร์",
       "copy": "คัดลอก URL",
-      "textFieldHint": "ป้อน URL",
-      "copiedNotification": "คัดลอกไปยังคลิปบอร์ดแล้ว!"
+      "textFieldHint": "ป้อน URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "ฐานข้อมูลที่เกี่ยวข้อง",

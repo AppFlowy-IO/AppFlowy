@@ -50,12 +50,11 @@ Node pageMentionNode(String viewId) {
       operations: [
         TextInsert(
           MentionBlockKeys.mentionChar,
-          attributes: {
-            MentionBlockKeys.mention: {
-              MentionBlockKeys.type: MentionType.page.name,
-              MentionBlockKeys.pageId: viewId,
-            },
-          },
+          attributes: MentionBlockKeys.buildMentionPageAttributes(
+            mentionType: MentionType.page,
+            pageId: viewId,
+            blockId: null,
+          ),
         ),
       ],
     ),
@@ -284,12 +283,11 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
         widget.node,
         widget.index,
         MentionBlockKeys.mentionChar.length,
-        {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: widget.pageId,
-          },
-        },
+        MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page,
+          pageId: widget.pageId,
+          blockId: null,
+        ),
       );
 
     widget.editorState.apply(
@@ -383,25 +381,24 @@ Future<void> _handleDoubleTap(
   }
 
   final currentViewId = context.read<DocumentBloc>().documentId;
-  final newViewId = await showPageSelectorSheet(
+  final newView = await showPageSelectorSheet(
     context,
     currentViewId: currentViewId,
     selectedViewId: viewId,
   );
 
-  if (newViewId != null) {
+  if (newView != null) {
     // Update this nodes pageId
     final transaction = editorState.transaction
       ..formatText(
         node,
         index,
         1,
-        {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: newViewId,
-          },
-        },
+        MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page,
+          pageId: newView.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction, withUpdateSelection: false);

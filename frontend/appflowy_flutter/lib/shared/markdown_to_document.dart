@@ -27,6 +27,7 @@ Future<String> customDocumentToMarkdown(
   Document document, {
   String path = '',
   AsyncValueSetter<Archive>? onArchive,
+  String lineBreak = '',
 }) async {
   final List<Future<ArchiveFile>> fileFutures = [];
 
@@ -41,6 +42,7 @@ Future<String> customDocumentToMarkdown(
   try {
     markdown = documentToMarkdown(
       document,
+      lineBreak: lineBreak,
       customParsers: [
         const MathEquationNodeParser(),
         const CalloutNodeParser(),

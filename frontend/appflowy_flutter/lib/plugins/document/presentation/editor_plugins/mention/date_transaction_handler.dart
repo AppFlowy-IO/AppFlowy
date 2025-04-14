@@ -192,15 +192,12 @@ class DateTransactionHandler extends MentionTransactionHandler {
       ),
     );
 
-    final newMentionAttributes = {
-      MentionBlockKeys.mention: {
-        MentionBlockKeys.type: MentionType.date.name,
-        MentionBlockKeys.date: dateTime.toIso8601String(),
-        MentionBlockKeys.reminderId: reminderId,
-        MentionBlockKeys.includeTime: data.includeTime,
-        MentionBlockKeys.reminderOption: data.reminderOption.name,
-      },
-    };
+    final newMentionAttributes = MentionBlockKeys.buildMentionDateAttributes(
+      date: dateTime.toIso8601String(),
+      reminderId: reminderId,
+      reminderOption: data.reminderOption.name,
+      includeTime: data.includeTime,
+    );
 
     // The index is the index of the delta, to get the index of the mention character
     // in all the text, we need to calculate it based on the deltas before the current delta.

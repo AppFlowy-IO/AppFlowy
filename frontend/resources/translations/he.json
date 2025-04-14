@@ -1243,8 +1243,7 @@
     "url": {
       "launch": "פתיחת קישור בדפדפן",
       "copy": "העתקת קישור ללוח הגזירים",
-      "textFieldHint": "נא למלא כתובת",
-      "copiedNotification": "הועתק ללוח הגזירים!"
+      "textFieldHint": "נא למלא כתובת"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "מסד נתונים קשור",

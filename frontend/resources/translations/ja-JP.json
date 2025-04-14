@@ -1577,8 +1577,7 @@
     "url": {
       "launch": "リンクをブラウザで開く",
       "copy": "リンクをクリップボードにコピー",
-      "textFieldHint": "URLを入力",
-      "copiedNotification": "クリップボードにコピーされました！"
+      "textFieldHint": "URLを入力"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "関連データベース",

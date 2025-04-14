@@ -8,6 +8,7 @@ import 'package:appflowy_ui/src/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/text/text_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/dimensions.dart';
+import 'package:appflowy_ui/src/theme/shadow/shadow.dart';
 import 'package:appflowy_ui/src/theme/spacing/spacing.dart';
 import 'package:flutter/material.dart';
 
@@ -92,6 +93,35 @@ class AppFlowyThemeBuilder {
     };
   }
 
+  AppFlowyShadow buildShadow(Brightness brightness) {
+    return switch (brightness) {
+      Brightness.light => AppFlowyShadow(
+          small: const BoxShadow(
+            offset: Offset(0.0, 2.0),
+            blurRadius: 16.0,
+            color: Color(0x1F000000),
+          ),
+          medium: const BoxShadow(
+            offset: Offset(0.0, 4.0),
+            blurRadius: 32.0,
+            color: Color(0x1F000000),
+          ),
+        ),
+      Brightness.dark => AppFlowyShadow(
+          small: BoxShadow(
+            offset: Offset(0.0, 2.0),
+            blurRadius: 16.0,
+            color: Color(0x7A000000),
+          ),
+          medium: BoxShadow(
+            offset: Offset(0.0, 4.0),
+            blurRadius: 32.0,
+            color: Color(0x7A000000),
+          ),
+        ),
+    };
+  }
+
   AppFlowyBorderColorScheme buildBorderColorScheme(
     AppFlowyBaseColorScheme colorScheme,
     Brightness brightness,
@@ -151,7 +181,7 @@ class AppFlowyThemeBuilder {
     Brightness brightness,
   ) {
     return switch (brightness) {
-      Brightness.light => AppFlowyFillColorScheme(
+      Brightness.dark => AppFlowyFillColorScheme(
           primary: colorScheme.neutral.neutral100,
           primaryHover: colorScheme.neutral.neutral200,
           secondary: colorScheme.neutral.neutral300,
@@ -161,7 +191,7 @@ class AppFlowyThemeBuilder {
           quaternary: colorScheme.neutral.neutral1000,
           quaternaryHover: colorScheme.neutral.neutral900,
           transparent: colorScheme.neutral.alphaWhite0,
-          primaryAlpha5: colorScheme.neutral.alphaGrey100005,
+          primaryAlpha5: colorScheme.neutral.alphaGrey10005,
           primaryAlpha5Hover: colorScheme.neutral.alphaGrey10010,
           primaryAlpha80: colorScheme.neutral.alphaGrey100080,
           primaryAlpha80Hover: colorScheme.neutral.alphaGrey100070,
@@ -196,7 +226,7 @@ class AppFlowyThemeBuilder {
           purpleThick: colorScheme.purple.purple500,
           purpleThickHover: colorScheme.purple.purple600,
         ),
-      Brightness.dark => AppFlowyFillColorScheme(
+      Brightness.light => AppFlowyFillColorScheme(
           primary: colorScheme.neutral.neutral1000,
           primaryHover: colorScheme.neutral.neutral900,
           secondary: colorScheme.neutral.neutral600,

@@ -32,7 +32,6 @@ collab = { workspace = true }
 #collab = { workspace = true, features = ["verbose_log"] }
 
 diesel.workspace = true
-uuid.workspace = true
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
 client-api.workspace = true
@@ -56,10 +55,10 @@ lib-infra = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
-futures.workspace = true
-walkdir = "2.4.0"
+uuid.workspace = true
 sysinfo = "0.30.5"
 semver = { version = "1.0.22", features = ["serde"] }
+url = "2.5.0"
 
 [features]
 profiling = ["console-subscriber", "tokio/tracing"]

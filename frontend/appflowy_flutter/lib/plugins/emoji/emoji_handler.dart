@@ -299,7 +299,8 @@ class _EmojiHandlerState extends State<EmojiHandler> {
         .getTextInSelection(
           selection.copyWith(
             start: selection.start.copyWith(offset: startOffset),
-            end: selection.start.copyWith(offset: startOffset + _search.length + 1),
+            end: selection.start
+                .copyWith(offset: startOffset + _search.length + 1),
           ),
         )
         .join();

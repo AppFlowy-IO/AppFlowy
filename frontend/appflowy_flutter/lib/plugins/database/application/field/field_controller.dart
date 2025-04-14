@@ -411,23 +411,28 @@ class FieldController {
   /// Listen for field setting changes in the backend.
   void _listenOnFieldSettingsChanged() {
     FieldInfo? updateFieldSettings(FieldSettingsPB updatedFieldSettings) {
-      final List<FieldInfo> newFields = fieldInfos;
-      var updatedField = newFields.firstOrNull;
+      final newFields = [...fieldInfos];
 
-      if (updatedField == null) {
+      if (newFields.isEmpty) {
         return null;
       }
 
       final index = newFields
           .indexWhere((field) => field.id == updatedFieldSettings.fieldId);
+
       if (index != -1) {
         newFields[index] =
             newFields[index].copyWith(fieldSettings: updatedFieldSettings);
-        updatedField = newFields[index];
+        _fieldNotifier.fieldInfos = newFields;
+        _fieldSettings
+          ..removeWhere(
+            (field) => field.fieldId == updatedFieldSettings.fieldId,
+          )
+          ..add(updatedFieldSettings);
+        return newFields[index];
       }
 
-      _fieldNotifier.fieldInfos = newFields;
-      return updatedField;
+      return null;
     }
 
     _fieldSettingsListener.start(

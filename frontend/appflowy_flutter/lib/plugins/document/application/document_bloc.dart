@@ -442,7 +442,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       final context = AppGlobals.rootNavKey.currentContext;
       if (context != null && context.mounted) {
         showToastNotification(
-          context,
           message: 'document integrity check failed',
           type: ToastificationType.error,
         );

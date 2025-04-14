@@ -1445,8 +1445,7 @@
     "url": {
       "launch": "Відкрити посилання в браузері",
       "copy": "Копіювати посилання в буфер обміну",
-      "textFieldHint": "Введіть URL",
-      "copiedNotification": "Скопійовано в буфер обміну!"
+      "textFieldHint": "Введіть URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Пов'язана база даних",

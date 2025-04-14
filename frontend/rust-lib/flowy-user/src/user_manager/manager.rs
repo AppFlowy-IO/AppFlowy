@@ -1,3 +1,4 @@
+use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -14,6 +15,7 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
+use lib_infra::box_any::BoxAny;
 use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
@@ -22,8 +24,7 @@ use std::sync::{Arc, Weak};
 use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
-
-use lib_infra::box_any::BoxAny;
+use uuid::Uuid;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
@@ -58,7 +59,7 @@ pub struct UserManager {
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
-  pub(crate) is_loading_awareness: Arc<DashMap<String, bool>>,
+  pub(crate) is_loading_awareness: Arc<DashMap<Uuid, bool>>,
 }
 
 impl UserManager {
@@ -403,7 +404,6 @@ impl UserManager {
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&authenticator).await;
-
     self.cloud_services.set_user_authenticator(&authenticator);
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
@@ -720,6 +720,19 @@ impl UserManager {
     Ok(url)
   }
 
+  pub(crate) async fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    let auth_service = self.cloud_services.get_user_service()?;
+    let response = auth_service.sign_in_with_password(email, password).await?;
+    Ok(response)
+  }
+
   pub(crate) async fn sign_in_with_magic_link(
     &self,
     email: &str,
@@ -733,6 +746,19 @@ impl UserManager {
       .sign_in_with_magic_link(email, redirect_to)
       .await?;
     Ok(())
+  }
+
+  pub(crate) async fn sign_in_with_passcode(
+    &self,
+    email: &str,
+    passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    let auth_service = self.cloud_services.get_user_service()?;
+    let response = auth_service.sign_in_with_passcode(email, passcode).await?;
+    Ok(response)
   }
 
   pub(crate) async fn generate_oauth_url(

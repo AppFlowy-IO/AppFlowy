@@ -1420,8 +1420,7 @@
     "url": {
       "launch": "Открыть в браузере",
       "copy": "Скопировать URL",
-      "textFieldHint": "Введите URL-адрес",
-      "copiedNotification": "Скопировано в буфер обмена!"
+      "textFieldHint": "Введите URL-адрес"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Связанная база данных",

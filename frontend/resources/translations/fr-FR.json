@@ -1612,8 +1612,7 @@
     "url": {
       "launch": "Ouvrir dans le navigateur",
       "copy": "Copier l'URL",
-      "textFieldHint": "Entrez une URL",
-      "copiedNotification": "Copié dans le presse-papier!"
+      "textFieldHint": "Entrez une URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Base de données associée",

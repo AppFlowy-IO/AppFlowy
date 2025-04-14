@@ -43,13 +43,11 @@ extension PasteFromBlockLink on EditorState {
       node,
       selection.startIndex,
       MentionBlockKeys.mentionChar,
-      attributes: {
-        MentionBlockKeys.mention: {
-          MentionBlockKeys.type: MentionType.page.name,
-          MentionBlockKeys.blockId: blockId,
-          MentionBlockKeys.pageId: pageId,
-        },
-      },
+      attributes: MentionBlockKeys.buildMentionPageAttributes(
+        mentionType: MentionType.page,
+        pageId: pageId,
+        blockId: blockId,
+      ),
     );
     await apply(transaction);
 

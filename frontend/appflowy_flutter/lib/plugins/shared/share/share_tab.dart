@@ -117,8 +117,7 @@ class _ShareTabContent extends StatelessWidget {
     );
 
     showToastNotification(
-      context,
-      message: LocaleKeys.grid_url_copy.tr(),
+      message: LocaleKeys.message_copy_success.tr(),
     );
   }
 }

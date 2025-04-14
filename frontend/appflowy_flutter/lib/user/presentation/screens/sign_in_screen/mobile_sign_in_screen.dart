@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/anonymous_sign_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,9 @@ class MobileSignInScreen extends StatelessWidget {
                 const VSpace(spacing * 2),
                 isLocalAuthEnabled
                     ? const SignInAnonymousButtonV3()
-                    : const SignInWithMagicLinkButtons(),
+                    : const ContinueWithEmailAndPassword(),
                 const VSpace(spacing),
-                if (isAuthEnabled) _buildThirdPartySignInButtons(colorScheme),
+                if (isAuthEnabled) _buildThirdPartySignInButtons(context),
                 const VSpace(spacing * 1.5),
                 const SignInAgreement(),
                 const VSpace(spacing),
@@ -74,7 +75,8 @@ class MobileSignInScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThirdPartySignInButtons(ColorScheme colorScheme) {
+  Widget _buildThirdPartySignInButtons(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       children: [
         Row(
@@ -83,10 +85,12 @@ class MobileSignInScreen extends StatelessWidget {
             const Expanded(child: Divider()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: FlowyText(
+              child: Text(
                 LocaleKeys.signIn_or.tr(),
-                fontSize: 12,
-                color: colorScheme.onSecondary,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.textColorScheme.secondary,
+                ),
               ),
             ),
             const Expanded(child: Divider()),
@@ -103,21 +107,28 @@ class MobileSignInScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsButton(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowyText(
-            LocaleKeys.signIn_settings.tr(),
-            textAlign: TextAlign.center,
-            fontSize: 12.0,
-            // fontWeight: FontWeight.w500,
-            color: Colors.grey,
-            decoration: TextDecoration.underline,
+        AFGhostIconTextButton(
+          text: LocaleKeys.signIn_settings.tr(),
+          textColor: (context, isHovering, disabled) {
+            return theme.textColorScheme.secondary;
+          },
+          size: AFButtonSize.s,
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.spacing.m,
+            vertical: theme.spacing.xs,
           ),
-          onTap: () {
-            context.push(MobileLaunchSettingsPage.routeName);
+          onTap: () => context.push(MobileLaunchSettingsPage.routeName),
+          iconBuilder: (context, isHovering, disabled) {
+            return FlowySvg(
+              FlowySvgs.settings_s,
+              size: Size.square(20),
+              color: theme.textColorScheme.secondary,
+            );
           },
         ),
         const HSpace(24),

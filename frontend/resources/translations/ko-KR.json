@@ -1634,8 +1634,7 @@
     "url": {
       "launch": "브라우저에서 링크 열기",
       "copy": "링크를 클립보드에 복사",
-      "textFieldHint": "URL 입력",
-      "copiedNotification": "클립보드에 복사되었습니다!"
+      "textFieldHint": "URL 입력"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "관련 데이터베이스",

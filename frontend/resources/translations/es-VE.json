@@ -866,8 +866,7 @@
     "url": {
       "launch": "Abrir en el navegador",
       "copy": "Copiar URL",
-      "textFieldHint": "Introduce una URL",
-      "copiedNotification": "¡Copiado al portapapeles!"
+      "textFieldHint": "Introduce una URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Base de datos relacionada",

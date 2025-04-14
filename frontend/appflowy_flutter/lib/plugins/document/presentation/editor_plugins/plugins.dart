@@ -40,7 +40,6 @@ export 'inline_math_equation/inline_math_equation.dart';
 export 'inline_math_equation/inline_math_equation_toolbar_item.dart';
 export 'keyboard_interceptor/keyboard_interceptor.dart';
 export 'link_preview/custom_link_preview.dart';
-export 'link_preview/link_preview_cache.dart';
 export 'link_preview/link_preview_menu.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'math_equation/mobile_math_equation_toolbar_item.dart';

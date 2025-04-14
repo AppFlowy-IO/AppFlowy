@@ -568,7 +568,6 @@ class EditorStyleCustomizer {
     if (style == null) {
       return null;
     }
-    final fontSize = style.fontSize ?? 14.0;
     final isLight = Theme.of(context).isLightMode;
     final textColor = isLight ? Color(0xFF007296) : Color(0xFF49CFF4);
     final underlineColor = isLight ? Color(0x33005A7A) : Color(0x3349CFF4);
@@ -578,17 +577,10 @@ class EditorStyleCustomizer {
           decoration: TextDecoration.lineThrough,
         ),
       AiWriterBlockKeys.suggestionReplacement => style.copyWith(
-          color: Colors.transparent,
+          color: textColor,
           decoration: TextDecoration.underline,
           decorationColor: underlineColor,
           decorationThickness: 1.0,
-          // hack: https://jtmuller5.medium.com/the-ultimate-guide-to-underlining-text-in-flutter-57936f5c79bb
-          shadows: [
-            Shadow(
-              color: textColor,
-              offset: Offset(0, -fontSize * 0.2),
-            ),
-          ],
         ),
       _ => style,
     };
@@ -599,10 +591,9 @@ class EditorStyleCustomizer {
     Node node,
     SelectableMixin delegate,
   ) {
+    if (UniversalPlatform.isMobile) return [];
     final delta = node.delta;
-    if (delta == null) {
-      return [];
-    }
+    if (delta == null) return [];
     final widgets = <Widget>[];
     final textInserts = delta.whereType<TextInsert>();
     int index = 0;

@@ -13,6 +13,7 @@ import 'document_with_multi_image_block_test.dart'
     as document_with_multi_image_block_test;
 import 'document_with_simple_table_test.dart'
     as document_with_simple_table_test;
+import 'document_link_preview_test.dart' as document_link_preview_test;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -28,4 +29,5 @@ void main() {
   document_find_menu_test.main();
   document_toolbar_test.main();
   document_with_simple_table_test.main();
+  document_link_preview_test.main();
 }

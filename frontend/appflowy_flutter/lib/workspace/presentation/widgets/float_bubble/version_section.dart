@@ -51,7 +51,6 @@ class FlowyVersionSection extends CustomActionCell {
                     }
                     enableDocumentInternalLog = !enableDocumentInternalLog;
                     showToastNotification(
-                      context,
                       message: enableDocumentInternalLog
                           ? 'Enabled Internal Log'
                           : 'Disabled Internal Log',

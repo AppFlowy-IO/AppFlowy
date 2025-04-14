@@ -8,6 +8,7 @@ import 'package:appflowy_ui/src/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/color_scheme/text/text_color_scheme.dart';
 import 'package:appflowy_ui/src/theme/data/builder.dart';
+import 'package:appflowy_ui/src/theme/shadow/shadow.dart';
 import 'package:appflowy_ui/src/theme/spacing/spacing.dart';
 import 'package:appflowy_ui/src/theme/text_style/text_style.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,8 @@ abstract class AppFlowyBaseTheme {
   AppFlowySpacing get spacing;
 
   AppFlowyBrandColorScheme get brandColorScheme;
+
+  AppFlowyShadow get shadow;
 }
 
 class AppFlowyThemeData extends AppFlowyBaseTheme {
@@ -67,10 +70,10 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       colorScheme,
       Brightness.light,
     );
+    final shadow = themeBuilder.buildShadow(Brightness.light);
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
-
     return AppFlowyThemeData(
       colorScheme: colorScheme,
       textColorScheme: textColorScheme,
@@ -83,6 +86,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       borderRadius: borderRadius,
       spacing: spacing,
       brandColorScheme: brandColorScheme,
+      shadow: shadow,
     );
   }
 
@@ -113,10 +117,10 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       colorScheme,
       Brightness.dark,
     );
+    final shadow = themeBuilder.buildShadow(Brightness.dark);
     final brandColorScheme = themeBuilder.buildBrandColorScheme(colorScheme);
     final borderRadius = themeBuilder.buildBorderRadius(colorScheme);
     final spacing = themeBuilder.buildSpacing(colorScheme);
-
     return AppFlowyThemeData(
       colorScheme: colorScheme,
       textColorScheme: textColorScheme,
@@ -129,6 +133,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
       borderRadius: borderRadius,
       spacing: spacing,
       brandColorScheme: brandColorScheme,
+      shadow: shadow,
     );
   }
 
@@ -144,6 +149,7 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
     required this.brandColorScheme,
     required this.iconColorTheme,
     required this.backgroundColorScheme,
+    required this.shadow,
     this.brightness = Brightness.light,
   });
 
@@ -183,6 +189,9 @@ class AppFlowyThemeData extends AppFlowyBaseTheme {
 
   @override
   final AppFlowyBackgroundColorScheme backgroundColorScheme;
+
+  @override
+  final AppFlowyShadow shadow;
 
   static AppFlowyTextColorScheme buildTextColorScheme(
     AppFlowyBaseColorScheme colorScheme,

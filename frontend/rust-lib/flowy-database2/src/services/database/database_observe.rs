@@ -16,6 +16,7 @@ use futures::StreamExt;
 
 use std::sync::Arc;
 use tracing::{error, trace, warn};
+use uuid::Uuid;
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
@@ -112,7 +113,7 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
+pub(crate) async fn observe_view_change(database_id: &Uuid, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
   let weak_database_editor = Arc::downgrade(database_editor);
   let view_change = database_editor
@@ -289,7 +290,7 @@ async fn handle_did_update_row_orders(
   }
 }
 
-pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
+pub(crate) async fn observe_block_event(database_id: &Uuid, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
   let mut block_event_rx = database_editor
     .database

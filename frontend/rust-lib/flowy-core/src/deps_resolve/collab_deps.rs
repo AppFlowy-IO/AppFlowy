@@ -13,6 +13,7 @@ use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use lib_infra::util::timestamp;
 use std::sync::{Arc, Weak};
 use tracing::debug;
+use uuid::Uuid;
 
 pub struct SnapshotDBImpl(pub Weak<AuthenticateUser>);
 
@@ -222,12 +223,12 @@ impl WorkspaceCollabIntegrateImpl {
 }
 
 impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
-  fn workspace_id(&self) -> Result<String, anyhow::Error> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     let workspace_id = self.upgrade_user()?.workspace_id()?;
     Ok(workspace_id)
   }
 
-  fn device_id(&self) -> Result<String, anyhow::Error> {
+  fn device_id(&self) -> Result<String, FlowyError> {
     Ok(self.upgrade_user()?.user_config.device_id.clone())
   }
 }

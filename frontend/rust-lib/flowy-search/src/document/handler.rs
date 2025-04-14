@@ -1,10 +1,11 @@
-use std::sync::Arc;
-use tracing::{trace, warn};
-
 use flowy_error::FlowyResult;
 use flowy_folder::{manager::FolderManager, ViewLayout};
 use flowy_search_pub::cloud::SearchCloudService;
 use lib_infra::async_trait::async_trait;
+use std::str::FromStr;
+use std::sync::Arc;
+use tracing::{trace, warn};
+use uuid::Uuid;
 
 use crate::{
   entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResultPB},
@@ -49,6 +50,7 @@ impl SearchHandler for DocumentSearchHandler {
       None => return Ok(vec![]),
     };
 
+    let workspace_id = Uuid::from_str(&workspace_id)?;
     let results = self
       .cloud_service
       .document_search(&workspace_id, query)
@@ -61,7 +63,7 @@ impl SearchHandler for DocumentSearchHandler {
     let mut search_results: Vec<SearchResultPB> = vec![];
 
     for result in results {
-      if let Some(view) = views.iter().find(|v| v.id == result.object_id) {
+      if let Some(view) = views.iter().find(|v| v.id == result.object_id.to_string()) {
         // If there is no View for the result, we don't add it to the results
         // If possible we will extract the icon to display for the result
         let icon: Option<ResultIconPB> = match view.icon.clone() {
@@ -77,12 +79,12 @@ impl SearchHandler for DocumentSearchHandler {
 
         search_results.push(SearchResultPB {
           index_type: IndexTypePB::Document,
-          view_id: result.object_id.clone(),
-          id: result.object_id.clone(),
+          view_id: result.object_id.to_string(),
+          id: result.object_id.to_string(),
           data: view.name.clone(),
           icon,
           score: result.score,
-          workspace_id: result.workspace_id,
+          workspace_id: result.workspace_id.to_string(),
           preview: result.preview,
         });
       } else {

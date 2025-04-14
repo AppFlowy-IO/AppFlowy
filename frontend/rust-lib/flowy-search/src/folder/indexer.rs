@@ -20,13 +20,13 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
+use super::entities::FolderIndexData;
 use strsim::levenshtein;
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
   Index, IndexReader, IndexWriter, TantivyDocument, Term,
 };
-
-use super::entities::FolderIndexData;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct FolderIndexManagerImpl {
@@ -139,7 +139,7 @@ impl FolderIndexManagerImpl {
         title_field => data.data.clone(),
         icon_field => icon.unwrap_or_default(),
         icon_ty_field => icon_ty,
-        workspace_id_field => data.workspace_id.clone(),
+        workspace_id_field => data.workspace_id.to_string(),
       ]);
     }
 
@@ -293,9 +293,9 @@ impl IndexManager for FolderIndexManagerImpl {
       .unwrap_or(false)
   }
 
-  fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: String) {
+  fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
     let indexer = self.clone();
-    let wid = workspace_id.clone();
+    let wid = workspace_id;
     tokio::spawn(async move {
       while let Ok(msg) = rx.recv().await {
         match msg {
@@ -306,7 +306,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
-                workspace_id: wid.clone(),
+                workspace_id: wid,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -318,7 +318,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
-                workspace_id: wid.clone(),
+                workspace_id: wid,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -352,7 +352,7 @@ impl IndexManager for FolderIndexManagerImpl {
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
       icon_ty_field => icon_ty,
-      workspace_id_field => data.workspace_id.clone(),
+      workspace_id_field => data.workspace_id.to_string(),
     ]);
 
     index_writer.commit()?;
@@ -389,7 +389,7 @@ impl IndexManager for FolderIndexManagerImpl {
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
       icon_ty_field => icon_ty,
-      workspace_id_field => data.workspace_id,
+      workspace_id_field => data.workspace_id.to_string(),
     ]);
 
     index_writer.commit()?;
@@ -400,14 +400,14 @@ impl IndexManager for FolderIndexManagerImpl {
   /// Removes all indexes that are related by workspace id. This is useful
   /// for cleaning indexes when eg. removing/leaving a workspace.
   ///
-  fn remove_indices_for_workspace(&self, workspace_id: String) -> Result<(), FlowyError> {
+  fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
     let mut index_writer = self.get_index_writer()?;
 
     let folder_schema = self.get_folder_schema()?;
     let id_field = folder_schema
       .schema
       .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
-    let delete_term = Term::from_field_text(id_field, &workspace_id);
+    let delete_term = Term::from_field_text(id_field, &workspace_id.to_string());
     index_writer.delete_term(delete_term);
 
     index_writer.commit()?;
@@ -421,10 +421,10 @@ impl IndexManager for FolderIndexManagerImpl {
 }
 
 impl FolderIndexManager for FolderIndexManagerImpl {
-  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String) {
+  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData::from_view(view, workspace_id.clone()))
+      .map(|view| IndexableData::from_view(view, workspace_id))
       .collect();
 
     let _ = self.index_all(indexable_data);
@@ -434,7 +434,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
     &self,
     views: Vec<Arc<View>>,
     changes: Vec<FolderViewChange>,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) {
     let mut views_iter = views.into_iter();
     for change in changes {
@@ -442,14 +442,14 @@ impl FolderIndexManager for FolderIndexManagerImpl {
         FolderViewChange::Inserted { view_id } => {
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let indexable_data = IndexableData::from_view(view, workspace_id);
             let _ = self.add_index(indexable_data);
           }
         },
         FolderViewChange::Updated { view_id } => {
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let indexable_data = IndexableData::from_view(view, workspace_id);
             let _ = self.update_index(indexable_data);
           }
         },

@@ -98,8 +98,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "552f95f"
-      resolved-ref: "552f95fd15627e10a138c6db2a6d0a8089bc9a25"
+      ref: "361b99c38370abeeb19656f89e8c31cb3666623b"
+      resolved-ref: "361b99c38370abeeb19656f89e8c31cb3666623b"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "5.1.0"
@@ -126,6 +126,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  appflowy_ui:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_ui"
+      relative: true
+    source: path
+    version: "1.0.0"
   archive:
     dependency: "direct main"
     description:
@@ -2597,5 +2604,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.6.0 <4.0.0"
+  dart: ">=3.6.2 <4.0.0"
   flutter: ">=3.27.4"

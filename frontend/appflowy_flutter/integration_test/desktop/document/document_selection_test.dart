@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -46,6 +47,42 @@ void main() {
       }
 
       expect(editorState.selection!.start.offset, 0);
+    });
+
+    testWidgets('select and delete text', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      /// create a new document
+      await tester.createNewPageWithNameUnderParent();
+
+      /// input text
+      final editor = tester.editor;
+      final editorState = editor.getCurrentEditorState();
+
+      const inputText = 'Test for text selection and deletion';
+      final texts = inputText.split(' ');
+      await editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText(inputText);
+
+      /// selecte and delete
+      int index = 0;
+      while (texts.isNotEmpty) {
+        final text = texts.removeAt(0);
+        await tester.editor.updateSelection(
+          Selection(
+            start: Position(path: [0], offset: index),
+            end: Position(path: [0], offset: index + text.length),
+          ),
+        );
+        await tester.simulateKeyEvent(LogicalKeyboardKey.delete);
+        index++;
+      }
+
+      /// excpete the text value is correct
+      final node = editorState.getNodeAtPath([0])!;
+      final nodeText = node.delta?.toPlainText() ?? '';
+      expect(nodeText, ' ' * (index - 1));
     });
   });
 }

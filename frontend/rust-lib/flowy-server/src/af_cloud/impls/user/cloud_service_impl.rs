@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::anyhow;
@@ -13,7 +14,7 @@ use client_api::entity::workspace_dto::{
 };
 use client_api::entity::{
   AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
-  AuthProvider, CollabParams, CreateCollabParams, QueryWorkspaceMember,
+  AuthProvider, CollabParams, CreateCollabParams, GotrueTokenResponse, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -120,16 +121,13 @@ where
     &self,
     email: &str,
     password: &str,
-  ) -> Result<UserProfile, FlowyError> {
+  ) -> Result<GotrueTokenResponse, FlowyError> {
     let password = password.to_string();
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    client.sign_in_password(&email, &password).await?;
-    let profile = client.get_profile().await?;
-    let token = client.get_token()?;
-    let profile = user_profile_from_af_profile(token, profile)?;
-    Ok(profile)
+    let response = client.sign_in_password(&email, &password).await?;
+    Ok(response)
   }
 
   async fn sign_in_with_magic_link(
@@ -145,6 +143,19 @@ where
       .sign_in_with_magic_link(&email, Some(redirect_to))
       .await?;
     Ok(())
+  }
+
+  async fn sign_in_with_passcode(
+    &self,
+    email: &str,
+    passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    let email = email.to_owned();
+    let passcode = passcode.to_owned();
+    let try_get_client = self.server.try_get_client();
+    let client = try_get_client?;
+    let response = client.sign_in_with_passcode(&email, &passcode).await?;
+    Ok(response)
   }
 
   async fn generate_oauth_url_with_provider(&self, provider: &str) -> Result<String, FlowyError> {
@@ -189,11 +200,10 @@ where
     Ok(profile)
   }
 
-  async fn open_workspace(&self, workspace_id: &str) -> Result<UserWorkspace, FlowyError> {
+  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspace_id = workspace_id.to_string();
     let client = try_get_client?;
-    let af_workspace = client.open_workspace(&workspace_id).await?;
+    let af_workspace = client.open_workspace(workspace_id).await?;
     Ok(to_user_workspace(af_workspace))
   }
 
@@ -222,17 +232,14 @@ where
 
   async fn patch_workspace(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     new_workspace_name: Option<&str>,
     new_workspace_icon: Option<&str>,
   ) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let owned_workspace_id = workspace_id.to_owned();
+    let workspace_id = workspace_id.to_owned();
     let owned_workspace_name = new_workspace_name.map(|s| s.to_owned());
     let owned_workspace_icon = new_workspace_icon.map(|s| s.to_owned());
-    let workspace_id: Uuid = owned_workspace_id
-      .parse()
-      .map_err(|_| ErrorCode::InvalidParams)?;
     let client = try_get_client?;
     client
       .patch_workspace(PatchWorkspaceParam {
@@ -244,18 +251,17 @@ where
     Ok(())
   }
 
-  async fn delete_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  async fn delete_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspace_id_owned = workspace_id.to_owned();
     let client = try_get_client?;
-    client.delete_workspace(&workspace_id_owned).await?;
+    client.delete_workspace(workspace_id).await?;
     Ok(())
   }
 
   async fn invite_workspace_member(
     &self,
     invitee_email: String,
-    workspace_id: String,
+    workspace_id: Uuid,
     role: Role,
   ) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
@@ -300,11 +306,11 @@ where
   async fn remove_workspace_member(
     &self,
     user_email: String,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     try_get_client?
-      .remove_workspace_members(workspace_id, vec![user_email])
+      .remove_workspace_members(&workspace_id, vec![user_email])
       .await?;
     Ok(())
   }
@@ -312,20 +318,20 @@ where
   async fn update_workspace_member(
     &self,
     user_email: String,
-    workspace_id: String,
+    workspace_id: Uuid,
     role: Role,
   ) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let changeset = WorkspaceMemberChangeset::new(user_email).with_role(to_af_role(role));
     try_get_client?
-      .update_workspace_member(workspace_id, changeset)
+      .update_workspace_member(&workspace_id, changeset)
       .await?;
     Ok(())
   }
 
   async fn get_workspace_members(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) -> Result<Vec<WorkspaceMember>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let members = try_get_client?
@@ -339,15 +345,12 @@ where
 
   async fn get_workspace_member(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     uid: i64,
   ) -> Result<WorkspaceMember, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    let query = QueryWorkspaceMember {
-      workspace_id: workspace_id.clone(),
-      uid,
-    };
+    let query = QueryWorkspaceMember { workspace_id, uid };
     let member = client.get_workspace_member(query).await?;
     Ok(from_af_workspace_member(member))
   }
@@ -356,19 +359,17 @@ where
   async fn get_user_awareness_doc_state(
     &self,
     _uid: i64,
-    workspace_id: &str,
-    object_id: &str,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let object_id = object_id.to_string();
     let try_get_client = self.server.try_get_client();
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id, CollabType::UserAwareness),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*object_id, CollabType::UserAwareness),
     };
     let resp = try_get_client?.get_collab(params).await?;
-    check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get user awareness object")?;
+    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get user awareness object")?;
     Ok(resp.encode_collab.doc_state.to_vec())
   }
 
@@ -389,9 +390,12 @@ where
     let try_get_client = self.server.try_get_client();
     let collab_object = collab_object.clone();
     let client = try_get_client?;
+    let workspace_id = Uuid::from_str(&collab_object.workspace_id)?;
+    let object_id = Uuid::from_str(&collab_object.object_id)?;
+
     let params = CreateCollabParams {
-      workspace_id: collab_object.workspace_id,
-      object_id: collab_object.object_id,
+      workspace_id,
+      object_id,
       collab_type: collab_object.collab_type,
       encoded_collab_v1: data,
     };
@@ -401,33 +405,35 @@ where
 
   async fn batch_create_collab_object(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     objects: Vec<UserCollabParams>,
   ) -> Result<(), FlowyError> {
-    let workspace_id = workspace_id.to_string();
     let try_get_client = self.server.try_get_client();
     let params = objects
       .into_iter()
-      .map(|object| {
-        CollabParams::new(
-          object.object_id,
-          u8::from(object.collab_type).into(),
-          object.encoded_collab,
-        )
+      .flat_map(|object| {
+        Uuid::from_str(&object.object_id)
+          .map(|object_id| {
+            CollabParams::new(
+              object_id,
+              u8::from(object.collab_type).into(),
+              object.encoded_collab,
+            )
+          })
+          .ok()
       })
       .collect::<Vec<_>>();
     try_get_client?
-      .create_collab_list(&workspace_id, params)
+      .create_collab_list(workspace_id, params)
       .await
       .map_err(FlowyError::from)?;
     Ok(())
   }
 
-  async fn leave_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  async fn leave_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspace_id = workspace_id.to_string();
     let client = try_get_client?;
-    client.leave_workspace(&workspace_id).await?;
+    client.leave_workspace(workspace_id).await?;
     Ok(())
   }
 
@@ -454,14 +460,13 @@ where
 
   async fn get_workspace_member_info(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
   ) -> Result<WorkspaceMember, FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspace_id = workspace_id.to_string();
     let client = try_get_client?;
     let params = QueryWorkspaceMember {
-      workspace_id: workspace_id.to_string(),
+      workspace_id: *workspace_id,
       uid,
     };
     let member = client.get_workspace_member(params).await?;
@@ -518,12 +523,12 @@ where
 
   async fn get_workspace_plan(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
     let plans = client
-      .get_active_workspace_subscriptions(&workspace_id)
+      .get_active_workspace_subscriptions(&workspace_id.to_string())
       .await?;
     Ok(plans)
   }
