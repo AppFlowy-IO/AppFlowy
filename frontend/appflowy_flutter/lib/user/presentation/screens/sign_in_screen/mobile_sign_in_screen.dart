@@ -22,8 +22,6 @@ class MobileSignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double spacing = 16;
-
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
         final theme = AppFlowyTheme.of(context);

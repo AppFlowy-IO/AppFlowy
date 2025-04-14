@@ -71,12 +71,6 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
   }
 
   Widget _buildSettingsWidget(UserProfilePB userProfile) {
-    // show the third-party sign in buttons if user logged in with local session and auth is enabled.
-
-    final isLocalAuthEnabled =
-        userProfile.authenticator == AuthenticatorPB.Local && isAuthEnabled;
-    '';
-
     return BlocProvider(
       create: (context) => UserWorkspaceBloc(userProfile: userProfile)
         ..add(const UserWorkspaceEvent.initial()),
