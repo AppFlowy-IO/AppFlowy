@@ -362,9 +362,13 @@ const kDatabasePluginWidgetBuilderActionBuilder = 'action_builder';
 const kDatabasePluginWidgetBuilderNode = 'node';
 
 class DatabasePluginWidgetBuilderSize {
-  const DatabasePluginWidgetBuilderSize({required this.horizontalPadding});
+  const DatabasePluginWidgetBuilderSize({
+    required this.horizontalPadding,
+    this.verticalPadding = 16.0,
+  });
 
   final double horizontalPadding;
+  final double verticalPadding;
 }
 
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {

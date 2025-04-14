@@ -92,17 +92,19 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   final ScrollController scrollController = ScrollController();
 
+  final ValueNotifier<double?> heightValueNotifier = ValueNotifier(null);
+
   @override
   void initState() {
     super.initState();
-
+    listenForSizeChanged();
     _updateColumnsBlock();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
-
+    heightValueNotifier.dispose();
     super.dispose();
   }
 
@@ -110,15 +112,13 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   Widget build(BuildContext context) {
     Widget child = Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: _buildChildren(),
     );
 
     child = Align(
       alignment: Alignment.topLeft,
-      child: IntrinsicHeight(
-        child: child,
-      ),
+      child: child,
     );
 
     child = Padding(
@@ -164,9 +164,15 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
       if (i != length - 1) {
         children.add(
-          SimpleColumnBlockWidthResizer(
-            columnNode: childNode,
-            editorState: editorState,
+          ValueListenableBuilder(
+            valueListenable: heightValueNotifier,
+            builder: (context, height, child) {
+              return SimpleColumnBlockWidthResizer(
+                columnNode: childNode,
+                editorState: editorState,
+                height: height,
+              );
+            },
           ),
         );
       }
@@ -192,6 +198,21 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     if (transaction.operations.isNotEmpty) {
       editorState.apply(transaction);
     }
+  }
+
+  void listenForSizeChanged() {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final renderBox = _renderBox;
+      if (renderBox?.hasSize == true) {
+        final size = renderBox?.size;
+        if (heightValueNotifier.value != size?.height) {
+          heightValueNotifier.value = size?.height;
+        }
+      }
+      listenForSizeChanged();
+    });
   }
 
   @override
