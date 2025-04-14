@@ -186,6 +186,13 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit, {
     required String email,
   }) async {
+    if (state.isSubmitting) {
+      Log.error('Sign in with magic link is already in progress');
+      return;
+    }
+
+    Log.info('Sign in with magic link: $email');
+
     emit(
       state.copyWith(
         isSubmitting: true,
