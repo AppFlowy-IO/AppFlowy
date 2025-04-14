@@ -1,6 +1,6 @@
 use super::indexer::FolderIndexManagerImpl;
 use crate::entities::{
-  CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, SearchFilterPB, SearchResultPB,
+  CreateSearchResultPBArgs, RepeatedLocalSearchResponseItemPB, SearchFilterPB, SearchResponsePB,
 };
 use crate::services::manager::{SearchHandler, SearchType};
 use async_stream::stream;
@@ -30,7 +30,7 @@ impl SearchHandler for FolderSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResultPB>> + Send + 'static>> {
+  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>> {
     let index_manager = self.index_manager.clone();
 
     Box::pin(stream! {
@@ -48,8 +48,8 @@ impl SearchHandler for FolderSearchHandler {
         }
 
         // Build the search result.
-        let search_result = RepeatedSearchResponseItemPB {items};
-        yield Ok(CreateSearchResultPBArgs::default().search_result(Some(search_result)).build().unwrap())
+        let search_result = RepeatedLocalSearchResponseItemPB {items};
+        yield Ok(CreateSearchResultPBArgs::default().local_search_result(Some(search_result)).build().unwrap())
     })
   }
 }

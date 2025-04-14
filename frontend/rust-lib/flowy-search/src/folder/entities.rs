@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{IndexTypePB, ResultIconPB, SearchResponseItemPB};
+use crate::entities::{LocalSearchResponseItemPB, ResultIconPB};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FolderIndexData {
@@ -11,7 +11,7 @@ pub struct FolderIndexData {
   pub workspace_id: String,
 }
 
-impl From<FolderIndexData> for SearchResponseItemPB {
+impl From<FolderIndexData> for LocalSearchResponseItemPB {
   fn from(data: FolderIndexData) -> Self {
     let icon = if data.icon.is_empty() {
       None
@@ -23,14 +23,10 @@ impl From<FolderIndexData> for SearchResponseItemPB {
     };
 
     Self {
-      index_type: IndexTypePB::View,
       id: data.id,
       display_name: data.title,
-      score: 0.0,
       icon,
       workspace_id: data.workspace_id,
-      preview: None,
-      content: "".to_string(),
     }
   }
 }

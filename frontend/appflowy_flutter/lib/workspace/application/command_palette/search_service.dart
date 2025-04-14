@@ -50,12 +50,18 @@ class SearchResponseStream {
     List<SearchResponseItemPB> items,
     String searchId,
     bool isLoading,
-  )? _onItems;
+  )? _onServerItems;
   void Function(
     List<SearchSummaryPB> summaries,
     String searchId,
     bool isLoading,
   )? _onSummaries;
+
+  void Function(
+    List<LocalSearchResponseItemPB> items,
+    String searchId,
+  )? _onLocalItems;
+
   void Function(String searchId)? _onFinished;
   int get nativePort => _port.sendPort.nativePort;
 
@@ -65,21 +71,28 @@ class SearchResponseStream {
   }
 
   void _onResultsChanged(Uint8List data) {
-    final response = SearchResponsePB.fromBuffer(data);
+    final searchState = SearchStatePB.fromBuffer(data);
 
-    if (response.hasResult()) {
-      if (response.result.hasSearchResult()) {
-        _onItems?.call(
-          response.result.searchResult.items,
+    if (searchState.hasResponse()) {
+      if (searchState.response.hasSearchResult()) {
+        _onServerItems?.call(
+          searchState.response.searchResult.items,
           searchId,
-          response.isLoading,
+          searchState.isLoading,
         );
       }
-      if (response.result.hasSearchSummary()) {
+      if (searchState.response.hasSearchSummary()) {
         _onSummaries?.call(
-          response.result.searchSummary.items,
+          searchState.response.searchSummary.items,
           searchId,
-          response.isLoading,
+          searchState.isLoading,
+        );
+      }
+
+      if (searchState.response.hasLocalSearchResult()) {
+        _onLocalItems?.call(
+          searchState.response.localSearchResult.items,
+          searchId,
         );
       }
     } else {
@@ -92,16 +105,21 @@ class SearchResponseStream {
       List<SearchResponseItemPB> items,
       String searchId,
       bool isLoading,
-    )? onItems,
+    )? onServerItems,
     required void Function(
       List<SearchSummaryPB> summaries,
       String searchId,
       bool isLoading,
     )? onSummaries,
+    required void Function(
+      List<LocalSearchResponseItemPB> items,
+      String searchId,
+    )? onLocalItems,
     required void Function(String searchId)? onFinished,
   }) {
-    _onItems = onItems;
+    _onServerItems = onServerItems;
     _onSummaries = onSummaries;
+    _onLocalItems = onLocalItems;
     _onFinished = onFinished;
   }
 }

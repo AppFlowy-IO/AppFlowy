@@ -1,4 +1,4 @@
-use crate::entities::{SearchFilterPB, SearchResponsePB, SearchResultPB};
+use crate::entities::{SearchFilterPB, SearchResponsePB, SearchStatePB};
 use allo_isolate::Isolate;
 use flowy_error::FlowyResult;
 use lib_infra::async_trait::async_trait;
@@ -25,7 +25,7 @@ pub trait SearchHandler: Send + Sync + 'static {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResultPB>> + Send + 'static>>;
+  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>>;
 }
 
 /// The [SearchManager] is used to inject multiple [SearchHandler]'s
@@ -34,7 +34,7 @@ pub trait SearchHandler: Send + Sync + 'static {
 ///
 pub struct SearchManager {
   pub handlers: HashMap<SearchType, Arc<dyn SearchHandler>>,
-  current_search: Arc<tokio::sync::Mutex<Option<String>>>, // Track current search
+  current_search: Arc<tokio::sync::Mutex<Option<String>>>,
 }
 
 impl SearchManager {
@@ -84,23 +84,21 @@ impl SearchManager {
         }
 
         let mut stream = handler.perform_search(query.clone(), filter).await;
-        while let Some(result) = stream.next().await {
+        while let Some(Ok(search_result)) = stream.next().await {
           if !is_current_search(&current_search, &search_id).await {
             trace!("[Search] discard search stream: {}", query);
             return;
           }
 
-          if let Ok(result) = result {
-            let resp = SearchResponsePB {
-              result: Some(result),
-              search_id: search_id.clone(),
-              is_loading: true,
-            };
-            if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
-              if let Err(err) = clone_sink.send(data).await {
-                error!("Failed to send search result: {}", err);
-                break;
-              }
+          let resp = SearchStatePB {
+            response: Some(search_result),
+            search_id: search_id.clone(),
+            is_loading: true,
+          };
+          if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
+            if let Err(err) = clone_sink.send(data).await {
+              error!("Failed to send search result: {}", err);
+              break;
             }
           }
         }
@@ -110,8 +108,8 @@ impl SearchManager {
           return;
         }
 
-        let resp = SearchResponsePB {
-          result: None,
+        let resp = SearchStatePB {
+          response: None,
           search_id: search_id.clone(),
           is_loading: true,
         };

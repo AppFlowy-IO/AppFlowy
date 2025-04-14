@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_view_tile.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -52,7 +52,7 @@ class RecentViewsList extends StatelessWidget {
                     )
                   : FlowySvg(view.iconData, size: const Size.square(20));
 
-              return RecentViewTile(
+              return SearchRecentViewCell(
                 icon: SizedBox(width: 24, child: icon),
                 view: view,
                 onSelected: onSelected,

@@ -1,9 +1,6 @@
-use crate::{
-  entities::SearchResponseItemPB,
-  folder::schema::{
-    FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
-    FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
-  },
+use crate::folder::schema::{
+  FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
+  FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
@@ -14,9 +11,8 @@ use std::sync::{Arc, Weak};
 use std::{collections::HashMap, fs};
 
 use super::entities::FolderIndexData;
-use crate::entities::ResultIconTypePB;
+use crate::entities::{LocalSearchResponseItemPB, ResultIconTypePB};
 use lib_infra::async_trait::async_trait;
-use strsim::levenshtein;
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
   Index, IndexReader, IndexWriter, TantivyDocument, Term,
@@ -113,11 +109,6 @@ impl FolderIndexManagerImpl {
     (icon, icon_ty)
   }
 
-  fn score_result(&self, query: &str, term: &str) -> f64 {
-    let distance = levenshtein(query, term) as f64;
-    1.0 / (distance + 1.0)
-  }
-
   /// Simple implementation to index all given data by spawning async tasks.
   fn index_all(&self, data_vec: Vec<IndexableData>) -> Result<(), FlowyError> {
     for data in data_vec {
@@ -130,7 +121,7 @@ impl FolderIndexManagerImpl {
   }
 
   /// Searches the index using the given query string.
-  pub async fn search(&self, query: String) -> Result<Vec<SearchResponseItemPB>, FlowyError> {
+  pub async fn search(&self, query: String) -> Result<Vec<LocalSearchResponseItemPB>, FlowyError> {
     let lock = self.state.read().await;
     let state = lock
       .as_ref()
@@ -157,8 +148,8 @@ impl FolderIndexManagerImpl {
       }
       if !content.is_empty() {
         let s = serde_json::to_string(&content)?;
-        let result: SearchResponseItemPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
-        results.push(result.with_score(self.score_result(&query, &result.display_name)));
+        let result: LocalSearchResponseItemPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
+        results.push(result);
       }
     }
 
@@ -200,11 +191,11 @@ impl IndexManager for FolderIndexManagerImpl {
                 })
                 .await;
             },
-            Err(err) => tracing::error!("FolderIndexManager error deserialize (update): {:?}", err),
+            Err(err) => error!("FolderIndexManager error deserialize (update): {:?}", err),
           },
           IndexContent::Delete(ids) => {
             if let Err(e) = indexer.remove_indices(ids).await {
-              tracing::error!("FolderIndexManager error (delete): {:?}", e);
+              error!("FolderIndexManager error (delete): {:?}", e);
             }
           },
         }

@@ -11,10 +11,25 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'command_palette_bloc.freezed.dart';
 
+class Debouncer {
+  Debouncer({required this.delay});
+
+  final Duration delay;
+  Timer? _timer;
+
+  void run(void Function() action) {
+    _timer?.cancel();
+    _timer = Timer(delay, action);
+  }
+
+  void dispose() {
+    _timer?.cancel();
+  }
+}
+
 class CommandPaletteBloc
     extends Bloc<CommandPaletteEvent, CommandPaletteState> {
   CommandPaletteBloc() : super(CommandPaletteState.initial()) {
-    // Register event handlers
     on<_SearchChanged>(_onSearchChanged);
     on<_PerformSearch>(_onPerformSearch);
     on<_NewSearchStream>(_onNewSearchStream);
@@ -26,38 +41,35 @@ class CommandPaletteBloc
     _initTrash();
   }
 
-  Timer? _debounceOnChanged;
+  final Debouncer _searchDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 300),
+  );
   final TrashService _trashService = TrashService();
   final TrashListener _trashListener = TrashListener();
-  String? _oldQuery;
+  String? _activeQuery;
   String? _workspaceId;
 
   @override
   Future<void> close() {
     _trashListener.close();
-    _debounceOnChanged?.cancel();
+    _searchDebouncer.dispose();
     state.searchResponseStream?.dispose();
     return super.close();
   }
 
   Future<void> _initTrash() async {
-    // Start listening for trash updates
     _trashListener.start(
-      trashUpdated: (trashOrFailed) {
-        add(
-          CommandPaletteEvent.trashChanged(
-            trash: trashOrFailed.toNullable(),
-          ),
-        );
-      },
+      trashUpdated: (trashOrFailed) => add(
+        CommandPaletteEvent.trashChanged(
+          trash: trashOrFailed.toNullable(),
+        ),
+      ),
     );
 
-    // Read initial trash state and forward results
     final trashOrFailure = await _trashService.readTrash();
-    add(
-      CommandPaletteEvent.trashChanged(
-        trash: trashOrFailure.toNullable()?.items,
-      ),
+    trashOrFailure.fold(
+      (trash) => add(CommandPaletteEvent.trashChanged(trash: trash.items)),
+      (error) => debugPrint('Failed to load trash: $error'),
     );
   }
 
@@ -65,9 +77,7 @@ class CommandPaletteBloc
     _SearchChanged event,
     Emitter<CommandPaletteState> emit,
   ) {
-    _debounceOnChanged?.cancel();
-    _debounceOnChanged = Timer(
-      const Duration(milliseconds: 300),
+    _searchDebouncer.run(
       () {
         if (!isClosed) {
           add(CommandPaletteEvent.performSearch(search: event.search));
@@ -80,31 +90,44 @@ class CommandPaletteBloc
     _PerformSearch event,
     Emitter<CommandPaletteState> emit,
   ) async {
-    if (event.search.isNotEmpty && event.search != state.query) {
-      _oldQuery = state.query;
+    if (event.search.isEmpty && event.search != state.query) {
+      emit(
+        state.copyWith(
+          query: null,
+          isLoading: false,
+          serverResponseItems: [],
+          localResponseItems: [],
+          combinedResponseItems: {},
+          resultSummaries: [],
+        ),
+      );
+    } else {
       emit(state.copyWith(query: event.search, isLoading: true));
+      _activeQuery = event.search;
 
-      // Fire off search asynchronously (fire and forget)
       unawaited(
         SearchBackendService.performSearch(
           event.search,
           workspaceId: _workspaceId,
         ).then(
-          (result) => result.onSuccess((stream) {
-            if (!isClosed) {
-              add(CommandPaletteEvent.newSearchStream(stream: stream));
-            }
-          }),
-        ),
-      );
-    } else {
-      // Clear state if search is empty or unchanged
-      emit(
-        state.copyWith(
-          query: null,
-          isLoading: false,
-          resultItems: [],
-          resultSummaries: [],
+          (result) => result.fold(
+            (stream) {
+              if (!isClosed && _activeQuery == event.search) {
+                add(CommandPaletteEvent.newSearchStream(stream: stream));
+              }
+            },
+            (error) {
+              debugPrint('Search error: $error');
+              if (!isClosed) {
+                add(
+                  CommandPaletteEvent.resultsChanged(
+                    searchId: '',
+                    isLoading: false,
+                  ),
+                );
+              }
+            },
+          ),
         ),
       );
     }
@@ -123,83 +146,88 @@ class CommandPaletteBloc
     );
 
     event.stream.listen(
-      onItems: (
-        List<SearchResponseItemPB> items,
-        String searchId,
-        bool isLoading,
-      ) {
-        if (_isActiveSearch(searchId)) {
-          add(
-            CommandPaletteEvent.resultsChanged(
-              items: items,
-              searchId: searchId,
-              isLoading: isLoading,
-            ),
-          );
-        }
-      },
-      onSummaries: (
-        List<SearchSummaryPB> summaries,
-        String searchId,
-        bool isLoading,
-      ) {
-        if (_isActiveSearch(searchId)) {
-          add(
-            CommandPaletteEvent.resultsChanged(
-              summaries: summaries,
-              searchId: searchId,
-              isLoading: isLoading,
-            ),
-          );
-        }
-      },
-      onFinished: (String searchId) {
-        if (_isActiveSearch(searchId)) {
-          add(
-            CommandPaletteEvent.resultsChanged(
-              searchId: searchId,
-              isLoading: false,
-            ),
-          );
-        }
-      },
+      onLocalItems: (items, searchId) => _handleResultsUpdate(
+        searchId: searchId,
+        localItems: items,
+      ),
+      onServerItems: (items, searchId, isLoading) => _handleResultsUpdate(
+        searchId: searchId,
+        serverItems: items,
+        isLoading: isLoading,
+      ),
+      onSummaries: (summaries, searchId, isLoading) => _handleResultsUpdate(
+        searchId: searchId,
+        summaries: summaries,
+        isLoading: isLoading,
+      ),
+      onFinished: (searchId) => _handleResultsUpdate(
+        searchId: searchId,
+        isLoading: false,
+      ),
     );
+  }
+
+  void _handleResultsUpdate({
+    required String searchId,
+    List<SearchResponseItemPB>? serverItems,
+    List<LocalSearchResponseItemPB>? localItems,
+    List<SearchSummaryPB>? summaries,
+    bool isLoading = true,
+  }) {
+    if (_isActiveSearch(searchId)) {
+      add(
+        CommandPaletteEvent.resultsChanged(
+          searchId: searchId,
+          serverItems: serverItems,
+          localItems: localItems,
+          summaries: summaries,
+          isLoading: isLoading,
+        ),
+      );
+    }
   }
 
   FutureOr<void> _onResultsChanged(
     _ResultsChanged event,
     Emitter<CommandPaletteState> emit,
   ) async {
-    // If query was updated since last emission, clear previous results.
-    if (state.query != _oldQuery) {
-      emit(
-        state.copyWith(
-          resultItems: [],
-          resultSummaries: [],
-          isLoading: event.isLoading,
-        ),
-      );
-      _oldQuery = state.query;
-    }
-
-    // Check for outdated search streams
     if (state.searchId != event.searchId) return;
 
-    final updatedItems =
-        event.items ?? List<SearchResponseItemPB>.from(state.resultItems);
-    final updatedSummaries =
-        event.summaries ?? List<SearchSummaryPB>.from(state.resultSummaries);
+    final combinedItems = <String, SearchResultItem>{};
+    for (final item in event.serverItems ?? state.serverResponseItems) {
+      combinedItems[item.id] = SearchResultItem(
+        id: item.id,
+        icon: item.icon,
+        displayName: item.displayName,
+        content: item.content,
+        workspaceId: item.workspaceId,
+      );
+    }
+
+    for (final item in event.localItems ?? state.localResponseItems) {
+      combinedItems.putIfAbsent(
+        item.id,
+        () => SearchResultItem(
+          id: item.id,
+          icon: item.icon,
+          displayName: item.displayName,
+          content: '',
+          workspaceId: item.workspaceId,
+        ),
+      );
+    }
 
     emit(
       state.copyWith(
-        resultItems: updatedItems,
-        resultSummaries: updatedSummaries,
+        serverResponseItems: event.serverItems ?? state.serverResponseItems,
+        localResponseItems: event.localItems ?? state.localResponseItems,
+        resultSummaries: event.summaries ?? state.resultSummaries,
+        combinedResponseItems: combinedItems,
         isLoading: event.isLoading,
       ),
     );
   }
 
-  // Update trash state and, in case of null, retry reading trash from the service
   FutureOr<void> _onTrashChanged(
     _TrashChanged event,
     Emitter<CommandPaletteState> emit,
@@ -216,7 +244,6 @@ class CommandPaletteBloc
     }
   }
 
-  // Update the workspace and clear current search results and query
   FutureOr<void> _onWorkspaceChanged(
     _WorkspaceChanged event,
     Emitter<CommandPaletteState> emit,
@@ -225,27 +252,20 @@ class CommandPaletteBloc
     emit(
       state.copyWith(
         query: '',
-        resultItems: [],
+        serverResponseItems: [],
+        localResponseItems: [],
+        combinedResponseItems: {},
         resultSummaries: [],
         isLoading: false,
       ),
     );
   }
 
-  // Clear search state
   FutureOr<void> _onClearSearch(
     _ClearSearch event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(
-      state.copyWith(
-        query: '',
-        resultItems: [],
-        resultSummaries: [],
-        isLoading: false,
-        searchId: null,
-      ),
-    );
+    emit(CommandPaletteState.initial().copyWith(trash: state.trash));
   }
 
   bool _isActiveSearch(String searchId) =>
@@ -264,7 +284,8 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
   const factory CommandPaletteEvent.resultsChanged({
     required String searchId,
     required bool isLoading,
-    List<SearchResponseItemPB>? items,
+    List<SearchResponseItemPB>? serverItems,
+    List<LocalSearchResponseItemPB>? localItems,
     List<SearchSummaryPB>? summaries,
   }) = _ResultsChanged;
 
@@ -277,12 +298,30 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
   const factory CommandPaletteEvent.clearSearch() = _ClearSearch;
 }
 
+class SearchResultItem {
+  const SearchResultItem({
+    required this.id,
+    required this.icon,
+    required this.content,
+    required this.displayName,
+    this.workspaceId,
+  });
+
+  final String id;
+  final String content;
+  final ResultIconPB icon;
+  final String displayName;
+  final String? workspaceId;
+}
+
 @freezed
 class CommandPaletteState with _$CommandPaletteState {
   const CommandPaletteState._();
   const factory CommandPaletteState({
     @Default(null) String? query,
-    @Default([]) List<SearchResponseItemPB> resultItems,
+    @Default([]) List<SearchResponseItemPB> serverResponseItems,
+    @Default([]) List<LocalSearchResponseItemPB> localResponseItems,
+    @Default({}) Map<String, SearchResultItem> combinedResponseItems,
     @Default([]) List<SearchSummaryPB> resultSummaries,
     @Default(null) SearchResponseStream? searchResponseStream,
     required bool isLoading,
@@ -290,6 +329,7 @@ class CommandPaletteState with _$CommandPaletteState {
     @Default(null) String? searchId,
   }) = _CommandPaletteState;
 
-  factory CommandPaletteState.initial() =>
-      const CommandPaletteState(isLoading: false);
+  factory CommandPaletteState.initial() => const CommandPaletteState(
+        isLoading: false,
+      );
 }

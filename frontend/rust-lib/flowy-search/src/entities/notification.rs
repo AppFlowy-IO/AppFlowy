@@ -1,10 +1,10 @@
-use super::SearchResultPB;
+use super::SearchResponsePB;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct SearchResponsePB {
+pub struct SearchStatePB {
   #[pb(index = 1, one_of)]
-  pub result: Option<SearchResultPB>,
+  pub response: Option<SearchResponsePB>,
 
   #[pb(index = 2)]
   pub search_id: String,

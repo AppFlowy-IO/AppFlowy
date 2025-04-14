@@ -71,10 +71,10 @@ impl LocalAIResourceController {
   ) -> Self {
     let (resource_notify, _) = tokio::sync::broadcast::channel(1);
     let (app_state_sender, _) = tokio::sync::broadcast::channel(1);
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     let mut offline_app_disk_watch: Option<WatchContext> = None;
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     {
       match watch_offline_app() {
         Ok((new_watcher, mut rx)) => {

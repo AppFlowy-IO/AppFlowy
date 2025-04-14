@@ -1,9 +1,9 @@
 use crate::entities::{
-  CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, RepeatedSearchSummaryPB, SearchResultPB,
-  SearchSourcePB, SearchSummaryPB,
+  CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, RepeatedSearchSummaryPB,
+  SearchResponsePB, SearchSourcePB, SearchSummaryPB,
 };
 use crate::{
-  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
+  entities::{ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
   services::manager::{SearchHandler, SearchType},
 };
 use async_stream::stream;
@@ -45,7 +45,7 @@ impl SearchHandler for DocumentSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResultPB>> + Send + 'static>> {
+  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>> {
     let cloud_service = self.cloud_service.clone();
     let folder_manager = self.folder_manager.clone();
 
@@ -99,13 +99,10 @@ impl SearchHandler for DocumentSearchHandler {
       for item in &result_items {
         if let Some(view) = views.iter().find(|v| v.id == item.object_id.to_string()) {
           items.push(SearchResponseItemPB {
-            index_type: IndexTypePB::Document,
             id: item.object_id.to_string(),
             display_name: view.name.clone(),
             icon: extract_icon(view),
-            score: item.score,
             workspace_id: item.workspace_id.to_string(),
-            preview: item.preview.clone(),
             content: item.content.clone()}
           );
         } else {
@@ -133,15 +130,11 @@ impl SearchHandler for DocumentSearchHandler {
               let sources: Vec<SearchSourcePB> = v.sources
                 .iter()
                 .flat_map(|id| {
-                  if let Some(view) = views.iter().find(|v| v.id == id.to_string()) {
-                    Some(SearchSourcePB {
+                  views.iter().find(|v| v.id == id.to_string()).map(|view| SearchSourcePB {
                       id: id.to_string(),
                       display_name: view.name.clone(),
                       icon: extract_icon(view),
                     })
-                  } else {
-                    None
-                  }
                 })
                 .collect();
 

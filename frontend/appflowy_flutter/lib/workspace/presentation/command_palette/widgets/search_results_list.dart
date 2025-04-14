@@ -1,3 +1,7 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -20,9 +24,8 @@ class SearchResultList extends StatelessWidget {
   });
 
   final List<TrashPB> trash;
-  final List<SearchResponseItemPB> resultItems;
+  final List<SearchResultItem> resultItems;
   final List<SearchSummaryPB> resultSummaries;
-
   Widget _buildSectionHeader(String title) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8) +
             const EdgeInsets.only(left: 8),
@@ -65,7 +68,6 @@ class SearchResultList extends StatelessWidget {
             final item = resultItems[index];
             return SearchResultCell(
               item: item,
-              onSelected: () => FlowyOverlay.pop(context),
               isTrashed: trash.any((t) => t.id == item.id),
             );
           },
@@ -80,33 +82,46 @@ class SearchResultList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: BlocProvider(
         create: (context) => SearchResultListBloc(),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              flex: 7,
-              child: ListView(
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  if (resultSummaries.isNotEmpty) _buildSummariesSection(),
-                  const VSpace(10),
-                  if (resultItems.isNotEmpty) _buildResultsSection(context),
-                ],
-              ),
-            ),
-            const HSpace(10),
-            Flexible(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 16,
+        child: BlocListener<SearchResultListBloc, SearchResultListState>(
+          listener: (context, state) {
+            if (state.openPageId != null) {
+              FlowyOverlay.pop(context);
+              getIt<ActionNavigationBloc>().add(
+                ActionNavigationEvent.performAction(
+                  action: NavigationAction(objectId: state.openPageId!),
                 ),
-                child: const SearchCellPreview(),
+              );
+            }
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                flex: 7,
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                  children: [
+                    if (resultSummaries.isNotEmpty) _buildSummariesSection(),
+                    const VSpace(10),
+                    if (resultItems.isNotEmpty) _buildResultsSection(context),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const HSpace(10),
+              if (resultItems.any((item) => item.content.isNotEmpty))
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                    child: const SearchCellPreview(),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

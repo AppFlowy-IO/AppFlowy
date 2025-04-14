@@ -1,11 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -19,12 +16,10 @@ class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
     super.key,
     required this.item,
-    required this.onSelected,
     this.isTrashed = false,
   });
 
-  final SearchResponseItemPB item;
-  final VoidCallback onSelected;
+  final SearchResultItem item;
   final bool isTrashed;
 
   @override
@@ -43,12 +38,9 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   /// Helper to handle the selection action.
   void _handleSelection() {
-    widget.onSelected();
-    getIt<ActionNavigationBloc>().add(
-      ActionNavigationEvent.performAction(
-        action: NavigationAction(objectId: widget.item.id),
-      ),
-    );
+    context.read<SearchResultListBloc>().add(
+          SearchResultListEvent.openPage(pageId: widget.item.id),
+        );
   }
 
   /// Helper to clean up preview text.
@@ -62,7 +54,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
     );
     final icon = widget.item.icon.getIcon();
-    final cleanedPreview = _cleanPreview(widget.item.preview);
+    final cleanedPreview = _cleanPreview(widget.item.content);
     final hasPreview = cleanedPreview.isNotEmpty;
     final trashHintText =
         widget.isTrashed ? LocaleKeys.commandPalette_fromTrashHint.tr() : null;
@@ -208,7 +200,7 @@ class SearchResultPreview extends StatelessWidget {
     required this.data,
   });
 
-  final SearchResponseItemPB data;
+  final SearchResultItem data;
 
   @override
   Widget build(BuildContext context) {

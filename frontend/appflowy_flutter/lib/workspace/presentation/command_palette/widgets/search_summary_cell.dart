@@ -36,7 +36,7 @@ class SearchSummaryCell extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: FlowyText(
           summary.content,
-          maxLines: 3,
+          maxLines: 20,
         ),
       ),
     );
@@ -78,14 +78,19 @@ class SearchSummarySource extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = source.icon.getIcon();
-    return Row(
-      children: [
-        if (icon != null) ...[
-          SizedBox(width: 24, child: icon),
-          const HSpace(6),
-        ],
-        FlowyText(source.displayName),
-      ],
+    return SizedBox(
+      height: 30,
+      child: FlowyButton(
+        leftIcon: icon,
+        hoverColor:
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        text: FlowyText(source.displayName),
+        onTap: () {
+          context.read<SearchResultListBloc>().add(
+                SearchResultListEvent.openPage(pageId: source.id),
+              );
+        },
+      ),
     );
   }
 }
