@@ -1,5 +1,4 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,9 +24,7 @@ class SignInAgreement extends StatelessWidget {
       text: TextSpan(
         children: [
           TextSpan(
-            text: isLocalAuthEnabled
-                ? LocaleKeys.web_signInLocalAgreement.tr()
-                : LocaleKeys.web_signInAgreement.tr(),
+            text: LocaleKeys.web_signInAgreement.tr(),
             style: textStyle,
           ),
           TextSpan(

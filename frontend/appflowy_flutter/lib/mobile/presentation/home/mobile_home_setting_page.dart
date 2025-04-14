@@ -105,7 +105,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                   const AboutSettingGroup(),
                   UserSessionSettingGroup(
                     userProfile: userProfile,
-                    showThirdPartyLogin: isLocalAuthEnabled,
+                    showThirdPartyLogin: false,
                   ),
                   const VSpace(20),
                 ],
