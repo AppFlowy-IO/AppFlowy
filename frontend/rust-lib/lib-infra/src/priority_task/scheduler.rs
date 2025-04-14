@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 use std::time::Duration;
 
 use crate::priority_task::queue::TaskQueue;
