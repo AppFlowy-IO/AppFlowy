@@ -67,12 +67,10 @@ extension CommonOperations on WidgetTester {
     } else {
       // cloud version
       final anonymousButton = find.byType(SignInAnonymousButtonV2);
-      await tapButton(anonymousButton);
+      await tapButton(anonymousButton, warnIfMissed: true);
     }
 
-    if (Platform.isWindows) {
-      await pumpAndSettle(const Duration(milliseconds: 200));
-    }
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   Future<void> tapContinousAnotherWay() async {
