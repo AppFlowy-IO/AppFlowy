@@ -49,7 +49,7 @@ void main() {
       // The score should be higher for "ViewOna" thus it should be shown first
       final secondDocumentWidget = tester
           .widget(find.byType(SearchResultTile).first) as SearchResultTile;
-      expect(secondDocumentWidget.result.data, secondDocument);
+      expect(secondDocumentWidget.item.data, secondDocument);
 
       // Change search to "ViewOne"
       await tester.enterText(searchFieldFinder, firstDocument);
@@ -59,7 +59,7 @@ void main() {
       final firstDocumentWidget = tester.widget(
         find.byType(SearchResultTile).first,
       ) as SearchResultTile;
-      expect(firstDocumentWidget.result.data, firstDocument);
+      expect(firstDocumentWidget.item.data, firstDocument);
     });
 
     testWidgets('Displaying icons in search results', (tester) async {

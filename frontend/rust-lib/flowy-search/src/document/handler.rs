@@ -1,16 +1,22 @@
-use flowy_error::FlowyResult;
-use flowy_folder::{manager::FolderManager, ViewLayout};
-use flowy_search_pub::cloud::SearchCloudService;
-use lib_infra::async_trait::async_trait;
-use std::str::FromStr;
-use std::sync::Arc;
-use tracing::{trace, warn};
-use uuid::Uuid;
-
+use crate::entities::{
+  CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, RepeatedSearchSummaryPB, SearchResultPB,
+  SearchSourcePB, SearchSummaryPB,
+};
 use crate::{
-  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResultPB},
+  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
   services::manager::{SearchHandler, SearchType},
 };
+use async_stream::stream;
+use flowy_error::FlowyResult;
+use flowy_folder::{manager::FolderManager, ViewLayout};
+use flowy_search_pub::cloud::{SearchCloudService, SearchResult};
+use lib_infra::async_trait::async_trait;
+use std::pin::Pin;
+use std::str::FromStr;
+use std::sync::Arc;
+use tokio_stream::{self, Stream};
+use tracing::{trace, warn};
+use uuid::Uuid;
 
 pub struct DocumentSearchHandler {
   pub cloud_service: Arc<dyn SearchCloudService>,
@@ -39,65 +45,122 @@ impl SearchHandler for DocumentSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> FlowyResult<Vec<SearchResultPB>> {
-    let filter = match filter {
-      Some(filter) => filter,
-      None => return Ok(vec![]),
-    };
+  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResultPB>> + Send + 'static>> {
+    let cloud_service = self.cloud_service.clone();
+    let folder_manager = self.folder_manager.clone();
 
-    let workspace_id = match filter.workspace_id {
-      Some(workspace_id) => workspace_id,
-      None => return Ok(vec![]),
-    };
+    Box::pin(stream! {
+      let filter = match filter {
+        Some(f) => f,
+        None => {
+          yield Ok(CreateSearchResultPBArgs::default().build().unwrap());
+          return;
+        },
+      };
 
-    let workspace_id = Uuid::from_str(&workspace_id)?;
-    let results = self
-      .cloud_service
-      .document_search(&workspace_id, query)
-      .await?;
-    trace!("[Search] remote search results: {:?}", results);
+      let workspace_id = match Uuid::from_str(&filter.workspace_id) {
+        Ok(id) => id,
+        Err(e) => {
+          yield Err(e.into());
+          return;
+        }
+      };
 
-    // Grab all views from folder cache
-    // Notice that `get_all_view_pb` returns Views that don't include trashed and private views
-    let views = self.folder_manager.get_all_views_pb().await?;
-    let mut search_results: Vec<SearchResultPB> = vec![];
+      let views = match folder_manager.get_all_views_pb().await {
+        Ok(views) => views,
+        Err(e) => {
+          yield Err(e);
+          return;
+        },
+      };
 
-    for result in results {
-      if let Some(view) = views.iter().find(|v| v.id == result.object_id.to_string()) {
-        // If there is no View for the result, we don't add it to the results
-        // If possible we will extract the icon to display for the result
-        let icon: Option<ResultIconPB> = match view.icon.clone() {
-          Some(view_icon) => Some(ResultIconPB::from(view_icon)),
-          None => {
-            let view_layout_ty: i64 = ViewLayout::from(view.layout.clone()).into();
-            Some(ResultIconPB {
-              ty: ResultIconTypePB::Icon,
-              value: view_layout_ty.to_string(),
-            })
-          },
-        };
+      let result_items = match cloud_service.document_search(&workspace_id, query.clone()).await {
+        Ok(items) => items,
+        Err(e) => {
+          yield Err(e);
+          return;
+        },
+      };
 
-        search_results.push(SearchResultPB {
-          index_type: IndexTypePB::Document,
-          view_id: result.object_id.to_string(),
-          id: result.object_id.to_string(),
-          data: view.name.clone(),
-          icon,
-          score: result.score,
-          workspace_id: result.workspace_id.to_string(),
-          preview: result.preview,
-        });
-      } else {
-        warn!("No view found for search result: {:?}", result);
+      trace!("[Search] search results: {:?}", result_items);
+      let summary_input = result_items
+        .iter()
+        .map(|v| SearchResult {
+          object_id: v.object_id,
+          content: v.content.clone(),
+        })
+        .collect::<Vec<_>>();
+
+      let mut items: Vec<SearchResponseItemPB> = Vec::new();
+      for item in result_items.iter() {
+        if let Some(view) = views.iter().find(|v| v.id == item.object_id.to_string()) {
+          let icon: Option<ResultIconPB> = match view.icon.clone() {
+            Some(view_icon) => Some(ResultIconPB::from(view_icon)),
+            None => {
+              let view_layout_ty: i64 = ViewLayout::from(view.layout.clone()).into();
+              Some(ResultIconPB {
+                ty: ResultIconTypePB::Icon,
+                value: view_layout_ty.to_string(),
+              })
+            },
+          };
+
+          items.push(SearchResponseItemPB {
+            index_type: IndexTypePB::Document,
+            view_id: item.object_id.to_string(),
+            id: item.object_id.to_string(),
+            data: view.name.clone(),
+            icon,
+            score: item.score,
+            workspace_id: item.workspace_id.to_string(),
+            preview: item.preview.clone(),
+          });
+        } else {
+          warn!("No view found for search result: {:?}", item);
+        }
       }
-    }
 
-    trace!("[Search] showing results: {:?}", search_results);
-    Ok(search_results)
-  }
+      let search_result = RepeatedSearchResponseItemPB {
+        items,
+      };
+      yield Ok(
+        CreateSearchResultPBArgs::default()
+          .search_result(Some(search_result))
+          .build()
+          .unwrap(),
+      );
 
-  /// Ignore for [DocumentSearchHandler]
-  fn index_count(&self) -> u64 {
-    0
+      // Search summary generation.
+      match cloud_service.generate_search_summary(&workspace_id, query.clone(), summary_input).await {
+        Ok(summary_result) => {
+          trace!("[Search] search summary: {:?}", summary_result);
+          let summaries: Vec<SearchSummaryPB> = summary_result
+            .summaries
+            .into_iter()
+            .filter_map(|v| {
+              v.metadata.as_object().and_then(|object| {
+                let id = object.get("id")?.as_str()?.to_string();
+                let source = object.get("source")?.as_str()?.to_string();
+                let metadata = SearchSourcePB {id, source };
+                Some(SearchSummaryPB { content: v.content, metadata: Some(metadata) })
+              })
+            })
+            .collect();
+
+          let summary_result = RepeatedSearchSummaryPB {
+            items: summaries,
+          };
+          yield Ok(
+            CreateSearchResultPBArgs::default()
+              .search_summary(Some(summary_result))
+              .build()
+              .unwrap(),
+          );
+        }
+        Err(e) => {
+          warn!("Failed to generate search summary: {:?}", e);
+        }
+      }
+    })
   }
 }

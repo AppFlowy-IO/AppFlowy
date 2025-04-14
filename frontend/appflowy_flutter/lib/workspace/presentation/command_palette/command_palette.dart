@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_v
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -135,11 +134,15 @@ class CommandPaletteModal extends StatelessWidget {
       builder: (context, state) => FlowyDialog(
         alignment: Alignment.topCenter,
         insetPadding: const EdgeInsets.only(top: 100),
-        constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
+        constraints: const BoxConstraints(
+          maxHeight: 520,
+          maxWidth: 510,
+          minHeight: 420,
+        ),
         expandHeight: false,
         child: shortcutBuilder(
+          // Change mainAxisSize to max so Expanded works correctly.
           Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               SearchField(query: state.query, isLoading: state.isLoading),
               if (state.query?.isEmpty ?? true) ...[
@@ -150,23 +153,26 @@ class CommandPaletteModal extends StatelessWidget {
                   ),
                 ),
               ],
-              if (state.results.isNotEmpty &&
+              if (state.resultItems.isNotEmpty &&
                   (state.query?.isNotEmpty ?? false)) ...[
                 const Divider(height: 0),
                 Flexible(
-                  child: SearchResultsList(
+                  child: SearchResultList(
                     trash: state.trash,
-                    results: state.results,
+                    resultItems: state.resultItems,
+                    resultSummaries: state.resultSummaries,
                   ),
                 ),
-              ] else if ((state.query?.isNotEmpty ?? false) &&
+              ]
+              // When there are no results and the query is not empty and not loading,
+              // show the no results message, centered in the available space.
+              else if ((state.query?.isNotEmpty ?? false) &&
                   !state.isLoading) ...[
-                const _NoResultsHint(),
+                const Divider(height: 0),
+                Expanded(
+                  child: const _NoResultsHint(),
+                ),
               ],
-              _CommandPaletteFooter(
-                shouldShow: state.results.isNotEmpty &&
-                    (state.query?.isNotEmpty ?? false),
-              ),
             ],
           ),
         ),
@@ -175,57 +181,16 @@ class CommandPaletteModal extends StatelessWidget {
   }
 }
 
+/// Updated _NoResultsHint now centers its content.
 class _NoResultsHint extends StatelessWidget {
   const _NoResultsHint();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(height: 0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: FlowyText.regular(
-            LocaleKeys.commandPalette_noResultsHint.tr(),
-            textAlign: TextAlign.left,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CommandPaletteFooter extends StatelessWidget {
-  const _CommandPaletteFooter({required this.shouldShow});
-
-  final bool shouldShow;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!shouldShow) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-            decoration: BoxDecoration(
-              color: AFThemeExtension.of(context).lightGreyHover,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const FlowyText.semibold('TAB', fontSize: 10),
-          ),
-          const HSpace(4),
-          FlowyText(LocaleKeys.commandPalette_navigateHint.tr(), fontSize: 11),
-        ],
+    return Center(
+      child: FlowyText.regular(
+        LocaleKeys.commandPalette_noResultsHint.tr(),
+        textAlign: TextAlign.center,
       ),
     );
   }

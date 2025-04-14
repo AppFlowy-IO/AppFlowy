@@ -2051,10 +2051,11 @@ impl FolderManager {
       .collect()
   }
 
-  pub fn remove_indices_for_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
+  pub async fn remove_indices_for_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     self
       .folder_indexer
-      .remove_indices_for_workspace(*workspace_id)?;
+      .remove_indices_for_workspace(*workspace_id)
+      .await?;
 
     Ok(())
   }

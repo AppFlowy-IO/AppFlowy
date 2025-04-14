@@ -1,17 +1,54 @@
+use super::IndexTypePB;
 use collab_folder::{IconType, ViewIcon};
+use derive_builder::Builder;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_folder::entities::ViewIconPB;
 
-use super::IndexTypePB;
+#[derive(Debug, Default, ProtoBuf, Builder, Clone)]
+#[builder(name = "CreateSearchResultPBArgs")]
+#[builder(pattern = "mutable")]
+pub struct SearchResultPB {
+  #[pb(index = 1, one_of)]
+  #[builder(default)]
+  pub search_result: Option<RepeatedSearchResponseItemPB>,
 
-#[derive(Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedSearchResultPB {
-  #[pb(index = 1)]
-  pub items: Vec<SearchResultPB>,
+  #[pb(index = 2, one_of)]
+  #[builder(default)]
+  pub search_summary: Option<RepeatedSearchSummaryPB>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct SearchResultPB {
+pub struct RepeatedSearchSummaryPB {
+  #[pb(index = 1)]
+  pub items: Vec<SearchSummaryPB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchSummaryPB {
+  #[pb(index = 1)]
+  pub content: String,
+
+  #[pb(index = 2, one_of)]
+  pub metadata: Option<SearchSourcePB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchSourcePB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub source: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedSearchResponseItemPB {
+  #[pb(index = 1)]
+  pub items: Vec<SearchResponseItemPB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchResponseItemPB {
   #[pb(index = 1)]
   pub index_type: IndexTypePB,
 
@@ -37,9 +74,9 @@ pub struct SearchResultPB {
   pub preview: Option<String>,
 }
 
-impl SearchResultPB {
+impl SearchResponseItemPB {
   pub fn with_score(&self, score: f64) -> Self {
-    SearchResultPB {
+    SearchResponseItemPB {
       index_type: self.index_type.clone(),
       view_id: self.view_id.clone(),
       id: self.id.clone(),

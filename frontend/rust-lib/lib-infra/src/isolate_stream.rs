@@ -7,6 +7,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 #[pin_project]
+#[derive(Clone, Debug)]
 pub struct IsolateSink {
   isolate: Isolate,
 }

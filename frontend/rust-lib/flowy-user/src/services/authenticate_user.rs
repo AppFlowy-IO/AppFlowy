@@ -93,9 +93,9 @@ impl AuthenticateUser {
     self.database.get_connection(uid)
   }
 
-  pub fn get_index_path(&self) -> PathBuf {
-    let uid = self.user_id().unwrap_or(0);
-    PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes")
+  pub fn get_index_path(&self) -> FlowyResult<PathBuf> {
+    let uid = self.user_id()?;
+    Ok(PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes"))
   }
 
   pub fn get_user_data_dir(&self) -> FlowyResult<PathBuf> {
