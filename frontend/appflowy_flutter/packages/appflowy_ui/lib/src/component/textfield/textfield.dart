@@ -22,11 +22,7 @@ class AFTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.autoFocus,
-    this.height = 40.0,
   });
-
-  /// The height of the text field.
-  final double height;
 
   /// The hint text to display when the text field is empty.
   final String? hintText;
@@ -152,8 +148,6 @@ class _AFTextFieldState extends AFTextFieldState {
         hoverColor: theme.borderColorScheme.greyTertiaryHover,
       ),
     );
-
-    child = SizedBox(height: widget.height, child: child);
 
     if (hasError && errorText.isNotEmpty) {
       child = Column(
