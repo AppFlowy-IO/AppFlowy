@@ -101,7 +101,6 @@ class _ContinueWithMagicLinkOrPasscodePageState
         controller: passcodeController,
         hintText: LocaleKeys.signIn_enterCode.tr(),
         keyboardType: TextInputType.number,
-        radius: 10,
         autoFocus: true,
         onSubmitted: (passcode) {
           if (passcode.isEmpty) {
