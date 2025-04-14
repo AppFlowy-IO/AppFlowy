@@ -17,6 +17,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 
 import 'custom_link_parser.dart';
+import 'link_parsers/default_parser.dart';
 
 class CustomLinkPreviewWidget extends StatelessWidget {
   const CustomLinkPreviewWidget({
@@ -55,6 +56,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     final (fontSize, width) = UniversalPlatform.isDesktopOrWeb
         ? (documentFontSize, 160.0)
         : (documentFontSize - 2, 120.0);
+    final displayTitle = title ?? Uri.tryParse(LinkInfoParser.formatUrl(url))?.host;
     final Widget child = Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -74,34 +76,35 @@ class CustomLinkPreviewWidget extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 58, 12),
-                child: status != LinkLoadingStatus.idle
-                    ? buildLoadingOrErrorWidget()
+                child: status == LinkLoadingStatus.loading
+                    ? buildLoadingWidget()
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (title != null)
+                          if (displayTitle != null)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 4.0),
                               child: FlowyText.medium(
-                                title!,
+                                displayTitle,
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: fontSize,
                                 color: textScheme.primary,
                                 figmaLineHeight: 20,
                               ),
                             ),
-                          if (description != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: FlowyText(
-                                description!,
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: fontSize - 4,
-                                figmaLineHeight: 16,
-                                color: textScheme.primary,
-                              ),
-                            ),
+                          description == null
+                              ? Spacer()
+                              : Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: FlowyText(
+                                    description!,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontSize: fontSize - 4,
+                                    figmaLineHeight: 16,
+                                    color: textScheme.primary,
+                                  ),
+                                ),
                           FlowyText(
                             url.toString(),
                             overflow: TextOverflow.ellipsis,
@@ -161,6 +164,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
   }
 
   Widget buildImage(BuildContext context) {
+    if (imageUrl == null) return const SizedBox.shrink();
     final theme = AppFlowyTheme.of(context),
         fillScheme = theme.fillColorScheme,
         iconScheme = theme.iconColorTheme;
@@ -193,27 +197,13 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     );
   }
 
-  Widget buildLoadingOrErrorWidget() {
-    if (status == LinkLoadingStatus.loading) {
-      return const Center(
-        child: SizedBox(
-          height: 16,
-          width: 16,
-          child: CircularProgressIndicator.adaptive(),
-        ),
-      );
-    } else if (status == LinkLoadingStatus.error) {
-      return const Center(
-        child: SizedBox(
-          height: 16,
-          width: 16,
-          child: Icon(
-            Icons.error_outline,
-            color: Colors.red,
-          ),
-        ),
-      );
-    }
-    return SizedBox.shrink();
+  Widget buildLoadingWidget() {
+    return const Center(
+      child: SizedBox(
+        height: 16,
+        width: 16,
+        child: CircularProgressIndicator.adaptive(),
+      ),
+    );
   }
 }

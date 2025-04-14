@@ -185,17 +185,26 @@ class LinkEmbedBlockComponentState
 
   Widget buildContent(BuildContext context) {
     final theme = AppFlowyTheme.of(context), textScheme = theme.textColorScheme;
+    final imageUrl = linkInfo.imageUrl ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: FlowyNetworkImage(
-              url: linkInfo.imageUrl ?? '',
-              width: MediaQuery.of(context).size.width,
-            ),
-          ),
+          child: imageUrl.isNotEmpty
+              ? ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: FlowyNetworkImage(
+                    url: imageUrl,
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                )
+              : Center(
+                  child: FlowySvg(
+                    FlowySvgs.toolbar_link_earth_m,
+                    size: Size.square(64),
+                  ),
+                ),
         ),
         MouseRegion(
           cursor: SystemMouseCursors.click,
