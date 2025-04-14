@@ -26,8 +26,8 @@ class SignInAgreement extends StatelessWidget {
         children: [
           TextSpan(
             text: isLocalAuthEnabled
-                ? '${LocaleKeys.web_signInLocalAgreement.tr()} \n'
-                : '${LocaleKeys.web_signInAgreement.tr()} \n',
+                ? LocaleKeys.web_signInLocalAgreement.tr()
+                : LocaleKeys.web_signInAgreement.tr(),
             style: textStyle,
           ),
           TextSpan(
