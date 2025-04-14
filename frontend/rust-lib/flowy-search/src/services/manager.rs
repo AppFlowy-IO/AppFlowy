@@ -62,16 +62,14 @@ impl SearchManager {
     search_id: String,
   ) {
     // Cancel previous search by updating current_search
-    {
-      let mut current = self.current_search.lock().await;
-      *current = Some(search_id.clone());
-    }
+    *self.current_search.lock().await = Some(search_id.clone());
 
     let handlers = self.handlers.clone();
     let sink = IsolateSink::new(Isolate::new(stream_port));
     let mut join_handles = vec![];
     let current_search = self.current_search.clone();
 
+    tracing::info!("[Search] perform search: {}", query);
     for (_, handler) in handlers {
       let mut clone_sink = sink.clone();
       let query = query.clone();
@@ -80,11 +78,16 @@ impl SearchManager {
       let current_search = current_search.clone();
 
       let handle = tokio::spawn(async move {
+        if !is_current_search(&current_search, &search_id).await {
+          trace!("[Search] cancel search: {}", query);
+          return;
+        }
+
         let mut stream = handler.perform_search(query.clone(), filter).await;
         while let Some(result) = stream.next().await {
           if !is_current_search(&current_search, &search_id).await {
-            trace!("[Search] search changed, cancel search: {}", query);
-            break;
+            trace!("[Search] discard search stream: {}", query);
+            return;
           }
 
           if let Ok(result) = result {
@@ -103,7 +106,7 @@ impl SearchManager {
         }
 
         if !is_current_search(&current_search, &search_id).await {
-          trace!("[Search] search changed, cancel search: {}", query);
+          trace!("[Search] discard search result: {}", query);
           return;
         }
 

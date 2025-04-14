@@ -13,23 +13,25 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class SearchResultTile extends StatefulWidget {
-  const SearchResultTile({
+class SearchResultCell extends StatefulWidget {
+  const SearchResultCell({
     super.key,
     required this.item,
     required this.onSelected,
+    required this.onHover,
     this.isTrashed = false,
   });
 
   final SearchResponseItemPB item;
   final VoidCallback onSelected;
+  final Function(SearchResponseItemPB) onHover;
   final bool isTrashed;
 
   @override
-  State<SearchResultTile> createState() => _SearchResultTileState();
+  State<SearchResultCell> createState() => _SearchResultCellState();
 }
 
-class _SearchResultTileState extends State<SearchResultTile> {
+class _SearchResultCellState extends State<SearchResultCell> {
   bool _hasFocus = false;
   final focusNode = FocusNode();
 
@@ -132,33 +134,36 @@ class _SearchResultTileState extends State<SearchResultTile> {
       );
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _handleSelection,
-      child: Focus(
-        focusNode: focusNode,
-        onKeyEvent: (node, event) {
-          if (event is! KeyDownEvent) return KeyEventResult.ignored;
-          if (event.logicalKey == LogicalKeyboardKey.enter) {
-            _handleSelection();
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
-        onFocusChange: (hasFocus) => setState(() => _hasFocus = hasFocus),
-        child: FlowyHover(
-          isSelected: () => _hasFocus,
-          style: HoverStyle(
-            borderRadius: BorderRadius.circular(8),
-            hoverColor:
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            foregroundColorOnHover: AFThemeExtension.of(context).textColor,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 30),
-              child: tileContent,
+    return MouseRegion(
+      onEnter: (_) => widget.onHover(widget.item),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _handleSelection,
+        child: Focus(
+          focusNode: focusNode,
+          onKeyEvent: (node, event) {
+            if (event is! KeyDownEvent) return KeyEventResult.ignored;
+            if (event.logicalKey == LogicalKeyboardKey.enter) {
+              _handleSelection();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          onFocusChange: (hasFocus) => setState(() => _hasFocus = hasFocus),
+          child: FlowyHover(
+            isSelected: () => _hasFocus,
+            style: HoverStyle(
+              borderRadius: BorderRadius.circular(8),
+              hoverColor:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              foregroundColorOnHover: AFThemeExtension.of(context).textColor,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 30),
+                child: tileContent,
+              ),
             ),
           ),
         ),

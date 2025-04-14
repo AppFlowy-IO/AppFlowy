@@ -44,11 +44,11 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
       // Expect two search results "ViewOna" and "ViewOne" (Distance 1 to ViewOna)
-      expect(find.byType(SearchResultTile), findsNWidgets(2));
+      expect(find.byType(SearchResultCell), findsNWidgets(2));
 
       // The score should be higher for "ViewOna" thus it should be shown first
       final secondDocumentWidget = tester
-          .widget(find.byType(SearchResultTile).first) as SearchResultTile;
+          .widget(find.byType(SearchResultCell).first) as SearchResultCell;
       expect(secondDocumentWidget.item.data, secondDocument);
 
       // Change search to "ViewOne"
@@ -57,8 +57,8 @@ void main() {
 
       // The score should be higher for "ViewOne" thus it should be shown first
       final firstDocumentWidget = tester.widget(
-        find.byType(SearchResultTile).first,
-      ) as SearchResultTile;
+        find.byType(SearchResultCell).first,
+      ) as SearchResultCell;
       expect(firstDocumentWidget.item.data, firstDocument);
     });
 
@@ -89,11 +89,11 @@ void main() {
       );
       await tester.enterText(searchFieldFinder, 'Page-$randomValue');
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
-      expect(find.byType(SearchResultTile), findsNWidgets(2));
+      expect(find.byType(SearchResultCell), findsNWidgets(2));
 
       /// check results
       final svgs = find.descendant(
-        of: find.byType(SearchResultTile),
+        of: find.byType(SearchResultCell),
         matching: find.byType(FlowySvg),
       );
       expect(svgs, findsNWidgets(2));

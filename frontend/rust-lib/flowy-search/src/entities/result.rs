@@ -28,8 +28,8 @@ pub struct SearchSummaryPB {
   #[pb(index = 1)]
   pub content: String,
 
-  #[pb(index = 2, one_of)]
-  pub metadata: Option<SearchSourcePB>,
+  #[pb(index = 2)]
+  pub source_ids: Vec<String>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

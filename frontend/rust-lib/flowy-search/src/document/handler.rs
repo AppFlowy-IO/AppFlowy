@@ -1,6 +1,6 @@
 use crate::entities::{
   CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, RepeatedSearchSummaryPB, SearchResultPB,
-  SearchSourcePB, SearchSummaryPB,
+  SearchSummaryPB,
 };
 use crate::{
   entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
@@ -82,7 +82,6 @@ impl SearchHandler for DocumentSearchHandler {
         },
       };
 
-      trace!("[Search] search results: {:?}", result_items);
       let summary_input = result_items
         .iter()
         .map(|v| SearchResult {
@@ -137,13 +136,8 @@ impl SearchHandler for DocumentSearchHandler {
           let summaries: Vec<SearchSummaryPB> = summary_result
             .summaries
             .into_iter()
-            .filter_map(|v| {
-              v.metadata.as_object().and_then(|object| {
-                let id = object.get("id")?.as_str()?.to_string();
-                let source = object.get("source")?.as_str()?.to_string();
-                let metadata = SearchSourcePB {id, source };
-                Some(SearchSummaryPB { content: v.content, metadata: Some(metadata) })
-              })
+            .map(|v| {
+              SearchSummaryPB { content: v.content, source_ids: v.sources.iter().map(|id| id.to_string()).collect() }
             })
             .collect();
 
