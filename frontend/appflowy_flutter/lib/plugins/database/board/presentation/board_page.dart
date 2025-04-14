@@ -386,15 +386,15 @@ class _BoardContentState extends State<_BoardContent> {
                       scrollManager: scrollManager,
                     ),
                   ),
-                  cardBuilder: (context, column, columnItem) =>
+                  cardBuilder: (cardContext, column, columnItem) =>
                       MultiBlocProvider(
                     key: ValueKey("board_card_${column.id}_${columnItem.id}"),
                     providers: [
                       BlocProvider<BoardBloc>.value(
-                        value: context.read<BoardBloc>(),
+                        value: cardContext.read<BoardBloc>(),
                       ),
                       BlocProvider.value(
-                        value: context.read<BoardActionsCubit>(),
+                        value: cardContext.read<BoardActionsCubit>(),
                       ),
                       BlocProvider(
                         create: (_) => ViewLockStatusBloc(view: widget.view)
@@ -402,7 +402,7 @@ class _BoardContentState extends State<_BoardContent> {
                       ),
                     ],
                     child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
-                      builder: (context, state) {
+                      builder: (lockStatusContext, state) {
                         return IgnorePointer(
                           ignoring: state.isLocked,
                           child: _BoardCard(
@@ -412,6 +412,13 @@ class _BoardContentState extends State<_BoardContent> {
                             notifier: widget.focusScope,
                             cellBuilder: cellBuilder,
                             compactMode: compactMode,
+                            onOpenCard: (rowMeta) => _openCard(
+                              context: context,
+                              databaseController: lockStatusContext
+                                  .read<BoardBloc>()
+                                  .databaseController,
+                              rowMeta: rowMeta,
+                            ),
                           ),
                         );
                       },
@@ -581,6 +588,7 @@ class _BoardCard extends StatefulWidget {
     required this.cellBuilder,
     required this.notifier,
     required this.compactMode,
+    required this.onOpenCard,
   });
 
   final AppFlowyGroupData afGroupData;
@@ -589,6 +597,7 @@ class _BoardCard extends StatefulWidget {
   final CardCellBuilder cellBuilder;
   final BoardFocusScope notifier;
   final bool compactMode;
+  final void Function(RowMetaPB) onOpenCard;
 
   @override
   State<_BoardCard> createState() => _BoardCardState();
@@ -698,10 +707,8 @@ class _BoardCardState extends State<_BoardCard> {
             groupingFieldId: widget.groupItem.fieldInfo.id,
             isEditing: _isEditing,
             cellBuilder: widget.cellBuilder,
-            onTap: (context) => _openCard(
-              context: context,
-              databaseController: databaseController,
-              rowMeta: context.read<CardBloc>().rowController.rowMeta,
+            onTap: (context) => widget.onOpenCard(
+              context.read<CardBloc>().rowController.rowMeta,
             ),
             onShiftTap: (_) {
               Focus.of(context).requestFocus();
