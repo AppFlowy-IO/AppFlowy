@@ -6,7 +6,6 @@ import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -78,13 +77,16 @@ class ChangeCloudModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      useIntrinsicWidth: true,
-      text: FlowyText(
-        'Cloud',
-        decoration: TextDecoration.underline,
-        color: Colors.grey,
-        fontSize: 12,
+    final theme = AppFlowyTheme.of(context);
+    return AFGhostIconTextButton(
+      text: 'Cloud',
+      textColor: (context, isHovering, disabled) {
+        return theme.textColorScheme.secondary;
+      },
+      size: AFButtonSize.s,
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.m,
+        vertical: theme.spacing.xs,
       ),
       onTap: () async {
         await useAppFlowyBetaCloudWithURL(
@@ -92,6 +94,13 @@ class ChangeCloudModeButton extends StatelessWidget {
           AuthenticatorType.appflowyCloud,
         );
         await runAppFlowy();
+      },
+      iconBuilder: (context, isHovering, disabled) {
+        return FlowySvg(
+          FlowySvgs.settings_s,
+          size: Size.square(20),
+          color: theme.textColorScheme.secondary,
+        );
       },
     );
   }

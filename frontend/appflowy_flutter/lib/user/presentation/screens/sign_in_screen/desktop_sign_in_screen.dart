@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/settings/show_settings.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/anonymous_sign_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -25,6 +26,7 @@ class DesktopSignInScreen extends StatelessWidget {
 
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
+        final bottomPadding = UniversalPlatform.isDesktop ? 20.0 : 24.0;
         return Scaffold(
           appBar: _buildAppBar(),
           body: Center(
@@ -40,7 +42,10 @@ class DesktopSignInScreen extends StatelessWidget {
                 VSpace(theme.spacing.xxl),
 
                 // continue with email and password
-                const ContinueWithEmailAndPassword(),
+                isLocalAuthEnabled
+                    ? const SignInAnonymousButtonV3()
+                    : const ContinueWithEmailAndPassword(),
+
                 VSpace(theme.spacing.xxl),
 
                 // third-party sign in.
@@ -65,7 +70,7 @@ class DesktopSignInScreen extends StatelessWidget {
                     SignInAnonymousButtonV2(),
                   ],
                 ),
-                const VSpace(16),
+                VSpace(bottomPadding),
               ],
             ),
           ),

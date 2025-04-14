@@ -40,7 +40,7 @@ class MobileSignInScreen extends StatelessWidget {
                     ? const SignInAnonymousButtonV3()
                     : const ContinueWithEmailAndPassword(),
                 const VSpace(spacing),
-                if (isAuthEnabled) _buildThirdPartySignInButtons(colorScheme),
+                if (isAuthEnabled) _buildThirdPartySignInButtons(context),
                 const VSpace(spacing * 1.5),
                 const SignInAgreement(),
                 const VSpace(spacing),
@@ -75,7 +75,8 @@ class MobileSignInScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThirdPartySignInButtons(ColorScheme colorScheme) {
+  Widget _buildThirdPartySignInButtons(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       children: [
         Row(
@@ -84,10 +85,12 @@ class MobileSignInScreen extends StatelessWidget {
             const Expanded(child: Divider()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: FlowyText(
+              child: Text(
                 LocaleKeys.signIn_or.tr(),
-                fontSize: 12,
-                color: colorScheme.onSecondary,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.textColorScheme.secondary,
+                ),
               ),
             ),
             const Expanded(child: Divider()),
