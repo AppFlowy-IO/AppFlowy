@@ -101,6 +101,7 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
       VSpace(theme.spacing.l),
       AFGhostTextButton(
         text: 'More options',
+        padding: EdgeInsets.zero,
         textColor: (context, isHovering, disabled) {
           if (isHovering) {
             return theme.fillColorScheme.themeThickHover;
