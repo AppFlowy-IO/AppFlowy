@@ -443,7 +443,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           ),
           items: toolbarItems,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(appTheme.borderRadius.l),
             color: appTheme.surfaceColorScheme.primary,
             boxShadow: [appTheme.shadow.small],
           ),

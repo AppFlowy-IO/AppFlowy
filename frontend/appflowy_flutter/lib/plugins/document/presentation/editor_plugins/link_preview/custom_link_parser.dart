@@ -14,6 +14,7 @@ class LinkParser {
   static final Map<String, LinkInfoParser> _hostToParsers = {
     'www.youtube.com': YoutubeParser(),
     'youtube.com': YoutubeParser(),
+    'youtu.be': YoutubeParser(),
   };
 
   Future<void> start(String url, {LinkInfoParser? parser}) async {

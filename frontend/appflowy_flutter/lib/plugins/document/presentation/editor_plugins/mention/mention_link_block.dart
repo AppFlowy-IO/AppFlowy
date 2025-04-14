@@ -178,23 +178,15 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
                       if (siteName != null) ...[
                         TextSpan(
                           text: siteName,
-                          style: TextStyle(
-                            color: theme.textColorScheme.secondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            height: 20 / 14,
-                          ),
+                          style: theme.textStyle.body
+                              .standard(color: theme.textColorScheme.secondary),
                         ),
                         WidgetSpan(child: HSpace(2)),
                       ],
                       TextSpan(
                         text: linkTitle,
-                        style: TextStyle(
-                          color: theme.textColorScheme.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 20 / 14,
-                        ),
+                        style: theme.textStyle.body
+                            .standard(color: theme.textColorScheme.primary),
                       ),
                     ],
                   ),
