@@ -983,7 +983,6 @@ CustomLinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
         return const EdgeInsets.symmetric(vertical: 10);
       },
     ),
-    cache: LinkPreviewDataCache(),
   );
 }
 

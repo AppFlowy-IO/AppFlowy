@@ -3,8 +3,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -28,11 +28,10 @@ class PasteAsMenuService {
 
   void dismiss() {
     if (_menuEntry != null) {
-      editorState.service.keyboardService?.enable();
-      editorState.service.scrollService?.enable();
       keepEditorFocusNotifier.decrease();
+      // editorState.service.scrollService?.enable();
+      // editorState.service.keyboardService?.enable();
     }
-
     _menuEntry?.remove();
     _menuEntry = null;
   }
@@ -58,6 +57,7 @@ class PasteAsMenuService {
             children: [
               ltrb.buildPositioned(
                 child: PasteAsMenu(
+                  editorState: editorState,
                   onSelect: (t) {
                     final selection = editorState.selection;
                     if (selection == null) return;
@@ -91,8 +91,9 @@ class PasteAsMenuService {
 
     Overlay.of(context).insert(_menuEntry!);
 
-    editorState.service.keyboardService?.disable(showCursor: true);
-    editorState.service.scrollService?.disable();
+    keepEditorFocusNotifier.increase();
+    // editorState.service.keyboardService?.disable(showCursor: true);
+    // editorState.service.scrollService?.disable();
   }
 }
 
@@ -101,9 +102,11 @@ class PasteAsMenu extends StatefulWidget {
     super.key,
     required this.onSelect,
     required this.onDismiss,
+    required this.editorState,
   });
   final ValueChanged<PasteMenuType?> onSelect;
   final VoidCallback onDismiss;
+  final EditorState editorState;
 
   @override
   State<PasteAsMenu> createState() => _PasteAsMenuState();
@@ -113,24 +116,28 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
   final focusNode = FocusNode(debugLabel: 'paste_as_menu');
   final ValueNotifier<int> selectedIndexNotifier = ValueNotifier(0);
 
+  EditorState get editorState => widget.editorState;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => focusNode.requestFocus(),
     );
+    editorState.selectionNotifier.addListener(dismiss);
   }
 
   @override
   void dispose() {
     focusNode.dispose();
     selectedIndexNotifier.dispose();
+    editorState.selectionNotifier.removeListener(dismiss);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeV2 = AFThemeExtensionV2.of(context);
+    final theme = AppFlowyTheme.of(context);
     return Focus(
       focusNode: focusNode,
       onKeyEvent: onKeyEvent,
@@ -140,14 +147,8 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         padding: EdgeInsets.all(6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 4),
-              blurRadius: 16,
-              color: themeV2.shadow_medium,
-            ),
-          ],
+          color: theme.surfaceColorScheme.primary,
+          boxShadow: [theme.shadow.medium],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +157,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
               height: 32,
               padding: EdgeInsets.all(8),
               child: FlowyText.semibold(
-                color: themeV2.text_tertiary,
+                color: theme.textColorScheme.primary,
                 LocaleKeys.document_plugins_linkPreview_typeSelection_pasteAs
                     .tr(),
               ),
@@ -201,7 +202,10 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         length = PasteMenuType.values.length;
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       onSelect(PasteMenuType.values[index]);
+      return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      dismiss();
+    } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       dismiss();
     } else if ([LogicalKeyboardKey.arrowUp, LogicalKeyboardKey.arrowLeft]
         .contains(event.logicalKey)) {
@@ -211,6 +215,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         index--;
       }
       changeIndex(index);
+      return KeyEventResult.handled;
     } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.arrowRight]
         .contains(event.logicalKey)) {
       if (index == length - 1) {
@@ -219,8 +224,9 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         index++;
       }
       changeIndex(index);
+      return KeyEventResult.handled;
     }
-    return KeyEventResult.handled;
+    return KeyEventResult.ignored;
   }
 
   void onSelect(PasteMenuType type) => widget.onSelect.call(type);

@@ -20,9 +20,9 @@ import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -352,7 +352,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     final isLocked =
         context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
 
-    final themeV2 = AFThemeExtensionV2.of(context);
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
@@ -431,6 +430,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         ),
       );
     }
+    final appTheme = AppFlowyTheme.of(context);
     return Center(
       child: BlocProvider.value(
         value: context.read<DocumentBloc>(),
@@ -443,15 +443,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           ),
           items: toolbarItems,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).cardColor,
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 4),
-                blurRadius: 24,
-                color: themeV2.shadow_medium,
-              ),
-            ],
+            borderRadius: BorderRadius.circular(appTheme.borderRadius.l),
+            color: appTheme.surfaceColorScheme.primary,
+            boxShadow: [appTheme.shadow.small],
           ),
           toolbarBuilder: (_, child, onDismiss, isMetricsChanged) =>
               BlocProvider.value(

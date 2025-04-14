@@ -31,7 +31,6 @@ dependencies:
   auto_size_text_field: ^2.2.3
   auto_updater: ^1.0.0
   avatar_stack: ^3.0.0
-  favicon: ^1.1.2
 
   # BitsDojo Window for Windows
   bitsdojo_window: ^0.1.6

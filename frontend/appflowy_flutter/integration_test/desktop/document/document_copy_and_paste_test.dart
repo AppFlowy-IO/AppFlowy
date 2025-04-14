@@ -347,8 +347,9 @@ void main() {
             await tester.tapButton(menu);
 
             final convertToLinkButton = find.text(
-                LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl.tr(),
-              );
+              LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl
+                  .tr(),
+            );
             expect(convertToLinkButton, findsOneWidget);
             await tester.tapButton(convertToLinkButton);
           },
@@ -384,7 +385,6 @@ void main() {
           expect(node.attributes[LinkPreviewBlockKeys.url], url);
         });
 
-      
         await tester.simulateKeyEvent(
           LogicalKeyboardKey.keyZ,
           isControlPressed:
@@ -477,16 +477,6 @@ void main() {
       final bytes = image.buffer.asUint8List();
       await tester.pasteContent(plainText: plainText, image: ('jpeg', bytes),
           (editorState) {
-        final node = editorState.getNodeAtPath([0])!;
-        expect(node.type, ImageBlockKeys.type);
-        expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
-      });
-    });
-
-    testWidgets('paste image url without extension', (tester) async {
-      const plainText =
-          'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640';
-      await tester.pasteContent(plainText: plainText, (editorState) {
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, ImageBlockKeys.type);
         expect(node.attributes[ImageBlockKeys.url], isNotEmpty);

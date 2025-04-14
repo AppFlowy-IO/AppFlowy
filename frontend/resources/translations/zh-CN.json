@@ -1517,6 +1517,27 @@
         "placeholder": "粘贴视频链接",
         "copiedToPasteBoard": "视频链接已复制到剪贴板",
         "insertVideo": "添加视频"
+      },
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "粘贴为",
+          "mention": "提及",
+          "URL": "URL",
+          "bookmark": "书签",
+          "embed": "嵌入"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "转换为提及",
+          "toUrl": "转换为URL",
+          "toEmbed": "转换为嵌入",
+          "toBookmark": "转换为书签",
+          "copyLink": "复制链接",
+          "replace": "替换",
+          "reload": "重新加载",
+          "removeLink": "移除链接",
+          "pasteHint": "粘贴 https://...",
+          "unableToDisplay": "无法显示"
+        }
       }
     },
     "outlineBlock": {

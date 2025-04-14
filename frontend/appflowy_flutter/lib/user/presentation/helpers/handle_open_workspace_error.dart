@@ -17,14 +17,12 @@ void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
     case ErrorCode.InvalidEncryptSecret:
     case ErrorCode.NetworkError:
       showToastNotification(
-        
         message: error.msg,
         type: ToastificationType.error,
       );
       break;
     default:
       showToastNotification(
-        
         message: error.msg,
         type: ToastificationType.error,
         callbacks: ToastificationCallbacks(

@@ -42,8 +42,8 @@ class MentionLinkBlock extends StatefulWidget {
 class _MentionLinkBlockState extends State<MentionLinkBlock> {
   final parser = LinkParser();
   _LoadingStatus status = _LoadingStatus.loading;
+  late LinkInfo linkInfo = LinkInfo(url: url);
   final previewController = PopoverController();
-  LinkInfo linkInfo = LinkInfo();
   bool isHovering = false;
   int previewFocusNum = 0;
   bool isPreviewHovering = false;
@@ -67,13 +67,14 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     super.initState();
 
     parser.addLinkInfoListener((v) {
+      final hasNewInfo = !v.isEmpty(), hasOldInfo = !linkInfo.isEmpty();
       if (mounted) {
         setState(() {
-          if (v.isEmpty() && linkInfo.isEmpty()) {
-            status = _LoadingStatus.error;
-          } else {
+          if (hasNewInfo) {
             linkInfo = v;
             status = _LoadingStatus.idle;
+          } else if (!hasOldInfo) {
+            status = _LoadingStatus.error;
           }
         });
       }
@@ -148,6 +149,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
 
   Widget buildIconWithTitle(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
+    final siteName = linkInfo.siteName, linkTitle = linkInfo.title ?? url;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -169,12 +171,25 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               buildIcon(),
               HSpace(4),
               Flexible(
-                child: FlowyText(
-                  linkInfo.siteName ?? url,
-                  color: theme.textColorScheme.primary,
-                  fontSize: 14,
-                  figmaLineHeight: 20,
+                child: RichText(
                   overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    children: [
+                      if (siteName != null) ...[
+                        TextSpan(
+                          text: siteName,
+                          style: theme.textStyle.body
+                              .standard(color: theme.textColorScheme.secondary),
+                        ),
+                        WidgetSpan(child: HSpace(2)),
+                      ],
+                      TextSpan(
+                        text: linkTitle,
+                        style: theme.textStyle.body
+                            .standard(color: theme.textColorScheme.primary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               HSpace(2),
@@ -323,9 +338,10 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
         maxHeight: 48 + size.height,
       );
     }
+    final hasImage = linkInfo.imageUrl?.isNotEmpty ?? false;
     return BoxConstraints(
       maxWidth: max(300, size.width),
-      maxHeight: 300,
+      maxHeight: hasImage ? 300 : 180,
     );
   }
 }
