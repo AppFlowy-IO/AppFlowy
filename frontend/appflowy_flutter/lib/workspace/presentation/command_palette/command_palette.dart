@@ -135,9 +135,9 @@ class CommandPaletteModal extends StatelessWidget {
         alignment: Alignment.topCenter,
         insetPadding: const EdgeInsets.only(top: 100),
         constraints: const BoxConstraints(
-          maxHeight: 520,
-          maxWidth: 510,
-          minHeight: 420,
+          maxHeight: 600,
+          maxWidth: 800,
+          minHeight: 600,
         ),
         expandHeight: false,
         child: shortcutBuilder(

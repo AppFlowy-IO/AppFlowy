@@ -158,7 +158,7 @@ impl FolderIndexManagerImpl {
       if !content.is_empty() {
         let s = serde_json::to_string(&content)?;
         let result: SearchResponseItemPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
-        results.push(result.with_score(self.score_result(&query, &result.data) as f64));
+        results.push(result.with_score(self.score_result(&query, &result.display_name)));
       }
     }
 

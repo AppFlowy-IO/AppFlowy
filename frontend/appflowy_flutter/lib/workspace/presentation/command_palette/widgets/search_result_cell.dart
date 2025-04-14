@@ -4,6 +4,7 @@ import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
+import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -12,19 +13,18 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
     super.key,
     required this.item,
     required this.onSelected,
-    required this.onHover,
     this.isTrashed = false,
   });
 
   final SearchResponseItemPB item;
   final VoidCallback onSelected;
-  final Function(SearchResponseItemPB) onHover;
   final bool isTrashed;
 
   @override
@@ -46,7 +46,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
     widget.onSelected();
     getIt<ActionNavigationBloc>().add(
       ActionNavigationEvent.performAction(
-        action: NavigationAction(objectId: widget.item.viewId),
+        action: NavigationAction(objectId: widget.item.id),
       ),
     );
   }
@@ -58,10 +58,10 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.item.data.orDefault(
+    final title = widget.item.displayName.orDefault(
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
     );
-    final icon = widget.item.getIcon();
+    final icon = widget.item.icon.getIcon();
     final cleanedPreview = _cleanPreview(widget.item.preview);
     final hasPreview = cleanedPreview.isNotEmpty;
     final trashHintText =
@@ -134,36 +134,45 @@ class _SearchResultCellState extends State<SearchResultCell> {
       );
     }
 
-    return MouseRegion(
-      onEnter: (_) => widget.onHover(widget.item),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _handleSelection,
-        child: Focus(
-          focusNode: focusNode,
-          onKeyEvent: (node, event) {
-            if (event is! KeyDownEvent) return KeyEventResult.ignored;
-            if (event.logicalKey == LogicalKeyboardKey.enter) {
-              _handleSelection();
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleSelection,
+      child: Focus(
+        focusNode: focusNode,
+        onKeyEvent: (node, event) {
+          if (event is! KeyDownEvent) return KeyEventResult.ignored;
+          if (event.logicalKey == LogicalKeyboardKey.enter) {
+            _handleSelection();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        onFocusChange: (hasFocus) {
+          setState(() {
+            context.read<SearchResultListBloc>().add(
+                  SearchResultListEvent.onHoverResult(item: widget.item),
+                );
+            _hasFocus = hasFocus;
+          });
+        },
+        child: FlowyHover(
+          onHover: (value) {
+            context.read<SearchResultListBloc>().add(
+                  SearchResultListEvent.onHoverResult(item: widget.item),
+                );
           },
-          onFocusChange: (hasFocus) => setState(() => _hasFocus = hasFocus),
-          child: FlowyHover(
-            isSelected: () => _hasFocus,
-            style: HoverStyle(
-              borderRadius: BorderRadius.circular(8),
-              hoverColor:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              foregroundColorOnHover: AFThemeExtension.of(context).textColor,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 30),
-                child: tileContent,
-              ),
+          isSelected: () => _hasFocus,
+          style: HoverStyle(
+            borderRadius: BorderRadius.circular(8),
+            hoverColor:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            foregroundColorOnHover: AFThemeExtension.of(context).textColor,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 30),
+              child: tileContent,
             ),
           ),
         ),
@@ -189,6 +198,35 @@ class _DocumentPreview extends StatelessWidget {
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       ),
+    );
+  }
+}
+
+class SearchResultPreview extends StatelessWidget {
+  const SearchResultPreview({
+    super.key,
+    required this.data,
+  });
+
+  final SearchResponseItemPB data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowyText(LocaleKeys.commandPalette_pagePreview.tr()),
+        const Divider(
+          thickness: 1,
+        ),
+        const VSpace(6),
+        Expanded(
+          child: FlowyText(
+            data.content,
+            maxLines: 30,
+          ),
+        ),
+      ],
     );
   }
 }

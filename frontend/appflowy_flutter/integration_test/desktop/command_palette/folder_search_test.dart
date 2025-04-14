@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,7 +49,7 @@ void main() {
       // The score should be higher for "ViewOna" thus it should be shown first
       final secondDocumentWidget = tester
           .widget(find.byType(SearchResultCell).first) as SearchResultCell;
-      expect(secondDocumentWidget.item.data, secondDocument);
+      expect(secondDocumentWidget.item.displayName, secondDocument);
 
       // Change search to "ViewOne"
       await tester.enterText(searchFieldFinder, firstDocument);
@@ -59,7 +59,7 @@ void main() {
       final firstDocumentWidget = tester.widget(
         find.byType(SearchResultCell).first,
       ) as SearchResultCell;
-      expect(firstDocumentWidget.item.data, firstDocument);
+      expect(firstDocumentWidget.item.displayName, firstDocument);
     });
 
     testWidgets('Displaying icons in search results', (tester) async {

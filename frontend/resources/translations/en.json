@@ -2693,7 +2693,9 @@
   "commandPalette": {
     "placeholder": "Search or ask a question...",
     "bestMatches": "Best matches",
-    "aiSummary": "AI summary",
+    "aiOverview": "AI overview",
+    "aiOverviewSource": "Sources",
+    "pagePreview": "Preview",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",
     "loadingTooltip": "We are looking for results...",

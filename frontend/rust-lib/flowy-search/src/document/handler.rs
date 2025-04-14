@@ -1,6 +1,6 @@
 use crate::entities::{
   CreateSearchResultPBArgs, RepeatedSearchResponseItemPB, RepeatedSearchSummaryPB, SearchResultPB,
-  SearchSummaryPB,
+  SearchSourcePB, SearchSummaryPB,
 };
 use crate::{
   entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
@@ -8,6 +8,7 @@ use crate::{
 };
 use async_stream::stream;
 use flowy_error::FlowyResult;
+use flowy_folder::entities::ViewPB;
 use flowy_folder::{manager::FolderManager, ViewLayout};
 use flowy_search_pub::cloud::{SearchCloudService, SearchResult};
 use lib_infra::async_trait::async_trait;
@@ -34,7 +35,6 @@ impl DocumentSearchHandler {
     }
   }
 }
-
 #[async_trait]
 impl SearchHandler for DocumentSearchHandler {
   fn search_type(&self) -> SearchType {
@@ -50,14 +50,15 @@ impl SearchHandler for DocumentSearchHandler {
     let folder_manager = self.folder_manager.clone();
 
     Box::pin(stream! {
-      let filter = match filter {
-        Some(f) => f,
-        None => {
-          yield Ok(CreateSearchResultPBArgs::default().build().unwrap());
-          return;
-        },
+      // Exit early if there is no filter.
+      let filter = if let Some(f) = filter {
+        f
+      } else {
+        yield Ok(CreateSearchResultPBArgs::default().build().unwrap());
+        return;
       };
 
+      // Parse workspace id.
       let workspace_id = match Uuid::from_str(&filter.workspace_id) {
         Ok(id) => id,
         Err(e) => {
@@ -66,62 +67,54 @@ impl SearchHandler for DocumentSearchHandler {
         }
       };
 
+      // Retrieve all available views.
       let views = match folder_manager.get_all_views_pb().await {
         Ok(views) => views,
         Err(e) => {
           yield Err(e);
           return;
-        },
+        }
       };
 
+      // Execute document search.
       let result_items = match cloud_service.document_search(&workspace_id, query.clone()).await {
         Ok(items) => items,
         Err(e) => {
           yield Err(e);
           return;
-        },
+        }
       };
 
-      let summary_input = result_items
+      // Prepare input for search summary generation.
+      let summary_input: Vec<SearchResult> = result_items
         .iter()
         .map(|v| SearchResult {
           object_id: v.object_id,
           content: v.content.clone(),
         })
-        .collect::<Vec<_>>();
+        .collect();
 
+      // Build search response items.
       let mut items: Vec<SearchResponseItemPB> = Vec::new();
-      for item in result_items.iter() {
+      for item in &result_items {
         if let Some(view) = views.iter().find(|v| v.id == item.object_id.to_string()) {
-          let icon: Option<ResultIconPB> = match view.icon.clone() {
-            Some(view_icon) => Some(ResultIconPB::from(view_icon)),
-            None => {
-              let view_layout_ty: i64 = ViewLayout::from(view.layout.clone()).into();
-              Some(ResultIconPB {
-                ty: ResultIconTypePB::Icon,
-                value: view_layout_ty.to_string(),
-              })
-            },
-          };
-
           items.push(SearchResponseItemPB {
             index_type: IndexTypePB::Document,
-            view_id: item.object_id.to_string(),
             id: item.object_id.to_string(),
-            data: view.name.clone(),
-            icon,
+            display_name: view.name.clone(),
+            icon: extract_icon(view),
             score: item.score,
             workspace_id: item.workspace_id.to_string(),
             preview: item.preview.clone(),
-          });
+            content: item.content.clone()}
+          );
         } else {
           warn!("No view found for search result: {:?}", item);
         }
       }
 
-      let search_result = RepeatedSearchResponseItemPB {
-        items,
-      };
+      // Yield primary search result.
+      let search_result = RepeatedSearchResponseItemPB { items };
       yield Ok(
         CreateSearchResultPBArgs::default()
           .search_result(Some(search_result))
@@ -129,7 +122,7 @@ impl SearchHandler for DocumentSearchHandler {
           .unwrap(),
       );
 
-      // Search summary generation.
+      // Generate and yield search summary.
       match cloud_service.generate_search_summary(&workspace_id, query.clone(), summary_input).await {
         Ok(summary_result) => {
           trace!("[Search] search summary: {:?}", summary_result);
@@ -137,13 +130,26 @@ impl SearchHandler for DocumentSearchHandler {
             .summaries
             .into_iter()
             .map(|v| {
-              SearchSummaryPB { content: v.content, source_ids: v.sources.iter().map(|id| id.to_string()).collect() }
+              let sources: Vec<SearchSourcePB> = v.sources
+                .iter()
+                .flat_map(|id| {
+                  if let Some(view) = views.iter().find(|v| v.id == id.to_string()) {
+                    Some(SearchSourcePB {
+                      id: id.to_string(),
+                      display_name: view.name.clone(),
+                      icon: extract_icon(view),
+                    })
+                  } else {
+                    None
+                  }
+                })
+                .collect();
+
+              SearchSummaryPB { content: v.content, sources }
             })
             .collect();
 
-          let summary_result = RepeatedSearchSummaryPB {
-            items: summaries,
-          };
+          let summary_result = RepeatedSearchSummaryPB { items: summaries };
           yield Ok(
             CreateSearchResultPBArgs::default()
               .search_summary(Some(summary_result))
@@ -156,5 +162,18 @@ impl SearchHandler for DocumentSearchHandler {
         }
       }
     })
+  }
+}
+
+fn extract_icon(view: &ViewPB) -> Option<ResultIconPB> {
+  match view.icon.clone() {
+    Some(view_icon) => Some(ResultIconPB::from(view_icon)),
+    None => {
+      let view_layout_ty: i64 = ViewLayout::from(view.layout.clone()).into();
+      Some(ResultIconPB {
+        ty: ResultIconTypePB::Icon,
+        value: view_layout_ty.to_string(),
+      })
+    },
   }
 }

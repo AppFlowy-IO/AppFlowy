@@ -5,19 +5,19 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-extension GetIcon on SearchResponseItemPB {
+extension GetIcon on ResultIconPB {
   Widget? getIcon() {
-    final iconValue = icon.value, iconType = icon.ty;
+    final iconValue = value, iconType = ty;
     if (iconType == ResultIconTypePB.Emoji) {
       return iconValue.isNotEmpty
           ? FlowyText.emoji(iconValue, fontSize: 18)
           : null;
-    } else if (icon.ty == ResultIconTypePB.Icon) {
+    } else if (ty == ResultIconTypePB.Icon) {
       if (_resultIconValueTypes.contains(iconValue)) {
-        return FlowySvg(icon.getViewSvg(), size: const Size.square(18));
+        return FlowySvg(getViewSvg(), size: const Size.square(18));
       }
       return RawEmojiIconWidget(
-        emoji: EmojiIconData(iconType.toFlowyIconType(), icon.value),
+        emoji: EmojiIconData(iconType.toFlowyIconType(), value),
         emojiSize: 18,
       );
     }

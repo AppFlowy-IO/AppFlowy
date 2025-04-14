@@ -24,13 +24,13 @@ impl From<FolderIndexData> for SearchResponseItemPB {
 
     Self {
       index_type: IndexTypePB::View,
-      view_id: data.id.clone(),
       id: data.id,
-      data: data.title,
+      display_name: data.title,
       score: 0.0,
       icon,
       workspace_id: data.workspace_id,
       preview: None,
+      content: "".to_string(),
     }
   }
 }

@@ -29,7 +29,7 @@ pub struct SearchSummaryPB {
   pub content: String,
 
   #[pb(index = 2)]
-  pub source_ids: Vec<String>,
+  pub sources: Vec<SearchSourcePB>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -38,7 +38,10 @@ pub struct SearchSourcePB {
   pub id: String,
 
   #[pb(index = 2)]
-  pub source: String,
+  pub display_name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ResultIconPB>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -53,38 +56,38 @@ pub struct SearchResponseItemPB {
   pub index_type: IndexTypePB,
 
   #[pb(index = 2)]
-  pub view_id: String,
-
-  #[pb(index = 3)]
   pub id: String,
 
-  #[pb(index = 4)]
-  pub data: String,
+  #[pb(index = 3)]
+  pub display_name: String,
 
-  #[pb(index = 5, one_of)]
+  #[pb(index = 4, one_of)]
   pub icon: Option<ResultIconPB>,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub score: f64,
 
-  #[pb(index = 7)]
+  #[pb(index = 6)]
   pub workspace_id: String,
 
-  #[pb(index = 8, one_of)]
+  #[pb(index = 7, one_of)]
   pub preview: Option<String>,
+
+  #[pb(index = 8)]
+  pub content: String,
 }
 
 impl SearchResponseItemPB {
   pub fn with_score(&self, score: f64) -> Self {
     SearchResponseItemPB {
       index_type: self.index_type.clone(),
-      view_id: self.view_id.clone(),
       id: self.id.clone(),
-      data: self.data.clone(),
+      display_name: self.display_name.clone(),
       icon: self.icon.clone(),
       score,
       workspace_id: self.workspace_id.clone(),
       preview: self.preview.clone(),
+      content: self.content.clone(),
     }
   }
 }
