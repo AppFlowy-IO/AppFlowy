@@ -6,7 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
+    show SignInPayloadPB, UserProfilePB;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'device_id.dart';
 
@@ -37,16 +37,17 @@ class BackendAuthService implements AuthService {
     required String password,
     Map<String, String> params = const {},
   }) async {
-    final request = SignUpPayloadPB.create()
-      ..name = name
-      ..email = email
-      ..password = password
-      ..authType = authType
-      ..deviceId = await getDeviceId();
-    final response = await UserEventSignUp(request).send().then(
-          (value) => value,
-        );
-    return response;
+    throw UnimplementedError();
+    // final request = SignUpPayloadPB.create()
+    //   ..name = name
+    //   ..email = email
+    //   ..password = password
+    //   ..authType = authType
+    //   ..deviceId = await getDeviceId();
+    // final response = await UserEventSignUp(request).send().then(
+    //       (value) => value,
+    //     );
+    // return response;
   }
 
   @override

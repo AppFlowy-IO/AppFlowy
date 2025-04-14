@@ -1,7 +1,6 @@
 use crate::local_ai::resource::WatchDiskEvent;
 use af_plugin::core::path::{install_path, ollama_plugin_path};
 use flowy_error::{FlowyError, FlowyResult};
-use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 

@@ -73,19 +73,21 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                   title: LocaleKeys.settings_accountPage_login_title.tr(),
                   children: [
                     // show user email
-                    if (state.userProfile.authenticator !=
-                        AuthenticatorPB.Local)
-                      FlowyText.regular(state.userProfile.email),
+                    if (state.userProfile.authenticator ==
+                        AuthenticatorPB.Local) ...[
+                      // run appflowy without anonymous mode
+                      const _ExitAnonMode(),
+                    ],
 
-                    AccountSignInOutSection(
-                      userProfile: state.userProfile,
-                      onAction: state.userProfile.authenticator ==
-                              AuthenticatorPB.Local
-                          ? widget.didLogin
-                          : widget.didLogout,
-                      displaySignIn: state.userProfile.authenticator ==
-                          AuthenticatorPB.Local,
-                    ),
+                    if (state.userProfile.authenticator !=
+                        AuthenticatorPB.Local) ...[
+                      FlowyText.regular(state.userProfile.email),
+                      AccountSignInOutSection(
+                        userProfile: state.userProfile,
+                        onSignOut: widget.didLogout,
+                        displaySignIn: false,
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -106,6 +108,27 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
           );
         },
       ),
+    );
+  }
+}
+
+class _ExitAnonMode extends StatelessWidget {
+  const _ExitAnonMode();
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryRoundedButton(
+      text: LocaleKeys.signIn_exitAnonymousMode.tr(),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      fontWeight: FontWeight.w500,
+      radius: 8.0,
+      onTap: () {
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+
+        runAppFlowy();
+      },
     );
   }
 }

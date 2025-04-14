@@ -1,6 +1,4 @@
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,9 +9,7 @@ class AnonUserBloc extends Bloc<AnonUserEvent, AnonUserState> {
   AnonUserBloc() : super(AnonUserState.initial()) {
     on<AnonUserEvent>((event, emit) async {
       await event.when(
-        initial: () async {
-          await _loadHistoricalUsers();
-        },
+        initial: () async {},
         didLoadAnonUsers: (List<UserProfilePB> anonUsers) {
           emit(state.copyWith(anonUsers: anonUsers));
         },
@@ -23,20 +19,6 @@ class AnonUserBloc extends Bloc<AnonUserEvent, AnonUserState> {
         },
       );
     });
-  }
-
-  Future<void> _loadHistoricalUsers() async {
-    final result = await UserBackendService.getAnonUser();
-    result.fold(
-      (anonUser) {
-        add(AnonUserEvent.didLoadAnonUsers([anonUser]));
-      },
-      (error) {
-        if (error.code != ErrorCode.RecordNotFound) {
-          Log.error(error);
-        }
-      },
-    );
   }
 }
 

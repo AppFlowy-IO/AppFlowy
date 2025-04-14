@@ -1,13 +1,13 @@
 use std::path::Path;
 
+use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
+use crate::sqlite_impl::{Database, PoolConfig};
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use anyhow::anyhow;
 use diesel::sql_query;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-
-use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
-use crate::sqlite_impl::{Database, PoolConfig};
+use tracing::info;
 
 const DB_NAME: &str = "cache.db";
 
@@ -29,7 +29,7 @@ impl KVStorePreferences {
     let mut conn = database.get_connection().unwrap();
     sql_query(KV_SQL).execute(&mut conn).unwrap();
 
-    tracing::trace!("Init StorePreferences with path: {}", root);
+    info!("Init StorePreferences with path: {}", root);
     Ok(Self {
       database: Some(database),
     })

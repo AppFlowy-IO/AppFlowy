@@ -9,12 +9,11 @@ use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::ServerUser;
-use std::path::Path;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
 use tokio::sync::RwLock;
-use tracing::{debug, error, event, info, instrument};
+use tracing::{debug, error, event, info, instrument, trace, warn};
 use uuid::Uuid;
 
 use flowy_sqlite::kv::KVStorePreferences;
@@ -98,38 +97,37 @@ impl AppFlowyCore {
     }
 
     let is_anon = config.is_anon;
-    let create_anon = if is_anon {
-      !Path::new(&config.storage_path).exists()
-    } else {
-      false
-    };
-
     let this = Self::init(config, runtime).await;
+    trace!("is_anon: {}", is_anon);
     if is_anon {
-      if create_anon {
-        if let Err(err) = this.user_manager.create_anon_user_once().await {
-          error!("Create anon user failed: {}", err);
+      if let Err(err) = this.user_manager.active_anon_user().await {
+        if err.is_record_not_found() {
+          warn!(
+            "Anon user doesn't exist: {}. Try to create a new anon user.",
+            err
+          );
+          if let Err(err) = this.user_manager.create_anon_user_once().await {
+            error!("Create anon user failed: {}", err);
+          }
         }
-      } else {
-        if let Err(err) = this.user_manager.active_anon_user().await {
-          error!("Active anon user failed: {}", err);
-        }
+        error!("Active anon user failed: {}", err);
       }
     }
     this
   }
 
   pub fn close_db(&self) {
+    info!("Close DB. is anon: {}", self.config.is_anon);
     self.user_manager.close_db();
   }
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     config.ensure_path();
+    info!("🔥core config:{:?}", &config);
 
     // Init the key value database
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
-    info!("🔥{:?}", &config);
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(10));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));

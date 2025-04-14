@@ -31,7 +31,6 @@ class AppFlowyUnitTest {
     final test = AppFlowyUnitTest();
     await test._signIn();
     await test._loadWorkspace();
-
     await test._initialServices();
     return test;
   }

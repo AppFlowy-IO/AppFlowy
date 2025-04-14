@@ -62,6 +62,12 @@ pub struct UserManager {
   pub(crate) is_loading_awareness: Arc<DashMap<Uuid, bool>>,
 }
 
+impl Drop for UserManager {
+  fn drop(&mut self) {
+    info!("UserManager is dropped");
+  }
+}
+
 impl UserManager {
   pub fn new(
     cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -403,7 +409,7 @@ impl UserManager {
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
-    let migration_user = self.get_migration_user(&authenticator).await;
+    // let migration_user = self.get_migration_user(&authenticator).await;
     self.cloud_services.set_user_authenticator(&authenticator);
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
@@ -411,13 +417,13 @@ impl UserManager {
     if new_user_profile.encryption_type.require_encrypt_secret() {
       self.auth_process.lock().await.replace(UserAuthProcess {
         user_profile: new_user_profile.clone(),
-        migration_user,
+        migration_user: None,
         response,
         authenticator,
       });
     } else {
       self
-        .continue_sign_up(&new_user_profile, migration_user, response, &authenticator)
+        .continue_sign_up(&new_user_profile, None, response, &authenticator)
         .await?;
     }
     Ok(new_user_profile)
@@ -603,6 +609,7 @@ impl UserManager {
   pub async fn active_anon_user(&self) -> FlowyResult<()> {
     info!("Active anon user");
     let anon_session = self.get_anon_session().await?;
+    info!("anon session: {:?}", anon_session);
     self
       .authenticate_user
       .set_session(Some(Arc::new(anon_session)))?;

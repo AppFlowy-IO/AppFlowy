@@ -18,12 +18,12 @@ class AccountSignInOutSection extends StatelessWidget {
   const AccountSignInOutSection({
     super.key,
     required this.userProfile,
-    required this.onAction,
+    required this.onSignOut,
     this.displaySignIn = true,
   });
 
   final UserProfilePB userProfile;
-  final VoidCallback onAction;
+  final VoidCallback onSignOut;
   final bool displaySignIn;
 
   @override
@@ -34,8 +34,8 @@ class AccountSignInOutSection extends StatelessWidget {
         const Spacer(),
         AccountSignInOutButton(
           userProfile: userProfile,
-          onAction: onAction,
-          signIn: displaySignIn,
+          onSignOut: onSignOut,
+          displaySignIn: displaySignIn,
         ),
       ],
     );
@@ -46,25 +46,25 @@ class AccountSignInOutButton extends StatelessWidget {
   const AccountSignInOutButton({
     super.key,
     required this.userProfile,
-    required this.onAction,
-    this.signIn = true,
+    required this.onSignOut,
+    this.displaySignIn = true,
   });
 
   final UserProfilePB userProfile;
-  final VoidCallback onAction;
-  final bool signIn;
+  final VoidCallback onSignOut;
+  final bool displaySignIn;
 
   @override
   Widget build(BuildContext context) {
     return PrimaryRoundedButton(
-      text: signIn
+      text: displaySignIn
           ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
           : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       fontWeight: FontWeight.w500,
       radius: 8.0,
       onTap: () {
-        signIn ? _showSignInDialog(context) : _showLogoutDialog(context);
+        displaySignIn ? _showSignInDialog(context) : _showLogoutDialog(context);
         // }
       },
     );
@@ -79,7 +79,7 @@ class AccountSignInOutButton extends StatelessWidget {
           : LocaleKeys.settings_menu_logoutPrompt.tr(),
       onConfirm: () async {
         await getIt<AuthService>().signOut();
-        onAction();
+        onSignOut();
       },
     );
   }

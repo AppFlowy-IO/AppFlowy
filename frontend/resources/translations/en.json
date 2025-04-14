@@ -38,6 +38,7 @@
     "continueAnonymousUser": "Continue with an anonymous session",
     "anonymous": "Anonymous",
     "anonymousMode": "Anonymous mode",
+    "exitAnonymousMode": "Exit anonymous mode",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
