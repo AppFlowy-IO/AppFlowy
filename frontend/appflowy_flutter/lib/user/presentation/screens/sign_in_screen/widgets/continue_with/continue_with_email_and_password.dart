@@ -59,7 +59,6 @@ class _ContinueWithEmailAndPasswordState
             key: emailKey,
             controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
-            radius: 10,
             onSubmitted: (value) => _signInWithEmail(
               context,
               value,
