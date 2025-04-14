@@ -23,6 +23,8 @@ class _ContinueWithEmailAndPasswordState
   final focusNode = FocusNode();
   final emailKey = GlobalKey<AFTextFieldState>();
 
+  bool _hasPushedContinueWithMagicLinkOrPasscodePage = false;
+
   @override
   void dispose() {
     controller.dispose();
@@ -47,10 +49,12 @@ class _ContinueWithEmailAndPasswordState
             ),
           );
         } else if (successOrFail == null && !state.isSubmitting) {
-          _pushContinueWithMagicLinkOrPasscodePage(
-            context,
-            controller.text,
-          );
+          emailKey.currentState?.clearError();
+
+          // _pushContinueWithMagicLinkOrPasscodePage(
+          //   context,
+          //   controller.text,
+          // );
         }
       },
       child: Column(
@@ -95,12 +99,21 @@ class _ContinueWithEmailAndPasswordState
     context
         .read<SignInBloc>()
         .add(SignInEvent.signInWithMagicLink(email: email));
+
+    _pushContinueWithMagicLinkOrPasscodePage(
+      context,
+      email,
+    );
   }
 
   void _pushContinueWithMagicLinkOrPasscodePage(
     BuildContext context,
     String email,
   ) {
+    if (_hasPushedContinueWithMagicLinkOrPasscodePage) {
+      return;
+    }
+
     final signInBloc = context.read<SignInBloc>();
 
     // push the a continue with magic link or passcode screen
@@ -111,7 +124,13 @@ class _ContinueWithEmailAndPasswordState
           value: signInBloc,
           child: ContinueWithMagicLinkOrPasscodePage(
             email: email,
-            backToLogin: () => Navigator.pop(context),
+            backToLogin: () {
+              Navigator.pop(context);
+
+              emailKey.currentState?.clearError();
+
+              _hasPushedContinueWithMagicLinkOrPasscodePage = false;
+            },
             onEnterPasscode: (passcode) => signInBloc.add(
               SignInEvent.signInWithPasscode(
                 email: email,
@@ -122,6 +141,8 @@ class _ContinueWithEmailAndPasswordState
         ),
       ),
     );
+
+    _hasPushedContinueWithMagicLinkOrPasscodePage = true;
   }
 
   // void _pushContinueWithPasswordPage(
