@@ -23,9 +23,6 @@ import 'package:appflowy_backend/log.dart';
 ///
 Future<void> _setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
-    case AuthenticatorType.local:
-      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
-      break;
     case AuthenticatorType.appflowyCloud:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
       break;
@@ -63,8 +60,6 @@ Future<AuthenticatorType> getAuthenticatorType() async {
   }
 
   switch (value ?? "0") {
-    case "0":
-      return AuthenticatorType.local;
     case "2":
       return AuthenticatorType.appflowyCloud;
     case "3":
@@ -100,23 +95,16 @@ bool get isAuthEnabled {
   return false;
 }
 
-bool get isLocalAuthEnabled {
-  return currentCloudType().isLocal;
-}
-
 /// Determines if AppFlowy Cloud is enabled.
 bool get isAppFlowyCloudEnabled {
   return currentCloudType().isAppFlowyCloudEnabled;
 }
 
 enum AuthenticatorType {
-  local,
   appflowyCloud,
   appflowyCloudSelfHost,
   // The 'appflowyCloudDevelop' type is used for develop purposes only.
   appflowyCloudDevelop;
-
-  bool get isLocal => this == AuthenticatorType.local;
 
   bool get isAppFlowyCloudEnabled =>
       this == AuthenticatorType.appflowyCloudSelfHost ||
@@ -125,8 +113,6 @@ enum AuthenticatorType {
 
   int get value {
     switch (this) {
-      case AuthenticatorType.local:
-        return 0;
       case AuthenticatorType.appflowyCloud:
         return 2;
       case AuthenticatorType.appflowyCloudSelfHost:
@@ -138,8 +124,6 @@ enum AuthenticatorType {
 
   static AuthenticatorType fromValue(int value) {
     switch (value) {
-      case 0:
-        return AuthenticatorType.local;
       case 2:
         return AuthenticatorType.appflowyCloud;
       case 3:
@@ -147,7 +131,7 @@ enum AuthenticatorType {
       case 4:
         return AuthenticatorType.appflowyCloudDevelop;
       default:
-        return AuthenticatorType.local;
+        return AuthenticatorType.appflowyCloud;
     }
   }
 }
@@ -178,10 +162,6 @@ Future<void> useAppFlowyBetaCloudWithURL(
 ) async {
   await _setAuthenticatorType(authenticatorType);
   await _setAppFlowyCloudUrl(url);
-}
-
-Future<void> useLocalServer() async {
-  await _setAuthenticatorType(AuthenticatorType.local);
 }
 
 // Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.

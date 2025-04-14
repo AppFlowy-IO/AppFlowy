@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use tracing::instrument;
 
 use crate::entities::UserProfilePB;
@@ -43,6 +42,14 @@ impl UserManager {
   }
 
   pub async fn get_anon_user(&self) -> FlowyResult<UserProfilePB> {
+    let anon_session = self.get_anon_session().await?;
+    let profile = self
+      .get_user_profile_from_disk(anon_session.user_id)
+      .await?;
+    Ok(UserProfilePB::from(profile))
+  }
+
+  pub async fn get_anon_session(&self) -> FlowyResult<Session> {
     let anon_session = self
       .store_preferences
       .get_object::<Session>(ANON_USER)
@@ -50,26 +57,6 @@ impl UserManager {
         ErrorCode::RecordNotFound,
         "Anon user not found",
       ))?;
-    let profile = self
-      .get_user_profile_from_disk(anon_session.user_id)
-      .await?;
-    Ok(UserProfilePB::from(profile))
-  }
-
-  /// Opens a historical user's session based on their user ID, device ID, and authentication type.
-  ///
-  /// This function facilitates the re-opening of a user's session from historical tracking.
-  /// It retrieves the user's workspace and establishes a new session for the user.
-  ///
-  pub async fn open_anon_user(&self) -> FlowyResult<()> {
-    let anon_session = self
-      .store_preferences
-      .get_object::<Arc<Session>>(ANON_USER)
-      .ok_or(FlowyError::new(
-        ErrorCode::RecordNotFound,
-        "Anon user not found",
-      ))?;
-    self.authenticate_user.set_session(Some(anon_session))?;
-    Ok(())
+    Ok(anon_session)
   }
 }

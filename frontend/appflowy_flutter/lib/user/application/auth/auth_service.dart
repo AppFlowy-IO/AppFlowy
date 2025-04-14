@@ -61,7 +61,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for guest registration (optional).
   ///
   /// Returns a default [UserProfilePB].
-  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
+  Future<void> signUpAsGuest({
     Map<String, String> params,
   });
 

@@ -120,18 +120,6 @@ GoRouter generateRouter(Widget child) {
           );
         },
       ),
-      GoRoute(
-        path: SignUpScreen.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            child: SignUpScreen(
-              router: getIt<AuthRouter>(),
-            ),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
     ],
   );
 }

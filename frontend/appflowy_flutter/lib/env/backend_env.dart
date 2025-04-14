@@ -16,6 +16,7 @@ class AppFlowyConfiguration {
     required this.platform,
     required this.authenticator_type,
     required this.appflowy_cloud_config,
+    required this.is_anon,
     required this.envs,
   });
 
@@ -28,6 +29,7 @@ class AppFlowyConfiguration {
   final String origin_app_path;
   final String device_id;
   final String platform;
+  final bool is_anon;
   final int authenticator_type;
   final AppFlowyCloudConfiguration appflowy_cloud_config;
   final Map<String, String> envs;

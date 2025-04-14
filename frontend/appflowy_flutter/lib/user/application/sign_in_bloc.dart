@@ -251,16 +251,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       ),
     );
 
-    final result = await authService.signUpAsGuest();
-    emit(
-      result.fold(
-        (userProfile) => state.copyWith(
-          isSubmitting: false,
-          successOrFail: FlowyResult.success(userProfile),
-        ),
-        (error) => _stateFromCode(error),
-      ),
-    );
+    await authService.signUpAsGuest();
   }
 
   SignInState _stateFromCode(FlowyError error) {

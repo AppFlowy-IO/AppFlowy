@@ -503,7 +503,7 @@ impl UserManager {
     Ok(plan_details)
   }
 
-  #[instrument(level = "info", skip(self), err)]
+  #[instrument(level = "info", skip(self))]
   pub async fn get_workspace_usage(
     &self,
     workspace_id: String,

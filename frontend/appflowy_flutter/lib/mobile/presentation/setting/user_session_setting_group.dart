@@ -1,9 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/account_deletion.dart';
@@ -31,12 +29,6 @@ class UserSessionSettingGroup extends StatelessWidget {
         // third party sign in buttons
         if (showThirdPartyLogin) _buildThirdPartySignInButtons(context),
         const VSpace(8.0),
-
-        // logout button
-        MobileLogoutButton(
-          text: LocaleKeys.settings_menu_logout.tr(),
-          onPressed: () async => _showLogoutDialog(),
-        ),
 
         // delete account button
         // only show the delete account button in cloud mode
@@ -77,31 +69,6 @@ class UserSessionSettingGroup extends StatelessWidget {
       useRootNavigator: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => const _DeleteAccountBottomSheet(),
-    );
-  }
-
-  Future<void> _showLogoutDialog() async {
-    return showFlowyCupertinoConfirmDialog(
-      title: LocaleKeys.settings_menu_logoutPrompt.tr(),
-      leftButton: FlowyText(
-        LocaleKeys.button_cancel.tr(),
-        fontSize: 17.0,
-        figmaLineHeight: 24.0,
-        fontWeight: FontWeight.w500,
-        color: const Color(0xFF007AFF),
-      ),
-      rightButton: FlowyText(
-        LocaleKeys.button_logout.tr(),
-        fontSize: 17.0,
-        figmaLineHeight: 24.0,
-        fontWeight: FontWeight.w400,
-        color: const Color(0xFFFE0220),
-      ),
-      onRightButtonPressed: (context) async {
-        Navigator.of(context).pop();
-        await getIt<AuthService>().signOut();
-        await runAppFlowy();
-      },
     );
   }
 }

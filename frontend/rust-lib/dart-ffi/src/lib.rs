@@ -109,7 +109,19 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
   let serde_str = c_str
     .to_str()
     .expect("Failed to convert C string to Rust string");
-  let configuration = AppFlowyDartConfiguration::from_str(serde_str);
+
+  // if let Some(core) = DART_APPFLOWY_CORE.core.write().unwrap().take() {
+  //   // Use println! instead of tracing, because tracing is not initialized yet.
+  //   println!("release previous appflowy core: {:?}", core.config);
+  //   core.close_db();
+  // }
+
+  let mut configuration = AppFlowyDartConfiguration::from_str(serde_str);
+  if configuration.is_anon {
+    configuration.authenticator_type = AuthenticatorType::Local;
+  }
+
+  println!("active appflowy configuration: {:?}", configuration);
   configuration.write_env();
 
   if configuration.authenticator_type == AuthenticatorType::AppFlowyCloud {
@@ -131,11 +143,8 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     configuration.device_id,
     configuration.platform,
     DEFAULT_NAME.to_string(),
+    configuration.is_anon,
   );
-
-  if let Some(core) = &*DART_APPFLOWY_CORE.core.write().unwrap() {
-    core.close_db();
-  }
 
   let log_stream = LOG_STREAM_ISOLATE
     .write()
@@ -153,6 +162,8 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
   *DART_APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
   *DART_APPFLOWY_CORE.handle.write().unwrap() = Some(handle);
   let cloned_runtime = runtime.clone();
+
+  println!("init appflowy core: {:?}", config);
   *DART_APPFLOWY_CORE.core.write().unwrap() = runtime
     .block_on(async move { Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await) });
   0

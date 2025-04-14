@@ -567,7 +567,7 @@ pub async fn open_anon_user_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  manager.open_anon_user().await?;
+  manager.active_anon_user().await?;
   Ok(())
 }
 

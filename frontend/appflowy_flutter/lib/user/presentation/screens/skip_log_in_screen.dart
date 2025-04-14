@@ -5,10 +5,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
@@ -79,11 +77,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    final result = await getIt<AuthService>().signUpAsGuest();
-    result.fold(
-      (user) => getIt<AuthRouter>().goHomeScreen(context, user),
-      (error) => Log.error(error),
-    );
+    await getIt<AuthService>().signUpAsGuest();
   }
 
   Future<void> _relaunchAppAndAutoRegister() async => runAppFlowy(isAnon: true);

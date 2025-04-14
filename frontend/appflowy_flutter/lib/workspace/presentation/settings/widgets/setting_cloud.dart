@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart'
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -62,8 +61,6 @@ class SettingCloud extends StatelessWidget {
 
   Widget _viewFromCloudType(AuthenticatorType cloudType) {
     switch (cloudType) {
-      case AuthenticatorType.local:
-        return SettingLocalCloud(restartAppFlowy: restartAppFlowy);
       case AuthenticatorType.appflowyCloud:
         return AppFlowyCloudViewSetting(restartAppFlowy: restartAppFlowy);
       case AuthenticatorType.appflowyCloudSelfHost:
@@ -239,8 +236,6 @@ class _CloudServerSwitcher extends StatelessWidget {
 
 String titleFromCloudType(AuthenticatorType cloudType) {
   switch (cloudType) {
-    case AuthenticatorType.local:
-      return LocaleKeys.settings_menu_cloudLocal.tr();
     case AuthenticatorType.appflowyCloud:
       return LocaleKeys.settings_menu_cloudAppFlowy.tr();
     case AuthenticatorType.appflowyCloudSelfHost:

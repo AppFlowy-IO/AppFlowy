@@ -1,19 +1,14 @@
 use crate::local_ai::resource::WatchDiskEvent;
 use af_plugin::core::path::{install_path, ollama_plugin_path};
 use flowy_error::{FlowyError, FlowyResult};
-use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-#[allow(dead_code)]
 pub struct WatchContext {
+  #[allow(dead_code)]
   watcher: notify::RecommendedWatcher,
-  pub path: PathBuf,
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-#[allow(dead_code)]
 pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<WatchDiskEvent>)> {
   use notify::{Event, Watcher};
 
@@ -50,11 +45,5 @@ pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<Watch
     .watch(&install_path, notify::RecursiveMode::NonRecursive)
     .map_err(|err| FlowyError::internal().with_context(err))?;
 
-  Ok((
-    WatchContext {
-      watcher,
-      path: install_path,
-    },
-    rx,
-  ))
+  Ok((WatchContext { watcher }, rx))
 }

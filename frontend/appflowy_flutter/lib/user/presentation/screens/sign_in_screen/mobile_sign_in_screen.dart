@@ -36,9 +36,8 @@ class MobileSignInScreen extends StatelessWidget {
                 const VSpace(spacing),
                 _buildAppNameText(colorScheme),
                 const VSpace(spacing * 2),
-                isLocalAuthEnabled
-                    ? const SignInAnonymousButtonV3()
-                    : const ContinueWithEmailAndPassword(),
+                const SignInAnonymousButtonV3(),
+                const ContinueWithEmailAndPassword(),
                 const VSpace(spacing),
                 if (isAuthEnabled) _buildThirdPartySignInButtons(colorScheme),
                 const VSpace(spacing * 1.5),
@@ -129,9 +128,8 @@ class MobileSignInScreen extends StatelessWidget {
           },
         ),
         const HSpace(24),
-        isLocalAuthEnabled
-            ? const ChangeCloudModeButton()
-            : const SignInAnonymousButtonV2(),
+        const ChangeCloudModeButton(),
+        const SignInAnonymousButtonV2(),
       ],
     );
   }

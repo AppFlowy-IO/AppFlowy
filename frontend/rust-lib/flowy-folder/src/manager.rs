@@ -175,7 +175,7 @@ impl FolderManager {
     }
   }
 
-  #[instrument(level = "trace", skip_all, err)]
+  #[instrument(level = "info", skip_all, err)]
   pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
     &self,
     uid: i64,
@@ -265,6 +265,10 @@ impl FolderManager {
   #[tracing::instrument(skip(self, user_id), err)]
   pub async fn initialize_with_workspace_id(&self, user_id: i64) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
+    info!(
+      "initialize user workspace: uid:{}, workspace_id:{}",
+      user_id, workspace_id
+    );
     let object_id = &workspace_id;
 
     let is_exist = self

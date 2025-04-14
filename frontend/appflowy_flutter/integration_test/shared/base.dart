@@ -54,8 +54,6 @@ extension AppFlowyTestBase on WidgetTester {
         final rustEnvs = <String, String>{};
         if (cloudType != null) {
           switch (cloudType) {
-            case AuthenticatorType.local:
-              break;
             case AuthenticatorType.appflowyCloudSelfHost:
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
@@ -71,9 +69,6 @@ extension AppFlowyTestBase on WidgetTester {
           () async {
             if (cloudType != null) {
               switch (cloudType) {
-                case AuthenticatorType.local:
-                  await useLocalServer();
-                  break;
                 case AuthenticatorType.appflowyCloudSelfHost:
                   await useTestSelfHostedAppFlowyCloud();
                   getIt.unregister<AuthService>();

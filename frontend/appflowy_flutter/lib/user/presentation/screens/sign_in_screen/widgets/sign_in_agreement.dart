@@ -1,5 +1,4 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,14 +19,13 @@ class SignInAgreement extends StatelessWidget {
     final underlinedTextStyle = theme.textStyle.caption.underline(
       color: theme.textColorScheme.secondary,
     );
+
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
         children: [
           TextSpan(
-            text: isLocalAuthEnabled
-                ? '${LocaleKeys.web_signInLocalAgreement.tr()} \n'
-                : '${LocaleKeys.web_signInAgreement.tr()} \n',
+            text: '${LocaleKeys.web_signInAgreement.tr()} \n',
             style: textStyle,
           ),
           TextSpan(

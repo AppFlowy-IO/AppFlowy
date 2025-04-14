@@ -29,7 +29,16 @@ class AppFlowyCloudMockAuthService implements AuthService {
     required String password,
     Map<String, String> params = const {},
   }) async {
-    throw UnimplementedError();
+    final request = SignUpPayloadPB.create()
+      ..name = name
+      ..email = email
+      ..password = password
+      ..authType = _appFlowyAuthService.authType
+      ..deviceId = await getDeviceId();
+    final response = await UserEventSignUp(request).send().then(
+          (value) => value,
+        );
+    return response;
   }
 
   @override
@@ -89,10 +98,10 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
+  Future<void> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
-    return _appFlowyAuthService.signUpAsGuest();
+    await _appFlowyAuthService.signUpAsGuest();
   }
 
   @override

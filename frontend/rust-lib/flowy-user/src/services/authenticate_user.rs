@@ -109,7 +109,7 @@ impl AuthenticateUser {
 
   pub fn close_db(&self) -> FlowyResult<()> {
     let session = self.get_session()?;
-    info!("Close db for user: {}", session.user_id);
+    info!("Close DB for user: {}", session.user_id);
     self.database.close(session.user_id)?;
     Ok(())
   }
@@ -125,14 +125,20 @@ impl AuthenticateUser {
     match session {
       None => {
         let previous = self.session.swap(session);
-        info!("remove session: {:?}", previous);
+        info!(
+          "remove session: {:?} in {}",
+          previous, self.user_config.storage_path
+        );
         self
           .store_preferences
           .remove(self.user_config.session_cache_key.as_ref());
       },
       Some(session) => {
         self.session.swap(Some(session.clone()));
-        info!("Set current session: {:?}", session);
+        info!(
+          "Set current session: {:?} in {}",
+          session, self.user_config.storage_path
+        );
         self
           .store_preferences
           .set_object(&self.user_config.session_cache_key, &session)

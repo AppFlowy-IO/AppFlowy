@@ -203,7 +203,7 @@ impl AppFlowyCollabBuilder {
     folder_data: Option<FolderData>,
   ) -> Result<Arc<RwLock<Folder>>, Error> {
     let expected_collab_type = CollabType::Folder;
-    assert_eq!(object.collab_type, expected_collab_type);
+    debug_assert_eq!(object.collab_type, expected_collab_type);
     let folder = match folder_data {
       None => {
         let collab = self.build_collab(&object, &collab_db, doc_state).await?;

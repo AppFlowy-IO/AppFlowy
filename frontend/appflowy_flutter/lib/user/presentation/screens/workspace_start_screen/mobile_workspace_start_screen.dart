@@ -121,7 +121,7 @@ class _MobileWorkspaceStartScreenState
                     selectedWorkspace!,
                   );
                 },
-                child: Text(LocaleKeys.signUp_getStartedText.tr()),
+                child: Text(LocaleKeys.signIn_anonymousMode.tr()),
               ),
               const VSpace(spacing),
             ],

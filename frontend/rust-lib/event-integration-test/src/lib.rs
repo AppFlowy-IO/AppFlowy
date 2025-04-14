@@ -85,6 +85,7 @@ impl EventIntegrationTest {
       device_id,
       "test".to_string(),
       name,
+      false,
     )
     .log_filter(
       "trace",

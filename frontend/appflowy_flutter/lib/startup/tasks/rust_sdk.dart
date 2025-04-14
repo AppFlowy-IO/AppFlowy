@@ -12,11 +12,13 @@ import '../startup.dart';
 
 class InitRustSDKTask extends LaunchTask {
   const InitRustSDKTask({
-    this.customApplicationPath,
+    required this.isAnon,
+    required this.customApplicationPath,
   });
 
   // Customize the RustSDK initialization path
   final Directory? customApplicationPath;
+  final bool isAnon;
 
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
@@ -24,8 +26,16 @@ class InitRustSDKTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     final root = await getApplicationSupportDirectory();
-    final applicationPath = await appFlowyApplicationDataDirectory();
-    final dir = customApplicationPath ?? applicationPath;
+
+    // Only one anon user no matter what the cloud URL is
+    final applicationPath = isAnon
+        ? await appFlowyAnonDirectory()
+        : await appFlowyApplicationDataDirectory();
+
+    final dir =
+        isAnon ? applicationPath : (customApplicationPath ?? applicationPath);
+
+    // Get device ID in parallel with path resolution
     final deviceId = await getDeviceId();
 
     // Pass the environment variables to the Rust SDK
@@ -35,6 +45,7 @@ class InitRustSDKTask extends LaunchTask {
       dir.path,
       applicationPath.path,
       deviceId,
+      isAnon,
       rustEnvs: context.config.rustEnvs,
     );
     await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
@@ -49,7 +60,8 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
   String appVersion,
   String customAppPath,
   String originAppPath,
-  String deviceId, {
+  String deviceId,
+  bool isAnon, {
   required Map<String, String> rustEnvs,
 }) {
   final env = getIt<AppFlowyCloudSharedEnv>();
@@ -62,6 +74,7 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
     platform: Platform.operatingSystem,
     authenticator_type: env.authenticatorType.value,
     appflowy_cloud_config: env.appflowyCloudConfig,
+    is_anon: isAnon,
     envs: rustEnvs,
   );
 }
@@ -81,4 +94,11 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
     case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));
   }
+}
+
+/// The anon directory.
+Future<Directory> appFlowyAnonDirectory() async {
+  final Directory documentsDir =
+      await getApplicationSupportDirectory().then((directory) => directory);
+  return Directory(path.join(documentsDir.path, 'anon'));
 }

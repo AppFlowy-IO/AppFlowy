@@ -1,5 +1,5 @@
 use std::fmt;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use base64::Engine;
 use semver::Version;
@@ -9,7 +9,6 @@ use url::Url;
 use crate::log_filter::create_log_filter;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_user::services::entities::URL_SAFE_ENGINE;
-use lib_infra::file_util::copy_dir_recursive;
 use lib_infra::util::OperatingSystem;
 
 #[derive(Clone)]
@@ -26,6 +25,7 @@ pub struct AppFlowyCoreConfig {
   /// choose a custom path for the user data, the storage_path will be different from
   /// the origin_application_path.
   pub application_path: String,
+  pub is_anon: bool,
   pub(crate) log_filter: String,
   pub cloud_config: Option<AFCloudConfiguration>,
 }
@@ -35,7 +35,7 @@ impl AppFlowyCoreConfig {
       let dir = std::path::Path::new(path_str);
       if !dir.exists() {
         match std::fs::create_dir_all(dir) {
-          Ok(_) => info!("Created {} path: {}", label, path_str),
+          Ok(_) => info!("ensure path, create {} path: {}", label, path_str),
           Err(err) => error!(
             "Failed to create {} path: {}. Error: {}",
             label, path_str, err
@@ -52,6 +52,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
     debug.field("app_version", &self.app_version);
+    debug.field("instance_name", &self.name);
     debug.field("storage_path", &self.storage_path);
     debug.field("application_path", &self.application_path);
     if let Some(config) = &self.cloud_config {
@@ -64,7 +65,10 @@ impl fmt::Debug for AppFlowyCoreConfig {
   }
 }
 
-fn make_user_data_folder(root: &str, url: &str) -> String {
+fn make_user_data_folder(root: &str, url: &str, is_anon: bool) -> String {
+  if is_anon {
+    return root.to_string();
+  }
   // If a URL is provided, try to parse it and extract the domain name.
   // This isolates the user data folder by the domain, which prevents data sharing
   // between different AppFlowy cloud instances.
@@ -99,27 +103,10 @@ fn make_user_data_folder(root: &str, url: &str) -> String {
     storage_path = PathBuf::from(new_storage_path);
   }
 
-  // Copy the user data folder from the root path to the isolated path
-  // The root path without any suffix is the created by the local version AppFlowy
-  if !storage_path.exists() && Path::new(root).exists() {
-    info!("Copy dir from {} to {:?}", root, storage_path);
-    let src = Path::new(root);
-    match copy_dir_recursive(src, &storage_path) {
-      Ok(_) => storage_path
-        .into_os_string()
-        .into_string()
-        .unwrap_or_else(|_| root.to_string()),
-      Err(err) => {
-        error!("Copy dir failed: {}", err);
-        root.to_string()
-      },
-    }
-  } else {
-    storage_path
-      .into_os_string()
-      .into_string()
-      .unwrap_or_else(|_| root.to_string())
-  }
+  storage_path
+    .into_os_string()
+    .into_string()
+    .unwrap_or_else(|_| root.to_string())
 }
 
 impl AppFlowyCoreConfig {
@@ -130,13 +117,14 @@ impl AppFlowyCoreConfig {
     device_id: String,
     platform: String,
     name: String,
+    is_anon: bool,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
     // By default enable sync trace log
     let log_crates = vec!["sync_trace_log".to_string()];
     let storage_path = match &cloud_config {
       None => custom_application_path,
-      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url, is_anon),
     };
 
     let log_filter = create_log_filter(
@@ -153,6 +141,7 @@ impl AppFlowyCoreConfig {
       device_id,
       platform,
       log_filter,
+      is_anon,
       cloud_config,
     }
   }
