@@ -191,7 +191,7 @@ class AppFlowyThemeBuilder {
           quaternary: colorScheme.neutral.neutral1000,
           quaternaryHover: colorScheme.neutral.neutral900,
           transparent: colorScheme.neutral.alphaWhite0,
-          primaryAlpha5: colorScheme.neutral.alphaGrey100005,
+          primaryAlpha5: colorScheme.neutral.alphaGrey10005,
           primaryAlpha5Hover: colorScheme.neutral.alphaGrey10010,
           primaryAlpha80: colorScheme.neutral.alphaGrey100080,
           primaryAlpha80Hover: colorScheme.neutral.alphaGrey100070,
