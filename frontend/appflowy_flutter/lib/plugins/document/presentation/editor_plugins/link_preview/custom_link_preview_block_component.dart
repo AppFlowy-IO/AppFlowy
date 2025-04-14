@@ -1,18 +1,18 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
 
 import 'custom_link_preview.dart';
+import 'default_selectable_mixin.dart';
 import 'link_preview_menu.dart';
 
 class CustomLinkPreviewBlockComponentBuilder extends BlockComponentBuilder {
   CustomLinkPreviewBlockComponentBuilder({
     super.configuration,
-    this.cache,
   });
-
-  final LinkPreviewDataCacheInterface? cache;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -35,7 +35,6 @@ class CustomLinkPreviewBlockComponentBuilder extends BlockComponentBuilder {
       configuration: configuration,
       showActions: showActions(node),
       actionBuilder: (_, state) => actionBuilder(blockComponentContext, state),
-      cache: cache,
     );
   }
 
@@ -51,18 +50,15 @@ class CustomLinkPreviewBlockComponent extends BlockComponentStatefulWidget {
     super.showActions,
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
-    this.cache,
   });
 
-  final LinkPreviewDataCacheInterface? cache;
-
   @override
-  State<CustomLinkPreviewBlockComponent> createState() =>
+  DefaultSelectableMixinState<CustomLinkPreviewBlockComponent> createState() =>
       CustomLinkPreviewBlockComponentState();
 }
 
 class CustomLinkPreviewBlockComponentState
-    extends State<CustomLinkPreviewBlockComponent>
+    extends DefaultSelectableMixinState<CustomLinkPreviewBlockComponent>
     with BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -72,8 +68,9 @@ class CustomLinkPreviewBlockComponentState
 
   String get url => widget.node.attributes[LinkPreviewBlockKeys.url]!;
 
-  late final LinkPreviewParser parser;
-  late Future<void> future;
+  final parser = LinkParser();
+  LinkLoadingStatus status = LinkLoadingStatus.loading;
+  late LinkInfo linkInfo = LinkInfo(url: url);
 
   final showActionsNotifier = ValueNotifier<bool>(false);
   bool isMenuShowing = false, isHovering = false;
@@ -81,21 +78,26 @@ class CustomLinkPreviewBlockComponentState
   @override
   void initState() {
     super.initState();
-    parser = LinkPreviewParser(url: url, cache: widget.cache);
-    future = parser.start();
+    parser.addLinkInfoListener((v) {
+      final hasNewInfo = !v.isEmpty(), hasOldInfo = !linkInfo.isEmpty();
+      if (mounted) {
+        setState(() {
+          if (hasNewInfo) {
+            linkInfo = v;
+            status = LinkLoadingStatus.idle;
+          } else if (!hasOldInfo) {
+            status = LinkLoadingStatus.error;
+          }
+        });
+      }
+    });
+    parser.start(url);
   }
 
   @override
-  void didUpdateWidget(CustomLinkPreviewBlockComponent oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final url = widget.node.attributes[LinkPreviewBlockKeys.url]!;
-    final oldUrl = oldWidget.node.attributes[LinkPreviewBlockKeys.url]!;
-    if (url != oldUrl) {
-      parser = LinkPreviewParser(url: url, cache: widget.cache);
-      setState(() {
-        future = parser.start();
-      });
-    }
+  void dispose() {
+    parser.dispose();
+    super.dispose();
   }
 
   @override
@@ -114,91 +116,79 @@ class CustomLinkPreviewBlockComponentState
       },
       hitTestBehavior: HitTestBehavior.opaque,
       opaque: false,
-      child: ValueListenableBuilder<bool>(
+      child: ValueListenableBuilder(
         valueListenable: showActionsNotifier,
         builder: (context, showActions, child) {
-          return FutureBuilder(
-            future: future,
-            builder: (context, snapshot) {
-              Widget child;
-
-              if (snapshot.connectionState != ConnectionState.done) {
-                child = CustomLinkPreviewWidget(
-                  node: node,
-                  url: url,
-                  isHovering: showActions,
-                );
-              } else {
-                final title = parser.getContent(LinkPreviewRegex.title);
-                final description =
-                    parser.getContent(LinkPreviewRegex.description);
-                final image = parser.getContent(LinkPreviewRegex.image);
-
-                if (title == null && description == null && image == null) {
-                  child = CustomLinkPreviewWidget(
-                    node: node,
-                    url: url,
-                    isHovering: showActions,
-                    status: LinkPreviewStatus.error,
-                  );
-                } else {
-                  child = CustomLinkPreviewWidget(
-                    node: node,
-                    url: url,
-                    title: title,
-                    description: description,
-                    imageUrl: image,
-                    isHovering: showActions,
-                    status: LinkPreviewStatus.idle,
-                  );
-                }
-              }
-
-              child = Padding(padding: padding, child: child);
-
-              if (widget.showActions && widget.actionBuilder != null) {
-                child = BlockComponentActionWrapper(
-                  node: node,
-                  actionBuilder: widget.actionBuilder!,
-                  child: child,
-                );
-              }
-
-              child = Stack(
-                children: [
-                  child,
-                  if (showActions)
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: CustomLinkPreviewMenu(
-                        onMenuShowed: () {
-                          isMenuShowing = true;
-                        },
-                        onMenuHided: () {
-                          isMenuShowing = false;
-                          if (!isHovering && mounted) {
-                            showActionsNotifier.value = false;
-                          }
-                        },
-                        onReload: () {
-                          if (mounted) {
-                            setState(() {
-                              future = parser.start();
-                            });
-                          }
-                        },
-                        node: node,
-                      ),
-                    ),
-                ],
-              );
-
-              return child;
-            },
-          );
+          return buildPreview(showActions);
         },
       ),
     );
   }
+
+  Widget buildPreview(bool showActions) {
+    Widget child = CustomLinkPreviewWidget(
+      key: widgetKey,
+      node: node,
+      url: url,
+      isHovering: showActions,
+      title: linkInfo.siteName,
+      description: linkInfo.description,
+      imageUrl: linkInfo.imageUrl,
+      status: status,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    child = Stack(
+      children: [
+        child,
+        if (showActions)
+          Positioned(
+            top: 12,
+            right: 12,
+            child: CustomLinkPreviewMenu(
+              onMenuShowed: () {
+                isMenuShowing = true;
+              },
+              onMenuHided: () {
+                isMenuShowing = false;
+                if (!isHovering && mounted) {
+                  showActionsNotifier.value = false;
+                }
+              },
+              onReload: () {
+                setState(() {
+                  status = LinkLoadingStatus.loading;
+                });
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  if (mounted) parser.start(url);
+                });
+              },
+              node: node,
+            ),
+          ),
+      ],
+    );
+
+    final parent = node.parent;
+    EdgeInsets newPadding = padding;
+    if (parent?.type == CalloutBlockKeys.type) {
+      newPadding = padding.copyWith(right: padding.right + 10);
+    }
+    child = Padding(padding: newPadding, child: child);
+
+    return child;
+  }
+
+  @override
+  Node get currentNode => node;
+
+  @override
+  EdgeInsets get boxPadding => padding;
 }

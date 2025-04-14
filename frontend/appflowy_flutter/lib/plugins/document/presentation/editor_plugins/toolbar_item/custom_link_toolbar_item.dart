@@ -8,7 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +34,7 @@ final customLinkItem = ToolbarItem(
     final hoverColor = isHref
         ? highlightColor
         : EditorStyleCustomizer.toolbarHoverColor(context);
-
+    final theme = AppFlowyTheme.of(context);
     final child = FlowyIconButton(
       width: 36,
       height: 32,
@@ -45,7 +45,7 @@ final customLinkItem = ToolbarItem(
         size: Size.square(20.0),
         color: (isDark && isHref)
             ? Color(0xFF282E3A)
-            : AFThemeExtensionV2.of(context).icon_primary,
+            : theme.iconColorTheme.primary,
       ),
       onPressed: () {
         getIt<FloatingToolbarController>().hideToolbar();

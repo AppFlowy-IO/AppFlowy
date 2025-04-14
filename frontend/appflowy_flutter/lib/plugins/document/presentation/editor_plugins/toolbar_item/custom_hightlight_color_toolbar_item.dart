@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/color_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
-import 'package:flowy_infra/theme_extension_v2.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +82,8 @@ class _HighlightColorPickerWidgetState
   }
 
   Widget buildChild(BuildContext context) {
-    final iconColor = AFThemeExtensionV2.of(context).icon_primary;
+    final theme = AppFlowyTheme.of(context),
+        iconColor = theme.iconColorTheme.primary;
 
     final child = FlowyIconButton(
       width: 36,

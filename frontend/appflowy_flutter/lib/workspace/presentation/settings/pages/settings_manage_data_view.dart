@@ -157,7 +157,6 @@ class SettingsManageDataView extends StatelessWidget {
 
                           if (context.mounted) {
                             showToastNotification(
-                              
                               message: LocaleKeys
                                   .settings_manageDataPage_cache_dialog_successHint
                                   .tr(),
