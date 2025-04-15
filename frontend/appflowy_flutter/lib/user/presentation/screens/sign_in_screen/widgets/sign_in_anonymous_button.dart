@@ -79,7 +79,7 @@ class ChangeCloudModeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return AFGhostIconTextButton(
-      text: 'Cloud',
+      text: LocaleKeys.signIn_switchToAppFlowyCloud.tr(),
       textColor: (context, isHovering, disabled) {
         return theme.textColorScheme.secondary;
       },
@@ -97,7 +97,7 @@ class ChangeCloudModeButton extends StatelessWidget {
       },
       iconBuilder: (context, isHovering, disabled) {
         return FlowySvg(
-          FlowySvgs.settings_s,
+          FlowySvgs.cloud_mode_m,
           size: Size.square(20),
           color: theme.textColorScheme.secondary,
         );

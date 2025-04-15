@@ -182,7 +182,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         ),
         _divider(),
         ..._buildPublishActions(context),
-        _divider(),
+
         MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
@@ -236,6 +236,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.unpublish,
           ),
         ),
+        _divider(),
       ];
     } else {
       return [
@@ -246,6 +247,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.publish,
           ),
         ),
+        _divider(),
       ];
     }
   }
