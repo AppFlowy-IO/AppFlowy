@@ -1,4 +1,4 @@
-import 'package:appflowy_ui/src/theme/data/data.dart';
+import 'package:appflowy_ui/src/theme/definition/base_theme.dart';
 import 'package:flutter/widgets.dart';
 
 class AppFlowyTheme extends StatelessWidget {
@@ -8,10 +8,10 @@ class AppFlowyTheme extends StatelessWidget {
     required this.child,
   });
 
-  final AppFlowyThemeData data;
+  final AppFlowyBaseThemeData data;
   final Widget child;
 
-  static AppFlowyThemeData of(BuildContext context, {bool listen = true}) {
+  static AppFlowyBaseThemeData of(BuildContext context, {bool listen = true}) {
     final provider = maybeOf(context, listen: listen);
     if (provider == null) {
       throw FlutterError(
@@ -26,27 +26,26 @@ class AppFlowyTheme extends StatelessWidget {
     return provider;
   }
 
-  static AppFlowyThemeData? maybeOf(
+  static AppFlowyBaseThemeData? maybeOf(
     BuildContext context, {
     bool listen = true,
   }) {
     if (listen) {
       return context
           .dependOnInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
-          ?.theme
-          .data;
+          ?.theme;
     }
     final provider = context
         .getElementForInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
         ?.widget;
 
-    return (provider as AppFlowyInheritedTheme?)?.theme.data;
+    return (provider as AppFlowyInheritedTheme?)?.theme;
   }
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyInheritedTheme(
-      theme: this,
+      theme: data,
       child: child,
     );
   }
@@ -59,14 +58,14 @@ class AppFlowyInheritedTheme extends InheritedTheme {
     required super.child,
   });
 
-  final AppFlowyTheme theme;
+  final AppFlowyBaseThemeData theme;
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    return AppFlowyTheme(data: theme.data, child: child);
+    return AppFlowyTheme(data: theme, child: child);
   }
 
   @override
   bool updateShouldNotify(AppFlowyInheritedTheme oldWidget) =>
-      theme.data != oldWidget.theme.data;
+      theme != oldWidget.theme;
 }

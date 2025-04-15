@@ -119,7 +119,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorTheme;
+    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorScheme;
     final child = FlowyIconButton(
       width: 48,
       height: 32,
@@ -188,7 +188,7 @@ class ImproveWritingButton extends StatelessWidget {
       icon: FlowySvg(
         FlowySvgs.toolbar_ai_improve_writing_m,
         size: Size.square(20.0),
-        color: theme.iconColorTheme.primary,
+        color: theme.iconColorScheme.primary,
       ),
       onPressed: () {
         if (_isAIEnabled(editorState)) {
