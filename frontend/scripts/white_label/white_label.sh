@@ -26,7 +26,7 @@ show_usage() {
     echo "     --company-name \"MyCompany Ltd.\" --copyright \"Copyright © 2025 MyCompany Ltd.\" \\"
     echo "     --platforms \"windows,linux,macos\" \\"
     echo "     --windows-icon-path \"./assets/icons/mycompany.ico\" \\"
-    echo "     --icon-path \"./assets/icons/mycompany.svg\""
+    echo "     --icon-path \"./assets/icons/\""
 }
 
 while [[ $# -gt 0 ]]; do
@@ -110,6 +110,9 @@ bash "scripts/white_label/i18n_white_label.sh" --company-name "$COMPANY_NAME"
 
 echo -e "\033[32mRunning icon white label script...\033[0m"
 bash "scripts/white_label/icon_white_label.sh" --icon-path "$ICON_PATH"
+
+echo -e "\033[32mRunning code white label script...\033[0m"
+bash "scripts/white_label/code_white_label.sh" --company-name "$COMPANY_NAME"
 
 for platform in "${PLATFORMS[@]}"; do
     run_platform_script "$platform"
