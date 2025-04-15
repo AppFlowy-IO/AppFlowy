@@ -67,9 +67,9 @@ void generateSemantic() {
   // 1. Load the JSON file.
   final lightJsonString =
       File('script/Semantic.Light Mode.tokens.json').readAsStringSync();
-  final lightJsonData = jsonDecode(lightJsonString) as Map<String, dynamic>;
   final darkJsonString =
       File('script/Semantic.Dark Mode.tokens.json').readAsStringSync();
+  final lightJsonData = jsonDecode(lightJsonString) as Map<String, dynamic>;
   final darkJsonData = jsonDecode(darkJsonString) as Map<String, dynamic>;
 
   // 2. Prepare the output code.
@@ -122,27 +122,29 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
 
     jsonData.forEach((categoryName, categoryData) {
       if (categoryData is Map<String, dynamic>) {
-        if (categoryData.values.any(
+        final hasNonColorType = categoryData.values.any(
           (element) =>
               element is Map<String, dynamic> && element['\$type'] != 'color',
-        )) {
+        );
+        if (hasNonColorType) {
           return;
         }
+
         final fullCategoryName = "${categoryName}_color_scheme".toCamelCase();
         final className = 'AppFlowy${fullCategoryName.toCapitalize()}';
+
         buffer
           ..writeln()
-          ..writeln(
-            '    final $fullCategoryName = $className(',
-          );
+          ..writeln('    final $fullCategoryName = $className(');
+
         categoryData.forEach((tokenName, tokenData) {
           if (tokenData is Map<String, dynamic> &&
               tokenData['\$type'] == 'color') {
             final semanticTokenName =
                 tokenName.replaceAll('-', '_').toCamelCase();
+
             final value = tokenData['\$value'] as String;
             final String colorOrPrimitiveToken;
-
             if (value.isColor) {
               colorOrPrimitiveToken = 'Color(0x${convertColor(value)})';
             } else {
@@ -155,8 +157,7 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
               colorOrPrimitiveToken = 'AppFlowyPrimitiveTokens.$primitiveToken';
             }
 
-            buffer.writeln('''
-      $semanticTokenName: $colorOrPrimitiveToken,''');
+            buffer.writeln('      $semanticTokenName: $colorOrPrimitiveToken,');
           }
         });
         buffer.writeln('    );');
