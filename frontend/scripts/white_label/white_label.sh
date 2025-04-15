@@ -7,6 +7,8 @@ COMPANY_NAME="AppFlowy Inc."
 COPYRIGHT="Copyright © 2025 AppFlowy Inc."
 ICON_PATH=""
 WINDOWS_ICON_PATH=""
+FONT_PATH=""
+FONT_FAMILY=""
 PLATFORMS=("windows" "linux" "macos" "ios" "android")
 
 show_usage() {
@@ -18,6 +20,8 @@ show_usage() {
     echo "  --copyright             Set the copyright information"
     echo "  --icon-path             Set the path to the application icon (.svg)"
     echo "  --windows-icon-path     Set the path to the windows application icon (.ico)"
+    echo "  --font-path             Set the path to the folder containing font files (.ttf or .otf files)"
+    echo "  --font-family           Set the name of the font family"
     echo "  --platforms             Comma-separated list of platforms to white label (windows,linux,macos,ios,android)"
     echo "  --help                  Show this help message"
     echo ""
@@ -26,7 +30,8 @@ show_usage() {
     echo "     --company-name \"MyCompany Ltd.\" --copyright \"Copyright © 2025 MyCompany Ltd.\" \\"
     echo "     --platforms \"windows,linux,macos\" \\"
     echo "     --windows-icon-path \"./assets/icons/mycompany.ico\" \\"
-    echo "     --icon-path \"./assets/icons/\""
+    echo "     --icon-path \"./assets/icons/\" \\"
+    echo "     --font-path \"./assets/fonts/\" --font-family \"CustomFont\""
 }
 
 while [[ $# -gt 0 ]]; do
@@ -55,6 +60,14 @@ while [[ $# -gt 0 ]]; do
         WINDOWS_ICON_PATH="$2"
         shift 2
         ;;
+    --font-path)
+        FONT_PATH="$2"
+        shift 2
+        ;;
+    --font-family)
+        FONT_FAMILY="$2"
+        shift 2
+        ;;
     --platforms)
         IFS=',' read -ra PLATFORMS <<< "$2"
         shift 2
@@ -77,8 +90,8 @@ if [ -z "$APP_NAME" ] || [ -z "$APP_IDENTIFIER" ] || [ -z "$COMPANY_NAME" ] || [
     exit 1
 fi
 
-if [ ! -f "$ICON_PATH" ]; then
-    echo "Error: Icon file not found at $ICON_PATH"
+if [ ! -d "$ICON_PATH" ]; then
+    echo "Error: Icon directory not found at $ICON_PATH"
     exit 1
 fi
 
@@ -113,6 +126,14 @@ bash "scripts/white_label/icon_white_label.sh" --icon-path "$ICON_PATH"
 
 echo -e "\033[32mRunning code white label script...\033[0m"
 bash "scripts/white_label/code_white_label.sh" --company-name "$COMPANY_NAME"
+
+# Run font white label script if font parameters are provided
+if [ ! -z "$FONT_PATH" ] && [ ! -z "$FONT_FAMILY" ]; then
+    echo -e "\033[32mRunning font white label script...\033[0m"
+    bash "scripts/white_label/font_white_label.sh" \
+        --font-path "$FONT_PATH" \
+        --font-family "$FONT_FAMILY"
+fi
 
 for platform in "${PLATFORMS[@]}"; do
     run_platform_script "$platform"

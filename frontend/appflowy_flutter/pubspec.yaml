@@ -254,9 +254,6 @@ flutter:
   uses-material-design: true
 
   fonts:
-    - family: FlowyIconData
-      fonts:
-        - asset: assets/fonts/FlowyIconData.ttf
     - family: Poppins
       fonts:
         - asset: assets/google_fonts/Poppins/Poppins-ExtraLight.ttf
@@ -301,6 +298,7 @@ flutter:
     - assets/images/login/
     - assets/translations/
     - assets/icons/icons.json
+    - assets/fonts/
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
