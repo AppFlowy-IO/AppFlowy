@@ -27,7 +27,7 @@ enum AFButtonSize {
           vertical: theme.spacing.xs,
         ),
       AFButtonSize.m => EdgeInsets.symmetric(
-          horizontal: theme.spacing.l,
+          horizontal: theme.spacing.xl,
           vertical: theme.spacing.s,
         ),
       AFButtonSize.l => EdgeInsets.symmetric(

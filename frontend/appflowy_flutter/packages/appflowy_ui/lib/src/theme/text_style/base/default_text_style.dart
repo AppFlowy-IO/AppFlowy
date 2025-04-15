@@ -6,18 +6,25 @@ abstract class TextThemeType {
   TextStyle standard({
     String family = '',
     Color? color,
+    FontWeight? weight,
   });
+
   TextStyle enhanced({
     String family = '',
     Color? color,
+    FontWeight? weight,
   });
+
   TextStyle prominent({
     String family = '',
     Color? color,
+    FontWeight? weight,
   });
+
   TextStyle underline({
     String family = '',
     Color? color,
+    FontWeight? weight,
   });
 }
 
@@ -93,29 +100,35 @@ class TextThemeHeadline extends TextThemeType {
   const TextThemeHeadline();
 
   @override
-  TextStyle standard({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
       );
 
   @override
-  TextStyle enhanced({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.w600,
+        weight: weight ?? FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.bold,
+        weight: weight ?? FontWeight.bold,
       );
 
   @override
-  TextStyle underline({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
         decoration: TextDecoration.underline,
       );
 
@@ -123,8 +136,8 @@ class TextThemeHeadline extends TextThemeType {
     required String family,
     double fontSize = 24,
     double height = 36 / 24,
-    FontWeight weight = FontWeight.normal,
     TextDecoration decoration = TextDecoration.none,
+    FontWeight weight = FontWeight.normal,
     Color? color,
   }) =>
       TextStyle(
@@ -145,29 +158,35 @@ class TextThemeTitle extends TextThemeType {
   const TextThemeTitle();
 
   @override
-  TextStyle standard({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
       );
 
   @override
-  TextStyle enhanced({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.w600,
+        weight: weight ?? FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.bold,
+        weight: weight ?? FontWeight.bold,
       );
 
   @override
-  TextStyle underline({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
         decoration: TextDecoration.underline,
       );
 
@@ -197,29 +216,35 @@ class TextThemeBody extends TextThemeType {
   const TextThemeBody();
 
   @override
-  TextStyle standard({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
       );
 
   @override
-  TextStyle enhanced({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.w600,
+        weight: weight ?? FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.bold,
+        weight: weight ?? FontWeight.bold,
       );
 
   @override
-  TextStyle underline({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
         decoration: TextDecoration.underline,
       );
 
@@ -249,29 +274,35 @@ class TextThemeCaption extends TextThemeType {
   const TextThemeCaption();
 
   @override
-  TextStyle standard({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
       );
 
   @override
-  TextStyle enhanced({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.w600,
+        weight: weight ?? FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
-        weight: FontWeight.bold,
+        weight: weight ?? FontWeight.bold,
       );
 
   @override
-  TextStyle underline({String family = '', Color? color}) => _defaultTextStyle(
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
         family: family,
         color: color,
+        weight: weight ?? FontWeight.normal,
         decoration: TextDecoration.underline,
       );
 

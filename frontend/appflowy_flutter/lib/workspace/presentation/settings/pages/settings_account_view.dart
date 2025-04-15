@@ -61,7 +61,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                       setState(() => userName = newName);
                       context
                           .read<SettingsUserViewBloc>()
-                          .add(SettingsUserEvent.updateUserName(newName));
+                          .add(SettingsUserEvent.updateUserName(name: newName));
                     },
                   ),
                 ],
@@ -75,6 +75,9 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                   title: LocaleKeys.settings_accountPage_email_title.tr(),
                   children: [
                     FlowyText.regular(state.userProfile.email),
+                    ChangePasswordSection(
+                      userProfile: state.userProfile,
+                    ),
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
                       onAction: state.userProfile.authenticator ==

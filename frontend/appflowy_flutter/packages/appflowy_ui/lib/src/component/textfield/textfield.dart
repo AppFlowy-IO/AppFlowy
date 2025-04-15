@@ -6,8 +6,12 @@ typedef AFTextFieldValidator = (bool result, String errorText) Function(
 );
 
 abstract class AFTextFieldState extends State<AFTextField> {
+  // Error handler
   void syncError({required String errorText}) {}
   void clearError() {}
+
+  /// Obscure the text.
+  void syncObscured(bool isObscured) {}
 }
 
 class AFTextField extends StatefulWidget {
@@ -23,6 +27,9 @@ class AFTextField extends StatefulWidget {
     this.onSubmitted,
     this.autoFocus,
     this.height = 40.0,
+    this.obscureText = false,
+    this.suffixIconBuilder,
+    this.suffixIconConstraints,
   });
 
   /// The height of the text field.
@@ -57,6 +64,16 @@ class AFTextField extends StatefulWidget {
   /// Enable auto focus.
   final bool? autoFocus;
 
+  /// Obscure the text.
+  final bool obscureText;
+
+  /// The trailing widget to display.
+  final Widget Function(BuildContext context, bool isObscured)?
+      suffixIconBuilder;
+
+  /// The size of the suffix icon.
+  final BoxConstraints? suffixIconConstraints;
+
   @override
   State<AFTextField> createState() => _AFTextFieldState();
 }
@@ -66,6 +83,8 @@ class _AFTextFieldState extends AFTextFieldState {
 
   bool hasError = false;
   String errorText = '';
+
+  bool isObscured = false;
 
   @override
   void initState() {
@@ -79,6 +98,8 @@ class _AFTextFieldState extends AFTextFieldState {
     }
 
     effectiveController.addListener(_validate);
+
+    isObscured = widget.obscureText;
   }
 
   @override
@@ -107,6 +128,7 @@ class _AFTextFieldState extends AFTextFieldState {
       style: theme.textStyle.body.standard(
         color: theme.textColorScheme.primary,
       ),
+      obscureText: isObscured,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       autofocus: widget.autoFocus ?? false,
@@ -152,6 +174,8 @@ class _AFTextFieldState extends AFTextFieldState {
           borderRadius: borderRadius,
         ),
         hoverColor: theme.borderColorScheme.greyTertiaryHover,
+        suffixIcon: widget.suffixIconBuilder?.call(context, isObscured),
+        suffixIconConstraints: widget.suffixIconConstraints,
       ),
     );
 
@@ -202,6 +226,13 @@ class _AFTextFieldState extends AFTextFieldState {
     setState(() {
       hasError = false;
       errorText = '';
+    });
+  }
+
+  @override
+  void syncObscured(bool isObscured) {
+    setState(() {
+      this.isObscured = isObscured;
     });
   }
 }
