@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'search_result_cell.dart';
 import 'search_summary_cell.dart';
@@ -35,22 +37,37 @@ class SearchResultList extends StatelessWidget {
         ),
       );
 
-  Widget _buildSummariesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader(LocaleKeys.commandPalette_aiOverview.tr()),
-        ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: resultSummaries.length,
-          separatorBuilder: (_, __) => const Divider(height: 0),
-          itemBuilder: (_, index) => SearchSummaryCell(
-            summary: resultSummaries[index],
+  Widget _buildAIOverviewSection(BuildContext context) {
+    final state = context.read<CommandPaletteBloc>().state;
+
+    if (state.generatingAIOverview) {
+      return Row(
+        children: [
+          _buildSectionHeader(LocaleKeys.commandPalette_aiOverview.tr()),
+          const HSpace(10),
+          const AIOverviewIndicator(),
+        ],
+      );
+    }
+    if (resultSummaries.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(LocaleKeys.commandPalette_aiOverview.tr()),
+          ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: resultSummaries.length,
+            separatorBuilder: (_, __) => const Divider(height: 0),
+            itemBuilder: (_, index) => SearchSummaryCell(
+              summary: resultSummaries[index],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildResultsSection(BuildContext context) {
@@ -83,6 +100,8 @@ class SearchResultList extends StatelessWidget {
       child: BlocProvider(
         create: (context) => SearchResultListBloc(),
         child: BlocListener<SearchResultListBloc, SearchResultListState>(
+          listenWhen: (previous, current) =>
+              previous.openPageId != current.openPageId,
           listener: (context, state) {
             if (state.openPageId != null) {
               FlowyOverlay.pop(context);
@@ -102,24 +121,28 @@ class SearchResultList extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const ClampingScrollPhysics(),
                   children: [
-                    if (resultSummaries.isNotEmpty) _buildSummariesSection(),
+                    _buildAIOverviewSection(context),
                     const VSpace(10),
                     if (resultItems.isNotEmpty) _buildResultsSection(context),
                   ],
                 ),
               ),
               const HSpace(10),
-              if (resultItems.any((item) => item.content.isNotEmpty))
+              if (resultItems.any((item) => item.content.isNotEmpty)) ...[
+                const VerticalDivider(
+                  thickness: 1.0,
+                ),
                 Flexible(
                   flex: 3,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 8,
                       vertical: 16,
                     ),
                     child: const SearchCellPreview(),
                   ),
                 ),
+              ],
             ],
           ),
         ),
@@ -142,6 +165,72 @@ class SearchCellPreview extends StatelessWidget {
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+}
+
+class AIOverviewIndicator extends StatelessWidget {
+  const AIOverviewIndicator({
+    super.key,
+    this.duration = const Duration(seconds: 1),
+  });
+
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final slice = Duration(milliseconds: duration.inMilliseconds ~/ 5);
+    return SelectionContainer.disabled(
+      child: SizedBox(
+        height: 20,
+        width: 100,
+        child: SeparatedRow(
+          separatorBuilder: () => const HSpace(4),
+          children: [
+            buildDot(const Color(0xFF9327FF))
+                .animate(onPlay: (controller) => controller.repeat())
+                .slideY(duration: slice, begin: 0, end: -1)
+                .then()
+                .slideY(begin: -1, end: 1)
+                .then()
+                .slideY(begin: 1, end: 0)
+                .then()
+                .slideY(duration: slice * 2, begin: 0, end: 0),
+            buildDot(const Color(0xFFFB006D))
+                .animate(onPlay: (controller) => controller.repeat())
+                .slideY(duration: slice, begin: 0, end: 0)
+                .then()
+                .slideY(begin: 0, end: -1)
+                .then()
+                .slideY(begin: -1, end: 1)
+                .then()
+                .slideY(begin: 1, end: 0)
+                .then()
+                .slideY(begin: 0, end: 0),
+            buildDot(const Color(0xFFFFCE00))
+                .animate(onPlay: (controller) => controller.repeat())
+                .slideY(duration: slice * 2, begin: 0, end: 0)
+                .then()
+                .slideY(duration: slice, begin: 0, end: -1)
+                .then()
+                .slideY(begin: -1, end: 1)
+                .then()
+                .slideY(begin: 1, end: 0),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDot(Color color) {
+    return SizedBox.square(
+      dimension: 4,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
     );
   }
 }

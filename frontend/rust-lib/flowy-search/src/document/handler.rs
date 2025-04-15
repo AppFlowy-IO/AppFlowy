@@ -77,6 +77,12 @@ impl SearchHandler for DocumentSearchHandler {
       };
 
       // Execute document search.
+      yield Ok(
+        CreateSearchResultPBArgs::default().searching(true)
+          .build()
+          .unwrap(),
+      );
+
       let result_items = match cloud_service.document_search(&workspace_id, query.clone()).await {
         Ok(items) => items,
         Err(e) => {
@@ -114,7 +120,9 @@ impl SearchHandler for DocumentSearchHandler {
       let search_result = RepeatedSearchResponseItemPB { items };
       yield Ok(
         CreateSearchResultPBArgs::default()
+          .searching(false)
           .search_result(Some(search_result))
+          .generating_ai_summary(true)
           .build()
           .unwrap(),
       );
@@ -138,7 +146,7 @@ impl SearchHandler for DocumentSearchHandler {
                 })
                 .collect();
 
-              SearchSummaryPB { content: v.content, sources }
+              SearchSummaryPB { content: v.content, sources, highlights: v.highlights }
             })
             .collect();
 
@@ -146,12 +154,19 @@ impl SearchHandler for DocumentSearchHandler {
           yield Ok(
             CreateSearchResultPBArgs::default()
               .search_summary(Some(summary_result))
+              .generating_ai_summary(false)
               .build()
               .unwrap(),
           );
         }
         Err(e) => {
           warn!("Failed to generate search summary: {:?}", e);
+          yield Ok(
+            CreateSearchResultPBArgs::default()
+              .generating_ai_summary(false)
+              .build()
+              .unwrap(),
+          );
         }
       }
     })

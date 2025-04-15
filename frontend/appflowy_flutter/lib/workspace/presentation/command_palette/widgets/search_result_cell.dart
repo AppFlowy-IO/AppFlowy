@@ -207,9 +207,12 @@ class SearchResultPreview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText(LocaleKeys.commandPalette_pagePreview.tr()),
-        const Divider(
-          thickness: 1,
+        Opacity(
+          opacity: 0.5,
+          child: FlowyText(
+            LocaleKeys.commandPalette_pagePreview.tr(),
+            fontSize: 12,
+          ),
         ),
         const VSpace(6),
         Expanded(
