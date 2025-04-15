@@ -134,7 +134,8 @@ class _RowEditor extends StatelessWidget {
                       editorState: editorState,
                       child: Provider(
                         create: (context) => DatabasePluginWidgetBuilderSize(
-                            horizontalPadding: 0),
+                          horizontalPadding: 0,
+                        ),
                         child: AppFlowyEditorPage(
                           shrinkWrap: true,
                           autoFocus: false,
