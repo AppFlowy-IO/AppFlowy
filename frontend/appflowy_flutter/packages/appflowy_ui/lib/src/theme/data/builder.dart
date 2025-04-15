@@ -1,8 +1,25 @@
 import 'package:appflowy_ui/src/theme/definition/border_radius/border_radius.dart';
-import 'package:appflowy_ui/src/theme/dimensions.dart';
 import 'package:appflowy_ui/src/theme/definition/shadow/shadow.dart';
 import 'package:appflowy_ui/src/theme/definition/spacing/spacing.dart';
 import 'package:flutter/material.dart';
+
+class AppFlowySpacingConstant {
+  static const double spacing100 = 4;
+  static const double spacing200 = 6;
+  static const double spacing300 = 8;
+  static const double spacing400 = 12;
+  static const double spacing500 = 16;
+  static const double spacing600 = 20;
+}
+
+class AppFlowyBorderRadiusConstant {
+  static const double radius100 = 4;
+  static const double radius200 = 6;
+  static const double radius300 = 8;
+  static const double radius400 = 12;
+  static const double radius500 = 16;
+  static const double radius600 = 20;
+}
 
 class AppFlowyThemeBuilder {
   const AppFlowyThemeBuilder();

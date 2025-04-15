@@ -6,4 +6,3 @@ export 'definition/base_theme.dart';
 export 'definition/spacing/spacing.dart';
 export 'definition/shadow/shadow.dart';
 export 'definition/text_style/text_style.dart';
-export 'dimensions.dart';

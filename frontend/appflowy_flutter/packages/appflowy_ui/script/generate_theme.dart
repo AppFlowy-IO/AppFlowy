@@ -90,7 +90,7 @@ void generateSemantic() {
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
-import 'builder.dart';
+import '../builder.dart';
 import 'primitive.dart';
 
 class AppFlowyThemeData implements AppFlowyBaseThemeData {
@@ -109,7 +109,7 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
     required this.otherColorsColorScheme,
     required this.brightness,
   });
-  ''');
+''');
 
   // 3. Process light mode semantic tokens
   void writeThemeFactory(String brightness, Map<String, dynamic> jsonData) {
