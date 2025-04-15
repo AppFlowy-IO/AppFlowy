@@ -14,17 +14,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SearchSummaryCell extends StatelessWidget {
   const SearchSummaryCell({
     required this.summary,
+    required this.isHovered,
     super.key,
   });
 
   final SearchSummaryPB summary;
+  final bool isHovered;
 
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
+      isSelected: () => isHovered,
       onHover: (value) {
         context.read<SearchResultListBloc>().add(
-              SearchResultListEvent.onHoverSummary(summary: summary),
+              SearchResultListEvent.onHoverSummary(
+                summary: summary,
+                userHovered: true,
+              ),
             );
       },
       style: HoverStyle(

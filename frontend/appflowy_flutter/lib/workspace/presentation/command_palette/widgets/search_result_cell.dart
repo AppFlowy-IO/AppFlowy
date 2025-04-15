@@ -17,10 +17,12 @@ class SearchResultCell extends StatefulWidget {
     super.key,
     required this.item,
     this.isTrashed = false,
+    this.isHovered = false,
   });
 
   final SearchResultItem item;
   final bool isTrashed;
+  final bool isHovered;
 
   @override
   State<SearchResultCell> createState() => _SearchResultCellState();
@@ -142,7 +144,10 @@ class _SearchResultCellState extends State<SearchResultCell> {
         onFocusChange: (hasFocus) {
           setState(() {
             context.read<SearchResultListBloc>().add(
-                  SearchResultListEvent.onHoverResult(item: widget.item),
+                  SearchResultListEvent.onHoverResult(
+                    item: widget.item,
+                    userHovered: true,
+                  ),
                 );
             _hasFocus = hasFocus;
           });
@@ -150,10 +155,13 @@ class _SearchResultCellState extends State<SearchResultCell> {
         child: FlowyHover(
           onHover: (value) {
             context.read<SearchResultListBloc>().add(
-                  SearchResultListEvent.onHoverResult(item: widget.item),
+                  SearchResultListEvent.onHoverResult(
+                    item: widget.item,
+                    userHovered: true,
+                  ),
                 );
           },
-          isSelected: () => _hasFocus,
+          isSelected: () => _hasFocus || widget.isHovered,
           style: HoverStyle(
             borderRadius: BorderRadius.circular(8),
             hoverColor:
