@@ -282,6 +282,9 @@ flutter:
         - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Regular.ttf
         - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Italic.ttf
           style: italic
+    # White-label font configuration will be added here
+    # BEGIN: WHITE_LABEL_FONT
+    # END: WHITE_LABEL_FONT
 
   # To add assets to your application, add an assets section, like this:
   assets:
