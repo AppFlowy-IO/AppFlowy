@@ -107,7 +107,6 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
     required this.iconColorScheme,
     required this.backgroundColorScheme,
     required this.otherColorsColorScheme,
-    required this.brightness,
   });
 ''');
 
@@ -179,7 +178,6 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
       borderRadius: borderRadius,
       spacing: spacing,
       shadow: shadow,
-      brightness: Brightness.$brightness,
     );
   }''');
   }
@@ -191,9 +189,6 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
   buffer.writeln('''
 
   static const AppFlowyThemeBuilder themeBuilder = AppFlowyThemeBuilder();
-
-  @override
-  final Brightness brightness;
 
   @override
   final AppFlowyBaseTextStyle textStyle;
