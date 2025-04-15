@@ -7,8 +7,8 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-class RecentViewTile extends StatelessWidget {
-  const RecentViewTile({
+class SearchRecentViewCell extends StatelessWidget {
+  const SearchRecentViewCell({
     super.key,
     required this.icon,
     required this.view,

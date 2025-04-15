@@ -82,12 +82,13 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
     Ok(())
   }
 
-  fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
+  async fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     // The remove_indices_for_workspace should not block the deletion of the workspace
     // Log the error and continue
     if let Err(err) = self
       .folder_manager
       .remove_indices_for_workspace(workspace_id)
+      .await
     {
       info!("Error removing indices for workspace: {}", err);
     }

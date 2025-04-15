@@ -279,6 +279,7 @@ impl UserManager {
     self
       .user_workspace_service
       .did_delete_workspace(workspace_id)
+      .await
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -295,7 +296,8 @@ impl UserManager {
 
     self
       .user_workspace_service
-      .did_delete_workspace(workspace_id)?;
+      .did_delete_workspace(workspace_id)
+      .await?;
 
     Ok(())
   }

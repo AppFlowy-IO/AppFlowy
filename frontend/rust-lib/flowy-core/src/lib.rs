@@ -165,9 +165,9 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
-      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
+      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Arc::downgrade(
         &authenticate_user,
-      ))));
+      )));
 
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),

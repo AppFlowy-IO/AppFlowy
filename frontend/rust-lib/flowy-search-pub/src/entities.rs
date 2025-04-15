@@ -1,9 +1,9 @@
-use std::any::Any;
 use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
 use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewLayout};
 use flowy_error::FlowyError;
+use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
 
 pub struct IndexableData {
@@ -26,19 +26,22 @@ impl IndexableData {
   }
 }
 
+#[async_trait]
 pub trait IndexManager: Send + Sync {
-  fn set_index_content_receiver(&self, rx: IndexContentReceiver, workspace_id: Uuid);
-  fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
-  fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
-  fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
-  fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError>;
-  fn is_indexed(&self) -> bool;
-
-  fn as_any(&self) -> &dyn Any;
+  async fn set_index_content_receiver(&self, rx: IndexContentReceiver, workspace_id: Uuid);
+  async fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
+  async fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
+  async fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
+  async fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError>;
+  async fn is_indexed(&self) -> bool;
 }
 
+#[async_trait]
 pub trait FolderIndexManager: IndexManager {
+  async fn initialize(&self);
+
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid);
+
   fn index_view_changes(
     &self,
     views: Vec<Arc<View>>,

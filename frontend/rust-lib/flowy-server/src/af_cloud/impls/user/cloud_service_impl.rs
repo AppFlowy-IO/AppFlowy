@@ -127,7 +127,7 @@ where
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
     let response = client.sign_in_password(&email, &password).await?;
-    Ok(response)
+    Ok(response.gotrue_response)
   }
 
   async fn sign_in_with_magic_link(

@@ -1,6 +1,6 @@
+use crate::server_layer::{Server, ServerProvider};
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
-use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
@@ -9,6 +9,9 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
+};
+use flowy_ai_pub::cloud::search_dto::{
+  SearchDocumentResponseItem, SearchResult, SearchSummaryResult,
 };
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
@@ -45,8 +48,6 @@ use tokio_stream::wrappers::WatchStream;
 use tracing::log::error;
 use tracing::{debug, info};
 use uuid::Uuid;
-
-use crate::server_layer::{Server, ServerProvider};
 
 #[async_trait]
 impl StorageCloudService for ServerProvider {
@@ -871,6 +872,23 @@ impl SearchCloudService for ServerProvider {
     let server = self.get_server()?;
     match server.search_service() {
       Some(search_service) => search_service.document_search(workspace_id, query).await,
+      None => Err(FlowyError::internal().with_context("SearchCloudService not found")),
+    }
+  }
+
+  async fn generate_search_summary(
+    &self,
+    workspace_id: &Uuid,
+    query: String,
+    search_results: Vec<SearchResult>,
+  ) -> Result<SearchSummaryResult, FlowyError> {
+    let server = self.get_server()?;
+    match server.search_service() {
+      Some(search_service) => {
+        search_service
+          .generate_search_summary(workspace_id, query, search_results)
+          .await
+      },
       None => Err(FlowyError::internal().with_context("SearchCloudService not found")),
     }
   }
