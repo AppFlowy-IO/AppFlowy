@@ -489,27 +489,39 @@ class _ChangePasswordDialogContentState
     final newPassword = newPasswordController.text;
     final confirmPassword = confirmPasswordController.text;
 
-    if (newPassword.isEmpty) {
-      newPasswordTextFieldKey.currentState
-          ?.syncError(errorText: 'New password is required');
-    } else if (confirmPassword.isEmpty) {
-      confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Confirm password is required',
-      );
-    } else if (newPassword != confirmPassword) {
-      confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Passwords do not match',
-      );
-    } else if (newPassword == currentPassword) {
-      newPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'New password cannot be the same as the current password',
-      );
-    }
+    // if (newPassword.isEmpty) {
+    //   newPasswordTextFieldKey.currentState
+    //       ?.syncError(errorText: 'New password is required');
+    //   return;
+    // }
 
-    // all the verification passed, save the new password
+    // if (confirmPassword.isEmpty) {
+    //   confirmPasswordTextFieldKey.currentState?.syncError(
+    //     errorText: 'Confirm password is required',
+    //   );
+    //   return;
+    // }
+
+    // if (newPassword != confirmPassword) {
+    //   confirmPasswordTextFieldKey.currentState?.syncError(
+    //     errorText: 'Passwords do not match',
+    //   );
+    //   return;
+    // }
+
+    // if (newPassword == currentPassword) {
+    //   newPasswordTextFieldKey.currentState?.syncError(
+    //     errorText: 'New password cannot be the same as the current password',
+    //   );
+    //   return;
+    // }
+
+// all the verification passed, save the new password
     final userService = UserBackendService(userId: widget.userProfile.id);
-    final result = await userService.updateUserProfile(
-      password: newPassword,
+
+    final result = await userService.signInWithPassword(
+      widget.userProfile.email,
+      currentPassword,
     );
 
     result.fold(
@@ -521,15 +533,34 @@ class _ChangePasswordDialogContentState
         Navigator.of(context).pop();
       },
       (error) {
+        Log.error(error);
+
         showToastNotification(
           type: ToastificationType.error,
           message: 'Failed to change password',
           description: error.msg,
         );
-
-        Log.error(error);
       },
     );
+
+    // result.fold(
+    //   (userProfile) {
+    //     showToastNotification(
+    //       message: 'Password changed',
+    //       description: 'Your password has been changed',
+    //     );
+    //     Navigator.of(context).pop();
+    //   },
+    //   (error) {
+    //     showToastNotification(
+    //       type: ToastificationType.error,
+    //       message: 'Failed to change password',
+    //       description: error.msg,
+    //     );
+
+    //     Log.error(error);
+    //   },
+    // );
   }
 
   void _resetError() {
