@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ai_writer_scroll_wrapper.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
@@ -104,7 +105,11 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
           return BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listener: _onNotificationAction,
             listenWhen: (_, curr) => curr.action != null,
-            child: _buildEditorPage(context, state),
+            child: AiWriterScrollWrapper(
+              viewId: widget.view.id,
+              editorState: editorState,
+              child: _buildEditorPage(context, state),
+            ),
           );
         },
       ),
