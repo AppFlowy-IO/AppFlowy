@@ -97,7 +97,6 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   @override
   void initState() {
     super.initState();
-    listenForSizeChanged();
     _updateColumnsBlock();
   }
 
@@ -141,7 +140,10 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
     // the columns block does not support the block actions and selection
     // because the columns block is a layout wrapper, it does not have a content
-    return child;
+    return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: (v) => updateHeightValueNotifier(v),
+      child: SizeChangedLayoutNotifier(child: child),
+    );
   }
 
   List<Widget> _buildChildren() {
@@ -200,19 +202,14 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     }
   }
 
-  void listenForSizeChanged() {
-    if (!mounted) return;
+  bool updateHeightValueNotifier(SizeChangedLayoutNotification notification) {
+    if (!mounted) return true;
+    final height = _renderBox?.size.height;
+    if (heightValueNotifier.value == height) return true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final renderBox = _renderBox;
-      if (renderBox?.hasSize == true) {
-        final size = renderBox?.size;
-        if (heightValueNotifier.value != size?.height) {
-          heightValueNotifier.value = size?.height;
-        }
-      }
-      listenForSizeChanged();
+      heightValueNotifier.value = height;
     });
+    return true;
   }
 
   @override

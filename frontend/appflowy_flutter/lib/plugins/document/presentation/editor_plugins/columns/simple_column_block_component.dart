@@ -116,8 +116,8 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: node.children.map(
         (e) {
-          Widget child = Provider.value(
-            value: DatabasePluginWidgetBuilderSize(
+          Widget child = Provider(
+            create: (_) => DatabasePluginWidgetBuilderSize(
               verticalPadding: 0,
               horizontalPadding: 0,
             ),
