@@ -6,15 +6,16 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
+use lib_infra::util::timestamp;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 use uuid::Uuid;
 
-pub(crate) struct DefaultChatCloudServiceImpl;
+pub(crate) struct LocalServerChatServiceImpl;
 
 #[async_trait]
-impl ChatCloudService for DefaultChatCloudServiceImpl {
+impl ChatCloudService for LocalServerChatServiceImpl {
   async fn create_chat(
     &self,
     _uid: &i64,
@@ -22,29 +23,40 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _chat_id: &Uuid,
     _rag_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(())
   }
 
   async fn create_question(
     &self,
     _workspace_id: &Uuid,
     _chat_id: &Uuid,
-    _message: &str,
-    _message_type: ChatMessageType,
+    message: &str,
+    message_type: ChatMessageType,
     _metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    match message_type {
+      ChatMessageType::System => Ok(ChatMessage::new_system(timestamp(), message.to_string())),
+      ChatMessageType::User => Ok(ChatMessage::new_human(
+        timestamp(),
+        message.to_string(),
+        None,
+      )),
+    }
   }
 
   async fn create_answer(
     &self,
     _workspace_id: &Uuid,
     _chat_id: &Uuid,
-    _message: &str,
-    _question_id: i64,
-    _metadata: Option<serde_json::Value>,
+    message: &str,
+    question_id: i64,
+    metadata: Option<serde_json::Value>,
   ) -> Result<ChatMessage, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    let mut message = ChatMessage::new_ai(timestamp(), message.to_string(), Some(question_id));
+    if let Some(metadata) = metadata {
+      message.metadata = metadata;
+    }
+    Ok(message)
   }
 
   async fn stream_answer(
@@ -81,9 +93,12 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     &self,
     _workspace_id: &Uuid,
     _chat_id: &Uuid,
-    _message_id: i64,
+    message_id: i64,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(RepeatedRelatedQuestion {
+      message_id,
+      items: vec![],
+    })
   }
 
   async fn get_answer(

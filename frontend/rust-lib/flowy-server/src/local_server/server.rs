@@ -1,13 +1,13 @@
 use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use tokio::sync::mpsc;
-
+use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage_pub::cloud::StorageCloudService;
+use tokio::sync::mpsc;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 // };
@@ -15,8 +15,9 @@ use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::*;
 
 use crate::local_server::impls::{
-  LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
-  LocalServerFolderCloudServiceImpl, LocalServerUserAuthServiceImpl,
+  LocalServerChatServiceImpl, LocalServerDatabaseCloudServiceImpl,
+  LocalServerDocumentCloudServiceImpl, LocalServerFolderCloudServiceImpl,
+  LocalServerUserAuthServiceImpl,
 };
 use crate::AppFlowyServer;
 
@@ -77,5 +78,9 @@ impl AppFlowyServer for LocalServer {
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
     None
+  }
+
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    Arc::new(LocalServerChatServiceImpl)
   }
 }

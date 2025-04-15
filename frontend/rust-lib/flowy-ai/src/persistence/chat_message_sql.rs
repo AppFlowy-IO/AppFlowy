@@ -65,7 +65,10 @@ pub fn select_chat_messages(
     query = query.filter(chat_message_table::message_id.lt(before_message_id));
   }
   query = query
-    .order((chat_message_table::message_id.desc(),))
+    .order((
+      chat_message_table::created_at.desc(),
+      chat_message_table::message_id.desc(),
+    ))
     .limit(limit_val);
 
   let messages: Vec<ChatMessageTable> = query.load::<ChatMessageTable>(&mut *conn)?;
