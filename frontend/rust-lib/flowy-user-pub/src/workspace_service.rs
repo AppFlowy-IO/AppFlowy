@@ -20,5 +20,5 @@ pub trait UserWorkspaceService: Send + Sync {
   ) -> FlowyResult<()>;
 
   /// Removes local indexes when a workspace is left/deleted
-  fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()>;
+  async fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()>;
 }

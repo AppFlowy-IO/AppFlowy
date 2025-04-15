@@ -5,7 +5,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
@@ -58,7 +58,7 @@ pub struct LocalAIResourceController {
   user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   resource_notify: tokio::sync::broadcast::Sender<()>,
-  #[cfg(target_os = "macos")]
+  #[cfg(any(target_os = "macos", target_os = "linux"))]
   #[allow(dead_code)]
   app_disk_watch: Option<WatchContext>,
   app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
@@ -71,10 +71,10 @@ impl LocalAIResourceController {
   ) -> Self {
     let (resource_notify, _) = tokio::sync::broadcast::channel(1);
     let (app_state_sender, _) = tokio::sync::broadcast::channel(1);
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     let mut offline_app_disk_watch: Option<WatchContext> = None;
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     {
       match watch_offline_app() {
         Ok((new_watcher, mut rx)) => {
@@ -97,7 +97,7 @@ impl LocalAIResourceController {
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
-      #[cfg(target_os = "macos")]
+      #[cfg(any(target_os = "macos", target_os = "linux"))]
       app_disk_watch: offline_app_disk_watch,
       app_state_sender,
       resource_notify,

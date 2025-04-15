@@ -41,9 +41,6 @@ reqwest = { version = "0.11.27", features = ["json"] }
 sha2 = "0.10.7"
 base64 = "0.21.5"
 futures-util = "0.3.30"
-md5 = "0.7.0"
-zip = { workspace = true, features = ["deflate"] }
-zip-extensions = "0.8.0"
 pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
 collab-integrate.workspace = true

@@ -33,7 +33,7 @@ collab-document = { workspace = true, optional = true }
 collab-plugins = { workspace = true, optional = true }
 collab-folder = { workspace = true, optional = true }
 client-api = { workspace = true, optional = true }
-tantivy = { version = "0.22.0", optional = true }
+tantivy = { workspace = true, optional = true }
 uuid.workspace = true
 
 [features]

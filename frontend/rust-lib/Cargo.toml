@@ -97,14 +97,16 @@ validator = { version = "0.18", features = ["derive"] }
 tokio-util = "0.7.11"
 zip = "2.2.0"
 dashmap = "6.0.1"
+derive_builder = "0.20.2"
+tantivy = { version = "0.24.0" }
 
 # Please using the following command to update the revision id
 # Current directory: frontend
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f300884" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f300884" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "873415478ed58686c98df578e2c39d07ddce6773" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "873415478ed58686c98df578e2c39d07ddce6773" }
 
 [profile.dev]
 opt-level = 0

@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -44,12 +44,12 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
       // Expect two search results "ViewOna" and "ViewOne" (Distance 1 to ViewOna)
-      expect(find.byType(SearchResultTile), findsNWidgets(2));
+      expect(find.byType(SearchResultCell), findsNWidgets(2));
 
       // The score should be higher for "ViewOna" thus it should be shown first
       final secondDocumentWidget = tester
-          .widget(find.byType(SearchResultTile).first) as SearchResultTile;
-      expect(secondDocumentWidget.result.data, secondDocument);
+          .widget(find.byType(SearchResultCell).first) as SearchResultCell;
+      expect(secondDocumentWidget.item.displayName, secondDocument);
 
       // Change search to "ViewOne"
       await tester.enterText(searchFieldFinder, firstDocument);
@@ -57,9 +57,9 @@ void main() {
 
       // The score should be higher for "ViewOne" thus it should be shown first
       final firstDocumentWidget = tester.widget(
-        find.byType(SearchResultTile).first,
-      ) as SearchResultTile;
-      expect(firstDocumentWidget.result.data, firstDocument);
+        find.byType(SearchResultCell).first,
+      ) as SearchResultCell;
+      expect(firstDocumentWidget.item.displayName, firstDocument);
     });
 
     testWidgets('Displaying icons in search results', (tester) async {
@@ -89,11 +89,11 @@ void main() {
       );
       await tester.enterText(searchFieldFinder, 'Page-$randomValue');
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
-      expect(find.byType(SearchResultTile), findsNWidgets(2));
+      expect(find.byType(SearchResultCell), findsNWidgets(2));
 
       /// check results
       final svgs = find.descendant(
-        of: find.byType(SearchResultTile),
+        of: find.byType(SearchResultCell),
         matching: find.byType(FlowySvg),
       );
       expect(svgs, findsNWidgets(2));

@@ -131,12 +131,14 @@ class _ContinueWithEmailAndPasswordState
 
               _hasPushedContinueWithMagicLinkOrPasscodePage = false;
             },
-            onEnterPasscode: (passcode) => signInBloc.add(
-              SignInEvent.signInWithPasscode(
-                email: email,
-                passcode: passcode,
-              ),
-            ),
+            onEnterPasscode: (passcode) {
+              signInBloc.add(
+                SignInEvent.signInWithPasscode(
+                  email: email,
+                  passcode: passcode,
+                ),
+              );
+            },
           ),
         ),
       ),

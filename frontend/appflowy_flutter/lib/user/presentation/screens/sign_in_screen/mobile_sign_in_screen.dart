@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/anonymous_sign_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy/user/presentation/widgets/flowy_logo_title.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -21,57 +22,34 @@ class MobileSignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double spacing = 16;
-    final colorScheme = Theme.of(context).colorScheme;
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
+        final theme = AppFlowyTheme.of(context);
         return Scaffold(
           resizeToAvoidBottomInset: false,
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 40),
             child: Column(
               children: [
-                const Spacer(flex: 4),
-                _buildLogo(),
-                const VSpace(spacing),
-                _buildAppNameText(colorScheme),
-                const VSpace(spacing * 2),
+                const Spacer(),
+                FlowyLogoTitle(title: LocaleKeys.welcomeText.tr()),
+                VSpace(theme.spacing.xxl),
                 isLocalAuthEnabled
                     ? const SignInAnonymousButtonV3()
                     : const ContinueWithEmailAndPassword(),
-                const VSpace(spacing),
-                if (isAuthEnabled) _buildThirdPartySignInButtons(context),
-                const VSpace(spacing * 1.5),
+                VSpace(theme.spacing.xxl),
+                if (isAuthEnabled) ...[
+                  _buildThirdPartySignInButtons(context),
+                  VSpace(theme.spacing.xxl),
+                ],
                 const SignInAgreement(),
-                const VSpace(spacing),
-                if (!isAuthEnabled) const Spacer(flex: 2),
-                const Spacer(flex: 2),
                 const Spacer(),
-                Expanded(child: _buildSettingsButton(context)),
-                if (Platform.isAndroid) const Spacer(),
+                _buildSettingsButton(context),
               ],
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildLogo() {
-    return const FlowySvg(
-      FlowySvgs.flowy_logo_xl,
-      size: Size.square(56),
-      blendMode: null,
-    );
-  }
-
-  Widget _buildAppNameText(ColorScheme colorScheme) {
-    return FlowyText(
-      LocaleKeys.appName.tr(),
-      textAlign: TextAlign.center,
-      fontSize: 28,
-      color: const Color(0xFF00BCF0),
-      fontWeight: FontWeight.w700,
     );
   }
 

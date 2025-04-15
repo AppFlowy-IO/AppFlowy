@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_view_tile.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -27,11 +27,12 @@ void main() {
       expect(find.byType(RecentViewsList), findsOneWidget);
 
       // Expect three recent history items
-      expect(find.byType(RecentViewTile), findsNWidgets(3));
+      expect(find.byType(SearchRecentViewCell), findsNWidgets(3));
 
       // Expect the first item to be the last viewed document
       final firstDocumentWidget =
-          tester.widget(find.byType(RecentViewTile).first) as RecentViewTile;
+          tester.widget(find.byType(SearchRecentViewCell).first)
+              as SearchRecentViewCell;
       expect(firstDocumentWidget.view.name, secondDocument);
     });
   });
