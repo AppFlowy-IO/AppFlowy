@@ -93,7 +93,6 @@ impl SearchManager {
           let resp = SearchStatePB {
             response: Some(search_result),
             search_id: search_id.clone(),
-            is_loading: true,
           };
           if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
             if let Err(err) = clone_sink.send(data).await {
@@ -111,7 +110,6 @@ impl SearchManager {
         let resp = SearchStatePB {
           response: None,
           search_id: search_id.clone(),
-          is_loading: true,
         };
         if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
           let _ = clone_sink.send(data).await;
