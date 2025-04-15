@@ -67,7 +67,7 @@ class SearchSummaryPreview extends StatelessWidget {
           Opacity(
             opacity: 0.5,
             child: FlowyText(
-              LocaleKeys.commandPalette_aiOverviewHighlights.tr(),
+              LocaleKeys.commandPalette_aiOverviewMoreDetails.tr(),
               fontSize: 12,
             ),
           ),
@@ -86,8 +86,6 @@ class SearchSummaryPreview extends StatelessWidget {
         // Sources
         const VSpace(6),
         ...summary.sources.map((e) => SearchSummarySource(source: e)),
-
-        // Highlights
       ],
     );
   }
