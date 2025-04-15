@@ -39,6 +39,8 @@ pubspec.lock
 frontend/package
 frontend/*.deb
 
+**/build/
+
 **/Cargo.toml.bak
 
 **/.cargo/**
