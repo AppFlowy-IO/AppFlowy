@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:appflowy/mobile/presentation/selection_menu/mobile_selection_menu_item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -166,7 +165,8 @@ class MobileSelectionMenu extends SelectionMenuService {
     if (selectionRects.isEmpty) {
       return null;
     }
-    calculateSelectionMenuOffset(selectionRects.first);
+    final screenSize = MediaQuery.of(context).size;
+    calculateSelectionMenuOffset(selectionRects.first, screenSize);
     final (left, top, right, bottom) = getPosition();
     return _Position(left, top, right, bottom);
   }
@@ -205,50 +205,60 @@ class MobileSelectionMenu extends SelectionMenuService {
     return (left, top, right, bottom);
   }
 
-  void calculateSelectionMenuOffset(Rect rect) {
+  void calculateSelectionMenuOffset(Rect rect, Size screenSize) {
     // Workaround: We can customize the padding through the [EditorStyle],
     // but the coordinates of overlay are not properly converted currently.
     // Just subtract the padding here as a result.
-    const menuHeight = 192.0, menuWidth = 240.0 + 10;
-    const menuOffset = Offset(0, 10);
+    const menuHeight = 192.0, menuWidth = 240.0;
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorHeight = editorState.renderBox!.size.height;
+    final screenHeight = screenSize.height;
     final editorWidth = editorState.renderBox!.size.width;
 
     // show below default
-    _alignment = Alignment.topLeft;
-    final bottomRight = rect.bottomRight;
-    final topRight = rect.topRight;
-    var offset = bottomRight + menuOffset;
-    final limitX = editorWidth - menuWidth + editorOffset.dx;
+    _alignment = Alignment.bottomRight;
+    final bottomRight = rect.topLeft;
+    final offset = bottomRight;
+    final limitX = editorWidth + editorOffset.dx - menuWidth,
+        limitY = screenHeight - editorHeight + editorOffset.dy - menuHeight - 20;
     _offset = Offset(
-      min(offset.dx, limitX),
-      offset.dy,
+      editorWidth - offset.dx - menuWidth,
+      screenHeight - offset.dy - menuHeight - 20,
     );
 
-    // show above
     if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
-      offset = topRight - menuOffset;
-      _alignment = Alignment.bottomLeft;
-
-      _offset = Offset(
-        offset.dx,
-        editorOffset.dy + editorHeight - offset.dy,
-      );
+      /// show above
+      if (offset.dy > menuHeight) {
+        _offset = Offset(
+          _offset.dx,
+          offset.dy - menuHeight,
+        );
+        _alignment = Alignment.topRight;
+      } else {
+        _offset = Offset(
+          _offset.dx,
+          limitY,
+        );
+      }
     }
 
-    // show on left
-    if (_offset.dx - editorOffset.dx > editorWidth / 2) {
-      _alignment = _alignment == Alignment.topLeft
-          ? Alignment.topRight
-          : Alignment.bottomRight;
-
-      final x = editorWidth - _offset.dx + editorOffset.dx;
-      _offset = Offset(
-        min(x, limitX),
-        _offset.dy,
-      );
+    if (offset.dx + menuWidth >= editorOffset.dx + editorWidth) {
+      /// show left
+      if (offset.dx > menuWidth) {
+        _alignment = _alignment == Alignment.bottomRight
+            ? Alignment.bottomLeft
+            : Alignment.topLeft;
+        _offset = Offset(
+          offset.dx - menuWidth,
+          _offset.dy,
+        );
+      } else {
+        _offset = Offset(
+          limitX,
+          _offset.dy,
+        );
+      }
     }
   }
 }
