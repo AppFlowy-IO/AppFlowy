@@ -215,16 +215,21 @@ class MobileSelectionMenu extends SelectionMenuService {
     final editorHeight = editorState.renderBox!.size.height;
     final screenHeight = screenSize.height;
     final editorWidth = editorState.renderBox!.size.width;
+    final rectHeight = rect.height;
 
     // show below default
     _alignment = Alignment.bottomRight;
     final bottomRight = rect.topLeft;
     final offset = bottomRight;
     final limitX = editorWidth + editorOffset.dx - menuWidth,
-        limitY = screenHeight - editorHeight + editorOffset.dy - menuHeight - 20;
+        limitY = screenHeight -
+            editorHeight +
+            editorOffset.dy -
+            menuHeight -
+            rectHeight;
     _offset = Offset(
       editorWidth - offset.dx - menuWidth,
-      screenHeight - offset.dy - menuHeight - 20,
+      screenHeight - offset.dy - menuHeight - rectHeight,
     );
 
     if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
