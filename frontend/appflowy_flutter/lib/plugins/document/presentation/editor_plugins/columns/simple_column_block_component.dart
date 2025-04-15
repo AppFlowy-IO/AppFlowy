@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -115,7 +116,11 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: node.children.map(
         (e) {
-          Widget child = IntrinsicHeight(
+          Widget child = Provider(
+            create: (_) => DatabasePluginWidgetBuilderSize(
+              verticalPadding: 0,
+              horizontalPadding: 0,
+            ),
             child: editorState.renderer.build(context, e),
           );
           if (SimpleColumnsBlockConstants.enableDebugBorder) {

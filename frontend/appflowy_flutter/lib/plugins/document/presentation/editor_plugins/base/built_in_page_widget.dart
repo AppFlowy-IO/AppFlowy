@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -6,6 +7,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
@@ -77,6 +79,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   }
 
   Widget _buildPage(BuildContext context, ViewPB view) {
+    final verticalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.verticalPadding ??
+            0.0;
     return Focus(
       focusNode: focusNode,
       onFocusChange: (value) {
@@ -85,7 +90,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: verticalPadding),
         child: widget.builder(view),
       ),
     );

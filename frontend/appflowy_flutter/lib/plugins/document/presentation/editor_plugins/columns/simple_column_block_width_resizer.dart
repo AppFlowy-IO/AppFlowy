@@ -9,10 +9,12 @@ class SimpleColumnBlockWidthResizer extends StatefulWidget {
     super.key,
     required this.columnNode,
     required this.editorState,
+    this.height,
   });
 
   final Node columnNode;
   final EditorState editorState;
+  final double? height;
 
   @override
   State<SimpleColumnBlockWidthResizer> createState() =>
@@ -53,15 +55,14 @@ class _SimpleColumnBlockWidthResizerState
         child: ValueListenableBuilder<bool>(
           valueListenable: isHovering,
           builder: (context, isHovering, child) {
-            if (isDraggingAppFlowyEditorBlock.value) {
-              return SizedBox.shrink();
-            }
+            final hide = isDraggingAppFlowyEditorBlock.value || !isHovering;
             return MouseRegion(
               cursor: SystemMouseCursors.resizeLeftRight,
               child: Container(
                 width: 2,
+                height: widget.height ?? 20,
                 margin: EdgeInsets.symmetric(horizontal: 2),
-                color: isHovering
+                color: !hide
                     ? Theme.of(context).colorScheme.primary
                     : Colors.transparent,
               ),
