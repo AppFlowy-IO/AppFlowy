@@ -219,6 +219,13 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     required String email,
     required String passcode,
   }) async {
+    if (state.isSubmitting) {
+      Log.error('Sign in with passcode is already in progress');
+      return;
+    }
+
+    Log.info('Sign in with passcode: $email, $passcode');
+
     emit(
       state.copyWith(
         isSubmitting: true,
