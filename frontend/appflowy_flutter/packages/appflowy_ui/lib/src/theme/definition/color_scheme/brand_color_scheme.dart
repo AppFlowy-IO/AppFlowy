@@ -22,4 +22,21 @@ class AppFlowyBrandColorScheme {
   final Color golden;
   final Color amber;
   final Color lemon;
+
+  AppFlowyBrandColorScheme lerp(
+    AppFlowyBrandColorScheme other,
+    double t,
+  ) {
+    return AppFlowyBrandColorScheme(
+      skyline: Color.lerp(skyline, other.skyline, t)!,
+      aqua: Color.lerp(aqua, other.aqua, t)!,
+      violet: Color.lerp(violet, other.violet, t)!,
+      amethyst: Color.lerp(amethyst, other.amethyst, t)!,
+      berry: Color.lerp(berry, other.berry, t)!,
+      coral: Color.lerp(coral, other.coral, t)!,
+      golden: Color.lerp(golden, other.golden, t)!,
+      amber: Color.lerp(amber, other.amber, t)!,
+      lemon: Color.lerp(lemon, other.lemon, t)!,
+    );
+  }
 }

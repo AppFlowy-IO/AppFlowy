@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -150,6 +151,9 @@ class DesktopAppearance extends BaseAppearance {
           scrollbarHoverColor: theme.scrollbarHoverColor,
           lightIconColor: theme.lightIconColor,
           toolbarHoverColor: theme.toolbarHoverColor,
+        ),
+        AppFlowyTheme(
+          themeData: buildAppFlowyDefaultThemeDataLight(),
         ),
       ],
     );

@@ -26,19 +26,23 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: themeMode,
       builder: (context, themeMode, child) {
-        final themeData =
+        ThemeData themeData =
             themeMode == ThemeMode.light ? ThemeData.light() : ThemeData.dark();
-        return AppFlowyTheme(
-          data: themeMode == ThemeMode.light
-              ? AppFlowyThemeData.light()
-              : AppFlowyThemeData.dark(),
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'AppFlowy UI Example',
-            theme: themeData.copyWith(visualDensity: VisualDensity.standard),
-            home: const MyHomePage(
-              title: 'AppFlowy UI',
+        themeData = themeData.copyWith(
+          extensions: [
+            AppFlowyTheme(
+              themeData: themeMode == ThemeMode.light
+                  ? buildAppFlowyDefaultThemeDataLight()
+                  : buildAppFlowyDefaultThemeDataDark(),
             ),
+          ],
+        );
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'AppFlowy UI Example',
+          theme: themeData.copyWith(visualDensity: VisualDensity.standard),
+          home: const MyHomePage(
+            title: 'AppFlowy UI',
           ),
         );
       },

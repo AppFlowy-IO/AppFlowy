@@ -1,71 +1,36 @@
-import 'package:appflowy_ui/src/theme/definition/base_theme.dart';
-import 'package:flutter/widgets.dart';
+import 'package:appflowy_ui/src/theme/theme.dart';
+import 'package:flutter/material.dart';
 
-class AppFlowyTheme extends StatelessWidget {
-  const AppFlowyTheme({
-    super.key,
-    required this.data,
-    required this.child,
-  });
+class AppFlowyTheme extends ThemeExtension<AppFlowyTheme> {
+  const AppFlowyTheme({required this.themeData});
 
-  final AppFlowyBaseThemeData data;
-  final Widget child;
+  static AppFlowyBaseThemeData of(BuildContext context) =>
+      Theme.of(context).extension<AppFlowyTheme>()!.themeData;
 
-  static AppFlowyBaseThemeData of(BuildContext context, {bool listen = true}) {
-    final provider = maybeOf(context, listen: listen);
-    if (provider == null) {
-      throw FlutterError(
-        '''
-        AppFlowyTheme.of() called with a context that does not contain a AppFlowyTheme.\n
-        No AppFlowyTheme ancestor could be found starting from the context that was passed to AppFlowyTheme.of().
-        This can happen because you do not have a AppFlowyTheme widget (which introduces a AppFlowyTheme),
-        or it can happen if the context you use comes from a widget above this widget.\n
-        The context used was: $context''',
-      );
-    }
-    return provider;
-  }
+  static AppFlowyBaseThemeData? maybeOf(BuildContext context) =>
+      Theme.of(context).extension<AppFlowyTheme>()?.themeData;
 
-  static AppFlowyBaseThemeData? maybeOf(
-    BuildContext context, {
-    bool listen = true,
-  }) {
-    if (listen) {
-      return context
-          .dependOnInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
-          ?.theme;
-    }
-    final provider = context
-        .getElementForInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
-        ?.widget;
-
-    return (provider as AppFlowyInheritedTheme?)?.theme;
-  }
+  final AppFlowyBaseThemeData themeData;
 
   @override
-  Widget build(BuildContext context) {
-    return AppFlowyInheritedTheme(
-      theme: data,
-      child: child,
+  ThemeExtension<AppFlowyTheme> copyWith({
+    AppFlowyBaseThemeData? themeData,
+  }) {
+    return AppFlowyTheme(
+      themeData: themeData ?? this.themeData,
     );
   }
-}
-
-class AppFlowyInheritedTheme extends InheritedTheme {
-  const AppFlowyInheritedTheme({
-    super.key,
-    required this.theme,
-    required super.child,
-  });
-
-  final AppFlowyBaseThemeData theme;
 
   @override
-  Widget wrap(BuildContext context, Widget child) {
-    return AppFlowyTheme(data: theme, child: child);
+  ThemeExtension<AppFlowyTheme> lerp(
+    covariant ThemeExtension<AppFlowyTheme>? other,
+    double t,
+  ) {
+    if (other is! AppFlowyTheme) {
+      return this;
+    }
+    return AppFlowyTheme(
+      themeData: themeData.lerp(other.themeData, t),
+    );
   }
-
-  @override
-  bool updateShouldNotify(AppFlowyInheritedTheme oldWidget) =>
-      theme != oldWidget.theme;
 }

@@ -46,4 +46,40 @@ class AppFlowyBorderColorScheme {
   final Color errorThickHover;
   final Color purpleThick;
   final Color purpleThickHover;
+
+  AppFlowyBorderColorScheme lerp(
+    AppFlowyBorderColorScheme other,
+    double t,
+  ) {
+    return AppFlowyBorderColorScheme(
+      greyPrimary: Color.lerp(greyPrimary, other.greyPrimary, t)!,
+      greyPrimaryHover:
+          Color.lerp(greyPrimaryHover, other.greyPrimaryHover, t)!,
+      greySecondary: Color.lerp(greySecondary, other.greySecondary, t)!,
+      greySecondaryHover:
+          Color.lerp(greySecondaryHover, other.greySecondaryHover, t)!,
+      greyTertiary: Color.lerp(greyTertiary, other.greyTertiary, t)!,
+      greyTertiaryHover:
+          Color.lerp(greyTertiaryHover, other.greyTertiaryHover, t)!,
+      greyQuaternary: Color.lerp(greyQuaternary, other.greyQuaternary, t)!,
+      greyQuaternaryHover:
+          Color.lerp(greyQuaternaryHover, other.greyQuaternaryHover, t)!,
+      transparent: Color.lerp(transparent, other.transparent, t)!,
+      themeThick: Color.lerp(themeThick, other.themeThick, t)!,
+      themeThickHover: Color.lerp(themeThickHover, other.themeThickHover, t)!,
+      infoThick: Color.lerp(infoThick, other.infoThick, t)!,
+      infoThickHover: Color.lerp(infoThickHover, other.infoThickHover, t)!,
+      successThick: Color.lerp(successThick, other.successThick, t)!,
+      successThickHover:
+          Color.lerp(successThickHover, other.successThickHover, t)!,
+      warningThick: Color.lerp(warningThick, other.warningThick, t)!,
+      warningThickHover:
+          Color.lerp(warningThickHover, other.warningThickHover, t)!,
+      errorThick: Color.lerp(errorThick, other.errorThick, t)!,
+      errorThickHover: Color.lerp(errorThickHover, other.errorThickHover, t)!,
+      purpleThick: Color.lerp(purpleThick, other.purpleThick, t)!,
+      purpleThickHover:
+          Color.lerp(purpleThickHover, other.purpleThickHover, t)!,
+    );
+  }
 }

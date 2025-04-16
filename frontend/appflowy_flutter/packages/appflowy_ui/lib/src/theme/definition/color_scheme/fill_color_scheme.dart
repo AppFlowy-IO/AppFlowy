@@ -90,4 +90,63 @@ class AppFlowyFillColorScheme {
   final Color purpleLightHover;
   final Color purpleThick;
   final Color purpleThickHover;
+
+  AppFlowyFillColorScheme lerp(
+    AppFlowyFillColorScheme other,
+    double t,
+  ) {
+    return AppFlowyFillColorScheme(
+      primary: Color.lerp(primary, other.primary, t)!,
+      primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
+      secondary: Color.lerp(secondary, other.secondary, t)!,
+      secondaryHover: Color.lerp(secondaryHover, other.secondaryHover, t)!,
+      tertiary: Color.lerp(tertiary, other.tertiary, t)!,
+      tertiaryHover: Color.lerp(tertiaryHover, other.tertiaryHover, t)!,
+      quaternary: Color.lerp(quaternary, other.quaternary, t)!,
+      quaternaryHover: Color.lerp(quaternaryHover, other.quaternaryHover, t)!,
+      transparent: Color.lerp(transparent, other.transparent, t)!,
+      primaryAlpha5: Color.lerp(primaryAlpha5, other.primaryAlpha5, t)!,
+      primaryAlpha5Hover:
+          Color.lerp(primaryAlpha5Hover, other.primaryAlpha5Hover, t)!,
+      primaryAlpha80: Color.lerp(primaryAlpha80, other.primaryAlpha80, t)!,
+      primaryAlpha80Hover:
+          Color.lerp(primaryAlpha80Hover, other.primaryAlpha80Hover, t)!,
+      white: Color.lerp(white, other.white, t)!,
+      whiteAlpha: Color.lerp(whiteAlpha, other.whiteAlpha, t)!,
+      whiteAlphaHover: Color.lerp(whiteAlphaHover, other.whiteAlphaHover, t)!,
+      black: Color.lerp(black, other.black, t)!,
+      themeLight: Color.lerp(themeLight, other.themeLight, t)!,
+      themeLightHover: Color.lerp(themeLightHover, other.themeLightHover, t)!,
+      themeThick: Color.lerp(themeThick, other.themeThick, t)!,
+      themeThickHover: Color.lerp(themeThickHover, other.themeThickHover, t)!,
+      themeSelect: Color.lerp(themeSelect, other.themeSelect, t)!,
+      infoLight: Color.lerp(infoLight, other.infoLight, t)!,
+      infoLightHover: Color.lerp(infoLightHover, other.infoLightHover, t)!,
+      infoThick: Color.lerp(infoThick, other.infoThick, t)!,
+      infoThickHover: Color.lerp(infoThickHover, other.infoThickHover, t)!,
+      successLight: Color.lerp(successLight, other.successLight, t)!,
+      successLightHover:
+          Color.lerp(successLightHover, other.successLightHover, t)!,
+      successThick: Color.lerp(successThick, other.successThick, t)!,
+      successThickHover:
+          Color.lerp(successThickHover, other.successThickHover, t)!,
+      warningLight: Color.lerp(warningLight, other.warningLight, t)!,
+      warningLightHover:
+          Color.lerp(warningLightHover, other.warningLightHover, t)!,
+      warningThick: Color.lerp(warningThick, other.warningThick, t)!,
+      warningThickHover:
+          Color.lerp(warningThickHover, other.warningThickHover, t)!,
+      errorLight: Color.lerp(errorLight, other.errorLight, t)!,
+      errorLightHover: Color.lerp(errorLightHover, other.errorLightHover, t)!,
+      errorThick: Color.lerp(errorThick, other.errorThick, t)!,
+      errorThickHover: Color.lerp(errorThickHover, other.errorThickHover, t)!,
+      errorSelect: Color.lerp(errorSelect, other.errorSelect, t)!,
+      purpleLight: Color.lerp(purpleLight, other.purpleLight, t)!,
+      purpleLightHover:
+          Color.lerp(purpleLightHover, other.purpleLightHover, t)!,
+      purpleThick: Color.lerp(purpleThick, other.purpleThick, t)!,
+      purpleThickHover:
+          Color.lerp(purpleThickHover, other.purpleThickHover, t)!,
+    );
+  }
 }

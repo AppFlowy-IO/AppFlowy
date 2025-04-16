@@ -15,363 +15,308 @@ import 'package:flutter/material.dart';
 import '../builder.dart';
 import 'primitive.dart';
 
-class AppFlowyThemeData implements AppFlowyBaseThemeData {
-  const AppFlowyThemeData._({
-    required this.textStyle,
-    required this.textColorScheme,
-    required this.borderColorScheme,
-    required this.fillColorScheme,
-    required this.surfaceColorScheme,
-    required this.borderRadius,
-    required this.spacing,
-    required this.shadow,
-    required this.brandColorScheme,
-    required this.iconColorScheme,
-    required this.backgroundColorScheme,
-    required this.otherColorsColorScheme,
-  });
+AppFlowyBaseThemeData buildAppFlowyDefaultThemeDataLight() {
+  final textStyle = AppFlowyBaseTextStyle();
+  final borderRadius = AppFlowyThemeBuilder.buildBorderRadius();
+  final spacing = AppFlowyThemeBuilder.buildSpacing();
+  final shadow = AppFlowyThemeBuilder.buildShadow(Brightness.light);
 
-  factory AppFlowyThemeData.light() {
-    final textStyle = AppFlowyBaseTextStyle();
-    final borderRadius = themeBuilder.buildBorderRadius();
-    final spacing = themeBuilder.buildSpacing();
-    final shadow = themeBuilder.buildShadow(Brightness.light);
+  final textColorScheme = AppFlowyTextColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral1000,
+    secondary: AppFlowyPrimitiveTokens.neutral600,
+    tertiary: AppFlowyPrimitiveTokens.neutral400,
+    quaternary: AppFlowyPrimitiveTokens.neutral200,
+    inverse: AppFlowyPrimitiveTokens.neutralWhite,
+    onFill: AppFlowyPrimitiveTokens.neutralWhite,
+    theme: AppFlowyPrimitiveTokens.blue500,
+    themeHover: AppFlowyPrimitiveTokens.blue600,
+    action: AppFlowyPrimitiveTokens.blue500,
+    actionHover: AppFlowyPrimitiveTokens.blue600,
+    info: AppFlowyPrimitiveTokens.blue500,
+    infoHover: AppFlowyPrimitiveTokens.blue600,
+    success: AppFlowyPrimitiveTokens.green600,
+    successHover: AppFlowyPrimitiveTokens.green700,
+    warning: AppFlowyPrimitiveTokens.orange600,
+    warningHover: AppFlowyPrimitiveTokens.orange700,
+    error: AppFlowyPrimitiveTokens.red600,
+    errorHover: AppFlowyPrimitiveTokens.red700,
+    purple: AppFlowyPrimitiveTokens.purple500,
+    purpleHover: AppFlowyPrimitiveTokens.purple600,
+  );
 
-    final textColorScheme = AppFlowyTextColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
-      secondary: AppFlowyPrimitiveTokens.neutral600,
-      tertiary: AppFlowyPrimitiveTokens.neutral400,
-      quaternary: AppFlowyPrimitiveTokens.neutral200,
-      inverse: AppFlowyPrimitiveTokens.neutralWhite,
-      onFill: AppFlowyPrimitiveTokens.neutralWhite,
-      theme: AppFlowyPrimitiveTokens.blue500,
-      themeHover: AppFlowyPrimitiveTokens.blue600,
-      action: AppFlowyPrimitiveTokens.blue500,
-      actionHover: AppFlowyPrimitiveTokens.blue600,
-      info: AppFlowyPrimitiveTokens.blue500,
-      infoHover: AppFlowyPrimitiveTokens.blue600,
-      success: AppFlowyPrimitiveTokens.green600,
-      successHover: AppFlowyPrimitiveTokens.green700,
-      warning: AppFlowyPrimitiveTokens.orange600,
-      warningHover: AppFlowyPrimitiveTokens.orange700,
-      error: AppFlowyPrimitiveTokens.red600,
-      errorHover: AppFlowyPrimitiveTokens.red700,
-      purple: AppFlowyPrimitiveTokens.purple500,
-      purpleHover: AppFlowyPrimitiveTokens.purple600,
-    );
+  final iconColorScheme = AppFlowyIconColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral1000,
+    secondary: AppFlowyPrimitiveTokens.neutral600,
+    tertiary: AppFlowyPrimitiveTokens.neutral400,
+    quaternary: AppFlowyPrimitiveTokens.neutral200,
+    white: AppFlowyPrimitiveTokens.neutralWhite,
+    purpleThick: AppFlowyPrimitiveTokens.purple500,
+    purpleThickHover: AppFlowyPrimitiveTokens.purple600,
+  );
 
-    final iconColorScheme = AppFlowyIconColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
-      secondary: AppFlowyPrimitiveTokens.neutral600,
-      tertiary: AppFlowyPrimitiveTokens.neutral400,
-      quaternary: AppFlowyPrimitiveTokens.neutral200,
-      white: AppFlowyPrimitiveTokens.neutralWhite,
-      purpleThick: AppFlowyPrimitiveTokens.purple500,
-      purpleThickHover: AppFlowyPrimitiveTokens.purple600,
-    );
+  final borderColorScheme = AppFlowyBorderColorScheme(
+    greyPrimary: AppFlowyPrimitiveTokens.neutral1000,
+    greyPrimaryHover: AppFlowyPrimitiveTokens.neutral900,
+    greySecondary: AppFlowyPrimitiveTokens.neutral800,
+    greySecondaryHover: AppFlowyPrimitiveTokens.neutral700,
+    greyTertiary: AppFlowyPrimitiveTokens.neutral300,
+    greyTertiaryHover: AppFlowyPrimitiveTokens.neutral400,
+    greyQuaternary: AppFlowyPrimitiveTokens.neutral100,
+    greyQuaternaryHover: AppFlowyPrimitiveTokens.neutral200,
+    transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
+    themeThick: AppFlowyPrimitiveTokens.blue500,
+    themeThickHover: AppFlowyPrimitiveTokens.blue600,
+    infoThick: AppFlowyPrimitiveTokens.blue500,
+    infoThickHover: AppFlowyPrimitiveTokens.blue600,
+    successThick: AppFlowyPrimitiveTokens.green600,
+    successThickHover: AppFlowyPrimitiveTokens.green700,
+    warningThick: AppFlowyPrimitiveTokens.orange600,
+    warningThickHover: AppFlowyPrimitiveTokens.orange700,
+    errorThick: AppFlowyPrimitiveTokens.red600,
+    errorThickHover: AppFlowyPrimitiveTokens.red700,
+    purpleThick: AppFlowyPrimitiveTokens.purple500,
+    purpleThickHover: AppFlowyPrimitiveTokens.purple600,
+  );
 
-    final borderColorScheme = AppFlowyBorderColorScheme(
-      greyPrimary: AppFlowyPrimitiveTokens.neutral1000,
-      greyPrimaryHover: AppFlowyPrimitiveTokens.neutral900,
-      greySecondary: AppFlowyPrimitiveTokens.neutral800,
-      greySecondaryHover: AppFlowyPrimitiveTokens.neutral700,
-      greyTertiary: AppFlowyPrimitiveTokens.neutral300,
-      greyTertiaryHover: AppFlowyPrimitiveTokens.neutral400,
-      greyQuaternary: AppFlowyPrimitiveTokens.neutral100,
-      greyQuaternaryHover: AppFlowyPrimitiveTokens.neutral200,
-      transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
-      themeThick: AppFlowyPrimitiveTokens.blue500,
-      themeThickHover: AppFlowyPrimitiveTokens.blue600,
-      infoThick: AppFlowyPrimitiveTokens.blue500,
-      infoThickHover: AppFlowyPrimitiveTokens.blue600,
-      successThick: AppFlowyPrimitiveTokens.green600,
-      successThickHover: AppFlowyPrimitiveTokens.green700,
-      warningThick: AppFlowyPrimitiveTokens.orange600,
-      warningThickHover: AppFlowyPrimitiveTokens.orange700,
-      errorThick: AppFlowyPrimitiveTokens.red600,
-      errorThickHover: AppFlowyPrimitiveTokens.red700,
-      purpleThick: AppFlowyPrimitiveTokens.purple500,
-      purpleThickHover: AppFlowyPrimitiveTokens.purple600,
-    );
+  final fillColorScheme = AppFlowyFillColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral1000,
+    primaryHover: AppFlowyPrimitiveTokens.neutral900,
+    secondary: AppFlowyPrimitiveTokens.neutral600,
+    secondaryHover: AppFlowyPrimitiveTokens.neutral500,
+    tertiary: AppFlowyPrimitiveTokens.neutral300,
+    tertiaryHover: AppFlowyPrimitiveTokens.neutral400,
+    quaternary: AppFlowyPrimitiveTokens.neutral100,
+    quaternaryHover: AppFlowyPrimitiveTokens.neutral200,
+    transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
+    primaryAlpha5: AppFlowyPrimitiveTokens.neutralAlphaGrey100005,
+    primaryAlpha5Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100010,
+    primaryAlpha80: AppFlowyPrimitiveTokens.neutralAlphaGrey100080,
+    primaryAlpha80Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100070,
+    white: AppFlowyPrimitiveTokens.neutralWhite,
+    whiteAlpha: AppFlowyPrimitiveTokens.neutralAlphaWhite20,
+    whiteAlphaHover: AppFlowyPrimitiveTokens.neutralAlphaWhite30,
+    black: AppFlowyPrimitiveTokens.neutralBlack,
+    themeLight: AppFlowyPrimitiveTokens.blue100,
+    themeLightHover: AppFlowyPrimitiveTokens.blue200,
+    themeThick: AppFlowyPrimitiveTokens.blue500,
+    themeThickHover: AppFlowyPrimitiveTokens.blue600,
+    themeSelect: AppFlowyPrimitiveTokens.blueAlphaBlue50015,
+    infoLight: AppFlowyPrimitiveTokens.blue100,
+    infoLightHover: AppFlowyPrimitiveTokens.blue200,
+    infoThick: AppFlowyPrimitiveTokens.blue500,
+    infoThickHover: AppFlowyPrimitiveTokens.blue600,
+    successLight: AppFlowyPrimitiveTokens.green100,
+    successLightHover: AppFlowyPrimitiveTokens.green200,
+    successThick: AppFlowyPrimitiveTokens.green600,
+    successThickHover: AppFlowyPrimitiveTokens.green700,
+    warningLight: AppFlowyPrimitiveTokens.orange100,
+    warningLightHover: AppFlowyPrimitiveTokens.orange200,
+    warningThick: AppFlowyPrimitiveTokens.orange600,
+    warningThickHover: AppFlowyPrimitiveTokens.orange700,
+    errorLight: AppFlowyPrimitiveTokens.red100,
+    errorLightHover: AppFlowyPrimitiveTokens.red200,
+    errorThick: AppFlowyPrimitiveTokens.red600,
+    errorThickHover: AppFlowyPrimitiveTokens.red700,
+    errorSelect: AppFlowyPrimitiveTokens.redAlphaRed50010,
+    purpleLight: AppFlowyPrimitiveTokens.purple100,
+    purpleLightHover: AppFlowyPrimitiveTokens.purple200,
+    purpleThickHover: AppFlowyPrimitiveTokens.purple600,
+    purpleThick: AppFlowyPrimitiveTokens.purple500,
+  );
 
-    final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
-      primaryHover: AppFlowyPrimitiveTokens.neutral900,
-      secondary: AppFlowyPrimitiveTokens.neutral600,
-      secondaryHover: AppFlowyPrimitiveTokens.neutral500,
-      tertiary: AppFlowyPrimitiveTokens.neutral300,
-      tertiaryHover: AppFlowyPrimitiveTokens.neutral400,
-      quaternary: AppFlowyPrimitiveTokens.neutral100,
-      quaternaryHover: AppFlowyPrimitiveTokens.neutral200,
-      transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
-      primaryAlpha5: AppFlowyPrimitiveTokens.neutralAlphaGrey100005,
-      primaryAlpha5Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100010,
-      primaryAlpha80: AppFlowyPrimitiveTokens.neutralAlphaGrey100080,
-      primaryAlpha80Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100070,
-      white: AppFlowyPrimitiveTokens.neutralWhite,
-      whiteAlpha: AppFlowyPrimitiveTokens.neutralAlphaWhite20,
-      whiteAlphaHover: AppFlowyPrimitiveTokens.neutralAlphaWhite30,
-      black: AppFlowyPrimitiveTokens.neutralBlack,
-      themeLight: AppFlowyPrimitiveTokens.blue100,
-      themeLightHover: AppFlowyPrimitiveTokens.blue200,
-      themeThick: AppFlowyPrimitiveTokens.blue500,
-      themeThickHover: AppFlowyPrimitiveTokens.blue600,
-      themeSelect: AppFlowyPrimitiveTokens.blueAlphaBlue50015,
-      infoLight: AppFlowyPrimitiveTokens.blue100,
-      infoLightHover: AppFlowyPrimitiveTokens.blue200,
-      infoThick: AppFlowyPrimitiveTokens.blue500,
-      infoThickHover: AppFlowyPrimitiveTokens.blue600,
-      successLight: AppFlowyPrimitiveTokens.green100,
-      successLightHover: AppFlowyPrimitiveTokens.green200,
-      successThick: AppFlowyPrimitiveTokens.green600,
-      successThickHover: AppFlowyPrimitiveTokens.green700,
-      warningLight: AppFlowyPrimitiveTokens.orange100,
-      warningLightHover: AppFlowyPrimitiveTokens.orange200,
-      warningThick: AppFlowyPrimitiveTokens.orange600,
-      warningThickHover: AppFlowyPrimitiveTokens.orange700,
-      errorLight: AppFlowyPrimitiveTokens.red100,
-      errorLightHover: AppFlowyPrimitiveTokens.red200,
-      errorThick: AppFlowyPrimitiveTokens.red600,
-      errorThickHover: AppFlowyPrimitiveTokens.red700,
-      errorSelect: AppFlowyPrimitiveTokens.redAlphaRed50010,
-      purpleLight: AppFlowyPrimitiveTokens.purple100,
-      purpleLightHover: AppFlowyPrimitiveTokens.purple200,
-      purpleThickHover: AppFlowyPrimitiveTokens.purple600,
-      purpleThick: AppFlowyPrimitiveTokens.purple500,
-    );
+  final surfaceColorScheme = AppFlowySurfaceColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutralWhite,
+    overlay: AppFlowyPrimitiveTokens.neutralAlphaBlack60,
+  );
 
-    final surfaceColorScheme = AppFlowySurfaceColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutralWhite,
-      overlay: AppFlowyPrimitiveTokens.neutralAlphaBlack60,
-    );
+  final backgroundColorScheme = AppFlowyBackgroundColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutralWhite,
+    secondary: AppFlowyPrimitiveTokens.neutral100,
+    tertiary: AppFlowyPrimitiveTokens.neutral200,
+    quaternary: AppFlowyPrimitiveTokens.neutral300,
+  );
 
-    final backgroundColorScheme = AppFlowyBackgroundColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutralWhite,
-      secondary: AppFlowyPrimitiveTokens.neutral100,
-      tertiary: AppFlowyPrimitiveTokens.neutral200,
-      quaternary: AppFlowyPrimitiveTokens.neutral300,
-    );
+  final brandColorScheme = AppFlowyBrandColorScheme(
+    skyline: Color(0xFF00B5FF),
+    aqua: Color(0xFF00C8FF),
+    violet: Color(0xFF9327FF),
+    amethyst: Color(0xFF8427E0),
+    berry: Color(0xFFE3006D),
+    coral: Color(0xFFFB006D),
+    golden: Color(0xFFF7931E),
+    amber: Color(0xFFFFBD00),
+    lemon: Color(0xFFFFCE00),
+  );
 
-    final brandColorScheme = AppFlowyBrandColorScheme(
-      skyline: Color(0xFF00B5FF),
-      aqua: Color(0xFF00C8FF),
-      violet: Color(0xFF9327FF),
-      amethyst: Color(0xFF8427E0),
-      berry: Color(0xFFE3006D),
-      coral: Color(0xFFFB006D),
-      golden: Color(0xFFF7931E),
-      amber: Color(0xFFFFBD00),
-      lemon: Color(0xFFFFCE00),
-    );
+  final otherColorsColorScheme = AppFlowyOtherColorsColorScheme(
+    textHighlight: AppFlowyPrimitiveTokens.blue200,
+  );
 
-    final otherColorsColorScheme = AppFlowyOtherColorsColorScheme(
-      textHighlight: AppFlowyPrimitiveTokens.blue200,
-    );
+  return AppFlowyBaseThemeData(
+    textStyle: textStyle,
+    textColorScheme: textColorScheme,
+    borderColorScheme: borderColorScheme,
+    fillColorScheme: fillColorScheme,
+    surfaceColorScheme: surfaceColorScheme,
+    backgroundColorScheme: backgroundColorScheme,
+    iconColorScheme: iconColorScheme,
+    brandColorScheme: brandColorScheme,
+    otherColorsColorScheme: otherColorsColorScheme,
+    borderRadius: borderRadius,
+    spacing: spacing,
+    shadow: shadow,
+  );
+}
 
-    return AppFlowyThemeData._(
-      textStyle: textStyle,
-      textColorScheme: textColorScheme,
-      borderColorScheme: borderColorScheme,
-      fillColorScheme: fillColorScheme,
-      surfaceColorScheme: surfaceColorScheme,
-      backgroundColorScheme: backgroundColorScheme,
-      iconColorScheme: iconColorScheme,
-      brandColorScheme: brandColorScheme,
-      otherColorsColorScheme: otherColorsColorScheme,
-      borderRadius: borderRadius,
-      spacing: spacing,
-      shadow: shadow,
-    );
-  }
+AppFlowyBaseThemeData buildAppFlowyDefaultThemeDataDark() {
+  final textStyle = AppFlowyBaseTextStyle();
+  final borderRadius = AppFlowyThemeBuilder.buildBorderRadius();
+  final spacing = AppFlowyThemeBuilder.buildSpacing();
+  final shadow = AppFlowyThemeBuilder.buildShadow(Brightness.dark);
 
-  factory AppFlowyThemeData.dark() {
-    final textStyle = AppFlowyBaseTextStyle();
-    final borderRadius = themeBuilder.buildBorderRadius();
-    final spacing = themeBuilder.buildSpacing();
-    final shadow = themeBuilder.buildShadow(Brightness.dark);
+  final textColorScheme = AppFlowyTextColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral200,
+    secondary: AppFlowyPrimitiveTokens.neutral400,
+    tertiary: AppFlowyPrimitiveTokens.neutral600,
+    quaternary: AppFlowyPrimitiveTokens.neutral1000,
+    inverse: AppFlowyPrimitiveTokens.neutral1000,
+    onFill: AppFlowyPrimitiveTokens.neutralWhite,
+    theme: AppFlowyPrimitiveTokens.blue500,
+    themeHover: AppFlowyPrimitiveTokens.blue600,
+    action: AppFlowyPrimitiveTokens.blue500,
+    actionHover: AppFlowyPrimitiveTokens.blue600,
+    info: AppFlowyPrimitiveTokens.blue500,
+    infoHover: AppFlowyPrimitiveTokens.blue600,
+    success: AppFlowyPrimitiveTokens.green600,
+    successHover: AppFlowyPrimitiveTokens.green700,
+    warning: AppFlowyPrimitiveTokens.orange600,
+    warningHover: AppFlowyPrimitiveTokens.orange700,
+    error: AppFlowyPrimitiveTokens.red500,
+    errorHover: AppFlowyPrimitiveTokens.red400,
+    purple: AppFlowyPrimitiveTokens.purple500,
+    purpleHover: AppFlowyPrimitiveTokens.purple600,
+  );
 
-    final textColorScheme = AppFlowyTextColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral200,
-      secondary: AppFlowyPrimitiveTokens.neutral400,
-      tertiary: AppFlowyPrimitiveTokens.neutral600,
-      quaternary: AppFlowyPrimitiveTokens.neutral1000,
-      inverse: AppFlowyPrimitiveTokens.neutral1000,
-      onFill: AppFlowyPrimitiveTokens.neutralWhite,
-      theme: AppFlowyPrimitiveTokens.blue500,
-      themeHover: AppFlowyPrimitiveTokens.blue600,
-      action: AppFlowyPrimitiveTokens.blue500,
-      actionHover: AppFlowyPrimitiveTokens.blue600,
-      info: AppFlowyPrimitiveTokens.blue500,
-      infoHover: AppFlowyPrimitiveTokens.blue600,
-      success: AppFlowyPrimitiveTokens.green600,
-      successHover: AppFlowyPrimitiveTokens.green700,
-      warning: AppFlowyPrimitiveTokens.orange600,
-      warningHover: AppFlowyPrimitiveTokens.orange700,
-      error: AppFlowyPrimitiveTokens.red500,
-      errorHover: AppFlowyPrimitiveTokens.red400,
-      purple: AppFlowyPrimitiveTokens.purple500,
-      purpleHover: AppFlowyPrimitiveTokens.purple600,
-    );
+  final iconColorScheme = AppFlowyIconColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral200,
+    secondary: AppFlowyPrimitiveTokens.neutral400,
+    tertiary: AppFlowyPrimitiveTokens.neutral600,
+    quaternary: AppFlowyPrimitiveTokens.neutral1000,
+    white: AppFlowyPrimitiveTokens.neutralWhite,
+    purpleThick: Color(0xFFFFFFFF),
+    purpleThickHover: Color(0xFFFFFFFF),
+  );
 
-    final iconColorScheme = AppFlowyIconColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral200,
-      secondary: AppFlowyPrimitiveTokens.neutral400,
-      tertiary: AppFlowyPrimitiveTokens.neutral600,
-      quaternary: AppFlowyPrimitiveTokens.neutral1000,
-      white: AppFlowyPrimitiveTokens.neutralWhite,
-      purpleThick: Color(0xFFFFFFFF),
-      purpleThickHover: Color(0xFFFFFFFF),
-    );
+  final borderColorScheme = AppFlowyBorderColorScheme(
+    greyPrimary: AppFlowyPrimitiveTokens.neutral100,
+    greyPrimaryHover: AppFlowyPrimitiveTokens.neutral200,
+    greySecondary: AppFlowyPrimitiveTokens.neutral300,
+    greySecondaryHover: AppFlowyPrimitiveTokens.neutral400,
+    greyTertiary: AppFlowyPrimitiveTokens.neutral800,
+    greyTertiaryHover: AppFlowyPrimitiveTokens.neutral700,
+    greyQuaternary: AppFlowyPrimitiveTokens.neutral1000,
+    greyQuaternaryHover: AppFlowyPrimitiveTokens.neutral900,
+    transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
+    themeThick: AppFlowyPrimitiveTokens.blue500,
+    themeThickHover: AppFlowyPrimitiveTokens.blue600,
+    infoThick: AppFlowyPrimitiveTokens.blue500,
+    infoThickHover: AppFlowyPrimitiveTokens.blue600,
+    successThick: AppFlowyPrimitiveTokens.green600,
+    successThickHover: AppFlowyPrimitiveTokens.green700,
+    warningThick: AppFlowyPrimitiveTokens.orange600,
+    warningThickHover: AppFlowyPrimitiveTokens.orange700,
+    errorThick: AppFlowyPrimitiveTokens.red500,
+    errorThickHover: AppFlowyPrimitiveTokens.red400,
+    purpleThick: AppFlowyPrimitiveTokens.purple500,
+    purpleThickHover: AppFlowyPrimitiveTokens.purple600,
+  );
 
-    final borderColorScheme = AppFlowyBorderColorScheme(
-      greyPrimary: AppFlowyPrimitiveTokens.neutral100,
-      greyPrimaryHover: AppFlowyPrimitiveTokens.neutral200,
-      greySecondary: AppFlowyPrimitiveTokens.neutral300,
-      greySecondaryHover: AppFlowyPrimitiveTokens.neutral400,
-      greyTertiary: AppFlowyPrimitiveTokens.neutral800,
-      greyTertiaryHover: AppFlowyPrimitiveTokens.neutral700,
-      greyQuaternary: AppFlowyPrimitiveTokens.neutral1000,
-      greyQuaternaryHover: AppFlowyPrimitiveTokens.neutral900,
-      transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
-      themeThick: AppFlowyPrimitiveTokens.blue500,
-      themeThickHover: AppFlowyPrimitiveTokens.blue600,
-      infoThick: AppFlowyPrimitiveTokens.blue500,
-      infoThickHover: AppFlowyPrimitiveTokens.blue600,
-      successThick: AppFlowyPrimitiveTokens.green600,
-      successThickHover: AppFlowyPrimitiveTokens.green700,
-      warningThick: AppFlowyPrimitiveTokens.orange600,
-      warningThickHover: AppFlowyPrimitiveTokens.orange700,
-      errorThick: AppFlowyPrimitiveTokens.red500,
-      errorThickHover: AppFlowyPrimitiveTokens.red400,
-      purpleThick: AppFlowyPrimitiveTokens.purple500,
-      purpleThickHover: AppFlowyPrimitiveTokens.purple600,
-    );
+  final fillColorScheme = AppFlowyFillColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral100,
+    primaryHover: AppFlowyPrimitiveTokens.neutral200,
+    secondary: AppFlowyPrimitiveTokens.neutral300,
+    secondaryHover: AppFlowyPrimitiveTokens.neutral400,
+    tertiary: AppFlowyPrimitiveTokens.neutral600,
+    tertiaryHover: AppFlowyPrimitiveTokens.neutral500,
+    quaternary: AppFlowyPrimitiveTokens.neutral1000,
+    quaternaryHover: AppFlowyPrimitiveTokens.neutral900,
+    transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
+    primaryAlpha5: AppFlowyPrimitiveTokens.neutralAlphaGrey10005,
+    primaryAlpha5Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey10010,
+    primaryAlpha80: AppFlowyPrimitiveTokens.neutralAlphaGrey100080,
+    primaryAlpha80Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100070,
+    white: AppFlowyPrimitiveTokens.neutralWhite,
+    whiteAlpha: AppFlowyPrimitiveTokens.neutralAlphaWhite20,
+    whiteAlphaHover: AppFlowyPrimitiveTokens.neutralAlphaWhite30,
+    black: AppFlowyPrimitiveTokens.neutralBlack,
+    themeLight: AppFlowyPrimitiveTokens.blue100,
+    themeLightHover: AppFlowyPrimitiveTokens.blue200,
+    themeThick: AppFlowyPrimitiveTokens.blue500,
+    themeThickHover: AppFlowyPrimitiveTokens.blue400,
+    themeSelect: AppFlowyPrimitiveTokens.blueAlphaBlue50015,
+    infoLight: AppFlowyPrimitiveTokens.blue100,
+    infoLightHover: AppFlowyPrimitiveTokens.blue200,
+    infoThick: AppFlowyPrimitiveTokens.blue500,
+    infoThickHover: AppFlowyPrimitiveTokens.blue600,
+    successLight: AppFlowyPrimitiveTokens.green100,
+    successLightHover: AppFlowyPrimitiveTokens.green200,
+    successThick: AppFlowyPrimitiveTokens.green600,
+    successThickHover: AppFlowyPrimitiveTokens.green700,
+    warningLight: AppFlowyPrimitiveTokens.orange100,
+    warningLightHover: AppFlowyPrimitiveTokens.orange200,
+    warningThick: AppFlowyPrimitiveTokens.orange600,
+    warningThickHover: AppFlowyPrimitiveTokens.orange700,
+    errorLight: AppFlowyPrimitiveTokens.red100,
+    errorLightHover: AppFlowyPrimitiveTokens.red200,
+    errorThick: AppFlowyPrimitiveTokens.red600,
+    errorThickHover: AppFlowyPrimitiveTokens.red500,
+    errorSelect: AppFlowyPrimitiveTokens.redAlphaRed50010,
+    purpleLight: AppFlowyPrimitiveTokens.purple100,
+    purpleLightHover: AppFlowyPrimitiveTokens.purple200,
+    purpleThickHover: AppFlowyPrimitiveTokens.purple600,
+    purpleThick: AppFlowyPrimitiveTokens.purple500,
+  );
 
-    final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral100,
-      primaryHover: AppFlowyPrimitiveTokens.neutral200,
-      secondary: AppFlowyPrimitiveTokens.neutral300,
-      secondaryHover: AppFlowyPrimitiveTokens.neutral400,
-      tertiary: AppFlowyPrimitiveTokens.neutral600,
-      tertiaryHover: AppFlowyPrimitiveTokens.neutral500,
-      quaternary: AppFlowyPrimitiveTokens.neutral1000,
-      quaternaryHover: AppFlowyPrimitiveTokens.neutral900,
-      transparent: AppFlowyPrimitiveTokens.neutralAlphaWhite0,
-      primaryAlpha5: AppFlowyPrimitiveTokens.neutralAlphaGrey10005,
-      primaryAlpha5Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey10010,
-      primaryAlpha80: AppFlowyPrimitiveTokens.neutralAlphaGrey100080,
-      primaryAlpha80Hover: AppFlowyPrimitiveTokens.neutralAlphaGrey100070,
-      white: AppFlowyPrimitiveTokens.neutralWhite,
-      whiteAlpha: AppFlowyPrimitiveTokens.neutralAlphaWhite20,
-      whiteAlphaHover: AppFlowyPrimitiveTokens.neutralAlphaWhite30,
-      black: AppFlowyPrimitiveTokens.neutralBlack,
-      themeLight: AppFlowyPrimitiveTokens.blue100,
-      themeLightHover: AppFlowyPrimitiveTokens.blue200,
-      themeThick: AppFlowyPrimitiveTokens.blue500,
-      themeThickHover: AppFlowyPrimitiveTokens.blue400,
-      themeSelect: AppFlowyPrimitiveTokens.blueAlphaBlue50015,
-      infoLight: AppFlowyPrimitiveTokens.blue100,
-      infoLightHover: AppFlowyPrimitiveTokens.blue200,
-      infoThick: AppFlowyPrimitiveTokens.blue500,
-      infoThickHover: AppFlowyPrimitiveTokens.blue600,
-      successLight: AppFlowyPrimitiveTokens.green100,
-      successLightHover: AppFlowyPrimitiveTokens.green200,
-      successThick: AppFlowyPrimitiveTokens.green600,
-      successThickHover: AppFlowyPrimitiveTokens.green700,
-      warningLight: AppFlowyPrimitiveTokens.orange100,
-      warningLightHover: AppFlowyPrimitiveTokens.orange200,
-      warningThick: AppFlowyPrimitiveTokens.orange600,
-      warningThickHover: AppFlowyPrimitiveTokens.orange700,
-      errorLight: AppFlowyPrimitiveTokens.red100,
-      errorLightHover: AppFlowyPrimitiveTokens.red200,
-      errorThick: AppFlowyPrimitiveTokens.red600,
-      errorThickHover: AppFlowyPrimitiveTokens.red500,
-      errorSelect: AppFlowyPrimitiveTokens.redAlphaRed50010,
-      purpleLight: AppFlowyPrimitiveTokens.purple100,
-      purpleLightHover: AppFlowyPrimitiveTokens.purple200,
-      purpleThickHover: AppFlowyPrimitiveTokens.purple600,
-      purpleThick: AppFlowyPrimitiveTokens.purple500,
-    );
+  final surfaceColorScheme = AppFlowySurfaceColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral900,
+    overlay: AppFlowyPrimitiveTokens.neutralAlphaBlack60,
+  );
 
-    final surfaceColorScheme = AppFlowySurfaceColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral900,
-      overlay: AppFlowyPrimitiveTokens.neutralAlphaBlack60,
-    );
+  final backgroundColorScheme = AppFlowyBackgroundColorScheme(
+    primary: AppFlowyPrimitiveTokens.neutral1000,
+    secondary: AppFlowyPrimitiveTokens.neutral900,
+    tertiary: AppFlowyPrimitiveTokens.neutral800,
+    quaternary: AppFlowyPrimitiveTokens.neutral700,
+  );
 
-    final backgroundColorScheme = AppFlowyBackgroundColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
-      secondary: AppFlowyPrimitiveTokens.neutral900,
-      tertiary: AppFlowyPrimitiveTokens.neutral800,
-      quaternary: AppFlowyPrimitiveTokens.neutral700,
-    );
+  final brandColorScheme = AppFlowyBrandColorScheme(
+    skyline: Color(0xFF00B5FF),
+    aqua: Color(0xFF00C8FF),
+    violet: Color(0xFF9327FF),
+    amethyst: Color(0xFF8427E0),
+    berry: Color(0xFFE3006D),
+    coral: Color(0xFFFB006D),
+    golden: Color(0xFFF7931E),
+    amber: Color(0xFFFFBD00),
+    lemon: Color(0xFFFFCE00),
+  );
 
-    final brandColorScheme = AppFlowyBrandColorScheme(
-      skyline: Color(0xFF00B5FF),
-      aqua: Color(0xFF00C8FF),
-      violet: Color(0xFF9327FF),
-      amethyst: Color(0xFF8427E0),
-      berry: Color(0xFFE3006D),
-      coral: Color(0xFFFB006D),
-      golden: Color(0xFFF7931E),
-      amber: Color(0xFFFFBD00),
-      lemon: Color(0xFFFFCE00),
-    );
+  final otherColorsColorScheme = AppFlowyOtherColorsColorScheme(
+    textHighlight: AppFlowyPrimitiveTokens.blue200,
+  );
 
-    final otherColorsColorScheme = AppFlowyOtherColorsColorScheme(
-      textHighlight: AppFlowyPrimitiveTokens.blue200,
-    );
-
-    return AppFlowyThemeData._(
-      textStyle: textStyle,
-      textColorScheme: textColorScheme,
-      borderColorScheme: borderColorScheme,
-      fillColorScheme: fillColorScheme,
-      surfaceColorScheme: surfaceColorScheme,
-      backgroundColorScheme: backgroundColorScheme,
-      iconColorScheme: iconColorScheme,
-      brandColorScheme: brandColorScheme,
-      otherColorsColorScheme: otherColorsColorScheme,
-      borderRadius: borderRadius,
-      spacing: spacing,
-      shadow: shadow,
-    );
-  }
-
-  static const AppFlowyThemeBuilder themeBuilder = AppFlowyThemeBuilder();
-
-  @override
-  final AppFlowyBaseTextStyle textStyle;
-
-  @override
-  final AppFlowyTextColorScheme textColorScheme;
-
-  @override
-  final AppFlowyBorderColorScheme borderColorScheme;
-
-  @override
-  final AppFlowyFillColorScheme fillColorScheme;
-
-  @override
-  final AppFlowySurfaceColorScheme surfaceColorScheme;
-
-  @override
-  final AppFlowyBorderRadius borderRadius;
-
-  @override
-  final AppFlowySpacing spacing;
-
-  @override
-  final AppFlowyShadow shadow;
-
-  @override
-  final AppFlowyBrandColorScheme brandColorScheme;
-
-  @override
-  final AppFlowyIconColorScheme iconColorScheme;
-
-  @override
-  final AppFlowyBackgroundColorScheme backgroundColorScheme;
-
-  @override
-  final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
+  return AppFlowyBaseThemeData(
+    textStyle: textStyle,
+    textColorScheme: textColorScheme,
+    borderColorScheme: borderColorScheme,
+    fillColorScheme: fillColorScheme,
+    surfaceColorScheme: surfaceColorScheme,
+    backgroundColorScheme: backgroundColorScheme,
+    iconColorScheme: iconColorScheme,
+    brandColorScheme: brandColorScheme,
+    otherColorsColorScheme: otherColorsColorScheme,
+    borderRadius: borderRadius,
+    spacing: spacing,
+    shadow: shadow,
+  );
 }

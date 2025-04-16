@@ -1,6 +1,7 @@
 // ThemeData in mobile
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -283,6 +284,9 @@ class MobileAppearance extends BaseAppearance {
           toolbarHoverColor: theme.toolbarHoverColor,
         ),
         ToolbarColorExtension.fromBrightness(brightness),
+        AppFlowyTheme(
+          themeData: buildAppFlowyDefaultThemeDataLight(),
+        ),
       ],
     );
   }

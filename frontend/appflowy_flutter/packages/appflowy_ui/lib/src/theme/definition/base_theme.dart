@@ -4,30 +4,65 @@ import 'shadow/shadow.dart';
 import 'spacing/spacing.dart';
 import 'text_style/text_style.dart';
 
-abstract class AppFlowyBaseThemeData {
-  const AppFlowyBaseThemeData();
+class AppFlowyBaseThemeData {
+  const AppFlowyBaseThemeData({
+    required this.textColorScheme,
+    required this.textStyle,
+    required this.iconColorScheme,
+    required this.borderColorScheme,
+    required this.backgroundColorScheme,
+    required this.fillColorScheme,
+    required this.surfaceColorScheme,
+    required this.borderRadius,
+    required this.spacing,
+    required this.shadow,
+    required this.brandColorScheme,
+    required this.otherColorsColorScheme,
+  });
 
-  AppFlowyTextColorScheme get textColorScheme;
+  final AppFlowyTextColorScheme textColorScheme;
 
-  AppFlowyBaseTextStyle get textStyle;
+  final AppFlowyBaseTextStyle textStyle;
 
-  AppFlowyIconColorScheme get iconColorScheme;
+  final AppFlowyIconColorScheme iconColorScheme;
 
-  AppFlowyBorderColorScheme get borderColorScheme;
+  final AppFlowyBorderColorScheme borderColorScheme;
 
-  AppFlowyBackgroundColorScheme get backgroundColorScheme;
+  final AppFlowyBackgroundColorScheme backgroundColorScheme;
 
-  AppFlowyFillColorScheme get fillColorScheme;
+  final AppFlowyFillColorScheme fillColorScheme;
 
-  AppFlowySurfaceColorScheme get surfaceColorScheme;
+  final AppFlowySurfaceColorScheme surfaceColorScheme;
 
-  AppFlowyBorderRadius get borderRadius;
+  final AppFlowyBorderRadius borderRadius;
 
-  AppFlowySpacing get spacing;
+  final AppFlowySpacing spacing;
 
-  AppFlowyShadow get shadow;
+  final AppFlowyShadow shadow;
 
-  AppFlowyBrandColorScheme get brandColorScheme;
+  final AppFlowyBrandColorScheme brandColorScheme;
 
-  AppFlowyOtherColorsColorScheme get otherColorsColorScheme;
+  final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
+
+  AppFlowyBaseThemeData lerp(
+    AppFlowyBaseThemeData other,
+    double t,
+  ) {
+    return AppFlowyBaseThemeData(
+      textColorScheme: textColorScheme.lerp(other.textColorScheme, t),
+      textStyle: other.textStyle,
+      iconColorScheme: iconColorScheme.lerp(other.iconColorScheme, t),
+      borderColorScheme: borderColorScheme.lerp(other.borderColorScheme, t),
+      backgroundColorScheme:
+          backgroundColorScheme.lerp(other.backgroundColorScheme, t),
+      fillColorScheme: fillColorScheme.lerp(other.fillColorScheme, t),
+      surfaceColorScheme: surfaceColorScheme.lerp(other.surfaceColorScheme, t),
+      borderRadius: other.borderRadius,
+      spacing: other.spacing,
+      shadow: other.shadow,
+      brandColorScheme: brandColorScheme.lerp(other.brandColorScheme, t),
+      otherColorsColorScheme:
+          otherColorsColorScheme.lerp(other.otherColorsColorScheme, t),
+    );
+  }
 }
