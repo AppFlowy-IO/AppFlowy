@@ -65,7 +65,6 @@ where
     let params = CreateChatMessageParams {
       content: message.to_string(),
       message_type,
-      metadata: metadata.to_vec(),
     };
 
     let message = try_get_client?

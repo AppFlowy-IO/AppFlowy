@@ -1,7 +1,11 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:local_notifier/local_notifier.dart';
+
+/// The app name used in the local notification.
+///
+/// DO NOT Use i18n here, because the i18n plugin is not ready
+///   before the local notification is initialized.
+const _localNotifierAppName = 'AppFlowy';
 
 /// Manages Local Notifications
 ///
@@ -12,7 +16,11 @@ import 'package:local_notifier/local_notifier.dart';
 ///
 class NotificationService {
   static Future<void> initialize() async {
-    await localNotifier.setup(appName: LocaleKeys.appName.tr());
+    await localNotifier.setup(
+      appName: _localNotifierAppName,
+      // Don't create a shortcut on Windows, because the setup.exe will create a shortcut
+      shortcutPolicy: ShortcutPolicy.requireNoCreate,
+    );
   }
 }
 

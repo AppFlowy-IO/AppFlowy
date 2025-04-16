@@ -583,8 +583,11 @@ impl UserManager {
     Ok(UseAISettingPB::from(settings))
   }
 
-  pub async fn get_workspace_member_info(&self, uid: i64) -> FlowyResult<WorkspaceMember> {
-    let workspace_id = self.get_session()?.user_workspace.workspace_id()?;
+  pub async fn get_workspace_member_info(
+    &self,
+    uid: i64,
+    workspace_id: &Uuid,
+  ) -> FlowyResult<WorkspaceMember> {
     let db = self.authenticate_user.get_sqlite_connection(uid)?;
     // Can opt in using memory cache
     if let Ok(member_record) = select_workspace_member(db, &workspace_id.to_string(), uid) {
@@ -603,7 +606,7 @@ impl UserManager {
     }
 
     let member = self
-      .get_workspace_member_info_from_remote(&workspace_id, uid)
+      .get_workspace_member_info_from_remote(workspace_id, uid)
       .await?;
 
     Ok(member)

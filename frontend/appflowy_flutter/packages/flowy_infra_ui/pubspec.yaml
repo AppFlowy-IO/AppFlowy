@@ -31,6 +31,8 @@ dependencies:
   flowy_svg:
     path: ../flowy_svg
 
+  analyzer: 6.11.0
+
 dev_dependencies:
   build_runner: ^2.4.9
   provider: ^6.0.5

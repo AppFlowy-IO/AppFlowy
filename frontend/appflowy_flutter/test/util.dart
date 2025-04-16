@@ -69,7 +69,10 @@ class AppFlowyUnitTest {
   }
 
   Future<void> _initialServices() async {
-    workspaceService = WorkspaceService(workspaceId: currentWorkspace.id);
+    workspaceService = WorkspaceService(
+      workspaceId: currentWorkspace.id,
+      userId: userProfile.id,
+    );
   }
 
   Future<ViewPB> createWorkspace() async {

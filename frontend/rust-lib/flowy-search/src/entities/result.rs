@@ -18,6 +18,14 @@ pub struct SearchResponsePB {
   #[pb(index = 3, one_of)]
   #[builder(default)]
   pub local_search_result: Option<RepeatedLocalSearchResponseItemPB>,
+
+  #[pb(index = 4)]
+  #[builder(default)]
+  pub searching: bool,
+
+  #[pb(index = 5)]
+  #[builder(default)]
+  pub generating_ai_summary: bool,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -33,6 +41,9 @@ pub struct SearchSummaryPB {
 
   #[pb(index = 2)]
   pub sources: Vec<SearchSourcePB>,
+
+  #[pb(index = 3)]
+  pub highlights: String,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

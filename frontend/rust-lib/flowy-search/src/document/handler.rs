@@ -77,6 +77,12 @@ impl SearchHandler for DocumentSearchHandler {
       };
 
       // Execute document search.
+      yield Ok(
+        CreateSearchResultPBArgs::default().searching(true)
+          .build()
+          .unwrap(),
+      );
+
       let result_items = match cloud_service.document_search(&workspace_id, query.clone()).await {
         Ok(items) => items,
         Err(e) => {
@@ -84,6 +90,7 @@ impl SearchHandler for DocumentSearchHandler {
           return;
         }
       };
+      trace!("[Search] search result: {:?}", result_items);
 
       // Prepare input for search summary generation.
       let summary_input: Vec<SearchResult> = result_items
@@ -114,10 +121,16 @@ impl SearchHandler for DocumentSearchHandler {
       let search_result = RepeatedSearchResponseItemPB { items };
       yield Ok(
         CreateSearchResultPBArgs::default()
+          .searching(false)
           .search_result(Some(search_result))
+          .generating_ai_summary(!result_items.is_empty())
           .build()
           .unwrap(),
       );
+
+      if result_items.is_empty() {
+        return;
+      }
 
       // Generate and yield search summary.
       match cloud_service.generate_search_summary(&workspace_id, query.clone(), summary_input).await {
@@ -138,7 +151,7 @@ impl SearchHandler for DocumentSearchHandler {
                 })
                 .collect();
 
-              SearchSummaryPB { content: v.content, sources }
+              SearchSummaryPB { content: v.content, sources, highlights: v.highlights }
             })
             .collect();
 
@@ -146,12 +159,19 @@ impl SearchHandler for DocumentSearchHandler {
           yield Ok(
             CreateSearchResultPBArgs::default()
               .search_summary(Some(summary_result))
+              .generating_ai_summary(false)
               .build()
               .unwrap(),
           );
         }
         Err(e) => {
           warn!("Failed to generate search summary: {:?}", e);
+          yield Ok(
+            CreateSearchResultPBArgs::default()
+              .generating_ai_summary(false)
+              .build()
+              .unwrap(),
+          );
         }
       }
     })

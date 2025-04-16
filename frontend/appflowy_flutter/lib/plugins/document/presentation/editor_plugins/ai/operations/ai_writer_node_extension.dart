@@ -34,7 +34,15 @@ extension AiWriterNodeExtension on EditorState {
 
     // if the selected nodes are not entirely selected, slice the nodes
     final slicedNodes = <Node>[];
-    final nodes = getNodesInSelection(selection);
+    final List<Node> flattenNodes = getNodesInSelection(selection);
+    final List<Node> nodes = [];
+
+    for (final node in flattenNodes) {
+      if (nodes.any((element) => element.isParentOf(node))) {
+        continue;
+      }
+      nodes.add(node);
+    }
 
     for (final node in nodes) {
       final delta = node.delta;
@@ -76,7 +84,7 @@ extension AiWriterNodeExtension on EditorState {
     // using \n will cause the ai response treat the text as a single line
     final markdown = await customDocumentToMarkdown(
       Document.blank()..insert([0], slicedNodes),
-      lineBreak: '\n\n',
+      lineBreak: '\n',
     );
 
     // trim the last \n if it exists

@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/util/link_util.dart';
+import 'package:flutter/services.dart';
 import 'link_create_menu.dart';
 import 'link_search_text_field.dart';
 import 'link_styles.dart';
@@ -38,15 +39,14 @@ class LinkEditMenu extends StatefulWidget {
 }
 
 class _LinkEditMenuState extends State<LinkEditMenu> {
-  ValueChanged<LinkInfo> get onApply => widget.onApply;
-
   ValueChanged<LinkInfo> get onRemoveLink => widget.onRemoveLink;
 
   VoidCallback get onDismiss => widget.onDismiss;
 
   late TextEditingController linkNameController =
       TextEditingController(text: linkInfo.name);
-  final textFocusNode = FocusNode();
+  late FocusNode textFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late FocusNode menuFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
   late LinkInfo linkInfo = widget.linkInfo;
   late LinkSearchTextField searchTextField;
   bool isShowingSearchResult = false;
@@ -74,12 +74,14 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         if (mounted) setState(() {});
       },
     )..searchRecentViews();
+    makeSureHasFocus();
   }
 
   @override
   void dispose() {
     linkNameController.dispose();
     textFocusNode.dispose();
+    menuFocusNode.dispose();
     searchTextField.dispose();
     super.dispose();
   }
@@ -91,56 +93,59 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     final errorHeight = showErrorText ? 20.0 : 0.0;
     return GestureDetector(
       onTap: onDismiss,
-      child: Container(
-        width: 400,
-        height: 250 + (showingRecent ? 32 : 0),
-        color: Colors.white.withAlpha(1),
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: hideSearchResult,
-              child: Container(
-                width: 400,
-                height: 192 + errorHeight,
-                decoration: buildToolbarLinkDecoration(context),
+      child: Focus(
+        focusNode: menuFocusNode,
+        child: Container(
+          width: 400,
+          height: 250 + (showingRecent ? 32 : 0),
+          color: Colors.white.withAlpha(1),
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: hideSearchResult,
+                child: Container(
+                  width: 400,
+                  height: 192 + errorHeight,
+                  decoration: buildToolbarLinkDecoration(context),
+                ),
               ),
-            ),
-            Positioned(
-              top: 16,
-              left: 20,
-              child: FlowyText.semibold(
-                LocaleKeys.document_toolbar_pageOrURL.tr(),
-                color: LinkStyle.textTertiary,
-                fontSize: 12,
-                figmaLineHeight: 16,
+              Positioned(
+                top: 16,
+                left: 20,
+                child: FlowyText.semibold(
+                  LocaleKeys.document_toolbar_pageOrURL.tr(),
+                  color: LinkStyle.textTertiary,
+                  fontSize: 12,
+                  figmaLineHeight: 16,
+                ),
               ),
-            ),
-            Positioned(
-              top: 80 + errorHeight,
-              left: 20,
-              child: FlowyText.semibold(
-                LocaleKeys.document_toolbar_linkName.tr(),
-                color: LinkStyle.textTertiary,
-                fontSize: 12,
-                figmaLineHeight: 16,
+              Positioned(
+                top: 80 + errorHeight,
+                left: 20,
+                child: FlowyText.semibold(
+                  LocaleKeys.document_toolbar_linkName.tr(),
+                  color: LinkStyle.textTertiary,
+                  fontSize: 12,
+                  figmaLineHeight: 16,
+                ),
               ),
-            ),
-            Positioned(
-              top: 144 + errorHeight,
-              left: 20,
-              child: buildButtons(),
-            ),
-            Positioned(
-              top: 100 + errorHeight,
-              left: 20,
-              child: buildNameTextField(),
-            ),
-            Positioned(
-              top: 36,
-              left: 20,
-              child: buildLinkField(),
-            ),
-          ],
+              Positioned(
+                top: 144 + errorHeight,
+                left: 20,
+                child: buildButtons(),
+              ),
+              Positioned(
+                top: 100 + errorHeight,
+                left: 20,
+                child: buildNameTextField(),
+              ),
+              Positioned(
+                top: 36,
+                left: 20,
+                child: buildLinkField(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -254,23 +259,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                   fontColor: Colors.white,
                   fillColor: LinkStyle.fillThemeThick,
                   fontWeight: FontWeight.w400,
-                  onPressed: () {
-                    if (isShowingSearchResult) {
-                      onConfirm();
-                      return;
-                    }
-                    if (linkInfo.link.isEmpty) {
-                      widget.onRemoveLink(linkInfo);
-                      return;
-                    }
-                    if (linkInfo.link.isEmpty || !isUri(linkInfo.link)) {
-                      setState(() {
-                        showErrorText = true;
-                      });
-                      return;
-                    }
-                    widget.onApply.call(linkInfo);
-                  },
+                  onPressed: onApply,
                 );
               },
             ),
@@ -287,6 +276,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         focusNode: textFocusNode,
+        autofocus: true,
         textAlign: TextAlign.left,
         controller: linkNameController,
         style: TextStyle(
@@ -395,6 +385,45 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     );
   }
 
+  KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
+    if (key is! KeyDownEvent) return KeyEventResult.ignored;
+    if (key.logicalKey == LogicalKeyboardKey.enter) {
+      onApply();
+      return KeyEventResult.handled;
+    } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+      onDismiss();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Future<void> makeSureHasFocus() async {
+    final focusNode = textFocusNode;
+    if (!mounted || focusNode.hasFocus) return;
+    focusNode.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      makeSureHasFocus();
+    });
+  }
+
+  void onApply() {
+    if (isShowingSearchResult) {
+      onConfirm();
+      return;
+    }
+    if (linkInfo.link.isEmpty) {
+      widget.onRemoveLink(linkInfo);
+      return;
+    }
+    if (linkInfo.link.isEmpty || !isUri(linkInfo.link)) {
+      setState(() {
+        showErrorText = true;
+      });
+      return;
+    }
+    widget.onApply.call(linkInfo);
+  }
+
   void onConfirm() {
     searchTextField.onSearchResult(
       onLink: onLinkSelected,
@@ -404,6 +433,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         searchTextField.unfocus();
       },
     );
+    menuFocusNode.requestFocus();
   }
 
   Future<void> getPageView() async {

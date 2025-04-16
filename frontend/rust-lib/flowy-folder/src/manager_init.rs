@@ -138,7 +138,12 @@ impl FolderManager {
       Arc::downgrade(&self.user),
     );
 
-    self.folder_indexer.initialize().await;
+    let weak_folder_indexer = Arc::downgrade(&self.folder_indexer);
+    tokio::spawn(async move {
+      if let Some(folder_indexer) = weak_folder_indexer.upgrade() {
+        folder_indexer.initialize().await;
+      }
+    });
 
     Ok(())
   }

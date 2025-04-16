@@ -8,9 +8,6 @@ pub struct SearchStatePB {
 
   #[pb(index = 2)]
   pub search_id: String,
-
-  #[pb(index = 3)]
-  pub is_loading: bool,
 }
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
