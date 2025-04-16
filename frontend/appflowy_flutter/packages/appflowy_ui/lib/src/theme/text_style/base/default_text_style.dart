@@ -28,51 +28,64 @@ abstract class TextThemeType {
   });
 }
 
-class TextThemeHeading {
-  const TextThemeHeading();
+class TextThemeHeading1 extends TextThemeType {
+  const TextThemeHeading1();
 
-  TextStyle h1({
+  @override
+  TextStyle standard({
     String family = '',
     Color? color,
+    FontWeight? weight,
   }) =>
       _defaultTextStyle(
         family: family,
         fontSize: 36,
         height: 40 / 36,
         color: color,
+        weight: weight ?? FontWeight.w400,
       );
 
-  TextStyle h2({
+  @override
+  TextStyle enhanced({
     String family = '',
     Color? color,
+    FontWeight? weight,
   }) =>
       _defaultTextStyle(
         family: family,
-        fontSize: 24,
-        height: 32 / 24,
+        fontSize: 36,
+        height: 40 / 36,
         color: color,
+        weight: weight ?? FontWeight.w600,
       );
 
-  TextStyle h3({
+  @override
+  TextStyle prominent({
     String family = '',
     Color? color,
+    FontWeight? weight,
   }) =>
       _defaultTextStyle(
         family: family,
-        fontSize: 20,
-        height: 28 / 20,
+        fontSize: 36,
+        height: 40 / 36,
         color: color,
+        weight: weight ?? FontWeight.w700,
       );
 
-  TextStyle h4({
+  @override
+  TextStyle underline({
     String family = '',
     Color? color,
+    FontWeight? weight,
   }) =>
       _defaultTextStyle(
         family: family,
-        fontSize: 16,
-        height: 22 / 16,
+        fontSize: 36,
+        height: 40 / 36,
         color: color,
+        weight: weight ?? FontWeight.bold,
+        decoration: TextDecoration.underline,
       );
 
   static TextStyle _defaultTextStyle({
@@ -81,13 +94,188 @@ class TextThemeHeading {
     required double height,
     TextDecoration decoration = TextDecoration.none,
     Color? color,
+    FontWeight weight = FontWeight.bold,
   }) =>
       TextStyle(
         inherit: false,
         fontSize: fontSize,
         decoration: decoration,
         fontStyle: FontStyle.normal,
-        fontWeight: FontWeight.bold,
+        fontWeight: weight,
+        height: height,
+        fontFamily: family,
+        color: color,
+        textBaseline: TextBaseline.alphabetic,
+        leadingDistribution: TextLeadingDistribution.even,
+      );
+}
+
+class TextThemeHeading2 extends TextThemeType {
+  const TextThemeHeading2();
+
+  @override
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+      );
+
+  @override
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w600,
+      );
+
+  @override
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w700,
+      );
+
+  @override
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle _defaultTextStyle({
+    required String family,
+    double fontSize = 24,
+    double height = 32 / 24,
+    TextDecoration decoration = TextDecoration.none,
+    FontWeight weight = FontWeight.w400,
+    Color? color,
+  }) =>
+      TextStyle(
+        inherit: false,
+        fontSize: fontSize,
+        decoration: decoration,
+        fontStyle: FontStyle.normal,
+        fontWeight: weight,
+        height: height,
+        fontFamily: family,
+        color: color,
+        textBaseline: TextBaseline.alphabetic,
+        leadingDistribution: TextLeadingDistribution.even,
+      );
+}
+
+class TextThemeHeading3 extends TextThemeType {
+  const TextThemeHeading3();
+
+  @override
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+      );
+
+  @override
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w600,
+      );
+
+  @override
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w700,
+      );
+
+  @override
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle _defaultTextStyle({
+    required String family,
+    double fontSize = 20,
+    double height = 28 / 20,
+    TextDecoration decoration = TextDecoration.none,
+    FontWeight weight = FontWeight.w400,
+    Color? color,
+  }) =>
+      TextStyle(
+        inherit: false,
+        fontSize: fontSize,
+        decoration: decoration,
+        fontStyle: FontStyle.normal,
+        fontWeight: weight,
+        height: height,
+        fontFamily: family,
+        color: color,
+        textBaseline: TextBaseline.alphabetic,
+        leadingDistribution: TextLeadingDistribution.even,
+      );
+}
+
+class TextThemeHeading4 extends TextThemeType {
+  const TextThemeHeading4();
+
+  @override
+  TextStyle standard({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+      );
+
+  @override
+  TextStyle enhanced({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w600,
+      );
+
+  @override
+  TextStyle prominent({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w700,
+      );
+
+  @override
+  TextStyle underline({String family = '', Color? color, FontWeight? weight}) =>
+      _defaultTextStyle(
+        family: family,
+        color: color,
+        weight: weight ?? FontWeight.w400,
+        decoration: TextDecoration.underline,
+      );
+
+  static TextStyle _defaultTextStyle({
+    required String family,
+    double fontSize = 16,
+    double height = 22 / 16,
+    TextDecoration decoration = TextDecoration.none,
+    FontWeight weight = FontWeight.w400,
+    Color? color,
+  }) =>
+      TextStyle(
+        inherit: false,
+        fontSize: fontSize,
+        decoration: decoration,
+        fontStyle: FontStyle.normal,
+        fontWeight: weight,
         height: height,
         fontFamily: family,
         color: color,

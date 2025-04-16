@@ -1,3 +1,4 @@
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +13,16 @@ class SettingsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText.semibold(title, fontSize: 24),
+        Text(
+          title,
+          style: theme.textStyle.heading2.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
+        ),
         if (description?.isNotEmpty == true) ...[
           const VSpace(8),
           FlowyText(

@@ -81,7 +81,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
       // title
       Text(
         'Enter password',
-        style: theme.textStyle.heading.h3(
+        style: theme.textStyle.heading3.enhanced(
           color: theme.textColorScheme.primary,
         ),
       ),

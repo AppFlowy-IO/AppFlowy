@@ -4,6 +4,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -96,15 +97,19 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
   }
 
   Widget _buildNameDisplay() {
+    final theme = AppFlowyTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: Text(
               widget.name,
               overflow: TextOverflow.ellipsis,
+              style: theme.textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
             ),
           ),
           const HSpace(4),
