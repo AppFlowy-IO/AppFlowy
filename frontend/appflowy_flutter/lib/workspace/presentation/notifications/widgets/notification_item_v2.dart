@@ -172,7 +172,6 @@ class NotificationItemV2 extends StatelessWidget {
                       );
 
                   showToastNotification(
-                    context,
                     message:
                         LocaleKeys.notificationHub_markAsReadSucceedToast.tr(),
                   );
@@ -199,7 +198,6 @@ class NotificationItemV2 extends StatelessWidget {
                     );
 
                 showToastNotification(
-                  context,
                   message: LocaleKeys
                       .notificationHub_markAsArchievedSucceedToast
                       .tr(),

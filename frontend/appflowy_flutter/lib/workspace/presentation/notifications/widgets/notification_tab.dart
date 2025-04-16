@@ -119,7 +119,6 @@ class _NotificationTabState extends State<NotificationTab>
 
     if (context.mounted) {
       showToastNotification(
-        context,
         message: LocaleKeys.settings_notifications_refreshSuccess.tr(),
       );
     }

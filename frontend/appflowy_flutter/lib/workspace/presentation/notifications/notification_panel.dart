@@ -166,7 +166,6 @@ class _NotificationPanelState extends State<NotificationPanel>
               leftIcon: FlowySvg(FlowySvgs.m_notification_mark_as_read_s),
               onTap: () {
                 showToastNotification(
-                  context,
                   message:
                       LocaleKeys.notificationHub_markAllAsReadSucceedToast.tr(),
                 );
@@ -187,7 +186,6 @@ class _NotificationPanelState extends State<NotificationPanel>
               leftIcon: FlowySvg(FlowySvgs.m_notification_archived_s),
               onTap: () {
                 showToastNotification(
-                  context,
                   message: LocaleKeys
                       .notificationHub_markAllAsArchievedSucceedToast
                       .tr(),
