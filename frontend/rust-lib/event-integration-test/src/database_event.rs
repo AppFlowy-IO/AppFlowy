@@ -584,6 +584,17 @@ impl EventIntegrationTest {
       .parse::<RepeatedRelatedRowDataPB>()
       .rows
   }
+
+  pub async fn get_database_meta(&self, database_id: &str) -> DatabaseMetaPB {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetDatabaseMeta)
+      .payload(DatabaseIdPB {
+        value: database_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<DatabaseMetaPB>()
+  }
 }
 
 pub struct TestRowBuilder<'a> {
