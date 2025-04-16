@@ -99,7 +99,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
   void writeThemeFactory(String brightness, Map<String, dynamic> jsonData) {
     buffer.writeln('''
   @override
-  AppFlowyBaseThemeData $brightness() {
+  AppFlowyThemeData $brightness() {
     final textStyle = AppFlowyBaseTextStyle();
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
@@ -151,7 +151,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
 
     buffer.writeln();
     buffer.writeln('''
-    return AppFlowyBaseThemeData(
+    return AppFlowyThemeData(
       textStyle: textStyle,
       textColorScheme: textColorScheme,
       borderColorScheme: borderColorScheme,

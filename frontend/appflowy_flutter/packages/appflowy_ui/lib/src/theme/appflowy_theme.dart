@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 class AppFlowyTheme extends ThemeExtension<AppFlowyTheme> {
   const AppFlowyTheme({required this.themeData});
 
-  static AppFlowyBaseThemeData of(BuildContext context) =>
+  static AppFlowyThemeData of(BuildContext context) =>
       Theme.of(context).extension<AppFlowyTheme>()!.themeData;
 
-  static AppFlowyBaseThemeData? maybeOf(BuildContext context) =>
+  static AppFlowyThemeData? maybeOf(BuildContext context) =>
       Theme.of(context).extension<AppFlowyTheme>()?.themeData;
 
-  final AppFlowyBaseThemeData themeData;
+  final AppFlowyThemeData themeData;
 
   @override
   ThemeExtension<AppFlowyTheme> copyWith({
-    AppFlowyBaseThemeData? themeData,
+    AppFlowyThemeData? themeData,
   }) {
     return AppFlowyTheme(
       themeData: themeData ?? this.themeData,

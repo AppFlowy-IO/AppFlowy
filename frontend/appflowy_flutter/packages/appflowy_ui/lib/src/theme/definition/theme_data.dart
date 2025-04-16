@@ -4,8 +4,8 @@ import 'shadow/shadow.dart';
 import 'spacing/spacing.dart';
 import 'text_style/text_style.dart';
 
-class AppFlowyBaseThemeData {
-  const AppFlowyBaseThemeData({
+class AppFlowyThemeData {
+  const AppFlowyThemeData({
     required this.textColorScheme,
     required this.textStyle,
     required this.iconColorScheme,
@@ -44,11 +44,11 @@ class AppFlowyBaseThemeData {
 
   final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
 
-  AppFlowyBaseThemeData lerp(
-    AppFlowyBaseThemeData other,
+  AppFlowyThemeData lerp(
+    AppFlowyThemeData other,
     double t,
   ) {
-    return AppFlowyBaseThemeData(
+    return AppFlowyThemeData(
       textColorScheme: textColorScheme.lerp(other.textColorScheme, t),
       textStyle: other.textStyle,
       iconColorScheme: iconColorScheme.lerp(other.iconColorScheme, t),
@@ -70,6 +70,6 @@ class AppFlowyBaseThemeData {
 abstract class AppFlowyThemeBuilder {
   const AppFlowyThemeBuilder();
 
-  AppFlowyBaseThemeData light();
-  AppFlowyBaseThemeData dark();
+  AppFlowyThemeData light();
+  AppFlowyThemeData dark();
 }
