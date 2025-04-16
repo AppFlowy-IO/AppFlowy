@@ -1,15 +1,15 @@
 use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
+use diesel::Connection;
+use serde_repr::*;
 use std::fmt::{Display, Formatter};
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::{Arc, Weak};
 
-use serde_repr::*;
-
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
-use flowy_server::local_server::{LocalServer, LocalServerDB};
+use flowy_server::local_server::LocalServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -115,10 +115,7 @@ impl ServerProvider {
 
     let server = match server_type {
       Server::Local => {
-        let local_db = Arc::new(LocalServerDBImpl {
-          storage_path: self.config.storage_path.clone(),
-        });
-        let server = Arc::new(LocalServer::new(local_db));
+        let server = Arc::new(LocalServer::new(self.user.clone()));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       Server::AppFlowyCloud => {
@@ -169,26 +166,5 @@ pub fn current_server_type() -> Server {
   match AuthenticatorType::from_env() {
     AuthenticatorType::Local => Server::Local,
     AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
-  }
-}
-
-struct LocalServerDBImpl {
-  #[allow(dead_code)]
-  storage_path: String,
-}
-
-impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_profile"),
-    )
-  }
-
-  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_workspace"),
-    )
   }
 }

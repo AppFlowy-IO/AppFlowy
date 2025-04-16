@@ -148,10 +148,3 @@ pub fn select_user_profile(uid: i64, mut conn: DBConnection) -> Result<UserProfi
 
   Ok(user)
 }
-
-pub(crate) fn vacuum_database(mut conn: DBConnection) -> Result<(), FlowyError> {
-  sql_query("VACUUM")
-    .execute(&mut *conn)
-    .map_err(internal_error)?;
-  Ok(())
-}

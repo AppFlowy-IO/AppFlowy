@@ -49,7 +49,6 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
     .event(UserEvent::RemoveReminder, remove_reminder_event_handler)
     .event(UserEvent::UpdateReminder, update_reminder_event_handler)
-    .event(UserEvent::ResetWorkspace, reset_workspace_handler)
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
@@ -182,9 +181,6 @@ pub enum UserEvent {
 
   #[event(input = "ReminderPB")]
   UpdateReminder = 31,
-
-  #[event(input = "ResetWorkspacePB")]
-  ResetWorkspace = 32,
 
   /// Change the Date/Time formats globally
   #[event(input = "DateTimeSettingsPB")]

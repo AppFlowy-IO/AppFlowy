@@ -3,14 +3,14 @@ use semver::Version;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use uuid::Uuid;
 
+use crate::setup_log;
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-
-use crate::setup_log;
+use flowy_sqlite::DBConnection;
 
 /// To run the test, create a .env.ci file in the 'flowy-server' directory and set the following environment variables:
 ///
@@ -40,6 +40,14 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
 struct FakeServerUserImpl;
 impl ServerUser for FakeServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
+    todo!()
+  }
+
+  fn user_id(&self) -> FlowyResult<i64> {
+    todo!()
+  }
+
+  fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     todo!()
   }
 }

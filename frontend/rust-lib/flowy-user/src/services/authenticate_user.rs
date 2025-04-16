@@ -1,7 +1,6 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
-use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
 use arc_swap::ArcSwapOption;
@@ -17,8 +16,6 @@ use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use tracing::{error, info};
 use uuid::Uuid;
-
-const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
   pub user_config: UserConfig,
@@ -41,23 +38,6 @@ impl AuthenticateUser {
       user_paths,
       store_preferences,
       session: ArcSwapOption::from(session),
-    }
-  }
-
-  pub fn vacuum_database_if_need(&self) {
-    if !self
-      .store_preferences
-      .get_bool_or_default(SQLITE_VACUUM_042)
-    {
-      if let Ok(session) = self.get_session() {
-        let _ = self.store_preferences.set_bool(SQLITE_VACUUM_042, true);
-        if let Ok(conn) = self.database.get_connection(session.user_id) {
-          info!("vacuum database 042");
-          if let Err(err) = vacuum_database(conn) {
-            error!("vacuum database error: {:?}", err);
-          }
-        }
-      }
     }
   }
 

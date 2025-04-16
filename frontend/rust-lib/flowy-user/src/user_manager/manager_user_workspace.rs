@@ -414,24 +414,6 @@ impl UserManager {
     Ok(workspaces)
   }
 
-  /// Reset the remote workspace using local workspace data. This is useful when a user wishes to
-  /// open a workspace on a new device that hasn't fully synchronized with the server.
-  pub async fn reset_workspace(&self, reset: ResetWorkspacePB) -> FlowyResult<()> {
-    let collab_object = CollabObject::new(
-      reset.uid,
-      reset.workspace_id.clone(),
-      CollabType::Folder,
-      reset.workspace_id.clone(),
-      self.authenticate_user.user_config.device_id.clone(),
-    );
-    self
-      .cloud_services
-      .get_user_service()?
-      .reset_workspace(collab_object)
-      .await?;
-    Ok(())
-  }
-
   #[instrument(level = "info", skip(self), err)]
   pub async fn subscribe_workspace(
     &self,

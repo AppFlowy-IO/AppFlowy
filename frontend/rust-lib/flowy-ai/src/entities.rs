@@ -296,6 +296,9 @@ pub struct ChatMessagePB {
 
   #[pb(index = 6, one_of)]
   pub reply_message_id: Option<i64>,
+
+  #[pb(index = 7, one_of)]
+  pub metadata: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -316,6 +319,7 @@ impl From<ChatMessage> for ChatMessagePB {
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
       reply_message_id: None,
+      metadata: Some(serde_json::to_string(&chat_message.metadata).unwrap_or_default()),
     }
   }
 }

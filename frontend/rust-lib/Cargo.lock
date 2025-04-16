@@ -2957,7 +2957,6 @@ dependencies = [
  "arc-swap",
  "assert-json-diff",
  "bytes",
- "chrono",
  "client-api",
  "collab",
  "collab-database",
@@ -2966,7 +2965,6 @@ dependencies = [
  "collab-folder",
  "collab-plugins",
  "collab-user",
- "dashmap 6.0.1",
  "dotenv",
  "flowy-ai-pub",
  "flowy-database-pub",
@@ -2975,33 +2973,25 @@ dependencies = [
  "flowy-folder-pub",
  "flowy-search-pub",
  "flowy-server-pub",
+ "flowy-sqlite",
  "flowy-storage",
  "flowy-storage-pub",
  "flowy-user-pub",
  "futures",
  "futures-util",
- "hex",
- "hyper 0.14.27",
  "lazy_static",
- "lib-dispatch",
  "lib-infra",
- "mime_guess",
- "postgrest",
  "rand 0.8.5",
- "reqwest 0.11.27",
  "semver",
  "serde",
  "serde_json",
  "thiserror 1.0.64",
  "tokio",
- "tokio-retry",
  "tokio-stream",
  "tokio-util",
  "tracing",
  "tracing-subscriber",
- "url",
  "uuid",
- "yrs",
 ]
 
 [[package]]
@@ -3138,6 +3128,7 @@ name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "base64 0.21.5",
  "chrono",
  "client-api",
@@ -5383,15 +5374,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgrest"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a966c650b47a064e7082170b4be74fca08c088d893244fc4b70123e3c1f3ee7"
-dependencies = [
- "reqwest 0.11.27",
-]
-
-[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6130,7 +6112,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
- "webpki-roots 0.25.2",
  "winreg 0.50.0",
 ]
 
@@ -8442,12 +8423,6 @@ checksum = "b6c71e40d7d2c34a5106301fb632274ca37242cd0c9d3e64dbece371a40a2d87"
 dependencies = [
  "webpki",
 ]
-
-[[package]]
-name = "webpki-roots"
-version = "0.25.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14247bb57be4f377dfb94c72830b8ce8fc6beac03cf4bf7b9732eadd414123fc"
 
 [[package]]
 name = "webpki-roots"

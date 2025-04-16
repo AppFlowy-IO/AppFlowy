@@ -86,7 +86,6 @@ class WorkspaceErrorScreen extends StatelessWidget {
                 const VSpace(50),
                 const LogoutButton(),
                 const VSpace(20),
-                const ResetWorkspaceButton(),
               ]);
 
               return Center(
@@ -152,46 +151,6 @@ class LogoutButton extends StatelessWidget {
           context.read<WorkspaceErrorBloc>().add(
                 const WorkspaceErrorEvent.logout(),
               );
-        },
-      ),
-    );
-  }
-}
-
-class ResetWorkspaceButton extends StatelessWidget {
-  const ResetWorkspaceButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      height: 40,
-      child: BlocBuilder<WorkspaceErrorBloc, WorkspaceErrorState>(
-        builder: (context, state) {
-          final isLoading = state.loadingState?.isLoading() ?? false;
-          final icon = isLoading
-              ? const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                )
-              : null;
-
-          return FlowyButton(
-            text: FlowyText.medium(
-              LocaleKeys.workspace_reset.tr(),
-              textAlign: TextAlign.center,
-            ),
-            onTap: () {
-              NavigatorAlertDialog(
-                title: LocaleKeys.workspace_resetWorkspacePrompt.tr(),
-                confirm: () {
-                  context.read<WorkspaceErrorBloc>().add(
-                        const WorkspaceErrorEvent.resetWorkspace(),
-                      );
-                },
-              ).show(context);
-            },
-            rightIcon: icon,
-          );
         },
       ),
     );

@@ -23,3 +23,4 @@ collab-folder = { workspace = true }
 tracing.workspace = true
 base64 = "0.21"
 client-api = { workspace = true }
+arc-swap = "1.7.1"

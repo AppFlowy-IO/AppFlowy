@@ -581,6 +581,7 @@ impl Chat {
         author_type: record.author_type,
         author_id: record.author_id,
         reply_message_id: record.reply_message_id,
+        metadata: record.metadata,
       })
       .collect::<Vec<_>>();
 
@@ -641,7 +642,7 @@ fn save_chat_message_disk(
       author_type: message.author.author_type as i64,
       author_id: message.author.author_id.to_string(),
       reply_message_id: message.reply_message_id,
-      metadata: None,
+      metadata: Some(serde_json::to_string(&message.metadata).unwrap_or_default()),
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;

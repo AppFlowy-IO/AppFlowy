@@ -35,6 +35,7 @@ use crate::deps_resolve::*;
 use crate::log_filter::init_log;
 use crate::server_layer::{current_server_type, Server, ServerProvider};
 use deps_resolve::reminder_deps::CollabInteractImpl;
+use flowy_sqlite::DBConnection;
 use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
@@ -333,5 +334,13 @@ impl ServerUserImpl {
 impl ServerUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn user_id(&self) -> FlowyResult<i64> {
+    self.upgrade_user()?.user_id()
+  }
+
+  fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.upgrade_user()?.get_sqlite_connection(uid)
   }
 }

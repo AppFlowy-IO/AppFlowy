@@ -1,3 +1,4 @@
+use crate::af_cloud::define::ServerUser;
 use client_api::entity::ai_dto::{LocalAIConfig, RepeatedRelatedQuestion};
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
@@ -10,9 +11,12 @@ use lib_infra::util::timestamp;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::Arc;
 use uuid::Uuid;
 
-pub(crate) struct LocalServerChatServiceImpl;
+pub struct LocalServerChatServiceImpl {
+  pub user: Arc<dyn ServerUser>,
+}
 
 #[async_trait]
 impl ChatCloudService for LocalServerChatServiceImpl {
