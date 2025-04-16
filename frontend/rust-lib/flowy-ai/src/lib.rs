@@ -5,7 +5,7 @@ pub mod ai_manager;
 mod chat;
 mod completion;
 pub mod entities;
-mod local_ai;
+pub mod local_ai;
 
 // #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 // pub mod mcp;

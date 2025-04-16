@@ -2609,6 +2609,7 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "af-local-ai",
+ "af-plugin",
  "anyhow",
  "arc-swap",
  "base64 0.21.5",
@@ -2966,6 +2967,7 @@ dependencies = [
  "collab-plugins",
  "collab-user",
  "dotenv",
+ "flowy-ai",
  "flowy-ai-pub",
  "flowy-database-pub",
  "flowy-document-pub",

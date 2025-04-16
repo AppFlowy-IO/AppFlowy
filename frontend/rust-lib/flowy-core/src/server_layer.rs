@@ -1,11 +1,9 @@
+use crate::AppFlowyCoreConfig;
+use af_plugin::manager::PluginManager;
 use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
-use diesel::Connection;
-use serde_repr::*;
-use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::{Arc, Weak};
-
+use flowy_ai::ai_manager::AIUserService;
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
@@ -14,8 +12,10 @@ use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
-
-use crate::AppFlowyCoreConfig;
+use serde_repr::*;
+use std::fmt::{Display, Formatter};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::{Arc, Weak};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
@@ -66,10 +66,21 @@ impl ServerProvider {
     config: AppFlowyCoreConfig,
     server: Server,
     store_preferences: Weak<KVStorePreferences>,
+    user_service: impl AIUserService,
     server_user: impl ServerUser + 'static,
   ) -> Self {
     let user = Arc::new(server_user);
     let encryption = EncryptionImpl::new(None);
+
+    let user_service = Arc::new(user_service);
+    let plugin_manager = Arc::new(PluginManager::new());
+    let local_ai = Arc::new(LocalAIController::new(
+      plugin_manager.clone(),
+      store_preferences.clone(),
+      user_service.clone(),
+      chat_cloud_service.clone(),
+    ));
+
     Self {
       config,
       providers: DashMap::new(),

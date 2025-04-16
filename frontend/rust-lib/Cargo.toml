@@ -99,6 +99,8 @@ zip = "2.2.0"
 dashmap = "6.0.1"
 derive_builder = "0.20.2"
 tantivy = { version = "0.24.0" }
+af-plugin = { version = "0.1" }
+af-local-ai = { version = "0.1" }
 
 # Please using the following command to update the revision id
 # Current directory: frontend
