@@ -441,7 +441,14 @@ class MarkdownTextRobot {
     ).root.children;
 
     // Get the selected nodes.
-    final nodes = editorState.getNodesInSelection(selection);
+    final flattenNodes = editorState.getNodesInSelection(selection);
+    final nodes = <Node>[];
+    for (final node in flattenNodes) {
+      if (nodes.any((element) => element.isParentOf(node))) {
+        continue;
+      }
+      nodes.add(node);
+    }
 
     // Note: Don't change its order, otherwise the delta will be incorrect.
     // step 1. merge the first selected node and the first node from the ai response
@@ -465,9 +472,23 @@ class MarkdownTextRobot {
       transaction
         ..deleteText(firstNode, startIndex, length)
         ..insertTextDelta(firstNode, startIndex, firstMarkdownDelta);
+
+      // if the first markdown node has children, we need to insert the children
+      // and delete the children of the first node that are in the selection.
+      if (firstMarkdownNode.children.isNotEmpty) {
+        transaction.insertNodes(
+          firstNode.path.child(0),
+          firstMarkdownNode.children.map((e) => e.deepCopy()),
+        );
+      }
+
+      transaction.deleteNodes(
+        firstNode.children.where((e) => e.path.inSelection(selection)),
+      );
     }
 
     // step 2
+    bool handledLastNode = false;
     final lastNode = nodes.lastOrNull;
     final lastDelta = lastNode?.delta;
     final lastMarkdownNode = markdownNodes.lastOrNull;
@@ -475,7 +496,10 @@ class MarkdownTextRobot {
     if (lastNode != null &&
         lastDelta != null &&
         lastMarkdownNode != null &&
-        lastMarkdownDelta != null) {
+        lastMarkdownDelta != null &&
+        firstNode?.id != lastNode.id) {
+      handledLastNode = true;
+
       final endIndex = selection.endIndex;
 
       transaction.deleteText(lastNode, 0, endIndex);
@@ -484,15 +508,30 @@ class MarkdownTextRobot {
       // selected text in the first node.
       if (lastMarkdownNode.id != firstMarkdownNode?.id) {
         transaction.insertTextDelta(lastNode, 0, lastMarkdownDelta);
+
+        if (lastMarkdownNode.children.isNotEmpty) {
+          transaction
+            ..insertNodes(
+              lastNode.path.child(0),
+              lastMarkdownNode.children.map((e) => e.deepCopy()),
+            )
+            ..deleteNodes(
+              lastNode.children.where((e) => e.path.inSelection(selection)),
+            );
+        }
       }
     }
 
     // step 3
     final insertedPath = selection.start.path.nextNPath(1);
-    if (markdownNodes.length > 2) {
+    final insertLength = handledLastNode ? 2 : 1;
+    if (markdownNodes.length > insertLength) {
       transaction.insertNodes(
         insertedPath,
-        markdownNodes.skip(1).take(markdownNodes.length - 2).toList(),
+        markdownNodes
+            .skip(1)
+            .take(markdownNodes.length - insertLength)
+            .toList(),
       );
     }
 
