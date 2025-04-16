@@ -70,6 +70,7 @@ class MobileSelectionMenu extends SelectionMenuService {
     final editorWidth = editorState.renderBox!.size.width;
 
     _positionNotifier = ValueNotifier(position);
+    final showAtTop = position.top != null;
     _selectionMenuEntry = OverlayEntry(
       builder: (context) {
         return SizedBox(
@@ -93,6 +94,7 @@ class MobileSelectionMenu extends SelectionMenuService {
                         child: MobileSelectionMenuWidget(
                           selectionMenuStyle: style,
                           singleColumn: singleColumn,
+                          showAtTop: showAtTop,
                           items: selectionMenuItems
                             ..forEach((element) {
                               if (element is MobileSelectionMenuItem) {
