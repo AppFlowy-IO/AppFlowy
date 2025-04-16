@@ -4,6 +4,8 @@ import 'shadow/shadow.dart';
 import 'spacing/spacing.dart';
 import 'text_style/text_style.dart';
 
+/// [AppFlowyThemeData] defines the structure of the design system, and contains
+/// the data that all child widgets will have access to.
 class AppFlowyThemeData {
   const AppFlowyThemeData({
     required this.textColorScheme,
@@ -67,6 +69,13 @@ class AppFlowyThemeData {
   }
 }
 
+/// [AppFlowyThemeBuilder] is used to build the light and dark themes. Extend
+/// this class to create a built-in theme, or use the [CustomTheme] class to
+/// create a custom theme from JSON data.
+///
+/// See also:
+///
+/// - [AppFlowyThemeData] for the main theme data class.
 abstract class AppFlowyThemeBuilder {
   const AppFlowyThemeBuilder();
 
