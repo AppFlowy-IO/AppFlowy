@@ -1,6 +1,8 @@
 import 'package:appflowy_ui/src/theme/theme.dart';
 import 'package:flutter/material.dart';
 
+/// A class that provides a way to access the AppFlowy theme data in the widget
+/// tree. We ask [ThemeData] to the dependcy injection for us.
 class AppFlowyTheme extends ThemeExtension<AppFlowyTheme> {
   const AppFlowyTheme({required this.themeData});
 

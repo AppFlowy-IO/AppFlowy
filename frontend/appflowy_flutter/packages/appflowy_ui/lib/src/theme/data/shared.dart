@@ -21,8 +21,8 @@ class AppFlowyBorderRadiusConstant {
   static const double radius600 = 20;
 }
 
-class AppFlowyThemeBuilder {
-  const AppFlowyThemeBuilder();
+class AppFlowySharedTokens {
+  const AppFlowySharedTokens();
 
   static AppFlowyBorderRadius buildBorderRadius() {
     return AppFlowyBorderRadius(

@@ -46,6 +46,8 @@ class DesktopAppearance extends BaseAppearance {
       shadow: theme.shadow,
     );
 
+    final newThemeBuilder = AppFlowyDefaultTheme();
+
     // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
     return ThemeData(
       visualDensity: VisualDensity.standard,
@@ -153,7 +155,7 @@ class DesktopAppearance extends BaseAppearance {
           toolbarHoverColor: theme.toolbarHoverColor,
         ),
         AppFlowyTheme(
-          themeData: buildAppFlowyDefaultThemeDataLight(),
+          themeData: isLight ? newThemeBuilder.light() : newThemeBuilder.dark(),
         ),
       ],
     );

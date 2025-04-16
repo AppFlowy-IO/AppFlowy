@@ -26,21 +26,24 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: themeMode,
       builder: (context, themeMode, child) {
+        final themeBuilder = AppFlowyDefaultTheme();
         ThemeData themeData =
             themeMode == ThemeMode.light ? ThemeData.light() : ThemeData.dark();
         themeData = themeData.copyWith(
+          visualDensity: VisualDensity.standard,
           extensions: [
             AppFlowyTheme(
               themeData: themeMode == ThemeMode.light
-                  ? buildAppFlowyDefaultThemeDataLight()
-                  : buildAppFlowyDefaultThemeDataDark(),
+                  ? themeBuilder.light()
+                  : themeBuilder.dark(),
             ),
           ],
         );
+
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'AppFlowy UI Example',
-          theme: themeData.copyWith(visualDensity: VisualDensity.standard),
+          theme: themeData,
           home: const MyHomePage(
             title: 'AppFlowy UI',
           ),

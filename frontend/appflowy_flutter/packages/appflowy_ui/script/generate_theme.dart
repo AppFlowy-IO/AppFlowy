@@ -90,34 +90,20 @@ void generateSemantic() {
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
-import '../builder.dart';
+import '../shared.dart';
 import 'primitive.dart';
 
-class AppFlowyThemeData implements AppFlowyBaseThemeData {
-  const AppFlowyThemeData._({
-    required this.textStyle,
-    required this.textColorScheme,
-    required this.borderColorScheme,
-    required this.fillColorScheme,
-    required this.surfaceColorScheme,
-    required this.borderRadius,
-    required this.spacing,
-    required this.shadow,
-    required this.brandColorScheme,
-    required this.iconColorScheme,
-    required this.backgroundColorScheme,
-    required this.otherColorsColorScheme,
-  });
-''');
+class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
 
   // 3. Process light mode semantic tokens
   void writeThemeFactory(String brightness, Map<String, dynamic> jsonData) {
     buffer.writeln('''
-  factory AppFlowyThemeData.$brightness() {
+  @override
+  AppFlowyBaseThemeData $brightness() {
     final textStyle = AppFlowyBaseTextStyle();
-    final borderRadius = themeBuilder.buildBorderRadius();
-    final spacing = themeBuilder.buildSpacing();
-    final shadow = themeBuilder.buildShadow(Brightness.$brightness);''');
+    final borderRadius = AppFlowySharedTokens.buildBorderRadius();
+    final spacing = AppFlowySharedTokens.buildSpacing();
+    final shadow = AppFlowySharedTokens.buildShadow(Brightness.$brightness);''');
 
     jsonData.forEach((categoryName, categoryData) {
       if (categoryData is Map<String, dynamic>) {
@@ -165,7 +151,7 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
 
     buffer.writeln();
     buffer.writeln('''
-    return AppFlowyThemeData._(
+    return AppFlowyBaseThemeData(
       textStyle: textStyle,
       textColorScheme: textColorScheme,
       borderColorScheme: borderColorScheme,
@@ -185,46 +171,6 @@ class AppFlowyThemeData implements AppFlowyBaseThemeData {
   writeThemeFactory('light', lightJsonData);
   buffer.writeln();
   writeThemeFactory('dark', darkJsonData);
-
-  buffer.writeln('''
-
-  static const AppFlowyThemeBuilder themeBuilder = AppFlowyThemeBuilder();
-
-  @override
-  final AppFlowyBaseTextStyle textStyle;
-
-  @override
-  final AppFlowyTextColorScheme textColorScheme;
-
-  @override
-  final AppFlowyBorderColorScheme borderColorScheme;
-
-  @override
-  final AppFlowyFillColorScheme fillColorScheme;
-
-  @override
-  final AppFlowySurfaceColorScheme surfaceColorScheme;
-
-  @override
-  final AppFlowyBorderRadius borderRadius;
-
-  @override
-  final AppFlowySpacing spacing;
-
-  @override
-  final AppFlowyShadow shadow;
-
-  @override
-  final AppFlowyBrandColorScheme brandColorScheme;
-
-  @override
-  final AppFlowyIconColorScheme iconColorScheme;
-
-  @override
-  final AppFlowyBackgroundColorScheme backgroundColorScheme;
-
-  @override
-  final AppFlowyOtherColorsColorScheme otherColorsColorScheme;''');
   buffer.writeln('}');
 
   // 4. Write the output to a Dart file.

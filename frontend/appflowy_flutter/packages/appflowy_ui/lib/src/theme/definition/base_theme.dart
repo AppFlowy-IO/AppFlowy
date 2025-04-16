@@ -66,3 +66,10 @@ class AppFlowyBaseThemeData {
     );
   }
 }
+
+abstract class AppFlowyThemeBuilder {
+  const AppFlowyThemeBuilder();
+
+  AppFlowyBaseThemeData light();
+  AppFlowyBaseThemeData dark();
+}
