@@ -606,7 +606,7 @@ impl UserManager {
     }
 
     let member = self
-      .get_workspace_member_info_from_remote(&workspace_id, uid)
+      .get_workspace_member_info_from_remote(workspace_id, uid)
       .await?;
 
     Ok(member)
