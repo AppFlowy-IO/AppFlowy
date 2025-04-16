@@ -11,6 +11,7 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
+  analyzer: 6.11.0
   any_date: ^1.0.4
   app_links: ^6.3.3
   appflowy_backend:
