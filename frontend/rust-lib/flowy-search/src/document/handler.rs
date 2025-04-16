@@ -90,6 +90,7 @@ impl SearchHandler for DocumentSearchHandler {
           return;
         }
       };
+      trace!("[Search] search result: {:?}", result_items);
 
       // Prepare input for search summary generation.
       let summary_input: Vec<SearchResult> = result_items
@@ -122,10 +123,14 @@ impl SearchHandler for DocumentSearchHandler {
         CreateSearchResultPBArgs::default()
           .searching(false)
           .search_result(Some(search_result))
-          .generating_ai_summary(true)
+          .generating_ai_summary(!result_items.is_empty())
           .build()
           .unwrap(),
       );
+
+      if result_items.is_empty() {
+        return;
+      }
 
       // Generate and yield search summary.
       match cloud_service.generate_search_summary(&workspace_id, query.clone(), summary_input).await {

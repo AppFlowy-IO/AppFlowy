@@ -486,7 +486,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    _workspaceService = WorkspaceService(
+      workspaceId: workspaceId,
+      userId: userProfile.id,
+    );
 
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
