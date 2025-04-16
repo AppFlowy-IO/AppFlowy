@@ -1,3 +1,5 @@
+use super::entities::FolderIndexData;
+use crate::entities::{LocalSearchResponseItemPB, ResultIconTypePB};
 use crate::folder::schema::{
   FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
   FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
@@ -7,25 +9,30 @@ use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexCont
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use lib_infra::async_trait::async_trait;
+use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::{collections::HashMap, fs};
-
-use super::entities::FolderIndexData;
-use crate::entities::{LocalSearchResponseItemPB, ResultIconTypePB};
-use lib_infra::async_trait::async_trait;
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
-  Index, IndexReader, IndexWriter, TantivyDocument, Term,
+  Index, IndexReader, IndexWriter, TantivyDocument, TantivyError, Term,
 };
 use tokio::sync::RwLock;
 use tracing::{error, info};
 use uuid::Uuid;
 
 pub struct TantivyState {
+  pub path: PathBuf,
   pub index: Index,
   pub folder_schema: FolderSchema,
   pub index_reader: IndexReader,
   pub index_writer: IndexWriter,
+}
+
+impl Drop for TantivyState {
+  fn drop(&mut self) {
+    tracing::trace!("Dropping TantivyState at {:?}", self.path);
+  }
 }
 
 const FOLDER_INDEX_DIR: &str = "folder_index";
@@ -57,7 +64,19 @@ impl FolderIndexManagerImpl {
   }
 
   /// Initializes the state using the workspace directory.
-  async fn initialize_with_workspace(&self) -> FlowyResult<()> {
+  async fn initialize(&self) -> FlowyResult<()> {
+    if let Some(state) = self.state.write().await.take() {
+      info!("Re-initializing folder indexer");
+      drop(state);
+    }
+
+    // Since the directory lock may not be immediately released,
+    // a workaround is implemented by waiting for 3 seconds before proceeding further. This delay helps
+    // to avoid errors related to trying to open an index directory while an IndexWriter is still active.
+    //
+    // Also, we don't need to initialize the indexer immediately.
+    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+
     let auth_user = self
       .auth_user
       .upgrade()
@@ -73,12 +92,26 @@ impl FolderIndexManagerImpl {
 
     info!("Folder indexer initialized at: {:?}", index_path);
     let folder_schema = FolderSchema::new();
-    let dir = MmapDirectory::open(index_path)?;
+    let dir = MmapDirectory::open(index_path.clone())?;
     let index = Index::open_or_create(dir, folder_schema.schema.clone())?;
     let index_reader = index.reader()?;
-    let index_writer = index.writer(50_000_000)?;
+
+    let index_writer = match index.writer::<_>(50_000_000) {
+      Ok(index_writer) => index_writer,
+      Err(err) => {
+        if let TantivyError::LockFailure(_, _) = err {
+          error!(
+            "Failed to acquire lock for index writer: {:?}, retry later",
+            err
+          );
+          tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+        }
+        index.writer::<_>(50_000_000)?
+      },
+    };
 
     *self.state.write().await = Some(TantivyState {
+      path: index_path,
       index,
       folder_schema,
       index_reader,
@@ -295,7 +328,7 @@ impl IndexManager for FolderIndexManagerImpl {
 #[async_trait]
 impl FolderIndexManager for FolderIndexManagerImpl {
   async fn initialize(&self) {
-    if let Err(e) = self.initialize_with_workspace().await {
+    if let Err(e) = self.initialize().await {
       error!("Failed to initialize FolderIndexManager: {:?}", e);
     }
   }
