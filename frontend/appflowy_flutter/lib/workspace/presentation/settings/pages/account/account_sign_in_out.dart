@@ -3,13 +3,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/password/password_bloc.dart';
 import 'package:appflowy/user/application/prelude.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email_and_password.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -113,28 +112,44 @@ class ChangePasswordSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Row(
-      children: [
-        Text(
-          'Password',
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
-        const Spacer(),
-        AFFilledTextButton.primary(
-          text: 'Change password',
-          onTap: () => _showChangePasswordDialog(context),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => PasswordBloc(userProfile)
+        ..add(PasswordEvent.init())
+        ..add(PasswordEvent.checkHasPassword()),
+      child: BlocBuilder<PasswordBloc, PasswordState>(
+        builder: (context, state) {
+          return Row(
+            children: [
+              Text(
+                'Password',
+                style: theme.textStyle.body.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
+              ),
+              const Spacer(),
+              AFFilledTextButton.primary(
+                text: 'Change password',
+                onTap: () => _showChangePasswordDialog(context),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
     await showDialog(
       context: context,
-      builder: (context) => BlocProvider<SignInBloc>(
-        create: (context) => getIt<SignInBloc>(),
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider<PasswordBloc>.value(
+            value: context.read<PasswordBloc>(),
+          ),
+          BlocProvider<SignInBloc>.value(
+            value: getIt<SignInBloc>(),
+          ),
+        ],
         child: Dialog(
           child: _ChangePasswordDialogContent(
             userProfile: userProfile,
@@ -266,7 +281,6 @@ class _OrDivider extends StatelessWidget {
 
 class _ChangePasswordDialogContent extends StatefulWidget {
   const _ChangePasswordDialogContent({
-    super.key,
     required this.userProfile,
   });
 
@@ -517,31 +531,34 @@ class _ChangePasswordDialogContentState
     // }
 
 // all the verification passed, save the new password
-    final userService = UserBackendService(userId: widget.userProfile.id);
+    // final userService = UserBackendService(userId: widget.userProfile.id);
+    final passwordBloc = context.read<PasswordBloc>();
 
-    final result = await userService.signInWithPassword(
-      widget.userProfile.email,
-      currentPassword,
+    final result = passwordBloc.add(
+      PasswordEvent.changePassword(
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      ),
     );
 
-    result.fold(
-      (userProfile) {
-        showToastNotification(
-          message: 'Password changed',
-          description: 'Your password has been changed',
-        );
-        Navigator.of(context).pop();
-      },
-      (error) {
-        Log.error(error);
+    // result.fold(
+    //   (userProfile) {
+    //     showToastNotification(
+    //       message: 'Password changed',
+    //       description: 'Your password has been changed',
+    //     );
+    //     Navigator.of(context).pop();
+    //   },
+    //   (error) {
+    //     Log.error(error);
 
-        showToastNotification(
-          type: ToastificationType.error,
-          message: 'Failed to change password',
-          description: error.msg,
-        );
-      },
-    );
+    //     showToastNotification(
+    //       type: ToastificationType.error,
+    //       message: 'Failed to change password',
+    //       description: error.msg,
+    //     );
+    //   },
+    // );
 
     // result.fold(
     //   (userProfile) {
