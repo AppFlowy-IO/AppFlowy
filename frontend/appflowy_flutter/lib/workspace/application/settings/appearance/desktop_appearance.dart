@@ -14,8 +14,6 @@ class DesktopAppearance extends BaseAppearance {
   ) {
     assert(codeFontFamily.isNotEmpty);
 
-    fontFamily = fontFamily.isEmpty ? defaultFontFamily : fontFamily;
-
     final isLight = brightness == Brightness.light;
     final theme = isLight ? appTheme.lightTheme : appTheme.darkTheme;
 

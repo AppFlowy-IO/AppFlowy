@@ -3,16 +3,16 @@
 show_usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
-    echo "  --icon-path       Set the path to the folder containing application icons (.svg files)"
+    echo "  --icon-path       Set the path to the application icon (.svg file)"
     echo "  --help            Show this help message"
     echo ""
     echo "Example:"
-    echo "  $0 --icon-path \"/path/to/icons_folder\""
+    echo "  $0 --icon-path \"/path/to/new/icon.svg\""
 }
 
 NEW_ICON_PATH=""
 ICON_DIR="resources/flowy_icons"
-ICON_NAME_NEED_REPLACE=("app_logo.svg" "ai_chat_logo.svg" "app_logo_with_text_light.svg" "app_logo_with_text_dark.svg")
+ICON_NAME_NEED_REPLACE=("flowy_logo.svg" "flowy_ai_chat_logo.svg" "flowy_logo_dark_mode.svg" "flowy_logo_text.svg")
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -38,17 +38,12 @@ if [ -z "$NEW_ICON_PATH" ]; then
     exit 1
 fi
 
-if [ ! -d "$NEW_ICON_PATH" ]; then
-    echo "Error: New icon directory not found at $NEW_ICON_PATH"
-    exit 1
-fi
-
 if [ ! -d "$ICON_DIR" ]; then
     echo "Error: Icon directory not found at $ICON_DIR"
     exit 1
 fi
 
-echo "Replacing icons..."
+echo "Replacing icon..."
 
 echo "Processing icon files..."
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
@@ -57,18 +52,13 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
             echo "Checking subdirectory: $(basename "$subdir")"
             for file in "${subdir}"*.svg; do
                 if [ -f "$file" ] && [[ " ${ICON_NAME_NEED_REPLACE[@]} " =~ " $(basename "$file") " ]]; then
-                    new_icon="${NEW_ICON_PATH}/$(basename "$file")"
-                    if [ -f "$new_icon" ]; then
-                        echo "Updating: $(basename "$subdir")/$(basename "$file")"
-                        cp "$new_icon" "$file"
-                        if [ $? -eq 0 ]; then
-                            echo "Successfully replaced $(basename "$file") in $(basename "$subdir") with new icon"
-                        else
-                            echo "Error: Failed to replace $(basename "$file") in $(basename "$subdir")"
-                            exit 1
-                        fi
+                    echo "Updating: $(basename "$subdir")/$(basename "$file")"
+                    cp "$NEW_ICON_PATH" "$file"
+                    if [ $? -eq 0 ]; then
+                        echo "Successfully replaced $(basename "$file") in $(basename "$subdir") with new icon"
                     else
-                        echo "Warning: New icon file $(basename "$file") not found in $NEW_ICON_PATH"
+                        echo "Error: Failed to replace $(basename "$file") in $(basename "$subdir")"
+                        exit 1
                     fi
                 fi
             done
@@ -77,18 +67,15 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
 else
     for file in $(find "$ICON_DIR" -name "*.svg" -type f); do
         if [[ " ${ICON_NAME_NEED_REPLACE[@]} " =~ " $(basename "$file") " ]]; then
-            new_icon="${NEW_ICON_PATH}/$(basename "$file")"
-            if [ -f "$new_icon" ]; then
-                echo "Updating: $(basename "$file")"
-                cp "$new_icon" "$file"
-                if [ $? -eq 0 ]; then
-                    echo "Successfully replaced $(basename "$file") with new icon"
-                else
-                    echo "Error: Failed to replace $(basename "$file")"
-                    exit 1
-                fi
+            echo "Updating: $(basename "$file")"
+
+            cp "$NEW_ICON_PATH" "$file"
+
+            if [ $? -eq 0 ]; then
+                echo "Successfully replaced $(basename "$file") with new icon"
             else
-                echo "Warning: New icon file $(basename "$file") not found in $NEW_ICON_PATH"
+                echo "Error: Failed to replace $(basename "$file")"
+                exit 1
             fi
         fi
     done

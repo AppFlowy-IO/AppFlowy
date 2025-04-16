@@ -27,7 +27,7 @@ class ChatAIAvatar extends StatelessWidget {
       child: const CircleAvatar(
         backgroundColor: Colors.transparent,
         child: FlowySvg(
-          FlowySvgs.app_logo_s,
+          FlowySvgs.flowy_logo_s,
           size: Size.square(16),
           blendMode: null,
         ),

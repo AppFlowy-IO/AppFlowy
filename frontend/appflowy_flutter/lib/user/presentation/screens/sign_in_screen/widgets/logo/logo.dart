@@ -12,7 +12,7 @@ class AFLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowySvg(
-      FlowySvgs.app_logo_xl,
+      FlowySvgs.flowy_logo_xl,
       blendMode: null,
       size: size,
     );
