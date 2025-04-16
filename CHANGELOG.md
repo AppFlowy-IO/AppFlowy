@@ -1,4 +1,24 @@
 # Release Notes
+## Version 0.8.9 - 16/04/2025
+### Desktop
+#### New Features
+- Supported pasting a link as a mention, providing a more condensed visualization of linked content
+- Supported converting between link formats (e.g. transforming a mention into a bookmark)
+- Improved the link editing experience with enhanced UX
+- Added OTP (One-Time Password) support for sign-in authentication
+- Added latest AI models: GPT-4.1, GPT-4.1-mini, and Claude 3.7 Sonnet
+#### Bug Fixes
+- Fixed an issue where properties were not displaying in the row detail page
+- Fixed a bug where Undo didn't work in the row detail page
+- Fixed an issue where blocks didn't grow when the grid got bigger
+- Fixed several bugs related to AI writers
+### Mobile
+#### New Features
+- Added sign-in with OTP (One-Time Password)
+#### Bug Fixes
+- Fixed an issue where the slash menu sometimes failed to display
+- Updated the mention page block to handle page selection with more context.
+
 ## Version 0.8.8 - 01/04/2025
 ### New Features
 - Added support for selecting AI models in AI writer
