@@ -25,6 +25,7 @@ class SearchResultListBloc
       state.copyWith(
         hoveredSummary: event.summary,
         hoveredResult: null,
+        userHovered: event.userHovered,
         openPageId: null,
       ),
     );
@@ -38,6 +39,7 @@ class SearchResultListBloc
       state.copyWith(
         hoveredSummary: null,
         hoveredResult: event.item,
+        userHovered: event.userHovered,
         openPageId: null,
       ),
     );
@@ -55,9 +57,11 @@ class SearchResultListBloc
 class SearchResultListEvent with _$SearchResultListEvent {
   const factory SearchResultListEvent.onHoverSummary({
     required SearchSummaryPB summary,
+    required bool userHovered,
   }) = _OnHoverSummary;
   const factory SearchResultListEvent.onHoverResult({
     required SearchResultItem item,
+    required bool userHovered,
   }) = _OnHoverResult;
 
   const factory SearchResultListEvent.openPage({
@@ -72,6 +76,7 @@ class SearchResultListState with _$SearchResultListState {
     @Default(null) SearchSummaryPB? hoveredSummary,
     @Default(null) SearchResultItem? hoveredResult,
     @Default(null) String? openPageId,
+    @Default(false) bool userHovered,
   }) = _SearchResultListState;
 
   factory SearchResultListState.initial() => const SearchResultListState();

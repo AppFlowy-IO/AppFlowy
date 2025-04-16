@@ -19,7 +19,7 @@ import 'ai_writer_node_extension.dart';
 /// Enable the debug log for the AiWriterCubit.
 ///
 /// This is useful for debugging the AI writer cubit.
-const _aiWriterCubitDebugLog = false;
+const _aiWriterCubitDebugLog = true;
 
 class AiWriterCubit extends Cubit<AiWriterState> {
   AiWriterCubit({

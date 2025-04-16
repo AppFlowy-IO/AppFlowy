@@ -49,12 +49,14 @@ class SearchResponseStream {
   void Function(
     List<SearchResponseItemPB> items,
     String searchId,
-    bool isLoading,
+    bool searching,
+    bool generatingAIOverview,
   )? _onServerItems;
   void Function(
     List<SearchSummaryPB> summaries,
     String searchId,
-    bool isLoading,
+    bool searching,
+    bool generatingAIOverview,
   )? _onSummaries;
 
   void Function(
@@ -78,14 +80,16 @@ class SearchResponseStream {
         _onServerItems?.call(
           searchState.response.searchResult.items,
           searchId,
-          searchState.isLoading,
+          searchState.response.searching,
+          searchState.response.generatingAiSummary,
         );
       }
       if (searchState.response.hasSearchSummary()) {
         _onSummaries?.call(
           searchState.response.searchSummary.items,
           searchId,
-          searchState.isLoading,
+          searchState.response.searching,
+          searchState.response.generatingAiSummary,
         );
       }
 
@@ -105,11 +109,13 @@ class SearchResponseStream {
       List<SearchResponseItemPB> items,
       String searchId,
       bool isLoading,
+      bool generatingAIOverview,
     )? onServerItems,
     required void Function(
       List<SearchSummaryPB> summaries,
       String searchId,
       bool isLoading,
+      bool generatingAIOverview,
     )? onSummaries,
     required void Function(
       List<LocalSearchResponseItemPB> items,

@@ -94,15 +94,16 @@ class CommandPaletteBloc
       emit(
         state.copyWith(
           query: null,
-          isLoading: false,
+          searching: false,
           serverResponseItems: [],
           localResponseItems: [],
           combinedResponseItems: {},
           resultSummaries: [],
+          generatingAIOverview: false,
         ),
       );
     } else {
-      emit(state.copyWith(query: event.search, isLoading: true));
+      emit(state.copyWith(query: event.search, searching: true));
       _activeQuery = event.search;
 
       unawaited(
@@ -122,7 +123,8 @@ class CommandPaletteBloc
                 add(
                   CommandPaletteEvent.resultsChanged(
                     searchId: '',
-                    isLoading: false,
+                    searching: false,
+                    generatingAIOverview: false,
                   ),
                 );
               }
@@ -150,19 +152,23 @@ class CommandPaletteBloc
         searchId: searchId,
         localItems: items,
       ),
-      onServerItems: (items, searchId, isLoading) => _handleResultsUpdate(
+      onServerItems: (items, searchId, searching, generatingAIOverview) =>
+          _handleResultsUpdate(
         searchId: searchId,
         serverItems: items,
-        isLoading: isLoading,
+        searching: searching,
+        generatingAIOverview: generatingAIOverview,
       ),
-      onSummaries: (summaries, searchId, isLoading) => _handleResultsUpdate(
+      onSummaries: (summaries, searchId, searching, generatingAIOverview) =>
+          _handleResultsUpdate(
         searchId: searchId,
         summaries: summaries,
-        isLoading: isLoading,
+        searching: searching,
+        generatingAIOverview: generatingAIOverview,
       ),
       onFinished: (searchId) => _handleResultsUpdate(
         searchId: searchId,
-        isLoading: false,
+        searching: false,
       ),
     );
   }
@@ -172,7 +178,8 @@ class CommandPaletteBloc
     List<SearchResponseItemPB>? serverItems,
     List<LocalSearchResponseItemPB>? localItems,
     List<SearchSummaryPB>? summaries,
-    bool isLoading = true,
+    bool searching = true,
+    bool generatingAIOverview = false,
   }) {
     if (_isActiveSearch(searchId)) {
       add(
@@ -181,7 +188,8 @@ class CommandPaletteBloc
           serverItems: serverItems,
           localItems: localItems,
           summaries: summaries,
-          isLoading: isLoading,
+          searching: searching,
+          generatingAIOverview: generatingAIOverview,
         ),
       );
     }
@@ -223,7 +231,8 @@ class CommandPaletteBloc
         localResponseItems: event.localItems ?? state.localResponseItems,
         resultSummaries: event.summaries ?? state.resultSummaries,
         combinedResponseItems: combinedItems,
-        isLoading: event.isLoading,
+        searching: event.searching,
+        generatingAIOverview: event.generatingAIOverview,
       ),
     );
   }
@@ -256,7 +265,8 @@ class CommandPaletteBloc
         localResponseItems: [],
         combinedResponseItems: {},
         resultSummaries: [],
-        isLoading: false,
+        searching: false,
+        generatingAIOverview: false,
       ),
     );
   }
@@ -283,7 +293,8 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
   }) = _NewSearchStream;
   const factory CommandPaletteEvent.resultsChanged({
     required String searchId,
-    required bool isLoading,
+    required bool searching,
+    required bool generatingAIOverview,
     List<SearchResponseItemPB>? serverItems,
     List<LocalSearchResponseItemPB>? localItems,
     List<SearchSummaryPB>? summaries,
@@ -324,12 +335,14 @@ class CommandPaletteState with _$CommandPaletteState {
     @Default({}) Map<String, SearchResultItem> combinedResponseItems,
     @Default([]) List<SearchSummaryPB> resultSummaries,
     @Default(null) SearchResponseStream? searchResponseStream,
-    required bool isLoading,
+    required bool searching,
+    required bool generatingAIOverview,
     @Default([]) List<TrashPB> trash,
     @Default(null) String? searchId,
   }) = _CommandPaletteState;
 
   factory CommandPaletteState.initial() => const CommandPaletteState(
-        isLoading: false,
+        searching: false,
+        generatingAIOverview: false,
       );
 }

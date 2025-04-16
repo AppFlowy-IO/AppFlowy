@@ -453,7 +453,6 @@ impl AIManager {
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
       let model = AIModel::local(local_model, "".to_string());
       current_active_local_ai_model = Some(model.clone());
-
       trace!("[Model Selection] current local ai model: {}", model.name);
       models.push(model);
     }
@@ -466,7 +465,7 @@ impl AIManager {
     }
 
     // Global active model is the model selected by the user in the workspace settings.
-    let server_active_model = self
+    let mut server_active_model = self
       .get_workspace_select_model()
       .await
       .map(|m| AIModel::server(m, "".to_string()))
@@ -478,10 +477,14 @@ impl AIManager {
     );
 
     let mut user_selected_model = server_active_model.clone();
+    // when current select model is deprecated, reset the model to default
+    if !models.iter().any(|m| m.name == server_active_model.name) {
+      server_active_model = AIModel::default();
+    }
+
     let source_key = ai_available_models_key(&source);
 
-    // If source is provided, try to get the user-selected model from the store. User selected
-    // model will be used as the active model if it exists.
+    // We use source to identify user selected model. source can be document id or chat id.
     match self.store_preferences.get_object::<AIModel>(&source_key) {
       None => {
         // when there is selected model and current local ai is active, then use local ai
@@ -491,6 +494,8 @@ impl AIManager {
       },
       Some(mut model) => {
         trace!("[Model Selection] user previous select model: {:?}", model);
+        // If source is provided, try to get the user-selected model from the store. User selected
+        // model will be used as the active model if it exists.
         if model.is_local {
           if let Some(local_ai_model) = &current_active_local_ai_model {
             if local_ai_model.name != model.name {
@@ -508,7 +513,7 @@ impl AIManager {
       .iter()
       .find(|m| m.name == user_selected_model.name)
       .cloned()
-      .or(Some(server_active_model));
+      .or(Some(server_active_model.clone()));
 
     // Update the stored preference if a different model is used.
     if let Some(ref active_model) = active_model {

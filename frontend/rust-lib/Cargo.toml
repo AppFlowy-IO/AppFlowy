@@ -105,8 +105,8 @@ tantivy = { version = "0.24.0" }
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "873415478ed58686c98df578e2c39d07ddce6773" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "873415478ed58686c98df578e2c39d07ddce6773" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9ea3c46c26b006decfd3c98fffe910dd49a6607d" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9ea3c46c26b006decfd3c98fffe910dd49a6607d" }
 
 [profile.dev]
 opt-level = 0

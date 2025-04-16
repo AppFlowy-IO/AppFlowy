@@ -144,7 +144,7 @@ class CommandPaletteModal extends StatelessWidget {
           // Change mainAxisSize to max so Expanded works correctly.
           Column(
             children: [
-              SearchField(query: state.query, isLoading: state.isLoading),
+              SearchField(query: state.query, isLoading: state.searching),
               if (state.query?.isEmpty ?? true) ...[
                 const Divider(height: 0),
                 Flexible(
@@ -167,7 +167,7 @@ class CommandPaletteModal extends StatelessWidget {
               // When there are no results and the query is not empty and not loading,
               // show the no results message, centered in the available space.
               else if ((state.query?.isNotEmpty ?? false) &&
-                  !state.isLoading) ...[
+                  !state.searching) ...[
                 const Divider(height: 0),
                 Expanded(
                   child: const _NoResultsHint(),

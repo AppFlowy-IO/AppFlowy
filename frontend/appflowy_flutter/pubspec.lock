@@ -15,7 +15,7 @@ packages:
     source: sdk
     version: "0.3.3"
   analyzer:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: analyzer
       sha256: "1f14db053a8c23e260789e9b0980fa27f2680dd640932cae5e1137cce0e46e1e"
@@ -98,8 +98,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "361b99c38370abeeb19656f89e8c31cb3666623b"
-      resolved-ref: "361b99c38370abeeb19656f89e8c31cb3666623b"
+      ref: "2361899"
+      resolved-ref: "23618990b2f4ab88df67d50598b2b53cd6853e0a"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "5.1.0"
