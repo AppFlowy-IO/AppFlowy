@@ -73,27 +73,24 @@ class RelatedRowDetailPageBloc
     });
   }
 
-  /// initialize bloc through the `database_id` and `row_id`. The process is as
-  /// follows:
-  /// 1. use the `database_id` to get the database meta, which contains the
-  /// `inline_view_id`
-  /// 2. use the `inline_view_id` to instantiate a `DatabaseController`.
-  /// 3. use the `row_id` with the DatabaseController` to create `RowController`
   void _init(String databaseId, String initialRowId) async {
-    final databaseMeta =
-        await DatabaseEventGetDatabaseMeta(DatabaseIdPB(value: databaseId))
-            .send()
-            .fold<DatabaseMetaPB?>((s) => s, (f) => null);
-    if (databaseMeta == null) {
+    final viewId = await DatabaseEventGetDefaultDatabaseViewId(
+      DatabaseIdPB(value: databaseId),
+    ).send().fold(
+          (pb) => pb.value,
+          (error) => null,
+        );
+
+    if (viewId == null) {
       return;
     }
-    final inlineView =
-        await ViewBackendService.getView(databaseMeta.inlineViewId)
-            .fold((viewPB) => viewPB, (f) => null);
-    if (inlineView == null) {
+
+    final databaseView = await ViewBackendService.getView(viewId)
+        .fold((viewPB) => viewPB, (f) => null);
+    if (databaseView == null) {
       return;
     }
-    final databaseController = DatabaseController(view: inlineView);
+    final databaseController = DatabaseController(view: databaseView);
     await databaseController.open().fold(
           (s) => databaseController.setIsLoading(false),
           (f) => null,
@@ -104,7 +101,7 @@ class RelatedRowDetailPageBloc
     }
     final rowController = RowController(
       rowMeta: rowInfo.rowMeta,
-      viewId: inlineView.id,
+      viewId: databaseView.id,
       rowCache: databaseController.rowCache,
     );
 

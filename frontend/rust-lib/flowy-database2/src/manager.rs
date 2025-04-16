@@ -166,6 +166,15 @@ impl DatabaseManager {
     items
   }
 
+  pub async fn get_database_meta(&self, database_id: &str) -> FlowyResult<Option<DatabaseMeta>> {
+    let mut database_meta = None;
+    if let Some(lock) = self.workspace_database_manager.load_full() {
+      let wdb = lock.read().await;
+      database_meta = wdb.get_database_meta(database_id);
+    }
+    Ok(database_meta)
+  }
+
   #[instrument(level = "trace", skip_all, err)]
   pub async fn update_database_indexing(
     &self,

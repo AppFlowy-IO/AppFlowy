@@ -277,7 +277,7 @@ impl AppFlowyCollabBuilder {
     let collab_db = collab_db.clone();
     let device_id = self.workspace_integrate.device_id()?;
     let collab = tokio::task::spawn_blocking(move || {
-      let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
+      let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
         .with_device_id(device_id)
         .build()?;
       let persistence_config = CollabPersistenceConfig::default();
@@ -290,7 +290,6 @@ impl AppFlowyCollabBuilder {
         persistence_config,
       );
       collab.add_plugin(Box::new(db_plugin));
-      collab.initialize();
       Ok::<_, Error>(collab)
     })
     .await??;

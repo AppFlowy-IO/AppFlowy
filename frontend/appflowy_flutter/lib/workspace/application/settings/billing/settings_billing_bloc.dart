@@ -29,7 +29,7 @@ class SettingsBillingBloc
     required Int64 userId,
   }) : super(const _Initial()) {
     _userService = UserBackendService(userId: userId);
-    _service = WorkspaceService(workspaceId: workspaceId);
+    _service = WorkspaceService(workspaceId: workspaceId, userId: userId);
     _successListenable = getIt<SubscriptionSuccessListenable>();
     _successListenable.addListener(_onPaymentSuccessful);
 

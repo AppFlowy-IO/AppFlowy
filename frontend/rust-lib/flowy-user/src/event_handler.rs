@@ -896,7 +896,10 @@ pub async fn get_workspace_member_info(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<WorkspaceMemberPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let member = manager.get_workspace_member_info(param.uid).await?;
+  let workspace_id = manager.get_session()?.user_workspace.workspace_id()?;
+  let member = manager
+    .get_workspace_member_info(param.uid, &workspace_id)
+    .await?;
   data_result_ok(member.into())
 }
 
