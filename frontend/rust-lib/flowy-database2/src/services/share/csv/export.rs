@@ -28,8 +28,10 @@ impl CSVExport {
     style: CSVFormat,
   ) -> FlowyResult<String> {
     let mut wtr = csv::Writer::from_writer(vec![]);
-    let inline_view_id = database.get_inline_view_id();
-    let fields = database.get_fields_in_view(&inline_view_id, None);
+    let view_id = database
+      .get_first_database_view_id()
+      .ok_or_else(|| FlowyError::internal().with_context("failed to get first database view"))?;
+    let fields = database.get_fields_in_view(&view_id, None);
 
     // Write fields
     let field_records = fields
@@ -49,7 +51,7 @@ impl CSVExport {
       field_by_field_id.insert(field.id.clone(), field);
     });
     let rows = database
-      .get_rows_for_view(&inline_view_id, 20, None)
+      .get_rows_for_view(&view_id, 20, None)
       .await
       .filter_map(|result| async { result.ok() })
       .collect::<Vec<_>>()
