@@ -249,6 +249,8 @@ dependency_overrides:
   # auto_updater_platform_interface:
   #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
 
+  analyzer: 6.11.0
+
 flutter:
   generate: true
   uses-material-design: true

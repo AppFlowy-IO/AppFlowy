@@ -398,6 +398,15 @@ class MarkdownTextRobot {
 
     // it means the user selected the entire sentence, we just replace the node
     if (startIndex == 0 && length == node.delta?.length) {
+      if (nodes.isNotEmpty && node.children.isNotEmpty) {
+        // merge the children of the selected node and the first node of the ai response
+        nodes[0] = nodes[0].copyWith(
+          children: [
+            ...node.children.map((e) => e.deepCopy()),
+            ...nodes[0].children,
+          ],
+        );
+      }
       transaction
         ..insertNodes(node.path.next, nodes)
         ..deleteNode(node);
@@ -482,9 +491,9 @@ class MarkdownTextRobot {
         );
       }
 
-      transaction.deleteNodes(
-        firstNode.children.where((e) => e.path.inSelection(selection)),
-      );
+      final nodesToDelete =
+          firstNode.children.where((e) => e.path.inSelection(selection));
+      transaction.deleteNodes(nodesToDelete);
     }
 
     // step 2

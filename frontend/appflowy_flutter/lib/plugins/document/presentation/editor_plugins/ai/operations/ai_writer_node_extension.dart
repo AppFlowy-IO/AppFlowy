@@ -65,6 +65,21 @@ extension AiWriterNodeExtension on EditorState {
       slicedNodes.add(copiedNode);
     }
 
+    for (final (i, node) in slicedNodes.indexed) {
+      final childNodesShouldBeDeleted = <Node>[];
+      for (final child in node.children) {
+        if (!child.path.inSelection(selection)) {
+          childNodesShouldBeDeleted.add(child);
+        }
+      }
+      for (final child in childNodesShouldBeDeleted) {
+        slicedNodes[i] = node.copyWith(
+          children: node.children.where((e) => e.id != child.id).toList(),
+          type: selection.startIndex != 0 ? ParagraphBlockKeys.type : node.type,
+        );
+      }
+    }
+
     // use \n\n as line break to improve the ai response
     // using \n will cause the ai response treat the text as a single line
     final markdown = await customDocumentToMarkdown(
