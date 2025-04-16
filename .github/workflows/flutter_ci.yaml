@@ -104,8 +104,8 @@ jobs:
         os: [macos-latest]
         include:
           - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
+            flutter_profile: development-mac-arm64
+            target: aarch64-apple-darwin
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -339,7 +339,7 @@ jobs:
           flutter test integration_test/desktop/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
-  integration_test:
+  linux_integration_test:
     needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
@@ -358,8 +358,10 @@ jobs:
       - name: Flutter Integration Test ${{ matrix.test_number }}
         uses: ./.github/actions/flutter_integration_test
         with:
+          os: ${{ matrix.os }}
           test_path: integration_test/desktop_runner_${{ matrix.test_number }}.dart
           flutter_version: ${{ env.FLUTTER_VERSION }}
           rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
           rust_target: ${{ matrix.target }}
+
