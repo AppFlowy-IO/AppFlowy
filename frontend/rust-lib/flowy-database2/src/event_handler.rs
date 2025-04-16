@@ -865,17 +865,25 @@ pub(crate) async fn delete_group_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub(crate) async fn get_database_meta_handler(
+pub(crate) async fn get_default_database_view_id_handler(
   data: AFPluginData<DatabaseIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<DatabaseMetaPB, FlowyError> {
+) -> DataResult<DatabaseViewIdPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let database_id = data.into_inner().value;
-  let inline_view_id = manager.get_database_inline_view_id(&database_id).await?;
+  let database_view_id = manager
+    .get_database_meta(&database_id)
+    .await?
+    .and_then(|mut d| d.linked_views.pop())
+    .ok_or_else(|| {
+      FlowyError::internal().with_context(format!(
+        "Can't find any database view for given database id: {}",
+        database_id
+      ))
+    })?;
 
-  let data = DatabaseMetaPB {
-    database_id,
-    inline_view_id,
+  let data = DatabaseViewIdPB {
+    value: database_view_id,
   };
   data_result_ok(data)
 }
