@@ -96,7 +96,7 @@ import 'primitive.dart';
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
 
   // 3. Process light mode semantic tokens
-  void writeThemeFactory(String brightness, Map<String, dynamic> jsonData) {
+  void writeThemeData(String brightness, Map<String, dynamic> jsonData) {
     buffer.writeln('''
   @override
   AppFlowyThemeData $brightness() {
@@ -168,9 +168,9 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
   }''');
   }
 
-  writeThemeFactory('light', lightJsonData);
+  writeThemeData('light', lightJsonData);
   buffer.writeln();
-  writeThemeFactory('dark', darkJsonData);
+  writeThemeData('dark', darkJsonData);
   buffer.writeln('}');
 
   // 4. Write the output to a Dart file.
