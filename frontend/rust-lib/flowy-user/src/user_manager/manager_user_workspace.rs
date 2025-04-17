@@ -593,7 +593,7 @@ impl UserManager {
     if let Ok(member_record) = select_workspace_member(db, &workspace_id.to_string(), uid) {
       if is_older_than_n_minutes(member_record.updated_at, 10) {
         self
-          .get_workspace_member_info_from_remote(&workspace_id, uid)
+          .get_workspace_member_info_from_remote(workspace_id, uid)
           .await?;
       }
 
