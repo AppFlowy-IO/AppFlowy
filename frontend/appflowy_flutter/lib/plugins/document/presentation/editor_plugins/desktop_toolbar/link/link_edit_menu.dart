@@ -3,11 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +53,8 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   ViewPB? currentView;
   bool showErrorText = false;
 
+  AppFlowyThemeData? get theme => AppFlowyTheme.maybeOf(context);
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +93,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     final showingRecent =
         searchTextField.showingRecent && isShowingSearchResult;
     final errorHeight = showErrorText ? 20.0 : 0.0;
+    final theme = AppFlowyTheme.of(context);
     return GestureDetector(
       onTap: onDismiss,
       child: Focus(
@@ -114,7 +117,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                 left: 20,
                 child: FlowyText.semibold(
                   LocaleKeys.document_toolbar_pageOrURL.tr(),
-                  color: LinkStyle.textTertiary,
+                  color: theme.textColorScheme.tertiary,
                   fontSize: 12,
                   figmaLineHeight: 16,
                 ),
@@ -124,7 +127,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                 left: 20,
                 child: FlowyText.semibold(
                   LocaleKeys.document_toolbar_linkName.tr(),
-                  color: LinkStyle.textTertiary,
+                  color: theme.textColorScheme.tertiary,
                   fontSize: 12,
                   figmaLineHeight: 16,
                 ),
@@ -194,7 +197,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
             padding: const EdgeInsets.only(top: 4),
             child: FlowyText.regular(
               LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
-              color: LinkStyle.textStatusError,
+              color: theme?.textColorScheme.error,
               fontSize: 12,
               figmaLineHeight: 16,
             ),
@@ -236,9 +239,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                 constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
                 fontSize: 14,
                 lineHeight: 20 / 14,
-                fontColor: Theme.of(context).isLightMode
-                    ? LinkStyle.textPrimary
-                    : Theme.of(context).iconTheme.color,
+                fontColor: theme?.textColorScheme.primary,
                 fillColor: Colors.transparent,
                 fontWeight: FontWeight.w400,
                 onPressed: onDismiss,
@@ -255,9 +256,9 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                   constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
                   fontSize: 14,
                   lineHeight: 20 / 14,
-                  hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
+                  hoverColor: theme?.fillColorScheme.themeThick.withAlpha(200),
                   fontColor: Colors.white,
-                  fillColor: LinkStyle.fillThemeThick,
+                  fillColor: theme?.fillColorScheme.themeThick,
                   fontWeight: FontWeight.w400,
                   onPressed: onApply,
                 );
