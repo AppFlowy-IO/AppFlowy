@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/file_storage/file_storage_listener.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
@@ -182,20 +183,24 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     );
   }
 
-  void _checkWorkspaceUsage() {
-    if (state.workspaceId != null) {
-      final payload = UserWorkspaceIdPB(workspaceId: state.workspaceId!);
-      UserEventGetWorkspaceUsage(payload).send().then((result) {
-        result.onSuccess(
-          (usage) {
-            if (isClosed) {
-              return;
-            }
-            add(SidebarPlanEvent.updateWorkspaceUsage(usage));
-          },
-        );
-      });
+  Future<void> _checkWorkspaceUsage() async {
+    if (state.workspaceId == null || state.userProfile == null) {
+      return;
     }
+
+    await WorkspaceService(
+      workspaceId: state.workspaceId!,
+      userId: state.userProfile!.id,
+    ).getWorkspaceUsage().then((result) {
+      result.fold(
+        (usage) {
+          if (!isClosed && usage != null) {
+            add(SidebarPlanEvent.updateWorkspaceUsage(usage));
+          }
+        },
+        (error) => Log.error("Failed to get workspace usage: $error"),
+      );
+    });
   }
 }
 

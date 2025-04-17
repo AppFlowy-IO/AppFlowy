@@ -148,7 +148,9 @@ class PasswordHttpService {
           headers: headers,
         );
       } else {
-        throw Exception('Invalid request method: ${endpoint.method}');
+        return FlowyResult.failure(
+          FlowyError(msg: 'Invalid request method: ${endpoint.method}'),
+        );
       }
 
       if (response.statusCode == 200) {

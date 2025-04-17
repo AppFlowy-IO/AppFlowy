@@ -23,7 +23,10 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
     required this.workspaceId,
     required Int64 userId,
   }) : super(const _Initial()) {
-    _service = WorkspaceService(workspaceId: workspaceId);
+    _service = WorkspaceService(
+      workspaceId: workspaceId,
+      userId: userId,
+    );
     _userService = UserBackendService(userId: userId);
     _successListenable = getIt<SubscriptionSuccessListenable>();
     _successListenable.addListener(_onPaymentSuccessful);
@@ -43,7 +46,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           FlowyError? error;
 
           final usageResult = snapshots.first.fold(
-            (s) => s as WorkspaceUsagePB,
+            (s) => s as WorkspaceUsagePB?,
             (f) {
               error = f;
               return null;

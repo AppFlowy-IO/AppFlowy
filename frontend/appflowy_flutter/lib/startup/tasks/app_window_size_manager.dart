@@ -12,6 +12,10 @@ class WindowSizeManager {
   static const double maxWindowHeight = 8192.0;
   static const double maxWindowWidth = 8192.0;
 
+  // Default windows size
+  static const double defaultWindowHeight = 960.0;
+  static const double defaultWindowWidth = 1280.0;
+
   static const double maxScaleFactor = 2.0;
   static const double minScaleFactor = 0.5;
 
@@ -36,8 +40,8 @@ class WindowSizeManager {
   Future<Size> getSize() async {
     final defaultWindowSize = jsonEncode(
       {
-        WindowSizeManager.height: minWindowHeight,
-        WindowSizeManager.width: minWindowWidth,
+        WindowSizeManager.height: defaultWindowHeight,
+        WindowSizeManager.width: defaultWindowWidth,
       },
     );
     final windowSize = await getIt<KeyValueStorage>().get(KVKeys.windowSize);
