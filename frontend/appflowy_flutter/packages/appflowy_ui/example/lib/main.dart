@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         final themeData =
             themeMode == ThemeMode.light ? ThemeData.light() : ThemeData.dark();
 
-        return AppFlowyTheme(
+        return AnimatedAppFlowyTheme(
           data: themeMode == ThemeMode.light
               ? themeBuilder.light()
               : themeBuilder.dark(),

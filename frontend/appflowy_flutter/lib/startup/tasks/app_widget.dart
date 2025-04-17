@@ -238,7 +238,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                       final themeBuilder = AppFlowyDefaultTheme();
                       final brightness = Theme.of(context).brightness;
 
-                      return AppFlowyTheme(
+                      return AnimatedAppFlowyTheme(
                         data: brightness == Brightness.light
                             ? themeBuilder.light()
                             : themeBuilder.dark(),
