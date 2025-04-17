@@ -28,10 +28,36 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(
-      FlowySvgs.m_notification_reminder_s,
-      size: Size.square(_kNotificationIconHeight),
-      blendMode: null,
+    return SizedBox(
+      width: 42,
+      height: 36,
+      child: Stack(
+        children: [
+          const FlowySvg(
+            FlowySvgs.m_notification_reminder_s,
+            size: Size.square(32),
+            blendMode: null,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).cardColor,
+              ),
+              child: Center(
+                child: FlowyText(
+                  '@',
+                  fontSize: 12,
+                  figmaLineHeight: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -117,7 +143,7 @@ class _NotificationContentState extends State<NotificationContent> {
             // title & time
             _buildHeader(state.createdAt, !widget.reminder.isRead),
             // page name
-            _buildPageName(context, state.pageTitle),
+            _buildPageName(context, state.isLocked, state.pageTitle),
             // content
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
@@ -185,6 +211,7 @@ class _NotificationContentState extends State<NotificationContent> {
 
   Widget _buildPageName(
     BuildContext context,
+    bool isLocked,
     String pageTitle,
   ) {
     return Opacity(
@@ -201,6 +228,11 @@ class _NotificationContentState extends State<NotificationContent> {
               color: context.notificationItemTextColor,
             ),
             const NotificationEllipse(),
+            if (isLocked)
+              Padding(
+                padding: EdgeInsets.only(right: 5),
+                child: FlowySvg(FlowySvgs.notification_lock_s),
+              ),
             FlowyText.regular(
               pageTitle,
               fontSize: 12,

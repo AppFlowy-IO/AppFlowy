@@ -37,7 +37,8 @@ class HomeLayout {
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = homeSetting.resizeType.duration();
     editPanelWidth = HomeSizes.editPanelWidth;
-    notificationPanelWidth = HomeSizes.notificationPanelWidth;
+    notificationPanelWidth = MediaQuery.of(context).size.width -
+        (showEditPanel ? editPanelWidth : 0);
     homePageROffset = showEditPanel ? editPanelWidth : 0;
   }
 
