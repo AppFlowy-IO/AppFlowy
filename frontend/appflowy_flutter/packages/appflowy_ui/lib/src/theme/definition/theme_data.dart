@@ -46,25 +46,27 @@ class AppFlowyThemeData {
 
   final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
 
-  AppFlowyThemeData lerp(
-    AppFlowyThemeData other,
+  static AppFlowyThemeData lerp(
+    AppFlowyThemeData begin,
+    AppFlowyThemeData end,
     double t,
   ) {
     return AppFlowyThemeData(
-      textColorScheme: textColorScheme.lerp(other.textColorScheme, t),
-      textStyle: other.textStyle,
-      iconColorScheme: iconColorScheme.lerp(other.iconColorScheme, t),
-      borderColorScheme: borderColorScheme.lerp(other.borderColorScheme, t),
+      textColorScheme: begin.textColorScheme.lerp(end.textColorScheme, t),
+      textStyle: end.textStyle,
+      iconColorScheme: begin.iconColorScheme.lerp(end.iconColorScheme, t),
+      borderColorScheme: begin.borderColorScheme.lerp(end.borderColorScheme, t),
       backgroundColorScheme:
-          backgroundColorScheme.lerp(other.backgroundColorScheme, t),
-      fillColorScheme: fillColorScheme.lerp(other.fillColorScheme, t),
-      surfaceColorScheme: surfaceColorScheme.lerp(other.surfaceColorScheme, t),
-      borderRadius: other.borderRadius,
-      spacing: other.spacing,
-      shadow: other.shadow,
-      brandColorScheme: brandColorScheme.lerp(other.brandColorScheme, t),
+          begin.backgroundColorScheme.lerp(end.backgroundColorScheme, t),
+      fillColorScheme: begin.fillColorScheme.lerp(end.fillColorScheme, t),
+      surfaceColorScheme:
+          begin.surfaceColorScheme.lerp(end.surfaceColorScheme, t),
+      borderRadius: end.borderRadius,
+      spacing: end.spacing,
+      shadow: end.shadow,
+      brandColorScheme: begin.brandColorScheme.lerp(end.brandColorScheme, t),
       otherColorsColorScheme:
-          otherColorsColorScheme.lerp(other.otherColorsColorScheme, t),
+          begin.otherColorsColorScheme.lerp(end.otherColorsColorScheme, t),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -45,8 +44,6 @@ class DesktopAppearance extends BaseAppearance {
       surfaceContainerHighest: theme.sidebarBg,
       shadow: theme.shadow,
     );
-
-    final newThemeBuilder = AppFlowyDefaultTheme();
 
     // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
     return ThemeData(
@@ -153,9 +150,6 @@ class DesktopAppearance extends BaseAppearance {
           scrollbarHoverColor: theme.scrollbarHoverColor,
           lightIconColor: theme.lightIconColor,
           toolbarHoverColor: theme.toolbarHoverColor,
-        ),
-        AppFlowyTheme(
-          themeData: isLight ? newThemeBuilder.light() : newThemeBuilder.dark(),
         ),
       ],
     );
