@@ -79,7 +79,6 @@ impl LocalAIController {
     // Create the core plugin and resource controller
     let local_ai = Arc::new(OllamaAIPlugin::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
-      user_service: user_service.clone(),
       store_preferences: store_preferences.clone(),
     };
     let local_ai_resource = Arc::new(LocalAIResourceController::new(
@@ -594,7 +593,6 @@ async fn initialize_ai_plugin(
 }
 
 pub struct LLMResourceServiceImpl {
-  user_service: Arc<dyn AIUserService>,
   store_preferences: Weak<KVStorePreferences>,
 }
 

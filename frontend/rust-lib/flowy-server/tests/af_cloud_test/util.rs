@@ -48,7 +48,7 @@ impl ServerUser for FakeServerUserImpl {
     todo!()
   }
 
-  fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+  fn get_sqlite_db(&self, _uid: i64) -> Result<DBConnection, FlowyError> {
     todo!()
   }
 

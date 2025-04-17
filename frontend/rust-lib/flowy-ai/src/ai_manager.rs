@@ -270,7 +270,7 @@ impl AIManager {
   ) -> FlowyResult<()> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question_message_id = chat
-      .get_question_id_from_answer_id(answer_message_id)
+      .get_question_id_from_answer_id(chat_id, answer_message_id)
       .await?;
 
     let model = model.map_or_else(
@@ -567,7 +567,7 @@ impl AIManager {
   pub async fn load_prev_chat_messages(
     &self,
     chat_id: &Uuid,
-    limit: i64,
+    limit: u64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
@@ -580,7 +580,7 @@ impl AIManager {
   pub async fn load_latest_chat_messages(
     &self,
     chat_id: &Uuid,
-    limit: i64,
+    limit: u64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;

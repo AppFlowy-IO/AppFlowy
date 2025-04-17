@@ -63,18 +63,6 @@ impl Chat {
 
   pub fn close(&self) {}
 
-  #[allow(dead_code)]
-  pub async fn pull_latest_message(&self, limit: i64) {
-    let latest_message_id = self
-      .latest_message_id
-      .load(std::sync::atomic::Ordering::Relaxed);
-    if latest_message_id > 0 {
-      let _ = self
-        .load_remote_chat_messages(limit, None, Some(latest_message_id))
-        .await;
-    }
-  }
-
   pub async fn stop_stream_message(&self) {
     self
       .stop_stream
@@ -340,7 +328,7 @@ impl Chat {
   ///    - `before_message_id` is the first message ID in the current chat messages.
   pub async fn load_prev_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
@@ -388,7 +376,7 @@ impl Chat {
 
   pub async fn load_latest_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
@@ -420,7 +408,7 @@ impl Chat {
 
   async fn load_remote_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     before_message_id: Option<i64>,
     after_message_id: Option<i64>,
   ) -> FlowyResult<()> {
@@ -445,7 +433,7 @@ impl Chat {
         _ => MessageCursor::NextBack,
       };
       match cloud_service
-        .get_chat_messages(&workspace_id, &chat_id, cursor.clone(), limit as u64)
+        .get_chat_messages(&workspace_id, &chat_id, cursor.clone(), limit)
         .await
       {
         Ok(resp) => {
@@ -498,12 +486,14 @@ impl Chat {
 
   pub async fn get_question_id_from_answer_id(
     &self,
+    chat_id: &Uuid,
     answer_message_id: i64,
   ) -> Result<i64, FlowyError> {
     let conn = self.user_service.sqlite_connection(self.uid)?;
 
-    let local_result = select_message_where_match_reply_message_id(conn, answer_message_id)?
-      .map(|message| message.message_id);
+    let local_result =
+      select_message_where_match_reply_message_id(conn, &chat_id.to_string(), answer_message_id)?
+        .map(|message| message.message_id);
 
     if let Some(message_id) = local_result {
       return Ok(message_id);
@@ -560,12 +550,12 @@ impl Chat {
 
   async fn load_local_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     offset: MessageCursor,
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
     let conn = self.user_service.sqlite_connection(self.uid)?;
-    let records = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?;
-    let messages = records
+    let rows = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?.messages;
+    let messages = rows
       .into_iter()
       .map(|record| ChatMessagePB {
         message_id: record.message_id,

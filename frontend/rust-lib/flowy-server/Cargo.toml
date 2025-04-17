@@ -45,6 +45,7 @@ rand = "0.8.5"
 semver = "1.0.23"
 flowy-sqlite = { workspace = true }
 flowy-ai = { workspace = true }
+chrono.workspace = true
 
 [dependencies.client-api]
 workspace = true

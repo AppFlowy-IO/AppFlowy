@@ -5,14 +5,14 @@ use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
 use af_plugin::error::PluginError;
-use flowy_ai_pub::persistence::{select_message, select_message_content, ChatMessageTable};
+use flowy_ai_pub::persistence::select_message_content;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
   ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList,
   RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer,
-  StreamComplete, SubscriptionPlan, UpdateChatParams,
+  StreamComplete, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};

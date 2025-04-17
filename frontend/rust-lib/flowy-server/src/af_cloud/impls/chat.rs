@@ -9,7 +9,7 @@ use client_api::entity::chat_dto::{
 };
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  ModelList, StreamAnswer, StreamComplete, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};

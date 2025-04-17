@@ -35,6 +35,7 @@ pub fn insert_chat_messages(
         .do_update()
         .set((
           chat_message_table::content.eq(excluded(chat_message_table::content)),
+          chat_message_table::metadata.eq(excluded(chat_message_table::metadata)),
           chat_message_table::created_at.eq(excluded(chat_message_table::created_at)),
           chat_message_table::author_type.eq(excluded(chat_message_table::author_type)),
           chat_message_table::author_id.eq(excluded(chat_message_table::author_id)),
@@ -48,12 +49,18 @@ pub fn insert_chat_messages(
   Ok(())
 }
 
+pub struct ChatMessagesResult {
+  pub messages: Vec<ChatMessageTable>,
+  pub total_count: i64,
+  pub has_more: bool,
+}
+
 pub fn select_chat_messages(
   mut conn: DBConnection,
   chat_id_val: &str,
-  limit_val: i64,
+  limit_val: u64,
   offset: MessageCursor,
-) -> QueryResult<Vec<ChatMessageTable>> {
+) -> QueryResult<ChatMessagesResult> {
   let mut query = dsl::chat_message_table
     .filter(chat_message_table::chat_id.eq(chat_id_val))
     .into_boxed();
@@ -71,15 +78,46 @@ pub fn select_chat_messages(
     MessageCursor::NextBack => {},
   }
 
+  // Get total count before applying limit
+  let total_count = dsl::chat_message_table
+    .filter(chat_message_table::chat_id.eq(chat_id_val))
+    .count()
+    .first::<i64>(&mut *conn)?;
+
   query = query
     .order((
       chat_message_table::created_at.desc(),
       chat_message_table::message_id.desc(),
     ))
-    .limit(limit_val);
+    .limit(limit_val as i64);
 
   let messages: Vec<ChatMessageTable> = query.load::<ChatMessageTable>(&mut *conn)?;
-  Ok(messages)
+
+  // Check if there are more messages
+  let has_more = if let Some(last_message) = messages.last() {
+    let remaining_count = dsl::chat_message_table
+      .filter(chat_message_table::chat_id.eq(chat_id_val))
+      .filter(chat_message_table::message_id.lt(last_message.message_id))
+      .count()
+      .first::<i64>(&mut *conn)?;
+
+    remaining_count > 0
+  } else {
+    false
+  };
+
+  Ok(ChatMessagesResult {
+    messages,
+    total_count,
+    has_more,
+  })
+}
+
+pub fn total_message_count(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<i64> {
+  dsl::chat_message_table
+    .filter(chat_message_table::chat_id.eq(chat_id_val))
+    .count()
+    .first::<i64>(&mut *conn)
 }
 
 pub fn select_message(
@@ -107,10 +145,12 @@ pub fn select_message_content(
 
 pub fn select_message_where_match_reply_message_id(
   mut conn: DBConnection,
+  chat_id: &str,
   answer_message_id_val: i64,
 ) -> QueryResult<Option<ChatMessageTable>> {
   dsl::chat_message_table
     .filter(chat_message_table::reply_message_id.eq(answer_message_id_val))
+    .filter(chat_message_table::chat_id.eq(chat_id))
     .first::<ChatMessageTable>(&mut *conn)
     .optional()
 }
