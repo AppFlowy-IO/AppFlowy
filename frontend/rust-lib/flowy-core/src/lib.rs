@@ -37,6 +37,7 @@ use crate::log_filter::init_log;
 use crate::server_layer::{current_server_type, Server, ServerProvider};
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
+use lib_infra::async_trait::async_trait;
 use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
@@ -333,6 +334,8 @@ impl ServerUserImpl {
     Ok(user)
   }
 }
+
+#[async_trait]
 impl ServerUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
@@ -340,6 +343,10 @@ impl ServerUser for ServerUserImpl {
 
   fn user_id(&self) -> FlowyResult<i64> {
     self.upgrade_user()?.user_id()
+  }
+
+  async fn is_local_mode(&self) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_local_mode().await
   }
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {

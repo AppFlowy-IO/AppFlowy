@@ -13,6 +13,7 @@ use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::*;
+use lib_infra::async_trait::async_trait;
 use serde_repr::*;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
@@ -184,9 +185,14 @@ pub fn current_server_type() -> Server {
 
 struct AIUserServiceImpl(Arc<dyn ServerUser>);
 
+#[async_trait]
 impl AIUserService for AIUserServiceImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self.0.user_id()
+  }
+
+  async fn is_local_model(&self) -> FlowyResult<bool> {
+    self.0.is_local_mode().await
   }
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {

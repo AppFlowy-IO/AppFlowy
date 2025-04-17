@@ -3,6 +3,7 @@ use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
 use collab_integrate::CollabKVDB;
 
+use crate::user_manager::manager_history_user::ANON_USER;
 use arc_swap::ArcSwapOption;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -44,6 +45,17 @@ impl AuthenticateUser {
   pub fn user_id(&self) -> FlowyResult<i64> {
     let session = self.get_session()?;
     Ok(session.user_id)
+  }
+
+  pub async fn is_local_mode(&self) -> FlowyResult<bool> {
+    let uid = self.user_id()?;
+    if let Ok(anon_user) = self.get_anon_user().await {
+      if anon_user == uid {
+        return Ok(true);
+      }
+    }
+
+    Ok(false)
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -149,5 +161,17 @@ impl AuthenticateUser {
         Ok(session)
       },
     }
+  }
+
+  async fn get_anon_user(&self) -> FlowyResult<i64> {
+    let anon_session = self
+      .store_preferences
+      .get_object::<Session>(ANON_USER)
+      .ok_or(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        "Anon user not found",
+      ))?;
+
+    Ok(anon_session.user_id)
   }
 }

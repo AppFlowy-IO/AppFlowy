@@ -8,7 +8,7 @@ use collab_integrate::persistence::collab_metadata_sql::AFCollabMetadata;
 use flowy_ai::ai_manager::{AIExternalService, AIManager, AIUserService};
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
 use flowy_folder_pub::query::FolderService;
@@ -164,9 +164,14 @@ impl ChatUserServiceImpl {
   }
 }
 
+#[async_trait]
 impl AIUserService for ChatUserServiceImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self.upgrade_user()?.user_id()
+  }
+
+  async fn is_local_model(&self) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_local_mode().await
   }
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {

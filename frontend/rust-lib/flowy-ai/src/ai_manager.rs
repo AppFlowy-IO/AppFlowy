@@ -35,8 +35,10 @@ use tokio::sync::RwLock;
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
 
+#[async_trait]
 pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
+  async fn is_local_model(&self) -> FlowyResult<bool>;
   fn workspace_id(&self) -> Result<Uuid, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
@@ -437,99 +439,113 @@ impl AIManager {
   }
 
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
-    // Build the models list from server models and mark them as non-local.
-    let mut models: Vec<AIModel> = self
-      .get_server_available_models()
-      .await?
-      .into_iter()
-      .map(AIModel::from)
-      .collect();
+    let is_local_mode = self.user_service.is_local_model().await?;
+    if is_local_mode {
+      let mut selected_model = AIModel::default();
+      let mut models = vec![];
+      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+        let model = AIModel::local(local_model, "".to_string());
+        selected_model = model.clone();
+        models.push(model);
+      }
 
-    trace!("[Model Selection]: Available models: {:?}", models);
-
-    let mut current_active_local_ai_model = None;
-
-    // If user enable local ai, then add local ai model to the list.
-    if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-      let model = AIModel::local(local_model, "".to_string());
-      current_active_local_ai_model = Some(model.clone());
-      trace!("[Model Selection] current local ai model: {}", model.name);
-      models.push(model);
-    }
-
-    if models.is_empty() {
-      return Ok(AvailableModelsPB {
+      Ok(AvailableModelsPB {
         models: models.into_iter().map(|m| m.into()).collect(),
-        selected_model: AIModelPB::default(),
-      });
-    }
+        selected_model: AIModelPB::from(selected_model),
+      })
+    } else {
+      // Build the models list from server models and mark them as non-local.
+      let mut models: Vec<AIModel> = self
+        .get_server_available_models()
+        .await?
+        .into_iter()
+        .map(AIModel::from)
+        .collect();
 
-    // Global active model is the model selected by the user in the workspace settings.
-    let mut server_active_model = self
-      .get_workspace_select_model()
-      .await
-      .map(|m| AIModel::server(m, "".to_string()))
-      .unwrap_or_else(|_| AIModel::default());
+      trace!("[Model Selection]: Available models: {:?}", models);
+      let mut current_active_local_ai_model = None;
 
-    trace!(
-      "[Model Selection] server active model: {:?}",
-      server_active_model
-    );
+      // If user enable local ai, then add local ai model to the list.
+      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+        let model = AIModel::local(local_model, "".to_string());
+        current_active_local_ai_model = Some(model.clone());
+        trace!("[Model Selection] current local ai model: {}", model.name);
+        models.push(model);
+      }
 
-    let mut user_selected_model = server_active_model.clone();
-    // when current select model is deprecated, reset the model to default
-    if !models.iter().any(|m| m.name == server_active_model.name) {
-      server_active_model = AIModel::default();
-    }
+      if models.is_empty() {
+        return Ok(AvailableModelsPB {
+          models: models.into_iter().map(|m| m.into()).collect(),
+          selected_model: AIModelPB::default(),
+        });
+      }
 
-    let source_key = ai_available_models_key(&source);
+      // Global active model is the model selected by the user in the workspace settings.
+      let mut server_active_model = self
+        .get_workspace_select_model()
+        .await
+        .map(|m| AIModel::server(m, "".to_string()))
+        .unwrap_or_else(|_| AIModel::default());
 
-    // We use source to identify user selected model. source can be document id or chat id.
-    match self.store_preferences.get_object::<AIModel>(&source_key) {
-      None => {
-        // when there is selected model and current local ai is active, then use local ai
-        if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
-          user_selected_model = local_ai_model.clone();
-        }
-      },
-      Some(mut model) => {
-        trace!("[Model Selection] user previous select model: {:?}", model);
-        // If source is provided, try to get the user-selected model from the store. User selected
-        // model will be used as the active model if it exists.
-        if model.is_local {
-          if let Some(local_ai_model) = &current_active_local_ai_model {
-            if local_ai_model.name != model.name {
-              model = local_ai_model.clone();
+      trace!(
+        "[Model Selection] server active model: {:?}",
+        server_active_model
+      );
+
+      let mut user_selected_model = server_active_model.clone();
+      // when current select model is deprecated, reset the model to default
+      if !models.iter().any(|m| m.name == server_active_model.name) {
+        server_active_model = AIModel::default();
+      }
+
+      let source_key = ai_available_models_key(&source);
+      // We use source to identify user selected model. source can be document id or chat id.
+      match self.store_preferences.get_object::<AIModel>(&source_key) {
+        None => {
+          // when there is selected model and current local ai is active, then use local ai
+          if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
+            user_selected_model = local_ai_model.clone();
+          }
+        },
+        Some(mut model) => {
+          trace!("[Model Selection] user previous select model: {:?}", model);
+          // If source is provided, try to get the user-selected model from the store. User selected
+          // model will be used as the active model if it exists.
+          if model.is_local {
+            if let Some(local_ai_model) = &current_active_local_ai_model {
+              if local_ai_model.name != model.name {
+                model = local_ai_model.clone();
+              }
             }
           }
-        }
 
-        user_selected_model = model;
-      },
-    }
-
-    // If user selected model is not available in the list, use the global active model.
-    let active_model = models
-      .iter()
-      .find(|m| m.name == user_selected_model.name)
-      .cloned()
-      .or(Some(server_active_model.clone()));
-
-    // Update the stored preference if a different model is used.
-    if let Some(ref active_model) = active_model {
-      if active_model.name != user_selected_model.name {
-        self
-          .store_preferences
-          .set_object::<AIModel>(&source_key, &active_model.clone())?;
+          user_selected_model = model;
+        },
       }
-    }
 
-    trace!("[Model Selection] final active model: {:?}", active_model);
-    let selected_model = AIModelPB::from(active_model.unwrap_or_default());
-    Ok(AvailableModelsPB {
-      models: models.into_iter().map(|m| m.into()).collect(),
-      selected_model,
-    })
+      // If user selected model is not available in the list, use the global active model.
+      let active_model = models
+        .iter()
+        .find(|m| m.name == user_selected_model.name)
+        .cloned()
+        .or(Some(server_active_model.clone()));
+
+      // Update the stored preference if a different model is used.
+      if let Some(ref active_model) = active_model {
+        if active_model.name != user_selected_model.name {
+          self
+            .store_preferences
+            .set_object::<AIModel>(&source_key, &active_model.clone())?;
+        }
+      }
+
+      trace!("[Model Selection] final active model: {:?}", active_model);
+      let selected_model = AIModelPB::from(active_model.unwrap_or_default());
+      Ok(AvailableModelsPB {
+        models: models.into_iter().map(|m| m.into()).collect(),
+        selected_model,
+      })
+    }
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &Uuid) -> Result<Arc<Chat>, FlowyError> {
