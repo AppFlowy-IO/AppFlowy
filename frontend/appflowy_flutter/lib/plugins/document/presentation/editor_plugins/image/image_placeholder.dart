@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -44,10 +45,26 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   final documentService = DocumentService();
   late final editorState = context.read<EditorState>();
 
+  late EditorDropManagerState? dropManagerState = UniversalPlatform.isMobile
+      ? null
+      : context.read<EditorDropManagerState?>();
+
+  bool get isDragEnabled =>
+      dropManagerState?.isDropEnabled == true ||
+      dropManagerState?.contains(CustomImageBlockKeys.type) == true;
+
   bool showLoading = false;
   String? errorMessage;
 
   bool isDraggingFiles = false;
+
+  @override
+  void didChangeDependencies() {
+    if (UniversalPlatform.isMobile) {
+      dropManagerState = context.read<EditorDropManagerState>();
+    }
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +148,15 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
           );
         },
         child: DropTarget(
-          onDragEntered: (_) => setState(() => isDraggingFiles = true),
-          onDragExited: (_) => setState(() => isDraggingFiles = false),
+          enable: isDragEnabled,
+          onDragEntered: (_) {
+            if (isDragEnabled) {
+              setState(() => isDraggingFiles = true);
+            }
+          },
+          onDragExited: (_) {
+            setState(() => isDraggingFiles = false);
+          },
           onDragDone: (details) {
             // Only accept files where the mimetype is an image,
             // otherwise we assume it's a file we cannot display.
