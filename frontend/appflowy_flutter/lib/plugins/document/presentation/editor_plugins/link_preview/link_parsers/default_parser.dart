@@ -1,9 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy_backend/log.dart';
-
-import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
+import 'package:http/http.dart' as http;
 
 abstract class LinkInfoParser {
   Future<LinkInfo?> parse(
@@ -70,7 +69,7 @@ class DefaultParser implements LinkInfoParser {
       }
 
       final favicon =
-          'https://www.google.com/s2/favicons?sz=64&domain=${link.host}';
+          'https://www.faviconextractor.com/favicon/${link.host}?larger=true';
 
       return LinkInfo(
         url: '$link',
