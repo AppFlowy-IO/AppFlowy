@@ -2618,7 +2618,7 @@
   "noLogFiles": "There're no log files",
   "newSettings": {
     "myAccount": {
-      "title": "My account",
+      "title": "Account & App",
       "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
       "profileLabel": "Account name & Profile image",
       "profileNamePlaceholder": "Enter your name",
@@ -2644,7 +2644,34 @@
         "failedToGetCurrentUser": "Failed to get current user email",
         "confirmTextValidationFailed": "Your confirmation text does not match \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "Account deleted successfully"
-      }
+      },
+      "password": {
+        "title": "Password",
+        "changePassword": "Change password",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmNewPassword": "Confirm new password",
+        "setupPassword": "Setup password",
+        "error": {
+          "newPasswordIsRequired": "New password is required",
+          "confirmPasswordIsRequired": "Confirm password is required",
+          "passwordsDoNotMatch": "Passwords do not match",
+          "newPasswordIsSameAsCurrent": "New password is same as current password"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Password updated successfully",
+          "passwordUpdatedFailed": "Failed to update password",
+          "passwordSetupSuccessfully": "Password setup successfully",
+          "passwordSetupFailed": "Failed to setup password"
+        },
+        "hint": {
+          "enterYourCurrentPassword": "Enter your current password",
+          "enterYourNewPassword": "Enter your new password",
+          "confirmYourNewPassword": "Confirm your new password"
+        }
+      },
+      "myAccount": "My Account",
+      "myProfile": "My Profile"
     },
     "workplace": {
       "name": "Workplace",
