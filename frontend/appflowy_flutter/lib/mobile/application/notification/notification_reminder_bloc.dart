@@ -43,6 +43,7 @@ class NotificationReminderBloc
                 createdAt: createdAt,
                 pageTitle: '',
                 reminderContent: '',
+                isLocked: false,
                 status: NotificationReminderStatus.error,
               ),
             );
@@ -57,6 +58,7 @@ class NotificationReminderBloc
                 NotificationReminderState(
                   createdAt: createdAt,
                   pageTitle: view.nameOrDefault,
+                  isLocked: view.isLocked,
                   view: view,
                   reminderContent: node.delta?.toPlainText() ?? '',
                   nodes: [node],
@@ -70,6 +72,7 @@ class NotificationReminderBloc
               NotificationReminderState(
                 createdAt: createdAt,
                 pageTitle: view.nameOrDefault,
+                isLocked: view.isLocked,
                 view: view,
                 reminderContent: reminder.message,
                 status: NotificationReminderStatus.loaded,
@@ -203,6 +206,7 @@ class NotificationReminderState with _$NotificationReminderState {
     required String createdAt,
     required String pageTitle,
     required String reminderContent,
+    required bool isLocked,
     @Default(NotificationReminderStatus.initial)
     NotificationReminderStatus status,
     @Default([]) List<Node> nodes,
@@ -215,5 +219,6 @@ class NotificationReminderState with _$NotificationReminderState {
         createdAt: '',
         pageTitle: '',
         reminderContent: '',
+        isLocked: false,
       );
 }

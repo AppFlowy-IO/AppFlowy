@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -11,24 +11,24 @@ class EmptyNotification extends StatelessWidget {
     required this.type,
   });
 
-  final MobileNotificationTabType type;
+  final NotificationTabType type;
 
   @override
   Widget build(BuildContext context) {
     final title = switch (type) {
-      MobileNotificationTabType.inbox =>
+      NotificationTabType.inbox =>
         LocaleKeys.settings_notifications_emptyInbox_title.tr(),
-      MobileNotificationTabType.archive =>
+      NotificationTabType.archive =>
         LocaleKeys.settings_notifications_emptyArchived_title.tr(),
-      MobileNotificationTabType.unread =>
+      NotificationTabType.unread =>
         LocaleKeys.settings_notifications_emptyUnread_title.tr(),
     };
     final desc = switch (type) {
-      MobileNotificationTabType.inbox =>
+      NotificationTabType.inbox =>
         LocaleKeys.settings_notifications_emptyInbox_description.tr(),
-      MobileNotificationTabType.archive =>
+      NotificationTabType.archive =>
         LocaleKeys.settings_notifications_emptyArchived_description.tr(),
-      MobileNotificationTabType.unread =>
+      NotificationTabType.unread =>
         LocaleKeys.settings_notifications_emptyUnread_description.tr(),
     };
     return Column(

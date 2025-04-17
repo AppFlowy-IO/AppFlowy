@@ -25,16 +25,20 @@ class HomeLayout {
         .read<HomeSettingBloc>()
         .add(HomeSettingEvent.checkScreenSize(screenWidthPx));
 
-    showMenu = !homeSetting.isMenuCollapsed;
+    showMenu = homeSetting.menuStatus == MenuStatus.expanded;
     if (showMenu) {
       menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
     }
+
+    showNotificationPanel = !homeSetting.isNotificationPanelCollapsed;
 
     homePageLOffset = (showMenu && !menuIsDrawer) ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = homeSetting.resizeType.duration();
     editPanelWidth = HomeSizes.editPanelWidth;
+    notificationPanelWidth = MediaQuery.of(context).size.width -
+        (showEditPanel ? editPanelWidth : 0);
     homePageROffset = showEditPanel ? editPanelWidth : 0;
   }
 
@@ -42,9 +46,11 @@ class HomeLayout {
   late double menuWidth;
   late bool showMenu;
   late bool menuIsDrawer;
+  late bool showNotificationPanel;
   late double homePageLOffset;
   late double menuSpacing;
   late Duration animDuration;
   late double editPanelWidth;
+  late double notificationPanelWidth;
   late double homePageROffset;
 }

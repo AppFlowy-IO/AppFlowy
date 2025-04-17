@@ -50,30 +50,46 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
             emit(state.copyWith(workspaceSetting: value.setting));
           },
-          collapseMenu: (_CollapseMenu e) {
-            final isMenuCollapsed = !state.isMenuCollapsed;
-            _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
+          changeMenuStatus: (_CollapseMenu e) {
+            final status = e.status;
+            if (state.menuStatus == status) return;
+            if (status != MenuStatus.floating) {
+              _appearanceSettingsCubit.saveIsMenuCollapsed(
+                status == MenuStatus.expanded ? false : true,
+              );
+            }
+            emit(
+              state.copyWith(menuStatus: status),
+            );
+          },
+          collapseNotificationPanel: (_) {
+            final isNotificationPanelCollapsed =
+                !state.isNotificationPanelCollapsed;
             emit(
               state.copyWith(
-                isMenuCollapsed: isMenuCollapsed,
-                keepMenuCollapsed: isMenuCollapsed,
+                isNotificationPanelCollapsed: isNotificationPanelCollapsed,
               ),
             );
           },
           checkScreenSize: (_CheckScreenSize e) {
             final bool isScreenSmall =
                 e.screenWidthPx < PageBreaks.tabletLandscape;
-
-            if (state.isScreenSmall != isScreenSmall) {
-              final isMenuCollapsed = isScreenSmall || state.keepMenuCollapsed;
+            if (state.isScreenSmall == isScreenSmall) return;
+            if (state.hasColappsedMenuManually) {
+              emit(state.copyWith(isScreenSmall: isScreenSmall));
+            } else {
+              MenuStatus menuStatus = state.menuStatus;
+              if (isScreenSmall && menuStatus == MenuStatus.expanded) {
+                menuStatus = MenuStatus.hidden;
+              } else if (!isScreenSmall && menuStatus == MenuStatus.hidden) {
+                menuStatus = MenuStatus.expanded;
+              }
               emit(
                 state.copyWith(
-                  isMenuCollapsed: isMenuCollapsed,
+                  menuStatus: menuStatus,
                   isScreenSmall: isScreenSmall,
                 ),
               );
-            } else {
-              emit(state.copyWith(isScreenSmall: isScreenSmall));
             }
           },
           editPanelResizeStart: (_EditPanelResizeStart e) {
@@ -99,6 +115,18 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
       },
     );
   }
+
+  bool get isMenuHidden => state.menuStatus == MenuStatus.hidden;
+
+  bool get isMenuExpanded => state.menuStatus == MenuStatus.expanded;
+
+  void collapseMenu() {
+    if (isMenuExpanded) {
+      add(HomeSettingEvent.changeMenuStatus(MenuStatus.hidden));
+    } else if (isMenuHidden) {
+      add(HomeSettingEvent.changeMenuStatus(MenuStatus.expanded));
+    }
+  }
 }
 
 enum MenuResizeType {
@@ -120,18 +148,30 @@ extension MenuResizeTypeExtension on MenuResizeType {
 @freezed
 class HomeSettingEvent with _$HomeSettingEvent {
   const factory HomeSettingEvent.initial() = _Initial;
+
   const factory HomeSettingEvent.setEditPanel(EditPanelContext editContext) =
       _ShowEditPanel;
+
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
+
   const factory HomeSettingEvent.didReceiveWorkspaceSetting(
     WorkspaceSettingPB setting,
   ) = _DidReceiveWorkspaceSetting;
-  const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
+
+  const factory HomeSettingEvent.changeMenuStatus(MenuStatus status) =
+      _CollapseMenu;
+
+  const factory HomeSettingEvent.collapseNotificationPanel() =
+      _CollapseNotificationPanel;
+
   const factory HomeSettingEvent.checkScreenSize(double screenWidthPx) =
       _CheckScreenSize;
+
   const factory HomeSettingEvent.editPanelResized(double offset) =
       _EditPanelResized;
+
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;
+
   const factory HomeSettingEvent.editPanelResizeEnd() = _EditPanelResizeEnd;
 }
 
@@ -141,9 +181,10 @@ class HomeSettingState with _$HomeSettingState {
     required EditPanelContext? panelContext,
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
-    required bool isMenuCollapsed,
-    required bool keepMenuCollapsed,
+    required MenuStatus menuStatus,
+    required bool isNotificationPanelCollapsed,
     required bool isScreenSmall,
+    required bool hasColappsedMenuManually,
     required double resizeOffset,
     required double resizeStart,
     required MenuResizeType resizeType,
@@ -158,12 +199,17 @@ class HomeSettingState with _$HomeSettingState {
       panelContext: null,
       workspaceSetting: workspaceSetting,
       unauthorized: false,
-      isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
+      menuStatus: appearanceSettingsState.isMenuCollapsed
+          ? MenuStatus.hidden
+          : MenuStatus.expanded,
+      isNotificationPanelCollapsed: true,
       isScreenSmall: screenWidthPx < PageBreaks.tabletLandscape,
-      keepMenuCollapsed: false,
+      hasColappsedMenuManually: false,
       resizeOffset: appearanceSettingsState.menuOffset,
       resizeStart: 0,
       resizeType: MenuResizeType.slide,
     );
   }
 }
+
+enum MenuStatus { hidden, expanded, floating }

@@ -152,7 +152,7 @@ class DesktopAppFlowyDatePickerState
               const _GroupSeparator(),
               ReminderSelector(
                 mutex: widget.popoverMutex,
-                hasTime: widget.includeTime,
+                hasTime: includeTime,
                 timeFormat: widget.timeFormat,
                 selectedOption: reminderOption,
                 onOptionSelected: (option) {

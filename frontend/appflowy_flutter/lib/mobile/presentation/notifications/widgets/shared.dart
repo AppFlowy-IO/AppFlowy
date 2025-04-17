@@ -28,10 +28,36 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(
-      FlowySvgs.m_notification_reminder_s,
-      size: Size.square(_kNotificationIconHeight),
-      blendMode: null,
+    return SizedBox(
+      width: 42,
+      height: 36,
+      child: Stack(
+        children: [
+          const FlowySvg(
+            FlowySvgs.m_notification_reminder_s,
+            size: Size.square(32),
+            blendMode: null,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).cardColor,
+              ),
+              child: Center(
+                child: FlowyText(
+                  '@',
+                  fontSize: 12,
+                  figmaLineHeight: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -114,16 +140,10 @@ class _NotificationContentState extends State<NotificationContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // title
-            _buildHeader(),
-
-            // time & page name
-            _buildTimeAndPageName(
-              context,
-              state.createdAt,
-              state.pageTitle,
-            ),
-
+            // title & time
+            _buildHeader(state.createdAt, !widget.reminder.isRead),
+            // page name
+            _buildPageName(context, state.isLocked, state.pageTitle),
             // content
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
@@ -162,40 +182,65 @@ class _NotificationContentState extends State<NotificationContent> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildHeader() {
-    return FlowyText.semibold(
-      LocaleKeys.settings_notifications_titles_reminder.tr(),
-      fontSize: 14,
-      figmaLineHeight: 20,
+  Widget _buildHeader(String createAt, bool unread) {
+    return SizedBox(
+      height: 22,
+      child: Row(
+        children: [
+          FlowyText.semibold(
+            LocaleKeys.settings_notifications_titles_reminder.tr(),
+            fontSize: 14,
+            figmaLineHeight: 20,
+          ),
+          Spacer(),
+          if (createAt.isNotEmpty)
+            FlowyText.regular(
+              createAt,
+              fontSize: 12,
+              figmaLineHeight: 18,
+              color: context.notificationItemTextColor,
+            ),
+          if (unread) ...[
+            HSpace(4),
+            const UnreadRedDot(),
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _buildTimeAndPageName(
+  Widget _buildPageName(
     BuildContext context,
-    String createdAt,
+    bool isLocked,
     String pageTitle,
   ) {
     return Opacity(
       opacity: 0.5,
-      child: Row(
-        children: [
-          // the legacy reminder doesn't contain the timestamp, so we don't show it
-          if (createdAt.isNotEmpty) ...[
+      child: SizedBox(
+        height: 18,
+        child: Row(
+          children: [
+            /// TODO: need to be replaced after reminder support more types
             FlowyText.regular(
-              createdAt,
+              LocaleKeys.notificationHub_mentionedYou.tr(),
               fontSize: 12,
               figmaLineHeight: 18,
               color: context.notificationItemTextColor,
             ),
             const NotificationEllipse(),
+            if (isLocked)
+              Padding(
+                padding: EdgeInsets.only(right: 5),
+                child: FlowySvg(FlowySvgs.notification_lock_s),
+              ),
+            FlowyText.regular(
+              pageTitle,
+              fontSize: 12,
+              figmaLineHeight: 18,
+              color: context.notificationItemTextColor,
+            ),
           ],
-          FlowyText.regular(
-            pageTitle,
-            fontSize: 12,
-            figmaLineHeight: 18,
-            color: context.notificationItemTextColor,
-          ),
-        ],
+        ),
       ),
     );
   }
