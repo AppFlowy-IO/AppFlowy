@@ -142,7 +142,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
         ],
       ),
       onPressed: () {
-        if (_isAIEnabled(widget.editorState)) {
+        if (_isAIWriterEnabled(widget.editorState)) {
           keepEditorFocusNotifier.increase();
           popoverController.show();
           setState(() {
@@ -159,7 +159,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _aiWriterToolbarItemId,
-          _isAIEnabled(widget.editorState)
+          _isAIWriterEnabled(widget.editorState)
               ? LocaleKeys.document_plugins_aiWriter_userQuestion.tr()
               : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           child,
@@ -191,7 +191,7 @@ class ImproveWritingButton extends StatelessWidget {
         color: theme.iconColorTheme.primary,
       ),
       onPressed: () {
-        if (_isAIEnabled(editorState)) {
+        if (_isAIWriterEnabled(editorState)) {
           keepEditorFocusNotifier.increase();
           _insertAiNode(editorState, AiWriterCommand.improveWriting);
         } else {
@@ -205,7 +205,7 @@ class ImproveWritingButton extends StatelessWidget {
     return tooltipBuilder?.call(
           context,
           _aiWriterToolbarItemId,
-          _isAIEnabled(editorState)
+          _isAIWriterEnabled(editorState)
               ? LocaleKeys.document_plugins_aiWriter_improveWriting.tr()
               : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           child,
@@ -240,10 +240,8 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
   );
 }
 
-bool _isAIEnabled(EditorState editorState) {
-  final documentContext = editorState.document.root.context;
-  return documentContext == null ||
-      !documentContext.read<DocumentBloc>().isLocalMode;
+bool _isAIWriterEnabled(EditorState editorState) {
+  return true;
 }
 
 bool onlyShowInTextTypeAndExcludeTable(
