@@ -1505,7 +1505,7 @@ impl DatabaseEditor {
       view_editor.set_row_orders(row_orders.clone()).await;
 
       // Collect database details in a single block holding the `read` lock
-      let (database_id, fields, is_linked) = {
+      let (database_id, fields) = {
         let database = self.database.read().await;
         (
           database.get_database_id(),
@@ -1514,7 +1514,6 @@ impl DatabaseEditor {
             .into_iter()
             .map(FieldIdPB::from)
             .collect::<Vec<_>>(),
-          database.is_inline_view(view_id),
         )
       };
 
@@ -1557,7 +1556,6 @@ impl DatabaseEditor {
         fields,
         rows: order_rows,
         layout_type: view_layout.into(),
-        is_linked,
       });
       // Mark that the opening process is complete
       if let Some(tx) = self.is_loading_rows.load_full() {

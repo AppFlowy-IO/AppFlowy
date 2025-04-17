@@ -148,15 +148,6 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let lock = self.workspace_database()?;
-    let wdb = lock.read().await;
-    let database_collab = wdb.get_or_init_database(database_id).await?;
-    drop(wdb);
-    let lock_guard = database_collab.read().await;
-    Ok(lock_guard.get_inline_view_id())
-  }
-
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
     if let Some(lock) = self.workspace_database_manager.load_full() {
