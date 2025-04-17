@@ -4,6 +4,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/password/password_http_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +43,14 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
   final UserProfilePB userProfile;
   late final PasswordHttpService passwordHttpService;
 
+  bool _isInitialized = false;
+
   Future<void> _init() async {
+    if (userProfile.authenticator == AuthenticatorPB.Local) {
+      Log.debug('PasswordBloc: skip init because user is local authenticator');
+      return;
+    }
+
     final baseUrl = await getAppFlowyCloudUrl();
     try {
       final authToken = jsonDecode(userProfile.token)['access_token'];
@@ -50,6 +58,7 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
         baseUrl: baseUrl,
         authToken: authToken,
       );
+      _isInitialized = true;
     } catch (e) {
       Log.error('PasswordBloc: _init: error: $e');
     }
@@ -60,6 +69,11 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
     required String oldPassword,
     required String newPassword,
   }) async {
+    if (!_isInitialized) {
+      Log.info('changePassword: not initialized');
+      return;
+    }
+
     if (state.isSubmitting) {
       Log.info('changePassword: already submitting');
       return;
@@ -84,6 +98,11 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
     Emitter<PasswordState> emit, {
     required String newPassword,
   }) async {
+    if (!_isInitialized) {
+      Log.info('setupPassword: not initialized');
+      return;
+    }
+
     if (state.isSubmitting) {
       Log.info('setupPassword: already submitting');
       return;
@@ -111,6 +130,11 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
     Emitter<PasswordState> emit, {
     required String email,
   }) async {
+    if (!_isInitialized) {
+      Log.info('forgotPassword: not initialized');
+      return;
+    }
+
     if (state.isSubmitting) {
       Log.info('forgotPassword: already submitting');
       return;
@@ -129,6 +153,11 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
   }
 
   Future<void> _onCheckHasPassword(Emitter<PasswordState> emit) async {
+    if (!_isInitialized) {
+      Log.info('checkHasPassword: not initialized');
+      return;
+    }
+
     if (state.isSubmitting) {
       Log.info('checkHasPassword: already submitting');
       return;

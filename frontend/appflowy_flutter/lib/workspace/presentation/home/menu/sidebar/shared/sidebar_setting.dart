@@ -73,9 +73,6 @@ class _UserSettingButtonState extends State<UserSettingButton> {
   @override
   void didChangeDependencies() {
     _userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    _passwordBloc = PasswordBloc(widget.userProfile)
-      ..add(PasswordEvent.init())
-      ..add(PasswordEvent.checkHasPassword());
 
     super.didChangeDependencies();
   }
