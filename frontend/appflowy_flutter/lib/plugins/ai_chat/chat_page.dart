@@ -51,14 +51,14 @@ class AIChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
-      return Center(
-        child: FlowyText(
-          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-          fontSize: 20,
-        ),
-      );
-    }
+    // if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+    //   return Center(
+    //     child: FlowyText(
+    //       LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+    //       fontSize: 20,
+    //     ),
+    //   );
+    // }
 
     return MultiBlocProvider(
       providers: [
