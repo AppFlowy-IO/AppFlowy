@@ -797,6 +797,23 @@ async fn create_calendar_event_test() {
 }
 
 #[tokio::test]
+async fn get_database_meta_test() {
+  let test = EventIntegrationTest::new_anon().await;
+  let current_workspace = test.get_current_workspace().await;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+
+  let database_id = test.get_database(&grid_view.id).await.id;
+
+  let database_meta = test.get_database_meta(&database_id).await;
+  let inline_view_id = database_meta.inline_view_id.clone();
+  let database_from_inline_view_id = test.get_database(&inline_view_id).await;
+
+  assert_eq!(database_meta.database_id, database_from_inline_view_id.id);
+}
+
+#[tokio::test]
 async fn update_relation_cell_test() {
   let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
