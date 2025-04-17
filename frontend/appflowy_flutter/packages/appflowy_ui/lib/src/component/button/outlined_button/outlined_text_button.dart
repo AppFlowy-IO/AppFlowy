@@ -8,7 +8,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     required super.text,
     required super.onTap,
     this.borderColor,
-    this.textStyle,
+    super.textStyle,
     super.textColor,
     super.backgroundColor,
     super.size = AFButtonSize.m,
@@ -174,7 +174,6 @@ class AFOutlinedTextButton extends AFBaseTextButton {
   }
 
   final AFBaseButtonColorBuilder? borderColor;
-  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {

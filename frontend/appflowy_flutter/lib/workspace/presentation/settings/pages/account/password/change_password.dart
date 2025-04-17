@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,7 +102,7 @@ class _ChangePasswordDialogContentState
     final theme = AppFlowyTheme.of(context);
     return [
       Text(
-        'Current password',
+        LocaleKeys.newSettings_myAccount_password_currentPassword.tr(),
         style: theme.textStyle.caption.enhanced(
           color: theme.textColorScheme.secondary,
         ),
@@ -109,7 +111,9 @@ class _ChangePasswordDialogContentState
       AFTextField(
         key: currentPasswordTextFieldKey,
         controller: currentPasswordController,
-        hintText: 'Enter your current password',
+        hintText: LocaleKeys
+            .newSettings_myAccount_password_hint_enterYourCurrentPassword
+            .tr(),
         keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
@@ -131,7 +135,7 @@ class _ChangePasswordDialogContentState
     final theme = AppFlowyTheme.of(context);
     return [
       Text(
-        'New password',
+        LocaleKeys.newSettings_myAccount_password_newPassword.tr(),
         style: theme.textStyle.caption.enhanced(
           color: theme.textColorScheme.secondary,
         ),
@@ -140,7 +144,9 @@ class _ChangePasswordDialogContentState
       AFTextField(
         key: newPasswordTextFieldKey,
         controller: newPasswordController,
-        hintText: 'Enter your new password',
+        hintText: LocaleKeys
+            .newSettings_myAccount_password_hint_enterYourNewPassword
+            .tr(),
         keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
@@ -162,7 +168,7 @@ class _ChangePasswordDialogContentState
     final theme = AppFlowyTheme.of(context);
     return [
       Text(
-        'Confirm password',
+        LocaleKeys.newSettings_myAccount_password_confirmNewPassword.tr(),
         style: theme.textStyle.caption.enhanced(
           color: theme.textColorScheme.secondary,
         ),
@@ -171,7 +177,9 @@ class _ChangePasswordDialogContentState
       AFTextField(
         key: confirmPasswordTextFieldKey,
         controller: confirmPasswordController,
-        hintText: 'Confirm your new password',
+        hintText: LocaleKeys
+            .newSettings_myAccount_password_hint_confirmYourNewPassword
+            .tr(),
         keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
@@ -195,7 +203,7 @@ class _ChangePasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         AFOutlinedTextButton.normal(
-          text: 'Cancel',
+          text: LocaleKeys.button_cancel.tr(),
           textStyle: theme.textStyle.body.standard(
             color: theme.textColorScheme.primary,
             weight: FontWeight.w400,
@@ -204,7 +212,7 @@ class _ChangePasswordDialogContentState
         ),
         const HSpace(16),
         AFFilledTextButton.primary(
-          text: 'Save',
+          text: LocaleKeys.button_save.tr(),
           textStyle: theme.textStyle.body.standard(
             color: theme.textColorScheme.onFill,
             weight: FontWeight.w400,
@@ -242,28 +250,37 @@ class _ChangePasswordDialogContentState
     final confirmPassword = confirmPasswordController.text;
 
     if (newPassword.isEmpty) {
-      newPasswordTextFieldKey.currentState
-          ?.syncError(errorText: 'New password is required');
+      newPasswordTextFieldKey.currentState?.syncError(
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_newPasswordIsRequired
+            .tr(),
+      );
       return;
     }
 
     if (confirmPassword.isEmpty) {
       confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Confirm password is required',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_confirmPasswordIsRequired
+            .tr(),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Passwords do not match',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_passwordsDoNotMatch
+            .tr(),
       );
       return;
     }
 
     if (newPassword == currentPassword) {
       newPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'New password cannot be the same as the current password',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_newPasswordIsSameAsCurrent
+            .tr(),
       );
       return;
     }
@@ -294,24 +311,30 @@ class _ChangePasswordDialogContentState
     if (changePasswordResult != null) {
       changePasswordResult.fold(
         (success) {
-          message = 'Password changed';
-          description = 'Your password has been changed';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordUpdatedSuccessfully
+              .tr();
         },
         (error) {
           hasError = true;
-          message = 'Failed to change password';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordUpdatedFailed
+              .tr();
           description = error.msg;
         },
       );
     } else if (setPasswordResult != null) {
       setPasswordResult.fold(
         (success) {
-          message = 'Password set';
-          description = 'Your password has been set';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordSetupSuccessfully
+              .tr();
         },
         (error) {
           hasError = true;
-          message = 'Failed to set password';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordSetupFailed
+              .tr();
           description = error.msg;
         },
       );
