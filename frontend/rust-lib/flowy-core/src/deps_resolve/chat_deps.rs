@@ -6,6 +6,7 @@ use collab::util::is_change_since_sv;
 use collab_entity::CollabType;
 use collab_integrate::persistence::collab_metadata_sql::AFCollabMetadata;
 use flowy_ai::ai_manager::{AIExternalService, AIManager, AIUserService};
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_folder::ViewLayout;
@@ -33,6 +34,7 @@ impl ChatDepsResolver {
     storage_service: Weak<dyn StorageService>,
     folder_cloud_service: Arc<dyn FolderCloudService>,
     folder_service: impl FolderService,
+    local_ai: Arc<LocalAIController>,
   ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
     Arc::new(AIManager::new(
@@ -44,6 +46,7 @@ impl ChatDepsResolver {
         folder_service: Box::new(folder_service),
         folder_cloud_service,
       },
+      local_ai,
     ))
   }
 }
@@ -164,10 +167,6 @@ impl ChatUserServiceImpl {
 impl AIUserService for ChatUserServiceImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self.upgrade_user()?.user_id()
-  }
-
-  fn device_id(&self) -> Result<String, FlowyError> {
-    self.upgrade_user()?.device_id()
   }
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {

@@ -10,9 +10,9 @@ use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
-  ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, LocalAIConfig,
-  MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
-  ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList,
+  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer,
+  StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -50,10 +50,6 @@ impl AICloudServiceMiddleware {
     }
   }
 
-  pub fn is_local_ai_enabled(&self) -> bool {
-    self.local_ai.is_enabled()
-  }
-
   pub async fn index_message_metadata(
     &self,
     chat_id: &Uuid,
@@ -63,7 +59,7 @@ impl AICloudServiceMiddleware {
     if metadata_list.is_empty() {
       return Ok(());
     }
-    if self.is_local_ai_enabled() {
+    if self.local_ai.is_enabled() {
       let _ = index_process_sink
         .send(StreamMessage::IndexStart.to_string())
         .await;
@@ -262,28 +258,41 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_ai.is_running() {
-      let questions = self
-        .local_ai
-        .get_related_question(&chat_id.to_string())
-        .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))?;
-      trace!("LocalAI related questions: {:?}", questions);
+    let use_local_ai = match &ai_model {
+      None => false,
+      Some(model) => model.is_local,
+    };
 
-      let items = questions
-        .into_iter()
-        .map(|content| RelatedQuestion {
-          content,
-          metadata: None,
+    if use_local_ai {
+      if self.local_ai.is_running() {
+        let questions = self
+          .local_ai
+          .get_related_question(&chat_id.to_string())
+          .await
+          .map_err(|err| FlowyError::local_ai().with_context(err))?;
+        trace!("LocalAI related questions: {:?}", questions);
+
+        let items = questions
+          .into_iter()
+          .map(|content| RelatedQuestion {
+            content,
+            metadata: None,
+          })
+          .collect::<Vec<_>>();
+
+        Ok(RepeatedRelatedQuestion { message_id, items })
+      } else {
+        Ok(RepeatedRelatedQuestion {
+          message_id,
+          items: vec![],
         })
-        .collect::<Vec<_>>();
-
-      Ok(RepeatedRelatedQuestion { message_id, items })
+      }
     } else {
       self
         .cloud_service
-        .get_related_message(workspace_id, chat_id, message_id)
+        .get_related_message(workspace_id, chat_id, message_id, ai_model)
         .await
     }
   }
@@ -357,10 +366,6 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .embed_file(workspace_id, file_path, chat_id, metadata)
         .await
     }
-  }
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
-    self.cloud_service.get_local_ai_config(workspace_id).await
   }
 
   async fn get_workspace_plan(

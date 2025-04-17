@@ -1,5 +1,5 @@
 use crate::af_cloud::define::ServerUser;
-use client_api::entity::ai_dto::{LocalAIConfig, RepeatedRelatedQuestion};
+use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
   CompleteTextParams, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer,
@@ -98,6 +98,7 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     _workspace_id: &Uuid,
     _chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     Ok(RepeatedRelatedQuestion {
       message_id,
@@ -131,13 +132,6 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))
-  }
-
-  async fn get_local_ai_config(&self, _workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
-    Err(
-      FlowyError::not_support()
-        .with_context("Get local ai config is not supported in local server."),
-    )
   }
 
   async fn get_workspace_plan(

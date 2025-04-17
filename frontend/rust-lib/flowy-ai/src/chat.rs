@@ -524,11 +524,12 @@ impl Chat {
   pub async fn get_related_question(
     &self,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     let resp = self
       .chat_service
-      .get_related_message(&workspace_id, &self.chat_id, message_id)
+      .get_related_message(&workspace_id, &self.chat_id, message_id, ai_model)
       .await?;
 
     trace!(

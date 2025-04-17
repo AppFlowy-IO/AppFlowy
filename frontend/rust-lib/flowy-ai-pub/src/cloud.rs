@@ -141,6 +141,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError>;
 
   async fn stream_complete(
@@ -157,13 +158,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &Uuid,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError>;
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError>;
-
-  async fn get_workspace_plan(
-    &self,
-    workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
 
   async fn get_chat_settings(
     &self,

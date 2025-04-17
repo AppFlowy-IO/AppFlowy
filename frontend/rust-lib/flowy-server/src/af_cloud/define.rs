@@ -1,5 +1,6 @@
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
+use std::path::PathBuf;
 use uuid::Uuid;
 
 pub const USER_SIGN_IN_URL: &str = "sign_in_url";
@@ -15,4 +16,5 @@ pub trait ServerUser: Send + Sync {
   fn user_id(&self) -> FlowyResult<i64>;
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError>;
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }

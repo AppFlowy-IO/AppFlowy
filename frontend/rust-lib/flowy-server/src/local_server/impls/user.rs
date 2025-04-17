@@ -5,7 +5,6 @@ use collab::preclude::Collab;
 use collab_entity::CollabObject;
 use collab_user::core::UserAwareness;
 use lazy_static::lazy_static;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 

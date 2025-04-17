@@ -9,12 +9,11 @@ use client_api::entity::chat_dto::{
 };
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  LocalAIConfig, ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::{get_operating_system, OperatingSystem};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -186,6 +185,7 @@ where
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
@@ -224,25 +224,6 @@ where
       FlowyError::not_support()
         .with_context("indexing file with appflowy cloud is not suppotred yet"),
     );
-  }
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
-    let system = get_operating_system();
-    let platform = match system {
-      OperatingSystem::MacOS => "macos",
-      _ => {
-        return Err(
-          FlowyError::not_support()
-            .with_context("local ai is not supported on this operating system"),
-        );
-      },
-    };
-    let config = self
-      .inner
-      .try_get_client()?
-      .get_local_ai_config(workspace_id.to_string().as_str(), platform)
-      .await?;
-    Ok(config)
   }
 
   async fn get_workspace_plan(

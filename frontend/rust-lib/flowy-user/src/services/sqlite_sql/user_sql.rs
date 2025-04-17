@@ -1,5 +1,5 @@
-use diesel::{sql_query, RunQueryDsl};
-use flowy_error::{internal_error, FlowyError};
+use diesel::RunQueryDsl;
+use flowy_error::FlowyError;
 use std::str::FromStr;
 
 use flowy_user_pub::cloud::UserUpdate;

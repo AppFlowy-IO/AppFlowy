@@ -15,8 +15,8 @@ use flowy_ai_pub::cloud::search_dto::{
 };
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompleteTextParams, LocalAIConfig, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat,
-  StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  CompleteTextParams, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer,
+  StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -753,11 +753,12 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     self
       .get_server()?
       .chat_service()
-      .get_related_message(workspace_id, chat_id, message_id)
+      .get_related_message(workspace_id, chat_id, message_id, ai_model)
       .await
   }
 
@@ -798,14 +799,6 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .embed_file(workspace_id, file_path, chat_id, metadata)
-      .await
-  }
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
-    self
-      .get_server()?
-      .chat_service()
-      .get_local_ai_config(workspace_id)
       .await
   }
 

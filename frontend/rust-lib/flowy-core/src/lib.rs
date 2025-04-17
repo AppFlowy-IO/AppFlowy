@@ -9,6 +9,7 @@ use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::ServerUser;
+use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -191,6 +192,7 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
         server_provider.clone(),
         folder_query_service.clone(),
+        server_provider.local_ai.clone(),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -342,5 +344,11 @@ impl ServerUser for ServerUserImpl {
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    Ok(PathBuf::from(
+      self.upgrade_user()?.get_application_root_dir(),
+    ))
   }
 }

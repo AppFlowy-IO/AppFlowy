@@ -8,7 +8,6 @@ use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 use std::collections::HashMap;
 
-use af_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatSettings, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
@@ -35,7 +34,6 @@ use uuid::Uuid;
 
 pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<Uuid, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
@@ -85,16 +83,9 @@ impl AIManager {
     store_preferences: Arc<KVStorePreferences>,
     storage_service: Weak<dyn StorageService>,
     query_service: impl AIExternalService,
+    local_ai: Arc<LocalAIController>,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
-    let plugin_manager = Arc::new(PluginManager::new());
-    let local_ai = Arc::new(LocalAIController::new(
-      plugin_manager.clone(),
-      store_preferences.clone(),
-      user_service.clone(),
-      chat_cloud_service.clone(),
-    ));
-
     let cloned_local_ai = local_ai.clone();
     tokio::spawn(async move {
       cloned_local_ai.observe_plugin_resource().await;
@@ -596,7 +587,8 @@ impl AIManager {
     message_id: i64,
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
-    let resp = chat.get_related_question(message_id).await?;
+    let ai_model = self.get_active_model(&chat_id.to_string()).await;
+    let resp = chat.get_related_question(message_id, ai_model).await?;
     Ok(resp)
   }
 

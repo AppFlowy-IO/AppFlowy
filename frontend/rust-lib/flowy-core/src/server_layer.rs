@@ -11,11 +11,14 @@ use flowy_server::local_server::LocalServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::*;
 use serde_repr::*;
 use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::{Arc, Weak};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
@@ -59,6 +62,7 @@ pub struct ServerProvider {
   authenticator: AtomicU8,
   user: Arc<dyn ServerUser>,
   pub(crate) uid: Arc<ArcSwapOption<i64>>,
+  pub local_ai: Arc<LocalAIController>,
 }
 
 impl ServerProvider {
@@ -66,19 +70,16 @@ impl ServerProvider {
     config: AppFlowyCoreConfig,
     server: Server,
     store_preferences: Weak<KVStorePreferences>,
-    user_service: impl AIUserService,
     server_user: impl ServerUser + 'static,
   ) -> Self {
     let user = Arc::new(server_user);
     let encryption = EncryptionImpl::new(None);
-
-    let user_service = Arc::new(user_service);
+    let user_service = Arc::new(AIUserServiceImpl(user.clone()));
     let plugin_manager = Arc::new(PluginManager::new());
     let local_ai = Arc::new(LocalAIController::new(
       plugin_manager.clone(),
       store_preferences.clone(),
       user_service.clone(),
-      chat_cloud_service.clone(),
     ));
 
     Self {
@@ -90,6 +91,7 @@ impl ServerProvider {
       store_preferences,
       uid: Default::default(),
       user,
+      local_ai,
     }
   }
 
@@ -177,5 +179,25 @@ pub fn current_server_type() -> Server {
   match AuthenticatorType::from_env() {
     AuthenticatorType::Local => Server::Local,
     AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
+  }
+}
+
+struct AIUserServiceImpl(Arc<dyn ServerUser>);
+
+impl AIUserService for AIUserServiceImpl {
+  fn user_id(&self) -> Result<i64, FlowyError> {
+    self.0.user_id()
+  }
+
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
+    self.0.workspace_id()
+  }
+
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.0.get_sqlite_db(uid)
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    self.0.application_root_dir()
   }
 }

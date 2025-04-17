@@ -1,6 +1,7 @@
 use client_api::ClientConfiguration;
 use semver::Version;
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -48,6 +49,10 @@ impl ServerUser for FakeServerUserImpl {
   }
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    todo!()
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
     todo!()
   }
 }

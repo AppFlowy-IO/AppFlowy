@@ -14,7 +14,7 @@ use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
 
 pub struct AuthenticateUser {

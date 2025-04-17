@@ -6,7 +6,6 @@ use std::convert::TryFrom;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
@@ -20,7 +19,7 @@ use tracing::{error, info, instrument, trace, warn};
 use uuid::Uuid;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
+  RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
   UpdateUserWorkspaceSettingPB, UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
 };
 use crate::migrations::AnonUser;
@@ -575,7 +574,7 @@ impl UserManager {
     if let Ok(member_record) = select_workspace_member(db, &workspace_id.to_string(), uid) {
       if is_older_than_n_minutes(member_record.updated_at, 10) {
         self
-          .get_workspace_member_info_from_remote(&workspace_id, uid)
+          .get_workspace_member_info_from_remote(workspace_id, uid)
           .await?;
       }
 

@@ -1,5 +1,4 @@
 #![allow(unused_variables)]
-use std::sync::Arc;
 
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;

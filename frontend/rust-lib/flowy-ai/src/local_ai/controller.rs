@@ -6,7 +6,7 @@ use crate::notification::{
 };
 use af_plugin::manager::PluginManager;
 use anyhow::Error;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageMetadata, ContextLoader, LocalAIConfig};
+use flowy_ai_pub::cloud::{ChatMessageMetadata, ContextLoader};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
@@ -55,8 +55,6 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Weak<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
-  #[allow(dead_code)]
-  cloud_service: Arc<dyn ChatCloudService>,
 }
 
 impl Deref for LocalAIController {
@@ -72,7 +70,6 @@ impl LocalAIController {
     plugin_manager: Arc<PluginManager>,
     store_preferences: Weak<KVStorePreferences>,
     user_service: Arc<dyn AIUserService>,
-    cloud_service: Arc<dyn ChatCloudService>,
   ) -> Self {
     debug!(
       "[AI Plugin] init local ai controller, thread: {:?}",
@@ -83,7 +80,6 @@ impl LocalAIController {
     let local_ai = Arc::new(OllamaAIPlugin::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
-      cloud_service: cloud_service.clone(),
       store_preferences: store_preferences.clone(),
     };
     let local_ai_resource = Arc::new(LocalAIResourceController::new(
@@ -160,7 +156,6 @@ impl LocalAIController {
       current_chat_id: ArcSwapOption::default(),
       store_preferences,
       user_service,
-      cloud_service,
     }
   }
   #[instrument(level = "debug", skip_all)]
@@ -377,10 +372,6 @@ impl LocalAIController {
       .resource
       .user_model_folder()
       .map(|path| path.to_string_lossy().to_string())
-  }
-
-  pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
-    self.resource.get_plugin_download_link().await
   }
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
@@ -604,7 +595,6 @@ async fn initialize_ai_plugin(
 
 pub struct LLMResourceServiceImpl {
   user_service: Arc<dyn AIUserService>,
-  cloud_service: Arc<dyn ChatCloudService>,
   store_preferences: Weak<KVStorePreferences>,
 }
 
@@ -618,15 +608,6 @@ impl LLMResourceServiceImpl {
 }
 #[async_trait]
 impl LLMResourceService for LLMResourceServiceImpl {
-  async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error> {
-    let workspace_id = self.user_service.workspace_id()?;
-    let config = self
-      .cloud_service
-      .get_local_ai_config(&workspace_id)
-      .await?;
-    Ok(config)
-  }
-
   fn store_setting(&self, setting: LocalAISetting) -> Result<(), Error> {
     let store_preferences = self.upgrade_store_preferences()?;
     store_preferences.set_object(LOCAL_AI_SETTING_KEY, &setting)?;
