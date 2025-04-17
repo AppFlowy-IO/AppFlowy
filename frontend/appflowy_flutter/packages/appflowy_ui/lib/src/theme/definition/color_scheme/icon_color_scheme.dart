@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AppFlowyIconColorTheme {
-  const AppFlowyIconColorTheme({
+class AppFlowyIconColorScheme {
+  const AppFlowyIconColorScheme({
     required this.primary,
     required this.secondary,
     required this.tertiary,

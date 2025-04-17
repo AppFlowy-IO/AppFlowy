@@ -120,7 +120,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
 
   Widget buildChild(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
-        iconColor = theme.iconColorTheme.primary;
+        iconColor = theme.iconColorScheme.primary;
     final child = FlowyHover(
       isSelected: () => isSelected,
       style: HoverStyle(

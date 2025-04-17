@@ -202,7 +202,7 @@ enum AFTextFieldSize {
   m,
   l;
 
-  EdgeInsetsGeometry contentPadding(AppFlowyThemeData theme) {
+  EdgeInsetsGeometry contentPadding(AppFlowyBaseThemeData theme) {
     return EdgeInsets.symmetric(
       vertical: switch (this) {
         AFTextFieldSize.m => theme.spacing.s,
@@ -212,7 +212,7 @@ enum AFTextFieldSize {
     );
   }
 
-  BorderRadius borderRadius(AppFlowyThemeData theme) {
+  BorderRadius borderRadius(AppFlowyBaseThemeData theme) {
     return BorderRadius.circular(
       switch (this) {
         AFTextFieldSize.m => theme.borderRadius.m,

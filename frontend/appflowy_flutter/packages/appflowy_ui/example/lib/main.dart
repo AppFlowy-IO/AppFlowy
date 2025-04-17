@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             IconButton(
               icon: Icon(
-                theme.brightness == Brightness.light
+                Theme.of(context).brightness == Brightness.light
                     ? Icons.dark_mode
                     : Icons.light_mode,
               ),
