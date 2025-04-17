@@ -3,6 +3,7 @@ import 'package:appflowy_backend/log.dart';
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 abstract class LinkInfoParser {
   Future<LinkInfo?> parse(
@@ -38,12 +39,19 @@ class DefaultParser implements LinkInfoParser {
       if (code != 200 && isHome) {
         throw Exception('Http request error: $code');
       }
-      //  else if (!isHome && code == 403) {
-      //   uri = Uri.parse('${uri.scheme}://${uri.host}/');
-      //   response = await http.get(uri).timeout(timeout);
-      // }
 
-      final document = html_parser.parse(response.body);
+      final contentType = response.headers['content-type'];
+      final charset = contentType?.split('charset=').lastOrNull;
+      String body = '';
+      if (charset == null ||
+          charset.toLowerCase() == 'latin-1' ||
+          charset.toLowerCase() == 'iso-8859-1') {
+        body = latin1.decode(response.bodyBytes);
+      } else {
+        body = utf8.decode(response.bodyBytes, allowMalformed: true);
+      }
+
+      final document = html_parser.parse(body);
 
       final siteName = document
           .querySelector('meta[property="og:site_name"]')
