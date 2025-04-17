@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -120,8 +121,7 @@ class _ChangePasswordDialogContentState
           width: iconSize + theme.spacing.m,
           height: iconSize,
         ),
-        suffixIconBuilder: (context, isObscured) => _buildSuffixIcon(
-          context,
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
           isObscured: isObscured,
           onTap: () {
             currentPasswordTextFieldKey.currentState?.syncObscured(!isObscured);
@@ -153,8 +153,7 @@ class _ChangePasswordDialogContentState
           width: iconSize + theme.spacing.m,
           height: iconSize,
         ),
-        suffixIconBuilder: (context, isObscured) => _buildSuffixIcon(
-          context,
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
           isObscured: isObscured,
           onTap: () {
             newPasswordTextFieldKey.currentState?.syncObscured(!isObscured);
@@ -186,8 +185,7 @@ class _ChangePasswordDialogContentState
           width: iconSize + theme.spacing.m,
           height: iconSize,
         ),
-        suffixIconBuilder: (context, isObscured) => _buildSuffixIcon(
-          context,
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
           isObscured: isObscured,
           onTap: () {
             confirmPasswordTextFieldKey.currentState?.syncObscured(!isObscured);
@@ -220,25 +218,6 @@ class _ChangePasswordDialogContentState
           onTap: () => _save(context),
         ),
       ],
-    );
-  }
-
-  Widget _buildSuffixIcon(
-    BuildContext context, {
-    required bool isObscured,
-    required VoidCallback onTap,
-  }) {
-    final theme = AppFlowyTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(right: theme.spacing.m),
-      child: GestureDetector(
-        onTap: onTap,
-        child: FlowySvg(
-          isObscured ? FlowySvgs.show_s : FlowySvgs.hide_s,
-          color: theme.textColorScheme.secondary,
-          size: const Size.square(20),
-        ),
-      ),
     );
   }
 

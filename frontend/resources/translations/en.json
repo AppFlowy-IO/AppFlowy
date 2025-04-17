@@ -81,8 +81,11 @@
     "enterCode": "Enter code",
     "enterCodeManually": "Enter code manually",
     "continueWithEmail": "Continue with email",
+    "enterPassword": "Enter password",
+    "loginAs": "Login as",
     "invalidVerificationCode": "Please enter a valid verification code",
-    "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later."
+    "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later.",
+    "invalidLoginCredentials": "Your password is incorrect, please try again"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",

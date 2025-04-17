@@ -1,8 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,7 +71,7 @@ class _SetupPasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Setup password',
+          LocaleKeys.newSettings_myAccount_password_setupPassword.tr(),
           style: theme.textStyle.heading4.prominent(
             color: theme.textColorScheme.primary,
           ),
@@ -107,8 +110,7 @@ class _SetupPasswordDialogContentState
           width: iconSize + theme.spacing.m,
           height: iconSize,
         ),
-        suffixIconBuilder: (context, isObscured) => _buildSuffixIcon(
-          context,
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
           isObscured: isObscured,
           onTap: () {
             passwordTextFieldKey.currentState?.syncObscured(!isObscured);
@@ -138,8 +140,7 @@ class _SetupPasswordDialogContentState
           width: iconSize + theme.spacing.m,
           height: iconSize,
         ),
-        suffixIconBuilder: (context, isObscured) => _buildSuffixIcon(
-          context,
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
           isObscured: isObscured,
           onTap: () {
             confirmPasswordTextFieldKey.currentState?.syncObscured(!isObscured);
@@ -175,25 +176,6 @@ class _SetupPasswordDialogContentState
     );
   }
 
-  Widget _buildSuffixIcon(
-    BuildContext context, {
-    required bool isObscured,
-    required VoidCallback onTap,
-  }) {
-    final theme = AppFlowyTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(right: theme.spacing.m),
-      child: GestureDetector(
-        onTap: onTap,
-        child: FlowySvg(
-          isObscured ? FlowySvgs.show_s : FlowySvgs.hide_s,
-          color: theme.textColorScheme.secondary,
-          size: const Size.square(20),
-        ),
-      ),
-    );
-  }
-
   void _save(BuildContext context) async {
     _resetError();
 
@@ -202,21 +184,27 @@ class _SetupPasswordDialogContentState
 
     if (password.isEmpty) {
       passwordTextFieldKey.currentState?.syncError(
-        errorText: 'Password is required',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_newPasswordIsRequired
+            .tr(),
       );
       return;
     }
 
     if (confirmPassword.isEmpty) {
       confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Confirm password is required',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_confirmPasswordIsRequired
+            .tr(),
       );
       return;
     }
 
     if (password != confirmPassword) {
       confirmPasswordTextFieldKey.currentState?.syncError(
-        errorText: 'Passwords do not match',
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_passwordsDoNotMatch
+            .tr(),
       );
       return;
     }

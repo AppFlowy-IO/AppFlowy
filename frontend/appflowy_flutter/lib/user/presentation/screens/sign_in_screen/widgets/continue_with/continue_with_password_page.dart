@@ -1,6 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -43,9 +46,16 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           width: 320,
           child: BlocListener<SignInBloc, SignInState>(
             listener: (context, state) {
-              if (state.passwordError != null) {
+              final successOrFail = state.successOrFail;
+              if (successOrFail != null && successOrFail.isFailure) {
+                successOrFail.onFailure((error) {
+                  inputPasswordKey.currentState?.syncError(
+                    errorText: LocaleKeys.signIn_invalidLoginCredentials.tr(),
+                  );
+                });
+              } else if (state.passwordError != null) {
                 inputPasswordKey.currentState?.syncError(
-                  errorText: 'Incorrect password. Please try again.',
+                  errorText: LocaleKeys.signIn_invalidLoginCredentials.tr(),
                 );
               } else {
                 inputPasswordKey.currentState?.clearError();
@@ -80,7 +90,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
 
       // title
       Text(
-        'Enter password',
+        LocaleKeys.signIn_enterPassword.tr(),
         style: theme.textStyle.heading3.enhanced(
           color: theme.textColorScheme.primary,
         ),
@@ -92,13 +102,13 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
         text: TextSpan(
           children: [
             TextSpan(
-              text: 'Login as ',
+              text: LocaleKeys.signIn_loginAs.tr(),
               style: theme.textStyle.body.standard(
                 color: theme.textColorScheme.primary,
               ),
             ),
             TextSpan(
-              text: widget.email,
+              text: ' ${widget.email}',
               style: theme.textStyle.body.enhanced(
                 color: theme.textColorScheme.primary,
               ),
@@ -111,13 +121,26 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   }
 
   List<Widget> _buildPasswordSection() {
+    final theme = AppFlowyTheme.of(context);
+    final iconSize = 20.0;
     return [
       // Password input
       AFTextField(
         key: inputPasswordKey,
         controller: passwordController,
-        hintText: 'Enter password',
+        hintText: LocaleKeys.signIn_enterPassword.tr(),
         autoFocus: true,
+        obscureText: true,
+        suffixIconConstraints: BoxConstraints.tightFor(
+          width: iconSize + theme.spacing.m,
+          height: iconSize,
+        ),
+        suffixIconBuilder: (context, isObscured) => PasswordSuffixIcon(
+          isObscured: isObscured,
+          onTap: () {
+            inputPasswordKey.currentState?.syncObscured(!isObscured);
+          },
+        ),
         onSubmitted: widget.onEnterPassword,
       ),
       // todo: ask designer to provide the spacing
@@ -127,7 +150,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
       Align(
         alignment: Alignment.centerLeft,
         child: AFGhostTextButton(
-          text: 'Forget password?',
+          text: LocaleKeys.signIn_forgotPassword.tr(),
           size: AFButtonSize.s,
           padding: EdgeInsets.zero,
           onTap: widget.onForgotPassword,
@@ -144,7 +167,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
 
       // Continue button
       AFFilledTextButton.primary(
-        text: 'Continue',
+        text: LocaleKeys.web_continue.tr(),
         onTap: () => widget.onEnterPassword(passwordController.text),
         size: AFButtonSize.l,
         alignment: Alignment.center,
@@ -156,7 +179,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   List<Widget> _buildBackToLogin() {
     return [
       AFGhostTextButton(
-        text: 'Back to Login',
+        text: LocaleKeys.signIn_backToLogin.tr(),
         size: AFButtonSize.s,
         onTap: widget.backToLogin,
         padding: EdgeInsets.zero,

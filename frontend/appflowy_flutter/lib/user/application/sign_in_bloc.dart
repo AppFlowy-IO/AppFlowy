@@ -303,6 +303,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           msg = LocaleKeys.signIn_tooFrequentVerificationCodeRequest.tr();
         } else if (errorMsg.contains('invalid')) {
           msg = LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr();
+        } else if (errorMsg.contains('Invalid login credentials')) {
+          msg = LocaleKeys.signIn_invalidLoginCredentials.tr();
         }
         return state.copyWith(
           isSubmitting: false,
