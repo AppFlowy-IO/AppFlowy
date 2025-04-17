@@ -368,13 +368,6 @@ impl ChatCloudService for AICloudServiceMiddleware {
     }
   }
 
-  async fn get_workspace_plan(
-    &self,
-    workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    self.cloud_service.get_workspace_plan(workspace_id).await
-  }
-
   async fn get_chat_settings(
     &self,
     workspace_id: &Uuid,

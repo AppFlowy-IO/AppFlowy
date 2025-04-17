@@ -226,18 +226,6 @@ where
     );
   }
 
-  async fn get_workspace_plan(
-    &self,
-    workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    let plans = self
-      .inner
-      .try_get_client()?
-      .get_active_workspace_subscriptions(workspace_id.to_string().as_str())
-      .await?;
-    Ok(plans)
-  }
-
   async fn get_chat_settings(
     &self,
     workspace_id: &Uuid,

@@ -134,16 +134,6 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))
   }
 
-  async fn get_workspace_plan(
-    &self,
-    _workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    Err(
-      FlowyError::not_support()
-        .with_context("Get local ai config is not supported in local server."),
-    )
-  }
-
   async fn get_chat_settings(
     &self,
     _workspace_id: &Uuid,
