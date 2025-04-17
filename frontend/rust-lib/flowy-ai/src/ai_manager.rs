@@ -5,7 +5,9 @@ use crate::entities::{
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
-use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
+use flowy_ai_pub::persistence::{
+  read_chat_metadata, serialize_chat_metadata, serialize_rag_ids, upsert_chat, ChatTable,
+};
 use std::collections::HashMap;
 
 use dashmap::DashMap;
@@ -25,6 +27,7 @@ use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
+use serde_json::json;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
@@ -221,11 +224,17 @@ impl AIManager {
       .unwrap_or_default();
     info!("[Chat] create chat with rag_ids: {:?}", rag_ids);
 
+    save_chat(
+      self.user_service.sqlite_connection(*uid)?,
+      chat_id,
+      "",
+      rag_ids.iter().map(|v| v.to_string()).collect(),
+      json!({}),
+    )?;
     self
       .cloud_service_wm
-      .create_chat(uid, &workspace_id, chat_id, rag_ids)
+      .create_chat(uid, &workspace_id, chat_id, rag_ids, "", json!({}))
       .await?;
-    save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
 
     let chat = Arc::new(Chat::new(
       self.user_service.user_id()?,
@@ -705,18 +714,22 @@ async fn sync_chat_documents(
   Ok(())
 }
 
-fn save_chat(conn: DBConnection, chat_id: &Uuid) -> FlowyResult<()> {
+fn save_chat(
+  conn: DBConnection,
+  chat_id: &Uuid,
+  name: &str,
+  rag_ids: Vec<String>,
+  metadata: serde_json::Value,
+) -> FlowyResult<()> {
   let row = ChatTable {
     chat_id: chat_id.to_string(),
     created_at: timestamp(),
-    name: "".to_string(),
-    local_files: "".to_string(),
-    metadata: "".to_string(),
-    local_enabled: false,
-    sync_to_cloud: false,
+    name: name.to_string(),
+    metadata: serialize_chat_metadata(&metadata),
+    rag_ids: Some(serialize_rag_ids(&rag_ids)),
   };
 
-  insert_chat(conn, &row)?;
+  upsert_chat(conn, &row)?;
   Ok(())
 }
 

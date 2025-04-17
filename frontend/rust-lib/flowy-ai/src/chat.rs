@@ -5,14 +5,14 @@ use crate::entities::{
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::persistence::{
-  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
-  ChatMessageTable,
-};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
+};
+use flowy_ai_pub::persistence::{
+  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
+  ChatMessageTable,
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -349,9 +349,9 @@ impl Chat {
       limit,
       before_message_id
     );
-    let messages = self
-      .load_local_chat_messages(limit, None, before_message_id)
-      .await?;
+
+    let offset = before_message_id.map_or(MessageCursor::NextBack, MessageCursor::BeforeMessageId);
+    let messages = self.load_local_chat_messages(limit, offset).await?;
 
     // If the number of messages equals the limit, then no need to load more messages from remote
     if messages.len() == limit as usize {
@@ -397,9 +397,8 @@ impl Chat {
       limit,
       after_message_id,
     );
-    let messages = self
-      .load_local_chat_messages(limit, after_message_id, None)
-      .await?;
+    let offset = after_message_id.map_or(MessageCursor::NextBack, MessageCursor::AfterMessageId);
+    let messages = self.load_local_chat_messages(limit, offset).await?;
 
     trace!(
       "[Chat] Loaded local chat messages: chat_id={}, messages={}",
@@ -562,17 +561,10 @@ impl Chat {
   async fn load_local_chat_messages(
     &self,
     limit: i64,
-    after_message_id: Option<i64>,
-    before_message_id: Option<i64>,
+    offset: MessageCursor,
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
     let conn = self.user_service.sqlite_connection(self.uid)?;
-    let records = select_chat_messages(
-      conn,
-      &self.chat_id.to_string(),
-      limit,
-      after_message_id,
-      before_message_id,
-    )?;
+    let records = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?;
     let messages = records
       .into_iter()
       .map(|record| ChatMessagePB {

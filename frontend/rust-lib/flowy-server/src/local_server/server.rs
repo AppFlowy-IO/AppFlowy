@@ -8,6 +8,7 @@ use crate::local_server::impls::{
   LocalServerUserServiceImpl,
 };
 use crate::AppFlowyServer;
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -18,13 +19,15 @@ use tokio::sync::mpsc;
 
 pub struct LocalServer {
   user: Arc<dyn ServerUser>,
+  local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
-  pub fn new(user: Arc<dyn ServerUser>) -> Self {
+  pub fn new(user: Arc<dyn ServerUser>, local_ai: Arc<LocalAIController>) -> Self {
     Self {
       user,
+      local_ai,
       stop_tx: Default::default(),
     }
   }
@@ -61,6 +64,7 @@ impl AppFlowyServer for LocalServer {
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
     Arc::new(LocalServerChatServiceImpl {
       user: self.user.clone(),
+      local_ai: self.local_ai.clone(),
     })
   }
 

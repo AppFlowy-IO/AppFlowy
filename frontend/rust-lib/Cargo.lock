@@ -2564,6 +2564,7 @@ version = "0.1.0"
 dependencies = [
  "client-api",
  "flowy-error",
+ "flowy-sqlite",
  "futures",
  "lib-infra",
  "serde",

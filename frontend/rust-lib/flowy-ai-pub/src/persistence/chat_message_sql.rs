@@ -1,3 +1,4 @@
+use crate::cloud::MessageCursor;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
@@ -51,19 +52,25 @@ pub fn select_chat_messages(
   mut conn: DBConnection,
   chat_id_val: &str,
   limit_val: i64,
-  after_message_id: Option<i64>,
-  before_message_id: Option<i64>,
+  offset: MessageCursor,
 ) -> QueryResult<Vec<ChatMessageTable>> {
   let mut query = dsl::chat_message_table
     .filter(chat_message_table::chat_id.eq(chat_id_val))
     .into_boxed();
-  if let Some(after_message_id) = after_message_id {
-    query = query.filter(chat_message_table::message_id.gt(after_message_id));
+
+  match offset {
+    MessageCursor::AfterMessageId(after_message_id) => {
+      query = query.filter(chat_message_table::message_id.gt(after_message_id));
+    },
+    MessageCursor::BeforeMessageId(before_message_id) => {
+      query = query.filter(chat_message_table::message_id.lt(before_message_id));
+    },
+    MessageCursor::Offset(offset_val) => {
+      query = query.offset(offset_val as i64);
+    },
+    MessageCursor::NextBack => {},
   }
 
-  if let Some(before_message_id) = before_message_id {
-    query = query.filter(chat_message_table::message_id.lt(before_message_id));
-  }
   query = query
     .order((
       chat_message_table::created_at.desc(),
@@ -75,13 +82,25 @@ pub fn select_chat_messages(
   Ok(messages)
 }
 
-pub fn select_single_message(
+pub fn select_message(
   mut conn: DBConnection,
   message_id_val: i64,
 ) -> QueryResult<Option<ChatMessageTable>> {
   let message = dsl::chat_message_table
     .filter(chat_message_table::message_id.eq(message_id_val))
     .first::<ChatMessageTable>(&mut *conn)
+    .optional()?;
+  Ok(message)
+}
+
+pub fn select_message_content(
+  mut conn: DBConnection,
+  message_id_val: i64,
+) -> QueryResult<Option<String>> {
+  let message = dsl::chat_message_table
+    .filter(chat_message_table::message_id.eq(message_id_val))
+    .select(chat_message_table::content)
+    .first::<String>(&mut *conn)
     .optional()?;
   Ok(message)
 }

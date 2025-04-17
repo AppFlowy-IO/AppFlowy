@@ -16,10 +16,8 @@ pub struct ChatTable {
   pub chat_id: String,
   pub created_at: i64,
   pub name: String,
-  pub local_files: String,
   pub metadata: String,
-  pub local_enabled: bool,
-  pub sync_to_cloud: bool,
+  pub rag_ids: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -49,22 +47,57 @@ pub struct ChatTableFile {
 pub struct ChatTableChangeset {
   pub chat_id: String,
   pub name: Option<String>,
-  pub local_files: Option<String>,
   pub metadata: Option<String>,
-  pub local_enabled: Option<bool>,
-  pub sync_to_cloud: Option<bool>,
+  pub rag_ids: Option<String>,
 }
 
 impl ChatTableChangeset {
   pub fn from_metadata(metadata: ChatTableMetadata) -> Self {
     ChatTableChangeset {
+      chat_id: Default::default(),
       metadata: serde_json::to_string(&metadata).ok(),
-      ..Default::default()
+      name: None,
+      rag_ids: None,
+    }
+  }
+
+  pub fn from_rag_ids(rag_ids: Vec<String>) -> Self {
+    ChatTableChangeset {
+      chat_id: Default::default(),
+      // Serialize the Vec<String> to a JSON array string
+      rag_ids: Some(serde_json::to_string(&rag_ids).unwrap_or_default()),
+      name: None,
+      metadata: None,
     }
   }
 }
 
-pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<usize> {
+pub fn serialize_rag_ids(rag_ids: &[String]) -> String {
+  serde_json::to_string(rag_ids).unwrap_or_default()
+}
+
+pub fn deserialize_rag_ids(rag_ids_str: &Option<String>) -> Vec<String> {
+  match rag_ids_str {
+    Some(str) => serde_json::from_str(str).unwrap_or_default(),
+    None => Vec::new(),
+  }
+}
+
+pub fn deserialize_chat_metadata<T>(metadata: &str) -> T
+where
+  T: serde::de::DeserializeOwned + Default,
+{
+  serde_json::from_str(metadata).unwrap_or_default()
+}
+
+pub fn serialize_chat_metadata<T>(metadata: &T) -> String
+where
+  T: Serialize,
+{
+  serde_json::to_string(metadata).unwrap_or_default()
+}
+
+pub fn upsert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<usize> {
   diesel::insert_into(chat_table::table)
     .values(new_chat)
     .on_conflict(chat_table::chat_id)
@@ -72,6 +105,8 @@ pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .set((
       chat_table::created_at.eq(excluded(chat_table::created_at)),
       chat_table::name.eq(excluded(chat_table::name)),
+      chat_table::metadata.eq(excluded(chat_table::metadata)),
+      chat_table::rag_ids.eq(excluded(chat_table::rag_ids)),
     ))
     .execute(&mut *conn)
 }
@@ -85,7 +120,6 @@ pub fn update_chat(
   Ok(affected_row)
 }
 
-#[allow(dead_code)]
 pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatTable> {
   let row = dsl::chat_table
     .filter(chat_table::chat_id.eq(chat_id_val))
@@ -93,7 +127,17 @@ pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatT
   Ok(row)
 }
 
-#[allow(dead_code)]
+pub fn read_chat_rag_ids(
+  conn: &mut SqliteConnection,
+  chat_id_val: &str,
+) -> FlowyResult<Vec<String>> {
+  let chat = dsl::chat_table
+    .filter(chat_table::chat_id.eq(chat_id_val))
+    .first::<ChatTable>(conn)?;
+
+  Ok(deserialize_rag_ids(&chat.rag_ids))
+}
+
 pub fn read_chat_metadata(
   conn: &mut SqliteConnection,
   chat_id_val: &str,
@@ -102,8 +146,7 @@ pub fn read_chat_metadata(
     .select(chat_table::metadata)
     .filter(chat_table::chat_id.eq(chat_id_val))
     .first::<String>(&mut *conn)?;
-  let value = serde_json::from_str(&metadata_str).unwrap_or_default();
-  Ok(value)
+  Ok(deserialize_chat_metadata(&metadata_str))
 }
 
 #[allow(dead_code)]

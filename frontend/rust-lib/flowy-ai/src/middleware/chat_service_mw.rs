@@ -4,8 +4,8 @@ use crate::local_ai::controller::LocalAIController;
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
-use crate::persistence::{select_single_message, ChatMessageTable};
 use af_plugin::error::PluginError;
+use flowy_ai_pub::persistence::{select_message, select_message_content, ChatMessageTable};
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
@@ -78,14 +78,13 @@ impl AICloudServiceMiddleware {
     Ok(())
   }
 
-  fn get_message_record(&self, message_id: i64) -> FlowyResult<ChatMessageTable> {
+  fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
     let uid = self.user_service.user_id()?;
     let conn = self.user_service.sqlite_connection(uid)?;
-    let row = select_single_message(conn, message_id)?.ok_or_else(|| {
+    let content = select_message_content(conn, message_id)?.ok_or_else(|| {
       FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
     })?;
-
-    Ok(row)
+    Ok(content)
   }
 
   fn handle_plugin_error(&self, err: PluginError) {
@@ -114,10 +113,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError> {
     self
       .cloud_service
-      .create_chat(uid, workspace_id, chat_id, rag_ids)
+      .create_chat(uid, workspace_id, chat_id, rag_ids, name, metadata)
       .await
   }
 
@@ -165,12 +166,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
     info!("stream_answer use model: {:?}", ai_model);
     if use_local_ai {
       if self.local_ai.is_running() {
-        let row = self.get_message_record(message_id)?;
+        let content = self.get_message_content(message_id)?;
         match self
           .local_ai
           .stream_question(
             &chat_id.to_string(),
-            &row.content,
+            &content,
             Some(json!(format)),
             json!({}),
           )
@@ -202,7 +203,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_ai.is_running() {
-      let content = self.get_message_record(question_message_id)?.content;
+      let content = self.get_message_content(question_message_id)?;
       match self
         .local_ai
         .ask_question(&chat_id.to_string(), &content)

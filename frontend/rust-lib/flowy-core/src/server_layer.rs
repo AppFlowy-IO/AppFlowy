@@ -128,7 +128,7 @@ impl ServerProvider {
 
     let server = match server_type {
       Server::Local => {
-        let server = Arc::new(LocalServer::new(self.user.clone()));
+        let server = Arc::new(LocalServer::new(self.user.clone(), self.local_ai.clone()));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       Server::AppFlowyCloud => {

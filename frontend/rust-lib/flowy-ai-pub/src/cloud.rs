@@ -85,6 +85,8 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError>;
 
   async fn create_question(

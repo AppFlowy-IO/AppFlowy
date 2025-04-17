@@ -667,11 +667,13 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError> {
     let server = self.get_server();
     server?
       .chat_service()
-      .create_chat(uid, workspace_id, chat_id, rag_ids)
+      .create_chat(uid, workspace_id, chat_id, rag_ids, name, metadata)
       .await
   }
 

@@ -35,12 +35,14 @@ where
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatParams {
       chat_id,
-      name: "".to_string(),
+      name: name.to_string(),
       rag_ids,
     };
     try_get_client?
