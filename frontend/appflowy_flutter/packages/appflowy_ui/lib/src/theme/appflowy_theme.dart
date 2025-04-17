@@ -34,20 +34,19 @@ class AppFlowyTheme extends StatelessWidget {
     if (listen) {
       return context
           .dependOnInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
-          ?.theme
-          .data;
+          ?.themeData;
     }
     final provider = context
         .getElementForInheritedWidgetOfExactType<AppFlowyInheritedTheme>()
         ?.widget;
 
-    return (provider as AppFlowyInheritedTheme?)?.theme.data;
+    return (provider as AppFlowyInheritedTheme?)?.themeData;
   }
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyInheritedTheme(
-      theme: this,
+      themeData: data,
       child: child,
     );
   }
@@ -56,26 +55,26 @@ class AppFlowyTheme extends StatelessWidget {
 class AppFlowyInheritedTheme extends InheritedTheme {
   const AppFlowyInheritedTheme({
     super.key,
-    required this.theme,
+    required this.themeData,
     required super.child,
   });
 
-  final AppFlowyTheme theme;
+  final AppFlowyThemeData themeData;
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    return AppFlowyTheme(data: theme.data, child: child);
+    return AppFlowyTheme(data: themeData, child: child);
   }
 
   @override
   bool updateShouldNotify(AppFlowyInheritedTheme oldWidget) =>
-      theme.data != oldWidget.theme.data;
+      themeData != oldWidget.themeData;
 }
 
-/// An interpolation between two [ThemeData]s.
+/// An interpolation between two [AppFlowyThemeData]s.
 ///
-/// This class specializes the interpolation of [Tween<ThemeData>] to call the
-/// [ThemeData.lerp] method.
+/// This class specializes the interpolation of [Tween<AppFlowyThemeData>] to
+/// call the [AppFlowyThemeData.lerp] method.
 ///
 /// See [Tween] for a discussion on how to use interpolation objects.
 class AppFlowyThemeDataTween extends Tween<AppFlowyThemeData> {
