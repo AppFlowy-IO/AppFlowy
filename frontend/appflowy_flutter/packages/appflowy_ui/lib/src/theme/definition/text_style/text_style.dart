@@ -1,4 +1,4 @@
-import 'package:appflowy_ui/src/theme/text_style/base/default_text_style.dart';
+import 'package:appflowy_ui/src/theme/definition/text_style/base/default_text_style.dart';
 
 class AppFlowyBaseTextStyle {
   const AppFlowyBaseTextStyle({
