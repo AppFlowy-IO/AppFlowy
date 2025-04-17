@@ -98,6 +98,10 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
     emit(
       state.copyWith(
         isSubmitting: false,
+        hasPassword: result.fold(
+          (success) => true,
+          (error) => false,
+        ),
         setupPasswordResult: result,
       ),
     );
@@ -137,6 +141,10 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
     emit(
       state.copyWith(
         isSubmitting: false,
+        hasPassword: result.fold(
+          (success) => success,
+          (error) => false,
+        ),
         checkHasPasswordResult: result,
       ),
     );
@@ -186,6 +194,7 @@ class PasswordEvent with _$PasswordEvent {
 class PasswordState with _$PasswordState {
   const factory PasswordState({
     required bool isSubmitting,
+    required bool hasPassword,
     required FlowyResult<bool, FlowyError>? changePasswordResult,
     required FlowyResult<bool, FlowyError>? setupPasswordResult,
     required FlowyResult<bool, FlowyError>? forgotPasswordResult,
@@ -194,6 +203,7 @@ class PasswordState with _$PasswordState {
 
   factory PasswordState.initial() => const PasswordState(
         isSubmitting: false,
+        hasPassword: false,
         changePasswordResult: null,
         setupPasswordResult: null,
         forgotPasswordResult: null,

@@ -113,15 +113,13 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
             ),
           ),
           const HSpace(4),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
+          AFGhostButton.normal(
+            size: AFButtonSize.s,
+            padding: EdgeInsets.all(theme.spacing.xs),
             onTap: () => setState(() => isEditing = true),
-            child: const FlowyHover(
-              resetHoverOnRebuild: false,
-              child: Padding(
-                padding: EdgeInsets.all(4),
-                child: FlowySvg(FlowySvgs.edit_s),
-              ),
+            builder: (context, isHovering, disabled) => FlowySvg(
+              FlowySvgs.toolbar_link_edit_m,
+              size: const Size.square(20),
             ),
           ),
         ],

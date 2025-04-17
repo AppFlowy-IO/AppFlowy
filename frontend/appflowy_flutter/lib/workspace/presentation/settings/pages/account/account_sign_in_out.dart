@@ -8,6 +8,7 @@ import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email_and_password.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/change_password.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/setup_password.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -113,33 +114,34 @@ class ChangePasswordSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return BlocProvider(
-      create: (context) => PasswordBloc(userProfile)
-        ..add(PasswordEvent.init())
-        ..add(PasswordEvent.checkHasPassword()),
-      child: BlocBuilder<PasswordBloc, PasswordState>(
-        builder: (context, state) {
-          return Row(
-            children: [
-              Text(
-                'Password',
-                style: theme.textStyle.body.enhanced(
-                  color: theme.textColorScheme.primary,
-                ),
+    return BlocBuilder<PasswordBloc, PasswordState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            Text(
+              'Password',
+              style: theme.textStyle.body.enhanced(
+                color: theme.textColorScheme.primary,
               ),
-              const Spacer(),
-              AFFilledTextButton.primary(
-                text: 'Change password',
-                onTap: () => _showChangePasswordDialog(context),
-              ),
-            ],
-          );
-        },
-      ),
+            ),
+            const Spacer(),
+            state.hasPassword
+                ? AFFilledTextButton.primary(
+                    text: 'Change password',
+                    onTap: () => _showChangePasswordDialog(context),
+                  )
+                : AFFilledTextButton.primary(
+                    text: 'Set password',
+                    onTap: () => _showSetPasswordDialog(context),
+                  ),
+          ],
+        );
+      },
     );
   }
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
+    final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
       builder: (_) => MultiBlocProvider(
@@ -152,7 +154,31 @@ class ChangePasswordSection extends StatelessWidget {
           ),
         ],
         child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+          ),
           child: ChangePasswordDialogContent(
+            userProfile: userProfile,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSetPasswordDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider<PasswordBloc>.value(
+            value: context.read<PasswordBloc>(),
+          ),
+          BlocProvider<SignInBloc>.value(
+            value: getIt<SignInBloc>(),
+          ),
+        ],
+        child: Dialog(
+          child: SetupPasswordDialogContent(
             userProfile: userProfile,
           ),
         ),

@@ -101,6 +101,7 @@ class _SetupPasswordDialogContentState
         key: passwordTextFieldKey,
         controller: passwordController,
         hintText: 'Enter your password',
+        keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,
@@ -131,6 +132,7 @@ class _SetupPasswordDialogContentState
         key: confirmPasswordTextFieldKey,
         controller: confirmPasswordController,
         hintText: 'Confirm your password',
+        keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,

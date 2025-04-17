@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/password/password_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
@@ -33,7 +34,7 @@ HotKeyItem openSettingsHotKey(
       ),
       keyDownHandler: (_) {
         if (_settingsDialogKey.currentContext == null) {
-          showSettingsDialog(context, userProfile);
+          showSettingsDialog(context, userProfile: userProfile);
         } else {
           Navigator.of(context, rootNavigator: true)
               .popUntil((route) => route.isFirst);
@@ -57,17 +58,33 @@ class UserSettingButton extends StatefulWidget {
 
 class _UserSettingButtonState extends State<UserSettingButton> {
   late UserWorkspaceBloc _userWorkspaceBloc;
+  late PasswordBloc _passwordBloc;
 
   @override
   void initState() {
     super.initState();
+
     _userWorkspaceBloc = context.read<UserWorkspaceBloc>();
+    _passwordBloc = PasswordBloc(widget.userProfile)
+      ..add(PasswordEvent.init())
+      ..add(PasswordEvent.checkHasPassword());
   }
 
   @override
   void didChangeDependencies() {
     _userWorkspaceBloc = context.read<UserWorkspaceBloc>();
+    _passwordBloc = PasswordBloc(widget.userProfile)
+      ..add(PasswordEvent.init())
+      ..add(PasswordEvent.checkHasPassword());
+
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _passwordBloc.close();
+
+    super.dispose();
   }
 
   @override
@@ -76,18 +93,23 @@ class _UserSettingButtonState extends State<UserSettingButton> {
       dimension: 24.0,
       child: FlowyTooltip(
         message: LocaleKeys.settings_menu_open.tr(),
-        child: FlowyButton(
-          onTap: () => showSettingsDialog(
-            context,
-            widget.userProfile,
-            _userWorkspaceBloc,
-          ),
-          margin: EdgeInsets.zero,
-          text: FlowySvg(
-            FlowySvgs.settings_s,
-            color:
-                widget.isHover ? Theme.of(context).colorScheme.onSurface : null,
-            opacity: 0.7,
+        child: BlocProvider.value(
+          value: _passwordBloc,
+          child: FlowyButton(
+            onTap: () => showSettingsDialog(
+              context,
+              userProfile: widget.userProfile,
+              userWorkspaceBloc: _userWorkspaceBloc,
+              passwordBloc: _passwordBloc,
+            ),
+            margin: EdgeInsets.zero,
+            text: FlowySvg(
+              FlowySvgs.settings_s,
+              color: widget.isHover
+                  ? Theme.of(context).colorScheme.onSurface
+                  : null,
+              opacity: 0.7,
+            ),
           ),
         ),
       ),
@@ -96,21 +118,33 @@ class _UserSettingButtonState extends State<UserSettingButton> {
 }
 
 void showSettingsDialog(
-  BuildContext context,
-  UserProfilePB userProfile, [
-  UserWorkspaceBloc? bloc,
+  BuildContext context, {
+  required UserProfilePB userProfile,
+  UserWorkspaceBloc? userWorkspaceBloc,
+  PasswordBloc? passwordBloc,
   SettingsPage? initPage,
-]) {
+}) {
   AFFocusManager.maybeOf(context)?.notifyLoseFocus();
   showDialog(
     context: context,
     builder: (dialogContext) => MultiBlocProvider(
       key: _settingsDialogKey,
       providers: [
+        passwordBloc != null
+            ? BlocProvider<PasswordBloc>.value(
+                value: passwordBloc,
+              )
+            : BlocProvider(
+                create: (context) => PasswordBloc(userProfile)
+                  ..add(PasswordEvent.init())
+                  ..add(PasswordEvent.checkHasPassword()),
+              ),
         BlocProvider<DocumentAppearanceCubit>.value(
           value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
         ),
-        BlocProvider.value(value: bloc ?? context.read<UserWorkspaceBloc>()),
+        BlocProvider.value(
+          value: userWorkspaceBloc ?? context.read<UserWorkspaceBloc>(),
+        ),
       ],
       child: SettingsDialog(
         userProfile,

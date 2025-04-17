@@ -44,29 +44,26 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? const Color(0xFF4F4F4F)
-        : const Color(0xFFB0B0B0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText(
+        Text(
           LocaleKeys.button_deleteAccount.tr(),
-          fontSize: 14.0,
-          fontWeight: FontWeight.w500,
-          figmaLineHeight: 21.0,
-          color: textColor,
+          style: theme.textStyle.heading4.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
         ),
         const VSpace(8),
         Row(
           children: [
             Expanded(
-              child: FlowyText.regular(
+              child: Text(
                 LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
-                fontSize: 12.0,
-                figmaLineHeight: 13.0,
                 maxLines: 2,
-                color: textColor,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textStyle.caption.standard(
+                  color: theme.textColorScheme.secondary,
+                ),
               ),
             ),
             AFOutlinedTextButton.destructive(

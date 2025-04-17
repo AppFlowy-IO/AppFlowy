@@ -4,12 +4,12 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/about/app_version.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/account.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/email/email_section.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,7 +49,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
             children: [
               // user profile
               SettingsCategory(
-                title: LocaleKeys.settings_accountPage_general_title.tr(),
+                title: 'My profile',
                 children: [
                   AccountUserProfile(
                     name: userName,
@@ -72,9 +72,11 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               if (isAuthEnabled &&
                   state.userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SettingsCategory(
-                  title: LocaleKeys.settings_accountPage_email_title.tr(),
+                  title: 'My account',
                   children: [
-                    FlowyText.regular(state.userProfile.email),
+                    SettingsEmailSection(
+                      userProfile: state.userProfile,
+                    ),
                     ChangePasswordSection(
                       userProfile: state.userProfile,
                     ),

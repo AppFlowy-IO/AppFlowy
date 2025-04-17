@@ -49,6 +49,9 @@ class _ChangePasswordDialogContentState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,6 +110,7 @@ class _ChangePasswordDialogContentState
         key: currentPasswordTextFieldKey,
         controller: currentPasswordController,
         hintText: 'Enter your current password',
+        keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,
@@ -137,6 +141,7 @@ class _ChangePasswordDialogContentState
         key: newPasswordTextFieldKey,
         controller: newPasswordController,
         hintText: 'Enter your new password',
+        keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,
@@ -167,6 +172,7 @@ class _ChangePasswordDialogContentState
         key: confirmPasswordTextFieldKey,
         controller: confirmPasswordController,
         hintText: 'Confirm your new password',
+        keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,

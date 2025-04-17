@@ -51,7 +51,7 @@ class SettingsCategory extends StatelessWidget {
             if (actions != null) ...actions!,
           ],
         ),
-        const VSpace(8),
+        const VSpace(16),
         if (description?.isNotEmpty ?? false) ...[
           FlowyText.regular(
             description!,
