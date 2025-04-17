@@ -45,11 +45,11 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
         builder: (context, state) {
           return SettingsBody(
-            title: LocaleKeys.settings_accountPage_title.tr(),
+            title: LocaleKeys.newSettings_myAccount_title.tr(),
             children: [
               // user profile
               SettingsCategory(
-                title: 'My profile',
+                title: LocaleKeys.newSettings_myAccount_myProfile.tr(),
                 children: [
                   AccountUserProfile(
                     name: userName,
@@ -72,7 +72,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               if (isAuthEnabled &&
                   state.userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SettingsCategory(
-                  title: 'My account',
+                  title: LocaleKeys.newSettings_myAccount_myAccount.tr(),
                   children: [
                     SettingsEmailSection(
                       userProfile: state.userProfile,

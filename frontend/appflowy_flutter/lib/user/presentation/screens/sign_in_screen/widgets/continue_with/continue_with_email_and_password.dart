@@ -75,10 +75,21 @@ class _ContinueWithEmailAndPasswordState
           ),
           VSpace(theme.spacing.l),
           ContinueWithPassword(
-            onTap: () => _pushContinueWithPasswordPage(
-              context,
-              controller.text,
-            ),
+            onTap: () {
+              final email = controller.text;
+
+              if (!isEmail(email)) {
+                emailKey.currentState?.syncError(
+                  errorText: LocaleKeys.signIn_invalidEmail.tr(),
+                );
+                return;
+              }
+
+              _pushContinueWithPasswordPage(
+                context,
+                email,
+              );
+            },
           ),
         ],
       ),
@@ -156,7 +167,10 @@ class _ContinueWithEmailAndPasswordState
           value: signInBloc,
           child: ContinueWithPasswordPage(
             email: email,
-            backToLogin: () => Navigator.pop(context),
+            backToLogin: () {
+              emailKey.currentState?.clearError();
+              Navigator.pop(context);
+            },
             onEnterPassword: (password) => signInBloc.add(
               SignInEvent.signInWithEmailAndPassword(
                 email: email,

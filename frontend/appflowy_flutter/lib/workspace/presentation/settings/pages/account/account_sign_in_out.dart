@@ -119,7 +119,7 @@ class ChangePasswordSection extends StatelessWidget {
         return Row(
           children: [
             Text(
-              'Password',
+              LocaleKeys.newSettings_myAccount_password_title.tr(),
               style: theme.textStyle.body.enhanced(
                 color: theme.textColorScheme.primary,
               ),
@@ -127,11 +127,15 @@ class ChangePasswordSection extends StatelessWidget {
             const Spacer(),
             state.hasPassword
                 ? AFFilledTextButton.primary(
-                    text: 'Change password',
+                    text: LocaleKeys
+                        .newSettings_myAccount_password_changePassword
+                        .tr(),
                     onTap: () => _showChangePasswordDialog(context),
                   )
                 : AFFilledTextButton.primary(
-                    text: 'Set password',
+                    text: LocaleKeys
+                        .newSettings_myAccount_password_setupPassword
+                        .tr(),
                     onTap: () => _showSetPasswordDialog(context),
                   ),
           ],
