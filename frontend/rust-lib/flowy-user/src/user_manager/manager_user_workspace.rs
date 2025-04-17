@@ -6,7 +6,6 @@ use std::convert::TryFrom;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
@@ -20,7 +19,7 @@ use tracing::{error, info, instrument, trace, warn};
 use uuid::Uuid;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
+  RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
   UpdateUserWorkspaceSettingPB, UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
 };
 use crate::migrations::AnonUser;
@@ -412,24 +411,6 @@ impl UserManager {
       }
     }
     Ok(workspaces)
-  }
-
-  /// Reset the remote workspace using local workspace data. This is useful when a user wishes to
-  /// open a workspace on a new device that hasn't fully synchronized with the server.
-  pub async fn reset_workspace(&self, reset: ResetWorkspacePB) -> FlowyResult<()> {
-    let collab_object = CollabObject::new(
-      reset.uid,
-      reset.workspace_id.clone(),
-      CollabType::Folder,
-      reset.workspace_id.clone(),
-      self.authenticate_user.user_config.device_id.clone(),
-    );
-    self
-      .cloud_services
-      .get_user_service()?
-      .reset_workspace(collab_object)
-      .await?;
-    Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]

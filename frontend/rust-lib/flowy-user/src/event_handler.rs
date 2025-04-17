@@ -615,24 +615,6 @@ pub async fn get_all_reminder_event_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn reset_workspace_handler(
-  data: AFPluginData<ResetWorkspacePB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let reset_pb = data.into_inner();
-  if reset_pb.workspace_id.is_empty() {
-    return Err(FlowyError::new(
-      ErrorCode::WorkspaceInitializeError,
-      "The workspace id is empty",
-    ));
-  }
-  let _session = manager.get_session()?;
-  manager.reset_workspace(reset_pb).await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn remove_reminder_event_handler(
   data: AFPluginData<ReminderIdentifierPB>,
   manager: AFPluginState<Weak<UserManager>>,

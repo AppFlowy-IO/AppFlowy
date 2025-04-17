@@ -9,12 +9,11 @@ use client_api::entity::chat_dto::{
 };
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  LocalAIConfig, ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  ModelList, StreamAnswer, StreamComplete, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::{get_operating_system, OperatingSystem};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -36,12 +35,14 @@ where
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatParams {
       chat_id,
-      name: "".to_string(),
+      name: name.to_string(),
       rag_ids,
     };
     try_get_client?
@@ -65,7 +66,6 @@ where
     let params = CreateChatMessageParams {
       content: message.to_string(),
       message_type,
-      metadata: metadata.to_vec(),
     };
 
     let message = try_get_client?
@@ -187,6 +187,7 @@ where
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
@@ -225,37 +226,6 @@ where
       FlowyError::not_support()
         .with_context("indexing file with appflowy cloud is not suppotred yet"),
     );
-  }
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError> {
-    let system = get_operating_system();
-    let platform = match system {
-      OperatingSystem::MacOS => "macos",
-      _ => {
-        return Err(
-          FlowyError::not_support()
-            .with_context("local ai is not supported on this operating system"),
-        );
-      },
-    };
-    let config = self
-      .inner
-      .try_get_client()?
-      .get_local_ai_config(workspace_id.to_string().as_str(), platform)
-      .await?;
-    Ok(config)
-  }
-
-  async fn get_workspace_plan(
-    &self,
-    workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    let plans = self
-      .inner
-      .try_get_client()?
-      .get_active_workspace_subscriptions(workspace_id.to_string().as_str())
-      .await?;
-    Ok(plans)
   }
 
   async fn get_chat_settings(

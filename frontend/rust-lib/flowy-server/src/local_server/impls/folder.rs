@@ -1,7 +1,5 @@
 #![allow(unused_variables)]
-use std::sync::Arc;
 
-use crate::local_server::LocalServerDB;
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
@@ -14,10 +12,7 @@ use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
 
-pub(crate) struct LocalServerFolderCloudServiceImpl {
-  #[allow(dead_code)]
-  pub db: Arc<dyn LocalServerDB>,
-}
+pub(crate) struct LocalServerFolderCloudServiceImpl;
 
 #[async_trait]
 impl FolderCloudService for LocalServerFolderCloudServiceImpl {

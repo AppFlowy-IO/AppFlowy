@@ -9,7 +9,7 @@ use flowy_user_pub::entities::Authenticator;
 use crate::migrations::AnonUser;
 use flowy_user_pub::session::Session;
 
-const ANON_USER: &str = "anon_user";
+pub const ANON_USER: &str = "anon_user";
 impl UserManager {
   #[instrument(skip_all)]
   pub async fn get_migration_user(

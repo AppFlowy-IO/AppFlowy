@@ -5,7 +5,6 @@ use collab::preclude::Collab;
 use collab_entity::CollabObject;
 use collab_user::core::UserAwareness;
 use lazy_static::lazy_static;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
@@ -18,24 +17,19 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
 
 use crate::local_server::uid::UserIDGenerator;
-use crate::local_server::LocalServerDB;
 
 lazy_static! {
   //FIXME: seriously, userID generation should work using lock-free algorithm
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }
 
-pub(crate) struct LocalServerUserAuthServiceImpl {
-  #[allow(dead_code)]
-  pub db: Arc<dyn LocalServerDB>,
-}
-
+pub(crate) struct LocalServerUserServiceImpl;
 #[async_trait]
-impl UserCloudService for LocalServerUserAuthServiceImpl {
+impl UserCloudService for LocalServerUserServiceImpl {
   async fn sign_up(&self, params: BoxAny) -> Result<AuthResponse, FlowyError> {
     let params = params.unbox_or_error::<SignUpParams>()?;
     let uid = ID_GEN.lock().await.next_id();
-    let workspace_id = uuid::Uuid::new_v4().to_string();
+    let workspace_id = Uuid::new_v4().to_string();
     let user_workspace = UserWorkspace::new_local(&workspace_id, uid);
     let user_name = if params.name.is_empty() {
       DEFAULT_USER_NAME()
@@ -58,13 +52,9 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   }
 
   async fn sign_in(&self, params: BoxAny) -> Result<AuthResponse, FlowyError> {
-    let db = self.db.clone();
     let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
     let uid = ID_GEN.lock().await.next_id();
-
-    let user_workspace = db
-      .get_user_workspace(uid)?
-      .unwrap_or_else(make_user_workspace);
+    let user_workspace = make_user_workspace();
     Ok(AuthResponse {
       user_id: uid,
       user_uuid: Uuid::new_v4(),
@@ -132,16 +122,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   }
 
   async fn get_user_profile(&self, credential: UserCredentials) -> Result<UserProfile, FlowyError> {
-    match credential.uid {
-      None => Err(FlowyError::record_not_found()),
-      Some(uid) => {
-        self.db.get_user_profile(uid).map(|mut profile| {
-          // We don't want to expose the email in the local server
-          profile.email = "".to_string();
-          profile
-        })
-      },
-    }
+    Err(FlowyError::local_version_not_support().with_context("Not support"))
   }
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
@@ -153,6 +134,32 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   async fn get_all_workspace(&self, _uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
     Ok(vec![])
+  }
+
+  async fn create_workspace(&self, _workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("local server doesn't support multiple workspaces"),
+    )
+  }
+
+  async fn patch_workspace(
+    &self,
+    workspace_id: &Uuid,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
+  ) -> Result<(), FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("local server doesn't support multiple workspaces"),
+    )
+  }
+
+  async fn delete_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    Err(
+      FlowyError::local_version_not_support()
+        .with_context("local server doesn't support multiple workspaces"),
+    )
   }
 
   async fn get_user_awareness_doc_state(
@@ -172,10 +179,6 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     Ok(encode_collab.doc_state.to_vec())
   }
 
-  async fn reset_workspace(&self, _collab_object: CollabObject) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
   async fn create_collab_object(
     &self,
     _collab_object: &CollabObject,
@@ -192,32 +195,6 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     Err(
       FlowyError::local_version_not_support()
         .with_context("local server doesn't support batch create collab object"),
-    )
-  }
-
-  async fn create_workspace(&self, _workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("local server doesn't support multiple workspaces"),
-    )
-  }
-
-  async fn delete_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("local server doesn't support multiple workspaces"),
-    )
-  }
-
-  async fn patch_workspace(
-    &self,
-    workspace_id: &Uuid,
-    new_workspace_name: Option<&str>,
-    new_workspace_icon: Option<&str>,
-  ) -> Result<(), FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("local server doesn't support multiple workspaces"),
     )
   }
 }

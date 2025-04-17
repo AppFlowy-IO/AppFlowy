@@ -152,7 +152,7 @@ pub(crate) async fn load_prev_message_handler(
 
   let chat_id = Uuid::from_str(&data.chat_id)?;
   let messages = ai_manager
-    .load_prev_chat_messages(&chat_id, data.limit, data.before_message_id)
+    .load_prev_chat_messages(&chat_id, data.limit as u64, data.before_message_id)
     .await?;
   data_result_ok(messages)
 }
@@ -168,7 +168,7 @@ pub(crate) async fn load_next_message_handler(
 
   let chat_id = Uuid::from_str(&data.chat_id)?;
   let messages = ai_manager
-    .load_latest_chat_messages(&chat_id, data.limit, data.after_message_id)
+    .load_latest_chat_messages(&chat_id, data.limit as u64, data.after_message_id)
     .await?;
   data_result_ok(messages)
 }

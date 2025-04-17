@@ -1,9 +1,9 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
-use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
+use crate::user_manager::manager_history_user::ANON_USER;
 use arc_swap::ArcSwapOption;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -15,10 +15,8 @@ use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
-
-const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
   pub user_config: UserConfig,
@@ -44,26 +42,20 @@ impl AuthenticateUser {
     }
   }
 
-  pub fn vacuum_database_if_need(&self) {
-    if !self
-      .store_preferences
-      .get_bool_or_default(SQLITE_VACUUM_042)
-    {
-      if let Ok(session) = self.get_session() {
-        let _ = self.store_preferences.set_bool(SQLITE_VACUUM_042, true);
-        if let Ok(conn) = self.database.get_connection(session.user_id) {
-          info!("vacuum database 042");
-          if let Err(err) = vacuum_database(conn) {
-            error!("vacuum database error: {:?}", err);
-          }
-        }
-      }
-    }
-  }
-
   pub fn user_id(&self) -> FlowyResult<i64> {
     let session = self.get_session()?;
     Ok(session.user_id)
+  }
+
+  pub async fn is_local_mode(&self) -> FlowyResult<bool> {
+    let uid = self.user_id()?;
+    if let Ok(anon_user) = self.get_anon_user().await {
+      if anon_user == uid {
+        return Ok(true);
+      }
+    }
+
+    Ok(false)
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -169,5 +161,17 @@ impl AuthenticateUser {
         Ok(session)
       },
     }
+  }
+
+  async fn get_anon_user(&self) -> FlowyResult<i64> {
+    let anon_session = self
+      .store_preferences
+      .get_object::<Session>(ANON_USER)
+      .ok_or(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        "Anon user not found",
+      ))?;
+
+    Ok(anon_session.user_id)
   }
 }

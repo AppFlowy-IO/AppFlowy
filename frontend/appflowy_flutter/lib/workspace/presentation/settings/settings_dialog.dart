@@ -32,6 +32,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'pages/setting_ai_view/local_settings_ai_view.dart';
 import 'widgets/setting_cloud.dart';
 
 @visibleForTesting
@@ -147,7 +148,11 @@ class SettingsDialog extends StatelessWidget {
             workspaceId: workspaceId,
           );
         } else {
-          return const AIFeatureOnlySupportedWhenUsingAppFlowyCloud();
+          return LocalSettingsAIView(
+            key: ValueKey(workspaceId),
+            userProfile: user,
+            workspaceId: workspaceId,
+          );
         }
       case SettingsPage.member:
         return WorkspaceMembersPage(

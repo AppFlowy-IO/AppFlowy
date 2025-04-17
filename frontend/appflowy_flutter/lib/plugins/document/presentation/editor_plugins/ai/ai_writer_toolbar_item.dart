@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -9,7 +8,6 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'operations/ai_writer_entities.dart';
 
@@ -142,7 +140,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
         ],
       ),
       onPressed: () {
-        if (_isAIEnabled(widget.editorState)) {
+        if (_isAIWriterEnabled(widget.editorState)) {
           keepEditorFocusNotifier.increase();
           popoverController.show();
           setState(() {
@@ -159,7 +157,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _aiWriterToolbarItemId,
-          _isAIEnabled(widget.editorState)
+          _isAIWriterEnabled(widget.editorState)
               ? LocaleKeys.document_plugins_aiWriter_userQuestion.tr()
               : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           child,
@@ -191,7 +189,7 @@ class ImproveWritingButton extends StatelessWidget {
         color: theme.iconColorTheme.primary,
       ),
       onPressed: () {
-        if (_isAIEnabled(editorState)) {
+        if (_isAIWriterEnabled(editorState)) {
           keepEditorFocusNotifier.increase();
           _insertAiNode(editorState, AiWriterCommand.improveWriting);
         } else {
@@ -205,7 +203,7 @@ class ImproveWritingButton extends StatelessWidget {
     return tooltipBuilder?.call(
           context,
           _aiWriterToolbarItemId,
-          _isAIEnabled(editorState)
+          _isAIWriterEnabled(editorState)
               ? LocaleKeys.document_plugins_aiWriter_improveWriting.tr()
               : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           child,
@@ -240,10 +238,8 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
   );
 }
 
-bool _isAIEnabled(EditorState editorState) {
-  final documentContext = editorState.document.root.context;
-  return documentContext == null ||
-      !documentContext.read<DocumentBloc>().isLocalMode;
+bool _isAIWriterEnabled(EditorState editorState) {
+  return true;
 }
 
 bool onlyShowInTextTypeAndExcludeTable(
