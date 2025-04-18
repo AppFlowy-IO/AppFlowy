@@ -45,14 +45,16 @@ pub async fn sign_in_with_email_password_handler(
   let manager = upgrade_manager(manager)?;
   let params: SignInParams = data.into_inner().try_into()?;
 
-  let old_authenticator = manager.cloud_services.get_auth_type();
+  let old_authenticator = manager.cloud_services.get_server_auth_type();
   match manager
     .sign_in_with_password(&params.email, &params.password)
     .await
   {
     Ok(token) => data_result_ok(token.into()),
     Err(err) => {
-      manager.cloud_services.set_auth_type(&old_authenticator);
+      manager
+        .cloud_services
+        .set_server_auth_type(&old_authenticator);
       return Err(err);
     },
   }
@@ -76,11 +78,11 @@ pub async fn sign_up(
   let params: SignUpParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type;
 
-  let prev_auth_type = manager.cloud_services.get_auth_type();
+  let prev_auth_type = manager.cloud_services.get_server_auth_type();
   match manager.sign_up(auth_type, BoxAny::new(params)).await {
     Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
     Err(err) => {
-      manager.cloud_services.set_auth_type(&prev_auth_type);
+      manager.cloud_services.set_server_auth_type(&prev_auth_type);
       Err(err)
     },
   }

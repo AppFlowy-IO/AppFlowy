@@ -192,11 +192,11 @@ impl UserCloudServiceProvider for ServerProvider {
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [AuthType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_auth_type(&self, auth_type: &AuthType) {
+  fn set_server_auth_type(&self, auth_type: &AuthType) {
     self.set_auth_type(*auth_type);
   }
 
-  fn get_auth_type(&self) -> AuthType {
+  fn get_server_auth_type(&self) -> AuthType {
     self.get_auth_type()
   }
 
