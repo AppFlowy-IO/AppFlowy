@@ -18,7 +18,7 @@ use flowy_user_pub::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 
-use crate::server_layer::{ServerProvider, ServerType};
+use crate::server_layer::ServerProvider;
 
 pub(crate) struct UserStatusCallbackImpl {
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -128,7 +128,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     self.server_provider.set_auth_type(*auth_type);
-    let server_type = self.server_provider.get_server_type();
 
     event!(
       tracing::Level::TRACE,
@@ -154,17 +153,17 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       )
       .await
     {
-      Ok(doc_state) => match server_type {
-        ServerType::Local => FolderInitDataSource::LocalDisk {
+      Ok(doc_state) => match auth_type {
+        AuthType::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        ServerType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+        AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
       },
-      Err(err) => match server_type {
-        ServerType::Local => FolderInitDataSource::LocalDisk {
+      Err(err) => match auth_type {
+        AuthType::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        ServerType::AppFlowyCloud => {
+        AuthType::AppFlowyCloud => {
           return Err(err);
         },
       },

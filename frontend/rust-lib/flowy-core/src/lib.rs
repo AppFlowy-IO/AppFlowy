@@ -1,6 +1,6 @@
 #![allow(unused_doc_comments)]
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
@@ -34,7 +34,7 @@ use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::log_filter::init_log;
-use crate::server_layer::{current_server_type, ServerProvider, ServerType};
+use crate::server_layer::{current_server_type, ServerProvider};
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
@@ -131,12 +131,12 @@ impl AppFlowyCore {
       store_preference.clone(),
     ));
 
-    let server_type = current_server_type();
-    debug!("🔥runtime:{}, server:{}", runtime, server_type);
+    let auth_type = current_server_type();
+    debug!("🔥runtime:{}, server:{}", runtime, auth_type);
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      server_type,
+      auth_type,
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
     ));
@@ -311,15 +311,6 @@ impl AppFlowyCore {
   /// Only expose the dispatcher in test
   pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
-  }
-}
-
-impl From<ServerType> for CollabPluginProviderType {
-  fn from(server_type: ServerType) -> Self {
-    match server_type {
-      ServerType::Local => CollabPluginProviderType::Local,
-      ServerType::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
-    }
   }
 }
 

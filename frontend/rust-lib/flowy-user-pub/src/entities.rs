@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
@@ -357,6 +358,15 @@ pub enum AuthType {
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
   AppFlowyCloud = 1,
+}
+
+impl Display for AuthType {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      AuthType::Local => write!(f, "Local"),
+      AuthType::AppFlowyCloud => write!(f, "AppFlowyCloud"),
+    }
+  }
 }
 
 impl Default for AuthType {

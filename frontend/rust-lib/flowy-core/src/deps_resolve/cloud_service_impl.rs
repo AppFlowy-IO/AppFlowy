@@ -1,4 +1,4 @@
-use crate::server_layer::{ServerProvider, ServerType};
+use crate::server_layer::ServerProvider;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::workspace_dto::PublishInfoView;
@@ -188,8 +188,8 @@ impl UserCloudServiceProvider for ServerProvider {
 
   /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
   ///
-  /// Each [AuthType] has a corresponding [ServerType]. The [ServerType] is used
-  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerType] is set,
+  /// Each [AuthType] has a corresponding [AuthType]. The [AuthType] is used
+  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [AuthType] is set,
   /// it will be used when user open the app again.
   ///
   fn set_auth_type(&self, auth_type: &AuthType) {
@@ -211,7 +211,7 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.set_secret(secret);
   }
 
-  /// Returns the [UserCloudService] base on the current [ServerType].
+  /// Returns the [UserCloudService] base on the current [AuthType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     let user_service = self.get_server()?.user_service();
@@ -219,9 +219,9 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn service_url(&self) -> String {
-    match self.get_server_type() {
-      ServerType::Local => "".to_string(),
-      ServerType::AppFlowyCloud => AFCloudConfiguration::from_env()
+    match self.get_auth_type() {
+      AuthType::Local => "".to_string(),
+      AuthType::AppFlowyCloud => AFCloudConfiguration::from_env()
         .map(|config| config.base_url)
         .unwrap_or_default(),
     }
@@ -578,12 +578,15 @@ impl DocumentCloudService for ServerProvider {
 
 impl CollabCloudPluginProvider for ServerProvider {
   fn provider_type(&self) -> CollabPluginProviderType {
-    self.get_server_type().into()
+    match self.get_auth_type() {
+      AuthType::Local => CollabPluginProviderType::Local,
+      AuthType::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+    }
   }
 
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     // If the user is local, we don't need to create a sync plugin.
-    if self.get_server_type().is_local() {
+    if self.get_auth_type().is_local() {
       debug!(
         "User authenticator is local, skip create sync plugin for: {}",
         context
