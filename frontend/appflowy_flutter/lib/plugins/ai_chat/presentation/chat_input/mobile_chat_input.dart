@@ -1,4 +1,5 @@
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/ai/widgets/prompt_input/mentioned_page_text_span.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
@@ -297,10 +298,11 @@ class _MobileChatInputState extends State<MobileChatInput> {
               Theme.of(context).textTheme.bodyMedium?.copyWith(height: 20 / 14),
           specialTextSpanBuilder: PromptInputTextSpanBuilder(
             inputControlCubit: inputControlCubit,
-            specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+            mentionedPageTextStyle:
+                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
           ),
           onTapOutside: (_) => focusNode.unfocus(),
         );

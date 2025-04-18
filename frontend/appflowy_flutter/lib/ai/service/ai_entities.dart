@@ -3,6 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'ai_entities.g.dart';
 
 class AIStreamEventPrefix {
   static const data = 'data:';
@@ -104,4 +107,68 @@ enum TextFormat {
       TextFormat.table => LocaleKeys.chat_changeFormat_table.tr(),
     };
   }
+}
+
+enum AiPromptCategory {
+  @JsonValue(0)
+  other,
+  @JsonValue(1)
+  development,
+  @JsonValue(2)
+  writing,
+  @JsonValue(3)
+  healthAndFitness,
+  @JsonValue(4)
+  business,
+  @JsonValue(5)
+  marketing,
+  @JsonValue(6)
+  learning,
+  @JsonValue(7)
+  travel;
+
+  String get i18n {
+    return switch (this) {
+      other => LocaleKeys.ai_customPrompt_others.tr(),
+      development => LocaleKeys.ai_customPrompt_development.tr(),
+      writing => LocaleKeys.ai_customPrompt_writing.tr(),
+      healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness.tr(),
+      business => LocaleKeys.ai_customPrompt_business.tr(),
+      marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
+      learning => LocaleKeys.ai_customPrompt_learning.tr(),
+      travel => LocaleKeys.ai_customPrompt_travel.tr(),
+    };
+  }
+}
+
+@JsonSerializable()
+class AiPrompt extends Equatable {
+  const AiPrompt({
+    required this.id,
+    required this.name,
+    required this.content,
+    required this.category,
+    required this.example,
+    required this.sampleResponse,
+    required this.isFeatured,
+  });
+
+  factory AiPrompt.fromJson(Map<String, dynamic> json) =>
+      _$AiPromptFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AiPromptToJson(this);
+
+  final String id;
+  final String name;
+  final String content;
+  final AiPromptCategory category;
+  @JsonKey(defaultValue: "")
+  final String example;
+  @JsonKey(defaultValue: "")
+  final String sampleResponse;
+  @JsonKey(defaultValue: false)
+  final bool isFeatured;
+
+  @override
+  List<Object?> get props => [id, name, content, category, sampleResponse];
 }

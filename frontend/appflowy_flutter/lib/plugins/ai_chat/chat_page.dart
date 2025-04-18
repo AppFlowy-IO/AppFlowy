@@ -397,7 +397,7 @@ class _Input extends StatefulWidget {
 }
 
 class _InputState extends State<_Input> {
-  final textController = TextEditingController();
+  final textController = AiPromptInputTextEditingController();
 
   @override
   void dispose() {
@@ -447,6 +447,7 @@ class _InputState extends State<_Input> {
                                   ),
                                 );
                               },
+                              showBrowsePromptsButton: true,
                               selectedSourcesNotifier:
                                   chatBloc.selectedSourcesNotifier,
                               onUpdateSelectedSources: (ids) {
