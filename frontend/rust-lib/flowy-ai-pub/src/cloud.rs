@@ -6,8 +6,8 @@ pub use client_api::entity::ai_dto::{
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader,
-  MessageCursor, RepeatedChatMessage, UpdateChatParams,
+  ChatMessage, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader, MessageCursor,
+  RepeatedChatMessage, UpdateChatParams,
 };
 pub use client_api::entity::QuestionStreamValue;
 pub use client_api::entity::*;

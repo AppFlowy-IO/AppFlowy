@@ -9,19 +9,17 @@ use flowy_ai_pub::persistence::select_message_content;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
-  ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList,
-  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer,
-  StreamComplete, UpdateChatParams,
+  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
+  ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList, RelatedQuestion,
+  RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete,
+  UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures::{stream, Sink, StreamExt, TryStreamExt};
+use futures::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 
 use crate::local_ai::stream_util::QuestionStream;
-use crate::stream_message::StreamMessage;
 use flowy_storage_pub::storage::StorageService;
-use futures_util::SinkExt;
 use serde_json::{json, Value};
 use std::path::Path;
 use std::sync::{Arc, Weak};
@@ -32,6 +30,7 @@ pub struct ChatServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_ai: Arc<LocalAIController>,
+  #[allow(dead_code)]
   storage_service: Weak<dyn StorageService>,
 }
 
@@ -48,34 +47,6 @@ impl ChatServiceMiddleware {
       local_ai,
       storage_service,
     }
-  }
-
-  pub async fn index_message_metadata(
-    &self,
-    chat_id: &Uuid,
-    metadata_list: &[ChatMessageMetadata],
-    index_process_sink: &mut (impl Sink<String> + Unpin),
-  ) -> Result<(), FlowyError> {
-    if metadata_list.is_empty() {
-      return Ok(());
-    }
-    if self.local_ai.is_enabled() {
-      let _ = index_process_sink
-        .send(StreamMessage::IndexStart.to_string())
-        .await;
-      let result = self
-        .local_ai
-        .index_message_metadata(chat_id, metadata_list, index_process_sink)
-        .await;
-      let _ = index_process_sink
-        .send(StreamMessage::IndexEnd.to_string())
-        .await;
-
-      result?
-    } else if let Some(_storage_service) = self.storage_service.upgrade() {
-      //
-    }
-    Ok(())
   }
 
   fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {

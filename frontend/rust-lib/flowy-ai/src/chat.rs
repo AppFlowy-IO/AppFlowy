@@ -76,11 +76,10 @@ impl Chat {
     preferred_ai_model: Option<AIModel>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
-      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, format={:?}",
       self.chat_id,
       params.message,
       params.message_type,
-      params.metadata,
       params.format,
     );
 
@@ -115,14 +114,6 @@ impl Chat {
     let _ = question_sink
       .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
-
-    if let Err(err) = self
-      .chat_service
-      .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
-      .await
-    {
-      error!("Failed to index file: {}", err);
-    }
 
     // Save message to disk
     notify_message(&self.chat_id, question.clone())?;
