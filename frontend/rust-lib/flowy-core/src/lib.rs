@@ -1,6 +1,6 @@
 #![allow(unused_doc_comments)]
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
@@ -8,7 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_server::af_cloud::define::ServerUser;
+use flowy_server::af_cloud::define::LoginUserService;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -34,7 +34,7 @@ use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::log_filter::init_log;
-use crate::server_layer::{current_server_type, Server, ServerProvider};
+use crate::server_layer::{current_server_type, ServerProvider};
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
@@ -131,12 +131,12 @@ impl AppFlowyCore {
       store_preference.clone(),
     ));
 
-    let server_type = current_server_type();
-    debug!("🔥runtime:{}, server:{}", runtime, server_type);
+    let auth_type = current_server_type();
+    debug!("🔥runtime:{}, server:{}", runtime, auth_type);
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      server_type,
+      auth_type,
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
     ));
@@ -314,15 +314,6 @@ impl AppFlowyCore {
   }
 }
 
-impl From<Server> for CollabPluginProviderType {
-  fn from(server_type: Server) -> Self {
-    match server_type {
-      Server::Local => CollabPluginProviderType::Local,
-      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
-    }
-  }
-}
-
 struct ServerUserImpl(Weak<AuthenticateUser>);
 
 impl ServerUserImpl {
@@ -336,7 +327,7 @@ impl ServerUserImpl {
 }
 
 #[async_trait]
-impl ServerUser for ServerUserImpl {
+impl LoginUserService for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
   }

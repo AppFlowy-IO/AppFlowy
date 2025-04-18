@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::{AIUserServiceImpl, LoginUserService};
 use anyhow::Error;
 use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
@@ -24,6 +24,11 @@ use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 
+use crate::af_cloud::impls::{
+  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
+  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl, CloudChatServiceImpl,
+};
+use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -33,11 +38,6 @@ use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-
-use crate::af_cloud::impls::{
-  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
-  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
-};
 
 use crate::AppFlowyServer;
 
@@ -53,7 +53,7 @@ pub struct AppFlowyCloudServer {
   network_reachable: Arc<AtomicBool>,
   pub device_id: String,
   ws_client: Arc<WSClient>,
-  user: Arc<dyn ServerUser>,
+  logged_user: Arc<dyn LoginUserService>,
 }
 
 impl AppFlowyCloudServer {
@@ -62,7 +62,7 @@ impl AppFlowyCloudServer {
     enable_sync: bool,
     mut device_id: String,
     client_version: Version,
-    user: Arc<dyn ServerUser>,
+    auth_user_service: Arc<dyn LoginUserService>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -100,7 +100,7 @@ impl AppFlowyCloudServer {
       network_reachable,
       device_id,
       ws_client,
-      user,
+      logged_user: auth_user_service,
     }
   }
 
@@ -187,7 +187,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     Arc::new(AFCloudUserAuthServiceImpl::new(
       server,
       rx,
-      self.user.clone(),
+      self.logged_user.clone(),
     ))
   }
 
@@ -197,7 +197,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     Arc::new(AFCloudFolderCloudServiceImpl {
       inner: server,
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
@@ -207,7 +207,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     Arc::new(AFCloudDatabaseCloudServiceImpl {
       inner: server,
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
@@ -217,7 +217,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     Some(Arc::new(AFCloudDatabaseCloudServiceImpl {
       inner: server,
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
     }))
   }
 
@@ -227,7 +227,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     Arc::new(AFCloudDocumentCloudServiceImpl {
       inner: server,
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
@@ -235,7 +235,11 @@ impl AppFlowyServer for AppFlowyCloudServer {
     let server = AFServerImpl {
       client: self.get_client(),
     };
-    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
+
+    Arc::new(AutoSyncChatService::new(
+      Arc::new(CloudChatServiceImpl { inner: server }),
+      Arc::new(AIUserServiceImpl(self.logged_user.clone())),
+    ))
   }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {

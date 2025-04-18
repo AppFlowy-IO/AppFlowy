@@ -1,4 +1,4 @@
-use crate::server_layer::{Server, ServerProvider};
+use crate::server_layer::ServerProvider;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::workspace_dto::PublishInfoView;
@@ -14,9 +14,9 @@ use flowy_ai_pub::cloud::search_dto::{
   SearchDocumentResponseItem, SearchResult, SearchSummaryResult,
 };
 use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompleteTextParams, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer,
-  StreamComplete, UpdateChatParams,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
+  MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer, StreamComplete,
+  UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -35,7 +35,7 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
-use flowy_user_pub::entities::{Authenticator, UserTokenState};
+use flowy_user_pub::entities::{AuthType, UserTokenState};
 use lib_infra::async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -186,18 +186,18 @@ impl UserCloudServiceProvider for ServerProvider {
     }
   }
 
-  /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
+  /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
   ///
-  /// Each [Authenticator] has a corresponding [Server]. The [Server] is used
-  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [Server] is set,
+  /// Each [AuthType] has a corresponding [AuthType]. The [AuthType] is used
+  /// to create a new [AppFlowyServer] if it doesn't exist. Once the [AuthType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_user_authenticator(&self, authenticator: &Authenticator) {
-    self.set_authenticator(authenticator.clone());
+  fn set_server_auth_type(&self, auth_type: &AuthType) {
+    self.set_auth_type(*auth_type);
   }
 
-  fn get_user_authenticator(&self) -> Authenticator {
-    self.get_authenticator()
+  fn get_server_auth_type(&self) -> AuthType {
+    self.get_auth_type()
   }
 
   fn set_network_reachable(&self, reachable: bool) {
@@ -211,7 +211,7 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.set_secret(secret);
   }
 
-  /// Returns the [UserCloudService] base on the current [Server].
+  /// Returns the [UserCloudService] base on the current [AuthType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     let user_service = self.get_server()?.user_service();
@@ -219,9 +219,9 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn service_url(&self) -> String {
-    match self.get_server_type() {
-      Server::Local => "".to_string(),
-      Server::AppFlowyCloud => AFCloudConfiguration::from_env()
+    match self.get_auth_type() {
+      AuthType::Local => "".to_string(),
+      AuthType::AppFlowyCloud => AFCloudConfiguration::from_env()
         .map(|config| config.base_url)
         .unwrap_or_default(),
     }
@@ -578,12 +578,15 @@ impl DocumentCloudService for ServerProvider {
 
 impl CollabCloudPluginProvider for ServerProvider {
   fn provider_type(&self) -> CollabPluginProviderType {
-    self.get_server_type().into()
+    match self.get_auth_type() {
+      AuthType::Local => CollabPluginProviderType::Local,
+      AuthType::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+    }
   }
 
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     // If the user is local, we don't need to create a sync plugin.
-    if self.get_server_type().is_local() {
+    if self.get_auth_type().is_local() {
       debug!(
         "User authenticator is local, skip create sync plugin for: {}",
         context
@@ -683,13 +686,12 @@ impl ChatCloudService for ServerProvider {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
     let message = message.to_string();
     self
       .get_server()?
       .chat_service()
-      .create_question(workspace_id, chat_id, &message, message_type, metadata)
+      .create_question(workspace_id, chat_id, &message, message_type)
       .await
   }
 
@@ -712,14 +714,14 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(workspace_id, chat_id, message_id, format, ai_model)
+      .stream_answer(workspace_id, chat_id, question_id, format, ai_model)
       .await
   }
 
@@ -768,12 +770,12 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
     server?
       .chat_service()
-      .get_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(workspace_id, chat_id, question_id)
       .await
   }
 

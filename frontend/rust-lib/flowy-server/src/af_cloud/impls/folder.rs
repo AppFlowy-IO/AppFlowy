@@ -22,13 +22,13 @@ use flowy_folder_pub::cloud::{
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoginUserService;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudFolderCloudServiceImpl<T> {
   pub inner: T,
-  pub user: Arc<dyn ServerUser>,
+  pub logged_user: Arc<dyn LoginUserService>,
 }
 
 #[async_trait]
@@ -91,7 +91,7 @@ where
   ) -> Result<Option<FolderData>, FlowyError> {
     let uid = *uid;
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.user.clone();
+    let cloned_user = self.logged_user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*workspace_id, CollabType::Folder),
@@ -131,7 +131,7 @@ where
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.user.clone();
+    let cloned_user = self.logged_user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*object_id, collab_type),

@@ -79,7 +79,7 @@ extension AppFlowySettings on WidgetTester {
     // Enable editing username
     final editUsernameFinder = find.descendant(
       of: find.byType(AccountUserProfile),
-      matching: find.byFlowySvg(FlowySvgs.edit_s),
+      matching: find.byFlowySvg(FlowySvgs.toolbar_link_edit_m),
     );
     await tap(editUsernameFinder, warnIfMissed: false);
     await pumpAndSettle();

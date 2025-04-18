@@ -101,7 +101,6 @@ class _ContinueWithMagicLinkOrPasscodePageState
         controller: passcodeController,
         hintText: LocaleKeys.signIn_enterCode.tr(),
         keyboardType: TextInputType.number,
-        radius: 10,
         autoFocus: true,
         onSubmitted: (passcode) {
           if (passcode.isEmpty) {
@@ -167,7 +166,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
         // title
         Text(
           LocaleKeys.signIn_checkYourEmail.tr(),
-          style: theme.textStyle.heading.h3(
+          style: theme.textStyle.heading3.enhanced(
             color: theme.textColorScheme.primary,
           ),
         ),
@@ -199,7 +198,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
         // title
         Text(
           LocaleKeys.signIn_enterCode.tr(),
-          style: theme.textStyle.heading.h3(
+          style: theme.textStyle.heading3.enhanced(
             color: theme.textColorScheme.primary,
           ),
         ),

@@ -148,7 +148,7 @@ class _PasteAsMenuState extends State<PasteAsMenu> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: theme.surfaceColorScheme.primary,
-          boxShadow: [theme.shadow.medium],
+          boxShadow: theme.shadow.medium,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

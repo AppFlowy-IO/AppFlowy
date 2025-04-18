@@ -7,7 +7,10 @@ use flowy_sqlite::{
   schema::{chat_table, chat_table::dsl},
   AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
 };
+use lib_infra::util::timestamp;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use uuid::Uuid;
 
 #[derive(Clone, Default, Queryable, Insertable, Identifiable)]
 #[diesel(table_name = chat_table)]
@@ -18,6 +21,23 @@ pub struct ChatTable {
   pub name: String,
   pub metadata: String,
   pub rag_ids: Option<String>,
+  pub is_sync: bool,
+}
+
+impl ChatTable {
+  pub fn new(chat_id: String, metadata: Value, rag_ids: Vec<Uuid>, is_sync: bool) -> Self {
+    let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
+    let metadata = serialize_chat_metadata(&metadata);
+    let rag_ids = Some(serialize_rag_ids(&rag_ids));
+    Self {
+      chat_id,
+      created_at: timestamp(),
+      name: "".to_string(),
+      metadata,
+      rag_ids,
+      is_sync,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -49,27 +69,7 @@ pub struct ChatTableChangeset {
   pub name: Option<String>,
   pub metadata: Option<String>,
   pub rag_ids: Option<String>,
-}
-
-impl ChatTableChangeset {
-  pub fn from_metadata(metadata: ChatTableMetadata) -> Self {
-    ChatTableChangeset {
-      chat_id: Default::default(),
-      metadata: serde_json::to_string(&metadata).ok(),
-      name: None,
-      rag_ids: None,
-    }
-  }
-
-  pub fn from_rag_ids(rag_ids: Vec<String>) -> Self {
-    ChatTableChangeset {
-      chat_id: Default::default(),
-      // Serialize the Vec<String> to a JSON array string
-      rag_ids: Some(serde_json::to_string(&rag_ids).unwrap_or_default()),
-      name: None,
-      metadata: None,
-    }
-  }
+  pub is_sync: Option<bool>,
 }
 
 pub fn serialize_rag_ids(rag_ids: &[String]) -> String {
@@ -107,6 +107,7 @@ pub fn upsert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
       chat_table::name.eq(excluded(chat_table::name)),
       chat_table::metadata.eq(excluded(chat_table::metadata)),
       chat_table::rag_ids.eq(excluded(chat_table::rag_ids)),
+      chat_table::is_sync.eq(excluded(chat_table::is_sync)),
     ))
     .execute(&mut *conn)
 }
@@ -118,6 +119,16 @@ pub fn update_chat(
   let filter = dsl::chat_table.filter(chat_table::chat_id.eq(changeset.chat_id.clone()));
   let affected_row = diesel::update(filter).set(changeset).execute(conn)?;
   Ok(affected_row)
+}
+
+pub fn update_chat_is_sync(
+  mut conn: DBConnection,
+  chat_id_val: &str,
+  is_sync_val: bool,
+) -> QueryResult<usize> {
+  diesel::update(dsl::chat_table.filter(chat_table::chat_id.eq(chat_id_val)))
+    .set(chat_table::is_sync.eq(is_sync_val))
+    .execute(&mut *conn)
 }
 
 pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatTable> {

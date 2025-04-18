@@ -8,8 +8,8 @@ use client_api::entity::chat_dto::{
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  ModelList, StreamAnswer, StreamComplete, UpdateChatParams,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, ModelList, StreamAnswer,
+  StreamComplete, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -20,12 +20,12 @@ use std::path::Path;
 use tracing::trace;
 use uuid::Uuid;
 
-pub(crate) struct AFCloudChatCloudServiceImpl<T> {
+pub(crate) struct CloudChatServiceImpl<T> {
   pub inner: T,
 }
 
 #[async_trait]
-impl<T> ChatCloudService for AFCloudChatCloudServiceImpl<T>
+impl<T> ChatCloudService for CloudChatServiceImpl<T>
 where
   T: AFServer,
 {
@@ -59,7 +59,6 @@ where
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -132,15 +131,11 @@ where
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .get_answer(
-        workspace_id,
-        chat_id.to_string().as_str(),
-        question_message_id,
-      )
+      .get_answer(workspace_id, chat_id.to_string().as_str(), question_id)
       .await
       .map_err(FlowyError::from)?;
     Ok(resp)

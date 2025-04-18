@@ -30,7 +30,7 @@ use flowy_folder_pub::entities::{
 };
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
+use flowy_user_pub::entities::{user_awareness_object_id, AuthType};
 use flowy_user_pub::session::Session;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
@@ -1175,7 +1175,7 @@ pub async fn upload_collab_objects_data(
   uid: i64,
   user_collab_db: Weak<CollabKVDB>,
   workspace_id: &Uuid,
-  user_authenticator: &Authenticator,
+  user_authenticator: &AuthType,
   collab_data: ImportedCollabData,
   user_cloud_service: Arc<dyn UserCloudService>,
 ) -> Result<(), FlowyError> {

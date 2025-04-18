@@ -13,13 +13,13 @@ use std::sync::Arc;
 use tracing::instrument;
 use uuid::Uuid;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoginUserService;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudDocumentCloudServiceImpl<T> {
   pub inner: T,
-  pub user: Arc<dyn ServerUser>,
+  pub logged_user: Arc<dyn LoginUserService>,
 }
 
 #[async_trait]
@@ -49,7 +49,7 @@ where
 
     check_request_workspace_id_is_match(
       workspace_id,
-      &self.user,
+      &self.logged_user,
       format!("get document doc state:{}", document_id),
     )?;
 
@@ -85,7 +85,7 @@ where
       .to_vec();
     check_request_workspace_id_is_match(
       workspace_id,
-      &self.user,
+      &self.logged_user,
       format!("Get {} document", document_id),
     )?;
     let collab = Collab::new_with_source(

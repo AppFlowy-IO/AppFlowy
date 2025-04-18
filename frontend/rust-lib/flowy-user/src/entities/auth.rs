@@ -31,11 +31,10 @@ impl TryInto<SignInParams> for SignInPayloadPB {
 
   fn try_into(self) -> Result<SignInParams, Self::Error> {
     let email = UserEmail::parse(self.email)?;
-    let password = UserPassword::parse(self.password)?;
 
     Ok(SignInParams {
       email: email.0,
-      password: password.0,
+      password: self.password,
       name: self.name,
       auth_type: self.auth_type.into(),
     })
@@ -65,13 +64,13 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 
   fn try_into(self) -> Result<SignUpParams, Self::Error> {
     let email = UserEmail::parse(self.email)?;
-    let password = UserPassword::parse(self.password)?;
+    let password = self.password;
     let name = UserName::parse(self.name)?;
 
     Ok(SignUpParams {
       email: email.0,
       name: name.0,
-      password: password.0,
+      password,
       auth_type: self.auth_type.into(),
       device_id: self.device_id,
     })
@@ -236,20 +235,20 @@ pub enum AuthenticatorPB {
   AppFlowyCloud = 2,
 }
 
-impl From<Authenticator> for AuthenticatorPB {
-  fn from(auth_type: Authenticator) -> Self {
+impl From<AuthType> for AuthenticatorPB {
+  fn from(auth_type: AuthType) -> Self {
     match auth_type {
-      Authenticator::Local => AuthenticatorPB::Local,
-      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
+      AuthType::Local => AuthenticatorPB::Local,
+      AuthType::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
     }
   }
 }
 
-impl From<AuthenticatorPB> for Authenticator {
+impl From<AuthenticatorPB> for AuthType {
   fn from(pb: AuthenticatorPB) -> Self {
     match pb {
-      AuthenticatorPB::Local => Authenticator::Local,
-      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
+      AuthenticatorPB::Local => AuthType::Local,
+      AuthenticatorPB::AppFlowyCloud => AuthType::AppFlowyCloud,
     }
   }
 }

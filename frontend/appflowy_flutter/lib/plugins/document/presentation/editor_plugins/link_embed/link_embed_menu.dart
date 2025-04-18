@@ -63,7 +63,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
 
   Widget buildChild() {
     final theme = AppFlowyTheme.of(context),
-        iconScheme = theme.iconColorTheme,
+        iconScheme = theme.iconColorScheme,
         fillScheme = theme.fillColorScheme;
 
     return Container(
@@ -102,7 +102,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
   }
 
   Widget buildconvertBotton() {
-    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorTheme;
+    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorScheme;
     return AppFlowyPopover(
       offset: Offset(0, 6),
       direction: PopoverDirection.bottomWithRightAligned,
@@ -170,7 +170,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
   }
 
   Widget buildMoreOptionBotton() {
-    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorTheme;
+    final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorScheme;
     return AppFlowyPopover(
       offset: Offset(0, 6),
       direction: PopoverDirection.bottomWithRightAligned,

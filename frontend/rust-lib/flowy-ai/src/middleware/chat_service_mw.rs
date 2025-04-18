@@ -9,33 +9,32 @@ use flowy_ai_pub::persistence::select_message_content;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
-  ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList,
-  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer,
-  StreamComplete, UpdateChatParams,
+  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
+  ChatSettings, CompleteTextParams, CompletionStream, MessageCursor, ModelList, RelatedQuestion,
+  RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete,
+  UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures::{stream, Sink, StreamExt, TryStreamExt};
+use futures::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 
 use crate::local_ai::stream_util::QuestionStream;
-use crate::stream_message::StreamMessage;
 use flowy_storage_pub::storage::StorageService;
-use futures_util::SinkExt;
 use serde_json::{json, Value};
 use std::path::Path;
 use std::sync::{Arc, Weak};
 use tracing::{info, trace};
 use uuid::Uuid;
 
-pub struct AICloudServiceMiddleware {
+pub struct ChatServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_ai: Arc<LocalAIController>,
+  #[allow(dead_code)]
   storage_service: Weak<dyn StorageService>,
 }
 
-impl AICloudServiceMiddleware {
+impl ChatServiceMiddleware {
   pub fn new(
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
@@ -48,34 +47,6 @@ impl AICloudServiceMiddleware {
       local_ai,
       storage_service,
     }
-  }
-
-  pub async fn index_message_metadata(
-    &self,
-    chat_id: &Uuid,
-    metadata_list: &[ChatMessageMetadata],
-    index_process_sink: &mut (impl Sink<String> + Unpin),
-  ) -> Result<(), FlowyError> {
-    if metadata_list.is_empty() {
-      return Ok(());
-    }
-    if self.local_ai.is_enabled() {
-      let _ = index_process_sink
-        .send(StreamMessage::IndexStart.to_string())
-        .await;
-      let result = self
-        .local_ai
-        .index_message_metadata(chat_id, metadata_list, index_process_sink)
-        .await;
-      let _ = index_process_sink
-        .send(StreamMessage::IndexEnd.to_string())
-        .await;
-
-      result?
-    } else if let Some(_storage_service) = self.storage_service.upgrade() {
-      //
-    }
-    Ok(())
   }
 
   fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
@@ -106,7 +77,7 @@ impl AICloudServiceMiddleware {
 }
 
 #[async_trait]
-impl ChatCloudService for AICloudServiceMiddleware {
+impl ChatCloudService for ChatServiceMiddleware {
   async fn create_chat(
     &self,
     uid: &i64,
@@ -128,11 +99,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
     self
       .cloud_service
-      .create_question(workspace_id, chat_id, message, message_type, metadata)
+      .create_question(workspace_id, chat_id, message, message_type)
       .await
   }
 
@@ -154,7 +124,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
@@ -166,7 +136,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     info!("stream_answer use model: {:?}", ai_model);
     if use_local_ai {
       if self.local_ai.is_running() {
-        let content = self.get_message_content(message_id)?;
+        let content = self.get_message_content(question_id)?;
         match self
           .local_ai
           .stream_question(
@@ -191,7 +161,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .stream_answer(workspace_id, chat_id, message_id, format, ai_model)
+        .stream_answer(workspace_id, chat_id, question_id, format, ai_model)
         .await
     }
   }
@@ -200,10 +170,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_ai.is_running() {
-      let content = self.get_message_content(question_message_id)?;
+      let content = self.get_message_content(question_id)?;
       match self
         .local_ai
         .ask_question(&chat_id.to_string(), &content)
@@ -212,7 +182,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
         Ok(answer) => {
           let message = self
             .cloud_service
-            .create_answer(workspace_id, chat_id, &answer, question_message_id, None)
+            .create_answer(workspace_id, chat_id, &answer, question_id, None)
             .await?;
           Ok(message)
         },
@@ -224,7 +194,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .get_answer(workspace_id, chat_id, question_message_id)
+        .get_answer(workspace_id, chat_id, question_id)
         .await
     }
   }

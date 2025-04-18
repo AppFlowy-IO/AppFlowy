@@ -4,7 +4,7 @@ use lib_infra::validator_fn::required_not_empty_str;
 use std::convert::TryInto;
 use validator::Validate;
 
-use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
+use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey};
 use crate::entities::AuthenticatorPB;
 use crate::errors::ErrorCode;
 
@@ -171,10 +171,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(email) => Some(UserEmail::parse(email)?.0),
     };
 
-    let password = match self.password {
-      None => None,
-      Some(password) => Some(UserPassword::parse(password)?.0),
-    };
+    let password = self.password;
 
     let icon_url = match self.icon_url {
       None => None,

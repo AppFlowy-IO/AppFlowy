@@ -27,7 +27,6 @@ async fn af_cloud_create_chat_message_test() {
         &Uuid::from_str(&chat_id).unwrap(),
         &format!("hello world {}", i),
         ChatMessageType::System,
-        &[],
       )
       .await
       .unwrap();
@@ -83,7 +82,6 @@ async fn af_cloud_load_remote_system_message_test() {
         &Uuid::from_str(&chat_id).unwrap(),
         &format!("hello server {}", i),
         ChatMessageType::System,
-        &[],
       )
       .await
       .unwrap();
@@ -93,10 +91,8 @@ async fn af_cloud_load_remote_system_message_test() {
     .notification_sender
     .subscribe::<ChatMessageListPB>(&chat_id, ChatNotification::DidLoadLatestChatMessage);
 
-  // Previous messages were created by the server, so there are no messages in the local cache.
-  // It will try to load messages in the background.
   let all = test.load_next_message(&chat_id, 5, None).await;
-  assert!(all.messages.is_empty());
+  assert_eq!(all.messages.len(), 5);
 
   // Wait for the messages to be loaded.
   let next_back_five = receive_with_timeout(rx, Duration::from_secs(60))
@@ -121,7 +117,6 @@ async fn af_cloud_load_remote_system_message_test() {
   let first_five_messages = receive_with_timeout(rx, Duration::from_secs(60))
     .await
     .unwrap();
-  assert!(!first_five_messages.has_more);
   assert_eq!(first_five_messages.messages[0].content, "hello server 4");
   assert_eq!(first_five_messages.messages[1].content, "hello server 3");
   assert_eq!(first_five_messages.messages[2].content, "hello server 2");

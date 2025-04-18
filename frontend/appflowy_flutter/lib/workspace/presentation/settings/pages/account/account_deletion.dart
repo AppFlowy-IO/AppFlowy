@@ -8,8 +8,8 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_w
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -43,43 +43,36 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? const Color(0xFF4F4F4F)
-        : const Color(0xFFB0B0B0);
+    final theme = AppFlowyTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText(
+        Text(
           LocaleKeys.button_deleteAccount.tr(),
-          fontSize: 14.0,
-          fontWeight: FontWeight.w500,
-          figmaLineHeight: 21.0,
-          color: textColor,
+          style: theme.textStyle.heading4.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
         ),
         const VSpace(8),
         Row(
           children: [
             Expanded(
-              child: FlowyText.regular(
+              child: Text(
                 LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
-                fontSize: 12.0,
-                figmaLineHeight: 13.0,
                 maxLines: 2,
-                color: textColor,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textStyle.caption.standard(
+                  color: theme.textColorScheme.secondary,
+                ),
               ),
             ),
-            FlowyTextButton(
-              LocaleKeys.button_deleteAccount.tr(),
-              constraints: const BoxConstraints(minHeight: 32),
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
-              fillColor: Colors.transparent,
-              radius: Corners.s8Border,
-              hoverColor:
-                  Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              fontColor: Theme.of(context).colorScheme.error,
-              fontSize: 12,
-              isDangerous: true,
-              onPressed: () {
+            AFOutlinedTextButton.destructive(
+              text: LocaleKeys.button_deleteAccount.tr(),
+              textStyle: theme.textStyle.body.standard(
+                color: theme.textColorScheme.error,
+                weight: FontWeight.w400,
+              ),
+              onTap: () {
                 isCheckedNotifier.value = false;
                 textEditingController.clear();
 

@@ -45,7 +45,7 @@ final customLinkItem = ToolbarItem(
         size: Size.square(20.0),
         color: (isDark && isHref)
             ? Color(0xFF282E3A)
-            : theme.iconColorTheme.primary,
+            : theme.iconColorScheme.primary,
       ),
       onPressed: () {
         getIt<FloatingToolbarController>().hideToolbar();

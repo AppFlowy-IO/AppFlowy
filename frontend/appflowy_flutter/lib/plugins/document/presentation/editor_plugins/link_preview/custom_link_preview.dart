@@ -163,7 +163,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
   Widget buildImage(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
         fillScheme = theme.fillColorScheme,
-        iconScheme = theme.iconColorTheme;
+        iconScheme = theme.iconColorScheme;
     final width = UniversalPlatform.isDesktopOrWeb ? 160.0 : 120.0;
     Widget child;
     if (imageUrl?.isNotEmpty ?? false) {

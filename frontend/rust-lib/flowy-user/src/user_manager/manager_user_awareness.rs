@@ -12,7 +12,7 @@ use collab_integrate::CollabKVDB;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
+use flowy_user_pub::entities::{user_awareness_object_id, AuthType};
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
 
@@ -119,9 +119,8 @@ impl UserManager {
   pub(crate) async fn initial_user_awareness(
     &self,
     session: &Session,
-    authenticator: &Authenticator,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    let authenticator = authenticator.clone();
     let object_id = user_awareness_object_id(&session.user_uuid, &session.user_workspace.id);
 
     // Try to acquire mutable access to `is_loading_awareness`.
@@ -156,11 +155,11 @@ impl UserManager {
       let is_exist_on_disk = self
         .authenticate_user
         .is_collab_on_disk(session.user_id, &object_id.to_string())?;
-      if authenticator.is_local() || is_exist_on_disk {
+      if auth_type.is_local() || is_exist_on_disk {
         trace!(
           "Initializing new user awareness from disk:{}, {:?}",
           object_id,
-          authenticator
+          auth_type
         );
         let collab_db = self.get_collab_db(session.user_id)?;
         let workspace_id = session.user_workspace.workspace_id()?;
@@ -185,9 +184,9 @@ impl UserManager {
       } else {
         info!(
           "Initializing new user awareness from server:{}, {:?}",
-          object_id, authenticator
+          object_id, auth_type
         );
-        self.load_awareness_from_server(session, object_id, authenticator.clone())?;
+        self.load_awareness_from_server(session, object_id, *auth_type)?;
       }
     } else {
       return Err(FlowyError::new(
@@ -209,7 +208,7 @@ impl UserManager {
     &self,
     session: &Session,
     object_id: Uuid,
-    authenticator: Authenticator,
+    authenticator: AuthType,
   ) -> FlowyResult<()> {
     // Clone necessary data
     let session = session.clone();

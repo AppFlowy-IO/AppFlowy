@@ -27,6 +27,7 @@ diesel::table! {
         author_id -> Text,
         reply_message_id -> Nullable<BigInt>,
         metadata -> Nullable<Text>,
+        is_sync -> Bool,
     }
 }
 
@@ -37,6 +38,7 @@ diesel::table! {
         name -> Text,
         metadata -> Text,
         rag_ids -> Nullable<Text>,
+        is_sync -> Bool,
     }
 }
 
