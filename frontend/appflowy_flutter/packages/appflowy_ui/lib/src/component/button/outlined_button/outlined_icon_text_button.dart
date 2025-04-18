@@ -46,7 +46,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -101,7 +101,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.fillColorScheme.errorThick;
@@ -156,7 +156,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
             ? theme.textColorScheme.tertiary
             : theme.textColorScheme.primary;
       },
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -190,7 +190,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
   final AFOutlinedIconBuilder iconBuilder;
 
   final AFBaseButtonColorBuilder? textColor;
-  final AFBaseButtonColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? borderColor;
   final AFBaseButtonColorBuilder? backgroundColor;
 
   @override

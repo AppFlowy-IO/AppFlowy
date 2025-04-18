@@ -82,7 +82,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
 
   Widget buildChild(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
-        iconColor = theme.iconColorTheme.primary;
+        iconColor = theme.iconColorScheme.primary;
     final child = FlowyIconButton(
       width: 36,
       height: 32,

@@ -1,0 +1,1039 @@
+{
+  "Text": {
+    "primary": {
+      "$type": "color",
+      "$value": "{Neutral.1000}"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{Neutral.600}"
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{Neutral.400}"
+    },
+    "quaternary": {
+      "$type": "color",
+      "$value": "{Neutral.200}"
+    },
+    "inverse": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "on-fill": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "theme": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "theme-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "action": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "action-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "info": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "info-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{Green.600}"
+    },
+    "success-hover": {
+      "$type": "color",
+      "$value": "{Green.700}"
+    },
+    "warning": {
+      "$type": "color",
+      "$value": "{Orange.600}"
+    },
+    "warning-hover": {
+      "$type": "color",
+      "$value": "{Orange.700}"
+    },
+    "error": {
+      "$type": "color",
+      "$value": "{Red.600}"
+    },
+    "error-hover": {
+      "$type": "color",
+      "$value": "{Red.700}"
+    },
+    "purple": {
+      "$type": "color",
+      "$value": "{Purple.500}"
+    },
+    "purple-hover": {
+      "$type": "color",
+      "$value": "{Purple.600}"
+    }
+  },
+  "Icon": {
+    "primary": {
+      "$type": "color",
+      "$value": "{Neutral.1000}"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{Neutral.600}"
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{Neutral.400}"
+    },
+    "quaternary": {
+      "$type": "color",
+      "$value": "{Neutral.200}"
+    },
+    "white": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "purple-thick": {
+      "$type": "color",
+      "$value": "{Purple.500}"
+    },
+    "purple-thick-hover": {
+      "$type": "color",
+      "$value": "{Purple.600}"
+    }
+  },
+  "Border": {
+    "grey-primary": {
+      "$type": "color",
+      "$value": "{Neutral.1000}"
+    },
+    "grey-primary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.900}"
+    },
+    "grey-secondary": {
+      "$type": "color",
+      "$value": "{Neutral.800}"
+    },
+    "grey-secondary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.700}"
+    },
+    "grey-tertiary": {
+      "$type": "color",
+      "$value": "{Neutral.300}"
+    },
+    "grey-tertiary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.400}"
+    },
+    "grey-quaternary": {
+      "$type": "color",
+      "$value": "{Neutral.100}"
+    },
+    "grey-quaternary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.200}"
+    },
+    "transparent": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-white-0}"
+    },
+    "theme-thick": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "theme-thick-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "info-thick": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "info-thick-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "success-thick": {
+      "$type": "color",
+      "$value": "{Green.600}"
+    },
+    "success-thick-hover": {
+      "$type": "color",
+      "$value": "{Green.700}"
+    },
+    "warning-thick": {
+      "$type": "color",
+      "$value": "{Orange.600}"
+    },
+    "warning-thick-hover": {
+      "$type": "color",
+      "$value": "{Orange.700}"
+    },
+    "error-thick": {
+      "$type": "color",
+      "$value": "{Red.600}"
+    },
+    "error-thick-hover": {
+      "$type": "color",
+      "$value": "{Red.700}"
+    },
+    "purple-thick": {
+      "$type": "color",
+      "$value": "{Purple.500}"
+    },
+    "purple-thick-hover": {
+      "$type": "color",
+      "$value": "{Purple.600}"
+    }
+  },
+  "Fill": {
+    "primary": {
+      "$type": "color",
+      "$value": "{Neutral.1000}"
+    },
+    "primary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.900}"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{Neutral.600}"
+    },
+    "secondary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.500}"
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{Neutral.300}"
+    },
+    "tertiary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.400}"
+    },
+    "quaternary": {
+      "$type": "color",
+      "$value": "{Neutral.100}"
+    },
+    "quaternary-hover": {
+      "$type": "color",
+      "$value": "{Neutral.200}"
+    },
+    "transparent": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-white-0}"
+    },
+    "primary-alpha-5": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-grey-1000-05}",
+      "$description": "Used for hover state, eg. button, navigation item, menu item and grid item."
+    },
+    "primary-alpha-5-hover": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-grey-1000-10}"
+    },
+    "primary-alpha-80": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-grey-1000-80}"
+    },
+    "primary-alpha-80-hover": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-grey-1000-70}"
+    },
+    "white": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "white-alpha": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-white-20}"
+    },
+    "white-alpha-hover": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-white-30}"
+    },
+    "black": {
+      "$type": "color",
+      "$value": "{Neutral.black}"
+    },
+    "theme-light": {
+      "$type": "color",
+      "$value": "{Blue.100}"
+    },
+    "theme-light-hover": {
+      "$type": "color",
+      "$value": "{Blue.200}"
+    },
+    "theme-thick": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "theme-thick-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "theme-select": {
+      "$type": "color",
+      "$value": "{Blue.alpha-blue-500-15}"
+    },
+    "info-light": {
+      "$type": "color",
+      "$value": "{Blue.100}"
+    },
+    "info-light-hover": {
+      "$type": "color",
+      "$value": "{Blue.200}"
+    },
+    "info-thick": {
+      "$type": "color",
+      "$value": "{Blue.500}"
+    },
+    "info-thick-hover": {
+      "$type": "color",
+      "$value": "{Blue.600}"
+    },
+    "success-light": {
+      "$type": "color",
+      "$value": "{Green.100}"
+    },
+    "success-light-hover": {
+      "$type": "color",
+      "$value": "{Green.200}"
+    },
+    "success-thick": {
+      "$type": "color",
+      "$value": "{Green.600}"
+    },
+    "success-thick-hover": {
+      "$type": "color",
+      "$value": "{Green.700}"
+    },
+    "warning-light": {
+      "$type": "color",
+      "$value": "{Orange.100}"
+    },
+    "warning-light-hover": {
+      "$type": "color",
+      "$value": "{Orange.200}"
+    },
+    "warning-thick": {
+      "$type": "color",
+      "$value": "{Orange.600}"
+    },
+    "warning-thick-hover": {
+      "$type": "color",
+      "$value": "{Orange.700}"
+    },
+    "error-light": {
+      "$type": "color",
+      "$value": "{Red.100}"
+    },
+    "error-light-hover": {
+      "$type": "color",
+      "$value": "{Red.200}"
+    },
+    "error-thick": {
+      "$type": "color",
+      "$value": "{Red.600}"
+    },
+    "error-thick-hover": {
+      "$type": "color",
+      "$value": "{Red.700}"
+    },
+    "error-select": {
+      "$type": "color",
+      "$value": "{Red.alpha-red-500-10}"
+    },
+    "purple-light": {
+      "$type": "color",
+      "$value": "{Purple.100}"
+    },
+    "purple-light-hover": {
+      "$type": "color",
+      "$value": "{Purple.200}"
+    },
+    "purple-thick-hover": {
+      "$type": "color",
+      "$value": "{Purple.600}"
+    },
+    "purple-thick": {
+      "$type": "color",
+      "$value": "{Purple.500}"
+    }
+  },
+  "Surface": {
+    "primary": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "overlay": {
+      "$type": "color",
+      "$value": "{Neutral.alpha-black-60}"
+    }
+  },
+  "Background": {
+    "primary": {
+      "$type": "color",
+      "$value": "{Neutral.white}"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{Neutral.100}"
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{Neutral.200}"
+    },
+    "quaternary": {
+      "$type": "color",
+      "$value": "{Neutral.300}"
+    }
+  },
+  "Badge_Color": {
+    "Rose": {
+      "rose-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.100}"
+      },
+      "rose-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.200}"
+      },
+      "rose-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.300}"
+      },
+      "rose-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.400}"
+      },
+      "rose-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.500}"
+      },
+      "rose-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Rose.600}"
+      }
+    },
+    "Papaya": {
+      "papaya-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.100}"
+      },
+      "papaya-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.200}"
+      },
+      "papaya-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.300}"
+      },
+      "papaya-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.400}"
+      },
+      "papaya-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.500}"
+      },
+      "papaya-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Papaya.600}"
+      }
+    },
+    "Tangerine": {
+      "tangerine-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.100}"
+      },
+      "tangerine-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.200}"
+      },
+      "tangerine-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.300}"
+      },
+      "tangerine-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.400}"
+      },
+      "tangerine-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.500}"
+      },
+      "tangerine-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Tangerine.600}"
+      }
+    },
+    "Mango": {
+      "mango-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.100}"
+      },
+      "mango-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.200}"
+      },
+      "mango-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.300}"
+      },
+      "mango-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.400}"
+      },
+      "mango-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.500}"
+      },
+      "mango-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mango.600}"
+      }
+    },
+    "Lemon": {
+      "lemon-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.100}"
+      },
+      "lemon-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.200}"
+      },
+      "lemon-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.300}"
+      },
+      "lemon-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.400}"
+      },
+      "lemon-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.500}"
+      },
+      "lemon-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lemon.600}"
+      }
+    },
+    "Olive": {
+      "olive-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.100}"
+      },
+      "olive-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.200}"
+      },
+      "olive-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.300}"
+      },
+      "olive-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.400}"
+      },
+      "olive-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.500}"
+      },
+      "olive-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Olive.600}"
+      }
+    },
+    "Lime": {
+      "lime-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.100}"
+      },
+      "lime-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.200}"
+      },
+      "lime-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.300}"
+      },
+      "lime-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.400}"
+      },
+      "lime-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.500}"
+      },
+      "lime-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lime.600}"
+      }
+    },
+    "Grass": {
+      "grass-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.100}"
+      },
+      "grass-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.200}"
+      },
+      "grass-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.300}"
+      },
+      "grass-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.400}"
+      },
+      "grass-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.500}"
+      },
+      "grass-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Grass.600}"
+      }
+    },
+    "Forest": {
+      "forest-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.100}"
+      },
+      "forest-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.200}"
+      },
+      "forest-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.300}"
+      },
+      "forest-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.400}"
+      },
+      "forest-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.500}"
+      },
+      "forest-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Forest.600}"
+      }
+    },
+    "Jade": {
+      "jade-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.100}"
+      },
+      "jade-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.200}"
+      },
+      "jade-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.300}"
+      },
+      "jade-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.400}"
+      },
+      "jade-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.500}"
+      },
+      "jade-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Jade.600}"
+      }
+    },
+    "Aqua": {
+      "aqua-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.100}"
+      },
+      "aqua-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.200}"
+      },
+      "aqua-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.300}"
+      },
+      "aqua-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.400}"
+      },
+      "aqua-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.500}"
+      },
+      "aqua-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Aqua.600}"
+      }
+    },
+    "Azure": {
+      "azure-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.100}"
+      },
+      "azure-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.200}"
+      },
+      "azure-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.300}"
+      },
+      "azure-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.400}"
+      },
+      "azure-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.500}"
+      },
+      "azure-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Azure.600}"
+      }
+    },
+    "Denim": {
+      "denim-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.100}"
+      },
+      "denim-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.200}"
+      },
+      "denim-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.300}"
+      },
+      "denim-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.400}"
+      },
+      "denim-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.500}"
+      },
+      "denim-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Denim.600}"
+      }
+    },
+    "Mauve": {
+      "mauve-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mauve.100}"
+      },
+      "mauve-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mauve.500}"
+      },
+      "mauve-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mauve.600}"
+      },
+      "mauve-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mauve.400}"
+      }
+    },
+    "Lavender": {
+      "lavender-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.100}"
+      },
+      "lavender-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.200}"
+      },
+      "lavender-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.300}"
+      },
+      "lavender-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.400}"
+      },
+      "lavender-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.500}"
+      },
+      "lavender-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lavender.600}"
+      }
+    },
+    "Lilac": {
+      "liliac-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.100}"
+      },
+      "liliac-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.200}"
+      },
+      "liliac-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.300}"
+      },
+      "liliac-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.400}"
+      },
+      "liliac-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.500}"
+      },
+      "liliac-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Lilac.600}"
+      }
+    },
+    "Mallow": {
+      "mallow-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.100}"
+      },
+      "mallow-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.200}"
+      },
+      "mallow-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.300}"
+      },
+      "mallow-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.400}"
+      },
+      "mallow-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.500}"
+      },
+      "mallow-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Mallow.600}"
+      }
+    },
+    "Camellia": {
+      "camellia-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.100}"
+      },
+      "camellia-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.200}"
+      },
+      "camellia-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.300}"
+      },
+      "camellia-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.400}"
+      },
+      "camellia-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.500}"
+      },
+      "camellia-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Camellia.600}"
+      }
+    },
+    "Smoke": {
+      "smoke-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.100}"
+      },
+      "smoke-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.200}"
+      },
+      "smoke-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.300}"
+      },
+      "smoke-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.400}"
+      },
+      "smoke-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.500}"
+      },
+      "smoke-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Smoke.600}"
+      }
+    },
+    "Iron": {
+      "icon-light-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.100}"
+      },
+      "icon-light-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.200}"
+      },
+      "icon-light-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.300}"
+      },
+      "icon-thick-1": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.400}"
+      },
+      "icon-thick-2": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.500}"
+      },
+      "icon-thick-3": {
+        "$type": "color",
+        "$value": "{Subtle_Color.Iron.600}"
+      }
+    }
+  },
+  "Shadow": {
+    "sm": {
+      "$type": "dimension",
+      "$value": "0px"
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "0px"
+    }
+  },
+  "Brand": {
+    "Skyline": {
+      "$type": "color",
+      "$value": "#00b5ff"
+    },
+    "Aqua": {
+      "$type": "color",
+      "$value": "#00c8ff"
+    },
+    "Violet": {
+      "$type": "color",
+      "$value": "#9327ff"
+    },
+    "Amethyst": {
+      "$type": "color",
+      "$value": "#8427e0"
+    },
+    "Berry": {
+      "$type": "color",
+      "$value": "#e3006d"
+    },
+    "Coral": {
+      "$type": "color",
+      "$value": "#fb006d"
+    },
+    "Golden": {
+      "$type": "color",
+      "$value": "#f7931e"
+    },
+    "Amber": {
+      "$type": "color",
+      "$value": "#ffbd00"
+    },
+    "Lemon": {
+      "$type": "color",
+      "$value": "#ffce00"
+    }
+  },
+  "Other_Colors": {
+    "text-highlight": {
+      "$type": "color",
+      "$value": "{Blue.200}"
+    }
+  },
+  "Spacing": {
+    "spacing-0": {
+      "$type": "dimension",
+      "$value": "{Spacing.0}"
+    },
+    "spacing-xs": {
+      "$type": "dimension",
+      "$value": "{Spacing.100}"
+    },
+    "spacing-s": {
+      "$type": "dimension",
+      "$value": "{Spacing.200}"
+    },
+    "spacing-m": {
+      "$type": "dimension",
+      "$value": "{Spacing.300}"
+    },
+    "spacing-l": {
+      "$type": "dimension",
+      "$value": "{Spacing.400}"
+    },
+    "spacing-xl": {
+      "$type": "dimension",
+      "$value": "{Spacing.500}"
+    },
+    "spacing-xxl": {
+      "$type": "dimension",
+      "$value": "{Spacing.600}"
+    },
+    "spacing-full": {
+      "$type": "dimension",
+      "$value": "{Spacing.1000}"
+    }
+  },
+  "Border_Radius": {
+    "border-radius-0": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.0}"
+    },
+    "border-radius-xs": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.100}"
+    },
+    "border-radius-s": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.200}"
+    },
+    "border-radius-m": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.300}"
+    },
+    "border-radius-l": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.400}"
+    },
+    "border-radius-xl": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.500}"
+    },
+    "border-radius-xxl": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.600}"
+    },
+    "border-radius-full": {
+      "$type": "dimension",
+      "$value": "{Border-Radius.1000}"
+    }
+  }
+}

@@ -79,7 +79,7 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
 
   Widget buildChild(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
-        iconColor = theme.iconColorTheme.primary;
+        iconColor = theme.iconColorScheme.primary;
     final child = FlowyIconButton(
       width: 48,
       height: 32,
