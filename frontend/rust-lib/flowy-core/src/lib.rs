@@ -8,7 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_server::af_cloud::define::ServerUser;
+use flowy_server::af_cloud::define::LoginUserService;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -336,7 +336,7 @@ impl ServerUserImpl {
 }
 
 #[async_trait]
-impl ServerUser for ServerUserImpl {
+impl LoginUserService for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
   }

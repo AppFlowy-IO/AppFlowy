@@ -3,7 +3,7 @@ use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, PredefinedFormatPB,
   RepeatedRelatedQuestionPB, StreamMessageParams,
 };
-use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
+use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
@@ -11,7 +11,7 @@ use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_ai_pub::persistence::{
-  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
+  select_answer_where_match_reply_message_id, select_chat_messages, upsert_chat_messages,
   ChatMessageTable,
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -35,7 +35,7 @@ pub struct Chat {
   chat_id: Uuid,
   uid: i64,
   user_service: Arc<dyn AIUserService>,
-  chat_service: Arc<AICloudServiceMiddleware>,
+  chat_service: Arc<ChatServiceMiddleware>,
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
@@ -47,7 +47,7 @@ impl Chat {
     uid: i64,
     chat_id: Uuid,
     user_service: Arc<dyn AIUserService>,
-    chat_service: Arc<AICloudServiceMiddleware>,
+    chat_service: Arc<ChatServiceMiddleware>,
   ) -> Chat {
     Chat {
       uid,
@@ -76,11 +76,10 @@ impl Chat {
     preferred_ai_model: Option<AIModel>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
-      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, format={:?}",
       self.chat_id,
       params.message,
       params.message_type,
-      params.metadata,
       params.format,
     );
 
@@ -105,7 +104,6 @@ impl Chat {
         &self.chat_id,
         &params.message,
         params.message_type.clone(),
-        &[],
       )
       .await
       .map_err(|err| {
@@ -117,16 +115,8 @@ impl Chat {
       .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
 
-    if let Err(err) = self
-      .chat_service
-      .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
-      .await
-    {
-      error!("Failed to index file: {}", err);
-    }
-
     // Save message to disk
-    save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
+    notify_message(&self.chat_id, question.clone())?;
     let format = params.format.clone().map(Into::into).unwrap_or_default();
     self.stream_response(
       params.answer_stream_port,
@@ -185,7 +175,7 @@ impl Chat {
     &self,
     answer_stream_port: i64,
     answer_stream_buffer: Arc<Mutex<StringBuffer>>,
-    uid: i64,
+    _uid: i64,
     workspace_id: Uuid,
     question_id: i64,
     format: ResponseFormat,
@@ -194,7 +184,6 @@ impl Chat {
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
-    let user_service = self.user_service.clone();
     tokio::spawn(async move {
       let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
@@ -309,7 +298,7 @@ impl Chat {
           metadata,
         )
         .await?;
-      save_and_notify_message(uid, &chat_id, &user_service, answer)?;
+      notify_message(&chat_id, answer)?;
       Ok::<(), FlowyError>(())
     });
   }
@@ -442,6 +431,7 @@ impl Chat {
             user_service.sqlite_connection(uid)?,
             &chat_id,
             resp.messages.clone(),
+            true,
           ) {
             error!("Failed to save chat:{} messages: {}", chat_id, err);
           }
@@ -492,7 +482,7 @@ impl Chat {
     let conn = self.user_service.sqlite_connection(self.uid)?;
 
     let local_result =
-      select_message_where_match_reply_message_id(conn, &chat_id.to_string(), answer_message_id)?
+      select_answer_where_match_reply_message_id(conn, &chat_id.to_string(), answer_message_id)?
         .map(|message| message.message_id);
 
     if let Some(message_id) = local_result {
@@ -543,7 +533,7 @@ impl Chat {
       .get_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
-    save_and_notify_message(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
+    notify_message(&self.chat_id, answer.clone())?;
     let pb = ChatMessagePB::from(answer);
     Ok(pb)
   }
@@ -614,6 +604,7 @@ fn save_chat_message_disk(
   conn: DBConnection,
   chat_id: &Uuid,
   messages: Vec<ChatMessage>,
+  is_sync: bool,
 ) -> FlowyResult<()> {
   let records = messages
     .into_iter()
@@ -626,9 +617,10 @@ fn save_chat_message_disk(
       author_id: message.author.author_id.to_string(),
       reply_message_id: message.reply_message_id,
       metadata: Some(serde_json::to_string(&message.metadata).unwrap_or_default()),
+      is_sync,
     })
     .collect::<Vec<_>>();
-  insert_chat_messages(conn, &records)?;
+  upsert_chat_messages(conn, &records)?;
   Ok(())
 }
 
@@ -665,18 +657,8 @@ impl StringBuffer {
   }
 }
 
-pub(crate) fn save_and_notify_message(
-  uid: i64,
-  chat_id: &Uuid,
-  user_service: &Arc<dyn AIUserService>,
-  message: ChatMessage,
-) -> Result<(), FlowyError> {
+pub(crate) fn notify_message(chat_id: &Uuid, message: ChatMessage) -> Result<(), FlowyError> {
   trace!("[Chat] save answer: answer={:?}", message);
-  save_chat_message_disk(
-    user_service.sqlite_connection(uid)?,
-    chat_id,
-    vec![message.clone()],
-  )?;
   let pb = ChatMessagePB::from(message);
   chat_notification_builder(chat_id, ChatNotification::DidReceiveChatMessage)
     .payload(pb)

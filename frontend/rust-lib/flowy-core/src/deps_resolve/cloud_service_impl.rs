@@ -14,9 +14,9 @@ use flowy_ai_pub::cloud::search_dto::{
   SearchDocumentResponseItem, SearchResult, SearchSummaryResult,
 };
 use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompleteTextParams, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer,
-  StreamComplete, UpdateChatParams,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
+  MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer, StreamComplete,
+  UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -683,13 +683,12 @@ impl ChatCloudService for ServerProvider {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
     let message = message.to_string();
     self
       .get_server()?
       .chat_service()
-      .create_question(workspace_id, chat_id, &message, message_type, metadata)
+      .create_question(workspace_id, chat_id, &message, message_type)
       .await
   }
 
@@ -712,14 +711,14 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(workspace_id, chat_id, message_id, format, ai_model)
+      .stream_answer(workspace_id, chat_id, question_id, format, ai_model)
       .await
   }
 
@@ -768,12 +767,12 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
     server?
       .chat_service()
-      .get_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(workspace_id, chat_id, question_id)
       .await
   }
 

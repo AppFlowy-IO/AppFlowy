@@ -31,7 +31,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use uuid::Uuid;
 
-use crate::af_cloud::define::{ServerUser, USER_SIGN_IN_URL};
+use crate::af_cloud::define::{LoginUserService, USER_SIGN_IN_URL};
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
@@ -44,14 +44,14 @@ use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_st
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
   user_change_recv: ArcSwapOption<tokio::sync::mpsc::Receiver<UserUpdate>>,
-  user: Arc<dyn ServerUser>,
+  user: Arc<dyn LoginUserService>,
 }
 
 impl<T> AFCloudUserAuthServiceImpl<T> {
   pub(crate) fn new(
     server: T,
     user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>,
-    user: Arc<dyn ServerUser>,
+    user: Arc<dyn LoginUserService>,
   ) -> Self {
     Self {
       server,

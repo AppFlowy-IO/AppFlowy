@@ -12,6 +12,7 @@ pub mod local_ai;
 
 mod middleware;
 pub mod notification;
+pub mod offline;
 mod protobuf;
 mod stream_message;
 mod util;

@@ -6,7 +6,6 @@ use crate::notification::{
 };
 use af_plugin::manager::PluginManager;
 use anyhow::Error;
-use flowy_ai_pub::cloud::{ChatMessageMetadata, ContextLoader};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
@@ -21,9 +20,8 @@ use arc_swap::ArcSwapOption;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::ops::Deref;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tokio_stream::StreamExt;
@@ -383,58 +381,59 @@ impl LocalAIController {
     Ok(enabled)
   }
 
-  #[instrument(level = "debug", skip_all)]
-  pub async fn index_message_metadata(
-    &self,
-    chat_id: &Uuid,
-    metadata_list: &[ChatMessageMetadata],
-    index_process_sink: &mut (impl Sink<String> + Unpin),
-  ) -> FlowyResult<()> {
-    if !self.is_enabled() {
-      info!("[AI Plugin] local ai is disabled, skip indexing");
-      return Ok(());
-    }
+  // #[instrument(level = "debug", skip_all)]
+  // pub async fn index_message_metadata(
+  //   &self,
+  //   chat_id: &Uuid,
+  //   metadata_list: &[ChatMessageMetadata],
+  //   index_process_sink: &mut (impl Sink<String> + Unpin),
+  // ) -> FlowyResult<()> {
+  //   if !self.is_enabled() {
+  //     info!("[AI Plugin] local ai is disabled, skip indexing");
+  //     return Ok(());
+  //   }
+  //
+  //   for metadata in metadata_list {
+  //     let mut file_metadata = HashMap::new();
+  //     file_metadata.insert("id".to_string(), json!(&metadata.id));
+  //     file_metadata.insert("name".to_string(), json!(&metadata.name));
+  //     file_metadata.insert("source".to_string(), json!(&metadata.source));
+  //
+  //     let file_path = Path::new(&metadata.data.content);
+  //     if !file_path.exists() {
+  //       return Err(
+  //         FlowyError::record_not_found().with_context(format!("File not found: {:?}", file_path)),
+  //       );
+  //     }
+  //     info!(
+  //       "[AI Plugin] embed file: {:?}, with metadata: {:?}",
+  //       file_path, file_metadata
+  //     );
+  //
+  //     match &metadata.data.content_type {
+  //       ContextLoader::Unknown => {
+  //         error!(
+  //           "[AI Plugin] unsupported content type: {:?}",
+  //           metadata.data.content_type
+  //         );
+  //       },
+  //       ContextLoader::Text | ContextLoader::Markdown | ContextLoader::PDF => {
+  //         self
+  //           .process_index_file(
+  //             chat_id,
+  //             file_path.to_path_buf(),
+  //             &file_metadata,
+  //             index_process_sink,
+  //           )
+  //           .await?;
+  //       },
+  //     }
+  //   }
+  //
+  //   Ok(())
+  // }
 
-    for metadata in metadata_list {
-      let mut file_metadata = HashMap::new();
-      file_metadata.insert("id".to_string(), json!(&metadata.id));
-      file_metadata.insert("name".to_string(), json!(&metadata.name));
-      file_metadata.insert("source".to_string(), json!(&metadata.source));
-
-      let file_path = Path::new(&metadata.data.content);
-      if !file_path.exists() {
-        return Err(
-          FlowyError::record_not_found().with_context(format!("File not found: {:?}", file_path)),
-        );
-      }
-      info!(
-        "[AI Plugin] embed file: {:?}, with metadata: {:?}",
-        file_path, file_metadata
-      );
-
-      match &metadata.data.content_type {
-        ContextLoader::Unknown => {
-          error!(
-            "[AI Plugin] unsupported content type: {:?}",
-            metadata.data.content_type
-          );
-        },
-        ContextLoader::Text | ContextLoader::Markdown | ContextLoader::PDF => {
-          self
-            .process_index_file(
-              chat_id,
-              file_path.to_path_buf(),
-              &file_metadata,
-              index_process_sink,
-            )
-            .await?;
-        },
-      }
-    }
-
-    Ok(())
-  }
-
+  #[allow(dead_code)]
   async fn process_index_file(
     &self,
     chat_id: &Uuid,
