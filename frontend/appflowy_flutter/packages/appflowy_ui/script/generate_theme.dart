@@ -38,22 +38,13 @@ class AppFlowyPrimitiveTokens {
 
   // 3. Process each color category.
   jsonData.forEach((categoryName, categoryData) {
-    if (categoryData is Map<String, dynamic>) {
-      categoryData.forEach((tokenName, tokenData) {
-        if (tokenData is Map<String, dynamic> &&
-            tokenData['\$type'] == 'color') {
-          final colorValue = tokenData['\$value'] as String;
-          final dartColorValue = convertColor(colorValue);
-          final dartTokenName =
-              '${categoryName}_$tokenName'.replaceAll('-', '_').toCamelCase();
-
-          buffer.writeln('''
-
-  /// $colorValue
-  static Color get $dartTokenName => Color(0x$dartColorValue);''');
-        }
-      });
-    }
+    categoryData.forEach((tokenName, tokenData) {
+      processPrimitiveTokenData(
+        buffer,
+        tokenData,
+        '${categoryName}_$tokenName',
+      );
+    });
   });
 
   buffer.writeln('}');
@@ -63,6 +54,32 @@ class AppFlowyPrimitiveTokens {
   outputFile.writeAsStringSync(buffer.toString());
 
   print('Successfully generated ${outputFile.path}');
+}
+
+void processPrimitiveTokenData(
+  StringBuffer buffer,
+  Map<String, dynamic> tokenData,
+  final String currentTokenName,
+) {
+  if (tokenData
+      case {
+        r'$type': 'color',
+        r'$value': final String colorValue,
+      }) {
+    final dartColorValue = convertColor(colorValue);
+    final dartTokenName = currentTokenName.replaceAll('-', '_').toCamelCase();
+
+    buffer.writeln('''
+
+  /// $colorValue
+  static Color get $dartTokenName => Color(0x$dartColorValue);''');
+  } else {
+    tokenData.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        processPrimitiveTokenData(buffer, value, '${currentTokenName}_$key');
+      }
+    });
+  }
 }
 
 void generateSemantic() {
@@ -98,61 +115,39 @@ import 'primitive.dart';
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
 
   // 3. Process light mode semantic tokens
-  void writeThemeData(String brightness, Map<String, dynamic> jsonData) {
-    buffer.writeln('''
+  buffer.writeln('''
   @override
-  AppFlowyThemeData $brightness() {
+  AppFlowyThemeData light() {
     final textStyle = AppFlowyBaseTextStyle();
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
-    final shadow = AppFlowySharedTokens.buildShadow(Brightness.$brightness);''');
+    final shadow = AppFlowySharedTokens.buildShadow(Brightness.light);''');
 
-    jsonData.forEach((categoryName, categoryData) {
-      if (categoryData is Map<String, dynamic>) {
-        final hasNonColorType = categoryData.values.any(
-          (element) =>
-              element is Map<String, dynamic> && element['\$type'] != 'color',
-        );
-        if (hasNonColorType) {
-          return;
-        }
+  lightJsonData.forEach((categoryName, categoryData) {
+    if ([
+      'Spacing',
+      'Border_Radius',
+      'Shadow',
+      'Badge_Color',
+    ].contains(categoryName)) {
+      return;
+    }
 
-        final fullCategoryName = "${categoryName}_color_scheme".toCamelCase();
-        final className = 'AppFlowy${fullCategoryName.toCapitalize()}';
+    final fullCategoryName = "${categoryName}_color_scheme".toCamelCase();
+    final className = 'AppFlowy${fullCategoryName.toCapitalize()}';
 
-        buffer
-          ..writeln()
-          ..writeln('    final $fullCategoryName = $className(');
+    buffer
+      ..writeln()
+      ..writeln('    final $fullCategoryName = $className(');
 
-        categoryData.forEach((tokenName, tokenData) {
-          if (tokenData is Map<String, dynamic> &&
-              tokenData['\$type'] == 'color') {
-            final semanticTokenName =
-                tokenName.replaceAll('-', '_').toCamelCase();
-
-            final value = tokenData['\$value'] as String;
-            final String colorOrPrimitiveToken;
-            if (value.isColor) {
-              colorOrPrimitiveToken = 'Color(0x${convertColor(value)})';
-            } else {
-              final primitiveToken = value
-                  .replaceAll('{', '')
-                  .replaceAll('}', '')
-                  .replaceAll('.', '_')
-                  .replaceAll('-', '_')
-                  .toCamelCase();
-              colorOrPrimitiveToken = 'AppFlowyPrimitiveTokens.$primitiveToken';
-            }
-
-            buffer.writeln('      $semanticTokenName: $colorOrPrimitiveToken,');
-          }
-        });
-        buffer.writeln('    );');
-      }
+    categoryData.forEach((tokenName, tokenData) {
+      processSemanticTokenData(buffer, tokenData, tokenName);
     });
+    buffer.writeln('    );');
+  });
 
-    buffer.writeln();
-    buffer.writeln('''
+  buffer.writeln();
+  buffer.writeln('''
     return AppFlowyThemeData(
       textStyle: textStyle,
       textColorScheme: textColorScheme,
@@ -168,11 +163,61 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
       shadow: shadow,
     );
   }''');
-  }
 
-  writeThemeData('light', lightJsonData);
   buffer.writeln();
-  writeThemeData('dark', darkJsonData);
+
+  buffer.writeln('''
+  @override
+  AppFlowyThemeData dark() {
+    final textStyle = AppFlowyBaseTextStyle();
+    final borderRadius = AppFlowySharedTokens.buildBorderRadius();
+    final spacing = AppFlowySharedTokens.buildSpacing();
+    final shadow = AppFlowySharedTokens.buildShadow(Brightness.dark);''');
+
+  darkJsonData.forEach((categoryName, categoryData) {
+    if ([
+      'Spacing',
+      'Border_Radius',
+      'Shadow',
+      'Badge_Color',
+    ].contains(categoryName)) {
+      return;
+    }
+
+    final fullCategoryName = "${categoryName}_color_scheme".toCamelCase();
+    final className = 'AppFlowy${fullCategoryName.toCapitalize()}';
+
+    buffer
+      ..writeln()
+      ..writeln('    final $fullCategoryName = $className(');
+
+    categoryData.forEach((tokenName, tokenData) {
+      if (tokenData is Map<String, dynamic>) {
+        processSemanticTokenData(buffer, tokenData, tokenName);
+      }
+    });
+    buffer.writeln('    );');
+  });
+
+  buffer.writeln();
+
+  buffer.writeln('''
+    return AppFlowyThemeData(
+      textStyle: textStyle,
+      textColorScheme: textColorScheme,
+      borderColorScheme: borderColorScheme,
+      fillColorScheme: fillColorScheme,
+      surfaceColorScheme: surfaceColorScheme,
+      backgroundColorScheme: backgroundColorScheme,
+      iconColorScheme: iconColorScheme,
+      brandColorScheme: brandColorScheme,
+      otherColorsColorScheme: otherColorsColorScheme,
+      borderRadius: borderRadius,
+      spacing: spacing,
+      shadow: shadow,
+    );
+  }''');
+
   buffer.writeln('}');
 
   // 4. Write the output to a Dart file.
@@ -180,6 +225,44 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
   outputFile.writeAsStringSync(buffer.toString());
 
   print('Successfully generated ${outputFile.path}');
+}
+
+void processSemanticTokenData(
+  StringBuffer buffer,
+  Map<String, dynamic> json,
+  final String currentTokenName,
+) {
+  if (json
+      case {
+        r'$type': 'color',
+        r'$value': final String value,
+      }) {
+    final semanticTokenName =
+        currentTokenName.replaceAll('-', '_').toCamelCase();
+
+    final String colorValueOrPrimitiveToken;
+    if (value.isColor) {
+      colorValueOrPrimitiveToken = 'Color(0x${convertColor(value)})';
+    } else {
+      final primitiveToken = value
+          .replaceAll(RegExp(r'\{|\}'), '')
+          .replaceAll(RegExp(r'\.|-'), '_')
+          .toCamelCase();
+      colorValueOrPrimitiveToken = 'AppFlowyPrimitiveTokens.$primitiveToken';
+    }
+
+    buffer.writeln('      $semanticTokenName: $colorValueOrPrimitiveToken,');
+  } else {
+    json.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        processSemanticTokenData(
+          buffer,
+          value,
+          '${currentTokenName}_$key',
+        );
+      }
+    });
+  }
 }
 
 String convertColor(String hexColor) {
