@@ -20,7 +20,7 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  AuthResponse, AuthType, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
   UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 
@@ -84,13 +84,9 @@ pub trait UserCloudServiceProvider: Send + Sync {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  /// Sets the authenticator when user sign in or sign up.
-  ///
-  /// # Arguments
-  /// * `authenticator`: An `Authenticator` object.
-  fn set_user_authenticator(&self, authenticator: &Authenticator);
+  fn set_auth_type(&self, auth_type: &AuthType);
 
-  fn get_user_authenticator(&self) -> Authenticator;
+  fn get_auth_type(&self) -> AuthType;
 
   /// Sets the network reachability
   ///

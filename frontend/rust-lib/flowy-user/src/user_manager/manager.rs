@@ -141,7 +141,7 @@ impl UserManager {
 
       // If the current authenticator is different from the authenticator in the session and it's
       // not a local authenticator, we need to sign out the user.
-      if user.authenticator != Authenticator::Local && user.authenticator != current_authenticator {
+      if user.authenticator != AuthType::Local && user.authenticator != current_authenticator {
         event!(
           tracing::Level::INFO,
           "Authenticator changed from {:?} to {:?}",
@@ -349,9 +349,9 @@ impl UserManager {
   pub async fn sign_in(
     &self,
     params: SignInParams,
-    authenticator: Authenticator,
+    authenticator: AuthType,
   ) -> Result<UserProfile, FlowyError> {
-    self.cloud_services.set_user_authenticator(&authenticator);
+    self.cloud_services.set_auth_type(&authenticator);
 
     let response: AuthResponse = self
       .cloud_services
@@ -398,25 +398,25 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip(self, params))]
   pub async fn sign_up(
     &self,
-    authenticator: Authenticator,
+    auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
     // sign out the current user if there is one
-    let migration_user = self.get_migration_user(&authenticator).await;
-    self.cloud_services.set_user_authenticator(&authenticator);
+    let migration_user = self.get_migration_user(&auth_type).await;
+    self.cloud_services.set_auth_type(&auth_type);
     let auth_service = self.cloud_services.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
-    let new_user_profile = UserProfile::from((&response, &authenticator));
+    let new_user_profile = UserProfile::from((&response, &auth_type));
     if new_user_profile.encryption_type.require_encrypt_secret() {
       self.auth_process.lock().await.replace(UserAuthProcess {
         user_profile: new_user_profile.clone(),
         migration_user,
         response,
-        authenticator,
+        authenticator: auth_type,
       });
     } else {
       self
-        .continue_sign_up(&new_user_profile, migration_user, response, &authenticator)
+        .continue_sign_up(&new_user_profile, migration_user, response, &auth_type)
         .await?;
     }
     Ok(new_user_profile)
@@ -450,12 +450,12 @@ impl UserManager {
     new_user_profile: &UserProfile,
     migration_user: Option<AnonUser>,
     response: AuthResponse,
-    authenticator: &Authenticator,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
     self.prepare_user(&new_session).await;
     self
-      .save_auth_data(&response, authenticator, &new_session)
+      .save_auth_data(&response, auth_type, &new_session)
       .await?;
     let _ = self
       .initial_user_awareness(&new_session, &new_user_profile.authenticator)
@@ -469,7 +469,7 @@ impl UserManager {
         new_user_profile,
         &new_session.user_workspace,
         &self.authenticate_user.user_config.device_id,
-        authenticator,
+        auth_type,
       )
       .await?;
 
@@ -493,7 +493,7 @@ impl UserManager {
           new_user_profile.uid
         );
         self
-          .migrate_anon_user_data_to_cloud(&old_user, &new_session, authenticator)
+          .migrate_anon_user_data_to_cloud(&old_user, &new_session, auth_type)
           .await?;
         self.remove_anon_user();
         let _ = self
@@ -709,10 +709,10 @@ impl UserManager {
 
   pub(crate) async fn generate_sign_in_url_with_email(
     &self,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
     email: &str,
   ) -> Result<String, FlowyError> {
-    self.cloud_services.set_user_authenticator(authenticator);
+    self.cloud_services.set_auth_type(authenticator);
 
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service.generate_sign_in_url_with_email(email).await?;
@@ -724,9 +724,7 @@ impl UserManager {
     email: &str,
     password: &str,
   ) -> Result<GotrueTokenResponse, FlowyError> {
-    self
-      .cloud_services
-      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    self.cloud_services.set_auth_type(&AuthType::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     let response = auth_service.sign_in_with_password(email, password).await?;
     Ok(response)
@@ -737,9 +735,7 @@ impl UserManager {
     email: &str,
     redirect_to: &str,
   ) -> Result<(), FlowyError> {
-    self
-      .cloud_services
-      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    self.cloud_services.set_auth_type(&AuthType::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service
       .sign_in_with_magic_link(email, redirect_to)
@@ -752,9 +748,7 @@ impl UserManager {
     email: &str,
     passcode: &str,
   ) -> Result<GotrueTokenResponse, FlowyError> {
-    self
-      .cloud_services
-      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    self.cloud_services.set_auth_type(&AuthType::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     let response = auth_service.sign_in_with_passcode(email, passcode).await?;
     Ok(response)
@@ -764,9 +758,7 @@ impl UserManager {
     &self,
     oauth_provider: &str,
   ) -> Result<String, FlowyError> {
-    self
-      .cloud_services
-      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    self.cloud_services.set_auth_type(&AuthType::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)
@@ -778,7 +770,7 @@ impl UserManager {
   async fn save_auth_data(
     &self,
     response: &impl UserAuthResponse,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
     session: &Session,
   ) -> Result<(), FlowyError> {
     let user_profile = UserProfile::from((response, authenticator));
@@ -798,7 +790,7 @@ impl UserManager {
       .authenticate_user
       .set_session(Some(session.clone().into()))?;
     self
-      .save_user(uid, (user_profile, authenticator.clone()).into())
+      .save_user(uid, (user_profile, *authenticator).into())
       .await?;
     Ok(())
   }
@@ -827,14 +819,14 @@ impl UserManager {
     &self,
     old_user: &AnonUser,
     _new_user_session: &Session,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
   ) -> Result<(), FlowyError> {
     let old_collab_db = self
       .authenticate_user
       .database
       .get_collab_db(old_user.session.user_id)?;
 
-    if authenticator == &Authenticator::AppFlowyCloud {
+    if authenticator == &AuthType::AppFlowyCloud {
       self
         .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
         .await?;
@@ -853,10 +845,10 @@ impl UserManager {
   }
 }
 
-fn current_authenticator() -> Authenticator {
+fn current_authenticator() -> AuthType {
   match AuthenticatorType::from_env() {
-    AuthenticatorType::Local => Authenticator::Local,
-    AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
+    AuthenticatorType::Local => AuthType::Local,
+    AuthenticatorType::AppFlowyCloud => AuthType::AppFlowyCloud,
   }
 }
 

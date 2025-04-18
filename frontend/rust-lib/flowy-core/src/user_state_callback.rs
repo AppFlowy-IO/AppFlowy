@@ -14,11 +14,11 @@ use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
-use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 
-use crate::server_layer::{Server, ServerProvider};
+use crate::server_layer::{ServerProvider, ServerType};
 
 pub(crate) struct UserStatusCallbackImpl {
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -49,16 +49,14 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   async fn did_init(
     &self,
     user_id: i64,
-    user_authenticator: &Authenticator,
+    auth_type: &AuthType,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     _device_id: &str,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
   ) -> FlowyResult<()> {
     let workspace_id = user_workspace.workspace_id()?;
-    self
-      .server_provider
-      .set_user_authenticator(user_authenticator);
+    self.server_provider.set_auth_type(*auth_type);
 
     if let Some(cloud_config) = cloud_config {
       self
@@ -83,7 +81,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .database_manager
-      .initialize(user_id, authenticator == &Authenticator::Local)
+      .initialize(user_id, authenticator == &AuthType::Local)
       .await?;
     self.document_manager.initialize(user_id).await?;
 
@@ -97,7 +95,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_id: i64,
     user_workspace: &UserWorkspace,
     device_id: &str,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
@@ -127,11 +125,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     device_id: &str,
-    authenticator: &Authenticator,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self
-      .server_provider
-      .set_user_authenticator(&user_profile.authenticator);
+    self.server_provider.set_auth_type(*auth_type);
     let server_type = self.server_provider.get_server_type();
 
     event!(
@@ -159,16 +155,16 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await
     {
       Ok(doc_state) => match server_type {
-        Server::Local => FolderInitDataSource::LocalDisk {
+        ServerType::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        Server::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+        ServerType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
       },
       Err(err) => match server_type {
-        Server::Local => FolderInitDataSource::LocalDisk {
+        ServerType::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        Server::AppFlowyCloud => {
+        ServerType::AppFlowyCloud => {
           return Err(err);
         },
       },
@@ -188,7 +184,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .database_manager
-      .initialize_with_new_user(user_profile.uid, authenticator.is_local())
+      .initialize_with_new_user(user_profile.uid, auth_type.is_local())
       .await
       .context("DatabaseManager error")?;
 
@@ -212,7 +208,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
   ) -> FlowyResult<()> {
     self
       .folder_manager

@@ -86,12 +86,12 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
-  /// Only use when the [Authenticator] is Local or SelfHosted
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "GotrueTokenResponsePB")]
   SignInWithEmailPassword = 0,
 
-  /// Only use when the [Authenticator] is Local or SelfHosted
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,
@@ -129,7 +129,7 @@ pub enum UserEvent {
   OauthSignIn = 10,
 
   /// Get the OAuth callback url
-  /// Only use when the [Authenticator] is AFCloud
+  /// Only use when the [AuthType] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
   GenerateSignInURL = 11,
 
@@ -165,7 +165,7 @@ pub enum UserEvent {
   OpenAnonUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
-  /// is only used when the auth type is: [Authenticator::Supabase].
+  /// is only used when the auth type is: [AuthType::Supabase].
   ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
@@ -281,19 +281,19 @@ pub enum UserEvent {
 
 #[async_trait]
 pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [Authenticator] changed, this method will be called. Currently, the auth type
+  /// When the [AuthType] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
+  fn authenticator_did_changed(&self, _authenticator: AuthType) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
   async fn did_init(
     &self,
     _user_id: i64,
-    _user_authenticator: &Authenticator,
+    _user_authenticator: &AuthType,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &Authenticator,
+    _authenticator: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -303,7 +303,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &Authenticator,
+    _authenticator: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -314,7 +314,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &Authenticator,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -326,7 +326,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
-    _authenticator: &Authenticator,
+    _authenticator: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }

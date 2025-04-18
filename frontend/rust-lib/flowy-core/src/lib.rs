@@ -34,7 +34,7 @@ use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::log_filter::init_log;
-use crate::server_layer::{current_server_type, Server, ServerProvider};
+use crate::server_layer::{current_server_type, ServerProvider, ServerType};
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
@@ -314,11 +314,11 @@ impl AppFlowyCore {
   }
 }
 
-impl From<Server> for CollabPluginProviderType {
-  fn from(server_type: Server) -> Self {
+impl From<ServerType> for CollabPluginProviderType {
+  fn from(server_type: ServerType) -> Self {
     match server_type {
-      Server::Local => CollabPluginProviderType::Local,
-      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+      ServerType::Local => CollabPluginProviderType::Local,
+      ServerType::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
     }
   }
 }

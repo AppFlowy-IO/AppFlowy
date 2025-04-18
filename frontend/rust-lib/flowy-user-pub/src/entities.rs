@@ -32,7 +32,7 @@ pub struct SignInParams {
   pub email: String,
   pub password: String,
   pub name: String,
-  pub auth_type: Authenticator,
+  pub auth_type: AuthType,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -40,7 +40,7 @@ pub struct SignUpParams {
   pub email: String,
   pub name: String,
   pub password: String,
-  pub auth_type: Authenticator,
+  pub auth_type: AuthType,
   pub device_id: String,
 }
 
@@ -103,7 +103,7 @@ impl UserAuthResponse for AuthResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [Authenticator] is AppFlowyCloud
+  /// Currently, the token is only used when the [AuthType] is AppFlowyCloud
   pub token: Option<String>,
 
   /// The user id
@@ -180,7 +180,7 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub stability_ai_key: String,
-  pub authenticator: Authenticator,
+  pub authenticator: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
   pub updated_at: i64,
@@ -226,11 +226,11 @@ impl FromStr for EncryptionType {
   }
 }
 
-impl<T> From<(&T, &Authenticator)> for UserProfile
+impl<T> From<(&T, &AuthType)> for UserProfile
 where
   T: UserAuthResponse,
 {
-  fn from(params: (&T, &Authenticator)) -> Self {
+  fn from(params: (&T, &AuthType)) -> Self {
     let (value, auth_type) = params;
     let (icon_url, openai_key, stability_ai_key) = {
       value
@@ -258,7 +258,7 @@ where
       token: value.user_token().unwrap_or_default(),
       icon_url,
       openai_key,
-      authenticator: auth_type.clone(),
+      authenticator: *auth_type,
       encryption_type: value.encryption_type(),
       stability_ai_key,
       updated_at: value.updated_at(),
@@ -349,9 +349,9 @@ impl UpdateUserProfileParams {
   }
 }
 
-#[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
 #[repr(u8)]
-pub enum Authenticator {
+pub enum AuthType {
   /// It's a local server, we do fake sign in default.
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
@@ -359,28 +359,28 @@ pub enum Authenticator {
   AppFlowyCloud = 1,
 }
 
-impl Default for Authenticator {
+impl Default for AuthType {
   fn default() -> Self {
     Self::Local
   }
 }
 
-impl Authenticator {
+impl AuthType {
   pub fn is_local(&self) -> bool {
-    matches!(self, Authenticator::Local)
+    matches!(self, AuthType::Local)
   }
 
   pub fn is_appflowy_cloud(&self) -> bool {
-    matches!(self, Authenticator::AppFlowyCloud)
+    matches!(self, AuthType::AppFlowyCloud)
   }
 }
 
-impl From<i32> for Authenticator {
+impl From<i32> for AuthType {
   fn from(value: i32) -> Self {
     match value {
-      0 => Authenticator::Local,
-      1 => Authenticator::AppFlowyCloud,
-      _ => Authenticator::Local,
+      0 => AuthType::Local,
+      1 => AuthType::AppFlowyCloud,
+      _ => AuthType::Local,
     }
   }
 }

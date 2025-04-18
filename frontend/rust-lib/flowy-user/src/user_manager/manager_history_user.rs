@@ -4,7 +4,7 @@ use tracing::instrument;
 use crate::entities::UserProfilePB;
 use crate::user_manager::UserManager;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::AnonUser;
 use flowy_user_pub::session::Session;
@@ -12,10 +12,7 @@ use flowy_user_pub::session::Session;
 pub const ANON_USER: &str = "anon_user";
 impl UserManager {
   #[instrument(skip_all)]
-  pub async fn get_migration_user(
-    &self,
-    current_authenticator: &Authenticator,
-  ) -> Option<AnonUser> {
+  pub async fn get_migration_user(&self, current_authenticator: &AuthType) -> Option<AnonUser> {
     // No need to migrate if the user is already local
     if current_authenticator.is_local() {
       return None;

@@ -7,7 +7,7 @@ use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_error::FlowyResult;
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
@@ -39,7 +39,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    _authenticator: &Authenticator,
+    _authenticator: &AuthType,
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(

@@ -235,20 +235,20 @@ pub enum AuthenticatorPB {
   AppFlowyCloud = 2,
 }
 
-impl From<Authenticator> for AuthenticatorPB {
-  fn from(auth_type: Authenticator) -> Self {
+impl From<AuthType> for AuthenticatorPB {
+  fn from(auth_type: AuthType) -> Self {
     match auth_type {
-      Authenticator::Local => AuthenticatorPB::Local,
-      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
+      AuthType::Local => AuthenticatorPB::Local,
+      AuthType::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
     }
   }
 }
 
-impl From<AuthenticatorPB> for Authenticator {
+impl From<AuthenticatorPB> for AuthType {
   fn from(pb: AuthenticatorPB) -> Self {
     match pb {
-      AuthenticatorPB::Local => Authenticator::Local,
-      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
+      AuthenticatorPB::Local => AuthType::Local,
+      AuthenticatorPB::AppFlowyCloud => AuthType::AppFlowyCloud,
     }
   }
 }
