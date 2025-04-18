@@ -8,4 +8,14 @@ class AppFlowySurfaceColorScheme {
 
   final Color primary;
   final Color overlay;
+
+  AppFlowySurfaceColorScheme lerp(
+    AppFlowySurfaceColorScheme other,
+    double t,
+  ) {
+    return AppFlowySurfaceColorScheme(
+      primary: Color.lerp(primary, other.primary, t)!,
+      overlay: Color.lerp(overlay, other.overlay, t)!,
+    );
+  }
 }

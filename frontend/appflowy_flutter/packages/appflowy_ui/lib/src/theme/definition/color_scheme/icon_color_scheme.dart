@@ -18,4 +18,20 @@ class AppFlowyIconColorScheme {
   final Color white;
   final Color purpleThick;
   final Color purpleThickHover;
+
+  AppFlowyIconColorScheme lerp(
+    AppFlowyIconColorScheme other,
+    double t,
+  ) {
+    return AppFlowyIconColorScheme(
+      primary: Color.lerp(primary, other.primary, t)!,
+      secondary: Color.lerp(secondary, other.secondary, t)!,
+      tertiary: Color.lerp(tertiary, other.tertiary, t)!,
+      quaternary: Color.lerp(quaternary, other.quaternary, t)!,
+      white: Color.lerp(white, other.white, t)!,
+      purpleThick: Color.lerp(purpleThick, other.purpleThick, t)!,
+      purpleThickHover:
+          Color.lerp(purpleThickHover, other.purpleThickHover, t)!,
+    );
+  }
 }

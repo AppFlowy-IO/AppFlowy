@@ -28,13 +28,12 @@ class MobileAppearance extends BaseAppearance {
       fontWeight: FontWeight.w400,
     );
 
+    final isLight = brightness == Brightness.light;
     final codeFontStyle = getFontStyle(fontFamily: codeFontFamily);
 
-    final theme = brightness == Brightness.light
-        ? appTheme.lightTheme
-        : appTheme.darkTheme;
+    final theme = isLight ? appTheme.lightTheme : appTheme.darkTheme;
 
-    final colorTheme = brightness == Brightness.light
+    final colorTheme = isLight
         ? ColorScheme(
             brightness: brightness,
             primary: _primaryColor,
@@ -71,13 +70,9 @@ class MobileAppearance extends BaseAppearance {
             onSurface: const Color(0xffC5C6C7), // text/body color
             surfaceContainerHighest: theme.sidebarBg,
           );
-    final hintColor = brightness == Brightness.light
-        ? const Color(0x991F2329)
-        : _hintColorInDarkMode;
-    final onBackground =
-        brightness == Brightness.light ? _onBackgroundColor : Colors.white;
-    final background =
-        brightness == Brightness.light ? Colors.white : const Color(0xff121212);
+    final hintColor = isLight ? const Color(0x991F2329) : _hintColorInDarkMode;
+    final onBackground = isLight ? _onBackgroundColor : Colors.white;
+    final background = isLight ? Colors.white : const Color(0xff121212);
 
     return ThemeData(
       useMaterial3: false,

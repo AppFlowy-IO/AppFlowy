@@ -44,4 +44,32 @@ class AppFlowyTextColorScheme {
   final Color errorHover;
   final Color purple;
   final Color purpleHover;
+
+  AppFlowyTextColorScheme lerp(
+    AppFlowyTextColorScheme other,
+    double t,
+  ) {
+    return AppFlowyTextColorScheme(
+      primary: Color.lerp(primary, other.primary, t)!,
+      secondary: Color.lerp(secondary, other.secondary, t)!,
+      tertiary: Color.lerp(tertiary, other.tertiary, t)!,
+      quaternary: Color.lerp(quaternary, other.quaternary, t)!,
+      inverse: Color.lerp(inverse, other.inverse, t)!,
+      onFill: Color.lerp(onFill, other.onFill, t)!,
+      theme: Color.lerp(theme, other.theme, t)!,
+      themeHover: Color.lerp(themeHover, other.themeHover, t)!,
+      action: Color.lerp(action, other.action, t)!,
+      actionHover: Color.lerp(actionHover, other.actionHover, t)!,
+      info: Color.lerp(info, other.info, t)!,
+      infoHover: Color.lerp(infoHover, other.infoHover, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      successHover: Color.lerp(successHover, other.successHover, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      warningHover: Color.lerp(warningHover, other.warningHover, t)!,
+      error: Color.lerp(error, other.error, t)!,
+      errorHover: Color.lerp(errorHover, other.errorHover, t)!,
+      purple: Color.lerp(purple, other.purple, t)!,
+      purpleHover: Color.lerp(purpleHover, other.purpleHover, t)!,
+    );
+  }
 }

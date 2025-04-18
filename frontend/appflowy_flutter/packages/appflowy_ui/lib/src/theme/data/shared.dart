@@ -21,10 +21,10 @@ class AppFlowyBorderRadiusConstant {
   static const double radius600 = 20;
 }
 
-class AppFlowyThemeBuilder {
-  const AppFlowyThemeBuilder();
+class AppFlowySharedTokens {
+  const AppFlowySharedTokens();
 
-  AppFlowyBorderRadius buildBorderRadius() {
+  static AppFlowyBorderRadius buildBorderRadius() {
     return AppFlowyBorderRadius(
       xs: AppFlowyBorderRadiusConstant.radius100,
       s: AppFlowyBorderRadiusConstant.radius200,
@@ -35,7 +35,7 @@ class AppFlowyThemeBuilder {
     );
   }
 
-  AppFlowySpacing buildSpacing() {
+  static AppFlowySpacing buildSpacing() {
     return AppFlowySpacing(
       xs: AppFlowySpacingConstant.spacing100,
       s: AppFlowySpacingConstant.spacing200,
@@ -46,7 +46,7 @@ class AppFlowyThemeBuilder {
     );
   }
 
-  AppFlowyShadow buildShadow(
+  static AppFlowyShadow buildShadow(
     Brightness brightness,
   ) {
     return switch (brightness) {
