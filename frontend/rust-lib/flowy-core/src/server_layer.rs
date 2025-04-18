@@ -1,21 +1,25 @@
+use crate::AppFlowyCoreConfig;
+use af_plugin::manager::PluginManager;
 use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
-use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::{Arc, Weak};
-
-use serde_repr::*;
-
+use flowy_ai::ai_manager::AIUserService;
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
-use flowy_server::local_server::{LocalServer, LocalServerDB};
+use flowy_server::local_server::LocalServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::*;
-
-use crate::AppFlowyCoreConfig;
+use lib_infra::async_trait::async_trait;
+use serde_repr::*;
+use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::{Arc, Weak};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
@@ -59,6 +63,7 @@ pub struct ServerProvider {
   authenticator: AtomicU8,
   user: Arc<dyn ServerUser>,
   pub(crate) uid: Arc<ArcSwapOption<i64>>,
+  pub local_ai: Arc<LocalAIController>,
 }
 
 impl ServerProvider {
@@ -70,6 +75,14 @@ impl ServerProvider {
   ) -> Self {
     let user = Arc::new(server_user);
     let encryption = EncryptionImpl::new(None);
+    let user_service = Arc::new(AIUserServiceImpl(user.clone()));
+    let plugin_manager = Arc::new(PluginManager::new());
+    let local_ai = Arc::new(LocalAIController::new(
+      plugin_manager.clone(),
+      store_preferences.clone(),
+      user_service.clone(),
+    ));
+
     Self {
       config,
       providers: DashMap::new(),
@@ -79,6 +92,7 @@ impl ServerProvider {
       store_preferences,
       uid: Default::default(),
       user,
+      local_ai,
     }
   }
 
@@ -115,10 +129,7 @@ impl ServerProvider {
 
     let server = match server_type {
       Server::Local => {
-        let local_db = Arc::new(LocalServerDBImpl {
-          storage_path: self.config.storage_path.clone(),
-        });
-        let server = Arc::new(LocalServer::new(local_db));
+        let server = Arc::new(LocalServer::new(self.user.clone(), self.local_ai.clone()));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       Server::AppFlowyCloud => {
@@ -172,23 +183,27 @@ pub fn current_server_type() -> Server {
   }
 }
 
-struct LocalServerDBImpl {
-  #[allow(dead_code)]
-  storage_path: String,
-}
+struct AIUserServiceImpl(Arc<dyn ServerUser>);
 
-impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_profile"),
-    )
+#[async_trait]
+impl AIUserService for AIUserServiceImpl {
+  fn user_id(&self) -> Result<i64, FlowyError> {
+    self.0.user_id()
   }
 
-  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_workspace"),
-    )
+  async fn is_local_model(&self) -> FlowyResult<bool> {
+    self.0.is_local_mode().await
+  }
+
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
+    self.0.workspace_id()
+  }
+
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.0.get_sqlite_db(uid)
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    self.0.application_root_dir()
   }
 }

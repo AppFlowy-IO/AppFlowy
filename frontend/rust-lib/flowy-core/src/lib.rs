@@ -9,6 +9,7 @@ use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::ServerUser;
+use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -35,6 +36,8 @@ use crate::deps_resolve::*;
 use crate::log_filter::init_log;
 use crate::server_layer::{current_server_type, Server, ServerProvider};
 use deps_resolve::reminder_deps::CollabInteractImpl;
+use flowy_sqlite::DBConnection;
+use lib_infra::async_trait::async_trait;
 use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
@@ -190,6 +193,7 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
         server_provider.clone(),
         folder_query_service.clone(),
+        server_provider.local_ai.clone(),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -330,8 +334,28 @@ impl ServerUserImpl {
     Ok(user)
   }
 }
+
+#[async_trait]
 impl ServerUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn user_id(&self) -> FlowyResult<i64> {
+    self.upgrade_user()?.user_id()
+  }
+
+  async fn is_local_mode(&self) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_local_mode().await
+  }
+
+  fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    Ok(PathBuf::from(
+      self.upgrade_user()?.get_application_root_dir(),
+    ))
   }
 }

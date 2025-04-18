@@ -268,7 +268,6 @@ impl UserManager {
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
-      self.authenticate_user.vacuum_database_if_need();
 
       // migrations should run before set the first time installed version
       self.set_first_time_installed_version();

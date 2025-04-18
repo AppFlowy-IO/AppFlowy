@@ -378,10 +378,6 @@ where
     Arc::into_inner(rx)
   }
 
-  async fn reset_workspace(&self, _collab_object: CollabObject) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
   async fn create_collab_object(
     &self,
     collab_object: &CollabObject,

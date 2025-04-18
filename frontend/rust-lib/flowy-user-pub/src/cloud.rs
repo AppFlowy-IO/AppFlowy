@@ -263,8 +263,6 @@ pub trait UserCloudService: Send + Sync + 'static {
     None
   }
 
-  async fn reset_workspace(&self, collab_object: CollabObject) -> Result<(), FlowyError>;
-
   async fn create_collab_object(
     &self,
     collab_object: &CollabObject,

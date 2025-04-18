@@ -12,7 +12,6 @@ use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
 use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
-use crate::default_impl::DefaultChatCloudServiceImpl;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -103,9 +102,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// An `Arc` wrapping the `DocumentCloudService` interface.
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
 
-  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
-    Arc::new(DefaultChatCloudServiceImpl)
-  }
+  fn chat_service(&self) -> Arc<dyn ChatCloudService>;
 
   /// Bridge for the Cloud AI Search features
   ///
