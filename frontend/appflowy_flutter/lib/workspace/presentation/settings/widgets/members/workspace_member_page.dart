@@ -5,18 +5,20 @@ import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/inivite_member_by_link.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/invite_member_by_email.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:string_validator/string_validator.dart';
 
 class WorkspaceMembersPage extends StatelessWidget {
   const WorkspaceMembersPage({
@@ -38,14 +40,14 @@ class WorkspaceMembersPage extends StatelessWidget {
         builder: (context, state) {
           return SettingsBody(
             title: LocaleKeys.settings_appearance_members_title.tr(),
+            description:
+                'Access the Admin Panel for guest and advanced user management',
             autoSeparate: false,
             children: [
-              if (state.actionResult != null) ...[
-                _showMemberLimitWarning(context, state),
-                const VSpace(16),
-              ],
               if (state.myRole.canInvite) ...[
-                const _InviteMember(),
+                const InviteMemberByLink(),
+                const SettingsCategorySpacer(),
+                const InviteMemberByEmail(),
                 const SettingsCategorySpacer(),
               ],
               if (state.members.isNotEmpty)
@@ -218,115 +220,6 @@ class WorkspaceMembersPage extends StatelessWidget {
   }
 }
 
-class _InviteMember extends StatefulWidget {
-  const _InviteMember();
-
-  @override
-  State<_InviteMember> createState() => _InviteMemberState();
-}
-
-class _InviteMemberState extends State<_InviteMember> {
-  final _emailController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FlowyText.semibold(
-          LocaleKeys.settings_appearance_members_inviteMembers.tr(),
-          fontSize: 16.0,
-        ),
-        const VSpace(8.0),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints.tightFor(
-                  height: 48.0,
-                ),
-                child: FlowyTextField(
-                  hintText:
-                      LocaleKeys.settings_appearance_members_inviteHint.tr(),
-                  controller: _emailController,
-                  onEditingComplete: _inviteMember,
-                ),
-              ),
-            ),
-            const HSpace(10.0),
-            SizedBox(
-              height: 48.0,
-              child: IntrinsicWidth(
-                child: PrimaryRoundedButton(
-                  text: LocaleKeys.settings_appearance_members_sendInvite.tr(),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  onTap: _inviteMember,
-                ),
-              ),
-            ),
-          ],
-        ),
-        /* Enable this when the feature is ready
-        PrimaryButton(
-          backgroundColor: const Color(0xFFE0E0E0),
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 20,
-              right: 24,
-              top: 8,
-              bottom: 8,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const FlowySvg(
-                  FlowySvgs.invite_member_link_m,
-                  color: Colors.black,
-                ),
-                const HSpace(8.0),
-                FlowyText(
-                  LocaleKeys.settings_appearance_members_copyInviteLink.tr(),
-                  color: Colors.black,
-                ),
-              ],
-            ),
-          ),
-          onPressed: () {
-            showSnackBarMessage(context, 'not implemented');
-          },
-        ),
-        const VSpace(16.0),
-        */
-      ],
-    );
-  }
-
-  void _inviteMember() {
-    final email = _emailController.text;
-    if (!isEmail(email)) {
-      return showSnackBarMessage(
-        context,
-        LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
-      );
-    }
-    context
-        .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
-    // clear the email field after inviting
-    _emailController.clear();
-  }
-}
-
 class _MemberList extends StatelessWidget {
   const _MemberList({
     required this.members,
@@ -340,9 +233,12 @@ class _MemberList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return SeparatedColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
-      separatorBuilder: () => const Divider(),
+      separatorBuilder: () => Divider(
+        color: theme.textColorScheme.secondary,
+      ),
       children: [
         const _MemberListHeader(),
         ...members.map(
@@ -362,31 +258,34 @@ class _MemberListHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final theme = AppFlowyTheme.of(context);
+    return Row(
       children: [
-        FlowyText.semibold(
-          LocaleKeys.settings_appearance_members_label.tr(),
-          fontSize: 16.0,
-        ),
-        const VSpace(16.0),
-        Row(
-          children: [
-            Expanded(
-              child: FlowyText.semibold(
-                LocaleKeys.settings_appearance_members_user.tr(),
-                fontSize: 14.0,
-              ),
+        Expanded(
+          child: Text(
+            LocaleKeys.settings_appearance_members_user.tr(),
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
             ),
-            Expanded(
-              child: FlowyText.semibold(
-                LocaleKeys.settings_appearance_members_role.tr(),
-                fontSize: 14.0,
-              ),
-            ),
-            const HSpace(28.0),
-          ],
+          ),
         ),
+        Expanded(
+          child: Text(
+            LocaleKeys.settings_appearance_members_role.tr(),
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            LocaleKeys.settings_accountPage_email_title.tr(),
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+        ),
+        const HSpace(28.0),
       ],
     );
   }
@@ -405,26 +304,41 @@ class _MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = member.role.isOwner ? Theme.of(context).hintColor : null;
+    final theme = AppFlowyTheme.of(context);
     return Row(
       children: [
         Expanded(
-          child: FlowyText.medium(
+          child: Text(
             member.name,
-            color: textColor,
-            fontSize: 14.0,
+            style: theme.textStyle.body.enhanced(
+              color: theme.textColorScheme.primary,
+            ),
           ),
         ),
         Expanded(
           child: member.role.isOwner || !myRole.canUpdate
-              ? FlowyText.medium(
+              ? Text(
                   member.role.description,
-                  color: textColor,
-                  fontSize: 14.0,
+                  style: theme.textStyle.body.standard(
+                    color: theme.textColorScheme.primary,
+                  ),
                 )
               : _MemberRoleActionList(
                   member: member,
                 ),
+        ),
+        Expanded(
+          child: FlowyTooltip(
+            message: member.email,
+            child: Text(
+              member.email,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
+            ),
+          ),
         ),
         myRole.canDelete &&
                 member.email != userProfile.email // can't delete self
