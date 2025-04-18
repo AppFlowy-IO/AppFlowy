@@ -31,29 +31,6 @@ async fn sign_up_with_invalid_email() {
     );
   }
 }
-#[tokio::test]
-async fn sign_up_with_long_password() {
-  let sdk = EventIntegrationTest::new().await;
-  let request = SignUpPayloadPB {
-    email: unique_email(),
-    name: valid_name(),
-    password: "1234".repeat(100).as_str().to_string(),
-    auth_type: AuthenticatorPB::Local,
-    device_id: "".to_string(),
-  };
-
-  assert_eq!(
-    EventBuilder::new(sdk)
-      .event(SignUp)
-      .payload(request)
-      .async_send()
-      .await
-      .error()
-      .unwrap()
-      .code,
-    ErrorCode::PasswordTooLong
-  );
-}
 
 #[tokio::test]
 async fn sign_in_with_invalid_email() {

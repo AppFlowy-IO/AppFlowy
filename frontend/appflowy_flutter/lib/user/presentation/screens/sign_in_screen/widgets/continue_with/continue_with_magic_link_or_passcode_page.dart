@@ -167,7 +167,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
         // title
         Text(
           LocaleKeys.signIn_checkYourEmail.tr(),
-          style: theme.textStyle.heading.h3(
+          style: theme.textStyle.heading3.enhanced(
             color: theme.textColorScheme.primary,
           ),
         ),
@@ -199,7 +199,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
         // title
         Text(
           LocaleKeys.signIn_enterCode.tr(),
-          style: theme.textStyle.heading.h3(
+          style: theme.textStyle.heading3.enhanced(
             color: theme.textColorScheme.primary,
           ),
         ),

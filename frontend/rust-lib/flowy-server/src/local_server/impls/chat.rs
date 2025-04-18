@@ -131,12 +131,10 @@ impl ChatCloudService for LocalServerChatServiceImpl {
           stream::once(async { Err(FlowyError::local_ai_unavailable().with_context(err)) }).boxed(),
         ),
       }
+    } else if self.local_ai.is_enabled() {
+      Err(FlowyError::local_ai_not_ready())
     } else {
-      if self.local_ai.is_enabled() {
-        Err(FlowyError::local_ai_not_ready())
-      } else {
-        Err(FlowyError::local_ai_disabled())
-      }
+      Err(FlowyError::local_ai_disabled())
     }
   }
 
@@ -247,12 +245,10 @@ impl ChatCloudService for LocalServerChatServiceImpl {
         ),
         Err(_) => Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed()),
       }
+    } else if self.local_ai.is_enabled() {
+      Err(FlowyError::local_ai_not_ready())
     } else {
-      if self.local_ai.is_enabled() {
-        Err(FlowyError::local_ai_not_ready())
-      } else {
-        Err(FlowyError::local_ai_disabled())
-      }
+      Err(FlowyError::local_ai_disabled())
     }
   }
 

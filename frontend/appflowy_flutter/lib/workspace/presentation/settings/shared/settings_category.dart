@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -25,15 +26,18 @@ class SettingsCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            FlowyText.semibold(
+            Text(
               title,
+              style: theme.textStyle.heading4.enhanced(
+                color: theme.textColorScheme.primary,
+              ),
               maxLines: 2,
-              fontSize: 16,
               overflow: TextOverflow.ellipsis,
             ),
             if (tooltip != null) ...[
@@ -47,7 +51,7 @@ class SettingsCategory extends StatelessWidget {
             if (actions != null) ...actions!,
           ],
         ),
-        const VSpace(8),
+        const VSpace(16),
         if (description?.isNotEmpty ?? false) ...[
           FlowyText.regular(
             description!,
