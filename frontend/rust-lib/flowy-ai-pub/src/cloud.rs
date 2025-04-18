@@ -95,7 +95,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError>;
 
   async fn create_answer(
@@ -111,7 +110,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError>;
@@ -120,7 +119,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError>;
 
   async fn get_chat_messages(

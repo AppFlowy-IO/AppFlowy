@@ -1,4 +1,4 @@
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoginUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::Arc;
 use tracing::warn;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 /// This ensures that the operation is being performed in the correct workspace context, enhancing security.
 pub fn check_request_workspace_id_is_match(
   expected_workspace_id: &Uuid,
-  user: &Arc<dyn ServerUser>,
+  user: &Arc<dyn LoginUserService>,
   action: impl AsRef<str>,
 ) -> FlowyResult<()> {
   let actual_workspace_id = user.workspace_id()?;

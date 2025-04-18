@@ -8,7 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use uuid::Uuid;
 
 use crate::setup_log;
-use flowy_server::af_cloud::define::ServerUser;
+use flowy_server::af_cloud::define::LoginUserService;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::DBConnection;
@@ -42,7 +42,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
 struct FakeServerUserImpl;
 
 #[async_trait]
-impl ServerUser for FakeServerUserImpl {
+impl LoginUserService for FakeServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     todo!()
   }
