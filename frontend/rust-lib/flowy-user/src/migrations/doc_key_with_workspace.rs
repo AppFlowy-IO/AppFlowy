@@ -7,7 +7,7 @@ use tracing::{instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
 use flowy_user_pub::session::Session;
@@ -39,7 +39,7 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    _authenticator: &Authenticator,
+    _authenticator: &AuthType,
   ) -> FlowyResult<()> {
     trace!(
       "migrate key with workspace id:{}",

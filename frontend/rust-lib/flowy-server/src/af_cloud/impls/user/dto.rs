@@ -3,9 +3,8 @@ use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
 use flowy_user_pub::entities::{
-  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus,
-  WorkspaceMember, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY,
-  USER_METADATA_STABILITY_AI_KEY,
+  AuthType, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus, WorkspaceMember,
+  USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
 };
 
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
@@ -60,7 +59,7 @@ pub fn user_profile_from_af_profile(
     icon_url: icon_url.unwrap_or_default(),
     openai_key: openai_key.unwrap_or_default(),
     stability_ai_key: stability_ai_key.unwrap_or_default(),
-    authenticator: Authenticator::AppFlowyCloud,
+    authenticator: AuthType::AppFlowyCloud,
     encryption_type,
     uid: profile.uid,
     updated_at: profile.updated_at,

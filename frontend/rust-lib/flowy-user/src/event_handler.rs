@@ -45,7 +45,7 @@ pub async fn sign_in_with_email_password_handler(
   let manager = upgrade_manager(manager)?;
   let params: SignInParams = data.into_inner().try_into()?;
 
-  let old_authenticator = manager.cloud_services.get_user_authenticator();
+  let old_authenticator = manager.cloud_services.get_server_auth_type();
   match manager
     .sign_in_with_password(&params.email, &params.password)
     .await
@@ -54,7 +54,7 @@ pub async fn sign_in_with_email_password_handler(
     Err(err) => {
       manager
         .cloud_services
-        .set_user_authenticator(&old_authenticator);
+        .set_server_auth_type(&old_authenticator);
       return Err(err);
     },
   }
@@ -76,15 +76,13 @@ pub async fn sign_up(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: SignUpParams = data.into_inner().try_into()?;
-  let authenticator = params.auth_type.clone();
+  let auth_type = params.auth_type;
 
-  let prev_authenticator = manager.cloud_services.get_user_authenticator();
-  match manager.sign_up(authenticator, BoxAny::new(params)).await {
+  let prev_auth_type = manager.cloud_services.get_server_auth_type();
+  match manager.sign_up(auth_type, BoxAny::new(params)).await {
     Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
     Err(err) => {
-      manager
-        .cloud_services
-        .set_user_authenticator(&prev_authenticator);
+      manager.cloud_services.set_server_auth_type(&prev_auth_type);
       Err(err)
     },
   }
@@ -119,7 +117,7 @@ pub async fn get_user_profile_handler(
 
   // When the user is logged in with a local account, the email field is a placeholder and should
   // not be exposed to the client. So we set the email field to an empty string.
-  if user_profile.authenticator == Authenticator::Local {
+  if user_profile.authenticator == AuthType::Local {
     user_profile.email = "".to_string();
   }
 
@@ -341,7 +339,7 @@ pub async fn oauth_sign_in_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let authenticator: Authenticator = params.authenticator.into();
+  let authenticator: AuthType = params.authenticator.into();
   let user_profile = manager
     .sign_up(authenticator, BoxAny::new(params.map))
     .await?;
@@ -355,7 +353,7 @@ pub async fn gen_sign_in_url_handler(
 ) -> DataResult<SignInUrlPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let authenticator: Authenticator = params.authenticator.into();
+  let authenticator: AuthType = params.authenticator.into();
   let sign_in_url = manager
     .generate_sign_in_url_with_email(&authenticator, &params.email)
     .await?;

@@ -31,8 +31,8 @@ pub struct UserTable {
 }
 
 #[allow(deprecated)]
-impl From<(UserProfile, Authenticator)> for UserTable {
-  fn from(value: (UserProfile, Authenticator)) -> Self {
+impl From<(UserProfile, AuthType)> for UserTable {
+  fn from(value: (UserProfile, AuthType)) -> Self {
     let (user_profile, auth_type) = value;
     let encryption_type = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTable {
@@ -62,7 +62,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
-      authenticator: Authenticator::from(table.auth_type),
+      authenticator: AuthType::from(table.auth_type),
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
       stability_ai_key: table.stability_ai_key,
       updated_at: table.updated_at,
