@@ -32,7 +32,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, DBConnection, ExpressionMethods};
-use flowy_user_pub::cloud::UserCloudServiceProvider;
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
   AuthType, Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
@@ -162,13 +162,32 @@ impl UserManager {
   }
 
   #[instrument(skip(self), err)]
-  pub async fn open_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
-    info!("open workspace: {}", workspace_id);
-    let user_workspace = self
-      .cloud_service
-      .get_user_service()?
-      .open_workspace(workspace_id)
-      .await?;
+  pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
+    info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    let uid = self.user_id()?;
+    let conn = self.db_connection(self.user_id()?)?;
+    let user_workspace = match select_user_workspace(&workspace_id.to_string(), conn) {
+      None => {
+        sync_workspace(
+          workspace_id,
+          self.cloud_service.get_user_service()?,
+          uid,
+          auth_type,
+          self.db_pool(uid)?,
+        )
+        .await?
+      },
+      Some(row) => {
+        let user_workspace = UserWorkspace::from(row);
+        let workspace_id = *workspace_id;
+        let user_service = self.cloud_service.get_user_service()?;
+        let pool = self.db_pool(uid)?;
+        tokio::spawn(async move {
+          let _ = sync_workspace(&workspace_id, user_service, uid, auth_type, pool).await;
+        });
+        user_workspace
+      },
+    };
 
     self
       .authenticate_user
@@ -176,6 +195,15 @@ impl UserManager {
 
     let uid = self.user_id()?;
     let user_profile = self.get_user_profile_from_disk(uid).await?;
+    if let Err(err) = self
+      .user_status_callback
+      .read()
+      .await
+      .open_workspace(uid, &user_workspace, &user_profile.auth_type)
+      .await
+    {
+      error!("Open workspace failed: {:?}", err);
+    }
 
     if let Err(err) = self
       .initial_user_awareness(self.get_session()?.as_ref(), &user_profile.auth_type)
@@ -185,16 +213,6 @@ impl UserManager {
         "Failed to initialize user awareness when opening workspace: {:?}",
         err
       );
-    }
-
-    if let Err(err) = self
-      .user_status_callback
-      .read()
-      .await
-      .open_workspace(uid, &user_workspace, &user_profile.auth_type)
-      .await
-    {
-      error!("Open workspace failed: {:?}", err);
     }
 
     Ok(())
@@ -240,10 +258,11 @@ impl UserManager {
     let conn = self.db_connection(uid)?;
     update_user_workspace(conn, changeset)?;
 
-    let user_workspace = self
-      .get_user_workspace(uid, workspace_id)
+    let row = self
+      .get_user_workspace_from_db(uid, workspace_id)
       .ok_or_else(FlowyError::record_not_found)?;
-    let payload: UserWorkspacePB = user_workspace.clone().into();
+
+    let payload = UserWorkspacePB::from(row);
     send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
       .payload(payload)
       .send();
@@ -376,7 +395,11 @@ impl UserManager {
     Ok(())
   }
 
-  pub fn get_user_workspace(&self, uid: i64, workspace_id: &Uuid) -> Option<UserWorkspace> {
+  pub fn get_user_workspace_from_db(
+    &self,
+    uid: i64,
+    workspace_id: &Uuid,
+  ) -> Option<UserWorkspaceTable> {
     let conn = self.db_connection(uid).ok()?;
     select_user_workspace(workspace_id.to_string().as_str(), conn)
   }
@@ -395,7 +418,8 @@ impl UserManager {
           if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
             if let Ok(conn) = pool.get() {
               let _ = save_all_user_workspaces(uid, conn, auth_type, &new_user_workspaces);
-              let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
+              let repeated_workspace_pbs =
+                RepeatedUserWorkspacePB::from((auth_type, new_user_workspaces));
               send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_workspace_pbs)
                 .send();
@@ -782,4 +806,18 @@ async fn sync_workspace_settings(
     }
   }
   Ok(())
+}
+
+async fn sync_workspace(
+  workspace_id: &Uuid,
+  user_service: Arc<dyn UserCloudService>,
+  uid: i64,
+  auth_type: AuthType,
+  pool: Arc<ConnectionPool>,
+) -> FlowyResult<UserWorkspace> {
+  let user_workspace = user_service.open_workspace(workspace_id).await?;
+  if let Ok(mut conn) = pool.get() {
+    upsert_user_workspace(uid, auth_type, user_workspace.clone(), &mut conn)?;
+  }
+  Ok(user_workspace)
 }

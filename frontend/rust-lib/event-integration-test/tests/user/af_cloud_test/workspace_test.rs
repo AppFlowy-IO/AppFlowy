@@ -89,7 +89,9 @@ async fn af_cloud_create_workspace_test() {
   }
   {
     // after opening new workspace
-    test.open_workspace(&created_workspace.workspace_id).await;
+    test
+      .open_workspace(&created_workspace.workspace_id, created_workspace.auth_type)
+      .await;
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(folder_ws.id, created_workspace.workspace_id);
     let views = test.folder_read_current_workspace_views().await;
@@ -110,6 +112,7 @@ async fn af_cloud_open_workspace_test() {
   test.create_document("A").await;
   test.create_document("B").await;
   let first_workspace = test.get_current_workspace().await;
+  let first_workspace = test.get_user_workspace(&first_workspace.id).await;
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 4);
   assert_eq!(views[0].name, default_document_name);
@@ -120,8 +123,11 @@ async fn af_cloud_open_workspace_test() {
   let user_workspace = test
     .create_workspace("second workspace", AuthType::AppFlowyCloud)
     .await;
-  test.open_workspace(&user_workspace.workspace_id).await;
+  test
+    .open_workspace(&user_workspace.workspace_id, user_workspace.auth_type)
+    .await;
   let second_workspace = test.get_current_workspace().await;
+  let second_workspace = test.get_user_workspace(&second_workspace.id).await;
   test.create_document("C").await;
   test.create_document("D").await;
 
@@ -135,13 +141,23 @@ async fn af_cloud_open_workspace_test() {
   // simulate open workspace and check if the views are correct
   for i in 0..10 {
     if i % 2 == 0 {
-      test.open_workspace(&first_workspace.id).await;
+      test
+        .open_workspace(
+          &first_workspace.workspace_id,
+          first_workspace.auth_type.clone(),
+        )
+        .await;
       sleep(Duration::from_millis(300)).await;
       test
         .create_document(&uuid::Uuid::new_v4().to_string())
         .await;
     } else {
-      test.open_workspace(&second_workspace.id).await;
+      test
+        .open_workspace(
+          &second_workspace.workspace_id,
+          second_workspace.auth_type.clone(),
+        )
+        .await;
       sleep(Duration::from_millis(200)).await;
       test
         .create_document(&uuid::Uuid::new_v4().to_string())
@@ -149,14 +165,24 @@ async fn af_cloud_open_workspace_test() {
     }
   }
 
-  test.open_workspace(&first_workspace.id).await;
+  test
+    .open_workspace(
+      &first_workspace.workspace_id,
+      first_workspace.auth_type.clone(),
+    )
+    .await;
   let views_1 = test.get_all_workspace_views().await;
   assert_eq!(views_1[0].name, default_document_name);
   assert_eq!(views_1[1].name, "Shared");
   assert_eq!(views_1[2].name, "A");
   assert_eq!(views_1[3].name, "B");
 
-  test.open_workspace(&second_workspace.id).await;
+  test
+    .open_workspace(
+      &second_workspace.workspace_id,
+      second_workspace.auth_type.clone(),
+    )
+    .await;
   let views_2 = test.get_all_workspace_views().await;
   assert_eq!(views_2[0].name, default_document_name);
   assert_eq!(views_2[1].name, "Shared");
@@ -212,7 +238,9 @@ async fn af_cloud_different_open_same_workspace_test() {
       for i in 0..30 {
         let index = i % 2;
         let iter_workspace_id = &all_workspaces[index].workspace_id;
-        client.open_workspace(iter_workspace_id).await;
+        client
+          .open_workspace(iter_workspace_id, all_workspaces[index].auth_type.clone())
+          .await;
         if iter_workspace_id == &cloned_shared_workspace_id {
           let views = client.get_all_workspace_views().await;
           assert_eq!(views.len(), 2);

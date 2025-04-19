@@ -1,5 +1,5 @@
 use chrono::{TimeZone, Utc};
-use diesel::{RunQueryDsl, SqliteConnection};
+use diesel::RunQueryDsl;
 use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::DBConnection;
@@ -55,12 +55,14 @@ impl UserWorkspaceTable {
   }
 }
 
-pub fn select_user_workspace(workspace_id: &str, mut conn: DBConnection) -> Option<UserWorkspace> {
+pub fn select_user_workspace(
+  workspace_id: &str,
+  mut conn: DBConnection,
+) -> Option<UserWorkspaceTable> {
   user_workspace_table::dsl::user_workspace_table
     .filter(user_workspace_table::id.eq(workspace_id))
     .first::<UserWorkspaceTable>(&mut *conn)
     .ok()
-    .map(UserWorkspace::from)
 }
 
 pub fn select_all_user_workspace(
@@ -89,7 +91,7 @@ pub fn upsert_user_workspace(
   uid: i64,
   auth_type: AuthType,
   user_workspace: UserWorkspace,
-  conn: &mut SqliteConnection,
+  conn: &mut DBConnection,
 ) -> Result<(), FlowyError> {
   let new_record = UserWorkspaceTable::from_workspace(uid, &user_workspace, auth_type)?;
 

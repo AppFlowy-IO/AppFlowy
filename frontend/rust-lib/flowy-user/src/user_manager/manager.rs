@@ -273,7 +273,6 @@ impl UserManager {
       user_status_callback
         .did_init(
           user.uid,
-          &user.auth_type,
           &cloud_config,
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,

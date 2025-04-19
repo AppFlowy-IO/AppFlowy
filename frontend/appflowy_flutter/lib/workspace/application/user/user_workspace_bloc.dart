@@ -52,7 +52,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
             if (currentWorkspace != null && result.$3 == true) {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
-              await _userService.openWorkspace(currentWorkspace.workspaceId);
+              await _userService.openWorkspace(
+                currentWorkspace.workspaceId,
+                currentWorkspace.authType,
+              );
             }
 
             emit(
@@ -86,7 +89,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info(
                 'fetch workspaces: try to open workspace: ${currentWorkspace.workspaceId}',
               );
-              add(OpenWorkspace(currentWorkspace.workspaceId));
+              add(
+                OpenWorkspace(
+                  currentWorkspace.workspaceId,
+                  currentWorkspace.authType,
+                ),
+              );
             }
           },
           createWorkspace: (name) async {
@@ -118,7 +126,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             result
               ..onSuccess((s) {
                 Log.info('create workspace success: $s');
-                add(OpenWorkspace(s.workspaceId));
+                add(
+                  OpenWorkspace(
+                    s.workspaceId,
+                    s.authType,
+                  ),
+                );
               })
               ..onFailure((f) {
                 Log.error('create workspace error: $f');
@@ -171,7 +184,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 Log.info('delete workspace success: $workspaceId');
                 // if the current workspace is deleted, open the first workspace
                 if (state.currentWorkspace?.workspaceId == workspaceId) {
-                  add(OpenWorkspace(workspaces.first.workspaceId));
+                  add(
+                    OpenWorkspace(
+                      workspaces.first.workspaceId,
+                      workspaces.first.authType,
+                    ),
+                  );
                 }
               })
               ..onFailure((f) {
@@ -179,7 +197,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 // if the workspace is deleted but return an error, we need to
                 // open the first workspace
                 if (!containsDeletedWorkspace) {
-                  add(OpenWorkspace(workspaces.first.workspaceId));
+                  add(
+                    OpenWorkspace(
+                      workspaces.first.workspaceId,
+                      workspaces.first.authType,
+                    ),
+                  );
                 }
               });
             emit(
@@ -193,7 +216,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          openWorkspace: (workspaceId) async {
+          openWorkspace: (workspaceId, authType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -203,7 +226,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
-            final result = await _userService.openWorkspace(workspaceId);
+            final result = await _userService.openWorkspace(
+              workspaceId,
+              authType,
+            );
             final currentWorkspace = result.fold(
               (s) => state.workspaces.firstWhereOrNull(
                 (e) => e.workspaceId == workspaceId,
@@ -337,7 +363,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 Log.info('leave workspace success: $workspaceId');
                 // if leaving the current workspace, open the first workspace
                 if (state.currentWorkspace?.workspaceId == workspaceId) {
-                  add(OpenWorkspace(workspaces.first.workspaceId));
+                  add(
+                    OpenWorkspace(
+                      workspaces.first.workspaceId,
+                      workspaces.first.authType,
+                    ),
+                  );
                 }
               })
               ..onFailure((f) {
@@ -445,8 +476,10 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
       CreateWorkspace;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
-  const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
-      OpenWorkspace;
+  const factory UserWorkspaceEvent.openWorkspace(
+    String workspaceId,
+    AuthTypePB authType,
+  ) = OpenWorkspace;
   const factory UserWorkspaceEvent.renameWorkspace(
     String workspaceId,
     String name,

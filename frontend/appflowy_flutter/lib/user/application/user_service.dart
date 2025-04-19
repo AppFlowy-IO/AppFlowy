@@ -121,8 +121,13 @@ class UserBackendService implements IUserBackendService {
     });
   }
 
-  Future<FlowyResult<void, FlowyError>> openWorkspace(String workspaceId) {
-    final payload = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+  Future<FlowyResult<void, FlowyError>> openWorkspace(
+    String workspaceId,
+    AuthTypePB authType,
+  ) {
+    final payload = OpenUserWorkspacePB()
+      ..workspaceId = workspaceId
+      ..authType = authType;
     return UserEventOpenWorkspace(payload).send();
   }
 

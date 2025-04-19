@@ -39,6 +39,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
+    .event(UserEvent::GetUserWorkspace, get_user_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::OpenAnonUser, open_anon_user_handler)
     .event(UserEvent::GetAnonUser, get_anon_user_handler)
@@ -144,8 +145,11 @@ pub enum UserEvent {
   #[event(output = "RepeatedUserWorkspacePB")]
   GetAllWorkspace = 17,
 
-  #[event(input = "UserWorkspaceIdPB")]
+  #[event(input = "OpenUserWorkspacePB")]
   OpenWorkspace = 21,
+
+  #[event(input = "UserWorkspaceIdPB", output = "UserWorkspacePB")]
+  GetUserWorkspace = 22,
 
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
@@ -281,11 +285,10 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   async fn did_init(
     &self,
     _user_id: i64,
-    _user_authenticator: &AuthType,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -295,7 +298,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -318,7 +321,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }

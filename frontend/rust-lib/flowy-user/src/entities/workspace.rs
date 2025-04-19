@@ -155,6 +155,17 @@ pub enum AFRolePB {
   Guest = 2,
 }
 
+impl From<i32> for AFRolePB {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => AFRolePB::Owner,
+      1 => AFRolePB::Member,
+      2 => AFRolePB::Guest,
+      _ => AFRolePB::Guest,
+    }
+  }
+}
+
 impl From<AFRolePB> for Role {
   fn from(value: AFRolePB) -> Self {
     match value {
@@ -180,6 +191,16 @@ pub struct UserWorkspaceIdPB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct OpenUserWorkspacePB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -221,11 +242,20 @@ pub struct CreateWorkspacePB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Default, Clone)]
+#[derive(ProtoBuf_Enum, Default, Debug, Clone)]
 pub enum AuthTypePB {
   LocalAuthType = 0,
   #[default]
   CloudAuthType = 1,
+}
+impl From<i32> for AuthTypePB {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => AuthTypePB::LocalAuthType,
+      1 => AuthTypePB::CloudAuthType,
+      _ => AuthTypePB::CloudAuthType,
+    }
+  }
 }
 
 impl From<AuthType> for AuthTypePB {

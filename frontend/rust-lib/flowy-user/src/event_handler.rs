@@ -440,19 +440,40 @@ pub async fn get_all_workspace_handler(
   let user_workspaces = manager
     .get_all_user_workspaces(profile.uid, profile.auth_type)
     .await?;
-  data_result_ok(user_workspaces.into())
+
+  data_result_ok(RepeatedUserWorkspacePB::from((
+    profile.auth_type,
+    user_workspaces,
+  )))
 }
 
 #[tracing::instrument(level = "info", skip(data, manager), err)]
 pub async fn open_workspace_handler(
-  data: AFPluginData<UserWorkspaceIdPB>,
+  data: AFPluginData<OpenUserWorkspacePB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.try_into_inner()?;
   let workspace_id = Uuid::from_str(&params.workspace_id)?;
-  manager.open_workspace(&workspace_id).await?;
+  manager
+    .open_workspace(&workspace_id, AuthType::from(params.auth_type))
+    .await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "info", skip(data, manager), err)]
+pub async fn get_user_workspace_handler(
+  data: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserWorkspacePB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.try_into_inner()?;
+  let workspace_id = Uuid::from_str(&params.workspace_id)?;
+  let uid = manager.user_id()?;
+  let user_workspace = manager
+    .get_user_workspace_from_db(uid, &workspace_id)
+    .ok_or_else(FlowyError::record_not_found)?;
+  data_result_ok(UserWorkspacePB::from(user_workspace))
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -610,7 +631,7 @@ pub async fn create_workspace_handler(
   let auth_type = AuthType::from(data.auth_type);
   let manager = upgrade_manager(manager)?;
   let new_workspace = manager.create_workspace(&data.name, auth_type).await?;
-  data_result_ok(new_workspace.into())
+  data_result_ok(UserWorkspacePB::from((auth_type, new_workspace)))
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

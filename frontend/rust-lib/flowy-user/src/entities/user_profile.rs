@@ -1,14 +1,13 @@
+use super::AFRolePB;
+use crate::entities::parser::{UserEmail, UserIcon, UserName};
+use crate::entities::{AuthTypePB, AuthenticatorPB};
+use crate::errors::ErrorCode;
+use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
 use lib_infra::validator_fn::required_not_empty_str;
 use std::convert::TryInto;
 use validator::Validate;
-
-use crate::entities::parser::{UserEmail, UserIcon, UserName};
-use crate::entities::AuthenticatorPB;
-use crate::errors::ErrorCode;
-
-use super::AFRolePB;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -153,10 +152,14 @@ pub struct RepeatedUserWorkspacePB {
   pub items: Vec<UserWorkspacePB>,
 }
 
-impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
-  fn from(workspaces: Vec<UserWorkspace>) -> Self {
+impl From<(AuthType, Vec<UserWorkspace>)> for RepeatedUserWorkspacePB {
+  fn from(value: (AuthType, Vec<UserWorkspace>)) -> Self {
+    let (auth_type, workspaces) = value;
     Self {
-      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
+      items: workspaces
+        .into_iter()
+        .map(|w| UserWorkspacePB::from((auth_type, w)))
+        .collect(),
     }
   }
 }
@@ -181,17 +184,35 @@ pub struct UserWorkspacePB {
 
   #[pb(index = 6, one_of)]
   pub role: Option<AFRolePB>,
+
+  #[pb(index = 7)]
+  pub auth_type: AuthTypePB,
 }
 
-impl From<UserWorkspace> for UserWorkspacePB {
-  fn from(value: UserWorkspace) -> Self {
+impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
+  fn from(value: (AuthType, UserWorkspace)) -> Self {
+    Self {
+      workspace_id: value.1.id,
+      name: value.1.name,
+      created_at_timestamp: value.1.created_at.timestamp(),
+      icon: value.1.icon,
+      member_count: value.1.member_count,
+      role: value.1.role.map(AFRolePB::from),
+      auth_type: AuthTypePB::from(value.0),
+    }
+  }
+}
+
+impl From<UserWorkspaceTable> for UserWorkspacePB {
+  fn from(value: UserWorkspaceTable) -> Self {
     Self {
       workspace_id: value.id,
       name: value.name,
-      created_at_timestamp: value.created_at.timestamp(),
+      created_at_timestamp: value.created_at,
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
+      auth_type: AuthTypePB::from(value.auth_type),
     }
   }
 }
