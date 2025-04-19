@@ -41,8 +41,9 @@ use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
-use crate::services::sqlite_sql::workspace_sql::upsert_user_workspace;
-use crate::user_manager::manager_user_workspace::save_all_user_workspaces;
+use crate::services::sqlite_sql::workspace_sql::{
+  delete_all_then_insert_user_workspaces, upsert_user_workspace,
+};
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
@@ -758,12 +759,13 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let user_profile = UserProfile::from((response, &auth_type));
     let uid = user_profile.uid;
+
     if auth_type.is_local() {
       event!(tracing::Level::DEBUG, "Save new anon user: {:?}", uid);
       self.set_anon_user(session);
     }
 
-    save_all_user_workspaces(
+    delete_all_then_insert_user_workspaces(
       uid,
       self.db_connection(uid)?,
       auth_type,

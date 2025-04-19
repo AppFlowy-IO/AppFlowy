@@ -164,7 +164,7 @@ impl UserWorkspace {
       workspace_database_id: Uuid::new_v4().to_string(),
       icon: "".to_string(),
       member_count: 1,
-      role: None,
+      role: Some(Role::Owner),
     }
   }
 }

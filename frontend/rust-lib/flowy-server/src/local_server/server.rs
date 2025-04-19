@@ -41,7 +41,9 @@ impl LocalServer {
 
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    Arc::new(LocalServerUserServiceImpl)
+    Arc::new(LocalServerUserServiceImpl {
+      user: self.user.clone(),
+    })
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {

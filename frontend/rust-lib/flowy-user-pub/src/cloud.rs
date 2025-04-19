@@ -293,7 +293,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn get_workspace_subscriptions(
     &self,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   /// Get the workspace subscriptions for a workspace
@@ -301,7 +301,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn cancel_workspace_subscription(
@@ -310,14 +310,14 @@ pub trait UserCloudService: Send + Sync + 'static {
     plan: SubscriptionPlan,
     reason: Option<String>,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   async fn get_workspace_plan(
     &self,
     workspace_id: Uuid,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn get_workspace_usage(
