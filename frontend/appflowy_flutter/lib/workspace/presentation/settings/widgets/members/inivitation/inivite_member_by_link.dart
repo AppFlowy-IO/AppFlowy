@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -73,15 +74,45 @@ class _Description extends StatelessWidget {
             ),
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                context.read<WorkspaceMemberBloc>().add(
-                      const WorkspaceMemberEvent.generateInviteLink(),
-                    );
-              },
+              ..onTap = () => _onGenerateInviteLink(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _onGenerateInviteLink(BuildContext context) async {
+    final inviteLink = context.read<WorkspaceMemberBloc>().state.inviteLink;
+    if (inviteLink != null) {
+      // show a dialog to confirm if the user wants to copy the link to the clipboard
+      await showConfirmDialog(
+        context: context,
+        style: ConfirmPopupStyle.cancelAndOk,
+        title: 'Reset the invite link?',
+        description:
+            'Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer be available.',
+        confirmLabel: 'Reset',
+        onConfirm: () {
+          context.read<WorkspaceMemberBloc>().add(
+                const WorkspaceMemberEvent.generateInviteLink(),
+              );
+        },
+        confirmButtonBuilder: (_) => AFFilledTextButton.destructive(
+          text: 'Reset',
+          onTap: () {
+            context.read<WorkspaceMemberBloc>().add(
+                  const WorkspaceMemberEvent.generateInviteLink(),
+                );
+
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+    } else {
+      context.read<WorkspaceMemberBloc>().add(
+            const WorkspaceMemberEvent.generateInviteLink(),
+          );
+    }
   }
 }
 

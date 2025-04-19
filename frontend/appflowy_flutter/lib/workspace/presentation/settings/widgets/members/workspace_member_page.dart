@@ -1,8 +1,9 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/inivite_member_by_link.dart';
@@ -175,9 +176,9 @@ class WorkspaceMembersPage extends StatelessWidget {
     if (actionType == WorkspaceMemberActionType.addByEmail) {
       result.fold(
         (s) {
-          showSnackBarMessage(
-            context,
-            LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
+          showToastNotification(
+            message:
+                LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
           );
         },
         (f) {
@@ -194,9 +195,9 @@ class WorkspaceMembersPage extends StatelessWidget {
     } else if (actionType == WorkspaceMemberActionType.inviteByEmail) {
       result.fold(
         (s) {
-          showSnackBarMessage(
-            context,
-            LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
+          showToastNotification(
+            message:
+                LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
           );
         },
         (f) {
@@ -213,6 +214,26 @@ class WorkspaceMembersPage extends StatelessWidget {
                 .tr(),
             description: message,
             confirmLabel: LocaleKeys.button_ok.tr(),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
+      result.fold(
+        (s) {
+          showToastNotification(
+            message: 'Invite link generated successfully',
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            getIt<ClipboardService>().setPlainText(inviteLink);
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            message: 'Failed to generate invite link',
           );
         },
       );
