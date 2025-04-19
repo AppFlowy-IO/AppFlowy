@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/shared/af_user_profile_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/member_http_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -57,6 +60,7 @@ class WorkspaceMemberBloc
   final UserWorkspacePB? workspace;
   late final String _workspaceId;
   final UserBackendService _userBackendService;
+  MemberHttpService? _memberHttpService;
 
   Future<void> _onInitial(
     Emitter<WorkspaceMemberState> emit,
@@ -74,6 +78,27 @@ class WorkspaceMemberBloc
     if (myRole.isOwner) {
       unawaited(_fetchWorkspaceSubscriptionInfo());
     }
+
+    final baseUrl = await getAppFlowyCloudUrl();
+    final authToken = userProfile.authToken;
+    if (authToken != null) {
+      _memberHttpService = MemberHttpService(
+        baseUrl: baseUrl,
+        authToken: authToken,
+      );
+      unawaited(
+        _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
+          (s) async {
+            final inviteLink = await _buildInviteLink(inviteCode: s);
+            emit(state.copyWith(inviteLink: inviteLink));
+          },
+          (e) => Log.error('Failed to get invite code: ${e.msg}', e),
+        ),
+      );
+    } else {
+      Log.error('Failed to get auth token');
+    }
+
     emit(
       state.copyWith(
         members: members,
@@ -176,12 +201,38 @@ class WorkspaceMemberBloc
   Future<void> _onInviteWorkspaceMemberByLink(
     Emitter<WorkspaceMemberState> emit,
     String link,
-  ) async {
-    // todo: invite member by link
-  }
+  ) async {}
 
   Future<void> _onGenerateInviteLink(Emitter<WorkspaceMemberState> emit) async {
-    // todo: generate invite link
+    final result = await _memberHttpService?.generateInviteCode(
+      workspaceId: _workspaceId,
+    );
+
+    await result?.fold(
+      (s) async {
+        final inviteLink = await _buildInviteLink(inviteCode: s);
+        emit(
+          state.copyWith(
+            inviteLink: inviteLink,
+            actionResult: WorkspaceMemberActionResult(
+              actionType: WorkspaceMemberActionType.generateInviteLink,
+              result: result,
+            ),
+          ),
+        );
+      },
+      (e) async {
+        Log.error('Failed to generate invite link: ${e.msg}', e);
+        emit(
+          state.copyWith(
+            actionResult: WorkspaceMemberActionResult(
+              actionType: WorkspaceMemberActionType.generateInviteLink,
+              result: result,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _onUpdateWorkspaceMember(
@@ -284,6 +335,15 @@ class WorkspaceMemberBloc
       (f) => Log.error('Failed to fetch subscription info: ${f.msg}', f),
     );
   }
+
+  Future<String> _buildInviteLink({required String inviteCode}) async {
+    final baseUrl = await getAppFlowyCloudUrl();
+    final authToken = userProfile.authToken;
+    if (authToken != null) {
+      return '$baseUrl/app/invited/$inviteCode';
+    }
+    return '';
+  }
 }
 
 @freezed
@@ -319,6 +379,7 @@ enum WorkspaceMemberActionType {
   // this event will send an invitation to the member
   inviteByEmail,
   inviteByLink,
+  generateInviteLink,
   // this event will add the member without sending an invitation
   addByEmail,
   removeByEmail,
