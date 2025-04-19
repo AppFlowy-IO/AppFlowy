@@ -576,12 +576,12 @@ impl UserManager {
         if err.is_record_not_found() {
           trace!("No workspace settings found, fetch from remote");
           let service = self.cloud_service.get_user_service()?;
-          let settings = service.get_workspace_setting(&workspace_id).await?;
+          let settings = service.get_workspace_setting(workspace_id).await?;
           let pb = WorkspaceSettingsPB::from(&settings);
           let mut conn = self.db_connection(uid)?;
           upsert_workspace_setting(
             &mut conn,
-            WorkspaceSettingsTable::from_workspace_settings(&workspace_id, &settings),
+            WorkspaceSettingsTable::from_workspace_settings(workspace_id, &settings),
           )?;
           Ok(pb)
         } else {
