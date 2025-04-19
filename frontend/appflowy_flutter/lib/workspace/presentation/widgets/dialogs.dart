@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -12,6 +13,7 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -581,16 +583,19 @@ Future<void> showConfirmDeletionDialog({
     context: context,
     builder: (_) {
       final title = LocaleKeys.space_deleteConfirmation.tr() + name;
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: SizedBox(
-          width: 440,
-          child: ConfirmPopup(
-            title: title,
-            description: description,
-            onConfirm: onConfirm,
+      return Provider.value(
+        value: AppFlowyTheme.of(context),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmPopup(
+              title: title,
+              description: description,
+              onConfirm: onConfirm,
+            ),
           ),
         ),
       );
@@ -611,20 +616,23 @@ Future<void> showConfirmDialog({
   return showDialog(
     context: context,
     builder: (_) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: SizedBox(
-          width: 440,
-          child: ConfirmPopup(
-            title: title,
-            description: description,
-            confirmButtonBuilder: confirmButtonBuilder,
-            onConfirm: () => onConfirm?.call(),
-            onCancel: () => onCancel?.call(),
-            confirmLabel: confirmLabel,
-            style: style,
+      return Provider.value(
+        value: AppFlowyTheme.of(context),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmPopup(
+              title: title,
+              description: description,
+              confirmButtonBuilder: confirmButtonBuilder,
+              onConfirm: () => onConfirm?.call(),
+              onCancel: () => onCancel?.call(),
+              confirmLabel: confirmLabel,
+              style: style,
+            ),
           ),
         ),
       );
@@ -643,19 +651,22 @@ Future<void> showCancelAndConfirmDialog({
   return showDialog(
     context: context,
     builder: (_) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: SizedBox(
-          width: 440,
-          child: ConfirmPopup(
-            title: title,
-            description: description,
-            onConfirm: () => onConfirm?.call(),
-            confirmLabel: confirmLabel,
-            confirmButtonColor: Theme.of(context).colorScheme.primary,
-            onCancel: () => onCancel?.call(),
+      return Provider.value(
+        value: AppFlowyTheme.of(context),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmPopup(
+              title: title,
+              description: description,
+              onConfirm: () => onConfirm?.call(),
+              confirmLabel: confirmLabel,
+              confirmButtonColor: Theme.of(context).colorScheme.primary,
+              onCancel: () => onCancel?.call(),
+            ),
           ),
         ),
       );
@@ -680,25 +691,28 @@ Future<void> showCustomConfirmDialog({
   return showDialog(
     context: context,
     barrierDismissible: barrierDismissible,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: SizedBox(
-          width: 440,
-          child: ConfirmPopup(
-            title: title,
-            description: description,
-            onConfirm: () => onConfirm?.call(),
-            onCancel: onCancel,
-            confirmLabel: confirmLabel,
-            confirmButtonColor: Theme.of(context).colorScheme.primary,
-            style: style,
-            closeOnAction: closeOnConfirm,
-            showCloseButton: showCloseButton,
-            enableKeyboardListener: enableKeyboardListener,
-            child: builder(context),
+    builder: (_) {
+      return Provider.value(
+        value: AppFlowyTheme.of(context),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmPopup(
+              title: title,
+              description: description,
+              onConfirm: () => onConfirm?.call(),
+              onCancel: onCancel,
+              confirmLabel: confirmLabel,
+              confirmButtonColor: Theme.of(context).colorScheme.primary,
+              style: style,
+              closeOnAction: closeOnConfirm,
+              showCloseButton: showCloseButton,
+              enableKeyboardListener: enableKeyboardListener,
+              child: builder(context),
+            ),
           ),
         ),
       );
@@ -718,20 +732,23 @@ Future<void> showCancelAndDeleteDialog({
   return showDialog(
     context: context,
     builder: (_) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: SizedBox(
-          width: 440,
-          child: ConfirmPopup(
-            title: title,
-            description: description,
-            onConfirm: () => onDelete?.call(),
-            closeOnAction: closeOnAction,
-            confirmLabel: confirmLabel,
-            confirmButtonColor: Theme.of(context).colorScheme.error,
-            child: builder?.call(context),
+      return Provider.value(
+        value: AppFlowyTheme.of(context),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmPopup(
+              title: title,
+              description: description,
+              onConfirm: () => onDelete?.call(),
+              closeOnAction: closeOnAction,
+              confirmLabel: confirmLabel,
+              confirmButtonColor: Theme.of(context).colorScheme.error,
+              child: builder?.call(context),
+            ),
           ),
         ),
       );

@@ -1,9 +1,11 @@
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../integration_test/shared/util.dart';
@@ -29,14 +31,19 @@ void main() {
             showDialog(
               context: context,
               builder: (_) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: ConfirmPopup(
-                    description: "desc",
-                    title: "title",
-                    onConfirm: onConfirm,
+                return Provider(
+                  create: (context) => AppFlowyTheme(
+                    data: AppFlowyThemeData.light(),
+                    child: Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ConfirmPopup(
+                        description: "desc",
+                        title: "title",
+                        onConfirm: onConfirm,
+                      ),
+                    ),
                   ),
                 );
               },
