@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +80,38 @@ class FloatingAIEntry extends StatelessWidget {
           color: Theme.of(context).hintColor,
         ),
       ],
+    );
+  }
+}
+
+class FloatingAIEntryV2 extends StatelessWidget {
+  const FloatingAIEntryV2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return GestureDetector(
+      onTap: () {
+        mobileCreateNewAIChatNotifier.value =
+            mobileCreateNewAIChatNotifier.value + 1;
+      },
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: theme.fillColorScheme.white,
+          boxShadow: [theme.shadow.small],
+          border: Border.all(color: Color(0xFFF1E0FF)),
+        ),
+        child: Center(
+          child: FlowySvg(
+            FlowySvgs.m_home_ai_chat_icon_m,
+            blendMode: null,
+            size: Size(24, 24),
+          ),
+        ),
+      ),
     );
   }
 }
