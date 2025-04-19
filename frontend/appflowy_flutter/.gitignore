@@ -78,3 +78,6 @@ coverage/
 
 assets/translations/
 assets/flowy_icons/*
+
+# FVM Version Cache
+.fvm/
