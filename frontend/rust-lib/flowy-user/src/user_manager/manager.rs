@@ -40,13 +40,10 @@ use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
-use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
-use crate::services::sqlite_sql::workspace_sql::{
-  delete_all_then_insert_user_workspaces, upsert_user_workspace,
-};
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
+use flowy_user_pub::sql::*;
 
 pub struct UserManager {
   pub(crate) cloud_service: Arc<dyn UserCloudServiceProvider>,
@@ -662,18 +659,8 @@ impl UserManager {
   }
 
   async fn save_user(&self, uid: i64, user: UserTable) -> Result<(), FlowyError> {
-    let mut conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|conn| {
-      // delete old user if exists
-      diesel::delete(user_table::dsl::user_table.filter(user_table::dsl::id.eq(&user.id)))
-        .execute(conn)?;
-
-      let _ = diesel::insert_into(user_table::table)
-        .values(user)
-        .execute(conn)?;
-      Ok::<(), FlowyError>(())
-    })?;
-
+    let conn = self.db_connection(uid)?;
+    upsert_user(user, conn)?;
     Ok(())
   }
 

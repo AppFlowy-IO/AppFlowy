@@ -15,6 +15,7 @@ use crate::local_server::uid::UserIDGenerator;
 use flowy_error::FlowyError;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
+use flowy_user_pub::sql::select_all_user_workspace;
 use flowy_user_pub::DEFAULT_USER_NAME;
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
@@ -134,12 +135,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
 
   async fn get_all_workspace(&self, uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
     let conn = self.user.get_sqlite_db(uid)?;
-
-    select_all_user_workspaces(&conn).await.map_err(|e| {
-      FlowyError::internal().with_context(format!("Failed to get all workspaces: {}", e))
-    })?;
-
-    Ok(vec![])
+    let workspaces = select_all_user_workspace(uid, conn)?;
+    Ok(workspaces)
   }
 
   async fn create_workspace(&self, _workspace_name: &str) -> Result<UserWorkspace, FlowyError> {

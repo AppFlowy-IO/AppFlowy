@@ -8,16 +8,11 @@ use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use flowy_error::FlowyError;
 use flowy_sqlite::ConnectionPool;
-use flowy_sqlite::{
-  query_dsl::*,
-  schema::{user_table, user_table::dsl},
-  DBConnection, Database, ExpressionMethods,
-};
+use flowy_sqlite::{DBConnection, Database};
 use flowy_user_pub::entities::UserProfile;
+use flowy_user_pub::sql::select_user_profile;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 use tracing::{error, event, info, instrument};
-
-use crate::services::sqlite_sql::user_sql::UserTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
   fn sqlite_db_path(&self, uid: i64) -> PathBuf;
@@ -131,13 +126,9 @@ impl UserDB {
     pool: &Arc<ConnectionPool>,
     uid: i64,
   ) -> Result<UserProfile, FlowyError> {
-    let uid = uid.to_string();
-    let mut conn = pool.get()?;
-    let user = dsl::user_table
-      .filter(user_table::id.eq(&uid))
-      .first::<UserTable>(&mut *conn)?;
-
-    Ok(user.into())
+    let conn = pool.get()?;
+    let profile = select_user_profile(uid, conn)?;
+    Ok(profile)
   }
 
   /// Open a collab db for the user. If the db is already opened, return the opened db.

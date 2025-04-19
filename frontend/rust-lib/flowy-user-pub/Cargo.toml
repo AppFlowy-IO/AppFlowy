@@ -23,4 +23,3 @@ tracing.workspace = true
 base64 = "0.21"
 client-api = { workspace = true }
 flowy-sqlite.workspace = true
-diesel.workspace = true

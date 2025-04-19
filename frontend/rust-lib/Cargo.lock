@@ -3115,7 +3115,6 @@ dependencies = [
  "collab",
  "collab-entity",
  "collab-folder",
- "diesel",
  "flowy-error",
  "flowy-folder-pub",
  "flowy-sqlite",

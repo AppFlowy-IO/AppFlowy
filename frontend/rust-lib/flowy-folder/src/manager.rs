@@ -263,7 +263,7 @@ impl FolderManager {
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
   #[tracing::instrument(skip(self, user_id), err)]
-  pub async fn initialize_with_workspace_id(&self, user_id: i64) -> FlowyResult<()> {
+  pub async fn initialize_after_sign_in(&self, user_id: i64) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
     let object_id = &workspace_id;
 
@@ -312,10 +312,14 @@ impl FolderManager {
     Ok(())
   }
 
+  pub async fn initialize_after_open_workspace(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize_after_sign_in(uid).await
+  }
+
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
   #[instrument(level = "info", skip_all, err)]
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_after_sign_up(
     &self,
     user_id: i64,
     _token: &str,

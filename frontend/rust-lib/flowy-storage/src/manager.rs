@@ -181,6 +181,14 @@ impl StorageManager {
     }
   }
 
+  pub async fn initialize_after_open_workspace(&self, workspace_id: &str) {
+    self.enable_storage_write_access();
+
+    if let Err(err) = prepare_upload_task(self.uploader.clone(), self.user_service.clone()).await {
+      error!("prepare {} upload task failed: {}", workspace_id, err);
+    }
+  }
+
   pub fn update_network_reachable(&self, reachable: bool) {
     if reachable {
       self.uploader.resume();

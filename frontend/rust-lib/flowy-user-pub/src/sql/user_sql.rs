@@ -1,12 +1,9 @@
-use diesel::RunQueryDsl;
-use flowy_error::FlowyError;
-
-use flowy_user_pub::cloud::UserUpdate;
-use flowy_user_pub::entities::*;
-
+use crate::cloud::UserUpdate;
+use crate::entities::{AuthType, UpdateUserProfileParams, UserProfile};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
+use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
 
-use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
@@ -108,4 +105,18 @@ pub fn select_user_profile(uid: i64, mut conn: DBConnection) -> Result<UserProfi
     .into();
 
   Ok(user)
+}
+
+pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {
+  conn.immediate_transaction(|conn| {
+    // delete old user if exists
+    diesel::delete(user_table::dsl::user_table.filter(user_table::dsl::id.eq(&user.id)))
+      .execute(conn)?;
+
+    let _ = diesel::insert_into(user_table::table)
+      .values(user)
+      .execute(conn)?;
+    Ok::<(), FlowyError>(())
+  })?;
+  Ok(())
 }

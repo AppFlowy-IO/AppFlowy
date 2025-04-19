@@ -106,12 +106,23 @@ impl DocumentManager {
   }
 
   #[instrument(
-    name = "document_initialize_with_new_user",
+    name = "document_initialize_after_sign_up",
     level = "debug",
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(&self, uid: i64) -> FlowyResult<()> {
+  pub async fn initialize_after_sign_up(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize(uid).await?;
+    Ok(())
+  }
+
+  pub async fn initialize_after_open_workspace(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize(uid).await?;
+    Ok(())
+  }
+
+  #[instrument(level = "debug", skip_all, err)]
+  pub async fn initialize_after_sign_in(&self, uid: i64) -> FlowyResult<()> {
     self.initialize(uid).await?;
     Ok(())
   }

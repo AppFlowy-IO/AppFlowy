@@ -1,11 +1,10 @@
 use crate::entities::{AuthType, UserWorkspace};
 use chrono::{TimeZone, Utc};
-use diesel::{RunQueryDsl, SqliteConnection};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::DBConnection;
-use flowy_sqlite::{query_dsl::*, ExpressionMethods};
-use tracing::{info, trace, warn};
+use flowy_sqlite::{prelude::*, ExpressionMethods, RunQueryDsl, SqliteConnection};
+use tracing::{info, warn};
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[diesel(table_name = user_workspace_table)]

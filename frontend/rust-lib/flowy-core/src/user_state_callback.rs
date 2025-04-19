@@ -106,13 +106,16 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .folder_manager
-      .initialize_with_workspace_id(user_id)
+      .initialize_after_sign_in(user_id)
       .await?;
     self
       .database_manager
-      .initialize(user_id, auth_type.is_local())
+      .initialize_after_sign_in(user_id, auth_type.is_local())
       .await?;
-    self.document_manager.initialize(user_id).await?;
+    self
+      .document_manager
+      .initialize_after_sign_in(user_id)
+      .await?;
 
     let workspace_id = user_workspace.id.clone();
     self.init_ai_component(workspace_id);
@@ -171,7 +174,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .folder_manager
-      .initialize_with_new_user(
+      .initialize_after_sign_up(
         user_profile.uid,
         &user_profile.token,
         is_new_user,
@@ -183,13 +186,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .database_manager
-      .initialize_with_new_user(user_profile.uid, auth_type.is_local())
+      .initialize_after_sign_up(user_profile.uid, auth_type.is_local())
       .await
       .context("DatabaseManager error")?;
 
     self
       .document_manager
-      .initialize_with_new_user(user_profile.uid)
+      .initialize_after_sign_up(user_profile.uid)
       .await
       .context("DocumentManager error")?;
 
@@ -212,15 +215,24 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     self.server_provider.set_auth_type(*auth_type);
     self
       .folder_manager
-      .initialize_with_workspace_id(user_id)
+      .initialize_after_open_workspace(user_id)
       .await?;
     self
       .database_manager
-      .initialize(user_id, auth_type.is_local())
+      .initialize_after_open_workspace(user_id, auth_type.is_local())
       .await?;
-    self.document_manager.initialize(user_id).await?;
-    self.ai_manager.initialize(&user_workspace.id).await?;
-    self.storage_manager.initialize(&user_workspace.id).await;
+    self
+      .document_manager
+      .initialize_after_open_workspace(user_id)
+      .await?;
+    self
+      .ai_manager
+      .initialize_after_open_workspace(&user_workspace.id)
+      .await?;
+    self
+      .storage_manager
+      .initialize_after_open_workspace(&user_workspace.id)
+      .await;
     Ok(())
   }
 

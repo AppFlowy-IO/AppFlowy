@@ -5,10 +5,10 @@ use client_api::entity::billing_dto::{
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::services::sqlite_sql::workspace_setting_sql::WorkspaceSettingsTable;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use flowy_user_pub::entities::{AuthType, Role, WorkspaceInvitation, WorkspaceMember};
+use flowy_user_pub::sql::WorkspaceSettingsTable;
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]

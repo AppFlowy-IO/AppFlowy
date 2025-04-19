@@ -1,6 +1,14 @@
+use crate::entities::*;
+use crate::notification::{send_notification, UserNotification};
+use crate::services::cloud_config::{
+  get_cloud_config, get_or_create_cloud_config, save_cloud_config,
+};
+use crate::services::data_import::prepare_import;
+use crate::user_manager::UserManager;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
+use flowy_user_pub::sql::UserWorkspaceChangeset;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use serde_json::Value;
@@ -9,15 +17,6 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 use tracing::{event, trace};
 use uuid::Uuid;
-
-use crate::entities::*;
-use crate::notification::{send_notification, UserNotification};
-use crate::services::cloud_config::{
-  get_cloud_config, get_or_create_cloud_config, save_cloud_config,
-};
-use crate::services::data_import::prepare_import;
-use crate::services::sqlite_sql::workspace_sql::UserWorkspaceChangeset;
-use crate::user_manager::UserManager;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager

@@ -1,7 +1,7 @@
 pub mod cloud;
 pub mod entities;
 pub mod session;
-mod sql;
+pub mod sql;
 pub mod workspace_service;
 
 pub const DEFAULT_USER_NAME: fn() -> String = || "Me".to_string();

@@ -3,7 +3,6 @@ use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
 use crate::services::entities::UserPaths;
-use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::DataSource;
@@ -37,6 +36,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
+use flowy_user_pub::sql::select_user_profile;
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};

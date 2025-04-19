@@ -15,28 +15,18 @@ use crate::services::billing_check::PeriodicallyCheckBillingState;
 use crate::services::data_import::{
   generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
 };
-use crate::services::sqlite_sql::member_sql::{
-  select_workspace_member, upsert_workspace_member, WorkspaceMemberTable,
-};
-use crate::services::sqlite_sql::workspace_setting_sql::{
-  select_workspace_setting, update_workspace_setting, upsert_workspace_setting,
-  WorkspaceSettingsChangeset, WorkspaceSettingsTable,
-};
-use crate::services::sqlite_sql::workspace_sql::{
-  delete_all_then_insert_user_workspaces, delete_user_workspace, select_all_user_workspace,
-  select_user_workspace, update_user_workspace, upsert_user_workspace, UserWorkspaceChangeset,
-  UserWorkspaceTable,
-};
+
 use crate::user_manager::UserManager;
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
-use flowy_sqlite::{ConnectionPool, DBConnection, ExpressionMethods};
+use flowy_sqlite::ConnectionPool;
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
   AuthType, Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 use flowy_user_pub::session::Session;
+use flowy_user_pub::sql::*;
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
 

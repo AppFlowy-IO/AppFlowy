@@ -3,7 +3,7 @@ use flowy_error::FlowyError;
 use flowy_sqlite::schema::workspace_setting_table;
 use flowy_sqlite::schema::workspace_setting_table::dsl;
 use flowy_sqlite::DBConnection;
-use flowy_sqlite::{query_dsl::*, ExpressionMethods};
+use flowy_sqlite::{prelude::*, ExpressionMethods};
 use uuid::Uuid;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]

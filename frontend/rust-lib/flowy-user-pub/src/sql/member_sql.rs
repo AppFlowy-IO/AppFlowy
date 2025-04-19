@@ -1,10 +1,8 @@
 use diesel::{insert_into, RunQueryDsl};
 use flowy_error::FlowyResult;
-
 use flowy_sqlite::schema::workspace_members_table;
-
 use flowy_sqlite::schema::workspace_members_table::dsl;
-use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods};
 
 #[derive(Queryable, Insertable, AsChangeset, Debug)]
 #[diesel(table_name = workspace_members_table)]
