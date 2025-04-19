@@ -469,9 +469,7 @@ pub async fn get_user_workspace_handler(
   let params = data.try_into_inner()?;
   let workspace_id = Uuid::from_str(&params.workspace_id)?;
   let uid = manager.user_id()?;
-  let user_workspace = manager
-    .get_user_workspace_from_db(uid, &workspace_id)
-    .ok_or_else(FlowyError::record_not_found)?;
+  let user_workspace = manager.get_user_workspace_from_db(uid, &workspace_id)?;
   data_result_ok(UserWorkspacePB::from(user_workspace))
 }
 

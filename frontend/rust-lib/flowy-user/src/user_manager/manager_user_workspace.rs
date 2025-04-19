@@ -157,17 +157,21 @@ impl UserManager {
     let uid = self.user_id()?;
     let conn = self.db_connection(self.user_id()?)?;
     let user_workspace = match select_user_workspace(&workspace_id.to_string(), conn) {
-      None => {
-        sync_workspace(
-          workspace_id,
-          self.cloud_service.get_user_service()?,
-          uid,
-          auth_type,
-          self.db_pool(uid)?,
-        )
-        .await?
+      Err(err) => {
+        if err.is_record_not_found() {
+          sync_workspace(
+            workspace_id,
+            self.cloud_service.get_user_service()?,
+            uid,
+            auth_type,
+            self.db_pool(uid)?,
+          )
+          .await?
+        } else {
+          return Err(err);
+        }
       },
-      Some(row) => {
+      Ok(row) => {
         let user_workspace = UserWorkspace::from(row);
         let workspace_id = *workspace_id;
         let user_service = self.cloud_service.get_user_service()?;
@@ -248,10 +252,7 @@ impl UserManager {
     let conn = self.db_connection(uid)?;
     update_user_workspace(conn, changeset)?;
 
-    let row = self
-      .get_user_workspace_from_db(uid, workspace_id)
-      .ok_or_else(FlowyError::record_not_found)?;
-
+    let row = self.get_user_workspace_from_db(uid, workspace_id)?;
     let payload = UserWorkspacePB::from(row);
     send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
       .payload(payload)
@@ -389,8 +390,8 @@ impl UserManager {
     &self,
     uid: i64,
     workspace_id: &Uuid,
-  ) -> Option<UserWorkspaceTable> {
-    let conn = self.db_connection(uid).ok()?;
+  ) -> FlowyResult<UserWorkspaceTable> {
+    let conn = self.db_connection(uid)?;
     select_user_workspace(workspace_id.to_string().as_str(), conn)
   }
 

@@ -100,40 +100,6 @@ impl UserAuthResponse for AuthResponse {
   }
 }
 
-#[derive(Clone, Debug)]
-pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is AppFlowyCloud
-  pub token: Option<String>,
-
-  /// The user id
-  pub uid: Option<i64>,
-
-  /// The user id
-  pub uuid: Option<String>,
-}
-
-impl UserCredentials {
-  pub fn from_uid(uid: i64) -> Self {
-    Self {
-      token: None,
-      uid: Some(uid),
-      uuid: None,
-    }
-  }
-
-  pub fn from_uuid(uuid: String) -> Self {
-    Self {
-      token: None,
-      uid: None,
-      uuid: Some(uuid),
-    }
-  }
-
-  pub fn new(token: Option<String>, uid: Option<i64>, uuid: Option<String>) -> Self {
-    Self { token, uid, uuid }
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserWorkspace {
   pub id: String,

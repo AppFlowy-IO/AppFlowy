@@ -140,25 +140,13 @@ class UserBackendService implements IUserBackendService {
     });
   }
 
-  Future<FlowyResult<WorkspacePB, FlowyError>> createWorkspace(
-    String name,
-    String desc,
-  ) {
-    final request = CreateWorkspacePayloadPB.create()
-      ..name = name
-      ..desc = desc;
-    return FolderEventCreateFolderWorkspace(request).send().then((result) {
-      return result.fold(
-        (workspace) => FlowyResult.success(workspace),
-        (error) => FlowyResult.failure(error),
-      );
-    });
-  }
-
   Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
     String name,
+    AuthTypePB authType,
   ) {
-    final request = CreateWorkspacePB.create()..name = name;
+    final request = CreateWorkspacePB.create()
+      ..name = name
+      ..authType = authType;
     return UserEventCreateWorkspace(request).send();
   }
 

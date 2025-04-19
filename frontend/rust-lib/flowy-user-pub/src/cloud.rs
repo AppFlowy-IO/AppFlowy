@@ -20,8 +20,8 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, AuthType, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AuthResponse, AuthType, Role, UpdateUserProfileParams, UserProfile, UserTokenState,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -168,7 +168,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
-  async fn get_user_profile(&self, credential: UserCredentials) -> Result<UserProfile, FlowyError>;
+  async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError>;
 

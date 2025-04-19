@@ -24,8 +24,8 @@ use tracing::{instrument, trace};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_pub::entities::{
-  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserProfile, UserWorkspace,
+  WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
@@ -178,10 +178,7 @@ where
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> Result<UserProfile, FlowyError> {
+  async fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let expected_workspace_id = self
       .logged_user

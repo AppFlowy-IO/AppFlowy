@@ -58,11 +58,11 @@ impl UserWorkspaceTable {
 pub fn select_user_workspace(
   workspace_id: &str,
   mut conn: DBConnection,
-) -> Option<UserWorkspaceTable> {
-  user_workspace_table::dsl::user_workspace_table
+) -> FlowyResult<UserWorkspaceTable> {
+  let row = user_workspace_table::dsl::user_workspace_table
     .filter(user_workspace_table::id.eq(workspace_id))
-    .first::<UserWorkspaceTable>(&mut *conn)
-    .ok()
+    .first::<UserWorkspaceTable>(&mut *conn)?;
+  Ok(row)
 }
 
 pub fn select_all_user_workspace(

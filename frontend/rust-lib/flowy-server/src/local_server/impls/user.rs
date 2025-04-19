@@ -15,7 +15,7 @@ use crate::local_server::uid::UserIDGenerator;
 use flowy_error::FlowyError;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
-use flowy_user_pub::sql::select_all_user_workspace;
+use flowy_user_pub::sql::{select_all_user_workspace, select_user_profile, select_user_workspace};
 use flowy_user_pub::DEFAULT_USER_NAME;
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
@@ -59,7 +59,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
   async fn sign_in(&self, params: BoxAny) -> Result<AuthResponse, FlowyError> {
     let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
     let uid = ID_GEN.lock().await.next_id();
-    let user_workspace = make_user_workspace();
+    let user_workspace = make_user_workspace("My Workspace");
     Ok(AuthResponse {
       user_id: uid,
       user_uuid: Uuid::new_v4(),
@@ -122,15 +122,18 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Ok(())
   }
 
-  async fn get_user_profile(&self, credential: UserCredentials) -> Result<UserProfile, FlowyError> {
-    Err(FlowyError::local_version_not_support().with_context("Not support"))
+  async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+    let conn = self.user.get_sqlite_db(uid)?;
+    let profile = select_user_profile(uid, conn)?;
+    Ok(profile)
   }
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("local server doesn't support open workspace"),
-    )
+    let uid = self.user.user_id()?;
+    let conn = self.user.get_sqlite_db(uid)?;
+
+    let workspace = select_user_workspace(&workspace_id.to_string(), conn)?;
+    Ok(UserWorkspace::from(workspace))
   }
 
   async fn get_all_workspace(&self, uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
@@ -139,11 +142,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Ok(workspaces)
   }
 
-  async fn create_workspace(&self, _workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("local server doesn't support multiple workspaces"),
-    )
+  async fn create_workspace(&self, workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
+    Ok(make_user_workspace(workspace_name))
   }
 
   async fn patch_workspace(
@@ -193,12 +193,12 @@ impl UserCloudService for LocalServerUserServiceImpl {
   }
 }
 
-fn make_user_workspace() -> UserWorkspace {
+fn make_user_workspace(name: &str) -> UserWorkspace {
   UserWorkspace {
-    id: uuid::Uuid::new_v4().to_string(),
-    name: "My Workspace".to_string(),
+    id: Uuid::new_v4().to_string(),
+    name: name.to_string(),
     created_at: Default::default(),
-    workspace_database_id: uuid::Uuid::new_v4().to_string(),
+    workspace_database_id: Uuid::new_v4().to_string(),
     icon: "".to_string(),
     member_count: 1,
     role: None,

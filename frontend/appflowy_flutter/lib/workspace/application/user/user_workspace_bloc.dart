@@ -97,7 +97,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               );
             }
           },
-          createWorkspace: (name) async {
+          createWorkspace: (name, authType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -107,7 +107,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
-            final result = await _userService.createUserWorkspace(name);
+            final result = await _userService.createUserWorkspace(
+              name,
+              authType,
+            );
             final workspaces = result.fold(
               (s) => [...state.workspaces, s],
               (e) => state.workspaces,
@@ -472,8 +475,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
   const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
-  const factory UserWorkspaceEvent.createWorkspace(String name) =
-      CreateWorkspace;
+  const factory UserWorkspaceEvent.createWorkspace(
+    String name,
+    AuthTypePB authType,
+  ) = CreateWorkspace;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(

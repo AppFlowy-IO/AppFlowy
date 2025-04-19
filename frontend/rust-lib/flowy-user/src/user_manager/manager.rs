@@ -585,7 +585,7 @@ impl UserManager {
     let result: Result<UserProfile, FlowyError> = self
       .cloud_service
       .get_user_service()?
-      .get_user_profile(UserCredentials::from_uid(uid))
+      .get_user_profile(uid)
       .await;
 
     match result {
