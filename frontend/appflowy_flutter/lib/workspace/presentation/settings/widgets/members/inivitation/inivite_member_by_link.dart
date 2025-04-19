@@ -1,8 +1,13 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class InviteMemberByLink extends StatelessWidget {
   const InviteMemberByLink({super.key});
@@ -69,7 +74,9 @@ class _Description extends StatelessWidget {
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                // todo: generate new link
+                context.read<WorkspaceMemberBloc>().add(
+                      const WorkspaceMemberEvent.generateInviteLink(),
+                    );
               },
           ),
         ],
@@ -94,7 +101,22 @@ class _CopyLinkButton extends StatelessWidget {
         vertical: theme.spacing.s,
       ),
       onTap: () {
-        // todo: copy link
+        final link = context.read<WorkspaceMemberBloc>().state.inviteLink;
+        if (link != null) {
+          getIt<ClipboardService>().setData(
+            ClipboardServiceData(
+              plainText: link,
+            ),
+          );
+
+          showToastNotification(
+            message: LocaleKeys.document_inlineLink_copyLink.tr(),
+          );
+        } else {
+          showToastNotification(
+            message: LocaleKeys.shareAction_copyLinkFailed.tr(),
+          );
+        }
       },
     );
   }
