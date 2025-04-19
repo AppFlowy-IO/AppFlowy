@@ -5,10 +5,16 @@ import 'package:flutter/material.dart';
 /// Renders a simple header for the settings view
 ///
 class SettingsHeader extends StatelessWidget {
-  const SettingsHeader({super.key, required this.title, this.description});
+  const SettingsHeader({
+    super.key,
+    required this.title,
+    this.description,
+    this.descriptionBuilder,
+  });
 
   final String title;
   final String? description;
+  final WidgetBuilder? descriptionBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +28,9 @@ class SettingsHeader extends StatelessWidget {
             color: theme.textColorScheme.primary,
           ),
         ),
-        if (description?.isNotEmpty == true) ...[
+        if (descriptionBuilder != null) ...[
+          descriptionBuilder!(context),
+        ] else if (description?.isNotEmpty == true) ...[
           VSpace(theme.spacing.xs),
           Text(
             description!,

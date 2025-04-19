@@ -1358,7 +1358,9 @@
         "reset": "Reset",
         "resetInviteLinkSuccess": "Invite link reset successfully",
         "resetInviteLinkFailed": "Failed to reset the invite link",
-        "resetInviteLinkFailedDescription": "Please try again later"
+        "resetInviteLinkFailedDescription": "Please try again later",
+        "memberPageDescription1": "Access the",
+        "memberPageDescription2": "for guest and advanced user management."
       }
     },
     "files": {

@@ -1,4 +1,5 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -18,6 +19,7 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,8 +43,7 @@ class WorkspaceMembersPage extends StatelessWidget {
         builder: (context, state) {
           return SettingsBody(
             title: LocaleKeys.settings_appearance_members_title.tr(),
-            description:
-                'Access the Admin Panel for guest and advanced user management',
+            descriptionBuilder: _buildDescription,
             autoSeparate: false,
             children: [
               if (state.myRole.canInvite) ...[
@@ -60,6 +61,42 @@ class WorkspaceMembersPage extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text:
+                '${LocaleKeys.settings_appearance_members_memberPageDescription1.tr()} ',
+            style: theme.textStyle.caption.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+          TextSpan(
+            text: LocaleKeys.settings_appearance_members_adminPanel.tr(),
+            style: theme.textStyle.caption.underline(
+              color: theme.textColorScheme.secondary,
+            ),
+            mouseCursor: SystemMouseCursors.click,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () async {
+                final baseUrl = await getAppFlowyCloudUrl();
+                await afLaunchUrlString(baseUrl);
+              },
+          ),
+          TextSpan(
+            text:
+                ' ${LocaleKeys.settings_appearance_members_memberPageDescription2.tr()} ',
+            style: theme.textStyle.caption.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+        ],
       ),
     );
   }
