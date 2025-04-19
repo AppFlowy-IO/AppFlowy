@@ -197,7 +197,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     // only show the result dialog when the action is WorkspaceMemberActionType.add
-    if (actionType == WorkspaceMemberActionType.add) {
+    if (actionType == WorkspaceMemberActionType.addByEmail) {
       result.fold(
         (s) {
           showToastNotification(
@@ -223,7 +223,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           );
         },
       );
-    } else if (actionType == WorkspaceMemberActionType.invite) {
+    } else if (actionType == WorkspaceMemberActionType.inviteByEmail) {
       result.fold(
         (s) {
           showToastNotification(
@@ -250,7 +250,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           );
         },
       );
-    } else if (actionType == WorkspaceMemberActionType.remove) {
+    } else if (actionType == WorkspaceMemberActionType.removeByEmail) {
       result.fold(
         (s) {
           showToastNotification(
@@ -284,7 +284,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     }
     context
         .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+        .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
     // clear the email field after inviting
     emailController.clear();
   }

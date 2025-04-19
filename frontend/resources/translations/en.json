@@ -1307,10 +1307,10 @@
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
       "enableRTLToolbarItems": "Enable RTL toolbar items",
       "members": {
-        "title": "Members settings",
+        "title": "Members",
         "inviteMembers": "Invite members",
         "inviteHint": "Invite by email",
-        "sendInvite": "Send invite",
+        "sendInvite": "Invite",
         "copyInviteLink": "Copy invite link",
         "label": "Members",
         "user": "User",
@@ -1345,7 +1345,22 @@
         "inviteMemberSuccess": "The invitation has been sent successfully",
         "failedToInviteMember": "Failed to invite member",
         "workspaceMembersError": "Oops, something went wrong",
-        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later",
+        "inviteLinkToAddMember": "Invite link to add member",
+        "clickToCopyLink": "Click to copy link",
+        "or": "or",
+        "generateANewLink": "generate a new link",
+        "inviteMemberByEmail": "Invite member by email",
+        "inviteMemberHintText": "Invite by email",
+        "resetInviteLink": "Reset the invite link",
+        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The previous link can only be managed through the",
+        "adminPanel": "Admin Panel",
+        "reset": "Reset",
+        "resetInviteLinkSuccess": "Invite link reset successfully",
+        "resetInviteLinkFailed": "Failed to reset the invite link",
+        "resetInviteLinkFailedDescription": "Please try again later",
+        "memberPageDescription1": "Access the",
+        "memberPageDescription2": "for guest and advanced user management."
       }
     },
     "files": {
