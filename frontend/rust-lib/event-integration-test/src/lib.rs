@@ -8,7 +8,7 @@ use collab_entity::CollabType;
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
-use flowy_user::entities::AuthenticatorPB;
+use flowy_user::entities::AuthTypePB;
 use flowy_user::errors::FlowyError;
 use lib_dispatch::runtime::AFPluginRuntime;
 use nanoid::nanoid;
@@ -59,7 +59,7 @@ impl EventIntegrationTest {
     let clean_path = config.storage_path.clone();
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let authenticator = Arc::new(AtomicU8::new(AuthenticatorPB::Local as u8));
+    let authenticator = Arc::new(AtomicU8::new(AuthTypePB::Local as u8));
     register_notification_sender(notification_sender.clone());
 
     // In case of dropping the runtime that runs the core, we need to forget the dispatcher

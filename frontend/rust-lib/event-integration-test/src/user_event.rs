@@ -17,7 +17,7 @@ use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthTypePB, AuthenticatorPB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB,
+  AuthTypePB, AuthTypePB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB,
   ImportAppFlowyDataPB, OauthSignInPB, OpenUserWorkspacePB, RenameWorkspacePB,
   RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
   UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
@@ -65,7 +65,7 @@ impl EventIntegrationTest {
       email,
       name: "appflowy".to_string(),
       password: password.clone(),
-      auth_type: AuthenticatorPB::Local,
+      auth_type: AuthTypePB::Local,
       device_id: uuid::Uuid::new_v4().to_string(),
     }
     .into_bytes()
@@ -113,7 +113,7 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub fn set_auth_type(&self, auth_type: AuthenticatorPB) {
+  pub fn set_auth_type(&self, auth_type: AuthTypePB) {
     self.authenticator.store(auth_type as u8, Ordering::Release);
   }
 
@@ -140,7 +140,7 @@ impl EventIntegrationTest {
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
     let payload = SignInUrlPayloadPB {
       email: email.to_string(),
-      authenticator: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthTypePB::AppFlowyCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
       .event(UserEvent::GenerateSignInURL)
@@ -155,7 +155,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      authenticator: AuthenticatorPB::AppFlowyCloud,
+      authenticator: AuthTypePB::AppFlowyCloud,
     };
 
     let user_profile = EventBuilder::new(self.clone())

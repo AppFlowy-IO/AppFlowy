@@ -66,7 +66,7 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     Emitter<WorkspaceState> emit,
   ) async {
     final result =
-        await userService.createUserWorkspace(name, AuthTypePB.CloudAuthType);
+        await userService.createUserWorkspace(name, AuthTypePB.Server);
     emit(
       result.fold(
         (workspace) {

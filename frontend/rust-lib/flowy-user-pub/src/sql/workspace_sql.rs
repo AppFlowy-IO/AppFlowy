@@ -93,20 +93,20 @@ pub fn upsert_user_workspace(
   user_workspace: UserWorkspace,
   conn: &mut SqliteConnection,
 ) -> Result<(), FlowyError> {
-  let new_record = UserWorkspaceTable::from_workspace(uid, &user_workspace, auth_type)?;
+  let row = UserWorkspaceTable::from_workspace(uid, &user_workspace, auth_type)?;
   diesel::insert_into(user_workspace_table::table)
-    .values(new_record.clone())
+    .values(row.clone())
     .on_conflict(user_workspace_table::id)
     .do_update()
     .set((
-      user_workspace_table::name.eq(new_record.name),
-      user_workspace_table::uid.eq(new_record.uid),
-      user_workspace_table::created_at.eq(new_record.created_at),
-      user_workspace_table::database_storage_id.eq(new_record.database_storage_id),
-      user_workspace_table::icon.eq(new_record.icon),
-      user_workspace_table::member_count.eq(new_record.member_count),
-      user_workspace_table::role.eq(new_record.role),
-      user_workspace_table::auth_type.eq(new_record.auth_type),
+      user_workspace_table::name.eq(row.name),
+      user_workspace_table::uid.eq(row.uid),
+      user_workspace_table::created_at.eq(row.created_at),
+      user_workspace_table::database_storage_id.eq(row.database_storage_id),
+      user_workspace_table::icon.eq(row.icon),
+      user_workspace_table::member_count.eq(row.member_count),
+      user_workspace_table::role.eq(row.role),
+      user_workspace_table::auth_type.eq(row.auth_type),
     ))
     .execute(conn)?;
 

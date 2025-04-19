@@ -122,10 +122,10 @@ impl UserWorkspace {
     Ok(id)
   }
 
-  pub fn new_local(workspace_id: &str, _uid: i64) -> Self {
+  pub fn new_local(workspace_id: String, name: &str) -> Self {
     Self {
-      id: workspace_id.to_string(),
-      name: "".to_string(),
+      id: workspace_id,
+      name: name.to_string(),
       created_at: Utc::now(),
       workspace_database_id: Uuid::new_v4().to_string(),
       icon: "".to_string(),

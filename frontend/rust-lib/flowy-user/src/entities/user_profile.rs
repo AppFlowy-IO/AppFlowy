@@ -1,6 +1,6 @@
 use super::AFRolePB;
 use crate::entities::parser::{UserEmail, UserIcon, UserName};
-use crate::entities::{AuthTypePB, AuthenticatorPB};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
@@ -39,7 +39,7 @@ pub struct UserProfilePB {
   pub icon_url: String,
 
   #[pb(index = 6)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]

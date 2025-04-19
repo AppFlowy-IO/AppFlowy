@@ -218,15 +218,23 @@ impl UserManager {
     workspace_name: &str,
     auth_type: AuthType,
   ) -> FlowyResult<UserWorkspace> {
-    let new_workspace = self
-      .cloud_service
-      .get_user_service()?
-      .create_workspace(workspace_name)
-      .await?;
+    let new_workspace = match auth_type {
+      AuthType::Local => {
+        let workspace_id = Uuid::new_v4();
+        UserWorkspace::new_local(workspace_id.to_string(), workspace_name)
+      },
+      AuthType::AppFlowyCloud => {
+        self
+          .cloud_service
+          .get_user_service()?
+          .create_workspace(workspace_name)
+          .await?
+      },
+    };
 
     info!(
-      "new workspace: {}, name:{}",
-      new_workspace.id, new_workspace.name
+      "create workspace: {}, name:{}, auth_type: {}",
+      new_workspace.id, new_workspace.name, auth_type
     );
 
     // save the workspace to sqlite db

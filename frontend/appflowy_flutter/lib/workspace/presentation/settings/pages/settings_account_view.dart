@@ -7,8 +7,8 @@ import 'package:appflowy/workspace/presentation/settings/pages/account/account.d
 import 'package:appflowy/workspace/presentation/settings/pages/account/email/email_section.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,7 +70,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               // user email
               // Only show email if the user is authenticated and not using local auth
               if (isAuthEnabled &&
-                  state.userProfile.authType != AuthenticatorPB.Local) ...[
+                  state.userProfile.authType != AuthTypePB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.newSettings_myAccount_myAccount.tr(),
                   children: [
@@ -82,30 +82,26 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                     ),
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction:
-                          state.userProfile.authType == AuthenticatorPB.Local
-                              ? widget.didLogin
-                              : widget.didLogout,
-                      signIn:
-                          state.userProfile.authType == AuthenticatorPB.Local,
+                      onAction: state.userProfile.authType == AuthTypePB.Local
+                          ? widget.didLogin
+                          : widget.didLogout,
+                      signIn: state.userProfile.authType == AuthTypePB.Local,
                     ),
                   ],
                 ),
               ],
 
               if (isAuthEnabled &&
-                  state.userProfile.authType == AuthenticatorPB.Local) ...[
+                  state.userProfile.authType == AuthTypePB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_accountPage_login_title.tr(),
                   children: [
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction:
-                          state.userProfile.authType == AuthenticatorPB.Local
-                              ? widget.didLogin
-                              : widget.didLogout,
-                      signIn:
-                          state.userProfile.authType == AuthenticatorPB.Local,
+                      onAction: state.userProfile.authType == AuthTypePB.Local
+                          ? widget.didLogin
+                          : widget.didLogout,
+                      signIn: state.userProfile.authType == AuthTypePB.Local,
                     ),
                   ],
                 ),
@@ -120,7 +116,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               ),
 
               // user deletion
-              if (widget.userProfile.authType == AuthenticatorPB.AppFlowyCloud)
+              if (widget.userProfile.authType == AuthTypePB.Server)
                 const AccountDeletionButton(),
             ],
           );

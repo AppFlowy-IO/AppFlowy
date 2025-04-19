@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 
+use crate::entities::parser::*;
+use crate::entities::AuthTypePB;
+use crate::errors::ErrorCode;
 use client_api::entity::GotrueTokenResponse;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
-
-use crate::entities::parser::*;
-use crate::errors::ErrorCode;
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInPayloadPB {
@@ -20,7 +20,7 @@ pub struct SignInPayloadPB {
   pub name: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -53,7 +53,7 @@ pub struct SignUpPayloadPB {
   pub password: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -144,7 +144,7 @@ pub struct OauthSignInPB {
   pub map: HashMap<String, String>,
 
   #[pb(index = 2)]
-  pub authenticator: AuthenticatorPB,
+  pub authenticator: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -153,7 +153,7 @@ pub struct SignInUrlPayloadPB {
   pub email: String,
 
   #[pb(index = 2)]
-  pub authenticator: AuthenticatorPB,
+  pub authenticator: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -228,41 +228,10 @@ pub struct OauthProviderDataPB {
   pub oauth_url: String,
 }
 
-#[repr(u8)]
-#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
-pub enum AuthenticatorPB {
-  Local = 0,
-  AppFlowyCloud = 2,
-}
-
-impl From<AuthType> for AuthenticatorPB {
-  fn from(auth_type: AuthType) -> Self {
-    match auth_type {
-      AuthType::Local => AuthenticatorPB::Local,
-      AuthType::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
-    }
-  }
-}
-
-impl From<AuthenticatorPB> for AuthType {
-  fn from(pb: AuthenticatorPB) -> Self {
-    match pb {
-      AuthenticatorPB::Local => AuthType::Local,
-      AuthenticatorPB::AppFlowyCloud => AuthType::AppFlowyCloud,
-    }
-  }
-}
-
-impl Default for AuthenticatorPB {
-  fn default() -> Self {
-    Self::Local
-  }
-}
-
 #[derive(Default, ProtoBuf)]
 pub struct UserStatePB {
   #[pb(index = 1)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

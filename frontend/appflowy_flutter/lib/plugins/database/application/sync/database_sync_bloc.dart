@@ -31,7 +31,7 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authType == AuthenticatorPB.AppFlowyCloud &&
+                    userProfile?.authType == AuthTypePB.Server &&
                         databaseId != null,
               ),
             );

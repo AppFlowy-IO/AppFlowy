@@ -202,8 +202,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   List<Widget> _buildPublishActions(BuildContext context) {
     final userProfile = context.read<MobileViewPageBloc>().state.userProfilePB;
     // the publish feature is only available for AppFlowy Cloud
-    if (userProfile == null ||
-        userProfile.authType != AuthenticatorPB.AppFlowyCloud) {
+    if (userProfile == null || userProfile.authType != AuthTypePB.Server) {
       return [];
     }
 
