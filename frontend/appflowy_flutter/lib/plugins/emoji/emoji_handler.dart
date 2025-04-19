@@ -22,7 +22,6 @@ class EmojiHandler extends StatefulWidget {
     required this.onDismiss,
     required this.onSelectionUpdate,
     required this.onEmojiSelect,
-    this.startCharAmount = 1,
     this.cancelBySpaceHandler,
     this.initialSearchText = '',
   });
@@ -32,7 +31,6 @@ class EmojiHandler extends StatefulWidget {
   final VoidCallback onDismiss;
   final VoidCallback onSelectionUpdate;
   final SelectEmojiItemHandler onEmojiSelect;
-  final int startCharAmount;
   final String initialSearchText;
   final bool Function()? cancelBySpaceHandler;
 
@@ -54,6 +52,8 @@ class _EmojiHandlerState extends State<EmojiHandler> {
     defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
   );
 
+  int get startCharAmount => widget.initialSearchText.length;
+
   set search(String search) {
     _search = search;
     _doSearch();
@@ -68,7 +68,8 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       (_) => focusNode.requestFocus(),
     );
 
-    startOffset = (widget.editorState.selection?.endIndex ?? 0) - 1;
+    startOffset =
+        (widget.editorState.selection?.endIndex ?? 0) - startCharAmount;
 
     if (kCachedEmojiData != null) {
       loadEmojis(kCachedEmojiData!);
@@ -194,7 +195,8 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   void _doSearch() {
     if (!loaded || !mounted) return;
-    if (_search.startsWith(' ') || _search.isEmpty) {
+    final enableEmptySearch = widget.initialSearchText.isEmpty;
+    if ((_search.startsWith(' ') || _search.isEmpty) && !enableEmptySearch) {
       widget.onDismiss.call();
       return;
     }
@@ -232,6 +234,10 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       widget.onDismiss.call();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
+        if (widget.initialSearchText.isEmpty) {
+          widget.onDismiss.call();
+          return KeyEventResult.handled;
+        }
         if (_canDeleteLastCharacter()) {
           widget.editorState.deleteBackward();
         } else {
@@ -276,7 +282,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   void onSelect(int index) {
     widget.onEmojiSelect.call(
       context,
-      (startOffset - widget.startCharAmount, startOffset + _search.length),
+      (startOffset - startCharAmount, startOffset + _search.length),
       emojiData.getEmojiById(searchedEmojis[index].id),
     );
     widget.onDismiss.call();

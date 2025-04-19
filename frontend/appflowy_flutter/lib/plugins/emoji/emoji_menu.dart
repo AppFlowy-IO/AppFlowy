@@ -12,21 +12,19 @@ abstract class EmojiMenuService {
 
 class EmojiMenu extends EmojiMenuService {
   EmojiMenu({
-    required this.context,
+    required this.overlay,
     required this.editorState,
-    this.startCharAmount = 1,
     this.cancelBySpaceHandler,
     this.menuHeight = 400,
     this.menuWidth = 300,
   });
 
-  final BuildContext context;
   final EditorState editorState;
   final double menuHeight;
   final double menuWidth;
+  final OverlayState overlay;
   final bool Function()? cancelBySpaceHandler;
 
-  final int startCharAmount;
   Offset _offset = Offset.zero;
   Alignment _alignment = Alignment.topLeft;
   OverlayEntry? _menuEntry;
@@ -97,7 +95,6 @@ class EmojiMenu extends EmojiMenuService {
                   menuService: this,
                   onDismiss: dismiss,
                   onSelectionUpdate: _onSelectionUpdate,
-                  startCharAmount: startCharAmount,
                   cancelBySpaceHandler: cancelBySpaceHandler,
                   initialSearchText: initialCharacter,
                   onEmojiSelect: (
@@ -132,8 +129,9 @@ class EmojiMenu extends EmojiMenuService {
       ),
     );
 
-    Overlay.of(context).insert(_menuEntry!);
+    overlay.insert(_menuEntry!);
 
+    keepEditorFocusNotifier.increase();
     editorState.service.keyboardService?.disable(showCursor: true);
     editorState.service.scrollService?.disable();
     selectionService.currentSelection.addListener(_onSelectionChange);
