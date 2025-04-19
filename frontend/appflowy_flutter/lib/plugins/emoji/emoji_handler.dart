@@ -234,6 +234,10 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       widget.onDismiss.call();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
+        if (widget.initialSearchText.isEmpty) {
+          widget.onDismiss.call();
+          return KeyEventResult.handled;
+        }
         if (_canDeleteLastCharacter()) {
           widget.editorState.deleteBackward();
         } else {

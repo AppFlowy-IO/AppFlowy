@@ -131,6 +131,7 @@ class EmojiMenu extends EmojiMenuService {
 
     overlay.insert(_menuEntry!);
 
+    keepEditorFocusNotifier.increase();
     editorState.service.keyboardService?.disable(showCursor: true);
     editorState.service.scrollService?.disable();
     selectionService.currentSelection.addListener(_onSelectionChange);
