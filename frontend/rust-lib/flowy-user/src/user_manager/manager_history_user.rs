@@ -24,7 +24,7 @@ impl UserManager {
       .await
       .ok()?;
 
-    if user_profile.authenticator.is_local() {
+    if user_profile.auth_type.is_local() {
       Some(AnonUser { session })
     } else {
       None

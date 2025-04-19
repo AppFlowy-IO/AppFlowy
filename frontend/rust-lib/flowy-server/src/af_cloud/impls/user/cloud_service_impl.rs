@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::anyhow;
 use arc_swap::ArcSwapOption;
@@ -24,14 +24,14 @@ use tracing::{instrument, trace};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_pub::entities::{
-  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserProfile, UserWorkspace,
+  WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use uuid::Uuid;
 
-use crate::af_cloud::define::{LoginUserService, USER_SIGN_IN_URL};
+use crate::af_cloud::define::{LoggedUser, USER_SIGN_IN_URL};
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
@@ -44,19 +44,19 @@ use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_st
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
   user_change_recv: ArcSwapOption<tokio::sync::mpsc::Receiver<UserUpdate>>,
-  user: Arc<dyn LoginUserService>,
+  logged_user: Weak<dyn LoggedUser>,
 }
 
 impl<T> AFCloudUserAuthServiceImpl<T> {
   pub(crate) fn new(
     server: T,
     user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>,
-    user: Arc<dyn LoginUserService>,
+    logged_user: Weak<dyn LoggedUser>,
   ) -> Self {
     Self {
       server,
       user_change_recv: ArcSwapOption::new(Some(Arc::new(user_change_recv))),
-      user,
+      logged_user,
     }
   }
 }
@@ -168,11 +168,7 @@ where
     Ok(url)
   }
 
-  async fn update_user(
-    &self,
-    _credential: UserCredentials,
-    params: UpdateUserProfileParams,
-  ) -> Result<(), FlowyError> {
+  async fn update_user(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
     client
@@ -182,13 +178,13 @@ where
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> Result<UserProfile, FlowyError> {
+  async fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let cloned_user = self.user.clone();
-    let expected_workspace_id = cloned_user.workspace_id()?;
+    let expected_workspace_id = self
+      .logged_user
+      .upgrade()
+      .ok_or_else(FlowyError::user_not_login)?
+      .workspace_id()?;
     let client = try_get_client?;
     let profile = client.get_profile().await?;
     let token = client.get_token()?;
@@ -196,7 +192,11 @@ where
 
     // Discard the response if the user has switched to a new workspace. This avoids updating the
     // user profile with potentially outdated information when the workspace ID no longer matches.
-    check_request_workspace_id_is_match(&expected_workspace_id, &cloned_user, "get user profile")?;
+    check_request_workspace_id_is_match(
+      &expected_workspace_id,
+      &self.logged_user,
+      "get user profile",
+    )?;
     Ok(profile)
   }
 
@@ -233,19 +233,17 @@ where
   async fn patch_workspace(
     &self,
     workspace_id: &Uuid,
-    new_workspace_name: Option<&str>,
-    new_workspace_icon: Option<&str>,
+    new_workspace_name: Option<String>,
+    new_workspace_icon: Option<String>,
   ) -> Result<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_id = workspace_id.to_owned();
-    let owned_workspace_name = new_workspace_name.map(|s| s.to_owned());
-    let owned_workspace_icon = new_workspace_icon.map(|s| s.to_owned());
     let client = try_get_client?;
     client
       .patch_workspace(PatchWorkspaceParam {
         workspace_id,
-        workspace_name: owned_workspace_name,
-        workspace_icon: owned_workspace_icon,
+        workspace_name: new_workspace_name,
+        workspace_icon: new_workspace_icon,
       })
       .await?;
     Ok(())
@@ -363,7 +361,7 @@ where
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let cloned_user = self.user.clone();
+    let cloned_user = self.logged_user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*object_id, CollabType::UserAwareness),
@@ -435,9 +433,9 @@ where
 
   async fn subscribe_workspace(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     recurring_interval: RecurringInterval,
-    subscription_plan: SubscriptionPlan,
+    workspace_subscription_plan: SubscriptionPlan,
     success_url: String,
   ) -> Result<String, FlowyError> {
     let try_get_client = self.server.try_get_client();
@@ -447,7 +445,7 @@ where
       .create_subscription(
         &workspace_id,
         recurring_interval,
-        subscription_plan,
+        workspace_subscription_plan,
         &success_url,
       )
       .await?;
@@ -490,11 +488,13 @@ where
 
   async fn get_workspace_subscription_one(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    let workspace_subscriptions = client.get_workspace_subscriptions(&workspace_id).await?;
+    let workspace_subscriptions = client
+      .get_workspace_subscriptions(&workspace_id.to_string())
+      .await?;
     Ok(workspace_subscriptions)
   }
 
@@ -531,11 +531,13 @@ where
 
   async fn get_workspace_usage(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
   ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    let usage = client.get_workspace_usage_and_limit(&workspace_id).await?;
+    let usage = client
+      .get_workspace_usage_and_limit(&workspace_id.to_string())
+      .await?;
     Ok(usage)
   }
 
@@ -548,7 +550,7 @@ where
 
   async fn update_workspace_subscription_payment_period(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
     plan: SubscriptionPlan,
     recurring_interval: RecurringInterval,
   ) -> Result<(), FlowyError> {
@@ -556,7 +558,7 @@ where
     let client = try_get_client?;
     client
       .set_subscription_recurring_interval(&SetSubscriptionRecurringInterval {
-        workspace_id,
+        workspace_id: workspace_id.to_string(),
         plan,
         recurring_interval,
       })
@@ -573,7 +575,7 @@ where
 
   async fn get_workspace_setting(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<AFWorkspaceSettings, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.server.try_get_client();
@@ -584,7 +586,7 @@ where
 
   async fn update_workspace_setting(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     workspace_settings: AFWorkspaceSettingsChange,
   ) -> Result<AFWorkspaceSettings, FlowyError> {
     trace!("Sync workspace settings: {:?}", workspace_settings);

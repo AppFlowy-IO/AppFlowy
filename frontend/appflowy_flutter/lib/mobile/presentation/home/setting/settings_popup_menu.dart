@@ -48,7 +48,7 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
           text: LocaleKeys.settings_popupMenuItem_settings.tr(),
         ),
         // only show the member items in cloud mode
-        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
+        if (userProfile.authType == AuthenticatorPB.AppFlowyCloud) ...[
           const PopupMenuDivider(height: 0.5),
           _buildItem(
             value: _MobileSettingsPopupMenuItem.members,

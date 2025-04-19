@@ -193,7 +193,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
   Future<void> _updatePublishStatus(Emitter<ShareState> emit) async {
     final publishInfo = await ViewBackendService.getPublishInfo(view);
     final enablePublish = await UserBackendService.getCurrentUserProfile().fold(
-      (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
+      (v) => v.authType == AuthenticatorPB.AppFlowyCloud,
       (p) => false,
     );
 

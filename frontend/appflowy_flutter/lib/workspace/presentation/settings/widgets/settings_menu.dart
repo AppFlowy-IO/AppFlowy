@@ -63,8 +63,7 @@ class SettingsMenu extends StatelessWidget {
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.membersSettings.isOn &&
-                      userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud)
+                      userProfile.authType == AuthenticatorPB.AppFlowyCloud)
                     SettingsMenuElement(
                       page: SettingsPage.member,
                       selectedPage: currentPage,
@@ -110,8 +109,7 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (userProfile.authenticator ==
-                      AuthenticatorPB.AppFlowyCloud)
+                  if (userProfile.authType == AuthenticatorPB.AppFlowyCloud)
                     SettingsMenuElement(
                       page: SettingsPage.sites,
                       selectedPage: currentPage,

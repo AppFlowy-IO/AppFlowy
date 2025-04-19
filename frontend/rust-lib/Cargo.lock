@@ -3086,7 +3086,6 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "nanoid",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -3110,8 +3109,6 @@ dependencies = [
 name = "flowy-user-pub"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "arc-swap",
  "base64 0.21.5",
  "chrono",
  "client-api",
@@ -3120,6 +3117,7 @@ dependencies = [
  "collab-folder",
  "flowy-error",
  "flowy-folder-pub",
+ "flowy-sqlite",
  "lib-infra",
  "serde",
  "serde_json",

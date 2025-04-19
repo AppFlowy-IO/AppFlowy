@@ -17,13 +17,14 @@ use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthenticatorPB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB,
-  OauthSignInPB, RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB,
-  SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
-  UserWorkspaceIdPB, UserWorkspacePB,
+  AuthTypePB, AuthenticatorPB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB,
+  ImportAppFlowyDataPB, OauthSignInPB, OpenUserWorkspacePB, RenameWorkspacePB,
+  RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
+  UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
+use flowy_user_pub::entities::AuthType;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 
 use crate::event_builder::EventBuilder;
@@ -189,9 +190,10 @@ impl EventIntegrationTest {
     }
   }
 
-  pub async fn create_workspace(&self, name: &str) -> UserWorkspacePB {
+  pub async fn create_workspace(&self, name: &str, auth_type: AuthType) -> UserWorkspacePB {
     let payload = CreateWorkspacePB {
       name: name.to_string(),
+      auth_type: auth_type.into(),
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::CreateWorkspace)
@@ -278,9 +280,10 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub async fn open_workspace(&self, workspace_id: &str) {
-    let payload = UserWorkspaceIdPB {
+  pub async fn open_workspace(&self, workspace_id: &str, auth_type: AuthTypePB) {
+    let payload = OpenUserWorkspacePB {
       workspace_id: workspace_id.to_string(),
+      auth_type,
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::OpenWorkspace)

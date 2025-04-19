@@ -11,8 +11,8 @@ use flowy_folder_pub::entities::PublishPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
-  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
-  WorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, UserWorkspaceIdPB, UserWorkspacePB,
+  WorkspaceMemberInvitationPB, WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
@@ -110,6 +110,18 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<WorkspacePB>()
+  }
+
+  pub async fn get_user_workspace(&self, workspace_id: &str) -> UserWorkspacePB {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(UserEvent::GetUserWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserWorkspacePB>()
   }
 
   pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {

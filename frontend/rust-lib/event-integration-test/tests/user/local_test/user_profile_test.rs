@@ -24,9 +24,7 @@ async fn anon_user_profile_get() {
     .await
     .parse::<UserProfilePB>();
   assert_eq!(user_profile.id, user.id);
-  assert_eq!(user_profile.openai_key, user.openai_key);
-  assert_eq!(user_profile.stability_ai_key, user.stability_ai_key);
-  assert_eq!(user_profile.authenticator, AuthenticatorPB::Local);
+  assert_eq!(user_profile.auth_type, AuthenticatorPB::Local);
 }
 
 #[tokio::test]
@@ -48,31 +46,6 @@ async fn user_update_with_name() {
     .parse::<UserProfilePB>();
 
   assert_eq!(user_profile.name, new_name,);
-}
-
-#[tokio::test]
-async fn user_update_with_ai_key() {
-  let sdk = EventIntegrationTest::new().await;
-  let user = sdk.init_anon_user().await;
-  let openai_key = "openai_key".to_owned();
-  let stability_ai_key = "stability_ai_key".to_owned();
-  let request = UpdateUserProfilePayloadPB::new(user.id)
-    .openai_key(&openai_key)
-    .stability_ai_key(&stability_ai_key);
-  let _ = EventBuilder::new(sdk.clone())
-    .event(UpdateUserProfile)
-    .payload(request)
-    .async_send()
-    .await;
-
-  let user_profile = EventBuilder::new(sdk.clone())
-    .event(GetUserProfile)
-    .async_send()
-    .await
-    .parse::<UserProfilePB>();
-
-  assert_eq!(user_profile.openai_key, openai_key,);
-  assert_eq!(user_profile.stability_ai_key, stability_ai_key,);
 }
 
 #[tokio::test]

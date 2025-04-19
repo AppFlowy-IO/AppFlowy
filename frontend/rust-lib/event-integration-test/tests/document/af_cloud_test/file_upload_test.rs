@@ -66,6 +66,7 @@ async fn af_cloud_upload_big_file_test() {
 
   // download the file and then compare the data.
   let file_service = test
+    .appflowy_core
     .server_provider
     .get_server()
     .unwrap()

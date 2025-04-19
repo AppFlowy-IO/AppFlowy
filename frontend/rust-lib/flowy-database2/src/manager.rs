@@ -134,12 +134,30 @@ impl DatabaseManager {
   }
 
   #[instrument(
-    name = "database_initialize_with_new_user",
+    name = "database_initialize_after_sign_up",
     level = "debug",
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_after_sign_up(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
+  }
+
+  pub async fn initialize_after_open_workspace(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
+  }
+
+  pub async fn initialize_after_sign_in(
     &self,
     user_id: i64,
     is_local_user: bool,

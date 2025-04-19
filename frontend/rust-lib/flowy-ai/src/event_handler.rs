@@ -330,7 +330,7 @@ pub(crate) async fn update_chat_settings_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "debug", skip_all)]
 pub(crate) async fn get_local_ai_setting_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAISettingPB, FlowyError> {

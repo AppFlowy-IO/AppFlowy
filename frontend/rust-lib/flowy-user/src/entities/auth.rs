@@ -259,50 +259,6 @@ impl Default for AuthenticatorPB {
   }
 }
 
-#[derive(Debug, ProtoBuf, Default)]
-pub struct UserCredentialsPB {
-  #[pb(index = 1, one_of)]
-  pub uid: Option<i64>,
-
-  #[pb(index = 2, one_of)]
-  pub uuid: Option<String>,
-
-  #[pb(index = 3, one_of)]
-  pub token: Option<String>,
-}
-
-impl UserCredentialsPB {
-  pub fn from_uid(uid: i64) -> Self {
-    Self {
-      uid: Some(uid),
-      uuid: None,
-      token: None,
-    }
-  }
-
-  pub fn from_token(token: &str) -> Self {
-    Self {
-      uid: None,
-      uuid: None,
-      token: Some(token.to_owned()),
-    }
-  }
-
-  pub fn from_uuid(uuid: &str) -> Self {
-    Self {
-      uid: None,
-      uuid: Some(uuid.to_owned()),
-      token: None,
-    }
-  }
-}
-
-impl From<UserCredentialsPB> for UserCredentials {
-  fn from(value: UserCredentialsPB) -> Self {
-    Self::new(value.token, value.uid, value.uuid)
-  }
-}
-
 #[derive(Default, ProtoBuf)]
 pub struct UserStatePB {
   #[pb(index = 1)]

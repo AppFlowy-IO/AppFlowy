@@ -31,9 +31,9 @@ class MobileFavoriteScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) {
-            return workspaceSettingPB as WorkspaceSettingPB?;
+        final latest = snapshots.data?[0].fold(
+          (latest) {
+            return latest as WorkspaceLatestPB?;
           },
           (error) => null,
         );
@@ -46,7 +46,7 @@ class MobileFavoriteScreen extends StatelessWidget {
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
-        if (workspaceSetting == null || userProfile == null) {
+        if (latest == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
 

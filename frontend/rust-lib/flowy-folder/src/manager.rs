@@ -3,7 +3,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
   MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
-  ViewLayoutPB, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
+  ViewLayoutPB, ViewPB, ViewSectionPB, WorkspaceLatestPB, WorkspacePB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -263,7 +263,7 @@ impl FolderManager {
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
   #[tracing::instrument(skip(self, user_id), err)]
-  pub async fn initialize_with_workspace_id(&self, user_id: i64) -> FlowyResult<()> {
+  pub async fn initialize_after_sign_in(&self, user_id: i64) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
     let object_id = &workspace_id;
 
@@ -312,10 +312,14 @@ impl FolderManager {
     Ok(())
   }
 
+  pub async fn initialize_after_open_workspace(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize_after_sign_in(uid).await
+  }
+
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
   #[instrument(level = "info", skip_all, err)]
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_after_sign_up(
     &self,
     user_id: i64,
     _token: &str,
@@ -377,10 +381,10 @@ impl FolderManager {
     Ok(new_workspace)
   }
 
-  pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceSettingPB> {
+  pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceLatestPB> {
     let workspace_id = self.user.workspace_id()?;
     let latest_view = self.get_current_view().await;
-    Ok(WorkspaceSettingPB {
+    Ok(WorkspaceLatestPB {
       workspace_id: workspace_id.to_string(),
       latest_view,
     })
@@ -1262,7 +1266,7 @@ impl FolderManager {
     }
 
     let workspace_id = self.user.workspace_id()?;
-    let setting = WorkspaceSettingPB {
+    let setting = WorkspaceLatestPB {
       workspace_id: workspace_id.to_string(),
       latest_view: view,
     };

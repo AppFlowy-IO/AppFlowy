@@ -161,6 +161,7 @@ impl FlowyError {
   static_flowy_error!(view_is_locked, ErrorCode::ViewIsLocked);
   static_flowy_error!(local_ai_not_ready, ErrorCode::LocalAINotReady);
   static_flowy_error!(local_ai_disabled, ErrorCode::LocalAIDisabled);
+  static_flowy_error!(user_not_login, ErrorCode::UserNotLogin);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

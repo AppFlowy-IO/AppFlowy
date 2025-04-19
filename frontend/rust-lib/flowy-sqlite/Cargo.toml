@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 diesel.workspace = true
-diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
+diesel_derives = { workspace = true, features = ["sqlite", "r2d2"] }
 diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tracing.workspace = true
 serde.workspace = true

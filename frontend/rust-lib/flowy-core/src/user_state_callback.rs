@@ -49,11 +49,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   async fn did_init(
     &self,
     user_id: i64,
-    auth_type: &AuthType,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     _device_id: &str,
-    authenticator: &AuthType,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let workspace_id = user_workspace.workspace_id()?;
     self.server_provider.set_auth_type(*auth_type);
@@ -81,7 +80,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .database_manager
-      .initialize(user_id, authenticator == &AuthType::Local)
+      .initialize(user_id, auth_type == &AuthType::Local)
       .await?;
     self.document_manager.initialize(user_id).await?;
 
@@ -95,7 +94,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_id: i64,
     user_workspace: &UserWorkspace,
     device_id: &str,
-    authenticator: &AuthType,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
@@ -103,16 +102,20 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       user_workspace,
       device_id
     );
+    self.server_provider.set_auth_type(*auth_type);
 
     self
       .folder_manager
-      .initialize_with_workspace_id(user_id)
+      .initialize_after_sign_in(user_id)
       .await?;
     self
       .database_manager
-      .initialize(user_id, authenticator.is_local())
+      .initialize_after_sign_in(user_id, auth_type.is_local())
       .await?;
-    self.document_manager.initialize(user_id).await?;
+    self
+      .document_manager
+      .initialize_after_sign_in(user_id)
+      .await?;
 
     let workspace_id = user_workspace.id.clone();
     self.init_ai_component(workspace_id);
@@ -171,7 +174,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .folder_manager
-      .initialize_with_new_user(
+      .initialize_after_sign_up(
         user_profile.uid,
         &user_profile.token,
         is_new_user,
@@ -183,13 +186,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .database_manager
-      .initialize_with_new_user(user_profile.uid, auth_type.is_local())
+      .initialize_after_sign_up(user_profile.uid, auth_type.is_local())
       .await
       .context("DatabaseManager error")?;
 
     self
       .document_manager
-      .initialize_with_new_user(user_profile.uid)
+      .initialize_after_sign_up(user_profile.uid)
       .await
       .context("DocumentManager error")?;
 
@@ -207,19 +210,29 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
-    authenticator: &AuthType,
+    auth_type: &AuthType,
   ) -> FlowyResult<()> {
+    self.server_provider.set_auth_type(*auth_type);
     self
       .folder_manager
-      .initialize_with_workspace_id(user_id)
+      .initialize_after_open_workspace(user_id)
       .await?;
     self
       .database_manager
-      .initialize(user_id, authenticator.is_local())
+      .initialize_after_open_workspace(user_id, auth_type.is_local())
       .await?;
-    self.document_manager.initialize(user_id).await?;
-    self.ai_manager.initialize(&user_workspace.id).await?;
-    self.storage_manager.initialize(&user_workspace.id).await;
+    self
+      .document_manager
+      .initialize_after_open_workspace(user_id)
+      .await?;
+    self
+      .ai_manager
+      .initialize_after_open_workspace(&user_workspace.id)
+      .await?;
+    self
+      .storage_manager
+      .initialize_after_open_workspace(&user_workspace.id)
+      .await;
     Ok(())
   }
 

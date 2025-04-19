@@ -1,7 +1,7 @@
 use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use crate::af_cloud::define::LoginUserService;
+use crate::af_cloud::define::LoggedUser;
 use crate::local_server::impls::{
   LocalChatServiceImpl, LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
   LocalServerFolderCloudServiceImpl, LocalServerUserServiceImpl,
@@ -17,13 +17,13 @@ use flowy_user_pub::cloud::UserCloudService;
 use tokio::sync::mpsc;
 
 pub struct LocalServer {
-  user: Arc<dyn LoginUserService>,
+  user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
-  pub fn new(user: Arc<dyn LoginUserService>, local_ai: Arc<LocalAIController>) -> Self {
+  pub fn new(user: Arc<dyn LoggedUser>, local_ai: Arc<LocalAIController>) -> Self {
     Self {
       user,
       local_ai,
@@ -41,7 +41,9 @@ impl LocalServer {
 
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    Arc::new(LocalServerUserServiceImpl)
+    Arc::new(LocalServerUserServiceImpl {
+      user: self.user.clone(),
+    })
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {

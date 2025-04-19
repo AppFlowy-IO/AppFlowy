@@ -31,7 +31,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authenticator == AuthenticatorPB.AppFlowyCloud,
+                    userProfile?.authType == AuthenticatorPB.AppFlowyCloud,
               ),
             );
             _syncStateListener.start(

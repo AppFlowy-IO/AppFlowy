@@ -84,7 +84,7 @@ pub(crate) async fn read_private_views_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspaceSettingPB, FlowyError> {
+) -> DataResult<WorkspaceLatestPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let setting = folder.get_workspace_setting_pb().await?;
   data_result_ok(setting)

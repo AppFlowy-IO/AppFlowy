@@ -128,6 +128,24 @@ impl AIManager {
     Ok(())
   }
 
+  #[instrument(skip_all, err)]
+  pub async fn initialize_after_open_workspace(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<(), FlowyError> {
+    let local_ai = self.local_ai.clone();
+    tokio::spawn(async move {
+      if let Err(err) = local_ai.destroy_plugin().await {
+        error!("Failed to destroy plugin: {}", err);
+      }
+
+      if let Err(err) = local_ai.reload().await {
+        error!("[AI Manager] failed to reload local AI: {:?}", err);
+      }
+    });
+    Ok(())
+  }
+
   pub async fn open_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     self.chats.entry(*chat_id).or_insert_with(|| {
       Arc::new(Chat::new(

@@ -35,12 +35,11 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetUserSetting, get_user_setting)
     .event(UserEvent::SetCloudConfig, set_cloud_config_handler)
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
-    .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
-    .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
     .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
     .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
+    .event(UserEvent::GetUserWorkspace, get_user_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::OpenAnonUser, open_anon_user_handler)
     .event(UserEvent::GetAnonUser, get_anon_user_handler)
@@ -77,8 +76,8 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::UpdateWorkspaceSubscriptionPaymentPeriod, update_workspace_subscription_payment_period_handler)
     .event(UserEvent::GetSubscriptionPlanDetails, get_subscription_plan_details_handler)
     // Workspace Setting
-    .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
-    .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
+    .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting_handler)
+    .event(UserEvent::GetWorkspaceSetting, get_workspace_setting_handler)
     .event(UserEvent::NotifyDidSwitchPlan, notify_did_switch_plan_handler)
     .event(UserEvent::PasscodeSignIn, sign_in_with_passcode_handler)
 }
@@ -142,18 +141,15 @@ pub enum UserEvent {
   #[event(output = "CloudSettingPB")]
   GetCloudConfig = 14,
 
-  #[event(input = "UserSecretPB")]
-  SetEncryptionSecret = 15,
-
-  #[event(output = "UserEncryptionConfigurationPB")]
-  CheckEncryptionSign = 16,
-
   /// Return the all the workspaces of the user
   #[event(output = "RepeatedUserWorkspacePB")]
   GetAllWorkspace = 17,
 
-  #[event(input = "UserWorkspaceIdPB")]
+  #[event(input = "OpenUserWorkspacePB")]
   OpenWorkspace = 21,
+
+  #[event(input = "UserWorkspaceIdPB", output = "UserWorkspacePB")]
+  GetUserWorkspace = 22,
 
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
@@ -257,7 +253,7 @@ pub enum UserEvent {
   #[event(input = "UpdateUserWorkspaceSettingPB")]
   UpdateWorkspaceSetting = 57,
 
-  #[event(input = "UserWorkspaceIdPB", output = "UseAISettingPB")]
+  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceSettingsPB")]
   GetWorkspaceSetting = 58,
 
   #[event(input = "UserWorkspaceIdPB", output = "WorkspaceSubscriptionInfoPB")]
@@ -289,11 +285,10 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   async fn did_init(
     &self,
     _user_id: i64,
-    _user_authenticator: &AuthType,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -303,7 +298,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -326,7 +321,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
-    _authenticator: &AuthType,
+    _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
