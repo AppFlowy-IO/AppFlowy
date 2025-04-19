@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/widgets.dart';
 
+import 'link_toolbar_item.dart';
+
 final boldToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
@@ -153,6 +155,19 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
           editorState: editorState,
           selection: editorState.selection!,
         );
+      },
+    );
+  },
+);
+
+final linkToolbarItem = AppFlowyMobileToolbarItem(
+  itemBuilder: (context, editorState, service, __, onAction) {
+    return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
+      icon: FlowySvgs.toolbar_link_m,
+      onTap: () {
+        onMobileLinkButtonTap(editorState);
       },
     );
   },
