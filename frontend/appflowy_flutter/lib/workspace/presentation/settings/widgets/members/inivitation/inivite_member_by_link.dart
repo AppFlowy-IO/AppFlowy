@@ -1,79 +1,101 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:string_validator/string_validator.dart';
 
-class InviteMemberByLink extends StatefulWidget {
+class InviteMemberByLink extends StatelessWidget {
   const InviteMemberByLink({super.key});
 
   @override
-  State<InviteMemberByLink> createState() => _InviteMemberByLinkState();
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _Title(),
+            _Description(),
+          ],
+        ),
+        Spacer(),
+        _CopyLinkButton(),
+      ],
+    );
+  }
 }
 
-class _InviteMemberByLinkState extends State<InviteMemberByLink> {
-  final _emailController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-
-    super.dispose();
-  }
+class _Title extends StatelessWidget {
+  const _Title();
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          LocaleKeys.settings_appearance_members_inviteMemberByEmail.tr(),
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
-        VSpace(theme.spacing.m),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: AFTextField(
-                controller: _emailController,
-                hintText:
-                    LocaleKeys.settings_appearance_members_inviteHint.tr(),
-                onSubmitted: (value) => _inviteMember(),
-              ),
-            ),
-            HSpace(theme.spacing.l),
-            AFFilledTextButton.primary(
-              text: LocaleKeys.settings_appearance_members_sendInvite.tr(),
-              onTap: _inviteMember,
-            ),
-          ],
-        ),
-      ],
+    return Text(
+      LocaleKeys.settings_appearance_members_inviteLinkToAddMember.tr(),
+      style: theme.textStyle.body.enhanced(
+        color: theme.textColorScheme.primary,
+      ),
     );
   }
+}
 
-  void _inviteMember() {
-    final email = _emailController.text;
-    if (!isEmail(email)) {
-      showToastNotification(
-        type: ToastificationType.error,
-        message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
-      );
-      return;
-    }
+class _Description extends StatelessWidget {
+  const _Description();
 
-    context
-        .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
-    // clear the email field after inviting
-    _emailController.clear();
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: LocaleKeys.settings_appearance_members_clickToCopyLink.tr(),
+            style: theme.textStyle.caption.standard(
+              color: theme.textColorScheme.primary,
+            ),
+          ),
+          TextSpan(
+            text: ' ${LocaleKeys.settings_appearance_members_or.tr()} ',
+            style: theme.textStyle.caption.standard(
+              color: theme.textColorScheme.primary,
+            ),
+          ),
+          TextSpan(
+            text: LocaleKeys.settings_appearance_members_generateANewLink.tr(),
+            style: theme.textStyle.caption.standard(
+              color: theme.textColorScheme.action,
+            ),
+            mouseCursor: SystemMouseCursors.click,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                // todo: generate new link
+              },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CopyLinkButton extends StatelessWidget {
+  const _CopyLinkButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return AFOutlinedTextButton.normal(
+      text: LocaleKeys.button_copyLink.tr(),
+      textStyle: theme.textStyle.body.standard(
+        color: theme.textColorScheme.primary,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.l,
+        vertical: theme.spacing.s,
+      ),
+      onTap: () {
+        // todo: copy link
+      },
+    );
   }
 }

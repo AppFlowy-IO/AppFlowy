@@ -72,7 +72,7 @@ class WorkspaceMembersPage extends StatelessWidget {
     final actionResult = state.actionResult!.result;
     final actionType = state.actionResult!.actionType;
 
-    if (actionType == WorkspaceMemberActionType.invite &&
+    if (actionType == WorkspaceMemberActionType.inviteByEmail &&
         actionResult.isFailure) {
       final error = actionResult.getFailure().code;
       if (error == ErrorCode.WorkspaceMemberLimitExceeded) {
@@ -172,7 +172,7 @@ class WorkspaceMembersPage extends StatelessWidget {
     final result = actionResult.result;
 
     // only show the result dialog when the action is WorkspaceMemberActionType.add
-    if (actionType == WorkspaceMemberActionType.add) {
+    if (actionType == WorkspaceMemberActionType.addByEmail) {
       result.fold(
         (s) {
           showSnackBarMessage(
@@ -191,7 +191,7 @@ class WorkspaceMembersPage extends StatelessWidget {
           );
         },
       );
-    } else if (actionType == WorkspaceMemberActionType.invite) {
+    } else if (actionType == WorkspaceMemberActionType.inviteByEmail) {
       result.fold(
         (s) {
           showSnackBarMessage(
@@ -390,7 +390,7 @@ class _MemberMoreActionList extends StatelessWidget {
                     .settings_appearance_members_areYouSureToRemoveMember
                     .tr(),
                 onOkPressed: () => context.read<WorkspaceMemberBloc>().add(
-                      WorkspaceMemberEvent.removeWorkspaceMember(
+                      WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
                         action.member.email,
                       ),
                     ),

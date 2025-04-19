@@ -72,7 +72,7 @@ class _InviteMemberByEmailState extends State<InviteMemberByEmail> {
 
     context
         .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+        .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
     // clear the email field after inviting
     _emailController.clear();
   }
