@@ -101,104 +101,104 @@ class WorkspaceMembersPage extends StatelessWidget {
     );
   }
 
-  Widget _showMemberLimitWarning(
-    BuildContext context,
-    WorkspaceMemberState state,
-  ) {
-    // We promise that state.actionResult != null before calling
-    // this method
-    final actionResult = state.actionResult!.result;
-    final actionType = state.actionResult!.actionType;
+  // Widget _showMemberLimitWarning(
+  //   BuildContext context,
+  //   WorkspaceMemberState state,
+  // ) {
+  //   // We promise that state.actionResult != null before calling
+  //   // this method
+  //   final actionResult = state.actionResult!.result;
+  //   final actionType = state.actionResult!.actionType;
 
-    if (actionType == WorkspaceMemberActionType.inviteByEmail &&
-        actionResult.isFailure) {
-      final error = actionResult.getFailure().code;
-      if (error == ErrorCode.WorkspaceMemberLimitExceeded) {
-        return Row(
-          children: [
-            const FlowySvg(
-              FlowySvgs.warning_s,
-              blendMode: BlendMode.dst,
-              size: Size.square(20),
-            ),
-            const HSpace(12),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    if (state.subscriptionInfo?.plan ==
-                        WorkspacePlanPB.ProPlan) ...[
-                      TextSpan(
-                        text: LocaleKeys
-                            .settings_appearance_members_memberLimitExceededPro
-                            .tr(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AFThemeExtension.of(context).strongText,
-                        ),
-                      ),
-                      WidgetSpan(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            // Hardcoded support email, in the future we might
-                            // want to add this to an environment variable
-                            onTap: () async => afLaunchUrlString(
-                              'mailto:support@appflowy.io',
-                            ),
-                            child: FlowyText(
-                              LocaleKeys
-                                  .settings_appearance_members_memberLimitExceededProContact
-                                  .tr(),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      TextSpan(
-                        text: LocaleKeys
-                            .settings_appearance_members_memberLimitExceeded
-                            .tr(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AFThemeExtension.of(context).strongText,
-                        ),
-                      ),
-                      WidgetSpan(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () => context
-                                .read<WorkspaceMemberBloc>()
-                                .add(const WorkspaceMemberEvent.upgradePlan()),
-                            child: FlowyText(
-                              LocaleKeys
-                                  .settings_appearance_members_memberLimitExceededUpgrade
-                                  .tr(),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      }
-    }
+  //   if (actionType == WorkspaceMemberActionType.inviteByEmail &&
+  //       actionResult.isFailure) {
+  //     final error = actionResult.getFailure().code;
+  //     if (error == ErrorCode.WorkspaceMemberLimitExceeded) {
+  //       return Row(
+  //         children: [
+  //           const FlowySvg(
+  //             FlowySvgs.warning_s,
+  //             blendMode: BlendMode.dst,
+  //             size: Size.square(20),
+  //           ),
+  //           const HSpace(12),
+  //           Expanded(
+  //             child: RichText(
+  //               text: TextSpan(
+  //                 children: [
+  //                   if (state.subscriptionInfo?.plan ==
+  //                       WorkspacePlanPB.ProPlan) ...[
+  //                     TextSpan(
+  //                       text: LocaleKeys
+  //                           .settings_appearance_members_memberLimitExceededPro
+  //                           .tr(),
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w400,
+  //                         color: AFThemeExtension.of(context).strongText,
+  //                       ),
+  //                     ),
+  //                     WidgetSpan(
+  //                       child: MouseRegion(
+  //                         cursor: SystemMouseCursors.click,
+  //                         child: GestureDetector(
+  //                           // Hardcoded support email, in the future we might
+  //                           // want to add this to an environment variable
+  //                           onTap: () async => afLaunchUrlString(
+  //                             'mailto:support@appflowy.io',
+  //                           ),
+  //                           child: FlowyText(
+  //                             LocaleKeys
+  //                                 .settings_appearance_members_memberLimitExceededProContact
+  //                                 .tr(),
+  //                             fontSize: 14,
+  //                             fontWeight: FontWeight.w400,
+  //                             color: Theme.of(context).colorScheme.primary,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ] else ...[
+  //                     TextSpan(
+  //                       text: LocaleKeys
+  //                           .settings_appearance_members_memberLimitExceeded
+  //                           .tr(),
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w400,
+  //                         color: AFThemeExtension.of(context).strongText,
+  //                       ),
+  //                     ),
+  //                     WidgetSpan(
+  //                       child: MouseRegion(
+  //                         cursor: SystemMouseCursors.click,
+  //                         child: GestureDetector(
+  //                           onTap: () => context
+  //                               .read<WorkspaceMemberBloc>()
+  //                               .add(const WorkspaceMemberEvent.upgradePlan()),
+  //                           child: FlowyText(
+  //                             LocaleKeys
+  //                                 .settings_appearance_members_memberLimitExceededUpgrade
+  //                                 .tr(),
+  //                             fontSize: 14,
+  //                             fontWeight: FontWeight.w400,
+  //                             color: Theme.of(context).colorScheme.primary,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     }
+  //   }
 
-    return const SizedBox.shrink();
-  }
+  //   return const SizedBox.shrink();
+  // }
 
   void _showResultDialog(BuildContext context, WorkspaceMemberState state) {
     final actionResult = state.actionResult;
