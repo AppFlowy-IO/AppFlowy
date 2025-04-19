@@ -5,17 +5,6 @@ use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab_integrate::CollabKVDB;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
-use flowy_sqlite::schema::user_workspace_table;
-use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
-use flowy_user_pub::entities::{
-  AuthType, Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
-};
-use tracing::{error, info, instrument, trace, warn};
-use uuid::Uuid;
-
 use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
   UpdateUserWorkspaceSettingPB, UserWorkspacePB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB,
@@ -38,7 +27,18 @@ use crate::services::sqlite_sql::workspace_sql::{
   UserWorkspaceChangeset, UserWorkspaceTable,
 };
 use crate::user_manager::UserManager;
+use collab_integrate::CollabKVDB;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
+use flowy_sqlite::schema::user_workspace_table;
+use flowy_sqlite::{query_dsl::*, ConnectionPool, DBConnection, ExpressionMethods};
+use flowy_user_pub::cloud::UserCloudServiceProvider;
+use flowy_user_pub::entities::{
+  AuthType, Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+};
 use flowy_user_pub::session::Session;
+use tracing::{error, info, instrument, trace, warn};
+use uuid::Uuid;
 
 impl UserManager {
   /// Import appflowy data from the given path.
@@ -561,51 +561,29 @@ impl UserManager {
       Ok(workspace_settings) => {
         trace!("workspace settings found in local db");
         let pb = WorkspaceSettingsPB::from(workspace_settings);
-
         let old_pb = pb.clone();
         let workspace_id = *workspace_id;
+
+        // Spawn a task to sync remote settings using the helper
         let pool = self.db_pool(uid)?;
         let cloud_service = self.cloud_service.clone();
         tokio::spawn(async move {
-          let cloud_service = cloud_service.get_user_service()?;
-          let settings = cloud_service.get_workspace_setting(&workspace_id).await?;
-          let new_pb = WorkspaceSettingsPB::from(&settings);
-          if new_pb != old_pb {
-            trace!("workspace settings updated");
-            send_notification(
-              &uid.to_string(),
-              UserNotification::DidUpdateWorkspaceSetting,
-            )
-            .payload(new_pb)
-            .send();
-
-            if let Ok(mut conn) = pool.get() {
-              upsert_workspace_setting(
-                &mut conn,
-                WorkspaceSettingsTable::from_workspace_settings(&workspace_id, &settings),
-              )?;
-            }
-          }
-
-          Ok::<_, FlowyError>(())
+          let _ = sync_workspace_settings(cloud_service, workspace_id, old_pb, uid, pool).await;
         });
         Ok(pb)
       },
       Err(err) => {
         if err.is_record_not_found() {
           trace!("No workspace settings found, fetch from remote");
-          let settings = self
-            .cloud_service
-            .get_user_service()?
-            .get_workspace_setting(&workspace_id)
-            .await?;
+          let service = self.cloud_service.get_user_service()?;
+          let settings = service.get_workspace_setting(&workspace_id).await?;
           let pb = WorkspaceSettingsPB::from(&settings);
           let mut conn = self.db_connection(uid)?;
           upsert_workspace_setting(
             &mut conn,
             WorkspaceSettingsTable::from_workspace_settings(&workspace_id, &settings),
           )?;
-          Ok::<_, FlowyError>(pb.clone())
+          Ok(pb)
         } else {
           Err(err)
         }
@@ -776,4 +754,32 @@ fn is_older_than_n_minutes(updated_at: NaiveDateTime, minutes: i64) -> bool {
     Some(five_minutes_ago) => updated_at < five_minutes_ago,
     None => false,
   }
+}
+
+async fn sync_workspace_settings(
+  cloud_service: Arc<dyn UserCloudServiceProvider>,
+  workspace_id: Uuid,
+  old_pb: WorkspaceSettingsPB,
+  uid: i64,
+  pool: Arc<ConnectionPool>,
+) -> FlowyResult<()> {
+  let service = cloud_service.get_user_service()?;
+  let settings = service.get_workspace_setting(&workspace_id).await?;
+  let new_pb = WorkspaceSettingsPB::from(&settings);
+  if new_pb != old_pb {
+    trace!("workspace settings updated");
+    send_notification(
+      &uid.to_string(),
+      UserNotification::DidUpdateWorkspaceSetting,
+    )
+    .payload(new_pb)
+    .send();
+    if let Ok(mut conn) = pool.get() {
+      upsert_workspace_setting(
+        &mut conn,
+        WorkspaceSettingsTable::from_workspace_settings(&workspace_id, &settings),
+      )?;
+    }
+  }
+  Ok(())
 }
