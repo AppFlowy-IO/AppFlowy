@@ -2320,6 +2320,8 @@
   "search": {
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
+    "searchOrAskAI": "Search or ask AI",
+    "askAIAnything": "Ask AI anything",
     "placeholder": {
       "actions": "Search actions..."
     }

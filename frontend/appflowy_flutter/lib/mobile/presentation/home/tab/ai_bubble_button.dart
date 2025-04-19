@@ -100,7 +100,7 @@ class FloatingAIEntryV2 extends StatelessWidget {
         height: 56,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: theme.fillColorScheme.white,
+          color: theme.surfaceColorScheme.primary,
           boxShadow: [theme.shadow.small],
           border: Border.all(color: Color(0xFFF1E0FF)),
         ),
