@@ -177,7 +177,7 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
-  device_info_plus: ^10.1.0
+  device_info_plus: ^11.2.2
 
   url_protocol:
     git:
