@@ -61,20 +61,6 @@ class AuthRouter {
     );
   }
 
-  void pushEncryptionScreen(
-    BuildContext context,
-    UserProfilePB userProfile,
-  ) {
-    // After log in,push EncryptionScreen on the top SignInScreen
-    context.push(
-      EncryptSecretScreen.routeName,
-      extra: {
-        EncryptSecretScreen.argUser: userProfile,
-        EncryptSecretScreen.argKey: ValueKey(userProfile.id),
-      },
-    );
-  }
-
   Future<void> pushWorkspaceErrorScreen(
     BuildContext context,
     UserFolderPB userFolder,

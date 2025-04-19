@@ -12,11 +12,7 @@ void handleUserProfileResult(
 ) {
   userProfileResult.fold(
     (userProfile) {
-      if (userProfile.encryptionType == EncryptionTypePB.Symmetric) {
-        authRouter.pushEncryptionScreen(context, userProfile);
-      } else {
-        authRouter.goHomeScreen(context, userProfile);
-      }
+      authRouter.goHomeScreen(context, userProfile);
     },
     (error) {
       handleOpenWorkspaceError(context, error);

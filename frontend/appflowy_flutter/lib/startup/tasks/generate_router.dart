@@ -51,7 +51,6 @@ GoRouter generateRouter(Widget child) {
       // Routes in both desktop and mobile
       _signInScreenRoute(),
       _skipLogInScreenRoute(),
-      _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
       if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
@@ -463,23 +462,6 @@ GoRoute _workspaceErrorScreenRoute() {
         child: WorkspaceErrorScreen(
           error: args[WorkspaceErrorScreen.argError],
           userFolder: args[WorkspaceErrorScreen.argUserFolder],
-        ),
-        transitionsBuilder: _buildFadeTransition,
-        transitionDuration: _slowDuration,
-      );
-    },
-  );
-}
-
-GoRoute _encryptSecretScreenRoute() {
-  return GoRoute(
-    path: EncryptSecretScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      return CustomTransitionPage(
-        child: EncryptSecretScreen(
-          user: args[EncryptSecretScreen.argUser],
-          key: args[EncryptSecretScreen.argKey],
         ),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,

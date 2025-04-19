@@ -101,7 +101,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    final type = userProfilePB?.authType ?? AuthenticatorPB.Local;
     return type == AuthenticatorPB.Local;
   }
 

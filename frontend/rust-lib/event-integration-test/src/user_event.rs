@@ -24,6 +24,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
+use flowy_user_pub::entities::AuthType;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 
 use crate::event_builder::EventBuilder;
@@ -189,9 +190,10 @@ impl EventIntegrationTest {
     }
   }
 
-  pub async fn create_workspace(&self, name: &str) -> UserWorkspacePB {
+  pub async fn create_workspace(&self, name: &str, auth_type: AuthType) -> UserWorkspacePB {
     let payload = CreateWorkspacePB {
       name: name.to_string(),
+      auth_type: auth_type.into(),
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::CreateWorkspace)

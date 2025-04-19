@@ -7,20 +7,17 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use flowy_error::FlowyError;
-use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   query_dsl::*,
   schema::{user_table, user_table::dsl},
   DBConnection, Database, ExpressionMethods,
 };
-use flowy_user_pub::entities::{UserProfile, UserWorkspace};
-
+use flowy_user_pub::entities::UserProfile;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 use tracing::{error, event, info, instrument};
 
 use crate::services::sqlite_sql::user_sql::UserTable;
-use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
   fn sqlite_db_path(&self, uid: i64) -> PathBuf;
@@ -141,18 +138,6 @@ impl UserDB {
       .first::<UserTable>(&mut *conn)?;
 
     Ok(user.into())
-  }
-
-  pub fn get_user_workspace(
-    &self,
-    pool: &Arc<ConnectionPool>,
-    uid: i64,
-  ) -> Result<Option<UserWorkspace>, FlowyError> {
-    let mut conn = pool.get()?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .first::<UserWorkspaceTable>(&mut *conn)?;
-    Ok(Some(UserWorkspace::from(row)))
   }
 
   /// Open a collab db for the user. If the db is already opened, return the opened db.

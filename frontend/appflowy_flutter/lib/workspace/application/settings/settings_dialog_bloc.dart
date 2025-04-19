@@ -92,7 +92,7 @@ class SettingsDialogBloc
   ]) async {
     if ([
       AuthenticatorPB.Local,
-    ].contains(userProfile.authenticator)) {
+    ].contains(userProfile.authType)) {
       return false;
     }
 

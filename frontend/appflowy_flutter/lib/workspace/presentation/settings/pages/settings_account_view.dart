@@ -70,7 +70,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               // user email
               // Only show email if the user is authenticated and not using local auth
               if (isAuthEnabled &&
-                  state.userProfile.authenticator != AuthenticatorPB.Local) ...[
+                  state.userProfile.authType != AuthenticatorPB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.newSettings_myAccount_myAccount.tr(),
                   children: [
@@ -82,30 +82,30 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                     ),
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction: state.userProfile.authenticator ==
-                              AuthenticatorPB.Local
-                          ? widget.didLogin
-                          : widget.didLogout,
-                      signIn: state.userProfile.authenticator ==
-                          AuthenticatorPB.Local,
+                      onAction:
+                          state.userProfile.authType == AuthenticatorPB.Local
+                              ? widget.didLogin
+                              : widget.didLogout,
+                      signIn:
+                          state.userProfile.authType == AuthenticatorPB.Local,
                     ),
                   ],
                 ),
               ],
 
               if (isAuthEnabled &&
-                  state.userProfile.authenticator == AuthenticatorPB.Local) ...[
+                  state.userProfile.authType == AuthenticatorPB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_accountPage_login_title.tr(),
                   children: [
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction: state.userProfile.authenticator ==
-                              AuthenticatorPB.Local
-                          ? widget.didLogin
-                          : widget.didLogout,
-                      signIn: state.userProfile.authenticator ==
-                          AuthenticatorPB.Local,
+                      onAction:
+                          state.userProfile.authType == AuthenticatorPB.Local
+                              ? widget.didLogin
+                              : widget.didLogout,
+                      signIn:
+                          state.userProfile.authType == AuthenticatorPB.Local,
                     ),
                   ],
                 ),
@@ -120,8 +120,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               ),
 
               // user deletion
-              if (widget.userProfile.authenticator ==
-                  AuthenticatorPB.AppFlowyCloud)
+              if (widget.userProfile.authType == AuthenticatorPB.AppFlowyCloud)
                 const AccountDeletionButton(),
             ],
           );

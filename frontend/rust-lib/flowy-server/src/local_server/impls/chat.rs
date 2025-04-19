@@ -1,4 +1,4 @@
-use crate::af_cloud::define::LoginUserService;
+use crate::af_cloud::define::LoggedUser;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::CompletionStream;
@@ -28,7 +28,7 @@ use tracing::trace;
 use uuid::Uuid;
 
 pub struct LocalChatServiceImpl {
-  pub user: Arc<dyn LoginUserService>,
+  pub user: Arc<dyn LoggedUser>,
   pub local_ai: Arc<LocalAIController>,
 }
 

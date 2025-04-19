@@ -113,11 +113,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Err(FlowyError::internal().with_context("Can't oauth url when using offline mode"))
   }
 
-  async fn update_user(
-    &self,
-    _credential: UserCredentials,
-    _params: UpdateUserProfileParams,
-  ) -> Result<(), FlowyError> {
+  async fn update_user(&self, _params: UpdateUserProfileParams) -> Result<(), FlowyError> {
     Ok(())
   }
 
@@ -146,8 +142,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
   async fn patch_workspace(
     &self,
     workspace_id: &Uuid,
-    new_workspace_name: Option<&str>,
-    new_workspace_icon: Option<&str>,
+    new_workspace_name: Option<String>,
+    new_workspace_icon: Option<String>,
   ) -> Result<(), FlowyError> {
     Err(
       FlowyError::local_version_not_support()

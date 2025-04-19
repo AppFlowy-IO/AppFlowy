@@ -1,8 +1,8 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use crate::af_cloud::define::{AIUserServiceImpl, LoginUserService};
+use crate::af_cloud::define::{AIUserServiceImpl, LoggedUser};
 use anyhow::Error;
 use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
@@ -53,7 +53,7 @@ pub struct AppFlowyCloudServer {
   network_reachable: Arc<AtomicBool>,
   pub device_id: String,
   ws_client: Arc<WSClient>,
-  logged_user: Arc<dyn LoginUserService>,
+  logged_user: Weak<dyn LoggedUser>,
 }
 
 impl AppFlowyCloudServer {
@@ -62,7 +62,7 @@ impl AppFlowyCloudServer {
     enable_sync: bool,
     mut device_id: String,
     client_version: Version,
-    auth_user_service: Arc<dyn LoginUserService>,
+    logged_user: Weak<dyn LoggedUser>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -91,8 +91,8 @@ impl AppFlowyCloudServer {
     );
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
-
     spawn_ws_conn(token_state_rx, &ws_client, &api_client, &enable_sync);
+
     Self {
       config,
       client: api_client,
@@ -100,16 +100,17 @@ impl AppFlowyCloudServer {
       network_reachable,
       device_id,
       ws_client,
-      logged_user: auth_user_service,
+      logged_user,
     }
   }
 
-  fn get_client(&self) -> Option<Arc<AFCloudClient>> {
-    if self.enable_sync.load(Ordering::SeqCst) {
+  fn get_server_impl(&self) -> AFServerImpl {
+    let client = if self.enable_sync.load(Ordering::SeqCst) {
       Some(self.client.clone())
     } else {
       None
-    }
+    };
+    AFServerImpl { client }
   }
 }
 
@@ -165,9 +166,6 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
     tokio::spawn(async move {
@@ -185,59 +183,45 @@ impl AppFlowyServer for AppFlowyCloudServer {
     });
 
     Arc::new(AFCloudUserAuthServiceImpl::new(
-      server,
+      self.get_server_impl(),
       rx,
       self.logged_user.clone(),
     ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudFolderCloudServiceImpl {
-      inner: server,
+      inner: self.get_server_impl(),
       logged_user: self.logged_user.clone(),
     })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudDatabaseCloudServiceImpl {
-      inner: server,
+      inner: self.get_server_impl(),
       logged_user: self.logged_user.clone(),
     })
   }
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Some(Arc::new(AFCloudDatabaseCloudServiceImpl {
-      inner: server,
+      inner: self.get_server_impl(),
       logged_user: self.logged_user.clone(),
     }))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudDocumentCloudServiceImpl {
-      inner: server,
+      inner: self.get_server_impl(),
       logged_user: self.logged_user.clone(),
     })
   }
 
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
-
     Arc::new(AutoSyncChatService::new(
-      Arc::new(CloudChatServiceImpl { inner: server }),
+      Arc::new(CloudChatServiceImpl {
+        inner: self.get_server_impl(),
+      }),
       Arc::new(AIUserServiceImpl(self.logged_user.clone())),
     ))
   }
@@ -269,21 +253,16 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
-    let client = AFServerImpl {
-      client: self.get_client(),
-    };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(
-      client,
+      self.get_server_impl(),
       self.config.maximum_upload_file_size_in_bytes,
     )))
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
-
-    Some(Arc::new(AFCloudSearchCloudServiceImpl { inner: server }))
+    Some(Arc::new(AFCloudSearchCloudServiceImpl {
+      inner: self.get_server_impl(),
+    }))
   }
 }
 

@@ -8,7 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_server::af_cloud::define::LoginUserService;
+use flowy_server::af_cloud::define::LoggedUser;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -34,7 +34,7 @@ use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::log_filter::init_log;
-use crate::server_layer::{current_server_type, ServerProvider};
+use crate::server_layer::ServerProvider;
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
@@ -131,12 +131,10 @@ impl AppFlowyCore {
       store_preference.clone(),
     ));
 
-    let auth_type = current_server_type();
-    debug!("🔥runtime:{}, server:{}", runtime, auth_type);
+    debug!("🔥runtime:{}", runtime);
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      auth_type,
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
     ));
@@ -327,7 +325,7 @@ impl ServerUserImpl {
 }
 
 #[async_trait]
-impl LoginUserService for ServerUserImpl {
+impl LoggedUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
   }

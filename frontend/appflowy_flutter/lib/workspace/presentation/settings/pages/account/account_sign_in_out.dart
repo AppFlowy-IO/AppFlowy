@@ -79,9 +79,7 @@ class AccountSignInOutButton extends StatelessWidget {
     showConfirmDialog(
       context: context,
       title: LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-      description: userProfile.encryptionType == EncryptionTypePB.Symmetric
-          ? LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr()
-          : LocaleKeys.settings_menu_logoutPrompt.tr(),
+      description: LocaleKeys.settings_menu_logoutPrompt.tr(),
       onConfirm: () async {
         await getIt<AuthService>().signOut();
         onAction();

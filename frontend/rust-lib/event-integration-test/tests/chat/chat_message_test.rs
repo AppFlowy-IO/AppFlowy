@@ -19,7 +19,12 @@ async fn af_cloud_create_chat_message_test() {
   let current_workspace = test.get_current_workspace().await;
   let view = test.create_chat(&current_workspace.id).await;
   let chat_id = view.id.clone();
-  let chat_service = test.server_provider.get_server().unwrap().chat_service();
+  let chat_service = test
+    .appflowy_core
+    .server_provider
+    .get_server()
+    .unwrap()
+    .chat_service();
   for i in 0..10 {
     let _ = chat_service
       .create_question(
@@ -74,7 +79,12 @@ async fn af_cloud_load_remote_system_message_test() {
   let view = test.create_chat(&current_workspace.id).await;
   let chat_id = view.id.clone();
 
-  let chat_service = test.server_provider.get_server().unwrap().chat_service();
+  let chat_service = test
+    .appflowy_core
+    .server_provider
+    .get_server()
+    .unwrap()
+    .chat_service();
   for i in 0..10 {
     let _ = chat_service
       .create_question(

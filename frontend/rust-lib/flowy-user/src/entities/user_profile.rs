@@ -4,11 +4,10 @@ use lib_infra::validator_fn::required_not_empty_str;
 use std::convert::TryInto;
 use validator::Validate;
 
-use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey};
+use crate::entities::parser::{UserEmail, UserIcon, UserName};
 use crate::entities::AuthenticatorPB;
 use crate::errors::ErrorCode;
 
-use super::parser::UserStabilityAIKey;
 use super::AFRolePB;
 
 #[derive(Default, ProtoBuf)]
@@ -41,22 +40,7 @@ pub struct UserProfilePB {
   pub icon_url: String,
 
   #[pb(index = 6)]
-  pub openai_key: String,
-
-  #[pb(index = 7)]
-  pub authenticator: AuthenticatorPB,
-
-  #[pb(index = 8)]
-  pub encryption_sign: String,
-
-  #[pb(index = 9)]
-  pub encryption_type: EncryptionTypePB,
-
-  #[pb(index = 10)]
-  pub stability_ai_key: String,
-
-  #[pb(index = 11)]
-  pub ai_model: String,
+  pub auth_type: AuthenticatorPB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -73,23 +57,13 @@ impl Default for EncryptionTypePB {
 
 impl From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
-    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
-      EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
-      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
-    };
-    let ai_model = user_profile.ai_model;
     Self {
       id: user_profile.uid,
       email: user_profile.email,
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
-      openai_key: user_profile.openai_key,
-      authenticator: user_profile.authenticator.into(),
-      encryption_sign,
-      encryption_type: encryption_ty,
-      stability_ai_key: user_profile.stability_ai_key,
-      ai_model,
+      auth_type: user_profile.auth_type.into(),
     }
   }
 }
@@ -110,12 +84,6 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 5, one_of)]
   pub icon_url: Option<String>,
-
-  #[pb(index = 6, one_of)]
-  pub openai_key: Option<String>,
-
-  #[pb(index = 7, one_of)]
-  pub stability_ai_key: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -145,16 +113,6 @@ impl UpdateUserProfilePayloadPB {
     self.icon_url = Some(icon_url.to_owned());
     self
   }
-
-  pub fn openai_key(mut self, openai_key: &str) -> Self {
-    self.openai_key = Some(openai_key.to_owned());
-    self
-  }
-
-  pub fn stability_ai_key(mut self, stability_ai_key: &str) -> Self {
-    self.stability_ai_key = Some(stability_ai_key.to_owned());
-    self
-  }
 }
 
 impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
@@ -178,27 +136,13 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(icon_url) => Some(UserIcon::parse(icon_url)?.0),
     };
 
-    let openai_key = match self.openai_key {
-      None => None,
-      Some(openai_key) => Some(UserOpenaiKey::parse(openai_key)?.0),
-    };
-
-    let stability_ai_key = match self.stability_ai_key {
-      None => None,
-      Some(stability_ai_key) => Some(UserStabilityAIKey::parse(stability_ai_key)?.0),
-    };
-
     Ok(UpdateUserProfileParams {
       uid: self.id,
       name,
       email,
       password,
       icon_url,
-      openai_key,
-      encryption_sign: None,
       token: None,
-      stability_ai_key,
-      ai_model: None,
     })
   }
 }

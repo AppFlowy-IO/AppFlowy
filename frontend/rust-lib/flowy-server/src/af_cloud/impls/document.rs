@@ -9,17 +9,17 @@ use collab_entity::CollabType;
 use flowy_document_pub::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
-use std::sync::Arc;
+use std::sync::Weak;
 use tracing::instrument;
 use uuid::Uuid;
 
-use crate::af_cloud::define::LoginUserService;
+use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudDocumentCloudServiceImpl<T> {
   pub inner: T,
-  pub logged_user: Arc<dyn LoginUserService>,
+  pub logged_user: Weak<dyn LoggedUser>,
 }
 
 #[async_trait]

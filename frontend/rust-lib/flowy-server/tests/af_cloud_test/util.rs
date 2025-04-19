@@ -8,7 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use uuid::Uuid;
 
 use crate::setup_log;
-use flowy_server::af_cloud::define::LoginUserService;
+use flowy_server::af_cloud::define::LoggedUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::DBConnection;
@@ -30,19 +30,21 @@ pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
 
 pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer> {
   let fake_device_id = uuid::Uuid::new_v4().to_string();
+  let logged_user = Arc::new(FakeServerUserImpl) as Arc<dyn LoggedUser>;
   Arc::new(AppFlowyCloudServer::new(
     config,
     true,
     fake_device_id,
     Version::new(0, 5, 8),
-    Arc::new(FakeServerUserImpl),
+    // do nothing, just for test
+    Arc::downgrade(&logged_user),
   ))
 }
 
 struct FakeServerUserImpl;
 
 #[async_trait]
-impl LoginUserService for FakeServerUserImpl {
+impl LoggedUser for FakeServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     todo!()
   }

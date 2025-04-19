@@ -1,14 +1,14 @@
+use crate::user::af_cloud_test::util::get_synced_workspaces;
 use collab::core::collab::DataSource::DocStateV1;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::Folder;
 use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
+use flowy_user_pub::entities::AuthType;
 use std::time::Duration;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
-
-use crate::user::af_cloud_test::util::get_synced_workspaces;
 
 #[tokio::test]
 async fn af_cloud_workspace_delete() {
@@ -18,7 +18,9 @@ async fn af_cloud_workspace_delete() {
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
   assert_eq!(workspaces.len(), 1);
 
-  let created_workspace = test.create_workspace("my second workspace").await;
+  let created_workspace = test
+    .create_workspace("my second workspace", AuthType::AppFlowyCloud)
+    .await;
   assert_eq!(created_workspace.name, "my second workspace");
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
   assert_eq!(workspaces.len(), 2);
@@ -66,7 +68,9 @@ async fn af_cloud_create_workspace_test() {
   let first_workspace_id = workspaces[0].workspace_id.as_str();
   assert_eq!(workspaces.len(), 1);
 
-  let created_workspace = test.create_workspace("my second workspace").await;
+  let created_workspace = test
+    .create_workspace("my second workspace", AuthType::AppFlowyCloud)
+    .await;
   assert_eq!(created_workspace.name, "my second workspace");
 
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
@@ -113,7 +117,9 @@ async fn af_cloud_open_workspace_test() {
   assert_eq!(views[2].name, "A");
   assert_eq!(views[3].name, "B");
 
-  let user_workspace = test.create_workspace("second workspace").await;
+  let user_workspace = test
+    .create_workspace("second workspace", AuthType::AppFlowyCloud)
+    .await;
   test.open_workspace(&user_workspace.workspace_id).await;
   let second_workspace = test.get_current_workspace().await;
   test.create_document("C").await;

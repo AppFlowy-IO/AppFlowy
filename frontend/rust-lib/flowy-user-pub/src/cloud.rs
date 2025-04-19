@@ -164,11 +164,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn generate_oauth_url_with_provider(&self, provider: &str) -> Result<String, FlowyError>;
 
   /// Using the user's token to update the user information
-  async fn update_user(
-    &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
-  ) -> Result<(), FlowyError>;
+  async fn update_user(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError>;
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
@@ -187,8 +183,8 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn patch_workspace(
     &self,
     workspace_id: &Uuid,
-    new_workspace_name: Option<&str>,
-    new_workspace_icon: Option<&str>,
+    new_workspace_name: Option<String>,
+    new_workspace_icon: Option<String>,
   ) -> Result<(), FlowyError>;
 
   /// Deletes a workspace owned by the user.
@@ -277,7 +273,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn subscribe_workspace(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     recurring_interval: RecurringInterval,
     workspace_subscription_plan: SubscriptionPlan,
     success_url: String,
@@ -303,7 +299,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Get the workspace subscriptions for a workspace
   async fn get_workspace_subscription_one(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     Err(FlowyError::not_support())
   }
@@ -326,7 +322,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn get_workspace_usage(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
   ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
     Err(FlowyError::not_support())
   }
@@ -337,7 +333,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn update_workspace_subscription_payment_period(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
     plan: SubscriptionPlan,
     recurring_interval: RecurringInterval,
   ) -> Result<(), FlowyError> {
@@ -350,14 +346,14 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn get_workspace_setting(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<AFWorkspaceSettings, FlowyError> {
     Err(FlowyError::not_support())
   }
 
   async fn update_workspace_setting(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     workspace_settings: AFWorkspaceSettingsChange,
   ) -> Result<AFWorkspaceSettings, FlowyError> {
     Err(FlowyError::not_support())

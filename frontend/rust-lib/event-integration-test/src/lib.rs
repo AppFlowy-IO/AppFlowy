@@ -8,7 +8,6 @@ use collab_entity::CollabType;
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
-use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
 use flowy_user::errors::FlowyError;
 use lib_dispatch::runtime::AFPluginRuntime;
@@ -113,16 +112,25 @@ impl EventIntegrationTest {
     self.appflowy_core.config.application_path.clone()
   }
 
-  pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
-    self.appflowy_core.server_provider.get_server().unwrap()
-  }
-
   pub async fn wait_ws_connected(&self) {
-    if self.get_server().get_ws_state().is_connected() {
+    if self
+      .appflowy_core
+      .server_provider
+      .get_server()
+      .unwrap()
+      .get_ws_state()
+      .is_connected()
+    {
       return;
     }
 
-    let mut ws_state = self.get_server().subscribe_ws_state().unwrap();
+    let mut ws_state = self
+      .appflowy_core
+      .server_provider
+      .get_server()
+      .unwrap()
+      .subscribe_ws_state()
+      .unwrap();
     loop {
       select! {
         _ = sleep(Duration::from_secs(20)) => {
@@ -144,9 +152,10 @@ impl EventIntegrationTest {
     oid: &str,
     collab_type: CollabType,
   ) -> Result<Vec<u8>, FlowyError> {
-    let server = self.server_provider.get_server().unwrap();
+    let server = self.server_provider.get_server()?;
+
     let workspace_id = self.get_current_workspace().await.id;
-    let oid = Uuid::from_str(oid).unwrap();
+    let oid = Uuid::from_str(oid)?;
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()

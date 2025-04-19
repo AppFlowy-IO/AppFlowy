@@ -52,8 +52,8 @@ class DesktopHomeScreen extends StatelessWidget {
           return _buildLoading();
         }
 
-        final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
+        final workspaceLatest = snapshots.data?[0].fold(
+          (workspaceLatestPB) => workspaceLatestPB as WorkspaceLatestPB,
           (error) => null,
         );
 
@@ -64,7 +64,7 @@ class DesktopHomeScreen extends StatelessWidget {
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
-        if (workspaceSetting == null || userProfile == null) {
+        if (workspaceLatest == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
 
@@ -86,11 +86,11 @@ class DesktopHomeScreen extends StatelessWidget {
               BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
               BlocProvider<HomeBloc>(
                 create: (_) =>
-                    HomeBloc(workspaceSetting)..add(const HomeEvent.initial()),
+                    HomeBloc(workspaceLatest)..add(const HomeEvent.initial()),
               ),
               BlocProvider<HomeSettingBloc>(
                 create: (_) => HomeSettingBloc(
-                  workspaceSetting,
+                  workspaceLatest,
                   context.read<AppearanceSettingsCubit>(),
                   context.widthPx,
                 )..add(const HomeSettingEvent.initial()),
@@ -137,7 +137,7 @@ class DesktopHomeScreen extends StatelessWidget {
                         child: _buildBody(
                           context,
                           userProfile,
-                          workspaceSetting,
+                          workspaceLatest,
                         ),
                       ),
                     ),
@@ -157,7 +157,7 @@ class DesktopHomeScreen extends StatelessWidget {
   Widget _buildBody(
     BuildContext context,
     UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
+    WorkspaceLatestPB workspaceSetting,
   ) {
     final layout = HomeLayout(context);
     final homeStack = HomeStack(
@@ -190,7 +190,7 @@ class DesktopHomeScreen extends StatelessWidget {
     BuildContext context, {
     required HomeLayout layout,
     required UserProfilePB userProfile,
-    required WorkspaceSettingPB workspaceSetting,
+    required WorkspaceLatestPB workspaceSetting,
   }) {
     final homeMenu = HomeSideBar(
       userProfile: userProfile,

@@ -10,7 +10,7 @@ use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
 use serde_json::to_vec;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::Weak;
 use tracing::{instrument, trace};
 use uuid::Uuid;
 
@@ -22,13 +22,13 @@ use flowy_folder_pub::cloud::{
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 
-use crate::af_cloud::define::LoginUserService;
+use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudFolderCloudServiceImpl<T> {
   pub inner: T,
-  pub logged_user: Arc<dyn LoginUserService>,
+  pub logged_user: Weak<dyn LoggedUser>,
 }
 
 #[async_trait]
@@ -91,7 +91,6 @@ where
   ) -> Result<Option<FolderData>, FlowyError> {
     let uid = *uid;
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.logged_user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*workspace_id, CollabType::Folder),
@@ -103,7 +102,7 @@ where
       .encode_collab
       .doc_state
       .to_vec();
-    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get folder data")?;
+    check_request_workspace_id_is_match(workspace_id, &self.logged_user, "get folder data")?;
     let folder = Folder::from_collab_doc_state(
       uid,
       CollabOrigin::Empty,
@@ -131,7 +130,6 @@ where
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.logged_user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*object_id, collab_type),
@@ -143,7 +141,7 @@ where
       .encode_collab
       .doc_state
       .to_vec();
-    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get folder doc state")?;
+    check_request_workspace_id_is_match(workspace_id, &self.logged_user, "get folder doc state")?;
     Ok(doc_state)
   }
 

@@ -40,8 +40,6 @@ class UserBackendService implements IUserBackendService {
     String? password,
     String? email,
     String? iconUrl,
-    String? openAIKey,
-    String? stabilityAiKey,
   }) {
     final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -59,14 +57,6 @@ class UserBackendService implements IUserBackendService {
 
     if (iconUrl != null) {
       payload.iconUrl = iconUrl;
-    }
-
-    if (openAIKey != null) {
-      payload.openaiKey = openAIKey;
-    }
-
-    if (stabilityAiKey != null) {
-      payload.stabilityAiKey = stabilityAiKey;
     }
 
     return UserEventUpdateUserProfile(payload).send();

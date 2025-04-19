@@ -5,9 +5,10 @@ use client_api::entity::billing_dto::{
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
+use crate::services::sqlite_sql::workspace_setting_sql::WorkspaceSettingsTable;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
+use flowy_user_pub::entities::{AuthType, Role, WorkspaceInvitation, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -215,6 +216,34 @@ pub struct CreateWorkspacePB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub name: String,
+
+  #[pb(index = 2)]
+  pub auth_type: AuthTypePB,
+}
+
+#[derive(ProtoBuf_Enum, Default, Clone)]
+pub enum AuthTypePB {
+  LocalAuthType = 0,
+  #[default]
+  CloudAuthType = 1,
+}
+
+impl From<AuthType> for AuthTypePB {
+  fn from(value: AuthType) -> Self {
+    match value {
+      AuthType::Local => AuthTypePB::LocalAuthType,
+      AuthType::AppFlowyCloud => AuthTypePB::CloudAuthType,
+    }
+  }
+}
+
+impl From<AuthTypePB> for AuthType {
+  fn from(value: AuthTypePB) -> Self {
+    match value {
+      AuthTypePB::LocalAuthType => AuthType::Local,
+      AuthTypePB::CloudAuthType => AuthType::AppFlowyCloud,
+    }
+  }
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -375,8 +404,8 @@ pub struct BillingPortalPB {
   pub url: String,
 }
 
-#[derive(ProtoBuf, Default, Clone, Validate)]
-pub struct UseAISettingPB {
+#[derive(ProtoBuf, Default, Clone, Validate, Eq, PartialEq)]
+pub struct WorkspaceSettingsPB {
   #[pb(index = 1)]
   pub disable_search_indexing: bool,
 
@@ -384,8 +413,17 @@ pub struct UseAISettingPB {
   pub ai_model: String,
 }
 
-impl From<AFWorkspaceSettings> for UseAISettingPB {
-  fn from(value: AFWorkspaceSettings) -> Self {
+impl From<&AFWorkspaceSettings> for WorkspaceSettingsPB {
+  fn from(value: &AFWorkspaceSettings) -> Self {
+    Self {
+      disable_search_indexing: value.disable_search_indexing,
+      ai_model: value.ai_model.clone(),
+    }
+  }
+}
+
+impl From<WorkspaceSettingsTable> for WorkspaceSettingsPB {
+  fn from(value: WorkspaceSettingsTable) -> Self {
     Self {
       disable_search_indexing: value.disable_search_indexing,
       ai_model: value.ai_model,
