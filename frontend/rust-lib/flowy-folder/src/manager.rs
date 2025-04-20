@@ -272,7 +272,10 @@ impl FolderManager {
     if let Err(err) = self.initialize(user_id, &workspace_id, data_source).await {
       // If failed to open folder with remote data, open from local disk. After open from the local
       // disk. the data will be synced to the remote server.
-      error!("initialize folder for user {} with workspace {} encountered error: {:?}, fallback local", user_id, workspace_id, err);
+      error!(
+        "initialize folder for user {} with workspace {} encountered error: {:?}, fallback local",
+        user_id, workspace_id, err
+      );
       self
         .initialize(
           user_id,
