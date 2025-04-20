@@ -172,7 +172,6 @@ pub fn delete_all_then_insert_user_workspaces(
 ) -> FlowyResult<()> {
   conn.immediate_transaction(|conn| {
     delete_user_all_workspace(uid, auth_type, conn)?;
-
     info!(
       "Insert {} workspaces for user {} and auth type {:?}",
       user_workspaces.len(),

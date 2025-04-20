@@ -82,12 +82,12 @@ impl ServerProvider {
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
     let old_type = self.get_auth_type();
-    info!(
-      "ServerProvider: set auth type from {:?} to {:?}",
-      old_type, new_auth_type
-    );
-
     if old_type != new_auth_type {
+      info!(
+        "ServerProvider: auth type from {:?} to {:?}",
+        old_type, new_auth_type
+      );
+
       self.auth_type.store(Arc::new(new_auth_type));
       if let Some((auth_type, _)) = self.providers.remove(&old_type) {
         info!("ServerProvider: remove old auth type: {:?}", auth_type);

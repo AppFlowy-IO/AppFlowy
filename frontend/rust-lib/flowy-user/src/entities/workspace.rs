@@ -255,9 +255,6 @@ impl From<i32> for AuthTypePB {
     match value {
       0 => AuthTypePB::Local,
       1 => AuthTypePB::Server,
-      // For historical reasons, 2 also maps to Server.
-      // Check the AuthenticatorType in flowy-server-pub
-      2 => AuthTypePB::Server,
       _ => AuthTypePB::Server,
     }
   }

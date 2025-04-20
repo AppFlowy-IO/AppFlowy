@@ -55,7 +55,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let workspace_id = user_workspace.workspace_id()?;
-    self.server_provider.set_auth_type(*auth_type);
 
     if let Some(cloud_config) = cloud_config {
       self
@@ -102,8 +101,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       user_workspace,
       device_id
     );
-    self.server_provider.set_auth_type(*auth_type);
-
     self
       .folder_manager
       .initialize_after_sign_in(user_id)
@@ -130,8 +127,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     device_id: &str,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.server_provider.set_auth_type(*auth_type);
-
     event!(
       tracing::Level::TRACE,
       "Notify did sign up: is new: {} user_workspace: {:?}, device_id: {}",
@@ -212,7 +207,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_workspace: &UserWorkspace,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.server_provider.set_auth_type(*auth_type);
     self
       .folder_manager
       .initialize_after_open_workspace(user_id)

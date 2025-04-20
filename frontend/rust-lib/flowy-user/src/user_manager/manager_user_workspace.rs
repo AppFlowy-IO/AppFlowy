@@ -154,6 +154,8 @@ impl UserManager {
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
     info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    self.cloud_service.set_server_auth_type(&auth_type);
+
     let uid = self.user_id()?;
     let conn = self.db_connection(self.user_id()?)?;
     let user_workspace = match select_user_workspace(&workspace_id.to_string(), conn) {

@@ -48,7 +48,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
       latest_workspace: user_workspace.clone(),
       user_workspaces: vec![user_workspace],
       is_new_user: true,
-      email: Some(params.email),
+      // Anon user doesn't have email
+      email: None,
       token: None,
       encryption_type: EncryptionType::NoEncryption,
       updated_at: timestamp(),

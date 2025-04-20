@@ -84,7 +84,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     workspace_id: &Uuid,
     view_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::local_version_not_support())
+    Ok(())
   }
 
   async fn get_publish_info(&self, view_id: &Uuid) -> Result<PublishInfo, FlowyError> {
