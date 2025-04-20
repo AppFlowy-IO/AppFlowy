@@ -186,7 +186,7 @@ pub struct UserWorkspacePB {
   pub role: Option<AFRolePB>,
 
   #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
+  pub workspace_auth_type: AuthTypePB,
 }
 
 impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
@@ -198,7 +198,7 @@ impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
       icon: value.1.icon,
       member_count: value.1.member_count,
       role: value.1.role.map(AFRolePB::from),
-      auth_type: AuthTypePB::from(value.0),
+      workspace_auth_type: AuthTypePB::from(value.0),
     }
   }
 }
@@ -212,7 +212,7 @@ impl From<UserWorkspaceTable> for UserWorkspacePB {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
-      auth_type: AuthTypePB::from(value.auth_type),
+      workspace_auth_type: AuthTypePB::from(value.workspace_type),
     }
   }
 }

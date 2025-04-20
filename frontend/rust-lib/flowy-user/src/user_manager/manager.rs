@@ -38,6 +38,7 @@ use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
+use crate::migrations::anon_user_workspace::AnonUserWorkspaceTableMigration;
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
@@ -849,6 +850,7 @@ fn collab_migration_list() -> Vec<Box<dyn UserDataMigration>> {
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
     Box::new(WorkspaceTrashMapToSectionMigration),
     Box::new(CollabDocKeyWithWorkspaceIdMigration),
+    Box::new(AnonUserWorkspaceTableMigration),
   ]
 }
 

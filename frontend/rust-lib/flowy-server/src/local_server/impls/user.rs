@@ -133,9 +133,9 @@ impl UserCloudService for LocalServerUserServiceImpl {
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
     let uid = self.user.user_id()?;
-    let conn = self.user.get_sqlite_db(uid)?;
+    let mut conn = self.user.get_sqlite_db(uid)?;
 
-    let workspace = select_user_workspace(&workspace_id.to_string(), conn)?;
+    let workspace = select_user_workspace(&workspace_id.to_string(), &mut conn)?;
     Ok(UserWorkspace::from(workspace))
   }
 

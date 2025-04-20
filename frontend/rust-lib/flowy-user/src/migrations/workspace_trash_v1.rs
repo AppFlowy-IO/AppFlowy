@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_folder::Folder;
 use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
+use diesel::SqliteConnection;
 use semver::Version;
 use tracing::instrument;
 
@@ -38,6 +39,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
     _authenticator: &AuthType,
+    _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(

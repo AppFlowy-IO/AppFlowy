@@ -17,7 +17,7 @@ pub struct UserWorkspaceTable {
   pub icon: String,
   pub member_count: i64,
   pub role: Option<i32>,
-  pub auth_type: i32,
+  pub workspace_type: i32,
 }
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
@@ -50,18 +50,18 @@ impl UserWorkspaceTable {
       icon: workspace.icon.clone(),
       member_count: workspace.member_count,
       role: workspace.role.clone().map(|v| v as i32),
-      auth_type: auth_type as i32,
+      workspace_type: auth_type as i32,
     })
   }
 }
 
 pub fn select_user_workspace(
   workspace_id: &str,
-  mut conn: DBConnection,
+  conn: &mut SqliteConnection,
 ) -> FlowyResult<UserWorkspaceTable> {
   let row = user_workspace_table::dsl::user_workspace_table
     .filter(user_workspace_table::id.eq(workspace_id))
-    .first::<UserWorkspaceTable>(&mut *conn)?;
+    .first::<UserWorkspaceTable>(conn)?;
   Ok(row)
 }
 
@@ -106,7 +106,7 @@ pub fn upsert_user_workspace(
       user_workspace_table::icon.eq(row.icon),
       user_workspace_table::member_count.eq(row.member_count),
       user_workspace_table::role.eq(row.role),
-      user_workspace_table::auth_type.eq(row.auth_type),
+      user_workspace_table::workspace_type.eq(row.workspace_type),
     ))
     .execute(conn)?;
 
@@ -153,7 +153,7 @@ pub fn delete_user_all_workspace(
   let n = diesel::delete(
     user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
-      .filter(user_workspace_table::auth_type.eq(auth_type as i32)),
+      .filter(user_workspace_table::workspace_type.eq(auth_type as i32)),
   )
   .execute(conn)?;
   info!(

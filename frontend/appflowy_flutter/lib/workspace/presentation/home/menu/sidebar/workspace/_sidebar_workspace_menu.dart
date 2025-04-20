@@ -309,7 +309,7 @@ class _WorkspaceInfo extends StatelessWidget {
       context.read<UserWorkspaceBloc>().add(
             UserWorkspaceEvent.openWorkspace(
               workspace.workspaceId,
-              workspace.authType,
+              workspace.workspaceAuthType,
             ),
           );
 

@@ -157,8 +157,8 @@ impl UserManager {
     self.cloud_service.set_server_auth_type(&auth_type);
 
     let uid = self.user_id()?;
-    let conn = self.db_connection(self.user_id()?)?;
-    let user_workspace = match select_user_workspace(&workspace_id.to_string(), conn) {
+    let mut conn = self.db_connection(self.user_id()?)?;
+    let user_workspace = match select_user_workspace(&workspace_id.to_string(), &mut conn) {
       Err(err) => {
         if err.is_record_not_found() {
           sync_workspace(
@@ -401,8 +401,8 @@ impl UserManager {
     uid: i64,
     workspace_id: &Uuid,
   ) -> FlowyResult<UserWorkspaceTable> {
-    let conn = self.db_connection(uid)?;
-    select_user_workspace(workspace_id.to_string().as_str(), conn)
+    let mut conn = self.db_connection(uid)?;
+    select_user_workspace(workspace_id.to_string().as_str(), &mut conn)
   }
 
   pub async fn get_all_user_workspaces(

@@ -54,7 +54,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(
                 currentWorkspace.workspaceId,
-                currentWorkspace.authType,
+                currentWorkspace.workspaceAuthType,
               );
             }
 
@@ -92,7 +92,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               add(
                 OpenWorkspace(
                   currentWorkspace.workspaceId,
-                  currentWorkspace.authType,
+                  currentWorkspace.workspaceAuthType,
                 ),
               );
             }
@@ -132,7 +132,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 add(
                   OpenWorkspace(
                     s.workspaceId,
-                    s.authType,
+                    s.workspaceAuthType,
                   ),
                 );
               })
@@ -190,7 +190,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.authType,
+                      workspaces.first.workspaceAuthType,
                     ),
                   );
                 }
@@ -203,7 +203,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.authType,
+                      workspaces.first.workspaceAuthType,
                     ),
                   );
                 }
@@ -369,7 +369,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.authType,
+                      workspaces.first.workspaceAuthType,
                     ),
                   );
                 }
