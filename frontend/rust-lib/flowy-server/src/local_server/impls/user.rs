@@ -35,7 +35,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
     let params = params.unbox_or_error::<SignUpParams>()?;
     let uid = ID_GEN.lock().await.next_id();
     let workspace_id = Uuid::new_v4().to_string();
-    let user_workspace = UserWorkspace::new_local(&workspace_id, uid);
+    let user_workspace = UserWorkspace::new_local(workspace_id, "");
     let user_name = if params.name.is_empty() {
       DEFAULT_USER_NAME()
     } else {
@@ -48,7 +48,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
       latest_workspace: user_workspace.clone(),
       user_workspaces: vec![user_workspace],
       is_new_user: true,
-      email: Some(params.email),
+      // Anon user doesn't have email
+      email: None,
       token: None,
       encryption_type: EncryptionType::NoEncryption,
       updated_at: timestamp(),
@@ -59,7 +60,9 @@ impl UserCloudService for LocalServerUserServiceImpl {
   async fn sign_in(&self, params: BoxAny) -> Result<AuthResponse, FlowyError> {
     let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
     let uid = ID_GEN.lock().await.next_id();
-    let user_workspace = make_user_workspace("My Workspace");
+
+    let workspace_id = Uuid::new_v4();
+    let user_workspace = UserWorkspace::new_local(workspace_id.to_string(), "My Workspace");
     Ok(AuthResponse {
       user_id: uid,
       user_uuid: Uuid::new_v4(),
@@ -130,9 +133,9 @@ impl UserCloudService for LocalServerUserServiceImpl {
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
     let uid = self.user.user_id()?;
-    let conn = self.user.get_sqlite_db(uid)?;
+    let mut conn = self.user.get_sqlite_db(uid)?;
 
-    let workspace = select_user_workspace(&workspace_id.to_string(), conn)?;
+    let workspace = select_user_workspace(&workspace_id.to_string(), &mut conn)?;
     Ok(UserWorkspace::from(workspace))
   }
 
@@ -143,7 +146,11 @@ impl UserCloudService for LocalServerUserServiceImpl {
   }
 
   async fn create_workspace(&self, workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
-    Ok(make_user_workspace(workspace_name))
+    let workspace_id = Uuid::new_v4();
+    Ok(UserWorkspace::new_local(
+      workspace_id.to_string(),
+      workspace_name,
+    ))
   }
 
   async fn patch_workspace(
@@ -190,17 +197,5 @@ impl UserCloudService for LocalServerUserServiceImpl {
     objects: Vec<UserCollabParams>,
   ) -> Result<(), FlowyError> {
     Ok(())
-  }
-}
-
-fn make_user_workspace(name: &str) -> UserWorkspace {
-  UserWorkspace {
-    id: Uuid::new_v4().to_string(),
-    name: name.to_string(),
-    created_at: Default::default(),
-    workspace_database_id: Uuid::new_v4().to_string(),
-    icon: "".to_string(),
-    member_count: 1,
-    role: None,
   }
 }

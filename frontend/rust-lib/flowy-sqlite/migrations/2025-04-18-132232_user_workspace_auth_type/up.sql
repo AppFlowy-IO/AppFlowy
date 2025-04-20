@@ -1,10 +1,10 @@
 -- Your SQL goes here
 ALTER TABLE user_workspace_table
-    ADD COLUMN auth_type INTEGER NOT NULL DEFAULT 1;
+    ADD COLUMN workspace_type INTEGER NOT NULL DEFAULT 1;
 
 -- 2. Back‑fill from user_table.auth_type
 UPDATE user_workspace_table
-SET auth_type = (SELECT ut.auth_type
+SET workspace_type = (SELECT ut.auth_type
                  FROM user_table ut
                  WHERE ut.id = CAST(user_workspace_table.uid AS TEXT))
 WHERE EXISTS (SELECT 1

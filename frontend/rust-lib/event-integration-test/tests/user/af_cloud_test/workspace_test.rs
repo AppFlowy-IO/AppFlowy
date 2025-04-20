@@ -90,7 +90,10 @@ async fn af_cloud_create_workspace_test() {
   {
     // after opening new workspace
     test
-      .open_workspace(&created_workspace.workspace_id, created_workspace.auth_type)
+      .open_workspace(
+        &created_workspace.workspace_id,
+        created_workspace.workspace_auth_type,
+      )
       .await;
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(folder_ws.id, created_workspace.workspace_id);
@@ -124,7 +127,10 @@ async fn af_cloud_open_workspace_test() {
     .create_workspace("second workspace", AuthType::AppFlowyCloud)
     .await;
   test
-    .open_workspace(&user_workspace.workspace_id, user_workspace.auth_type)
+    .open_workspace(
+      &user_workspace.workspace_id,
+      user_workspace.workspace_auth_type,
+    )
     .await;
   let second_workspace = test.get_current_workspace().await;
   let second_workspace = test.get_user_workspace(&second_workspace.id).await;
@@ -144,7 +150,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &first_workspace.workspace_id,
-          first_workspace.auth_type.clone(),
+          first_workspace.workspace_auth_type.clone(),
         )
         .await;
       sleep(Duration::from_millis(300)).await;
@@ -155,7 +161,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &second_workspace.workspace_id,
-          second_workspace.auth_type.clone(),
+          second_workspace.workspace_auth_type.clone(),
         )
         .await;
       sleep(Duration::from_millis(200)).await;
@@ -168,7 +174,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &first_workspace.workspace_id,
-      first_workspace.auth_type.clone(),
+      first_workspace.workspace_auth_type.clone(),
     )
     .await;
   let views_1 = test.get_all_workspace_views().await;
@@ -180,7 +186,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &second_workspace.workspace_id,
-      second_workspace.auth_type.clone(),
+      second_workspace.workspace_auth_type.clone(),
     )
     .await;
   let views_2 = test.get_all_workspace_views().await;
@@ -239,7 +245,10 @@ async fn af_cloud_different_open_same_workspace_test() {
         let index = i % 2;
         let iter_workspace_id = &all_workspaces[index].workspace_id;
         client
-          .open_workspace(iter_workspace_id, all_workspaces[index].auth_type.clone())
+          .open_workspace(
+            iter_workspace_id,
+            all_workspaces[index].workspace_auth_type.clone(),
+          )
           .await;
         if iter_workspace_id == &cloned_shared_workspace_id {
           let views = client.get_all_workspace_views().await;

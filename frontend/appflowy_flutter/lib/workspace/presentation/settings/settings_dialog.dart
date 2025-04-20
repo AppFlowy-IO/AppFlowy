@@ -140,7 +140,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsShortcutsView();
       case SettingsPage.ai:
-        if (user.authType == AuthenticatorPB.AppFlowyCloud) {
+        if (user.authType == AuthTypePB.Server) {
           return SettingsAIView(
             key: ValueKey(workspaceId),
             userProfile: user,

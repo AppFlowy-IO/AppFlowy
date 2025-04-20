@@ -107,7 +107,7 @@ diesel::table! {
         icon -> Text,
         member_count -> BigInt,
         role -> Nullable<Integer>,
-        auth_type -> Integer,
+        workspace_type -> Integer,
     }
 }
 

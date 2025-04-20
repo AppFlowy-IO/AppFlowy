@@ -1,7 +1,7 @@
 use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_user::entities::AuthenticatorPB;
+use flowy_user::entities::AuthTypePB;
 
 use crate::util::unzip;
 
@@ -72,7 +72,7 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   let user = test.af_cloud_sign_up().await;
   let workspace = test.get_current_workspace().await;
   println!("user workspace: {:?}", workspace.id);
-  assert_eq!(user.auth_type, AuthenticatorPB::AppFlowyCloud);
+  assert_eq!(user.auth_type, AuthTypePB::Server);
 
   let user_first_level_views = test.get_all_workspace_views().await;
   assert_eq!(user_first_level_views.len(), 3);

@@ -1,7 +1,7 @@
 use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_error::{internal_error, FlowyResult};
 
 use arc_swap::ArcSwapOption;
 use collab::lock::RwLock;
@@ -21,7 +21,6 @@ use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
 use uuid::Uuid;
@@ -39,8 +38,8 @@ use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
+use crate::migrations::anon_user_workspace::AnonUserWorkspaceTableMigration;
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
-use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::*;
@@ -53,7 +52,6 @@ pub struct UserManager {
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
-  auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
   pub(crate) is_loading_awareness: Arc<DashMap<Uuid, bool>>,
@@ -78,7 +76,6 @@ impl UserManager {
       user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
-      auth_process: Default::default(),
       authenticate_user,
       refresh_user_profile_since,
       user_workspace_service,
@@ -132,18 +129,19 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
+      self.cloud_service.set_server_auth_type(&user.auth_type);
 
       // Get the current authenticator from the environment variable
-      let current_authenticator = current_authenticator();
+      let env_auth_type = current_authenticator();
 
       // If the current authenticator is different from the authenticator in the session and it's
       // not a local authenticator, we need to sign out the user.
-      if user.auth_type != AuthType::Local && user.auth_type != current_authenticator {
+      if user.auth_type != AuthType::Local && user.auth_type != env_auth_type {
         event!(
           tracing::Level::INFO,
-          "Authenticator changed from {:?} to {:?}",
+          "Auth type changed from {:?} to {:?}",
           user.auth_type,
-          current_authenticator
+          env_auth_type
         );
         self.sign_out().await?;
         return Ok(());
@@ -151,7 +149,7 @@ impl UserManager {
 
       event!(
         tracing::Level::INFO,
-        "init user session: {}:{}, authenticator: {:?}",
+        "init user session: {}:{}, auth type: {:?}",
         user.uid,
         user.email,
         user.auth_type,
@@ -269,7 +267,7 @@ impl UserManager {
       let _ = self.initial_user_awareness(&session, &user.auth_type).await;
 
       user_status_callback
-        .did_init(
+        .on_launch_if_authenticated(
           user.uid,
           &cloud_config,
           &session.user_workspace,
@@ -362,7 +360,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(
+      .on_sign_in(
         user_profile.uid,
         &latest_workspace,
         &self.authenticate_user.user_config.device_id,
@@ -389,9 +387,10 @@ impl UserManager {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self.cloud_service.set_server_auth_type(&auth_type);
+
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&auth_type).await;
-    self.cloud_service.set_server_auth_type(&auth_type);
     let auth_service = self.cloud_service.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let new_user_profile = UserProfile::from((&response, &auth_type));
@@ -399,28 +398,6 @@ impl UserManager {
       .continue_sign_up(&new_user_profile, migration_user, response, &auth_type)
       .await?;
     Ok(new_user_profile)
-  }
-
-  #[tracing::instrument(level = "info", skip(self))]
-  pub async fn resume_sign_up(&self) -> Result<(), FlowyError> {
-    let UserAuthProcess {
-      user_profile,
-      migration_user,
-      response,
-      authenticator,
-    } = self
-      .auth_process
-      .lock()
-      .await
-      .clone()
-      .ok_or(FlowyError::new(
-        ErrorCode::Internal,
-        "No resumable sign up data",
-      ))?;
-    self
-      .continue_sign_up(&user_profile, migration_user, response, &authenticator)
-      .await?;
-    Ok(())
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
@@ -436,14 +413,12 @@ impl UserManager {
     self
       .save_auth_data(&response, *auth_type, &new_session)
       .await?;
-    let _ = self
-      .initial_user_awareness(&new_session, &new_user_profile.auth_type)
-      .await;
+    let _ = self.initial_user_awareness(&new_session, auth_type).await;
     self
       .user_status_callback
       .read()
       .await
-      .did_sign_up(
+      .on_sign_up(
         response.is_new_user,
         new_user_profile,
         &new_session.user_workspace,
@@ -670,6 +645,7 @@ impl UserManager {
     }
   }
 
+  #[instrument(level = "info", skip_all)]
   pub(crate) async fn generate_sign_in_url_with_email(
     &self,
     authenticator: &AuthType,
@@ -682,6 +658,7 @@ impl UserManager {
     Ok(url)
   }
 
+  #[instrument(level = "info", skip_all)]
   pub(crate) async fn sign_in_with_password(
     &self,
     email: &str,
@@ -695,6 +672,7 @@ impl UserManager {
     Ok(response)
   }
 
+  #[instrument(level = "info", skip_all)]
   pub(crate) async fn sign_in_with_magic_link(
     &self,
     email: &str,
@@ -710,6 +688,7 @@ impl UserManager {
     Ok(())
   }
 
+  #[instrument(level = "info", skip_all)]
   pub(crate) async fn sign_in_with_passcode(
     &self,
     email: &str,
@@ -723,6 +702,7 @@ impl UserManager {
     Ok(response)
   }
 
+  #[instrument(level = "info", skip_all)]
   pub(crate) async fn generate_oauth_url(
     &self,
     oauth_provider: &str,
@@ -870,6 +850,7 @@ fn collab_migration_list() -> Vec<Box<dyn UserDataMigration>> {
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
     Box::new(WorkspaceTrashMapToSectionMigration),
     Box::new(CollabDocKeyWithWorkspaceIdMigration),
+    Box::new(AnonUserWorkspaceTableMigration),
   ]
 }
 

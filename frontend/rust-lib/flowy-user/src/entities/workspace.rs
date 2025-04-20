@@ -242,18 +242,20 @@ pub struct CreateWorkspacePB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Default, Debug, Clone)]
+#[derive(ProtoBuf_Enum, Default, Debug, Clone, Eq, PartialEq)]
+#[repr(u8)]
 pub enum AuthTypePB {
-  LocalAuthType = 0,
   #[default]
-  CloudAuthType = 1,
+  Local = 0,
+  Server = 1,
 }
+
 impl From<i32> for AuthTypePB {
   fn from(value: i32) -> Self {
     match value {
-      0 => AuthTypePB::LocalAuthType,
-      1 => AuthTypePB::CloudAuthType,
-      _ => AuthTypePB::CloudAuthType,
+      0 => AuthTypePB::Local,
+      1 => AuthTypePB::Server,
+      _ => AuthTypePB::Server,
     }
   }
 }
@@ -261,8 +263,8 @@ impl From<i32> for AuthTypePB {
 impl From<AuthType> for AuthTypePB {
   fn from(value: AuthType) -> Self {
     match value {
-      AuthType::Local => AuthTypePB::LocalAuthType,
-      AuthType::AppFlowyCloud => AuthTypePB::CloudAuthType,
+      AuthType::Local => AuthTypePB::Local,
+      AuthType::AppFlowyCloud => AuthTypePB::Server,
     }
   }
 }
@@ -270,8 +272,8 @@ impl From<AuthType> for AuthTypePB {
 impl From<AuthTypePB> for AuthType {
   fn from(value: AuthTypePB) -> Self {
     match value {
-      AuthTypePB::LocalAuthType => AuthType::Local,
-      AuthTypePB::CloudAuthType => AuthType::AppFlowyCloud,
+      AuthTypePB::Local => AuthType::Local,
+      AuthTypePB::Server => AuthType::AppFlowyCloud,
     }
   }
 }

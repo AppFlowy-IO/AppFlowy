@@ -154,9 +154,11 @@ impl UserManager {
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
     info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    self.cloud_service.set_server_auth_type(&auth_type);
+
     let uid = self.user_id()?;
-    let conn = self.db_connection(self.user_id()?)?;
-    let user_workspace = match select_user_workspace(&workspace_id.to_string(), conn) {
+    let mut conn = self.db_connection(self.user_id()?)?;
+    let user_workspace = match select_user_workspace(&workspace_id.to_string(), &mut conn) {
       Err(err) => {
         if err.is_record_not_found() {
           sync_workspace(
@@ -193,7 +195,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .open_workspace(uid, &user_workspace, &user_profile.auth_type)
+      .on_workspace_opened(uid, &user_workspace, &user_profile.auth_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
@@ -218,15 +220,23 @@ impl UserManager {
     workspace_name: &str,
     auth_type: AuthType,
   ) -> FlowyResult<UserWorkspace> {
-    let new_workspace = self
-      .cloud_service
-      .get_user_service()?
-      .create_workspace(workspace_name)
-      .await?;
+    let new_workspace = match auth_type {
+      AuthType::Local => {
+        let workspace_id = Uuid::new_v4();
+        UserWorkspace::new_local(workspace_id.to_string(), workspace_name)
+      },
+      AuthType::AppFlowyCloud => {
+        self
+          .cloud_service
+          .get_user_service()?
+          .create_workspace(workspace_name)
+          .await?
+      },
+    };
 
     info!(
-      "new workspace: {}, name:{}",
-      new_workspace.id, new_workspace.name
+      "create workspace: {}, name:{}, auth_type: {}",
+      new_workspace.id, new_workspace.name, auth_type
     );
 
     // save the workspace to sqlite db
@@ -391,8 +401,8 @@ impl UserManager {
     uid: i64,
     workspace_id: &Uuid,
   ) -> FlowyResult<UserWorkspaceTable> {
-    let conn = self.db_connection(uid)?;
-    select_user_workspace(workspace_id.to_string().as_str(), conn)
+    let mut conn = self.db_connection(uid)?;
+    select_user_workspace(workspace_id.to_string().as_str(), &mut conn)
   }
 
   pub async fn get_all_user_workspaces(
@@ -522,7 +532,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_update_storage_limitation(can_write);
+      .on_storage_permission_updated(can_write);
 
     Ok(workspace_usage)
   }
@@ -683,7 +693,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_update_plans(plans);
+      .on_subscription_plans_updated(plans);
     Ok(())
   }
 }

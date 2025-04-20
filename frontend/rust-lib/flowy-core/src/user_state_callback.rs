@@ -46,7 +46,7 @@ impl UserStatusCallbackImpl {
 
 #[async_trait]
 impl UserStatusCallback for UserStatusCallbackImpl {
-  async fn did_init(
+  async fn on_launch_if_authenticated(
     &self,
     user_id: i64,
     cloud_config: &Option<UserCloudConfig>,
@@ -55,7 +55,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let workspace_id = user_workspace.workspace_id()?;
-    self.server_provider.set_auth_type(*auth_type);
 
     if let Some(cloud_config) = cloud_config {
       self
@@ -89,7 +88,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  async fn did_sign_in(
+  async fn on_sign_in(
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
@@ -102,8 +101,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       user_workspace,
       device_id
     );
-    self.server_provider.set_auth_type(*auth_type);
-
     self
       .folder_manager
       .initialize_after_sign_in(user_id)
@@ -122,7 +119,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  async fn did_sign_up(
+  async fn on_sign_up(
     &self,
     is_new_user: bool,
     user_profile: &UserProfile,
@@ -130,8 +127,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     device_id: &str,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.server_provider.set_auth_type(*auth_type);
-
     event!(
       tracing::Level::TRACE,
       "Notify did sign up: is new: {} user_workspace: {:?}, device_id: {}",
@@ -201,18 +196,17 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  async fn did_expired(&self, _token: &str, user_id: i64) -> FlowyResult<()> {
+  async fn on_token_expired(&self, _token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.clear(user_id).await;
     Ok(())
   }
 
-  async fn open_workspace(
+  async fn on_workspace_opened(
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.server_provider.set_auth_type(*auth_type);
     self
       .folder_manager
       .initialize_after_open_workspace(user_id)
@@ -236,13 +230,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  fn did_update_network(&self, reachable: bool) {
+  fn on_network_status_changed(&self, reachable: bool) {
     info!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
     self.storage_manager.update_network_reachable(reachable);
   }
 
-  fn did_update_plans(&self, plans: Vec<SubscriptionPlan>) {
+  fn on_subscription_plans_updated(&self, plans: Vec<SubscriptionPlan>) {
     let mut storage_plan_changed = false;
     for plan in &plans {
       match plan {
@@ -255,7 +249,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     }
   }
 
-  fn did_update_storage_limitation(&self, can_write: bool) {
+  fn on_storage_permission_updated(&self, can_write: bool) {
     if can_write {
       self.storage_manager.enable_storage_write_access();
     } else {

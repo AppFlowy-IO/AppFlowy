@@ -1,6 +1,6 @@
 use super::AFRolePB;
 use crate::entities::parser::{UserEmail, UserIcon, UserName};
-use crate::entities::{AuthTypePB, AuthenticatorPB};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
@@ -39,7 +39,7 @@ pub struct UserProfilePB {
   pub icon_url: String,
 
   #[pb(index = 6)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -186,7 +186,7 @@ pub struct UserWorkspacePB {
   pub role: Option<AFRolePB>,
 
   #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
+  pub workspace_auth_type: AuthTypePB,
 }
 
 impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
@@ -198,7 +198,7 @@ impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
       icon: value.1.icon,
       member_count: value.1.member_count,
       role: value.1.role.map(AFRolePB::from),
-      auth_type: AuthTypePB::from(value.0),
+      workspace_auth_type: AuthTypePB::from(value.0),
     }
   }
 }
@@ -212,7 +212,7 @@ impl From<UserWorkspaceTable> for UserWorkspacePB {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
-      auth_type: AuthTypePB::from(value.auth_type),
+      workspace_auth_type: AuthTypePB::from(value.workspace_type),
     }
   }
 }

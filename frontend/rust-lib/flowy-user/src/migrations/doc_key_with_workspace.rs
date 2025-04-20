@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_plugins::local_storage::kv::doc::migrate_old_keys;
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use diesel::SqliteConnection;
 use semver::Version;
 use tracing::{instrument, trace};
 
@@ -40,6 +41,7 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
     _authenticator: &AuthType,
+    _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     trace!(
       "migrate key with workspace id:{}",
