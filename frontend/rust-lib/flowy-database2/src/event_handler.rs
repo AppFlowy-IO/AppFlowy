@@ -900,7 +900,7 @@ pub(crate) async fn get_databases_handler(
     if let Some(link_view) = meta.linked_views.first() {
       items.push(DatabaseMetaPB {
         database_id: meta.database_id,
-        inline_view_id: link_view.clone(),
+        view_id: link_view.clone(),
       })
     }
   }
