@@ -1,10 +1,10 @@
 use client_api::ClientConfiguration;
+use collab_plugins::CollabKVDB;
+use flowy_error::{FlowyError, FlowyResult};
 use semver::Version;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
-
-use flowy_error::{FlowyError, FlowyResult};
+use std::sync::{Arc, Weak};
 use uuid::Uuid;
 
 use crate::setup_log;
@@ -58,6 +58,10 @@ impl LoggedUser for FakeServerUserImpl {
   }
 
   fn get_sqlite_db(&self, _uid: i64) -> Result<DBConnection, FlowyError> {
+    todo!()
+  }
+
+  fn get_collab_db(&self, _uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     todo!()
   }
 

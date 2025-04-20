@@ -1,10 +1,11 @@
+use crate::entities::{Role, WorkspaceMember};
 use diesel::{insert_into, RunQueryDsl};
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::workspace_members_table;
 use flowy_sqlite::schema::workspace_members_table::dsl;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods};
 
-#[derive(Queryable, Insertable, AsChangeset, Debug)]
+#[derive(Queryable, Insertable, AsChangeset, Debug, Clone)]
 #[diesel(table_name = workspace_members_table)]
 #[diesel(primary_key(email, workspace_id))]
 pub struct WorkspaceMemberTable {
@@ -17,8 +18,19 @@ pub struct WorkspaceMemberTable {
   pub updated_at: chrono::NaiveDateTime,
 }
 
+impl From<WorkspaceMemberTable> for WorkspaceMember {
+  fn from(value: WorkspaceMemberTable) -> Self {
+    Self {
+      email: value.email,
+      role: Role::from(value.role),
+      name: value.name,
+      avatar_url: value.avatar_url,
+    }
+  }
+}
+
 pub fn upsert_workspace_member<T: Into<WorkspaceMemberTable>>(
-  mut conn: DBConnection,
+  conn: &mut SqliteConnection,
   member: T,
 ) -> FlowyResult<()> {
   let member = member.into();
@@ -31,7 +43,7 @@ pub fn upsert_workspace_member<T: Into<WorkspaceMemberTable>>(
     ))
     .do_update()
     .set(&member)
-    .execute(&mut conn)?;
+    .execute(conn)?;
 
   Ok(())
 }

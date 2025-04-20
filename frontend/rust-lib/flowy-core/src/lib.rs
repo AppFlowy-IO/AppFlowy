@@ -1,6 +1,7 @@
 #![allow(unused_doc_comments)]
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
@@ -340,6 +341,10 @@ impl LoggedUser for ServerUserImpl {
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn get_collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
+    self.upgrade_user()?.get_collab_db(uid)
   }
 
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {

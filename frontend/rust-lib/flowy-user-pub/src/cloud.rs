@@ -285,10 +285,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     uid: i64,
-  ) -> Result<WorkspaceMember, FlowyError> {
-    Err(FlowyError::not_support())
-  }
-
+  ) -> Result<WorkspaceMember, FlowyError>;
   /// Get all subscriptions for all workspaces for a user (email)
   async fn get_workspace_subscriptions(
     &self,
@@ -323,9 +320,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn get_workspace_usage(
     &self,
     workspace_id: &Uuid,
-  ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+  ) -> Result<WorkspaceUsageAndLimit, FlowyError>;
 
   async fn get_billing_portal_url(&self) -> Result<String, FlowyError> {
     Err(FlowyError::not_support())
@@ -337,27 +332,23 @@ pub trait UserCloudService: Send + Sync + 'static {
     plan: SubscriptionPlan,
     recurring_interval: RecurringInterval,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   async fn get_subscription_plan_details(&self) -> Result<Vec<SubscriptionPlanDetail>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn get_workspace_setting(
     &self,
     workspace_id: &Uuid,
-  ) -> Result<AFWorkspaceSettings, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+  ) -> Result<AFWorkspaceSettings, FlowyError>;
 
   async fn update_workspace_setting(
     &self,
     workspace_id: &Uuid,
     workspace_settings: AFWorkspaceSettingsChange,
-  ) -> Result<AFWorkspaceSettings, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+  ) -> Result<AFWorkspaceSettings, FlowyError>;
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

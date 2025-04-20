@@ -126,8 +126,8 @@ impl UserDB {
     pool: &Arc<ConnectionPool>,
     uid: i64,
   ) -> Result<UserProfile, FlowyError> {
-    let conn = pool.get()?;
-    let profile = select_user_profile(uid, conn)?;
+    let mut conn = pool.get()?;
+    let profile = select_user_profile(uid, &mut conn)?;
     Ok(profile)
   }
 

@@ -1,7 +1,7 @@
 use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_error::{internal_error, FlowyResult};
+use flowy_error::FlowyResult;
 
 use arc_swap::ArcSwapOption;
 use collab::lock::RwLock;
@@ -506,8 +506,12 @@ impl UserManager {
       self.db_connection(session.user_id)?,
       changeset,
     )?;
+    self
+      .cloud_service
+      .get_user_service()?
+      .update_user(params)
+      .await?;
 
-    self.update_user(params).await?;
     Ok(())
   }
 
@@ -539,7 +543,8 @@ impl UserManager {
 
   /// Fetches the user profile for the given user ID.
   pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
-    select_user_profile(uid, self.db_connection(uid)?)
+    let mut conn = self.db_connection(uid)?;
+    select_user_profile(uid, &mut conn)
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
@@ -623,14 +628,6 @@ impl UserManager {
 
   pub fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(None)
-  }
-
-  async fn update_user(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError> {
-    let server = self.cloud_service.get_user_service()?;
-    tokio::spawn(async move { server.update_user(params).await })
-      .await
-      .map_err(internal_error)??;
-    Ok(())
   }
 
   async fn save_user(&self, uid: i64, user: UserTable) -> Result<(), FlowyError> {
@@ -816,7 +813,7 @@ pub fn upsert_user_profile_change(
     "Update user profile with changeset: {:?}",
     changeset
   );
-  diesel_update_table!(user_table, changeset, &mut *conn);
+  update_user_profile(&mut conn, changeset)?;
   let user: UserProfile = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
     .first::<UserTable>(&mut *conn)?

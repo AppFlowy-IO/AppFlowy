@@ -668,8 +668,8 @@ impl UserManager {
       updated_at: Utc::now().naive_utc(),
     };
 
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-    upsert_workspace_member(db, record)?;
+    let mut db = self.authenticate_user.get_sqlite_connection(uid)?;
+    upsert_workspace_member(&mut db, record)?;
     Ok(member)
   }
 

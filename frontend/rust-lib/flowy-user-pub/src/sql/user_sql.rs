@@ -92,10 +92,24 @@ impl From<UserUpdate> for UserTableChangeset {
   }
 }
 
-pub fn select_user_profile(uid: i64, mut conn: DBConnection) -> Result<UserProfile, FlowyError> {
+pub fn update_user_profile(
+  conn: &mut SqliteConnection,
+  changeset: UserTableChangeset,
+) -> Result<(), FlowyError> {
+  let user_id = changeset.id.clone();
+  update(user_table::dsl::user_table.filter(user_table::id.eq(&user_id)))
+    .set(changeset)
+    .execute(conn)?;
+  Ok(())
+}
+
+pub fn select_user_profile(
+  uid: i64,
+  conn: &mut SqliteConnection,
+) -> Result<UserProfile, FlowyError> {
   let user: UserProfile = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
-    .first::<UserTable>(&mut *conn)
+    .first::<UserTable>(conn)
     .map_err(|err| {
       FlowyError::record_not_found().with_context(format!(
         "Can't find the user profile for user id: {}, error: {:?}",
