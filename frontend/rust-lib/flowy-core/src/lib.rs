@@ -253,6 +253,7 @@ impl AppFlowyCore {
     .await;
 
     let user_status_callback = UserStatusCallbackImpl {
+      user_manager: user_manager.clone(),
       collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),

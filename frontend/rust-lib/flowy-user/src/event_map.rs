@@ -1,13 +1,13 @@
 use client_api::entity::billing_dto::SubscriptionPlan;
-use std::sync::Weak;
-use strum_macros::Display;
-
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
 use flowy_user_pub::cloud::UserCloudConfig;
 use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::async_trait::async_trait;
+use std::sync::Weak;
+use strum_macros::Display;
+use uuid::Uuid;
 
 use crate::event_handler::*;
 use crate::user_manager::UserManager;
@@ -323,6 +323,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   async fn on_workspace_opened(
     &self,
     _user_id: i64,
+    _workspace_id: &Uuid,
     _user_workspace: &UserWorkspace,
     _auth_type: &AuthType,
   ) -> FlowyResult<()> {

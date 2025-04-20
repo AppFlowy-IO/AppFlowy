@@ -262,16 +262,17 @@ impl FolderManager {
 
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
-  #[tracing::instrument(skip(self, user_id), err)]
-  pub async fn initialize_after_sign_in(&self, user_id: i64) -> FlowyResult<()> {
+  #[tracing::instrument(skip_all, err)]
+  pub async fn initialize_after_sign_in(
+    &self,
+    user_id: i64,
+    data_source: FolderInitDataSource,
+  ) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
-    let object_id = &workspace_id;
-
-    let is_exist = self
-      .user
-      .is_folder_exist_on_disk(user_id, &workspace_id)
-      .unwrap_or(false);
-    if is_exist {
+    if let Err(err) = self.initialize(user_id, &workspace_id, data_source).await {
+      // If failed to open folder with remote data, open from local disk. After open from the local
+      // disk. the data will be synced to the remote server.
+      error!("initialize folder with error {:?}, fallback local", err);
       self
         .initialize(
           user_id,
@@ -281,39 +282,17 @@ impl FolderManager {
           },
         )
         .await?;
-    } else {
-      let folder_doc_state = self
-        .cloud_service
-        .get_folder_doc_state(&workspace_id, user_id, CollabType::Folder, object_id)
-        .await?;
-      if let Err(err) = self
-        .initialize(
-          user_id,
-          &workspace_id,
-          FolderInitDataSource::Cloud(folder_doc_state),
-        )
-        .await
-      {
-        // If failed to open folder with remote data, open from local disk. After open from the local
-        // disk. the data will be synced to the remote server.
-        error!("initialize folder with error {:?}, fallback local", err);
-        self
-          .initialize(
-            user_id,
-            &workspace_id,
-            FolderInitDataSource::LocalDisk {
-              create_if_not_exist: false,
-            },
-          )
-          .await?;
-      }
     }
 
     Ok(())
   }
 
-  pub async fn initialize_after_open_workspace(&self, uid: i64) -> FlowyResult<()> {
-    self.initialize_after_sign_in(uid).await
+  pub async fn initialize_after_open_workspace(
+    &self,
+    uid: i64,
+    data_source: FolderInitDataSource,
+  ) -> FlowyResult<()> {
+    self.initialize_after_sign_in(uid, data_source).await
   }
 
   /// Initialize the folder for the new user.
@@ -2139,6 +2118,7 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &Uuid, folder: &Folde
 }
 
 #[allow(clippy::large_enum_variant)]
+#[derive(Debug)]
 pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },

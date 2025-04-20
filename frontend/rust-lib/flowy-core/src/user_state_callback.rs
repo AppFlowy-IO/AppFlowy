@@ -4,23 +4,27 @@ use anyhow::Context;
 use client_api::entity::billing_dto::SubscriptionPlan;
 use tracing::{error, event, info};
 
+use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
+use flowy_user::user_manager::UserManager;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
-
-use crate::server_layer::ServerProvider;
+use uuid::Uuid;
 
 pub(crate) struct UserStatusCallbackImpl {
+  pub(crate) user_manager: Arc<UserManager>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) folder_manager: Arc<FolderManager>,
   pub(crate) database_manager: Arc<DatabaseManager>,
@@ -41,6 +45,60 @@ impl UserStatusCallbackImpl {
         error!("Failed to initialize AIManager: {:?}", err);
       }
     });
+  }
+
+  async fn folder_init_data_source(
+    &self,
+    user_id: i64,
+    workspace_id: &Uuid,
+    auth_type: &AuthType,
+  ) -> FlowyResult<FolderInitDataSource> {
+    let is_exist = self.is_object_exist_on_disk(user_id, workspace_id, workspace_id)?;
+    if is_exist {
+      Ok(FolderInitDataSource::LocalDisk {
+        create_if_not_exist: false,
+      })
+    } else {
+      let data_source = match self
+        .folder_manager
+        .cloud_service
+        .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
+        .await
+      {
+        Ok(doc_state) => match auth_type {
+          AuthType::Local => FolderInitDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
+          AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+        },
+        Err(err) => match auth_type {
+          AuthType::Local => FolderInitDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
+          AuthType::AppFlowyCloud => {
+            return Err(err);
+          },
+        },
+      };
+      Ok(data_source)
+    }
+  }
+
+  fn is_object_exist_on_disk(
+    &self,
+    user_id: i64,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
+  ) -> FlowyResult<bool> {
+    let db = self
+      .user_manager
+      .get_collab_db(user_id)?
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Collab db is not initialized"))?;
+    let read = db.read_txn();
+    let workspace_id = workspace_id.to_string();
+    let object_id = object_id.to_string();
+    Ok(read.is_exist(user_id, &workspace_id, &object_id))
   }
 }
 
@@ -101,9 +159,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       user_workspace,
       device_id
     );
+    let workspace_id = user_workspace.workspace_id()?;
+    let data_source = self
+      .folder_init_data_source(user_id, &workspace_id, auth_type)
+      .await?;
     self
       .folder_manager
-      .initialize_after_sign_in(user_id)
+      .initialize_after_sign_in(user_id, data_source)
       .await?;
     self
       .database_manager
@@ -135,37 +197,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       device_id
     );
     let workspace_id = user_workspace.workspace_id()?;
-
-    // In the current implementation, when a user signs up for AppFlowy Cloud, a default workspace
-    // is automatically created for them. However, for users who sign up through Supabase, the creation
-    // of the default workspace relies on the client-side operation. This means that the process
-    // for initializing a default workspace differs depending on the sign-up method used.
-    let data_source = match self
-      .folder_manager
-      .cloud_service
-      .get_folder_doc_state(
-        &workspace_id,
-        user_profile.uid,
-        CollabType::Folder,
-        &workspace_id,
-      )
-      .await
-    {
-      Ok(doc_state) => match auth_type {
-        AuthType::Local => FolderInitDataSource::LocalDisk {
-          create_if_not_exist: true,
-        },
-        AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
-      },
-      Err(err) => match auth_type {
-        AuthType::Local => FolderInitDataSource::LocalDisk {
-          create_if_not_exist: true,
-        },
-        AuthType::AppFlowyCloud => {
-          return Err(err);
-        },
-      },
-    };
+    let data_source = self
+      .folder_init_data_source(user_profile.uid, &workspace_id, auth_type)
+      .await?;
 
     self
       .folder_manager
@@ -204,12 +238,17 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   async fn on_workspace_opened(
     &self,
     user_id: i64,
-    user_workspace: &UserWorkspace,
+    workspace_id: &Uuid,
+    _user_workspace: &UserWorkspace,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
+    let data_source = self
+      .folder_init_data_source(user_id, workspace_id, auth_type)
+      .await?;
+
     self
       .folder_manager
-      .initialize_after_open_workspace(user_id)
+      .initialize_after_open_workspace(user_id, data_source)
       .await?;
     self
       .database_manager
@@ -221,11 +260,11 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .ai_manager
-      .initialize_after_open_workspace(&user_workspace.id)
+      .initialize_after_open_workspace(workspace_id)
       .await?;
     self
       .storage_manager
-      .initialize_after_open_workspace(&user_workspace.id)
+      .initialize_after_open_workspace(workspace_id)
       .await;
     Ok(())
   }

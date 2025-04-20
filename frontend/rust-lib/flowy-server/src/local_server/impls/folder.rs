@@ -85,9 +85,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     } else {
       let data = default_encode_collab_for_collab_type(uid, &object_id, collab_type).await?;
       drop(read_txn);
-
-      // create default folder doc
-      Err(FlowyError::local_version_not_support())
+      Ok(data.doc_state.to_vec())
     }
   }
 

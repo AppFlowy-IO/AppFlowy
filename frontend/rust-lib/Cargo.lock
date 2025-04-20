@@ -2835,6 +2835,7 @@ dependencies = [
  "flowy-notification",
  "flowy-search-pub",
  "flowy-sqlite",
+ "flowy-user-pub",
  "futures",
  "lazy_static",
  "lib-dispatch",
