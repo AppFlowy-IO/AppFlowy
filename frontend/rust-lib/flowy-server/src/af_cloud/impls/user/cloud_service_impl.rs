@@ -13,8 +13,8 @@ use client_api::entity::workspace_dto::{
   WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
-  AuthProvider, CollabParams, CreateCollabParams, GotrueTokenResponse, QueryWorkspaceMember,
+  AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange, AuthProvider,
+  CollabParams, CreateCollabParams, GotrueTokenResponse, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -341,18 +341,6 @@ where
     Ok(members)
   }
 
-  async fn get_workspace_member(
-    &self,
-    workspace_id: Uuid,
-    uid: i64,
-  ) -> Result<WorkspaceMember, FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    let client = try_get_client?;
-    let query = QueryWorkspaceMember { workspace_id, uid };
-    let member = client.get_workspace_member(query).await?;
-    Ok(from_af_workspace_member(member))
-  }
-
   #[instrument(level = "debug", skip_all)]
   async fn get_user_awareness_doc_state(
     &self,
@@ -452,7 +440,7 @@ where
     Ok(payment_link)
   }
 
-  async fn get_workspace_member_info(
+  async fn get_workspace_member(
     &self,
     workspace_id: &Uuid,
     uid: i64,
@@ -464,17 +452,8 @@ where
       uid,
     };
     let member = client.get_workspace_member(params).await?;
-    let role = match member.role {
-      AFRole::Owner => Role::Owner,
-      AFRole::Member => Role::Member,
-      AFRole::Guest => Role::Guest,
-    };
-    Ok(WorkspaceMember {
-      email: member.email,
-      role,
-      name: member.name,
-      avatar_url: member.avatar_url,
-    })
+
+    Ok(from_af_workspace_member(member))
   }
 
   async fn get_workspace_subscriptions(

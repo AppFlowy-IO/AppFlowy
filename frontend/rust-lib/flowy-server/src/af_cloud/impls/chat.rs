@@ -217,10 +217,10 @@ where
     chat_id: &Uuid,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
-    return Err(
+    Err(
       FlowyError::not_support()
         .with_context("indexing file with appflowy cloud is not suppotred yet"),
-    );
+    )
   }
 
   async fn get_chat_settings(

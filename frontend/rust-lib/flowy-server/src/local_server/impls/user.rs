@@ -209,7 +209,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Ok(())
   }
 
-  async fn get_workspace_member_info(
+  async fn get_workspace_member(
     &self,
     workspace_id: &Uuid,
     uid: i64,

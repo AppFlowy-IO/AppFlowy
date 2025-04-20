@@ -8,7 +8,7 @@ use flowy_ai_pub::cloud::chat_dto::{ChatAuthor, ChatAuthorType};
 use flowy_ai_pub::cloud::{
   AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
   ChatSettings, CompleteTextParams, MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage,
-  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams,
+  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
 use flowy_ai_pub::persistence::{
   deserialize_chat_metadata, deserialize_rag_ids, read_chat,
@@ -313,11 +313,11 @@ impl ChatCloudService for LocalChatServiceImpl {
   }
 
   async fn get_available_models(&self, _workspace_id: &Uuid) -> Result<ModelList, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(ModelList { models: vec![] })
   }
 
   async fn get_workspace_default_model(&self, _workspace_id: &Uuid) -> Result<String, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(DEFAULT_AI_MODEL_NAME.to_string())
   }
 }
 

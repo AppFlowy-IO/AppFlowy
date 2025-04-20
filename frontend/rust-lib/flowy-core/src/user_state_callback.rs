@@ -53,35 +53,17 @@ impl UserStatusCallbackImpl {
     workspace_id: &Uuid,
     auth_type: &AuthType,
   ) -> FlowyResult<FolderInitDataSource> {
-    let is_exist = self.is_object_exist_on_disk(user_id, workspace_id, workspace_id)?;
-    if is_exist {
-      Ok(FolderInitDataSource::LocalDisk {
+    if self.is_object_exist_on_disk(user_id, workspace_id, workspace_id)? {
+      return Ok(FolderInitDataSource::LocalDisk {
         create_if_not_exist: false,
-      })
-    } else {
-      let data_source = match self
-        .folder_manager
-        .cloud_service
-        .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
-        .await
-      {
-        Ok(doc_state) => match auth_type {
-          AuthType::Local => FolderInitDataSource::LocalDisk {
-            create_if_not_exist: true,
-          },
-          AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
-        },
-        Err(err) => match auth_type {
-          AuthType::Local => FolderInitDataSource::LocalDisk {
-            create_if_not_exist: true,
-          },
-          AuthType::AppFlowyCloud => {
-            return Err(err);
-          },
-        },
-      };
-      Ok(data_source)
+      });
     }
+    let doc_state_result = self
+      .folder_manager
+      .cloud_service
+      .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
+      .await;
+    resolve_data_source(auth_type, doc_state_result)
   }
 
   fn is_object_exist_on_disk(
@@ -294,5 +276,25 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     } else {
       self.storage_manager.disable_storage_write_access();
     }
+  }
+}
+
+fn resolve_data_source(
+  auth_type: &AuthType,
+  doc_state_result: Result<Vec<u8>, FlowyError>,
+) -> FlowyResult<FolderInitDataSource> {
+  match doc_state_result {
+    Ok(doc_state) => Ok(match auth_type {
+      AuthType::Local => FolderInitDataSource::LocalDisk {
+        create_if_not_exist: true,
+      },
+      AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+    }),
+    Err(err) => match auth_type {
+      AuthType::Local => Ok(FolderInitDataSource::LocalDisk {
+        create_if_not_exist: true,
+      }),
+      AuthType::AppFlowyCloud => Err(err),
+    },
   }
 }

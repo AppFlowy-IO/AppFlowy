@@ -32,9 +32,11 @@ pub async fn default_encode_collab_for_collab_type(
       //   Ok::<_, FlowyError>(())
       // })?;
       // Ok(data)
-      Err(FlowyError::not_support())
+      Err(FlowyError::not_support().with_context("Can not create default folder"))
     },
-    CollabType::DatabaseRow => Err(FlowyError::not_support()),
+    CollabType::DatabaseRow => {
+      Err(FlowyError::not_support().with_context("Can not create default database row"))
+    },
     CollabType::UserAwareness => Ok(default_user_awareness_data(object_id)),
     CollabType::Unknown => {
       let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);

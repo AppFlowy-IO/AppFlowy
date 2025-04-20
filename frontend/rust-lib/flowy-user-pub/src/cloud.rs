@@ -132,7 +132,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Delete an account and all the data associated with the account
   async fn delete_account(&self) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   /// Generate a sign in url for the user with the given email
@@ -234,14 +234,6 @@ pub trait UserCloudService: Send + Sync + 'static {
     Ok(vec![])
   }
 
-  async fn get_workspace_member(
-    &self,
-    workspace_id: Uuid,
-    uid: i64,
-  ) -> Result<WorkspaceMember, FlowyError> {
-    Err(FlowyError::not_support())
-  }
-
   async fn get_user_awareness_doc_state(
     &self,
     uid: i64,
@@ -281,7 +273,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     Err(FlowyError::not_support())
   }
 
-  async fn get_workspace_member_info(
+  async fn get_workspace_member(
     &self,
     workspace_id: &Uuid,
     uid: i64,
