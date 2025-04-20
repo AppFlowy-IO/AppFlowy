@@ -279,10 +279,9 @@ pub enum UserEvent {
 pub trait UserStatusCallback: Send + Sync + 'static {
   /// When the [AuthType] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn authenticator_did_changed(&self, _authenticator: AuthType) {}
-  /// This will be called after the application launches if the user is already signed in.
-  /// If the user is not signed in, this method will not be called
-  async fn did_init(
+  fn on_auth_type_changed(&self, _authenticator: AuthType) {}
+  /// Fires on app launch, but only if the user is already signed in.
+  async fn on_launch_if_authenticated(
     &self,
     _user_id: i64,
     _cloud_config: &Option<UserCloudConfig>,
@@ -292,8 +291,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   ) -> FlowyResult<()> {
     Ok(())
   }
-  /// Will be called after the user signed in.
-  async fn did_sign_in(
+  /// Fires right after the user successfully signs in.
+  async fn on_sign_in(
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
@@ -302,8 +301,9 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   ) -> FlowyResult<()> {
     Ok(())
   }
-  /// Will be called after the user signed up.
-  async fn did_sign_up(
+
+  /// Fires right after the user successfully signs up.
+  async fn on_sign_up(
     &self,
     _is_new_user: bool,
     _user_profile: &UserProfile,
@@ -314,10 +314,13 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     Ok(())
   }
 
-  async fn did_expired(&self, _token: &str, _user_id: i64) -> FlowyResult<()> {
+  /// Fires when an authentication token has expired.
+  async fn on_token_expired(&self, _token: &str, _user_id: i64) -> FlowyResult<()> {
     Ok(())
   }
-  async fn open_workspace(
+
+  /// Fires when a workspace is opened by the user.
+  async fn on_workspace_opened(
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
@@ -325,9 +328,9 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   ) -> FlowyResult<()> {
     Ok(())
   }
-  fn did_update_network(&self, _reachable: bool) {}
-  fn did_update_plans(&self, _plans: Vec<SubscriptionPlan>) {}
-  fn did_update_storage_limitation(&self, _can_write: bool) {}
+  fn on_network_status_changed(&self, _reachable: bool) {}
+  fn on_subscription_plans_updated(&self, _plans: Vec<SubscriptionPlan>) {}
+  fn on_storage_permission_updated(&self, _can_write: bool) {}
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function

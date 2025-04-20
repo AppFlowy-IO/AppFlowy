@@ -17,10 +17,10 @@ use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthTypePB, AuthTypePB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB,
-  ImportAppFlowyDataPB, OauthSignInPB, OpenUserWorkspacePB, RenameWorkspacePB,
-  RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
-  UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
+  AuthTypePB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB,
+  OauthSignInPB, OpenUserWorkspacePB, RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB,
+  SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB,
+  UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
@@ -140,7 +140,7 @@ impl EventIntegrationTest {
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
     let payload = SignInUrlPayloadPB {
       email: email.to_string(),
-      authenticator: AuthTypePB::AppFlowyCloud,
+      authenticator: AuthTypePB::Server,
     };
     let sign_in_url = EventBuilder::new(self.clone())
       .event(UserEvent::GenerateSignInURL)
@@ -155,7 +155,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      authenticator: AuthTypePB::AppFlowyCloud,
+      authenticator: AuthTypePB::Server,
     };
 
     let user_profile = EventBuilder::new(self.clone())

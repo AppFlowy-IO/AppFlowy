@@ -1,7 +1,7 @@
 use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_error::{internal_error, FlowyResult};
 
 use arc_swap::ArcSwapOption;
 use collab::lock::RwLock;
@@ -21,7 +21,6 @@ use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
 use uuid::Uuid;
@@ -40,7 +39,6 @@ use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
-use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::*;
@@ -53,7 +51,6 @@ pub struct UserManager {
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
-  auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
   pub(crate) is_loading_awareness: Arc<DashMap<Uuid, bool>>,
@@ -78,7 +75,6 @@ impl UserManager {
       user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
-      auth_process: Default::default(),
       authenticate_user,
       refresh_user_profile_since,
       user_workspace_service,
@@ -270,7 +266,7 @@ impl UserManager {
       let _ = self.initial_user_awareness(&session, &user.auth_type).await;
 
       user_status_callback
-        .did_init(
+        .on_launch_if_authenticated(
           user.uid,
           &cloud_config,
           &session.user_workspace,
@@ -363,7 +359,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(
+      .on_sign_in(
         user_profile.uid,
         &latest_workspace,
         &self.authenticate_user.user_config.device_id,
@@ -421,7 +417,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(
+      .on_sign_up(
         response.is_new_user,
         new_user_profile,
         &new_session.user_workspace,

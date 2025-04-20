@@ -475,7 +475,7 @@ pub async fn update_network_state_handler(
     .user_status_callback
     .read()
     .await
-    .did_update_network(reachable);
+    .on_network_status_changed(reachable);
   Ok(())
 }
 

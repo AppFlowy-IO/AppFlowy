@@ -195,7 +195,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .open_workspace(uid, &user_workspace, &user_profile.auth_type)
+      .on_workspace_opened(uid, &user_workspace, &user_profile.auth_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
@@ -532,7 +532,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_update_storage_limitation(can_write);
+      .on_storage_permission_updated(can_write);
 
     Ok(workspace_usage)
   }
@@ -693,7 +693,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_update_plans(plans);
+      .on_subscription_plans_updated(plans);
     Ok(())
   }
 }
