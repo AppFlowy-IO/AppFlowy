@@ -45,7 +45,7 @@ pub fn update_workspace_setting(
 
 /// Upserts a workspace setting into the database.
 pub fn upsert_workspace_setting(
-  conn: &mut DBConnection,
+  conn: &mut SqliteConnection,
   settings: WorkspaceSettingsTable,
 ) -> Result<(), FlowyError> {
   diesel::insert_into(dsl::workspace_setting_table)
@@ -62,11 +62,11 @@ pub fn upsert_workspace_setting(
 
 /// Selects a workspace setting by id from the database.
 pub fn select_workspace_setting(
-  conn: &mut DBConnection,
-  id: &str,
+  conn: &mut SqliteConnection,
+  workspace_id: &str,
 ) -> Result<WorkspaceSettingsTable, FlowyError> {
   let setting = dsl::workspace_setting_table
-    .filter(workspace_setting_table::id.eq(id))
+    .filter(workspace_setting_table::id.eq(workspace_id))
     .first::<WorkspaceSettingsTable>(conn)?;
   Ok(setting)
 }

@@ -1,32 +1,38 @@
 #![allow(unused_variables)]
 
+use crate::af_cloud::define::LoggedUser;
+use crate::local_server::uid::UserIDGenerator;
 use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::CollabObject;
 use collab_user::core::UserAwareness;
-use lazy_static::lazy_static;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use uuid::Uuid;
-
-use crate::af_cloud::define::LoggedUser;
-use crate::local_server::uid::UserIDGenerator;
+use flowy_ai_pub::cloud::billing_dto::WorkspaceUsageAndLimit;
+use flowy_ai_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use flowy_error::FlowyError;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
-use flowy_user_pub::sql::{select_all_user_workspace, select_user_profile, select_user_workspace};
+use flowy_user_pub::sql::{
+  select_all_user_workspace, select_user_profile, select_user_workspace, select_workspace_member,
+  select_workspace_setting, update_user_profile, update_workspace_setting, upsert_workspace_member,
+  upsert_workspace_setting, UserTableChangeset, WorkspaceMemberTable, WorkspaceSettingsChangeset,
+  WorkspaceSettingsTable,
+};
 use flowy_user_pub::DEFAULT_USER_NAME;
+use lazy_static::lazy_static;
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use uuid::Uuid;
 
 lazy_static! {
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }
 
 pub(crate) struct LocalServerUserServiceImpl {
-  pub user: Arc<dyn LoggedUser>,
+  pub logged_user: Arc<dyn LoggedUser>,
 }
 
 #[async_trait]
@@ -121,26 +127,30 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Err(FlowyError::internal().with_context("Can't oauth url when using offline mode"))
   }
 
-  async fn update_user(&self, _params: UpdateUserProfileParams) -> Result<(), FlowyError> {
+  async fn update_user(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError> {
+    let uid = self.logged_user.user_id()?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+    let changeset = UserTableChangeset::new(params);
+    update_user_profile(&mut conn, changeset)?;
     Ok(())
   }
 
   async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
-    let conn = self.user.get_sqlite_db(uid)?;
-    let profile = select_user_profile(uid, conn)?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+    let profile = select_user_profile(uid, &mut conn)?;
     Ok(profile)
   }
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
-    let uid = self.user.user_id()?;
-    let mut conn = self.user.get_sqlite_db(uid)?;
+    let uid = self.logged_user.user_id()?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
 
     let workspace = select_user_workspace(&workspace_id.to_string(), &mut conn)?;
     Ok(UserWorkspace::from(workspace))
   }
 
   async fn get_all_workspace(&self, uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
-    let conn = self.user.get_sqlite_db(uid)?;
+    let conn = self.logged_user.get_sqlite_db(uid)?;
     let workspaces = select_all_user_workspace(uid, conn)?;
     Ok(workspaces)
   }
@@ -197,5 +207,118 @@ impl UserCloudService for LocalServerUserServiceImpl {
     objects: Vec<UserCollabParams>,
   ) -> Result<(), FlowyError> {
     Ok(())
+  }
+
+  async fn get_workspace_member(
+    &self,
+    workspace_id: &Uuid,
+    uid: i64,
+  ) -> Result<WorkspaceMember, FlowyError> {
+    // For local server, only current user is the member
+    let conn = self.logged_user.get_sqlite_db(uid)?;
+    let result = select_workspace_member(conn, &workspace_id.to_string(), uid);
+
+    match result {
+      Ok(row) => Ok(WorkspaceMember::from(row)),
+      Err(err) => {
+        if err.is_record_not_found() {
+          let mut conn = self.logged_user.get_sqlite_db(uid)?;
+          let profile = select_user_profile(uid, &mut conn)?;
+          let row = WorkspaceMemberTable {
+            email: profile.email.to_string(),
+            role: 0,
+            name: profile.name.to_string(),
+            avatar_url: Some(profile.icon_url),
+            uid,
+            workspace_id: workspace_id.to_string(),
+            updated_at: Default::default(),
+          };
+
+          let member = WorkspaceMember::from(row.clone());
+          upsert_workspace_member(&mut conn, row)?;
+          Ok(member)
+        } else {
+          Err(err)
+        }
+      },
+    }
+  }
+
+  async fn get_workspace_usage(
+    &self,
+    workspace_id: &Uuid,
+  ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
+    Ok(WorkspaceUsageAndLimit {
+      member_count: 1,
+      member_count_limit: 1,
+      storage_bytes: i64::MAX,
+      storage_bytes_limit: i64::MAX,
+      storage_bytes_unlimited: true,
+      single_upload_limit: i64::MAX,
+      single_upload_unlimited: true,
+      ai_responses_count: i64::MAX,
+      ai_responses_count_limit: i64::MAX,
+      ai_image_responses_count: i64::MAX,
+      ai_image_responses_count_limit: 0,
+      local_ai: true,
+      ai_responses_unlimited: true,
+    })
+  }
+
+  async fn get_workspace_setting(
+    &self,
+    workspace_id: &Uuid,
+  ) -> Result<AFWorkspaceSettings, FlowyError> {
+    let uid = self.logged_user.user_id()?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+
+    // By default, workspace setting is existed in local server
+    let result = select_workspace_setting(&mut conn, &workspace_id.to_string());
+    match result {
+      Ok(row) => Ok(AFWorkspaceSettings {
+        disable_search_indexing: row.disable_search_indexing,
+        ai_model: row.ai_model,
+      }),
+      Err(err) => {
+        if err.is_record_not_found() {
+          let row = WorkspaceSettingsTable {
+            id: workspace_id.to_string(),
+            disable_search_indexing: false,
+            ai_model: "".to_string(),
+          };
+          let setting = AFWorkspaceSettings {
+            disable_search_indexing: row.disable_search_indexing,
+            ai_model: row.ai_model.clone(),
+          };
+          upsert_workspace_setting(&mut conn, row)?;
+          Ok(setting)
+        } else {
+          Err(err)
+        }
+      },
+    }
+  }
+
+  async fn update_workspace_setting(
+    &self,
+    workspace_id: &Uuid,
+    workspace_settings: AFWorkspaceSettingsChange,
+  ) -> Result<AFWorkspaceSettings, FlowyError> {
+    let uid = self.logged_user.user_id()?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+
+    let changeset = WorkspaceSettingsChangeset {
+      id: workspace_id.to_string(),
+      disable_search_indexing: workspace_settings.disable_search_indexing,
+      ai_model: workspace_settings.ai_model,
+    };
+
+    update_workspace_setting(&mut conn, changeset)?;
+    let row = select_workspace_setting(&mut conn, &workspace_id.to_string())?;
+
+    Ok(AFWorkspaceSettings {
+      disable_search_indexing: row.disable_search_indexing,
+      ai_model: row.ai_model,
+    })
   }
 }

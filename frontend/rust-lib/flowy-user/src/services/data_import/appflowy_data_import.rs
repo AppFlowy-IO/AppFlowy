@@ -103,7 +103,7 @@ pub(crate) fn prepare_import(
   );
   let imported_user = select_user_profile(
     imported_session.user_id,
-    imported_sqlite_db.get_connection()?,
+    &mut *imported_sqlite_db.get_connection()?,
   )?;
 
   run_collab_data_migration(

@@ -131,7 +131,7 @@ impl AIManager {
   #[instrument(skip_all, err)]
   pub async fn initialize_after_open_workspace(
     &self,
-    _workspace_id: &str,
+    _workspace_id: &Uuid,
   ) -> Result<(), FlowyError> {
     let local_ai = self.local_ai.clone();
     tokio::spawn(async move {

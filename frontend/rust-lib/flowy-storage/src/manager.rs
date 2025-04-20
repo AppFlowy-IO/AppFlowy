@@ -181,7 +181,7 @@ impl StorageManager {
     }
   }
 
-  pub async fn initialize_after_open_workspace(&self, workspace_id: &str) {
+  pub async fn initialize_after_open_workspace(&self, workspace_id: &Uuid) {
     self.enable_storage_write_access();
 
     if let Err(err) = prepare_upload_task(self.uploader.clone(), self.user_service.clone()).await {

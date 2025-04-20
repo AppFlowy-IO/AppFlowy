@@ -17,15 +17,15 @@ use flowy_user_pub::cloud::UserCloudService;
 use tokio::sync::mpsc;
 
 pub struct LocalServer {
-  user: Arc<dyn LoggedUser>,
+  logged_user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
-  pub fn new(user: Arc<dyn LoggedUser>, local_ai: Arc<LocalAIController>) -> Self {
+  pub fn new(logged_user: Arc<dyn LoggedUser>, local_ai: Arc<LocalAIController>) -> Self {
     Self {
-      user,
+      logged_user,
       local_ai,
       stop_tx: Default::default(),
     }
@@ -42,16 +42,20 @@ impl LocalServer {
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     Arc::new(LocalServerUserServiceImpl {
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(LocalServerFolderCloudServiceImpl)
+    Arc::new(LocalServerFolderCloudServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(LocalServerDatabaseCloudServiceImpl())
+    Arc::new(LocalServerDatabaseCloudServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
@@ -64,7 +68,7 @@ impl AppFlowyServer for LocalServer {
 
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
     Arc::new(LocalChatServiceImpl {
-      user: self.user.clone(),
+      logged_user: self.logged_user.clone(),
       local_ai: self.local_ai.clone(),
     })
   }

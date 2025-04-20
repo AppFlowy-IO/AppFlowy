@@ -195,7 +195,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .on_workspace_opened(uid, &user_workspace, &user_profile.auth_type)
+      .on_workspace_opened(uid, workspace_id, &user_workspace, &user_profile.auth_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
@@ -377,7 +377,7 @@ impl UserManager {
     let member = self
       .cloud_service
       .get_user_service()?
-      .get_workspace_member(workspace_id, uid)
+      .get_workspace_member(&workspace_id, uid)
       .await?;
     Ok(member)
   }
@@ -655,7 +655,7 @@ impl UserManager {
     let member = self
       .cloud_service
       .get_user_service()?
-      .get_workspace_member_info(workspace_id, uid)
+      .get_workspace_member(workspace_id, uid)
       .await?;
 
     let record = WorkspaceMemberTable {
@@ -668,8 +668,8 @@ impl UserManager {
       updated_at: Utc::now().naive_utc(),
     };
 
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-    upsert_workspace_member(db, record)?;
+    let mut db = self.authenticate_user.get_sqlite_connection(uid)?;
+    upsert_workspace_member(&mut db, record)?;
     Ok(member)
   }
 

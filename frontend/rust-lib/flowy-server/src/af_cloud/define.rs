@@ -1,3 +1,4 @@
+use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -21,6 +22,9 @@ pub trait LoggedUser: Send + Sync {
   async fn is_local_mode(&self) -> FlowyResult<bool>;
 
   fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError>;
+
+  fn get_collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
