@@ -53,7 +53,9 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(LocalServerDatabaseCloudServiceImpl())
+    Arc::new(LocalServerDatabaseCloudServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
