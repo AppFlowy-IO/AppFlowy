@@ -176,35 +176,43 @@ class HomeSideBar extends StatelessWidget {
                   listener: _onNotificationAction,
                 ),
                 BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+                  listenWhen: (previous, current) =>
+                      previous.currentWorkspace?.workspaceId !=
+                          current.currentWorkspace?.workspaceId ||
+                      current.actionResult?.actionType ==
+                          UserWorkspaceActionType.create ||
+                      current.actionResult?.actionType ==
+                          UserWorkspaceActionType.delete ||
+                      current.actionResult?.actionType ==
+                          UserWorkspaceActionType.open,
                   listener: (context, state) {
-                    final actionType = state.actionResult?.actionType;
+                    final workspaceId = state.currentWorkspace?.workspaceId ??
+                        workspaceSetting.workspaceId;
 
-                    if (actionType == UserWorkspaceActionType.create ||
-                        actionType == UserWorkspaceActionType.delete ||
-                        actionType == UserWorkspaceActionType.open) {
-                      if (context.read<SpaceBloc>().state.spaces.isEmpty) {
-                        context.read<SidebarSectionsBloc>().add(
-                              SidebarSectionsEvent.reload(
-                                userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
-                              ),
-                            );
-                      } else {
-                        context.read<SpaceBloc>().add(
-                              SpaceEvent.reset(
-                                userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
-                                true,
-                              ),
-                            );
-                      }
+                    // Reset all workspace-specific data
+                    getIt<CachedRecentService>().reset();
 
-                      context
-                          .read<FavoriteBloc>()
-                          .add(const FavoriteEvent.fetchFavorites());
-                    }
+                    // Always reload sidebar sections to ensure fresh data
+                    context.read<SidebarSectionsBloc>().add(
+                          SidebarSectionsEvent.reload(
+                            userProfile,
+                            workspaceId,
+                          ),
+                        );
+
+                    // Reset space data with the current workspace
+                    context.read<SpaceBloc>().add(
+                          SpaceEvent.reset(
+                            userProfile,
+                            workspaceId,
+                            true,
+                          ),
+                        );
+
+                    // Fetch updated favorites
+                    context
+                        .read<FavoriteBloc>()
+                        .add(const FavoriteEvent.fetchFavorites());
                   },
                 ),
               ],
