@@ -153,7 +153,7 @@ impl UserManager {
 
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
-    info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    info!("open workspace: {}, auth type:{}", workspace_id, auth_type);
     let workspace_id_str = workspace_id.to_string();
     self.cloud_service.set_server_auth_type(&auth_type);
 
