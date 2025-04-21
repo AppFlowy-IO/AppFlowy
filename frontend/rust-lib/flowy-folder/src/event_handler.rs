@@ -18,28 +18,6 @@ fn upgrade_folder(
   Ok(folder)
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn create_workspace_handler(
-  data: AFPluginData<CreateWorkspacePayloadPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspacePB, FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-  let workspace = folder.create_workspace(params).await?;
-  let views = folder
-    .get_views_belong_to(&workspace.id)
-    .await?
-    .into_iter()
-    .map(|view| view_pb_without_child_views(view.as_ref().clone()))
-    .collect::<Vec<ViewPB>>();
-  data_result_ok(WorkspacePB {
-    id: workspace.id,
-    name: workspace.name,
-    views,
-    create_time: workspace.created_at,
-  })
-}
-
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_all_workspace_handler(
   _data: AFPluginData<CreateWorkspacePayloadPB>,

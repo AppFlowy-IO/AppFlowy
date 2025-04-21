@@ -1,13 +1,9 @@
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::{
-  workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
-  QueryCollab, QueryCollabParams,
+  CollabParams, PublishCollabItem, PublishCollabMetadata, QueryCollab, QueryCollabParams,
 };
 use client_api::entity::{PatchPublishedCollab, PublishInfo};
-use collab::core::collab::DataSource;
-use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
-use collab_folder::RepeatedViewIdentifier;
 use serde_json::to_vec;
 use std::path::PathBuf;
 use std::sync::Weak;
@@ -16,8 +12,7 @@ use uuid::Uuid;
 
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
-  Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, FullSyncCollabParams,
-  Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderSnapshot, FullSyncCollabParams,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
@@ -36,83 +31,6 @@ impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  async fn create_workspace(&self, _uid: i64, name: &str) -> Result<Workspace, FlowyError> {
-    let try_get_client = self.inner.try_get_client();
-    let cloned_name = name.to_string();
-
-    let client = try_get_client?;
-    let new_workspace = client
-      .create_workspace(CreateWorkspaceParam {
-        workspace_name: Some(cloned_name),
-      })
-      .await?;
-
-    Ok(Workspace {
-      id: new_workspace.workspace_id.to_string(),
-      name: new_workspace.workspace_name,
-      created_at: new_workspace.created_at.timestamp(),
-      child_views: RepeatedViewIdentifier::new(vec![]),
-      created_by: Some(new_workspace.owner_uid),
-      last_edited_time: new_workspace.created_at.timestamp(),
-      last_edited_by: Some(new_workspace.owner_uid),
-    })
-  }
-
-  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    let try_get_client = self.inner.try_get_client();
-    let client = try_get_client?;
-    let _ = client.open_workspace(workspace_id).await?;
-    Ok(())
-  }
-
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError> {
-    let try_get_client = self.inner.try_get_client();
-
-    let client = try_get_client?;
-    let records = client
-      .get_user_workspace_info()
-      .await?
-      .workspaces
-      .into_iter()
-      .map(|af_workspace| WorkspaceRecord {
-        id: af_workspace.workspace_id.to_string(),
-        name: af_workspace.workspace_name,
-        created_at: af_workspace.created_at.timestamp(),
-      })
-      .collect::<Vec<_>>();
-    Ok(records)
-  }
-
-  #[instrument(level = "debug", skip_all)]
-  async fn get_folder_data(
-    &self,
-    workspace_id: &Uuid,
-    uid: &i64,
-  ) -> Result<Option<FolderData>, FlowyError> {
-    let uid = *uid;
-    let try_get_client = self.inner.try_get_client();
-    let params = QueryCollabParams {
-      workspace_id: *workspace_id,
-      inner: QueryCollab::new(*workspace_id, CollabType::Folder),
-    };
-    let doc_state = try_get_client?
-      .get_collab(params)
-      .await
-      .map_err(FlowyError::from)?
-      .encode_collab
-      .doc_state
-      .to_vec();
-    check_request_workspace_id_is_match(workspace_id, &self.logged_user, "get folder data")?;
-    let folder = Folder::from_collab_doc_state(
-      uid,
-      CollabOrigin::Empty,
-      DataSource::DocStateV1(doc_state),
-      &workspace_id.to_string(),
-      vec![],
-    )?;
-    Ok(folder.get_folder_data(&workspace_id.to_string()))
-  }
-
   async fn get_folder_snapshots(
     &self,
     _workspace_id: &str,
@@ -278,15 +196,6 @@ where
     Ok(())
   }
 
-  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
-    let namespace = self
-      .inner
-      .try_get_client()?
-      .get_workspace_publish_namespace(workspace_id)
-      .await?;
-    Ok(namespace)
-  }
-
   async fn list_published_views(
     &self,
     workspace_id: &Uuid,
@@ -335,6 +244,15 @@ where
       .await
       .map_err(FlowyError::from)?;
     Ok(())
+  }
+
+  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
+    let namespace = self
+      .inner
+      .try_get_client()?
+      .get_workspace_publish_namespace(workspace_id)
+      .await?;
+    Ok(namespace)
   }
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {

@@ -21,16 +21,6 @@ use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
 use tracing::{instrument, trace};
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
-use flowy_user_pub::entities::{
-  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserProfile, UserWorkspace,
-  WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
-};
-use lib_infra::async_trait::async_trait;
-use lib_infra::box_any::BoxAny;
-use uuid::Uuid;
-
 use crate::af_cloud::define::{LoggedUser, USER_SIGN_IN_URL};
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
@@ -38,6 +28,16 @@ use crate::af_cloud::impls::user::dto::{
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::{AFCloudClient, AFServer};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
+use flowy_user_pub::entities::{
+  AFCloudOAuthParams, AuthResponse, AuthType, Role, UpdateUserProfileParams, UserProfile,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+};
+use flowy_user_pub::sql::select_user_workspace;
+use lib_infra::async_trait::async_trait;
+use lib_infra::box_any::BoxAny;
+use uuid::Uuid;
 
 use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_status};
 
@@ -178,25 +178,30 @@ where
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    let expected_workspace_id = self
+  async fn get_user_profile(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+  ) -> Result<UserProfile, FlowyError> {
+    let client = self.server.try_get_client()?;
+    let logged_user = self
       .logged_user
       .upgrade()
-      .ok_or_else(FlowyError::user_not_login)?
-      .workspace_id()?;
-    let client = try_get_client?;
+      .ok_or_else(FlowyError::user_not_login)?;
+
     let profile = client.get_profile().await?;
     let token = client.get_token()?;
-    let profile = user_profile_from_af_profile(token, profile)?;
+
+    let mut conn = logged_user.get_sqlite_db(uid)?;
+    let workspace_auth_type = select_user_workspace(workspace_id, &mut conn)
+      .map(|row| AuthType::from(row.workspace_type))
+      .unwrap_or(AuthType::AppFlowyCloud);
+    let profile = user_profile_from_af_profile(token, profile, workspace_auth_type)?;
 
     // Discard the response if the user has switched to a new workspace. This avoids updating the
     // user profile with potentially outdated information when the workspace ID no longer matches.
-    check_request_workspace_id_is_match(
-      &expected_workspace_id,
-      &self.logged_user,
-      "get user profile",
-    )?;
+    let workspace_id = Uuid::from_str(workspace_id)?;
+    check_request_workspace_id_is_match(&workspace_id, &self.logged_user, "get user profile")?;
     Ok(profile)
   }
 
@@ -219,10 +224,10 @@ where
   }
 
   async fn create_workspace(&self, workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
-    let try_get_client = self.server.try_get_client();
     let workspace_name_owned = workspace_name.to_owned();
-    let client = try_get_client?;
-    let new_workspace = client
+    let new_workspace = self
+      .server
+      .try_get_client()?
       .create_workspace(CreateWorkspaceParam {
         workspace_name: Some(workspace_name_owned),
       })
@@ -236,10 +241,10 @@ where
     new_workspace_name: Option<String>,
     new_workspace_icon: Option<String>,
   ) -> Result<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
     let workspace_id = workspace_id.to_owned();
-    let client = try_get_client?;
-    client
+    self
+      .server
+      .try_get_client()?
       .patch_workspace(PatchWorkspaceParam {
         workspace_id,
         workspace_name: new_workspace_name,

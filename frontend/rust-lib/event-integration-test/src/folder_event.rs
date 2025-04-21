@@ -397,18 +397,3 @@ impl ViewTest {
     Self::new(sdk, ViewLayout::Calendar, data).await
   }
 }
-
-#[allow(dead_code)]
-async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
-  let request = CreateWorkspacePayloadPB {
-    name: name.to_owned(),
-    desc: desc.to_owned(),
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateFolderWorkspace)
-    .payload(request)
-    .async_send()
-    .await
-    .parse::<WorkspacePB>()
-}
