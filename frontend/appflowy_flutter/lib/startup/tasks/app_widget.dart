@@ -234,27 +234,34 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     supportedLocales: context.supportedLocales,
                     locale: state.locale,
                     routerConfig: routerConfig,
-                    builder: (context, child) => AppFlowyTheme(
-                      data: Theme.of(context).brightness == Brightness.light
-                          ? AppFlowyThemeData.light()
-                          : AppFlowyThemeData.dark(),
-                      child: MediaQuery(
-                        // use the 1.0 as the textScaleFactor to avoid the text size
-                        //  affected by the system setting.
-                        data: MediaQuery.of(context).copyWith(
-                          textScaler: TextScaler.linear(state.textScaleFactor),
+                    builder: (context, child) {
+                      final themeBuilder = AppFlowyDefaultTheme();
+                      final brightness = Theme.of(context).brightness;
+
+                      return AnimatedAppFlowyTheme(
+                        data: brightness == Brightness.light
+                            ? themeBuilder.light()
+                            : themeBuilder.dark(),
+                        child: MediaQuery(
+                          // use the 1.0 as the textScaleFactor to avoid the text size
+                          //  affected by the system setting.
+                          data: MediaQuery.of(context).copyWith(
+                            textScaler:
+                                TextScaler.linear(state.textScaleFactor),
+                          ),
+                          child: overlayManagerBuilder(
+                            context,
+                            !UniversalPlatform.isMobile &&
+                                    FeatureFlag.search.isOn
+                                ? CommandPalette(
+                                    notifier: _commandPaletteNotifier,
+                                    child: child,
+                                  )
+                                : child,
+                          ),
                         ),
-                        child: overlayManagerBuilder(
-                          context,
-                          !UniversalPlatform.isMobile && FeatureFlag.search.isOn
-                              ? CommandPalette(
-                                  notifier: _commandPaletteNotifier,
-                                  child: child,
-                                )
-                              : child,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),

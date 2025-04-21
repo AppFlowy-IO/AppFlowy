@@ -31,9 +31,6 @@ class _SelectModelMenuState extends State<SelectModelMenu> {
       ),
       child: BlocBuilder<SelectModelBloc, SelectModelState>(
         builder: (context, state) {
-          if (state.selectedModel == null) {
-            return const SizedBox.shrink();
-          }
           return AppFlowyPopover(
             offset: Offset(-12.0, 0.0),
             constraints: BoxConstraints(maxWidth: 250, maxHeight: 600),
@@ -55,8 +52,12 @@ class _SelectModelMenuState extends State<SelectModelMenu> {
               );
             },
             child: _CurrentModelButton(
-              model: state.selectedModel!,
-              onTap: () => popoverController.show(),
+              model: state.selectedModel,
+              onTap: () {
+                if (state.selectedModel != null) {
+                  popoverController.show();
+                }
+              },
             ),
           );
         },
@@ -202,7 +203,7 @@ class _CurrentModelButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final AIModelPB model;
+  final AIModelPB? model;
   final VoidCallback onTap;
 
   @override
@@ -214,40 +215,45 @@ class _CurrentModelButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: DesktopAIPromptSizes.actionBarButtonSize,
-          child: FlowyHover(
-            style: const HoverStyle(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-            ),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(4.0),
-              child: Row(
-                children: [
-                  Padding(
-                    // TODO: remove this after change icon to 20px
-                    padding: EdgeInsets.all(2),
-                    child: FlowySvg(
-                      FlowySvgs.ai_sparks_s,
-                      color: Theme.of(context).hintColor,
-                      size: Size.square(16),
-                    ),
-                  ),
-                  if (!model.isDefault)
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 50),
+            curve: Curves.easeInOut,
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyHover(
+              style: const HoverStyle(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.all(4.0),
+                child: Row(
+                  children: [
                     Padding(
-                      padding: EdgeInsetsDirectional.only(end: 2.0),
-                      child: FlowyText(
-                        model.i18n,
-                        fontSize: 12,
-                        figmaLineHeight: 16,
+                      // TODO: remove this after change icon to 20px
+                      padding: EdgeInsets.all(2),
+                      child: FlowySvg(
+                        FlowySvgs.ai_sparks_s,
                         color: Theme.of(context).hintColor,
-                        overflow: TextOverflow.ellipsis,
+                        size: Size.square(16),
                       ),
                     ),
-                  FlowySvg(
-                    FlowySvgs.ai_source_drop_down_s,
-                    color: Theme.of(context).hintColor,
-                    size: const Size.square(8),
-                  ),
-                ],
+                    if (model != null && !model!.isDefault)
+                      Padding(
+                        padding: EdgeInsetsDirectional.only(end: 2.0),
+                        child: FlowyText(
+                          model!.i18n,
+                          fontSize: 12,
+                          figmaLineHeight: 16,
+                          color: Theme.of(context).hintColor,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    FlowySvg(
+                      FlowySvgs.ai_source_drop_down_s,
+                      color: Theme.of(context).hintColor,
+                      size: const Size.square(8),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

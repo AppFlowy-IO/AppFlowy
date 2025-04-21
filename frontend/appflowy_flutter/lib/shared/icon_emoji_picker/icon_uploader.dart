@@ -13,7 +13,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -294,8 +294,8 @@ class _IconUploaderState extends State<IconUploader> {
       (userProfile) => userProfile,
       (l) => null,
     );
-    final isLocalMode = (userProfile?.authenticator ?? AuthenticatorPB.Local) ==
-        AuthenticatorPB.Local;
+    final isLocalMode = (userProfile?.workspaceAuthType ?? AuthTypePB.Local) ==
+        AuthTypePB.Local;
     if (isLocalMode) {
       result = await pickedImages.first.saveToLocal();
     } else {

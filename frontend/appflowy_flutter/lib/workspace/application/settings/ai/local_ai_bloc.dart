@@ -125,21 +125,4 @@ class LocalAiPluginState with _$LocalAiPluginState {
       orElse: () => false,
     );
   }
-
-  bool get showSettings {
-    return maybeWhen(
-      ready: (isEnabled, _, runningState, lackOfResource) {
-        final isConnecting = [
-          RunningStatePB.Connecting,
-          RunningStatePB.Connected,
-        ].contains(runningState);
-
-        final resourcesReadyOrMissingModel = lackOfResource == null ||
-            lackOfResource.resourceType == LackOfAIResourceTypePB.MissingModel;
-
-        return !isConnecting && resourcesReadyOrMissingModel;
-      },
-      orElse: () => false,
-    );
-  }
 }

@@ -143,12 +143,11 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
       (f) => null,
     );
     if (databaseMeta != null) {
-      final result =
-          await ViewBackendService.getView(databaseMeta.inlineViewId);
+      final result = await ViewBackendService.getView(databaseMeta.viewId);
       return result.fold(
         (s) => DatabaseMeta(
           databaseId: databaseId,
-          inlineViewId: databaseMeta.inlineViewId,
+          viewId: databaseMeta.viewId,
           databaseName: s.name,
         ),
         (f) => null,

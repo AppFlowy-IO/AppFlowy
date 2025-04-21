@@ -26,9 +26,6 @@ pub struct DatabasePB {
 
   #[pb(index = 4)]
   pub layout_type: DatabaseLayoutPB,
-
-  #[pb(index = 5)]
-  pub is_linked: bool,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -208,7 +205,7 @@ pub struct DatabaseMetaPB {
   pub database_id: String,
 
   #[pb(index = 2)]
-  pub inline_view_id: String,
+  pub view_id: String,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

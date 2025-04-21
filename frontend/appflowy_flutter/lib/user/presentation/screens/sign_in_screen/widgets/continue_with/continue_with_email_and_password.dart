@@ -2,6 +2,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_magic_link_or_passcode_page.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password_page.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -50,11 +52,6 @@ class _ContinueWithEmailAndPasswordState
           );
         } else if (successOrFail == null && !state.isSubmitting) {
           emailKey.currentState?.clearError();
-
-          // _pushContinueWithMagicLinkOrPasscodePage(
-          //   context,
-          //   controller.text,
-          // );
         }
       },
       child: Column(
@@ -63,7 +60,6 @@ class _ContinueWithEmailAndPasswordState
             key: emailKey,
             controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
-            radius: 10,
             onSubmitted: (value) => _signInWithEmail(
               context,
               value,
@@ -76,13 +72,24 @@ class _ContinueWithEmailAndPasswordState
               controller.text,
             ),
           ),
-          // VSpace(theme.spacing.l),
-          // ContinueWithPassword(
-          //   onTap: () => _pushContinueWithPasswordPage(
-          //     context,
-          //     controller.text,
-          //   ),
-          // ),
+          VSpace(theme.spacing.l),
+          ContinueWithPassword(
+            onTap: () {
+              final email = controller.text;
+
+              if (!isEmail(email)) {
+                emailKey.currentState?.syncError(
+                  errorText: LocaleKeys.signIn_invalidEmail.tr(),
+                );
+                return;
+              }
+
+              _pushContinueWithPasswordPage(
+                context,
+                email,
+              );
+            },
+          ),
         ],
       ),
     );
@@ -131,12 +138,14 @@ class _ContinueWithEmailAndPasswordState
 
               _hasPushedContinueWithMagicLinkOrPasscodePage = false;
             },
-            onEnterPasscode: (passcode) => signInBloc.add(
-              SignInEvent.signInWithPasscode(
-                email: email,
-                passcode: passcode,
-              ),
-            ),
+            onEnterPasscode: (passcode) {
+              signInBloc.add(
+                SignInEvent.signInWithPasscode(
+                  email: email,
+                  passcode: passcode,
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -145,31 +154,34 @@ class _ContinueWithEmailAndPasswordState
     _hasPushedContinueWithMagicLinkOrPasscodePage = true;
   }
 
-  // void _pushContinueWithPasswordPage(
-  //   BuildContext context,
-  //   String email,
-  // ) {
-  //   final signInBloc = context.read<SignInBloc>();
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => BlocProvider.value(
-  //         value: signInBloc,
-  //         child: ContinueWithPasswordPage(
-  //           email: email,
-  //           backToLogin: () => Navigator.pop(context),
-  //           onEnterPassword: (password) => signInBloc.add(
-  //             SignInEvent.signInWithEmailAndPassword(
-  //               email: email,
-  //               password: password,
-  //             ),
-  //           ),
-  //           onForgotPassword: () {
-  //             // todo: implement forgot password
-  //           },
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  void _pushContinueWithPasswordPage(
+    BuildContext context,
+    String email,
+  ) {
+    final signInBloc = context.read<SignInBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: signInBloc,
+          child: ContinueWithPasswordPage(
+            email: email,
+            backToLogin: () {
+              emailKey.currentState?.clearError();
+              Navigator.pop(context);
+            },
+            onEnterPassword: (password) => signInBloc.add(
+              SignInEvent.signInWithEmailAndPassword(
+                email: email,
+                password: password,
+              ),
+            ),
+            onForgotPassword: () {
+              // todo: implement forgot password
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }

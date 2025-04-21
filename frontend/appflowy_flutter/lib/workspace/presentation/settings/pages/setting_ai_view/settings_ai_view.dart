@@ -10,23 +10,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AIFeatureOnlySupportedWhenUsingAppFlowyCloud extends StatelessWidget {
-  const AIFeatureOnlySupportedWhenUsingAppFlowyCloud({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 30),
-      child: FlowyText(
-        LocaleKeys.settings_aiPage_keys_loginToEnableAIFeature.tr(),
-        maxLines: null,
-        fontSize: 16,
-        lineHeight: 1.6,
-      ),
-    );
-  }
-}
-
 class SettingsAIView extends StatelessWidget {
   const SettingsAIView({
     super.key,

@@ -7,7 +7,7 @@ use flowy_error::FlowyResult;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 use flowy_user_pub::session::Session;
 use semver::Version;
 use tracing::info;
@@ -54,7 +54,7 @@ impl UserLocalDataMigration {
   pub fn run(
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
-    authenticator: &Authenticator,
+    auth_type: &AuthType,
     app_version: &Version,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
@@ -75,7 +75,7 @@ impl UserLocalDataMigration {
 
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
-          migration.run(&self.session, &self.collab_db, authenticator)?;
+          migration.run(&self.session, &self.collab_db, auth_type, &mut conn)?;
           applied_migrations.push(migration.name().to_string());
           save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
@@ -98,7 +98,8 @@ pub trait UserDataMigration {
     &self,
     user: &Session,
     collab_db: &Arc<CollabKVDB>,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
+    db: &mut SqliteConnection,
   ) -> FlowyResult<()>;
 }
 

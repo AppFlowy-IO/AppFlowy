@@ -1,5 +1,5 @@
 #![allow(unused_variables)]
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::{
@@ -17,13 +17,13 @@ use flowy_database_pub::cloud::{
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use serde_json::{Map, Value};
-use std::sync::Arc;
+use std::sync::Weak;
 use tracing::{error, instrument};
 use uuid::Uuid;
 
 pub(crate) struct AFCloudDatabaseCloudServiceImpl<T> {
   pub inner: T,
-  pub user: Arc<dyn ServerUser>,
+  pub logged_user: Weak<dyn LoggedUser>,
 }
 
 #[async_trait]
@@ -40,7 +40,6 @@ where
     workspace_id: &Uuid,
   ) -> Result<Option<EncodedCollab>, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.user.clone();
     let params = QueryCollabParams {
       workspace_id: *workspace_id,
       inner: QueryCollab::new(*object_id, collab_type),
@@ -50,7 +49,7 @@ where
       Ok(data) => {
         check_request_workspace_id_is_match(
           workspace_id,
-          &cloned_user,
+          &self.logged_user,
           format!("get database object: {}:{}", object_id, collab_type),
         )?;
         Ok(Some(data.encode_collab))
@@ -95,14 +94,17 @@ where
     workspace_id: &Uuid,
   ) -> Result<EncodeCollabByOid, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let cloned_user = self.user.clone();
     let client = try_get_client?;
     let params = object_ids
       .into_iter()
       .map(|object_id| QueryCollab::new(object_id, object_ty))
       .collect();
     let results = client.batch_get_collab(workspace_id, params).await?;
-    check_request_workspace_id_is_match(workspace_id, &cloned_user, "batch get database object")?;
+    check_request_workspace_id_is_match(
+      workspace_id,
+      &self.logged_user,
+      "batch get database object",
+    )?;
     Ok(
       results
         .0

@@ -380,6 +380,9 @@ pub enum ErrorCode {
 
   #[error("Local AI disabled")]
   LocalAIDisabled = 130,
+
+  #[error("User not login")]
+  UserNotLogin = 131,
 }
 
 impl ErrorCode {

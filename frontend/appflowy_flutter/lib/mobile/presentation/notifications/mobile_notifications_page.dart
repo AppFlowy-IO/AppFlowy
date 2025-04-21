@@ -50,9 +50,9 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
             orElse: () =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             workspaceFailure: () => const WorkspaceFailedScreen(),
-            success: (workspaceSetting, userProfile) =>
+            success: (workspaceLatest, userProfile) =>
                 _NotificationScreenContent(
-              workspaceSetting: workspaceSetting,
+              workspaceLatest: workspaceLatest,
               userProfile: userProfile,
               controller: controller,
               reminderBloc: reminderBloc,
@@ -66,13 +66,13 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
 
 class _NotificationScreenContent extends StatelessWidget {
   const _NotificationScreenContent({
-    required this.workspaceSetting,
+    required this.workspaceLatest,
     required this.userProfile,
     required this.controller,
     required this.reminderBloc,
   });
 
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceLatest;
   final UserProfilePB userProfile;
   final TabController controller;
   final ReminderBloc reminderBloc;
@@ -84,7 +84,7 @@ class _NotificationScreenContent extends StatelessWidget {
         ..add(
           SidebarSectionsEvent.initial(
             userProfile,
-            workspaceSetting.workspaceId,
+            workspaceLatest.workspaceId,
           ),
         ),
       child: BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(

@@ -102,7 +102,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
-          AuthenticatorPB.Local,
+          AuthTypePB.Local,
         ),
       );
       break;

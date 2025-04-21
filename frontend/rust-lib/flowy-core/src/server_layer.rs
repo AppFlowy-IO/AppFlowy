@@ -1,194 +1,134 @@
-use arc_swap::ArcSwapOption;
+use crate::AppFlowyCoreConfig;
+use af_plugin::manager::PluginManager;
+use arc_swap::{ArcSwap, ArcSwapOption};
+use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
-use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::{Arc, Weak};
-
-use serde_repr::*;
-
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_server::af_cloud::define::ServerUser;
-use flowy_server::af_cloud::AppFlowyCloudServer;
-use flowy_server::local_server::{LocalServer, LocalServerDB};
+use flowy_server::af_cloud::{
+  define::{AIUserServiceImpl, LoggedUser},
+  AppFlowyCloudServer,
+};
+use flowy_server::local_server::LocalServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
+use std::ops::Deref;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Weak};
+use tracing::info;
 
-use crate::AppFlowyCoreConfig;
-
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
-pub enum Server {
-  /// Local server provider.
-  /// Offline mode, no user authentication and the data is stored locally.
-  Local = 0,
-  /// AppFlowy Cloud server provider.
-  /// See: https://github.com/AppFlowy-IO/AppFlowy-Cloud
-  AppFlowyCloud = 1,
-}
-
-impl Server {
-  pub fn is_local(&self) -> bool {
-    matches!(self, Server::Local)
-  }
-}
-
-impl Display for Server {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Server::Local => write!(f, "Local"),
-      Server::AppFlowyCloud => write!(f, "AppFlowyCloud"),
-    }
-  }
-}
-
-/// The [ServerProvider] provides list of [AppFlowyServer] base on the [Authenticator]. Using
-/// the auth type, the [ServerProvider] will create a new [AppFlowyServer] if it doesn't
-/// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  providers: DashMap<Server, Arc<dyn AppFlowyServer>>,
-  pub(crate) encryption: Arc<dyn AppFlowyEncryption>,
-  #[allow(dead_code)]
-  pub(crate) store_preferences: Weak<KVStorePreferences>,
-  pub(crate) user_enable_sync: AtomicBool,
+  providers: DashMap<AuthType, Arc<dyn AppFlowyServer>>,
+  auth_type: ArcSwap<AuthType>,
+  logged_user: Arc<dyn LoggedUser>,
+  pub local_ai: Arc<LocalAIController>,
+  pub uid: Arc<ArcSwapOption<i64>>,
+  pub user_enable_sync: Arc<AtomicBool>,
+  pub encryption: Arc<dyn AppFlowyEncryption>,
+}
 
-  /// The authenticator type of the user.
-  authenticator: AtomicU8,
-  user: Arc<dyn ServerUser>,
-  pub(crate) uid: Arc<ArcSwapOption<i64>>,
+// Our little guard wrapper:
+pub struct ServerHandle<'a>(Ref<'a, AuthType, Arc<dyn AppFlowyServer>>);
+
+impl<'a> Deref for ServerHandle<'a> {
+  type Target = dyn AppFlowyServer;
+  fn deref(&self) -> &Self::Target {
+    // `self.0.value()` is an `&Arc<dyn AppFlowyServer>`
+    // so `&**` gives us a `&dyn AppFlowyServer`
+    &**self.0.value()
+  }
+}
+
+/// Determine current server type from ENV
+pub fn current_server_type() -> AuthType {
+  match AuthenticatorType::from_env() {
+    AuthenticatorType::Local => AuthType::Local,
+    AuthenticatorType::AppFlowyCloud => AuthType::AppFlowyCloud,
+  }
 }
 
 impl ServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
-    server: Server,
     store_preferences: Weak<KVStorePreferences>,
-    server_user: impl ServerUser + 'static,
+    user_service: impl LoggedUser + 'static,
   ) -> Self {
-    let user = Arc::new(server_user);
-    let encryption = EncryptionImpl::new(None);
-    Self {
+    let initial_auth = current_server_type();
+    let logged_user = Arc::new(user_service) as Arc<dyn LoggedUser>;
+    let auth_type = ArcSwap::from(Arc::new(initial_auth));
+    let encryption = Arc::new(EncryptionImpl::new(None)) as Arc<dyn AppFlowyEncryption>;
+    let ai_user = Arc::new(AIUserServiceImpl(Arc::downgrade(&logged_user)));
+    let plugins = Arc::new(PluginManager::new());
+    let local_ai = Arc::new(LocalAIController::new(
+      plugins,
+      store_preferences,
+      ai_user.clone(),
+    ));
+
+    ServerProvider {
       config,
       providers: DashMap::new(),
-      user_enable_sync: AtomicBool::new(true),
-      authenticator: AtomicU8::new(Authenticator::from(server) as u8),
-      encryption: Arc::new(encryption),
-      store_preferences,
+      encryption,
+      user_enable_sync: Arc::new(AtomicBool::new(true)),
+      auth_type,
+      logged_user,
       uid: Default::default(),
-      user,
+      local_ai,
     }
   }
 
-  pub fn get_server_type(&self) -> Server {
-    match Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32) {
-      Authenticator::Local => Server::Local,
-      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
+  pub fn set_auth_type(&self, new_auth_type: AuthType) {
+    let old_type = self.get_auth_type();
+    if old_type != new_auth_type {
+      info!(
+        "ServerProvider: auth type from {:?} to {:?}",
+        old_type, new_auth_type
+      );
+
+      self.auth_type.store(Arc::new(new_auth_type));
+      if let Some((auth_type, _)) = self.providers.remove(&old_type) {
+        info!("ServerProvider: remove old auth type: {:?}", auth_type);
+      }
     }
   }
 
-  pub fn set_authenticator(&self, authenticator: Authenticator) {
-    let old_server_type = self.get_server_type();
-    self
-      .authenticator
-      .store(authenticator as u8, Ordering::Release);
-    let new_server_type = self.get_server_type();
-
-    if old_server_type != new_server_type {
-      self.providers.remove(&old_server_type);
-    }
+  pub fn get_auth_type(&self) -> AuthType {
+    *self.auth_type.load_full().as_ref()
   }
 
-  pub fn get_authenticator(&self) -> Authenticator {
-    Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32)
-  }
-
-  /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
-  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
-    let server_type = self.get_server_type();
-
-    if let Some(provider) = self.providers.get(&server_type) {
-      return Ok(provider.value().clone());
+  /// Lazily create or fetch an AppFlowyServer instance
+  pub fn get_server(&self) -> FlowyResult<ServerHandle> {
+    let auth_type = self.get_auth_type();
+    if let Some(r) = self.providers.get(&auth_type) {
+      return Ok(ServerHandle(r));
     }
 
-    let server = match server_type {
-      Server::Local => {
-        let local_db = Arc::new(LocalServerDBImpl {
-          storage_path: self.config.storage_path.clone(),
-        });
-        let server = Arc::new(LocalServer::new(local_db));
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
-      },
-      Server::AppFlowyCloud => {
-        let config = self.config.cloud_config.clone().ok_or_else(|| {
-          FlowyError::internal().with_context("AppFlowyCloud configuration is missing")
-        })?;
-        let server = Arc::new(AppFlowyCloudServer::new(
-          config,
+    let server: Arc<dyn AppFlowyServer> = match auth_type {
+      AuthType::Local => Arc::new(LocalServer::new(
+        self.logged_user.clone(),
+        self.local_ai.clone(),
+      )),
+      AuthType::AppFlowyCloud => {
+        let cfg = self
+          .config
+          .cloud_config
+          .clone()
+          .ok_or_else(|| FlowyError::internal().with_context("Missing cloud config"))?;
+        Arc::new(AppFlowyCloudServer::new(
+          cfg,
           self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),
           self.config.app_version.clone(),
-          self.user.clone(),
-        ));
-
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
+          Arc::downgrade(&self.logged_user),
+        ))
       },
-    }?;
+    };
 
-    self.providers.insert(server_type.clone(), server.clone());
-    Ok(server)
-  }
-}
-
-impl From<Authenticator> for Server {
-  fn from(auth_provider: Authenticator) -> Self {
-    match auth_provider {
-      Authenticator::Local => Server::Local,
-      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-    }
-  }
-}
-
-impl From<Server> for Authenticator {
-  fn from(ty: Server) -> Self {
-    match ty {
-      Server::Local => Authenticator::Local,
-      Server::AppFlowyCloud => Authenticator::AppFlowyCloud,
-    }
-  }
-}
-impl From<&Authenticator> for Server {
-  fn from(auth_provider: &Authenticator) -> Self {
-    Self::from(auth_provider.clone())
-  }
-}
-
-pub fn current_server_type() -> Server {
-  match AuthenticatorType::from_env() {
-    AuthenticatorType::Local => Server::Local,
-    AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
-  }
-}
-
-struct LocalServerDBImpl {
-  #[allow(dead_code)]
-  storage_path: String,
-}
-
-impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_profile"),
-    )
-  }
-
-  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_workspace"),
-    )
+    self.providers.insert(auth_type, server);
+    let guard = self.providers.get(&auth_type).unwrap();
+    Ok(ServerHandle(guard))
   }
 }

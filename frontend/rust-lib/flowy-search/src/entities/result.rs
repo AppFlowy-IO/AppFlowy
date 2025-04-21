@@ -1,55 +1,106 @@
 use collab_folder::{IconType, ViewIcon};
+use derive_builder::Builder;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_folder::entities::ViewIconPB;
 
-use super::IndexTypePB;
+#[derive(Debug, Default, ProtoBuf, Builder, Clone)]
+#[builder(name = "CreateSearchResultPBArgs")]
+#[builder(pattern = "mutable")]
+pub struct SearchResponsePB {
+  #[pb(index = 1, one_of)]
+  #[builder(default)]
+  pub search_result: Option<RepeatedSearchResponseItemPB>,
 
-#[derive(Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedSearchResultPB {
-  #[pb(index = 1)]
-  pub items: Vec<SearchResultPB>,
+  #[pb(index = 2, one_of)]
+  #[builder(default)]
+  pub search_summary: Option<RepeatedSearchSummaryPB>,
+
+  #[pb(index = 3, one_of)]
+  #[builder(default)]
+  pub local_search_result: Option<RepeatedLocalSearchResponseItemPB>,
+
+  #[pb(index = 4)]
+  #[builder(default)]
+  pub searching: bool,
+
+  #[pb(index = 5)]
+  #[builder(default)]
+  pub generating_ai_summary: bool,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct SearchResultPB {
+pub struct RepeatedSearchSummaryPB {
   #[pb(index = 1)]
-  pub index_type: IndexTypePB,
-
-  #[pb(index = 2)]
-  pub view_id: String,
-
-  #[pb(index = 3)]
-  pub id: String,
-
-  #[pb(index = 4)]
-  pub data: String,
-
-  #[pb(index = 5, one_of)]
-  pub icon: Option<ResultIconPB>,
-
-  #[pb(index = 6)]
-  pub score: f64,
-
-  #[pb(index = 7)]
-  pub workspace_id: String,
-
-  #[pb(index = 8, one_of)]
-  pub preview: Option<String>,
+  pub items: Vec<SearchSummaryPB>,
 }
 
-impl SearchResultPB {
-  pub fn with_score(&self, score: f64) -> Self {
-    SearchResultPB {
-      index_type: self.index_type.clone(),
-      view_id: self.view_id.clone(),
-      id: self.id.clone(),
-      data: self.data.clone(),
-      icon: self.icon.clone(),
-      score,
-      workspace_id: self.workspace_id.clone(),
-      preview: self.preview.clone(),
-    }
-  }
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchSummaryPB {
+  #[pb(index = 1)]
+  pub content: String,
+
+  #[pb(index = 2)]
+  pub sources: Vec<SearchSourcePB>,
+
+  #[pb(index = 3)]
+  pub highlights: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchSourcePB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub display_name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ResultIconPB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedSearchResponseItemPB {
+  #[pb(index = 1)]
+  pub items: Vec<SearchResponseItemPB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct SearchResponseItemPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub display_name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ResultIconPB>,
+
+  #[pb(index = 4)]
+  pub workspace_id: String,
+
+  #[pb(index = 5)]
+  pub content: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedLocalSearchResponseItemPB {
+  #[pb(index = 1)]
+  pub items: Vec<LocalSearchResponseItemPB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct LocalSearchResponseItemPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub display_name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ResultIconPB>,
+
+  #[pb(index = 4)]
+  pub workspace_id: String,
 }
 
 #[derive(ProtoBuf_Enum, Clone, Debug, PartialEq, Eq, Default)]

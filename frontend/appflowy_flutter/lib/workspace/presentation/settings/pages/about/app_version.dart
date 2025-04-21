@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -16,28 +17,29 @@ class SettingsAppVersion extends StatelessWidget {
   Widget build(BuildContext context) {
     return ApplicationInfo.isUpdateAvailable
         ? const _UpdateAppSection()
-        : _buildIsUpToDate();
+        : _buildIsUpToDate(context);
   }
 
-  Widget _buildIsUpToDate() {
+  Widget _buildIsUpToDate(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText.regular(
+        Text(
           LocaleKeys.settings_accountPage_isUpToDate.tr(),
-          figmaLineHeight: 17,
+          style: theme.textStyle.body.enhanced(
+            color: theme.textColorScheme.primary,
+          ),
         ),
         const VSpace(4),
-        Opacity(
-          opacity: 0.7,
-          child: FlowyText.regular(
-            LocaleKeys.settings_accountPage_officialVersion.tr(
-              namedArgs: {
-                'version': ApplicationInfo.applicationVersion,
-              },
-            ),
-            fontSize: 12,
-            figmaLineHeight: 13,
+        Text(
+          LocaleKeys.settings_accountPage_officialVersion.tr(
+            namedArgs: {
+              'version': ApplicationInfo.applicationVersion,
+            },
+          ),
+          style: theme.textStyle.caption.standard(
+            color: theme.textColorScheme.secondary,
           ),
         ),
       ],

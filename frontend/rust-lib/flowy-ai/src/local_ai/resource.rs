@@ -1,11 +1,10 @@
 use crate::ai_manager::AIUserService;
 use crate::local_ai::controller::LocalAISetting;
-use flowy_ai_pub::cloud::LocalAIConfig;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
@@ -33,7 +32,6 @@ struct ModelEntry {
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
   /// Get local ai configuration from remote server
-  async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error>;
   fn store_setting(&self, setting: LocalAISetting) -> Result<(), anyhow::Error>;
   fn retrieve_setting(&self) -> Option<LocalAISetting>;
 }
@@ -58,7 +56,7 @@ pub struct LocalAIResourceController {
   user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   resource_notify: tokio::sync::broadcast::Sender<()>,
-  #[cfg(target_os = "macos")]
+  #[cfg(any(target_os = "macos", target_os = "linux"))]
   #[allow(dead_code)]
   app_disk_watch: Option<WatchContext>,
   app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
@@ -71,10 +69,10 @@ impl LocalAIResourceController {
   ) -> Self {
     let (resource_notify, _) = tokio::sync::broadcast::channel(1);
     let (app_state_sender, _) = tokio::sync::broadcast::channel(1);
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     let mut offline_app_disk_watch: Option<WatchContext> = None;
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     {
       match watch_offline_app() {
         Ok((new_watcher, mut rx)) => {
@@ -97,7 +95,7 @@ impl LocalAIResourceController {
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
-      #[cfg(target_os = "macos")]
+      #[cfg(any(target_os = "macos", target_os = "linux"))]
       app_disk_watch: offline_app_disk_watch,
       app_state_sender,
       resource_notify,
@@ -123,11 +121,6 @@ impl LocalAIResourceController {
       .calculate_pending_resources()
       .await
       .is_ok_and(|r| r.is_none())
-  }
-
-  pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
-    let ai_config = self.get_local_ai_configuration().await?;
-    Ok(ai_config.plugin.url)
   }
 
   /// Retrieves model information and updates the current model settings.
@@ -269,19 +262,6 @@ impl LocalAIResourceController {
     }
     trace!("[AI Chat] config: {:?}", config);
     Ok(config)
-  }
-
-  /// Fetches the local AI configuration from the resource service.
-  async fn get_local_ai_configuration(&self) -> FlowyResult<LocalAIConfig> {
-    self
-      .resource_service
-      .fetch_local_ai_config()
-      .await
-      .map_err(|err| {
-        error!("[LLM Resource] Failed to fetch local ai config: {:?}", err);
-        FlowyError::local_ai()
-          .with_context("Can't retrieve model info. Please try again later".to_string())
-      })
   }
 
   pub(crate) fn user_model_folder(&self) -> FlowyResult<PathBuf> {

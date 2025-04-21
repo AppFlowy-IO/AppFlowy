@@ -55,7 +55,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             onProfileUpdated: _onProfileUpdated,
             onUserWorkspaceSettingUpdated: (settings) {
               if (!isClosed) {
-                add(SettingsAIEvent.didLoadAISetting(settings));
+                add(SettingsAIEvent.didLoadWorkspaceSetting(settings));
               }
             },
           );
@@ -85,7 +85,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           ).send();
         },
-        didLoadAISetting: (UseAISettingPB settings) {
+        didLoadWorkspaceSetting: (WorkspaceSettingsPB settings) {
           emit(
             state.copyWith(
               aiSettings: settings,
@@ -150,7 +150,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     UserEventGetWorkspaceSetting(payload).send().then((result) {
       result.fold((settings) {
         if (!isClosed) {
-          add(SettingsAIEvent.didLoadAISetting(settings));
+          add(SettingsAIEvent.didLoadWorkspaceSetting(settings));
         }
       }, (err) {
         Log.error(err);
@@ -162,8 +162,8 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
 @freezed
 class SettingsAIEvent with _$SettingsAIEvent {
   const factory SettingsAIEvent.started() = _Started;
-  const factory SettingsAIEvent.didLoadAISetting(
-    UseAISettingPB settings,
+  const factory SettingsAIEvent.didLoadWorkspaceSetting(
+    WorkspaceSettingsPB settings,
   ) = _DidLoadWorkspaceSetting;
 
   const factory SettingsAIEvent.toggleAISearch() = _toggleAISearch;
@@ -183,7 +183,7 @@ class SettingsAIEvent with _$SettingsAIEvent {
 class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
-    UseAISettingPB? aiSettings,
+    WorkspaceSettingsPB? aiSettings,
     AvailableModelsPB? availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;

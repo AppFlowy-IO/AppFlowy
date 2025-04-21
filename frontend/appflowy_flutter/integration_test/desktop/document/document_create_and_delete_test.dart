@@ -13,6 +13,8 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapAnonymousSignInButton();
+      final finder = find.text(gettingStarted, findRichText: true);
+      await tester.pumpUntilFound(finder, timeout: const Duration(seconds: 2));
 
       // create a new document
       const pageName = 'Test Document';

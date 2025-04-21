@@ -27,6 +27,7 @@ diesel::table! {
         author_id -> Text,
         reply_message_id -> Nullable<BigInt>,
         metadata -> Nullable<Text>,
+        is_sync -> Bool,
     }
 }
 
@@ -35,10 +36,9 @@ diesel::table! {
         chat_id -> Text,
         created_at -> BigInt,
         name -> Text,
-        local_files -> Text,
         metadata -> Text,
-        local_enabled -> Bool,
-        sync_to_cloud -> Bool,
+        rag_ids -> Nullable<Text>,
+        is_sync -> Bool,
     }
 }
 
@@ -89,16 +89,11 @@ diesel::table! {
     user_table (id) {
         id -> Text,
         name -> Text,
-        workspace -> Text,
         icon_url -> Text,
-        openai_key -> Text,
         token -> Text,
         email -> Text,
         auth_type -> Integer,
-        encryption_type -> Text,
-        stability_ai_key -> Text,
         updated_at -> BigInt,
-        ai_model -> Text,
     }
 }
 
@@ -112,6 +107,7 @@ diesel::table! {
         icon -> Text,
         member_count -> BigInt,
         role -> Nullable<Integer>,
+        workspace_type -> Integer,
     }
 }
 
@@ -127,6 +123,14 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    workspace_setting_table (id) {
+        id -> Text,
+        disable_search_indexing -> Bool,
+        ai_model -> Text,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
   af_collab_metadata,
   chat_local_setting_table,
@@ -139,4 +143,5 @@ diesel::allow_tables_to_appear_in_same_query!(
   user_table,
   user_workspace_table,
   workspace_members_table,
+  workspace_setting_table,
 );

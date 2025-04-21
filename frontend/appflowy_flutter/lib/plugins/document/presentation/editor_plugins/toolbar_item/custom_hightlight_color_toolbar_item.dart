@@ -83,7 +83,7 @@ class _HighlightColorPickerWidgetState
 
   Widget buildChild(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
-        iconColor = theme.iconColorTheme.primary;
+        iconColor = theme.iconColorScheme.primary;
 
     final child = FlowyIconButton(
       width: 36,
