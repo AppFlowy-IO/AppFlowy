@@ -4,7 +4,7 @@ use crate::sql::select_user_workspace;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
-use tracing::trace;
+use tracing::{trace, warn};
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
@@ -92,14 +92,7 @@ pub fn update_user_profile(
   Ok(())
 }
 
-pub fn select_user_profile(
-  uid: i64,
-  workspace_id: &str,
-  conn: &mut SqliteConnection,
-) -> Result<UserProfile, FlowyError> {
-  let workspace = select_user_workspace(workspace_id, conn)?;
-  let workspace_auth_type = AuthType::from(workspace.workspace_type);
-
+fn select_user_table_row(uid: i64, conn: &mut SqliteConnection) -> Result<UserTable, FlowyError> {
   let row = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
     .first::<UserTable>(conn)
@@ -109,6 +102,17 @@ pub fn select_user_profile(
         uid, err
       ))
     })?;
+  Ok(row)
+}
+
+pub fn select_user_profile(
+  uid: i64,
+  workspace_id: &str,
+  conn: &mut SqliteConnection,
+) -> Result<UserProfile, FlowyError> {
+  let workspace = select_user_workspace(workspace_id, conn)?;
+  let workspace_auth_type = AuthType::from(workspace.workspace_type);
+  let row = select_user_table_row(uid, conn)?;
 
   let user = UserProfile {
     uid: row.id.parse::<i64>().unwrap_or(0),
@@ -122,6 +126,28 @@ pub fn select_user_profile(
   };
 
   Ok(user)
+}
+
+pub fn select_workspace_auth_type(
+  uid: i64,
+  workspace_id: &str,
+  conn: &mut SqliteConnection,
+) -> Result<AuthType, FlowyError> {
+  match select_user_workspace(workspace_id, conn) {
+    Ok(workspace) => Ok(AuthType::from(workspace.workspace_type)),
+    Err(err) => {
+      if err.is_record_not_found() {
+        let row = select_user_table_row(uid, conn)?;
+        warn!(
+          "user user auth type:{} as workspace auth type",
+          row.auth_type
+        );
+        Ok(AuthType::from(row.auth_type))
+      } else {
+        Err(err)
+      }
+    },
+  }
 }
 
 pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {

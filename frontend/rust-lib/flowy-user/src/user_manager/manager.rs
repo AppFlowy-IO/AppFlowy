@@ -253,7 +253,7 @@ impl UserManager {
         (Ok(collab_db), Ok(sqlite_pool)) => {
           run_collab_data_migration(
             &session,
-            &user,
+            &user.auth_type,
             collab_db,
             sqlite_pool,
             self.store_preferences.clone(),
@@ -869,7 +869,7 @@ fn mark_all_migrations_as_applied(sqlite_pool: &Arc<ConnectionPool>) {
 
 pub(crate) fn run_collab_data_migration(
   session: &Session,
-  user: &UserProfile,
+  auth_type: &AuthType,
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
   kv: Arc<KVStorePreferences>,
@@ -878,7 +878,7 @@ pub(crate) fn run_collab_data_migration(
   let migrations = collab_migration_list();
   match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv).run(
     migrations,
-    &user.auth_type,
+    auth_type,
     app_version,
   ) {
     Ok(applied_migrations) => {

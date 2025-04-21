@@ -159,7 +159,6 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
-      info!("create document {}", doc_id);
       let encoded_collab = doc_state_from_document_data(doc_id, data).await?;
       self
         .persistence()?
