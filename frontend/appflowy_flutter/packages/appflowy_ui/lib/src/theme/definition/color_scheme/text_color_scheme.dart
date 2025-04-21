@@ -6,10 +6,7 @@ class AppFlowyTextColorScheme {
     required this.secondary,
     required this.tertiary,
     required this.quaternary,
-    required this.inverse,
     required this.onFill,
-    required this.theme,
-    required this.themeHover,
     required this.action,
     required this.actionHover,
     required this.info,
@@ -20,18 +17,15 @@ class AppFlowyTextColorScheme {
     required this.warningHover,
     required this.error,
     required this.errorHover,
-    required this.purple,
-    required this.purpleHover,
+    required this.featured,
+    required this.featuredHover,
   });
 
   final Color primary;
   final Color secondary;
   final Color tertiary;
   final Color quaternary;
-  final Color inverse;
   final Color onFill;
-  final Color theme;
-  final Color themeHover;
   final Color action;
   final Color actionHover;
   final Color info;
@@ -42,8 +36,8 @@ class AppFlowyTextColorScheme {
   final Color warningHover;
   final Color error;
   final Color errorHover;
-  final Color purple;
-  final Color purpleHover;
+  final Color featured;
+  final Color featuredHover;
 
   AppFlowyTextColorScheme lerp(
     AppFlowyTextColorScheme other,
@@ -54,10 +48,7 @@ class AppFlowyTextColorScheme {
       secondary: Color.lerp(secondary, other.secondary, t)!,
       tertiary: Color.lerp(tertiary, other.tertiary, t)!,
       quaternary: Color.lerp(quaternary, other.quaternary, t)!,
-      inverse: Color.lerp(inverse, other.inverse, t)!,
       onFill: Color.lerp(onFill, other.onFill, t)!,
-      theme: Color.lerp(theme, other.theme, t)!,
-      themeHover: Color.lerp(themeHover, other.themeHover, t)!,
       action: Color.lerp(action, other.action, t)!,
       actionHover: Color.lerp(actionHover, other.actionHover, t)!,
       info: Color.lerp(info, other.info, t)!,
@@ -68,8 +59,8 @@ class AppFlowyTextColorScheme {
       warningHover: Color.lerp(warningHover, other.warningHover, t)!,
       error: Color.lerp(error, other.error, t)!,
       errorHover: Color.lerp(errorHover, other.errorHover, t)!,
-      purple: Color.lerp(purple, other.purple, t)!,
-      purpleHover: Color.lerp(purpleHover, other.purpleHover, t)!,
+      featured: Color.lerp(featured, other.featured, t)!,
+      featuredHover: Color.lerp(featuredHover, other.featuredHover, t)!,
     );
   }
 }

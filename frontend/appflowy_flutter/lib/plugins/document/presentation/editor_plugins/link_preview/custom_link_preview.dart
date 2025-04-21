@@ -60,8 +60,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           color: isHovering || isInDarkCallout
-              ? borderScheme.greyTertiaryHover
-              : borderScheme.greyTertiary,
+              ? borderScheme.primaryHover
+              : borderScheme.primary,
         ),
         borderRadius: BorderRadius.circular(16.0),
       ),

@@ -40,7 +40,7 @@ class AFFilledButton extends StatelessWidget {
       disabled: disabled,
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
-          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+          return AppFlowyTheme.of(context).fillColorScheme.contentHover;
         }
         if (isHovering) {
           return AppFlowyTheme.of(context).fillColorScheme.themeThickHover;
@@ -70,7 +70,7 @@ class AFFilledButton extends StatelessWidget {
       disabled: disabled,
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
-          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+          return AppFlowyTheme.of(context).fillColorScheme.contentHover;
         }
         if (isHovering) {
           return AppFlowyTheme.of(context).fillColorScheme.errorThickHover;
@@ -97,7 +97,7 @@ class AFFilledButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       backgroundColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
+          AppFlowyTheme.of(context).fillColorScheme.contentHover,
     );
   }
 

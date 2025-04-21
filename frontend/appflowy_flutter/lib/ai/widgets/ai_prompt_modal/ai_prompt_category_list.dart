@@ -121,9 +121,9 @@ class AiPromptCategoryList extends StatelessWidget {
           return theme.fillColorScheme.themeSelect;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return Colors.transparent;
+        return theme.fillColorScheme.content;
       },
     );
   }
@@ -175,9 +175,9 @@ class AiPromptCategoryItem extends StatelessWidget {
           return theme.fillColorScheme.themeSelect;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return Colors.transparent;
+        return theme.fillColorScheme.content;
       },
     );
   }

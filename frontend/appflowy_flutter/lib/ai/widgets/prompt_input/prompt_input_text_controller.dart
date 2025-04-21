@@ -56,8 +56,8 @@ class AiPromptInputTextEditingController extends TextEditingController {
           TextSpan(
             text: restore(string),
             style: theme.textStyle.body.standard().copyWith(
-                  color: theme.textColorScheme.purple,
-                  backgroundColor: theme.fillColorScheme.purpleLight,
+                  color: theme.textColorScheme.featured,
+                  backgroundColor: theme.fillColorScheme.featuredLight,
                 ),
           ),
         );

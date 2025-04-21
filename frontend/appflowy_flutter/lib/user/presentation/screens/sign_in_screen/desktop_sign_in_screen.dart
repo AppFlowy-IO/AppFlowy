@@ -144,7 +144,7 @@ class _OrDivider extends StatelessWidget {
         Flexible(
           child: Divider(
             thickness: 1,
-            color: theme.borderColorScheme.greyTertiary,
+            color: theme.borderColorScheme.primary,
           ),
         ),
         Padding(
@@ -159,7 +159,7 @@ class _OrDivider extends StatelessWidget {
         Flexible(
           child: Divider(
             thickness: 1,
-            color: theme.borderColorScheme.greyTertiary,
+            color: theme.borderColorScheme.primary,
           ),
         ),
       ],
