@@ -17,11 +17,11 @@ class RelationDatabaseListCubit extends Cubit<RelationDatabaseListState> {
         .send()
         .fold<List<DatabaseMetaPB>>((s) => s.items, (f) => []);
     final futures = metaPBs.map((meta) {
-      return ViewBackendService.getView(meta.inlineViewId).then(
+      return ViewBackendService.getView(meta.viewId).then(
         (result) => result.fold(
           (s) => DatabaseMeta(
             databaseId: meta.databaseId,
-            inlineViewId: meta.inlineViewId,
+            viewId: meta.viewId,
             databaseName: s.name,
           ),
           (f) => null,
@@ -43,10 +43,10 @@ class DatabaseMeta with _$DatabaseMeta {
     /// id of the database
     required String databaseId,
 
-    /// id of the inline view
-    required String inlineViewId,
+    /// id of the view
+    required String viewId,
 
-    /// name of the database, currently identical to the name of the inline view
+    /// name of the database
     required String databaseName,
   }) = _DatabaseMeta;
 }

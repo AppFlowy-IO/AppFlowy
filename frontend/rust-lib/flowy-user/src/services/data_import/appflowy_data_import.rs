@@ -3,7 +3,6 @@ use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
 use crate::services::entities::UserPaths;
-use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::DataSource;
@@ -30,13 +29,14 @@ use flowy_folder_pub::entities::{
 };
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
+use flowy_user_pub::entities::{user_awareness_object_id, AuthType};
 use flowy_user_pub::session::Session;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
+use flowy_user_pub::sql::select_user_profile;
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
@@ -103,7 +103,7 @@ pub(crate) fn prepare_import(
   );
   let imported_user = select_user_profile(
     imported_session.user_id,
-    imported_sqlite_db.get_connection()?,
+    &mut *imported_sqlite_db.get_connection()?,
   )?;
 
   run_collab_data_migration(
@@ -1175,7 +1175,7 @@ pub async fn upload_collab_objects_data(
   uid: i64,
   user_collab_db: Weak<CollabKVDB>,
   workspace_id: &Uuid,
-  user_authenticator: &Authenticator,
+  user_authenticator: &AuthType,
   collab_data: ImportedCollabData,
   user_cloud_service: Arc<dyn UserCloudService>,
 ) -> Result<(), FlowyError> {

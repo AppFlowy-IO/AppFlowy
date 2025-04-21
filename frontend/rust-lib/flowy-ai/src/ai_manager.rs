@@ -4,10 +4,8 @@ use crate::entities::{
   FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
-use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
-use flowy_ai_pub::persistence::{
-  read_chat_metadata, serialize_chat_metadata, serialize_rag_ids, upsert_chat, ChatTable,
-};
+use crate::middleware::chat_service_mw::ChatServiceMiddleware;
+use flowy_ai_pub::persistence::read_chat_metadata;
 use std::collections::HashMap;
 
 use dashmap::DashMap;
@@ -72,7 +70,7 @@ struct ServerModelsCache {
 pub const GLOBAL_ACTIVE_MODEL_KEY: &str = "global_active_model";
 
 pub struct AIManager {
-  pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
+  pub cloud_service_wm: Arc<ChatServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
   pub external_service: Arc<dyn AIExternalService>,
   chats: Arc<DashMap<Uuid, Arc<Chat>>>,
@@ -97,7 +95,7 @@ impl AIManager {
     });
 
     let external_service = Arc::new(query_service);
-    let cloud_service_wm = Arc::new(AICloudServiceMiddleware::new(
+    let cloud_service_wm = Arc::new(ChatServiceMiddleware::new(
       user_service.clone(),
       chat_cloud_service,
       local_ai.clone(),
@@ -117,6 +115,24 @@ impl AIManager {
 
   #[instrument(skip_all, err)]
   pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+    let local_ai = self.local_ai.clone();
+    tokio::spawn(async move {
+      if let Err(err) = local_ai.destroy_plugin().await {
+        error!("Failed to destroy plugin: {}", err);
+      }
+
+      if let Err(err) = local_ai.reload().await {
+        error!("[AI Manager] failed to reload local AI: {:?}", err);
+      }
+    });
+    Ok(())
+  }
+
+  #[instrument(skip_all, err)]
+  pub async fn initialize_after_open_workspace(
+    &self,
+    _workspace_id: &Uuid,
+  ) -> Result<(), FlowyError> {
     let local_ai = self.local_ai.clone();
     tokio::spawn(async move {
       if let Err(err) = local_ai.destroy_plugin().await {
@@ -226,13 +242,6 @@ impl AIManager {
       .unwrap_or_default();
     info!("[Chat] create chat with rag_ids: {:?}", rag_ids);
 
-    save_chat(
-      self.user_service.sqlite_connection(*uid)?,
-      chat_id,
-      "",
-      rag_ids.iter().map(|v| v.to_string()).collect(),
-      json!({}),
-    )?;
     self
       .cloud_service_wm
       .create_chat(uid, &workspace_id, chat_id, rag_ids, "", json!({}))
@@ -730,28 +739,9 @@ async fn sync_chat_documents(
   Ok(())
 }
 
-fn save_chat(
-  conn: DBConnection,
-  chat_id: &Uuid,
-  name: &str,
-  rag_ids: Vec<String>,
-  metadata: serde_json::Value,
-) -> FlowyResult<()> {
-  let row = ChatTable {
-    chat_id: chat_id.to_string(),
-    created_at: timestamp(),
-    name: name.to_string(),
-    metadata: serialize_chat_metadata(&metadata),
-    rag_ids: Some(serialize_rag_ids(&rag_ids)),
-  };
-
-  upsert_chat(conn, &row)?;
-  Ok(())
-}
-
 async fn refresh_chat_setting(
   user_service: &Arc<dyn AIUserService>,
-  cloud_service: &Arc<AICloudServiceMiddleware>,
+  cloud_service: &Arc<ChatServiceMiddleware>,
   store_preferences: &Arc<KVStorePreferences>,
   chat_id: &Uuid,
 ) -> FlowyResult<ChatSettings> {

@@ -65,7 +65,7 @@ pub enum FolderEvent {
   CreateFolderWorkspace = 0,
 
   /// Read the current opening workspace. Currently, we only support one workspace
-  #[event(output = "WorkspaceSettingPB")]
+  #[event(output = "WorkspaceLatestPB")]
   GetCurrentWorkspaceSetting = 1,
 
   /// Return a list of workspaces that the current user can access.

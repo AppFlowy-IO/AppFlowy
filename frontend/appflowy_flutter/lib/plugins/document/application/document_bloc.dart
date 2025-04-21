@@ -101,8 +101,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
-    return type == AuthenticatorPB.Local;
+    final type = userProfilePB?.authType ?? AuthTypePB.Local;
+    return type == AuthTypePB.Local;
   }
 
   @override

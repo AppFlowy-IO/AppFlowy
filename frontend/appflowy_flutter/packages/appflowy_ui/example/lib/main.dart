@@ -1,7 +1,9 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:appflowy_ui_example/src/buttons/buttons_page.dart';
-import 'package:appflowy_ui_example/src/textfield/textfield_page.dart';
 import 'package:flutter/material.dart';
+
+import 'src/buttons/buttons_page.dart';
+import 'src/modal/modal_page.dart';
+import 'src/textfield/textfield_page.dart';
 
 enum ThemeMode {
   light,
@@ -24,16 +26,20 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: themeMode,
       builder: (context, themeMode, child) {
-        return AppFlowyTheme(
+        final themeBuilder = AppFlowyDefaultTheme();
+        final themeData =
+            themeMode == ThemeMode.light ? ThemeData.light() : ThemeData.dark();
+
+        return AnimatedAppFlowyTheme(
           data: themeMode == ThemeMode.light
-              ? AppFlowyThemeData.light()
-              : AppFlowyThemeData.dark(),
+              ? themeBuilder.light()
+              : themeBuilder.dark(),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'AppFlowy UI Example',
-            theme: themeMode == ThemeMode.light
-                ? ThemeData.light()
-                : ThemeData.dark(),
+            theme: themeData.copyWith(
+              visualDensity: VisualDensity.standard,
+            ),
             home: const MyHomePage(
               title: 'AppFlowy UI',
             ),
@@ -60,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final tabs = [
     Tab(text: 'Button'),
     Tab(text: 'TextField'),
+    Tab(text: 'Modal'),
   ];
 
   @override
@@ -79,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             IconButton(
               icon: Icon(
-                theme.brightness == Brightness.light
+                Theme.of(context).brightness == Brightness.light
                     ? Icons.dark_mode
                     : Icons.light_mode,
               ),
@@ -92,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             ButtonsPage(),
             TextFieldPage(),
+            ModalPage(),
           ],
         ),
         bottomNavigationBar: TabBar(

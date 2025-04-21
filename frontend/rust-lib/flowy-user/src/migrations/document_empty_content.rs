@@ -6,12 +6,13 @@ use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::{Folder, View};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use diesel::SqliteConnection;
 use semver::Version;
 use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
@@ -41,12 +42,13 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    authenticator: &Authenticator,
+    authenticator: &AuthType,
+    _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     // - The `empty document` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.
     // - Consequently, if a user is utilizing the AppFlowy cloud version, there is no need to perform any migration for the `empty document` struct.
     // - This migration step is only necessary for users who are transitioning from a local version of AppFlowy to the cloud version.
-    if !matches!(authenticator, Authenticator::Local) {
+    if !matches!(authenticator, AuthType::Local) {
       return Ok(());
     }
     collab_db.with_write_txn(|write_txn| {

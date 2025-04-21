@@ -14,8 +14,8 @@ import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
@@ -184,8 +184,8 @@ Future<void> insertLocalFile(
   final fileType = file.fileType.toMediaFileTypePB();
 
   // Check upload type
-  final isLocalMode = (userProfile?.authenticator ?? AuthenticatorPB.Local) ==
-      AuthenticatorPB.Local;
+  final isLocalMode =
+      (userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
 
   String? path;
   String? errorMsg;
@@ -229,8 +229,8 @@ Future<void> insertLocalFiles(
   if (files.every((f) => f.path.isEmpty)) return;
 
   // Check upload type
-  final isLocalMode = (userProfile?.authenticator ?? AuthenticatorPB.Local) ==
-      AuthenticatorPB.Local;
+  final isLocalMode =
+      (userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
 
   for (final file in files) {
     final fileType = file.fileType.toMediaFileTypePB();

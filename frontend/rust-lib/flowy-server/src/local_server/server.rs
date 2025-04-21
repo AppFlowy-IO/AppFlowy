@@ -1,11 +1,10 @@
 use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoggedUser;
 use crate::local_server::impls::{
-  LocalServerChatServiceImpl, LocalServerDatabaseCloudServiceImpl,
-  LocalServerDocumentCloudServiceImpl, LocalServerFolderCloudServiceImpl,
-  LocalServerUserServiceImpl,
+  LocalChatServiceImpl, LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
+  LocalServerFolderCloudServiceImpl, LocalServerUserServiceImpl,
 };
 use crate::AppFlowyServer;
 use flowy_ai::local_ai::controller::LocalAIController;
@@ -18,15 +17,15 @@ use flowy_user_pub::cloud::UserCloudService;
 use tokio::sync::mpsc;
 
 pub struct LocalServer {
-  user: Arc<dyn ServerUser>,
+  logged_user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
-  pub fn new(user: Arc<dyn ServerUser>, local_ai: Arc<LocalAIController>) -> Self {
+  pub fn new(logged_user: Arc<dyn LoggedUser>, local_ai: Arc<LocalAIController>) -> Self {
     Self {
-      user,
+      logged_user,
       local_ai,
       stop_tx: Default::default(),
     }
@@ -42,15 +41,21 @@ impl LocalServer {
 
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    Arc::new(LocalServerUserServiceImpl)
+    Arc::new(LocalServerUserServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(LocalServerFolderCloudServiceImpl)
+    Arc::new(LocalServerFolderCloudServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(LocalServerDatabaseCloudServiceImpl())
+    Arc::new(LocalServerDatabaseCloudServiceImpl {
+      logged_user: self.logged_user.clone(),
+    })
   }
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
@@ -62,8 +67,8 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
-    Arc::new(LocalServerChatServiceImpl {
-      user: self.user.clone(),
+    Arc::new(LocalChatServiceImpl {
+      logged_user: self.logged_user.clone(),
       local_ai: self.local_ai.clone(),
     })
   }

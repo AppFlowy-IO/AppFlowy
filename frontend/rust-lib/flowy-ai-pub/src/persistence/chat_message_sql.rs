@@ -1,4 +1,5 @@
 use crate::cloud::MessageCursor;
+use client_api::entity::chat_dto::ChatMessage;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
@@ -21,9 +22,40 @@ pub struct ChatMessageTable {
   pub author_id: String,
   pub reply_message_id: Option<i64>,
   pub metadata: Option<String>,
+  pub is_sync: bool,
+}
+impl ChatMessageTable {
+  pub fn from_message(chat_id: String, message: ChatMessage, is_sync: bool) -> Self {
+    ChatMessageTable {
+      message_id: message.message_id,
+      chat_id,
+      content: message.content,
+      created_at: message.created_at.timestamp(),
+      author_type: message.author.author_type as i64,
+      author_id: message.author.author_id.to_string(),
+      reply_message_id: message.reply_message_id,
+      metadata: Some(serde_json::to_string(&message.metadata).unwrap_or_default()),
+      is_sync,
+    }
+  }
 }
 
-pub fn insert_chat_messages(
+pub fn update_chat_message_is_sync(
+  mut conn: DBConnection,
+  chat_id_val: &str,
+  message_id_val: i64,
+  is_sync_val: bool,
+) -> FlowyResult<()> {
+  diesel::update(chat_message_table::table)
+    .filter(chat_message_table::chat_id.eq(chat_id_val))
+    .filter(chat_message_table::message_id.eq(message_id_val))
+    .set(chat_message_table::is_sync.eq(is_sync_val))
+    .execute(&mut *conn)?;
+
+  Ok(())
+}
+
+pub fn upsert_chat_messages(
   mut conn: DBConnection,
   new_messages: &[ChatMessageTable],
 ) -> FlowyResult<()> {
@@ -143,7 +175,7 @@ pub fn select_message_content(
   Ok(message)
 }
 
-pub fn select_message_where_match_reply_message_id(
+pub fn select_answer_where_match_reply_message_id(
   mut conn: DBConnection,
   chat_id: &str,
   answer_message_id_val: i64,

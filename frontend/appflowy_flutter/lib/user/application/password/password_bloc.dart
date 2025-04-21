@@ -4,8 +4,8 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/password/password_http_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -46,7 +46,7 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
   bool _isInitialized = false;
 
   Future<void> _init() async {
-    if (userProfile.authenticator == AuthenticatorPB.Local) {
+    if (userProfile.authType == AuthTypePB.Local) {
       Log.debug('PasswordBloc: skip init because user is local authenticator');
       return;
     }

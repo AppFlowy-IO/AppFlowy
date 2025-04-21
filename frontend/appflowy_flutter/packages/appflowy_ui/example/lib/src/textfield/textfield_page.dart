@@ -12,6 +12,19 @@ class TextFieldPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSection(
+            'TextField Sizes',
+            [
+              AFTextField(
+                hintText: 'Please enter your name',
+                size: AFTextFieldSize.m,
+              ),
+              AFTextField(
+                hintText: 'Please enter your name',
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          _buildSection(
             'TextField with hint text',
             [
               AFTextField(

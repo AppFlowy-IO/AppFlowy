@@ -1,4 +1,4 @@
-import 'package:appflowy_ui/src/theme/appflowy_theme.dart';
+import 'package:appflowy_ui/src/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 typedef AFTextFieldValidator = (bool result, String errorText) Function(
@@ -20,20 +20,16 @@ class AFTextField extends StatefulWidget {
     this.hintText,
     this.initialText,
     this.keyboardType,
-    this.radius,
+    this.size = AFTextFieldSize.l,
     this.validator,
     this.controller,
     this.onChanged,
     this.onSubmitted,
     this.autoFocus,
-    this.height = 40.0,
     this.obscureText = false,
     this.suffixIconBuilder,
     this.suffixIconConstraints,
   });
-
-  /// The height of the text field.
-  final double height;
 
   /// The hint text to display when the text field is empty.
   final String? hintText;
@@ -44,8 +40,8 @@ class AFTextField extends StatefulWidget {
   /// The type of keyboard to display.
   final TextInputType? keyboardType;
 
-  /// The radius of the text field.
-  final double? radius;
+  /// The size variant of the text field.
+  final AFTextFieldSize size;
 
   /// The validator to use for the text field.
   final AFTextFieldValidator? validator;
@@ -115,9 +111,8 @@ class _AFTextFieldState extends AFTextFieldState {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final borderRadius = BorderRadius.circular(
-      widget.radius ?? theme.borderRadius.l,
-    );
+    final borderRadius = widget.size.borderRadius(theme);
+    final contentPadding = widget.size.contentPadding(theme);
 
     final errorBorderColor = theme.borderColorScheme.errorThick;
     final defaultBorderColor = theme.borderColorScheme.greyTertiary;
@@ -137,10 +132,9 @@ class _AFTextFieldState extends AFTextFieldState {
         hintStyle: theme.textStyle.body.standard(
           color: theme.textColorScheme.tertiary,
         ),
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: theme.spacing.m,
-          vertical: 10,
-        ),
+        isDense: true,
+        constraints: BoxConstraints(),
+        contentPadding: contentPadding,
         border: OutlineInputBorder(
           borderSide: BorderSide(
             color: hasError ? errorBorderColor : defaultBorderColor,
@@ -178,8 +172,6 @@ class _AFTextFieldState extends AFTextFieldState {
         suffixIconConstraints: widget.suffixIconConstraints,
       ),
     );
-
-    child = SizedBox(height: widget.height, child: child);
 
     if (hasError && errorText.isNotEmpty) {
       child = Column(
@@ -234,5 +226,29 @@ class _AFTextFieldState extends AFTextFieldState {
     setState(() {
       this.isObscured = isObscured;
     });
+  }
+}
+
+enum AFTextFieldSize {
+  m,
+  l;
+
+  EdgeInsetsGeometry contentPadding(AppFlowyThemeData theme) {
+    return EdgeInsets.symmetric(
+      vertical: switch (this) {
+        AFTextFieldSize.m => theme.spacing.s,
+        AFTextFieldSize.l => 10.0,
+      },
+      horizontal: theme.spacing.m,
+    );
+  }
+
+  BorderRadius borderRadius(AppFlowyThemeData theme) {
+    return BorderRadius.circular(
+      switch (this) {
+        AFTextFieldSize.m => theme.borderRadius.m,
+        AFTextFieldSize.l => 10.0,
+      },
+    );
   }
 }

@@ -2,8 +2,8 @@ use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_ai_pub::cloud::MessageCursor;
 use flowy_ai_pub::persistence::{
-  insert_chat_messages, select_chat_messages, select_message, select_message_content,
-  select_message_where_match_reply_message_id, total_message_count, ChatMessageTable,
+  select_answer_where_match_reply_message_id, select_chat_messages, select_message,
+  select_message_content, total_message_count, upsert_chat_messages, ChatMessageTable,
 };
 use uuid::Uuid;
 
@@ -31,6 +31,7 @@ async fn chat_message_table_insert_select_test() {
       author_id: "user_1".to_string(),
       reply_message_id: None,
       metadata: None,
+      is_sync: false,
     },
     ChatMessageTable {
       message_id: message_id_2,
@@ -41,11 +42,12 @@ async fn chat_message_table_insert_select_test() {
       author_id: "ai".to_string(),
       reply_message_id: Some(message_id_1),
       metadata: Some(r#"{"source": "test"}"#.to_string()),
+      is_sync: false,
     },
   ];
 
   // Test insert_chat_messages
-  let result = insert_chat_messages(db_conn, &messages);
+  let result = upsert_chat_messages(db_conn, &messages);
   assert!(
     result.is_ok(),
     "Failed to insert chat messages: {:?}",
@@ -105,11 +107,12 @@ async fn chat_message_table_cursor_test() {
       author_id: "user_1".to_string(),
       reply_message_id: None,
       metadata: None,
+      is_sync: false,
     });
   }
 
   // Insert messages
-  insert_chat_messages(db_conn, &messages).unwrap();
+  upsert_chat_messages(db_conn, &messages).unwrap();
 
   // Test MessageCursor::Offset
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -173,6 +176,7 @@ async fn chat_message_total_count_test() {
       author_id: "user_1".to_string(),
       reply_message_id: None,
       metadata: None,
+      is_sync: false,
     },
     ChatMessageTable {
       message_id: 1002,
@@ -183,11 +187,12 @@ async fn chat_message_total_count_test() {
       author_id: "ai".to_string(),
       reply_message_id: None,
       metadata: None,
+      is_sync: false,
     },
   ];
 
   // Insert messages
-  insert_chat_messages(db_conn, &messages).unwrap();
+  upsert_chat_messages(db_conn, &messages).unwrap();
 
   // Test total_message_count
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -205,9 +210,10 @@ async fn chat_message_total_count_test() {
     author_id: "user_1".to_string(),
     reply_message_id: None,
     metadata: None,
+    is_sync: false,
   };
 
-  insert_chat_messages(db_conn, &[additional_message]).unwrap();
+  upsert_chat_messages(db_conn, &[additional_message]).unwrap();
 
   // Verify count increased
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -242,10 +248,11 @@ async fn chat_message_select_message_test() {
     author_id: "user_1".to_string(),
     reply_message_id: None,
     metadata: Some(r#"{"test_key": "test_value"}"#.to_string()),
+    is_sync: false,
   };
 
   // Insert message
-  insert_chat_messages(db_conn, &[message]).unwrap();
+  upsert_chat_messages(db_conn, &[message]).unwrap();
 
   // Test select_message
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -294,10 +301,11 @@ async fn chat_message_select_content_test() {
     author_id: "user_1".to_string(),
     reply_message_id: None,
     metadata: None,
+    is_sync: false,
   };
 
   // Insert message
-  insert_chat_messages(db_conn, &[message]).unwrap();
+  upsert_chat_messages(db_conn, &[message]).unwrap();
 
   // Test select_message_content
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -334,6 +342,7 @@ async fn chat_message_reply_test() {
     author_id: "user_1".to_string(),
     reply_message_id: None,
     metadata: None,
+    is_sync: false,
   };
 
   let answer = ChatMessageTable {
@@ -345,14 +354,15 @@ async fn chat_message_reply_test() {
     author_id: "ai".to_string(),
     reply_message_id: Some(question_id), // Link to question
     metadata: None,
+    is_sync: false,
   };
 
   // Insert messages
-  insert_chat_messages(db_conn, &[question, answer]).unwrap();
+  upsert_chat_messages(db_conn, &[question, answer]).unwrap();
 
   // Test select_message_where_match_reply_message_id
   let db_conn = test.user_manager.db_connection(uid).unwrap();
-  let result = select_message_where_match_reply_message_id(db_conn, &chat_id, question_id).unwrap();
+  let result = select_answer_where_match_reply_message_id(db_conn, &chat_id, question_id).unwrap();
 
   assert!(result.is_some());
   let reply = result.unwrap();
@@ -362,7 +372,7 @@ async fn chat_message_reply_test() {
 
   // Test with non-existent reply relation
   let db_conn = test.user_manager.db_connection(uid).unwrap();
-  let no_reply = select_message_where_match_reply_message_id(
+  let no_reply = select_answer_where_match_reply_message_id(
     db_conn, &chat_id, 9999, // Non-existent question ID
   )
   .unwrap();
@@ -372,7 +382,7 @@ async fn chat_message_reply_test() {
   // Test with wrong chat_id
   let db_conn = test.user_manager.db_connection(uid).unwrap();
   let wrong_chat =
-    select_message_where_match_reply_message_id(db_conn, "wrong_chat_id", question_id).unwrap();
+    select_answer_where_match_reply_message_id(db_conn, "wrong_chat_id", question_id).unwrap();
 
   assert!(wrong_chat.is_none());
 }
@@ -399,10 +409,11 @@ async fn chat_message_upsert_test() {
     author_id: "user_1".to_string(),
     reply_message_id: None,
     metadata: None,
+    is_sync: false,
   };
 
   // Insert message
-  insert_chat_messages(db_conn, &[message]).unwrap();
+  upsert_chat_messages(db_conn, &[message]).unwrap();
 
   // Check original content
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -420,10 +431,11 @@ async fn chat_message_upsert_test() {
     author_id: "user_1".to_string(),
     reply_message_id: Some(1000), // Added reply ID
     metadata: Some(r#"{"updated": true}"#.to_string()),
+    is_sync: false,
   };
 
   // Upsert message
-  insert_chat_messages(db_conn, &[updated_message]).unwrap();
+  upsert_chat_messages(db_conn, &[updated_message]).unwrap();
 
   // Verify update
   let db_conn = test.user_manager.db_connection(uid).unwrap();
@@ -474,11 +486,12 @@ async fn chat_message_select_with_large_dataset() {
       } else {
         None
       },
+      is_sync: false,
     });
   }
 
   // Insert all 100 messages
-  insert_chat_messages(db_conn, &messages).unwrap();
+  upsert_chat_messages(db_conn, &messages).unwrap();
 
   // Verify total count
   let db_conn = test.user_manager.db_connection(uid).unwrap();

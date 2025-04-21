@@ -24,7 +24,7 @@ typedef DidUpdateUserWorkspacesCallback = void Function(
 );
 typedef UserProfileNotifyValue = FlowyResult<UserProfilePB, FlowyError>;
 typedef DidUpdateUserWorkspaceSetting = void Function(
-  UseAISettingPB settings,
+  WorkspaceSettingsPB settings,
 );
 
 class UserListener {
@@ -101,10 +101,10 @@ class UserListener {
         result.map(
           (r) => onUserWorkspaceUpdated?.call(UserWorkspacePB.fromBuffer(r)),
         );
-      case user.UserNotification.DidUpdateAISetting:
+      case user.UserNotification.DidUpdateWorkspaceSetting:
         result.map(
-          (r) =>
-              onUserWorkspaceSettingUpdated?.call(UseAISettingPB.fromBuffer(r)),
+          (r) => onUserWorkspaceSettingUpdated
+              ?.call(WorkspaceSettingsPB.fromBuffer(r)),
         );
         break;
       default:
@@ -113,22 +113,21 @@ class UserListener {
   }
 }
 
-typedef WorkspaceSettingNotifyValue
-    = FlowyResult<WorkspaceSettingPB, FlowyError>;
+typedef WorkspaceLatestNotifyValue = FlowyResult<WorkspaceLatestPB, FlowyError>;
 
 class FolderListener {
   FolderListener();
 
-  final PublishNotifier<WorkspaceSettingNotifyValue> _settingChangedNotifier =
+  final PublishNotifier<WorkspaceLatestNotifyValue> _latestChangedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
 
   void start({
-    void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
+    void Function(WorkspaceLatestNotifyValue)? onLatestUpdated,
   }) {
-    if (onSettingUpdated != null) {
-      _settingChangedNotifier.addPublishListener(onSettingUpdated);
+    if (onLatestUpdated != null) {
+      _latestChangedNotifier.addPublishListener(onLatestUpdated);
     }
 
     // The "current-workspace" is predefined in the backend. Do not try to
@@ -146,9 +145,9 @@ class FolderListener {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier.value =
-              FlowyResult.success(WorkspaceSettingPB.fromBuffer(payload)),
-          (error) => _settingChangedNotifier.value = FlowyResult.failure(error),
+          (payload) => _latestChangedNotifier.value =
+              FlowyResult.success(WorkspaceLatestPB.fromBuffer(payload)),
+          (error) => _latestChangedNotifier.value = FlowyResult.failure(error),
         );
         break;
       default:
@@ -158,6 +157,6 @@ class FolderListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    _settingChangedNotifier.dispose();
+    _latestChangedNotifier.dispose();
   }
 }

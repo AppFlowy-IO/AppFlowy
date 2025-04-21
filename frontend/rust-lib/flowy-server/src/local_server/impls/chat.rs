@@ -1,4 +1,4 @@
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoggedUser;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::CompletionStream;
@@ -6,14 +6,15 @@ use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai::local_ai::stream_util::QuestionStream;
 use flowy_ai_pub::cloud::chat_dto::{ChatAuthor, ChatAuthorType};
 use flowy_ai_pub::cloud::{
-  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
-  ChatMessageType, ChatSettings, CompleteTextParams, MessageCursor, ModelList, RelatedQuestion,
-  RepeatedChatMessage, ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams,
+  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
+  ChatSettings, CompleteTextParams, MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage,
+  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
 use flowy_ai_pub::persistence::{
-  deserialize_chat_metadata, deserialize_rag_ids, read_chat, select_chat_messages,
-  select_message_content, select_message_where_match_reply_message_id, serialize_chat_metadata,
-  serialize_rag_ids, update_chat, upsert_chat, ChatMessageTable, ChatTable, ChatTableChangeset,
+  deserialize_chat_metadata, deserialize_rag_ids, read_chat,
+  select_answer_where_match_reply_message_id, select_chat_messages, select_message_content,
+  serialize_chat_metadata, serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages,
+  ChatMessageTable, ChatTable, ChatTableChangeset,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures_util::{stream, StreamExt, TryStreamExt};
@@ -26,49 +27,44 @@ use std::sync::Arc;
 use tracing::trace;
 use uuid::Uuid;
 
-pub struct LocalServerChatServiceImpl {
-  pub user: Arc<dyn ServerUser>,
+pub struct LocalChatServiceImpl {
+  pub logged_user: Arc<dyn LoggedUser>,
   pub local_ai: Arc<LocalAIController>,
 }
 
-impl LocalServerChatServiceImpl {
+impl LocalChatServiceImpl {
   fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
-    let uid = self.user.user_id()?;
-    let db = self.user.get_sqlite_db(uid)?;
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
     let content = select_message_content(db, message_id)?.ok_or_else(|| {
       FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
     })?;
     Ok(content)
   }
+
+  async fn upsert_message(&self, chat_id: &Uuid, message: ChatMessage) -> Result<(), FlowyError> {
+    let uid = self.logged_user.user_id()?;
+    let conn = self.logged_user.get_sqlite_db(uid)?;
+    let row = ChatMessageTable::from_message(chat_id.to_string(), message, true);
+    upsert_chat_messages(conn, &[row])?;
+    Ok(())
+  }
 }
 
 #[async_trait]
-impl ChatCloudService for LocalServerChatServiceImpl {
+impl ChatCloudService for LocalChatServiceImpl {
   async fn create_chat(
     &self,
     _uid: &i64,
     _workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
-    name: &str,
+    _name: &str,
     metadata: Value,
   ) -> Result<(), FlowyError> {
-    let uid = self.user.user_id()?;
-    let db = self.user.get_sqlite_db(uid)?;
-
-    let rag_ids = rag_ids
-      .iter()
-      .map(|v| v.to_string())
-      .collect::<Vec<String>>();
-
-    let row = ChatTable {
-      chat_id: chat_id.to_string(),
-      created_at: timestamp(),
-      name: name.to_string(),
-      metadata: serialize_chat_metadata(&metadata),
-      rag_ids: Some(serialize_rag_ids(&rag_ids)),
-    };
-
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
+    let row = ChatTable::new(chat_id.to_string(), metadata, rag_ids, true);
     upsert_chat(db, &row)?;
     Ok(())
   }
@@ -76,25 +72,23 @@ impl ChatCloudService for LocalServerChatServiceImpl {
   async fn create_question(
     &self,
     _workspace_id: &Uuid,
-    _chat_id: &Uuid,
+    chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    _metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError> {
-    match message_type {
-      ChatMessageType::System => Ok(ChatMessage::new_system(timestamp(), message.to_string())),
-      ChatMessageType::User => Ok(ChatMessage::new_human(
-        timestamp(),
-        message.to_string(),
-        None,
-      )),
-    }
+    let message = match message_type {
+      ChatMessageType::System => ChatMessage::new_system(timestamp(), message.to_string()),
+      ChatMessageType::User => ChatMessage::new_human(timestamp(), message.to_string(), None),
+    };
+
+    self.upsert_message(chat_id, message.clone()).await?;
+    Ok(message)
   }
 
   async fn create_answer(
     &self,
     _workspace_id: &Uuid,
-    _chat_id: &Uuid,
+    chat_id: &Uuid,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
@@ -103,6 +97,7 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     if let Some(metadata) = metadata {
       message.metadata = metadata;
     }
+    self.upsert_message(chat_id, message.clone()).await?;
     Ok(message)
   }
 
@@ -141,10 +136,16 @@ impl ChatCloudService for LocalServerChatServiceImpl {
   async fn get_answer(
     &self,
     _workspace_id: &Uuid,
-    _chat_id: &Uuid,
-    _question_message_id: i64,
+    chat_id: &Uuid,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
+
+    match select_answer_where_match_reply_message_id(db, &chat_id.to_string(), question_id)? {
+      None => Err(FlowyError::record_not_found()),
+      Some(message) => Ok(chat_message_from_row(message)),
+    }
   }
 
   async fn get_chat_messages(
@@ -155,8 +156,8 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     limit: u64,
   ) -> Result<RepeatedChatMessage, FlowyError> {
     let chat_id = chat_id.to_string();
-    let uid = self.user.user_id()?;
-    let db = self.user.get_sqlite_db(uid)?;
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
     let result = select_chat_messages(db, &chat_id, limit, offset)?;
 
     let messages = result
@@ -179,9 +180,9 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     answer_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     let chat_id = chat_id.to_string();
-    let uid = self.user.user_id()?;
-    let db = self.user.get_sqlite_db(uid)?;
-    let row = select_message_where_match_reply_message_id(db, &chat_id, answer_message_id)?
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
+    let row = select_answer_where_match_reply_message_id(db, &chat_id, answer_message_id)?
       .map(chat_message_from_row)
       .ok_or_else(FlowyError::record_not_found)?;
     Ok(row)
@@ -277,11 +278,11 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     chat_id: &Uuid,
   ) -> Result<ChatSettings, FlowyError> {
     let chat_id = chat_id.to_string();
-    let uid = self.user.user_id()?;
-    let db = self.user.get_sqlite_db(uid)?;
+    let uid = self.logged_user.user_id()?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
     let row = read_chat(db, &chat_id)?;
     let rag_ids = deserialize_rag_ids(&row.rag_ids);
-    let metadata = deserialize_chat_metadata::<serde_json::Value>(&row.metadata);
+    let metadata = deserialize_chat_metadata::<Value>(&row.metadata);
     let setting = ChatSettings {
       name: row.name,
       rag_ids,
@@ -297,13 +298,14 @@ impl ChatCloudService for LocalServerChatServiceImpl {
     id: &Uuid,
     s: UpdateChatParams,
   ) -> Result<(), FlowyError> {
-    let uid = self.user.user_id()?;
-    let mut db = self.user.get_sqlite_db(uid)?;
+    let uid = self.logged_user.user_id()?;
+    let mut db = self.logged_user.get_sqlite_db(uid)?;
     let changeset = ChatTableChangeset {
       chat_id: id.to_string(),
       name: s.name,
       metadata: s.metadata.map(|s| serialize_chat_metadata(&s)),
       rag_ids: s.rag_ids.map(|s| serialize_rag_ids(&s)),
+      is_sync: None,
     };
 
     update_chat(&mut db, changeset)?;
@@ -311,11 +313,11 @@ impl ChatCloudService for LocalServerChatServiceImpl {
   }
 
   async fn get_available_models(&self, _workspace_id: &Uuid) -> Result<ModelList, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(ModelList { models: vec![] })
   }
 
   async fn get_workspace_default_model(&self, _workspace_id: &Uuid) -> Result<String, FlowyError> {
-    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    Ok(DEFAULT_AI_MODEL_NAME.to_string())
   }
 }
 

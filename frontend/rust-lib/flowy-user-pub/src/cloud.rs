@@ -20,8 +20,8 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AuthResponse, AuthType, Role, UpdateUserProfileParams, UserProfile, UserTokenState,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,13 +84,9 @@ pub trait UserCloudServiceProvider: Send + Sync {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  /// Sets the authenticator when user sign in or sign up.
-  ///
-  /// # Arguments
-  /// * `authenticator`: An `Authenticator` object.
-  fn set_user_authenticator(&self, authenticator: &Authenticator);
+  fn set_server_auth_type(&self, auth_type: &AuthType);
 
-  fn get_user_authenticator(&self) -> Authenticator;
+  fn get_server_auth_type(&self) -> AuthType;
 
   /// Sets the network reachability
   ///
@@ -136,7 +132,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Delete an account and all the data associated with the account
   async fn delete_account(&self) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   /// Generate a sign in url for the user with the given email
@@ -168,15 +164,11 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn generate_oauth_url_with_provider(&self, provider: &str) -> Result<String, FlowyError>;
 
   /// Using the user's token to update the user information
-  async fn update_user(
-    &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
-  ) -> Result<(), FlowyError>;
+  async fn update_user(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError>;
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
-  async fn get_user_profile(&self, credential: UserCredentials) -> Result<UserProfile, FlowyError>;
+  async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError>;
 
@@ -191,8 +183,8 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn patch_workspace(
     &self,
     workspace_id: &Uuid,
-    new_workspace_name: Option<&str>,
-    new_workspace_icon: Option<&str>,
+    new_workspace_name: Option<String>,
+    new_workspace_icon: Option<String>,
   ) -> Result<(), FlowyError>;
 
   /// Deletes a workspace owned by the user.
@@ -242,14 +234,6 @@ pub trait UserCloudService: Send + Sync + 'static {
     Ok(vec![])
   }
 
-  async fn get_workspace_member(
-    &self,
-    workspace_id: Uuid,
-    uid: i64,
-  ) -> Result<WorkspaceMember, FlowyError> {
-    Err(FlowyError::not_support())
-  }
-
   async fn get_user_awareness_doc_state(
     &self,
     uid: i64,
@@ -281,7 +265,7 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn subscribe_workspace(
     &self,
-    workspace_id: String,
+    workspace_id: Uuid,
     recurring_interval: RecurringInterval,
     workspace_subscription_plan: SubscriptionPlan,
     success_url: String,
@@ -289,27 +273,24 @@ pub trait UserCloudService: Send + Sync + 'static {
     Err(FlowyError::not_support())
   }
 
-  async fn get_workspace_member_info(
+  async fn get_workspace_member(
     &self,
     workspace_id: &Uuid,
     uid: i64,
-  ) -> Result<WorkspaceMember, FlowyError> {
-    Err(FlowyError::not_support())
-  }
-
+  ) -> Result<WorkspaceMember, FlowyError>;
   /// Get all subscriptions for all workspaces for a user (email)
   async fn get_workspace_subscriptions(
     &self,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   /// Get the workspace subscriptions for a workspace
   async fn get_workspace_subscription_one(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
   ) -> Result<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn cancel_workspace_subscription(
@@ -318,22 +299,20 @@ pub trait UserCloudService: Send + Sync + 'static {
     plan: SubscriptionPlan,
     reason: Option<String>,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   async fn get_workspace_plan(
     &self,
     workspace_id: Uuid,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn get_workspace_usage(
     &self,
-    workspace_id: String,
-  ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+    workspace_id: &Uuid,
+  ) -> Result<WorkspaceUsageAndLimit, FlowyError>;
 
   async fn get_billing_portal_url(&self) -> Result<String, FlowyError> {
     Err(FlowyError::not_support())
@@ -341,31 +320,27 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   async fn update_workspace_subscription_payment_period(
     &self,
-    workspace_id: String,
+    workspace_id: &Uuid,
     plan: SubscriptionPlan,
     recurring_interval: RecurringInterval,
   ) -> Result<(), FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(())
   }
 
   async fn get_subscription_plan_details(&self) -> Result<Vec<SubscriptionPlanDetail>, FlowyError> {
-    Err(FlowyError::not_support())
+    Ok(vec![])
   }
 
   async fn get_workspace_setting(
     &self,
-    workspace_id: &str,
-  ) -> Result<AFWorkspaceSettings, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+    workspace_id: &Uuid,
+  ) -> Result<AFWorkspaceSettings, FlowyError>;
 
   async fn update_workspace_setting(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     workspace_settings: AFWorkspaceSettingsChange,
-  ) -> Result<AFWorkspaceSettings, FlowyError> {
-    Err(FlowyError::not_support())
-  }
+  ) -> Result<AFWorkspaceSettings, FlowyError>;
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

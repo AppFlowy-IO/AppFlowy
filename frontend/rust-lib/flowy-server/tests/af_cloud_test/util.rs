@@ -1,14 +1,14 @@
 use client_api::ClientConfiguration;
+use collab_plugins::CollabKVDB;
+use flowy_error::{FlowyError, FlowyResult};
 use semver::Version;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
-
-use flowy_error::{FlowyError, FlowyResult};
+use std::sync::{Arc, Weak};
 use uuid::Uuid;
 
 use crate::setup_log;
-use flowy_server::af_cloud::define::ServerUser;
+use flowy_server::af_cloud::define::LoggedUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_sqlite::DBConnection;
@@ -30,19 +30,21 @@ pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
 
 pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer> {
   let fake_device_id = uuid::Uuid::new_v4().to_string();
+  let logged_user = Arc::new(FakeServerUserImpl) as Arc<dyn LoggedUser>;
   Arc::new(AppFlowyCloudServer::new(
     config,
     true,
     fake_device_id,
     Version::new(0, 5, 8),
-    Arc::new(FakeServerUserImpl),
+    // do nothing, just for test
+    Arc::downgrade(&logged_user),
   ))
 }
 
 struct FakeServerUserImpl;
 
 #[async_trait]
-impl ServerUser for FakeServerUserImpl {
+impl LoggedUser for FakeServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     todo!()
   }
@@ -56,6 +58,10 @@ impl ServerUser for FakeServerUserImpl {
   }
 
   fn get_sqlite_db(&self, _uid: i64) -> Result<DBConnection, FlowyError> {
+    todo!()
+  }
+
+  fn get_collab_db(&self, _uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     todo!()
   }
 

@@ -9,17 +9,17 @@ use collab_entity::CollabType;
 use flowy_document_pub::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
-use std::sync::Arc;
+use std::sync::Weak;
 use tracing::instrument;
 use uuid::Uuid;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudDocumentCloudServiceImpl<T> {
   pub inner: T,
-  pub user: Arc<dyn ServerUser>,
+  pub logged_user: Weak<dyn LoggedUser>,
 }
 
 #[async_trait]
@@ -49,7 +49,7 @@ where
 
     check_request_workspace_id_is_match(
       workspace_id,
-      &self.user,
+      &self.logged_user,
       format!("get document doc state:{}", document_id),
     )?;
 
@@ -85,7 +85,7 @@ where
       .to_vec();
     check_request_workspace_id_is_match(
       workspace_id,
-      &self.user,
+      &self.logged_user,
       format!("Get {} document", document_id),
     )?;
     let collab = Collab::new_with_source(

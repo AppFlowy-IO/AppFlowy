@@ -40,7 +40,7 @@ class UserSessionSettingGroup extends StatelessWidget {
 
         // delete account button
         // only show the delete account button in cloud mode
-        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
+        if (userProfile.authType == AuthTypePB.Server) ...[
           const VSpace(16.0),
           MobileLogoutButton(
             text: LocaleKeys.button_deleteAccount.tr(),

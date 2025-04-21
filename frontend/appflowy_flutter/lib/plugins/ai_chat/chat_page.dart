@@ -48,7 +48,7 @@ class AIChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+    // if (userProfile.authenticator != AuthTypePB.Server) {
     //   return Center(
     //     child: FlowyText(
     //       LocaleKeys.chat_unsupportedCloudPrompt.tr(),

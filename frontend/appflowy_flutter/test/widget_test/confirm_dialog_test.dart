@@ -33,7 +33,7 @@ void main() {
               builder: (_) {
                 return Provider(
                   create: (context) => AppFlowyTheme(
-                    data: AppFlowyThemeData.light(),
+                    data: AppFlowyDefaultTheme().light(),
                     child: Dialog(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),

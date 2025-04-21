@@ -109,7 +109,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     return AFBaseButton(
       disabled: disabled,
       backgroundColor: backgroundColor,
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         return Colors.transparent;
       },
       padding: padding ?? size.buildPadding(context),

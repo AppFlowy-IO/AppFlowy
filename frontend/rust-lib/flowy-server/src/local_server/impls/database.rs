@@ -1,16 +1,18 @@
 #![allow(unused_variables)]
+
+use crate::af_cloud::define::LoggedUser;
+use crate::local_server::util::default_encode_collab_for_collab_type;
 use collab::entity::EncodedCollab;
-use collab_database::database::default_database_data;
-use collab_database::workspace_database::default_workspace_database_data;
-use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_user::core::default_user_awareness_data;
 use flowy_database_pub::cloud::{DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid};
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::async_trait::async_trait;
+use std::sync::Arc;
 use uuid::Uuid;
 
-pub(crate) struct LocalServerDatabaseCloudServiceImpl();
+pub(crate) struct LocalServerDatabaseCloudServiceImpl {
+  pub logged_user: Arc<dyn LoggedUser>,
+}
 
 #[async_trait]
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
@@ -18,24 +20,20 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     &self,
     object_id: &Uuid,
     collab_type: CollabType,
-    workspace_id: &Uuid,
+    _workspace_id: &Uuid, // underscore to silence “unused” warning
   ) -> Result<Option<EncodedCollab>, FlowyError> {
+    let uid = self.logged_user.user_id()?;
     let object_id = object_id.to_string();
-    match collab_type {
-      CollabType::Document => {
-        let encode_collab = default_document_collab_data(&object_id)?;
-        Ok(Some(encode_collab))
-      },
-      CollabType::Database => default_database_data(&object_id)
-        .await
-        .map(Some)
-        .map_err(Into::into),
-      CollabType::WorkspaceDatabase => Ok(Some(default_workspace_database_data(&object_id))),
-      CollabType::Folder => Ok(None),
-      CollabType::DatabaseRow => Ok(None),
-      CollabType::UserAwareness => Ok(Some(default_user_awareness_data(&object_id))),
-      CollabType::Unknown => Ok(None),
-    }
+    default_encode_collab_for_collab_type(uid, &object_id, collab_type)
+      .await
+      .map(Some)
+      .or_else(|err| {
+        if matches!(err.code, ErrorCode::NotSupportYet) {
+          Ok(None)
+        } else {
+          Err(err)
+        }
+      })
   }
 
   async fn create_database_encode_collab(

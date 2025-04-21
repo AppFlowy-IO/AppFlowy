@@ -8,7 +8,6 @@ import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -61,32 +60,15 @@ class SplashScreen extends StatelessWidget {
     BuildContext context,
     Authenticated authenticated,
   ) async {
-    final userProfile = authenticated.userProfile;
-
-    /// After a user is authenticated, this function checks if encryption is required.
-    final result = await UserEventCheckEncryptionSign().send();
-    await result.fold(
-      (check) async {
-        /// If encryption is needed, the user is navigated to the encryption screen.
-        /// Otherwise, it fetches the current workspace for the user and navigates them
-        if (check.requireSecret) {
-          getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
-        } else {
-          final result = await FolderEventGetCurrentWorkspaceSetting().send();
-          result.fold(
-            (workspaceSetting) {
-              // After login, replace Splash screen by corresponding home screen
-              getIt<SplashRouter>().goHomeScreen(
-                context,
-              );
-            },
-            (error) => handleOpenWorkspaceError(context, error),
-          );
-        }
+    final result = await FolderEventGetCurrentWorkspaceSetting().send();
+    result.fold(
+      (workspaceSetting) {
+        // After login, replace Splash screen by corresponding home screen
+        getIt<SplashRouter>().goHomeScreen(
+          context,
+        );
       },
-      (err) {
-        Log.error(err);
-      },
+      (error) => handleOpenWorkspaceError(context, error),
     );
   }
 

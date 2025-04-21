@@ -2,7 +2,6 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -91,8 +90,8 @@ class SettingsDialogBloc
     AFRolePB? currentWorkspaceMemberRole,
   ]) async {
     if ([
-      AuthenticatorPB.Local,
-    ].contains(userProfile.authenticator)) {
+      AuthTypePB.Local,
+    ].contains(userProfile.authType)) {
       return false;
     }
 

@@ -198,7 +198,9 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
           ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
           ViewLayoutPB::Document | ViewLayoutPB::Chat => {
-            return Err(FlowyError::not_support());
+            return Err(
+              FlowyError::invalid_data().with_context("Can't handle document layout type"),
+            );
           },
         };
         let name = params.name.to_string();

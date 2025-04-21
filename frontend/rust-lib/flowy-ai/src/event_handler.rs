@@ -2,16 +2,13 @@ use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
 use crate::completion::AICompletion;
 use crate::entities::*;
 use crate::util::ai_available_models_key;
-use flowy_ai_pub::cloud::{
-  AIModel, ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader,
-};
+use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tracing::trace;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -37,39 +34,12 @@ pub(crate) async fn stream_chat_message_handler(
     answer_stream_port,
     question_stream_port,
     format,
-    metadata,
   } = data;
 
   let message_type = match message_type {
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
-
-  let metadata = metadata
-    .into_iter()
-    .map(|metadata| {
-      let (content_type, content_len) = match metadata.loader_type {
-        ContextLoaderTypePB::Txt => (ContextLoader::Text, metadata.data.len()),
-        ContextLoaderTypePB::Markdown => (ContextLoader::Markdown, metadata.data.len()),
-        ContextLoaderTypePB::PDF => (ContextLoader::PDF, 0),
-        ContextLoaderTypePB::UnknownLoaderType => (ContextLoader::Unknown, 0),
-      };
-
-      ChatMessageMetadata {
-        data: ChatRAGData {
-          content: metadata.data,
-          content_type,
-          size: content_len as i64,
-        },
-        id: metadata.id,
-        name: metadata.name.clone(),
-        source: metadata.source,
-        extra: None,
-      }
-    })
-    .collect::<Vec<_>>();
-
-  trace!("Stream chat message with metadata: {:?}", metadata);
 
   let chat_id = Uuid::from_str(&chat_id)?;
   let params = StreamMessageParams {
@@ -79,7 +49,6 @@ pub(crate) async fn stream_chat_message_handler(
     answer_stream_port,
     question_stream_port,
     format,
-    metadata,
   };
 
   let ai_manager = upgrade_ai_manager(ai_manager)?;
@@ -361,7 +330,7 @@ pub(crate) async fn update_chat_settings_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "debug", skip_all)]
 pub(crate) async fn get_local_ai_setting_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAISettingPB, FlowyError> {
