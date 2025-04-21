@@ -36,7 +36,9 @@
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
-    "anonymous": "مجهول",
+    "continueWithLocalModel": "الاستمرار بالنموذج المحلي",
+    "switchToAppFlowyCloud": "AppFlowy السحابي",
+    "anonymousMode": "الوضع المجهول",
     "buttonText": "تسجيل الدخول",
     "signingInText": "جاري تسجيل الدخول...",
     "forgotPassword": "هل نسيت كلمة السر؟",
@@ -69,6 +71,22 @@
     "generalError": "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا",
     "limitRateError": "لأسباب أمنية، يمكنك طلب Magic Link  كل 60 ثانية فقط",
     "magicLinkSentDescription": "تم إرسال Magic Link إلى بريدك الإلكتروني. انقر على الرابط لإكمال تسجيل الدخول. ستنتهي صلاحية الرابط بعد 5 دقائق.",
+    "tokenHasExpiredOrInvalid": "الرمز منتهي الصلاحية أو غير صالح. يُرجى المحاولة مرة أخرى.",
+    "signingIn": "جاري تسجيل الدخول...",
+    "checkYourEmail": "تحقق من بريدك الإلكتروني",
+    "temporaryVerificationLinkSent": "تم إرسال رابط التحقق المؤقت.\nيرجى التحقق من صندوق الوارد الخاص بك على",
+    "temporaryVerificationCodeSent": "لقد تم إرسال رمز التحقق المؤقت.\nيرجى التحقق من صندوق الوارد الخاص بك على",
+    "continueToSignIn": "متابعة تسجيل الدخول",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "enterCode": "أدخل الرمز",
+    "enterCodeManually": "أدخل الرمز يدويًا",
+    "continueWithEmail": "متابعة مع البريد الإلكتروني",
+    "enterPassword": "أدخل كلمة المرور",
+    "loginAs": "تسجيل الدخول باسم",
+    "invalidVerificationCode": "الرجاء إدخال رمز التحقق الصحيح",
+    "tooFrequentVerificationCodeRequest": "لقد قدمت طلبات كثيرة. يُرجى المحاولة لاحقًا.",
+    "invalidLoginCredentials": "كلمة المرور الخاصة بك غير صحيحة، يرجى المحاولة مرة أخرى",
+    "anonymous": "مجهول",
     "LogInWithGoogle": "تسجيل الدخول عبر جوجل",
     "LogInWithGithub": "تسجيل الدخول مع جيثب",
     "LogInWithDiscord": "تسجيل الدخول مع ديسكورد",
@@ -636,7 +654,8 @@
       "theme": {
         "title": "السمة",
         "description": "حدد السمة المحددة مسبقًا، أو قم برفع موضوعك المخصص.",
-        "uploadCustomThemeTooltip": "رفع السمة المخصصة"
+        "uploadCustomThemeTooltip": "رفع السمة المخصصة",
+        "failedToLoadThemes": "فشل تحميل السمات، يرجى التحقق من إعدادات الأذونات في إعدادات النظام &lt; الخصوصية والأمان &lt;الملفات والمجلدات &lt; @:appName"
       },
       "workspaceFont": {
         "title": "خط مساحة العمل",
@@ -2037,6 +2056,27 @@
         }
       },
       "cannotMoveToItsChildren": "لا يمكن الانتقال إلى أطفاله",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "لصق كـ",
+          "mention": "ذِكْر",
+          "URL": "عنوان URL",
+          "bookmark": "إشارة مرجعية",
+          "embed": "تضمين"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "تحويل إلى ذكر",
+          "toUrl": "تحويل إلى عنوان URL",
+          "toEmbed": "تحويل إلى تضمين",
+          "toBookmark": "تحويل إلى إشارة مرجعية",
+          "copyLink": "نسخ الرابط",
+          "replace": "استبدال",
+          "reload": "إعادة التحميل",
+          "removeLink": "إزالة الرابط",
+          "pasteHint": "ألصق في https://...",
+          "unableToDisplay": "غير قادر على العرض"
+        }
+      },
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
     },
     "outlineBlock": {
@@ -2534,6 +2574,7 @@
     "copyLink": "انسخ الرابط",
     "removeLink": "إزالة الرابط",
     "editLink": "تعديل الرابط",
+    "convertTo": "تحويل إلى",
     "linkText": "نص",
     "linkTextHint": "الرجاء إدخال النص",
     "linkAddressHint": "الرجاء إدخال الرابط",
@@ -2639,7 +2680,34 @@
         "failedToGetCurrentUser": "فشل في الحصول على البريد الإلكتروني الحالي للمستخدم",
         "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "تم حذف الحساب بنجاح"
-      }
+      },
+      "password": {
+        "title": "كلمة المرور",
+        "changePassword": "تغيير كلمة المرور",
+        "currentPassword": "كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+        "setupPassword": "إعداد كلمة المرور",
+        "error": {
+          "newPasswordIsRequired": "مطلوب كلمة مرور جديدة",
+          "confirmPasswordIsRequired": "تأكيد كلمة المرور مطلوب",
+          "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+          "newPasswordIsSameAsCurrent": "كلمة المرور الجديدة هي نفس كلمة المرور الحالية"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "تم تحديث كلمة المرور بنجاح",
+          "passwordUpdatedFailed": "فشل في تحديث كلمة المرور",
+          "passwordSetupSuccessfully": "تم إعداد كلمة المرور بنجاح",
+          "passwordSetupFailed": "فشل في إعداد كلمة المرور"
+        },
+        "hint": {
+          "enterYourCurrentPassword": "أدخل كلمة المرور الحالية الخاصة بك",
+          "enterYourNewPassword": "أدخل كلمة المرور الجديدة",
+          "confirmYourNewPassword": "تأكيد كلمة المرور الجديدة"
+        }
+      },
+      "myAccount": "حسابي",
+      "myProfile": "ملفي الشخصي"
     },
     "workplace": {
       "name": "مكان العمل",
@@ -2692,6 +2760,11 @@
   "commandPalette": {
     "placeholder": "ابحث أو اطرح سؤالا...",
     "bestMatches": "أفضل المطابقات",
+    "aiOverview": "نظرة عامة على الذكاء الاصطناعي",
+    "aiOverviewSource": "مصادر مرجعية",
+    "aiOverviewMoreDetails": "مزيد من التفاصيل",
+    "pagePreview": "معاينة المحتوى",
+    "clickToOpenPage": "انقر لفتح الصفحة",
     "recentHistory": "التاريخ الحديث",
     "navigateHint": "للتنقل",
     "loadingTooltip": "نحن نبحث عن نتائج...",
