@@ -131,7 +131,8 @@ impl UserManager {
         .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
         .await?;
       let auth_type = user.workspace_auth_type;
-      self.cloud_service.set_server_auth_type(&auth_type);
+      let token = self.token_from_auth_type(&auth_type)?;
+      self.cloud_service.set_server_auth_type(&auth_type, token)?;
 
       event!(
         tracing::Level::INFO,
@@ -326,7 +327,7 @@ impl UserManager {
     params: SignInParams,
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
-    self.cloud_service.set_server_auth_type(&auth_type);
+    self.cloud_service.set_server_auth_type(&auth_type, None)?;
 
     let response: AuthResponse = self
       .cloud_service
@@ -374,7 +375,7 @@ impl UserManager {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    self.cloud_service.set_server_auth_type(&auth_type);
+    self.cloud_service.set_server_auth_type(&auth_type, None)?;
 
     // sign out the current user if there is one
     let migration_user = self.get_migration_user(&auth_type).await;
@@ -600,6 +601,16 @@ impl UserManager {
     self.authenticate_user.user_paths.user_data_dir(uid)
   }
 
+  pub fn token_from_auth_type(&self, auth_type: &AuthType) -> FlowyResult<Option<String>> {
+    match auth_type {
+      AuthType::Local => Ok(None),
+      AuthType::AppFlowyCloud => {
+        let uid = self.user_id()?;
+        let mut conn = self.db_connection(uid)?;
+        Ok(select_user_token(uid, &mut conn).ok())
+      },
+    }
+  }
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
     let session = self.get_session()?;
     let user_setting = UserSettingPB {
@@ -639,7 +650,9 @@ impl UserManager {
     authenticator: &AuthType,
     email: &str,
   ) -> Result<String, FlowyError> {
-    self.cloud_service.set_server_auth_type(authenticator);
+    self
+      .cloud_service
+      .set_server_auth_type(authenticator, None)?;
 
     let auth_service = self.cloud_service.get_user_service()?;
     let url = auth_service.generate_sign_in_url_with_email(email).await?;
@@ -654,7 +667,7 @@ impl UserManager {
   ) -> Result<GotrueTokenResponse, FlowyError> {
     self
       .cloud_service
-      .set_server_auth_type(&AuthType::AppFlowyCloud);
+      .set_server_auth_type(&AuthType::AppFlowyCloud, None)?;
     let auth_service = self.cloud_service.get_user_service()?;
     let response = auth_service.sign_in_with_password(email, password).await?;
     Ok(response)
@@ -668,7 +681,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     self
       .cloud_service
-      .set_server_auth_type(&AuthType::AppFlowyCloud);
+      .set_server_auth_type(&AuthType::AppFlowyCloud, None)?;
     let auth_service = self.cloud_service.get_user_service()?;
     auth_service
       .sign_in_with_magic_link(email, redirect_to)
@@ -684,7 +697,7 @@ impl UserManager {
   ) -> Result<GotrueTokenResponse, FlowyError> {
     self
       .cloud_service
-      .set_server_auth_type(&AuthType::AppFlowyCloud);
+      .set_server_auth_type(&AuthType::AppFlowyCloud, None)?;
     let auth_service = self.cloud_service.get_user_service()?;
     let response = auth_service.sign_in_with_passcode(email, passcode).await?;
     Ok(response)
@@ -697,7 +710,7 @@ impl UserManager {
   ) -> Result<String, FlowyError> {
     self
       .cloud_service
-      .set_server_auth_type(&AuthType::AppFlowyCloud);
+      .set_server_auth_type(&AuthType::AppFlowyCloud, None)?;
     let auth_service = self.cloud_service.get_user_service()?;
     let url = auth_service
       .generate_oauth_url_with_provider(oauth_provider)

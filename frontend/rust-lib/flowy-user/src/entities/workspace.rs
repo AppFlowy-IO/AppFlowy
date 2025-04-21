@@ -242,7 +242,7 @@ pub struct CreateWorkspacePB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Default, Debug, Clone, Eq, PartialEq)]
+#[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
 #[repr(u8)]
 pub enum AuthTypePB {
   #[default]

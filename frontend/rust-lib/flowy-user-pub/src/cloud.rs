@@ -84,7 +84,11 @@ pub trait UserCloudServiceProvider: Send + Sync {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  fn set_server_auth_type(&self, auth_type: &AuthType);
+  fn set_server_auth_type(
+    &self,
+    auth_type: &AuthType,
+    token: Option<String>,
+  ) -> Result<(), FlowyError>;
 
   fn get_server_auth_type(&self) -> AuthType;
 

@@ -165,6 +165,11 @@ pub fn select_user_auth_type(
   Ok(AuthType::from(row.auth_type))
 }
 
+pub fn select_user_token(uid: i64, conn: &mut SqliteConnection) -> Result<String, FlowyError> {
+  let row = select_user_table_row(uid, conn)?;
+  Ok(row.token)
+}
+
 pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {
   conn.immediate_transaction(|conn| {
     // delete old user if exists
