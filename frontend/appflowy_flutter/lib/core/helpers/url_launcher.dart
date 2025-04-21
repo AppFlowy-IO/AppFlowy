@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:string_validator/string_validator.dart';
@@ -32,6 +31,7 @@ Future<bool> afLaunchUri(
 
   // check if the uri is the local file path
   if (localPathRegex.hasMatch(decodedUrl)) {
+    Log.info('Launch local uri: $decodedUrl');
     return _afLaunchLocalUri(
       uri,
       context: context,
@@ -41,19 +41,22 @@ Future<bool> afLaunchUri(
 
   // on Linux, add http scheme to the url if it is not present
   if (UniversalPlatform.isLinux && !isURL(url, {'require_protocol': true})) {
+    Log.info('Add http scheme to the url on Linux: $url');
     uri = Uri.parse('https://$url');
   }
 
   // try to launch the uri directly
   bool result = await launcher.canLaunchUrl(uri);
+  Log.info('Can launch uri: $result');
   if (result) {
     try {
+      Log.info('Try to launch uri: $uri');
       result = await launcher.launchUrl(
         uri,
         mode: mode,
         webOnlyWindowName: webOnlyWindowName,
       );
-    } on PlatformException catch (e) {
+    } catch (e) {
       Log.error('Failed to open uri: $e');
       return false;
     }
@@ -65,17 +68,27 @@ Future<bool> afLaunchUri(
       !result &&
       !isURL(url, {'require_protocol': true})) {
     try {
+      Log.info('Try to add http scheme to the url: $url');
+      // add http scheme to the url
+      // if the url is not a valid url, add http scheme to the url
+      // and try to launch it again
       final uriWithScheme = Uri.parse('http://$url');
       result = await launcher.launchUrl(
         uriWithScheme,
         mode: mode,
         webOnlyWindowName: webOnlyWindowName,
       );
-    } on PlatformException catch (e) {
-      Log.error('Failed to open uri: $e');
+    } catch (error) {
+      Log.error('Failed to open uri (platform exception): $error');
       if (context != null && context.mounted) {
-        _errorHandler(uri, context: context, onFailure: onFailure, e: e);
+        _errorHandler(
+          uri,
+          context: context,
+          onFailure: onFailure,
+          error: error,
+        );
       }
+      return false;
     }
   }
 
@@ -94,7 +107,7 @@ Future<bool> afLaunchUrlString(
   final Uri uri;
   try {
     uri = Uri.parse(url);
-  } on FormatException catch (e) {
+  } catch (e) {
     Log.error('Failed to parse url: $e');
     return false;
   }
@@ -153,15 +166,16 @@ void _errorHandler(
   Uri uri, {
   BuildContext? context,
   OnFailureCallback? onFailure,
-  PlatformException? e,
+  Object? error,
 }) {
-  Log.error('Failed to open uri: $e');
+  Log.error('Failed to open uri: $error');
 
   if (onFailure != null) {
     onFailure(uri);
   } else {
     showMessageToast(
-      LocaleKeys.failedToOpenUrl.tr(args: [e?.message ?? "PlatformException"]),
+      LocaleKeys.failedToOpenUrl
+          .tr(args: [error?.toString() ?? "PlatformException"]),
       context: context,
     );
   }

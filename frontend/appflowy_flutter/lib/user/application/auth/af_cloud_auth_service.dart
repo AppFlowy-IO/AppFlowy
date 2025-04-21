@@ -7,6 +7,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -59,8 +60,15 @@ class AppFlowyCloudAuthService implements AuthService {
 
     return result.fold(
       (data) async {
+        Log.info('oauthUrl: ${data.oauthUrl}');
+
         // Open the webview with oauth url
-        final uri = Uri.parse(data.oauthUrl);
+        final uri = Uri.tryParse(data.oauthUrl);
+        if (uri == null) {
+          Log.error('Invalid oauth url: ${data.oauthUrl}');
+          return FlowyResult.failure(AuthError.unableToGetDeepLink);
+        }
+
         final isSuccess = await afLaunchUri(
           uri,
           mode: LaunchMode.externalApplication,
@@ -72,8 +80,14 @@ class AppFlowyCloudAuthService implements AuthService {
           // The [AppFlowyCloudDeepLink] must be registered before using the
           // [AppFlowyCloudAuthService].
           if (getIt.isRegistered<AppFlowyCloudDeepLink>()) {
+            Log.info('AppFlowyCloudDeepLink register completer');
+
             getIt<AppFlowyCloudDeepLink>().registerCompleter(completer);
           } else {
+            Log.error(
+              'AppFlowyCloudDeepLink is not registered, please register it before using the AppFlowyCloudAuthService',
+            );
+
             throw Exception('AppFlowyCloudDeepLink is not registered');
           }
         } else {
@@ -84,7 +98,10 @@ class AppFlowyCloudAuthService implements AuthService {
 
         return completer.future;
       },
-      (r) => FlowyResult.failure(r),
+      (r) {
+        Log.error('generate deep link error: $r');
+        return FlowyResult.failure(r);
+      },
     );
   }
 
