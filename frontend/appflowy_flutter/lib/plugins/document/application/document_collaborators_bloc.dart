@@ -31,7 +31,8 @@ class DocumentCollaboratorsBloc
             final userProfile = result.fold((s) => s, (f) => null);
             emit(
               state.copyWith(
-                shouldShowIndicator: userProfile?.authType == AuthTypePB.Server,
+                shouldShowIndicator:
+                    userProfile?.workspaceAuthType == AuthTypePB.Server,
               ),
             );
             final deviceId = ApplicationInfo.deviceId;

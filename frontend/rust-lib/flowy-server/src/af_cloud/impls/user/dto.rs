@@ -25,6 +25,7 @@ pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUs
 pub fn user_profile_from_af_profile(
   token: String,
   profile: AFUserProfile,
+  workspace_auth_type: AuthType,
 ) -> Result<UserProfile, Error> {
   let icon_url = {
     profile
@@ -44,6 +45,7 @@ pub fn user_profile_from_af_profile(
     auth_type: AuthType::AppFlowyCloud,
     uid: profile.uid,
     updated_at: profile.updated_at,
+    workspace_auth_type,
   })
 }
 

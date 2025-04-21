@@ -1,8 +1,10 @@
 use crate::cloud::UserUpdate;
 use crate::entities::{AuthType, UpdateUserProfileParams, UserProfile};
+use crate::sql::select_user_workspace;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
+use tracing::{trace, warn};
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
@@ -31,20 +33,6 @@ impl From<(UserProfile, AuthType)> for UserTable {
       email: user_profile.email,
       auth_type: auth_type as i32,
       updated_at: user_profile.updated_at,
-    }
-  }
-}
-
-impl From<UserTable> for UserProfile {
-  fn from(table: UserTable) -> Self {
-    UserProfile {
-      uid: table.id.parse::<i64>().unwrap_or(0),
-      email: table.email,
-      name: table.name,
-      token: table.token,
-      icon_url: table.icon_url,
-      auth_type: AuthType::from(table.auth_type),
-      updated_at: table.updated_at,
     }
   }
 }
@@ -96,6 +84,7 @@ pub fn update_user_profile(
   conn: &mut SqliteConnection,
   changeset: UserTableChangeset,
 ) -> Result<(), FlowyError> {
+  trace!("update user profile: {:?}", changeset);
   let user_id = changeset.id.clone();
   update(user_table::dsl::user_table.filter(user_table::id.eq(&user_id)))
     .set(changeset)
@@ -103,11 +92,8 @@ pub fn update_user_profile(
   Ok(())
 }
 
-pub fn select_user_profile(
-  uid: i64,
-  conn: &mut SqliteConnection,
-) -> Result<UserProfile, FlowyError> {
-  let user: UserProfile = user_table::dsl::user_table
+fn select_user_table_row(uid: i64, conn: &mut SqliteConnection) -> Result<UserTable, FlowyError> {
+  let row = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
     .first::<UserTable>(conn)
     .map_err(|err| {
@@ -115,10 +101,53 @@ pub fn select_user_profile(
         "Can't find the user profile for user id: {}, error: {:?}",
         uid, err
       ))
-    })?
-    .into();
+    })?;
+  Ok(row)
+}
+
+pub fn select_user_profile(
+  uid: i64,
+  workspace_id: &str,
+  conn: &mut SqliteConnection,
+) -> Result<UserProfile, FlowyError> {
+  let workspace = select_user_workspace(workspace_id, conn)?;
+  let workspace_auth_type = AuthType::from(workspace.workspace_type);
+  let row = select_user_table_row(uid, conn)?;
+
+  let user = UserProfile {
+    uid: row.id.parse::<i64>().unwrap_or(0),
+    email: row.email,
+    name: row.name,
+    token: row.token,
+    icon_url: row.icon_url,
+    auth_type: AuthType::from(row.auth_type),
+    workspace_auth_type,
+    updated_at: row.updated_at,
+  };
 
   Ok(user)
+}
+
+pub fn select_workspace_auth_type(
+  uid: i64,
+  workspace_id: &str,
+  conn: &mut SqliteConnection,
+) -> Result<AuthType, FlowyError> {
+  match select_user_workspace(workspace_id, conn) {
+    Ok(workspace) => Ok(AuthType::from(workspace.workspace_type)),
+    Err(err) => {
+      if err.is_record_not_found() {
+        let row = select_user_table_row(uid, conn)?;
+        warn!(
+          "user user auth type:{} as workspace auth type",
+          row.auth_type
+        );
+        Ok(AuthType::from(row.auth_type))
+      } else {
+        Err(err)
+      }
+    },
+  }
 }
 
 pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {

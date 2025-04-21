@@ -70,7 +70,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               // user email
               // Only show email if the user is authenticated and not using local auth
               if (isAuthEnabled &&
-                  state.userProfile.authType != AuthTypePB.Local) ...[
+                  state.userProfile.workspaceAuthType != AuthTypePB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.newSettings_myAccount_myAccount.tr(),
                   children: [
@@ -82,26 +82,30 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                     ),
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction: state.userProfile.authType == AuthTypePB.Local
+                      onAction: state.userProfile.workspaceAuthType ==
+                              AuthTypePB.Local
                           ? widget.didLogin
                           : widget.didLogout,
-                      signIn: state.userProfile.authType == AuthTypePB.Local,
+                      signIn: state.userProfile.workspaceAuthType ==
+                          AuthTypePB.Local,
                     ),
                   ],
                 ),
               ],
 
               if (isAuthEnabled &&
-                  state.userProfile.authType == AuthTypePB.Local) ...[
+                  state.userProfile.workspaceAuthType == AuthTypePB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_accountPage_login_title.tr(),
                   children: [
                     AccountSignInOutSection(
                       userProfile: state.userProfile,
-                      onAction: state.userProfile.authType == AuthTypePB.Local
+                      onAction: state.userProfile.workspaceAuthType ==
+                              AuthTypePB.Local
                           ? widget.didLogin
                           : widget.didLogout,
-                      signIn: state.userProfile.authType == AuthTypePB.Local,
+                      signIn: state.userProfile.workspaceAuthType ==
+                          AuthTypePB.Local,
                     ),
                   ],
                 ),
@@ -116,7 +120,7 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               ),
 
               // user deletion
-              if (widget.userProfile.authType == AuthTypePB.Server)
+              if (widget.userProfile.workspaceAuthType == AuthTypePB.Server)
                 const AccountDeletionButton(),
             ],
           );

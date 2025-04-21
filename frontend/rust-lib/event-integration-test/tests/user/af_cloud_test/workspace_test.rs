@@ -292,3 +292,39 @@ async fn af_cloud_different_open_same_workspace_test() {
   assert_eq!(views.len(), 2, "only get: {:?}", views); // Expecting two views.
   assert_eq!(views[0].name, "General");
 }
+
+#[tokio::test]
+async fn af_cloud_create_local_workspace_test() {
+  use_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new().await;
+  let _ = test.af_cloud_sign_up().await;
+
+  let workspaces = test.get_all_workspaces().await.items;
+  assert_eq!(workspaces.len(), 1);
+
+  let created_workspace = test
+    .create_workspace("my local workspace", AuthType::Local)
+    .await;
+  assert_eq!(created_workspace.name, "my local workspace");
+
+  let workspaces = test.get_all_workspaces().await.items;
+  assert_eq!(workspaces.len(), 2);
+  assert_eq!(workspaces[1].name, "my local workspace");
+
+  test
+    .open_workspace(
+      &created_workspace.workspace_id,
+      created_workspace.workspace_auth_type,
+    )
+    .await;
+
+  let views = test.get_all_views().await;
+  assert_eq!(views.len(), 2);
+  assert!(views
+    .iter()
+    .any(|view| view.parent_view_id == workspaces[1].workspace_id));
+
+  for view in views {
+    test.get_view(&view.id).await;
+  }
+}

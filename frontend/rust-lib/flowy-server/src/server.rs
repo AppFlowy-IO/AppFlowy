@@ -41,9 +41,7 @@ where
 /// and functionalities in AppFlowy. The methods provided ensure efficient, asynchronous operations
 /// for managing and accessing user data, folders, collaborative objects, and documents in a cloud environment.
 pub trait AppFlowyServer: Send + Sync + 'static {
-  fn set_token(&self, _token: &str) -> Result<(), Error> {
-    Ok(())
-  }
+  fn set_token(&self, _token: &str) -> Result<(), Error>;
 
   fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
     Ok(())

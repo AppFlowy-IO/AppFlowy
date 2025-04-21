@@ -167,7 +167,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
             children: [
               MobileHomeSpace(userProfile: widget.userProfile),
               // only show ai chat button for cloud user
-              if (widget.userProfile.authType == AuthTypePB.Server)
+              if (widget.userProfile.workspaceAuthType == AuthTypePB.Server)
                 Positioned(
                   bottom: MediaQuery.of(context).padding.bottom + 16,
                   left: 20,

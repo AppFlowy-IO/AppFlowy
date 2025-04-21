@@ -36,7 +36,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
-use flowy_user_pub::sql::select_user_profile;
+use flowy_user_pub::sql::{select_user_profile, select_workspace_auth_type};
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
@@ -101,14 +101,25 @@ pub(crate) fn prepare_import(
     CollabKVDB::open(collab_db_path)
       .map_err(|err| anyhow!("[AppflowyData]: open import collab db failed: {:?}", err))?,
   );
-  let imported_user = select_user_profile(
+
+  let mut conn = imported_sqlite_db.get_connection()?;
+  let imported_workspace_auth_type = select_user_profile(
     imported_session.user_id,
-    &mut *imported_sqlite_db.get_connection()?,
-  )?;
+    &imported_session.user_workspace.id,
+    &mut conn,
+  )
+  .map(|v| v.workspace_auth_type)
+  .or_else(|_| {
+    select_workspace_auth_type(
+      imported_session.user_id,
+      &imported_session.user_workspace.id,
+      &mut conn,
+    )
+  })?;
 
   run_collab_data_migration(
     &imported_session,
-    &imported_user,
+    &imported_workspace_auth_type,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),

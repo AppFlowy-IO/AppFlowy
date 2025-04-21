@@ -24,7 +24,7 @@ async fn anon_user_profile_get() {
     .await
     .parse::<UserProfilePB>();
   assert_eq!(user_profile.id, user.id);
-  assert_eq!(user_profile.auth_type, AuthTypePB::Local);
+  assert_eq!(user_profile.user_auth_type, AuthTypePB::Local);
 }
 
 #[tokio::test]

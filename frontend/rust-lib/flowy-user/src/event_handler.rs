@@ -91,16 +91,22 @@ pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let uid = manager.get_session()?.user_id;
-  let mut user_profile = manager.get_user_profile_from_disk(uid).await?;
+  let session = manager.get_session()?;
+
+  let mut user_profile = manager
+    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
+  let workspace_id = session.user_workspace.id.clone();
 
   // Refresh the user profile in the background
   tokio::spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
-      let _ = manager.refresh_user_profile(&cloned_user_profile).await;
+      let _ = manager
+        .refresh_user_profile(&cloned_user_profile, &workspace_id)
+        .await;
     }
   });
 
@@ -425,7 +431,10 @@ pub async fn get_all_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let profile = manager.get_user_profile().await?;
+  let session = manager.get_session()?;
+  let profile = manager
+    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .await?;
   let user_workspaces = manager
     .get_all_user_workspaces(profile.uid, profile.auth_type)
     .await?;
@@ -645,6 +654,8 @@ pub async fn rename_workspace_handler(
     id: params.workspace_id,
     name: Some(params.new_name),
     icon: None,
+    role: None,
+    member_count: None,
   };
   manager.patch_workspace(&workspace_id, changeset).await?;
   Ok(())
@@ -662,6 +673,8 @@ pub async fn change_workspace_icon_handler(
     id: workspace_id.to_string(),
     name: None,
     icon: Some(params.new_icon),
+    role: None,
+    member_count: None,
   };
   manager.patch_workspace(&workspace_id, changeset).await?;
   Ok(())

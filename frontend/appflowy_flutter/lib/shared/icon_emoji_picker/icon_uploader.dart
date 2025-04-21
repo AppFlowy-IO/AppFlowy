@@ -294,8 +294,8 @@ class _IconUploaderState extends State<IconUploader> {
       (userProfile) => userProfile,
       (l) => null,
     );
-    final isLocalMode =
-        (userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
+    final isLocalMode = (userProfile?.workspaceAuthType ?? AuthTypePB.Local) ==
+        AuthTypePB.Local;
     if (isLocalMode) {
       result = await pickedImages.first.saveToLocal();
     } else {

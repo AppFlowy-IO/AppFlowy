@@ -41,7 +41,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
     let params = params.unbox_or_error::<SignUpParams>()?;
     let uid = ID_GEN.lock().await.next_id();
     let workspace_id = Uuid::new_v4().to_string();
-    let user_workspace = UserWorkspace::new_local(workspace_id, "");
+    let user_workspace = UserWorkspace::new_local(workspace_id, "My Workspace");
     let user_name = if params.name.is_empty() {
       DEFAULT_USER_NAME()
     } else {
@@ -135,9 +135,13 @@ impl UserCloudService for LocalServerUserServiceImpl {
     Ok(())
   }
 
-  async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+  async fn get_user_profile(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+  ) -> Result<UserProfile, FlowyError> {
     let mut conn = self.logged_user.get_sqlite_db(uid)?;
-    let profile = select_user_profile(uid, &mut conn)?;
+    let profile = select_user_profile(uid, workspace_id, &mut conn)?;
     Ok(profile)
   }
 
@@ -150,8 +154,8 @@ impl UserCloudService for LocalServerUserServiceImpl {
   }
 
   async fn get_all_workspace(&self, uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
-    let conn = self.logged_user.get_sqlite_db(uid)?;
-    let workspaces = select_all_user_workspace(uid, conn)?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+    let workspaces = select_all_user_workspace(uid, &mut conn)?;
     Ok(workspaces)
   }
 
@@ -223,7 +227,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
       Err(err) => {
         if err.is_record_not_found() {
           let mut conn = self.logged_user.get_sqlite_db(uid)?;
-          let profile = select_user_profile(uid, &mut conn)?;
+          let profile = select_user_profile(uid, &workspace_id.to_string(), &mut conn)?;
           let row = WorkspaceMemberTable {
             email: profile.email.to_string(),
             role: 0,

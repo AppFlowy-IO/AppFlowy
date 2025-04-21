@@ -1,9 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
-  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
-  MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
-  ViewLayoutPB, ViewPB, ViewSectionPB, WorkspaceLatestPB, WorkspacePB,
+  CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB, MoveNestedViewParams,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB,
+  ViewSectionPB, WorkspaceLatestPB, WorkspacePB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -352,16 +352,6 @@ impl FolderManager {
   /// Called when the current user logout
   ///
   pub async fn clear(&self, _user_id: i64) {}
-
-  #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let uid = self.user.user_id()?;
-    let new_workspace = self
-      .cloud_service
-      .create_workspace(uid, &params.name)
-      .await?;
-    Ok(new_workspace)
-  }
 
   pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceLatestPB> {
     let workspace_id = self.user.workspace_id()?;
