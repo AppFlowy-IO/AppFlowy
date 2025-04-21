@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::local_ai::controller::LocalAISetting;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
@@ -11,6 +10,7 @@ use crate::notification::{
 };
 use af_local_ai::ollama_plugin::OllamaPluginConfig;
 use af_plugin::core::path::{is_plugin_ready, ollama_plugin_path};
+use flowy_ai_pub::user_service::AIUserService;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
 use serde::Deserialize;

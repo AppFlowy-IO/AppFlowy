@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use crate::af_cloud::define::{AIUserServiceImpl, LoggedUser};
+use crate::af_cloud::define::LoggedUser;
 use anyhow::Error;
 use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
@@ -28,7 +28,9 @@ use crate::af_cloud::impls::{
   AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
   AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl, CloudChatServiceImpl,
 };
+use crate::AppFlowyServer;
 use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
+use flowy_ai_pub::user_service::AIUserService;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -38,8 +40,6 @@ use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-
-use crate::AppFlowyServer;
 
 use super::impls::AFCloudSearchCloudServiceImpl;
 
@@ -54,6 +54,7 @@ pub struct AppFlowyCloudServer {
   pub device_id: String,
   ws_client: Arc<WSClient>,
   logged_user: Weak<dyn LoggedUser>,
+  ai_user_service: Arc<dyn AIUserService>,
 }
 
 impl AppFlowyCloudServer {
@@ -63,6 +64,7 @@ impl AppFlowyCloudServer {
     mut device_id: String,
     client_version: Version,
     logged_user: Weak<dyn LoggedUser>,
+    ai_user_service: Arc<dyn AIUserService>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -101,6 +103,7 @@ impl AppFlowyCloudServer {
       device_id,
       ws_client,
       logged_user,
+      ai_user_service,
     }
   }
 
@@ -222,7 +225,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
       Arc::new(CloudChatServiceImpl {
         inner: self.get_server_impl(),
       }),
-      Arc::new(AIUserServiceImpl(self.logged_user.clone())),
+      self.ai_user_service.clone(),
     ))
   }
 

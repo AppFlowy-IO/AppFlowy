@@ -40,7 +40,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    _authenticator: &AuthType,
+    _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {

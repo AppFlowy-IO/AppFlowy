@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, PredefinedFormatPB,
   RepeatedRelatedQuestionPB, StreamMessageParams,
@@ -14,6 +13,7 @@ use flowy_ai_pub::persistence::{
   select_answer_where_match_reply_message_id, select_chat_messages, upsert_chat_messages,
   ChatMessageTable,
 };
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};

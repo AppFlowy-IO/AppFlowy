@@ -6,7 +6,7 @@ use crate::sql::{
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
-use tracing::{trace, warn};
+use tracing::trace;
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
@@ -157,26 +157,12 @@ pub fn select_user_profile(
   Ok(user)
 }
 
-pub fn select_workspace_auth_type(
+pub fn select_user_auth_type(
   uid: i64,
-  workspace_id: &str,
   conn: &mut SqliteConnection,
 ) -> Result<AuthType, FlowyError> {
-  match select_user_workspace(workspace_id, conn) {
-    Ok(workspace) => Ok(AuthType::from(workspace.workspace_type)),
-    Err(err) => {
-      if err.is_record_not_found() {
-        let row = select_user_table_row(uid, conn)?;
-        warn!(
-          "user user auth type:{} as workspace auth type",
-          row.auth_type
-        );
-        Ok(AuthType::from(row.auth_type))
-      } else {
-        Err(err)
-      }
-    },
-  }
+  let row = select_user_table_row(uid, conn)?;
+  Ok(AuthType::from(row.auth_type))
 }
 
 pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {

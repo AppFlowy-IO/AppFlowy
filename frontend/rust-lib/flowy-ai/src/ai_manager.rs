@@ -14,7 +14,6 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
-use flowy_sqlite::DBConnection;
 
 use crate::notification::{chat_notification_builder, ChatNotification};
 use crate::util::ai_available_models_key;
@@ -22,6 +21,7 @@ use collab_integrate::persistence::collab_metadata_sql::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
 use flowy_ai_pub::cloud::ai_dto::AvailableModel;
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
@@ -32,15 +32,6 @@ use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
-
-#[async_trait]
-pub trait AIUserService: Send + Sync + 'static {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  async fn is_local_model(&self) -> FlowyResult<bool>;
-  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
-  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
-  fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
-}
 
 /// AIExternalService is an interface for external services that AI plugin can interact with.
 #[async_trait]
@@ -450,13 +441,9 @@ impl AIManager {
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
-      let mut selected_model = AIModel::default();
-      let mut models = vec![];
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        let model = AIModel::local(local_model, "".to_string());
-        selected_model = model.clone();
-        models.push(model);
-      }
+      let setting = self.local_ai.get_local_ai_setting();
+      let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+      let models = vec![selected_model.clone()];
 
       Ok(AvailableModelsPB {
         models: models.into_iter().map(|m| m.into()).collect(),

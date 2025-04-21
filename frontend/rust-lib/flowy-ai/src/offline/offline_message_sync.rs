@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
   MessageCursor, ModelList, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
@@ -8,6 +7,7 @@ use flowy_ai_pub::persistence::{
   update_chat_is_sync, update_chat_message_is_sync, upsert_chat, upsert_chat_messages,
   ChatMessageTable, ChatTable,
 };
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use serde_json::Value;

@@ -40,7 +40,7 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    _authenticator: &AuthType,
+    _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     trace!(
