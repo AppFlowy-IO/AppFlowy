@@ -126,9 +126,9 @@ class AiPromptFeaturedSection extends StatelessWidget {
           return theme.fillColorScheme.themeSelect;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return Colors.transparent;
+        return theme.fillColorScheme.content;
       },
     );
   }
@@ -176,7 +176,7 @@ class AiPromptCustomPromptSection extends StatelessWidget {
                   return theme.fillColorScheme.themeSelect;
                 }
                 if (isHovering) {
-                  return theme.fillColorScheme.primaryAlpha5;
+                  return theme.fillColorScheme.contentHover;
                 }
                 return Colors.transparent;
               },
@@ -236,9 +236,9 @@ class AiPromptCategoryItem extends StatelessWidget {
               return theme.fillColorScheme.themeSelect;
             }
             if (isHovering) {
-              return theme.fillColorScheme.primaryAlpha5;
+              return theme.fillColorScheme.contentHover;
             }
-            return Colors.transparent;
+            return theme.fillColorScheme.content;
           },
         );
       },

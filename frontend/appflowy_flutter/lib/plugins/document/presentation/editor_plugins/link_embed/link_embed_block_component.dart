@@ -139,7 +139,7 @@ class LinkEmbedBlockComponentState
       decoration: BoxDecoration(
         color: fillSceme.quaternary,
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        border: Border.all(color: borderScheme.greyTertiary),
+        border: Border.all(color: borderScheme.primary),
       ),
       child: Stack(
         children: [

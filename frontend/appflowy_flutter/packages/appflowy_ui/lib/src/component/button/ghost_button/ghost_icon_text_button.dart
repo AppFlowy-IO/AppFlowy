@@ -48,9 +48,9 @@ class AFGhostIconTextButton extends StatelessWidget {
           return Colors.transparent;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return Colors.transparent;
+        return theme.fillColorScheme.content;
       },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);

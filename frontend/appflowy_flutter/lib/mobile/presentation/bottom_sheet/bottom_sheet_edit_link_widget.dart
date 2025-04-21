@@ -410,7 +410,7 @@ class _MobileBottomSheetEditLinkWidgetState
   BoxDecoration buildBorderDecoration() {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(theme.borderRadius.l),
-      border: Border.all(color: theme.borderColorScheme.greyPrimary),
+      border: Border.all(color: theme.borderColorScheme.primary),
     );
   }
 }

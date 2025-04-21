@@ -42,7 +42,7 @@ class AFFilledIconTextButton extends StatelessWidget {
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.tertiary;
+          return theme.fillColorScheme.contentHover;
         }
         if (isHovering) {
           return theme.fillColorScheme.themeThickHover;
@@ -51,6 +51,9 @@ class AFFilledIconTextButton extends StatelessWidget {
       },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
+        if (disabled) {
+          return theme.textColorScheme.tertiary;
+        }
         return theme.textColorScheme.onFill;
       },
     );
@@ -77,7 +80,7 @@ class AFFilledIconTextButton extends StatelessWidget {
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.tertiary;
+          return theme.fillColorScheme.contentHover;
         }
         if (isHovering) {
           return theme.fillColorScheme.errorThickHover;
@@ -110,7 +113,7 @@ class AFFilledIconTextButton extends StatelessWidget {
       borderRadius: borderRadius,
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
-        return theme.fillColorScheme.tertiary;
+        return theme.fillColorScheme.contentHover;
       },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);

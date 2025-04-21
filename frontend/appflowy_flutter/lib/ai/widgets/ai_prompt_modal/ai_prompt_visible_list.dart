@@ -364,8 +364,8 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
                               ? theme.borderColorScheme.themeThickHover
                               : theme.borderColorScheme.themeThick
                           : isHovering
-                              ? theme.borderColorScheme.greyTertiaryHover
-                              : theme.borderColorScheme.greyTertiary,
+                              ? theme.borderColorScheme.primaryHover
+                              : theme.borderColorScheme.primary,
                     ),
                   ),
                   child: Column(

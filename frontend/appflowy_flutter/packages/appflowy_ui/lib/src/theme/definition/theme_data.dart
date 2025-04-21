@@ -18,6 +18,7 @@ class AppFlowyThemeData {
     required this.borderRadius,
     required this.spacing,
     required this.shadow,
+    required this.badgeColorColorScheme,
     required this.brandColorScheme,
     required this.otherColorsColorScheme,
   });
@@ -42,6 +43,8 @@ class AppFlowyThemeData {
 
   final AppFlowyShadow shadow;
 
+  final AppFlowyBadgeColorColorScheme badgeColorColorScheme;
+
   final AppFlowyBrandColorScheme brandColorScheme;
 
   final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
@@ -56,6 +59,8 @@ class AppFlowyThemeData {
       textStyle: end.textStyle,
       iconColorScheme: begin.iconColorScheme.lerp(end.iconColorScheme, t),
       borderColorScheme: begin.borderColorScheme.lerp(end.borderColorScheme, t),
+      badgeColorColorScheme:
+          begin.badgeColorColorScheme.lerp(end.badgeColorColorScheme, t),
       backgroundColorScheme:
           begin.backgroundColorScheme.lerp(end.backgroundColorScheme, t),
       fillColorScheme: begin.fillColorScheme.lerp(end.fillColorScheme, t),

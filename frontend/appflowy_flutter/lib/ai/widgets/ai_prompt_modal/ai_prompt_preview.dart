@@ -130,7 +130,7 @@ class _PromptContent extends StatelessWidget {
         spans.add(
           TextSpan(
             text: part,
-            style: TextStyle(color: theme.textColorScheme.purple),
+            style: TextStyle(color: theme.textColorScheme.featured),
           ),
         );
       } else {
