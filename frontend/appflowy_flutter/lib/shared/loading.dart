@@ -40,7 +40,11 @@ class Loading {
 
   void stop() {
     if (loadingContext != null) {
-      Navigator.of(loadingContext!).pop();
+      if (loadingContext!.mounted) {
+        if (Navigator.canPop(loadingContext!)) {
+          Navigator.of(loadingContext!).pop();
+        }
+      }
       loadingContext = null;
     }
 

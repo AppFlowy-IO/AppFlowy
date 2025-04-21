@@ -32,7 +32,10 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   @override
   void dispose() {
     onHover.dispose();
-
+    if (loadingIndicator != null) {
+      loadingIndicator?.stop();
+      loadingIndicator = null;
+    }
     super.dispose();
   }
 
@@ -100,8 +103,10 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     if (isLoading) {
       loadingIndicator ??= Loading(context)..start();
       return;
-    } else {
-      loadingIndicator?.stop();
+    } else if (loadingIndicator != null) {
+      if (mounted) {
+        loadingIndicator?.stop();
+      }
       loadingIndicator = null;
     }
 
