@@ -5,6 +5,7 @@ use collab_entity::CollabType;
 use collab_folder::Folder;
 use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
+use flowy_user::entities::AFRolePB;
 use flowy_user_pub::entities::AuthType;
 use std::time::Duration;
 use tokio::task::LocalSet;
@@ -327,4 +328,10 @@ async fn af_cloud_create_local_workspace_test() {
   for view in views {
     test.get_view(&view.id).await;
   }
+
+  let members = test
+    .get_workspace_members(&created_workspace.workspace_id)
+    .await;
+  assert_eq!(members.len(), 1);
+  assert_eq!(members[0].role, AFRolePB::Owner);
 }

@@ -231,9 +231,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn get_workspace_members(
     &self,
     workspace_id: Uuid,
-  ) -> Result<Vec<WorkspaceMember>, FlowyError> {
-    Ok(vec![])
-  }
+  ) -> Result<Vec<WorkspaceMember>, FlowyError>;
 
   async fn get_user_awareness_doc_state(
     &self,

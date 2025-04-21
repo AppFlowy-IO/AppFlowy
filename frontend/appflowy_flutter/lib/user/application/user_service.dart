@@ -244,13 +244,6 @@ class UserBackendService implements IUserBackendService {
     return UserEventGetWorkspaceSubscriptionInfo(params).send();
   }
 
-  Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
-      getWorkspaceMember() async {
-    final data = WorkspaceMemberIdPB.create()..uid = userId;
-
-    return UserEventGetMemberInfo(data).send();
-  }
-
   @override
   Future<FlowyResult<PaymentLinkPB, FlowyError>> createSubscription(
     String workspaceId,

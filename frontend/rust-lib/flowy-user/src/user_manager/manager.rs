@@ -7,7 +7,6 @@ use arc_swap::ArcSwapOption;
 use collab::lock::RwLock;
 use collab_user::core::UserAwareness;
 use dashmap::DashMap;
-use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -131,30 +130,15 @@ impl UserManager {
       let user = self
         .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
         .await?;
-      self.cloud_service.set_server_auth_type(&user.auth_type);
-
-      // Get the current authenticator from the environment variable
-      let env_auth_type = current_authenticator();
-
-      // If the current authenticator is different from the authenticator in the session and it's
-      // not a local authenticator, we need to sign out the user.
-      if user.auth_type != AuthType::Local && user.auth_type != env_auth_type {
-        event!(
-          tracing::Level::INFO,
-          "Auth type changed from {:?} to {:?}",
-          user.auth_type,
-          env_auth_type
-        );
-        self.sign_out().await?;
-        return Ok(());
-      }
+      let auth_type = user.workspace_auth_type;
+      self.cloud_service.set_server_auth_type(&auth_type);
 
       event!(
         tracing::Level::INFO,
         "init user session: {}:{}, auth type: {:?}",
         user.uid,
         user.email,
-        user.auth_type,
+        auth_type,
       );
 
       self.prepare_user(&session).await;
@@ -253,7 +237,7 @@ impl UserManager {
         (Ok(collab_db), Ok(sqlite_pool)) => {
           run_collab_data_migration(
             &session,
-            &user.auth_type,
+            &auth_type,
             collab_db,
             sqlite_pool,
             self.store_preferences.clone(),
@@ -267,7 +251,7 @@ impl UserManager {
       self.set_first_time_installed_version();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       // Init the user awareness. here we ignore the error
-      let _ = self.initial_user_awareness(&session, &user.auth_type).await;
+      let _ = self.initial_user_awareness(&session, &auth_type).await;
 
       user_status_callback
         .on_launch_if_authenticated(
@@ -275,7 +259,7 @@ impl UserManager {
           &cloud_config,
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,
-          &user.auth_type,
+          &auth_type,
         )
         .await?;
     } else {
@@ -357,7 +341,7 @@ impl UserManager {
     self.save_auth_data(&response, auth_type, &session).await?;
 
     let _ = self
-      .initial_user_awareness(&session, &user_profile.auth_type)
+      .initial_user_awareness(&session, &user_profile.workspace_auth_type)
       .await;
     self
       .user_status_callback
@@ -556,7 +540,7 @@ impl UserManager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // If the user is a local user, no need to refresh the user profile
-    if old_user_profile.auth_type.is_local() {
+    if old_user_profile.workspace_auth_type.is_local() {
       return Ok(());
     }
 
@@ -797,13 +781,6 @@ impl UserManager {
       &mut conn,
     )?;
     Ok(())
-  }
-}
-
-fn current_authenticator() -> AuthType {
-  match AuthenticatorType::from_env() {
-    AuthenticatorType::Local => AuthType::Local,
-    AuthenticatorType::AppFlowyCloud => AuthType::AppFlowyCloud,
   }
 }
 

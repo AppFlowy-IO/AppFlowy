@@ -1,6 +1,8 @@
 use crate::cloud::UserUpdate;
-use crate::entities::{AuthType, UpdateUserProfileParams, UserProfile};
-use crate::sql::select_user_workspace;
+use crate::entities::{AuthType, Role, UpdateUserProfileParams, UserProfile, UserWorkspace};
+use crate::sql::{
+  select_user_workspace, upsert_user_workspace, upsert_workspace_member, WorkspaceMemberTable,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
@@ -90,6 +92,33 @@ pub fn update_user_profile(
     .set(changeset)
     .execute(conn)?;
   Ok(())
+}
+
+pub fn insert_local_workspace(
+  uid: i64,
+  workspace_id: &str,
+  workspace_name: &str,
+  conn: &mut SqliteConnection,
+) -> FlowyResult<UserWorkspace> {
+  let user_workspace = UserWorkspace::new_local(workspace_id.to_string(), workspace_name);
+  conn.immediate_transaction(|conn| {
+    let row = select_user_table_row(uid, conn)?;
+    let row = WorkspaceMemberTable {
+      email: row.email,
+      role: Role::Owner as i32,
+      name: row.name,
+      avatar_url: Some(row.icon_url),
+      uid,
+      workspace_id: workspace_id.to_string(),
+      updated_at: chrono::Utc::now().naive_utc(),
+    };
+
+    upsert_user_workspace(uid, AuthType::Local, user_workspace.clone(), conn)?;
+    upsert_workspace_member(conn, row)?;
+    Ok::<_, FlowyError>(())
+  })?;
+
+  Ok(user_workspace)
 }
 
 fn select_user_table_row(uid: i64, conn: &mut SqliteConnection) -> Result<UserTable, FlowyError> {
