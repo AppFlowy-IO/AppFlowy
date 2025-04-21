@@ -91,7 +91,7 @@ class MemberHttpService {
   /// [workspaceId] - The ID of the workspace
   Future<FlowyResult<String, FlowyError>> generateInviteCode({
     required String workspaceId,
-    int validityPeriodHours = 24,
+    int? validityPeriodHours,
   }) async {
     final result = await _makeRequest(
       endpoint: InviteCodeEndpoint.generateInviteCode,

@@ -65,7 +65,7 @@ void main() {
         ],
         tester: tester,
       );
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
       expect(themeMode, ThemeMode.light);

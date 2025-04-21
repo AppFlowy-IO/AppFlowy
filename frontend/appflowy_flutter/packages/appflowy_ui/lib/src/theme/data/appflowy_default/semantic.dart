@@ -179,7 +179,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.dark);
 
     final textColorScheme = AppFlowyTextColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral800,
+      primary: AppFlowyPrimitiveTokens.neutral200,
       secondary: AppFlowyPrimitiveTokens.neutral400,
       tertiary: AppFlowyPrimitiveTokens.neutral600,
       quaternary: AppFlowyPrimitiveTokens.neutral1000,
