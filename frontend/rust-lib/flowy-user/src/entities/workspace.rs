@@ -200,7 +200,7 @@ pub struct OpenUserWorkspacePB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub workspace_auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]

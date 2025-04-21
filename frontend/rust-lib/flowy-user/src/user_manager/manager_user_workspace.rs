@@ -451,7 +451,7 @@ impl UserManager {
             );
             // only send notification if there were real changes
             if let Ok(updated_list) = select_all_user_workspace(uid, &mut conn) {
-              let repeated_pb = RepeatedUserWorkspacePB::from((auth_copy, updated_list));
+              let repeated_pb = RepeatedUserWorkspacePB::from(updated_list);
               send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_pb)
                 .send();

@@ -127,7 +127,7 @@ class UserBackendService implements IUserBackendService {
   ) {
     final payload = OpenUserWorkspacePB()
       ..workspaceId = workspaceId
-      ..authType = authType;
+      ..workspaceAuthType = authType;
     return UserEventOpenWorkspace(payload).send();
   }
 
