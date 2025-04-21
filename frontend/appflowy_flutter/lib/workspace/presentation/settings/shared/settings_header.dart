@@ -29,6 +29,7 @@ class SettingsHeader extends StatelessWidget {
           ),
         ),
         if (descriptionBuilder != null) ...[
+          VSpace(theme.spacing.xs),
           descriptionBuilder!(context),
         ] else if (description?.isNotEmpty == true) ...[
           VSpace(theme.spacing.xs),

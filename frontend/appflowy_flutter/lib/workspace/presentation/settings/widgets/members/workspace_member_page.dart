@@ -1,5 +1,3 @@
-import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -18,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,7 +39,8 @@ class WorkspaceMembersPage extends StatelessWidget {
         builder: (context, state) {
           return SettingsBody(
             title: LocaleKeys.settings_appearance_members_title.tr(),
-            descriptionBuilder: _buildDescription,
+            // Enable it when the backend support admin panel
+            // descriptionBuilder: _buildDescription,
             autoSeparate: false,
             children: [
               if (state.myRole.canInvite) ...[
@@ -64,41 +62,42 @@ class WorkspaceMembersPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDescription(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text:
-                '${LocaleKeys.settings_appearance_members_memberPageDescription1.tr()} ',
-            style: theme.textStyle.caption.standard(
-              color: theme.textColorScheme.secondary,
-            ),
-          ),
-          TextSpan(
-            text: LocaleKeys.settings_appearance_members_adminPanel.tr(),
-            style: theme.textStyle.caption.underline(
-              color: theme.textColorScheme.secondary,
-            ),
-            mouseCursor: SystemMouseCursors.click,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () async {
-                final baseUrl = await getAppFlowyCloudUrl();
-                await afLaunchUrlString(baseUrl);
-              },
-          ),
-          TextSpan(
-            text:
-                ' ${LocaleKeys.settings_appearance_members_memberPageDescription2.tr()} ',
-            style: theme.textStyle.caption.standard(
-              color: theme.textColorScheme.secondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Enable it when the backend support admin panel
+  // Widget _buildDescription(BuildContext context) {
+  //   final theme = AppFlowyTheme.of(context);
+  //   return Text.rich(
+  //     TextSpan(
+  //       children: [
+  //         TextSpan(
+  //           text:
+  //               '${LocaleKeys.settings_appearance_members_memberPageDescription1.tr()} ',
+  //           style: theme.textStyle.caption.standard(
+  //             color: theme.textColorScheme.secondary,
+  //           ),
+  //         ),
+  //         TextSpan(
+  //           text: LocaleKeys.settings_appearance_members_adminPanel.tr(),
+  //           style: theme.textStyle.caption.underline(
+  //             color: theme.textColorScheme.secondary,
+  //           ),
+  //           mouseCursor: SystemMouseCursors.click,
+  //           recognizer: TapGestureRecognizer()
+  //             ..onTap = () async {
+  //               final baseUrl = await getAppFlowyCloudUrl();
+  //               await afLaunchUrlString(baseUrl);
+  //             },
+  //         ),
+  //         TextSpan(
+  //           text:
+  //               ' ${LocaleKeys.settings_appearance_members_memberPageDescription2.tr()} ',
+  //           style: theme.textStyle.caption.standard(
+  //             color: theme.textColorScheme.secondary,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // Widget _showMemberLimitWarning(
   //   BuildContext context,
@@ -294,7 +293,7 @@ class _MemberList extends StatelessWidget {
     return SeparatedColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
       separatorBuilder: () => Divider(
-        color: theme.textColorScheme.secondary,
+        color: theme.borderColorScheme.primary,
       ),
       children: [
         const _MemberListHeader(),
@@ -486,106 +485,12 @@ class _MemberRoleActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopoverActionList<_MemberRoleActionWrapper>(
-      asBarrier: true,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      actions: [AFRolePB.Member]
-          .map((e) => _MemberRoleActionWrapper(e, member))
-          .toList(),
-      offset: const Offset(0, 10),
-      buildChild: (controller) {
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => controller.show(),
-            child: Row(
-              children: [
-                FlowyText.medium(
-                  member.role.description,
-                  fontSize: 14.0,
-                ),
-                const HSpace(8.0),
-                const FlowySvg(
-                  FlowySvgs.drop_menu_show_s,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-      onSelected: (action, controller) async {
-        switch (action.inner) {
-          case AFRolePB.Member:
-          case AFRolePB.Guest:
-            context.read<WorkspaceMemberBloc>().add(
-                  WorkspaceMemberEvent.updateWorkspaceMember(
-                    action.member.email,
-                    action.inner,
-                  ),
-                );
-            break;
-          case AFRolePB.Owner:
-            break;
-        }
-        controller.close();
-      },
-    );
-  }
-}
-
-class _MemberRoleActionWrapper extends ActionCell {
-  _MemberRoleActionWrapper(this.inner, this.member);
-
-  final AFRolePB inner;
-  final WorkspaceMemberPB member;
-
-  @override
-  Widget? rightIcon(Color iconColor) {
-    return SizedBox(
-      width: 58.0,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FlowyTooltip(
-            message: tooltip,
-            child: const FlowySvg(
-              FlowySvgs.information_s,
-              // color: iconColor,
-            ),
-          ),
-          const Spacer(),
-          if (member.role == inner)
-            const FlowySvg(
-              FlowySvgs.checkmark_tiny_s,
-            ),
-        ],
+    final theme = AppFlowyTheme.of(context);
+    return Text(
+      member.role.description,
+      style: theme.textStyle.body.standard(
+        color: theme.textColorScheme.primary,
       ),
     );
-  }
-
-  @override
-  String get name {
-    switch (inner) {
-      case AFRolePB.Guest:
-        return LocaleKeys.settings_appearance_members_guest.tr();
-      case AFRolePB.Member:
-        return LocaleKeys.settings_appearance_members_member.tr();
-      case AFRolePB.Owner:
-        return LocaleKeys.settings_appearance_members_owner.tr();
-    }
-    throw UnimplementedError('Unknown role: $inner');
-  }
-
-  String get tooltip {
-    switch (inner) {
-      case AFRolePB.Guest:
-        return LocaleKeys.settings_appearance_members_guestHintText.tr();
-      case AFRolePB.Member:
-        return LocaleKeys.settings_appearance_members_memberHintText.tr();
-      case AFRolePB.Owner:
-        return '';
-    }
-    throw UnimplementedError('Unknown role: $inner');
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppFlowyBorderColorScheme {
-  const AppFlowyBorderColorScheme({
+  AppFlowyBorderColorScheme({
+    required this.primary,
     required this.greyPrimary,
     required this.greyPrimaryHover,
     required this.greySecondary,
@@ -25,6 +26,7 @@ class AppFlowyBorderColorScheme {
     required this.purpleThickHover,
   });
 
+  final Color primary;
   final Color greyPrimary;
   final Color greyPrimaryHover;
   final Color greySecondary;
@@ -52,6 +54,7 @@ class AppFlowyBorderColorScheme {
     double t,
   ) {
     return AppFlowyBorderColorScheme(
+      primary: Color.lerp(primary, other.primary, t)!,
       greyPrimary: Color.lerp(greyPrimary, other.greyPrimary, t)!,
       greyPrimaryHover:
           Color.lerp(greyPrimaryHover, other.greyPrimaryHover, t)!,

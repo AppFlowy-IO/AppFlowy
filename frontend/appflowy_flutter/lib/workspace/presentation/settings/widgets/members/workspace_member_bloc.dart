@@ -337,7 +337,7 @@ class WorkspaceMemberBloc
   }
 
   Future<String> _buildInviteLink({required String inviteCode}) async {
-    final baseUrl = await getAppFlowyCloudUrl();
+    final baseUrl = await getAppFlowyShareDomain();
     final authToken = userProfile.authToken;
     if (authToken != null) {
       return '$baseUrl/app/invited/$inviteCode';

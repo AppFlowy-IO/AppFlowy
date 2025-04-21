@@ -57,6 +57,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final borderColorScheme = AppFlowyBorderColorScheme(
+      primary: AppFlowyPrimitiveTokens.neutral200,
       greyPrimary: AppFlowyPrimitiveTokens.neutral1000,
       greyPrimaryHover: AppFlowyPrimitiveTokens.neutral900,
       greySecondary: AppFlowyPrimitiveTokens.neutral800,
@@ -178,7 +179,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.dark);
 
     final textColorScheme = AppFlowyTextColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral200,
+      primary: AppFlowyPrimitiveTokens.neutral800,
       secondary: AppFlowyPrimitiveTokens.neutral400,
       tertiary: AppFlowyPrimitiveTokens.neutral600,
       quaternary: AppFlowyPrimitiveTokens.neutral1000,
@@ -211,6 +212,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final borderColorScheme = AppFlowyBorderColorScheme(
+      primary: AppFlowyPrimitiveTokens.neutral800,
       greyPrimary: AppFlowyPrimitiveTokens.neutral100,
       greyPrimaryHover: AppFlowyPrimitiveTokens.neutral200,
       greySecondary: AppFlowyPrimitiveTokens.neutral300,
