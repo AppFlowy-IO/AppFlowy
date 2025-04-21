@@ -26,8 +26,7 @@ use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
-  FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, FullSyncCollabParams,
-  Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderSnapshot, FullSyncCollabParams,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use flowy_search_pub::cloud::SearchCloudService;
@@ -230,43 +229,13 @@ impl UserCloudServiceProvider for ServerProvider {
 
 #[async_trait]
 impl FolderCloudService for ServerProvider {
-  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, FlowyError> {
-    let server = self.get_server()?;
-    let name = name.to_string();
-    server.folder_service().create_workspace(uid, &name).await
-  }
-
-  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    let server = self.get_server()?;
-    server.folder_service().open_workspace(workspace_id).await
-  }
-
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError> {
-    let server = self.get_server()?;
-    server.folder_service().get_all_workspace().await
-  }
-
-  async fn get_folder_data(
-    &self,
-    workspace_id: &Uuid,
-    uid: &i64,
-  ) -> Result<Option<FolderData>, FlowyError> {
-    let server = self.get_server()?;
-
-    server
-      .folder_service()
-      .get_folder_data(workspace_id, uid)
-      .await
-  }
-
   async fn get_folder_snapshots(
     &self,
     workspace_id: &str,
     limit: usize,
   ) -> Result<Vec<FolderSnapshot>, FlowyError> {
-    let server = self.get_server()?;
-
-    server
+    self
+      .get_server()?
       .folder_service()
       .get_folder_snapshots(workspace_id, limit)
       .await
@@ -279,11 +248,22 @@ impl FolderCloudService for ServerProvider {
     collab_type: CollabType,
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
-    let server = self.get_server()?;
-
-    server
+    self
+      .get_server()?
       .folder_service()
       .get_folder_doc_state(workspace_id, uid, collab_type, object_id)
+      .await
+  }
+
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &Uuid,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .full_sync_collab_object(workspace_id, params)
       .await
   }
 
@@ -312,9 +292,8 @@ impl FolderCloudService for ServerProvider {
     workspace_id: &Uuid,
     payload: Vec<PublishPayload>,
   ) -> Result<(), FlowyError> {
-    let server = self.get_server()?;
-
-    server
+    self
+      .get_server()?
       .folder_service()
       .publish_view(workspace_id, payload)
       .await
@@ -325,8 +304,8 @@ impl FolderCloudService for ServerProvider {
     workspace_id: &Uuid,
     view_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError> {
-    let server = self.get_server()?;
-    server
+    self
+      .get_server()?
       .folder_service()
       .unpublish_views(workspace_id, view_ids)
       .await
@@ -343,8 +322,8 @@ impl FolderCloudService for ServerProvider {
     view_id: Uuid,
     new_name: String,
   ) -> Result<(), FlowyError> {
-    let server = self.get_server()?;
-    server
+    self
+      .get_server()?
       .folder_service()
       .set_publish_name(workspace_id, view_id, new_name)
       .await
@@ -355,18 +334,10 @@ impl FolderCloudService for ServerProvider {
     workspace_id: &Uuid,
     new_namespace: String,
   ) -> Result<(), FlowyError> {
-    let server = self.get_server()?;
-    server
+    self
+      .get_server()?
       .folder_service()
       .set_publish_namespace(workspace_id, new_namespace)
-      .await
-  }
-
-  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
-    let server = self.get_server()?;
-    server
-      .folder_service()
-      .get_publish_namespace(workspace_id)
       .await
   }
 
@@ -413,23 +384,19 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
+  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_publish_namespace(workspace_id)
+      .await
+  }
+
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     self
       .get_server()?
       .folder_service()
       .import_zip(file_path)
-      .await
-  }
-
-  async fn full_sync_collab_object(
-    &self,
-    workspace_id: &Uuid,
-    params: FullSyncCollabParams,
-  ) -> Result<(), FlowyError> {
-    self
-      .get_server()?
-      .folder_service()
-      .full_sync_collab_object(workspace_id, params)
       .await
   }
 }

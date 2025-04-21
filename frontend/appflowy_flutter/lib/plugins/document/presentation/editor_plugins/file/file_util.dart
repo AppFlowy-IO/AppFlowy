@@ -185,7 +185,7 @@ Future<void> insertLocalFile(
 
   // Check upload type
   final isLocalMode =
-      (userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
+      (userProfile?.workspaceAuthType ?? AuthTypePB.Local) == AuthTypePB.Local;
 
   String? path;
   String? errorMsg;
@@ -230,7 +230,7 @@ Future<void> insertLocalFiles(
 
   // Check upload type
   final isLocalMode =
-      (userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
+      (userProfile?.workspaceAuthType ?? AuthTypePB.Local) == AuthTypePB.Local;
 
   for (final file in files) {
     final fileType = file.fileType.toMediaFileTypePB();

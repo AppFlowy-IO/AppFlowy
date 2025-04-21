@@ -143,6 +143,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub auth_type: AuthType,
+  pub workspace_auth_type: AuthType,
   pub updated_at: i64,
 }
 
@@ -207,6 +208,7 @@ where
       token: value.user_token().unwrap_or_default(),
       icon_url,
       auth_type: *auth_type,
+      workspace_auth_type: *auth_type,
       updated_at: value.updated_at(),
     }
   }
@@ -317,7 +319,7 @@ pub enum UserTokenState {
 }
 
 // Workspace Role
-#[derive(Clone, Debug, Serialize_repr, Deserialize_repr)]
+#[derive(Clone, Copy, Debug, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Role {
   Owner = 0,

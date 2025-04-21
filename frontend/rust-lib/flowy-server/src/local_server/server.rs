@@ -1,19 +1,19 @@
-use flowy_search_pub::cloud::SearchCloudService;
-use std::sync::Arc;
-
 use crate::af_cloud::define::LoggedUser;
 use crate::local_server::impls::{
   LocalChatServiceImpl, LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
   LocalServerFolderCloudServiceImpl, LocalServerUserServiceImpl,
 };
 use crate::AppFlowyServer;
+use anyhow::Error;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 
 pub struct LocalServer {
@@ -40,6 +40,10 @@ impl LocalServer {
 }
 
 impl AppFlowyServer for LocalServer {
+  fn set_token(&self, _token: &str) -> Result<(), Error> {
+    Ok(())
+  }
+
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     Arc::new(LocalServerUserServiceImpl {
       logged_user: self.logged_user.clone(),

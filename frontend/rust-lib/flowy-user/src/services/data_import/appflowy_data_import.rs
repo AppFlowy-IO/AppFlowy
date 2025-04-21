@@ -103,6 +103,7 @@ pub(crate) fn prepare_import(
   );
   let imported_user = select_user_profile(
     imported_session.user_id,
+    &imported_session.user_workspace.id,
     &mut *imported_sqlite_db.get_connection()?,
   )?;
 

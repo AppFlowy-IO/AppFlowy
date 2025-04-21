@@ -125,9 +125,10 @@ impl UserDB {
     &self,
     pool: &Arc<ConnectionPool>,
     uid: i64,
+    workspace_id: &str,
   ) -> Result<UserProfile, FlowyError> {
     let mut conn = pool.get()?;
-    let profile = select_user_profile(uid, &mut conn)?;
+    let profile = select_user_profile(uid, workspace_id, &mut conn)?;
     Ok(profile)
   }
 

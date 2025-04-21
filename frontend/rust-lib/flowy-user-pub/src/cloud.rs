@@ -168,7 +168,8 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
-  async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
+  async fn get_user_profile(&self, uid: i64, workspace_id: &str)
+    -> Result<UserProfile, FlowyError>;
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError>;
 

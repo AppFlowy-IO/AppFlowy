@@ -128,7 +128,9 @@ impl UserManager {
     *self.collab_interact.write().await = Arc::new(collab_interact);
 
     if let Ok(session) = self.get_session() {
-      let user = self.get_user_profile_from_disk(session.user_id).await?;
+      let user = self
+        .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+        .await?;
       self.cloud_service.set_server_auth_type(&user.auth_type);
 
       // Get the current authenticator from the environment variable
@@ -175,6 +177,7 @@ impl UserManager {
           event!(tracing::Level::DEBUG, "Listen token state change");
           let user_uid = user.uid;
           let local_token = user.token.clone();
+          let workspace_id = session.user_workspace.id.clone();
           tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
               debug!("Token state changed: {:?}", token_state);
@@ -184,7 +187,7 @@ impl UserManager {
                   if new_token != local_token {
                     if let Some(conn) = weak_pool.upgrade().and_then(|pool| pool.get().ok()) {
                       // Save the new token
-                      if let Err(err) = save_user_token(user_uid, conn, new_token) {
+                      if let Err(err) = save_user_token(user_uid, &workspace_id, conn, new_token) {
                         error!("Save user token failed: {}", err);
                       }
                     }
@@ -503,6 +506,7 @@ impl UserManager {
     let session = self.get_session()?;
     upsert_user_profile_change(
       session.user_id,
+      &session.user_workspace.id,
       self.db_connection(session.user_id)?,
       changeset,
     )?;
@@ -535,20 +539,22 @@ impl UserManager {
       .backup(session.user_id, &session.user_workspace.id);
   }
 
-  pub async fn get_user_profile(&self) -> FlowyResult<UserProfile> {
-    let uid = self.get_session()?.user_id;
-    let profile = self.get_user_profile_from_disk(uid).await?;
-    Ok(profile)
-  }
-
   /// Fetches the user profile for the given user ID.
-  pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+  pub async fn get_user_profile_from_disk(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+  ) -> Result<UserProfile, FlowyError> {
     let mut conn = self.db_connection(uid)?;
-    select_user_profile(uid, &mut conn)
+    select_user_profile(uid, workspace_id, &mut conn)
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
+  pub async fn refresh_user_profile(
+    &self,
+    old_user_profile: &UserProfile,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
     // If the user is a local user, no need to refresh the user profile
     if old_user_profile.auth_type.is_local() {
       return Ok(());
@@ -565,7 +571,7 @@ impl UserManager {
     let result: Result<UserProfile, FlowyError> = self
       .cloud_service
       .get_user_service()?
-      .get_user_profile(uid)
+      .get_user_profile(uid, workspace_id)
       .await;
 
     match result {
@@ -576,6 +582,7 @@ impl UserManager {
           let changeset = UserTableChangeset::from_user_profile(new_user_profile);
           let _ = upsert_user_profile_change(
             uid,
+            workspace_id,
             self.authenticate_user.database.get_connection(uid)?,
             changeset,
           );
@@ -729,12 +736,8 @@ impl UserManager {
       self.set_anon_user(session);
     }
 
-    delete_all_then_insert_user_workspaces(
-      uid,
-      self.db_connection(uid)?,
-      auth_type,
-      response.user_workspaces(),
-    )?;
+    let mut conn = self.db_connection(uid)?;
+    sync_user_workspaces_with_diff(uid, auth_type, response.user_workspaces(), &mut conn)?;
     info!(
       "Save new user profile to disk, authenticator: {:?}",
       auth_type
@@ -756,6 +759,7 @@ impl UserManager {
       // Save the user profile change
       upsert_user_profile_change(
         user_update.uid,
+        &session.user_workspace.id,
         self.db_connection(user_update.uid)?,
         UserTableChangeset::from(user_update),
       )?;
@@ -805,6 +809,7 @@ fn current_authenticator() -> AuthType {
 
 pub fn upsert_user_profile_change(
   uid: i64,
+  workspace_id: &str,
   mut conn: DBConnection,
   changeset: UserTableChangeset,
 ) -> FlowyResult<()> {
@@ -814,10 +819,7 @@ pub fn upsert_user_profile_change(
     changeset
   );
   update_user_profile(&mut conn, changeset)?;
-  let user: UserProfile = user_table::dsl::user_table
-    .filter(user_table::id.eq(&uid.to_string()))
-    .first::<UserTable>(&mut *conn)?
-    .into();
+  let user = select_user_profile(uid, workspace_id, &mut conn)?;
   send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
     .payload(UserProfilePB::from(user))
     .send();
@@ -825,10 +827,15 @@ pub fn upsert_user_profile_change(
 }
 
 #[instrument(level = "info", skip_all, err)]
-fn save_user_token(uid: i64, conn: DBConnection, token: String) -> FlowyResult<()> {
+fn save_user_token(
+  uid: i64,
+  workspace_id: &str,
+  conn: DBConnection,
+  token: String,
+) -> FlowyResult<()> {
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
-  upsert_user_profile_change(uid, conn, changeset)
+  upsert_user_profile_change(uid, workspace_id, conn, changeset)
 }
 
 #[instrument(level = "info", skip_all, err)]
@@ -886,6 +893,7 @@ pub(crate) fn run_collab_data_migration(
   }
 }
 
+#[instrument(level = "info", skip_all, err)]
 pub async fn sign_out(
   cloud_services: &Arc<dyn UserCloudServiceProvider>,
   session: &Session,

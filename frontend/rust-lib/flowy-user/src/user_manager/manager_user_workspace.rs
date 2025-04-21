@@ -101,7 +101,7 @@ impl UserManager {
     collab_data: ImportedCollabData,
   ) -> Result<(), FlowyError> {
     let user = self
-      .get_user_profile_from_disk(current_session.user_id)
+      .get_user_profile_from_disk(current_session.user_id, &current_session.user_workspace.id)
       .await?;
     let user_collab_db = self
       .get_collab_db(current_session.user_id)?
@@ -115,7 +115,7 @@ impl UserManager {
       user_id,
       weak_user_collab_db,
       &current_session.user_workspace.workspace_id()?,
-      &user.auth_type,
+      &user.workspace_auth_type,
       collab_data,
       weak_user_cloud_service,
     )
@@ -154,11 +154,19 @@ impl UserManager {
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
     info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    let workspace_id_str = workspace_id.to_string();
     self.cloud_service.set_server_auth_type(&auth_type);
 
     let uid = self.user_id()?;
+    let profile = self
+      .get_user_profile_from_disk(uid, &workspace_id_str)
+      .await?;
+    if let Err(err) = self.cloud_service.set_token(&profile.token) {
+      error!("Set token failed: {}", err);
+    }
+
     let mut conn = self.db_connection(self.user_id()?)?;
-    let user_workspace = match select_user_workspace(&workspace_id.to_string(), &mut conn) {
+    let user_workspace = match select_user_workspace(&workspace_id_str, &mut conn) {
       Err(err) => {
         if err.is_record_not_found() {
           sync_workspace(
@@ -190,19 +198,18 @@ impl UserManager {
       .set_user_workspace(user_workspace.clone())?;
 
     let uid = self.user_id()?;
-    let user_profile = self.get_user_profile_from_disk(uid).await?;
     if let Err(err) = self
       .user_status_callback
       .read()
       .await
-      .on_workspace_opened(uid, workspace_id, &user_workspace, &user_profile.auth_type)
+      .on_workspace_opened(uid, workspace_id, &user_workspace, &auth_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
     }
 
     if let Err(err) = self
-      .initial_user_awareness(self.get_session()?.as_ref(), &user_profile.auth_type)
+      .initial_user_awareness(self.get_session()?.as_ref(), &auth_type)
       .await
     {
       error!(
@@ -220,19 +227,13 @@ impl UserManager {
     workspace_name: &str,
     auth_type: AuthType,
   ) -> FlowyResult<UserWorkspace> {
-    let new_workspace = match auth_type {
-      AuthType::Local => {
-        let workspace_id = Uuid::new_v4();
-        UserWorkspace::new_local(workspace_id.to_string(), workspace_name)
-      },
-      AuthType::AppFlowyCloud => {
-        self
-          .cloud_service
-          .get_user_service()?
-          .create_workspace(workspace_name)
-          .await?
-      },
-    };
+    self.cloud_service.set_server_auth_type(&auth_type);
+
+    let new_workspace = self
+      .cloud_service
+      .get_user_service()?
+      .create_workspace(workspace_name)
+      .await?;
 
     info!(
       "create workspace: {}, name:{}, auth_type: {}",
@@ -410,27 +411,59 @@ impl UserManager {
     uid: i64,
     auth_type: AuthType,
   ) -> FlowyResult<Vec<UserWorkspace>> {
-    let conn = self.db_connection(uid)?;
-    let workspaces = select_all_user_workspace(uid, conn)?;
+    // 1) Load & return the local copy immediately
+    let mut conn = self.db_connection(uid)?;
+    let local_workspaces = select_all_user_workspace(uid, &mut conn)?;
 
-    if let Ok(service) = self.cloud_service.get_user_service() {
-      if let Ok(pool) = self.db_pool(uid) {
-        tokio::spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
-            if let Ok(conn) = pool.get() {
-              let _ =
-                delete_all_then_insert_user_workspaces(uid, conn, auth_type, &new_user_workspaces);
-              let repeated_workspace_pbs =
-                RepeatedUserWorkspacePB::from((auth_type, new_user_workspaces));
+    // 2) If both cloud service and pool are available, fire off a background sync
+    if let (Ok(service), Ok(pool)) = (self.cloud_service.get_user_service(), self.db_pool(uid)) {
+      // capture only what we need
+      let auth_copy = auth_type;
+
+      tokio::spawn(async move {
+        // fetch remote list
+        let new_ws = match service.get_all_workspace(uid).await {
+          Ok(ws) => ws,
+          Err(e) => {
+            trace!("failed to fetch remote workspaces for {}: {:?}", uid, e);
+            return;
+          },
+        };
+
+        // get a pooled DB connection
+        let mut conn = match pool.get() {
+          Ok(c) => c,
+          Err(e) => {
+            trace!("failed to get DB connection for {}: {:?}", uid, e);
+            return;
+          },
+        };
+
+        // sync + diff
+        match sync_user_workspaces_with_diff(uid, auth_copy, &new_ws, &mut conn) {
+          Ok(changes) if !changes.is_empty() => {
+            info!(
+              "synced {} workspaces for user {} and auth type {:?}. changes: {:?}",
+              changes.len(),
+              uid,
+              auth_copy,
+              changes
+            );
+            // only send notification if there were real changes
+            if let Ok(updated_list) = select_all_user_workspace(uid, &mut conn) {
+              let repeated_pb = RepeatedUserWorkspacePB::from((auth_copy, updated_list));
               send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
-                .payload(repeated_workspace_pbs)
+                .payload(repeated_pb)
                 .send();
             }
-          }
-        });
-      }
+          },
+          Ok(_) => trace!("no workspaces updated for {}", uid),
+          Err(e) => trace!("sync error for {}: {:?}", uid, e),
+        }
+      });
     }
-    Ok(workspaces)
+
+    Ok(local_workspaces)
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -660,7 +693,7 @@ impl UserManager {
 
     let record = WorkspaceMemberTable {
       email: member.email.clone(),
-      role: member.role.clone().into(),
+      role: member.role.into(),
       name: member.name.clone(),
       avatar_url: member.avatar_url.clone(),
       uid,

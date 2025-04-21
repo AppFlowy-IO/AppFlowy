@@ -11,8 +11,7 @@ use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
-  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
-  FullSyncCollabParams, Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderSnapshot, FullSyncCollabParams,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
@@ -26,31 +25,6 @@ pub(crate) struct LocalServerFolderCloudServiceImpl {
 
 #[async_trait]
 impl FolderCloudService for LocalServerFolderCloudServiceImpl {
-  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, FlowyError> {
-    let name = name.to_string();
-    Ok(Workspace::new(
-      gen_workspace_id().to_string(),
-      name.to_string(),
-      uid,
-    ))
-  }
-
-  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError> {
-    Ok(vec![])
-  }
-
-  async fn get_folder_data(
-    &self,
-    workspace_id: &Uuid,
-    uid: &i64,
-  ) -> Result<Option<FolderData>, FlowyError> {
-    Ok(None)
-  }
-
   async fn get_folder_snapshots(
     &self,
     _workspace_id: &str,
@@ -89,6 +63,14 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     }
   }
 
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &Uuid,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    Ok(())
+  }
+
   async fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &Uuid,
@@ -121,23 +103,19 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn set_publish_namespace(
-    &self,
-    workspace_id: &Uuid,
-    new_namespace: String,
-  ) -> Result<(), FlowyError> {
-    Err(FlowyError::local_version_not_support())
-  }
-
-  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
-    Err(FlowyError::local_version_not_support())
-  }
-
   async fn set_publish_name(
     &self,
     workspace_id: &Uuid,
     view_id: Uuid,
     new_name: String,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn set_publish_namespace(
+    &self,
+    workspace_id: &Uuid,
+    new_namespace: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
@@ -168,15 +146,11 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
+  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn full_sync_collab_object(
-    &self,
-    workspace_id: &Uuid,
-    params: FullSyncCollabParams,
-  ) -> Result<(), FlowyError> {
-    Ok(())
+  async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
   }
 }

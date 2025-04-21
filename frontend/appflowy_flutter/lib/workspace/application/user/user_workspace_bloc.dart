@@ -44,7 +44,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
-                userProfile.authType == AuthTypePB.Server &&
+                userProfile.userAuthType == AuthTypePB.Server &&
                     FeatureFlag.collaborativeWorkspace.isOn;
             Log.info(
               'init workspace, current workspace: ${currentWorkspace?.workspaceId}, '

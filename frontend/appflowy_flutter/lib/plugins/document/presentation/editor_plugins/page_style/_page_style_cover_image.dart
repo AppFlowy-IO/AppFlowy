@@ -225,7 +225,8 @@ class PageStyleCoverImage extends StatelessWidget {
         (s) => s,
         (f) => null,
       );
-      final isAppFlowyCloud = userProfile?.authType == AuthTypePB.Server;
+      final isAppFlowyCloud =
+          userProfile?.workspaceAuthType == AuthTypePB.Server;
       final PageStyleCoverImageType type;
       if (!isAppFlowyCloud) {
         result = await saveImageToLocalStorage(path);

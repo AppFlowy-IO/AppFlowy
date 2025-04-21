@@ -374,9 +374,11 @@ impl UserManager {
           .unwrap_or(false);
 
         if !is_loading {
-          let user_profile = self.get_user_profile_from_disk(session.user_id).await?;
+          let user_profile = self
+            .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+            .await?;
           self
-            .initial_user_awareness(&session, &user_profile.auth_type)
+            .initial_user_awareness(&session, &user_profile.workspace_auth_type)
             .await?;
         }
 

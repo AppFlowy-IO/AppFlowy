@@ -69,7 +69,8 @@ class RowBanner extends StatefulWidget {
 class _RowBannerState extends State<RowBanner> {
   final _isHovering = ValueNotifier(false);
   late final isLocalMode =
-      (widget.userProfile?.authType ?? AuthTypePB.Local) == AuthTypePB.Local;
+      (widget.userProfile?.workspaceAuthType ?? AuthTypePB.Local) ==
+          AuthTypePB.Local;
 
   @override
   void dispose() {

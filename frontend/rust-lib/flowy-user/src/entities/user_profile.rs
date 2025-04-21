@@ -39,7 +39,10 @@ pub struct UserProfilePB {
   pub icon_url: String,
 
   #[pb(index = 6)]
-  pub auth_type: AuthTypePB,
+  pub user_auth_type: AuthTypePB,
+
+  #[pb(index = 7)]
+  pub workspace_auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -62,7 +65,8 @@ impl From<UserProfile> for UserProfilePB {
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
-      auth_type: user_profile.auth_type.into(),
+      user_auth_type: user_profile.auth_type.into(),
+      workspace_auth_type: user_profile.workspace_auth_type.into(),
     }
   }
 }

@@ -91,7 +91,7 @@ class SettingsDialogBloc
   ]) async {
     if ([
       AuthTypePB.Local,
-    ].contains(userProfile.authType)) {
+    ].contains(userProfile.workspaceAuthType)) {
       return false;
     }
 
