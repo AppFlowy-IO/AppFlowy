@@ -24,6 +24,9 @@ pub struct WorkspaceMemberPB {
 
   #[pb(index = 4, one_of)]
   pub avatar_url: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub joined_at: Option<i64>,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -33,6 +36,7 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
       name: value.name,
       role: value.role.into(),
       avatar_url: value.avatar_url,
+      joined_at: value.joined_at,
     }
   }
 }

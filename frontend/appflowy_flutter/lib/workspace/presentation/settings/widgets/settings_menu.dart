@@ -32,10 +32,6 @@ class SettingsMenu extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            padding: EdgeInsets.symmetric(
-              vertical: 24,
-              horizontal: theme.spacing.l,
-            ),
             decoration: BoxDecoration(
               color: theme.backgroundColorScheme.secondary,
               borderRadius: const BorderRadiusDirectional.only(
@@ -44,6 +40,10 @@ class SettingsMenu extends StatelessWidget {
               ),
             ),
             child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                vertical: 24,
+                horizontal: theme.spacing.l,
+              ),
               physics: const ClampingScrollPhysics(),
               child: SeparatedColumn(
                 separatorBuilder: () => VSpace(theme.spacing.xs),

@@ -111,6 +111,7 @@ pub fn insert_local_workspace(
       uid,
       workspace_id: workspace_id.to_string(),
       updated_at: chrono::Utc::now().naive_utc(),
+      joined_at: None,
     };
 
     upsert_user_workspace(uid, AuthType::Local, user_workspace.clone(), conn)?;

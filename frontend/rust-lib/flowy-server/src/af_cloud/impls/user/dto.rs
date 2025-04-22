@@ -71,6 +71,7 @@ pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
     role: from_af_role(member.role),
     name: member.name,
     avatar_url: member.avatar_url,
+    joined_at: member.joined_at.map(|dt| dt.timestamp()),
   }
 }
 

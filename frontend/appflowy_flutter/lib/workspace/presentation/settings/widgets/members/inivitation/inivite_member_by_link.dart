@@ -145,7 +145,8 @@ class _CopyLinkButton extends StatelessWidget {
           );
         } else {
           showToastNotification(
-            message: LocaleKeys.shareAction_copyLinkFailed.tr(),
+            message: 'You haven\'t generated an invite link yet.',
+            type: ToastificationType.error,
           );
         }
       },
