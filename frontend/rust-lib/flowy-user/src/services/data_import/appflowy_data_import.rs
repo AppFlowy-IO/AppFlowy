@@ -36,7 +36,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
-use flowy_user_pub::sql::{select_user_auth_type, select_user_profile};
+use flowy_user_pub::sql::{select_user_auth_type, select_user_profile, select_user_workspace};
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
@@ -83,10 +83,6 @@ pub(crate) fn prepare_import(
   let other_store_preferences = Arc::new(KVStorePreferences::new(path)?);
   migrate_session("appflowy_session_cache", &other_store_preferences);
 
-  let session_workspace = get_session_workspace(&other_store_preferences)
-    .ok_or(anyhow!("Can't find the session workspace"))?;
-  let workspace_database_id = session_workspace.workspace_database_id;
-
   let imported_session = other_store_preferences
     .get_object::<Session>("appflowy_session_cache")
     .ok_or(anyhow!(
@@ -109,6 +105,16 @@ pub(crate) fn prepare_import(
   );
 
   let mut conn = imported_sqlite_db.get_connection()?;
+  let workspace_database_id = match select_user_workspace(&imported_session.workspace_id, &mut conn)
+  {
+    Ok(w) => w.database_storage_id,
+    Err(_) => {
+      let session_workspace = get_session_workspace(&other_store_preferences)
+        .ok_or(anyhow!("Can't find the session workspace"))?;
+      session_workspace.workspace_database_id
+    },
+  };
+
   let imported_user_auth_type = select_user_profile(
     imported_session.user_id,
     &imported_session.workspace_id,
