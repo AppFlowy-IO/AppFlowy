@@ -4,6 +4,7 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -25,28 +26,27 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     // Column > Expanded for full size no matter the content
     return Column(
       children: [
         Expanded(
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8) +
-                const EdgeInsets.only(left: 8, right: 4),
+            padding: EdgeInsets.symmetric(
+              vertical: 24,
+              horizontal: theme.spacing.l,
+            ),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: theme.backgroundColorScheme.secondary,
               borderRadius: const BorderRadiusDirectional.only(
                 topStart: Radius.circular(8),
                 bottomStart: Radius.circular(8),
               ),
             ),
             child: SingleChildScrollView(
-              // Right padding is added to make the scrollbar centered
-              // in the space between the menu and the content
-              padding: const EdgeInsets.only(right: 4) +
-                  const EdgeInsets.symmetric(vertical: 16),
               physics: const ClampingScrollPhysics(),
               child: SeparatedColumn(
-                separatorBuilder: () => const VSpace(16),
+                separatorBuilder: () => VSpace(theme.spacing.xs),
                 children: [
                   SettingsMenuElement(
                     page: SettingsPage.account,
