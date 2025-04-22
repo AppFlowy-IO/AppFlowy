@@ -389,7 +389,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
           workspaceBloc.add(
             UserWorkspaceEvent.createWorkspace(
               name,
-              AuthTypePB.Server,
+              AuthTypePB.Local,
             ),
           );
         },

@@ -882,6 +882,7 @@
         "localAIDisabled": "You are using local AI, but it is disabled. Please go to settings to enable it or try different model",
         "localAIInitializing": "Local AI is loading. This may take a few seconds depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
+        "localAIDisabledTextFieldPrompt": "You can not edit while Local AI is disabled",
         "failToLoadLocalAI": "Failed to start local AI.",
         "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
