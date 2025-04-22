@@ -120,10 +120,16 @@ class PasswordHttpService {
       errorMessage: 'Failed to check password status',
     );
 
-    return result.fold(
-      (data) => FlowyResult.success(data['has_password'] ?? false),
-      (error) => FlowyResult.failure(error),
-    );
+    try {
+      return result.fold(
+        (data) => FlowyResult.success(data['has_password'] ?? false),
+        (error) => FlowyResult.failure(error),
+      );
+    } catch (e) {
+      return FlowyResult.failure(
+        FlowyError(msg: 'Failed to check password status: $e'),
+      );
+    }
   }
 
   /// Makes a request to the specified endpoint with the given body
