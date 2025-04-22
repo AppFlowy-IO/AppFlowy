@@ -20,7 +20,7 @@ impl UserManager {
 
     let session = self.get_session().ok()?;
     let user_profile = self
-      .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+      .get_user_profile_from_disk(session.user_id, &session.workspace_id)
       .await
       .ok()?;
 
@@ -48,7 +48,7 @@ impl UserManager {
         "Anon user not found",
       ))?;
     let profile = self
-      .get_user_profile_from_disk(anon_session.user_id, &anon_session.user_workspace.id)
+      .get_user_profile_from_disk(anon_session.user_id, &anon_session.workspace_id)
       .await?;
     Ok(UserProfilePB::from(profile))
   }

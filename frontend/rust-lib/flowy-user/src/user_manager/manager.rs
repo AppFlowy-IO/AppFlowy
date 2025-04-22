@@ -128,11 +128,13 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       info!(
-        "Init user session: {}:{}, workspace: {}",
-        session.user_id, session.user_workspace.name, session.user_workspace.id
+        "Init user session: {}, workspace: {}",
+        session.user_id, session.workspace_id
       );
+      let workspace_uuid = Uuid::parse_str(&session.workspace_id)?;
+      let mut conn = self.db_connection(session.user_id)?;
+      let auth_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
 
-      let auth_type = session.user_workspace.workspace_type;
       let uid = session.user_id;
       let token = self.token_from_auth_type(&auth_type)?;
       self
@@ -158,11 +160,11 @@ impl UserManager {
         let weak_cloud_services = Arc::downgrade(&self.cloud_service);
         let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
         let weak_pool = Arc::downgrade(&self.db_pool(uid)?);
+        let workspace_id = session.workspace_id.clone();
         let cloned_session = session.clone();
         if let Some(mut token_state_rx) = self.cloud_service.subscribe_token_state() {
           event!(tracing::Level::DEBUG, "Listen token state change");
           let user_uid = uid;
-          let workspace_id = session.user_workspace.id.clone();
           tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
               debug!("Token state changed: {:?}", token_state);
@@ -260,7 +262,7 @@ impl UserManager {
         .on_launch_if_authenticated(
           uid,
           &cloud_config,
-          &session.user_workspace,
+          &workspace_uuid,
           &self.authenticate_user.user_config.device_id,
           &auth_type,
         )
@@ -340,6 +342,7 @@ impl UserManager {
     self.prepare_user(&session).await;
 
     let latest_workspace = response.latest_workspace.clone();
+    let workspace_id = Uuid::parse_str(&latest_workspace.id)?;
     let user_profile = UserProfile::from((&response, &auth_type));
     self.save_auth_data(&response, auth_type, &session).await?;
 
@@ -352,7 +355,7 @@ impl UserManager {
       .await
       .on_sign_in(
         user_profile.uid,
-        &latest_workspace,
+        &workspace_id,
         &self.authenticate_user.user_config.device_id,
         &auth_type,
       )
@@ -404,6 +407,7 @@ impl UserManager {
       .save_auth_data(&response, *auth_type, &new_session)
       .await?;
     let _ = self.initial_user_awareness(&new_session, auth_type).await;
+    let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
     self
       .user_status_callback
       .read()
@@ -411,7 +415,7 @@ impl UserManager {
       .on_sign_up(
         response.is_new_user,
         new_user_profile,
-        &new_session.user_workspace,
+        &workspace_id,
         &self.authenticate_user.user_config.device_id,
         auth_type,
       )
@@ -493,7 +497,7 @@ impl UserManager {
     let session = self.get_session()?;
     upsert_user_profile_change(
       session.user_id,
-      &session.user_workspace.id,
+      &session.workspace_id,
       self.db_connection(session.user_id)?,
       changeset,
     )?;
@@ -523,7 +527,7 @@ impl UserManager {
     self
       .authenticate_user
       .database
-      .backup(session.user_id, &session.user_workspace.id);
+      .backup(session.user_id, &session.workspace_id);
   }
 
   /// Fetches the user profile for the given user ID.
@@ -627,7 +631,7 @@ impl UserManager {
 
   pub fn workspace_id(&self) -> Result<String, FlowyError> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.id.clone())
+    Ok(session.workspace_id.clone())
   }
 
   pub fn token(&self) -> Result<Option<String>, FlowyError> {
@@ -758,7 +762,7 @@ impl UserManager {
       // Save the user profile change
       upsert_user_profile_change(
         user_update.uid,
-        &session.user_workspace.id,
+        &session.workspace_id,
         self.db_connection(user_update.uid)?,
         UserTableChangeset::from(user_update),
       )?;
@@ -784,17 +788,6 @@ impl UserManager {
         .await?;
     }
 
-    // Save the old user workspace setting.
-    let mut conn = self
-      .authenticate_user
-      .database
-      .get_connection(old_user.session.user_id)?;
-    upsert_user_workspace(
-      old_user.session.user_id,
-      *auth_type,
-      old_user.session.user_workspace.clone(),
-      &mut conn,
-    )?;
     Ok(())
   }
 }

@@ -11,6 +11,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::{AuthType, UserWorkspace};
 use flowy_user_pub::session::Session;
+use flowy_user_pub::sql::{select_user_workspace, select_user_workspace_type};
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
@@ -46,10 +47,9 @@ impl AuthenticateUser {
 
   pub async fn is_local_mode(&self) -> FlowyResult<bool> {
     let session = self.get_session()?;
-    Ok(matches!(
-      session.user_workspace.workspace_type,
-      AuthType::Local
-    ))
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+    Ok(matches!(workspace_type, AuthType::Local))
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -58,13 +58,15 @@ impl AuthenticateUser {
 
   pub fn workspace_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    let workspace_uuid = Uuid::from_str(&session.user_workspace.id)?;
+    let workspace_uuid = Uuid::from_str(&session.workspace_id)?;
     Ok(workspace_uuid)
   }
 
   pub fn workspace_database_object_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    let id = Uuid::from_str(&session.user_workspace.workspace_database_id)?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace = select_user_workspace(&session.workspace_id, &mut conn)?;
+    let id = Uuid::from_str(&workspace.database_storage_id)?;
     Ok(id)
   }
 
@@ -104,7 +106,7 @@ impl AuthenticateUser {
     let session = self.get_session()?;
     let collab_db = self.database.get_collab_db(uid)?;
     let read_txn = collab_db.read_txn();
-    Ok(read_txn.is_exist(uid, session.user_workspace.id.as_str(), object_id))
+    Ok(read_txn.is_exist(uid, session.workspace_id.as_str(), object_id))
   }
 
   pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {
@@ -133,7 +135,7 @@ impl AuthenticateUser {
     self.set_session(Some(Arc::new(Session {
       user_id: session.user_id,
       user_uuid: session.user_uuid,
-      user_workspace,
+      workspace_id: user_workspace.id,
     })))
   }
 

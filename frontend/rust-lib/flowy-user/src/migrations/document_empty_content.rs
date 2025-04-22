@@ -12,6 +12,7 @@ use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
@@ -40,10 +41,11 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
   #[instrument(name = "HistoricalEmptyDocumentMigration", skip_all, err)]
   fn run(
     &self,
-    session: &Session,
+    user: &Session,
     collab_db: &Arc<CollabKVDB>,
     user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
+    _store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()> {
     // - The `empty document` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.
     // - Consequently, if a user is utilizing the AppFlowy cloud version, there is no need to perform any migration for the `empty document` struct.
@@ -52,32 +54,26 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
       return Ok(());
     }
     collab_db.with_write_txn(|write_txn| {
-      let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
+      let origin = CollabOrigin::Client(CollabClient::new(user.user_id, "phantom"));
       let folder_collab = match load_collab(
-        session.user_id,
+        user.user_id,
         write_txn,
-        &session.user_workspace.id,
-        &session.user_workspace.id,
+        &user.workspace_id,
+        &user.workspace_id,
       ) {
         Ok(fc) => fc,
         Err(_) => return Ok(()),
       };
 
-      let folder = Folder::open(session.user_id, folder_collab, None)
+      let folder = Folder::open(user.user_id, folder_collab, None)
         .map_err(|err| PersistenceError::Internal(err.into()))?;
       if let Some(workspace_id) = folder.get_workspace_id() {
         let migration_views = folder.get_views_belong_to(&workspace_id);
         // For historical reasons, the first level documents are empty. So migrate them by inserting
         // the default document data.
         for view in migration_views {
-          if migrate_empty_document(
-            write_txn,
-            &origin,
-            &view,
-            session.user_id,
-            &session.user_workspace.id,
-          )
-          .is_err()
+          if migrate_empty_document(write_txn, &origin, &view, user.user_id, &user.workspace_id)
+            .is_err()
           {
             event!(
               tracing::Level::ERROR,

@@ -75,7 +75,13 @@ impl UserLocalDataMigration {
 
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
-          migration.run(&self.session, &self.collab_db, user_auth_type, &mut conn)?;
+          migration.run(
+            &self.session,
+            &self.collab_db,
+            user_auth_type,
+            &mut conn,
+            &self.kv,
+          )?;
           applied_migrations.push(migration.name().to_string());
           save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
@@ -100,6 +106,7 @@ pub trait UserDataMigration {
     collab_db: &Arc<CollabKVDB>,
     user_auth_type: &AuthType,
     db: &mut SqliteConnection,
+    store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()>;
 }
 

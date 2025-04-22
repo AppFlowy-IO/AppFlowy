@@ -101,7 +101,7 @@ impl UserManager {
     collab_data: ImportedCollabData,
   ) -> Result<(), FlowyError> {
     let user = self
-      .get_user_profile_from_disk(current_session.user_id, &current_session.user_workspace.id)
+      .get_user_profile_from_disk(current_session.user_id, &current_session.workspace_id)
       .await?;
     let user_collab_db = self
       .get_collab_db(current_session.user_id)?
@@ -109,12 +109,13 @@ impl UserManager {
       .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
 
     let user_id = current_session.user_id;
+    let workspace_id = Uuid::parse_str(&current_session.workspace_id)?;
     let weak_user_collab_db = Arc::downgrade(&user_collab_db);
     let weak_user_cloud_service = self.cloud_service.get_user_service()?;
     match upload_collab_objects_data(
       user_id,
       weak_user_collab_db,
-      &current_session.user_workspace.workspace_id()?,
+      &workspace_id,
       &user.workspace_auth_type,
       collab_data,
       weak_user_cloud_service,
@@ -146,6 +147,7 @@ impl UserManager {
       container_name: None,
       parent_view_id: None,
       source: ImportedSource::AnonUser,
+      workspace_database_id: "".to_string(),
     };
     self.perform_import(import_context).await?;
     Ok(())

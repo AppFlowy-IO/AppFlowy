@@ -121,7 +121,7 @@ impl UserManager {
     session: &Session,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    let object_id = user_awareness_object_id(&session.user_uuid, &session.user_workspace.id);
+    let object_id = user_awareness_object_id(&session.user_uuid, &session.workspace_id);
 
     // Try to acquire mutable access to `is_loading_awareness`.
     // Thread-safety is ensured by DashMap
@@ -162,7 +162,7 @@ impl UserManager {
           auth_type
         );
         let collab_db = self.get_collab_db(session.user_id)?;
-        let workspace_id = session.user_workspace.workspace_id()?;
+        let workspace_id = Uuid::parse_str(&session.workspace_id)?;
         let doc_state =
           CollabPersistenceImpl::new(collab_db.clone(), session.user_id, workspace_id)
             .into_data_source();
@@ -227,7 +227,7 @@ impl UserManager {
         }
       };
 
-      let workspace_id = session.user_workspace.workspace_id()?;
+      let workspace_id = Uuid::parse_str(&session.workspace_id)?;
       let create_awareness = if authenticator.is_local() {
         let doc_state =
           CollabPersistenceImpl::new(collab_db.clone(), session.user_id, workspace_id)
@@ -289,7 +289,7 @@ impl UserManager {
         Ok(new_user_awareness) => {
           // Validate session before storing the awareness
           if let Ok(current_session) = authenticate_user.get_session() {
-            if current_session.user_workspace.id == session.user_workspace.id {
+            if current_session.workspace_id == session.workspace_id {
               if let Some(user_awareness) = user_awareness.upgrade() {
                 info!("User awareness initialized successfully");
                 user_awareness.store(Some(new_user_awareness));
@@ -366,7 +366,7 @@ impl UserManager {
         info!("User awareness is not loaded when trying to access it");
 
         let session = self.get_session()?;
-        let object_id = user_awareness_object_id(&session.user_uuid, &session.user_workspace.id);
+        let object_id = user_awareness_object_id(&session.user_uuid, &session.workspace_id);
         let is_loading = self
           .is_loading_awareness
           .get(&object_id)
@@ -375,7 +375,7 @@ impl UserManager {
 
         if !is_loading {
           let user_profile = self
-            .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+            .get_user_profile_from_disk(session.user_id, &session.workspace_id)
             .await?;
           self
             .initial_user_awareness(&session, &user_profile.workspace_auth_type)

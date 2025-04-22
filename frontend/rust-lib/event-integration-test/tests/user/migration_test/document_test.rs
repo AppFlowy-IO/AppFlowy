@@ -11,7 +11,6 @@ async fn migrate_historical_empty_document_test() {
     "historical_empty_document",
   )
   .unwrap();
-  let s = user_db_path.to_str().unwrap().to_string();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
