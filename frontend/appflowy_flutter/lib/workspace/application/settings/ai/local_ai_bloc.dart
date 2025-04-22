@@ -30,6 +30,10 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
     LocalAiPluginEvent event,
     Emitter<LocalAiPluginState> emit,
   ) async {
+    if (isClosed) {
+      return;
+    }
+
     await event.when(
       didReceiveAiState: (aiState) {
         emit(
@@ -54,7 +58,9 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
         emit(LocalAiPluginState.loading());
         await AIEventToggleLocalAI().send().fold(
           (aiState) {
-            add(LocalAiPluginEvent.didReceiveAiState(aiState));
+            if (!isClosed) {
+              add(LocalAiPluginEvent.didReceiveAiState(aiState));
+            }
           },
           Log.error,
         );
@@ -69,10 +75,14 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
   void _startListening() {
     listener.start(
       stateCallback: (pluginState) {
-        add(LocalAiPluginEvent.didReceiveAiState(pluginState));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveAiState(pluginState));
+        }
       },
       resourceCallback: (data) {
-        add(LocalAiPluginEvent.didReceiveLackOfResources(data));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveLackOfResources(data));
+        }
       },
     );
   }
@@ -80,7 +90,9 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
   void _getLocalAiState() {
     AIEventGetLocalAIState().send().fold(
       (aiState) {
-        add(LocalAiPluginEvent.didReceiveAiState(aiState));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveAiState(aiState));
+        }
       },
       Log.error,
     );

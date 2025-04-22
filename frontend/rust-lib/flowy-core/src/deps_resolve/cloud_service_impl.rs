@@ -161,6 +161,7 @@ impl StorageCloudService for ServerProvider {
 impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
+    info!("Set token");
     server.set_token(token)?;
     Ok(())
   }
@@ -191,8 +192,12 @@ impl UserCloudServiceProvider for ServerProvider {
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [AuthType] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_server_auth_type(&self, auth_type: &AuthType) {
+  fn set_server_auth_type(&self, auth_type: &AuthType, token: Option<String>) -> FlowyResult<()> {
     self.set_auth_type(*auth_type);
+    if let Some(token) = token {
+      self.set_token(&token)?;
+    }
+    Ok(())
   }
 
   fn get_server_auth_type(&self) -> AuthType {

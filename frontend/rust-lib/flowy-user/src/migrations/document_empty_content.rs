@@ -42,13 +42,13 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    authenticator: &AuthType,
+    user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     // - The `empty document` struct has already undergone refactoring prior to the launch of the AppFlowy cloud version.
     // - Consequently, if a user is utilizing the AppFlowy cloud version, there is no need to perform any migration for the `empty document` struct.
     // - This migration step is only necessary for users who are transitioning from a local version of AppFlowy to the cloud version.
-    if !matches!(authenticator, AuthType::Local) {
+    if !matches!(user_auth_type, AuthType::Local) {
       return Ok(());
     }
     collab_db.with_write_txn(|write_txn| {

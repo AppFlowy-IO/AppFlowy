@@ -3,7 +3,7 @@ use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
 use crate::services::entities::UserPaths;
-use crate::user_manager::run_collab_data_migration;
+use crate::user_manager::run_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -36,7 +36,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
-use flowy_user_pub::sql::{select_user_profile, select_workspace_auth_type};
+use flowy_user_pub::sql::{select_user_auth_type, select_user_profile};
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
@@ -103,23 +103,17 @@ pub(crate) fn prepare_import(
   );
 
   let mut conn = imported_sqlite_db.get_connection()?;
-  let imported_workspace_auth_type = select_user_profile(
+  let imported_user_auth_type = select_user_profile(
     imported_session.user_id,
     &imported_session.user_workspace.id,
     &mut conn,
   )
-  .map(|v| v.workspace_auth_type)
-  .or_else(|_| {
-    select_workspace_auth_type(
-      imported_session.user_id,
-      &imported_session.user_workspace.id,
-      &mut conn,
-    )
-  })?;
+  .map(|v| v.auth_type)
+  .or_else(|_| select_user_auth_type(imported_session.user_id, &mut conn))?;
 
-  run_collab_data_migration(
+  run_data_migration(
     &imported_session,
-    &imported_workspace_auth_type,
+    &imported_user_auth_type,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),

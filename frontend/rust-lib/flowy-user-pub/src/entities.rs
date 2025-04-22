@@ -114,6 +114,12 @@ pub struct UserWorkspace {
   pub member_count: i64,
   #[serde(default)]
   pub role: Option<Role>,
+  #[serde(default = "default_workspace_type")]
+  pub workspace_type: AuthType,
+}
+
+fn default_workspace_type() -> AuthType {
+  AuthType::AppFlowyCloud
 }
 
 impl UserWorkspace {
@@ -131,6 +137,7 @@ impl UserWorkspace {
       icon: "".to_string(),
       member_count: 1,
       role: Some(Role::Owner),
+      workspace_type: AuthType::Local,
     }
   }
 }

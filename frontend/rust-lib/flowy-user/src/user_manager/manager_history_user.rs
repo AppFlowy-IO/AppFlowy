@@ -53,6 +53,18 @@ impl UserManager {
     Ok(UserProfilePB::from(profile))
   }
 
+  pub fn get_anon_user_id(&self) -> FlowyResult<i64> {
+    let anon_session = self
+      .store_preferences
+      .get_object::<Session>(ANON_USER)
+      .ok_or(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        "Anon user not found",
+      ))?;
+
+    Ok(anon_session.user_id)
+  }
+
   /// Opens a historical user's session based on their user ID, device ID, and authentication type.
   ///
   /// This function facilitates the re-opening of a user's session from historical tracking.

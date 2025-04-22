@@ -35,8 +35,6 @@ impl Drop for TantivyState {
   }
 }
 
-const FOLDER_INDEX_DIR: &str = "folder_index";
-
 #[derive(Clone)]
 pub struct FolderIndexManagerImpl {
   auth_user: Weak<AuthenticateUser>,
@@ -64,7 +62,7 @@ impl FolderIndexManagerImpl {
   }
 
   /// Initializes the state using the workspace directory.
-  async fn initialize(&self) -> FlowyResult<()> {
+  async fn initialize(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     if let Some(state) = self.state.write().await.take() {
       info!("Re-initializing folder indexer");
       drop(state);
@@ -82,7 +80,7 @@ impl FolderIndexManagerImpl {
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("AuthenticateUser is not available"))?;
 
-    let index_path = auth_user.get_index_path()?.join(FOLDER_INDEX_DIR);
+    let index_path = auth_user.get_index_path()?.join(workspace_id.to_string());
     if !index_path.exists() {
       fs::create_dir_all(&index_path).map_err(|e| {
         error!("Failed to create folder index directory: {:?}", e);
@@ -327,10 +325,9 @@ impl IndexManager for FolderIndexManagerImpl {
 
 #[async_trait]
 impl FolderIndexManager for FolderIndexManagerImpl {
-  async fn initialize(&self) {
-    if let Err(e) = self.initialize().await {
-      error!("Failed to initialize FolderIndexManager: {:?}", e);
-    }
+  async fn initialize(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    self.initialize(workspace_id).await?;
+    Ok(())
   }
 
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {

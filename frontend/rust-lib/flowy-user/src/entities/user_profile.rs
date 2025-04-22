@@ -156,14 +156,10 @@ pub struct RepeatedUserWorkspacePB {
   pub items: Vec<UserWorkspacePB>,
 }
 
-impl From<(AuthType, Vec<UserWorkspace>)> for RepeatedUserWorkspacePB {
-  fn from(value: (AuthType, Vec<UserWorkspace>)) -> Self {
-    let (auth_type, workspaces) = value;
+impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
+  fn from(workspaces: Vec<UserWorkspace>) -> Self {
     Self {
-      items: workspaces
-        .into_iter()
-        .map(|w| UserWorkspacePB::from((auth_type, w)))
-        .collect(),
+      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
     }
   }
 }
@@ -193,16 +189,16 @@ pub struct UserWorkspacePB {
   pub workspace_auth_type: AuthTypePB,
 }
 
-impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
-  fn from(value: (AuthType, UserWorkspace)) -> Self {
+impl From<UserWorkspace> for UserWorkspacePB {
+  fn from(workspace: UserWorkspace) -> Self {
     Self {
-      workspace_id: value.1.id,
-      name: value.1.name,
-      created_at_timestamp: value.1.created_at.timestamp(),
-      icon: value.1.icon,
-      member_count: value.1.member_count,
-      role: value.1.role.map(AFRolePB::from),
-      workspace_auth_type: AuthTypePB::from(value.0),
+      workspace_id: workspace.id,
+      name: workspace.name,
+      created_at_timestamp: workspace.created_at.timestamp(),
+      icon: workspace.icon,
+      member_count: workspace.member_count,
+      role: workspace.role.map(AFRolePB::from),
+      workspace_auth_type: AuthTypePB::from(workspace.workspace_type),
     }
   }
 }

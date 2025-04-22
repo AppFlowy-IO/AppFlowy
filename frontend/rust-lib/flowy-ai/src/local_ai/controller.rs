@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{LocalAIPB, RunningStatePB};
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
@@ -17,6 +16,7 @@ use af_local_ai::ollama_plugin::OllamaAIPlugin;
 use af_plugin::core::path::is_plugin_ready;
 use af_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
+use flowy_ai_pub::user_service::AIUserService;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
 use serde::{Deserialize, Serialize};
@@ -99,7 +99,7 @@ impl LocalAIController {
           continue;
         };
 
-        let key = local_ai_enabled_key(&workspace_id);
+        let key = local_ai_enabled_key(&workspace_id.to_string());
         info!("[AI Plugin] state: {:?}", state);
 
         // Read whether plugin is enabled from store; default to true
@@ -157,14 +157,15 @@ impl LocalAIController {
   }
   #[instrument(level = "debug", skip_all)]
   pub async fn observe_plugin_resource(&self) {
-    debug!(
-      "[AI Plugin] init plugin when first run. thread: {:?}",
-      std::thread::current().id()
-    );
     let sys = get_operating_system();
     if !sys.is_desktop() {
       return;
     }
+
+    debug!(
+      "[AI Plugin] observer plugin state. thread: {:?}",
+      std::thread::current().id()
+    );
     async fn try_init_plugin(
       resource: &Arc<LocalAIResourceController>,
       ai_plugin: &Arc<OllamaAIPlugin>,
@@ -196,12 +197,6 @@ impl LocalAIController {
     });
   }
 
-  pub async fn reload(&self) -> FlowyResult<()> {
-    let is_enabled = self.is_enabled();
-    self.toggle_plugin(is_enabled).await?;
-    Ok(())
-  }
-
   fn upgrade_store_preferences(&self) -> FlowyResult<Arc<KVStorePreferences>> {
     self
       .store_preferences
@@ -211,9 +206,6 @@ impl LocalAIController {
 
   /// Indicate whether the local AI plugin is running.
   pub fn is_running(&self) -> bool {
-    if !self.is_enabled() {
-      return false;
-    }
     self.ai_plugin.get_plugin_running_state().is_running()
   }
 
@@ -225,17 +217,22 @@ impl LocalAIController {
       return false;
     }
 
-    if let Ok(key) = self
-      .user_service
-      .workspace_id()
-      .map(|workspace_id| local_ai_enabled_key(&workspace_id))
-    {
-      match self.upgrade_store_preferences() {
-        Ok(store) => store.get_bool(&key).unwrap_or(false),
-        Err(_) => false,
-      }
+    if let Ok(workspace_id) = self.user_service.workspace_id() {
+      self.is_enabled_on_workspace(&workspace_id.to_string())
     } else {
       false
+    }
+  }
+
+  pub fn is_enabled_on_workspace(&self, workspace_id: &str) -> bool {
+    let key = local_ai_enabled_key(workspace_id);
+    if !get_operating_system().is_desktop() {
+      return false;
+    }
+
+    match self.upgrade_store_preferences() {
+      Ok(store) => store.get_bool(&key).unwrap_or(false),
+      Err(_) => false,
     }
   }
 
@@ -298,7 +295,8 @@ impl LocalAIController {
     );
 
     if self.resource.set_llm_setting(setting).await.is_ok() {
-      self.reload().await?;
+      let is_enabled = self.is_enabled();
+      self.toggle_plugin(is_enabled).await?;
     }
     Ok(())
   }
@@ -373,7 +371,7 @@ impl LocalAIController {
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
     let workspace_id = self.user_service.workspace_id()?;
-    let key = local_ai_enabled_key(&workspace_id);
+    let key = local_ai_enabled_key(&workspace_id.to_string());
     let store_preferences = self.upgrade_store_preferences()?;
     let enabled = !store_preferences.get_bool(&key).unwrap_or(true);
     store_preferences.set_bool(&key, enabled)?;
@@ -482,7 +480,7 @@ impl LocalAIController {
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn toggle_plugin(&self, enabled: bool) -> FlowyResult<()> {
+  pub(crate) async fn toggle_plugin(&self, enabled: bool) -> FlowyResult<()> {
     info!(
       "[AI Plugin] enable: {}, thread id: {:?}",
       enabled,
@@ -618,6 +616,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
 }
 
 const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
-fn local_ai_enabled_key(workspace_id: &Uuid) -> String {
+fn local_ai_enabled_key(workspace_id: &str) -> String {
   format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
 }
