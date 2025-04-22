@@ -35,6 +35,10 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       if (!mounted) return;
       hasFocusValueNotifier.value = focusNode.hasFocus;
     });
+    controller.addListener(() {
+      if (!mounted) return;
+      widget.onChanged?.call(controller.text);
+    });
     bottomNavigationBarItemType.addListener(onBackOrLeave);
     focusNode.requestFocus();
   }
@@ -72,7 +76,6 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                     fontWeight: FontWeight.w400,
                     color: theme.textColorScheme.primary,
                   ),
-                  onChanged: widget.onChanged,
                   decoration: buildInputDecoration(context),
                 ),
               ),
@@ -129,7 +132,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
         padding: const EdgeInsets.fromLTRB(8, 10, 4, 10),
         child: FlowySvg(
           FlowySvgs.m_home_search_icon_m,
-          color: theme.iconColorTheme.secondary,
+          color: theme.iconColorScheme.secondary,
           size: Size.square(20),
         ),
       ),
@@ -137,13 +140,15 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
           showCancelIcon ? BoxConstraints.loose(Size(34, 40)) : null,
       suffixIcon: showCancelIcon
           ? GestureDetector(
-              onTap: () => controller.clear(),
+              onTap: () {
+                controller.clear();
+              },
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(4, 10, 8, 10),
                 child: FlowySvg(
                   FlowySvgs.clear_s,
                   blendMode: null,
-                  color: theme.iconColorTheme.tertiary,
+                  color: theme.iconColorScheme.tertiary,
                   size: Size.square(20),
                 ),
               ),

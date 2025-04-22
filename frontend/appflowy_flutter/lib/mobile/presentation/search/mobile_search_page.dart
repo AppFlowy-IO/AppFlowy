@@ -5,8 +5,7 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,9 +35,9 @@ class MobileSearchScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) {
-            return workspaceSettingPB as WorkspaceSettingPB?;
+        final latest = snapshots.data?[0].fold(
+          (latest) {
+            return latest as WorkspaceLatestPB?;
           },
           (error) => null,
         );
@@ -51,7 +50,7 @@ class MobileSearchScreen extends StatelessWidget {
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
-        if (workspaceSetting == null || userProfile == null) {
+        if (latest == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
 
@@ -69,7 +68,7 @@ class MobileSearchScreen extends StatelessWidget {
               value: userProfile,
               child: MobileSearchPage(
                 userProfile: userProfile,
-                workspaceSetting: workspaceSetting,
+                workspaceLatestPB: latest,
               ),
             ),
           ),
@@ -83,14 +82,14 @@ class MobileSearchPage extends StatelessWidget {
   const MobileSearchPage({
     super.key,
     required this.userProfile,
-    required this.workspaceSetting,
+    required this.workspaceLatestPB,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceLatestPB;
 
   bool get enableShowAISearch =>
-      userProfile.authenticator == AuthenticatorPB.AppFlowyCloud;
+      userProfile.workspaceAuthType == AuthTypePB.Server;
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +109,9 @@ class MobileSearchPage extends StatelessWidget {
                     .read<CommandPaletteBloc>()
                     .add(CommandPaletteEvent.searchChanged(search: value)),
               ),
-              if (enableShowAISearch) MobileSearchAskAiEntrance(),
-              Flexible(child: MobileSearchResult()),
+              if (enableShowAISearch)
+                MobileSearchAskAiEntrance(query: state.query),
+              Flexible(child: SafeArea(child: MobileSearchResult())),
             ],
           ),
         );

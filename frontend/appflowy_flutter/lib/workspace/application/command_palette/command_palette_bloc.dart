@@ -37,6 +37,8 @@ class CommandPaletteBloc
     on<_TrashChanged>(_onTrashChanged);
     on<_WorkspaceChanged>(_onWorkspaceChanged);
     on<_ClearSearch>(_onClearSearch);
+    on<_GoingToAskAI>(_onGoingToAskAI);
+    on<_AskedAI>(_onAskedAI);
 
     _initTrash();
   }
@@ -278,6 +280,20 @@ class CommandPaletteBloc
     emit(CommandPaletteState.initial().copyWith(trash: state.trash));
   }
 
+  FutureOr<void> _onGoingToAskAI(
+    _GoingToAskAI event,
+    Emitter<CommandPaletteState> emit,
+  ) {
+    emit(state.copyWith(askAI: true));
+  }
+
+  FutureOr<void> _onAskedAI(
+    _AskedAI event,
+    Emitter<CommandPaletteState> emit,
+  ) {
+    emit(state.copyWith(askAI: false));
+  }
+
   bool _isActiveSearch(String searchId) =>
       !isClosed && state.searchId == searchId;
 }
@@ -307,6 +323,8 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     @Default(null) String? workspaceId,
   }) = _WorkspaceChanged;
   const factory CommandPaletteEvent.clearSearch() = _ClearSearch;
+  const factory CommandPaletteEvent.gointToAskAI() = _GoingToAskAI;
+  const factory CommandPaletteEvent.askedAI() = _AskedAI;
 }
 
 class SearchResultItem {
@@ -337,6 +355,7 @@ class CommandPaletteState with _$CommandPaletteState {
     @Default(null) SearchResponseStream? searchResponseStream,
     required bool searching,
     required bool generatingAIOverview,
+    @Default(false) bool askAI,
     @Default([]) List<TrashPB> trash,
     @Default(null) String? searchId,
   }) = _CommandPaletteState;
