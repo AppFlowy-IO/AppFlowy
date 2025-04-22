@@ -90,14 +90,18 @@ class LocalAiSettingHeader extends StatelessWidget {
         ),
         Toggle(
           value: isEnabled,
-          onChanged: (_) => _onToggleChanged(context),
+          onChanged: (value) {
+            _onToggleChanged(value, context);
+          },
         ),
       ],
     );
   }
 
-  void _onToggleChanged(BuildContext context) {
-    if (isEnabled) {
+  void _onToggleChanged(bool value, BuildContext context) {
+    if (value) {
+      context.read<LocalAiPluginBloc>().add(const LocalAiPluginEvent.toggle());
+    } else {
       showConfirmDialog(
         context: context,
         title: LocaleKeys.settings_aiPage_keys_disableLocalAITitle.tr(),
@@ -110,8 +114,6 @@ class LocalAiSettingHeader extends StatelessWidget {
               .add(const LocalAiPluginEvent.toggle());
         },
       );
-    } else {
-      context.read<LocalAiPluginBloc>().add(const LocalAiPluginEvent.toggle());
     }
   }
 }

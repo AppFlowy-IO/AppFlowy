@@ -291,6 +291,11 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   ) -> FlowyResult<()> {
     Ok(())
   }
+
+  async fn did_launch(&self) -> FlowyResult<()> {
+    Ok(())
+  }
+
   /// Fires right after the user successfully signs in.
   async fn on_sign_in(
     &self,
