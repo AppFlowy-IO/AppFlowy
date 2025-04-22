@@ -11,8 +11,8 @@ class SettingsCategorySpacer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Divider(
-      height: 32,
-      color: theme.borderColorScheme.greyPrimary,
+      height: theme.spacing.xl * 2.0,
+      color: theme.borderColorScheme.primary,
     );
   }
 }
