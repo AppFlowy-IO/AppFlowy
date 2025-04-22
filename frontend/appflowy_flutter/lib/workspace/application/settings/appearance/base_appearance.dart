@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 // iOS: San Francisco
 // Android: Roboto
 // Desktop: Based on the OS
-const defaultFontFamily = '';
+const defaultFontFamily = 'Fast_Mono';
 
 const builtInCodeFontFamily = 'RobotoMono';
 

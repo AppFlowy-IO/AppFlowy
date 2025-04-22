@@ -10,14 +10,16 @@ class CustomTheme implements AppFlowyThemeBuilder {
   final Map<String, dynamic> darkThemeJson;
 
   @override
-  AppFlowyThemeData light() {
-    // TODO: implement light
+  AppFlowyThemeData light({
+    String? fontFamily,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  AppFlowyThemeData dark() {
-    // TODO: implement dark
+  AppFlowyThemeData dark({
+    String? fontFamily,
+  }) {
     throw UnimplementedError();
   }
 }
