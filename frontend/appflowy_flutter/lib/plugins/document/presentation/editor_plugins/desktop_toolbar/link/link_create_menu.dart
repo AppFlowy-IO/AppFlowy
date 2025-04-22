@@ -316,6 +316,6 @@ ShapeDecoration buildToolbarLinkDecoration(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
     ),
-    shadows: [theme.shadow.small],
+    shadows: theme.shadow.small,
   );
 }

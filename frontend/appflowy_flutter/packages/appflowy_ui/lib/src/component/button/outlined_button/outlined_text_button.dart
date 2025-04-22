@@ -8,6 +8,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     required super.text,
     required super.onTap,
     this.borderColor,
+    super.textStyle,
     super.textColor,
     super.backgroundColor,
     super.size = AFButtonSize.m,
@@ -27,6 +28,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     double? borderRadius,
     bool disabled = false,
     Alignment? alignment,
+    TextStyle? textStyle,
   }) {
     return AFOutlinedTextButton._(
       key: key,
@@ -37,7 +39,8 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      textStyle: textStyle,
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -80,6 +83,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     double? borderRadius,
     bool disabled = false,
     Alignment? alignment,
+    TextStyle? textStyle,
   }) {
     return AFOutlinedTextButton._(
       key: key,
@@ -90,7 +94,8 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
-      borderColor: (context, isHovering, disabled) {
+      textStyle: textStyle,
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.fillColorScheme.errorThick;
@@ -127,6 +132,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     Alignment? alignment,
+    TextStyle? textStyle,
   }) {
     return AFOutlinedTextButton._(
       key: key,
@@ -137,13 +143,14 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: true,
       alignment: alignment,
+      textStyle: textStyle,
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         return disabled
             ? theme.textColorScheme.tertiary
             : theme.textColorScheme.primary;
       },
-      borderColor: (context, isHovering, disabled) {
+      borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
           return theme.borderColorScheme.greyTertiary;
@@ -166,7 +173,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     );
   }
 
-  final AFBaseButtonColorBuilder? borderColor;
+  final AFBaseButtonBorderColorBuilder? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +192,8 @@ class AFOutlinedTextButton extends AFBaseTextButton {
 
         Widget child = Text(
           text,
-          style: size.buildTextStyle(context).copyWith(color: textColor),
+          style: textStyle ??
+              size.buildTextStyle(context).copyWith(color: textColor),
         );
 
         final alignment = this.alignment;

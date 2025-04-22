@@ -18,28 +18,6 @@ fn upgrade_folder(
   Ok(folder)
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn create_workspace_handler(
-  data: AFPluginData<CreateWorkspacePayloadPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspacePB, FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-  let workspace = folder.create_workspace(params).await?;
-  let views = folder
-    .get_views_belong_to(&workspace.id)
-    .await?
-    .into_iter()
-    .map(|view| view_pb_without_child_views(view.as_ref().clone()))
-    .collect::<Vec<ViewPB>>();
-  data_result_ok(WorkspacePB {
-    id: workspace.id,
-    name: workspace.name,
-    views,
-    create_time: workspace.created_at,
-  })
-}
-
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_all_workspace_handler(
   _data: AFPluginData<CreateWorkspacePayloadPB>,
@@ -84,7 +62,7 @@ pub(crate) async fn read_private_views_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspaceSettingPB, FlowyError> {
+) -> DataResult<WorkspaceLatestPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let setting = folder.get_workspace_setting_pb().await?;
   data_result_ok(setting)
@@ -133,7 +111,7 @@ pub(crate) async fn get_view_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let view_id: ViewIdPB = data.into_inner();
+  let view_id = data.try_into_inner()?;
   let view_pb = folder.get_view_pb(&view_id.value).await?;
   data_result_ok(view_pb)
 }

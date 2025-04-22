@@ -313,9 +313,12 @@ class EditorStyleCustomizer {
   }
 
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
-    if (fontFamily == null || fontFamily == defaultFontFamily) {
+    if (fontFamily == null) {
       return TextStyle(fontWeight: fontWeight);
+    } else if (fontFamily == defaultFontFamily) {
+      return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
     }
+
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {

@@ -18,7 +18,7 @@ CharacterShortcutEvent emojiCommand(BuildContext context) =>
       },
       handlerWithCharacter: (editorState, character) {
         emojiMenuService = EmojiMenu(
-          context: context,
+          overlay: Overlay.of(context),
           editorState: editorState,
         );
         return emojiCommandHandler(editorState, context, character);
@@ -40,10 +40,7 @@ Future<bool> emojiCommandHandler(
 
   final node = editorState.getNodeAtPath(selection.end.path);
   final delta = node?.delta;
-  if (node == null ||
-      delta == null ||
-      delta.isEmpty ||
-      node.type == CodeBlockKeys.type) {
+  if (node == null || delta == null || node.type == CodeBlockKeys.type) {
     return false;
   }
 

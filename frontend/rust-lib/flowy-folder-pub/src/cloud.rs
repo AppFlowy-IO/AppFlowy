@@ -11,22 +11,6 @@ use uuid::Uuid;
 /// [FolderCloudService] represents the cloud service for folder.
 #[async_trait]
 pub trait FolderCloudService: Send + Sync + 'static {
-  /// Creates a new workspace for the user.
-  /// Returns error if the cloud service doesn't support multiple workspaces
-  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, FlowyError>;
-
-  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError>;
-
-  /// Returns all workspaces of the user.
-  /// Returns vec![] if the cloud service doesn't support multiple workspaces
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError>;
-
-  async fn get_folder_data(
-    &self,
-    workspace_id: &Uuid,
-    uid: &i64,
-  ) -> Result<Option<FolderData>, FlowyError>;
-
   async fn get_folder_snapshots(
     &self,
     workspace_id: &str,

@@ -2,7 +2,7 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
-    show WorkspaceSettingPB;
+    show WorkspaceLatestPB;
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,7 @@ part 'home_setting_bloc.freezed.dart';
 
 class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
   HomeSettingBloc(
-    WorkspaceSettingPB workspaceSetting,
+    WorkspaceLatestPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
     double screenWidthPx,
   )   : _listener = FolderListener(),
@@ -124,7 +124,7 @@ class HomeSettingEvent with _$HomeSettingEvent {
       _ShowEditPanel;
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
   const factory HomeSettingEvent.didReceiveWorkspaceSetting(
-    WorkspaceSettingPB setting,
+    WorkspaceLatestPB setting,
   ) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
   const factory HomeSettingEvent.checkScreenSize(double screenWidthPx) =
@@ -139,7 +139,7 @@ class HomeSettingEvent with _$HomeSettingEvent {
 class HomeSettingState with _$HomeSettingState {
   const factory HomeSettingState({
     required EditPanelContext? panelContext,
-    required WorkspaceSettingPB workspaceSetting,
+    required WorkspaceLatestPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
     required bool keepMenuCollapsed,
@@ -150,7 +150,7 @@ class HomeSettingState with _$HomeSettingState {
   }) = _HomeSettingState;
 
   factory HomeSettingState.initial(
-    WorkspaceSettingPB workspaceSetting,
+    WorkspaceLatestPB workspaceSetting,
     AppearanceSettingsState appearanceSettingsState,
     double screenWidthPx,
   ) {

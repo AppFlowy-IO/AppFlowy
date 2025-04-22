@@ -58,7 +58,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                         userName: userName,
                         onSubmitted: (value) => context
                             .read<SettingsUserViewBloc>()
-                            .add(SettingsUserEvent.updateUserName(value)),
+                            .add(SettingsUserEvent.updateUserName(name: value)),
                       );
                     },
                   );

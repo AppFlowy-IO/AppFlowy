@@ -13,6 +13,7 @@ class AFBaseTextButton extends StatelessWidget {
     this.textColor,
     this.backgroundColor,
     this.alignment,
+    this.textStyle,
   });
 
   /// The text of the button.
@@ -43,6 +44,9 @@ class AFBaseTextButton extends StatelessWidget {
   ///
   /// If it's null, the button size will be the size of the text with padding.
   final Alignment? alignment;
+
+  /// The text style of the button.
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {

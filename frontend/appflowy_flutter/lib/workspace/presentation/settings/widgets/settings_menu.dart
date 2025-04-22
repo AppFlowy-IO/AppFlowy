@@ -52,52 +52,51 @@ class SettingsMenu extends StatelessWidget {
                     page: SettingsPage.account,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_accountPage_menuLabel.tr(),
-                    icon: const FlowySvg(FlowySvgs.settings_account_m),
+                    icon: const FlowySvg(FlowySvgs.settings_page_user_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.workspace,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_workspacePage_menuLabel.tr(),
-                    icon: const FlowySvg(FlowySvgs.settings_workplace_m),
+                    icon: const FlowySvg(FlowySvgs.settings_page_workspace_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.membersSettings.isOn &&
-                      userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud)
+                      userProfile.workspaceAuthType == AuthTypePB.Server)
                     SettingsMenuElement(
                       page: SettingsPage.member,
                       selectedPage: currentPage,
                       label: LocaleKeys.settings_appearance_members_label.tr(),
-                      icon: const Icon(Icons.people),
+                      icon: const FlowySvg(FlowySvgs.settings_page_users_m),
                       changeSelectedPage: changeSelectedPage,
                     ),
                   SettingsMenuElement(
                     page: SettingsPage.manageData,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_manageDataPage_menuLabel.tr(),
-                    icon: const FlowySvg(FlowySvgs.settings_data_m),
+                    icon: const FlowySvg(FlowySvgs.settings_page_database_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.notifications,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_notifications.tr(),
-                    icon: const Icon(Icons.notifications_outlined),
+                    icon: const FlowySvg(FlowySvgs.settings_page_bell_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.cloud,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_cloudSettings.tr(),
-                    icon: const Icon(Icons.sync),
+                    icon: const FlowySvg(FlowySvgs.settings_page_cloud_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.shortcuts,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_shortcutsPage_menuLabel.tr(),
-                    icon: const FlowySvg(FlowySvgs.settings_shortcuts_m),
+                    icon: const FlowySvg(FlowySvgs.settings_page_keyboard_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
@@ -105,18 +104,17 @@ class SettingsMenu extends StatelessWidget {
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_aiPage_menuLabel.tr(),
                     icon: const FlowySvg(
-                      FlowySvgs.ai_summary_generate_s,
+                      FlowySvgs.settings_page_ai_m,
                       size: Size.square(24),
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (userProfile.authenticator ==
-                      AuthenticatorPB.AppFlowyCloud)
+                  if (userProfile.workspaceAuthType == AuthTypePB.Server)
                     SettingsMenuElement(
                       page: SettingsPage.sites,
                       selectedPage: currentPage,
                       label: LocaleKeys.settings_sites_title.tr(),
-                      icon: const Icon(Icons.web),
+                      icon: const FlowySvg(FlowySvgs.settings_page_earth_m),
                       changeSelectedPage: changeSelectedPage,
                     ),
                   if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
@@ -124,14 +122,15 @@ class SettingsMenu extends StatelessWidget {
                       page: SettingsPage.plan,
                       selectedPage: currentPage,
                       label: LocaleKeys.settings_planPage_menuLabel.tr(),
-                      icon: const FlowySvg(FlowySvgs.settings_plan_m),
+                      icon: const FlowySvg(FlowySvgs.settings_page_plan_m),
                       changeSelectedPage: changeSelectedPage,
                     ),
                     SettingsMenuElement(
                       page: SettingsPage.billing,
                       selectedPage: currentPage,
                       label: LocaleKeys.settings_billingPage_menuLabel.tr(),
-                      icon: const FlowySvg(FlowySvgs.settings_billing_m),
+                      icon:
+                          const FlowySvg(FlowySvgs.settings_page_credit_card_m),
                       changeSelectedPage: changeSelectedPage,
                     ),
                   ],

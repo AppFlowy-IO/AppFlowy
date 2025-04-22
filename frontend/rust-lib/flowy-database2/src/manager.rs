@@ -134,12 +134,12 @@ impl DatabaseManager {
   }
 
   #[instrument(
-    name = "database_initialize_with_new_user",
+    name = "database_initialize_after_sign_up",
     level = "debug",
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_after_sign_up(
     &self,
     user_id: i64,
     is_local_user: bool,
@@ -148,13 +148,22 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let lock = self.workspace_database()?;
-    let wdb = lock.read().await;
-    let database_collab = wdb.get_or_init_database(database_id).await?;
-    drop(wdb);
-    let lock_guard = database_collab.read().await;
-    Ok(lock_guard.get_inline_view_id())
+  pub async fn initialize_after_open_workspace(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
+  }
+
+  pub async fn initialize_after_sign_in(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
   }
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {

@@ -1,9 +1,7 @@
 import 'package:appflowy/plugins/database/application/defines.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -22,19 +20,9 @@ class WorkspaceErrorBloc
   void _dispatch() {
     on<WorkspaceErrorEvent>(
       (event, emit) async {
-        await event.when(
+        event.when(
           init: () {
             // _loadSnapshots();
-          },
-          resetWorkspace: () async {
-            emit(state.copyWith(loadingState: const LoadingState.loading()));
-            final payload = ResetWorkspacePB.create()
-              ..workspaceId = userFolder.workspaceId
-              ..uid = userFolder.uid;
-            final result = await UserEventResetWorkspace(payload).send();
-            if (!isClosed) {
-              add(WorkspaceErrorEvent.didResetWorkspace(result));
-            }
           },
           didResetWorkspace: (result) {
             result.fold(
@@ -68,7 +56,6 @@ class WorkspaceErrorBloc
 class WorkspaceErrorEvent with _$WorkspaceErrorEvent {
   const factory WorkspaceErrorEvent.init() = _Init;
   const factory WorkspaceErrorEvent.logout() = _DidLogout;
-  const factory WorkspaceErrorEvent.resetWorkspace() = _ResetWorkspace;
   const factory WorkspaceErrorEvent.didResetWorkspace(
     FlowyResult<void, FlowyError> result,
   ) = _DidResetWorkspace;

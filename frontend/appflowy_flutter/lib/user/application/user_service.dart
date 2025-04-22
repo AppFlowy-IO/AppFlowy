@@ -40,8 +40,6 @@ class UserBackendService implements IUserBackendService {
     String? password,
     String? email,
     String? iconUrl,
-    String? openAIKey,
-    String? stabilityAiKey,
   }) {
     final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -59,14 +57,6 @@ class UserBackendService implements IUserBackendService {
 
     if (iconUrl != null) {
       payload.iconUrl = iconUrl;
-    }
-
-    if (openAIKey != null) {
-      payload.openaiKey = openAIKey;
-    }
-
-    if (stabilityAiKey != null) {
-      payload.stabilityAiKey = stabilityAiKey;
     }
 
     return UserEventUpdateUserProfile(payload).send();
@@ -95,6 +85,17 @@ class UserBackendService implements IUserBackendService {
     return UserEventPasscodeSignIn(payload).send();
   }
 
+  Future<FlowyResult<void, FlowyError>> signInWithPassword(
+    String email,
+    String password,
+  ) {
+    final payload = SignInPayloadPB(
+      email: email,
+      password: password,
+    );
+    return UserEventSignInWithEmailPassword(payload).send();
+  }
+
   static Future<FlowyResult<void, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
@@ -120,8 +121,13 @@ class UserBackendService implements IUserBackendService {
     });
   }
 
-  Future<FlowyResult<void, FlowyError>> openWorkspace(String workspaceId) {
-    final payload = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+  Future<FlowyResult<void, FlowyError>> openWorkspace(
+    String workspaceId,
+    AuthTypePB authType,
+  ) {
+    final payload = OpenUserWorkspacePB()
+      ..workspaceId = workspaceId
+      ..workspaceAuthType = authType;
     return UserEventOpenWorkspace(payload).send();
   }
 
@@ -134,25 +140,13 @@ class UserBackendService implements IUserBackendService {
     });
   }
 
-  Future<FlowyResult<WorkspacePB, FlowyError>> createWorkspace(
-    String name,
-    String desc,
-  ) {
-    final request = CreateWorkspacePayloadPB.create()
-      ..name = name
-      ..desc = desc;
-    return FolderEventCreateFolderWorkspace(request).send().then((result) {
-      return result.fold(
-        (workspace) => FlowyResult.success(workspace),
-        (error) => FlowyResult.failure(error),
-      );
-    });
-  }
-
   Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
     String name,
+    AuthTypePB authType,
   ) {
-    final request = CreateWorkspacePB.create()..name = name;
+    final request = CreateWorkspacePB.create()
+      ..name = name
+      ..authType = authType;
     return UserEventCreateWorkspace(request).send();
   }
 
@@ -248,13 +242,6 @@ class UserBackendService implements IUserBackendService {
       getWorkspaceSubscriptionInfo(String workspaceId) {
     final params = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventGetWorkspaceSubscriptionInfo(params).send();
-  }
-
-  Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
-      getWorkspaceMember() async {
-    final data = WorkspaceMemberIdPB.create()..uid = userId;
-
-    return UserEventGetMemberInfo(data).send();
   }
 
   @override

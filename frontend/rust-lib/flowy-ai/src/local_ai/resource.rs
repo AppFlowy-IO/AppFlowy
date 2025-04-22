@@ -1,6 +1,4 @@
-use crate::ai_manager::AIUserService;
 use crate::local_ai::controller::LocalAISetting;
-use flowy_ai_pub::cloud::LocalAIConfig;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
@@ -12,6 +10,7 @@ use crate::notification::{
 };
 use af_local_ai::ollama_plugin::OllamaPluginConfig;
 use af_plugin::core::path::{is_plugin_ready, ollama_plugin_path};
+use flowy_ai_pub::user_service::AIUserService;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
 use serde::Deserialize;
@@ -33,7 +32,6 @@ struct ModelEntry {
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
   /// Get local ai configuration from remote server
-  async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error>;
   fn store_setting(&self, setting: LocalAISetting) -> Result<(), anyhow::Error>;
   fn retrieve_setting(&self) -> Option<LocalAISetting>;
 }
@@ -123,11 +121,6 @@ impl LocalAIResourceController {
       .calculate_pending_resources()
       .await
       .is_ok_and(|r| r.is_none())
-  }
-
-  pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
-    let ai_config = self.get_local_ai_configuration().await?;
-    Ok(ai_config.plugin.url)
   }
 
   /// Retrieves model information and updates the current model settings.
@@ -269,19 +262,6 @@ impl LocalAIResourceController {
     }
     trace!("[AI Chat] config: {:?}", config);
     Ok(config)
-  }
-
-  /// Fetches the local AI configuration from the resource service.
-  async fn get_local_ai_configuration(&self) -> FlowyResult<LocalAIConfig> {
-    self
-      .resource_service
-      .fetch_local_ai_config()
-      .await
-      .map_err(|err| {
-        error!("[LLM Resource] Failed to fetch local ai config: {:?}", err);
-        FlowyError::local_ai()
-          .with_context("Can't retrieve model info. Please try again later".to_string())
-      })
   }
 
   pub(crate) fn user_model_folder(&self) -> FlowyResult<PathBuf> {

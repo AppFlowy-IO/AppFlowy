@@ -44,9 +44,9 @@ class MobileHomeScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) {
-            return workspaceSettingPB as WorkspaceSettingPB?;
+        final workspaceLatest = snapshots.data?[0].fold(
+          (workspaceLatestPB) {
+            return workspaceLatestPB as WorkspaceLatestPB?;
           },
           (error) => null,
         );
@@ -59,7 +59,7 @@ class MobileHomeScreen extends StatelessWidget {
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
-        if (workspaceSetting == null || userProfile == null) {
+        if (workspaceLatest == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
 
@@ -78,7 +78,7 @@ class MobileHomeScreen extends StatelessWidget {
               value: userProfile,
               child: MobileHomePage(
                 userProfile: userProfile,
-                workspaceSetting: workspaceSetting,
+                workspaceLatest: workspaceLatest,
               ),
             ),
           ),
@@ -95,11 +95,11 @@ class MobileHomePage extends StatefulWidget {
   const MobileHomePage({
     super.key,
     required this.userProfile,
-    required this.workspaceSetting,
+    required this.workspaceLatest,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceLatest;
 
   @override
   State<MobileHomePage> createState() => _MobileHomePageState();
@@ -145,7 +145,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   void _onLatestViewChange() async {
     final id = getIt<MenuSharedState>().latestOpenView?.id;
-    if (id == null) {
+    if (id == null || id.isEmpty) {
       return;
     }
     await FolderEventSetLatestView(ViewIdPB(value: id)).send();

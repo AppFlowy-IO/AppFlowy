@@ -1,6 +1,7 @@
 #![allow(unused_doc_comments)]
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
@@ -8,7 +9,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_server::af_cloud::define::ServerUser;
+use flowy_server::af_cloud::define::LoggedUser;
+use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -33,8 +35,10 @@ use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::log_filter::init_log;
-use crate::server_layer::{current_server_type, Server, ServerProvider};
+use crate::server_layer::ServerProvider;
 use deps_resolve::reminder_deps::CollabInteractImpl;
+use flowy_sqlite::DBConnection;
+use lib_infra::async_trait::async_trait;
 use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
@@ -128,12 +132,10 @@ impl AppFlowyCore {
       store_preference.clone(),
     ));
 
-    let server_type = current_server_type();
-    debug!("🔥runtime:{}, server:{}", runtime, server_type);
+    debug!("🔥runtime:{}", runtime);
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
-      server_type,
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
     ));
@@ -190,6 +192,7 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
         server_provider.clone(),
         folder_query_service.clone(),
+        server_provider.local_ai.clone(),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -250,6 +253,7 @@ impl AppFlowyCore {
     .await;
 
     let user_status_callback = UserStatusCallbackImpl {
+      user_manager: user_manager.clone(),
       collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
@@ -310,15 +314,6 @@ impl AppFlowyCore {
   }
 }
 
-impl From<Server> for CollabPluginProviderType {
-  fn from(server_type: Server) -> Self {
-    match server_type {
-      Server::Local => CollabPluginProviderType::Local,
-      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
-    }
-  }
-}
-
 struct ServerUserImpl(Weak<AuthenticateUser>);
 
 impl ServerUserImpl {
@@ -330,8 +325,32 @@ impl ServerUserImpl {
     Ok(user)
   }
 }
-impl ServerUser for ServerUserImpl {
+
+#[async_trait]
+impl LoggedUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn user_id(&self) -> FlowyResult<i64> {
+    self.upgrade_user()?.user_id()
+  }
+
+  async fn is_local_mode(&self) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_local_mode().await
+  }
+
+  fn get_sqlite_db(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn get_collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
+    self.upgrade_user()?.get_collab_db(uid)
+  }
+
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    Ok(PathBuf::from(
+      self.upgrade_user()?.get_application_root_dir(),
+    ))
   }
 }

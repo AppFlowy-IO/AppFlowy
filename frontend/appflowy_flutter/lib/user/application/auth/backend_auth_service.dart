@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -15,7 +16,7 @@ import 'device_id.dart';
 class BackendAuthService implements AuthService {
   BackendAuthService(this.authType);
 
-  final AuthenticatorPB authType;
+  final AuthTypePB authType;
 
   @override
   Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
@@ -71,7 +72,7 @@ class BackendAuthService implements AuthService {
       ..email = userEmail
       ..password = password
       // When sign up as guest, the auth type is always local.
-      ..authType = AuthenticatorPB.Local
+      ..authType = AuthTypePB.Local
       ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
           (value) => value,
@@ -82,7 +83,7 @@ class BackendAuthService implements AuthService {
   @override
   Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
-    AuthenticatorPB authType = AuthenticatorPB.Local,
+    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) async {
     return FlowyResult.failure(

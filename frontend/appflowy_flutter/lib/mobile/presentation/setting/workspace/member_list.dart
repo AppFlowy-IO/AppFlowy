@@ -178,7 +178,7 @@ class _MemberItem extends StatelessWidget {
           showBottomBorder: false,
           onTap: () {
             workspaceMemberBloc.add(
-              WorkspaceMemberEvent.removeWorkspaceMember(
+              WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
                 member.email,
               ),
             );
