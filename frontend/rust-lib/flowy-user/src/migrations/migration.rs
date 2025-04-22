@@ -54,7 +54,7 @@ impl UserLocalDataMigration {
   pub fn run(
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
-    auth_type: &AuthType,
+    user_auth_type: &AuthType,
     app_version: &Version,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
@@ -75,7 +75,7 @@ impl UserLocalDataMigration {
 
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
-          migration.run(&self.session, &self.collab_db, auth_type, &mut conn)?;
+          migration.run(&self.session, &self.collab_db, user_auth_type, &mut conn)?;
           applied_migrations.push(migration.name().to_string());
           save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
@@ -98,7 +98,7 @@ pub trait UserDataMigration {
     &self,
     user: &Session,
     collab_db: &Arc<CollabKVDB>,
-    authenticator: &AuthType,
+    user_auth_type: &AuthType,
     db: &mut SqliteConnection,
   ) -> FlowyResult<()>;
 }

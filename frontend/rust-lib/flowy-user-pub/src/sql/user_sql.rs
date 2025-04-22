@@ -1,10 +1,12 @@
 use crate::cloud::UserUpdate;
-use crate::entities::{AuthType, UpdateUserProfileParams, UserProfile};
-use crate::sql::select_user_workspace;
+use crate::entities::{AuthType, Role, UpdateUserProfileParams, UserProfile, UserWorkspace};
+use crate::sql::{
+  select_user_workspace, upsert_user_workspace, upsert_workspace_member, WorkspaceMemberTable,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
-use tracing::{trace, warn};
+use tracing::trace;
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.
@@ -92,6 +94,33 @@ pub fn update_user_profile(
   Ok(())
 }
 
+pub fn insert_local_workspace(
+  uid: i64,
+  workspace_id: &str,
+  workspace_name: &str,
+  conn: &mut SqliteConnection,
+) -> FlowyResult<UserWorkspace> {
+  let user_workspace = UserWorkspace::new_local(workspace_id.to_string(), workspace_name);
+  conn.immediate_transaction(|conn| {
+    let row = select_user_table_row(uid, conn)?;
+    let row = WorkspaceMemberTable {
+      email: row.email,
+      role: Role::Owner as i32,
+      name: row.name,
+      avatar_url: Some(row.icon_url),
+      uid,
+      workspace_id: workspace_id.to_string(),
+      updated_at: chrono::Utc::now().naive_utc(),
+    };
+
+    upsert_user_workspace(uid, AuthType::Local, user_workspace.clone(), conn)?;
+    upsert_workspace_member(conn, row)?;
+    Ok::<_, FlowyError>(())
+  })?;
+
+  Ok(user_workspace)
+}
+
 fn select_user_table_row(uid: i64, conn: &mut SqliteConnection) -> Result<UserTable, FlowyError> {
   let row = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
@@ -128,26 +157,17 @@ pub fn select_user_profile(
   Ok(user)
 }
 
-pub fn select_workspace_auth_type(
+pub fn select_user_auth_type(
   uid: i64,
-  workspace_id: &str,
   conn: &mut SqliteConnection,
 ) -> Result<AuthType, FlowyError> {
-  match select_user_workspace(workspace_id, conn) {
-    Ok(workspace) => Ok(AuthType::from(workspace.workspace_type)),
-    Err(err) => {
-      if err.is_record_not_found() {
-        let row = select_user_table_row(uid, conn)?;
-        warn!(
-          "user user auth type:{} as workspace auth type",
-          row.auth_type
-        );
-        Ok(AuthType::from(row.auth_type))
-      } else {
-        Err(err)
-      }
-    },
-  }
+  let row = select_user_table_row(uid, conn)?;
+  Ok(AuthType::from(row.auth_type))
+}
+
+pub fn select_user_token(uid: i64, conn: &mut SqliteConnection) -> Result<String, FlowyError> {
+  let row = select_user_table_row(uid, conn)?;
+  Ok(row.token)
 }
 
 pub fn upsert_user(user: UserTable, mut conn: DBConnection) -> FlowyResult<()> {

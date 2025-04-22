@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::controller::LocalAIController;
 use crate::notification::{
@@ -19,6 +18,7 @@ use futures::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 
 use crate::local_ai::stream_util::QuestionStream;
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_storage_pub::storage::StorageService;
 use serde_json::{json, Value};
 use std::path::Path;

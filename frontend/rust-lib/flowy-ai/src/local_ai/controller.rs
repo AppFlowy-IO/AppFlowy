@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{LocalAIPB, RunningStatePB};
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
@@ -17,6 +16,7 @@ use af_local_ai::ollama_plugin::OllamaAIPlugin;
 use af_plugin::core::path::is_plugin_ready;
 use af_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
+use flowy_ai_pub::user_service::AIUserService;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
 use serde::{Deserialize, Serialize};

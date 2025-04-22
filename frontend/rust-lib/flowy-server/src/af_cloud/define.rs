@@ -1,5 +1,5 @@
 use collab_plugins::CollabKVDB;
-use flowy_ai::ai_manager::AIUserService;
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
@@ -28,6 +28,7 @@ pub trait LoggedUser: Send + Sync {
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
+//
 pub struct AIUserServiceImpl(pub Weak<dyn LoggedUser>);
 
 impl AIUserServiceImpl {

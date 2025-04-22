@@ -10,7 +10,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
-use flowy_user_pub::entities::UserWorkspace;
+use flowy_user_pub::entities::{AuthType, UserWorkspace};
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -48,14 +48,11 @@ impl AuthenticateUser {
   }
 
   pub async fn is_local_mode(&self) -> FlowyResult<bool> {
-    let uid = self.user_id()?;
-    if let Ok(anon_user) = self.get_anon_user().await {
-      if anon_user == uid {
-        return Ok(true);
-      }
-    }
-
-    Ok(false)
+    let session = self.get_session()?;
+    Ok(matches!(
+      session.user_workspace.workspace_type,
+      AuthType::Local
+    ))
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -150,28 +147,24 @@ impl AuthenticateUser {
 
     match self
       .store_preferences
-      .get_object::<Arc<Session>>(&self.user_config.session_cache_key)
+      .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        "User is not logged in",
+        "Can't find user session. Please login again",
       )),
-      Some(session) => {
+      Some(mut session) => {
+        // Set the workspace type to local if the user is anon.
+        if let Some(anon_session) = self.store_preferences.get_object::<Session>(ANON_USER) {
+          if session.user_id == anon_session.user_id {
+            session.user_workspace.workspace_type = AuthType::Local;
+          }
+        }
+
+        let session = Arc::new(session);
         self.session.store(Some(session.clone()));
         Ok(session)
       },
     }
-  }
-
-  async fn get_anon_user(&self) -> FlowyResult<i64> {
-    let anon_session = self
-      .store_preferences
-      .get_object::<Session>(ANON_USER)
-      .ok_or(FlowyError::new(
-        ErrorCode::RecordNotFound,
-        "Anon user not found",
-      ))?;
-
-    Ok(anon_session.user_id)
   }
 }

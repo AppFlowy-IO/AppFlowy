@@ -5,10 +5,8 @@ use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_server::af_cloud::{
-  define::{AIUserServiceImpl, LoggedUser},
-  AppFlowyCloudServer,
-};
+use flowy_server::af_cloud::define::AIUserServiceImpl;
+use flowy_server::af_cloud::{define::LoggedUser, AppFlowyCloudServer};
 use flowy_server::local_server::LocalServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
@@ -117,12 +115,14 @@ impl ServerProvider {
           .cloud_config
           .clone()
           .ok_or_else(|| FlowyError::internal().with_context("Missing cloud config"))?;
+        let ai_user_service = Arc::new(AIUserServiceImpl(Arc::downgrade(&self.logged_user)));
         Arc::new(AppFlowyCloudServer::new(
           cfg,
           self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),
           self.config.app_version.clone(),
           Arc::downgrade(&self.logged_user),
+          ai_user_service,
         ))
       },
     };
