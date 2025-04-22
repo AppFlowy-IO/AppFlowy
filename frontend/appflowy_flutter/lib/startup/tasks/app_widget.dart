@@ -138,6 +138,8 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 
   final _commandPaletteNotifier = ValueNotifier<bool>(false);
 
+  final themeBuilder = AppFlowyDefaultTheme();
+
   @override
   void initState() {
     super.initState();
@@ -235,10 +237,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     locale: state.locale,
                     routerConfig: routerConfig,
                     builder: (context, child) {
-                      final themeBuilder = AppFlowyDefaultTheme();
                       final brightness = Theme.of(context).brightness;
 
-                      return AnimatedAppFlowyTheme(
+                      return AppFlowyTheme(
                         data: brightness == Brightness.light
                             ? themeBuilder.light()
                             : themeBuilder.dark(),
