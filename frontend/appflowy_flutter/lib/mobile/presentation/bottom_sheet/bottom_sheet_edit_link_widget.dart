@@ -99,7 +99,7 @@ class _MobileBottomSheetEditLinkWidgetState
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
+      height: MediaQuery.of(context).size.height * 0.8,
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -133,7 +133,7 @@ class _MobileBottomSheetEditLinkWidgetState
             buildNameTextField(),
             const VSpace(16.0),
             buildLinkField(),
-            const VSpace(16.0),
+            const VSpace(20.0),
             buildRemoveLink(),
           ],
         ),
@@ -295,20 +295,25 @@ class _MobileBottomSheetEditLinkWidgetState
         widget.onRemoveLink(linkInfo);
         context.pop();
       },
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            FlowySvg(FlowySvgs.toolbar_link_unlink_m),
-            HSpace(8),
-            Flexible(
-              child: FlowyText.regular(
+      child: SizedBox(
+        height: 32,
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FlowySvg(
+                FlowySvgs.mobile_icon_remove_link_m,
+                color: theme.iconColorScheme.secondary,
+              ),
+              HSpace(8),
+              FlowyText.regular(
                 LocaleKeys.editor_removeLink.tr(),
                 overflow: TextOverflow.ellipsis,
                 figmaLineHeight: 20,
+                color: theme.textColorScheme.secondary,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -388,7 +393,7 @@ class _MobileBottomSheetEditLinkWidgetState
   BoxDecoration buildCardDecoration() {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(theme.borderRadius.l),
-      boxShadow: [theme.shadow.medium],
+      boxShadow: theme.shadow.medium,
     );
   }
 
