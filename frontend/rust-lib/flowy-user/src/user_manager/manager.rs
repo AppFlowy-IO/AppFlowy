@@ -127,18 +127,22 @@ impl UserManager {
     *self.collab_interact.write().await = Arc::new(collab_interact);
 
     if let Ok(session) = self.get_session() {
-      let user = self
-        .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
-        .await?;
-      let auth_type = user.workspace_auth_type;
+      info!(
+        "Init user session: {}:{}, workspace: {}",
+        session.user_id, session.user_workspace.name, session.user_workspace.id
+      );
+
+      let auth_type = session.user_workspace.workspace_type;
+      let uid = session.user_id;
       let token = self.token_from_auth_type(&auth_type)?;
-      self.cloud_service.set_server_auth_type(&auth_type, token)?;
+      self
+        .cloud_service
+        .set_server_auth_type(&auth_type, token.clone())?;
 
       event!(
         tracing::Level::INFO,
-        "init user session: {}:{}, auth type: {:?}",
-        user.uid,
-        user.email,
+        "init user session: {}, auth type: {:?}",
+        uid,
         auth_type,
       );
 
@@ -148,20 +152,16 @@ impl UserManager {
       // Set the token if the current cloud service using token to authenticate
       // Currently, only the AppFlowy cloud using token to init the client api.
       // TODO(nathan): using trait to separate the init process for different cloud service
-      if user.auth_type.is_appflowy_cloud() {
-        if let Err(err) = self.cloud_service.set_token(&user.token) {
-          error!("Set token failed: {}", err);
-        }
-
+      if auth_type.is_appflowy_cloud() {
+        let local_token = token.unwrap_or_default();
         // Subscribe the token state
         let weak_cloud_services = Arc::downgrade(&self.cloud_service);
         let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
-        let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
+        let weak_pool = Arc::downgrade(&self.db_pool(uid)?);
         let cloned_session = session.clone();
         if let Some(mut token_state_rx) = self.cloud_service.subscribe_token_state() {
           event!(tracing::Level::DEBUG, "Listen token state change");
-          let user_uid = user.uid;
-          let local_token = user.token.clone();
+          let user_uid = uid;
           let workspace_id = session.user_workspace.id.clone();
           tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
@@ -228,6 +228,8 @@ impl UserManager {
 
       // Do the user data migration if needed.
       event!(tracing::Level::INFO, "Prepare user data migration");
+      let mut conn = self.db_connection(uid)?;
+      let user_auth_type = select_user_auth_type(uid, &mut conn)?;
       match (
         self
           .authenticate_user
@@ -238,7 +240,7 @@ impl UserManager {
         (Ok(collab_db), Ok(sqlite_pool)) => {
           run_data_migration(
             &session,
-            &user.auth_type,
+            &user_auth_type,
             collab_db,
             sqlite_pool,
             self.store_preferences.clone(),
@@ -256,7 +258,7 @@ impl UserManager {
 
       user_status_callback
         .on_launch_if_authenticated(
-          user.uid,
+          uid,
           &cloud_config,
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,

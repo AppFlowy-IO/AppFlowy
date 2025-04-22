@@ -150,7 +150,7 @@ impl AuthenticateUser {
       .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
-        ErrorCode::RecordNotFound,
+        ErrorCode::UserUnauthorized,
         "Can't find user session. Please login again",
       )),
       Some(mut session) => {
