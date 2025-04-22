@@ -81,8 +81,11 @@
     "enterCode": "Enter code",
     "enterCodeManually": "Enter code manually",
     "continueWithEmail": "Continue with email",
+    "enterPassword": "Enter password",
+    "loginAs": "Login as",
     "invalidVerificationCode": "Please enter a valid verification code",
-    "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later."
+    "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later.",
+    "invalidLoginCredentials": "Your password is incorrect, please try again"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -1304,10 +1307,10 @@
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
       "enableRTLToolbarItems": "Enable RTL toolbar items",
       "members": {
-        "title": "Members settings",
+        "title": "Members",
         "inviteMembers": "Invite members",
         "inviteHint": "Invite by email",
-        "sendInvite": "Send invite",
+        "sendInvite": "Invite",
         "copyInviteLink": "Copy invite link",
         "label": "Members",
         "user": "User",
@@ -1342,7 +1345,22 @@
         "inviteMemberSuccess": "The invitation has been sent successfully",
         "failedToInviteMember": "Failed to invite member",
         "workspaceMembersError": "Oops, something went wrong",
-        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later",
+        "inviteLinkToAddMember": "Invite link to add member",
+        "clickToCopyLink": "Click to copy link",
+        "or": "or",
+        "generateANewLink": "generate a new link",
+        "inviteMemberByEmail": "Invite member by email",
+        "inviteMemberHintText": "Invite by email",
+        "resetInviteLink": "Reset the invite link",
+        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The previous link can only be managed through the",
+        "adminPanel": "Admin Panel",
+        "reset": "Reset",
+        "resetInviteLinkSuccess": "Invite link reset successfully",
+        "resetInviteLinkFailed": "Failed to reset the invite link",
+        "resetInviteLinkFailedDescription": "Please try again later",
+        "memberPageDescription1": "Access the",
+        "memberPageDescription2": "for guest and advanced user management."
       }
     },
     "files": {
@@ -2631,7 +2649,7 @@
   "noLogFiles": "There're no log files",
   "newSettings": {
     "myAccount": {
-      "title": "My account",
+      "title": "Account & App",
       "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
       "profileLabel": "Account name & Profile image",
       "profileNamePlaceholder": "Enter your name",
@@ -2657,7 +2675,34 @@
         "failedToGetCurrentUser": "Failed to get current user email",
         "confirmTextValidationFailed": "Your confirmation text does not match \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "Account deleted successfully"
-      }
+      },
+      "password": {
+        "title": "Password",
+        "changePassword": "Change password",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmNewPassword": "Confirm new password",
+        "setupPassword": "Setup password",
+        "error": {
+          "newPasswordIsRequired": "New password is required",
+          "confirmPasswordIsRequired": "Confirm password is required",
+          "passwordsDoNotMatch": "Passwords do not match",
+          "newPasswordIsSameAsCurrent": "New password is same as current password"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Password updated successfully",
+          "passwordUpdatedFailed": "Failed to update password",
+          "passwordSetupSuccessfully": "Password setup successfully",
+          "passwordSetupFailed": "Failed to setup password"
+        },
+        "hint": {
+          "enterYourCurrentPassword": "Enter your current password",
+          "enterYourNewPassword": "Enter your new password",
+          "confirmYourNewPassword": "Confirm your new password"
+        }
+      },
+      "myAccount": "My Account",
+      "myProfile": "My Profile"
     },
     "workplace": {
       "name": "Workplace",

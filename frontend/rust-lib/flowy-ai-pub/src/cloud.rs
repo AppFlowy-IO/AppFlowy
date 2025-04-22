@@ -6,8 +6,8 @@ pub use client_api::entity::ai_dto::{
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader,
-  MessageCursor, RepeatedChatMessage, UpdateChatParams,
+  ChatMessage, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader, MessageCursor,
+  RepeatedChatMessage, UpdateChatParams,
 };
 pub use client_api::entity::QuestionStreamValue;
 pub use client_api::entity::*;
@@ -85,6 +85,8 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     rag_ids: Vec<Uuid>,
+    name: &str,
+    metadata: serde_json::Value,
   ) -> Result<(), FlowyError>;
 
   async fn create_question(
@@ -93,7 +95,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
-    metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError>;
 
   async fn create_answer(
@@ -109,7 +110,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError>;
@@ -118,7 +119,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    question_message_id: i64,
+    question_id: i64,
   ) -> Result<ChatMessage, FlowyError>;
 
   async fn get_chat_messages(
@@ -141,6 +142,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestion, FlowyError>;
 
   async fn stream_complete(
@@ -157,13 +159,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &Uuid,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError>;
-
-  async fn get_local_ai_config(&self, workspace_id: &Uuid) -> Result<LocalAIConfig, FlowyError>;
-
-  async fn get_workspace_plan(
-    &self,
-    workspace_id: &Uuid,
-  ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
 
   async fn get_chat_settings(
     &self,

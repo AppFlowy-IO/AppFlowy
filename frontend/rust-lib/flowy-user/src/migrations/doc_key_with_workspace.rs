@@ -2,12 +2,13 @@ use std::sync::Arc;
 
 use collab_plugins::local_storage::kv::doc::migrate_old_keys;
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use diesel::SqliteConnection;
 use semver::Version;
 use tracing::{instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
 use flowy_user_pub::session::Session;
@@ -39,7 +40,8 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     &self,
     session: &Session,
     collab_db: &Arc<CollabKVDB>,
-    _authenticator: &Authenticator,
+    _user_auth_type: &AuthType,
+    _db: &mut SqliteConnection,
   ) -> FlowyResult<()> {
     trace!(
       "migrate key with workspace id:{}",

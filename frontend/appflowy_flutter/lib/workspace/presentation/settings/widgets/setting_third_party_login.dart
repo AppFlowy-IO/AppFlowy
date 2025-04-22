@@ -2,7 +2,6 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -64,12 +63,8 @@ class SettingThirdPartyLogin extends StatelessWidget {
   ) async {
     result.fold(
       (user) async {
-        if (user.encryptionType == EncryptionTypePB.Symmetric) {
-          getIt<AuthRouter>().pushEncryptionScreen(context, user);
-        } else {
-          didLogin();
-          await runAppFlowy();
-        }
+        didLogin();
+        await runAppFlowy();
       },
       (error) => showSnapBar(context, error.msg),
     );

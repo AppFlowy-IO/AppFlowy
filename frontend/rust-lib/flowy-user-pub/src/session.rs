@@ -1,4 +1,4 @@
-use crate::entities::{UserAuthResponse, UserWorkspace};
+use crate::entities::{AuthType, UserAuthResponse, UserWorkspace};
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use chrono::Utc;
@@ -77,6 +77,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
           icon: "".to_owned(),
           member_count: 1,
           role: None,
+          workspace_type: AuthType::Local,
         })
       }
     }

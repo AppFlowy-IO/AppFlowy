@@ -21,10 +21,6 @@ class AuthRouter {
     getIt<SplashRouter>().pushWorkspaceStartScreen(context, userProfile);
   }
 
-  void pushSignUpScreen(BuildContext context) {
-    context.push(SignUpScreen.routeName);
-  }
-
   /// Navigates to the home screen based on the current workspace and platform.
   ///
   /// This function takes in a [BuildContext] and a [UserProfilePB] object to
@@ -58,20 +54,6 @@ class AuthRouter {
         }
       },
       (error) => pushWorkspaceStartScreen(context, userProfile),
-    );
-  }
-
-  void pushEncryptionScreen(
-    BuildContext context,
-    UserProfilePB userProfile,
-  ) {
-    // After log in,push EncryptionScreen on the top SignInScreen
-    context.push(
-      EncryptSecretScreen.routeName,
-      extra: {
-        EncryptSecretScreen.argUser: userProfile,
-        EncryptSecretScreen.argKey: ValueKey(userProfile.id),
-      },
     );
   }
 

@@ -1,24 +1,22 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
-use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
+use crate::user_manager::manager_history_user::ANON_USER;
 use arc_swap::ArcSwapOption;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
-use flowy_user_pub::entities::UserWorkspace;
+use flowy_user_pub::entities::{AuthType, UserWorkspace};
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
-
-const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
   pub user_config: UserConfig,
@@ -44,26 +42,17 @@ impl AuthenticateUser {
     }
   }
 
-  pub fn vacuum_database_if_need(&self) {
-    if !self
-      .store_preferences
-      .get_bool_or_default(SQLITE_VACUUM_042)
-    {
-      if let Ok(session) = self.get_session() {
-        let _ = self.store_preferences.set_bool(SQLITE_VACUUM_042, true);
-        if let Ok(conn) = self.database.get_connection(session.user_id) {
-          info!("vacuum database 042");
-          if let Err(err) = vacuum_database(conn) {
-            error!("vacuum database error: {:?}", err);
-          }
-        }
-      }
-    }
-  }
-
   pub fn user_id(&self) -> FlowyResult<i64> {
     let session = self.get_session()?;
     Ok(session.user_id)
+  }
+
+  pub async fn is_local_mode(&self) -> FlowyResult<bool> {
+    let session = self.get_session()?;
+    Ok(matches!(
+      session.user_workspace.workspace_type,
+      AuthType::Local
+    ))
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -158,13 +147,21 @@ impl AuthenticateUser {
 
     match self
       .store_preferences
-      .get_object::<Arc<Session>>(&self.user_config.session_cache_key)
+      .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        "User is not logged in",
+        "Can't find user session. Please login again",
       )),
-      Some(session) => {
+      Some(mut session) => {
+        // Set the workspace type to local if the user is anon.
+        if let Some(anon_session) = self.store_preferences.get_object::<Session>(ANON_USER) {
+          if session.user_id == anon_session.user_id {
+            session.user_workspace.workspace_type = AuthType::Local;
+          }
+        }
+
+        let session = Arc::new(session);
         self.session.store(Some(session.clone()));
         Ok(session)
       },

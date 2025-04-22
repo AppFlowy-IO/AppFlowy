@@ -445,7 +445,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(appTheme.borderRadius.l),
             color: appTheme.surfaceColorScheme.primary,
-            boxShadow: [appTheme.shadow.small],
+            boxShadow: appTheme.shadow.small,
           ),
           toolbarBuilder: (_, child, onDismiss, isMetricsChanged) =>
               BlocProvider.value(

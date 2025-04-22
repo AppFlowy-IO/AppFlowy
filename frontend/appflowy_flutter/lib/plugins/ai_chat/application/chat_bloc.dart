@@ -435,7 +435,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       messageType: ChatMessageTypePB.User,
       questionStreamPort: Int64(questionStream.nativePort),
       answerStreamPort: Int64(answerStream!.nativePort),
-      metadata: await metadataPBFromMetadata(metadata),
+      //metadata: await metadataPBFromMetadata(metadata),
     );
     if (format != null) {
       payload.format = format.toPB();

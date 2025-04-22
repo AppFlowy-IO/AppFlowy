@@ -25,7 +25,7 @@ class FlowyLogoTitle extends StatelessWidget {
           const VSpace(20),
           Text(
             title,
-            style: theme.textStyle.heading.h3(
+            style: theme.textStyle.heading3.enhanced(
               color: theme.textColorScheme.primary,
             ),
           ),

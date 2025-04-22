@@ -359,7 +359,12 @@ impl AppFlowyCollabBuilder {
   {
     if let Some(collab_db) = collab_db.upgrade() {
       let write_txn = collab_db.write_txn();
-      trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
+      trace!(
+        "flush workspace: {} {}:collab:{} to disk",
+        workspace_id,
+        collab_type,
+        object_id
+      );
       let collab: &Collab = collab.borrow();
       let encode_collab =
         collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;

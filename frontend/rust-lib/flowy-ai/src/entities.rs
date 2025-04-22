@@ -2,9 +2,8 @@ use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
 use af_plugin::core::plugin::RunningState;
 use flowy_ai_pub::cloud::{
-  AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
-  OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
-  ResponseFormat,
+  AIModel, ChatMessage, ChatMessageType, CompletionMessage, LLMModel, OutputContent, OutputLayout,
+  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -71,9 +70,6 @@ pub struct StreamChatPayloadPB {
 
   #[pb(index = 6, one_of)]
   pub format: Option<PredefinedFormatPB>,
-
-  #[pb(index = 7)]
-  pub metadata: Vec<ChatMessageMetaPB>,
 }
 
 #[derive(Default, Debug)]
@@ -84,7 +80,6 @@ pub struct StreamMessageParams {
   pub answer_stream_port: i64,
   pub question_stream_port: i64,
   pub format: Option<PredefinedFormatPB>,
-  pub metadata: Vec<ChatMessageMetadata>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -319,7 +314,7 @@ impl From<ChatMessage> for ChatMessagePB {
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
       reply_message_id: None,
-      metadata: Some(serde_json::to_string(&chat_message.meta_data).unwrap_or_default()),
+      metadata: Some(serde_json::to_string(&chat_message.metadata).unwrap_or_default()),
     }
   }
 }

@@ -60,7 +60,7 @@ class HomeSideBar extends StatelessWidget {
 
   final UserProfilePB userProfile;
 
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceSetting;
 
   @override
   Widget build(BuildContext context) {
