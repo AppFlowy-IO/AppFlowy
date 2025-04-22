@@ -1,9 +1,8 @@
-use crate::migrations::session_migration::migrate_session_with_user_uuid;
+use crate::migrations::session_migration::migrate_session;
 use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
 use collab_integrate::CollabKVDB;
 
-use crate::user_manager::manager_history_user::ANON_USER;
 use arc_swap::ArcSwapOption;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -30,9 +29,7 @@ impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
-    let session =
-      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences)
-        .map(Arc::new);
+    let session = migrate_session(&user_config.session_cache_key, &store_preferences).map(Arc::new);
     Self {
       user_config,
       database,
@@ -150,17 +147,10 @@ impl AuthenticateUser {
       .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
-        ErrorCode::UserUnauthorized,
+        ErrorCode::RecordNotFound,
         "Can't find user session. Please login again",
       )),
-      Some(mut session) => {
-        // Set the workspace type to local if the user is anon.
-        if let Some(anon_session) = self.store_preferences.get_object::<Session>(ANON_USER) {
-          if session.user_id == anon_session.user_id {
-            session.user_workspace.workspace_type = AuthType::Local;
-          }
-        }
-
+      Some(session) => {
         let session = Arc::new(session);
         self.session.store(Some(session.clone()));
         Ok(session)

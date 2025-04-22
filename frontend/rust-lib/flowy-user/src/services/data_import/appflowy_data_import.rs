@@ -1,4 +1,4 @@
-use crate::migrations::session_migration::migrate_session_with_user_uuid;
+use crate::migrations::session_migration::migrate_session;
 
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
@@ -80,7 +80,7 @@ pub(crate) fn prepare_import(
   }
   let user_paths = UserPaths::new(path.to_string());
   let other_store_preferences = Arc::new(KVStorePreferences::new(path)?);
-  migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
+  migrate_session("appflowy_session_cache", &other_store_preferences);
   let imported_session = other_store_preferences
     .get_object::<Session>("appflowy_session_cache")
     .ok_or(anyhow!(
