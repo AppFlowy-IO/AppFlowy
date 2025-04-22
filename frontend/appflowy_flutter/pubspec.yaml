@@ -201,6 +201,12 @@ dependency_overrides:
       ref: e44458d
       path: sheet
 
+  window_manager:
+    git:
+      url: https://github.com/leanflutter/window_manager.git
+      ref: "5a43aed"
+      path: packages/window_manager
+
   uuid: ^4.4.0
 
   flutter_cache_manager:

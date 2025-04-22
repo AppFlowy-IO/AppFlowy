@@ -19,14 +19,13 @@ class FileStorageTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     context.getIt.registerSingleton(
       FileStorageService(),
       dispose: (service) async => service.dispose(),
     );
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 class FileStorageService {

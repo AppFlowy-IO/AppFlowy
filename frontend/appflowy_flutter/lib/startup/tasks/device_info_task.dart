@@ -57,6 +57,7 @@ class ApplicationInfoTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -120,7 +121,4 @@ class ApplicationInfoTask extends LaunchTask {
     ApplicationInfo.architecture = architecture ?? '';
     ApplicationInfo.os = os ?? '';
   }
-
-  @override
-  Future<void> dispose() async {}
 }

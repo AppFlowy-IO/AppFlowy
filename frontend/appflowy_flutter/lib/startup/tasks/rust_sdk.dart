@@ -23,6 +23,8 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     final root = await getApplicationSupportDirectory();
     final applicationPath = await appFlowyApplicationDataDirectory();
     final dir = customApplicationPath ?? applicationPath;
@@ -39,9 +41,6 @@ class InitRustSDKTask extends LaunchTask {
     );
     await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 AppFlowyConfiguration _makeAppFlowyConfiguration(

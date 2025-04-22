@@ -22,6 +22,8 @@ class MemoryLeakDetectorTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     if (!kDebugMode || !enableMemoryLeakDetect) {
       return;
     }
@@ -53,6 +55,8 @@ class MemoryLeakDetectorTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     if (!kDebugMode || !enableMemoryLeakDetect) {
       return;
     }

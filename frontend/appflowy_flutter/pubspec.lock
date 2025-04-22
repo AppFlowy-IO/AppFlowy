@@ -220,10 +220,10 @@ packages:
     dependency: transitive
     description:
       name: bidi
-      sha256: "9a712c7ddf708f7c41b1923aa83648a3ed44cfd75b04f72d598c45e5be287f9d"
+      sha256: "77f475165e94b261745cf1032c751e2032b8ed92ccb2bf5716036db79320637d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.13"
   bitsdojo_window:
     dependency: "direct main"
     description:
@@ -2574,10 +2574,11 @@ packages:
   window_manager:
     dependency: "direct main"
     description:
-      name: window_manager
-      sha256: "732896e1416297c63c9e3fb95aea72d0355f61390263982a47fd519169dc5059"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/window_manager"
+      ref: "5a43aed"
+      resolved-ref: "5a43aed33ffd9f86e1bac2fc9f4931383cc2ee2b"
+      url: "https://github.com/leanflutter/window_manager.git"
+    source: git
     version: "0.4.3"
   xdg_directories:
     dependency: transitive
