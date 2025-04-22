@@ -314,7 +314,7 @@ impl LocalAIController {
         std::thread::current().id()
       );
       return LocalAIPB {
-        enabled: false,
+        enabled,
         plugin_downloaded: false,
         state: RunningStatePB::from(RunningState::ReadyToConnect),
         lack_of_resource: None,
@@ -373,7 +373,8 @@ impl LocalAIController {
     let workspace_id = self.user_service.workspace_id()?;
     let key = local_ai_enabled_key(&workspace_id.to_string());
     let store_preferences = self.upgrade_store_preferences()?;
-    let enabled = !store_preferences.get_bool(&key).unwrap_or(true);
+    let enabled = !store_preferences.get_bool(&key).unwrap_or(false);
+    tracing::trace!("[AI Plugin] toggle local ai, enabled: {}", enabled,);
     store_preferences.set_bool(&key, enabled)?;
     self.toggle_plugin(enabled).await?;
     Ok(enabled)
