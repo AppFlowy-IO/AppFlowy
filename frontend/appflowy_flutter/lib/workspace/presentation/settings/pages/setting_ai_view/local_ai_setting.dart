@@ -47,7 +47,6 @@ class _LocalAISettingState extends State<LocalAISetting> {
             ),
             header: LocalAiSettingHeader(
               isEnabled: state.isEnabled,
-              isToggleable: state is ReadyLocalAiPluginState,
             ),
             collapsed: const SizedBox.shrink(),
             expanded: Padding(
@@ -65,11 +64,9 @@ class LocalAiSettingHeader extends StatelessWidget {
   const LocalAiSettingHeader({
     super.key,
     required this.isEnabled,
-    required this.isToggleable,
   });
 
   final bool isEnabled;
-  final bool isToggleable;
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +88,9 @@ class LocalAiSettingHeader extends StatelessWidget {
             ],
           ),
         ),
-        IgnorePointer(
-          ignoring: !isToggleable,
-          child: Opacity(
-            opacity: isToggleable ? 1 : 0.5,
-            child: Toggle(
-              value: isEnabled,
-              onChanged: (_) => _onToggleChanged(context),
-            ),
-          ),
+        Toggle(
+          value: isEnabled,
+          onChanged: (_) => _onToggleChanged(context),
         ),
       ],
     );
