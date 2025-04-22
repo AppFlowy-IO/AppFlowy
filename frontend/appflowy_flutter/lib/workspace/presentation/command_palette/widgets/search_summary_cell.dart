@@ -43,7 +43,7 @@ class SearchSummaryCell extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: FlowyText(
           summary.content,
-          maxLines: 20,
+          maxLines: 10,
         ),
       ),
     );
@@ -60,39 +60,41 @@ class SearchSummaryPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (summary.highlights.isNotEmpty) ...[
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (summary.highlights.isNotEmpty) ...[
+            Opacity(
+              opacity: 0.5,
+              child: FlowyText(
+                LocaleKeys.commandPalette_aiOverviewMoreDetails.tr(),
+                fontSize: 12,
+              ),
+            ),
+            const VSpace(6),
+            SearchSummaryDetail(text: summary.highlights),
+            const VSpace(36),
+          ],
+
           Opacity(
             opacity: 0.5,
             child: FlowyText(
-              LocaleKeys.commandPalette_aiOverviewMoreDetails.tr(),
+              LocaleKeys.commandPalette_aiOverviewSource.tr(),
               fontSize: 12,
             ),
           ),
+          // Sources
           const VSpace(6),
-          SearchSummaryHighlight(text: summary.highlights),
-          const VSpace(36),
+          ...summary.sources.map((e) => SearchSummarySource(source: e)),
         ],
-
-        Opacity(
-          opacity: 0.5,
-          child: FlowyText(
-            LocaleKeys.commandPalette_aiOverviewSource.tr(),
-            fontSize: 12,
-          ),
-        ),
-        // Sources
-        const VSpace(6),
-        ...summary.sources.map((e) => SearchSummarySource(source: e)),
-      ],
+      ),
     );
   }
 }
 
-class SearchSummaryHighlight extends StatelessWidget {
-  const SearchSummaryHighlight({
+class SearchSummaryDetail extends StatelessWidget {
+  const SearchSummaryDetail({
     required this.text,
     super.key,
   });
@@ -101,7 +103,10 @@ class SearchSummaryHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AIMarkdownText(markdown: text);
+    return SizedBox(
+      width: double.infinity,
+      child: AIMarkdownText(markdown: text),
+    );
   }
 }
 
@@ -119,7 +124,7 @@ class SearchSummarySource extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.commandPalette_clickToOpenPage.tr(),
       child: SizedBox(
-        height: 30,
+        height: 40,
         child: FlowyButton(
           leftIcon: icon,
           hoverColor:
