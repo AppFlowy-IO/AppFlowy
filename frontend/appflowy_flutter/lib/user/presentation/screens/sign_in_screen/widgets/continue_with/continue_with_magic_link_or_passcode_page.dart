@@ -35,6 +35,8 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   final inputPasscodeKey = GlobalKey<AFTextFieldState>();
 
+  bool isSubmitting = false;
+
   @override
   void dispose() {
     passcodeController.dispose();
@@ -53,6 +55,10 @@ class _ContinueWithMagicLinkOrPasscodePageState
               errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
             );
           });
+        }
+
+        if (state.isSubmitting != isSubmitting) {
+          setState(() => isSubmitting = state.isSubmitting);
         }
       },
       child: Scaffold(
@@ -81,6 +87,15 @@ class _ContinueWithMagicLinkOrPasscodePageState
   List<Widget> _buildEnterCodeManually() {
     // todo: ask designer to provide the spacing
     final spacing = VSpace(20);
+    final textStyle = AFButtonSize.l.buildTextStyle(context);
+    final textHeight = textStyle.height;
+    final textFontSize = textStyle.fontSize;
+
+    // the indicator height is the height of the text style.
+    double indicatorHeight = 20;
+    if (textHeight != null && textFontSize != null) {
+      indicatorHeight = textHeight * textFontSize;
+    }
 
     if (!isEnteringPasscode) {
       return [
@@ -116,24 +131,53 @@ class _ContinueWithMagicLinkOrPasscodePageState
       VSpace(12),
 
       // continue to login
-      AFFilledTextButton.primary(
-        text: LocaleKeys.signIn_continueToSignIn.tr(),
-        onTap: () {
-          final passcode = passcodeController.text;
-          if (passcode.isEmpty) {
-            inputPasscodeKey.currentState?.syncError(
-              errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
-            );
-          } else {
-            widget.onEnterPasscode(passcode);
-          }
-        },
-        size: AFButtonSize.l,
-        alignment: Alignment.center,
-      ),
+      !isSubmitting
+          ? _buildContinueButton(textStyle: textStyle)
+          : _buildIndicator(indicatorHeight: indicatorHeight),
 
       spacing,
     ];
+  }
+
+  Widget _buildContinueButton({
+    required TextStyle textStyle,
+  }) {
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.signIn_continueToSignIn.tr(),
+      onTap: () {
+        final passcode = passcodeController.text;
+        if (passcode.isEmpty) {
+          inputPasscodeKey.currentState?.syncError(
+            errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
+          );
+        } else {
+          widget.onEnterPasscode(passcode);
+        }
+      },
+      textStyle: textStyle.copyWith(
+        color: AppFlowyTheme.of(context).textColorScheme.onFill,
+      ),
+      size: AFButtonSize.l,
+      alignment: Alignment.center,
+    );
+  }
+
+  Widget _buildIndicator({
+    required double indicatorHeight,
+  }) {
+    return AFFilledButton.disabled(
+      size: AFButtonSize.l,
+      builder: (context, isHovering, disabled) {
+        return Align(
+          child: SizedBox.square(
+            dimension: indicatorHeight,
+            child: CircularProgressIndicator(
+              strokeWidth: 3.0,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   List<Widget> _buildBackToLogin() {
