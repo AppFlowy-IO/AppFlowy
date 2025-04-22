@@ -136,18 +136,11 @@ class MobileSearchResultCell extends StatelessWidget {
     if (queryText.isEmpty) {
       return TextSpan(text: content, style: normal);
     }
-    final splits = content.split(queryText);
-    final List<String> contents = [];
-    for (int i = 0; i < splits.length; i++) {
-      contents.add(splits[i]);
-      if (i != splits.length - 1) {
-        contents.add(queryText);
-      }
-    }
+    final contents = content.splitIncludeSeparator(queryText);
     return TextSpan(
       children: List.generate(contents.length, (index) {
         final content = contents[index];
-        final isHighlight = content == queryText;
+        final isHighlight = content.toLowerCase() == queryText.toLowerCase();
         return TextSpan(
           text: content,
           style: isHighlight ? highlight : normal,
@@ -171,5 +164,24 @@ extension ViewPBToSearchResultItem on ViewPB {
       ),
       content: '',
     );
+  }
+}
+
+extension StringSplitExtension on String {
+  List<String> splitIncludeSeparator(String separator) {
+    final splits =
+        split(RegExp(RegExp.escape(separator), caseSensitive: false));
+    final List<String> contents = [];
+    int charIndex = 0;
+    final seperatorLength = separator.length;
+    for (int i = 0; i < splits.length; i++) {
+      contents.add(splits[i]);
+      charIndex += splits[i].length;
+      if (i != splits.length - 1) {
+        contents.add(substring(charIndex, charIndex + seperatorLength));
+        charIndex += seperatorLength;
+      }
+    }
+    return contents;
   }
 }

@@ -164,6 +164,8 @@ class _MobileSearchResultListState extends State<MobileSearchResultList> {
             Text(
               LocaleKeys.search_noResultForSearching.tr(args: [query]),
               style: theme.textStyle.body.enhanced(color: textColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               LocaleKeys.search_noResultForSearchingHint.tr(),

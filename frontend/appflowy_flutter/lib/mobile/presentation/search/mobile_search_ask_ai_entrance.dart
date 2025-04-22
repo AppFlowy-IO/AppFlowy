@@ -52,20 +52,24 @@ class MobileSearchAskAiEntrance extends StatelessWidget {
             .standard(color: theme.textColorScheme.primary),
       );
     }
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: LocaleKeys.search_askAIFor.tr(),
-            style: theme.textStyle.heading4
-                .standard(color: theme.textColorScheme.primary),
-          ),
-          TextSpan(
-            text: ' "$queryText"',
-            style: theme.textStyle.heading4
-                .enhanced(color: theme.textColorScheme.primary),
-          ),
-        ],
+    return Flexible(
+      child: RichText(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: LocaleKeys.search_askAIFor.tr(),
+              style: theme.textStyle.heading4
+                  .standard(color: theme.textColorScheme.primary),
+            ),
+            TextSpan(
+              text: ' "$queryText"',
+              style: theme.textStyle.heading4
+                  .enhanced(color: theme.textColorScheme.primary),
+            ),
+          ],
+        ),
       ),
     );
   }
