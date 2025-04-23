@@ -66,7 +66,15 @@ class MemberHttpService {
 
     try {
       return result.fold(
-        (data) => FlowyResult.success(data['code'] as String),
+        (data) {
+          final code = data['data']['code'] as String;
+          if (code.isEmpty) {
+            return FlowyResult.failure(
+              FlowyError(msg: 'Failed to get invite code: $code'),
+            );
+          }
+          return FlowyResult.success(code);
+        },
         (error) => FlowyResult.failure(error),
       );
     } catch (e) {

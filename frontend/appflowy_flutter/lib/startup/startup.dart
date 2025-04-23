@@ -84,6 +84,9 @@ class FlowyRunner {
       IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
     }
 
+    // Disable the log in test mode
+    Log.shared.disableLog = mode.isTest;
+
     // Clear and dispose tasks from previous AppLaunch
     if (getIt.isRegistered(instance: AppLauncher)) {
       await getIt<AppLauncher>().dispose();
