@@ -673,6 +673,7 @@ impl UserManager {
         role: member_record.role.into(),
         name: member_record.name,
         avatar_url: member_record.avatar_url,
+        joined_at: member_record.joined_at,
       });
     }
 
@@ -703,6 +704,7 @@ impl UserManager {
       uid,
       workspace_id: workspace_id.to_string(),
       updated_at: Utc::now().naive_utc(),
+      joined_at: member.joined_at,
     };
 
     let mut db = self.authenticate_user.get_sqlite_connection(uid)?;

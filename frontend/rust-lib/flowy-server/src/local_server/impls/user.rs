@@ -248,6 +248,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
             uid,
             workspace_id: workspace_id.to_string(),
             updated_at: chrono::Utc::now().naive_utc(),
+            joined_at: None,
           };
 
           let member = WorkspaceMember::from(row.clone());
