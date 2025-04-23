@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_styles.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -114,6 +113,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   }
 
   Widget buildSearchContainer() {
+    final theme = AppFlowyTheme.maybeOf(context);
     return Container(
       width: 320,
       decoration: buildToolbarLinkDecoration(context),
@@ -137,8 +137,9 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
                     constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
                     fontSize: 14,
                     fontColor: Colors.white,
-                    fillColor: LinkStyle.fillThemeThick,
-                    hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
+                    fillColor: theme?.fillColorScheme.themeThick,
+                    hoverColor:
+                        theme?.fillColorScheme.themeThick.withAlpha(200),
                     lineHeight: 20 / 14,
                     fontWeight: FontWeight.w600,
                     onPressed: onSubmittedLink,
@@ -150,7 +151,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
                   padding: const EdgeInsets.only(top: 4),
                   child: FlowyText.regular(
                     LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
-                    color: LinkStyle.textStatusError,
+                    color: theme?.textColorScheme.error,
                     fontSize: 12,
                     figmaLineHeight: 16,
                   ),

@@ -8,11 +8,13 @@ class BottomSheetHeader extends StatelessWidget {
     this.title,
     this.onClose,
     this.onDone,
+    this.confirmButton,
   });
 
   final String? title;
   final VoidCallback? onClose;
   final VoidCallback? onDone;
+  final Widget? confirmButton;
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +38,10 @@ class BottomSheetHeader extends StatelessWidget {
               fontSize: 16,
             ),
           ),
-        if (onDone != null)
+        if (onDone != null || confirmButton != null)
           Align(
             alignment: Alignment.centerRight,
-            child: BottomSheetDoneButton(
-              onDone: onDone,
-            ),
+            child: confirmButton ?? BottomSheetDoneButton(onDone: onDone),
           ),
       ],
     );
