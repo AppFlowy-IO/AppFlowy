@@ -107,7 +107,10 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
                       myRole: state.myRole,
                     ),
                   ],
-                  if (state.myRole.isMember) const _LeaveWorkspaceButton(),
+                  if (state.myRole.isMember) ...[
+                    Spacer(),
+                    const _LeaveWorkspaceButton(),
+                  ],
                   const VSpace(48),
                 ],
               );
@@ -271,21 +274,21 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     }
   }
 
-  void _inviteMember(BuildContext context) {
-    final email = emailController.text;
-    if (!isEmail(email)) {
-      showToastNotification(
-        type: ToastificationType.error,
-        message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
-      );
-      return;
-    }
-    context
-        .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
-    // clear the email field after inviting
-    emailController.clear();
-  }
+  // void _inviteMember(BuildContext context) {
+  //   final email = emailController.text;
+  //   if (!isEmail(email)) {
+  //     showToastNotification(
+  //       type: ToastificationType.error,
+  //       message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
+  //     );
+  //     return;
+  //   }
+  //   context
+  //       .read<WorkspaceMemberBloc>()
+  //       .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
+  //   // clear the email field after inviting
+  //   emailController.clear();
+  // }
 }
 
 class _LeaveWorkspaceButton extends StatelessWidget {
@@ -293,28 +296,13 @@ class _LeaveWorkspaceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Theme.of(context).colorScheme.error,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.error,
-              width: 0.5,
-            ),
-          ),
-        ),
-        onPressed: () => _leaveWorkspace(context),
-        child: FlowyText(
-          LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
-          fontSize: 14.0,
-          color: Theme.of(context).colorScheme.error,
-          fontWeight: FontWeight.w500,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: AFOutlinedTextButton.destructive(
+        alignment: Alignment.center,
+        text: LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
+        onTap: () => _leaveWorkspace(context),
+        size: AFButtonSize.l,
       ),
     );
   }

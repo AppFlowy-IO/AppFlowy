@@ -29,31 +29,33 @@ class MobileMemberList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return SlidableAutoCloseBehavior(
-      child: SeparatedColumn(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        separatorBuilder: () => SizedBox.shrink(),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Text(
-              'Joined',
-              style: theme.textStyle.heading4.enhanced(
-                color: theme.textColorScheme.primary,
+    return SingleChildScrollView(
+      child: SlidableAutoCloseBehavior(
+        child: SeparatedColumn(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          separatorBuilder: () => SizedBox.shrink(),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Text(
+                'Joined',
+                style: theme.textStyle.heading4.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
               ),
             ),
-          ),
-          ...members.map(
-            (member) => _MemberItem(
-              member: member,
-              myRole: myRole,
-              userProfile: userProfile,
+            ...members.map(
+              (member) => _MemberItem(
+                member: member,
+                myRole: myRole,
+                userProfile: userProfile,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
