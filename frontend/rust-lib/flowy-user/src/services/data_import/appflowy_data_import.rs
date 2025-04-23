@@ -47,7 +47,7 @@ use uuid::Uuid;
 
 pub(crate) struct ImportedFolder {
   pub imported_session: Session,
-  pub imported_collab_db: Weak<CollabKVDB>,
+  pub imported_collab_db: Arc<CollabKVDB>,
   pub container_name: Option<String>,
   pub parent_view_id: Option<String>,
   pub source: ImportedSource,
@@ -134,7 +134,7 @@ pub(crate) fn prepare_import(
 
   Ok(ImportedFolder {
     imported_session,
-    imported_collab_db: Arc::downgrade(&imported_collab_db),
+    imported_collab_db,
     container_name: None,
     parent_view_id,
     source: ImportedSource::ExternalFolder,
@@ -174,10 +174,7 @@ pub(crate) fn generate_import_data(
   let imported_workspace_id = imported_folder.imported_session.workspace_id.clone();
   let imported_session = imported_folder.imported_session.clone();
   let imported_workspace_database_id = imported_folder.workspace_database_id.clone();
-  let imported_collab_db = imported_folder
-    .imported_collab_db
-    .upgrade()
-    .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
+  let imported_collab_db = imported_folder.imported_collab_db.clone();
   let imported_container_view_name = imported_folder.container_name.clone();
 
   let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();

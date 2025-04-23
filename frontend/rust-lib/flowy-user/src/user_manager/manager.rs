@@ -793,7 +793,9 @@ impl UserManager {
     let old_collab_db = self
       .authenticate_user
       .database
-      .get_collab_db(old_user.session.user_id)?;
+      .get_collab_db(old_user.session.user_id)?
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)?;
 
     if auth_type == &AuthType::AppFlowyCloud {
       self

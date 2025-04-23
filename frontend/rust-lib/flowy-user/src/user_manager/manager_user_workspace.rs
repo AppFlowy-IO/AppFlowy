@@ -3,7 +3,7 @@ use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlanDetail}
 use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
 
 use std::str::FromStr;
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
@@ -141,7 +141,7 @@ impl UserManager {
   pub async fn migration_anon_user_on_appflowy_cloud_sign_up(
     &self,
     old_user: &AnonUser,
-    old_collab_db: &Weak<CollabKVDB>,
+    old_collab_db: &Arc<CollabKVDB>,
   ) -> FlowyResult<()> {
     let import_context = ImportedFolder {
       imported_session: old_user.session.as_ref().clone(),
