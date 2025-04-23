@@ -26,6 +26,15 @@ pub struct AuthenticateUser {
   session: ArcSwapOption<Session>,
 }
 
+impl Drop for AuthenticateUser {
+  fn drop(&mut self) {
+    tracing::trace!(
+      "[Drop ]Drop AuthenticateUser: {:?}",
+      self.session.load_full().map(|s| s.user_id)
+    );
+  }
+}
+
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
@@ -71,10 +80,7 @@ impl AuthenticateUser {
   }
 
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {
-    self
-      .database
-      .get_collab_db(uid)
-      .map(|collab_db| Arc::downgrade(&collab_db))
+    self.database.get_collab_db(uid)
   }
 
   pub fn get_sqlite_connection(&self, uid: i64) -> FlowyResult<DBConnection> {
@@ -104,7 +110,11 @@ impl AuthenticateUser {
 
   pub fn is_collab_on_disk(&self, uid: i64, object_id: &str) -> FlowyResult<bool> {
     let session = self.get_session()?;
-    let collab_db = self.database.get_collab_db(uid)?;
+    let collab_db = self
+      .database
+      .get_collab_db(uid)?
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Collab db is not initialized"))?;
     let read_txn = collab_db.read_txn();
     Ok(read_txn.is_exist(uid, session.workspace_id.as_str(), object_id))
   }

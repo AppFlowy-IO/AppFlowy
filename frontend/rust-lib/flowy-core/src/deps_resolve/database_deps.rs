@@ -21,7 +21,7 @@ impl DatabaseDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
     ai_manager: Arc<AIManager>,

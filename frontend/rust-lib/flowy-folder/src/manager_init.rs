@@ -73,7 +73,7 @@ impl FolderManager {
           // 3. If the folder doesn't exist and create_if_not_exist is false, try to fetch the folder data from cloud/
           // This will happen user can't fetch the folder data when the user sign in.
           let doc_state = self
-            .cloud_service
+            .cloud_service()?
             .get_folder_doc_state(workspace_id, uid, CollabType::Folder, workspace_id)
             .await?;
 

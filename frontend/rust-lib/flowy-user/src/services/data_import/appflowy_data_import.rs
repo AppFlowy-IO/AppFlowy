@@ -57,7 +57,6 @@ pub(crate) struct ImportedFolder {
 #[derive(Clone)]
 pub(crate) enum ImportedSource {
   ExternalFolder,
-  AnonUser,
 }
 
 impl ImportedFolder {
@@ -126,7 +125,7 @@ pub(crate) fn prepare_import(
   run_data_migration(
     &imported_session,
     &imported_user_auth_type,
-    imported_collab_db.clone(),
+    Arc::downgrade(&imported_collab_db),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),
     app_version,
@@ -189,7 +188,6 @@ pub(crate) fn generate_import_data(
       None => workspace_id.to_string(),
       Some(_) => gen_view_id().to_string(),
     },
-    ImportedSource::AnonUser => workspace_id.to_string(),
   };
 
   let (views, orphan_views) = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
@@ -359,7 +357,6 @@ pub(crate) fn generate_import_data(
           Ok((child_views, orphan_views))
         },
       },
-      ImportedSource::AnonUser => Ok((child_views, orphan_views)),
     }?;
 
     if !invalid_orphan_views.is_empty() {
@@ -400,7 +397,6 @@ pub(crate) fn generate_import_data(
 
   let source = match imported_folder.source {
     ImportedSource::ExternalFolder => ImportFrom::AppFlowyDataFolder,
-    ImportedSource::AnonUser => ImportFrom::AnonUser,
   };
 
   Ok(ImportedAppFlowyData {

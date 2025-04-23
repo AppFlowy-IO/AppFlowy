@@ -65,7 +65,7 @@ pub struct DatabaseEditor {
   pub(crate) database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
   user: Arc<dyn DatabaseUser>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  collab_builder: Weak<AppFlowyCollabBuilder>,
   is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   #[allow(dead_code)]
@@ -138,7 +138,7 @@ impl DatabaseEditor {
       database,
       cell_cache,
       database_views,
-      collab_builder,
+      collab_builder: Arc::downgrade(&collab_builder),
       is_loading_rows: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
@@ -148,6 +148,13 @@ impl DatabaseEditor {
     observe_block_event(&database_id, &this).await;
     observe_view_change(&database_id, &this).await;
     Ok(this)
+  }
+
+  pub fn collab_builder(&self) -> FlowyResult<Arc<AppFlowyCollabBuilder>> {
+    self
+      .collab_builder
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)
   }
 
   pub async fn close_view(&self, view_id: &str) {
@@ -795,6 +802,7 @@ impl DatabaseEditor {
     }
 
     debug!("[Database]: Init database row: {}", row_id);
+    let collab_builder = self.collab_builder()?;
     let database_row = self
       .database
       .read()
@@ -810,14 +818,14 @@ impl DatabaseEditor {
     if !is_finalized {
       trace!("[Database]: finalize database row: {}", row_id);
       let row_id = Uuid::from_str(row_id.as_str())?;
-      let collab_object = self.collab_builder.collab_object(
+      let collab_object = collab_builder.collab_object(
         &self.user.workspace_id()?,
         self.user.user_id()?,
         &row_id,
         CollabType::DatabaseRow,
       )?;
 
-      if let Err(err) = self.collab_builder.finalize(
+      if let Err(err) = collab_builder.finalize(
         collab_object,
         CollabBuilderConfig::default(),
         database_row.clone(),

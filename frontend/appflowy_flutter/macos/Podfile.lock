@@ -171,7 +171,7 @@ SPEC CHECKSUMS:
   super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3
   url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
-  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
+  window_manager: 990c8e348c4da2a93b81da638245d40554ec9436
 
 PODFILE CHECKSUM: 0532f3f001ca3110b8be345d6491fff690e95823
 

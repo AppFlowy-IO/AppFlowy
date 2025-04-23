@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_folder::Folder;
 use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
@@ -7,7 +7,7 @@ use semver::Version;
 use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::AuthType;
 
@@ -38,11 +38,14 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   fn run(
     &self,
     user: &Session,
-    collab_db: &Arc<CollabKVDB>,
+    collab_db: &Weak<CollabKVDB>,
     _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
     _store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()> {
+    let collab_db = collab_db
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(
         user.user_id,
