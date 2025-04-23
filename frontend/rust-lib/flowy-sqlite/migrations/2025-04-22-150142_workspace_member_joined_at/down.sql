@@ -1,3 +1,3 @@
 -- This file should undo anything in `up.sql`
-ALTER TABLE user_workspace_table
+ALTER TABLE workspace_members_table
 DROP COLUMN joined_at;

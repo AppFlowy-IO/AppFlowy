@@ -1352,7 +1352,7 @@
         "generateANewLink": "generate a new link",
         "inviteMemberByEmail": "Invite member by email",
         "inviteMemberHintText": "Invite by email",
-        "resetInviteLink": "Reset the invite link",
+        "resetInviteLink": "Reset the invite link?",
         "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The previous link can only be managed through the",
         "adminPanel": "Admin Panel",
         "reset": "Reset",

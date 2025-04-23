@@ -88,17 +88,18 @@ class _Description extends StatelessWidget {
       await showConfirmDialog(
         context: context,
         style: ConfirmPopupStyle.cancelAndOk,
-        title: 'Reset the invite link?',
-        description:
-            'Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer be available.',
-        confirmLabel: 'Reset',
+        title: LocaleKeys.settings_appearance_members_resetInviteLink.tr(),
+        description: LocaleKeys
+            .settings_appearance_members_resetInviteLinkDescription
+            .tr(),
+        confirmLabel: LocaleKeys.settings_appearance_members_reset.tr(),
         onConfirm: () {
           context.read<WorkspaceMemberBloc>().add(
                 const WorkspaceMemberEvent.generateInviteLink(),
               );
         },
         confirmButtonBuilder: (_) => AFFilledTextButton.destructive(
-          text: 'Reset',
+          text: LocaleKeys.settings_appearance_members_reset.tr(),
           onTap: () {
             context.read<WorkspaceMemberBloc>().add(
                   const WorkspaceMemberEvent.generateInviteLink(),
