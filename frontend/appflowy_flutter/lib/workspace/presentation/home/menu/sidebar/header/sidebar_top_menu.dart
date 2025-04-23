@@ -89,9 +89,8 @@ class SidebarTopMenu extends StatelessWidget {
             richMessage: textSpan,
             child: Listener(
               behavior: HitTestBehavior.translucent,
-              onPointerDown: (_) => context
-                  .read<HomeSettingBloc>()
-                  .add(const HomeSettingEvent.collapseMenu()),
+              onPointerDown: (_) =>
+                  context.read<HomeSettingBloc>().collapseMenu(),
               child: FlowyHover(
                 child: Container(
                   width: 24,

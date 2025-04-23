@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +19,7 @@ class NotificationItem extends StatelessWidget {
     required this.reminder,
   });
 
-  final MobileNotificationTabType tabType;
+  final NotificationTabType tabType;
   final ReminderPB reminder;
 
   @override
@@ -93,7 +94,7 @@ class _InnerNotificationItem extends StatelessWidget {
     required this.tabType,
   });
 
-  final MobileNotificationTabType tabType;
+  final NotificationTabType tabType;
   final ReminderPB reminder;
 
   @override
@@ -121,22 +122,22 @@ class _SlidableNotificationItem extends StatelessWidget {
     required this.child,
   });
 
-  final MobileNotificationTabType tabType;
+  final NotificationTabType tabType;
   final ReminderPB reminder;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final List<NotificationPaneActionType> actions = switch (tabType) {
-      MobileNotificationTabType.inbox => [
+      NotificationTabType.inbox => [
           NotificationPaneActionType.more,
           if (!reminder.isRead) NotificationPaneActionType.markAsRead,
         ],
-      MobileNotificationTabType.unread => [
+      NotificationTabType.unread => [
           NotificationPaneActionType.more,
           NotificationPaneActionType.markAsRead,
         ],
-      MobileNotificationTabType.archive => [
+      NotificationTabType.archive => [
           if (kDebugMode) NotificationPaneActionType.unArchive,
         ],
     };

@@ -1,9 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
-import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -11,6 +10,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'notification_item_v2.dart';
+import 'notification_tab_bar.dart';
 
 class NotificationTab extends StatefulWidget {
   const NotificationTab({
@@ -37,24 +38,39 @@ class _NotificationTabState extends State<NotificationTab>
       builder: (context, state) {
         final reminders = _filterReminders(state.reminders);
 
-        if (reminders.isEmpty) {
-          // add refresh indicator to the empty notification.
-          return EmptyNotification(
-            type: widget.tabType,
-          );
+        if (reminders.isEmpty) return EmptyNotificationsWidget();
+
+        final dateTimeNow = DateTime.now();
+        final List<ReminderPB> todayReminders = [];
+        final List<ReminderPB> olderReminders = [];
+        for (final reminder in reminders) {
+          final createAt = reminder.createdAt;
+          if (createAt == null) {
+            olderReminders.add(reminder);
+            continue;
+          }
+          final dateTimeCreate = DateTime.fromMillisecondsSinceEpoch(createAt);
+          if (dateTimeNow.difference(dateTimeCreate).inDays < 1) {
+            todayReminders.add(reminder);
+          } else {
+            olderReminders.add(reminder);
+          }
         }
 
-        final child = ListView.separated(
-          itemCount: reminders.length,
-          separatorBuilder: (context, index) => const VSpace(8.0),
-          itemBuilder: (context, index) {
-            final reminder = reminders[index];
-            return NotificationItem(
-              key: ValueKey('${widget.tabType}_${reminder.id}'),
-              tabType: widget.tabType,
-              reminder: reminder,
-            );
-          },
+        final child = SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildReminders(
+                LocaleKeys.notificationHub_today.tr(),
+                todayReminders,
+              ),
+              buildReminders(
+                LocaleKeys.notificationHub_older.tr(),
+                olderReminders,
+              ),
+            ],
+          ),
         );
 
         return RefreshIndicator.adaptive(
@@ -62,6 +78,34 @@ class _NotificationTabState extends State<NotificationTab>
           child: child,
         );
       },
+    );
+  }
+
+  Widget buildReminders(
+    String title,
+    List<ReminderPB> reminders,
+  ) {
+    if (reminders.isEmpty) return SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FlowyText.regular(
+            title,
+            fontSize: 14,
+            figmaLineHeight: 18,
+          ),
+        ),
+        ...List.generate(reminders.length, (index) {
+          final reminder = reminders[index];
+          return NotificationItemV2(
+            key: ValueKey('${widget.tabType}_${reminder.id}'),
+            tabType: widget.tabType,
+            reminder: reminder,
+          );
+        }),
+      ],
     );
   }
 
@@ -101,37 +145,23 @@ class _NotificationTabState extends State<NotificationTab>
   }
 }
 
-class MultiSelectNotificationTab extends StatelessWidget {
-  const MultiSelectNotificationTab({
-    super.key,
-  });
+class EmptyNotificationsWidget extends StatelessWidget {
+  const EmptyNotificationsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ReminderBloc, ReminderState>(
-      builder: (context, state) {
-        // find the reminders that are not archived or read.
-        final reminders = state.reminders.reversed
-            .where((reminder) => !reminder.isArchived || !reminder.isRead)
-            .toList();
-
-        if (reminders.isEmpty) {
-          // add refresh indicator to the empty notification.
-          return const SizedBox.shrink();
-        }
-
-        return ListView.separated(
-          itemCount: reminders.length,
-          separatorBuilder: (context, index) => const VSpace(8.0),
-          itemBuilder: (context, index) {
-            final reminder = reminders[index];
-            return MultiSelectNotificationItem(
-              key: ValueKey(reminder.id),
-              reminder: reminder,
-            );
-          },
-        );
-      },
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const FlowySvg(FlowySvgs.m_empty_notification_xl),
+        const VSpace(12.0),
+        FlowyText(
+          LocaleKeys.notificationHub_noNotifications.tr(),
+          fontSize: 16.0,
+          figmaLineHeight: 24.0,
+          fontWeight: FontWeight.w500,
+        ),
+      ],
     );
   }
 }

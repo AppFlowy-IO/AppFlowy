@@ -2435,6 +2435,19 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "closeNotification": "Close notification",
+    "viewNotifications": "View notifications",
+    "noNotifications": "No notifications yet",
+    "mentionedYou": "Mentioned you",
+    "archievedTooltip": "Archieve this notification",
+    "unarchievedTooltip": "Unarchieved this notification",
+    "markAsReadTooltip": "Mark as read this notification",
+    "markAsArchievedSucceedToast": "Archive successful",
+    "markAllAsArchievedSucceedToast": "Archive all successful",
+    "markAsReadSucceedToast": "Mark as read successful",
+    "markAllAsReadSucceedToast": "Mark all as read successful",
+    "today": "Today",
+    "older": "Older",
     "mobile": {
       "title": "Updates"
     },
