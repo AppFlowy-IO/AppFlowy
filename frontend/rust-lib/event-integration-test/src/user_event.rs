@@ -60,7 +60,7 @@ impl EventIntegrationTest {
 
   pub async fn sign_up_as_anon(&self) -> SignUpContext {
     let password = login_password();
-    let email = unique_email();
+    let email = "anon@appflowy.io".to_string();
     let payload = SignUpPayloadPB {
       email,
       name: "appflowy".to_string(),

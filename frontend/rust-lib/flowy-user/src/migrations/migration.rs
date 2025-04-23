@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use chrono::NaiveDateTime;
 use collab_integrate::CollabKVDB;
@@ -18,7 +18,7 @@ pub const FIRST_TIME_INSTALL_VERSION: &str = "first_install_version";
 
 pub struct UserLocalDataMigration {
   session: Session,
-  collab_db: Arc<CollabKVDB>,
+  collab_db: Weak<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
   kv: Arc<KVStorePreferences>,
 }
@@ -26,7 +26,7 @@ pub struct UserLocalDataMigration {
 impl UserLocalDataMigration {
   pub fn new(
     session: Session,
-    collab_db: Arc<CollabKVDB>,
+    collab_db: Weak<CollabKVDB>,
     sqlite_pool: Arc<ConnectionPool>,
     kv: Arc<KVStorePreferences>,
   ) -> Self {
@@ -103,7 +103,7 @@ pub trait UserDataMigration {
   fn run(
     &self,
     user: &Session,
-    collab_db: &Arc<CollabKVDB>,
+    collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     db: &mut SqliteConnection,
     store_preferences: &Arc<KVStorePreferences>,

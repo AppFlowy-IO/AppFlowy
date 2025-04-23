@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
@@ -42,7 +42,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
   fn run(
     &self,
     user: &Session,
-    collab_db: &Arc<CollabKVDB>,
+    collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
     _store_preferences: &Arc<KVStorePreferences>,
@@ -53,6 +53,9 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     if !matches!(user_auth_type, AuthType::Local) {
       return Ok(());
     }
+    let collab_db = collab_db
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
       let origin = CollabOrigin::Client(CollabClient::new(user.user_id, "phantom"));
       let folder_collab = match load_collab(

@@ -121,6 +121,12 @@ impl SearchManager {
   }
 }
 
+impl Drop for SearchManager {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop search manager");
+  }
+}
+
 async fn is_current_search(
   current_search: &Arc<tokio::sync::Mutex<Option<String>>>,
   search_id: &str,

@@ -1,6 +1,3 @@
-use std::path::{Path, PathBuf};
-use std::{fs, io, sync::Arc};
-
 use chrono::{Days, Local};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -12,6 +9,9 @@ use flowy_sqlite::{DBConnection, Database};
 use flowy_user_pub::entities::UserProfile;
 use flowy_user_pub::sql::select_user_profile;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
+use std::path::{Path, PathBuf};
+use std::sync::Weak;
+use std::{fs, io, sync::Arc};
 use tracing::{error, event, info, instrument};
 
 pub trait UserDBPath: Send + Sync + 'static {
@@ -97,9 +97,9 @@ impl UserDB {
     Ok(pool)
   }
 
-  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<CollabKVDB>, FlowyError> {
+  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     let collab_db = self.open_collab_db(self.paths.collab_db_path(user_id), user_id)?;
-    Ok(collab_db)
+    Ok(Arc::downgrade(&collab_db))
   }
 
   pub fn open_sqlite_db(
@@ -340,7 +340,7 @@ pub(crate) fn validate_collab_db(
       read_txn.is_exist(uid, workspace_id, workspace_id)
     },
     Err(err) => {
-      error!("open collab db error, {:?}", err);
+      error!("open collab db error when validate collab, {:?}", err);
       !matches!(
         err,
         PersistenceError::RocksdbCorruption(_) | PersistenceError::RocksdbRepairFail(_)
