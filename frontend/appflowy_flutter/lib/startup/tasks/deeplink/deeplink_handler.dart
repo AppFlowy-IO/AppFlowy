@@ -49,6 +49,8 @@ class DeepLinkHandlerRegistry {
   }) async {
     Log.info('Processing DeepLink: ${uri.toString()}');
 
+    bool handled = false;
+
     for (final handler in _handlers) {
       if (handler.canHandle(uri)) {
         Log.info('Handler ${handler.runtimeType} will handle the DeepLink');
@@ -59,14 +61,19 @@ class DeepLinkHandlerRegistry {
         );
 
         onResult(handler, result);
+
+        handled = true;
+        break;
       }
     }
 
-    Log.error('No handler found for DeepLink: ${uri.toString()}');
+    if (!handled) {
+      Log.error('No handler found for DeepLink: ${uri.toString()}');
 
-    onError(
-      FlowyError(msg: 'No handler found for DeepLink: ${uri.toString()}'),
-    );
+      onError(
+        FlowyError(msg: 'No handler found for DeepLink: ${uri.toString()}'),
+      );
+    }
   }
 }
 
