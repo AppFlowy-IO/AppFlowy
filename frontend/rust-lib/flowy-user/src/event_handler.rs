@@ -15,7 +15,7 @@ use serde_json::Value;
 use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
-use tracing::{event, trace};
+use tracing::event;
 use uuid::Uuid;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
@@ -538,11 +538,11 @@ pub async fn get_all_reminder_event_handler(
   let reminders = manager
     .get_all_reminders()
     .await
+    .unwrap_or_default()
     .into_iter()
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
 
-  trace!("number of reminders: {}", reminders.len());
   data_result_ok(reminders.into())
 }
 

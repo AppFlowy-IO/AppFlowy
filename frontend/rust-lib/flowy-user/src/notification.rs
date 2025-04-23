@@ -15,6 +15,9 @@ pub(crate) enum UserNotification {
   DidUpdateCloudConfig = 4,
   DidUpdateUserWorkspace = 5,
   DidUpdateWorkspaceSetting = 6,
+  DidLoadUserAwareness = 7,
+  // TODO: implement reminder observer
+  DidUpdateReminder = 8,
 }
 
 impl std::convert::From<UserNotification> for i32 {
