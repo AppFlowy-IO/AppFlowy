@@ -128,8 +128,7 @@ class _MobileSearchResultListState extends State<MobileSearchResultList> {
                 onTap: () async {
                   final view = await ViewBackendService.getView(item.id)
                       .fold((s) => s, (s) => null);
-                  if (view != null) {
-                    // ignore: use_build_context_synchronously
+                  if (view != null && context.mounted) {
                     await _goToView(context, view);
                   }
                 },

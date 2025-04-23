@@ -158,8 +158,8 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   }
 
   void onBackOrLeave() {
-    final lable = bottomNavigationBarItemType.value;
-    if (lable == BottomNavigationBarItemType.search.label) {
+    final label = bottomNavigationBarItemType.value;
+    if (label == BottomNavigationBarItemType.search.label) {
       focusNode.requestFocus();
     } else {
       controller.clear();
