@@ -1,13 +1,11 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
-import 'package:appflowy/mobile/presentation/setting/workspace/add_members_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/m_invite_member_by_link.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/m_invite_member_by_email.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -19,42 +17,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'member_list.dart';
 
-ValueNotifier<int> mobileLeaveWorkspaceNotifier = ValueNotifier(0);
-
-class InviteMembersScreen extends StatelessWidget {
-  const InviteMembersScreen({
+class AddMembersScreen extends StatelessWidget {
+  const AddMembersScreen({
     super.key,
   });
 
-  static const routeName = '/invite_member';
+  static const routeName = '/add_member';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FlowyAppBar(
-        titleText: LocaleKeys.settings_appearance_members_label.tr(),
-        actions: [
-          _buildAddMemberButton(context),
-        ],
+        titleText: 'Add members',
       ),
       body: const _InviteMemberPage(),
       resizeToAvoidBottomInset: false,
-    );
-  }
-
-  Widget _buildAddMemberButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 20),
-      child: GestureDetector(
-        onTap: () {
-          context.push(AddMembersScreen.routeName);
-        },
-        child: FlowySvg(FlowySvgs.add_thin_s),
-      ),
     );
   }
 }
@@ -113,7 +93,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(theme.spacing.xl),
-                      child: const MInviteMemberByLink(),
+                      child: const MInviteMemberByEmail(),
                     ),
                     VSpace(theme.spacing.m),
                   ],
@@ -139,6 +119,41 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       },
     );
   }
+
+  // Widget _buildInviteMemberArea(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       TextFormField(
+  //         autofocus: true,
+  //         controller: emailController,
+  //         keyboardType: TextInputType.text,
+  //         decoration: InputDecoration(
+  //           hintText: LocaleKeys.settings_appearance_members_inviteHint.tr(),
+  //         ),
+  //       ),
+  //       const VSpace(16),
+  //       if (exceededLimit) ...[
+  //         FlowyText.regular(
+  //           LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
+  //               .tr(),
+  //           fontSize: 14.0,
+  //           maxLines: 3,
+  //           color: Theme.of(context).colorScheme.error,
+  //         ),
+  //         const VSpace(16),
+  //       ],
+  //       SizedBox(
+  //         width: double.infinity,
+  //         child: ElevatedButton(
+  //           onPressed: () => _inviteMember(context),
+  //           child: Text(
+  //             LocaleKeys.settings_appearance_members_sendInvite.tr(),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildError(BuildContext context) {
     return Center(
@@ -271,13 +286,28 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         (f) {
           Log.error('generate invite link failed: $f');
           showToastNotification(
-            type: ToastificationType.error,
             message: 'Failed to generate invite link',
           );
         },
       );
     }
   }
+
+  // void _inviteMember(BuildContext context) {
+  //   final email = emailController.text;
+  //   if (!isEmail(email)) {
+  //     showToastNotification(
+  //       type: ToastificationType.error,
+  //       message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
+  //     );
+  //     return;
+  //   }
+  //   context
+  //       .read<WorkspaceMemberBloc>()
+  //       .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
+  //   // clear the email field after inviting
+  //   emailController.clear();
+  // }
 }
 
 class _LeaveWorkspaceButton extends StatelessWidget {
@@ -313,16 +343,7 @@ class _LeaveWorkspaceButton extends StatelessWidget {
         fontWeight: FontWeight.w400,
         color: const Color(0xFFFE0220),
       ),
-      onRightButtonPressed: (buttonContext) async {
-        // try to use popUntil with a specific route name but failed
-        // so use pop twice as a workaround
-        Navigator.of(buttonContext).pop();
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-
-        mobileLeaveWorkspaceNotifier.value =
-            mobileLeaveWorkspaceNotifier.value + 1;
-      },
+      onRightButtonPressed: (buttonContext) async {},
     );
   }
 }
