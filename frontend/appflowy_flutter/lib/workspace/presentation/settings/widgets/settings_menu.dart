@@ -31,7 +31,7 @@ class SettingsMenu extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: theme.backgroundColorScheme.secondary,
               borderRadius: const BorderRadiusDirectional.only(
