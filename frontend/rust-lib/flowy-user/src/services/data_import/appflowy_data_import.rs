@@ -126,7 +126,7 @@ pub(crate) fn prepare_import(
   run_data_migration(
     &imported_session,
     &imported_user_auth_type,
-    imported_collab_db.clone(),
+    Arc::downgrade(&imported_collab_db),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),
     app_version,

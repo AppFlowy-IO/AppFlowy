@@ -69,6 +69,11 @@ pub struct AIManager {
   pub store_preferences: Arc<KVStorePreferences>,
   server_models: Arc<RwLock<ServerModelsCache>>,
 }
+impl Drop for AIManager {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop ai manager");
+  }
+}
 
 impl AIManager {
   pub fn new(

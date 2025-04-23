@@ -167,11 +167,11 @@ SPEC CHECKSUMS:
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   Sparkle: 5f8960a7a119aa7d45dacc0d5837017170bc5675
-  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  super_native_extensions: c2795d6d9aedf4a79fae25cb6160b71b50549189
-  url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
-  webview_flutter_wkwebview: 44d4dee7d7056d5ad185d25b38404436d56c547c
-  window_manager: e8d0b1431ab6c454f2b5c9ae26004bbfa43469aa
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3
+  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
+  webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
+  window_manager: 990c8e348c4da2a93b81da638245d40554ec9436
 
 PODFILE CHECKSUM: 0532f3f001ca3110b8be345d6491fff690e95823
 

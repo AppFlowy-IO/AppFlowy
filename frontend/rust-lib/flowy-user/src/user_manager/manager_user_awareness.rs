@@ -215,7 +215,7 @@ impl UserManager {
     let collab_db = self.get_collab_db(session.user_id)?;
     let weak_builder = self.collab_builder.clone();
     let user_awareness = Arc::downgrade(&self.user_awareness);
-    let cloud_services = self.cloud_service.clone();
+    let cloud_services = self.cloud_service()?;
     let authenticate_user = self.authenticate_user.clone();
     let is_loading_awareness = self.is_loading_awareness.clone();
 
