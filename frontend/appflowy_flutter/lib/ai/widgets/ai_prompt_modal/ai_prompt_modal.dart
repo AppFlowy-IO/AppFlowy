@@ -82,7 +82,6 @@ class AiPromptModal extends StatelessWidget {
                             child: AiPromptCategoryList(
                               padding: EdgeInsetsDirectional.only(
                                 top: theme.spacing.l,
-                                bottom: theme.spacing.l,
                                 end: theme.spacing.l,
                               ),
                             ),

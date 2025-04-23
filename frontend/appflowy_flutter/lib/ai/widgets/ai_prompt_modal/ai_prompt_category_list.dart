@@ -27,16 +27,35 @@ class AiPromptCategoryList extends StatelessWidget {
           children: [
             _buildSearchField(context),
             _buildFeaturedCategory(context),
-            _buildDivider(context),
-            _buildCategoryItem(context, null),
-            _buildCategoryItem(context, AiPromptCategory.development),
-            _buildCategoryItem(context, AiPromptCategory.writing),
-            _buildCategoryItem(context, AiPromptCategory.business),
-            _buildCategoryItem(context, AiPromptCategory.marketing),
-            _buildCategoryItem(context, AiPromptCategory.learning),
-            _buildCategoryItem(context, AiPromptCategory.healthAndFitness),
-            _buildCategoryItem(context, AiPromptCategory.travel),
-            _buildCategoryItem(context, AiPromptCategory.other),
+            const AFDivider(),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildCategoryItem(context, null),
+                  _buildCategoryItem(context, AiPromptCategory.development),
+                  _buildCategoryItem(context, AiPromptCategory.writing),
+                  _buildCategoryItem(context, AiPromptCategory.business),
+                  _buildCategoryItem(context, AiPromptCategory.marketing),
+                  _buildCategoryItem(context, AiPromptCategory.learning),
+                  _buildCategoryItem(
+                    context,
+                    AiPromptCategory.healthAndFitness,
+                  ),
+                  _buildCategoryItem(context, AiPromptCategory.travel),
+                  _buildCategoryItem(context, AiPromptCategory.contentSeo),
+                  _buildCategoryItem(context, AiPromptCategory.emailMarketing),
+                  _buildCategoryItem(context, AiPromptCategory.paidAds),
+                  _buildCategoryItem(context, AiPromptCategory.prCommunication),
+                  _buildCategoryItem(context, AiPromptCategory.recruiting),
+                  _buildCategoryItem(context, AiPromptCategory.sales),
+                  _buildCategoryItem(context, AiPromptCategory.socialMedia),
+                  _buildCategoryItem(context, AiPromptCategory.strategy),
+                  _buildCategoryItem(context, AiPromptCategory.caseStudies),
+                  _buildCategoryItem(context, AiPromptCategory.salesCopy),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -106,13 +125,6 @@ class AiPromptCategoryList extends StatelessWidget {
         }
         return Colors.transparent;
       },
-    );
-  }
-
-  Widget _buildDivider(BuildContext context) {
-    return Divider(
-      color: AppFlowyTheme.of(context).borderColorScheme.greyTertiary,
-      height: 1,
     );
   }
 }

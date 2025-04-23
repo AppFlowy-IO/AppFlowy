@@ -3301,7 +3301,17 @@
       "others": "Other",
       "prompt": "Prompt",
       "example": "Example",
-      "sampleOutput": "Sample output"
+      "sampleOutput": "Sample output",
+      "contentSeo": "Content/SEO",
+      "emailMarketing": "Email Marketing",
+      "paidAds": "Paid Ads",
+      "prCommunication": "PR/Communication",
+      "recruiting": "Recruiting",
+      "sales": "Sales",
+      "socialMedia": "Social Media",
+      "strategy": "Strategy",
+      "caseStudies": "Case Studies",
+      "salesCopy": "Sales Copy"
     }
   },
   "autoUpdate": {

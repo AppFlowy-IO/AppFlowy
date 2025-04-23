@@ -110,22 +110,42 @@ enum TextFormat {
 }
 
 enum AiPromptCategory {
-  @JsonValue(0)
+  @JsonValue("other")
   other,
-  @JsonValue(1)
+  @JsonValue("development")
   development,
-  @JsonValue(2)
+  @JsonValue("writing")
   writing,
-  @JsonValue(3)
+  @JsonValue("healthAndFitness")
   healthAndFitness,
-  @JsonValue(4)
+  @JsonValue("business")
   business,
-  @JsonValue(5)
+  @JsonValue("marketing")
   marketing,
-  @JsonValue(6)
+  @JsonValue("learning")
   learning,
-  @JsonValue(7)
-  travel;
+  @JsonValue("travel")
+  travel,
+  @JsonValue("contentSeo")
+  contentSeo,
+  @JsonValue("emailMarketing")
+  emailMarketing,
+  @JsonValue("paidAds")
+  paidAds,
+  @JsonValue("prCommunication")
+  prCommunication,
+  @JsonValue("recruiting")
+  recruiting,
+  @JsonValue("sales")
+  sales,
+  @JsonValue("socialMedia")
+  socialMedia,
+  @JsonValue("strategy")
+  strategy,
+  @JsonValue("caseStudies")
+  caseStudies,
+  @JsonValue("salesCopy")
+  salesCopy;
 
   String get i18n {
     return switch (this) {
@@ -137,6 +157,16 @@ enum AiPromptCategory {
       marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
       learning => LocaleKeys.ai_customPrompt_learning.tr(),
       travel => LocaleKeys.ai_customPrompt_travel.tr(),
+      contentSeo => LocaleKeys.ai_customPrompt_contentSeo.tr(),
+      emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing.tr(),
+      paidAds => LocaleKeys.ai_customPrompt_paidAds.tr(),
+      prCommunication => LocaleKeys.ai_customPrompt_prCommunication.tr(),
+      recruiting => LocaleKeys.ai_customPrompt_recruiting.tr(),
+      sales => LocaleKeys.ai_customPrompt_sales.tr(),
+      socialMedia => LocaleKeys.ai_customPrompt_socialMedia.tr(),
+      strategy => LocaleKeys.ai_customPrompt_strategy.tr(),
+      caseStudies => LocaleKeys.ai_customPrompt_caseStudies.tr(),
+      salesCopy => LocaleKeys.ai_customPrompt_salesCopy.tr(),
     };
   }
 }
