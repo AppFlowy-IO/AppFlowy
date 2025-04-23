@@ -2,10 +2,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
@@ -173,7 +175,14 @@ class _HomePageState extends State<_HomePage> {
       listener: (context, state) {
         getIt<CachedRecentService>().reset();
         mCurrentWorkspace.value = state.currentWorkspace;
-
+        if (FeatureFlag.search.isOn) {
+          // Notify command palette that workspace has changed
+          context.read<CommandPaletteBloc>().add(
+                CommandPaletteEvent.workspaceChanged(
+                  workspaceId: state.currentWorkspace?.workspaceId,
+                ),
+              );
+        }
         Debounce.debounce(
           'workspace_action_result',
           const Duration(milliseconds: 150),

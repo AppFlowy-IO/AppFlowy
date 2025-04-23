@@ -2321,6 +2321,12 @@
   "search": {
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
+    "searchOrAskAI": "Search or ask AI",
+    "askAIAnything": "Ask AI anything",
+    "askAIFor": "Ask AI",
+    "noResultForSearching": "No result for \"{}\"",
+    "noResultForSearchingHint": "Some results may be in your deleted pages",
+    "bestMatch": "Best match",
     "placeholder": {
       "actions": "Search actions..."
     }

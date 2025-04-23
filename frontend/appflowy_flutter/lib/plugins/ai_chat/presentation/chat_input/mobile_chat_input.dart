@@ -1,11 +1,13 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MobileChatInput extends StatefulWidget {
   const MobileChatInput({
@@ -44,6 +46,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
+      checkForAskingAI();
     });
 
     updateSendButtonState();
@@ -181,6 +184,10 @@ class _MobileChatInputState extends State<MobileChatInput> {
       return;
     }
 
+    onSubmitText(trimmedText);
+  }
+
+  void onSubmitText(String text) {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
@@ -189,10 +196,22 @@ class _MobileChatInputState extends State<MobileChatInput> {
     final predefinedFormat = bloc.state.predefinedFormat;
 
     widget.onSubmitted(
-      trimmedText,
+      text,
       showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
+  }
+
+  void checkForAskingAI() {
+    if (!UniversalPlatform.isMobile) return;
+    final paletteBloc = context.read<CommandPaletteBloc?>(),
+        paletteState = paletteBloc?.state;
+    final isAskingAI = paletteState?.askAI ?? false;
+    if (!isAskingAI) return;
+    final query = paletteState?.query ?? '';
+    if (query.isEmpty) return;
+    onSubmitText(query);
+    paletteBloc?.add(CommandPaletteEvent.askedAI());
   }
 
   void handleTextControllerChanged() {
