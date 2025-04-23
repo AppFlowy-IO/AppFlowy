@@ -32,7 +32,6 @@ use crate::migrations::migration::{
 };
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
-use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
@@ -396,13 +395,11 @@ impl UserManager {
     let cloud_service = self.cloud_service()?;
     cloud_service.set_server_auth_type(&auth_type, None)?;
 
-    // sign out the current user if there is one
-    let migration_user = self.get_migration_user(&auth_type).await;
     let auth_service = cloud_service.get_user_service()?;
     let response: AuthResponse = auth_service.sign_up(params).await?;
     let new_user_profile = UserProfile::from((&response, &auth_type));
     self
-      .continue_sign_up(&new_user_profile, migration_user, response, &auth_type)
+      .continue_sign_up(&new_user_profile, response, &auth_type)
       .await?;
     Ok(new_user_profile)
   }
@@ -411,7 +408,6 @@ impl UserManager {
   async fn continue_sign_up(
     &self,
     new_user_profile: &UserProfile,
-    migration_user: Option<AnonUser>,
     response: AuthResponse,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
@@ -445,23 +441,6 @@ impl UserManager {
         mark_all_migrations_as_applied(&pool);
       } else {
         error!("Failed to get pool for user {}", new_session.user_id);
-      }
-
-      if let Some(old_user) = migration_user {
-        event!(
-          tracing::Level::INFO,
-          "Migrate anon user data from {:?} to {:?}",
-          old_user.session.user_id,
-          new_user_profile.uid
-        );
-        self
-          .migrate_anon_user_data_to_cloud(&old_user, &new_session, auth_type)
-          .await?;
-        self.remove_anon_user();
-        let _ = self
-          .authenticate_user
-          .database
-          .close(old_user.session.user_id);
       }
     }
 
@@ -779,28 +758,6 @@ impl UserManager {
         self.db_connection(user_update.uid)?,
         UserTableChangeset::from(user_update),
       )?;
-    }
-
-    Ok(())
-  }
-
-  async fn migrate_anon_user_data_to_cloud(
-    &self,
-    old_user: &AnonUser,
-    _new_user_session: &Session,
-    auth_type: &AuthType,
-  ) -> Result<(), FlowyError> {
-    let old_collab_db = self
-      .authenticate_user
-      .database
-      .get_collab_db(old_user.session.user_id)?
-      .upgrade()
-      .ok_or_else(FlowyError::ref_drop)?;
-
-    if auth_type == &AuthType::AppFlowyCloud {
-      self
-        .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
-        .await?;
     }
 
     Ok(())
