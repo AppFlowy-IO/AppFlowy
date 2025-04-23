@@ -15,7 +15,7 @@ use serde_json::Value;
 use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
-use tracing::{event, trace};
+use tracing::event;
 use uuid::Uuid;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
@@ -94,12 +94,12 @@ pub async fn get_user_profile_handler(
   let session = manager.get_session()?;
 
   let mut user_profile = manager
-    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .get_user_profile_from_disk(session.user_id, &session.workspace_id)
     .await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
-  let workspace_id = session.user_workspace.id.clone();
+  let workspace_id = session.workspace_id.clone();
 
   // Refresh the user profile in the background
   tokio::spawn(async move {
@@ -382,10 +382,9 @@ pub async fn set_cloud_config_handler(
   let mut config = get_cloud_config(session.user_id, &store_preferences)
     .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
 
+  let cloud_service = manager.cloud_service()?;
   if let Some(enable_sync) = update.enable_sync {
-    manager
-      .cloud_service
-      .set_enable_sync(session.user_id, enable_sync);
+    cloud_service.set_enable_sync(session.user_id, enable_sync);
     config.enable_sync = enable_sync;
   }
 
@@ -395,7 +394,7 @@ pub async fn set_cloud_config_handler(
     enable_sync: config.enable_sync,
     enable_encrypt: config.enable_encrypt,
     encrypt_secret: config.encrypt_secret,
-    server_url: manager.cloud_service.service_url(),
+    server_url: cloud_service.service_url(),
   };
 
   send_notification(
@@ -416,13 +415,14 @@ pub async fn get_cloud_config_handler(
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let cloud_service = manager.cloud_service()?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
   data_result_ok(CloudSettingPB {
     enable_sync: config.enable_sync,
     enable_encrypt: config.enable_encrypt,
     encrypt_secret: config.encrypt_secret,
-    server_url: manager.cloud_service.service_url(),
+    server_url: cloud_service.service_url(),
   })
 }
 
@@ -433,16 +433,13 @@ pub async fn get_all_workspace_handler(
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
   let profile = manager
-    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .get_user_profile_from_disk(session.user_id, &session.workspace_id)
     .await?;
   let user_workspaces = manager
     .get_all_user_workspaces(profile.uid, profile.auth_type)
     .await?;
 
-  data_result_ok(RepeatedUserWorkspacePB::from((
-    profile.auth_type,
-    user_workspaces,
-  )))
+  data_result_ok(RepeatedUserWorkspacePB::from(user_workspaces))
 }
 
 #[tracing::instrument(level = "info", skip(data, manager), err)]
@@ -454,7 +451,7 @@ pub async fn open_workspace_handler(
   let params = data.try_into_inner()?;
   let workspace_id = Uuid::from_str(&params.workspace_id)?;
   manager
-    .open_workspace(&workspace_id, AuthType::from(params.auth_type))
+    .open_workspace(&workspace_id, AuthType::from(params.workspace_auth_type))
     .await?;
   Ok(())
 }
@@ -479,7 +476,7 @@ pub async fn update_network_state_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let reachable = data.into_inner().ty.is_reachable();
-  manager.cloud_service.set_network_reachable(reachable);
+  manager.cloud_service()?.set_network_reachable(reachable);
   manager
     .user_status_callback
     .read()
@@ -541,11 +538,11 @@ pub async fn get_all_reminder_event_handler(
   let reminders = manager
     .get_all_reminders()
     .await
+    .unwrap_or_default()
     .into_iter()
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
 
-  trace!("number of reminders: {}", reminders.len());
   data_result_ok(reminders.into())
 }
 
@@ -627,7 +624,7 @@ pub async fn create_workspace_handler(
   let auth_type = AuthType::from(data.auth_type);
   let manager = upgrade_manager(manager)?;
   let new_workspace = manager.create_workspace(&data.name, auth_type).await?;
-  data_result_ok(UserWorkspacePB::from((auth_type, new_workspace)))
+  data_result_ok(UserWorkspacePB::from(new_workspace))
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -825,7 +822,7 @@ pub async fn get_workspace_member_info(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<WorkspaceMemberPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let workspace_id = manager.get_session()?.user_workspace.workspace_id()?;
+  let workspace_id = Uuid::parse_str(&manager.get_session()?.workspace_id)?;
   let member = manager
     .get_workspace_member_info(param.uid, &workspace_id)
     .await?;

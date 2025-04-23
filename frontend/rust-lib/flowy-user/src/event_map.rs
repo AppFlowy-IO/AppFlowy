@@ -285,17 +285,22 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _cloud_config: &Option<UserCloudConfig>,
-    _user_workspace: &UserWorkspace,
+    _workspace_id: &Uuid,
     _device_id: &str,
     _auth_type: &AuthType,
   ) -> FlowyResult<()> {
     Ok(())
   }
+
+  async fn did_launch(&self) -> FlowyResult<()> {
+    Ok(())
+  }
+
   /// Fires right after the user successfully signs in.
   async fn on_sign_in(
     &self,
     _user_id: i64,
-    _user_workspace: &UserWorkspace,
+    _workspace_id: &Uuid,
     _device_id: &str,
     _auth_type: &AuthType,
   ) -> FlowyResult<()> {
@@ -307,7 +312,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _is_new_user: bool,
     _user_profile: &UserProfile,
-    _user_workspace: &UserWorkspace,
+    _workspace_id: &Uuid,
     _device_id: &str,
     _auth_type: &AuthType,
   ) -> FlowyResult<()> {

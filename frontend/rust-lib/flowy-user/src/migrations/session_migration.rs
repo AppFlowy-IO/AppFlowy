@@ -1,33 +1,120 @@
+use chrono::Utc;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_user_pub::entities::{AuthType, Role, UserWorkspace};
 use flowy_user_pub::session::Session;
-use serde_json::{json, Value};
+use serde::de::{MapAccess, Visitor};
+use serde::{Deserialize, Deserializer, Serialize};
+use serde_json::Value;
+use std::fmt;
 use std::sync::Arc;
 use uuid::Uuid;
 
-const MIGRATION_USER_NO_USER_UUID: &str = "migration_user_no_user_uuid";
+const MIGRATION_SESSION: &str = "migration_session_key";
+pub const SESSION_CACHE_KEY_BACKUP: &str = "session_cache_key_backup";
 
-pub fn migrate_session_with_user_uuid(
+pub fn migrate_session(
   session_cache_key: &str,
   store_preferences: &Arc<KVStorePreferences>,
 ) -> Option<Session> {
-  if !store_preferences.get_bool_or_default(MIGRATION_USER_NO_USER_UUID)
-    && store_preferences
-      .set_bool(MIGRATION_USER_NO_USER_UUID, true)
-      .is_ok()
+  if !store_preferences.get_bool_or_default(MIGRATION_SESSION)
+    && store_preferences.set_bool(MIGRATION_SESSION, true).is_ok()
   {
-    if let Some(mut value) = store_preferences.get_object::<Value>(session_cache_key) {
-      if value.get("user_uuid").is_none() {
-        if let Some(map) = value.as_object_mut() {
-          map.insert("user_uuid".to_string(), json!(Uuid::new_v4()));
-        }
-      }
-
-      if let Ok(new_session) = serde_json::from_value::<Session>(value) {
-        let _ = store_preferences.set_object(session_cache_key, &new_session);
-        return Some(new_session);
-      }
+    if let Some(session) = store_preferences.get_object::<SessionBackup>(session_cache_key) {
+      let _ = store_preferences.set_object(SESSION_CACHE_KEY_BACKUP, &session);
+      let new_session = Session {
+        user_id: session.user_id,
+        user_uuid: session.user_uuid,
+        workspace_id: session.user_workspace.id,
+      };
+      let _ = store_preferences.set_object(session_cache_key, &new_session);
     }
   }
 
-  None
+  store_preferences.get_object::<Session>(session_cache_key)
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct SessionBackup {
+  user_id: i64,
+  user_uuid: Uuid,
+  user_workspace: UserWorkspace,
+}
+pub fn get_session_workspace(store_preferences: &Arc<KVStorePreferences>) -> Option<UserWorkspace> {
+  store_preferences
+    .get_object::<SessionBackup>(SESSION_CACHE_KEY_BACKUP)
+    .map(|v| v.user_workspace)
+}
+
+struct SessionVisitor;
+impl<'de> Visitor<'de> for SessionVisitor {
+  type Value = SessionBackup;
+
+  fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    formatter.write_str("SessionBackup")
+  }
+
+  fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+  where
+    M: MapAccess<'de>,
+  {
+    let mut user_id = None;
+    let mut user_uuid = None;
+    // For historical reasons, the session used to contain a workspace_id field.
+    // This field is no longer used, and is replaced by user_workspace.
+    let mut workspace_id = None;
+    let mut user_workspace = None;
+
+    while let Some(key) = map.next_key::<String>()? {
+      match key.as_str() {
+        "user_id" => {
+          user_id = Some(map.next_value()?);
+        },
+        "user_uuid" => {
+          user_uuid = Some(map.next_value()?);
+        },
+        "workspace_id" => {
+          workspace_id = Some(map.next_value()?);
+        },
+        "user_workspace" => {
+          user_workspace = Some(map.next_value()?);
+        },
+        _ => {
+          let _ = map.next_value::<Value>();
+        },
+      }
+    }
+    let user_id = user_id.ok_or(serde::de::Error::missing_field("user_id"))?;
+    let user_uuid = user_uuid.unwrap_or_else(Uuid::new_v4);
+    if user_workspace.is_none() {
+      if let Some(workspace_id) = workspace_id {
+        user_workspace = Some(UserWorkspace {
+          id: workspace_id,
+          name: "My Workspace".to_string(),
+          created_at: Utc::now(),
+          workspace_database_id: Uuid::new_v4().to_string(),
+          icon: "".to_owned(),
+          member_count: 1,
+          role: Some(Role::Owner),
+          workspace_type: AuthType::Local,
+        })
+      }
+    }
+
+    let session = SessionBackup {
+      user_id,
+      user_uuid,
+      user_workspace: user_workspace.ok_or(serde::de::Error::missing_field("user_workspace"))?,
+    };
+
+    Ok(session)
+  }
+}
+
+impl<'de> Deserialize<'de> for SessionBackup {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'de>,
+  {
+    deserializer.deserialize_any(SessionVisitor)
+  }
 }

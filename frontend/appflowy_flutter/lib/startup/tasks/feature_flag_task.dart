@@ -8,6 +8,8 @@ class FeatureFlagTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // the hotkey manager is not supported on mobile
     if (!kDebugMode) {
       return;
@@ -15,7 +17,4 @@ class FeatureFlagTask extends LaunchTask {
 
     await FeatureFlag.initialize();
   }
-
-  @override
-  Future<void> dispose() async {}
 }

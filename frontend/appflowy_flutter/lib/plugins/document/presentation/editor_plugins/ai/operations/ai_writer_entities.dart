@@ -91,13 +91,15 @@ enum AiWriterCommand {
       };
 
   FlowySvgData get icon => switch (this) {
-        userQuestion => FlowySvgs.ai_sparks_s,
-        explain => FlowySvgs.ai_explain_m,
+        userQuestion => FlowySvgs.toolbar_ai_ask_anything_m,
+        explain => FlowySvgs.toolbar_ai_explain_m,
         // summarize => FlowySvgs.ai_summarize_s,
-        continueWriting || improveWriting => FlowySvgs.ai_improve_writing_s,
-        fixSpellingAndGrammar => FlowySvgs.ai_fix_spelling_grammar_s,
-        makeShorter => FlowySvgs.ai_make_shorter_s,
-        makeLonger => FlowySvgs.ai_make_longer_s,
+        continueWriting ||
+        improveWriting =>
+          FlowySvgs.toolbar_ai_improve_writing_m,
+        fixSpellingAndGrammar => FlowySvgs.toolbar_ai_fix_spelling_grammar_m,
+        makeShorter => FlowySvgs.toolbar_ai_make_shorter_m,
+        makeLonger => FlowySvgs.toolbar_ai_make_longer_m,
       };
 
   CompletionTypePB toCompletionType() => switch (this) {

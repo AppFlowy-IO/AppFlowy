@@ -2,6 +2,7 @@
 
 use crate::af_cloud::define::LoggedUser;
 use crate::local_server::uid::UserIDGenerator;
+use anyhow::Context;
 use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -13,10 +14,10 @@ use flowy_error::FlowyError;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::sql::{
-  select_all_user_workspace, select_user_profile, select_user_workspace, select_workspace_member,
-  select_workspace_setting, update_user_profile, update_workspace_setting, upsert_workspace_member,
-  upsert_workspace_setting, UserTableChangeset, WorkspaceMemberTable, WorkspaceSettingsChangeset,
-  WorkspaceSettingsTable,
+  insert_local_workspace, select_all_user_workspace, select_user_profile, select_user_workspace,
+  select_workspace_member, select_workspace_setting, update_user_profile, update_workspace_setting,
+  upsert_workspace_member, upsert_workspace_setting, UserTableChangeset, WorkspaceMemberTable,
+  WorkspaceSettingsChangeset, WorkspaceSettingsTable,
 };
 use flowy_user_pub::DEFAULT_USER_NAME;
 use lazy_static::lazy_static;
@@ -161,10 +162,11 @@ impl UserCloudService for LocalServerUserServiceImpl {
 
   async fn create_workspace(&self, workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
     let workspace_id = Uuid::new_v4();
-    Ok(UserWorkspace::new_local(
-      workspace_id.to_string(),
-      workspace_name,
-    ))
+    let uid = self.logged_user.user_id()?;
+    let mut conn = self.logged_user.get_sqlite_db(uid)?;
+    let user_workspace =
+      insert_local_workspace(uid, &workspace_id.to_string(), workspace_name, &mut conn)?;
+    Ok(user_workspace)
   }
 
   async fn patch_workspace(
@@ -178,6 +180,15 @@ impl UserCloudService for LocalServerUserServiceImpl {
 
   async fn delete_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     Ok(())
+  }
+
+  async fn get_workspace_members(
+    &self,
+    workspace_id: Uuid,
+  ) -> Result<Vec<WorkspaceMember>, FlowyError> {
+    let uid = self.logged_user.user_id()?;
+    let member = self.get_workspace_member(&workspace_id, uid).await?;
+    Ok(vec![member])
   }
 
   async fn get_user_awareness_doc_state(
@@ -227,15 +238,17 @@ impl UserCloudService for LocalServerUserServiceImpl {
       Err(err) => {
         if err.is_record_not_found() {
           let mut conn = self.logged_user.get_sqlite_db(uid)?;
-          let profile = select_user_profile(uid, &workspace_id.to_string(), &mut conn)?;
+          let profile = select_user_profile(uid, &workspace_id.to_string(), &mut conn)
+            .context("Can't find user profile when create workspace member")?;
           let row = WorkspaceMemberTable {
             email: profile.email.to_string(),
-            role: 0,
+            role: Role::Owner as i32,
             name: profile.name.to_string(),
             avatar_url: Some(profile.icon_url),
             uid,
             workspace_id: workspace_id.to_string(),
-            updated_at: Default::default(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            joined_at: None,
           };
 
           let member = WorkspaceMember::from(row.clone());

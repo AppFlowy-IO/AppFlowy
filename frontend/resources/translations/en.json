@@ -882,6 +882,7 @@
         "localAIDisabled": "You are using local AI, but it is disabled. Please go to settings to enable it or try different model",
         "localAIInitializing": "Local AI is loading. This may take a few seconds depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
+        "localAIDisabledTextFieldPrompt": "You can not edit while Local AI is disabled",
         "failToLoadLocalAI": "Failed to start local AI.",
         "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
@@ -1352,7 +1353,7 @@
         "generateANewLink": "generate a new link",
         "inviteMemberByEmail": "Invite member by email",
         "inviteMemberHintText": "Invite by email",
-        "resetInviteLink": "Reset the invite link",
+        "resetInviteLink": "Reset the invite link?",
         "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The previous link can only be managed through the",
         "adminPanel": "Admin Panel",
         "reset": "Reset",
@@ -2320,6 +2321,12 @@
   "search": {
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
+    "searchOrAskAI": "Search or ask AI",
+    "askAIAnything": "Ask AI anything",
+    "askAIFor": "Ask AI",
+    "noResultForSearching": "No result for \"{}\"",
+    "noResultForSearchingHint": "Some results may be in your deleted pages",
+    "bestMatch": "Best match",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -2428,6 +2435,19 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "closeNotification": "Close notification",
+    "viewNotifications": "View notifications",
+    "noNotifications": "No notifications yet",
+    "mentionedYou": "Mentioned you",
+    "archievedTooltip": "Archieve this notification",
+    "unarchievedTooltip": "Unarchieved this notification",
+    "markAsReadTooltip": "Mark as read this notification",
+    "markAsArchievedSucceedToast": "Archive successful",
+    "markAllAsArchievedSucceedToast": "Archive all successful",
+    "markAsReadSucceedToast": "Mark as read successful",
+    "markAllAsReadSucceedToast": "Mark all as read successful",
+    "today": "Today",
+    "older": "Older",
     "mobile": {
       "title": "Updates"
     },

@@ -51,7 +51,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     await _saveNotificationSettings();
   }
 
-  Future<void> toogleShowNotificationIconEnabled() async {
+  Future<void> toggleShowNotificationIconEnabled() async {
     await _initCompleter.future;
 
     emit(

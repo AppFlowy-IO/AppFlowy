@@ -9,7 +9,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
-use tracing::{event, info, Level};
+use tracing::{error, event, info, Level};
 use uuid::Uuid;
 
 impl FolderManager {
@@ -73,7 +73,7 @@ impl FolderManager {
           // 3. If the folder doesn't exist and create_if_not_exist is false, try to fetch the folder data from cloud/
           // This will happen user can't fetch the folder data when the user sign in.
           let doc_state = self
-            .cloud_service
+            .cloud_service()?
             .get_folder_doc_state(workspace_id, uid, CollabType::Folder, workspace_id)
             .await?;
 
@@ -139,9 +139,12 @@ impl FolderManager {
     );
 
     let weak_folder_indexer = Arc::downgrade(&self.folder_indexer);
+    let workspace_id = *workspace_id;
     tokio::spawn(async move {
       if let Some(folder_indexer) = weak_folder_indexer.upgrade() {
-        folder_indexer.initialize().await;
+        if let Err(err) = folder_indexer.initialize(&workspace_id).await {
+          error!("Failed to initialize folder indexer: {:?}", err);
+        }
       }
     });
 

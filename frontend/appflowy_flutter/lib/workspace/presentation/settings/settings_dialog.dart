@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/web_url_hint_wi
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class SettingsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.6;
+    final theme = AppFlowyTheme.of(context);
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
@@ -72,12 +74,12 @@ class SettingsDialog extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 564),
           child: ScaffoldMessenger(
             child: Scaffold(
-              backgroundColor: Colors.transparent,
+              backgroundColor: theme.backgroundColorScheme.primary,
               body: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 204,
                     child: SettingsMenu(
                       userProfile: user,
                       changeSelectedPage: (index) => context
@@ -87,6 +89,10 @@ class SettingsDialog extends StatelessWidget {
                           context.read<SettingsDialogBloc>().state.page,
                       isBillingEnabled: state.isBillingEnabled,
                     ),
+                  ),
+                  AFDivider(
+                    axis: Axis.vertical,
+                    color: theme.borderColorScheme.primary,
                   ),
                   Expanded(
                     child: getSettingsView(

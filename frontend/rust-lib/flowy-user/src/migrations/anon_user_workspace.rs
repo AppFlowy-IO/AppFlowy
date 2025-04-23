@@ -1,13 +1,15 @@
 use diesel::SqliteConnection;
 use semver::Version;
-use std::sync::Arc;
-use tracing::{info, instrument};
+use std::sync::{Arc, Weak};
+use tracing::instrument;
 
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
+use crate::migrations::session_migration::get_session_workspace;
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::{select_user_workspace, upsert_user_workspace};
 
@@ -32,23 +34,19 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
   #[instrument(name = "AnonUserWorkspaceTableMigration", skip_all, err)]
   fn run(
     &self,
-    session: &Session,
-    _collab_db: &Arc<CollabKVDB>,
-    auth_type: &AuthType,
+    user: &Session,
+    _collab_db: &Weak<CollabKVDB>,
+    user_auth_type: &AuthType,
     db: &mut SqliteConnection,
+    store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()> {
     // For historical reason, anon user doesn't have a workspace in user_workspace_table.
     // So we need to create a new entry for the anon user in the user_workspace_table.
-    if matches!(auth_type, AuthType::Local) {
-      let user_workspace = &session.user_workspace;
-      let result = select_user_workspace(&user_workspace.id, db);
-      if let Err(e) = result {
-        if e.is_record_not_found() {
-          info!(
-            "Anon user workspace not found in the database, creating a new entry for user_id: {}",
-            session.user_id
-          );
-          upsert_user_workspace(session.user_id, *auth_type, user_workspace.clone(), db)?;
+    if matches!(user_auth_type, AuthType::Local) {
+      if let Some(mut user_workspace) = get_session_workspace(store_preferences) {
+        if select_user_workspace(&user_workspace.id, db).ok().is_none() {
+          user_workspace.workspace_type = AuthType::Local;
+          upsert_user_workspace(user.user_id, *user_auth_type, user_workspace, db)?;
         }
       }
     }

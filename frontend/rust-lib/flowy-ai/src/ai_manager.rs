@@ -12,9 +12,8 @@ use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatSettings, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
-use flowy_sqlite::DBConnection;
 
 use crate::notification::{chat_notification_builder, ChatNotification};
 use crate::util::ai_available_models_key;
@@ -22,6 +21,7 @@ use collab_integrate::persistence::collab_metadata_sql::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
 use flowy_ai_pub::cloud::ai_dto::AvailableModel;
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
@@ -32,15 +32,6 @@ use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
-
-#[async_trait]
-pub trait AIUserService: Send + Sync + 'static {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  async fn is_local_model(&self) -> FlowyResult<bool>;
-  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
-  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
-  fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
-}
 
 /// AIExternalService is an interface for external services that AI plugin can interact with.
 #[async_trait]
@@ -78,6 +69,11 @@ pub struct AIManager {
   pub store_preferences: Arc<KVStorePreferences>,
   server_models: Arc<RwLock<ServerModelsCache>>,
 }
+impl Drop for AIManager {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop ai manager");
+  }
+}
 
 impl AIManager {
   pub fn new(
@@ -113,36 +109,86 @@ impl AIManager {
     }
   }
 
-  #[instrument(skip_all, err)]
-  pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
-    let local_ai = self.local_ai.clone();
-    tokio::spawn(async move {
-      if let Err(err) = local_ai.destroy_plugin().await {
-        error!("Failed to destroy plugin: {}", err);
+  async fn reload_with_workspace_id(&self, workspace_id: &Uuid) {
+    // Check if local AI is enabled for this workspace and if we're in local mode
+    let result = self.user_service.is_local_model().await;
+    if let Err(err) = &result {
+      if matches!(err.code, ErrorCode::UserNotLogin) {
+        info!("[AI Manager] User not logged in, skipping local AI reload");
+        return;
       }
+    }
 
-      if let Err(err) = local_ai.reload().await {
-        error!("[AI Manager] failed to reload local AI: {:?}", err);
-      }
-    });
+    let is_local = result.unwrap_or(false);
+    let is_enabled = self
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string());
+    let is_running = self.local_ai.is_running();
+    info!(
+      "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_running: {}",
+      workspace_id, is_local, is_enabled, is_running
+    );
+
+    // Shutdown AI if it's running but shouldn't be (not enabled and not in local mode)
+    if is_running && !is_enabled && !is_local {
+      info!("[AI Manager] Local AI is running but not enabled, shutting it down");
+      let local_ai = self.local_ai.clone();
+      tokio::spawn(async move {
+        // Wait for 5 seconds to allow other services to initialize
+        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+
+        if let Err(err) = local_ai.toggle_plugin(false).await {
+          error!("[AI Manager] failed to shutdown local AI: {:?}", err);
+        }
+      });
+      return;
+    }
+
+    // Start AI if it's enabled but not running
+    if is_enabled && !is_running {
+      info!("[AI Manager] Local AI is enabled but not running, starting it now");
+      let local_ai = self.local_ai.clone();
+      tokio::spawn(async move {
+        // Wait for 5 seconds to allow other services to initialize
+        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+
+        if let Err(err) = local_ai.toggle_plugin(true).await {
+          error!("[AI Manager] failed to start local AI: {:?}", err);
+        }
+      });
+      return;
+    }
+
+    // Log status for other cases
+    if is_running {
+      info!("[AI Manager] Local AI is already running");
+    }
+  }
+
+  #[instrument(skip_all, err)]
+  pub async fn on_launch_if_authenticated(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    self.reload_with_workspace_id(workspace_id).await;
+    Ok(())
+  }
+
+  pub async fn initialize_after_sign_in(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    self.reload_with_workspace_id(workspace_id).await;
+    Ok(())
+  }
+
+  pub async fn initialize_after_sign_up(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
   #[instrument(skip_all, err)]
   pub async fn initialize_after_open_workspace(
     &self,
-    _workspace_id: &Uuid,
+    workspace_id: &Uuid,
   ) -> Result<(), FlowyError> {
-    let local_ai = self.local_ai.clone();
-    tokio::spawn(async move {
-      if let Err(err) = local_ai.destroy_plugin().await {
-        error!("Failed to destroy plugin: {}", err);
-      }
-
-      if let Err(err) = local_ai.reload().await {
-        error!("[AI Manager] failed to reload local AI: {:?}", err);
-      }
-    });
+    self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
@@ -450,13 +496,9 @@ impl AIManager {
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
-      let mut selected_model = AIModel::default();
-      let mut models = vec![];
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        let model = AIModel::local(local_model, "".to_string());
-        selected_model = model.clone();
-        models.push(model);
-      }
+      let setting = self.local_ai.get_local_ai_setting();
+      let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+      let models = vec![selected_model.clone()];
 
       Ok(AvailableModelsPB {
         models: models.into_iter().map(|m| m.into()).collect(),

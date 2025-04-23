@@ -24,6 +24,9 @@ pub struct WorkspaceMemberPB {
 
   #[pb(index = 4, one_of)]
   pub avatar_url: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub joined_at: Option<i64>,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -33,6 +36,7 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
       name: value.name,
       role: value.role.into(),
       avatar_url: value.avatar_url,
+      joined_at: value.joined_at,
     }
   }
 }
@@ -147,7 +151,7 @@ pub struct UpdateWorkspaceMemberPB {
 }
 
 // Workspace Role
-#[derive(Debug, ProtoBuf_Enum, Clone, Default)]
+#[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
 pub enum AFRolePB {
   Owner = 0,
   Member = 1,
@@ -200,7 +204,7 @@ pub struct OpenUserWorkspacePB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub workspace_auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -242,7 +246,7 @@ pub struct CreateWorkspacePB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Default, Debug, Clone, Eq, PartialEq)]
+#[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
 #[repr(u8)]
 pub enum AuthTypePB {
   #[default]

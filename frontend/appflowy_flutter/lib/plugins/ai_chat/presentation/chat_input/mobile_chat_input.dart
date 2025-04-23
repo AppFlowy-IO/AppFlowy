@@ -1,13 +1,13 @@
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MobileChatInput extends StatefulWidget {
   const MobileChatInput({
@@ -46,6 +46,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
+      checkForAskingAI();
     });
 
     updateSendButtonState();
@@ -183,6 +184,10 @@ class _MobileChatInputState extends State<MobileChatInput> {
       return;
     }
 
+    onSubmitText(trimmedText);
+  }
+
+  void onSubmitText(String text) {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
@@ -191,10 +196,22 @@ class _MobileChatInputState extends State<MobileChatInput> {
     final predefinedFormat = bloc.state.predefinedFormat;
 
     widget.onSubmitted(
-      trimmedText,
+      text,
       showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
+  }
+
+  void checkForAskingAI() {
+    if (!UniversalPlatform.isMobile) return;
+    final paletteBloc = context.read<CommandPaletteBloc?>(),
+        paletteState = paletteBloc?.state;
+    final isAskingAI = paletteState?.askAI ?? false;
+    if (!isAskingAI) return;
+    final query = paletteState?.query ?? '';
+    if (query.isEmpty) return;
+    onSubmitText(query);
+    paletteBloc?.add(CommandPaletteEvent.askedAI());
   }
 
   void handleTextControllerChanged() {
@@ -267,10 +284,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             contentPadding: MobileAIPromptSizes.textFieldContentPadding,
-            hintText: switch (state.aiType) {
-              AiType.cloud => LocaleKeys.chat_inputMessageHint.tr(),
-              AiType.local => LocaleKeys.chat_inputLocalAIMessageHint.tr()
-            },
+            hintText: state.modelState.hintText,
             hintStyle: inputHintTextStyle(context),
             isCollapsed: true,
             isDense: true,

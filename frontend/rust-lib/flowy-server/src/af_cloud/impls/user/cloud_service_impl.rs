@@ -656,6 +656,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     icon: af_workspace.icon,
     member_count: af_workspace.member_count.unwrap_or(0),
     role: af_workspace.role.map(|r| r.into()),
+    workspace_type: AuthType::AppFlowyCloud,
   }
 }
 

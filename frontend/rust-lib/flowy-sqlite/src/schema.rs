@@ -120,6 +120,7 @@ diesel::table! {
         uid -> BigInt,
         workspace_id -> Text,
         updated_at -> Timestamp,
+        joined_at -> Nullable<BigInt>,
     }
 }
 

@@ -84,7 +84,11 @@ pub trait UserCloudServiceProvider: Send + Sync {
   /// * `enable_sync`: A boolean indicating whether synchronization should be enabled or disabled.
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
 
-  fn set_server_auth_type(&self, auth_type: &AuthType);
+  fn set_server_auth_type(
+    &self,
+    auth_type: &AuthType,
+    token: Option<String>,
+  ) -> Result<(), FlowyError>;
 
   fn get_server_auth_type(&self) -> AuthType;
 
@@ -231,9 +235,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   async fn get_workspace_members(
     &self,
     workspace_id: Uuid,
-  ) -> Result<Vec<WorkspaceMember>, FlowyError> {
-    Ok(vec![])
-  }
+  ) -> Result<Vec<WorkspaceMember>, FlowyError>;
 
   async fn get_user_awareness_doc_state(
     &self,

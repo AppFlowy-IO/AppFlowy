@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use chrono::NaiveDateTime;
 use collab_integrate::CollabKVDB;
@@ -18,7 +18,7 @@ pub const FIRST_TIME_INSTALL_VERSION: &str = "first_install_version";
 
 pub struct UserLocalDataMigration {
   session: Session,
-  collab_db: Arc<CollabKVDB>,
+  collab_db: Weak<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
   kv: Arc<KVStorePreferences>,
 }
@@ -26,7 +26,7 @@ pub struct UserLocalDataMigration {
 impl UserLocalDataMigration {
   pub fn new(
     session: Session,
-    collab_db: Arc<CollabKVDB>,
+    collab_db: Weak<CollabKVDB>,
     sqlite_pool: Arc<ConnectionPool>,
     kv: Arc<KVStorePreferences>,
   ) -> Self {
@@ -54,7 +54,7 @@ impl UserLocalDataMigration {
   pub fn run(
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
-    auth_type: &AuthType,
+    user_auth_type: &AuthType,
     app_version: &Version,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
@@ -75,7 +75,13 @@ impl UserLocalDataMigration {
 
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
-          migration.run(&self.session, &self.collab_db, auth_type, &mut conn)?;
+          migration.run(
+            &self.session,
+            &self.collab_db,
+            user_auth_type,
+            &mut conn,
+            &self.kv,
+          )?;
           applied_migrations.push(migration.name().to_string());
           save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
@@ -97,9 +103,10 @@ pub trait UserDataMigration {
   fn run(
     &self,
     user: &Session,
-    collab_db: &Arc<CollabKVDB>,
-    authenticator: &AuthType,
+    collab_db: &Weak<CollabKVDB>,
+    user_auth_type: &AuthType,
     db: &mut SqliteConnection,
+    store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()>;
 }
 

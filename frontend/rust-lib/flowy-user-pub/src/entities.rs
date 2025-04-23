@@ -114,6 +114,12 @@ pub struct UserWorkspace {
   pub member_count: i64,
   #[serde(default)]
   pub role: Option<Role>,
+  #[serde(default = "default_workspace_type")]
+  pub workspace_type: AuthType,
+}
+
+fn default_workspace_type() -> AuthType {
+  AuthType::AppFlowyCloud
 }
 
 impl UserWorkspace {
@@ -131,6 +137,7 @@ impl UserWorkspace {
       icon: "".to_string(),
       member_count: 1,
       role: Some(Role::Owner),
+      workspace_type: AuthType::Local,
     }
   }
 }
@@ -363,6 +370,7 @@ pub struct WorkspaceMember {
   pub role: Role,
   pub name: String,
   pub avatar_url: Option<String>,
+  pub joined_at: Option<i64>,
 }
 
 /// represent the user awareness object id for the workspace.

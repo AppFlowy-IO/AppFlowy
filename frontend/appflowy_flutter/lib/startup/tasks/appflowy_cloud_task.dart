@@ -213,6 +213,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     if (!isAppFlowyCloudEnabled) {
       return;
     }
@@ -233,6 +235,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     await _authStateListener?.stop();
     _authStateListener = null;
   }

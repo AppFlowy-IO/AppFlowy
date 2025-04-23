@@ -53,7 +53,7 @@ pub trait DocumentSnapshotService: Send + Sync {
 
 pub struct DocumentManager {
   pub user_service: Arc<dyn DocumentUserService>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  collab_builder: Weak<AppFlowyCollabBuilder>,
   documents: Arc<DashMap<Uuid, Arc<RwLock<Document>>>>,
   removing_documents: Arc<DashMap<Uuid, Arc<RwLock<Document>>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
@@ -61,10 +61,16 @@ pub struct DocumentManager {
   snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
+impl Drop for DocumentManager {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop document manager");
+  }
+}
+
 impl DocumentManager {
   pub fn new(
     user_service: Arc<dyn DocumentUserService>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn StorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
@@ -78,6 +84,13 @@ impl DocumentManager {
       storage_service,
       snapshot_service,
     }
+  }
+
+  fn collab_builder(&self) -> FlowyResult<Arc<AppFlowyCollabBuilder>> {
+    self
+      .collab_builder
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)
   }
 
   /// Get the encoded collab of the document.
@@ -190,10 +203,10 @@ impl DocumentManager {
     let workspace_id = self.user_service.workspace_id()?;
     let collab_object =
       self
-        .collab_builder
+        .collab_builder()?
         .collab_object(&workspace_id, uid, doc_id, CollabType::Document)?;
     let document = self
-      .collab_builder
+      .collab_builder()?
       .create_document(
         collab_object,
         data_source,

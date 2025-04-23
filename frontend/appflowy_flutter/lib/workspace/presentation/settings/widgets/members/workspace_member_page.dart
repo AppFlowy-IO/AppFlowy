@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/members/inivita
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -318,6 +319,7 @@ class _MemberListHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
+          flex: 4,
           child: Text(
             LocaleKeys.settings_appearance_members_user.tr(),
             style: theme.textStyle.body.standard(
@@ -326,6 +328,7 @@ class _MemberListHeader extends StatelessWidget {
           ),
         ),
         Expanded(
+          flex: 2,
           child: Text(
             LocaleKeys.settings_appearance_members_role.tr(),
             style: theme.textStyle.body.standard(
@@ -334,6 +337,7 @@ class _MemberListHeader extends StatelessWidget {
           ),
         ),
         Expanded(
+          flex: 3,
           child: Text(
             LocaleKeys.settings_accountPage_email_title.tr(),
             style: theme.textStyle.body.standard(
@@ -364,14 +368,39 @@ class _MemberItem extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            member.name,
-            style: theme.textStyle.body.enhanced(
-              color: theme.textColorScheme.primary,
-            ),
+          flex: 4,
+          child: Row(
+            children: [
+              UserAvatar(
+                iconUrl: member.avatarUrl,
+                name: member.name,
+                size: 24,
+                fontSize: 12,
+                emojiFontSize: 20,
+              ),
+              HSpace(8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    member.name,
+                    style: theme.textStyle.body.enhanced(
+                      color: theme.textColorScheme.primary,
+                    ),
+                  ),
+                  Text(
+                    _formatJoinedDate(member.joinedAt.toInt()),
+                    style: theme.textStyle.caption.standard(
+                      color: theme.textColorScheme.secondary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         Expanded(
+          flex: 2,
           child: member.role.isOwner || !myRole.canUpdate
               ? Text(
                   member.role.description,
@@ -384,6 +413,7 @@ class _MemberItem extends StatelessWidget {
                 ),
         ),
         Expanded(
+          flex: 3,
           child: FlowyTooltip(
             message: member.email,
             child: Text(
@@ -402,6 +432,11 @@ class _MemberItem extends StatelessWidget {
             : const HSpace(28.0),
       ],
     );
+  }
+
+  String _formatJoinedDate(int joinedAt) {
+    final date = DateTime.fromMillisecondsSinceEpoch(joinedAt * 1000);
+    return 'Joined on ${DateFormat('MMM d, y').format(date)}';
   }
 }
 
@@ -428,7 +463,7 @@ class _MemberMoreActionList extends StatelessWidget {
         return FlowyButton(
           useIntrinsicWidth: true,
           text: const FlowySvg(
-            FlowySvgs.three_dots_vertical_s,
+            FlowySvgs.three_dots_s,
           ),
           onTap: () {
             controller.show();

@@ -17,12 +17,14 @@ class UserAvatar extends StatelessWidget {
     required this.fontSize,
     this.isHovering = false,
     this.decoration,
+    this.emojiFontSize,
   });
 
   final String iconUrl;
   final String name;
   final double size;
   final double fontSize;
+  final double? emojiFontSize;
   final Decoration? decoration;
 
   // If true, a border will be applied on top of the avatar
@@ -127,7 +129,10 @@ class UserAvatar extends StatelessWidget {
                     FlowySvgData('emoji/$iconUrl'),
                     blendMode: null,
                   )
-                : FlowyText.emoji(iconUrl, fontSize: fontSize),
+                : FlowyText.emoji(
+                    iconUrl,
+                    fontSize: emojiFontSize ?? fontSize,
+                  ),
           ),
         ),
       ),

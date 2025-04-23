@@ -1,11 +1,9 @@
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -154,7 +152,8 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   start: 8.0,
                                 ),
                                 child: ChangeFormatBar(
-                                  showImageFormats: state.aiType.isCloud,
+                                  showImageFormats:
+                                      state.modelState.type == AiType.cloud,
                                   predefinedFormat: state.predefinedFormat,
                                   spacing: 4.0,
                                   onSelectPredefinedFormat: (format) =>
@@ -392,20 +391,18 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
             builder: (context, state) {
               Widget textField = PromptInputTextField(
                 key: textFieldKey,
-                editable: state.editable,
+                editable: state.modelState.isEditable,
                 cubit: inputControlCubit,
                 textController: widget.textController,
                 textFieldFocusNode: focusNode,
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
-                hintText: state.hintText,
+                hintText: state.modelState.hintText,
               );
 
-              if (!state.editable) {
+              if (state.modelState.tooltip != null) {
                 textField = FlowyTooltip(
-                  message: LocaleKeys
-                      .settings_aiPage_keys_localAINotReadyTextFieldPrompt
-                      .tr(),
+                  message: state.modelState.tooltip!,
                   child: textField,
                 );
               }
@@ -616,7 +613,7 @@ class _PromptBottomActions extends StatelessWidget {
                     context.read<AIPromptInputBloc>().aiModelStateNotifier,
               ),
               const Spacer(),
-              if (state.aiType.isCloud) ...[
+              if (state.modelState.type == AiType.cloud) ...[
                 _selectSourcesButton(),
                 const HSpace(
                   DesktopAIChatSizes.inputActionBarButtonSpacing,

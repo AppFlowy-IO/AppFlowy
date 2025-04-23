@@ -5,6 +5,8 @@ use collab_entity::CollabType;
 use collab_folder::Folder;
 use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
+use flowy_user::entities::AFRolePB;
+use flowy_user_pub::cloud::UserCloudServiceProvider;
 use flowy_user_pub::entities::AuthType;
 use std::time::Duration;
 use tokio::task::LocalSet;
@@ -150,7 +152,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &first_workspace.workspace_id,
-          first_workspace.workspace_auth_type.clone(),
+          first_workspace.workspace_auth_type,
         )
         .await;
       sleep(Duration::from_millis(300)).await;
@@ -161,7 +163,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &second_workspace.workspace_id,
-          second_workspace.workspace_auth_type.clone(),
+          second_workspace.workspace_auth_type,
         )
         .await;
       sleep(Duration::from_millis(200)).await;
@@ -174,7 +176,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &first_workspace.workspace_id,
-      first_workspace.workspace_auth_type.clone(),
+      first_workspace.workspace_auth_type,
     )
     .await;
   let views_1 = test.get_all_workspace_views().await;
@@ -186,7 +188,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &second_workspace.workspace_id,
-      second_workspace.workspace_auth_type.clone(),
+      second_workspace.workspace_auth_type,
     )
     .await;
   let views_2 = test.get_all_workspace_views().await;
@@ -245,10 +247,7 @@ async fn af_cloud_different_open_same_workspace_test() {
         let index = i % 2;
         let iter_workspace_id = &all_workspaces[index].workspace_id;
         client
-          .open_workspace(
-            iter_workspace_id,
-            all_workspaces[index].workspace_auth_type.clone(),
-          )
+          .open_workspace(iter_workspace_id, all_workspaces[index].workspace_auth_type)
           .await;
         if iter_workspace_id == &cloned_shared_workspace_id {
           let views = client.get_all_workspace_views().await;
@@ -295,36 +294,127 @@ async fn af_cloud_different_open_same_workspace_test() {
 
 #[tokio::test]
 async fn af_cloud_create_local_workspace_test() {
+  // Setup: Initialize test environment with AppFlowyCloud
   use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let _ = test.af_cloud_sign_up().await;
 
-  let workspaces = test.get_all_workspaces().await.items;
-  assert_eq!(workspaces.len(), 1);
+  // Verify initial state: User should have one default workspace
+  let initial_workspaces = test.get_all_workspaces().await.items;
+  assert_eq!(
+    initial_workspaces.len(),
+    1,
+    "User should start with one default workspace"
+  );
 
-  let created_workspace = test
+  // make sure the workspaces order is consistent
+  // tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+
+  // Test: Create a local workspace
+  let local_workspace = test
     .create_workspace("my local workspace", AuthType::Local)
     .await;
-  assert_eq!(created_workspace.name, "my local workspace");
 
-  let workspaces = test.get_all_workspaces().await.items;
-  assert_eq!(workspaces.len(), 2);
-  assert_eq!(workspaces[1].name, "my local workspace");
+  // Verify: Local workspace was created correctly
+  assert_eq!(local_workspace.name, "my local workspace");
+  let updated_workspaces = test.get_all_workspaces().await.items;
+  assert_eq!(
+    updated_workspaces.len(),
+    2,
+    "Should now have two workspaces"
+  );
+  dbg!(&updated_workspaces);
 
+  // Find local workspace by name instead of using index
+  let found_local_workspace = updated_workspaces
+    .iter()
+    .find(|workspace| workspace.name == "my local workspace")
+    .expect("Local workspace should exist");
+  assert_eq!(found_local_workspace.name, "my local workspace");
+
+  // Test: Open the local workspace
   test
     .open_workspace(
-      &created_workspace.workspace_id,
-      created_workspace.workspace_auth_type,
+      &local_workspace.workspace_id,
+      local_workspace.workspace_auth_type,
     )
     .await;
 
+  // Verify: Views in the local workspace
   let views = test.get_all_views().await;
-  assert_eq!(views.len(), 2);
-  assert!(views
-    .iter()
-    .any(|view| view.parent_view_id == workspaces[1].workspace_id));
+  assert_eq!(
+    views.len(),
+    2,
+    "Local workspace should have 2 default views"
+  );
+  assert!(
+    views
+      .iter()
+      .any(|view| view.parent_view_id == local_workspace.workspace_id),
+    "Views should belong to the local workspace"
+  );
 
+  // Verify: Can access all views
   for view in views {
     test.get_view(&view.id).await;
   }
+
+  // Verify: Local workspace members
+  let members = test
+    .get_workspace_members(&local_workspace.workspace_id)
+    .await;
+  assert_eq!(
+    members.len(),
+    1,
+    "Local workspace should have only one member"
+  );
+  assert_eq!(members[0].role, AFRolePB::Owner, "User should be the owner");
+
+  // Test: Create a server workspace
+  let server_workspace = test
+    .create_workspace("my server workspace", AuthType::AppFlowyCloud)
+    .await;
+
+  // Verify: Server workspace was created correctly
+  assert_eq!(server_workspace.name, "my server workspace");
+  let final_workspaces = test.get_all_workspaces().await.items;
+  assert_eq!(
+    final_workspaces.len(),
+    3,
+    "Should now have three workspaces"
+  );
+
+  dbg!(&final_workspaces);
+
+  // Find workspaces by name instead of using indices
+  let found_local_workspace = final_workspaces
+    .iter()
+    .find(|workspace| workspace.name == "my local workspace")
+    .expect("Local workspace should exist");
+  assert_eq!(found_local_workspace.name, "my local workspace");
+
+  let found_server_workspace = final_workspaces
+    .iter()
+    .find(|workspace| workspace.name == "my server workspace")
+    .expect("Server workspace should exist");
+  assert_eq!(found_server_workspace.name, "my server workspace");
+
+  // Verify: Server-side only recognizes cloud workspaces (not local ones)
+  let user_profile = test.get_user_profile().await.unwrap();
+  test
+    .server_provider
+    .set_server_auth_type(&AuthType::AppFlowyCloud, Some(user_profile.token.clone()))
+    .unwrap();
+  test.server_provider.set_token(&user_profile.token).unwrap();
+
+  let user_service = test.server_provider.get_server().unwrap().user_service();
+  let server_workspaces = user_service
+    .get_all_workspace(user_profile.id)
+    .await
+    .unwrap();
+  assert_eq!(
+    server_workspaces.len(),
+    2,
+    "Server should only see 2 workspaces (the default and server workspace, not the local one)"
+  );
 }

@@ -60,7 +60,7 @@ impl EventIntegrationTest {
 
   pub async fn sign_up_as_anon(&self) -> SignUpContext {
     let password = login_password();
-    let email = unique_email();
+    let email = "anon@appflowy.io".to_string();
     let payload = SignUpPayloadPB {
       email,
       name: "appflowy".to_string(),
@@ -283,7 +283,7 @@ impl EventIntegrationTest {
   pub async fn open_workspace(&self, workspace_id: &str, auth_type: AuthTypePB) {
     let payload = OpenUserWorkspacePB {
       workspace_id: workspace_id.to_string(),
-      auth_type,
+      workspace_auth_type: auth_type,
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::OpenWorkspace)

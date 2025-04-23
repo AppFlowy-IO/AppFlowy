@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_folder::Folder;
 use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
@@ -7,7 +7,8 @@ use semver::Version;
 use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
@@ -36,19 +37,23 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   #[instrument(name = "WorkspaceTrashMapToSectionMigration", skip_all, err)]
   fn run(
     &self,
-    session: &Session,
-    collab_db: &Arc<CollabKVDB>,
-    _authenticator: &AuthType,
+    user: &Session,
+    collab_db: &Weak<CollabKVDB>,
+    _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
+    _store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()> {
+    let collab_db = collab_db
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(
-        session.user_id,
+        user.user_id,
         write_txn,
-        &session.user_workspace.id,
-        &session.user_workspace.id,
+        &user.workspace_id,
+        &user.workspace_id,
       ) {
-        let mut folder = Folder::open(session.user_id, collab, None)
+        let mut folder = Folder::open(user.user_id, collab, None)
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         let trash_ids = folder
           .get_trash_v1()
@@ -64,9 +69,9 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
           .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc(
-          session.user_id,
-          &session.user_workspace.id,
-          &session.user_workspace.id,
+          user.user_id,
+          &user.workspace_id,
+          &user.workspace_id,
           encode.state_vector.to_vec(),
           encode.doc_state.to_vec(),
         )?;

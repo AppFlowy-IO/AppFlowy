@@ -374,7 +374,7 @@ class _ChangeFormatPopoverContentState
             builder: (context, state) {
               return ChangeFormatBar(
                 spacing: 2.0,
-                showImageFormats: state.aiType.isCloud,
+                showImageFormats: state.modelState.type.isCloud,
                 predefinedFormat: predefinedFormat,
                 onSelectPredefinedFormat: (format) {
                   setState(() => predefinedFormat = format);

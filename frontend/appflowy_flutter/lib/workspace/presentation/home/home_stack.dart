@@ -28,6 +28,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'home_layout.dart';
 
@@ -53,7 +54,7 @@ class HomeStack extends StatefulWidget {
   State<HomeStack> createState() => _HomeStackState();
 }
 
-class _HomeStackState extends State<HomeStack> {
+class _HomeStackState extends State<HomeStack> with WindowListener {
   int selectedIndex = 0;
 
   @override
@@ -129,7 +130,7 @@ class _HomeStackState extends State<HomeStack> {
   }
 
   Widget _buildToggleMenuButton(BuildContext context) {
-    if (!context.read<HomeSettingBloc>().state.isMenuCollapsed) {
+    if (context.read<HomeSettingBloc>().isMenuExpanded) {
       return const SizedBox.shrink();
     }
 
@@ -154,7 +155,7 @@ class _HomeStackState extends State<HomeStack> {
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => context
             .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.collapseMenu()),
+            .add(const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden)),
         child: FlowyHover(
           child: Container(
             width: 24,
@@ -167,6 +168,13 @@ class _HomeStackState extends State<HomeStack> {
         ),
       ),
     );
+  }
+
+  @override
+  void onWindowFocus() {
+    // https://pub.dev/packages/window_manager#windows
+    // must call setState once when the window is focused
+    setState(() {});
   }
 }
 
@@ -631,7 +639,7 @@ class PageNotifier extends ChangeNotifier {
     }
 
     // Set the plugin view as the latest view.
-    if (setLatest) {
+    if (setLatest && newPlugin.id.isNotEmpty) {
       FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
     }
 
