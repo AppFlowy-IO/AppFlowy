@@ -156,12 +156,19 @@ impl UserManager {
   }
 
   #[instrument(skip(self), err)]
-  pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
-    info!("open workspace: {}, auth type:{}", workspace_id, auth_type);
+  pub async fn open_workspace(
+    &self,
+    workspace_id: &Uuid,
+    workspace_auth_type: AuthType,
+  ) -> FlowyResult<()> {
+    info!(
+      "open workspace: {}, auth type:{}",
+      workspace_id, workspace_auth_type
+    );
     let workspace_id_str = workspace_id.to_string();
-    let token = self.token_from_auth_type(&auth_type)?;
+    let token = self.token_from_auth_type(&workspace_auth_type)?;
     let cloud_service = self.cloud_service()?;
-    cloud_service.set_server_auth_type(&auth_type, token)?;
+    cloud_service.set_server_auth_type(&workspace_auth_type, token)?;
 
     let uid = self.user_id()?;
     let profile = self
@@ -179,7 +186,7 @@ impl UserManager {
             workspace_id,
             cloud_service.get_user_service()?,
             uid,
-            auth_type,
+            workspace_auth_type,
             self.db_pool(uid)?,
           )
           .await?
@@ -193,7 +200,7 @@ impl UserManager {
         let user_service = cloud_service.get_user_service()?;
         let pool = self.db_pool(uid)?;
         tokio::spawn(async move {
-          let _ = sync_workspace(&workspace_id, user_service, uid, auth_type, pool).await;
+          let _ = sync_workspace(&workspace_id, user_service, uid, workspace_auth_type, pool).await;
         });
         user_workspace
       },
@@ -203,19 +210,19 @@ impl UserManager {
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
 
-    let uid = self.user_id()?;
+    let user_uuid = self.user_uuid()?;
     if let Err(err) = self
       .user_status_callback
       .read()
       .await
-      .on_workspace_opened(uid, workspace_id, &user_workspace, &auth_type)
+      .on_workspace_opened(uid, workspace_id, &user_workspace, &workspace_auth_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
     }
 
     if let Err(err) = self
-      .initial_user_awareness(self.get_session()?.as_ref(), &auth_type)
+      .initial_user_awareness(uid, &user_uuid, workspace_id, &workspace_auth_type)
       .await
     {
       error!(

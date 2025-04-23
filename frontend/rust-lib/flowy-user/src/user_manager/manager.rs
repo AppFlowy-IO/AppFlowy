@@ -2,8 +2,8 @@ use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
+use std::str::FromStr;
 
-use arc_swap::ArcSwapOption;
 use collab::lock::RwLock;
 use collab_user::core::UserAwareness;
 use dashmap::DashMap;
@@ -46,7 +46,7 @@ use flowy_user_pub::sql::*;
 pub struct UserManager {
   pub(crate) cloud_service: Weak<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
-  pub(crate) user_awareness: Arc<ArcSwapOption<RwLock<UserAwareness>>>,
+  pub(crate) user_awareness_by_workspace: DashMap<Uuid, Arc<RwLock<UserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
@@ -77,7 +77,7 @@ impl UserManager {
     let user_manager = Arc::new(Self {
       cloud_service: cloud_services,
       store_preferences,
-      user_awareness: Default::default(),
+      user_awareness_by_workspace: Default::default(),
       user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
@@ -273,7 +273,14 @@ impl UserManager {
       self.set_first_time_installed_version();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       // Init the user awareness. here we ignore the error
-      let _ = self.initial_user_awareness(&session, &auth_type).await;
+      let _ = self
+        .initial_user_awareness(
+          session.user_id,
+          &session.user_uuid,
+          &workspace_uuid,
+          &auth_type,
+        )
+        .await;
 
       user_status_callback
         .on_launch_if_authenticated(
@@ -360,7 +367,12 @@ impl UserManager {
     self.save_auth_data(&response, auth_type, &session).await?;
 
     let _ = self
-      .initial_user_awareness(&session, &user_profile.workspace_auth_type)
+      .initial_user_awareness(
+        session.user_id,
+        &session.user_uuid,
+        &workspace_id,
+        &user_profile.workspace_auth_type,
+      )
       .await;
     self
       .user_status_callback
@@ -416,11 +428,19 @@ impl UserManager {
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
+    let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
     self.prepare_user(&new_session).await;
     self
       .save_auth_data(&response, *auth_type, &new_session)
       .await?;
-    let _ = self.initial_user_awareness(&new_session, auth_type).await;
+    let _ = self
+      .initial_user_awareness(
+        new_session.user_id,
+        &new_session.user_uuid,
+        &workspace_id,
+        auth_type,
+      )
+      .await;
     let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
     self
       .user_status_callback
@@ -643,9 +663,14 @@ impl UserManager {
     Ok(self.get_session()?.user_id)
   }
 
-  pub fn workspace_id(&self) -> Result<String, FlowyError> {
+  pub fn user_uuid(&self) -> Result<Uuid, FlowyError> {
+    Ok(self.get_session()?.user_uuid)
+  }
+
+  pub fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     let session = self.get_session()?;
-    Ok(session.workspace_id.clone())
+    let uuid = Uuid::from_str(&session.workspace_id)?;
+    Ok(uuid)
   }
 
   pub fn token(&self) -> Result<Option<String>, FlowyError> {
