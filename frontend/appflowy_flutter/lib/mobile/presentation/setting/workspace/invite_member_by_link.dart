@@ -3,7 +3,6 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/m_invite_member_by_link.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -90,23 +89,29 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             builder: (context, state) {
               return Column(
                 children: [
-                  if (state.myRole.isOwner) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(theme.spacing.xl),
-                      child: const MInviteMemberByLink(),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (state.myRole.isOwner) ...[
+                          Padding(
+                            padding: EdgeInsets.all(theme.spacing.xl),
+                            child: _buildInviteMemberArea(context),
+                          ),
+                          const VSpace(16),
+                        ],
+                        if (state.members.isNotEmpty) ...[
+                          const AFDivider(),
+                          VSpace(theme.spacing.xl),
+                          MobileMemberList(
+                            members: state.members,
+                            userProfile: userProfile,
+                            myRole: state.myRole,
+                          ),
+                        ],
+                      ],
                     ),
-                    VSpace(theme.spacing.m),
-                  ],
-                  if (state.members.isNotEmpty) ...[
-                    const AFDivider(),
-                    VSpace(theme.spacing.xl),
-                    MobileMemberList(
-                      members: state.members,
-                      userProfile: userProfile,
-                      myRole: state.myRole,
-                    ),
-                  ],
+                  ),
                   if (state.myRole.isMember) const _LeaveWorkspaceButton(),
                   const VSpace(48),
                 ],
