@@ -119,7 +119,9 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
           final trash = trashOrFailed.toNullable();
           if (trash != null) {
             final isInTrash = trash.any((t) => t.id == pageId);
-            add(MentionPageEvent.didUpdateTrashStatus(isInTrash: isInTrash));
+            if (!isClosed) {
+              add(MentionPageEvent.didUpdateTrashStatus(isInTrash: isInTrash));
+            }
           }
         },
       );
