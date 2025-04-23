@@ -9,6 +9,8 @@ class InitSentryTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     const dsn = Env.sentryDsn;
     if (dsn.isEmpty) {
       Log.info('Sentry DSN is not set, skipping initialization');
@@ -25,7 +27,4 @@ class InitSentryTask extends LaunchTask {
       },
     );
   }
-
-  @override
-  Future<void> dispose() async {}
 }

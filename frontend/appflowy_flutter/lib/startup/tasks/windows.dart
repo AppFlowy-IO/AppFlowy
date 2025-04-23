@@ -19,6 +19,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // Don't initialize on mobile or web.
     if (!defaultTargetPlatform.isDesktop || context.env.isIntegrationTest) {
       return;
@@ -130,6 +132,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     windowManager.removeListener(this);
   }
 }

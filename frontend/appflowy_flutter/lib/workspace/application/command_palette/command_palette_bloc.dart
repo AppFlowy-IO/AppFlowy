@@ -68,7 +68,11 @@ class CommandPaletteBloc
 
     final trashOrFailure = await _trashService.readTrash();
     trashOrFailure.fold(
-      (trash) => add(CommandPaletteEvent.trashChanged(trash: trash.items)),
+      (trash) {
+        if (!isClosed) {
+          add(CommandPaletteEvent.trashChanged(trash: trash.items));
+        }
+      },
       (error) => debugPrint('Failed to load trash: $error'),
     );
   }

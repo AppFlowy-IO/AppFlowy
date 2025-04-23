@@ -10,7 +10,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -151,9 +150,9 @@ class AppFlowyCloudDeepLink {
         if (_completer == null) {
           final context = AppGlobals.rootNavKey.currentState?.context;
           if (context != null) {
-            showSnackBarMessage(
-              context,
-              err.msg,
+            showToastNotification(
+              message: err.msg,
+              type: ToastificationType.error,
             );
           }
         } else {
@@ -238,6 +237,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     if (!isAppFlowyCloudEnabled) {
       return;
     }
@@ -258,6 +259,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     await _authStateListener?.stop();
     _authStateListener = null;
   }

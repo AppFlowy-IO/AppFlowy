@@ -44,6 +44,8 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     WidgetsFlutterBinding.ensureInitialized();
 
     await NotificationService.initialize();
@@ -112,9 +114,6 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
