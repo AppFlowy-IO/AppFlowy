@@ -97,7 +97,7 @@ enum AiWriterCommand {
         continueWriting ||
         improveWriting =>
           FlowySvgs.toolbar_ai_improve_writing_m,
-        fixSpellingAndGrammar => FlowySvgs.toolbar_ai_fix_spelling_grammer_m,
+        fixSpellingAndGrammar => FlowySvgs.toolbar_ai_fix_spelling_grammar_m,
         makeShorter => FlowySvgs.toolbar_ai_make_shorter_m,
         makeLonger => FlowySvgs.toolbar_ai_make_longer_m,
       };
