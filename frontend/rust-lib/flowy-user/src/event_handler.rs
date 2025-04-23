@@ -94,12 +94,12 @@ pub async fn get_user_profile_handler(
   let session = manager.get_session()?;
 
   let mut user_profile = manager
-    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .get_user_profile_from_disk(session.user_id, &session.workspace_id)
     .await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
-  let workspace_id = session.user_workspace.id.clone();
+  let workspace_id = session.workspace_id.clone();
 
   // Refresh the user profile in the background
   tokio::spawn(async move {
@@ -433,7 +433,7 @@ pub async fn get_all_workspace_handler(
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
   let profile = manager
-    .get_user_profile_from_disk(session.user_id, &session.user_workspace.id)
+    .get_user_profile_from_disk(session.user_id, &session.workspace_id)
     .await?;
   let user_workspaces = manager
     .get_all_user_workspaces(profile.uid, profile.auth_type)
@@ -822,7 +822,7 @@ pub async fn get_workspace_member_info(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<WorkspaceMemberPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let workspace_id = manager.get_session()?.user_workspace.workspace_id()?;
+  let workspace_id = Uuid::parse_str(&manager.get_session()?.workspace_id)?;
   let member = manager
     .get_workspace_member_info(param.uid, &workspace_id)
     .await?;

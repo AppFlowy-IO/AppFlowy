@@ -104,7 +104,7 @@ impl AIManager {
     }
   }
 
-  async fn reload_with_workspace_id(&self, workspace_id: &str) {
+  async fn reload_with_workspace_id(&self, workspace_id: &Uuid) {
     // Check if local AI is enabled for this workspace and if we're in local mode
     let result = self.user_service.is_local_model().await;
     if let Err(err) = &result {
@@ -115,7 +115,9 @@ impl AIManager {
     }
 
     let is_local = result.unwrap_or(false);
-    let is_enabled = self.local_ai.is_enabled_on_workspace(workspace_id);
+    let is_enabled = self
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string());
     let is_running = self.local_ai.is_running();
     info!(
       "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_running: {}",
@@ -161,17 +163,17 @@ impl AIManager {
   }
 
   #[instrument(skip_all, err)]
-  pub async fn on_launch_if_authenticated(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  pub async fn on_launch_if_authenticated(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
-  pub async fn initialize_after_sign_in(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  pub async fn initialize_after_sign_in(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
-  pub async fn initialize_after_sign_up(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  pub async fn initialize_after_sign_up(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
@@ -181,9 +183,7 @@ impl AIManager {
     &self,
     workspace_id: &Uuid,
   ) -> Result<(), FlowyError> {
-    self
-      .reload_with_workspace_id(&workspace_id.to_string())
-      .await;
+    self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 

@@ -99,6 +99,17 @@ pub fn select_user_workspace(
   Ok(row)
 }
 
+pub fn select_user_workspace_type(
+  workspace_id: &str,
+  conn: &mut SqliteConnection,
+) -> FlowyResult<AuthType> {
+  let row = dsl::user_workspace_table
+    .filter(user_workspace_table::id.eq(workspace_id))
+    .select(user_workspace_table::workspace_type)
+    .first::<i32>(conn)?;
+  Ok(AuthType::from(row))
+}
+
 pub fn select_all_user_workspace(
   uid: i64,
   conn: &mut SqliteConnection,

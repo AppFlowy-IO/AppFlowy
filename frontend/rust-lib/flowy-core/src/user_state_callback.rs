@@ -81,11 +81,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     cloud_config: &Option<UserCloudConfig>,
-    user_workspace: &UserWorkspace,
+    workspace_id: &Uuid,
     _device_id: &str,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    let workspace_id = user_workspace.workspace_id()?;
     if let Some(cloud_config) = cloud_config {
       self
         .server_provider
@@ -101,7 +100,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .folder_manager
       .initialize(
         user_id,
-        &workspace_id,
+        workspace_id,
         FolderInitDataSource::LocalDisk {
           create_if_not_exist: false,
         },
@@ -113,8 +112,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self.document_manager.initialize(user_id).await?;
 
-    let workspace_id = user_workspace.id.clone();
     let cloned_ai_manager = self.ai_manager.clone();
+    let workspace_id = *workspace_id;
     self.runtime.spawn(async move {
       if let Err(err) = cloned_ai_manager
         .on_launch_if_authenticated(&workspace_id)
@@ -129,19 +128,18 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   async fn on_sign_in(
     &self,
     user_id: i64,
-    user_workspace: &UserWorkspace,
+    workspace_id: &Uuid,
     device_id: &str,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
       "Notify did sign in: latest_workspace: {:?}, device_id: {}",
-      user_workspace,
+      workspace_id,
       device_id
     );
-    let workspace_id = user_workspace.workspace_id()?;
     let data_source = self
-      .folder_init_data_source(user_id, &workspace_id, auth_type)
+      .folder_init_data_source(user_id, workspace_id, auth_type)
       .await?;
     self
       .folder_manager
@@ -158,7 +156,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .ai_manager
-      .initialize_after_sign_in(&user_workspace.id)
+      .initialize_after_sign_in(workspace_id)
       .await?;
 
     Ok(())
@@ -168,7 +166,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     is_new_user: bool,
     user_profile: &UserProfile,
-    user_workspace: &UserWorkspace,
+    workspace_id: &Uuid,
     device_id: &str,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
@@ -176,12 +174,11 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       tracing::Level::TRACE,
       "Notify did sign up: is new: {} user_workspace: {:?}, device_id: {}",
       is_new_user,
-      user_workspace,
+      workspace_id,
       device_id
     );
-    let workspace_id = user_workspace.workspace_id()?;
     let data_source = self
-      .folder_init_data_source(user_profile.uid, &workspace_id, auth_type)
+      .folder_init_data_source(user_profile.uid, workspace_id, auth_type)
       .await?;
 
     self
@@ -191,7 +188,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         &user_profile.token,
         is_new_user,
         data_source,
-        &workspace_id,
+        workspace_id,
       )
       .await
       .context("FolderManager error")?;
@@ -210,7 +207,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .ai_manager
-      .initialize_after_sign_up(&user_workspace.id)
+      .initialize_after_sign_up(workspace_id)
       .await?;
     Ok(())
   }
