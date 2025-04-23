@@ -52,6 +52,11 @@ class WorkspaceMemberBloc
         updateSubscriptionInfo: (info) async =>
             _onUpdateSubscriptionInfo(emit, info),
         upgradePlan: () async => _onUpgradePlan(),
+        updateInviteLink: (inviteLink) async => emit(
+          state.copyWith(
+            inviteLink: inviteLink,
+          ),
+        ),
       );
     });
   }
@@ -90,7 +95,7 @@ class WorkspaceMemberBloc
         _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
           (s) async {
             final inviteLink = await _buildInviteLink(inviteCode: s);
-            emit(state.copyWith(inviteLink: inviteLink));
+            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
           },
           (e) => Log.info('Failed to get invite code: ${e.msg}', e),
         ),
@@ -371,6 +376,9 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   ) = UpdateSubscriptionInfo;
 
   const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
+
+  const factory WorkspaceMemberEvent.updateInviteLink(String inviteLink) =
+      UpdateInviteLink;
 }
 
 enum WorkspaceMemberActionType {

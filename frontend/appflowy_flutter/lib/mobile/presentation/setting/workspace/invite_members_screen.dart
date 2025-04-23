@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/m_invite_member_by_link.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
@@ -267,6 +269,26 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
                 .settings_appearance_members_removeFromWorkspaceFailed
                 .tr(),
             bottomPadding: keyboardHeight,
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
+      result.fold(
+        (s) {
+          showToastNotification(
+            message: 'Invite link generated successfully',
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            getIt<ClipboardService>().setPlainText(inviteLink);
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            message: 'Failed to generate invite link',
           );
         },
       );

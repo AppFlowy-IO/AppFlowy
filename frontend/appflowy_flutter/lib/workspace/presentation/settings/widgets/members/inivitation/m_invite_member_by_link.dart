@@ -98,7 +98,7 @@ class _Description extends StatelessWidget {
                 const WorkspaceMemberEvent.generateInviteLink(),
               );
         },
-        confirmButtonBuilder: (_) => AFFilledTextButton.destructive(
+        confirmButtonBuilder: (dialogContext) => AFFilledTextButton.destructive(
           size: UniversalPlatform.isDesktop ? AFButtonSize.m : AFButtonSize.l,
           text: LocaleKeys.settings_appearance_members_reset.tr(),
           onTap: () {
@@ -106,7 +106,7 @@ class _Description extends StatelessWidget {
                   const WorkspaceMemberEvent.generateInviteLink(),
                 );
 
-            Navigator.of(context).pop();
+            Navigator.of(dialogContext).pop();
           },
         ),
       );
