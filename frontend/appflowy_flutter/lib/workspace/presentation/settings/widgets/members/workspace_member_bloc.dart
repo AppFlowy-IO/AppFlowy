@@ -92,7 +92,7 @@ class WorkspaceMemberBloc
             final inviteLink = await _buildInviteLink(inviteCode: s);
             emit(state.copyWith(inviteLink: inviteLink));
           },
-          (e) => Log.error('Failed to get invite code: ${e.msg}', e),
+          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
         ),
       );
     } else {

@@ -5,9 +5,10 @@ use collab::preclude::{Collab, StateVector};
 use collab::util::is_change_since_sv;
 use collab_entity::CollabType;
 use collab_integrate::persistence::collab_metadata_sql::AFCollabMetadata;
-use flowy_ai::ai_manager::{AIExternalService, AIManager, AIUserService};
+use flowy_ai::ai_manager::{AIExternalService, AIManager};
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
@@ -153,7 +154,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   }
 }
 
-struct ChatUserServiceImpl(Weak<AuthenticateUser>);
+pub struct ChatUserServiceImpl(Weak<AuthenticateUser>);
 impl ChatUserServiceImpl {
   fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
     let user = self

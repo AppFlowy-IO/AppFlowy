@@ -283,7 +283,7 @@ impl EventIntegrationTest {
   pub async fn open_workspace(&self, workspace_id: &str, auth_type: AuthTypePB) {
     let payload = OpenUserWorkspacePB {
       workspace_id: workspace_id.to_string(),
-      auth_type,
+      workspace_auth_type: auth_type,
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::OpenWorkspace)

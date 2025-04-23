@@ -27,6 +27,7 @@ class ChatMemberBloc extends Bloc<ChatMemberEvent, ChatMemberState> {
             final payload = WorkspaceMemberIdPB(
               uid: Int64.parseInt(userId),
             );
+
             await UserEventGetMemberInfo(payload).send().then((result) {
               result.fold(
                 (member) {

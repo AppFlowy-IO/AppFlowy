@@ -145,7 +145,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   void _onLatestViewChange() async {
     final id = getIt<MenuSharedState>().latestOpenView?.id;
-    if (id == null) {
+    if (id == null || id.isEmpty) {
       return;
     }
     await FolderEventSetLatestView(ViewIdPB(value: id)).send();

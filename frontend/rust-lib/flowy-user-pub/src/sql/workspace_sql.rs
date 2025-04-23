@@ -149,6 +149,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(|v| v.into()),
+      workspace_type: AuthType::from(value.workspace_type),
     }
   }
 }

@@ -153,9 +153,10 @@ impl UserManager {
 
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &Uuid, auth_type: AuthType) -> FlowyResult<()> {
-    info!("open workspace: {}, auth_type:{}", workspace_id, auth_type);
+    info!("open workspace: {}, auth type:{}", workspace_id, auth_type);
     let workspace_id_str = workspace_id.to_string();
-    self.cloud_service.set_server_auth_type(&auth_type);
+    let token = self.token_from_auth_type(&auth_type)?;
+    self.cloud_service.set_server_auth_type(&auth_type, token)?;
 
     let uid = self.user_id()?;
     let profile = self
@@ -227,7 +228,8 @@ impl UserManager {
     workspace_name: &str,
     auth_type: AuthType,
   ) -> FlowyResult<UserWorkspace> {
-    self.cloud_service.set_server_auth_type(&auth_type);
+    let token = self.token_from_auth_type(&auth_type)?;
+    self.cloud_service.set_server_auth_type(&auth_type, token)?;
 
     let new_workspace = self
       .cloud_service
@@ -451,7 +453,7 @@ impl UserManager {
             );
             // only send notification if there were real changes
             if let Ok(updated_list) = select_all_user_workspace(uid, &mut conn) {
-              let repeated_pb = RepeatedUserWorkspacePB::from((auth_copy, updated_list));
+              let repeated_pb = RepeatedUserWorkspacePB::from(updated_list);
               send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_pb)
                 .send();

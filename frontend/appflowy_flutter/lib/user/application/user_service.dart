@@ -127,7 +127,7 @@ class UserBackendService implements IUserBackendService {
   ) {
     final payload = OpenUserWorkspacePB()
       ..workspaceId = workspaceId
-      ..authType = authType;
+      ..workspaceAuthType = authType;
     return UserEventOpenWorkspace(payload).send();
   }
 
@@ -242,13 +242,6 @@ class UserBackendService implements IUserBackendService {
       getWorkspaceSubscriptionInfo(String workspaceId) {
     final params = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventGetWorkspaceSubscriptionInfo(params).send();
-  }
-
-  Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
-      getWorkspaceMember() async {
-    final data = WorkspaceMemberIdPB.create()..uid = userId;
-
-    return UserEventGetMemberInfo(data).send();
   }
 
   @override

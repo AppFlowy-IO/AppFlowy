@@ -64,10 +64,16 @@ class MemberHttpService {
       errorMessage: 'Failed to get invite code',
     );
 
-    return result.fold(
-      (data) => FlowyResult.success(data['code'] as String),
-      (error) => FlowyResult.failure(error),
-    );
+    try {
+      return result.fold(
+        (data) => FlowyResult.success(data['code'] as String),
+        (error) => FlowyResult.failure(error),
+      );
+    } catch (e) {
+      return FlowyResult.failure(
+        FlowyError(msg: 'Failed to get invite code: $e'),
+      );
+    }
   }
 
   /// Deletes the invite code for a workspace

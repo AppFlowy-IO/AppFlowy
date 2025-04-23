@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
 use std::str::FromStr;
@@ -14,6 +13,7 @@ use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
 use crate::stream_message::StreamMessage;
+use flowy_ai_pub::user_service::AIUserService;
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tracing::{error, info};

@@ -38,15 +38,6 @@ pub(crate) struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallbackImpl {
-  fn init_ai_component(&self, workspace_id: String) {
-    let cloned_ai_manager = self.ai_manager.clone();
-    self.runtime.spawn(async move {
-      if let Err(err) = cloned_ai_manager.initialize(&workspace_id).await {
-        error!("Failed to initialize AIManager: {:?}", err);
-      }
-    });
-  }
-
   async fn folder_init_data_source(
     &self,
     user_id: i64,
@@ -95,7 +86,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let workspace_id = user_workspace.workspace_id()?;
-
     if let Some(cloud_config) = cloud_config {
       self
         .server_provider
@@ -124,7 +114,15 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     self.document_manager.initialize(user_id).await?;
 
     let workspace_id = user_workspace.id.clone();
-    self.init_ai_component(workspace_id);
+    let cloned_ai_manager = self.ai_manager.clone();
+    self.runtime.spawn(async move {
+      if let Err(err) = cloned_ai_manager
+        .on_launch_if_authenticated(&workspace_id)
+        .await
+      {
+        error!("Failed to initialize AIManager: {:?}", err);
+      }
+    });
     Ok(())
   }
 
@@ -158,8 +156,11 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_after_sign_in(user_id)
       .await?;
 
-    let workspace_id = user_workspace.id.clone();
-    self.init_ai_component(workspace_id);
+    self
+      .ai_manager
+      .initialize_after_sign_in(&user_workspace.id)
+      .await?;
+
     Ok(())
   }
 
@@ -207,8 +208,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await
       .context("DocumentManager error")?;
 
-    let workspace_id = user_workspace.id.clone();
-    self.init_ai_component(workspace_id);
+    self
+      .ai_manager
+      .initialize_after_sign_up(&user_workspace.id)
+      .await?;
     Ok(())
   }
 

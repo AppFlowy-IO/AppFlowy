@@ -147,6 +147,7 @@ class FlowyRunner {
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),
+          const RecentServiceTask(),
         ],
       ],
     );

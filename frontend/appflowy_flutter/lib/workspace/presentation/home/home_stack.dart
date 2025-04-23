@@ -639,7 +639,7 @@ class PageNotifier extends ChangeNotifier {
     }
 
     // Set the plugin view as the latest view.
-    if (setLatest) {
+    if (setLatest && newPlugin.id.isNotEmpty) {
       FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
     }
 

@@ -17,8 +17,10 @@ import 'primitive.dart';
 
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   @override
-  AppFlowyThemeData light() {
-    final textStyle = AppFlowyBaseTextStyle();
+  AppFlowyThemeData light({
+    String? fontFamily,
+  }) {
+    final textStyle = AppFlowyBaseTextStyle.customFontFamily(fontFamily ?? '');
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.light);
@@ -172,8 +174,10 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   }
 
   @override
-  AppFlowyThemeData dark() {
-    final textStyle = AppFlowyBaseTextStyle();
+  AppFlowyThemeData dark({
+    String? fontFamily,
+  }) {
+    final textStyle = AppFlowyBaseTextStyle.customFontFamily(fontFamily ?? '');
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.dark);
