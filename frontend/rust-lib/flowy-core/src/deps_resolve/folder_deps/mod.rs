@@ -34,7 +34,7 @@ impl FolderDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    server_provider: Arc<ServerProvider>,
+    server_provider: Weak<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> Arc<FolderManager> {
@@ -57,9 +57,9 @@ impl FolderDepsResolver {
 
 pub fn register_handlers(
   folder_manager: &Arc<FolderManager>,
-  document_manager: Arc<DocumentManager>,
-  database_manager: Arc<DatabaseManager>,
-  chat_manager: Arc<AIManager>,
+  document_manager: Weak<DocumentManager>,
+  database_manager: Weak<DatabaseManager>,
+  chat_manager: Weak<AIManager>,
 ) {
   let document_folder_operation = Arc::new(DocumentFolderOperation(document_manager));
   folder_manager.register_operation_handler(ViewLayout::Document, document_folder_operation);

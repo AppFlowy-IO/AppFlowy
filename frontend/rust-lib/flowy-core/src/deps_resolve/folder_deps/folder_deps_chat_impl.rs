@@ -7,10 +7,16 @@ use flowy_folder::entities::CreateViewParams;
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, ImportedData};
 use lib_infra::async_trait::async_trait;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use uuid::Uuid;
 
-pub struct ChatFolderOperation(pub Arc<AIManager>);
+pub struct ChatFolderOperation(pub Weak<AIManager>);
+
+impl ChatFolderOperation {
+  fn ai_manager(&self) -> Result<Arc<AIManager>, FlowyError> {
+    self.0.upgrade().ok_or_else(FlowyError::ref_drop)
+  }
+}
 
 #[async_trait]
 impl FolderOperationHandler for ChatFolderOperation {
@@ -19,15 +25,15 @@ impl FolderOperationHandler for ChatFolderOperation {
   }
 
   async fn open_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
-    self.0.open_chat(view_id).await
+    self.ai_manager()?.open_chat(view_id).await
   }
 
   async fn close_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
-    self.0.close_chat(view_id).await
+    self.ai_manager()?.close_chat(view_id).await
   }
 
   async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
-    self.0.delete_chat(view_id).await
+    self.ai_manager()?.delete_chat(view_id).await
   }
 
   async fn duplicate_view(&self, _view_id: &Uuid) -> Result<Bytes, FlowyError> {
@@ -51,7 +57,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     _layout: ViewLayout,
   ) -> Result<(), FlowyError> {
     self
-      .0
+      .ai_manager()?
       .create_chat(&user_id, parent_view_id, view_id)
       .await?;
     Ok(())

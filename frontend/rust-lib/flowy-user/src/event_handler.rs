@@ -382,10 +382,9 @@ pub async fn set_cloud_config_handler(
   let mut config = get_cloud_config(session.user_id, &store_preferences)
     .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
 
+  let cloud_service = manager.cloud_service()?;
   if let Some(enable_sync) = update.enable_sync {
-    manager
-      .cloud_service
-      .set_enable_sync(session.user_id, enable_sync);
+    cloud_service.set_enable_sync(session.user_id, enable_sync);
     config.enable_sync = enable_sync;
   }
 
@@ -395,7 +394,7 @@ pub async fn set_cloud_config_handler(
     enable_sync: config.enable_sync,
     enable_encrypt: config.enable_encrypt,
     encrypt_secret: config.encrypt_secret,
-    server_url: manager.cloud_service.service_url(),
+    server_url: cloud_service.service_url(),
   };
 
   send_notification(
@@ -416,13 +415,14 @@ pub async fn get_cloud_config_handler(
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let cloud_service = manager.cloud_service()?;
   // Generate the default config if the config is not exist
   let config = get_or_create_cloud_config(session.user_id, &store_preferences);
   data_result_ok(CloudSettingPB {
     enable_sync: config.enable_sync,
     enable_encrypt: config.enable_encrypt,
     encrypt_secret: config.encrypt_secret,
-    server_url: manager.cloud_service.service_url(),
+    server_url: cloud_service.service_url(),
   })
 }
 
@@ -476,7 +476,7 @@ pub async fn update_network_state_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let reachable = data.into_inner().ty.is_reachable();
-  manager.cloud_service.set_network_reachable(reachable);
+  manager.cloud_service()?.set_network_reachable(reachable);
   manager
     .user_status_callback
     .read()

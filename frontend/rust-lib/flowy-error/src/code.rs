@@ -383,6 +383,9 @@ pub enum ErrorCode {
 
   #[error("User not login")]
   UserNotLogin = 131,
+
+  #[error("Reference resource is not available")]
+  WeakRefDrop = 132,
 }
 
 impl ErrorCode {

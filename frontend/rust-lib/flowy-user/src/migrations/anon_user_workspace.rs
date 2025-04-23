@@ -1,6 +1,6 @@
 use diesel::SqliteConnection;
 use semver::Version;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tracing::instrument;
 
 use collab_integrate::CollabKVDB;
@@ -35,7 +35,7 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
   fn run(
     &self,
     user: &Session,
-    _collab_db: &Arc<CollabKVDB>,
+    _collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     db: &mut SqliteConnection,
     store_preferences: &Arc<KVStorePreferences>,
