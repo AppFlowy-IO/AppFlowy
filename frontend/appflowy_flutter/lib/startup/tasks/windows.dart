@@ -46,6 +46,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     final position = await windowSizeManager.getPosition();
 
     if (UniversalPlatform.isWindows) {
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+
       doWhenWindowReady(() async {
         appWindow.minSize = windowOptions.minimumSize;
         appWindow.maxSize = windowOptions.maximumSize;
@@ -54,8 +56,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         if (position != null) {
           appWindow.position = position;
         }
-
-        appWindow.show();
 
         /// on Windows we maximize the window if it was previously closed
         /// from a maximized state.
