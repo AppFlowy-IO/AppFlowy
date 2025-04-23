@@ -4,7 +4,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_edit_link_widget.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_edit_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/widgets.dart';
@@ -60,8 +60,8 @@ Future<T?> showEditLinkBottomSheet<T>(
       return MobileBottomSheetEditLinkWidget(
         currentViewId: currentViewId,
         linkInfo: linkInfo,
-        onApply: (info) => LinkUtil.applyLink(editorState, selection, info),
-        onRemoveLink: (_) => LinkUtil.removeLink(editorState, selection),
+        onApply: (info) => editorState.applyLink(selection, info),
+        onRemoveLink: (_) => editorState.removeLink(selection),
         onDispose: () {
           editorState.service.keyboardService?.closeKeyboard();
         },

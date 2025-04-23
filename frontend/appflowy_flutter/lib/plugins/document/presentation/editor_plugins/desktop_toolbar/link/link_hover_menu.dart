@@ -28,7 +28,7 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'link_create_menu.dart';
 import 'link_edit_menu.dart';
-import 'link_util.dart';
+import 'link_extension.dart';
 
 class LinkHoverTrigger extends StatefulWidget {
   const LinkHoverTrigger({
@@ -156,7 +156,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         onOpenLink: openLink,
         onCopyLink: () => copyLink(context),
         onEditLink: showLinkEditMenu,
-        onRemoveLink: () => LinkUtil.removeLink(editorState, selection),
+        onRemoveLink: () => editorState.removeLink(selection),
       ),
       child: child,
     );
@@ -185,7 +185,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         currentViewId: currentViewId,
         linkInfo: LinkInfo(name: title, link: href, isPage: isPage),
         onDismiss: () => editMenuController.close(),
-        onApply: (info) => LinkUtil.applyLink(editorState, selection, info),
+        onApply: (info) => editorState.applyLink(selection, info),
         onRemoveLink: (linkinfo) =>
             onRemoveAndReplaceLink(editorState, selection, linkinfo.name),
       ),

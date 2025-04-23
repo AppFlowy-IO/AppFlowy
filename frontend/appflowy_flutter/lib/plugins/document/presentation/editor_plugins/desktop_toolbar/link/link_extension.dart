@@ -2,18 +2,15 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_to
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-class LinkUtil {
-  static void removeLink(
-    EditorState editorState,
-    Selection selection,
-  ) {
-    final node = editorState.getNodeAtPath(selection.end.path);
+extension LinkExtension on EditorState {
+  void removeLink(Selection selection) {
+    final node = getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
     }
     final index = selection.normalized.startIndex;
     final length = selection.length;
-    final transaction = editorState.transaction
+    final transaction = this.transaction
       ..formatText(
         node,
         index,
@@ -23,17 +20,13 @@ class LinkUtil {
           kIsPageLink: null,
         },
       );
-    editorState.apply(transaction);
+    apply(transaction);
   }
 
-  static void applyLink(
-    EditorState editorState,
-    Selection selection,
-    LinkInfo info,
-  ) {
-    final node = editorState.getNodeAtPath(selection.start.path);
+  void applyLink(Selection selection, LinkInfo info) {
+    final node = getNodeAtPath(selection.start.path);
     if (node == null) return;
-    final transaction = editorState.transaction;
+    final transaction = this.transaction;
     transaction.replaceText(
       node,
       selection.startIndex,
@@ -41,6 +34,6 @@ class LinkUtil {
       info.name,
       attributes: info.toAttribute(),
     );
-    editorState.apply(transaction);
+    apply(transaction);
   }
 }
