@@ -194,6 +194,8 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     }
   }
 
+  // This function is a workaround, when we support open the workspace from invitation deep link,
+  // we should refactor the code here
   void _openWorkspaceFromInvitation() {
     final workspaceId = openWorkspaceIdNotifier.value;
     if (workspaceId == null) {
