@@ -118,40 +118,40 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     );
   }
 
-  Widget _buildInviteMemberArea(BuildContext context) {
-    return Column(
-      children: [
-        TextFormField(
-          autofocus: true,
-          controller: emailController,
-          keyboardType: TextInputType.text,
-          decoration: InputDecoration(
-            hintText: LocaleKeys.settings_appearance_members_inviteHint.tr(),
-          ),
-        ),
-        const VSpace(16),
-        if (exceededLimit) ...[
-          FlowyText.regular(
-            LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
-                .tr(),
-            fontSize: 14.0,
-            maxLines: 3,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const VSpace(16),
-        ],
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => _inviteMember(context),
-            child: Text(
-              LocaleKeys.settings_appearance_members_sendInvite.tr(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildInviteMemberArea(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       TextFormField(
+  //         autofocus: true,
+  //         controller: emailController,
+  //         keyboardType: TextInputType.text,
+  //         decoration: InputDecoration(
+  //           hintText: LocaleKeys.settings_appearance_members_inviteHint.tr(),
+  //         ),
+  //       ),
+  //       const VSpace(16),
+  //       if (exceededLimit) ...[
+  //         FlowyText.regular(
+  //           LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
+  //               .tr(),
+  //           fontSize: 14.0,
+  //           maxLines: 3,
+  //           color: Theme.of(context).colorScheme.error,
+  //         ),
+  //         const VSpace(16),
+  //       ],
+  //       SizedBox(
+  //         width: double.infinity,
+  //         child: ElevatedButton(
+  //           onPressed: () => _inviteMember(context),
+  //           child: Text(
+  //             LocaleKeys.settings_appearance_members_sendInvite.tr(),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildError(BuildContext context) {
     return Center(
