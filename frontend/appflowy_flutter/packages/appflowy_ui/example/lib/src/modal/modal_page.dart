@@ -96,7 +96,7 @@ class _ModalPageState extends State<ModalPage> {
                               AFModalHeader(
                                 leading: Text(
                                   'Header',
-                                  style: theme.textStyle.heading4.standard(
+                                  style: theme.textStyle.heading4.prominent(
                                     color: theme.textColorScheme.primary,
                                   ),
                                 ),

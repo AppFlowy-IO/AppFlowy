@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 class PromptInputTextSpanBuilder extends SpecialTextSpanBuilder {
   PromptInputTextSpanBuilder({
     required this.inputControlCubit,
-    this.specialTextStyle,
+    this.mentionedPageTextStyle,
   });
 
   final ChatInputControlCubit inputControlCubit;
-  final TextStyle? specialTextStyle;
+  final TextStyle? mentionedPageTextStyle;
 
   @override
   SpecialText? createSpecialText(
@@ -25,23 +25,22 @@ class PromptInputTextSpanBuilder extends SpecialTextSpanBuilder {
       return null;
     }
 
-    if (!isStart(flag, AtText.flag)) {
-      return null;
+    if (isStart(flag, MentionedPageText.flag)) {
+      return MentionedPageText(
+        inputControlCubit,
+        mentionedPageTextStyle ?? textStyle,
+        onTap,
+        // scrubbing over text is kinda funky
+        start: index! - (MentionedPageText.flag.length - 1),
+      );
     }
 
-    // index is at the end of the start flag, so the start index should be index - (flag.length - 1)
-    return AtText(
-      inputControlCubit,
-      specialTextStyle ?? textStyle,
-      onTap,
-      // scrubbing over text is kinda funky
-      start: index! - (AtText.flag.length - 1),
-    );
+    return null;
   }
 }
 
-class AtText extends SpecialText {
-  AtText(
+class MentionedPageText extends SpecialText {
+  MentionedPageText(
     this.inputControlCubit,
     TextStyle? textStyle,
     SpecialTextGestureTapCallback? onTap, {

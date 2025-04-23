@@ -20,7 +20,6 @@ class AFTextField extends StatefulWidget {
     this.hintText,
     this.initialText,
     this.keyboardType,
-    this.size = AFTextFieldSize.l,
     this.validator,
     this.controller,
     this.onChanged,
@@ -29,6 +28,8 @@ class AFTextField extends StatefulWidget {
     this.obscureText = false,
     this.suffixIconBuilder,
     this.suffixIconConstraints,
+    this.size = AFTextFieldSize.l,
+    this.groupId = EditableText,
   });
 
   /// The hint text to display when the text field is empty.
@@ -69,6 +70,9 @@ class AFTextField extends StatefulWidget {
 
   /// The size of the suffix icon.
   final BoxConstraints? suffixIconConstraints;
+
+  /// The group ID for the text field.
+  final Object groupId;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
@@ -118,6 +122,7 @@ class _AFTextFieldState extends AFTextFieldState {
     final defaultBorderColor = theme.borderColorScheme.greyTertiary;
 
     Widget child = TextField(
+      groupId: widget.groupId,
       controller: effectiveController,
       keyboardType: widget.keyboardType,
       style: theme.textStyle.body.standard(

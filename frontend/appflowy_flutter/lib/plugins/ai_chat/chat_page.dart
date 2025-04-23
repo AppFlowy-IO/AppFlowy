@@ -397,7 +397,7 @@ class _Input extends StatefulWidget {
 }
 
 class _InputState extends State<_Input> {
-  final textController = TextEditingController();
+  final textController = AiPromptInputTextEditingController();
 
   @override
   void dispose() {

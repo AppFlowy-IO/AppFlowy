@@ -4,12 +4,14 @@ import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:extended_text_field/extended_text_field.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'browse_prompts_button.dart';
 
 class DesktopPromptInput extends StatefulWidget {
   const DesktopPromptInput({
@@ -26,7 +28,7 @@ class DesktopPromptInput extends StatefulWidget {
   });
 
   final bool isStreaming;
-  final TextEditingController textController;
+  final AiPromptInputTextEditingController textController;
   final void Function() onStopStreaming;
   final void Function(String, PredefinedFormat?, Map<String, dynamic>)
       onSubmitted;
@@ -185,6 +187,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   widget.selectedSourcesNotifier,
                               onUpdateSelectedSources:
                                   widget.onUpdateSelectedSources,
+                              onSelectPrompt: handleOnSelectPrompt,
                               extraBottomActionButton:
                                   widget.extraBottomActionButton,
                             ),
@@ -491,6 +494,28 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       ),
     };
   }
+
+  void handleOnSelectPrompt(AiPrompt prompt) {
+    final bloc = context.read<AIPromptInputBloc>();
+    bloc.add(
+      AIPromptInputEvent.updateMentionedViews([]),
+    );
+
+    final content = AiPromptInputTextEditingController.replace(prompt.content);
+
+    widget.textController.value = TextEditingValue(
+      text: content,
+      selection: TextSelection.collapsed(
+        offset: content.length,
+      ),
+    );
+
+    if (bloc.state.showPredefinedFormats) {
+      bloc.add(
+        AIPromptInputEvent.toggleShowPredefinedFormat(),
+      );
+    }
+  }
 }
 
 class _SubmitOrMentionPageIntent extends Intent {
@@ -529,7 +554,9 @@ class PromptInputTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExtendedTextField(
+    final theme = AppFlowyTheme.of(context);
+
+    return TextField(
       controller: textController,
       focusNode: textFieldFocusNode,
       readOnly: !editable,
@@ -548,19 +575,14 @@ class PromptInputTextField extends StatelessWidget {
       textCapitalization: TextCapitalization.sentences,
       minLines: 1,
       maxLines: null,
-      style: Theme.of(context).textTheme.bodyMedium,
-      specialTextSpanBuilder: PromptInputTextSpanBuilder(
-        inputControlCubit: cubit,
-        specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
+      style: theme.textStyle.body.standard(
+        color: theme.textColorScheme.primary,
       ),
     );
   }
 
   TextStyle? inputHintTextStyle(BuildContext context) {
-    return Theme.of(context).textTheme.bodyMedium?.copyWith(
+    return AppFlowyTheme.of(context).textStyle.body.standard(
           color: Theme.of(context).isLightMode
               ? const Color(0xFFBDC2C8)
               : const Color(0xFF3C3E51),
@@ -579,6 +601,7 @@ class _PromptBottomActions extends StatelessWidget {
     required this.onStopStreaming,
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
+    required this.onSelectPrompt,
     this.extraBottomActionButton,
   });
 
@@ -591,6 +614,7 @@ class _PromptBottomActions extends StatelessWidget {
   final void Function() onStopStreaming;
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
+  final void Function(AiPrompt) onSelectPrompt;
   final Widget? extraBottomActionButton;
 
   @override
@@ -601,40 +625,18 @@ class _PromptBottomActions extends StatelessWidget {
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
           return Row(
+            spacing: DesktopAIChatSizes.inputActionBarButtonSpacing,
             children: [
-              if (showPredefinedFormatButton) ...[
-                _predefinedFormatButton(),
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
-              SelectModelMenu(
-                aiModelStateNotifier:
-                    context.read<AIPromptInputBloc>().aiModelStateNotifier,
-              ),
+              if (showPredefinedFormatButton) _predefinedFormatButton(),
+              _selectModelButton(context),
+              _buildBrowsePromptsButton(),
+
               const Spacer(),
-              if (state.modelState.type == AiType.cloud) ...[
-                _selectSourcesButton(),
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
-              if (extraBottomActionButton != null) ...[
-                extraBottomActionButton!,
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
+
+              if (state.modelState.type == AiType.cloud) _selectSourcesButton(),
+              if (extraBottomActionButton != null) extraBottomActionButton!,
               // _mentionButton(context),
-              // const HSpace(
-              //   DesktopAIPromptSizes.actionBarButtonSpacing,
-              // ),
-              if (state.supportChatWithFile) ...[
-                _attachmentButton(context),
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
+              if (state.supportChatWithFile) _attachmentButton(context),
               _sendButton(),
             ],
           );
@@ -654,6 +656,19 @@ class _PromptBottomActions extends StatelessWidget {
     return PromptInputDesktopSelectSourcesButton(
       onUpdateSelectedSources: onUpdateSelectedSources,
       selectedSourcesNotifier: selectedSourcesNotifier,
+    );
+  }
+
+  Widget _selectModelButton(BuildContext context) {
+    return SelectModelMenu(
+      aiModelStateNotifier:
+          context.read<AIPromptInputBloc>().aiModelStateNotifier,
+    );
+  }
+
+  Widget _buildBrowsePromptsButton() {
+    return BrowsePromptsButton(
+      onSelectPrompt: onSelectPrompt,
     );
   }
 

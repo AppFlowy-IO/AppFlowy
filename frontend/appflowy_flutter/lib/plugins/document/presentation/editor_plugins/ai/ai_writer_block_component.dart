@@ -95,7 +95,7 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
 }
 
 class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
-  final textController = TextEditingController();
+  final textController = AiPromptInputTextEditingController();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
   final focusNode = FocusNode();
@@ -187,7 +187,7 @@ class OverlayContent extends StatefulWidget {
 
   final EditorState editorState;
   final Node node;
-  final TextEditingController textController;
+  final AiPromptInputTextEditingController textController;
 
   @override
   State<OverlayContent> createState() => _OverlayContentState();
@@ -475,7 +475,7 @@ class MainContentArea extends StatelessWidget {
     required this.showCommandsToggle,
   });
 
-  final TextEditingController textController;
+  final AiPromptInputTextEditingController textController;
   final bool isInitialReadyState;
   final bool isDocumentEmpty;
   final ValueNotifier<bool> showCommandsToggle;
