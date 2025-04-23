@@ -447,7 +447,6 @@ class _InputState extends State<_Input> {
                                   ),
                                 );
                               },
-                              showBrowsePromptsButton: true,
                               selectedSourcesNotifier:
                                   chatBloc.selectedSourcesNotifier,
                               onUpdateSelectedSources: (ids) {

@@ -24,7 +24,6 @@ class DesktopPromptInput extends StatefulWidget {
     required this.onUpdateSelectedSources,
     this.hideDecoration = false,
     this.hideFormats = false,
-    this.showBrowsePromptsButton = false,
     this.extraBottomActionButton,
   });
 
@@ -37,7 +36,6 @@ class DesktopPromptInput extends StatefulWidget {
   final void Function(List<String>) onUpdateSelectedSources;
   final bool hideDecoration;
   final bool hideFormats;
-  final bool showBrowsePromptsButton;
   final Widget? extraBottomActionButton;
 
   @override
@@ -190,8 +188,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                               onUpdateSelectedSources:
                                   widget.onUpdateSelectedSources,
                               onSelectPrompt: handleOnSelectPrompt,
-                              showBrowsePromptsButton:
-                                  widget.showBrowsePromptsButton,
                               extraBottomActionButton:
                                   widget.extraBottomActionButton,
                             ),
@@ -606,7 +602,6 @@ class _PromptBottomActions extends StatelessWidget {
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
     required this.onSelectPrompt,
-    required this.showBrowsePromptsButton,
     this.extraBottomActionButton,
   });
 
@@ -620,7 +615,6 @@ class _PromptBottomActions extends StatelessWidget {
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
   final void Function(AiPrompt) onSelectPrompt;
-  final bool showBrowsePromptsButton;
   final Widget? extraBottomActionButton;
 
   @override
@@ -635,7 +629,7 @@ class _PromptBottomActions extends StatelessWidget {
             children: [
               if (showPredefinedFormatButton) _predefinedFormatButton(),
               _selectModelButton(context),
-              if (showBrowsePromptsButton) _buildBrowsePromptsButton(),
+              _buildBrowsePromptsButton(),
 
               const Spacer(),
 
