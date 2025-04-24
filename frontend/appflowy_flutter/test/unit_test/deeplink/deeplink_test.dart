@@ -12,8 +12,9 @@ void main() {
       ..register(InvitationDeepLinkHandler());
 
     test('invitation deep link handler', () {
-      final uri =
-          Uri.parse('appflowy-flutter://invitation-callback?workspace_id=123');
+      final uri = Uri.parse(
+        'appflowy-flutter://invitation-callback?email=lucas@appflowy.com&workspace_id=123',
+      );
       deepLinkHandlerRegistry.processDeepLink(
         uri: uri,
         onStateChange: (handler, state) {
