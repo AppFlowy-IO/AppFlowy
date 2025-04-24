@@ -61,20 +61,6 @@ class AiPromptPreview extends StatelessWidget {
             ),
             VSpace(theme.spacing.xl),
           ],
-          if (prompt.sampleResponse.isNotEmpty) ...[
-            SelectionContainer.disabled(
-              child: Text(
-                LocaleKeys.ai_customPrompt_sampleOutput.tr(),
-                style: theme.textStyle.heading4.standard(
-                  color: theme.textColorScheme.primary,
-                ),
-              ),
-            ),
-            VSpace(theme.spacing.xs),
-            _PromptSampleOutput(
-              prompt: prompt,
-            ),
-          ],
         ],
       ),
     );
@@ -171,30 +157,6 @@ class _PromptExample extends StatelessWidget {
       ),
       child: AIMarkdownText(
         markdown: prompt.example,
-      ),
-    );
-  }
-}
-
-class _PromptSampleOutput extends StatelessWidget {
-  const _PromptSampleOutput({
-    required this.prompt,
-  });
-
-  final AiPrompt prompt;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-
-    return Container(
-      padding: EdgeInsets.all(theme.spacing.l),
-      decoration: BoxDecoration(
-        color: theme.fillColorScheme.quaternary,
-        borderRadius: BorderRadius.circular(theme.borderRadius.m),
-      ),
-      child: AIMarkdownText(
-        markdown: prompt.sampleResponse,
       ),
     );
   }
