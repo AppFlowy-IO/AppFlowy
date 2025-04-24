@@ -146,6 +146,7 @@ class ChangePasswordSection extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => MultiBlocProvider(
         providers: [
           BlocProvider<PasswordBloc>.value(
@@ -171,6 +172,7 @@ class ChangePasswordSection extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => MultiBlocProvider(
         providers: [
           BlocProvider<PasswordBloc>.value(

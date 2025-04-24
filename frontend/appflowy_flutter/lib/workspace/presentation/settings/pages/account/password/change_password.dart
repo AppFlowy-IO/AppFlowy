@@ -80,7 +80,7 @@ class _ChangePasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Change password',
+          LocaleKeys.newSettings_myAccount_password_changePassword.tr(),
           style: theme.textStyle.heading4.prominent(
             color: theme.textColorScheme.primary,
           ),
