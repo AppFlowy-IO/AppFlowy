@@ -184,8 +184,7 @@ class CopyButton extends StatelessWidget {
           );
           if (context.mounted) {
             showToastNotification(
-              context,
-              message: LocaleKeys.grid_url_copiedNotification.tr(),
+              message: LocaleKeys.message_copy_success.tr(),
             );
           }
         },
@@ -375,7 +374,7 @@ class _ChangeFormatPopoverContentState
             builder: (context, state) {
               return ChangeFormatBar(
                 spacing: 2.0,
-                showImageFormats: state.aiType.isCloud,
+                showImageFormats: state.modelState.type.isCloud,
                 predefinedFormat: predefinedFormat,
                 onSelectPredefinedFormat: (format) {
                   setState(() => predefinedFormat = format);

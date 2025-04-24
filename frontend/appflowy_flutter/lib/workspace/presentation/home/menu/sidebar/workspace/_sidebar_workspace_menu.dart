@@ -306,9 +306,12 @@ class _WorkspaceInfo extends StatelessWidget {
       // Persist and close other tabs when switching workspace, restore tabs for new workspace
       getIt<TabsBloc>().add(TabsEvent.switchWorkspace(workspace.workspaceId));
 
-      context
-          .read<UserWorkspaceBloc>()
-          .add(UserWorkspaceEvent.openWorkspace(workspace.workspaceId));
+      context.read<UserWorkspaceBloc>().add(
+            UserWorkspaceEvent.openWorkspace(
+              workspace.workspaceId,
+              workspace.workspaceAuthType,
+            ),
+          );
 
       PopoverContainer.of(context).closeAll();
     }
@@ -383,7 +386,12 @@ class _CreateWorkspaceButton extends StatelessWidget {
       final workspaceBloc = context.read<UserWorkspaceBloc>();
       await CreateWorkspaceDialog(
         onConfirm: (name) {
-          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
+          workspaceBloc.add(
+            UserWorkspaceEvent.createWorkspace(
+              name,
+              AuthTypePB.Server,
+            ),
+          );
         },
       ).show(context);
     }

@@ -1,19 +1,19 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, PredefinedFormatPB,
   RepeatedRelatedQuestionPB, StreamMessageParams,
 };
-use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
+use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::persistence::{
-  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
-  ChatMessageTable,
-};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
+use flowy_ai_pub::persistence::{
+  select_answer_where_match_reply_message_id, select_chat_messages, upsert_chat_messages,
+  ChatMessageTable,
+};
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
@@ -23,6 +23,7 @@ use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{error, instrument, trace};
+use uuid::Uuid;
 
 enum PrevMessageState {
   HasMore,
@@ -31,10 +32,10 @@ enum PrevMessageState {
 }
 
 pub struct Chat {
-  chat_id: String,
+  chat_id: Uuid,
   uid: i64,
   user_service: Arc<dyn AIUserService>,
-  chat_service: Arc<AICloudServiceMiddleware>,
+  chat_service: Arc<ChatServiceMiddleware>,
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
@@ -44,9 +45,9 @@ pub struct Chat {
 impl Chat {
   pub fn new(
     uid: i64,
-    chat_id: String,
+    chat_id: Uuid,
     user_service: Arc<dyn AIUserService>,
-    chat_service: Arc<AICloudServiceMiddleware>,
+    chat_service: Arc<ChatServiceMiddleware>,
   ) -> Chat {
     Chat {
       uid,
@@ -62,18 +63,6 @@ impl Chat {
 
   pub fn close(&self) {}
 
-  #[allow(dead_code)]
-  pub async fn pull_latest_message(&self, limit: i64) {
-    let latest_message_id = self
-      .latest_message_id
-      .load(std::sync::atomic::Ordering::Relaxed);
-    if latest_message_id > 0 {
-      let _ = self
-        .load_remote_chat_messages(limit, None, Some(latest_message_id))
-        .await;
-    }
-  }
-
   pub async fn stop_stream_message(&self) {
     self
       .stop_stream
@@ -87,11 +76,10 @@ impl Chat {
     preferred_ai_model: Option<AIModel>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
-      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, format={:?}",
       self.chat_id,
       params.message,
       params.message_type,
-      params.metadata,
       params.format,
     );
 
@@ -116,7 +104,6 @@ impl Chat {
         &self.chat_id,
         &params.message,
         params.message_type.clone(),
-        &[],
       )
       .await
       .map_err(|err| {
@@ -128,16 +115,8 @@ impl Chat {
       .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
 
-    if let Err(err) = self
-      .chat_service
-      .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
-      .await
-    {
-      error!("Failed to index file: {}", err);
-    }
-
     // Save message to disk
-    save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
+    notify_message(&self.chat_id, question.clone())?;
     let format = params.format.clone().map(Into::into).unwrap_or_default();
     self.stream_response(
       params.answer_stream_port,
@@ -196,16 +175,15 @@ impl Chat {
     &self,
     answer_stream_port: i64,
     answer_stream_buffer: Arc<Mutex<StringBuffer>>,
-    uid: i64,
-    workspace_id: String,
+    _uid: i64,
+    workspace_id: Uuid,
     question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
   ) {
     let stop_stream = self.stop_stream.clone();
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
-    let user_service = self.user_service.clone();
     tokio::spawn(async move {
       let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
@@ -254,10 +232,10 @@ impl Chat {
                     .send(StreamMessage::OnError(err.msg.clone()).to_string())
                     .await;
                   let pb = ChatMessageErrorPB {
-                    chat_id: chat_id.clone(),
+                    chat_id: chat_id.to_string(),
                     error_message: err.to_string(),
                   };
-                  chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+                  chat_notification_builder(chat_id, ChatNotification::StreamChatMessageError)
                     .payload(pb)
                     .send();
                   return Err(err);
@@ -293,17 +271,17 @@ impl Chat {
           }
 
           let pb = ChatMessageErrorPB {
-            chat_id: chat_id.clone(),
+            chat_id: chat_id.to_string(),
             error_message: err.to_string(),
           };
-          chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+          chat_notification_builder(chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
+      chat_notification_builder(chat_id, ChatNotification::FinishStreaming).send();
       trace!("[Chat] finish streaming");
 
       if answer_stream_buffer.lock().await.is_empty() {
@@ -320,7 +298,7 @@ impl Chat {
           metadata,
         )
         .await?;
-      save_and_notify_message(uid, &chat_id, &user_service, answer)?;
+      notify_message(&chat_id, answer)?;
       Ok::<(), FlowyError>(())
     });
   }
@@ -339,7 +317,7 @@ impl Chat {
   ///    - `before_message_id` is the first message ID in the current chat messages.
   pub async fn load_prev_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
@@ -348,9 +326,9 @@ impl Chat {
       limit,
       before_message_id
     );
-    let messages = self
-      .load_local_chat_messages(limit, None, before_message_id)
-      .await?;
+
+    let offset = before_message_id.map_or(MessageCursor::NextBack, MessageCursor::BeforeMessageId);
+    let messages = self.load_local_chat_messages(limit, offset).await?;
 
     // If the number of messages equals the limit, then no need to load more messages from remote
     if messages.len() == limit as usize {
@@ -359,7 +337,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      chat_notification_builder(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      chat_notification_builder(self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -387,7 +365,7 @@ impl Chat {
 
   pub async fn load_latest_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
@@ -396,9 +374,8 @@ impl Chat {
       limit,
       after_message_id,
     );
-    let messages = self
-      .load_local_chat_messages(limit, after_message_id, None)
-      .await?;
+    let offset = after_message_id.map_or(MessageCursor::NextBack, MessageCursor::AfterMessageId);
+    let messages = self.load_local_chat_messages(limit, offset).await?;
 
     trace!(
       "[Chat] Loaded local chat messages: chat_id={}, messages={}",
@@ -420,7 +397,7 @@ impl Chat {
 
   async fn load_remote_chat_messages(
     &self,
-    limit: i64,
+    limit: u64,
     before_message_id: Option<i64>,
     after_message_id: Option<i64>,
   ) -> FlowyResult<()> {
@@ -432,7 +409,7 @@ impl Chat {
       after_message_id
     );
     let workspace_id = self.user_service.workspace_id()?;
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     let uid = self.uid;
@@ -445,7 +422,7 @@ impl Chat {
         _ => MessageCursor::NextBack,
       };
       match cloud_service
-        .get_chat_messages(&workspace_id, &chat_id, cursor.clone(), limit as u64)
+        .get_chat_messages(&workspace_id, &chat_id, cursor.clone(), limit)
         .await
       {
         Ok(resp) => {
@@ -454,6 +431,7 @@ impl Chat {
             user_service.sqlite_connection(uid)?,
             &chat_id,
             resp.messages.clone(),
+            true,
           ) {
             error!("Failed to save chat:{} messages: {}", chat_id, err);
           }
@@ -480,11 +458,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            chat_notification_builder(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            chat_notification_builder(chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            chat_notification_builder(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            chat_notification_builder(chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }
@@ -498,19 +476,21 @@ impl Chat {
 
   pub async fn get_question_id_from_answer_id(
     &self,
+    chat_id: &Uuid,
     answer_message_id: i64,
   ) -> Result<i64, FlowyError> {
     let conn = self.user_service.sqlite_connection(self.uid)?;
 
-    let local_result = select_message_where_match_reply_message_id(conn, answer_message_id)?
-      .map(|message| message.message_id);
+    let local_result =
+      select_answer_where_match_reply_message_id(conn, &chat_id.to_string(), answer_message_id)?
+        .map(|message| message.message_id);
 
     if let Some(message_id) = local_result {
       return Ok(message_id);
     }
 
     let workspace_id = self.user_service.workspace_id()?;
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
 
     let question = cloud_service
@@ -523,11 +503,12 @@ impl Chat {
   pub async fn get_related_question(
     &self,
     message_id: i64,
+    ai_model: Option<AIModel>,
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     let resp = self
       .chat_service
-      .get_related_message(&workspace_id, &self.chat_id, message_id)
+      .get_related_message(&workspace_id, &self.chat_id, message_id, ai_model)
       .await?;
 
     trace!(
@@ -552,26 +533,19 @@ impl Chat {
       .get_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
-    save_and_notify_message(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
+    notify_message(&self.chat_id, answer.clone())?;
     let pb = ChatMessagePB::from(answer);
     Ok(pb)
   }
 
   async fn load_local_chat_messages(
     &self,
-    limit: i64,
-    after_message_id: Option<i64>,
-    before_message_id: Option<i64>,
+    limit: u64,
+    offset: MessageCursor,
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
     let conn = self.user_service.sqlite_connection(self.uid)?;
-    let records = select_chat_messages(
-      conn,
-      &self.chat_id,
-      limit,
-      after_message_id,
-      before_message_id,
-    )?;
-    let messages = records
+    let rows = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?.messages;
+    let messages = rows
       .into_iter()
       .map(|record| ChatMessagePB {
         message_id: record.message_id,
@@ -628,8 +602,9 @@ impl Chat {
 
 fn save_chat_message_disk(
   conn: DBConnection,
-  chat_id: &str,
+  chat_id: &Uuid,
   messages: Vec<ChatMessage>,
+  is_sync: bool,
 ) -> FlowyResult<()> {
   let records = messages
     .into_iter()
@@ -641,10 +616,11 @@ fn save_chat_message_disk(
       author_type: message.author.author_type as i64,
       author_id: message.author.author_id.to_string(),
       reply_message_id: message.reply_message_id,
-      metadata: Some(serde_json::to_string(&message.meta_data).unwrap_or_default()),
+      metadata: Some(serde_json::to_string(&message.metadata).unwrap_or_default()),
+      is_sync,
     })
     .collect::<Vec<_>>();
-  insert_chat_messages(conn, &records)?;
+  upsert_chat_messages(conn, &records)?;
   Ok(())
 }
 
@@ -681,18 +657,8 @@ impl StringBuffer {
   }
 }
 
-pub(crate) fn save_and_notify_message(
-  uid: i64,
-  chat_id: &str,
-  user_service: &Arc<dyn AIUserService>,
-  message: ChatMessage,
-) -> Result<(), FlowyError> {
+pub(crate) fn notify_message(chat_id: &Uuid, message: ChatMessage) -> Result<(), FlowyError> {
   trace!("[Chat] save answer: answer={:?}", message);
-  save_chat_message_disk(
-    user_service.sqlite_connection(uid)?,
-    chat_id,
-    vec![message.clone()],
-  )?;
   let pb = ChatMessagePB::from(message);
   chat_notification_builder(chat_id, ChatNotification::DidReceiveChatMessage)
     .payload(pb)

@@ -23,6 +23,8 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     final root = await getApplicationSupportDirectory();
     final applicationPath = await appFlowyApplicationDataDirectory();
     final dir = customApplicationPath ?? applicationPath;
@@ -39,9 +41,6 @@ class InitRustSDKTask extends LaunchTask {
     );
     await context.getIt<FlowySDK>().init(jsonEncode(env.toJson()));
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 AppFlowyConfiguration _makeAppFlowyConfiguration(
@@ -73,10 +72,10 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
           .then((directory) => directory.create());
-      return Directory(path.join(documentsDir.path, 'data_dev')).create();
+      return Directory(path.join(documentsDir.path, 'data_dev'));
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();
-      return Directory(path.join(documentsDir.path, 'data')).create();
+      return Directory(path.join(documentsDir.path, 'data'));
     case IntegrationMode.unitTest:
     case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));

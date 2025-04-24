@@ -15,7 +15,7 @@ packages:
     source: sdk
     version: "0.3.3"
   analyzer:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: analyzer
       sha256: "1f14db053a8c23e260789e9b0980fa27f2680dd640932cae5e1137cce0e46e1e"
@@ -98,8 +98,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "5ad9d77"
-      resolved-ref: "5ad9d771a8496dea95a9c5b1ec77f76df3983037"
+      ref: "680222f"
+      resolved-ref: "680222f503f90d07c08c99c42764f9b08fd0f46c"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "5.1.0"
@@ -126,6 +126,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  appflowy_ui:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_ui"
+      relative: true
+    source: path
+    version: "1.0.0"
   archive:
     dependency: "direct main"
     description:
@@ -213,10 +220,10 @@ packages:
     dependency: transitive
     description:
       name: bidi
-      sha256: "9a712c7ddf708f7c41b1923aa83648a3ed44cfd75b04f72d598c45e5be287f9d"
+      sha256: "77f475165e94b261745cf1032c751e2032b8ed92ccb2bf5716036db79320637d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.13"
   bitsdojo_window:
     dependency: "direct main"
     description:
@@ -526,10 +533,10 @@ packages:
     dependency: "direct main"
     description:
       name: device_info_plus
-      sha256: a7fd703482b391a87d60b6061d04dfdeab07826b96f9abd8f5ed98068acc0074
+      sha256: "72d146c6d7098689ff5c5f66bcf593ac11efc530095385356e131070333e64da"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "11.3.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -2567,10 +2574,11 @@ packages:
   window_manager:
     dependency: "direct main"
     description:
-      name: window_manager
-      sha256: "732896e1416297c63c9e3fb95aea72d0355f61390263982a47fd519169dc5059"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/window_manager"
+      ref: "5a43aed"
+      resolved-ref: "5a43aed33ffd9f86e1bac2fc9f4931383cc2ee2b"
+      url: "https://github.com/leanflutter/window_manager.git"
+    source: git
     version: "0.4.3"
   xdg_directories:
     dependency: transitive
@@ -2597,5 +2605,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.6.0 <4.0.0"
+  dart: ">=3.6.2 <4.0.0"
   flutter: ">=3.27.4"

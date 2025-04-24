@@ -4,8 +4,9 @@ use collab_entity::CollabType;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
+use uuid::Uuid;
 
-pub type EncodeCollabByOid = HashMap<String, EncodedCollab>;
+pub type EncodeCollabByOid = HashMap<Uuid, EncodedCollab>;
 pub type SummaryRowContent = HashMap<String, String>;
 pub type TranslateRowContent = Vec<TranslateItem>;
 
@@ -13,8 +14,8 @@ pub type TranslateRowContent = Vec<TranslateItem>;
 pub trait DatabaseAIService: Send + Sync {
   async fn summary_database_row(
     &self,
-    _workspace_id: &str,
-    _object_id: &str,
+    _workspace_id: &Uuid,
+    _object_id: &Uuid,
     _summary_row: SummaryRowContent,
   ) -> Result<String, FlowyError> {
     Ok("".to_string())
@@ -22,7 +23,7 @@ pub trait DatabaseAIService: Send + Sync {
 
   async fn translate_database_row(
     &self,
-    _workspace_id: &str,
+    _workspace_id: &Uuid,
     _translate_row: TranslateRowContent,
     _language: &str,
   ) -> Result<TranslateRowResponse, FlowyError> {
@@ -41,29 +42,29 @@ pub trait DatabaseAIService: Send + Sync {
 pub trait DatabaseCloudService: Send + Sync {
   async fn get_database_encode_collab(
     &self,
-    object_id: &str,
+    object_id: &Uuid,
     collab_type: CollabType,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<Option<EncodedCollab>, FlowyError>;
 
   async fn create_database_encode_collab(
     &self,
-    object_id: &str,
+    object_id: &Uuid,
     collab_type: CollabType,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     encoded_collab: EncodedCollab,
   ) -> Result<(), FlowyError>;
 
   async fn batch_get_database_encode_collab(
     &self,
-    object_ids: Vec<String>,
+    object_ids: Vec<Uuid>,
     object_ty: CollabType,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<EncodeCollabByOid, FlowyError>;
 
   async fn get_database_collab_object_snapshots(
     &self,
-    object_id: &str,
+    object_id: &Uuid,
     limit: usize,
   ) -> Result<Vec<DatabaseSnapshot>, FlowyError>;
 }

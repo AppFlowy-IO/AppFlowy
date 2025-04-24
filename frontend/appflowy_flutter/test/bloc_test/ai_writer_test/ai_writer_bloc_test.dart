@@ -383,7 +383,7 @@ void main() {
       await blocResponseFuture();
       bloc.runResponseAction(SuggestionAction.accept);
       await blocResponseFuture();
-      expect(editorState.document.root.children.length, 1);
+      expect(editorState.document.root.children.length, 2);
       expect(
         editorState.getNodeAtPath([0])!.delta!.toPlainText(),
         'Hello World',

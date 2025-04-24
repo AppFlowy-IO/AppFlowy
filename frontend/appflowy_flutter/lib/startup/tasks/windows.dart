@@ -19,6 +19,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // Don't initialize on mobile or web.
     if (!defaultTargetPlatform.isDesktop || context.env.isIntegrationTest) {
       return;
@@ -44,6 +46,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     final position = await windowSizeManager.getPosition();
 
     if (UniversalPlatform.isWindows) {
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+
       doWhenWindowReady(() async {
         appWindow.minSize = windowOptions.minimumSize;
         appWindow.maxSize = windowOptions.maximumSize;
@@ -52,8 +56,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         if (position != null) {
           appWindow.position = position;
         }
-
-        appWindow.show();
 
         /// on Windows we maximize the window if it was previously closed
         /// from a maximized state.
@@ -130,6 +132,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     windowManager.removeListener(this);
   }
 }

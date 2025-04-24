@@ -1,188 +1,122 @@
-use std::{
-  any::Any,
-  collections::HashMap,
-  fs,
-  ops::Deref,
-  path::Path,
-  sync::{Arc, Mutex, MutexGuard, Weak},
-};
-
-use crate::{
-  entities::{ResultIconTypePB, SearchFilterPB, SearchResultPB},
-  folder::schema::{
-    FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
-    FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
-  },
+use super::entities::FolderIndexData;
+use crate::entities::{LocalSearchResponseItemPB, ResultIconTypePB};
+use crate::folder::schema::{
+  FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
+  FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
-
-use strsim::levenshtein;
+use lib_infra::async_trait::async_trait;
+use std::path::PathBuf;
+use std::sync::{Arc, Weak};
+use std::{collections::HashMap, fs};
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
-  Index, IndexReader, IndexWriter, TantivyDocument, Term,
+  Index, IndexReader, IndexWriter, TantivyDocument, TantivyError, Term,
 };
+use tokio::sync::RwLock;
+use tracing::{error, info};
+use uuid::Uuid;
 
-use super::entities::FolderIndexData;
+pub struct TantivyState {
+  pub path: PathBuf,
+  pub index: Index,
+  pub folder_schema: FolderSchema,
+  pub index_reader: IndexReader,
+  pub index_writer: IndexWriter,
+}
+
+impl Drop for TantivyState {
+  fn drop(&mut self) {
+    tracing::trace!("Dropping TantivyState at {:?}", self.path);
+  }
+}
 
 #[derive(Clone)]
 pub struct FolderIndexManagerImpl {
-  folder_schema: Option<FolderSchema>,
-  index: Option<Index>,
-  index_reader: Option<IndexReader>,
-  index_writer: Option<Arc<Mutex<IndexWriter>>>,
+  auth_user: Weak<AuthenticateUser>,
+  state: Arc<RwLock<Option<TantivyState>>>,
 }
 
-const FOLDER_INDEX_DIR: &str = "folder_index";
-
 impl FolderIndexManagerImpl {
-  pub fn new(auth_user: Option<Weak<AuthenticateUser>>) -> Self {
-    let auth_user = match auth_user {
-      Some(auth_user) => auth_user,
-      None => {
-        return FolderIndexManagerImpl::empty();
-      },
-    };
-
-    // AuthenticateUser is required to get the index path
-    let authenticate_user = auth_user.upgrade();
-
-    // Storage path is the users data path with an index directory
-    // Eg. /usr/flowy-data/indexes
-    let storage_path = match authenticate_user {
-      Some(auth_user) => auth_user.get_index_path(),
-      None => {
-        tracing::error!("FolderIndexManager: AuthenticateUser is not available");
-        return FolderIndexManagerImpl::empty();
-      },
-    };
-
-    // We check if the `folder_index` directory exists, if not we create it
-    let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
-    if !index_path.exists() {
-      let res = fs::create_dir_all(&index_path);
-      if let Err(e) = res {
-        tracing::error!(
-          "FolderIndexManager failed to create index directory: {:?}",
-          e
-        );
-        return FolderIndexManagerImpl::empty();
-      }
-    }
-
-    // The folder schema is used to define the fields of the index along
-    // with how they are stored and if the field is indexed
-    let folder_schema = FolderSchema::new();
-
-    // We open the existing or newly created folder_index directory
-    // This is required by the Tantivy Index, as it will use it to store
-    // and read index data
-    let index = match MmapDirectory::open(index_path) {
-      // We open or create an index that takes the directory r/w and the schema.
-      Ok(dir) => match Index::open_or_create(dir, folder_schema.schema.clone()) {
-        Ok(index) => index,
-        Err(e) => {
-          tracing::error!("FolderIndexManager failed to open index: {:?}", e);
-          return FolderIndexManagerImpl::empty();
-        },
-      },
-      Err(e) => {
-        tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
-        return FolderIndexManagerImpl::empty();
-      },
-    };
-
-    // We only need one IndexReader per index
-    let index_reader = index.reader();
-    let index_writer = index.writer(50_000_000);
-
-    let (index_reader, index_writer) = match (index_reader, index_writer) {
-      (Ok(reader), Ok(writer)) => (reader, writer),
-      _ => {
-        tracing::error!("FolderIndexManager failed to instantiate index writer and/or reader");
-        return FolderIndexManagerImpl::empty();
-      },
-    };
-
+  pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
     Self {
-      folder_schema: Some(folder_schema),
-      index: Some(index),
-      index_reader: Some(index_reader),
-      index_writer: Some(Arc::new(Mutex::new(index_writer))),
+      auth_user,
+      state: Arc::new(RwLock::new(None)),
     }
   }
 
-  fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
-    if indexes.is_empty() {
-      return Ok(());
+  async fn with_writer<F, R>(&self, f: F) -> FlowyResult<R>
+  where
+    F: FnOnce(&mut IndexWriter, &FolderSchema) -> FlowyResult<R>,
+  {
+    let mut lock = self.state.write().await;
+    if let Some(ref mut state) = *lock {
+      f(&mut state.index_writer, &state.folder_schema)
+    } else {
+      Err(FlowyError::internal().with_context("Index not initialized. Call initialize first"))
+    }
+  }
+
+  /// Initializes the state using the workspace directory.
+  async fn initialize(&self, workspace_id: &Uuid) -> FlowyResult<()> {
+    if let Some(state) = self.state.write().await.take() {
+      info!("Re-initializing folder indexer");
+      drop(state);
     }
 
-    let mut index_writer = self.get_index_writer()?;
-    let folder_schema = self.get_folder_schema()?;
+    // Since the directory lock may not be immediately released,
+    // a workaround is implemented by waiting for 3 seconds before proceeding further. This delay helps
+    // to avoid errors related to trying to open an index directory while an IndexWriter is still active.
+    //
+    // Also, we don't need to initialize the indexer immediately.
+    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
 
-    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
-    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
-    let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
-    let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
-    let workspace_id_field = folder_schema
-      .schema
-      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
+    let auth_user = self
+      .auth_user
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("AuthenticateUser is not available"))?;
 
-    for data in indexes {
-      let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
-
-      let _ = index_writer.add_document(doc![
-        id_field => data.id.clone(),
-        title_field => data.data.clone(),
-        icon_field => icon.unwrap_or_default(),
-        icon_ty_field => icon_ty,
-        workspace_id_field => data.workspace_id.clone(),
-      ]);
+    let index_path = auth_user.get_index_path()?.join(workspace_id.to_string());
+    if !index_path.exists() {
+      fs::create_dir_all(&index_path).map_err(|e| {
+        error!("Failed to create folder index directory: {:?}", e);
+        FlowyError::internal().with_context("Failed to create folder index")
+      })?;
     }
 
-    index_writer.commit()?;
+    info!("Folder indexer initialized at: {:?}", index_path);
+    let folder_schema = FolderSchema::new();
+    let dir = MmapDirectory::open(index_path.clone())?;
+    let index = Index::open_or_create(dir, folder_schema.schema.clone())?;
+    let index_reader = index.reader()?;
+
+    let index_writer = match index.writer::<_>(50_000_000) {
+      Ok(index_writer) => index_writer,
+      Err(err) => {
+        if let TantivyError::LockFailure(_, _) = err {
+          error!(
+            "Failed to acquire lock for index writer: {:?}, retry later",
+            err
+          );
+          tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+        }
+        index.writer::<_>(50_000_000)?
+      },
+    };
+
+    *self.state.write().await = Some(TantivyState {
+      path: index_path,
+      index,
+      folder_schema,
+      index_reader,
+      index_writer,
+    });
 
     Ok(())
-  }
-
-  pub fn num_docs(&self) -> u64 {
-    self
-      .index_reader
-      .clone()
-      .map(|reader| reader.searcher().num_docs())
-      .unwrap_or(0)
-  }
-
-  fn empty() -> Self {
-    Self {
-      folder_schema: None,
-      index: None,
-      index_reader: None,
-      index_writer: None,
-    }
-  }
-
-  fn get_index_writer(&self) -> FlowyResult<MutexGuard<IndexWriter>> {
-    match &self.index_writer {
-      Some(index_writer) => match index_writer.deref().lock() {
-        Ok(writer) => Ok(writer),
-        Err(e) => {
-          tracing::error!("FolderIndexManager failed to lock index writer: {:?}", e);
-          Err(FlowyError::folder_index_manager_unavailable())
-        },
-      },
-      None => Err(FlowyError::folder_index_manager_unavailable()),
-    }
-  }
-
-  fn get_folder_schema(&self) -> FlowyResult<FolderSchema> {
-    match &self.folder_schema {
-      Some(folder_schema) => Ok(folder_schema.clone()),
-      None => Err(FlowyError::folder_index_manager_unavailable()),
-    }
   }
 
   fn extract_icon(
@@ -200,132 +134,99 @@ impl FolderIndexManagerImpl {
       icon = Some(view_icon.value);
     } else {
       icon_ty = ResultIconTypePB::Icon.into();
-      let layout_ty: i64 = view_layout.into();
+      let layout_ty = view_layout as i64;
       icon = Some(layout_ty.to_string());
     }
-
     (icon, icon_ty)
   }
 
-  pub fn search(
-    &self,
-    query: String,
-    _filter: Option<SearchFilterPB>,
-  ) -> Result<Vec<SearchResultPB>, FlowyError> {
-    let folder_schema = self.get_folder_schema()?;
+  /// Simple implementation to index all given data by spawning async tasks.
+  fn index_all(&self, data_vec: Vec<IndexableData>) -> Result<(), FlowyError> {
+    for data in data_vec {
+      let indexer = self.clone();
+      tokio::spawn(async move {
+        let _ = indexer.add_index(data).await;
+      });
+    }
+    Ok(())
+  }
 
-    let (index, index_reader) = self
-      .index
+  /// Searches the index using the given query string.
+  pub async fn search(&self, query: String) -> Result<Vec<LocalSearchResponseItemPB>, FlowyError> {
+    let lock = self.state.read().await;
+    let state = lock
       .as_ref()
-      .zip(self.index_reader.as_ref())
       .ok_or_else(FlowyError::folder_index_manager_unavailable)?;
+    let schema = &state.folder_schema;
+    let index = &state.index;
+    let reader = &state.index_reader;
 
-    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+    let title_field = schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+    let mut parser = QueryParser::for_index(index, vec![title_field]);
+    parser.set_field_fuzzy(title_field, true, 2, true);
 
-    let length = query.len();
-    let distance: u8 = if length >= 2 { 2 } else { 1 };
-
-    let mut query_parser = QueryParser::for_index(&index.clone(), vec![title_field]);
-    query_parser.set_field_fuzzy(title_field, true, distance, true);
-    let built_query = query_parser.parse_query(&query.clone())?;
-
-    let searcher = index_reader.searcher();
-    let mut search_results: Vec<SearchResultPB> = vec![];
+    let built_query = parser.parse_query(&query)?;
+    let searcher = reader.searcher();
     let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
-    for (_score, doc_address) in top_docs {
-      let retrieved_doc: TantivyDocument = searcher.doc(doc_address)?;
 
+    let mut results = Vec::new();
+    for (_score, doc_address) in top_docs {
+      let doc: TantivyDocument = searcher.doc(doc_address)?;
+      let named_doc = doc.to_named_doc(&schema.schema);
       let mut content = HashMap::new();
-      let named_doc = retrieved_doc.to_named_doc(&folder_schema.schema);
       for (k, v) in named_doc.0 {
         content.insert(k, v[0].clone());
       }
-
-      if content.is_empty() {
-        continue;
+      if !content.is_empty() {
+        let s = serde_json::to_string(&content)?;
+        let result: LocalSearchResponseItemPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
+        results.push(result);
       }
-
-      let s = serde_json::to_string(&content)?;
-      let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
-      let score = self.score_result(&query, &result.data);
-      search_results.push(result.with_score(score));
     }
 
-    Ok(search_results)
-  }
-
-  // Score result by distance
-  fn score_result(&self, query: &str, term: &str) -> f64 {
-    let distance = levenshtein(query, term) as f64;
-    1.0 / (distance + 1.0)
-  }
-
-  fn get_schema_fields(&self) -> Result<(Field, Field, Field, Field, Field), FlowyError> {
-    let folder_schema = match self.folder_schema.clone() {
-      Some(schema) => schema,
-      _ => return Err(FlowyError::folder_index_manager_unavailable()),
-    };
-
-    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
-    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
-    let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
-    let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
-    let workspace_id_field = folder_schema
-      .schema
-      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
-
-    Ok((
-      id_field,
-      title_field,
-      icon_field,
-      icon_ty_field,
-      workspace_id_field,
-    ))
+    Ok(results)
   }
 }
 
+#[async_trait]
 impl IndexManager for FolderIndexManagerImpl {
-  fn is_indexed(&self) -> bool {
-    self
-      .index_reader
-      .clone()
-      .map(|reader| reader.searcher().num_docs() > 0)
-      .unwrap_or(false)
-  }
-
-  fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: String) {
+  async fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
     let indexer = self.clone();
-    let wid = workspace_id.clone();
+    let wid = workspace_id;
     tokio::spawn(async move {
       while let Ok(msg) = rx.recv().await {
         match msg {
           IndexContent::Create(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
-              let _ = indexer.add_index(IndexableData {
-                id: view.id,
-                data: view.name,
-                icon: view.icon,
-                layout: view.layout,
-                workspace_id: wid.clone(),
-              });
+              let _ = indexer
+                .add_index(IndexableData {
+                  id: view.id,
+                  data: view.name,
+                  icon: view.icon,
+                  layout: view.layout,
+                  workspace_id: wid,
+                })
+                .await;
             },
-            Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
+            Err(err) => tracing::error!("FolderIndexManager error deserialize (create): {:?}", err),
           },
           IndexContent::Update(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
-              let _ = indexer.update_index(IndexableData {
-                id: view.id,
-                data: view.name,
-                icon: view.icon,
-                layout: view.layout,
-                workspace_id: wid.clone(),
-              });
+              let _ = indexer
+                .update_index(IndexableData {
+                  id: view.id,
+                  data: view.name,
+                  icon: view.icon,
+                  layout: view.layout,
+                  workspace_id: wid,
+                })
+                .await;
             },
-            Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
+            Err(err) => error!("FolderIndexManager error deserialize (update): {:?}", err),
           },
           IndexContent::Delete(ids) => {
-            if let Err(e) = indexer.remove_indices(ids) {
-              tracing::error!("FolderIndexManager error deserialize: {:?}", e);
+            if let Err(e) = indexer.remove_indices(ids).await {
+              error!("FolderIndexManager error (delete): {:?}", e);
             }
           },
         }
@@ -333,100 +234,107 @@ impl IndexManager for FolderIndexManagerImpl {
     });
   }
 
-  fn update_index(&self, data: IndexableData) -> Result<(), FlowyError> {
-    let mut index_writer = self.get_index_writer()?;
-
-    let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
-      self.get_schema_fields()?;
-
-    let delete_term = Term::from_field_text(id_field, &data.id.clone());
-
-    // Remove old index
-    index_writer.delete_term(delete_term);
-
+  async fn add_index(&self, data: IndexableData) -> Result<(), FlowyError> {
     let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
-
-    // Add new index
-    let _ = index_writer.add_document(doc![
-      id_field => data.id.clone(),
-      title_field => data.data,
-      icon_field => icon.unwrap_or_default(),
-      icon_ty_field => icon_ty,
-      workspace_id_field => data.workspace_id.clone(),
-    ]);
-
-    index_writer.commit()?;
-
-    Ok(())
-  }
-
-  fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
-    let mut index_writer = self.get_index_writer()?;
-
-    let folder_schema = self.get_folder_schema()?;
-    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
-    for id in ids {
-      let delete_term = Term::from_field_text(id_field, &id);
-      index_writer.delete_term(delete_term);
-    }
-
-    index_writer.commit()?;
-
-    Ok(())
-  }
-
-  fn add_index(&self, data: IndexableData) -> Result<(), FlowyError> {
-    let mut index_writer = self.get_index_writer()?;
-
-    let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
-      self.get_schema_fields()?;
-
-    let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
-
-    // Add new index
-    let _ = index_writer.add_document(doc![
-      id_field => data.id,
-      title_field => data.data,
-      icon_field => icon.unwrap_or_default(),
-      icon_ty_field => icon_ty,
-      workspace_id_field => data.workspace_id,
-    ]);
-
-    index_writer.commit()?;
-
-    Ok(())
-  }
-
-  /// Removes all indexes that are related by workspace id. This is useful
-  /// for cleaning indexes when eg. removing/leaving a workspace.
-  ///
-  fn remove_indices_for_workspace(&self, workspace_id: String) -> Result<(), FlowyError> {
-    let mut index_writer = self.get_index_writer()?;
-
-    let folder_schema = self.get_folder_schema()?;
-    let id_field = folder_schema
-      .schema
-      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
-    let delete_term = Term::from_field_text(id_field, &workspace_id);
-    index_writer.delete_term(delete_term);
-
-    index_writer.commit()?;
-
-    Ok(())
-  }
-
-  fn as_any(&self) -> &dyn Any {
     self
+      .with_writer(|index_writer, folder_schema| {
+        let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
+          get_schema_fields(folder_schema)?;
+        let _ = index_writer.add_document(doc![
+            id_field => data.id,
+            title_field => data.data,
+            icon_field => icon.unwrap_or_default(),
+            icon_ty_field => icon_ty,
+            workspace_id_field => data.workspace_id.to_string(),
+        ]);
+        index_writer.commit()?;
+        Ok(())
+      })
+      .await?;
+
+    Ok(())
+  }
+
+  async fn update_index(&self, data: IndexableData) -> Result<(), FlowyError> {
+    self
+      .with_writer(|index_writer, folder_schema| {
+        let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
+          get_schema_fields(folder_schema)?;
+        let delete_term = Term::from_field_text(id_field, &data.id);
+        index_writer.delete_term(delete_term);
+
+        let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
+        let _ = index_writer.add_document(doc![
+            id_field => data.id,
+            title_field => data.data,
+            icon_field => icon.unwrap_or_default(),
+            icon_ty_field => icon_ty,
+            workspace_id_field => data.workspace_id.to_string(),
+        ]);
+
+        index_writer.commit()?;
+        Ok(())
+      })
+      .await?;
+
+    Ok(())
+  }
+
+  async fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
+    self
+      .with_writer(|index_writer, folder_schema| {
+        let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
+        for id in ids {
+          let delete_term = Term::from_field_text(id_field, &id);
+          index_writer.delete_term(delete_term);
+        }
+
+        index_writer.commit()?;
+        Ok(())
+      })
+      .await?;
+
+    Ok(())
+  }
+
+  async fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
+    self
+      .with_writer(|index_writer, folder_schema| {
+        let id_field = folder_schema
+          .schema
+          .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
+
+        let delete_term = Term::from_field_text(id_field, &workspace_id.to_string());
+        index_writer.delete_term(delete_term);
+        index_writer.commit()?;
+        Ok(())
+      })
+      .await?;
+    Ok(())
+  }
+
+  async fn is_indexed(&self) -> bool {
+    let lock = self.state.read().await;
+    if let Some(ref state) = *lock {
+      state.index_reader.searcher().num_docs() > 0
+    } else {
+      false
+    }
   }
 }
 
+#[async_trait]
 impl FolderIndexManager for FolderIndexManagerImpl {
-  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String) {
+  async fn initialize(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    self.initialize(workspace_id).await?;
+    Ok(())
+  }
+
+  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData::from_view(view, workspace_id.clone()))
+      .map(|view| IndexableData::from_view(view, workspace_id))
       .collect();
-
     let _ = self.index_all(indexable_data);
   }
 
@@ -434,29 +342,56 @@ impl FolderIndexManager for FolderIndexManagerImpl {
     &self,
     views: Vec<Arc<View>>,
     changes: Vec<FolderViewChange>,
-    workspace_id: String,
+    workspace_id: Uuid,
   ) {
     let mut views_iter = views.into_iter();
     for change in changes {
       match change {
         FolderViewChange::Inserted { view_id } => {
-          let view = views_iter.find(|view| view.id == view_id);
-          if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
-            let _ = self.add_index(indexable_data);
+          if let Some(view) = views_iter.find(|view| view.id == view_id) {
+            let indexable_data = IndexableData::from_view(view, workspace_id);
+            let f = self.clone();
+            tokio::spawn(async move {
+              let _ = f.add_index(indexable_data).await;
+            });
           }
         },
         FolderViewChange::Updated { view_id } => {
-          let view = views_iter.find(|view| view.id == view_id);
-          if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
-            let _ = self.update_index(indexable_data);
+          if let Some(view) = views_iter.find(|view| view.id == view_id) {
+            let indexable_data = IndexableData::from_view(view, workspace_id);
+            let f = self.clone();
+            tokio::spawn(async move {
+              let _ = f.update_index(indexable_data).await;
+            });
           }
         },
         FolderViewChange::Deleted { view_ids } => {
-          let _ = self.remove_indices(view_ids);
+          let f = self.clone();
+          tokio::spawn(async move {
+            let _ = f.remove_indices(view_ids).await;
+          });
         },
-      };
+      }
     }
   }
+}
+
+fn get_schema_fields(
+  folder_schema: &FolderSchema,
+) -> Result<(Field, Field, Field, Field, Field), FlowyError> {
+  let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
+  let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+  let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
+  let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
+  let workspace_id_field = folder_schema
+    .schema
+    .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
+
+  Ok((
+    id_field,
+    title_field,
+    icon_field,
+    icon_ty_field,
+    workspace_id_field,
+  ))
 }

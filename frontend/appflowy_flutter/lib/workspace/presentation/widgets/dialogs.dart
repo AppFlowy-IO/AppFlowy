@@ -157,7 +157,6 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
             onOkPressed: () {
               if (newValue.isEmpty) {
                 showToastNotification(
-                  context,
                   message: LocaleKeys.space_spaceNameCannotBeEmpty.tr(),
                 );
                 return;
@@ -363,8 +362,7 @@ class OkCancelButton extends StatelessWidget {
   }
 }
 
-void showToastNotification(
-  BuildContext context, {
+ToastificationItem showToastNotification({
   String? message,
   TextSpan? richMessage,
   String? description,
@@ -376,7 +374,7 @@ void showToastNotification(
     (message == null) != (richMessage == null),
     "Exactly one of message or richMessage must be non-null.",
   );
-  toastification.showCustom(
+  return toastification.showCustom(
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(milliseconds: 3000),
     callbacks: callbacks ?? const ToastificationCallbacks(),
@@ -608,6 +606,7 @@ Future<void> showConfirmDialog({
   VoidCallback? onCancel,
   String? confirmLabel,
   ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
+  WidgetBuilder? confirmButtonBuilder,
 }) {
   return showDialog(
     context: context,
@@ -621,6 +620,7 @@ Future<void> showConfirmDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
+            confirmButtonBuilder: confirmButtonBuilder,
             onConfirm: () => onConfirm?.call(),
             onCancel: () => onCancel?.call(),
             confirmLabel: confirmLabel,

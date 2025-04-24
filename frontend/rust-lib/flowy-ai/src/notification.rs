@@ -1,5 +1,6 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
+use tracing::trace;
 
 const CHAT_OBSERVABLE_SOURCE: &str = "Chat";
 pub const APPFLOWY_AI_NOTIFICATION_KEY: &str = "appflowy_ai_plugin";
@@ -39,7 +40,12 @@ impl std::convert::From<i32> for ChatNotification {
   }
 }
 
-#[tracing::instrument(level = "trace")]
-pub(crate) fn chat_notification_builder(id: &str, ty: ChatNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, CHAT_OBSERVABLE_SOURCE)
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn chat_notification_builder<T: ToString>(
+  id: T,
+  ty: ChatNotification,
+) -> NotificationBuilder {
+  let id = id.to_string();
+  trace!("chat_notification_builder: id = {id}, ty = {ty:?}");
+  NotificationBuilder::new(&id, ty, CHAT_OBSERVABLE_SOURCE)
 }

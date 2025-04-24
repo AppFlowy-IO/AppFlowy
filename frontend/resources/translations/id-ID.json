@@ -160,14 +160,14 @@
   "questionBubble": {
     "shortcuts": "Pintasan",
     "whatsNew": "Apa yang baru?",
-    "help": "Bantuan & Dukungan",
     "markdown": "Penurunan harga",
     "debug": {
       "name": "Info debug",
       "success": "Info debug disalin ke papan klip!",
       "fail": "Tidak dapat menyalin info debug ke papan klip"
     },
-    "feedback": "Masukan"
+    "feedback": "Masukan",
+    "help": "Bantuan & Dukungan"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Menghapus, merubah nama, dan banyak lagi...",

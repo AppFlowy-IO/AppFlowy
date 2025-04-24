@@ -5,9 +5,11 @@ use collab::preclude::{Collab, StateVector};
 use collab::util::is_change_since_sv;
 use collab_entity::CollabType;
 use collab_integrate::persistence::collab_metadata_sql::AFCollabMetadata;
-use flowy_ai::ai_manager::{AIExternalService, AIManager, AIUserService};
+use flowy_ai::ai_manager::{AIExternalService, AIManager};
+use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
-use flowy_error::FlowyError;
+use flowy_ai_pub::user_service::AIUserService;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
 use flowy_folder_pub::query::FolderService;
@@ -21,6 +23,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tracing::{error, info};
+use uuid::Uuid;
 
 pub struct ChatDepsResolver;
 
@@ -32,6 +35,7 @@ impl ChatDepsResolver {
     storage_service: Weak<dyn StorageService>,
     folder_cloud_service: Arc<dyn FolderCloudService>,
     folder_service: impl FolderService,
+    local_ai: Arc<LocalAIController>,
   ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
     Arc::new(AIManager::new(
@@ -43,6 +47,7 @@ impl ChatDepsResolver {
         folder_service: Box::new(folder_service),
         folder_cloud_service,
       },
+      local_ai,
     ))
   }
 }
@@ -56,9 +61,9 @@ struct ChatQueryServiceImpl {
 impl AIExternalService for ChatQueryServiceImpl {
   async fn query_chat_rag_ids(
     &self,
-    parent_view_id: &str,
-    chat_id: &str,
-  ) -> Result<Vec<String>, FlowyError> {
+    parent_view_id: &Uuid,
+    chat_id: &Uuid,
+  ) -> Result<Vec<Uuid>, FlowyError> {
     let mut ids = self
       .folder_service
       .get_surrounding_view_ids_with_view_layout(parent_view_id, ViewLayout::Document)
@@ -72,9 +77,9 @@ impl AIExternalService for ChatQueryServiceImpl {
   }
   async fn sync_rag_documents(
     &self,
-    workspace_id: &str,
-    rag_ids: Vec<String>,
-    mut rag_metadata_map: HashMap<String, AFCollabMetadata>,
+    workspace_id: &Uuid,
+    rag_ids: Vec<Uuid>,
+    mut rag_metadata_map: HashMap<Uuid, AFCollabMetadata>,
   ) -> Result<Vec<AFCollabMetadata>, FlowyError> {
     let mut result = Vec::new();
 
@@ -96,7 +101,7 @@ impl AIExternalService for ChatQueryServiceImpl {
         if let Ok(prev_sv) = StateVector::decode_v1(&metadata.prev_sync_state_vector) {
           let collab = Collab::new_with_source(
             CollabOrigin::Empty,
-            &rag_id,
+            &rag_id.to_string(),
             DataSource::DocStateV1(query_collab.encoded_collab.doc_state.to_vec()),
             vec![],
             false,
@@ -111,7 +116,7 @@ impl AIExternalService for ChatQueryServiceImpl {
 
       // Perform full sync if changes are detected or no state vector is found
       let params = FullSyncCollabParams {
-        object_id: rag_id.clone(),
+        object_id: rag_id,
         collab_type: CollabType::Document,
         encoded_collab: query_collab.encoded_collab.clone(),
       };
@@ -125,7 +130,7 @@ impl AIExternalService for ChatQueryServiceImpl {
       } else {
         info!("[Chat] full sync rag document: {}", rag_id);
         result.push(AFCollabMetadata {
-          object_id: rag_id,
+          object_id: rag_id.to_string(),
           updated_at: timestamp(),
           prev_sync_state_vector: query_collab.encoded_collab.state_vector.to_vec(),
           collab_type: CollabType::Document as i32,
@@ -136,7 +141,7 @@ impl AIExternalService for ChatQueryServiceImpl {
     Ok(result)
   }
 
-  async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError> {
+  async fn notify_did_send_message(&self, chat_id: &Uuid, message: &str) -> Result<(), FlowyError> {
     info!(
       "notify_did_send_message: chat_id: {}, message: {}",
       chat_id, message
@@ -149,7 +154,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   }
 }
 
-struct ChatUserServiceImpl(Weak<AuthenticateUser>);
+pub struct ChatUserServiceImpl(Weak<AuthenticateUser>);
 impl ChatUserServiceImpl {
   fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
     let user = self
@@ -160,16 +165,17 @@ impl ChatUserServiceImpl {
   }
 }
 
+#[async_trait]
 impl AIUserService for ChatUserServiceImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self.upgrade_user()?.user_id()
   }
 
-  fn device_id(&self) -> Result<String, FlowyError> {
-    self.upgrade_user()?.device_id()
+  async fn is_local_model(&self) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_local_mode().await
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
   }
 

@@ -1,22 +1,20 @@
-use std::sync::{Arc, Weak};
-
 use crate::deps_resolve::CollabSnapshotSql;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_database2::DatabaseManager;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use std::sync::{Arc, Weak};
+use uuid::Uuid;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
   pub fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
-    _database_manager: &Arc<DatabaseManager>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn StorageService>,
   ) -> Arc<DocumentManager> {
@@ -97,7 +95,7 @@ impl DocumentUserService for DocumentUserImpl {
       .device_id()
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self
       .0
       .upgrade()

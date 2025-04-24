@@ -50,8 +50,8 @@ class SidebarTopMenu extends StatelessWidget {
     }
 
     final svgData = Theme.of(context).brightness == Brightness.dark
-        ? FlowySvgs.flowy_logo_dark_mode_xl
-        : FlowySvgs.flowy_logo_text_xl;
+        ? FlowySvgs.app_logo_with_text_dark_xl
+        : FlowySvgs.app_logo_with_text_light_xl;
 
     return Padding(
       padding: const EdgeInsets.only(top: 12.0, left: 8),
@@ -89,9 +89,8 @@ class SidebarTopMenu extends StatelessWidget {
             richMessage: textSpan,
             child: Listener(
               behavior: HitTestBehavior.translucent,
-              onPointerDown: (_) => context
-                  .read<HomeSettingBloc>()
-                  .add(const HomeSettingEvent.collapseMenu()),
+              onPointerDown: (_) =>
+                  context.read<HomeSettingBloc>().collapseMenu(),
               child: FlowyHover(
                 child: Container(
                   width: 24,

@@ -380,6 +380,12 @@ pub enum ErrorCode {
 
   #[error("Local AI disabled")]
   LocalAIDisabled = 130,
+
+  #[error("User not login")]
+  UserNotLogin = 131,
+
+  #[error("Reference resource is not available")]
+  WeakRefDrop = 132,
 }
 
 impl ErrorCode {

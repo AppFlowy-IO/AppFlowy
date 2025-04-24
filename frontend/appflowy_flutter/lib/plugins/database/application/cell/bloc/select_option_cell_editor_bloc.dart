@@ -241,6 +241,11 @@ class SelectOptionCellEditorBloc
     } else if (!state.selectedOptions
         .any((option) => option.id == focusedOptionId)) {
       _selectOptionService.select(optionIds: [focusedOptionId]);
+      emit(
+        state.copyWith(
+          clearFilter: true,
+        ),
+      );
     }
   }
 

@@ -22,6 +22,7 @@ class MobileSelectionMenuWidget extends StatefulWidget {
     required this.deleteSlashByDefault,
     required this.singleColumn,
     required this.startOffset,
+    required this.showAtTop,
     this.nameBuilder,
   });
 
@@ -38,6 +39,7 @@ class MobileSelectionMenuWidget extends StatefulWidget {
 
   final bool deleteSlashByDefault;
   final bool singleColumn;
+  final bool showAtTop;
   final int startOffset;
 
   final SelectionMenuItemNameBuilder? nameBuilder;
@@ -172,27 +174,37 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _focusNode,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: widget.selectionMenuStyle.selectionMenuBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 5,
-              spreadRadius: 1,
-              color: Colors.black.withValues(alpha: 0.1),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(6.0),
-        ),
-        child: _showingItems.isEmpty
-            ? _buildNoResultsWidget(context)
-            : _buildResultsWidget(
-                context,
-                _showingItems,
-                widget.itemCountFilter,
+    return SizedBox(
+      height: 192,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.showAtTop) Spacer(),
+          Focus(
+            focusNode: _focusNode,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: widget.selectionMenuStyle.selectionMenuBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 5,
+                    spreadRadius: 1,
+                    color: Colors.black.withValues(alpha: 0.1),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(6.0),
               ),
+              child: _showingItems.isEmpty
+                  ? _buildNoResultsWidget(context)
+                  : _buildResultsWidget(
+                      context,
+                      _showingItems,
+                      widget.itemCountFilter,
+                    ),
+            ),
+          ),
+          if (!widget.showAtTop) Spacer(),
+        ],
       ),
     );
   }

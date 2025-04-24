@@ -3,6 +3,7 @@ use flowy_error::FlowyResult;
 use flowy_folder_pub::entities::ImportFrom;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait UserWorkspaceService: Send + Sync {
@@ -19,5 +20,5 @@ pub trait UserWorkspaceService: Send + Sync {
   ) -> FlowyResult<()>;
 
   /// Removes local indexes when a workspace is left/deleted
-  fn did_delete_workspace(&self, workspace_id: String) -> FlowyResult<()>;
+  async fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()>;
 }

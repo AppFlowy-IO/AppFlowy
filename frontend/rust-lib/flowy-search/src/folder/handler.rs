@@ -1,12 +1,14 @@
-use crate::{
-  entities::{SearchFilterPB, SearchResultPB},
-  services::manager::{SearchHandler, SearchType},
+use super::indexer::FolderIndexManagerImpl;
+use crate::entities::{
+  CreateSearchResultPBArgs, RepeatedLocalSearchResponseItemPB, SearchFilterPB, SearchResponsePB,
 };
+use crate::services::manager::{SearchHandler, SearchType};
+use async_stream::stream;
 use flowy_error::FlowyResult;
 use lib_infra::async_trait::async_trait;
+use std::pin::Pin;
 use std::sync::Arc;
-
-use super::indexer::FolderIndexManagerImpl;
+use tokio_stream::{self, Stream};
 
 pub struct FolderSearchHandler {
   pub index_manager: Arc<FolderIndexManagerImpl>,
@@ -28,19 +30,26 @@ impl SearchHandler for FolderSearchHandler {
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
-  ) -> FlowyResult<Vec<SearchResultPB>> {
-    let mut results = self.index_manager.search(query, filter.clone())?;
-    if let Some(filter) = filter {
-      if let Some(workspace_id) = filter.workspace_id {
-        // Filter results by workspace ID
-        results.retain(|result| result.workspace_id == workspace_id);
-      }
-    }
+  ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>> {
+    let index_manager = self.index_manager.clone();
 
-    Ok(results)
-  }
+    Box::pin(stream! {
+        // Perform search (if search() returns a Result)
+        let mut items = match index_manager.search(query).await {
+            Ok(items) => items,
+            Err(err) => {
+                yield Err(err);
+                return;
+            }
+        };
 
-  fn index_count(&self) -> u64 {
-    self.index_manager.num_docs()
+        if let Some(filter) = filter {
+            items.retain(|result| result.workspace_id == filter.workspace_id);
+        }
+
+        // Build the search result.
+        let search_result = RepeatedLocalSearchResponseItemPB {items};
+        yield Ok(CreateSearchResultPBArgs::default().local_search_result(Some(search_result)).build().unwrap())
+    })
   }
 }

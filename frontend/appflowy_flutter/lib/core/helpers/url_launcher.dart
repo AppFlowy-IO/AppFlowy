@@ -44,17 +44,27 @@ Future<bool> afLaunchUri(
     uri = Uri.parse('https://$url');
   }
 
-  // try to launch the uri directly
-  bool result;
-  try {
-    result = await launcher.launchUrl(
-      uri,
-      mode: mode,
-      webOnlyWindowName: webOnlyWindowName,
-    );
-  } on PlatformException catch (e) {
-    Log.error('Failed to open uri: $e');
-    return false;
+  /// opening an incorrect link will cause a system error dialog to pop up on macOS
+  /// only use [canLaunchUrl] on macOS
+  /// and there is an known issue with url_launcher on Linux where it fails to launch
+  /// see https://github.com/flutter/flutter/issues/88463
+  bool result = true;
+  if (UniversalPlatform.isMacOS) {
+    result = await launcher.canLaunchUrl(uri);
+  }
+
+  if (result) {
+    try {
+      // try to launch the uri directly
+      result = await launcher.launchUrl(
+        uri,
+        mode: mode,
+        webOnlyWindowName: webOnlyWindowName,
+      );
+    } on PlatformException catch (e) {
+      Log.error('Failed to open uri: $e');
+      return false;
+    }
   }
 
   // if the uri is not a valid url, try to launch it with http scheme
@@ -133,7 +143,6 @@ Future<bool> _afLaunchLocalUri(
   };
   if (context != null && context.mounted) {
     showToastNotification(
-      context,
       message: message,
       type: result.type == ResultType.done
           ? ToastificationType.success

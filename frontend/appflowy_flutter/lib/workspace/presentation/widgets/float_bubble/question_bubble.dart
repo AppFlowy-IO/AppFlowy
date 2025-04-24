@@ -86,7 +86,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
       ),
       buildChild: (controller) {
         return FlowyTooltip(
-          message: LocaleKeys.questionBubble_help.tr(),
+          message: LocaleKeys.questionBubble_getSupport.tr(),
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -121,27 +121,32 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              afLaunchUrlString("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString('https://www.appflowy.io/what-is-new');
               break;
-            case BubbleAction.help:
-              afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
+            case BubbleAction.getSupport:
+              afLaunchUrlString('https://discord.gg/9Q2xaN37tV');
               break;
             case BubbleAction.debug:
               _DebugToast().show();
               break;
             case BubbleAction.shortcuts:
               afLaunchUrlString(
-                "https://docs.appflowy.io/docs/appflowy/product/shortcuts",
+                'https://docs.appflowy.io/docs/appflowy/product/shortcuts',
               );
               break;
             case BubbleAction.markdown:
               afLaunchUrlString(
-                "https://docs.appflowy.io/docs/appflowy/product/markdown",
+                'https://docs.appflowy.io/docs/appflowy/product/markdown',
               );
               break;
             case BubbleAction.github:
               afLaunchUrlString(
                 'https://github.com/AppFlowy-IO/AppFlowy/issues/new/choose',
+              );
+              break;
+            case BubbleAction.helpAndDocumentation:
+              afLaunchUrlString(
+                'https://appflowy.com/guide',
               );
               break;
           }
@@ -155,7 +160,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
 
 class _DebugToast {
   void show() async {
-    String debugInfo = "";
+    String debugInfo = '';
     debugInfo += await _getDeviceInfo();
     debugInfo += await _getDocumentPath();
     await Clipboard.setData(ClipboardData(text: debugInfo));
@@ -168,20 +173,21 @@ class _DebugToast {
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
     return deviceInfo.data.entries
-        .fold('', (prev, el) => "$prev${el.key}: ${el.value}\n");
+        .fold('', (prev, el) => '$prev${el.key}: ${el.value}\n');
   }
 
   Future<String> _getDocumentPath() async {
     return appFlowyApplicationDataDirectory().then((directory) {
       final path = directory.path.toString();
-      return "Document: $path\n";
+      return 'Document: $path\n';
     });
   }
 }
 
 enum BubbleAction {
   whatsNews,
-  help,
+  helpAndDocumentation,
+  getSupport,
   debug,
   shortcuts,
   markdown,
@@ -204,8 +210,10 @@ extension QuestionBubbleExtension on BubbleAction {
     switch (this) {
       case BubbleAction.whatsNews:
         return LocaleKeys.questionBubble_whatsNew.tr();
-      case BubbleAction.help:
-        return LocaleKeys.questionBubble_help.tr();
+      case BubbleAction.helpAndDocumentation:
+        return LocaleKeys.questionBubble_helpAndDocumentation.tr();
+      case BubbleAction.getSupport:
+        return LocaleKeys.questionBubble_getSupport.tr();
       case BubbleAction.debug:
         return LocaleKeys.questionBubble_debug_name.tr();
       case BubbleAction.shortcuts:
@@ -221,7 +229,12 @@ extension QuestionBubbleExtension on BubbleAction {
     switch (this) {
       case BubbleAction.whatsNews:
         return const FlowySvg(FlowySvgs.star_s);
-      case BubbleAction.help:
+      case BubbleAction.helpAndDocumentation:
+        return const FlowySvg(
+          FlowySvgs.help_and_documentation_s,
+          size: Size.square(16.0),
+        );
+      case BubbleAction.getSupport:
         return const FlowySvg(FlowySvgs.message_support_s);
       case BubbleAction.debug:
         return const FlowySvg(FlowySvgs.debug_s);

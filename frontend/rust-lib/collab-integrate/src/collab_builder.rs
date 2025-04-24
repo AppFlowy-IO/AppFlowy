@@ -33,8 +33,10 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
+use flowy_error::FlowyError;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
+use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -66,8 +68,8 @@ impl Display for CollabPluginProviderContext {
 }
 
 pub trait WorkspaceCollabIntegrate: Send + Sync {
-  fn workspace_id(&self) -> Result<String, Error>;
-  fn device_id(&self) -> Result<String, Error>;
+  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
 }
 
 pub struct AppFlowyCollabBuilder {
@@ -119,15 +121,15 @@ impl AppFlowyCollabBuilder {
 
   pub fn collab_object(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
-    object_id: &str,
+    object_id: &Uuid,
     collab_type: CollabType,
   ) -> Result<CollabObject, Error> {
     // Compare the workspace_id with the currently opened workspace_id. Return an error if they do not match.
     // This check is crucial in asynchronous code contexts where the workspace_id might change during operation.
     let actual_workspace_id = self.workspace_integrate.workspace_id()?;
-    if workspace_id != actual_workspace_id {
+    if workspace_id != &actual_workspace_id {
       return Err(anyhow::anyhow!(
         "workspace_id not match when build collab. expect workspace_id: {}, actual workspace_id: {}",
         workspace_id,
@@ -135,12 +137,11 @@ impl AppFlowyCollabBuilder {
       ));
     }
     let device_id = self.workspace_integrate.device_id()?;
-    let workspace_id = self.workspace_integrate.workspace_id()?;
     Ok(CollabObject::new(
       uid,
       object_id.to_string(),
       collab_type,
-      workspace_id,
+      workspace_id.to_string(),
       device_id,
     ))
   }
@@ -276,7 +277,7 @@ impl AppFlowyCollabBuilder {
     let collab_db = collab_db.clone();
     let device_id = self.workspace_integrate.device_id()?;
     let collab = tokio::task::spawn_blocking(move || {
-      let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
+      let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
         .with_device_id(device_id)
         .build()?;
       let persistence_config = CollabPersistenceConfig::default();
@@ -289,7 +290,6 @@ impl AppFlowyCollabBuilder {
         persistence_config,
       );
       collab.add_plugin(Box::new(db_plugin));
-      collab.initialize();
       Ok::<_, Error>(collab)
     })
     .await??;
@@ -359,7 +359,12 @@ impl AppFlowyCollabBuilder {
   {
     if let Some(collab_db) = collab_db.upgrade() {
       let write_txn = collab_db.write_txn();
-      trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
+      trace!(
+        "flush workspace: {} {}:collab:{} to disk",
+        workspace_id,
+        collab_type,
+        object_id
+      );
       let collab: &Collab = collab.borrow();
       let encode_collab =
         collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
@@ -399,11 +404,11 @@ impl CollabBuilderConfig {
 pub struct CollabPersistenceImpl {
   pub db: Weak<CollabKVDB>,
   pub uid: i64,
-  pub workspace_id: String,
+  pub workspace_id: Uuid,
 }
 
 impl CollabPersistenceImpl {
-  pub fn new(db: Weak<CollabKVDB>, uid: i64, workspace_id: String) -> Self {
+  pub fn new(db: Weak<CollabKVDB>, uid: i64, workspace_id: Uuid) -> Self {
     Self {
       db,
       uid,
@@ -425,10 +430,11 @@ impl CollabPersistence for CollabPersistenceImpl {
 
     let object_id = collab.object_id().to_string();
     let rocksdb_read = collab_db.read_txn();
+    let workspace_id = self.workspace_id.to_string();
 
-    if rocksdb_read.is_exist(self.uid, &self.workspace_id, &object_id) {
+    if rocksdb_read.is_exist(self.uid, &workspace_id, &object_id) {
       let mut txn = collab.transact_mut();
-      match rocksdb_read.load_doc_with_txn(self.uid, &self.workspace_id, &object_id, &mut txn) {
+      match rocksdb_read.load_doc_with_txn(self.uid, &workspace_id, &object_id, &mut txn) {
         Ok(update_count) => {
           trace!(
             "did load collab:{}-{} from disk, update_count:{}",
@@ -453,6 +459,7 @@ impl CollabPersistence for CollabPersistenceImpl {
     object_id: &str,
     encoded_collab: EncodedCollab,
   ) -> Result<(), CollabError> {
+    let workspace_id = self.workspace_id.to_string();
     let collab_db = self
       .db
       .upgrade()
@@ -461,7 +468,7 @@ impl CollabPersistence for CollabPersistenceImpl {
     write_txn
       .flush_doc(
         self.uid,
-        self.workspace_id.as_str(),
+        workspace_id.as_str(),
         object_id,
         encoded_collab.state_vector.to_vec(),
         encoded_collab.doc_state.to_vec(),

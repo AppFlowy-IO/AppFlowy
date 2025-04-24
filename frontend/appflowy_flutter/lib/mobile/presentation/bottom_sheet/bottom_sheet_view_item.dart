@@ -65,7 +65,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 Navigator.pop(context);
                 context.read<ViewBloc>().add(const ViewEvent.duplicate());
                 showToastNotification(
-                  context,
                   message: LocaleKeys.button_duplicateSuccessfully.tr(),
                 );
                 break;
@@ -84,7 +83,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
                 showToastNotification(
-                  context,
                   message: !widget.view.isFavorite
                       ? LocaleKeys.button_favoriteSuccessfully.tr()
                       : LocaleKeys.button_unfavoriteSuccessfully.tr(),
@@ -146,7 +144,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
         Navigator.pop(context);
 
         showToastNotification(
-          context,
           message: LocaleKeys.sideBar_removeSuccess.tr(),
         );
       },

@@ -57,7 +57,7 @@ class _MobileWorkspaceStartScreenState
             children: [
               const Spacer(),
               const FlowySvg(
-                FlowySvgs.flowy_logo_xl,
+                FlowySvgs.app_logo_xl,
                 size: Size.square(64),
                 blendMode: null,
               ),

@@ -10,7 +10,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -83,6 +82,13 @@ class AppFlowyCloudDeepLink {
   void unsubscribeDeepLinkLoadingState(VoidCallback listener) =>
       _stateNotifier?.removeListener(listener);
 
+  Future<void> passGotrueTokenResponse(
+    GotrueTokenResponsePB gotrueTokenResponse,
+  ) async {
+    final uri = _buildDeepLinkUri(gotrueTokenResponse);
+    await _handleUri(uri);
+  }
+
   Future<void> _handleUri(
     Uri? uri,
   ) async {
@@ -105,7 +111,7 @@ class AppFlowyCloudDeepLink {
       (_) async {
         final deviceId = await getDeviceId();
         final payload = OauthSignInPB(
-          authenticator: AuthenticatorPB.AppFlowyCloud,
+          authenticator: AuthTypePB.Server,
           map: {
             AuthServiceMapKeys.signInURL: uri.toString(),
             AuthServiceMapKeys.deviceId: deviceId,
@@ -129,7 +135,6 @@ class AppFlowyCloudDeepLink {
               final context = AppGlobals.rootNavKey.currentState?.context;
               if (context != null) {
                 showToastNotification(
-                  context,
                   message: err.msg,
                 );
               }
@@ -145,9 +150,9 @@ class AppFlowyCloudDeepLink {
         if (_completer == null) {
           final context = AppGlobals.rootNavKey.currentState?.context;
           if (context != null) {
-            showSnackBarMessage(
-              context,
-              err.msg,
+            showToastNotification(
+              message: err.msg,
+              type: ToastificationType.error,
             );
           }
         } else {
@@ -173,6 +178,57 @@ class AppFlowyCloudDeepLink {
   bool _isPaymentSuccessUri(Uri uri) {
     return uri.host == 'payment-success';
   }
+
+  Uri? _buildDeepLinkUri(GotrueTokenResponsePB gotrueTokenResponse) {
+    final params = <String, String>{};
+
+    if (gotrueTokenResponse.hasAccessToken() &&
+        gotrueTokenResponse.accessToken.isNotEmpty) {
+      params['access_token'] = gotrueTokenResponse.accessToken;
+    }
+
+    if (gotrueTokenResponse.hasExpiresAt()) {
+      params['expires_at'] = gotrueTokenResponse.expiresAt.toString();
+    }
+
+    if (gotrueTokenResponse.hasExpiresIn()) {
+      params['expires_in'] = gotrueTokenResponse.expiresIn.toString();
+    }
+
+    if (gotrueTokenResponse.hasProviderRefreshToken() &&
+        gotrueTokenResponse.providerRefreshToken.isNotEmpty) {
+      params['provider_refresh_token'] =
+          gotrueTokenResponse.providerRefreshToken;
+    }
+
+    if (gotrueTokenResponse.hasProviderAccessToken() &&
+        gotrueTokenResponse.providerAccessToken.isNotEmpty) {
+      params['provider_token'] = gotrueTokenResponse.providerAccessToken;
+    }
+
+    if (gotrueTokenResponse.hasRefreshToken() &&
+        gotrueTokenResponse.refreshToken.isNotEmpty) {
+      params['refresh_token'] = gotrueTokenResponse.refreshToken;
+    }
+
+    if (gotrueTokenResponse.hasTokenType() &&
+        gotrueTokenResponse.tokenType.isNotEmpty) {
+      params['token_type'] = gotrueTokenResponse.tokenType;
+    }
+
+    if (params.isEmpty) {
+      return null;
+    }
+
+    final fragment = params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
+
+    return Uri.parse('appflowy-flutter://login-callback#$fragment');
+  }
 }
 
 class InitAppFlowyCloudTask extends LaunchTask {
@@ -181,6 +237,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     if (!isAppFlowyCloudEnabled) {
       return;
     }
@@ -201,6 +259,8 @@ class InitAppFlowyCloudTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     await _authStateListener?.stop();
     _authStateListener = null;
   }

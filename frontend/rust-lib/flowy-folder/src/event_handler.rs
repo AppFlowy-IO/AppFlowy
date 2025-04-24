@@ -1,8 +1,9 @@
-use std::sync::{Arc, Weak};
-use tracing::instrument;
-
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use std::str::FromStr;
+use std::sync::{Arc, Weak};
+use tracing::instrument;
+use uuid::Uuid;
 
 use crate::entities::*;
 use crate::manager::FolderManager;
@@ -15,28 +16,6 @@ fn upgrade_folder(
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The folder manager is already dropped"))?;
   Ok(folder)
-}
-
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn create_workspace_handler(
-  data: AFPluginData<CreateWorkspacePayloadPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspacePB, FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-  let workspace = folder.create_workspace(params).await?;
-  let views = folder
-    .get_views_belong_to(&workspace.id)
-    .await?
-    .into_iter()
-    .map(|view| view_pb_without_child_views(view.as_ref().clone()))
-    .collect::<Vec<ViewPB>>();
-  data_result_ok(WorkspacePB {
-    id: workspace.id,
-    name: workspace.name,
-    views,
-    create_time: workspace.created_at,
-  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -83,7 +62,7 @@ pub(crate) async fn read_private_views_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<WorkspaceSettingPB, FlowyError> {
+) -> DataResult<WorkspaceLatestPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let setting = folder.get_workspace_setting_pb().await?;
   data_result_ok(setting)
@@ -132,7 +111,7 @@ pub(crate) async fn get_view_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let view_id: ViewIdPB = data.into_inner();
+  let view_id = data.try_into_inner()?;
   let view_pb = folder.get_view_pb(&view_id.value).await?;
   data_result_ok(view_pb)
 }
@@ -443,7 +422,12 @@ pub(crate) async fn unpublish_views_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params = data.into_inner();
-  folder.unpublish_views(params.view_ids).await?;
+  let view_ids = params
+    .view_ids
+    .into_iter()
+    .flat_map(|id| Uuid::from_str(&id).ok())
+    .collect::<Vec<_>>();
+  folder.unpublish_views(view_ids).await?;
   Ok(())
 }
 
@@ -454,6 +438,7 @@ pub(crate) async fn get_publish_info_handler(
 ) -> DataResult<PublishInfoResponsePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let view_id = data.into_inner().value;
+  let view_id = Uuid::from_str(&view_id)?;
   let info = folder.get_publish_info(&view_id).await?;
   data_result_ok(PublishInfoResponsePB::from(info))
 }
@@ -465,6 +450,7 @@ pub(crate) async fn set_publish_name_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let SetPublishNamePB { view_id, new_name } = data.into_inner();
+  let view_id = Uuid::from_str(&view_id)?;
   folder.set_publish_name(view_id, new_name).await?;
   Ok(())
 }

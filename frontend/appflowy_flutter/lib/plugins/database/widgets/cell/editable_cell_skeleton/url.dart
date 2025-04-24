@@ -203,7 +203,7 @@ class MobileURLEditor extends StatelessWidget {
               ClipboardData(text: textEditingController.text),
             );
             Fluttertoast.showToast(
-              msg: LocaleKeys.grid_url_copiedNotification.tr(),
+              msg: LocaleKeys.message_copy_success.tr(),
               gravity: ToastGravity.BOTTOM,
             );
             context.pop();

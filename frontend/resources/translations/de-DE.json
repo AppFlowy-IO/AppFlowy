@@ -252,14 +252,14 @@
   "questionBubble": {
     "shortcuts": "Tastenkürzel",
     "whatsNew": "Was gibt es Neues?",
-    "help": "Hilfe & Support",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug-Informationen",
       "success": "Debug-Informationen in die Zwischenablage kopiert!",
       "fail": "Debug-Informationen konnten nicht in die Zwischenablage kopiert werden"
     },
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "help": "Hilfe & Support"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Entfernen, umbenennen und mehr...",
@@ -1625,8 +1625,7 @@
     "url": {
       "launch": "Im Browser öffnen",
       "copy": "Webadresse kopieren",
-      "textFieldHint": "Gebe eine URL ein",
-      "copiedNotification": "In die Zwischenablage kopiert!"
+      "textFieldHint": "Gebe eine URL ein"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Verwandte Datenbank",

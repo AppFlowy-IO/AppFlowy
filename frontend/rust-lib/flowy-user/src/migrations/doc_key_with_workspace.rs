@@ -1,13 +1,15 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_plugins::local_storage::kv::doc::migrate_old_keys;
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use diesel::SqliteConnection;
 use semver::Version;
 use tracing::{instrument, trace};
 
 use collab_integrate::CollabKVDB;
-use flowy_error::FlowyResult;
-use flowy_user_pub::entities::Authenticator;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::kv::KVStorePreferences;
+use flowy_user_pub::entities::AuthType;
 
 use crate::migrations::migration::UserDataMigration;
 use flowy_user_pub::session::Session;
@@ -37,16 +39,18 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
   #[instrument(name = "CollabDocKeyWithWorkspaceIdMigration", skip_all, err)]
   fn run(
     &self,
-    session: &Session,
-    collab_db: &Arc<CollabKVDB>,
-    _authenticator: &Authenticator,
+    user: &Session,
+    collab_db: &Weak<CollabKVDB>,
+    _user_auth_type: &AuthType,
+    _db: &mut SqliteConnection,
+    _store_preferences: &Arc<KVStorePreferences>,
   ) -> FlowyResult<()> {
-    trace!(
-      "migrate key with workspace id:{}",
-      session.user_workspace.id
-    );
+    let collab_db = collab_db
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
+    trace!("migrate key with workspace id:{}", user.workspace_id);
     collab_db.with_write_txn(|txn| {
-      migrate_old_keys(txn, &session.user_workspace.id)?;
+      migrate_old_keys(txn, &user.workspace_id)?;
       Ok(())
     })?;
     Ok(())

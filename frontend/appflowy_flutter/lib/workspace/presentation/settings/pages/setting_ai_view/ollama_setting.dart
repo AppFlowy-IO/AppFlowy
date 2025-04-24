@@ -62,6 +62,7 @@ class _SettingItemWidget extends StatelessWidget {
         SizedBox(
           height: 32,
           child: FlowyTextField(
+            autoFocus: false,
             hintText: item.hintText,
             text: item.content,
             onChanged: (content) {

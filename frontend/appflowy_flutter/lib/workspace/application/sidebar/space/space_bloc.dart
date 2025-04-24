@@ -76,12 +76,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
 
-            final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
-              spaces: spaces,
-              publicViews: publicViews,
-              privateViews: privateViews,
-            );
-
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
@@ -89,16 +83,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 spaces: spaces,
                 currentSpace: currentSpace,
                 isExpanded: isExpanded,
-                shouldShowUpgradeDialog: shouldShowUpgradeDialog,
+                shouldShowUpgradeDialog: false,
                 isInitialized: true,
               ),
             );
-
-            if (shouldShowUpgradeDialog && !integrationMode().isTest) {
-              if (!isClosed) {
-                add(const SpaceEvent.migrate());
-              }
-            }
 
             if (openFirstPage) {
               if (currentSpace != null) {
@@ -486,7 +474,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    _workspaceService = WorkspaceService(
+      workspaceId: workspaceId,
+      userId: userProfile.id,
+    );
 
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;

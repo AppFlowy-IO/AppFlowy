@@ -92,8 +92,8 @@ class InlineActionsWidget extends StatefulWidget {
 class _InlineActionsWidgetState extends State<InlineActionsWidget> {
   @override
   Widget build(BuildContext context) {
-    final icon = widget.item.icon;
-    final hasIcon = icon != null;
+    final iconBuilder = widget.item.iconBuilder;
+    final hasIcon = iconBuilder != null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: SizedBox(
@@ -104,7 +104,7 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
           text: Row(
             children: [
               if (hasIcon) ...[
-                icon.call(widget.isSelected),
+                iconBuilder.call(widget.isSelected),
                 SizedBox(width: 12),
               ],
               Flexible(

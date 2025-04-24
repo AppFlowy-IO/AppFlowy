@@ -21,7 +21,6 @@ class AIModelSelection extends StatelessWidget {
           previous.availableModels != current.availableModels,
       builder: (context, state) {
         final models = state.availableModels?.models;
-
         if (models == null) {
           return const SizedBox(
             // Using same height as SettingsDropdown to avoid layout shift
@@ -31,6 +30,7 @@ class AIModelSelection extends StatelessWidget {
 
         final localModels = models.where((model) => model.isLocal).toList();
         final cloudModels = models.where((model) => !model.isLocal).toList();
+        final selectedModel = state.availableModels!.selectedModel;
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -48,7 +48,9 @@ class AIModelSelection extends StatelessWidget {
                   onChanged: (model) => context
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),
-                  selectedOption: state.availableModels!.selectedModel,
+                  selectedOption: selectedModel,
+                  selectOptionCompare: (left, right) =>
+                      left?.name == right?.name,
                   options: [...localModels, ...cloudModels]
                       .map(
                         (model) => buildDropdownMenuEntry<AIModelPB>(

@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
@@ -21,10 +19,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -188,6 +184,7 @@ class EditorStyleCustomizer {
       textScaleFactor: textScaleFactor,
       mobileDragHandleLeftExtend: 12.0,
       mobileDragHandleWidthExtend: 24.0,
+      textSpanOverlayBuilder: _buildTextSpanOverlay,
     );
   }
 
@@ -316,9 +313,12 @@ class EditorStyleCustomizer {
   }
 
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
-    if (fontFamily == null || fontFamily == defaultFontFamily) {
+    if (fontFamily == null) {
       return TextStyle(fontWeight: fontWeight);
+    } else if (fontFamily == defaultFontFamily) {
+      return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
     }
+
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
@@ -423,44 +423,7 @@ class EditorStyleCustomizer {
     // customize the link on mobile
     final href = attributes[AppFlowyRichTextKeys.href] as String?;
     if (UniversalPlatform.isMobile && href != null) {
-      return TextSpan(
-        style: before.style,
-        text: text.text,
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            final editorState = context.read<EditorState>();
-            if (editorState.selection == null) {
-              afLaunchUrlString(href, addingHttpSchemeWhenFailed: true);
-              return;
-            }
-
-            editorState.updateSelectionWithReason(
-              editorState.selection,
-              extraInfo: {selectionExtraInfoDisableMobileToolbarKey: true},
-            );
-
-            showEditLinkBottomSheet(
-              context,
-              text.text,
-              href,
-              (linkContext, newText, newHref) {
-                final selection = Selection.single(
-                  path: node.path,
-                  startOffset: index,
-                  endOffset: index + text.text.length,
-                );
-                editorState.updateTextAndHref(
-                  text.text,
-                  href,
-                  newText,
-                  newHref,
-                  selection: selection,
-                );
-                linkContext.pop();
-              },
-            );
-          },
-      );
+      return TextSpan(style: before.style, text: text.text);
     }
 
     if (suggestion != null) {
@@ -568,7 +531,6 @@ class EditorStyleCustomizer {
     if (style == null) {
       return null;
     }
-    final fontSize = style.fontSize ?? 14.0;
     final isLight = Theme.of(context).isLightMode;
     final textColor = isLight ? Color(0xFF007296) : Color(0xFF49CFF4);
     final underlineColor = isLight ? Color(0x33005A7A) : Color(0x3349CFF4);
@@ -578,17 +540,10 @@ class EditorStyleCustomizer {
           decoration: TextDecoration.lineThrough,
         ),
       AiWriterBlockKeys.suggestionReplacement => style.copyWith(
-          color: Colors.transparent,
+          color: textColor,
           decoration: TextDecoration.underline,
           decorationColor: underlineColor,
           decorationThickness: 1.0,
-          // hack: https://jtmuller5.medium.com/the-ultimate-guide-to-underlining-text-in-flutter-57936f5c79bb
-          shadows: [
-            Shadow(
-              color: textColor,
-              offset: Offset(0, -fontSize * 0.2),
-            ),
-          ],
         ),
       _ => style,
     };
@@ -600,9 +555,7 @@ class EditorStyleCustomizer {
     SelectableMixin delegate,
   ) {
     final delta = node.delta;
-    if (delta == null) {
-      return [];
-    }
+    if (delta == null) return [];
     final widgets = <Widget>[];
     final textInserts = delta.whereType<TextInsert>();
     int index = 0;

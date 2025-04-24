@@ -256,7 +256,7 @@ class _CellEditorTitle extends StatelessWidget {
   }
 
   void _openRelatedDatbase(BuildContext context) {
-    FolderEventGetView(ViewIdPB(value: databaseMeta.inlineViewId))
+    FolderEventGetView(ViewIdPB(value: databaseMeta.viewId))
         .send()
         .then((result) {
       result.fold(

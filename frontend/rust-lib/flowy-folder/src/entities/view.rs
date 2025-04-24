@@ -1,12 +1,15 @@
 use collab_folder::{View, ViewIcon, ViewLayout};
-use std::collections::HashMap;
-use std::convert::TryInto;
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
-
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
+use lib_infra::validator_fn::required_not_empty_str;
+use std::collections::HashMap;
+use std::convert::TryInto;
+use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
+use std::sync::Arc;
+use uuid::Uuid;
+use validator::Validate;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
@@ -322,10 +325,10 @@ pub struct CreateOrphanViewPayloadPB {
 
 #[derive(Debug, Clone)]
 pub struct CreateViewParams {
-  pub parent_view_id: String,
+  pub parent_view_id: Uuid,
   pub name: String,
   pub layout: ViewLayoutPB,
-  pub view_id: String,
+  pub view_id: Uuid,
   pub initial_data: ViewData,
   pub meta: HashMap<String, String>,
   // Mark the view as current view after creation.
@@ -346,9 +349,13 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
+    let parent_view_id = ViewIdentify::parse(self.parent_view_id)
+      .and_then(|id| Uuid::from_str(&id.0).map_err(|_| ErrorCode::InvalidParams))?;
     // if view_id is not provided, generate a new view_id
-    let view_id = self.view_id.unwrap_or_else(|| gen_view_id().to_string());
+    let view_id = self
+      .view_id
+      .and_then(|v| Uuid::parse_str(&v).ok())
+      .unwrap_or_else(gen_view_id);
 
     Ok(CreateViewParams {
       parent_view_id,
@@ -371,13 +378,13 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let parent_view_id = ViewIdentify::parse(self.view_id.clone())?.0;
+    let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
 
     Ok(CreateViewParams {
-      parent_view_id,
+      parent_view_id: view_id,
       name,
       layout: self.layout,
-      view_id: self.view_id,
+      view_id,
       initial_data: ViewData::Data(self.initial_data.into()),
       meta: Default::default(),
       set_as_current: false,
@@ -389,9 +396,10 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
   }
 }
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
 }
 
@@ -564,9 +572,9 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
 
 #[derive(Debug)]
 pub struct MoveNestedViewParams {
-  pub view_id: String,
-  pub new_parent_id: String,
-  pub prev_view_id: Option<String>,
+  pub view_id: Uuid,
+  pub new_parent_id: Uuid,
+  pub prev_view_id: Option<Uuid>,
   pub from_section: Option<ViewSectionPB>,
   pub to_section: Option<ViewSectionPB>,
 }
@@ -575,9 +583,20 @@ impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<MoveNestedViewParams, Self::Error> {
-    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    let view_id = Uuid::from_str(&ViewIdentify::parse(self.view_id)?.0)
+      .map_err(|_| ErrorCode::InvalidParams)?;
+
     let new_parent_id = ViewIdentify::parse(self.new_parent_id)?.0;
-    let prev_view_id = self.prev_view_id;
+    let new_parent_id = Uuid::from_str(&new_parent_id).map_err(|_| ErrorCode::InvalidParams)?;
+
+    let prev_view_id = match self.prev_view_id {
+      Some(prev_view_id) => Some(
+        Uuid::from_str(&ViewIdentify::parse(prev_view_id)?.0)
+          .map_err(|_| ErrorCode::InvalidParams)?,
+      ),
+      None => None,
+    };
+
     Ok(MoveNestedViewParams {
       view_id,
       new_parent_id,

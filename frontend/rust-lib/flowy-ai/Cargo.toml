@@ -35,15 +35,12 @@ serde_json = { workspace = true }
 anyhow = "1.0.86"
 tokio-stream = "0.1.15"
 tokio-util = { workspace = true, features = ["full"] }
-af-local-ai = { version = "0.1.0" }
-af-plugin = { version = "0.1.0" }
+af-local-ai = { workspace = true }
+af-plugin = { workspace = true }
 reqwest = { version = "0.11.27", features = ["json"] }
 sha2 = "0.10.7"
 base64 = "0.21.5"
 futures-util = "0.3.30"
-md5 = "0.7.0"
-zip = { workspace = true, features = ["deflate"] }
-zip-extensions = "0.8.0"
 pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
 collab-integrate.workspace = true
@@ -52,11 +49,6 @@ collab-integrate.workspace = true
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
 af-mcp = { version = "0.1.0" }
-
-[target.'cfg(target_os = "windows")'.dependencies]
-winreg = "0.55"
-
-#cmd_lib = { version = "1.9.5" }
 
 [dev-dependencies]
 dotenv = "0.15.0"

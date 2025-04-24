@@ -270,14 +270,14 @@
   "questionBubble": {
     "shortcuts": "快捷键",
     "whatsNew": "新功能",
-    "help": "帮助和支持",
     "markdown": "Markdown",
     "debug": {
       "name": "调试信息",
       "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
     },
-    "feedback": "反馈"
+    "feedback": "反馈",
+    "help": "帮助和支持"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "删除、重命名等等...",
@@ -1270,8 +1270,7 @@
     "url": {
       "launch": "在浏览器中打开链接",
       "copy": "将链接复制到剪贴板",
-      "textFieldHint": "输入 URL",
-      "copiedNotification": "已复制到剪贴板！"
+      "textFieldHint": "输入 URL"
     },
     "relation": {
       "rowSearchTextFieldPlaceholder": "搜索"
@@ -1327,6 +1326,62 @@
       },
       "document": {
         "selectADocumentToLinkTo": "选择要链接到的文档"
+      },
+      "name": {
+        "textStyle": "文本样式",
+        "list": "列表",
+        "toggle": "切换",
+        "fileAndMedia": "文件与媒体",
+        "simpleTable": "简单表格",
+        "visuals": "视觉元素",
+        "document": "文档",
+        "advanced": "高级",
+        "text": "文本",
+        "heading1": "一级标题",
+        "heading2": "二级标题",
+        "heading3": "三级标题",
+        "image": "图片",
+        "bulletedList": "项目符号列表",
+        "numberedList": "编号列表",
+        "todoList": "待办事项列表",
+        "doc": "文档",
+        "linkedDoc": "链接到页面",
+        "grid": "网格",
+        "linkedGrid": "链接网格",
+        "kanban": "看板",
+        "linkedKanban": "链接看板",
+        "calendar": "日历",
+        "linkedCalendar": "链接日历",
+        "quote": "引用",
+        "divider": "分隔符",
+        "table": "表格",
+        "callout": "提示框",
+        "outline": "大纲",
+        "mathEquation": "数学公式",
+        "code": "代码",
+        "toggleList": "切换列表",
+        "toggleHeading1": "切换标题1",
+        "toggleHeading2": "切换标题2",
+        "toggleHeading3": "切换标题3",
+        "emoji": "表情符号",
+        "aiWriter": "向AI提问",
+        "dateOrReminder": "日期或提醒",
+        "photoGallery": "图片库",
+        "file": "文件",
+        "twoColumns": "两列",
+        "threeColumns": "三列",
+        "fourColumns": "四列"
+      },
+      "subPage": {
+        "name": "文档",
+        "keyword1": "子页面",
+        "keyword2": "页面",
+        "keyword3": "子页面",
+        "keyword4": "插入页面",
+        "keyword5": "嵌入页面",
+        "keyword6": "新页面",
+        "keyword7": "创建页面",
+        "keyword8": "文档"
       }
     },
     "selectionMenu": {
@@ -1338,6 +1393,16 @@
       "referencedGrid": "引用的网格",
       "referencedCalendar": "引用的日历",
       "referencedDocument": "参考文档",
+      "aiWriter": {
+        "userQuestion": "向AI提问",
+        "continueWriting": "继续写作",
+        "fixSpelling": "修正拼写和语法",
+        "improveWriting": "优化写作",
+        "summarize": "总结",
+        "explain": "解释",
+        "makeShorter": "缩短",
+        "makeLonger": "扩展"
+      },
       "autoGeneratorMenuItemName": "AI 创作",
       "autoGeneratorTitleName": "AI: 让 AI 写些什么...",
       "autoGeneratorLearnMore": "学习更多",
@@ -1398,7 +1463,7 @@
       },
       "optionAction": {
         "click": "点击",
-        "toOpenMenu": " 来打开菜单",
+        "toOpenMenu": "打开菜单",
         "delete": "删除",
         "duplicate": "复制",
         "turnInto": "变成",
@@ -1408,8 +1473,10 @@
         "align": "对齐",
         "left": "左",
         "center": "中心",
-        "right": "又",
-        "defaultColor": "默认"
+        "right": "右",
+        "defaultColor": "默认",
+        "depth": "深度",
+        "copyLinkToBlock": "粘贴块链接"
       },
       "image": {
         "addAnImage": "添加图像",
@@ -1450,6 +1517,27 @@
         "placeholder": "粘贴视频链接",
         "copiedToPasteBoard": "视频链接已复制到剪贴板",
         "insertVideo": "添加视频"
+      },
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "粘贴为",
+          "mention": "提及",
+          "URL": "URL",
+          "bookmark": "书签",
+          "embed": "嵌入"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "转换为提及",
+          "toUrl": "转换为URL",
+          "toEmbed": "转换为嵌入",
+          "toBookmark": "转换为书签",
+          "copyLink": "复制链接",
+          "replace": "替换",
+          "reload": "重新加载",
+          "removeLink": "移除链接",
+          "pasteHint": "粘贴 https://...",
+          "unableToDisplay": "无法显示"
+        }
       }
     },
     "outlineBlock": {

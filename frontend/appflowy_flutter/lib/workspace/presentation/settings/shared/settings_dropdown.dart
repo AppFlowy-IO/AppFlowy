@@ -16,9 +16,11 @@ class SettingsDropdown<T> extends StatefulWidget {
     this.onChanged,
     this.actions,
     this.expandWidth = true,
+    this.selectOptionCompare,
   });
 
   final T selectedOption;
+  final CompareFunction<T>? selectOptionCompare;
   final List<DropdownMenuEntry<T>> options;
   final void Function(T)? onChanged;
   final List<Widget>? actions;
@@ -52,6 +54,7 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
             expandedInsets: widget.expandWidth ? EdgeInsets.zero : null,
             initialSelection: widget.selectedOption,
             dropdownMenuEntries: widget.options,
+            selectOptionCompare: widget.selectOptionCompare,
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontFamily: fontFamilyUsed,
                   fontWeight: FontWeight.w400,

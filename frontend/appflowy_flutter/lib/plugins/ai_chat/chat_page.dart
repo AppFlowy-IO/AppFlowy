@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -9,8 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,14 +48,14 @@ class AIChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
-      return Center(
-        child: FlowyText(
-          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-          fontSize: 20,
-        ),
-      );
-    }
+    // if (userProfile.authenticator != AuthTypePB.Server) {
+    //   return Center(
+    //     child: FlowyText(
+    //       LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+    //       fontSize: 20,
+    //     ),
+    //   );
+    // }
 
     return MultiBlocProvider(
       providers: [
@@ -400,7 +397,7 @@ class _Input extends StatefulWidget {
 }
 
 class _InputState extends State<_Input> {
-  final textController = TextEditingController();
+  final textController = AiPromptInputTextEditingController();
 
   @override
   void dispose() {

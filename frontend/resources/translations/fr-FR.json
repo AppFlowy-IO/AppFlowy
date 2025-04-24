@@ -269,14 +269,14 @@
   "questionBubble": {
     "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
-    "help": "Aide et Support",
     "markdown": "Rédaction",
     "debug": {
       "name": "Informations de Débogage",
       "success": "Informations de débogage copiées dans le presse-papiers !",
       "fail": "Impossible de copier les informations de débogage dans le presse-papiers"
     },
-    "feedback": "Retour"
+    "feedback": "Retour",
+    "help": "Aide et Support"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Supprimer, renommer et plus...",
@@ -1612,8 +1612,7 @@
     "url": {
       "launch": "Ouvrir dans le navigateur",
       "copy": "Copier l'URL",
-      "textFieldHint": "Entrez une URL",
-      "copiedNotification": "Copié dans le presse-papier!"
+      "textFieldHint": "Entrez une URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Base de données associée",

@@ -1,4 +1,5 @@
 use flowy_folder::view_operation::{GatherEncodedCollab, ViewData};
+use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -10,12 +11,13 @@ use flowy_folder_pub::entities::PublishPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
-  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
-  WorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, UserWorkspaceIdPB, UserWorkspacePB,
+  WorkspaceMemberInvitationPB, WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
 use flowy_user_pub::entities::Role;
+use uuid::Uuid;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -110,6 +112,18 @@ impl EventIntegrationTest {
       .parse::<WorkspacePB>()
   }
 
+  pub async fn get_user_workspace(&self, workspace_id: &str) -> UserWorkspacePB {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(UserEvent::GetUserWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserWorkspacePB>()
+  }
+
   pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
     self
       .appflowy_core
@@ -123,10 +137,10 @@ impl EventIntegrationTest {
     let create_view_params = views
       .into_iter()
       .map(|view| CreateViewParams {
-        parent_view_id: view.parent_view_id,
+        parent_view_id: Uuid::from_str(&view.parent_view_id).unwrap(),
         name: view.name,
         layout: view.layout.into(),
-        view_id: view.id,
+        view_id: Uuid::from_str(&view.id).unwrap(),
         initial_data: ViewData::Empty,
         meta: Default::default(),
         set_as_current: false,
@@ -195,9 +209,10 @@ impl EventIntegrationTest {
     view_id: &str,
     layout: ViewLayout,
   ) -> GatherEncodedCollab {
+    let view_id = Uuid::from_str(view_id).unwrap();
     self
       .folder_manager
-      .gather_publish_encode_collab(view_id, &layout)
+      .gather_publish_encode_collab(&view_id, &layout)
       .await
       .unwrap()
   }
@@ -381,19 +396,4 @@ impl ViewTest {
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
     Self::new(sdk, ViewLayout::Calendar, data).await
   }
-}
-
-#[allow(dead_code)]
-async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
-  let request = CreateWorkspacePayloadPB {
-    name: name.to_owned(),
-    desc: desc.to_owned(),
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateFolderWorkspace)
-    .payload(request)
-    .async_send()
-    .await
-    .parse::<WorkspacePB>()
 }

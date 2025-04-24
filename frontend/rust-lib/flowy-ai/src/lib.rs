@@ -5,14 +5,14 @@ pub mod ai_manager;
 mod chat;
 mod completion;
 pub mod entities;
-mod local_ai;
+pub mod local_ai;
 
 // #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 // pub mod mcp;
 
 mod middleware;
 pub mod notification;
-mod persistence;
+pub mod offline;
 mod protobuf;
 mod stream_message;
 mod util;

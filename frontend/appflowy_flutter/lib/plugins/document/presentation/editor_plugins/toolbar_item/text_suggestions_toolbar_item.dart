@@ -8,9 +8,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -84,12 +84,14 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   void initState() {
     super.initState();
     refreshSuggestions();
+    editorState.selectionNotifier.addListener(refreshSuggestions);
   }
 
   @override
   void dispose() {
-    super.dispose();
+    editorState.selectionNotifier.removeListener(refreshSuggestions);
     popoverController.close();
+    super.dispose();
   }
 
   @override
@@ -117,8 +119,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final themeV2 = AFThemeExtensionV2.of(context);
-
+    final theme = AppFlowyTheme.of(context),
+        iconColor = theme.iconColorScheme.primary;
     final child = FlowyHover(
       isSelected: () => isSelected,
       style: HoverStyle(
@@ -161,7 +163,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
                 FlowySvg(
                   FlowySvgs.toolbar_arrow_down_m,
                   size: Size(12, 20),
-                  color: themeV2.icon_tertiary,
+                  color: iconColor,
                 ),
               ],
             ),
@@ -290,6 +292,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     }
     currentSuggestionItem =
         suggestions.where((item) => item.type == suggestionType).first;
+    if (mounted) setState(() {});
   }
 }
 

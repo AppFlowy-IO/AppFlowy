@@ -404,7 +404,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
       });
     }
 
-    if (update.updateChildViews.isNotEmpty) {
+    if (update.updateChildViews.isNotEmpty && update.parentViewId.isNotEmpty) {
       final view = await ViewBackendService.getView(update.parentViewId);
       final childViews = view.fold((l) => l.childViews, (r) => []);
       bool isSameOrder = true;

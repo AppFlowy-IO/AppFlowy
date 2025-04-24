@@ -2,10 +2,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
@@ -44,9 +46,9 @@ class MobileHomeScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) {
-            return workspaceSettingPB as WorkspaceSettingPB?;
+        final workspaceLatest = snapshots.data?[0].fold(
+          (workspaceLatestPB) {
+            return workspaceLatestPB as WorkspaceLatestPB?;
           },
           (error) => null,
         );
@@ -59,7 +61,7 @@ class MobileHomeScreen extends StatelessWidget {
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
-        if (workspaceSetting == null || userProfile == null) {
+        if (workspaceLatest == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
 
@@ -78,7 +80,7 @@ class MobileHomeScreen extends StatelessWidget {
               value: userProfile,
               child: MobileHomePage(
                 userProfile: userProfile,
-                workspaceSetting: workspaceSetting,
+                workspaceLatest: workspaceLatest,
               ),
             ),
           ),
@@ -95,11 +97,11 @@ class MobileHomePage extends StatefulWidget {
   const MobileHomePage({
     super.key,
     required this.userProfile,
-    required this.workspaceSetting,
+    required this.workspaceLatest,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceLatest;
 
   @override
   State<MobileHomePage> createState() => _MobileHomePageState();
@@ -145,7 +147,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   void _onLatestViewChange() async {
     final id = getIt<MenuSharedState>().latestOpenView?.id;
-    if (id == null) {
+    if (id == null || id.isEmpty) {
       return;
     }
     await FolderEventSetLatestView(ViewIdPB(value: id)).send();
@@ -173,7 +175,14 @@ class _HomePageState extends State<_HomePage> {
       listener: (context, state) {
         getIt<CachedRecentService>().reset();
         mCurrentWorkspace.value = state.currentWorkspace;
-
+        if (FeatureFlag.search.isOn) {
+          // Notify command palette that workspace has changed
+          context.read<CommandPaletteBloc>().add(
+                CommandPaletteEvent.workspaceChanged(
+                  workspaceId: state.currentWorkspace?.workspaceId,
+                ),
+              );
+        }
         Debounce.debounce(
           'workspace_action_result',
           const Duration(milliseconds: 150),
@@ -329,7 +338,7 @@ class _HomePageState extends State<_HomePage> {
     }
 
     if (message != null) {
-      showToastNotification(context, message: message, type: toastType);
+      showToastNotification(message: message, type: toastType);
     }
   }
 }

@@ -10,11 +10,35 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-typedef OnModelStateChangedCallback = void Function(AiType, bool, String);
+typedef OnModelStateChangedCallback = void Function(AIModelState state);
 typedef OnAvailableModelsChangedCallback = void Function(
   List<AIModelPB>,
   AIModelPB?,
 );
+
+/// Represents the state of an AI model
+class AIModelState {
+  const AIModelState({
+    required this.type,
+    required this.hintText,
+    required this.tooltip,
+    required this.isEditable,
+    required this.localAIEnabled,
+  });
+  final AiType type;
+
+  /// The text displayed as placeholder/hint in the input field
+  /// Shows different messages based on AI state (enabled, initializing, disabled)
+  final String hintText;
+
+  /// Optional tooltip text that appears on hover
+  /// Provides additional context about the current state of the AI
+  /// Null when no tooltip should be shown
+  final String? tooltip;
+
+  final bool isEditable;
+  final bool localAIEnabled;
+}
 
 class AIModelStateNotifier {
   AIModelStateNotifier({required this.objectId})
@@ -104,32 +128,70 @@ class AIModelStateNotifier {
     await _aiModelSwitchListener.stop();
   }
 
-  (AiType, String, bool) getState() {
+  AIModelState getState() {
     if (UniversalPlatform.isMobile) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
+      return AIModelState(
+        type: AiType.cloud,
+        hintText: LocaleKeys.chat_inputMessageHint.tr(),
+        tooltip: null,
+        isEditable: true,
+        localAIEnabled: false,
+      );
     }
 
     final availableModels = _availableModels;
     final localAiState = _localAIState;
 
     if (availableModels == null) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
+      return AIModelState(
+        type: AiType.cloud,
+        hintText: LocaleKeys.chat_inputMessageHint.tr(),
+        isEditable: true,
+        tooltip: null,
+        localAIEnabled: false,
+      );
     }
     if (localAiState == null) {
-      Log.warn("Cannot get local AI state");
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
+      return AIModelState(
+        type: AiType.cloud,
+        hintText: LocaleKeys.chat_inputMessageHint.tr(),
+        tooltip: null,
+        isEditable: true,
+        localAIEnabled: false,
+      );
     }
 
     if (!availableModels.selectedModel.isLocal) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
+      return AIModelState(
+        type: AiType.cloud,
+        hintText: LocaleKeys.chat_inputMessageHint.tr(),
+        tooltip: null,
+        isEditable: true,
+        localAIEnabled: false,
+      );
     }
 
     final editable = localAiState.state == RunningStatePB.Running;
-    final hintText = editable
-        ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
-        : LocaleKeys.settings_aiPage_keys_localAIInitializing.tr();
+    final tooltip = localAiState.enabled
+        ? (editable
+            ? null
+            : LocaleKeys.settings_aiPage_keys_localAINotReadyTextFieldPrompt
+                .tr())
+        : LocaleKeys.settings_aiPage_keys_localAIDisabledTextFieldPrompt.tr();
 
-    return (AiType.local, hintText, editable);
+    final hintText = localAiState.enabled
+        ? (editable
+            ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
+            : LocaleKeys.settings_aiPage_keys_localAIInitializing.tr())
+        : LocaleKeys.settings_aiPage_keys_localAIDisabled.tr();
+
+    return AIModelState(
+      type: AiType.local,
+      hintText: hintText,
+      tooltip: tooltip,
+      isEditable: editable,
+      localAIEnabled: localAiState.enabled,
+    );
   }
 
   (List<AIModelPB>, AIModelPB?) getAvailableModels() {
@@ -148,9 +210,9 @@ class AIModelStateNotifier {
   }
 
   void _notifyStateChanged() {
-    final (type, hintText, isEditable) = getState();
+    final state = getState();
     for (final callback in _stateChangedCallbacks) {
-      callback(type, isEditable, hintText);
+      callback(state);
     }
   }
 

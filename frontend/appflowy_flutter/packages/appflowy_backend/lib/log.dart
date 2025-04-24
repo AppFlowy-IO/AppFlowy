@@ -16,7 +16,7 @@ class Log {
 
   // used to disable log in tests
   @visibleForTesting
-  bool disableLog = false;
+  bool disableLog = true;
 
   Log() {
     _logger = Talker(

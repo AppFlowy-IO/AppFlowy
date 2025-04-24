@@ -81,7 +81,6 @@ class SupportSettingGroup extends StatelessWidget {
                   );
                   if (context.mounted) {
                     showToastNotification(
-                      context,
                       message: LocaleKeys.settings_files_clearCacheSuccess.tr(),
                     );
                   }

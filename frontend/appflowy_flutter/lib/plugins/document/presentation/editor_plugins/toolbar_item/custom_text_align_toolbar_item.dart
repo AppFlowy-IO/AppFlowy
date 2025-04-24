@@ -3,8 +3,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -96,7 +96,8 @@ class _TextAlignActionListState extends State<TextAlignActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final themeV2 = AFThemeExtensionV2.of(context);
+    final theme = AppFlowyTheme.of(context),
+        iconColor = theme.iconColorScheme.primary;
     final child = FlowyIconButton(
       width: 48,
       height: 32,
@@ -108,13 +109,13 @@ class _TextAlignActionListState extends State<TextAlignActionList> {
           FlowySvg(
             FlowySvgs.toolbar_alignment_m,
             size: Size.square(20),
-            color: themeV2.icon_primary,
+            color: iconColor,
           ),
           HSpace(4),
           FlowySvg(
             FlowySvgs.toolbar_arrow_down_m,
             size: Size(12, 20),
-            color: themeV2.icon_tertiary,
+            color: iconColor,
           ),
         ],
       ),

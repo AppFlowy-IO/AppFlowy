@@ -1,10 +1,9 @@
-use crate::migrations::session_migration::migrate_session_with_user_uuid;
+use crate::migrations::session_migration::{get_session_workspace, migrate_session};
 
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
 use crate::services::entities::UserPaths;
-use crate::services::sqlite_sql::user_sql::select_user_profile;
-use crate::user_manager::run_collab_data_migration;
+use crate::user_manager::run_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -30,31 +29,34 @@ use flowy_folder_pub::entities::{
 };
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
+use flowy_user_pub::entities::{user_awareness_object_id, AuthType};
 use flowy_user_pub::session::Session;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
+use flowy_user_pub::sql::{select_user_auth_type, select_user_profile, select_user_workspace};
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::sync::{Arc, Weak};
 use tracing::{error, event, info, instrument, warn};
+use uuid::Uuid;
+
 pub(crate) struct ImportedFolder {
   pub imported_session: Session,
   pub imported_collab_db: Arc<CollabKVDB>,
   pub container_name: Option<String>,
   pub parent_view_id: Option<String>,
   pub source: ImportedSource,
+  pub workspace_database_id: String,
 }
 
 #[derive(Clone)]
 pub(crate) enum ImportedSource {
   ExternalFolder,
-  AnonUser,
 }
 
 impl ImportedFolder {
@@ -78,7 +80,8 @@ pub(crate) fn prepare_import(
   }
   let user_paths = UserPaths::new(path.to_string());
   let other_store_preferences = Arc::new(KVStorePreferences::new(path)?);
-  migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
+  migrate_session("appflowy_session_cache", &other_store_preferences);
+
   let imported_session = other_store_preferences
     .get_object::<Session>("appflowy_session_cache")
     .ok_or(anyhow!(
@@ -99,15 +102,30 @@ pub(crate) fn prepare_import(
     CollabKVDB::open(collab_db_path)
       .map_err(|err| anyhow!("[AppflowyData]: open import collab db failed: {:?}", err))?,
   );
-  let imported_user = select_user_profile(
-    imported_session.user_id,
-    imported_sqlite_db.get_connection()?,
-  )?;
 
-  run_collab_data_migration(
+  let mut conn = imported_sqlite_db.get_connection()?;
+  let workspace_database_id = match select_user_workspace(&imported_session.workspace_id, &mut conn)
+  {
+    Ok(w) => w.database_storage_id,
+    Err(_) => {
+      let session_workspace = get_session_workspace(&other_store_preferences)
+        .ok_or(anyhow!("Can't find the session workspace"))?;
+      session_workspace.workspace_database_id
+    },
+  };
+
+  let imported_user_auth_type = select_user_profile(
+    imported_session.user_id,
+    &imported_session.workspace_id,
+    &mut conn,
+  )
+  .map(|v| v.auth_type)
+  .or_else(|_| select_user_auth_type(imported_session.user_id, &mut conn))?;
+
+  run_data_migration(
     &imported_session,
-    &imported_user,
-    imported_collab_db.clone(),
+    &imported_user_auth_type,
+    Arc::downgrade(&imported_collab_db),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),
     app_version,
@@ -119,6 +137,7 @@ pub(crate) fn prepare_import(
     container_name: None,
     parent_view_id,
     source: ImportedSource::ExternalFolder,
+    workspace_database_id,
   })
 }
 
@@ -147,13 +166,13 @@ pub(crate) fn generate_import_data(
   imported_folder: ImportedFolder,
 ) -> anyhow::Result<ImportedAppFlowyData> {
   info!(
-    "[AppflowyData]:importing workspace: {}:{}",
-    imported_folder.imported_session.user_workspace.name,
-    imported_folder.imported_session.user_workspace.id,
+    "[AppflowyData]:importing workspace: {}",
+    imported_folder.imported_session.workspace_id,
   );
-  let workspace_id = current_session.user_workspace.id.clone();
-  let imported_workspace_id = imported_folder.imported_session.user_workspace.id.clone();
+  let workspace_id = current_session.workspace_id.clone();
+  let imported_workspace_id = imported_folder.imported_session.workspace_id.clone();
   let imported_session = imported_folder.imported_session.clone();
+  let imported_workspace_database_id = imported_folder.workspace_database_id.clone();
   let imported_collab_db = imported_folder.imported_collab_db.clone();
   let imported_container_view_name = imported_folder.container_name.clone();
 
@@ -169,7 +188,6 @@ pub(crate) fn generate_import_data(
       None => workspace_id.to_string(),
       Some(_) => gen_view_id().to_string(),
     },
-    ImportedSource::AnonUser => workspace_id.to_string(),
   };
 
   let (views, orphan_views) = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
@@ -195,18 +213,18 @@ pub(crate) fn generate_import_data(
     // 2. workspace database views
     // 3. user awareness
     // So we remove these object ids from the list
-    let user_workspace_id = &imported_session.user_workspace.id;
-    let workspace_database_id = &imported_session.user_workspace.workspace_database_id;
+    let user_workspace_id = &imported_session.workspace_id;
     let user_awareness_id =
       user_awareness_object_id(&imported_session.user_uuid, user_workspace_id).to_string();
     all_imported_object_ids.retain(|id| {
-      id != user_workspace_id && id != workspace_database_id && id != &user_awareness_id
+      id != user_workspace_id && id != &imported_workspace_database_id && id != &user_awareness_id
     });
 
     // 2. mapping the workspace database ids
     if let Err(err) = mapping_workspace_database_ids(
       &mut old_to_new_id_map,
       &imported_session,
+      &imported_workspace_database_id,
       &imported_collab_db_read_txn,
       &mut database_view_ids_by_database_id,
       &mut database_object_ids,
@@ -286,7 +304,7 @@ pub(crate) fn generate_import_data(
     for view_id in not_exist_parent_view_ids {
       if let Err(err) = create_empty_document_for_view(
         current_session.user_id,
-        &current_session.user_workspace.id,
+        &current_session.workspace_id,
         &view_id,
         current_collab_db_write_txn,
       ) {
@@ -339,7 +357,6 @@ pub(crate) fn generate_import_data(
           Ok((child_views, orphan_views))
         },
       },
-      ImportedSource::AnonUser => Ok((child_views, orphan_views)),
     }?;
 
     if !invalid_orphan_views.is_empty() {
@@ -380,7 +397,6 @@ pub(crate) fn generate_import_data(
 
   let source = match imported_folder.source {
     ImportedSource::ExternalFolder => ImportFrom::AppFlowyDataFolder,
-    ImportedSource::AnonUser => ImportFrom::AnonUser,
   };
 
   Ok(ImportedAppFlowyData {
@@ -482,7 +498,7 @@ where
   write_collab_object(
     &collab,
     current_session.user_id,
-    current_session.user_workspace.id.as_str(),
+    current_session.workspace_id.as_str(),
     import_container_view_id,
     collab_write_txn,
     CollabType::Document,
@@ -492,7 +508,7 @@ where
 
   let import_container_views = NestedChildViewBuilder::new(
     current_session.user_id,
-    current_session.user_workspace.id.clone(),
+    current_session.workspace_id.clone(),
   )
   .with_view_id(import_container_view_id)
   .with_layout(ViewLayout::Document)
@@ -507,6 +523,7 @@ where
 fn mapping_workspace_database_ids<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   imported_session: &Session,
+  imported_session_workspace_database_id: &str,
   imported_collab_db_read_txn: &W,
   database_view_ids_by_database_id: &mut HashMap<String, Vec<String>>,
   database_object_ids: &mut HashSet<String>,
@@ -517,20 +534,20 @@ where
 {
   let mut workspace_database_collab = Collab::new(
     imported_session.user_id,
-    &imported_session.user_workspace.workspace_database_id,
+    imported_session_workspace_database_id,
     "import_device",
     vec![],
     false,
   );
   imported_collab_db_read_txn.load_doc_with_txn(
     imported_session.user_id,
-    &imported_session.user_workspace.id,
-    &imported_session.user_workspace.workspace_database_id,
+    &imported_session.workspace_id,
+    imported_session_workspace_database_id,
     &mut workspace_database_collab.transact_mut(),
   )?;
 
   let workspace_database = init_workspace_database(
-    &imported_session.user_workspace.workspace_database_id,
+    imported_session_workspace_database_id,
     workspace_database_collab,
   );
   for database_meta_list in workspace_database.get_all_database_meta() {
@@ -654,7 +671,7 @@ where
       write_collab_object(
         database_collab,
         session.user_id,
-        session.user_workspace.id.as_str(),
+        &session.workspace_id,
         &new_database_object_id,
         collab_write_txn,
         CollabType::Database,
@@ -677,7 +694,7 @@ where
     })
     .collect::<Vec<_>>();
   for gen_collab in gen_database_row_document_collabs {
-    write_gen_collab(&session.user_workspace.id, gen_collab, collab_write_txn);
+    write_gen_collab(&session.workspace_id, gen_collab, collab_write_txn);
   }
 
   // remove the database object ids from the object ids
@@ -764,7 +781,7 @@ where
       .collect::<Vec<_>>();
 
     for gen_collab in gen_database_row_collabs {
-      write_gen_collab(&session.user_workspace.id, gen_collab, collab_write_txn);
+      write_gen_collab(&session.workspace_id, gen_collab, collab_write_txn);
     }
   }
 
@@ -929,7 +946,7 @@ where
 {
   let mut imported_folder_collab = Collab::new(
     imported_session.user_id,
-    &imported_session.user_workspace.id,
+    &imported_session.workspace_id,
     "migrate_device",
     vec![],
     false,
@@ -938,15 +955,15 @@ where
   imported_collab_db_read_txn
     .load_doc_with_txn(
       imported_session.user_id,
-      &imported_session.user_workspace.id,
-      &imported_session.user_workspace.id,
+      &imported_session.workspace_id,
+      &imported_session.workspace_id,
       &mut imported_folder_collab.transact_mut(),
     )
     .map_err(|err| {
       PersistenceError::Internal(anyhow!(
         "[AppflowyData]: Can't load the user:{} folder:{}. {}",
         imported_session.user_id,
-        imported_session.user_workspace.id,
+        imported_session.workspace_id,
         err
       ))
     })?;
@@ -957,7 +974,7 @@ where
     })?;
 
   let mut imported_folder_data = imported_folder
-    .get_folder_data(&imported_session.user_workspace.id)
+    .get_folder_data(&imported_session.workspace_id)
     .ok_or(PersistenceError::Internal(anyhow!(
       "[AppflowyData]: Can't read the folder data"
     )))?;
@@ -998,7 +1015,7 @@ where
 
   // replace the old parent view id of the workspace
   old_to_new_id_map.0.insert(
-    imported_session.user_workspace.id.clone(),
+    imported_session.workspace_id.clone(),
     root_view_id.to_string(),
   );
 
@@ -1172,8 +1189,8 @@ impl DerefMut for OldToNewIdMap {
 pub async fn upload_collab_objects_data(
   uid: i64,
   user_collab_db: Weak<CollabKVDB>,
-  workspace_id: &str,
-  user_authenticator: &Authenticator,
+  workspace_id: &Uuid,
+  user_authenticator: &AuthType,
   collab_data: ImportedCollabData,
   user_cloud_service: Arc<dyn UserCloudService>,
 ) -> Result<(), FlowyError> {
@@ -1275,7 +1292,7 @@ pub async fn upload_collab_objects_data(
 
 async fn batch_create(
   uid: i64,
-  workspace_id: &str,
+  workspace_id: &Uuid,
   user_cloud_service: &Arc<dyn UserCloudService>,
   size_counter: &usize,
   objects: Vec<UserCollabParams>,

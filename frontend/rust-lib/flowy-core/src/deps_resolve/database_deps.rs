@@ -13,6 +13,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::priority_task::TaskDispatcher;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
+use uuid::Uuid;
 
 pub struct DatabaseDepsResolver();
 
@@ -20,7 +21,7 @@ impl DatabaseDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
     ai_manager: Arc<AIManager>,
@@ -47,41 +48,41 @@ struct DatabaseAIServiceMiddleware {
 impl DatabaseAIService for DatabaseAIServiceMiddleware {
   async fn summary_database_row(
     &self,
-    workspace_id: &str,
-    object_id: &str,
-    summary_row: SummaryRowContent,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
+    _summary_row: SummaryRowContent,
   ) -> Result<String, FlowyError> {
     if self.ai_manager.local_ai.is_running() {
       self
         .ai_manager
         .local_ai
-        .summary_database_row(summary_row)
+        .summary_database_row(_summary_row)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))
     } else {
       self
         .ai_service
-        .summary_database_row(workspace_id, object_id, summary_row)
+        .summary_database_row(workspace_id, object_id, _summary_row)
         .await
     }
   }
 
   async fn translate_database_row(
     &self,
-    workspace_id: &str,
-    translate_row: TranslateRowContent,
-    language: &str,
+    _workspace_id: &Uuid,
+    _translate_row: TranslateRowContent,
+    _language: &str,
   ) -> Result<TranslateRowResponse, FlowyError> {
     if self.ai_manager.local_ai.is_running() {
       let data = LocalAITranslateRowData {
-        cells: translate_row
+        cells: _translate_row
           .into_iter()
           .map(|row| LocalAITranslateItem {
             title: row.title,
             content: row.content,
           })
           .collect(),
-        language: language.to_string(),
+        language: _language.to_string(),
         include_header: false,
       };
       let resp = self
@@ -95,7 +96,7 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
     } else {
       self
         .ai_service
-        .translate_database_row(workspace_id, translate_row, language)
+        .translate_database_row(_workspace_id, _translate_row, _language)
         .await
     }
   }
@@ -121,11 +122,11 @@ impl DatabaseUser for DatabaseUserImpl {
     self.upgrade_user()?.get_collab_db(uid)
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
   }
 
-  fn workspace_database_object_id(&self) -> Result<String, FlowyError> {
+  fn workspace_database_object_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_database_object_id()
   }
 }

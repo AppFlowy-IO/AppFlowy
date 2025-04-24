@@ -17,10 +17,18 @@ use flowy_folder::view_operation::{
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::async_trait::async_trait;
 use std::convert::TryFrom;
-use std::sync::Arc;
+use std::str::FromStr;
+use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
+use uuid::Uuid;
 
-pub struct DocumentFolderOperation(pub Arc<DocumentManager>);
+pub struct DocumentFolderOperation(pub Weak<DocumentManager>);
+
+impl DocumentFolderOperation {
+  fn document_manager(&self) -> Result<Arc<DocumentManager>, FlowyError> {
+    self.0.upgrade().ok_or_else(FlowyError::ref_drop)
+  }
+}
 #[async_trait]
 impl FolderOperationHandler for DocumentFolderOperation {
   fn name(&self) -> &str {
@@ -32,7 +40,8 @@ impl FolderOperationHandler for DocumentFolderOperation {
     uid: i64,
     workspace_view_builder: Arc<RwLock<NestedViewBuilder>>,
   ) -> Result<(), FlowyError> {
-    let manager = self.0.clone();
+    let manager = self.document_manager()?;
+
     let mut write_guard = workspace_view_builder.write().await;
     // Create a view named "Getting started" with an icon ⭐️ and the built-in README data.
     // Don't modify this code unless you know what you are doing.
@@ -45,8 +54,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
         // create a empty document
         let json_str = include_str!("../../../assets/read_me.json");
         let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+        let view_id = Uuid::from_str(&view.view.id).unwrap();
         manager
-          .create_document(uid, &view.view.id, Some(document_pb.into()))
+          .create_document(uid, &view_id, Some(document_pb.into()))
           .await
           .unwrap();
         view
@@ -55,27 +65,31 @@ impl FolderOperationHandler for DocumentFolderOperation {
     Ok(())
   }
 
-  async fn open_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.0.open_document(view_id).await?;
+  async fn open_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
+    self.document_manager()?.open_document(view_id).await?;
     Ok(())
   }
 
   /// Close the document view.
-  async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.0.close_document(view_id).await?;
+  async fn close_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
+    self.document_manager()?.close_document(view_id).await?;
     Ok(())
   }
 
-  async fn delete_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    match self.0.delete_document(view_id).await {
+  async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
+    match self.document_manager()?.delete_document(view_id).await {
       Ok(_) => tracing::trace!("Delete document: {}", view_id),
       Err(e) => tracing::error!("🔴delete document failed: {}", e),
     }
     Ok(())
   }
 
-  async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
-    let data: DocumentDataPB = self.0.get_document_data(view_id).await?.into();
+  async fn duplicate_view(&self, view_id: &Uuid) -> Result<Bytes, FlowyError> {
+    let data: DocumentDataPB = self
+      .document_manager()?
+      .get_document_data(view_id)
+      .await?
+      .into();
     let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
     Ok(data_bytes)
   }
@@ -83,10 +97,11 @@ impl FolderOperationHandler for DocumentFolderOperation {
   async fn gather_publish_encode_collab(
     &self,
     user: &Arc<dyn FolderUser>,
-    view_id: &str,
+    view_id: &Uuid,
   ) -> Result<GatherEncodedCollab, FlowyError> {
     let encoded_collab =
-      get_encoded_collab_v1_from_disk(user, view_id, CollabType::Document).await?;
+      get_encoded_collab_v1_from_disk(user, view_id.to_string().as_str(), CollabType::Document)
+        .await?;
     Ok(GatherEncodedCollab::Document(encoded_collab))
   }
 
@@ -102,7 +117,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
       ViewData::Empty => None,
     };
     let encoded_collab = self
-      .0
+      .document_manager()?
       .create_document(user_id, &params.view_id, data.map(|d| d.into()))
       .await?;
     Ok(Some(encoded_collab))
@@ -112,13 +127,17 @@ impl FolderOperationHandler for DocumentFolderOperation {
   async fn create_default_view(
     &self,
     user_id: i64,
-    _parent_view_id: &str,
-    view_id: &str,
+    _parent_view_id: &Uuid,
+    view_id: &Uuid,
     _name: &str,
     layout: ViewLayout,
   ) -> Result<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-    match self.0.create_document(user_id, view_id, None).await {
+    match self
+      .document_manager()?
+      .create_document(user_id, view_id, None)
+      .await
+    {
       Ok(_) => Ok(()),
       Err(err) => {
         if err.is_already_exists() {
@@ -133,14 +152,14 @@ impl FolderOperationHandler for DocumentFolderOperation {
   async fn import_from_bytes(
     &self,
     uid: i64,
-    view_id: &str,
+    view_id: &Uuid,
     _name: &str,
     _import_type: ImportType,
     bytes: Vec<u8>,
   ) -> Result<Vec<ImportedData>, FlowyError> {
     let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
     let encoded_collab = self
-      .0
+      .document_manager()?
       .create_document(uid, view_id, Some(data.into()))
       .await?;
     Ok(vec![(

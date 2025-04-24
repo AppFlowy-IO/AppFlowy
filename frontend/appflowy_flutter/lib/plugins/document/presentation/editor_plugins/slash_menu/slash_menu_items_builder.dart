@@ -62,10 +62,8 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
 }) {
   return [
     // ai
-    if (!isLocalMode) ...[
-      if (!isEmpty) continueWritingSlashMenuItem,
-      aiWriterSlashMenuItem,
-    ],
+    if (!isEmpty) continueWritingSlashMenuItem,
+    aiWriterSlashMenuItem,
 
     paragraphSlashMenuItem,
 

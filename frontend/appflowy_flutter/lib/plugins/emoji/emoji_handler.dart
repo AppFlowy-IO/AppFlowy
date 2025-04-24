@@ -1,15 +1,16 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/size.dart';
 
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'emoji_menu.dart';
 
@@ -21,8 +22,8 @@ class EmojiHandler extends StatefulWidget {
     required this.onDismiss,
     required this.onSelectionUpdate,
     required this.onEmojiSelect,
-    this.startCharAmount = 1,
     this.cancelBySpaceHandler,
+    this.initialSearchText = '',
   });
 
   final EditorState editorState;
@@ -30,7 +31,7 @@ class EmojiHandler extends StatefulWidget {
   final VoidCallback onDismiss;
   final VoidCallback onSelectionUpdate;
   final SelectEmojiItemHandler onEmojiSelect;
-  final int startCharAmount;
+  final String initialSearchText;
   final bool Function()? cancelBySpaceHandler;
 
   @override
@@ -38,30 +39,37 @@ class EmojiHandler extends StatefulWidget {
 }
 
 class _EmojiHandlerState extends State<EmojiHandler> {
-  final _focusNode = FocusNode(debugLabel: 'emoji_menu_handler');
-  final ItemScrollController controller = ItemScrollController();
+  final focusNode = FocusNode(debugLabel: 'emoji_menu_handler');
+  final scrollController = ScrollController();
   late EmojiData emojiData;
   final List<Emoji> searchedEmojis = [];
   bool loaded = false;
   int invalidCounter = 0;
   late int startOffset;
-  String _search = '';
+  late String _search = widget.initialSearchText;
+  double emojiHeight = 36.0;
+  final configuration = EmojiPickerConfiguration(
+    defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
+  );
+
+  int get startCharAmount => widget.initialSearchText.length;
 
   set search(String search) {
     _search = search;
     _doSearch();
   }
 
-  final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier(0);
+  final ValueNotifier<int> selectedIndexNotifier = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _focusNode.requestFocus(),
+      (_) => focusNode.requestFocus(),
     );
 
-    startOffset = widget.editorState.selection?.endIndex ?? 0;
+    startOffset =
+        (widget.editorState.selection?.endIndex ?? 0) - startCharAmount;
 
     if (kCachedEmojiData != null) {
       loadEmojis(kCachedEmojiData!);
@@ -77,8 +85,9 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
-    _selectedIndexNotifier.dispose();
+    focusNode.dispose();
+    selectedIndexNotifier.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -86,10 +95,11 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   Widget build(BuildContext context) {
     final noEmojis = searchedEmojis.isEmpty;
     return Focus(
-      focusNode: _focusNode,
+      focusNode: focusNode,
       onKeyEvent: onKeyEvent,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 400, maxWidth: 300),
+        constraints: const BoxConstraints(maxHeight: 392, maxWidth: 360),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6.0),
           color: Theme.of(context).cardColor,
@@ -101,52 +111,73 @@ class _EmojiHandlerState extends State<EmojiHandler> {
             ),
           ],
         ),
-        child: noEmojis
-            ? SizedBox(
-                width: 400,
-                height: 40,
-                child: Center(
-                  child: SizedBox.square(
-                    dimension: 20,
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              )
-            : ScrollablePositionedList.builder(
-                itemCount: searchedEmojis.length,
-                itemScrollController: controller,
-                padding: EdgeInsets.all(8),
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: (ctx, index) {
-                  return ValueListenableBuilder(
-                    valueListenable: _selectedIndexNotifier,
-                    builder: (context, value, __) {
-                      final selectedEmoji = searchedEmojis[index];
-                      final displayedEmoji =
-                          emojiData.getEmojiById(selectedEmoji.id);
-                      final isSelected = value == index;
-                      return SizedBox(
-                        height: 32,
-                        child: FlowyButton(
-                          text: FlowyText.medium(
-                            '$displayedEmoji ${selectedEmoji.name}',
-                            lineHeight: 1.0,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          isSelected: isSelected,
-                          onTap: () => onSelect(index),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+        child: noEmojis ? buildLoading() : buildEmojis(),
       ),
     );
   }
 
-  void changeSelectedIndex(int index) => _selectedIndexNotifier.value = index;
+  Widget buildLoading() {
+    return SizedBox(
+      width: 400,
+      height: 40,
+      child: Center(
+        child: SizedBox.square(
+          dimension: 20,
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  Widget buildEmojis() {
+    return SizedBox(
+      height:
+          (searchedEmojis.length / configuration.perLine).ceil() * emojiHeight,
+      child: GridView.builder(
+        controller: scrollController,
+        itemCount: searchedEmojis.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: configuration.perLine,
+        ),
+        itemBuilder: (context, index) {
+          final currentEmoji = searchedEmojis[index];
+          final emojiId = currentEmoji.id;
+          final emoji = emojiData.getEmojiById(
+            emojiId,
+            skinTone: configuration.defaultSkinTone,
+          );
+          return ValueListenableBuilder(
+            valueListenable: selectedIndexNotifier,
+            builder: (context, value, child) {
+              final isSelected = value == index;
+              return SizedBox.square(
+                dimension: emojiHeight,
+                child: FlowyButton(
+                  isSelected: isSelected,
+                  margin: EdgeInsets.zero,
+                  radius: Corners.s8Border,
+                  text: ManualTooltip(
+                    key: ValueKey('$emojiId-$isSelected'),
+                    message: currentEmoji.name,
+                    showAutomaticlly: isSelected,
+                    preferBelow: false,
+                    child: FlowyText.emoji(
+                      emoji,
+                      fontSize: configuration.emojiSize,
+                    ),
+                  ),
+                  onTap: () => onSelect(index),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void changeSelectedIndex(int index) => selectedIndexNotifier.value = index;
 
   void loadEmojis(EmojiData data) {
     emojiData = data;
@@ -157,11 +188,15 @@ class _EmojiHandlerState extends State<EmojiHandler> {
         loaded = true;
       });
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _doSearch();
+    });
   }
 
-  Future<void> _doSearch() async {
-    if (!loaded) return;
-    if (_search.startsWith(' ')) {
+  void _doSearch() {
+    if (!loaded || !mounted) return;
+    final enableEmptySearch = widget.initialSearchText.isEmpty;
+    if ((_search.startsWith(' ') || _search.isEmpty) && !enableEmptySearch) {
       widget.onDismiss.call();
       return;
     }
@@ -170,6 +205,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       searchedEmojis.clear();
       searchedEmojis.addAll(searchEmojiData.emojis.values);
       changeSelectedIndex(0);
+      _scrollToItem();
     });
     if (searchedEmojis.isEmpty) {
       widget.onDismiss.call();
@@ -177,17 +213,19 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   }
 
   KeyEventResult onKeyEvent(focus, KeyEvent event) {
-    if (event is! KeyDownEvent) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
 
     const moveKeys = [
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
+      LogicalKeyboardKey.arrowLeft,
+      LogicalKeyboardKey.arrowRight,
     ];
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
-      onSelect(_selectedIndexNotifier.value);
+      onSelect(selectedIndexNotifier.value);
       return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       // Workaround to bring focus back to editor
@@ -196,6 +234,10 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       widget.onDismiss.call();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
+        if (widget.initialSearchText.isEmpty) {
+          widget.onDismiss.call();
+          return KeyEventResult.handled;
+        }
         if (_canDeleteLastCharacter()) {
           widget.editorState.deleteBackward();
         } else {
@@ -214,11 +256,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
       return KeyEventResult.handled;
     } else if (event.character != null &&
-        ![
-          ...moveKeys,
-          LogicalKeyboardKey.arrowLeft,
-          LogicalKeyboardKey.arrowRight,
-        ].contains(event.logicalKey)) {
+        !moveKeys.contains(event.logicalKey)) {
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.
       widget.onSelectionUpdate();
@@ -238,42 +276,13 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       return KeyEventResult.handled;
     }
 
-    if ([LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowRight]
-        .contains(event.logicalKey)) {
-      widget.onSelectionUpdate();
-
-      event.logicalKey == LogicalKeyboardKey.arrowLeft
-          ? widget.editorState.moveCursorForward()
-          : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
-
-      /// If cursor moves before @ then dismiss menu
-      /// If cursor moves after @search.length then dismiss menu
-      final selection = widget.editorState.selection;
-      if (selection != null &&
-          (selection.endIndex < startOffset ||
-              selection.endIndex > (startOffset + _search.length))) {
-        widget.onDismiss.call();
-      }
-
-      /// Workaround: When using the move cursor methods, it seems the
-      ///  focus goes back to the editor, this makes sure this handler
-      ///  receives the next keypress.
-      ///
-      _focusNode.requestFocus();
-
-      return KeyEventResult.handled;
-    }
-
     return KeyEventResult.handled;
   }
 
   void onSelect(int index) {
     widget.onEmojiSelect.call(
       context,
-      (
-        startOffset - widget.startCharAmount,
-        _search.length + widget.startCharAmount
-      ),
+      (startOffset - startCharAmount, startOffset + _search.length),
       emojiData.getEmojiById(searchedEmojis[index].id),
     );
     widget.onDismiss.call();
@@ -304,41 +313,63 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   }
 
   void _moveSelection(LogicalKeyboardKey key) {
-    bool didChange = false;
-    final index = _selectedIndexNotifier.value;
-    if (key == LogicalKeyboardKey.arrowUp ||
-        (key == LogicalKeyboardKey.tab &&
-            HardwareKeyboard.instance.isShiftPressed)) {
+    final index = selectedIndexNotifier.value,
+        perLine = configuration.perLine,
+        remainder = index % perLine,
+        length = searchedEmojis.length,
+        currentLine = index ~/ perLine,
+        maxLine = (length / perLine).ceil();
+
+    final heightBefore = currentLine * emojiHeight;
+    if (key == LogicalKeyboardKey.arrowUp) {
+      if (currentLine == 0) {
+        final exceptLine = max(0, maxLine - 1);
+        changeSelectedIndex(min(exceptLine * perLine + remainder, length - 1));
+      } else if (currentLine > 0) {
+        changeSelectedIndex(index - perLine);
+      }
+    } else if (key == LogicalKeyboardKey.arrowDown) {
+      if (currentLine == maxLine - 1) {
+        changeSelectedIndex(remainder);
+      } else if (currentLine < maxLine - 1) {
+        changeSelectedIndex(min(index + perLine, length - 1));
+      }
+    } else if (key == LogicalKeyboardKey.arrowLeft) {
       if (index == 0) {
-        changeSelectedIndex(max(0, searchedEmojis.length - 1));
-        didChange = true;
+        changeSelectedIndex(length - 1);
       } else if (index > 0) {
         changeSelectedIndex(index - 1);
-        didChange = true;
       }
-    } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab]
-        .contains(key)) {
-      if (index < searchedEmojis.length - 1) {
-        changeSelectedIndex(index + 1);
-        didChange = true;
-      } else if (index == searchedEmojis.length - 1) {
+    } else if (key == LogicalKeyboardKey.arrowRight) {
+      if (index == length - 1) {
         changeSelectedIndex(0);
-        didChange = true;
+      } else if (index < length - 1) {
+        changeSelectedIndex(index + 1);
       }
     }
+    final heightAfter =
+        (selectedIndexNotifier.value ~/ configuration.perLine) * emojiHeight;
 
-    if (mounted && didChange) {
-      _scrollToItem();
+    if (mounted && (heightAfter != heightBefore)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToItem();
+      });
     }
   }
 
   void _scrollToItem() {
     final noEmojis = searchedEmojis.isEmpty;
-    if (noEmojis) return;
-    controller.scrollTo(
-      index: _selectedIndexNotifier.value,
-      duration: const Duration(milliseconds: 200),
-      alignment: 0.5,
+    if (noEmojis || !mounted) return;
+    final currentItem = selectedIndexNotifier.value;
+    final exceptHeight = (currentItem ~/ configuration.perLine) * emojiHeight;
+    final maxExtent = scrollController.position.maxScrollExtent;
+    final jumpTo = (exceptHeight - maxExtent > 10 * emojiHeight)
+        ? exceptHeight
+        : min(exceptHeight, maxExtent);
+    scrollController.animateTo(
+      jumpTo,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.linear,
     );
   }
 
@@ -356,7 +387,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
     search = delta.toPlainText().substring(
           startOffset,
-          startOffset - 1 + _search.length,
+          startOffset + _search.length - 1,
         );
   }
 
