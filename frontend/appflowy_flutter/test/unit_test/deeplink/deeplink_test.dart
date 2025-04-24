@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
-import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_hanlder.dart';
+import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/login_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/payment_deeplink_handler.dart';
 import 'package:flutter_test/flutter_test.dart';

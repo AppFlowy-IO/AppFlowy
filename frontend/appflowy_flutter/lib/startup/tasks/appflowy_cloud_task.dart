@@ -6,7 +6,8 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
-import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_hanlder.dart';
+import 'package:appflowy/startup/tasks/deeplink/expire_login_deeplink_handler.dart';
+import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/login_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/payment_deeplink_handler.dart';
 import 'package:appflowy/user/application/auth/auth_error.dart';
@@ -26,7 +27,8 @@ class AppFlowyCloudDeepLink {
     _deepLinkHandlerRegistry = DeepLinkHandlerRegistry.instance
       ..register(LoginDeepLinkHandler())
       ..register(PaymentDeepLinkHandler())
-      ..register(InvitationDeepLinkHandler());
+      ..register(InvitationDeepLinkHandler())
+      ..register(ExpireLoginDeepLinkHandler());
 
     _deepLinkSubscription = _AppLinkWrapper.instance.listen(
       (Uri? uri) async {
@@ -137,6 +139,18 @@ class AppFlowyCloudDeepLink {
             _completer?.complete(result);
             completer = null;
           }
+        } else if (handler is ExpireLoginDeepLinkHandler) {
+          result.onFailure(
+            (error) {
+              final context = AppGlobals.rootNavKey.currentState?.context;
+              if (context != null) {
+                showToastNotification(
+                  message: error.msg,
+                  type: ToastificationType.error,
+                );
+              }
+            },
+          );
         }
       },
       onError: (error) {

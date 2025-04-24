@@ -11,6 +11,7 @@ class InvitationDeepLinkHandler extends DeepLinkHandler<void> {
   static const invitationCallbackHost = 'invitation-callback';
   static const invitationCallbackWorkspaceId = 'workspace_id';
   static const invitationCallbackUserId = 'user_id';
+
   @override
   bool canHandle(Uri uri) {
     final isInvitationCallback = uri.host == invitationCallbackHost;
