@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/ai_writ
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_entities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:extended_text_field/extended_text_field.dart';
 
 import 'util.dart';
 
