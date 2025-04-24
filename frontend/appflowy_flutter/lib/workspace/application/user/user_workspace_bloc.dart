@@ -190,12 +190,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             result
               ..onSuccess((_) {
                 Log.info('delete workspace success: $workspaceId');
+                final firstWorkspace = workspaces.firstOrNull;
                 // if the current workspace is deleted, open the first workspace
-                if (state.currentWorkspace?.workspaceId == workspaceId) {
+                assert(
+                  firstWorkspace != null,
+                  'the first workspace must not be null',
+                );
+                if (state.currentWorkspace?.workspaceId == workspaceId &&
+                    firstWorkspace != null) {
+                  Log.info(
+                    'delete workspace: open the first workspace: ${firstWorkspace.workspaceId}',
+                  );
                   add(
                     OpenWorkspace(
-                      workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      firstWorkspace.workspaceId,
+                      firstWorkspace.workspaceAuthType,
                     ),
                   );
                 }
@@ -446,23 +455,32 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         bool shouldOpenWorkspace,
       )> _fetchWorkspaces({String? initialWorkspaceId}) async {
     try {
-      final currentWorkspace =
-          await UserBackendService.getCurrentWorkspace().getOrThrow();
-      final currentWorkspaceId = initialWorkspaceId ?? currentWorkspace.id;
+      final currentWorkspaceResult =
+          await UserBackendService.getCurrentWorkspace();
+      final currentWorkspace = currentWorkspaceResult.fold(
+        (s) => s,
+        (e) => null,
+      );
+      // if the initialWorkspaceId is not provided, use the current workspace id
+      final currentWorkspaceId = initialWorkspaceId ?? currentWorkspace?.id;
       final workspaces = await _userService.getWorkspaces().getOrThrow();
-      if (workspaces.isEmpty) {
+      if (workspaces.isEmpty && currentWorkspace != null) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
       }
       final currentWorkspaceInList = workspaces
               .firstWhereOrNull((e) => e.workspaceId == currentWorkspaceId) ??
           workspaces.firstOrNull;
+      final sortedWorkspaces = workspaces
+        ..sort(
+          (a, b) => a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
+        );
+      Log.info(
+        'fetch workspaces: current workspace: ${currentWorkspaceInList?.workspaceId}, sorted workspaces: ${sortedWorkspaces.map((e) => '${e.name}: ${e.workspaceId}')}',
+      );
       return (
         currentWorkspaceInList,
-        workspaces
-          ..sort(
-            (a, b) => a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
-          ),
-        currentWorkspaceInList?.workspaceId != currentWorkspace.id
+        sortedWorkspaces,
+        currentWorkspaceInList?.workspaceId != currentWorkspaceId,
       );
     } catch (e) {
       Log.error('fetch workspace error: $e');
@@ -481,8 +499,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces({String? initialWorkspaceId}) =
-      FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({
+    String? initialWorkspaceId,
+  }) = FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
     AuthTypePB authType,
