@@ -87,6 +87,7 @@ class AFFilledButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    Color? backgroundColor,
   }) {
     return AFFilledButton._(
       key: key,
@@ -97,6 +98,7 @@ class AFFilledButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       backgroundColor: (context, isHovering, disabled) =>
+          backgroundColor ??
           AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
     );
   }
