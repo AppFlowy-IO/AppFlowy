@@ -155,7 +155,7 @@ impl EventIntegrationTest {
     map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      authenticator: AuthTypePB::Server,
+      auth_type: AuthTypePB::Server,
     };
 
     let user_profile = EventBuilder::new(self.clone())

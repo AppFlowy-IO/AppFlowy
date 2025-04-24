@@ -46,7 +46,7 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
   bool _isInitialized = false;
 
   Future<void> _init() async {
-    if (userProfile.workspaceAuthType == AuthTypePB.Local) {
+    if (userProfile.userAuthType == AuthTypePB.Local) {
       Log.debug('PasswordBloc: skip init because user is local authenticator');
       return;
     }
