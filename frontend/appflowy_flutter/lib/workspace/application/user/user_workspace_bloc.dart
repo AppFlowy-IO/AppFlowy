@@ -20,6 +20,7 @@ part 'user_workspace_bloc.freezed.dart';
 class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
     required this.userProfile,
+    this.initialWorkspaceId,
   })  : _userService = UserBackendService(userId: userProfile.id),
         _listener = UserListener(userProfile: userProfile),
         super(UserWorkspaceState.initial()) {
@@ -40,7 +41,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               },
             );
 
-            final result = await _fetchWorkspaces();
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
@@ -67,8 +70,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          fetchWorkspaces: () async {
-            final result = await _fetchWorkspaces();
+          fetchWorkspaces: (initialWorkspaceId) async {
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
 
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
@@ -432,22 +437,24 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
+  final String? initialWorkspaceId;
 
   Future<
       (
         UserWorkspacePB? currentWorkspace,
         List<UserWorkspacePB> workspaces,
         bool shouldOpenWorkspace,
-      )> _fetchWorkspaces() async {
+      )> _fetchWorkspaces({String? initialWorkspaceId}) async {
     try {
       final currentWorkspace =
           await UserBackendService.getCurrentWorkspace().getOrThrow();
+      final currentWorkspaceId = initialWorkspaceId ?? currentWorkspace.id;
       final workspaces = await _userService.getWorkspaces().getOrThrow();
       if (workspaces.isEmpty) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
       }
       final currentWorkspaceInList = workspaces
-              .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id) ??
+              .firstWhereOrNull((e) => e.workspaceId == currentWorkspaceId) ??
           workspaces.firstOrNull;
       return (
         currentWorkspaceInList,
@@ -474,7 +481,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({String? initialWorkspaceId}) =
+      FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
     AuthTypePB authType,

@@ -24,7 +24,7 @@ import '_sidebar_import_notion.dart';
 const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 
 @visibleForTesting
-const importNotionButtonKey = ValueKey('importNotinoButton');
+const importNotionButtonKey = ValueKey('importNotionButton');
 
 class WorkspacesMenu extends StatefulWidget {
   const WorkspacesMenu({
