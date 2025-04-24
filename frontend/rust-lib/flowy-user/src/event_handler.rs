@@ -3,7 +3,7 @@ use crate::notification::{send_notification, UserNotification};
 use crate::services::cloud_config::{
   get_cloud_config, get_or_create_cloud_config, save_cloud_config,
 };
-use crate::services::data_import::prepare_import;
+use crate::services::data_import::{prepare_import, user_data_preview};
 use crate::user_manager::UserManager;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
@@ -289,6 +289,24 @@ pub async fn import_appflowy_data_folder_handler(
     let _ = tx.send(result);
   });
   rx.await??;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn preview_user_data_folder_handler(
+  data: AFPluginData<UserDataPathPB>,
+) -> DataResult<UserDataPreviewPB, FlowyError> {
+  let data = data.try_into_inner()?;
+  let preview = user_data_preview(&data.path)?;
+  data_result_ok(preview)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn import_user_data_folder_handler(
+  data: AFPluginData<ImportUserDataPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.try_into_inner()?;
   Ok(())
 }
 

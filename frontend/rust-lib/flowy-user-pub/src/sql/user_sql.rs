@@ -135,6 +135,24 @@ fn select_user_table_row(uid: i64, conn: &mut SqliteConnection) -> Result<UserTa
   Ok(row)
 }
 
+pub fn select_user_id(conn: &mut SqliteConnection) -> Result<i64, FlowyError> {
+  let row = user_table::dsl::user_table
+    .select(user_table::id)
+    .first::<String>(conn)?;
+  let uid = row
+    .parse::<i64>()
+    .map_err(|err| FlowyError::internal().with_context(err))?;
+  Ok(uid)
+}
+
+pub fn select_user_name(uid: i64, conn: &mut SqliteConnection) -> Result<String, FlowyError> {
+  let name = user_table::dsl::user_table
+    .select(user_table::name)
+    .filter(user_table::id.eq(&uid.to_string()))
+    .first(conn)?;
+  Ok(name)
+}
+
 pub fn select_user_profile(
   uid: i64,
   workspace_id: &str,

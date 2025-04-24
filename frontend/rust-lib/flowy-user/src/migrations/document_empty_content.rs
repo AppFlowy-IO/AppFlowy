@@ -41,7 +41,8 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
   #[instrument(name = "HistoricalEmptyDocumentMigration", skip_all, err)]
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
@@ -57,27 +58,20 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
-      let origin = CollabOrigin::Client(CollabClient::new(user.user_id, "phantom"));
-      let folder_collab = match load_collab(
-        user.user_id,
-        write_txn,
-        &user.workspace_id,
-        &user.workspace_id,
-      ) {
+      let origin = CollabOrigin::Client(CollabClient::new(uid, "phantom"));
+      let folder_collab = match load_collab(uid, write_txn, workspace_id, workspace_id) {
         Ok(fc) => fc,
         Err(_) => return Ok(()),
       };
 
-      let folder = Folder::open(user.user_id, folder_collab, None)
+      let folder = Folder::open(uid, folder_collab, None)
         .map_err(|err| PersistenceError::Internal(err.into()))?;
       if let Some(workspace_id) = folder.get_workspace_id() {
         let migration_views = folder.get_views_belong_to(&workspace_id);
         // For historical reasons, the first level documents are empty. So migrate them by inserting
         // the default document data.
         for view in migration_views {
-          if migrate_empty_document(write_txn, &origin, &view, user.user_id, &user.workspace_id)
-            .is_err()
-          {
+          if migrate_empty_document(write_txn, &origin, &view, uid, &workspace_id).is_err() {
             event!(
               tracing::Level::ERROR,
               "Failed to migrate document {}",

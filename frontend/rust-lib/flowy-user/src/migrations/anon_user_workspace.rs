@@ -34,7 +34,8 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
   #[instrument(name = "AnonUserWorkspaceTableMigration", skip_all, err)]
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     _collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     db: &mut SqliteConnection,
@@ -46,7 +47,7 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
       if let Some(mut user_workspace) = get_session_workspace(store_preferences) {
         if select_user_workspace(&user_workspace.id, db).ok().is_none() {
           user_workspace.workspace_type = AuthType::Local;
-          upsert_user_workspace(user.user_id, *user_auth_type, user_workspace, db)?;
+          upsert_user_workspace(uid, *user_auth_type, user_workspace, db)?;
         }
       }
     }

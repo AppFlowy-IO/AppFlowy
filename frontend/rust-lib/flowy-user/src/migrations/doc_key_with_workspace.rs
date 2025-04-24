@@ -39,7 +39,8 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
   #[instrument(name = "CollabDocKeyWithWorkspaceIdMigration", skip_all, err)]
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     collab_db: &Weak<CollabKVDB>,
     _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
@@ -48,9 +49,9 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     let collab_db = collab_db
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
-    trace!("migrate key with workspace id:{}", user.workspace_id);
+    trace!("migrate key with workspace id:{}", workspace_id);
     collab_db.with_write_txn(|txn| {
-      migrate_old_keys(txn, &user.workspace_id)?;
+      migrate_old_keys(txn, &workspace_id)?;
       Ok(())
     })?;
     Ok(())
