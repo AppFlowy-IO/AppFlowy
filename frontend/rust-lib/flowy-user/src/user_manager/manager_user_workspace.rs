@@ -291,14 +291,15 @@ impl UserManager {
   #[instrument(level = "info", skip(self), err)]
   pub async fn delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     info!("delete workspace: {}", workspace_id);
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    delete_user_workspace(conn, workspace_id.to_string().as_str())?;
+
     self
       .cloud_service()?
       .get_user_service()?
       .delete_workspace(workspace_id)
       .await?;
-    let uid = self.user_id()?;
-    let conn = self.db_connection(uid)?;
-    delete_user_workspace(conn, workspace_id.to_string().as_str())?;
 
     self
       .user_workspace_service

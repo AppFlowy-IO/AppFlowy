@@ -425,10 +425,10 @@ impl UserManager {
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
     let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
-    self.prepare_user(&new_session).await;
     self
       .save_auth_data(&response, *auth_type, &new_session)
       .await?;
+    self.prepare_user(&new_session).await;
     let _ = self
       .initial_user_awareness(
         new_session.user_id,

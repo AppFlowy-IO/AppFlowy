@@ -334,7 +334,7 @@ pub async fn oauth_sign_in_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let authenticator: AuthType = params.authenticator.into();
+  let authenticator: AuthType = params.auth_type.into();
   let user_profile = manager
     .sign_up(authenticator, BoxAny::new(params.map))
     .await?;

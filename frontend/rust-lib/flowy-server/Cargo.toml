@@ -46,6 +46,7 @@ semver = "1.0.23"
 flowy-sqlite = { workspace = true }
 flowy-ai = { workspace = true }
 chrono.workspace = true
+workspace-template.workspace = true
 
 [dependencies.client-api]
 workspace = true
@@ -59,9 +60,6 @@ features = [
 
 [dev-dependencies]
 uuid.workspace = true
-tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
-dotenv = "0.15.0"
-assert-json-diff = "2.0.2"
 serde_json.workspace = true
 
 [features]

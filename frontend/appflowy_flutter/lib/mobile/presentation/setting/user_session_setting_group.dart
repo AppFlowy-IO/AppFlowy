@@ -42,7 +42,7 @@ class UserSessionSettingGroup extends StatelessWidget {
 
         // delete account button
         // only show the delete account button in cloud mode
-        if (userProfile.workspaceAuthType == AuthTypePB.Server) ...[
+        if (userProfile.userAuthType == AuthTypePB.Server) ...[
           VSpace(theme.spacing.l),
           AFOutlinedTextButton.destructive(
             alignment: Alignment.center,
