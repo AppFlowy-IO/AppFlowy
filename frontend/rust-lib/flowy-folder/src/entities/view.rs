@@ -401,14 +401,10 @@ pub struct ViewIdPB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
-}
-
-impl std::convert::From<&str> for ViewIdPB {
-  fn from(value: &str) -> Self {
-    ViewIdPB {
-      value: value.to_string(),
-    }
-  }
+  //
+  // #[pb(index = 2)]
+  // #[validate(custom(function = "required_not_empty_str"))]
+  // pub workspace_id: String,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
