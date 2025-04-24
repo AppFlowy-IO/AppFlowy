@@ -49,7 +49,7 @@ class FlowyDialog extends StatelessWidget {
       backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
       title: title,
       shape: shape ??
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       children: [
         Material(

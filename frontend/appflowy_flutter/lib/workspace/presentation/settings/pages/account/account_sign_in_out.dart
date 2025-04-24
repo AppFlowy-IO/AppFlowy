@@ -168,6 +168,7 @@ class ChangePasswordSection extends StatelessWidget {
   }
 
   Future<void> _showSetPasswordDialog(BuildContext context) async {
+    final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
       builder: (_) => MultiBlocProvider(
@@ -180,6 +181,9 @@ class ChangePasswordSection extends StatelessWidget {
           ),
         ],
         child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+          ),
           child: SetupPasswordDialogContent(
             userProfile: userProfile,
           ),

@@ -228,6 +228,15 @@ class _ChangePasswordDialogContentState
     final newPassword = newPasswordController.text;
     final confirmPassword = confirmPasswordController.text;
 
+    if (currentPassword.isEmpty) {
+      currentPasswordTextFieldKey.currentState?.syncError(
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_currentPasswordIsRequired
+            .tr(),
+      );
+      return;
+    }
+
     if (newPassword.isEmpty) {
       newPasswordTextFieldKey.currentState?.syncError(
         errorText: LocaleKeys
@@ -325,6 +334,10 @@ class _ChangePasswordDialogContentState
         description: description,
         type: hasError ? ToastificationType.error : ToastificationType.success,
       );
+
+      if (!hasError) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }
