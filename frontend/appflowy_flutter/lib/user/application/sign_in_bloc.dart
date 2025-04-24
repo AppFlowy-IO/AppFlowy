@@ -141,6 +141,14 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     required String email,
     required String password,
   }) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
+      ),
+    );
     final result = await authService.signInWithEmailPassword(
       email: email,
       password: password,

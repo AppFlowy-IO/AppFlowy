@@ -32,6 +32,8 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   final passwordController = TextEditingController();
   final inputPasswordKey = GlobalKey<AFTextFieldState>();
 
+  bool isSubmitting = false;
+
   @override
   void dispose() {
     passwordController.dispose();
@@ -59,6 +61,12 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
                 );
               } else {
                 inputPasswordKey.currentState?.clearError();
+              }
+
+              if (isSubmitting != state.isSubmitting) {
+                setState(() {
+                  isSubmitting = state.isSubmitting;
+                });
               }
             },
             child: Column(
@@ -123,6 +131,16 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   List<Widget> _buildPasswordSection() {
     final theme = AppFlowyTheme.of(context);
     final iconSize = 20.0;
+    final textStyle = AFButtonSize.l.buildTextStyle(context);
+    final textHeight = textStyle.height;
+    final textFontSize = textStyle.fontSize;
+
+    // the indicator height is the height of the text style.
+    double indicatorHeight = 20;
+    if (textHeight != null && textFontSize != null) {
+      indicatorHeight = textHeight * textFontSize;
+    }
+
     return [
       // Password input
       AFTextField(
@@ -144,36 +162,65 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
         onSubmitted: widget.onEnterPassword,
       ),
       // todo: ask designer to provide the spacing
-      VSpace(8),
+      // VSpace(8),
 
       // Forgot password button
-      Align(
-        alignment: Alignment.centerLeft,
-        child: AFGhostTextButton(
-          text: LocaleKeys.signIn_forgotPassword.tr(),
-          size: AFButtonSize.s,
-          padding: EdgeInsets.zero,
-          onTap: widget.onForgotPassword,
-          textColor: (context, isHovering, disabled) {
-            final theme = AppFlowyTheme.of(context);
-            if (isHovering) {
-              return theme.fillColorScheme.themeThickHover;
-            }
-            return theme.textColorScheme.theme;
-          },
-        ),
-      ),
+      // Align(
+      //   alignment: Alignment.centerLeft,
+      //   child: AFGhostTextButton(
+      //     text: LocaleKeys.signIn_forgotPassword.tr(),
+      //     size: AFButtonSize.s,
+      //     padding: EdgeInsets.zero,
+      //     onTap: widget.onForgotPassword,
+      //     textColor: (context, isHovering, disabled) {
+      //       final theme = AppFlowyTheme.of(context);
+      //       if (isHovering) {
+      //         return theme.fillColorScheme.themeThickHover;
+      //       }
+      //       return theme.textColorScheme.theme;
+      //     },
+      //   ),
+      // ),
       VSpace(20),
 
       // Continue button
-      AFFilledTextButton.primary(
-        text: LocaleKeys.web_continue.tr(),
-        onTap: () => widget.onEnterPassword(passwordController.text),
-        size: AFButtonSize.l,
-        alignment: Alignment.center,
-      ),
+      isSubmitting
+          ? _buildIndicator(indicatorHeight: indicatorHeight)
+          : _buildContinueButton(textStyle: textStyle),
       VSpace(20),
     ];
+  }
+
+  Widget _buildContinueButton({
+    required TextStyle textStyle,
+  }) {
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.web_continue.tr(),
+      textStyle: textStyle.copyWith(
+        color: AppFlowyTheme.of(context).textColorScheme.onFill,
+      ),
+      onTap: () => widget.onEnterPassword(passwordController.text),
+      size: AFButtonSize.l,
+      alignment: Alignment.center,
+    );
+  }
+
+  Widget _buildIndicator({
+    required double indicatorHeight,
+  }) {
+    return AFFilledButton.disabled(
+      size: AFButtonSize.l,
+      builder: (context, isHovering, disabled) {
+        return Align(
+          child: SizedBox.square(
+            dimension: indicatorHeight,
+            child: CircularProgressIndicator(
+              strokeWidth: 3.0,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   List<Widget> _buildBackToLogin() {
