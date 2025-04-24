@@ -106,9 +106,8 @@ class _InnerNotificationItem extends StatelessWidget {
         const HSpace(4.0),
         NotificationIcon(reminder: reminder),
         const HSpace(12.0),
-        Expanded(
-          child: NotificationContent(reminder: reminder),
-        ),
+        Expanded(child: NotificationContent(reminder: reminder)),
+        const HSpace(6.0),
       ],
     );
   }

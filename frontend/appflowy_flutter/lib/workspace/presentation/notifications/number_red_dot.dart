@@ -23,13 +23,11 @@ class NumberedRedDot extends StatelessWidget {
         final overNumber = unreadReminder > 99;
         final fontSize = max(size - 6, size / 3);
         double? width = size;
-        double horizontalPadding = size / 4;
-        if (unreadReminder < 10) {
-          horizontalPadding = 0;
-        } else if (unreadReminder >= 10 && unreadReminder < 100) {
+        final horizontalPadding = size / 4;
+        if (unreadReminder >= 10 && unreadReminder < 100) {
           width = size + horizontalPadding;
         } else if (unreadReminder >= 100) {
-          width = null;
+          width = size + horizontalPadding * 3;
         }
         return Container(
           height: size,
@@ -38,7 +36,6 @@ class NumberedRedDot extends StatelessWidget {
             color: Colors.red,
             borderRadius: BorderRadius.all(Radius.circular(size / 2)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Center(
             child: Text(
               overNumber ? '99+' : '$unreadReminder',
