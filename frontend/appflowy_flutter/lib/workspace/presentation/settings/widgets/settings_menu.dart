@@ -105,7 +105,6 @@ class SettingsMenu extends StatelessWidget {
                     label: LocaleKeys.settings_aiPage_menuLabel.tr(),
                     icon: const FlowySvg(
                       FlowySvgs.settings_page_ai_m,
-                      size: Size.square(24),
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
@@ -140,7 +139,10 @@ class SettingsMenu extends StatelessWidget {
                       page: SettingsPage.featureFlags,
                       selectedPage: currentPage,
                       label: 'Feature Flags',
-                      icon: const Icon(Icons.flag),
+                      icon: const Icon(
+                        Icons.flag,
+                        size: 20,
+                      ),
                       changeSelectedPage: changeSelectedPage,
                     ),
                 ],
