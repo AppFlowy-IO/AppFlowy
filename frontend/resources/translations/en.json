@@ -1354,7 +1354,7 @@
         "inviteMemberByEmail": "Invite member by email",
         "inviteMemberHintText": "Invite by email",
         "resetInviteLink": "Reset the invite link?",
-        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The previous link can only be managed through the",
+        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer be available.",
         "adminPanel": "Admin Panel",
         "reset": "Reset",
         "resetInviteLinkSuccess": "Invite link reset successfully",

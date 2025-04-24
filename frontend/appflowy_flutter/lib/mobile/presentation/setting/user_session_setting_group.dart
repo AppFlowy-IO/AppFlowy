@@ -9,6 +9,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widget
 import 'package:appflowy/workspace/presentation/settings/pages/account/account_deletion.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class UserSessionSettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       children: [
         // third party sign in buttons
@@ -41,11 +43,15 @@ class UserSessionSettingGroup extends StatelessWidget {
         // delete account button
         // only show the delete account button in cloud mode
         if (userProfile.workspaceAuthType == AuthTypePB.Server) ...[
-          const VSpace(16.0),
-          MobileLogoutButton(
+          VSpace(theme.spacing.l),
+          AFOutlinedTextButton.destructive(
+            alignment: Alignment.center,
             text: LocaleKeys.button_deleteAccount.tr(),
-            textColor: Theme.of(context).colorScheme.error,
-            onPressed: () => _showDeleteAccountDialog(context),
+            textStyle: theme.textStyle.body.standard(
+              color: theme.textColorScheme.error,
+            ),
+            onTap: () => _showDeleteAccountDialog(context),
+            size: AFButtonSize.l,
           ),
         ],
       ],

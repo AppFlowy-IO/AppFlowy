@@ -1,3 +1,4 @@
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -26,17 +27,18 @@ class MobileSettingItem extends StatelessWidget {
     return Padding(
       padding: padding,
       child: ListTile(
-        title: title ?? _buildDefaultTitle(name),
+        title: title ?? _buildDefaultTitle(context, name),
         subtitle: subtitle,
         trailing: trailing,
         onTap: onTap,
         visualDensity: VisualDensity.compact,
-        contentPadding: const EdgeInsets.only(left: 8.0),
+        contentPadding: EdgeInsets.zero,
       ),
     );
   }
 
-  Widget _buildDefaultTitle(String? name) {
+  Widget _buildDefaultTitle(BuildContext context, String? name) {
+    final theme = AppFlowyTheme.of(context);
     return Row(
       children: [
         if (leadingIcon != null) ...[
@@ -44,9 +46,11 @@ class MobileSettingItem extends StatelessWidget {
           const HSpace(8),
         ],
         Expanded(
-          child: FlowyText.medium(
+          child: Text(
             name ?? '',
-            fontSize: 14.0,
+            style: theme.textStyle.heading4.standard(
+              color: theme.textColorScheme.primary,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),

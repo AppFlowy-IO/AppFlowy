@@ -25,7 +25,7 @@ class AFDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final color = this.color ?? theme.borderColorScheme.greyTertiary;
+    final color = this.color ?? theme.borderColorScheme.primary;
 
     return switch (axis) {
       Axis.horizontal => Container(

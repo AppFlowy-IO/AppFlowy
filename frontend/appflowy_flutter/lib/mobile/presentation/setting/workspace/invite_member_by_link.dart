@@ -1,13 +1,8 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
-import 'package:appflowy/mobile/presentation/setting/workspace/add_members_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/m_invite_member_by_link.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -19,7 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:string_validator/string_validator.dart';
 
 import 'member_list.dart';
 
@@ -37,24 +32,9 @@ class InviteMembersScreen extends StatelessWidget {
     return Scaffold(
       appBar: FlowyAppBar(
         titleText: LocaleKeys.settings_appearance_members_label.tr(),
-        actions: [
-          _buildAddMemberButton(context),
-        ],
       ),
       body: const _InviteMemberPage(),
       resizeToAvoidBottomInset: false,
-    );
-  }
-
-  Widget _buildAddMemberButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 20),
-      child: GestureDetector(
-        onTap: () {
-          context.push(AddMembersScreen.routeName);
-        },
-        child: FlowySvg(FlowySvgs.add_thin_s),
-      ),
     );
   }
 }
@@ -109,27 +89,30 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             builder: (context, state) {
               return Column(
                 children: [
-                  if (state.myRole.isOwner) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(theme.spacing.xl),
-                      child: const MInviteMemberByLink(),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (state.myRole.isOwner) ...[
+                          Padding(
+                            padding: EdgeInsets.all(theme.spacing.xl),
+                            child: _buildInviteMemberArea(context),
+                          ),
+                          const VSpace(16),
+                        ],
+                        if (state.members.isNotEmpty) ...[
+                          const AFDivider(),
+                          VSpace(theme.spacing.xl),
+                          MobileMemberList(
+                            members: state.members,
+                            userProfile: userProfile,
+                            myRole: state.myRole,
+                          ),
+                        ],
+                      ],
                     ),
-                    VSpace(theme.spacing.m),
-                  ],
-                  if (state.members.isNotEmpty) ...[
-                    const AFDivider(),
-                    VSpace(theme.spacing.xl),
-                    MobileMemberList(
-                      members: state.members,
-                      userProfile: userProfile,
-                      myRole: state.myRole,
-                    ),
-                  ],
-                  if (state.myRole.isMember) ...[
-                    Spacer(),
-                    const _LeaveWorkspaceButton(),
-                  ],
+                  ),
+                  if (state.myRole.isMember) const _LeaveWorkspaceButton(),
                   const VSpace(48),
                 ],
               );
@@ -137,6 +120,41 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildInviteMemberArea(BuildContext context) {
+    return Column(
+      children: [
+        TextFormField(
+          autofocus: true,
+          controller: emailController,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+            hintText: LocaleKeys.settings_appearance_members_inviteHint.tr(),
+          ),
+        ),
+        const VSpace(16),
+        if (exceededLimit) ...[
+          FlowyText.regular(
+            LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
+                .tr(),
+            fontSize: 14.0,
+            maxLines: 3,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const VSpace(16),
+        ],
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => _inviteMember(context),
+            child: Text(
+              LocaleKeys.settings_appearance_members_sendInvite.tr(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -255,28 +273,23 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           );
         },
       );
-    } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
-      result.fold(
-        (s) {
-          showToastNotification(
-            message: 'Invite link generated successfully',
-          );
-
-          // copy the invite link to the clipboard
-          final inviteLink = state.inviteLink;
-          if (inviteLink != null) {
-            getIt<ClipboardService>().setPlainText(inviteLink);
-          }
-        },
-        (f) {
-          Log.error('generate invite link failed: $f');
-          showToastNotification(
-            type: ToastificationType.error,
-            message: 'Failed to generate invite link',
-          );
-        },
-      );
     }
+  }
+
+  void _inviteMember(BuildContext context) {
+    final email = emailController.text;
+    if (!isEmail(email)) {
+      showToastNotification(
+        type: ToastificationType.error,
+        message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
+      );
+      return;
+    }
+    context
+        .read<WorkspaceMemberBloc>()
+        .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
+    // clear the email field after inviting
+    emailController.clear();
   }
 }
 
@@ -285,13 +298,28 @@ class _LeaveWorkspaceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: AFOutlinedTextButton.destructive(
-        alignment: Alignment.center,
-        text: LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
-        onTap: () => _leaveWorkspace(context),
-        size: AFButtonSize.l,
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Theme.of(context).colorScheme.error,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: 0.5,
+            ),
+          ),
+        ),
+        onPressed: () => _leaveWorkspace(context),
+        child: FlowyText(
+          LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
+          fontSize: 14.0,
+          color: Theme.of(context).colorScheme.error,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
