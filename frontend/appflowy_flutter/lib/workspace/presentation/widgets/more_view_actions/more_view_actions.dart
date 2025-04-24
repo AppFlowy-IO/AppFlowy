@@ -96,7 +96,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           return BlocBuilder<SpaceBloc, SpaceState>(
             builder: (context, state) {
               if (state.spaces.isEmpty &&
-                  userProfile.workspaceAuthType == AuthTypePB.Server) {
+                  userProfile.workspaceType == WorkspaceTypePB.ServerW) {
                 return const SizedBox.shrink();
               }
 

@@ -279,7 +279,9 @@ pub async fn create_view(
 }
 
 pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
-  let view_id = ViewIdPB::from(view_id);
+  let view_id = ViewIdPB {
+    value: view_id.to_string(),
+  };
   EventBuilder::new(sdk.clone())
     .event(GetView)
     .payload(view_id)

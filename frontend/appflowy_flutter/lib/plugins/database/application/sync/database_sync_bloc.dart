@@ -31,7 +31,7 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.workspaceAuthType == AuthTypePB.Server &&
+                    userProfile?.workspaceType == WorkspaceTypePB.ServerW &&
                         databaseId != null,
               ),
             );

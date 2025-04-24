@@ -7,7 +7,9 @@ use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{AuthType, Role, WorkspaceInvitation, WorkspaceMember};
+use flowy_user_pub::entities::{
+  AuthType, Role, WorkspaceInvitation, WorkspaceMember, WorkspaceType,
+};
 use flowy_user_pub::sql::WorkspaceSettingsTable;
 use lib_infra::validator_fn::required_not_empty_str;
 
@@ -204,7 +206,7 @@ pub struct OpenUserWorkspacePB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub workspace_auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -243,7 +245,43 @@ pub struct CreateWorkspacePB {
   pub name: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
+}
+
+#[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
+#[repr(u8)]
+pub enum WorkspaceTypePB {
+  #[default]
+  LocalW = 0,
+  ServerW = 1,
+}
+
+impl From<i32> for WorkspaceTypePB {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => WorkspaceTypePB::LocalW,
+      1 => WorkspaceTypePB::ServerW,
+      _ => WorkspaceTypePB::ServerW,
+    }
+  }
+}
+
+impl From<WorkspaceType> for WorkspaceTypePB {
+  fn from(value: WorkspaceType) -> Self {
+    match value {
+      WorkspaceType::Local => WorkspaceTypePB::LocalW,
+      WorkspaceType::Server => WorkspaceTypePB::ServerW,
+    }
+  }
+}
+
+impl From<WorkspaceTypePB> for WorkspaceType {
+  fn from(value: WorkspaceTypePB) -> Self {
+    match value {
+      WorkspaceTypePB::LocalW => WorkspaceType::Local,
+      WorkspaceTypePB::ServerW => WorkspaceType::Server,
+    }
+  }
 }
 
 #[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
