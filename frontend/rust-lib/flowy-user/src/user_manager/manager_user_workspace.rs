@@ -9,15 +9,13 @@ use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
   UpdateUserWorkspaceSettingPB, UserWorkspacePB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB,
 };
-use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::billing_check::PeriodicallyCheckBillingState;
 use crate::services::data_import::{
-  generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
+  generate_import_data, upload_collab_objects_data, ImportedFolder,
 };
 
 use crate::user_manager::UserManager;
-use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::ConnectionPool;
@@ -135,23 +133,6 @@ impl UserManager {
         );
       },
     }
-    Ok(())
-  }
-
-  pub async fn migration_anon_user_on_appflowy_cloud_sign_up(
-    &self,
-    old_user: &AnonUser,
-    old_collab_db: &Arc<CollabKVDB>,
-  ) -> FlowyResult<()> {
-    let import_context = ImportedFolder {
-      imported_session: old_user.session.as_ref().clone(),
-      imported_collab_db: old_collab_db.clone(),
-      container_name: None,
-      parent_view_id: None,
-      source: ImportedSource::AnonUser,
-      workspace_database_id: "".to_string(),
-    };
-    self.perform_import(import_context).await?;
     Ok(())
   }
 
