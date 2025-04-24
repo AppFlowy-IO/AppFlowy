@@ -850,7 +850,8 @@ fn mark_all_migrations_as_applied(sqlite_pool: &Arc<ConnectionPool>) {
 }
 
 pub(crate) fn run_data_migration(
-  session: &Session,
+  uid: i64,
+  workspace_id: String,
   user_auth_type: &AuthType,
   collab_db: Weak<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
@@ -858,7 +859,7 @@ pub(crate) fn run_data_migration(
   app_version: &Version,
 ) {
   let migrations = collab_migration_list();
-  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv).run(
+  match UserLocalDataMigration::new(uid, workspace_id, collab_db, sqlite_pool, kv).run(
     migrations,
     user_auth_type,
     app_version,

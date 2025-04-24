@@ -37,7 +37,8 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   #[instrument(name = "WorkspaceTrashMapToSectionMigration", skip_all, err)]
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     collab_db: &Weak<CollabKVDB>,
     _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
@@ -47,14 +48,9 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
-      if let Ok(collab) = load_collab(
-        user.user_id,
-        write_txn,
-        &user.workspace_id,
-        &user.workspace_id,
-      ) {
-        let mut folder = Folder::open(user.user_id, collab, None)
-          .map_err(|err| PersistenceError::Internal(err.into()))?;
+      if let Ok(collab) = load_collab(uid, write_txn, workspace_id, workspace_id) {
+        let mut folder =
+          Folder::open(uid, collab, None).map_err(|err| PersistenceError::Internal(err.into()))?;
         let trash_ids = folder
           .get_trash_v1()
           .into_iter()
@@ -69,9 +65,9 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
           .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc(
-          user.user_id,
-          &user.workspace_id,
-          &user.workspace_id,
+          uid,
+          workspace_id,
+          workspace_id,
           encode.state_vector.to_vec(),
           encode.doc_state.to_vec(),
         )?;

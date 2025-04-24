@@ -17,7 +17,8 @@ use tracing::info;
 pub const FIRST_TIME_INSTALL_VERSION: &str = "first_install_version";
 
 pub struct UserLocalDataMigration {
-  session: Session,
+  uid: i64,
+  workspace_id: String,
   collab_db: Weak<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
   kv: Arc<KVStorePreferences>,
@@ -25,13 +26,15 @@ pub struct UserLocalDataMigration {
 
 impl UserLocalDataMigration {
   pub fn new(
-    session: Session,
+    uid: i64,
+    workspace_id: String,
     collab_db: Weak<CollabKVDB>,
     sqlite_pool: Arc<ConnectionPool>,
     kv: Arc<KVStorePreferences>,
   ) -> Self {
     Self {
-      session,
+      uid,
+      workspace_id,
       collab_db,
       sqlite_pool,
       kv,
@@ -76,7 +79,8 @@ impl UserLocalDataMigration {
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
           migration.run(
-            &self.session,
+            self.uid,
+            &self.workspace_id,
             &self.collab_db,
             user_auth_type,
             &mut conn,
@@ -102,7 +106,8 @@ pub trait UserDataMigration {
   fn run_when(&self, first_installed_version: &Option<Version>, current_version: &Version) -> bool;
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     collab_db: &Weak<CollabKVDB>,
     user_auth_type: &AuthType,
     db: &mut SqliteConnection,

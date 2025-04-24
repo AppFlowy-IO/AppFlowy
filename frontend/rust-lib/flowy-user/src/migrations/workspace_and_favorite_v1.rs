@@ -39,7 +39,8 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
   #[instrument(name = "FavoriteV1AndWorkspaceArrayMigration", skip_all, err)]
   fn run(
     &self,
-    user: &Session,
+    uid: i64,
+    workspace_id: &str,
     collab_db: &Weak<CollabKVDB>,
     _user_auth_type: &AuthType,
     _db: &mut SqliteConnection,
@@ -49,14 +50,9 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade DB object"))?;
     collab_db.with_write_txn(|write_txn| {
-      if let Ok(collab) = load_collab(
-        user.user_id,
-        write_txn,
-        &user.workspace_id,
-        &user.workspace_id,
-      ) {
-        let mut folder = Folder::open(user.user_id, collab, None)
-          .map_err(|err| PersistenceError::Internal(err.into()))?;
+      if let Ok(collab) = load_collab(uid, write_txn, workspace_id, workspace_id) {
+        let mut folder =
+          Folder::open(uid, collab, None).map_err(|err| PersistenceError::Internal(err.into()))?;
         folder
           .body
           .migrate_workspace_to_view(&mut folder.collab.transact_mut());
@@ -75,9 +71,9 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
           .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc(
-          user.user_id,
-          &user.workspace_id,
-          &user.workspace_id,
+          uid,
+          workspace_id,
+          workspace_id,
           encode.state_vector.to_vec(),
           encode.doc_state.to_vec(),
         )?;

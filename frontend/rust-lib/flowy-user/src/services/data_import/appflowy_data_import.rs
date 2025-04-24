@@ -34,13 +34,18 @@ use flowy_user_pub::session::Session;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
+use crate::entities::{ImportUserDataPB, UserDataPreviewPB, WorkspaceDataPreviewPB};
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
-use flowy_user_pub::sql::{select_user_auth_type, select_user_profile, select_user_workspace};
+use flowy_sqlite::Database;
+use flowy_user_pub::sql::{
+  select_all_user_workspace, select_user_auth_type, select_user_id, select_user_name,
+  select_user_profile, select_user_workspace,
+};
 use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Weak};
 use tracing::{error, event, info, instrument, warn};
 use uuid::Uuid;
@@ -123,7 +128,8 @@ pub(crate) fn prepare_import(
   .or_else(|_| select_user_auth_type(imported_session.user_id, &mut conn))?;
 
   run_data_migration(
-    &imported_session,
+    imported_session.user_id,
+    imported_session.workspace_id.clone(),
     &imported_user_auth_type,
     Arc::downgrade(&imported_collab_db),
     imported_sqlite_db.get_pool(),
@@ -139,18 +145,6 @@ pub(crate) fn prepare_import(
     source: ImportedSource::ExternalFolder,
     workspace_database_id,
   })
-}
-
-#[allow(dead_code)]
-fn migrate_user_awareness(
-  old_to_new_id_map: &mut OldToNewIdMap,
-  old_user_session: &Session,
-  new_user_session: &Session,
-) -> Result<(), PersistenceError> {
-  let old_uid = old_user_session.user_id;
-  let new_uid = new_user_session.user_id;
-  old_to_new_id_map.insert(old_uid.to_string(), new_uid.to_string());
-  Ok(())
 }
 
 /// This path refers to the directory where AppFlowy stores its data. The directory structure is as follows:
