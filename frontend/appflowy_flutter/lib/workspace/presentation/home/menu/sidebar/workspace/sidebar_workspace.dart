@@ -197,15 +197,15 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   void _openWorkspaceFromInvitation() {
     final value = openWorkspaceNotifier.value;
     final workspaceId = value?.workspaceId;
-    final userId = value?.userId;
+    final email = value?.email;
 
     if (workspaceId == null) {
       Log.info('No workspace id to open');
       return;
     }
 
-    if (userId == null) {
-      Log.info('Open workspace from invitation with no user id');
+    if (email == null) {
+      Log.info('Open workspace from invitation with no email');
       return;
     }
 
@@ -216,9 +216,9 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
       return;
     }
 
-    if (userId != widget.userProfile.id.toString()) {
+    if (email != widget.userProfile.email) {
       Log.info(
-        'Current user id: ${widget.userProfile.id} is not the same as the user id in the invitation: $userId',
+        'Current user email: ${widget.userProfile.email} is not the same as the email in the invitation: $email',
       );
       return;
     }
@@ -230,9 +230,11 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     if (openWorkspace == null) {
       Log.error('Workspace not found, try to fetch workspaces');
 
-      context
-          .read<UserWorkspaceBloc>()
-          .add(const UserWorkspaceEvent.fetchWorkspaces());
+      context.read<UserWorkspaceBloc>().add(
+            UserWorkspaceEvent.fetchWorkspaces(
+              initialWorkspaceId: workspaceId,
+            ),
+          );
 
       Future.delayed(
         Duration(milliseconds: 250 + retryCount * 250),

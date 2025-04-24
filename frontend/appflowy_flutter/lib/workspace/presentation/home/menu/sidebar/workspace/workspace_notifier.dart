@@ -5,8 +5,11 @@ ValueNotifier<WorkspaceNotifyValue?> openWorkspaceNotifier =
     ValueNotifier(null);
 
 class WorkspaceNotifyValue {
-  WorkspaceNotifyValue({this.workspaceId, this.userId});
+  WorkspaceNotifyValue({
+    this.workspaceId,
+    this.email,
+  });
 
   final String? workspaceId;
-  final String? userId;
+  final String? email;
 }

@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/workspace_notifier.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -21,6 +20,7 @@ part 'user_workspace_bloc.freezed.dart';
 class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
     required this.userProfile,
+    this.initialWorkspaceId,
   })  : _userService = UserBackendService(userId: userProfile.id),
         _listener = UserListener(userProfile: userProfile),
         super(UserWorkspaceState.initial()) {
@@ -41,7 +41,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               },
             );
 
-            final result = await _fetchWorkspaces();
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
@@ -68,8 +70,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          fetchWorkspaces: () async {
-            final result = await _fetchWorkspaces();
+          fetchWorkspaces: (initialWorkspaceId) async {
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
 
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
@@ -433,20 +437,18 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
+  final String? initialWorkspaceId;
 
   Future<
       (
         UserWorkspacePB? currentWorkspace,
         List<UserWorkspacePB> workspaces,
         bool shouldOpenWorkspace,
-      )> _fetchWorkspaces() async {
+      )> _fetchWorkspaces({String? initialWorkspaceId}) async {
     try {
       final currentWorkspace =
           await UserBackendService.getCurrentWorkspace().getOrThrow();
-      final currentWorkspaceId =
-          openWorkspaceNotifier.value?.workspaceId ?? currentWorkspace.id;
-      // clear the open workspace notifier value
-      openWorkspaceNotifier.value = null;
+      final currentWorkspaceId = initialWorkspaceId ?? currentWorkspace.id;
       final workspaces = await _userService.getWorkspaces().getOrThrow();
       if (workspaces.isEmpty) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
@@ -479,7 +481,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({String? initialWorkspaceId}) =
+      FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
     AuthTypePB authType,

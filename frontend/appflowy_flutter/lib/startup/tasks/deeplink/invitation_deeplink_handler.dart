@@ -10,7 +10,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 class InvitationDeepLinkHandler extends DeepLinkHandler<void> {
   static const invitationCallbackHost = 'invitation-callback';
   static const invitationCallbackWorkspaceId = 'workspace_id';
-  static const invitationCallbackUserId = 'user_id';
+  static const invitationCallbackEmail = 'email';
 
   @override
   bool canHandle(Uri uri) {
@@ -25,9 +25,9 @@ class InvitationDeepLinkHandler extends DeepLinkHandler<void> {
       return false;
     }
 
-    final containsUserId =
-        uri.queryParameters.containsKey(invitationCallbackUserId);
-    if (!containsUserId) {
+    final containsEmail =
+        uri.queryParameters.containsKey(invitationCallbackEmail);
+    if (!containsEmail) {
       return false;
     }
 
@@ -40,7 +40,7 @@ class InvitationDeepLinkHandler extends DeepLinkHandler<void> {
     required DeepLinkStateHandler onStateChange,
   }) async {
     final workspaceId = uri.queryParameters[invitationCallbackWorkspaceId];
-    final userId = uri.queryParameters[invitationCallbackUserId];
+    final email = uri.queryParameters[invitationCallbackEmail];
     if (workspaceId == null) {
       return FlowyResult.failure(
         FlowyError(
@@ -49,17 +49,17 @@ class InvitationDeepLinkHandler extends DeepLinkHandler<void> {
       );
     }
 
-    if (userId == null) {
+    if (email == null) {
       return FlowyResult.failure(
         FlowyError(
-          msg: 'User ID is required',
+          msg: 'Email is required',
         ),
       );
     }
 
     openWorkspaceNotifier.value = WorkspaceNotifyValue(
       workspaceId: workspaceId,
-      userId: userId,
+      email: email,
     );
 
     return FlowyResult.success(null);
