@@ -1,6 +1,7 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/ai_writer_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_entities.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 
@@ -26,11 +27,11 @@ extension AppFlowyAITest on WidgetTester {
     // Find the ExtendedTextField widget
     final textField = find.descendant(
       of: find.byType(PromptInputTextField),
-      matching: find.byType(ExtendedTextField),
+      matching: find.byType(TextField),
     );
     expect(textField, findsOneWidget, reason: 'ExtendedTextField not found');
 
-    final widget = element(textField).widget as ExtendedTextField;
+    final widget = element(textField).widget as TextField;
     expect(widget.enabled, isTrue, reason: 'TextField is not enabled');
 
     await tap(textField);
