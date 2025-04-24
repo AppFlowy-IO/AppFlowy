@@ -14,6 +14,7 @@ class AFGhostTextButton extends AFBaseTextButton {
     super.borderRadius,
     super.disabled = false,
     super.alignment,
+    super.textStyle,
   });
 
   /// Normal ghost text button.
@@ -26,6 +27,7 @@ class AFGhostTextButton extends AFBaseTextButton {
     double? borderRadius,
     bool disabled = false,
     Alignment? alignment,
+    TextStyle? textStyle,
   }) {
     return AFGhostTextButton(
       key: key,
@@ -36,6 +38,7 @@ class AFGhostTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: disabled,
       alignment: alignment,
+      textStyle: textStyle,
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (isHovering) {
@@ -64,6 +67,7 @@ class AFGhostTextButton extends AFBaseTextButton {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     Alignment? alignment,
+    TextStyle? textStyle,
   }) {
     return AFGhostTextButton(
       key: key,
@@ -74,6 +78,7 @@ class AFGhostTextButton extends AFBaseTextButton {
       borderRadius: borderRadius,
       disabled: true,
       alignment: alignment,
+      textStyle: textStyle,
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.tertiary,
       backgroundColor: (context, isHovering, disabled) =>
@@ -98,7 +103,8 @@ class AFGhostTextButton extends AFBaseTextButton {
 
         Widget child = Text(
           text,
-          style: size.buildTextStyle(context).copyWith(color: textColor),
+          style: textStyle ??
+              size.buildTextStyle(context).copyWith(color: textColor),
         );
 
         final alignment = this.alignment;

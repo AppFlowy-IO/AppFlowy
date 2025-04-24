@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/forgot_password_page.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -10,8 +9,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ContinueWithPasswordPage extends StatefulWidget {
-  const ContinueWithPasswordPage({
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({
     super.key,
     required this.backToLogin,
     required this.email,
@@ -25,11 +24,10 @@ class ContinueWithPasswordPage extends StatefulWidget {
   final VoidCallback onForgotPassword;
 
   @override
-  State<ContinueWithPasswordPage> createState() =>
-      _ContinueWithPasswordPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final passwordController = TextEditingController();
   final inputPasswordKey = GlobalKey<AFTextFieldState>();
 
@@ -172,19 +170,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           text: LocaleKeys.signIn_forgotPassword.tr(),
           size: AFButtonSize.s,
           padding: EdgeInsets.zero,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ForgotPasswordPage(
-                  email: widget.email,
-                  backToLogin: widget.backToLogin,
-                  onEnterPassword: widget.onEnterPassword,
-                  onForgotPassword: widget.onForgotPassword,
-                ),
-              ),
-            );
-          },
+          onTap: widget.onForgotPassword,
           textStyle: theme.textStyle.body.standard(
             color: theme.textColorScheme.action,
           ),
