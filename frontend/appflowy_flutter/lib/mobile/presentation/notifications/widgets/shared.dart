@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return SizedBox(
       width: 42,
       height: 36,
@@ -48,10 +50,13 @@ class NotificationIcon extends StatelessWidget {
                 color: Theme.of(context).cardColor,
               ),
               child: Center(
-                child: FlowyText(
+                child: Text(
                   '@',
-                  fontSize: 12,
-                  figmaLineHeight: 14,
+                  style: TextStyle(
+                    color: theme.textColorScheme.primary,
+                    fontSize: 12,
+                    height: 1,
+                  ),
                 ),
               ),
             ),
@@ -145,10 +150,7 @@ class _NotificationContentState extends State<NotificationContent> {
             // page name
             _buildPageName(context, state.isLocked, state.pageTitle),
             // content
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: _buildContent(view, nodes: state.nodes),
-            ),
+            _buildContent(view, nodes: state.nodes),
           ],
         );
       },
@@ -175,6 +177,8 @@ class _NotificationContentState extends State<NotificationContent> {
           fontSize: 14,
           figmaLineHeight: 22,
           color: context.notificationItemTextColor,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
       );
     }
@@ -233,11 +237,14 @@ class _NotificationContentState extends State<NotificationContent> {
                 padding: EdgeInsets.only(right: 5),
                 child: FlowySvg(FlowySvgs.notification_lock_s),
               ),
-            FlowyText.regular(
-              pageTitle,
-              fontSize: 12,
-              figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+            Flexible(
+              child: FlowyText.regular(
+                pageTitle,
+                fontSize: 12,
+                figmaLineHeight: 18,
+                color: context.notificationItemTextColor,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

@@ -133,7 +133,7 @@ class NotificationItemV2 extends StatelessWidget {
         height: 28,
         decoration: decoration,
         child: FlowyIconButton(
-          tooltipText: LocaleKeys.notificationHub_unarchievedTooltip.tr(),
+          tooltipText: LocaleKeys.notificationHub_unarchivedTooltip.tr(),
           icon: FlowySvg(FlowySvgs.notification_unarchive_s),
           onPressed: () {
             context.read<ReminderBloc>().add(
@@ -180,7 +180,7 @@ class NotificationItemV2 extends StatelessWidget {
               HSpace(6),
             ],
             FlowyIconButton(
-              tooltipText: LocaleKeys.notificationHub_archievedTooltip.tr(),
+              tooltipText: LocaleKeys.notificationHub_archivedTooltip.tr(),
               icon: FlowySvg(
                 FlowySvgs.notification_archive_s,
               ),
@@ -198,8 +198,7 @@ class NotificationItemV2 extends StatelessWidget {
                     );
 
                 showToastNotification(
-                  message: LocaleKeys
-                      .notificationHub_markAsArchievedSucceedToast
+                  message: LocaleKeys.notificationHub_markAsArchivedSucceedToast
                       .tr(),
                 );
               },

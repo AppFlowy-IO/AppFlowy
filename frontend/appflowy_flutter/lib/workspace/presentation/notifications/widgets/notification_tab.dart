@@ -45,10 +45,7 @@ class _NotificationTabState extends State<NotificationTab>
         final List<ReminderPB> olderReminders = [];
         for (final reminder in reminders) {
           final createAt = reminder.createdAt;
-          if (createAt == null) {
-            olderReminders.add(reminder);
-            continue;
-          }
+          if (createAt == null) continue;
           final dateTimeCreate = DateTime.fromMillisecondsSinceEpoch(createAt);
           if (dateTimeNow.difference(dateTimeCreate).inDays < 1) {
             todayReminders.add(reminder);

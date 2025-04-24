@@ -53,46 +53,51 @@ class _NotificationPanelState extends State<NotificationPanel>
   Widget build(BuildContext context) {
     final settingBloc = context.read<HomeSettingBloc>();
     return GestureDetector(
-      onTap: () => settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
+      onTap: () =>
+          settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
       child: Container(
         color: Colors.transparent,
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Container(
-            width: 380,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 24,
-                  offset: Offset(8, 0),
-                  spreadRadius: 8,
-                  color: Color(0x1F23290A),
-                ),
-              ],
-            ),
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildTitle(
-                  context: context,
-                  onHide: () =>
-                      settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
-                ),
-                const VSpace(12),
-                NotificationTabBar(
-                  tabController: tabController,
-                  tabs: tabs,
-                ),
-                const VSpace(14),
-                Expanded(
-                  child: TabBarView(
-                    controller: tabController,
-                    children: tabs.map((e) => NotificationTab(tabType: e)).toList(),
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: 380,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 24,
+                    offset: Offset(8, 0),
+                    spreadRadius: 8,
+                    color: Color(0x1F23290A),
                   ),
-                ),
-              ],
+                ],
+              ),
+              padding: EdgeInsets.symmetric(vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildTitle(
+                    context: context,
+                    onHide: () => settingBloc
+                        .add(HomeSettingEvent.collapseNotificationPanel()),
+                  ),
+                  const VSpace(12),
+                  NotificationTabBar(
+                    tabController: tabController,
+                    tabs: tabs,
+                  ),
+                  const VSpace(14),
+                  Expanded(
+                    child: TabBarView(
+                      controller: tabController,
+                      children:
+                          tabs.map((e) => NotificationTab(tabType: e)).toList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -196,7 +201,7 @@ class _NotificationPanelState extends State<NotificationPanel>
               onTap: () {
                 showToastNotification(
                   message: LocaleKeys
-                      .notificationHub_markAllAsArchievedSucceedToast
+                      .notificationHub_markAllAsArchivedSucceedToast
                       .tr(),
                 );
                 context

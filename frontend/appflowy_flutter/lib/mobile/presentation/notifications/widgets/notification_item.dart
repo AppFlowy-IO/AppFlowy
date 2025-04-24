@@ -49,7 +49,7 @@ class NotificationItem extends StatelessWidget {
           }
 
           final child = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(8),
             child: _SlidableNotificationItem(
               tabType: tabType,
               reminder: reminder,
@@ -102,7 +102,6 @@ class _InnerNotificationItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const HSpace(8.0),
         !reminder.isRead ? const UnreadRedDot() : const HSpace(6.0),
         const HSpace(4.0),
         NotificationIcon(reminder: reminder),
