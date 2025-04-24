@@ -89,7 +89,7 @@ class MobileSearchPage extends StatelessWidget {
   final WorkspaceLatestPB workspaceLatestPB;
 
   bool get enableShowAISearch =>
-      userProfile.workspaceAuthType == AuthTypePB.Server;
+      userProfile.workspaceType == WorkspaceTypePB.ServerW;
 
   @override
   Widget build(BuildContext context) {

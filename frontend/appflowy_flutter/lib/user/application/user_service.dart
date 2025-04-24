@@ -123,11 +123,11 @@ class UserBackendService implements IUserBackendService {
 
   Future<FlowyResult<void, FlowyError>> openWorkspace(
     String workspaceId,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) {
     final payload = OpenUserWorkspacePB()
       ..workspaceId = workspaceId
-      ..workspaceAuthType = authType;
+      ..workspaceType = workspaceType;
     return UserEventOpenWorkspace(payload).send();
   }
 
@@ -142,11 +142,11 @@ class UserBackendService implements IUserBackendService {
 
   Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
     String name,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) {
     final request = CreateWorkspacePB.create()
       ..name = name
-      ..authType = authType;
+      ..workspaceType = workspaceType;
     return UserEventCreateWorkspace(request).send();
   }
 

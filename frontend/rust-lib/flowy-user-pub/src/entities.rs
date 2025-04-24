@@ -115,11 +115,11 @@ pub struct UserWorkspace {
   #[serde(default)]
   pub role: Option<Role>,
   #[serde(default = "default_workspace_type")]
-  pub workspace_type: AuthType,
+  pub workspace_type: WorkspaceType,
 }
 
-fn default_workspace_type() -> AuthType {
-  AuthType::AppFlowyCloud
+fn default_workspace_type() -> WorkspaceType {
+  WorkspaceType::Server
 }
 
 impl UserWorkspace {
@@ -137,7 +137,7 @@ impl UserWorkspace {
       icon: "".to_string(),
       member_count: 1,
       role: Some(Role::Owner),
-      workspace_type: AuthType::Local,
+      workspace_type: WorkspaceType::Local,
     }
   }
 }
@@ -150,7 +150,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub auth_type: AuthType,
-  pub workspace_auth_type: AuthType,
+  pub workspace_type: WorkspaceType,
   pub updated_at: i64,
 }
 
@@ -208,6 +208,7 @@ where
           .unwrap_or_default()
       })
       .unwrap_or_default();
+    let workspace_type = WorkspaceType::from(auth_type);
     Self {
       uid: value.user_id(),
       email: value.user_email().unwrap_or_default(),
@@ -215,7 +216,7 @@ where
       token: value.user_token().unwrap_or_default(),
       icon_url,
       auth_type: *auth_type,
-      workspace_auth_type: *auth_type,
+      workspace_type,
       updated_at: value.updated_at(),
     }
   }
@@ -267,12 +268,59 @@ impl UpdateUserProfileParams {
 
 #[derive(Debug, Clone, Copy, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
 #[repr(u8)]
+pub enum WorkspaceType {
+  Local = 0,
+  Server = 1,
+}
+
+impl Default for WorkspaceType {
+  fn default() -> Self {
+    Self::Local
+  }
+}
+
+impl WorkspaceType {
+  pub fn is_local(&self) -> bool {
+    matches!(self, WorkspaceType::Local)
+  }
+}
+
+impl From<i32> for WorkspaceType {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => WorkspaceType::Local,
+      1 => WorkspaceType::Server,
+      _ => WorkspaceType::Server,
+    }
+  }
+}
+
+impl From<&AuthType> for WorkspaceType {
+  fn from(value: &AuthType) -> Self {
+    match value {
+      AuthType::Local => WorkspaceType::Local,
+      AuthType::AppFlowyCloud => WorkspaceType::Server,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Copy, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
+#[repr(u8)]
 pub enum AuthType {
   /// It's a local server, we do fake sign in default.
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
   AppFlowyCloud = 1,
+}
+
+impl From<WorkspaceType> for AuthType {
+  fn from(value: WorkspaceType) -> Self {
+    match value {
+      WorkspaceType::Local => AuthType::Local,
+      WorkspaceType::Server => AuthType::AppFlowyCloud,
+    }
+  }
 }
 
 impl Display for AuthType {

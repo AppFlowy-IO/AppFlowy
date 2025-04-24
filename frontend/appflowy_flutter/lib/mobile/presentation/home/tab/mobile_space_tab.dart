@@ -164,7 +164,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
           return const MobileRecentSpace();
         case MobileSpaceTabType.spaces:
           final showAIFloatingButton =
-              widget.userProfile.workspaceAuthType == AuthTypePB.Server;
+              widget.userProfile.workspaceType == WorkspaceTypePB.ServerW;
           return Stack(
             children: [
               MobileHomeSpace(userProfile: widget.userProfile),

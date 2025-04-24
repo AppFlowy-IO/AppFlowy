@@ -1,4 +1,4 @@
-use super::AFRolePB;
+use super::{AFRolePB, WorkspaceTypePB};
 use crate::entities::parser::{UserEmail, UserIcon, UserName};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
@@ -42,7 +42,7 @@ pub struct UserProfilePB {
   pub user_auth_type: AuthTypePB,
 
   #[pb(index = 7)]
-  pub workspace_auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -66,7 +66,7 @@ impl From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       user_auth_type: user_profile.auth_type.into(),
-      workspace_auth_type: user_profile.workspace_auth_type.into(),
+      workspace_type: user_profile.workspace_type.into(),
     }
   }
 }
@@ -186,7 +186,7 @@ pub struct UserWorkspacePB {
   pub role: Option<AFRolePB>,
 
   #[pb(index = 7)]
-  pub workspace_auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 impl From<UserWorkspace> for UserWorkspacePB {
@@ -198,7 +198,7 @@ impl From<UserWorkspace> for UserWorkspacePB {
       icon: workspace.icon,
       member_count: workspace.member_count,
       role: workspace.role.map(AFRolePB::from),
-      workspace_auth_type: AuthTypePB::from(workspace.workspace_type),
+      workspace_type: WorkspaceTypePB::from(workspace.workspace_type),
     }
   }
 }
@@ -212,7 +212,7 @@ impl From<UserWorkspaceTable> for UserWorkspacePB {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
-      workspace_auth_type: AuthTypePB::from(value.workspace_type),
+      workspace_type: WorkspaceTypePB::from(value.workspace_type),
     }
   }
 }

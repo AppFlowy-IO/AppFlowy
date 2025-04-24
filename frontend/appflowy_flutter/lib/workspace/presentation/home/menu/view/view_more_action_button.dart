@@ -211,7 +211,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   ) {
     final userProfile = context.read<SpaceBloc>().userProfile;
     // move to feature doesn't support in local mode
-    if (userProfile.workspaceAuthType != AuthTypePB.Server) {
+    if (userProfile.workspaceType != WorkspaceTypePB.ServerW) {
       return const SizedBox.shrink();
     }
     return BlocProvider.value(

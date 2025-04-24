@@ -7,7 +7,7 @@ use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_user::entities::AFRolePB;
 use flowy_user_pub::cloud::UserCloudServiceProvider;
-use flowy_user_pub::entities::AuthType;
+use flowy_user_pub::entities::{AuthType, WorkspaceType};
 use std::time::Duration;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
@@ -21,7 +21,7 @@ async fn af_cloud_workspace_delete() {
   assert_eq!(workspaces.len(), 1);
 
   let created_workspace = test
-    .create_workspace("my second workspace", AuthType::AppFlowyCloud)
+    .create_workspace("my second workspace", WorkspaceType::Server)
     .await;
   assert_eq!(created_workspace.name, "my second workspace");
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
@@ -71,7 +71,7 @@ async fn af_cloud_create_workspace_test() {
   assert_eq!(workspaces.len(), 1);
 
   let created_workspace = test
-    .create_workspace("my second workspace", AuthType::AppFlowyCloud)
+    .create_workspace("my second workspace", WorkspaceType::Server)
     .await;
   assert_eq!(created_workspace.name, "my second workspace");
 
@@ -94,7 +94,7 @@ async fn af_cloud_create_workspace_test() {
     test
       .open_workspace(
         &created_workspace.workspace_id,
-        created_workspace.workspace_auth_type,
+        created_workspace.workspace_type,
       )
       .await;
     let folder_ws = test.folder_read_current_workspace().await;
@@ -126,13 +126,10 @@ async fn af_cloud_open_workspace_test() {
   assert_eq!(views[3].name, "B");
 
   let user_workspace = test
-    .create_workspace("second workspace", AuthType::AppFlowyCloud)
+    .create_workspace("second workspace", WorkspaceType::Server)
     .await;
   test
-    .open_workspace(
-      &user_workspace.workspace_id,
-      user_workspace.workspace_auth_type,
-    )
+    .open_workspace(&user_workspace.workspace_id, user_workspace.workspace_type)
     .await;
   let second_workspace = test.get_current_workspace().await;
   let second_workspace = test.get_user_workspace(&second_workspace.id).await;
@@ -152,7 +149,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &first_workspace.workspace_id,
-          first_workspace.workspace_auth_type,
+          first_workspace.workspace_type,
         )
         .await;
       sleep(Duration::from_millis(300)).await;
@@ -163,7 +160,7 @@ async fn af_cloud_open_workspace_test() {
       test
         .open_workspace(
           &second_workspace.workspace_id,
-          second_workspace.workspace_auth_type,
+          second_workspace.workspace_type,
         )
         .await;
       sleep(Duration::from_millis(200)).await;
@@ -176,7 +173,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &first_workspace.workspace_id,
-      first_workspace.workspace_auth_type,
+      first_workspace.workspace_type,
     )
     .await;
   let views_1 = test.get_all_workspace_views().await;
@@ -188,7 +185,7 @@ async fn af_cloud_open_workspace_test() {
   test
     .open_workspace(
       &second_workspace.workspace_id,
-      second_workspace.workspace_auth_type,
+      second_workspace.workspace_type,
     )
     .await;
   let views_2 = test.get_all_workspace_views().await;
@@ -247,7 +244,7 @@ async fn af_cloud_different_open_same_workspace_test() {
         let index = i % 2;
         let iter_workspace_id = &all_workspaces[index].workspace_id;
         client
-          .open_workspace(iter_workspace_id, all_workspaces[index].workspace_auth_type)
+          .open_workspace(iter_workspace_id, all_workspaces[index].workspace_type)
           .await;
         if iter_workspace_id == &cloned_shared_workspace_id {
           let views = client.get_all_workspace_views().await;
@@ -312,7 +309,7 @@ async fn af_cloud_create_local_workspace_test() {
 
   // Test: Create a local workspace
   let local_workspace = test
-    .create_workspace("my local workspace", AuthType::Local)
+    .create_workspace("my local workspace", WorkspaceType::Server)
     .await;
 
   // Verify: Local workspace was created correctly
@@ -336,7 +333,7 @@ async fn af_cloud_create_local_workspace_test() {
   test
     .open_workspace(
       &local_workspace.workspace_id,
-      local_workspace.workspace_auth_type,
+      local_workspace.workspace_type,
     )
     .await;
 
@@ -372,7 +369,7 @@ async fn af_cloud_create_local_workspace_test() {
 
   // Test: Create a server workspace
   let server_workspace = test
-    .create_workspace("my server workspace", AuthType::AppFlowyCloud)
+    .create_workspace("my server workspace", WorkspaceType::Server)
     .await;
 
   // Verify: Server workspace was created correctly

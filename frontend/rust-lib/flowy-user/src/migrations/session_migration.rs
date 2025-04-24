@@ -1,6 +1,6 @@
 use chrono::Utc;
 use flowy_sqlite::kv::KVStorePreferences;
-use flowy_user_pub::entities::{AuthType, Role, UserWorkspace};
+use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceType};
 use flowy_user_pub::session::Session;
 use serde::de::{MapAccess, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
@@ -95,7 +95,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
           icon: "".to_owned(),
           member_count: 1,
           role: Some(Role::Owner),
-          workspace_type: AuthType::Local,
+          workspace_type: WorkspaceType::Local,
         })
       }
     }
