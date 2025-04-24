@@ -309,7 +309,7 @@ async fn af_cloud_create_local_workspace_test() {
 
   // Test: Create a local workspace
   let local_workspace = test
-    .create_workspace("my local workspace", WorkspaceType::Server)
+    .create_workspace("my local workspace", WorkspaceType::Local)
     .await;
 
   // Verify: Local workspace was created correctly
