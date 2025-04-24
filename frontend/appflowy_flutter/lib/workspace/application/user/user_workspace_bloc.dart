@@ -481,8 +481,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces(
-      {String? initialWorkspaceId}) = FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({
+    String? initialWorkspaceId,
+  }) = FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
     WorkspaceTypePB workspaceType,
