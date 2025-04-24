@@ -108,8 +108,9 @@ af-local-ai = { version = "0.1" }
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "954c323" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "954c323" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5826bffefb2509dcfa8b2ea7bb4037ed9290b713" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5826bffefb2509dcfa8b2ea7bb4037ed9290b713" }
+workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5826bffefb2509dcfa8b2ea7bb4037ed9290b713" }
 
 [profile.dev]
 opt-level = 0

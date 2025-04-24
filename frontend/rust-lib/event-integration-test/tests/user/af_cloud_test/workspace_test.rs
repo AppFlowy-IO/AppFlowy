@@ -344,8 +344,8 @@ async fn af_cloud_create_local_workspace_test() {
   let views = test.get_all_views().await;
   assert_eq!(
     views.len(),
-    2,
-    "Local workspace should have 2 default views"
+    3,
+    "Local workspace should have 3 default views"
   );
   assert!(
     views
