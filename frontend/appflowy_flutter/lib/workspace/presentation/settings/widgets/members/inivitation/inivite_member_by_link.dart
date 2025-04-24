@@ -17,14 +17,15 @@ class InviteMemberByLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Title(),
-            _Description(),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Title(),
+              _Description(),
+            ],
+          ),
         ),
-        Spacer(),
         _CopyLinkButton(),
       ],
     );
@@ -42,6 +43,8 @@ class _Title extends StatelessWidget {
       style: theme.textStyle.body.enhanced(
         color: theme.textColorScheme.primary,
       ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

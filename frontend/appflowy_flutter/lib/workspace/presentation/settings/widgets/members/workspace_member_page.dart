@@ -48,7 +48,9 @@ class WorkspaceMembersPage extends StatelessWidget {
                 const InviteMemberByLink(),
                 const SettingsCategorySpacer(),
                 const InviteMemberByEmail(),
-                const SettingsCategorySpacer(),
+                const SettingsCategorySpacer(
+                  bottomSpacing: 0,
+                ),
               ],
               if (state.members.isNotEmpty)
                 _MemberList(

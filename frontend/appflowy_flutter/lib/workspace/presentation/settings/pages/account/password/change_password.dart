@@ -208,7 +208,7 @@ class _ChangePasswordDialogContentState
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
-        const HSpace(16),
+        HSpace(theme.spacing.l),
         AFFilledTextButton.primary(
           text: LocaleKeys.button_save.tr(),
           textStyle: theme.textStyle.body.standard(
