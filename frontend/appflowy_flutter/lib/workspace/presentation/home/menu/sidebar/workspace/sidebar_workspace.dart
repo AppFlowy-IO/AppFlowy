@@ -5,11 +5,13 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/workspace_notifier.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +30,20 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   Loading? loadingIndicator;
 
   final ValueNotifier<bool> onHover = ValueNotifier(false);
+  int maxRetryCount = 3;
+  int retryCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    openWorkspaceNotifier.addListener(_openWorkspaceFromInvitation);
+  }
 
   @override
   void dispose() {
     onHover.dispose();
+    openWorkspaceNotifier.removeListener(_openWorkspaceFromInvitation);
 
     super.dispose();
   }
@@ -147,6 +159,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
           (s) => LocaleKeys.workspace_openSuccess.tr(),
           (e) => '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}',
         );
+
         break;
       case UserWorkspaceActionType.updateIcon:
         message = result.fold(
@@ -160,8 +173,9 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
           (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
         );
         break;
-      case UserWorkspaceActionType.none:
+
       case UserWorkspaceActionType.fetchWorkspaces:
+      case UserWorkspaceActionType.none:
       case UserWorkspaceActionType.leave:
         message = null;
         break;
@@ -176,6 +190,78 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
         ),
       );
     }
+  }
+
+  // This function is a workaround, when we support open the workspace from invitation deep link,
+  // we should refactor the code here
+  void _openWorkspaceFromInvitation() {
+    final value = openWorkspaceNotifier.value;
+    final workspaceId = value?.workspaceId;
+    final email = value?.email;
+
+    if (workspaceId == null) {
+      Log.info('No workspace id to open');
+      return;
+    }
+
+    if (email == null) {
+      Log.info('Open workspace from invitation with no email');
+      return;
+    }
+
+    final state = context.read<UserWorkspaceBloc>().state;
+    final currentWorkspace = state.currentWorkspace;
+    if (currentWorkspace?.workspaceId == workspaceId) {
+      Log.info('Already in the workspace');
+      return;
+    }
+
+    if (email != widget.userProfile.email) {
+      Log.info(
+        'Current user email: ${widget.userProfile.email} is not the same as the email in the invitation: $email',
+      );
+      return;
+    }
+
+    final openWorkspace = state.workspaces.firstWhereOrNull(
+      (workspace) => workspace.workspaceId == workspaceId,
+    );
+
+    if (openWorkspace == null) {
+      Log.error('Workspace not found, try to fetch workspaces');
+
+      context.read<UserWorkspaceBloc>().add(
+            UserWorkspaceEvent.fetchWorkspaces(
+              initialWorkspaceId: workspaceId,
+            ),
+          );
+
+      Future.delayed(
+        Duration(milliseconds: 250 + retryCount * 250),
+        () {
+          if (retryCount >= maxRetryCount) {
+            openWorkspaceNotifier.value = null;
+            retryCount = 0;
+            Log.error('Failed to open workspace from invitation');
+            return;
+          }
+
+          retryCount++;
+          _openWorkspaceFromInvitation();
+        },
+      );
+
+      return;
+    }
+
+    context.read<UserWorkspaceBloc>().add(
+          UserWorkspaceEvent.openWorkspace(
+            workspaceId,
+            openWorkspace.workspaceAuthType,
+          ),
+        );
+
+    openWorkspaceNotifier.value = null;
   }
 }
 
@@ -202,48 +288,47 @@ class _SidebarSwitchWorkspaceButtonState
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithCenterAligned,
-      offset: const Offset(0, 5),
-      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
-      margin: EdgeInsets.zero,
-      animationDuration: Durations.short3,
-      beginScaleFactor: 1.0,
-      beginOpacity: 0.8,
-      controller: _popoverController,
-      triggerActions: PopoverTriggerFlags.none,
-      onOpen: () {
-        context
-            .read<UserWorkspaceBloc>()
-            .add(const UserWorkspaceEvent.fetchWorkspaces());
-      },
-      onClose: () {
-        Log.info('close workspace menu');
-      },
-      popupBuilder: (_) {
-        return BlocProvider<UserWorkspaceBloc>.value(
-          value: context.read<UserWorkspaceBloc>(),
-          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-            builder: (context, state) {
-              final currentWorkspace = state.currentWorkspace;
-              final workspaces = state.workspaces;
-              if (currentWorkspace == null) {
-                return const SizedBox.shrink();
-              }
-              Log.info('open workspace menu');
-              return WorkspacesMenu(
-                userProfile: widget.userProfile,
-                currentWorkspace: currentWorkspace,
-                workspaces: workspaces,
-              );
-            },
-          ),
-        );
-      },
-      child: _SideBarSwitchWorkspaceButtonChild(
-        currentWorkspace: widget.currentWorkspace,
-        popoverController: _popoverController,
-        isHover: widget.isHover,
+    return BlocProvider(
+      create: (context) => context.read<UserWorkspaceBloc>(),
+      child: AppFlowyPopover(
+        direction: PopoverDirection.bottomWithCenterAligned,
+        offset: const Offset(0, 5),
+        constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+        margin: EdgeInsets.zero,
+        animationDuration: Durations.short3,
+        beginScaleFactor: 1.0,
+        beginOpacity: 0.8,
+        controller: _popoverController,
+        triggerActions: PopoverTriggerFlags.none,
+        onOpen: () {
+          context
+              .read<UserWorkspaceBloc>()
+              .add(const UserWorkspaceEvent.fetchWorkspaces());
+        },
+        popupBuilder: (_) {
+          return BlocProvider<UserWorkspaceBloc>.value(
+            value: context.read<UserWorkspaceBloc>(),
+            child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+              builder: (context, state) {
+                final currentWorkspace = state.currentWorkspace;
+                final workspaces = state.workspaces;
+                if (currentWorkspace == null) {
+                  return const SizedBox.shrink();
+                }
+                return WorkspacesMenu(
+                  userProfile: widget.userProfile,
+                  currentWorkspace: currentWorkspace,
+                  workspaces: workspaces,
+                );
+              },
+            ),
+          );
+        },
+        child: _SideBarSwitchWorkspaceButtonChild(
+          currentWorkspace: widget.currentWorkspace,
+          popoverController: _popoverController,
+          isHover: widget.isHover,
+        ),
       ),
     );
   }

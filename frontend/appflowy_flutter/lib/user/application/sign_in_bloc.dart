@@ -2,6 +2,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
+import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -130,6 +131,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         if (newState != null) {
           emit(newState);
         }
+      case DeepLinkState.error:
+        emit(state.copyWith(isSubmitting: false));
     }
   }
 
@@ -138,6 +141,14 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     required String email,
     required String password,
   }) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
+      ),
+    );
     final result = await authService.signInWithEmailPassword(
       email: email,
       password: password,
