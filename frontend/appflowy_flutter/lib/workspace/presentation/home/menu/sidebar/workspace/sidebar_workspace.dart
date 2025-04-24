@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/workspace_notifier.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -15,9 +16,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-// Workaround for open workspace from invitation deep link
-ValueNotifier<String?> openWorkspaceIdNotifier = ValueNotifier(null);
 
 class SidebarWorkspace extends StatefulWidget {
   const SidebarWorkspace({super.key, required this.userProfile});
@@ -39,13 +37,13 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   void initState() {
     super.initState();
 
-    openWorkspaceIdNotifier.addListener(_openWorkspaceFromInvitation);
+    openWorkspaceNotifier.addListener(_openWorkspaceFromInvitation);
   }
 
   @override
   void dispose() {
     onHover.dispose();
-    openWorkspaceIdNotifier.removeListener(_openWorkspaceFromInvitation);
+    openWorkspaceNotifier.removeListener(_openWorkspaceFromInvitation);
 
     super.dispose();
   }
@@ -197,9 +195,17 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   // This function is a workaround, when we support open the workspace from invitation deep link,
   // we should refactor the code here
   void _openWorkspaceFromInvitation() {
-    final workspaceId = openWorkspaceIdNotifier.value;
+    final value = openWorkspaceNotifier.value;
+    final workspaceId = value?.workspaceId;
+    final userId = value?.userId;
+
     if (workspaceId == null) {
       Log.info('No workspace id to open');
+      return;
+    }
+
+    if (userId == null) {
+      Log.info('Open workspace from invitation with no user id');
       return;
     }
 
@@ -207,6 +213,13 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     final currentWorkspace = state.currentWorkspace;
     if (currentWorkspace?.workspaceId == workspaceId) {
       Log.info('Already in the workspace');
+      return;
+    }
+
+    if (userId != widget.userProfile.id.toString()) {
+      Log.info(
+        'Current user id: ${widget.userProfile.id} is not the same as the user id in the invitation: $userId',
+      );
       return;
     }
 
@@ -225,7 +238,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
         Duration(milliseconds: 250 + retryCount * 250),
         () {
           if (retryCount >= maxRetryCount) {
-            openWorkspaceIdNotifier.value = null;
+            openWorkspaceNotifier.value = null;
             retryCount = 0;
             Log.error('Failed to open workspace from invitation');
             return;
@@ -246,7 +259,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
           ),
         );
 
-    openWorkspaceIdNotifier.value = null;
+    openWorkspaceNotifier.value = null;
   }
 }
 

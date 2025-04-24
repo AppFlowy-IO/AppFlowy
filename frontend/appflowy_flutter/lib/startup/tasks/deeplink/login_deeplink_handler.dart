@@ -11,11 +11,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 class LoginDeepLinkHandler extends DeepLinkHandler<UserProfilePB> {
   @override
   bool canHandle(Uri uri) {
-    final isLoginCallback = uri.host == 'login-callback';
-    if (!isLoginCallback) {
-      return false;
-    }
-
     final containsAccessToken = uri.fragment.contains('access_token');
     if (!containsAccessToken) {
       return false;
