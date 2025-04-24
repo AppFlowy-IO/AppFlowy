@@ -72,36 +72,32 @@ class _NotificationButtonState extends State<NotificationButton> {
     List<ReminderPB> reminders,
     VoidCallback onTap,
   ) {
-    int unreadReminder = 0;
-    for (final reminder in reminders) {
-      if (!reminder.isRead) unreadReminder++;
-    }
-    if (unreadReminder > 0) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            height: 24,
-            padding: EdgeInsets.all(3),
-            child: NumberedRedDot(),
-          ),
-        ),
-      );
-    }
-
     return SizedBox.square(
-      dimension: 24.0,
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        margin: EdgeInsets.zero,
-        text: FlowySvg(
-          FlowySvgs.notification_s,
-          color:
-              widget.isHover ? Theme.of(context).colorScheme.onSurface : null,
-          opacity: 0.7,
-        ),
-        onTap: onTap,
+      dimension: 28.0,
+      child: Stack(
+        children: [
+          Center(
+            child: SizedBox.square(
+              dimension: 28.0,
+              child: FlowyButton(
+                useIntrinsicWidth: true,
+                margin: EdgeInsets.zero,
+                text: FlowySvg(
+                  FlowySvgs.notification_s,
+                  color: widget.isHover
+                      ? Theme.of(context).colorScheme.onSurface
+                      : null,
+                  opacity: 0.7,
+                ),
+                onTap: onTap,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: NumberedRedDot.desktop(),
+          ),
+        ],
       ),
     );
   }

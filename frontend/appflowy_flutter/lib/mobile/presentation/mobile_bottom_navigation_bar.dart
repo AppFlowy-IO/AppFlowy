@@ -193,7 +193,7 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
                 if (hasUnreads)
                   const Align(
                     alignment: Alignment.topRight,
-                    child: NumberedRedDot(size: 20),
+                    child: NumberedRedDot.mobile(),
                   ),
               ],
             ),

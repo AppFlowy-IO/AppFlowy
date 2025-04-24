@@ -86,7 +86,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                       userProfile: widget.userProfile,
                       isHover: onHover,
                     ),
-                    const HSpace(8.0),
+                    const HSpace(4.0),
                     NotificationButton(isHover: onHover),
                     const HSpace(4.0),
                   ],

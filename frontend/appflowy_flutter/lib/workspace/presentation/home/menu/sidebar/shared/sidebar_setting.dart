@@ -87,7 +87,7 @@ class _UserSettingButtonState extends State<UserSettingButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 24.0,
+      dimension: 28.0,
       child: FlowyTooltip(
         message: LocaleKeys.settings_menu_open.tr(),
         child: BlocProvider.value(

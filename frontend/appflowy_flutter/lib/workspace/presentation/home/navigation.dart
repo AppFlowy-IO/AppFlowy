@@ -110,7 +110,7 @@ class FlowyNavigation extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.topRight,
-                    child: NumberedRedDot(size: 14),
+                    child: NumberedRedDot.desktop(),
                   ),
                 ],
               ),
