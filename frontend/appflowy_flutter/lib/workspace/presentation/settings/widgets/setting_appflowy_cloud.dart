@@ -69,7 +69,8 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
           return Column(
             children: [
               const VSpace(8),
-              const AppFlowyCloudEnableSync(),
+              if (state.workspaceType == WorkspaceTypePB.ServerW)
+                const AppFlowyCloudEnableSync(),
               const VSpace(6),
               // const AppFlowyCloudSyncLogEnabled(),
               const VSpace(12),

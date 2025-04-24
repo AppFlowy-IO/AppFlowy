@@ -19,16 +19,25 @@ part 'user_workspace_bloc.freezed.dart';
 
 class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
-    required this.userProfile,
+    required UserProfilePB userProfile,
     this.initialWorkspaceId,
   })  : _userService = UserBackendService(userId: userProfile.id),
         _listener = UserListener(userProfile: userProfile),
-        super(UserWorkspaceState.initial()) {
+        super(UserWorkspaceState.initial(userProfile)) {
     on<UserWorkspaceEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             _listener.start(
+              onProfileUpdated: (result) {
+                if (!isClosed) {
+                  result.fold(
+                    (newProfile) =>
+                        add(UserWorkspaceEvent.updateUserProfile(newProfile)),
+                    (error) => Log.error("Failed to get user profile: $error"),
+                  );
+                }
+              },
               onUserWorkspaceListUpdated: (workspaces) =>
                   add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
               onUserWorkspaceUpdated: (workspace) {
@@ -423,6 +432,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          updateUserProfile: (newUserProfile) {
+            emit(
+              state.copyWith(
+                userProfile: newUserProfile,
+              ),
+            );
+          },
         );
       },
     );
@@ -434,7 +450,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     return super.close();
   }
 
-  final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
   final String? initialWorkspaceId;
@@ -510,6 +525,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.updateCurrentWorkspace(
     UserWorkspacePB workspace,
   ) = UpdateCurrentWorkspace;
+  const factory UserWorkspaceEvent.updateUserProfile(
+    UserProfilePB userProfile,
+  ) = UpdateUserProfile;
 }
 
 enum UserWorkspaceActionType {
@@ -549,9 +567,13 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default([]) List<UserWorkspacePB> workspaces,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
+    required UserProfilePB userProfile,
   }) = _UserWorkspaceState;
 
-  factory UserWorkspaceState.initial() => const UserWorkspaceState();
+  factory UserWorkspaceState.initial(UserProfilePB userProfile) =>
+      UserWorkspaceState(
+        userProfile: userProfile,
+      );
 
   @override
   int get hashCode => runtimeType.hashCode;
@@ -566,6 +588,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     return other is UserWorkspaceState &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
-        identical(other.actionResult, actionResult);
+        identical(other.actionResult, actionResult) &&
+        other.userProfile == userProfile;
   }
 }

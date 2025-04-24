@@ -144,7 +144,7 @@ class _ImageMenuState extends State<ImageMenu> {
     showDialog(
       context: context,
       builder: (_) => InteractiveImageViewer(
-        userProfile: context.read<UserWorkspaceBloc?>()?.userProfile ??
+        userProfile: context.read<UserWorkspaceBloc?>()?.state.userProfile ??
             context.read<DocumentBloc>().state.userProfilePB,
         imageProvider: AFBlockImageProvider(
           images: [

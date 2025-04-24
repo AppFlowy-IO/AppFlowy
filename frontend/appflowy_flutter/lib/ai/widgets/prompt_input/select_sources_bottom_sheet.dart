@@ -54,7 +54,7 @@ class _PromptInputMobileSelectSourcesButtonState
   Widget build(BuildContext context) {
     return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
       builder: (context, state) {
-        final userProfile = context.read<UserWorkspaceBloc>().userProfile;
+        final userProfile = context.read<UserWorkspaceBloc>().state.userProfile;
         final workspaceId = state.currentWorkspace?.workspaceId ?? '';
         return MultiBlocProvider(
           providers: [

@@ -83,7 +83,6 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                       ),
                     ),
                     UserSettingButton(
-                      userProfile: widget.userProfile,
                       isHover: onHover,
                     ),
                     const HSpace(8.0),
