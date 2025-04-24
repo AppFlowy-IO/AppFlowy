@@ -1,4 +1,5 @@
 export 'background_color_scheme.dart';
+export 'badge_color_scheme.dart';
 export 'border_color_scheme.dart';
 export 'brand_color_scheme.dart';
 export 'fill_color_scheme.dart';

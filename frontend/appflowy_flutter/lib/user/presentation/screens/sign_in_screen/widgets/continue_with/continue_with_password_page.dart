@@ -157,9 +157,9 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           textColor: (context, isHovering, disabled) {
             final theme = AppFlowyTheme.of(context);
             if (isHovering) {
-              return theme.fillColorScheme.themeThickHover;
+              return theme.textColorScheme.actionHover;
             }
-            return theme.textColorScheme.theme;
+            return theme.textColorScheme.action;
           },
         ),
       ),
@@ -186,9 +186,9 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
         textColor: (context, isHovering, disabled) {
           final theme = AppFlowyTheme.of(context);
           if (isHovering) {
-            return theme.fillColorScheme.themeThickHover;
+            return theme.textColorScheme.actionHover;
           }
-          return theme.textColorScheme.theme;
+          return theme.textColorScheme.action;
         },
       ),
     ];

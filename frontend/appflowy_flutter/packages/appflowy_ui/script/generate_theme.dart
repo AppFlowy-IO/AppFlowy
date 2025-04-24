@@ -128,7 +128,6 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
       'Spacing',
       'Border_Radius',
       'Shadow',
-      'Badge_Color',
     ].contains(categoryName)) {
       return;
     }
@@ -156,6 +155,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
       surfaceColorScheme: surfaceColorScheme,
       backgroundColorScheme: backgroundColorScheme,
       iconColorScheme: iconColorScheme,
+      badgeColorColorScheme: badgeColorColorScheme,
       brandColorScheme: brandColorScheme,
       otherColorsColorScheme: otherColorsColorScheme,
       borderRadius: borderRadius,
@@ -179,7 +179,6 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
       'Spacing',
       'Border_Radius',
       'Shadow',
-      'Badge_Color',
     ].contains(categoryName)) {
       return;
     }
@@ -210,6 +209,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {''');
       surfaceColorScheme: surfaceColorScheme,
       backgroundColorScheme: backgroundColorScheme,
       iconColorScheme: iconColorScheme,
+      badgeColorColorScheme: badgeColorColorScheme,
       brandColorScheme: brandColorScheme,
       otherColorsColorScheme: otherColorsColorScheme,
       borderRadius: borderRadius,
@@ -255,10 +255,12 @@ void processSemanticTokenData(
   } else {
     json.forEach((key, value) {
       if (value is Map<String, dynamic>) {
+        final data = int.tryParse(currentTokenName);
+        final begin = data == null ? currentTokenName : 'badge';
         processSemanticTokenData(
           buffer,
           value,
-          '${currentTokenName}_$key',
+          '${begin}_$key',
         );
       }
     });
