@@ -8,13 +8,10 @@ edition = "2021"
 [dependencies]
 collab = { workspace = true }
 collab-folder = { workspace = true }
-collab-document = { workspace = true }
 collab-entity = { workspace = true }
-collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
-flowy-user-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
@@ -29,9 +26,6 @@ lib-dispatch = { workspace = true }
 bytes.workspace = true
 lib-infra = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-nanoid = "0.4.0"
-lazy_static = "1.4.0"
-chrono = { workspace = true, default-features = false, features = ["clock"] }
 strum_macros = "0.21"
 protobuf.workspace = true
 uuid.workspace = true
@@ -44,6 +38,7 @@ client-api = { workspace = true }
 regex = "1.9.5"
 futures = "0.3.31"
 dashmap.workspace = true
+num_enum.workspace = true
 
 
 [build-dependencies]

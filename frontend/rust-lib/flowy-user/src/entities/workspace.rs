@@ -10,7 +10,6 @@ use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use flowy_user_pub::entities::{
   AuthType, Role, WorkspaceInvitation, WorkspaceMember, WorkspaceType,
 };
-use flowy_user_pub::sql::WorkspaceSettingsTable;
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -485,6 +484,9 @@ pub struct WorkspaceSettingsPB {
 
   #[pb(index = 2)]
   pub ai_model: String,
+
+  #[pb(index = 3)]
+  pub workspace_type: WorkspaceTypePB,
 }
 
 impl From<&AFWorkspaceSettings> for WorkspaceSettingsPB {
@@ -492,15 +494,7 @@ impl From<&AFWorkspaceSettings> for WorkspaceSettingsPB {
     Self {
       disable_search_indexing: value.disable_search_indexing,
       ai_model: value.ai_model.clone(),
-    }
-  }
-}
-
-impl From<WorkspaceSettingsTable> for WorkspaceSettingsPB {
-  fn from(value: WorkspaceSettingsTable) -> Self {
-    Self {
-      disable_search_indexing: value.disable_search_indexing,
-      ai_model: value.ai_model,
+      workspace_type: WorkspaceTypePB::ServerW,
     }
   }
 }

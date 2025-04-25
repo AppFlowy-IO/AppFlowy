@@ -804,7 +804,7 @@ pub fn upsert_user_profile_change(
   );
   update_user_profile(&mut conn, changeset)?;
   let user = select_user_profile(uid, workspace_id, &mut conn)?;
-  send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
+  send_notification(uid, UserNotification::DidUpdateUserProfile)
     .payload(UserProfilePB::from(user))
     .send();
   Ok(())

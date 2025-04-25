@@ -206,7 +206,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Open settings dialog
-    openSettingsHotKey(context, widget.userProfile),
+    openSettingsHotKey(context),
   ];
 
   @override

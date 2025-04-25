@@ -7,7 +7,8 @@ use std::sync::Arc;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
-  UpdateUserWorkspaceSettingPB, UserWorkspacePB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB,
+  UpdateUserWorkspaceSettingPB, UserProfilePB, UserWorkspacePB, WorkspaceSettingsPB,
+  WorkspaceSubscriptionInfoPB, WorkspaceTypePB,
 };
 use crate::notification::{send_notification, UserNotification};
 use crate::services::billing_check::PeriodicallyCheckBillingState;
@@ -214,6 +215,11 @@ impl UserManager {
       );
     }
 
+    let pb = UserProfilePB::from(profile);
+    send_notification(uid, UserNotification::DidOpenWorkspace)
+      .payload(pb)
+      .send();
+
     Ok(())
   }
 
@@ -264,7 +270,7 @@ impl UserManager {
 
     let row = self.get_user_workspace_from_db(uid, workspace_id)?;
     let payload = UserWorkspacePB::from(row);
-    send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
+    send_notification(uid, UserNotification::DidUpdateUserWorkspace)
       .payload(payload)
       .send();
 
@@ -454,7 +460,7 @@ impl UserManager {
             // only send notification if there were real changes
             if let Ok(updated_list) = select_all_user_workspace(uid, &mut conn) {
               let repeated_pb = RepeatedUserWorkspacePB::from(updated_list);
-              send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
+              send_notification(uid, UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_pb)
                 .send();
             }
@@ -603,12 +609,9 @@ impl UserManager {
     update_workspace_setting(&mut conn, changeset)?;
 
     let pb = WorkspaceSettingsPB::from(&settings);
-    send_notification(
-      &uid.to_string(),
-      UserNotification::DidUpdateWorkspaceSetting,
-    )
-    .payload(pb)
-    .send();
+    send_notification(uid, UserNotification::DidUpdateWorkspaceSetting)
+      .payload(pb)
+      .send();
     Ok(())
   }
 
@@ -618,10 +621,16 @@ impl UserManager {
   ) -> FlowyResult<WorkspaceSettingsPB> {
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    match select_workspace_setting(&mut conn, &workspace_id.to_string()) {
+    let workspace_id_str = workspace_id.to_string();
+    let workspace_type = select_user_workspace_type(&workspace_id_str, &mut conn)?;
+    match select_workspace_setting(&mut conn, &workspace_id_str) {
       Ok(workspace_settings) => {
         trace!("workspace settings found in local db");
-        let pb = WorkspaceSettingsPB::from(workspace_settings);
+        let pb = WorkspaceSettingsPB {
+          disable_search_indexing: workspace_settings.disable_search_indexing,
+          ai_model: workspace_settings.ai_model,
+          workspace_type: WorkspaceTypePB::from(workspace_type),
+        };
         let old_pb = pb.clone();
         let workspace_id = *workspace_id;
 
@@ -755,12 +764,9 @@ async fn sync_workspace_settings(
   let new_pb = WorkspaceSettingsPB::from(&settings);
   if new_pb != old_pb {
     trace!("workspace settings updated");
-    send_notification(
-      &uid.to_string(),
-      UserNotification::DidUpdateWorkspaceSetting,
-    )
-    .payload(new_pb)
-    .send();
+    send_notification(uid, UserNotification::DidUpdateWorkspaceSetting)
+      .payload(new_pb)
+      .send();
     if let Ok(mut conn) = pool.get() {
       upsert_workspace_setting(
         &mut conn,
