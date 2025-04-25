@@ -36,7 +36,6 @@
     "loginButtonText": "Увійти",
     "loginStartWithAnonymous": "Почати анонімну сесію",
     "continueAnonymousUser": "Продовжити анонімну сесію",
-    "anonymous": "Анонім",
     "buttonText": "Увійти",
     "signingInText": "Вхід...",
     "forgotPassword": "Забули пароль?",
@@ -69,6 +68,7 @@
     "generalError": "Щось пішло не так. Будь ласка спробуйте пізніше",
     "limitRateError": "З міркувань безпеки ви можете запитувати чарівне посилання лише кожні 60 секунд",
     "magicLinkSentDescription": "Чарівне посилання надіслано на вашу електронну адресу. Натисніть посилання, щоб завершити вхід. Термін дії посилання закінчиться через 5 хвилин.",
+    "anonymous": "Анонім",
     "LogInWithGoogle": "Увійти за допомогою Google",
     "LogInWithGithub": "Увійти за допомогою Github",
     "LogInWithDiscord": "Увійти за допомогою Discord"
