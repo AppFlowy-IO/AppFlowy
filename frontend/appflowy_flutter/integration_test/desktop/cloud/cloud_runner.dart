@@ -22,14 +22,16 @@ Future<void> main() async {
   // workspace
   workspace_test_runner.main();
 
-  // document
-  document_test_runner.main();
-
   // sidebar
+  // don't remove this test.
+  preset_af_cloud_env_test.main();
   sidebar_move_page_test.main();
   sidebar_rename_untitled_test.main();
   sidebar_icon_test.main();
 
   // database
   database_test_runner.main();
+
+  // document
+  document_test_runner.main();
 }
