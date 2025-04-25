@@ -136,7 +136,7 @@ void main() {
 
     testWidgets('ask ai', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+        cloudType: AuthenticatorType.appflowyCloudDevelop,
         aiRepositoryBuilder: () => MockAIRepository(
           validator: _CompletionHistoryValidator(),
         ),
@@ -171,7 +171,7 @@ void main() {
       await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
 
-      await tester.selectModel("GPT-4o-mini");
+      // await tester.selectModel("GPT-4o-mini");
 
       await tester.enterTextInPromptTextField("How about GPU?");
       await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
