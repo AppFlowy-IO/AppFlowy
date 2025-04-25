@@ -36,7 +36,6 @@
     "loginButtonText": "Ingresar",
     "loginStartWithAnonymous": "Comience una sesión anónima",
     "continueAnonymousUser": "Continuar con una sesión anónima",
-    "anonymous": "Anónimo",
     "buttonText": "Ingresar",
     "signingInText": "Iniciando sesión...",
     "forgotPassword": "¿Olvidó su contraseña?",
@@ -67,7 +66,8 @@
     "alreadyHaveAnAccount": "¿Ya tienes cuenta?",
     "logIn": "Iniciar sesión",
     "generalError": "Algo ha salido mal. Por favor, inténtalo más tarde",
-    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos"
+    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos",
+    "anonymous": "Anónimo"
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",
