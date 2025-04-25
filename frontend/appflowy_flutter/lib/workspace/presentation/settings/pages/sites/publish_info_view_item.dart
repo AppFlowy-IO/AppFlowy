@@ -55,7 +55,11 @@ class PublishInfoViewItem extends StatelessWidget {
   Widget _buildIcon() {
     final icon = publishInfoView.view.icon.toEmojiIconData();
     return icon.isNotEmpty
-        ? RawEmojiIconWidget(emoji: icon, emojiSize: 16.0)
+        ? RawEmojiIconWidget(
+            emoji: icon,
+            emojiSize: 16.0,
+            lineHeight: 1.1,
+          )
         : publishInfoView.view.defaultIcon();
   }
 }

@@ -15,14 +15,18 @@ class PasswordSuffixIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(right: theme.spacing.m),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
-        child: FlowySvg(
-          isObscured ? FlowySvgs.show_s : FlowySvgs.hide_s,
-          color: theme.textColorScheme.secondary,
-          size: const Size.square(20),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.only(right: theme.spacing.m),
+          child: FlowySvg(
+            isObscured ? FlowySvgs.show_s : FlowySvgs.hide_s,
+            color: theme.textColorScheme.secondary,
+            size: const Size.square(20),
+          ),
         ),
       ),
     );

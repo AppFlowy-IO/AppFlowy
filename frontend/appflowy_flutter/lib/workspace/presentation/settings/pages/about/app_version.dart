@@ -31,7 +31,7 @@ class SettingsAppVersion extends StatelessWidget {
             color: theme.textColorScheme.primary,
           ),
         ),
-        const VSpace(4),
+        VSpace(theme.spacing.s),
         Text(
           LocaleKeys.settings_accountPage_officialVersion.tr(
             namedArgs: {

@@ -179,34 +179,41 @@ class AFOutlinedTextButton extends AFBaseTextButton {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return AFBaseButton(
-      disabled: disabled,
-      backgroundColor: backgroundColor,
-      borderColor: borderColor,
-      padding: padding ?? size.buildPadding(context),
-      borderRadius: borderRadius ?? size.buildBorderRadius(context),
-      onTap: onTap,
-      builder: (context, isHovering, disabled) {
-        final textColor = this.textColor?.call(context, isHovering, disabled) ??
-            theme.textColorScheme.primary;
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: 76,
+      ),
+      child: AFBaseButton(
+        disabled: disabled,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        padding: padding ?? size.buildPadding(context),
+        borderRadius: borderRadius ?? size.buildBorderRadius(context),
+        onTap: onTap,
+        builder: (context, isHovering, disabled) {
+          final textColor =
+              this.textColor?.call(context, isHovering, disabled) ??
+                  theme.textColorScheme.primary;
 
-        Widget child = Text(
-          text,
-          style: textStyle ??
-              size.buildTextStyle(context).copyWith(color: textColor),
-        );
-
-        final alignment = this.alignment;
-
-        if (alignment != null) {
-          child = Align(
-            alignment: alignment,
-            child: child,
+          Widget child = Text(
+            text,
+            style: textStyle ??
+                size.buildTextStyle(context).copyWith(color: textColor),
+            textAlign: TextAlign.center,
           );
-        }
 
-        return child;
-      },
+          final alignment = this.alignment;
+
+          if (alignment != null) {
+            child = Align(
+              alignment: alignment,
+              child: child,
+            );
+          }
+
+          return child;
+        },
+      ),
     );
   }
 }

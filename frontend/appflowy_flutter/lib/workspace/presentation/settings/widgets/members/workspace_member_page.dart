@@ -48,7 +48,9 @@ class WorkspaceMembersPage extends StatelessWidget {
                 const InviteMemberByLink(),
                 const SettingsCategorySpacer(),
                 const InviteMemberByEmail(),
-                const SettingsCategorySpacer(),
+                const SettingsCategorySpacer(
+                  bottomSpacing: 0,
+                ),
               ],
               if (state.members.isNotEmpty)
                 _MemberList(
@@ -379,23 +381,28 @@ class _MemberItem extends StatelessWidget {
                 emojiFontSize: 20,
               ),
               HSpace(8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.name,
-                    style: theme.textStyle.body.enhanced(
-                      color: theme.textColorScheme.primary,
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      member.name,
+                      style: theme.textStyle.body.enhanced(
+                        color: theme.textColorScheme.primary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    _formatJoinedDate(member.joinedAt.toInt()),
-                    style: theme.textStyle.caption.standard(
-                      color: theme.textColorScheme.secondary,
+                    Text(
+                      _formatJoinedDate(member.joinedAt.toInt()),
+                      style: theme.textStyle.caption.standard(
+                        color: theme.textColorScheme.secondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              HSpace(8),
             ],
           ),
         ),
