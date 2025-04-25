@@ -85,8 +85,11 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                     UserSettingButton(
                       isHover: onHover,
                     ),
-                    const HSpace(4.0),
-                    NotificationButton(isHover: onHover),
+                    const HSpace(8.0),
+                    NotificationButton(
+                      isHover: onHover,
+                      key: ValueKey(currentWorkspace.workspaceId),
+                    ),
                     const HSpace(4.0),
                   ],
                 ),

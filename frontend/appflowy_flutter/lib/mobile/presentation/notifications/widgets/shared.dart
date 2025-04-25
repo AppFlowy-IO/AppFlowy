@@ -15,7 +15,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 const _kNotificationIconHeight = 36.0;
 
@@ -98,7 +97,7 @@ class UnreadRedDot extends StatelessWidget {
       height: _kNotificationIconHeight,
       child: Center(
         child: SizedBox.square(
-          dimension: 6.0,
+          dimension: 7.0,
           child: DecoratedBox(
             decoration: ShapeDecoration(
               color: theme.borderColorScheme.errorThick,
@@ -268,7 +267,7 @@ class NotificationEllipse extends StatelessWidget {
     return Container(
       width: 2.50,
       height: 2.50,
-      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      margin: const EdgeInsets.symmetric(horizontal: 6.0),
       decoration: ShapeDecoration(
         color: context.notificationItemTextColor,
         shape: const OvalBorder(),
@@ -324,11 +323,7 @@ class NotificationDocumentContent extends StatelessWidget {
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
-      customHeadingPadding: UniversalPlatform.isDesktop
-          ? EdgeInsets.zero
-          : EdgeInsets.symmetric(
-              vertical: EditorStyleCustomizer.nodeHorizontalPadding,
-            ),
+      customPadding: (node) => EdgeInsets.zero,
     );
 
     return IgnorePointer(

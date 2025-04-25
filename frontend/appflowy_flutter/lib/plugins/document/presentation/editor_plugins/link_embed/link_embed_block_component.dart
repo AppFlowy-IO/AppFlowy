@@ -136,7 +136,7 @@ class LinkEmbedBlockComponentState
       height: 450,
       key: widgetKey,
       decoration: BoxDecoration(
-        color: isIdle ? Theme.of(context).cardColor : fillSceme.tertiaryHover,
+        color: fillSceme.quaternary,
         borderRadius: BorderRadius.all(Radius.circular(16)),
         border: Border.all(color: borderScheme.greyTertiary),
       ),
@@ -276,7 +276,7 @@ class LinkEmbedBlockComponentState
                         TextSpan(
                           text: '$url ',
                           style: TextStyle(
-                            color: textSceme.primary,
+                            color: textSceme.secondary,
                             fontSize: 14,
                             height: 20 / 14,
                             fontWeight: FontWeight.w700,
@@ -287,7 +287,7 @@ class LinkEmbedBlockComponentState
                               .document_plugins_linkPreview_linkPreviewMenu_unableToDisplay
                               .tr(),
                           style: TextStyle(
-                            color: textSceme.primary,
+                            color: textSceme.secondary,
                             fontSize: 14,
                             height: 20 / 14,
                             fontWeight: FontWeight.w400,

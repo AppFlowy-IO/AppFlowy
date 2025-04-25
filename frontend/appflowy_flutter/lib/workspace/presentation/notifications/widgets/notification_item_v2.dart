@@ -22,6 +22,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'notification_content_v2.dart';
+
 class NotificationItemV2 extends StatelessWidget {
   const NotificationItemV2({
     super.key,
@@ -61,7 +63,7 @@ class NotificationItemV2 extends StatelessWidget {
           }
 
           final child = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 14, 14, 10),
             child: _InnerNotificationItem(
               tabType: tabType,
               reminder: reminder,
@@ -277,7 +279,7 @@ class _InnerNotificationItem extends StatelessWidget {
         NotificationIcon(reminder: reminder),
         const HSpace(12.0),
         Expanded(
-          child: NotificationContent(reminder: reminder),
+          child: NotificationItemContentV2(reminder: reminder),
         ),
       ],
     );
