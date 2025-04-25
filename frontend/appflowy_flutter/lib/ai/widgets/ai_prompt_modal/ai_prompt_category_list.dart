@@ -22,7 +22,7 @@ class AiPromptCategoryList extends StatelessWidget {
       child: TextFieldTapRegion(
         groupId: "ai_prompt_category_list",
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.spacing.s,
           children: [
             _buildSearchField(context),
