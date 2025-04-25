@@ -292,10 +292,7 @@ impl UserManager {
       match create_awareness {
         Ok(new_user_awareness) => {
           user_awareness.insert(workspace_id, new_user_awareness);
-          send_notification(
-            &workspace_id.to_string(),
-            UserNotification::DidLoadUserAwareness,
-          );
+          send_notification(workspace_id, UserNotification::DidLoadUserAwareness);
 
           set_is_loading_false();
           Ok(())

@@ -270,7 +270,7 @@ impl UserManager {
 
     let row = self.get_user_workspace_from_db(uid, workspace_id)?;
     let payload = UserWorkspacePB::from(row);
-    send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
+    send_notification(uid, UserNotification::DidUpdateUserWorkspace)
       .payload(payload)
       .send();
 
@@ -460,7 +460,7 @@ impl UserManager {
             // only send notification if there were real changes
             if let Ok(updated_list) = select_all_user_workspace(uid, &mut conn) {
               let repeated_pb = RepeatedUserWorkspacePB::from(updated_list);
-              send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
+              send_notification(uid, UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_pb)
                 .send();
             }
@@ -609,12 +609,9 @@ impl UserManager {
     update_workspace_setting(&mut conn, changeset)?;
 
     let pb = WorkspaceSettingsPB::from(&settings);
-    send_notification(
-      &uid.to_string(),
-      UserNotification::DidUpdateWorkspaceSetting,
-    )
-    .payload(pb)
-    .send();
+    send_notification(uid, UserNotification::DidUpdateWorkspaceSetting)
+      .payload(pb)
+      .send();
     Ok(())
   }
 
@@ -767,12 +764,9 @@ async fn sync_workspace_settings(
   let new_pb = WorkspaceSettingsPB::from(&settings);
   if new_pb != old_pb {
     trace!("workspace settings updated");
-    send_notification(
-      &uid.to_string(),
-      UserNotification::DidUpdateWorkspaceSetting,
-    )
-    .payload(new_pb)
-    .send();
+    send_notification(uid, UserNotification::DidUpdateWorkspaceSetting)
+      .payload(new_pb)
+      .send();
     if let Ok(mut conn) = pool.get() {
       upsert_workspace_setting(
         &mut conn,
