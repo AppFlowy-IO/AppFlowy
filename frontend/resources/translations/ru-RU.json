@@ -1989,6 +1989,19 @@
           }
         }
       },
+      "photoGallery": {
+        "name": "Фотогалерея",
+        "imageKeyword": "изображение",
+        "imageGalleryKeyword": "галерея изображений",
+        "photoKeyword": "фото",
+        "photoBrowserKeyword": "фотобраузер",
+        "galleryKeyword": "галерея",
+        "addImageTooltip": "Добавить изображение",
+        "changeLayoutTooltip": "Изменить макет",
+        "browserLayout": "Браузер",
+        "gridLayout": "Сетка",
+        "deleteBlockTooltip": "Удалить всю галерею"
+      },
       "math": {
         "copiedToPasteBoard": "Математическое уравнение скопировано в буфер обмена"
       },
@@ -2468,10 +2481,10 @@
     "archievedTooltip": "Архивировать это уведомление",
     "unarchievedTooltip": "Разархивировать это уведомление",
     "markAsReadTooltip": "Отметить это уведомление как прочитанное",
-    "markAllAsArchievedSucceedToast": "Все успешно заархивировано",
     "markAsArchievedSucceedToast": "Успешно заархивировано",
-    "markAllAsReadSucceedToast": "Все успешно отмечено как прочитанное",
+    "markAllAsArchievedSucceedToast": "Все успешно заархивировано",
     "markAsReadSucceedToast": "Отмечено как прочитанное успешно",
+    "markAllAsReadSucceedToast": "Все успешно отмечено как прочитанное",
     "today": "Сегодня",
     "older": "Старше",
     "mobile": {
