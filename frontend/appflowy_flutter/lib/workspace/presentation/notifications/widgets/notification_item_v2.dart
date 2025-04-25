@@ -276,7 +276,7 @@ class _InnerNotificationItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NotificationIcon(reminder: reminder),
+        NotificationIcon(reminder: reminder, atSize: 14),
         const HSpace(12.0),
         Expanded(
           child: NotificationItemContentV2(reminder: reminder),

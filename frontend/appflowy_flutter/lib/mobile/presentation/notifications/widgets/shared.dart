@@ -22,9 +22,11 @@ class NotificationIcon extends StatelessWidget {
   const NotificationIcon({
     super.key,
     required this.reminder,
+    this.atSize = 12,
   });
 
   final ReminderPB reminder;
+  final double atSize;
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +51,10 @@ class NotificationIcon extends StatelessWidget {
                 color: theme.fillColorScheme.primary,
               ),
               child: Center(
-                child: Text(
-                  '@',
-                  style: TextStyle(
-                    color: theme.iconColorScheme.primary,
-                    fontSize: 12,
-                    height: 1,
-                  ),
+                child: FlowySvg(
+                  FlowySvgs.notification_icon_at_s,
+                  size: Size.square(atSize),
+                  color: theme.iconColorScheme.primary,
                 ),
               ),
             ),
