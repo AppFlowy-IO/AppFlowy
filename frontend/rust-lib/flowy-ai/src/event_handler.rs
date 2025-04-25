@@ -340,6 +340,15 @@ pub(crate) async fn get_local_ai_setting_handler(
   data_result_ok(pb)
 }
 
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn get_local_ai_models_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<AvailableModelsPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let data = ai_manager.get_local_available_models().await?;
+  data_result_ok(data)
+}
+
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_local_ai_setting_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,

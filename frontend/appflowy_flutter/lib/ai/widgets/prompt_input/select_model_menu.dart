@@ -218,9 +218,10 @@ class _CurrentModelButton extends StatelessWidget {
         child: SizedBox(
           height: DesktopAIPromptSizes.actionBarButtonSize,
           child: AnimatedSize(
-            duration: const Duration(milliseconds: 50),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
             alignment: AlignmentDirectional.centerStart,
+            clipBehavior: Clip.none,
             child: FlowyHover(
               style: const HoverStyle(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -228,6 +229,7 @@ class _CurrentModelButton extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(4.0),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
                       // TODO: remove this after change icon to 20px
@@ -239,14 +241,18 @@ class _CurrentModelButton extends StatelessWidget {
                       ),
                     ),
                     if (model != null && !model!.isDefault)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(end: 2.0),
-                        child: FlowyText(
-                          model!.i18n,
-                          fontSize: 12,
-                          figmaLineHeight: 16,
-                          color: Theme.of(context).hintColor,
-                          overflow: TextOverflow.ellipsis,
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeOutCubic,
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.only(end: 2.0),
+                          child: FlowyText(
+                            model!.i18n,
+                            fontSize: 12,
+                            figmaLineHeight: 16,
+                            color: Theme.of(context).hintColor,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     FlowySvg(

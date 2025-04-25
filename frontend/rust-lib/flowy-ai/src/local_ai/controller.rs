@@ -384,11 +384,7 @@ impl LocalAIController {
       setting,
       std::thread::current().id()
     );
-
-    if self.resource.set_llm_setting(setting).await.is_ok() {
-      let is_enabled = self.is_enabled();
-      self.toggle_plugin(is_enabled).await?;
-    }
+    self.resource.set_llm_setting(setting).await?;
     Ok(())
   }
 

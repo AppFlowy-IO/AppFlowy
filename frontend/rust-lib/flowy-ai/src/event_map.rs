@@ -31,6 +31,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::ToggleLocalAI, toggle_local_ai_handler)
     .event(AIEvent::GetLocalAIState, get_local_ai_state_handler)
     .event(AIEvent::GetLocalAISetting, get_local_ai_setting_handler)
+    .event(AIEvent::GetLocalAIModels, get_local_ai_models_handler)
     .event(
       AIEvent::UpdateLocalAISetting,
       update_local_ai_setting_handler,
@@ -121,4 +122,7 @@ pub enum AIEvent {
 
   #[event(input = "UpdateSelectedModelPB")]
   UpdateSelectedModel = 32,
+
+  #[event(output = "AvailableModelsPB")]
+  GetLocalAIModels = 33,
 }

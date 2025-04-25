@@ -222,7 +222,13 @@ pub struct AvailableModelsPB {
   pub models: Vec<AIModelPB>,
 
   #[pb(index = 2)]
-  pub selected_model: AIModelPB,
+  pub global_model: AIModelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedAIModelPB {
+  #[pb(index = 1)]
+  pub items: Vec<AIModelPB>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -686,7 +692,7 @@ pub struct LocalAISettingPB {
 
   #[pb(index = 2)]
   #[validate(custom(function = "required_not_empty_str"))]
-  pub default_model: String,
+  pub global_chat_model: String,
 
   #[pb(index = 3)]
   #[validate(custom(function = "required_not_empty_str"))]
@@ -697,7 +703,7 @@ impl From<LocalAISetting> for LocalAISettingPB {
   fn from(value: LocalAISetting) -> Self {
     LocalAISettingPB {
       server_url: value.ollama_server_url,
-      default_model: value.chat_model_name,
+      global_chat_model: value.chat_model_name,
       embedding_model_name: value.embedding_model_name,
     }
   }
@@ -707,7 +713,7 @@ impl From<LocalAISettingPB> for LocalAISetting {
   fn from(value: LocalAISettingPB) -> Self {
     LocalAISetting {
       ollama_server_url: value.server_url,
-      chat_model_name: value.default_model,
+      chat_model_name: value.global_chat_model,
       embedding_model_name: value.embedding_model_name,
     }
   }

@@ -79,7 +79,7 @@ class AIModelStateNotifier {
     _aiModelSwitchListener.start(
       onUpdateSelectedModel: (model) async {
         final updatedModels = _availableModels?.deepCopy()
-          ?..selectedModel = model;
+          ?..globalModel = model;
         _availableModels = updatedModels;
         _notifyAvailableModelsChanged();
 
@@ -161,7 +161,7 @@ class AIModelStateNotifier {
       );
     }
 
-    if (!availableModels.selectedModel.isLocal) {
+    if (!availableModels.globalModel.isLocal) {
       return AIModelState(
         type: AiType.cloud,
         hintText: LocaleKeys.chat_inputMessageHint.tr(),
@@ -199,7 +199,7 @@ class AIModelStateNotifier {
     if (availableModels == null) {
       return ([], null);
     }
-    return (availableModels.models, availableModels.selectedModel);
+    return (availableModels.models, availableModels.globalModel);
   }
 
   void _notifyAvailableModelsChanged() {

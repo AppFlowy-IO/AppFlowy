@@ -36,7 +36,7 @@ class AiSettingsGroup extends StatelessWidget {
               MobileSettingItem(
                 name: LocaleKeys.settings_aiPage_keys_llmModelType.tr(),
                 trailing: MobileSettingTrailing(
-                  text: state.availableModels?.selectedModel.name ?? "",
+                  text: state.availableModels?.globalModel.name ?? "",
                 ),
                 onTap: () => _onLLMModelTypeTap(context, state),
               ),
@@ -73,7 +73,7 @@ class AiSettingsGroup extends StatelessWidget {
                   text: entry.value.name,
                   showTopBorder: entry.key == 0,
                   isSelected:
-                      availableModels?.selectedModel.name == entry.value.name,
+                      availableModels?.globalModel.name == entry.value.name,
                   onTap: () {
                     context
                         .read<SettingsAIBloc>()

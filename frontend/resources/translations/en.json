@@ -866,6 +866,7 @@
         "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
+        "globalLLMModel": "Global Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
