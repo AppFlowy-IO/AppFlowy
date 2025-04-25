@@ -58,7 +58,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
     return getSignInURLResult.fold(
       (urlPB) async {
         final payload = OauthSignInPB(
-          authenticator: AuthTypePB.Server,
+          authType: AuthTypePB.Server,
           map: {
             AuthServiceMapKeys.signInURL: urlPB.signInUrl,
             AuthServiceMapKeys.deviceId: deviceId,

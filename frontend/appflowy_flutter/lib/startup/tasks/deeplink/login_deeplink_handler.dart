@@ -26,7 +26,7 @@ class LoginDeepLinkHandler extends DeepLinkHandler<UserProfilePB> {
   }) async {
     final deviceId = await getDeviceId();
     final payload = OauthSignInPB(
-      authenticator: AuthTypePB.Server,
+      authType: AuthTypePB.Server,
       map: {
         AuthServiceMapKeys.signInURL: uri.toString(),
         AuthServiceMapKeys.deviceId: deviceId,

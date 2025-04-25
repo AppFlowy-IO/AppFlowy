@@ -90,8 +90,8 @@ class SettingsDialogBloc
     AFRolePB? currentWorkspaceMemberRole,
   ]) async {
     if ([
-      AuthTypePB.Local,
-    ].contains(userProfile.workspaceAuthType)) {
+      WorkspaceTypePB.LocalW,
+    ].contains(userProfile.workspaceType)) {
       return false;
     }
 

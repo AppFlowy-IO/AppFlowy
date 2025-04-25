@@ -1,5 +1,7 @@
 use crate::cloud::UserUpdate;
-use crate::entities::{AuthType, Role, UpdateUserProfileParams, UserProfile, UserWorkspace};
+use crate::entities::{
+  AuthType, Role, UpdateUserProfileParams, UserProfile, UserWorkspace, WorkspaceType,
+};
 use crate::sql::{
   select_user_workspace, upsert_user_workspace, upsert_workspace_member, WorkspaceMemberTable,
 };
@@ -114,7 +116,7 @@ pub fn insert_local_workspace(
       joined_at: None,
     };
 
-    upsert_user_workspace(uid, AuthType::Local, user_workspace.clone(), conn)?;
+    upsert_user_workspace(uid, WorkspaceType::Local, user_workspace.clone(), conn)?;
     upsert_workspace_member(conn, row)?;
     Ok::<_, FlowyError>(())
   })?;
@@ -141,7 +143,7 @@ pub fn select_user_profile(
   conn: &mut SqliteConnection,
 ) -> Result<UserProfile, FlowyError> {
   let workspace = select_user_workspace(workspace_id, conn)?;
-  let workspace_auth_type = AuthType::from(workspace.workspace_type);
+  let workspace_type = WorkspaceType::from(workspace.workspace_type);
   let row = select_user_table_row(uid, conn)?;
 
   let user = UserProfile {
@@ -151,7 +153,7 @@ pub fn select_user_profile(
     token: row.token,
     icon_url: row.icon_url,
     auth_type: AuthType::from(row.auth_type),
-    workspace_auth_type,
+    workspace_type,
     updated_at: row.updated_at,
   };
 

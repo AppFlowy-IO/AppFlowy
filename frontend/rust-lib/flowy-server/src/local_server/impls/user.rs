@@ -1,16 +1,22 @@
 #![allow(unused_variables)]
 
 use crate::af_cloud::define::LoggedUser;
+use crate::local_server::template::create_workspace::{
+  create_workspace_for_user, CreateWorkspaceCollab,
+};
 use crate::local_server::uid::UserIDGenerator;
 use anyhow::Context;
 use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::CollabObject;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_plugins::CollabKVDB;
 use collab_user::core::UserAwareness;
 use flowy_ai_pub::cloud::billing_dto::WorkspaceUsageAndLimit;
 use flowy_ai_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::sql::{
@@ -163,6 +169,16 @@ impl UserCloudService for LocalServerUserServiceImpl {
   async fn create_workspace(&self, workspace_name: &str) -> Result<UserWorkspace, FlowyError> {
     let workspace_id = Uuid::new_v4();
     let uid = self.logged_user.user_id()?;
+
+    let collab_db = self
+      .logged_user
+      .get_collab_db(uid)?
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)?;
+    let collab_params = create_workspace_for_user(uid, &workspace_id).await?;
+    insert_collabs(collab_db, uid, &workspace_id.to_string(), collab_params)?;
+    // insert collab
+
     let mut conn = self.logged_user.get_sqlite_db(uid)?;
     let user_workspace =
       insert_local_workspace(uid, &workspace_id.to_string(), workspace_name, &mut conn)?;
@@ -338,4 +354,25 @@ impl UserCloudService for LocalServerUserServiceImpl {
       ai_model: row.ai_model,
     })
   }
+}
+
+fn insert_collabs(
+  db: Arc<CollabKVDB>,
+  uid: i64,
+  workspace_id: &str,
+  params_list: Vec<CreateWorkspaceCollab>,
+) -> FlowyResult<()> {
+  let write = db.write_txn();
+  for params in params_list {
+    write.flush_doc(
+      uid,
+      workspace_id,
+      &params.object_id.to_string(),
+      params.encoded_collab.state_vector.to_vec(),
+      params.encoded_collab.doc_state.to_vec(),
+    )?
+  }
+
+  write.commit_transaction()?;
+  Ok(())
 }

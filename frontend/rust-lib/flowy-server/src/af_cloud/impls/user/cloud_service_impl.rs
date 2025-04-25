@@ -32,7 +32,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_pub::entities::{
   AFCloudOAuthParams, AuthResponse, AuthType, Role, UpdateUserProfileParams, UserProfile,
-  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember, WorkspaceType,
 };
 use flowy_user_pub::sql::select_user_workspace;
 use lib_infra::async_trait::async_trait;
@@ -656,7 +656,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     icon: af_workspace.icon,
     member_count: af_workspace.member_count.unwrap_or(0),
     role: af_workspace.role.map(|r| r.into()),
-    workspace_type: AuthType::AppFlowyCloud,
+    workspace_type: WorkspaceType::Server,
   }
 }
 

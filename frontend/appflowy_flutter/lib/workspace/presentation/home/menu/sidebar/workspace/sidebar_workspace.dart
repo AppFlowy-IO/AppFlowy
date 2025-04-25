@@ -257,7 +257,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     context.read<UserWorkspaceBloc>().add(
           UserWorkspaceEvent.openWorkspace(
             workspaceId,
-            openWorkspace.workspaceAuthType,
+            openWorkspace.workspaceType,
           ),
         );
 

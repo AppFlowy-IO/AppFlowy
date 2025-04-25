@@ -146,7 +146,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsShortcutsView();
       case SettingsPage.ai:
-        if (user.workspaceAuthType == AuthTypePB.Server) {
+        if (user.workspaceType == WorkspaceTypePB.ServerW) {
           return SettingsAIView(
             key: ValueKey(workspaceId),
             userProfile: user,

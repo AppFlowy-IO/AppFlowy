@@ -63,7 +63,7 @@ class SettingsMenu extends StatelessWidget {
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.membersSettings.isOn &&
-                      userProfile.workspaceAuthType == AuthTypePB.Server)
+                      userProfile.workspaceType == WorkspaceTypePB.ServerW)
                     SettingsMenuElement(
                       page: SettingsPage.member,
                       selectedPage: currentPage,
@@ -108,7 +108,7 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (userProfile.workspaceAuthType == AuthTypePB.Server)
+                  if (userProfile.workspaceType == WorkspaceTypePB.ServerW)
                     SettingsMenuElement(
                       page: SettingsPage.sites,
                       selectedPage: currentPage,

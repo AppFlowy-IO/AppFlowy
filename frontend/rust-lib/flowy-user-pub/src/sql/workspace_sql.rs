@@ -1,4 +1,4 @@
-use crate::entities::{AuthType, UserWorkspace};
+use crate::entities::{AuthType, UserWorkspace, WorkspaceType};
 use chrono::{TimeZone, Utc};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
@@ -66,7 +66,7 @@ impl UserWorkspaceTable {
   pub fn from_workspace(
     uid_val: i64,
     workspace: &UserWorkspace,
-    auth_type: AuthType,
+    workspace_type: WorkspaceType,
   ) -> Result<Self, FlowyError> {
     if workspace.id.is_empty() {
       return Err(FlowyError::invalid_data().with_context("The id is empty"));
@@ -84,7 +84,7 @@ impl UserWorkspaceTable {
       icon: workspace.icon.clone(),
       member_count: workspace.member_count,
       role: workspace.role.map(|v| v as i32),
-      workspace_type: auth_type as i32,
+      workspace_type: workspace_type as i32,
     })
   }
 }
@@ -102,12 +102,12 @@ pub fn select_user_workspace(
 pub fn select_user_workspace_type(
   workspace_id: &str,
   conn: &mut SqliteConnection,
-) -> FlowyResult<AuthType> {
+) -> FlowyResult<WorkspaceType> {
   let row = dsl::user_workspace_table
     .filter(user_workspace_table::id.eq(workspace_id))
     .select(user_workspace_table::workspace_type)
     .first::<i32>(conn)?;
-  Ok(AuthType::from(row))
+  Ok(WorkspaceType::from(row))
 }
 
 pub fn select_all_user_workspace(
@@ -160,7 +160,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(|v| v.into()),
-      workspace_type: AuthType::from(value.workspace_type),
+      workspace_type: WorkspaceType::from(value.workspace_type),
     }
   }
 }
@@ -192,11 +192,11 @@ pub enum WorkspaceChange {
 
 pub fn upsert_user_workspace(
   uid_val: i64,
-  auth_type: AuthType,
+  workspace_type: WorkspaceType,
   user_workspace: UserWorkspace,
   conn: &mut SqliteConnection,
 ) -> Result<usize, FlowyError> {
-  let row = UserWorkspaceTable::from_workspace(uid_val, &user_workspace, auth_type)?;
+  let row = UserWorkspaceTable::from_workspace(uid_val, &user_workspace, workspace_type)?;
   let n = insert_into(user_workspace_table::table)
     .values(row.clone())
     .on_conflict(user_workspace_table::id)
@@ -217,7 +217,7 @@ pub fn upsert_user_workspace(
 
 pub fn sync_user_workspaces_with_diff(
   uid_val: i64,
-  auth_type: AuthType,
+  workspace_type: WorkspaceType,
   user_workspaces: &[UserWorkspace],
   conn: &mut SqliteConnection,
 ) -> FlowyResult<Vec<WorkspaceChange>> {
@@ -225,7 +225,7 @@ pub fn sync_user_workspaces_with_diff(
     // 1) Load all existing workspaces into a map
     let existing_rows: Vec<UserWorkspaceTable> = dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid_val))
-      .filter(user_workspace_table::workspace_type.eq(auth_type as i32))
+      .filter(user_workspace_table::workspace_type.eq(workspace_type as i32))
       .load(conn)?;
     let mut existing_map: HashMap<String, UserWorkspaceTable> = existing_rows
       .into_iter()
@@ -251,7 +251,7 @@ pub fn sync_user_workspaces_with_diff(
       match existing_map.remove(&uw.id) {
         None => {
           // new workspace → insert
-          let new_row = UserWorkspaceTable::from_workspace(uid_val, uw, auth_type)?;
+          let new_row = UserWorkspaceTable::from_workspace(uid_val, uw, workspace_type)?;
           diesel::insert_into(user_workspace_table::table)
             .values(new_row)
             .execute(conn)?;

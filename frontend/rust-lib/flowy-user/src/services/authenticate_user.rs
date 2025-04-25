@@ -9,7 +9,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
-use flowy_user_pub::entities::{AuthType, UserWorkspace};
+use flowy_user_pub::entities::{UserWorkspace, WorkspaceType};
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::{select_user_workspace, select_user_workspace_type};
 use std::path::PathBuf;
@@ -58,7 +58,7 @@ impl AuthenticateUser {
     let session = self.get_session()?;
     let mut conn = self.get_sqlite_connection(session.user_id)?;
     let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
-    Ok(matches!(workspace_type, AuthType::Local))
+    Ok(matches!(workspace_type, WorkspaceType::Local))
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
