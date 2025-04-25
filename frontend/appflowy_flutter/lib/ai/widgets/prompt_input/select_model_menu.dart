@@ -90,38 +90,40 @@ class SelectModelPopoverContent extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (localModels.isNotEmpty) ...[
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_localModel.tr(),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (localModels.isNotEmpty) ...[
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_localModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...localModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
             ),
-            const VSpace(4.0),
+            if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
+              const VSpace(8.0),
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_cloudModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...cloudModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
+            ),
           ],
-          ...localModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-          if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
-            const VSpace(8.0),
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_cloudModel.tr(),
-            ),
-            const VSpace(4.0),
-          ],
-          ...cloudModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

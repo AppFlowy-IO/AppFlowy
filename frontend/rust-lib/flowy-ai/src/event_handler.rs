@@ -1,7 +1,6 @@
 use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
 use crate::completion::AICompletion;
 use crate::entities::*;
-use crate::util::ai_available_models_key;
 use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -82,8 +81,9 @@ pub(crate) async fn get_server_model_list_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<AvailableModelsPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
-  let models = ai_manager.get_available_models(source_key).await?;
+  let models = ai_manager
+    .get_available_models(GLOBAL_ACTIVE_MODEL_KEY.to_string())
+    .await?;
   data_result_ok(models)
 }
 

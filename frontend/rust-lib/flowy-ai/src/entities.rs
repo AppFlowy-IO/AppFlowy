@@ -686,7 +686,7 @@ pub struct LocalAISettingPB {
 
   #[pb(index = 2)]
   #[validate(custom(function = "required_not_empty_str"))]
-  pub chat_model_name: String,
+  pub default_model: String,
 
   #[pb(index = 3)]
   #[validate(custom(function = "required_not_empty_str"))]
@@ -697,7 +697,7 @@ impl From<LocalAISetting> for LocalAISettingPB {
   fn from(value: LocalAISetting) -> Self {
     LocalAISettingPB {
       server_url: value.ollama_server_url,
-      chat_model_name: value.chat_model_name,
+      default_model: value.chat_model_name,
       embedding_model_name: value.embedding_model_name,
     }
   }
@@ -707,7 +707,7 @@ impl From<LocalAISettingPB> for LocalAISetting {
   fn from(value: LocalAISettingPB) -> Self {
     LocalAISetting {
       ollama_server_url: value.server_url,
-      chat_model_name: value.chat_model_name,
+      chat_model_name: value.default_model,
       embedding_model_name: value.embedding_model_name,
     }
   }

@@ -330,14 +330,10 @@ impl AIManager {
       .get_question_id_from_answer_id(chat_id, answer_message_id)
       .await?;
 
-    let model = model.map_or_else(
-      || {
-        self
-          .store_preferences
-          .get_object::<AIModel>(&ai_available_models_key(&chat_id.to_string()))
-      },
-      |model| Some(model.into()),
-    );
+    let model = match model {
+      None => self.get_active_model(&chat_id.to_string()).await,
+      Some(model) => Some(model.into()),
+    };
     chat
       .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
@@ -354,9 +350,10 @@ impl AIManager {
         "[AI Plugin] update global active model, previous: {}, current: {}",
         previous_model, current_model
       );
-      let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
       let model = AIModel::local(current_model, "".to_string());
-      self.update_selected_model(source_key, model).await?;
+      self
+        .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
+        .await?;
     }
 
     Ok(())
@@ -440,11 +437,11 @@ impl AIManager {
   }
 
   pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
-    info!(
-      "[Model Selection] update {} selected model: {:?}",
-      source, model
-    );
     let source_key = ai_available_models_key(&source);
+    info!(
+      "[Model Selection] update {} selected model: {:?} for key:{}",
+      source, model, source_key
+    );
     self
       .store_preferences
       .set_object::<AIModel>(&source_key, &model)?;
@@ -458,12 +455,13 @@ impl AIManager {
   #[instrument(skip_all, level = "debug")]
   pub async fn toggle_local_ai(&self) -> FlowyResult<()> {
     let enabled = self.local_ai.toggle_local_ai().await?;
-    let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
     if enabled {
       if let Some(name) = self.local_ai.get_plugin_chat_model() {
         info!("Set global active model to local ai: {}", name);
         let model = AIModel::local(name, "".to_string());
-        self.update_selected_model(source_key, model).await?;
+        self
+          .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
+          .await?;
       }
     } else {
       info!("Set global active model to default");
@@ -471,7 +469,7 @@ impl AIManager {
       let models = self.get_server_available_models().await?;
       if let Some(model) = models.into_iter().find(|m| m.name == global_active_model) {
         self
-          .update_selected_model(source_key, AIModel::from(model))
+          .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), AIModel::from(model))
           .await?;
       }
     }
@@ -484,21 +482,31 @@ impl AIManager {
       .store_preferences
       .get_object::<AIModel>(&ai_available_models_key(source));
 
-    if model.is_none() {
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        model = Some(AIModel::local(local_model, "".to_string()));
-      }
+    match model {
+      None => {
+        if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+          model = Some(AIModel::local(local_model, "".to_string()));
+        }
+        model
+      },
+      Some(mut model) => {
+        let models = self.local_ai.get_all_chat_local_models().await;
+        if !models.contains(&model) {
+          if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+            model = AIModel::local(local_model, "".to_string());
+          }
+        }
+        Some(model)
+      },
     }
-
-    model
   }
 
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
       let setting = self.local_ai.get_local_ai_setting();
+      let models = self.local_ai.get_all_chat_local_models().await;
       let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
-      let models = vec![selected_model.clone()];
 
       Ok(AvailableModelsPB {
         models: models.into_iter().map(|m| m.into()).collect(),
@@ -506,27 +514,24 @@ impl AIManager {
       })
     } else {
       // Build the models list from server models and mark them as non-local.
-      let mut models: Vec<AIModel> = self
+      let mut all_models: Vec<AIModel> = self
         .get_server_available_models()
         .await?
         .into_iter()
         .map(AIModel::from)
         .collect();
 
-      trace!("[Model Selection]: Available models: {:?}", models);
-      let mut current_active_local_ai_model = None;
+      trace!("[Model Selection]: Available models: {:?}", all_models);
 
       // If user enable local ai, then add local ai model to the list.
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        let model = AIModel::local(local_model, "".to_string());
-        current_active_local_ai_model = Some(model.clone());
-        trace!("[Model Selection] current local ai model: {}", model.name);
-        models.push(model);
+      if self.local_ai.is_enabled() {
+        let local_models = self.local_ai.get_all_chat_local_models().await;
+        all_models.extend(local_models.into_iter().map(|m| m));
       }
 
-      if models.is_empty() {
+      if all_models.is_empty() {
         return Ok(AvailableModelsPB {
-          models: models.into_iter().map(|m| m.into()).collect(),
+          models: all_models.into_iter().map(|m| m.into()).collect(),
           selected_model: AIModelPB::default(),
         });
       }
@@ -545,37 +550,29 @@ impl AIManager {
 
       let mut user_selected_model = server_active_model.clone();
       // when current select model is deprecated, reset the model to default
-      if !models.iter().any(|m| m.name == server_active_model.name) {
+      if !all_models
+        .iter()
+        .any(|m| m.name == server_active_model.name)
+      {
         server_active_model = AIModel::default();
       }
 
-      let source_key = ai_available_models_key(&source);
       // We use source to identify user selected model. source can be document id or chat id.
-      match self.store_preferences.get_object::<AIModel>(&source_key) {
+      match self.get_active_model(&source).await {
         None => {
           // when there is selected model and current local ai is active, then use local ai
-          if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
+          if let Some(local_ai_model) = all_models.iter().find(|m| m.is_local) {
             user_selected_model = local_ai_model.clone();
           }
         },
-        Some(mut model) => {
+        Some(model) => {
           trace!("[Model Selection] user previous select model: {:?}", model);
-          // If source is provided, try to get the user-selected model from the store. User selected
-          // model will be used as the active model if it exists.
-          if model.is_local {
-            if let Some(local_ai_model) = &current_active_local_ai_model {
-              if local_ai_model.name != model.name {
-                model = local_ai_model.clone();
-              }
-            }
-          }
-
           user_selected_model = model;
         },
       }
 
       // If user selected model is not available in the list, use the global active model.
-      let active_model = models
+      let active_model = all_models
         .iter()
         .find(|m| m.name == user_selected_model.name)
         .cloned()
@@ -585,15 +582,15 @@ impl AIManager {
       if let Some(ref active_model) = active_model {
         if active_model.name != user_selected_model.name {
           self
-            .store_preferences
-            .set_object::<AIModel>(&source_key, &active_model.clone())?;
+            .update_selected_model(source, active_model.clone())
+            .await?;
         }
       }
 
       trace!("[Model Selection] final active model: {:?}", active_model);
       let selected_model = AIModelPB::from(active_model.unwrap_or_default());
       Ok(AvailableModelsPB {
-        models: models.into_iter().map(|m| m.into()).collect(),
+        models: all_models.into_iter().map(|m| m.into()).collect(),
         selected_model,
       })
     }

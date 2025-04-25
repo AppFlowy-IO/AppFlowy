@@ -11,6 +11,9 @@ import 'package:equatable/equatable.dart';
 
 part 'ollama_setting_bloc.freezed.dart';
 
+const kDefaultChatModel = 'llama3.1:latest';
+const kDefaultEmbeddingModel = 'nomic-embed-text:latest';
+
 class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
   OllamaSettingBloc() : super(const OllamaSettingState()) {
     on<OllamaSettingEvent>(_handleEvent);
@@ -70,7 +73,7 @@ class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
         final setting = LocalAISettingPB();
         final settingUpdaters = <SettingType, void Function(String)>{
           SettingType.serverUrl: (value) => setting.serverUrl = value,
-          SettingType.chatModel: (value) => setting.chatModelName = value,
+          SettingType.chatModel: (value) => setting.defaultModel = value,
           SettingType.embeddingModel: (value) =>
               setting.embeddingModelName = value,
         };
@@ -108,13 +111,13 @@ class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
           settingType: SettingType.serverUrl,
         ),
         SettingItem(
-          content: setting.chatModelName,
-          hintText: 'llama3.1',
+          content: setting.defaultModel,
+          hintText: kDefaultChatModel,
           settingType: SettingType.chatModel,
         ),
         SettingItem(
           content: setting.embeddingModelName,
-          hintText: 'nomic-embed-text',
+          hintText: kDefaultEmbeddingModel,
           settingType: SettingType.embeddingModel,
         ),
       ];
@@ -125,7 +128,7 @@ class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
           settingType: SettingType.serverUrl,
         ),
         SubmittedItem(
-          content: setting.chatModelName,
+          content: setting.defaultModel,
           settingType: SettingType.chatModel,
         ),
         SubmittedItem(
@@ -203,13 +206,13 @@ class OllamaSettingState with _$OllamaSettingState {
         settingType: SettingType.serverUrl,
       ),
       SettingItem(
-        content: 'llama3.1',
-        hintText: 'llama3.1',
+        content: kDefaultChatModel,
+        hintText: kDefaultChatModel,
         settingType: SettingType.chatModel,
       ),
       SettingItem(
-        content: 'nomic-embed-text',
-        hintText: 'nomic-embed-text',
+        content: kDefaultEmbeddingModel,
+        hintText: kDefaultEmbeddingModel,
         settingType: SettingType.embeddingModel,
       ),
     ])
