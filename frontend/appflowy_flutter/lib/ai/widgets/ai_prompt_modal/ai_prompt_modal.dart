@@ -88,12 +88,7 @@ class AiPromptModal extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 2,
-                            child: AiPromptVisibleList(
-                              padding: EdgeInsets.symmetric(
-                                vertical: theme.spacing.l,
-                                horizontal: theme.spacing.l,
-                              ),
-                            ),
+                            child: AiPromptVisibleList(),
                           ),
                           Expanded(
                             flex: 3,
@@ -115,10 +110,6 @@ class AiPromptModal extends StatelessWidget {
                                 }
                                 return AiPromptPreview(
                                   prompt: selectedPrompt,
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: theme.spacing.l,
-                                    horizontal: theme.spacing.l,
-                                  ),
                                 );
                               },
                             ),
@@ -130,20 +121,6 @@ class AiPromptModal extends StatelessWidget {
                 },
               ),
             ),
-          ),
-          AFModalFooter(
-            trailing: [
-              AFFilledTextButton.primary(
-                text: LocaleKeys.ai_customPrompt_usePrompt.tr(),
-                onTap: () {
-                  final selectedPrompt =
-                      context.read<AiPromptSelectorCubit>().selectedPrompt;
-                  if (selectedPrompt != null) {
-                    Navigator.of(context).pop(selectedPrompt);
-                  }
-                },
-              ),
-            ],
           ),
         ],
       ),
