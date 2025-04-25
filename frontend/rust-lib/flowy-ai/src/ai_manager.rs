@@ -342,15 +342,24 @@ impl AIManager {
 
   pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     let old_settings = self.local_ai.get_local_ai_setting();
-    let need_restart = old_settings.ollama_server_url != setting.ollama_server_url;
-    self.local_ai.update_local_ai_setting(setting).await?;
-    let current_model = self.local_ai.get_local_ai_setting().chat_model_name;
-    if old_settings.chat_model_name != current_model {
+    // Only restart if the server URL has changed and local AI is not running
+    let need_restart =
+      old_settings.ollama_server_url != setting.ollama_server_url && !self.local_ai.is_running();
+
+    // Update settings first
+    self
+      .local_ai
+      .update_local_ai_setting(setting.clone())
+      .await?;
+
+    // Handle model change if needed
+    let model_changed = old_settings.chat_model_name != setting.chat_model_name;
+    if model_changed {
       info!(
         "[AI Plugin] update global active model, previous: {}, current: {}",
-        old_settings.chat_model_name, current_model
+        old_settings.chat_model_name, setting.chat_model_name
       );
-      let model = AIModel::local(current_model, "".to_string());
+      let model = AIModel::local(setting.chat_model_name, "".to_string());
       self
         .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
         .await?;
@@ -359,6 +368,7 @@ impl AIManager {
     if need_restart {
       self.local_ai.restart_plugin().await;
     }
+
     Ok(())
   }
 
@@ -506,8 +516,12 @@ impl AIManager {
 
   pub async fn get_local_available_models(&self) -> FlowyResult<AvailableModelsPB> {
     let setting = self.local_ai.get_local_ai_setting();
-    let models = self.local_ai.get_all_chat_local_models().await;
+    let mut models = self.local_ai.get_all_chat_local_models().await;
     let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+
+    if models.is_empty() {
+      models.push(selected_model.clone());
+    }
 
     Ok(AvailableModelsPB {
       models: models.into_iter().map(AIModelPB::from).collect(),
