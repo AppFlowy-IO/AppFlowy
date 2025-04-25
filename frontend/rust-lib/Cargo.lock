@@ -2819,14 +2819,11 @@ dependencies = [
  "arc-swap",
  "async-trait",
  "bytes",
- "chrono",
  "client-api",
  "collab",
- "collab-document",
  "collab-entity",
  "collab-folder",
  "collab-integrate",
- "collab-plugins",
  "dashmap 6.0.1",
  "flowy-codegen",
  "flowy-derive",
@@ -2835,12 +2832,10 @@ dependencies = [
  "flowy-notification",
  "flowy-search-pub",
  "flowy-sqlite",
- "flowy-user-pub",
  "futures",
- "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "nanoid",
+ "num_enum",
  "protobuf",
  "regex",
  "serde",
@@ -3086,6 +3081,7 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
+ "num_enum",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -4866,6 +4862,27 @@ checksum = "f30b0abd723be7e2ffca1272140fac1a2f084c77ec3e123c192b66af1ee9e6c2"
 dependencies = [
  "autocfg",
  "libm",
+]
+
+[[package]]
+name = "num_enum"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e613fc340b2220f734a8595782c551f1250e969d87d3be1ae0579e8d4065179"
+dependencies = [
+ "num_enum_derive",
+]
+
+[[package]]
+name = "num_enum_derive"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af1844ef2428cc3e1cb900be36181049ef3d3193c63e43026cfe202983b27a56"
+dependencies = [
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.94",
 ]
 
 [[package]]

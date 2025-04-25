@@ -41,11 +41,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               onUserWorkspaceListUpdated: (workspaces) =>
                   add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
               onUserWorkspaceUpdated: (workspace) {
-                // If currentWorkspace is updated, eg. Icon or Name, we should notify
-                // the UI to render the updated information.
-                final currentWorkspace = state.currentWorkspace;
-                if (currentWorkspace?.workspaceId == workspace.workspaceId) {
-                  add(UserWorkspaceEvent.updateCurrentWorkspace(workspace));
+                if (!isClosed) {
+                  // If currentWorkspace is updated, eg. Icon or Name, we should notify
+                  // the UI to render the updated information.
+                  final currentWorkspace = state.currentWorkspace;
+                  if (currentWorkspace?.workspaceId == workspace.workspaceId) {
+                    add(UserWorkspaceEvent.updateCurrentWorkspace(workspace));
+                  }
                 }
               },
             );
