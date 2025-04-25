@@ -23,7 +23,7 @@ enum LocalAIStreamingState {
 }
 
 abstract class AIRepository {
-  Future<void> streamCompletion({
+  Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
     required String text,
     PredefinedFormat? format,
