@@ -15,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -67,51 +68,55 @@ class NotificationItemV2 extends StatelessWidget {
             ),
           );
 
-          return FlowyHover(
-            style: HoverStyle(
-              hoverColor: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.zero,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FlowyHover(
+              style: HoverStyle(
+                hoverColor: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              resetHoverOnRebuild: false,
+              builder: (context, hover) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Stack(
+                    children: [
+                      child,
+                      if (hover) buildActions(context),
+                    ],
+                  ),
+                  onTap: () async {
+                    final view = state.view;
+                    if (view == null) {
+                      return;
+                    }
+
+                    homeSetting
+                        .add(HomeSettingEvent.collapseNotificationPanel());
+
+                    final documentFuture = DocumentService().openDocument(
+                      documentId: reminder.objectId,
+                    );
+
+                    final blockId = reminder.meta[ReminderMetaKeys.blockId];
+
+                    int? path;
+                    if (blockId != null) {
+                      final node =
+                          await _getNodeFromDocument(documentFuture, blockId);
+                      path = node?.path.first;
+                    }
+
+                    reminderBloc.add(
+                      ReminderEvent.pressReminder(
+                        reminderId: reminder.id,
+                        path: path,
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            resetHoverOnRebuild: false,
-            builder: (context, hover) {
-              return GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                child: Stack(
-                  children: [
-                    child,
-                    if (hover) buildActions(context),
-                  ],
-                ),
-                onTap: () async {
-                  final view = state.view;
-                  if (view == null) {
-                    return;
-                  }
-
-                  homeSetting.add(HomeSettingEvent.collapseNotificationPanel());
-
-                  final documentFuture = DocumentService().openDocument(
-                    documentId: reminder.objectId,
-                  );
-
-                  final blockId = reminder.meta[ReminderMetaKeys.blockId];
-
-                  int? path;
-                  if (blockId != null) {
-                    final node =
-                        await _getNodeFromDocument(documentFuture, blockId);
-                    path = node?.path.first;
-                  }
-
-                  reminderBloc.add(
-                    ReminderEvent.pressReminder(
-                      reminderId: reminder.id,
-                      path: path,
-                    ),
-                  );
-                },
-              );
-            },
           );
         },
       ),
@@ -119,11 +124,12 @@ class NotificationItemV2 extends StatelessWidget {
   }
 
   Widget buildActions(BuildContext context) {
-    const borderColor = Color(0x1F23291F);
+    final theme = AppFlowyTheme.of(context);
+    final borderColor = theme.borderColorScheme.primary;
     final decoration = BoxDecoration(
       border: Border.all(color: borderColor),
       borderRadius: BorderRadius.all(Radius.circular(6)),
-      color: Theme.of(context).cardColor,
+      color: theme.surfaceColorScheme.primary,
     );
 
     Widget child;
@@ -133,7 +139,7 @@ class NotificationItemV2 extends StatelessWidget {
         height: 28,
         decoration: decoration,
         child: FlowyIconButton(
-          tooltipText: LocaleKeys.notificationHub_unarchivedTooltip.tr(),
+          tooltipText: LocaleKeys.notificationHub_unarchiveTooltip.tr(),
           icon: FlowySvg(FlowySvgs.notification_unarchive_s),
           onPressed: () {
             context.read<ReminderBloc>().add(
@@ -208,8 +214,8 @@ class NotificationItemV2 extends StatelessWidget {
       );
     }
     return Positioned(
-      top: 12,
-      right: 14,
+      top: 8,
+      right: 8,
       child: child,
     );
   }

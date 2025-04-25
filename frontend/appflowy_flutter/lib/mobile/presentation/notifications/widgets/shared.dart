@@ -47,13 +47,13 @@ class NotificationIcon extends StatelessWidget {
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).cardColor,
+                color: theme.fillColorScheme.primary,
               ),
               child: Center(
                 child: Text(
                   '@',
                   style: TextStyle(
-                    color: theme.textColorScheme.primary,
+                    color: theme.iconColorScheme.primary,
                     fontSize: 12,
                     height: 1,
                   ),
@@ -93,14 +93,15 @@ class UnreadRedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final theme = AppFlowyTheme.of(context);
+    return SizedBox(
       height: _kNotificationIconHeight,
       child: Center(
         child: SizedBox.square(
           dimension: 6.0,
           child: DecoratedBox(
             decoration: ShapeDecoration(
-              color: Color(0xFFFF6331),
+              color: theme.borderColorScheme.errorThick,
               shape: OvalBorder(),
             ),
           ),
@@ -123,6 +124,8 @@ class NotificationContent extends StatefulWidget {
 }
 
 class _NotificationContentState extends State<NotificationContent> {
+  AppFlowyThemeData get theme => AppFlowyTheme.of(context);
+
   @override
   void didUpdateWidget(covariant NotificationContent oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -195,6 +198,7 @@ class _NotificationContentState extends State<NotificationContent> {
             LocaleKeys.settings_notifications_titles_reminder.tr(),
             fontSize: 14,
             figmaLineHeight: 20,
+            color: theme.textColorScheme.primary,
           ),
           Spacer(),
           if (createAt.isNotEmpty)
@@ -202,7 +206,7 @@ class _NotificationContentState extends State<NotificationContent> {
               createAt,
               fontSize: 12,
               figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+              color: theme.textColorScheme.secondary,
             ),
           if (unread) ...[
             HSpace(4),
@@ -229,20 +233,23 @@ class _NotificationContentState extends State<NotificationContent> {
               LocaleKeys.notificationHub_mentionedYou.tr(),
               fontSize: 12,
               figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+              color: theme.textColorScheme.secondary,
             ),
             const NotificationEllipse(),
             if (isLocked)
               Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: FlowySvg(FlowySvgs.notification_lock_s),
+                child: FlowySvg(
+                  FlowySvgs.notification_lock_s,
+                  color: theme.iconColorScheme.secondary,
+                ),
               ),
             Flexible(
               child: FlowyText.regular(
                 pageTitle,
                 fontSize: 12,
                 figmaLineHeight: 18,
-                color: context.notificationItemTextColor,
+                color: theme.textColorScheme.secondary,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

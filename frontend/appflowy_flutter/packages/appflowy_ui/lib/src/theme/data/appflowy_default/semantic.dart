@@ -84,7 +84,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
+      primary: AppFlowyPrimitiveTokens.neutral100,
       primaryHover: AppFlowyPrimitiveTokens.neutral900,
       secondary: AppFlowyPrimitiveTokens.neutral600,
       secondaryHover: AppFlowyPrimitiveTokens.neutral500,
@@ -241,7 +241,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral100,
+      primary: AppFlowyPrimitiveTokens.neutral900,
       primaryHover: AppFlowyPrimitiveTokens.neutral200,
       secondary: AppFlowyPrimitiveTokens.neutral300,
       secondaryHover: AppFlowyPrimitiveTokens.neutral400,
