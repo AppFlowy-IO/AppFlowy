@@ -12,26 +12,38 @@ import 'uncategorized/uncategorized_test_runner.dart'
 import 'workspace/workspace_test_runner.dart' as workspace_test_runner;
 
 Future<void> main() async {
-  preset_af_cloud_env_test.main();
+  // don't remove this test, it can prevent the test from failing.
+  {
+    preset_af_cloud_env_test.main();
+    data_migration_test_runner.main();
 
-  data_migration_test_runner.main();
+    // uncategorized
+    uncategorized_test_runner.main();
 
-  // uncategorized
-  uncategorized_test_runner.main();
-
-  // workspace
-  workspace_test_runner.main();
+    // workspace
+    workspace_test_runner.main();
+  }
 
   // sidebar
-  // don't remove this test.
-  preset_af_cloud_env_test.main();
-  sidebar_move_page_test.main();
-  sidebar_rename_untitled_test.main();
-  sidebar_icon_test.main();
+  // don't remove this test, it can prevent the test from failing.
+  {
+    preset_af_cloud_env_test.main();
+    sidebar_move_page_test.main();
+    sidebar_rename_untitled_test.main();
+    sidebar_icon_test.main();
+  }
 
   // database
-  database_test_runner.main();
+  // don't remove this test, it can prevent the test from failing.
+  {
+    preset_af_cloud_env_test.main();
+    database_test_runner.main();
+  }
 
   // document
-  document_test_runner.main();
+  // don't remove this test, it can prevent the test from failing.
+  {
+    preset_af_cloud_env_test.main();
+    document_test_runner.main();
+  }
 }
