@@ -102,14 +102,16 @@ derive_builder = "0.20.2"
 tantivy = { version = "0.24.0" }
 af-plugin = { version = "0.1" }
 af-local-ai = { version = "0.1" }
+num_enum = "0.7.3"
 
 # Please using the following command to update the revision id
 # Current directory: frontend
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "954c323" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "954c323" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
+workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
 
 [profile.dev]
 opt-level = 0

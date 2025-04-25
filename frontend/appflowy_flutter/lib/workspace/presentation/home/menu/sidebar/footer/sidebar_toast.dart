@@ -105,7 +105,6 @@ class SidebarToast extends StatelessWidget {
     if (role.isOwner) {
       showSettingsDialog(
         context,
-        userProfile: userProfile,
         userWorkspaceBloc: userWorkspaceBloc,
         initPage: SettingsPage.plan,
       );

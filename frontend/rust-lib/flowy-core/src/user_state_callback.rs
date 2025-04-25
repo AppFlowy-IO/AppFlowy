@@ -18,7 +18,7 @@ use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::user_manager::UserManager;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
-use flowy_user_pub::entities::{AuthType, UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{UserProfile, UserWorkspace, WorkspaceType};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
@@ -85,7 +85,7 @@ impl UserStatusCallbackImpl {
     &self,
     user_id: i64,
     workspace_id: &Uuid,
-    auth_type: &AuthType,
+    workspace_type: &WorkspaceType,
   ) -> FlowyResult<FolderInitDataSource> {
     if self.is_object_exist_on_disk(user_id, workspace_id, workspace_id)? {
       return Ok(FolderInitDataSource::LocalDisk {
@@ -97,7 +97,7 @@ impl UserStatusCallbackImpl {
       .cloud_service()?
       .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
       .await;
-    resolve_data_source(auth_type, doc_state_result)
+    resolve_data_source(workspace_type, doc_state_result)
   }
 
   fn is_object_exist_on_disk(
@@ -126,7 +126,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     cloud_config: &Option<UserCloudConfig>,
     workspace_id: &Uuid,
     _device_id: &str,
-    auth_type: &AuthType,
+    workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     if let Some(cloud_config) = cloud_config {
       self
@@ -151,7 +151,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .database_manager()?
-      .initialize(user_id, auth_type == &AuthType::Local)
+      .initialize(user_id, workspace_type == &WorkspaceType::Local)
       .await?;
     self.document_manager()?.initialize(user_id).await?;
 
@@ -173,7 +173,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_id: i64,
     workspace_id: &Uuid,
     device_id: &str,
-    auth_type: &AuthType,
+    workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
@@ -182,7 +182,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       device_id
     );
     let data_source = self
-      .folder_init_data_source(user_id, workspace_id, auth_type)
+      .folder_init_data_source(user_id, workspace_id, workspace_type)
       .await?;
     self
       .folder_manager()?
@@ -190,7 +190,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .database_manager()?
-      .initialize_after_sign_in(user_id, auth_type.is_local())
+      .initialize_after_sign_in(user_id, workspace_type.is_local())
       .await?;
     self
       .document_manager()?
@@ -211,7 +211,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_profile: &UserProfile,
     workspace_id: &Uuid,
     device_id: &str,
-    auth_type: &AuthType,
+    workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
@@ -221,7 +221,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       device_id
     );
     let data_source = self
-      .folder_init_data_source(user_profile.uid, workspace_id, auth_type)
+      .folder_init_data_source(user_profile.uid, workspace_id, workspace_type)
       .await?;
 
     self
@@ -238,7 +238,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .database_manager()?
-      .initialize_after_sign_up(user_profile.uid, auth_type.is_local())
+      .initialize_after_sign_up(user_profile.uid, workspace_type.is_local())
       .await
       .context("DatabaseManager error")?;
 
@@ -265,10 +265,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_id: i64,
     workspace_id: &Uuid,
     _user_workspace: &UserWorkspace,
-    auth_type: &AuthType,
+    workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     let data_source = self
-      .folder_init_data_source(user_id, workspace_id, auth_type)
+      .folder_init_data_source(user_id, workspace_id, workspace_type)
       .await?;
 
     self
@@ -277,7 +277,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self
       .database_manager()?
-      .initialize_after_open_workspace(user_id, auth_type.is_local())
+      .initialize_after_open_workspace(user_id, workspace_type.is_local())
       .await?;
     self
       .document_manager()?
@@ -332,21 +332,21 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 }
 
 fn resolve_data_source(
-  auth_type: &AuthType,
+  workspace_type: &WorkspaceType,
   doc_state_result: Result<Vec<u8>, FlowyError>,
 ) -> FlowyResult<FolderInitDataSource> {
   match doc_state_result {
-    Ok(doc_state) => Ok(match auth_type {
-      AuthType::Local => FolderInitDataSource::LocalDisk {
+    Ok(doc_state) => Ok(match workspace_type {
+      WorkspaceType::Local => FolderInitDataSource::LocalDisk {
         create_if_not_exist: true,
       },
-      AuthType::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
+      WorkspaceType::Server => FolderInitDataSource::Cloud(doc_state),
     }),
-    Err(err) => match auth_type {
-      AuthType::Local => Ok(FolderInitDataSource::LocalDisk {
+    Err(err) => match workspace_type {
+      WorkspaceType::Local => Ok(FolderInitDataSource::LocalDisk {
         create_if_not_exist: true,
       }),
-      AuthType::AppFlowyCloud => Err(err),
+      WorkspaceType::Server => Err(err),
     },
   }
 }

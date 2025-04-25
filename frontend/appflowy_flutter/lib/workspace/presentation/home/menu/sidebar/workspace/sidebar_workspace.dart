@@ -83,7 +83,6 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                       ),
                     ),
                     UserSettingButton(
-                      userProfile: widget.userProfile,
                       isHover: onHover,
                     ),
                     const HSpace(4.0),
@@ -257,7 +256,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     context.read<UserWorkspaceBloc>().add(
           UserWorkspaceEvent.openWorkspace(
             workspaceId,
-            openWorkspace.workspaceAuthType,
+            openWorkspace.workspaceType,
           ),
         );
 

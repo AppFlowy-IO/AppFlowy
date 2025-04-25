@@ -31,7 +31,7 @@ enum SettingsPage {
 class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   SettingsDialogBloc(
-    this.userProfile,
+    UserProfilePB userProfile,
     this.currentWorkspaceMemberRole, {
     SettingsPage? initPage,
   })  : _userListener = UserListener(userProfile: userProfile),
@@ -39,7 +39,6 @@ class SettingsDialogBloc
     _dispatch();
   }
 
-  final UserProfilePB userProfile;
   final AFRolePB? currentWorkspaceMemberRole;
   final UserListener _userListener;
 
@@ -57,7 +56,7 @@ class SettingsDialogBloc
             _userListener.start(onProfileUpdated: _profileUpdated);
 
             final isBillingEnabled = await _isBillingEnabled(
-              userProfile,
+              state.userProfile,
               currentWorkspaceMemberRole,
             );
             if (isBillingEnabled) {
@@ -79,8 +78,11 @@ class SettingsDialogBloc
     FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
   ) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
-          add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) {
+        if (!isClosed) {
+          add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile));
+        }
+      },
       (err) => Log.error(err),
     );
   }
@@ -90,8 +92,8 @@ class SettingsDialogBloc
     AFRolePB? currentWorkspaceMemberRole,
   ]) async {
     if ([
-      AuthTypePB.Local,
-    ].contains(userProfile.workspaceAuthType)) {
+      WorkspaceTypePB.LocalW,
+    ].contains(userProfile.workspaceType)) {
       return false;
     }
 

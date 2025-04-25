@@ -32,7 +32,7 @@ class DocumentCollaboratorsBloc
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.workspaceAuthType == AuthTypePB.Server,
+                    userProfile?.workspaceType == WorkspaceTypePB.ServerW,
               ),
             );
             final deviceId = ApplicationInfo.deviceId;

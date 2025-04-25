@@ -203,7 +203,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     final userProfile = context.read<MobileViewPageBloc>().state.userProfilePB;
     // the publish feature is only available for AppFlowy Cloud
     if (userProfile == null ||
-        userProfile.workspaceAuthType != AuthTypePB.Server) {
+        userProfile.workspaceType != WorkspaceTypePB.ServerW) {
       return [];
     }
 

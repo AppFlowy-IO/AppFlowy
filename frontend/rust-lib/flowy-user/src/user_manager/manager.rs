@@ -151,9 +151,10 @@ impl UserManager {
       );
       let workspace_uuid = Uuid::parse_str(&session.workspace_id)?;
       let mut conn = self.db_connection(session.user_id)?;
-      let auth_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+      let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
 
       let uid = session.user_id;
+      let auth_type = AuthType::from(workspace_type);
       let token = self.token_from_auth_type(&auth_type)?;
       cloud_service.set_server_auth_type(&auth_type, token.clone())?;
 
@@ -161,7 +162,7 @@ impl UserManager {
         tracing::Level::INFO,
         "init user session: {}, auth type: {:?}",
         uid,
-        auth_type,
+        workspace_type,
       );
 
       self.prepare_user(&session).await;
@@ -277,7 +278,7 @@ impl UserManager {
           session.user_id,
           &session.user_uuid,
           &workspace_uuid,
-          &auth_type,
+          &workspace_type,
         )
         .await;
 
@@ -287,7 +288,7 @@ impl UserManager {
           &cloud_config,
           &workspace_uuid,
           &self.authenticate_user.user_config.device_id,
-          &auth_type,
+          &workspace_type,
         )
         .await?;
     } else {
@@ -370,7 +371,7 @@ impl UserManager {
         session.user_id,
         &session.user_uuid,
         &workspace_id,
-        &user_profile.workspace_auth_type,
+        &user_profile.workspace_type,
       )
       .await;
     self
@@ -381,7 +382,7 @@ impl UserManager {
         user_profile.uid,
         &workspace_id,
         &self.authenticate_user.user_config.device_id,
-        &auth_type,
+        &user_profile.workspace_type,
       )
       .await?;
     send_auth_state_notification(AuthStateChangedPB {
@@ -425,16 +426,16 @@ impl UserManager {
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
     let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
-    self.prepare_user(&new_session).await;
     self
       .save_auth_data(&response, *auth_type, &new_session)
       .await?;
+    self.prepare_user(&new_session).await;
     let _ = self
       .initial_user_awareness(
         new_session.user_id,
         &new_session.user_uuid,
         &workspace_id,
-        auth_type,
+        &new_user_profile.workspace_type,
       )
       .await;
     let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
@@ -447,7 +448,7 @@ impl UserManager {
         new_user_profile,
         &workspace_id,
         &self.authenticate_user.user_config.device_id,
-        auth_type,
+        &new_user_profile.workspace_type,
       )
       .await?;
 
@@ -560,7 +561,7 @@ impl UserManager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // If the user is a local user, no need to refresh the user profile
-    if old_user_profile.workspace_auth_type.is_local() {
+    if old_user_profile.workspace_type.is_local() {
       return Ok(());
     }
 
@@ -757,7 +758,8 @@ impl UserManager {
     }
 
     let mut conn = self.db_connection(uid)?;
-    sync_user_workspaces_with_diff(uid, auth_type, response.user_workspaces(), &mut conn)?;
+    let workspace_type = WorkspaceType::from(&auth_type);
+    sync_user_workspaces_with_diff(uid, workspace_type, response.user_workspaces(), &mut conn)?;
     info!(
       "Save new user profile to disk, authenticator: {:?}",
       auth_type

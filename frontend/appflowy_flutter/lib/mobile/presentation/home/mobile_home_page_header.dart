@@ -194,7 +194,7 @@ class _MobileWorkspace extends StatelessWidget {
                   context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.openWorkspace(
                           workspace.workspaceId,
-                          workspace.workspaceAuthType,
+                          workspace.workspaceType,
                         ),
                       );
                 },

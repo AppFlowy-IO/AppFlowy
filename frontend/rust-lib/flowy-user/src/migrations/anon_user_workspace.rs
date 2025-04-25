@@ -6,7 +6,7 @@ use tracing::instrument;
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
 use flowy_sqlite::kv::KVStorePreferences;
-use flowy_user_pub::entities::AuthType;
+use flowy_user_pub::entities::{AuthType, WorkspaceType};
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::session_migration::get_session_workspace;
@@ -45,8 +45,8 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
     if matches!(user_auth_type, AuthType::Local) {
       if let Some(mut user_workspace) = get_session_workspace(store_preferences) {
         if select_user_workspace(&user_workspace.id, db).ok().is_none() {
-          user_workspace.workspace_type = AuthType::Local;
-          upsert_user_workspace(user.user_id, *user_auth_type, user_workspace, db)?;
+          user_workspace.workspace_type = WorkspaceType::Local;
+          upsert_user_workspace(user.user_id, WorkspaceType::Local, user_workspace, db)?;
         }
       }
     }

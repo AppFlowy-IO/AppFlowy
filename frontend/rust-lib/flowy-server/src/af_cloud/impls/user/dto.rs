@@ -4,7 +4,7 @@ use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFW
 
 use flowy_user_pub::entities::{
   AuthType, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus, WorkspaceMember,
-  USER_METADATA_ICON_URL,
+  WorkspaceType, USER_METADATA_ICON_URL,
 };
 
 pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUserParams {
@@ -25,7 +25,7 @@ pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUs
 pub fn user_profile_from_af_profile(
   token: String,
   profile: AFUserProfile,
-  workspace_auth_type: AuthType,
+  auth_type: AuthType,
 ) -> Result<UserProfile, Error> {
   let icon_url = {
     profile
@@ -36,7 +36,7 @@ pub fn user_profile_from_af_profile(
       })
       .unwrap_or_default()
   };
-
+  let workspace_type = WorkspaceType::from(&auth_type);
   Ok(UserProfile {
     email: profile.email.unwrap_or("".to_string()),
     name: profile.name.unwrap_or("".to_string()),
@@ -45,7 +45,7 @@ pub fn user_profile_from_af_profile(
     auth_type: AuthType::AppFlowyCloud,
     uid: profile.uid,
     updated_at: profile.updated_at,
-    workspace_auth_type,
+    workspace_type,
   })
 }
 

@@ -19,24 +19,35 @@ part 'user_workspace_bloc.freezed.dart';
 
 class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
-    required this.userProfile,
+    required UserProfilePB userProfile,
     this.initialWorkspaceId,
   })  : _userService = UserBackendService(userId: userProfile.id),
         _listener = UserListener(userProfile: userProfile),
-        super(UserWorkspaceState.initial()) {
+        super(UserWorkspaceState.initial(userProfile)) {
     on<UserWorkspaceEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             _listener.start(
+              onProfileUpdated: (result) {
+                if (!isClosed) {
+                  result.fold(
+                    (newProfile) =>
+                        add(UserWorkspaceEvent.updateUserProfile(newProfile)),
+                    (error) => Log.error("Failed to get user profile: $error"),
+                  );
+                }
+              },
               onUserWorkspaceListUpdated: (workspaces) =>
                   add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
               onUserWorkspaceUpdated: (workspace) {
-                // If currentWorkspace is updated, eg. Icon or Name, we should notify
-                // the UI to render the updated information.
-                final currentWorkspace = state.currentWorkspace;
-                if (currentWorkspace?.workspaceId == workspace.workspaceId) {
-                  add(UserWorkspaceEvent.updateCurrentWorkspace(workspace));
+                if (!isClosed) {
+                  // If currentWorkspace is updated, eg. Icon or Name, we should notify
+                  // the UI to render the updated information.
+                  final currentWorkspace = state.currentWorkspace;
+                  if (currentWorkspace?.workspaceId == workspace.workspaceId) {
+                    add(UserWorkspaceEvent.updateCurrentWorkspace(workspace));
+                  }
                 }
               },
             );
@@ -57,7 +68,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(
                 currentWorkspace.workspaceId,
-                currentWorkspace.workspaceAuthType,
+                currentWorkspace.workspaceType,
               );
             }
 
@@ -97,12 +108,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               add(
                 OpenWorkspace(
                   currentWorkspace.workspaceId,
-                  currentWorkspace.workspaceAuthType,
+                  currentWorkspace.workspaceType,
                 ),
               );
             }
           },
-          createWorkspace: (name, authType) async {
+          createWorkspace: (name, workspaceType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -114,7 +125,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
             final result = await _userService.createUserWorkspace(
               name,
-              authType,
+              workspaceType,
             );
             final workspaces = result.fold(
               (s) => [...state.workspaces, s],
@@ -137,7 +148,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 add(
                   OpenWorkspace(
                     s.workspaceId,
-                    s.workspaceAuthType,
+                    s.workspaceType,
                   ),
                 );
               })
@@ -195,7 +206,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -208,7 +219,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -224,7 +235,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          openWorkspace: (workspaceId, authType) async {
+          openWorkspace: (workspaceId, workspaceType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -236,7 +247,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
             final result = await _userService.openWorkspace(
               workspaceId,
-              authType,
+              workspaceType,
             );
             final currentWorkspace = result.fold(
               (s) => state.workspaces.firstWhereOrNull(
@@ -374,7 +385,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -423,6 +434,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          updateUserProfile: (newUserProfile) {
+            emit(
+              state.copyWith(
+                userProfile: newUserProfile,
+              ),
+            );
+          },
         );
       },
     );
@@ -434,7 +452,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     return super.close();
   }
 
-  final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
   final String? initialWorkspaceId;
@@ -481,17 +498,18 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces({String? initialWorkspaceId}) =
-      FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({
+    String? initialWorkspaceId,
+  }) = FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) = CreateWorkspace;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(
     String workspaceId,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) = OpenWorkspace;
   const factory UserWorkspaceEvent.renameWorkspace(
     String workspaceId,
@@ -509,6 +527,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.updateCurrentWorkspace(
     UserWorkspacePB workspace,
   ) = UpdateCurrentWorkspace;
+  const factory UserWorkspaceEvent.updateUserProfile(
+    UserProfilePB userProfile,
+  ) = UpdateUserProfile;
 }
 
 enum UserWorkspaceActionType {
@@ -548,9 +569,13 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default([]) List<UserWorkspacePB> workspaces,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
+    required UserProfilePB userProfile,
   }) = _UserWorkspaceState;
 
-  factory UserWorkspaceState.initial() => const UserWorkspaceState();
+  factory UserWorkspaceState.initial(UserProfilePB userProfile) =>
+      UserWorkspaceState(
+        userProfile: userProfile,
+      );
 
   @override
   int get hashCode => runtimeType.hashCode;
@@ -565,6 +590,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     return other is UserWorkspaceState &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
-        identical(other.actionResult, actionResult);
+        identical(other.actionResult, actionResult) &&
+        other.userProfile == userProfile;
   }
 }

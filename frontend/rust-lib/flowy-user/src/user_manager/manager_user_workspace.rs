@@ -7,7 +7,8 @@ use std::sync::Arc;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
-  UpdateUserWorkspaceSettingPB, UserWorkspacePB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB,
+  UpdateUserWorkspaceSettingPB, UserProfilePB, UserWorkspacePB, WorkspaceSettingsPB,
+  WorkspaceSubscriptionInfoPB, WorkspaceTypePB,
 };
 use crate::notification::{send_notification, UserNotification};
 use crate::services::billing_check::PeriodicallyCheckBillingState;
@@ -22,6 +23,7 @@ use flowy_sqlite::ConnectionPool;
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
   AuthType, Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceType,
 };
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::*;
@@ -116,7 +118,7 @@ impl UserManager {
       user_id,
       weak_user_collab_db,
       &workspace_id,
-      &user.workspace_auth_type,
+      &user.auth_type,
       collab_data,
       weak_user_cloud_service,
     )
@@ -140,16 +142,17 @@ impl UserManager {
   pub async fn open_workspace(
     &self,
     workspace_id: &Uuid,
-    workspace_auth_type: AuthType,
+    workspace_type: WorkspaceType,
   ) -> FlowyResult<()> {
     info!(
-      "open workspace: {}, auth type:{}",
-      workspace_id, workspace_auth_type
+      "open workspace: {}, auth type:{:?}",
+      workspace_id, workspace_type
     );
     let workspace_id_str = workspace_id.to_string();
-    let token = self.token_from_auth_type(&workspace_auth_type)?;
+    let auth_type = AuthType::from(workspace_type);
+    let token = self.token_from_auth_type(&auth_type)?;
     let cloud_service = self.cloud_service()?;
-    cloud_service.set_server_auth_type(&workspace_auth_type, token)?;
+    cloud_service.set_server_auth_type(&auth_type, token)?;
 
     let uid = self.user_id()?;
     let profile = self
@@ -167,7 +170,7 @@ impl UserManager {
             workspace_id,
             cloud_service.get_user_service()?,
             uid,
-            workspace_auth_type,
+            workspace_type,
             self.db_pool(uid)?,
           )
           .await?
@@ -181,7 +184,7 @@ impl UserManager {
         let user_service = cloud_service.get_user_service()?;
         let pool = self.db_pool(uid)?;
         tokio::spawn(async move {
-          let _ = sync_workspace(&workspace_id, user_service, uid, workspace_auth_type, pool).await;
+          let _ = sync_workspace(&workspace_id, user_service, uid, workspace_type, pool).await;
         });
         user_workspace
       },
@@ -196,14 +199,14 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .on_workspace_opened(uid, workspace_id, &user_workspace, &workspace_auth_type)
+      .on_workspace_opened(uid, workspace_id, &user_workspace, &workspace_type)
       .await
     {
       error!("Open workspace failed: {:?}", err);
     }
 
     if let Err(err) = self
-      .initial_user_awareness(uid, &user_uuid, workspace_id, &workspace_auth_type)
+      .initial_user_awareness(uid, &user_uuid, workspace_id, &workspace_type)
       .await
     {
       error!(
@@ -212,6 +215,11 @@ impl UserManager {
       );
     }
 
+    let pb = UserProfilePB::from(profile);
+    send_notification(uid, UserNotification::DidOpenWorkspace)
+      .payload(pb)
+      .send();
+
     Ok(())
   }
 
@@ -219,8 +227,9 @@ impl UserManager {
   pub async fn create_workspace(
     &self,
     workspace_name: &str,
-    auth_type: AuthType,
+    workspace_type: WorkspaceType,
   ) -> FlowyResult<UserWorkspace> {
+    let auth_type = AuthType::from(workspace_type);
     let token = self.token_from_auth_type(&auth_type)?;
     let cloud_service = self.cloud_service()?;
     cloud_service.set_server_auth_type(&auth_type, token)?;
@@ -232,14 +241,14 @@ impl UserManager {
       .await?;
 
     info!(
-      "create workspace: {}, name:{}, auth_type: {}",
-      new_workspace.id, new_workspace.name, auth_type
+      "create workspace: {}, name:{}, auth_type: {:?}",
+      new_workspace.id, new_workspace.name, workspace_type
     );
 
     // save the workspace to sqlite db
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    upsert_user_workspace(uid, auth_type, new_workspace.clone(), &mut conn)?;
+    upsert_user_workspace(uid, workspace_type, new_workspace.clone(), &mut conn)?;
     Ok(new_workspace)
   }
 
@@ -291,14 +300,15 @@ impl UserManager {
   #[instrument(level = "info", skip(self), err)]
   pub async fn delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     info!("delete workspace: {}", workspace_id);
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    delete_user_workspace(conn, workspace_id.to_string().as_str())?;
+
     self
       .cloud_service()?
       .get_user_service()?
       .delete_workspace(workspace_id)
       .await?;
-    let uid = self.user_id()?;
-    let conn = self.db_connection(uid)?;
-    delete_user_workspace(conn, workspace_id.to_string().as_str())?;
 
     self
       .user_workspace_service
@@ -416,9 +426,7 @@ impl UserManager {
       self.cloud_service().and_then(|v| v.get_user_service()),
       self.db_pool(uid),
     ) {
-      // capture only what we need
       let auth_copy = auth_type;
-
       tokio::spawn(async move {
         // fetch remote list
         let new_ws = match service.get_all_workspace(uid).await {
@@ -439,7 +447,8 @@ impl UserManager {
         };
 
         // sync + diff
-        match sync_user_workspaces_with_diff(uid, auth_copy, &new_ws, &mut conn) {
+        let workspace_type = WorkspaceType::from(&auth_copy);
+        match sync_user_workspaces_with_diff(uid, workspace_type, &new_ws, &mut conn) {
           Ok(changes) if !changes.is_empty() => {
             info!(
               "synced {} workspaces for user {} and auth type {:?}. changes: {:?}",
@@ -615,10 +624,16 @@ impl UserManager {
   ) -> FlowyResult<WorkspaceSettingsPB> {
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    match select_workspace_setting(&mut conn, &workspace_id.to_string()) {
+    let workspace_id_str = workspace_id.to_string();
+    let workspace_type = select_user_workspace_type(&workspace_id_str, &mut conn)?;
+    match select_workspace_setting(&mut conn, &workspace_id_str) {
       Ok(workspace_settings) => {
         trace!("workspace settings found in local db");
-        let pb = WorkspaceSettingsPB::from(workspace_settings);
+        let pb = WorkspaceSettingsPB {
+          disable_search_indexing: workspace_settings.disable_search_indexing,
+          ai_model: workspace_settings.ai_model,
+          workspace_type: WorkspaceTypePB::from(workspace_type),
+        };
         let old_pb = pb.clone();
         let workspace_id = *workspace_id;
 
@@ -772,12 +787,12 @@ async fn sync_workspace(
   workspace_id: &Uuid,
   user_service: Arc<dyn UserCloudService>,
   uid: i64,
-  auth_type: AuthType,
+  workspace_type: WorkspaceType,
   pool: Arc<ConnectionPool>,
 ) -> FlowyResult<UserWorkspace> {
   let user_workspace = user_service.open_workspace(workspace_id).await?;
   if let Ok(mut conn) = pool.get() {
-    upsert_user_workspace(uid, auth_type, user_workspace.clone(), &mut conn)?;
+    upsert_user_workspace(uid, workspace_type, user_workspace.clone(), &mut conn)?;
   }
   Ok(user_workspace)
 }

@@ -144,7 +144,7 @@ pub struct OauthSignInPB {
   pub map: HashMap<String, String>,
 
   #[pb(index = 2)]
-  pub authenticator: AuthTypePB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default)]
