@@ -182,7 +182,7 @@ pub struct ChatMessageListPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct ServerAvailableModelsPB {
+pub struct ServerModelSelectionPB {
   #[pb(index = 1)]
   pub models: Vec<AvailableModelPB>,
 }
@@ -200,7 +200,7 @@ pub struct AvailableModelPB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct AvailableModelsQueryPB {
+pub struct ModelSourcePB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub source: String,
@@ -217,12 +217,12 @@ pub struct UpdateSelectedModelPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct AvailableModelsPB {
+pub struct ModelSelectionPB {
   #[pb(index = 1)]
   pub models: Vec<AIModelPB>,
 
   #[pb(index = 2)]
-  pub global_model: AIModelPB,
+  pub selected_model: AIModelPB,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

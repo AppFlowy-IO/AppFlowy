@@ -31,21 +31,24 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::ToggleLocalAI, toggle_local_ai_handler)
     .event(AIEvent::GetLocalAIState, get_local_ai_state_handler)
     .event(AIEvent::GetLocalAISetting, get_local_ai_setting_handler)
-    .event(AIEvent::GetLocalAIModels, get_local_ai_models_handler)
+    .event(AIEvent::GetLocalModelSelection, get_local_ai_models_handler)
+    .event(
+      AIEvent::GetSourceModelSelection,
+      get_source_model_selection_handler,
+    )
     .event(
       AIEvent::UpdateLocalAISetting,
       update_local_ai_setting_handler,
-    )
-    .event(
-      AIEvent::GetServerAvailableModels,
-      get_server_model_list_handler,
     )
     .event(AIEvent::CreateChatContext, create_chat_context_handler)
     .event(AIEvent::GetChatInfo, create_chat_context_handler)
     .event(AIEvent::GetChatSettings, get_chat_settings_handler)
     .event(AIEvent::UpdateChatSettings, update_chat_settings_handler)
     .event(AIEvent::RegenerateResponse, regenerate_response_handler)
-    .event(AIEvent::GetAvailableModels, get_chat_models_handler)
+    .event(
+      AIEvent::GetSettingModelSelection,
+      get_setting_model_selection_handler,
+    )
     .event(AIEvent::UpdateSelectedModel, update_selected_model_handler)
 }
 
@@ -108,21 +111,21 @@ pub enum AIEvent {
   #[event(input = "RegenerateResponsePB")]
   RegenerateResponse = 27,
 
-  #[event(output = "AvailableModelsPB")]
-  GetServerAvailableModels = 28,
-
   #[event(output = "LocalAISettingPB")]
   GetLocalAISetting = 29,
 
   #[event(input = "LocalAISettingPB")]
   UpdateLocalAISetting = 30,
 
-  #[event(input = "AvailableModelsQueryPB", output = "AvailableModelsPB")]
-  GetAvailableModels = 31,
+  #[event(input = "ModelSourcePB", output = "ModelSelectionPB")]
+  GetSettingModelSelection = 31,
 
   #[event(input = "UpdateSelectedModelPB")]
   UpdateSelectedModel = 32,
 
-  #[event(output = "AvailableModelsPB")]
-  GetLocalAIModels = 33,
+  #[event(output = "ModelSelectionPB")]
+  GetLocalModelSelection = 33,
+
+  #[event(input = "ModelSourcePB", output = "ModelSelectionPB")]
+  GetSourceModelSelection = 34,
 }

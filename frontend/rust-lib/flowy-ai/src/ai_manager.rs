@@ -1,7 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{
-  AIModelPB, AvailableModelsPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
-  FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
+  AIModelPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB,
+  ModelSelectionPB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
@@ -514,7 +514,7 @@ impl AIManager {
     }
   }
 
-  pub async fn get_local_available_models(&self) -> FlowyResult<AvailableModelsPB> {
+  pub async fn get_local_available_models(&self) -> FlowyResult<ModelSelectionPB> {
     let setting = self.local_ai.get_local_ai_setting();
     let mut models = self.local_ai.get_all_chat_local_models().await;
     let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
@@ -523,13 +523,17 @@ impl AIManager {
       models.push(selected_model.clone());
     }
 
-    Ok(AvailableModelsPB {
+    Ok(ModelSelectionPB {
       models: models.into_iter().map(AIModelPB::from).collect(),
-      global_model: AIModelPB::from(selected_model),
+      selected_model: AIModelPB::from(selected_model),
     })
   }
 
-  pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
+  pub async fn get_available_models(
+    &self,
+    source: String,
+    setting_only: bool,
+  ) -> FlowyResult<ModelSelectionPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
       return self.get_local_available_models().await;
@@ -547,15 +551,19 @@ impl AIManager {
 
     // Add local models if enabled
     if self.local_ai.is_enabled() {
-      let setting = self.local_ai.get_local_ai_setting();
-      all_models.push(AIModel::local(setting.chat_model_name, "".to_string()).into());
+      if setting_only {
+        let setting = self.local_ai.get_local_ai_setting();
+        all_models.push(AIModel::local(setting.chat_model_name, "".to_string()).into());
+      } else {
+        all_models.extend(self.local_ai.get_all_chat_local_models().await);
+      }
     }
 
     // Return early if no models available
     if all_models.is_empty() {
-      return Ok(AvailableModelsPB {
+      return Ok(ModelSelectionPB {
         models: Vec::new(),
-        global_model: AIModelPB::default(),
+        selected_model: AIModelPB::default(),
       });
     }
 
@@ -617,9 +625,9 @@ impl AIManager {
     trace!("[Model Selection] final active model: {:?}", active_model);
 
     // Create response with one transformation pass
-    Ok(AvailableModelsPB {
+    Ok(ModelSelectionPB {
       models: all_models.into_iter().map(AIModelPB::from).collect(),
-      global_model: AIModelPB::from(active_model),
+      selected_model: AIModelPB::from(active_model),
     })
   }
 

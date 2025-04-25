@@ -30,7 +30,7 @@ class AIModelSelection extends StatelessWidget {
 
         final localModels = models.where((model) => model.isLocal).toList();
         final cloudModels = models.where((model) => !model.isLocal).toList();
-        final selectedModel = state.availableModels!.globalModel;
+        final selectedModel = state.availableModels!.selectedModel;
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),

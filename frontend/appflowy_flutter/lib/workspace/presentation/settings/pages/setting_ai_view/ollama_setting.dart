@@ -157,7 +157,7 @@ class LocalAIModelSelection extends StatelessWidget {
                 onChanged: (model) => context
                     .read<OllamaSettingBloc>()
                     .add(OllamaSettingEvent.setDefaultModel(model)),
-                selectedOption: models.globalModel,
+                selectedOption: models.selectedModel,
                 selectOptionCompare: (left, right) => left?.name == right?.name,
                 options: models.models
                     .map(

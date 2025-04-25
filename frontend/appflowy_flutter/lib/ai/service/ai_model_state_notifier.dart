@@ -53,7 +53,7 @@ class AIModelStateNotifier {
   final LocalAIStateListener? _localAIListener;
   final AIModelSwitchListener _aiModelSwitchListener;
   LocalAIPB? _localAIState;
-  AvailableModelsPB? _availableModels;
+  ModelSelectionPB? _sourceModelSelection;
 
   // callbacks
   final List<OnModelStateChangedCallback> _stateChangedCallbacks = [];
@@ -69,7 +69,7 @@ class AIModelStateNotifier {
 
           if (state.state == RunningStatePB.Running ||
               state.state == RunningStatePB.Stopped) {
-            await _loadAvailableModels();
+            await _loadModelSelection();
             _notifyAvailableModelsChanged();
           }
         },
@@ -78,11 +78,11 @@ class AIModelStateNotifier {
 
     _aiModelSwitchListener.start(
       onUpdateSelectedModel: (model) async {
-        final updatedModels = _availableModels?.deepCopy()
-          ?..globalModel = model;
-        _availableModels = updatedModels;
-        _notifyAvailableModelsChanged();
+        final updatedModels = _sourceModelSelection?.deepCopy()
+          ?..selectedModel = model;
+        _sourceModelSelection = updatedModels;
 
+        _notifyAvailableModelsChanged();
         if (model.isLocal && UniversalPlatform.isDesktop) {
           await _loadLocalAiState();
         }
@@ -92,7 +92,7 @@ class AIModelStateNotifier {
   }
 
   void _init() async {
-    await Future.wait([_loadLocalAiState(), _loadAvailableModels()]);
+    await Future.wait([_loadLocalAiState(), _loadModelSelection()]);
     _notifyStateChanged();
     _notifyAvailableModelsChanged();
   }
@@ -139,7 +139,7 @@ class AIModelStateNotifier {
       );
     }
 
-    final availableModels = _availableModels;
+    final availableModels = _sourceModelSelection;
     final localAiState = _localAIState;
 
     if (availableModels == null) {
@@ -161,7 +161,7 @@ class AIModelStateNotifier {
       );
     }
 
-    if (!availableModels.globalModel.isLocal) {
+    if (!availableModels.selectedModel.isLocal) {
       return AIModelState(
         type: AiType.cloud,
         hintText: LocaleKeys.chat_inputMessageHint.tr(),
@@ -194,16 +194,16 @@ class AIModelStateNotifier {
     );
   }
 
-  (List<AIModelPB>, AIModelPB?) getAvailableModels() {
-    final availableModels = _availableModels;
+  (List<AIModelPB>, AIModelPB?) getModelSelection() {
+    final availableModels = _sourceModelSelection;
     if (availableModels == null) {
       return ([], null);
     }
-    return (availableModels.models, availableModels.globalModel);
+    return (availableModels.models, availableModels.selectedModel);
   }
 
   void _notifyAvailableModelsChanged() {
-    final (models, selectedModel) = getAvailableModels();
+    final (models, selectedModel) = getModelSelection();
     for (final callback in _availableModelsChangedCallbacks) {
       callback(models, selectedModel);
     }
@@ -216,10 +216,10 @@ class AIModelStateNotifier {
     }
   }
 
-  Future<void> _loadAvailableModels() {
-    final payload = AvailableModelsQueryPB(source: objectId);
-    return AIEventGetAvailableModels(payload).send().fold(
-          (models) => _availableModels = models,
+  Future<void> _loadModelSelection() {
+    final payload = ModelSourcePB(source: objectId);
+    return AIEventGetSourceModelSelection(payload).send().fold(
+          (models) => _sourceModelSelection = models,
           (err) => Log.error("Failed to get available models: $err"),
         );
   }

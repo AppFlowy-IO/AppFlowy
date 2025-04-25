@@ -1,4 +1,4 @@
-use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
+use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
 use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
@@ -77,24 +77,24 @@ pub(crate) async fn regenerate_response_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_server_model_list_handler(
+pub(crate) async fn get_setting_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
+  let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let models = ai_manager
-    .get_available_models(GLOBAL_ACTIVE_MODEL_KEY.to_string())
-    .await?;
+  let models = ai_manager.get_available_models(data.source, true).await?;
   data_result_ok(models)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_chat_models_handler(
-  data: AFPluginData<AvailableModelsQueryPB>,
+pub(crate) async fn get_source_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let models = ai_manager.get_available_models(data.source).await?;
+  let models = ai_manager.get_available_models(data.source, false).await?;
   data_result_ok(models)
 }
 
@@ -343,7 +343,7 @@ pub(crate) async fn get_local_ai_setting_handler(
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) async fn get_local_ai_models_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = ai_manager.get_local_available_models().await?;
   data_result_ok(data)

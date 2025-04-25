@@ -32,11 +32,11 @@ class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
   ) async {
     try {
       final results = await Future.wait([
-        AIEventGetLocalAIModels().send().then((r) => r.getOrThrow()),
+        AIEventGetLocalModelSelection().send().then((r) => r.getOrThrow()),
         AIEventGetLocalAISetting().send().then((r) => r.getOrThrow()),
       ]);
 
-      final models = results[0] as AvailableModelsPB;
+      final models = results[0] as ModelSelectionPB;
       final setting = results[1] as LocalAISettingPB;
 
       if (!isClosed) {
@@ -189,7 +189,7 @@ class SubmittedItem extends Equatable {
 class OllamaSettingEvent with _$OllamaSettingEvent {
   const factory OllamaSettingEvent.started() = _Started;
   const factory OllamaSettingEvent.didLoadLocalModels(
-    AvailableModelsPB models,
+    ModelSelectionPB models,
   ) = _DidLoadLocalModels;
   const factory OllamaSettingEvent.didLoadSetting(
     LocalAISettingPB setting,
@@ -213,7 +213,7 @@ class OllamaSettingState with _$OllamaSettingState {
     LocalAISettingPB? setting,
     @Default([]) List<SettingItem> inputItems,
     AIModelPB? selectedModel,
-    AvailableModelsPB? localModels,
+    ModelSelectionPB? localModels,
     AIModelPB? defaultModel,
     @Default([]) List<SubmittedItem> submittedItems,
     @Default(false) bool isEdited,
