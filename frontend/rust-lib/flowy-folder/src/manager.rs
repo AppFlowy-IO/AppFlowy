@@ -9,9 +9,7 @@ use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
   ChildViewChangeReason,
 };
-use crate::notification::{
-  folder_notification_builder, send_current_workspace_notification, FolderNotification,
-};
+use crate::notification::{folder_notification_builder, FolderNotification};
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
@@ -1255,7 +1253,12 @@ impl FolderManager {
       workspace_id: workspace_id.to_string(),
       latest_view: view,
     };
-    send_current_workspace_notification(FolderNotification::DidUpdateWorkspaceSetting, setting);
+    folder_notification_builder(
+      self.user.user_id()?,
+      FolderNotification::DidUpdateWorkspaceSetting,
+    )
+    .payload(setting)
+    .send();
     Ok(())
   }
 

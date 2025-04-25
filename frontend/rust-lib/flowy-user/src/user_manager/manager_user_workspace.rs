@@ -7,7 +7,8 @@ use std::sync::Arc;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
-  UpdateUserWorkspaceSettingPB, UserWorkspacePB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB,
+  UpdateUserWorkspaceSettingPB, UserProfilePB, UserWorkspacePB, WorkspaceSettingsPB,
+  WorkspaceSubscriptionInfoPB, WorkspaceTypePB,
 };
 use crate::notification::{send_notification, UserNotification};
 use crate::services::billing_check::PeriodicallyCheckBillingState;
@@ -213,6 +214,11 @@ impl UserManager {
         err
       );
     }
+
+    let pb = UserProfilePB::from(profile);
+    send_notification(uid, UserNotification::DidOpenWorkspace)
+      .payload(pb)
+      .send();
 
     Ok(())
   }
@@ -618,10 +624,16 @@ impl UserManager {
   ) -> FlowyResult<WorkspaceSettingsPB> {
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    match select_workspace_setting(&mut conn, &workspace_id.to_string()) {
+    let workspace_id_str = workspace_id.to_string();
+    let workspace_type = select_user_workspace_type(&workspace_id_str, &mut conn)?;
+    match select_workspace_setting(&mut conn, &workspace_id_str) {
       Ok(workspace_settings) => {
         trace!("workspace settings found in local db");
-        let pb = WorkspaceSettingsPB::from(workspace_settings);
+        let pb = WorkspaceSettingsPB {
+          disable_search_indexing: workspace_settings.disable_search_indexing,
+          ai_model: workspace_settings.ai_model,
+          workspace_type: WorkspaceTypePB::from(workspace_type),
+        };
         let old_pb = pb.clone();
         let workspace_id = *workspace_id;
 

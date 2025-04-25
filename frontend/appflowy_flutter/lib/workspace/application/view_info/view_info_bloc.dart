@@ -1,6 +1,9 @@
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -49,6 +52,22 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
             ),
           );
         },
+        workspaceTypeChanged: (s) {
+          emit(
+            state.copyWith(workspaceType: s),
+          );
+        },
+      );
+    });
+
+    UserEventGetUserProfile().send().then((value) {
+      value.fold(
+        (s) {
+          if (!isClosed) {
+            add(ViewInfoEvent.workspaceTypeChanged(s.workspaceType));
+          }
+        },
+        (e) => Log.error('Failed to get user profile: $e'),
       );
     });
   }
@@ -86,6 +105,10 @@ class ViewInfoEvent with _$ViewInfoEvent {
   const factory ViewInfoEvent.wordCountChanged() = _WordCountChanged;
 
   const factory ViewInfoEvent.titleChanged(String title) = _TitleChanged;
+
+  const factory ViewInfoEvent.workspaceTypeChanged(
+    WorkspaceTypePB workspaceType,
+  ) = _WorkspaceTypeChanged;
 }
 
 @freezed
@@ -94,11 +117,13 @@ class ViewInfoState with _$ViewInfoState {
     required Counters? documentCounters,
     required Counters? titleCounters,
     required DateTime? createdAt,
+    required WorkspaceTypePB? workspaceType,
   }) = _ViewInfoState;
 
   factory ViewInfoState.initial() => const ViewInfoState(
         documentCounters: null,
         titleCounters: null,
         createdAt: null,
+        workspaceType: null,
       );
 }

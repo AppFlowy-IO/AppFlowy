@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/settings/cloud_setting_listener.d
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ class AppFlowyCloudSettingBloc
       : _listener = UserCloudConfigListener(),
         super(AppFlowyCloudSettingState.initial(setting, false)) {
     _dispatch();
+    _getWorkspaceType();
   }
 
   final UserCloudConfigListener _listener;
@@ -25,6 +27,23 @@ class AppFlowyCloudSettingBloc
   Future<void> close() async {
     await _listener.stop();
     return super.close();
+  }
+
+  void _getWorkspaceType() {
+    UserEventGetUserProfile().send().then((value) {
+      if (isClosed) {
+        return;
+      }
+
+      value.fold(
+        (profile) => add(
+          AppFlowyCloudSettingEvent.workspaceTypeChanged(
+            profile.workspaceType,
+          ),
+        ),
+        (error) => Log.error(error),
+      );
+    });
   }
 
   void _dispatch() {
@@ -65,6 +84,9 @@ class AppFlowyCloudSettingBloc
               ),
             );
           },
+          workspaceTypeChanged: (WorkspaceTypePB workspaceType) {
+            emit(state.copyWith(workspaceType: workspaceType));
+          },
         );
       },
     );
@@ -81,6 +103,9 @@ class AppFlowyCloudSettingEvent with _$AppFlowyCloudSettingEvent {
   const factory AppFlowyCloudSettingEvent.didReceiveSetting(
     CloudSettingPB setting,
   ) = _DidUpdateSetting;
+  const factory AppFlowyCloudSettingEvent.workspaceTypeChanged(
+    WorkspaceTypePB workspaceType,
+  ) = _WorkspaceTypeChanged;
 }
 
 @freezed
@@ -89,6 +114,7 @@ class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
     required CloudSettingPB setting,
     required bool showRestartHint,
     required bool isSyncLogEnabled,
+    required WorkspaceTypePB workspaceType,
   }) = _AppFlowyCloudSettingState;
 
   factory AppFlowyCloudSettingState.initial(
@@ -99,6 +125,7 @@ class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
         setting: setting,
         showRestartHint: setting.serverUrl.isNotEmpty,
         isSyncLogEnabled: isSyncLogEnabled,
+        workspaceType: WorkspaceTypePB.ServerW,
       );
 }
 

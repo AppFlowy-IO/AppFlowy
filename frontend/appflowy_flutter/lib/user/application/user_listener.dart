@@ -46,7 +46,7 @@ class UserListener {
   ///
   DidUpdateUserWorkspaceCallback? onUserWorkspaceUpdated;
   DidUpdateUserWorkspaceSetting? onUserWorkspaceSettingUpdated;
-
+  DidUpdateUserWorkspaceCallback? onUserWorkspaceOpened;
   void start({
     void Function(UserProfileNotifyValue)? onProfileUpdated,
     DidUpdateUserWorkspacesCallback? onUserWorkspaceListUpdated,
@@ -60,7 +60,6 @@ class UserListener {
     this.onUserWorkspaceListUpdated = onUserWorkspaceListUpdated;
     this.onUserWorkspaceUpdated = onUserWorkspaceUpdated;
     this.onUserWorkspaceSettingUpdated = onUserWorkspaceSettingUpdated;
-
     _userParser = UserNotificationParser(
       id: _userProfile.id.toString(),
       callback: _userNotificationCallback,
@@ -105,6 +104,13 @@ class UserListener {
         result.map(
           (r) => onUserWorkspaceSettingUpdated
               ?.call(WorkspaceSettingsPB.fromBuffer(r)),
+        );
+        break;
+      case user.UserNotification.DidOpenWorkspace:
+        result.fold(
+          (payload) => _profileNotifier?.value =
+              FlowyResult.success(UserProfilePB.fromBuffer(payload)),
+          (error) => _profileNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

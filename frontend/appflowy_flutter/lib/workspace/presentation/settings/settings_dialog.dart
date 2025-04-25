@@ -94,21 +94,17 @@ class SettingsDialog extends StatelessWidget {
                     axis: Axis.vertical,
                     color: theme.borderColorScheme.primary,
                   ),
-                  Expanded(
-                    child: getSettingsView(
-                      context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspace!
-                          .workspaceId,
-                      context.read<SettingsDialogBloc>().state.page,
-                      context.read<SettingsDialogBloc>().state.userProfile,
-                      context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspace
-                          ?.role,
-                    ),
+                  BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+                    builder: (context, state) {
+                      return Expanded(
+                        child: getSettingsView(
+                          state.currentWorkspace!.workspaceId,
+                          context.read<SettingsDialogBloc>().state.page,
+                          state.userProfile,
+                          state.currentWorkspace?.role,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
