@@ -264,3 +264,10 @@ impl From<uuid::Error> for FlowyError {
     FlowyError::internal().with_context(value)
   }
 }
+
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+impl From<ollama_rs::error::OllamaError> for FlowyError {
+  fn from(value: ollama_rs::error::OllamaError) -> Self {
+    FlowyError::local_ai().with_context(value)
+  }
+}

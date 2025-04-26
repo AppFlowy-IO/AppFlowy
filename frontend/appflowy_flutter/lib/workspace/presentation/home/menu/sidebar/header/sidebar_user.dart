@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
@@ -22,9 +23,11 @@ class SidebarUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
+            '';
     return BlocProvider<MenuUserBloc>(
-      create: (_) =>
-          MenuUserBloc(userProfile)..add(const MenuUserEvent.initial()),
+      create: (_) => MenuUserBloc(userProfile, workspaceId),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [

@@ -83,7 +83,7 @@ class SelectModelState with _$SelectModelState {
   }) = _SelectModelState;
 
   factory SelectModelState.initial(AIModelStateNotifier notifier) {
-    final (models, selectedModel) = notifier.getAvailableModels();
+    final (models, selectedModel) = notifier.getModelSelection();
     return SelectModelState(
       models: models,
       selectedModel: selectedModel,
