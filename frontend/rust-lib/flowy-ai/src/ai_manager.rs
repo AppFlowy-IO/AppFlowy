@@ -553,7 +553,7 @@ impl AIManager {
     if self.local_ai.is_enabled() {
       if setting_only {
         let setting = self.local_ai.get_local_ai_setting();
-        all_models.push(AIModel::local(setting.chat_model_name, "".to_string()).into());
+        all_models.push(AIModel::local(setting.chat_model_name, "".to_string()));
       } else {
         all_models.extend(self.local_ai.get_all_chat_local_models().await);
       }
