@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/user/application/password/password_http_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/back_to_login_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
@@ -11,34 +12,38 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ContinueWithMagicLinkOrPasscodePage extends StatefulWidget {
-  const ContinueWithMagicLinkOrPasscodePage({
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({
     super.key,
     required this.backToLogin,
     required this.email,
-    required this.onEnterPasscode,
+    required this.baseUrl,
   });
 
   final String email;
   final VoidCallback backToLogin;
-  final ValueChanged<String> onEnterPasscode;
+  final String baseUrl;
 
   @override
-  State<ContinueWithMagicLinkOrPasscodePage> createState() =>
-      _ContinueWithMagicLinkOrPasscodePageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _ContinueWithMagicLinkOrPasscodePageState
-    extends State<ContinueWithMagicLinkOrPasscodePage> {
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final passcodeController = TextEditingController();
 
-  bool isEnteringPasscode = false;
+  bool isEnteringPasscode = true;
 
   ToastificationItem? toastificationItem;
 
   final inputPasscodeKey = GlobalKey<AFTextFieldState>();
 
   bool isSubmitting = false;
+
+  late final PasswordHttpService resetPasswordService = PasswordHttpService(
+    baseUrl: widget.baseUrl,
+    // leave the auth token empty, the user is not signed in yet
+    authToken: '',
+  );
 
   @override
   void dispose() {
@@ -93,18 +98,6 @@ class _ContinueWithMagicLinkOrPasscodePageState
     // todo: ask designer to provide the spacing
     final spacing = VSpace(20);
 
-    if (!isEnteringPasscode) {
-      return [
-        AFFilledTextButton.primary(
-          text: LocaleKeys.signIn_enterCodeManually.tr(),
-          onTap: () => setState(() => isEnteringPasscode = true),
-          size: AFButtonSize.l,
-          alignment: Alignment.center,
-        ),
-        spacing,
-      ];
-    }
-
     return [
       // Enter code manually
       AFTextField(
@@ -119,7 +112,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
               errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
             );
           } else {
-            widget.onEnterPasscode(passcode);
+            //
           }
         },
       ),
@@ -138,7 +131,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
                     errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
                   );
                 } else {
-                  widget.onEnterPasscode(passcode);
+                  _onSubmit();
                 }
               },
             ),
@@ -149,30 +142,29 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   Widget _buildLogoTitleAndDescription() {
     final theme = AppFlowyTheme.of(context);
+    return TitleLogo(
+      title: LocaleKeys.signIn_checkYourEmail.tr(),
+      description: LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
+      informationBuilder: (context) => Text(
+        widget.email,
+        style: theme.textStyle.body.enhanced(
+          color: theme.textColorScheme.primary,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 
-    if (!isEnteringPasscode) {
-      return TitleLogo(
-        title: LocaleKeys.signIn_checkYourEmail.tr(),
-        description: LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
-        informationBuilder: (context) => Text(
-          widget.email,
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
+  Future<void> _onSubmit() async {
+    final passcode = passcodeController.text;
+    if (passcode.isEmpty) {
+      inputPasscodeKey.currentState?.syncError(
+        errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
       );
-    } else {
-      return TitleLogo(
-        title: LocaleKeys.signIn_enterCode.tr(),
-        description: LocaleKeys.signIn_temporaryVerificationCodeSent.tr(),
-        informationBuilder: (context) => Text(
-          widget.email,
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
+      return;
     }
+
+    // final signInBloc = context.read<SignInBloc>();
+    // final result = await forgotPasswordService.forgotPassword(email: email);
   }
 }

@@ -9,18 +9,21 @@ enum PasswordEndpoint {
   changePassword,
   forgotPassword,
   setupPassword,
-  checkHasPassword;
+  checkHasPassword,
+  verifyResetPasswordToken;
 
   String get path {
     switch (this) {
       case PasswordEndpoint.changePassword:
         return '/gotrue/user/change-password';
       case PasswordEndpoint.forgotPassword:
-        return '/gotrue/user/recover';
+        return '/gotrue/recover';
       case PasswordEndpoint.setupPassword:
         return '/gotrue/user/change-password';
       case PasswordEndpoint.checkHasPassword:
         return '/gotrue/user/auth-info';
+      case PasswordEndpoint.verifyResetPasswordToken:
+        return '/gotrue/verify';
     }
   }
 
@@ -29,6 +32,7 @@ enum PasswordEndpoint {
       case PasswordEndpoint.changePassword:
       case PasswordEndpoint.setupPassword:
       case PasswordEndpoint.forgotPassword:
+      case PasswordEndpoint.verifyResetPasswordToken:
         return 'POST';
       case PasswordEndpoint.checkHasPassword:
         return 'GET';
@@ -128,6 +132,33 @@ class PasswordHttpService {
     } catch (e) {
       return FlowyResult.failure(
         FlowyError(msg: 'Failed to check password status: $e'),
+      );
+    }
+  }
+
+  // Verify the reset password token
+  Future<FlowyResult<bool, FlowyError>> verifyResetPasswordToken({
+    required String email,
+    required String token,
+  }) async {
+    final result = await _makeRequest(
+      endpoint: PasswordEndpoint.verifyResetPasswordToken,
+      body: {
+        'type': 'recovery',
+        'email': email,
+        'token': token,
+      },
+      errorMessage: 'Failed to verify reset password token',
+    );
+
+    try {
+      return result.fold(
+        (data) => FlowyResult.success(true),
+        (error) => FlowyResult.failure(error),
+      );
+    } catch (e) {
+      return FlowyResult.failure(
+        FlowyError(msg: 'Failed to verify reset password token: $e'),
       );
     }
   }

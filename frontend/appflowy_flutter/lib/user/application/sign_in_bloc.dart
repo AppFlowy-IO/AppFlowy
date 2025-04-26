@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/password/password_http_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -25,6 +26,14 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         if (isClosed) return;
 
         add(SignInEvent.deepLinkStateChange(value));
+      });
+
+      getAppFlowyCloudUrl().then((baseUrl) {
+        passwordService = PasswordHttpService(
+          baseUrl: baseUrl,
+          authToken:
+              '', // the user is not signed in yet, the auth token should be empty
+        );
       });
     }
 
@@ -83,12 +92,38 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           switchLoginType: (type) {
             emit(state.copyWith(loginType: type));
           },
+          forgotPassword: (email) async {
+            emit(
+              state.copyWith(
+                isSubmitting: true,
+              ),
+            );
+
+            final result = await passwordService?.forgotPassword(email: email);
+
+            result?.fold(
+              (success) {
+                emit(state.copyWith(isSubmitting: false));
+              },
+              (error) {
+                emit(
+                  state.copyWith(
+                    isSubmitting: false,
+                    successOrFail: FlowyResult.failure(error),
+                  ),
+                );
+              },
+            );
+          },
+          validateResetPasswordToken: (email, token) async {},
+          resetPassword: (email, newPassword) async {},
         );
       },
     );
   }
 
   final AuthService authService;
+  PasswordHttpService? passwordService;
   VoidCallback? deepLinkStateListener;
 
   @override
@@ -290,6 +325,38 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
   }
 
+  Future<void> _onForgotPassword(
+    Emitter<SignInState> emit, {
+    required String email,
+  }) async {
+    if (state.isSubmitting) {
+      Log.error('Forgot password is already in progress');
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+      ),
+    );
+
+    final result = await passwordService?.forgotPassword(email: email);
+
+    result?.fold(
+      (success) {
+        emit(state.copyWith(isSubmitting: false));
+      },
+      (error) {
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            successOrFail: FlowyResult.failure(error),
+          ),
+        );
+      },
+    );
+  }
+
   SignInState _stateFromCode(FlowyError error) {
     Log.error('SignInState _stateFromCode: ${error.msg}');
 
@@ -365,6 +432,21 @@ class SignInEvent with _$SignInEvent {
 
   const factory SignInEvent.cancel() = Cancel;
   const factory SignInEvent.switchLoginType(LoginType type) = SwitchLoginType;
+
+  // password
+  const factory SignInEvent.forgotPassword({
+    required String email,
+  }) = ForgotPassword;
+
+  const factory SignInEvent.validateResetPasswordToken({
+    required String email,
+    required String token,
+  }) = ValidateResetPasswordToken;
+
+  const factory SignInEvent.resetPassword({
+    required String email,
+    required String newPassword,
+  }) = ResetPassword;
 }
 
 // we support sign in directly without sign up, but we want to allow the users to sign up if they want to
@@ -383,6 +465,10 @@ class SignInState with _$SignInState {
     required String? passwordError,
     required String? emailError,
     required FlowyResult<UserProfilePB, FlowyError>? successOrFail,
+    required FlowyResult<bool, FlowyError>? forgotPasswordSuccessOrFail,
+    required FlowyResult<bool, FlowyError>?
+        validateResetPasswordTokenSuccessOrFail,
+    required FlowyResult<bool, FlowyError>? resetPasswordSuccessOrFail,
     @Default(LoginType.signIn) LoginType loginType,
   }) = _SignInState;
 
@@ -391,5 +477,8 @@ class SignInState with _$SignInState {
         passwordError: null,
         emailError: null,
         successOrFail: null,
+        forgotPasswordSuccessOrFail: null,
+        validateResetPasswordTokenSuccessOrFail: null,
+        resetPasswordSuccessOrFail: null,
       );
 }
