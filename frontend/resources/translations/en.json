@@ -2327,8 +2327,8 @@
     "searchOrAskAI": "Search or ask AI",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
-    "noResultForSearching": "No result for \"{}\"",
-    "noResultForSearchingHint": "Some results may be in your deleted pages",
+    "noResultForSearching": "No matches found",
+    "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
     "bestMatch": "Best match",
     "placeholder": {
       "actions": "Search actions..."

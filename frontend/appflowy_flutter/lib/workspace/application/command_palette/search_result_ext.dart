@@ -5,7 +5,11 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flutter/material.dart';
 
 extension GetIcon on ResultIconPB {
-  Widget? getIcon({double size = 18.0, double lineHeight = 1.0}) {
+  Widget? getIcon({
+    double size = 18.0,
+    double lineHeight = 1.0,
+    Color? iconColor,
+  }) {
     final iconValue = value, iconType = ty;
     if (iconType == ResultIconTypePB.Emoji) {
       return iconValue.isNotEmpty
@@ -17,7 +21,11 @@ extension GetIcon on ResultIconPB {
           : null;
     } else if (ty == ResultIconTypePB.Icon) {
       if (_resultIconValueTypes.contains(iconValue)) {
-        return FlowySvg(getViewSvg(), size: Size.square(size));
+        return FlowySvg(
+          getViewSvg(),
+          size: Size.square(size),
+          color: iconColor,
+        );
       }
       return RawEmojiIconWidget(
         emoji: EmojiIconData(iconType.toFlowyIconType(), iconValue),

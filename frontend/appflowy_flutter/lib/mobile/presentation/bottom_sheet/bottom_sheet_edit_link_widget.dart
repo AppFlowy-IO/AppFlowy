@@ -163,6 +163,7 @@ class _MobileBottomSheetEditLinkWidgetState
         decoration: LinkStyle.buildLinkTextFieldInputDecoration(
           LocaleKeys.document_toolbar_linkNameHint.tr(),
           contentPadding: EdgeInsets.all(14),
+          radius: 12,
           context,
         ),
       ),
