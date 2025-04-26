@@ -350,6 +350,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       return;
     }
 
+    Log.info('Validate reset password token: $email, $token');
+
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -363,6 +365,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     result?.fold(
       (success) {
+        Log.info('Validate reset password token success');
+
         emit(
           state.copyWith(
             isSubmitting: false,
@@ -372,7 +376,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           ),
         );
       },
-      (error) => _stateFromCode(error),
+      (error) {
+        Log.error('Validate reset password token failed: $error');
+
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            validateResetPasswordTokenSuccessOrFail: FlowyResult.failure(error),
+          ),
+        );
+      },
     );
   }
 
