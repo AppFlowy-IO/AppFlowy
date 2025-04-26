@@ -44,20 +44,22 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          LocaleKeys.button_deleteAccount.tr(),
-          style: theme.textStyle.heading4.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
-        const VSpace(8),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                LocaleKeys.button_deleteAccount.tr(),
+                style: theme.textStyle.heading4.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
+              ),
+              const VSpace(4),
+              Text(
                 LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -65,38 +67,37 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                   color: theme.textColorScheme.secondary,
                 ),
               ),
-            ),
-            AFOutlinedTextButton.destructive(
-              text: LocaleKeys.button_deleteAccount.tr(),
-              textStyle: theme.textStyle.body.standard(
-                color: theme.textColorScheme.error,
-                weight: FontWeight.w400,
-              ),
-              onTap: () {
-                isCheckedNotifier.value = false;
-                textEditingController.clear();
+            ],
+          ),
+        ),
+        AFOutlinedTextButton.destructive(
+          text: LocaleKeys.button_deleteAccount.tr(),
+          textStyle: theme.textStyle.body.standard(
+            color: theme.textColorScheme.error,
+            weight: FontWeight.w400,
+          ),
+          onTap: () {
+            isCheckedNotifier.value = false;
+            textEditingController.clear();
 
-                showCancelAndDeleteDialog(
-                  context: context,
-                  title:
-                      LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
-                  description: '',
-                  builder: (_) => _AccountDeletionDialog(
-                    controller: textEditingController,
-                    isChecked: isCheckedNotifier,
-                  ),
-                  onDelete: () => deleteMyAccount(
-                    context,
-                    textEditingController.text.trim(),
-                    isCheckedNotifier.value,
-                    onSuccess: () {
-                      context.popToHome();
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+            showCancelAndDeleteDialog(
+              context: context,
+              title: LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
+              description: '',
+              builder: (_) => _AccountDeletionDialog(
+                controller: textEditingController,
+                isChecked: isCheckedNotifier,
+              ),
+              onDelete: () => deleteMyAccount(
+                context,
+                textEditingController.text.trim(),
+                isCheckedNotifier.value,
+                onSuccess: () {
+                  context.popToHome();
+                },
+              ),
+            );
+          },
         ),
       ],
     );

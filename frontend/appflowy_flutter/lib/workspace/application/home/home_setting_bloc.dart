@@ -15,7 +15,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     WorkspaceLatestPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
     double screenWidthPx,
-  )   : _listener = FolderListener(),
+  )   : _listener = FolderListener(workspaceId: workspaceSetting.workspaceId),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(

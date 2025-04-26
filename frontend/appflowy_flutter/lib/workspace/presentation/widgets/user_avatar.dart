@@ -74,7 +74,7 @@ class UserAvatar extends StatelessWidget {
       child: Text(
         nameInitials,
         style: theme.textStyle.caption
-            .standard(color: theme.textColorScheme.primary)
+            .standard(color: AppFlowyPrimitiveTokens.subtleColorIron600)
             .copyWith(fontSize: fontSize),
       ),
     );

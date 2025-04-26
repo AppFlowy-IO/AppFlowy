@@ -118,32 +118,39 @@ class AFFilledTextButton extends AFBaseTextButton {
 
   @override
   Widget build(BuildContext context) {
-    return AFBaseButton(
-      disabled: disabled,
-      backgroundColor: backgroundColor,
-      borderColor: (_, __, ___, ____) => Colors.transparent,
-      padding: padding ?? size.buildPadding(context),
-      borderRadius: borderRadius ?? size.buildBorderRadius(context),
-      onTap: onTap,
-      builder: (context, isHovering, disabled) {
-        final textColor = this.textColor?.call(context, isHovering, disabled) ??
-            AppFlowyTheme.of(context).textColorScheme.onFill;
-        Widget child = Text(
-          text,
-          style: textStyle ??
-              size.buildTextStyle(context).copyWith(color: textColor),
-        );
-
-        final alignment = this.alignment;
-        if (alignment != null) {
-          child = Align(
-            alignment: alignment,
-            child: child,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: 76,
+      ),
+      child: AFBaseButton(
+        disabled: disabled,
+        backgroundColor: backgroundColor,
+        borderColor: (_, __, ___, ____) => Colors.transparent,
+        padding: padding ?? size.buildPadding(context),
+        borderRadius: borderRadius ?? size.buildBorderRadius(context),
+        onTap: onTap,
+        builder: (context, isHovering, disabled) {
+          final textColor =
+              this.textColor?.call(context, isHovering, disabled) ??
+                  AppFlowyTheme.of(context).textColorScheme.onFill;
+          Widget child = Text(
+            text,
+            style: textStyle ??
+                size.buildTextStyle(context).copyWith(color: textColor),
+            textAlign: TextAlign.center,
           );
-        }
 
-        return child;
-      },
+          final alignment = this.alignment;
+          if (alignment != null) {
+            child = Align(
+              alignment: alignment,
+              child: child,
+            );
+          }
+
+          return child;
+        },
+      ),
     );
   }
 }

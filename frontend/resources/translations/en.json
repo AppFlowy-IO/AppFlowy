@@ -114,7 +114,7 @@
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
-    "openSuccess": "Open workspace successfully",
+    "openSuccess": "Opened workspace successfully",
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
@@ -1362,7 +1362,9 @@
         "resetInviteLinkFailed": "Failed to reset the invite link",
         "resetInviteLinkFailedDescription": "Please try again later",
         "memberPageDescription1": "Access the",
-        "memberPageDescription2": "for guest and advanced user management."
+        "memberPageDescription2": "for guest and advanced user management.",
+        "noInviteLink": "You haven't generated an invite link yet.",
+        "copyLink": "Copy link"
       }
     },
     "files": {
@@ -2686,12 +2688,14 @@
       },
       "password": {
         "title": "Password",
+        "confirmPassword": "Confirm password",
         "changePassword": "Change password",
         "currentPassword": "Current password",
         "newPassword": "New password",
         "confirmNewPassword": "Confirm new password",
         "setupPassword": "Setup password",
         "error": {
+          "currentPasswordIsRequired": "Current password is required",
           "newPasswordIsRequired": "New password is required",
           "confirmPasswordIsRequired": "Confirm password is required",
           "passwordsDoNotMatch": "Passwords do not match",
@@ -2704,6 +2708,8 @@
           "passwordSetupFailed": "Failed to setup password"
         },
         "hint": {
+          "enterYourPassword": "Enter your password",
+          "confirmYourPassword": "Confirm your password",
           "enterYourCurrentPassword": "Enter your current password",
           "enterYourNewPassword": "Enter your new password",
           "confirmYourNewPassword": "Confirm your new password"

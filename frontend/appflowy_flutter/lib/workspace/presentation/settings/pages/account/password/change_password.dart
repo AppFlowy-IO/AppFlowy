@@ -80,7 +80,7 @@ class _ChangePasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Change password',
+          LocaleKeys.newSettings_myAccount_password_changePassword.tr(),
           style: theme.textStyle.heading4.prominent(
             color: theme.textColorScheme.primary,
           ),
@@ -208,7 +208,7 @@ class _ChangePasswordDialogContentState
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
-        const HSpace(16),
+        HSpace(theme.spacing.l),
         AFFilledTextButton.primary(
           text: LocaleKeys.button_save.tr(),
           textStyle: theme.textStyle.body.standard(
@@ -227,6 +227,15 @@ class _ChangePasswordDialogContentState
     final currentPassword = currentPasswordController.text;
     final newPassword = newPasswordController.text;
     final confirmPassword = confirmPasswordController.text;
+
+    if (currentPassword.isEmpty) {
+      currentPasswordTextFieldKey.currentState?.syncError(
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_currentPasswordIsRequired
+            .tr(),
+      );
+      return;
+    }
 
     if (newPassword.isEmpty) {
       newPasswordTextFieldKey.currentState?.syncError(
@@ -325,6 +334,10 @@ class _ChangePasswordDialogContentState
         description: description,
         type: hasError ? ToastificationType.error : ToastificationType.success,
       );
+
+      if (!hasError) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }

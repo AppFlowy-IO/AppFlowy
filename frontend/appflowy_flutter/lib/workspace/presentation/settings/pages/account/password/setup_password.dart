@@ -48,6 +48,9 @@ class _SetupPasswordDialogContentState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +97,7 @@ class _SetupPasswordDialogContentState
     final theme = AppFlowyTheme.of(context);
     return [
       Text(
-        'Password',
+        LocaleKeys.newSettings_myAccount_password_title.tr(),
         style: theme.textStyle.caption.enhanced(
           color: theme.textColorScheme.secondary,
         ),
@@ -103,7 +106,9 @@ class _SetupPasswordDialogContentState
       AFTextField(
         key: passwordTextFieldKey,
         controller: passwordController,
-        hintText: 'Enter your password',
+        hintText: LocaleKeys
+            .newSettings_myAccount_password_hint_confirmYourPassword
+            .tr(),
         keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
@@ -124,7 +129,7 @@ class _SetupPasswordDialogContentState
     final theme = AppFlowyTheme.of(context);
     return [
       Text(
-        'Confirm password',
+        LocaleKeys.newSettings_myAccount_password_confirmPassword.tr(),
         style: theme.textStyle.caption.enhanced(
           color: theme.textColorScheme.secondary,
         ),
@@ -133,7 +138,9 @@ class _SetupPasswordDialogContentState
       AFTextField(
         key: confirmPasswordTextFieldKey,
         controller: confirmPasswordController,
-        hintText: 'Confirm your password',
+        hintText: LocaleKeys
+            .newSettings_myAccount_password_hint_confirmYourPassword
+            .tr(),
         keyboardType: TextInputType.visiblePassword,
         obscureText: true,
         suffixIconConstraints: BoxConstraints.tightFor(
@@ -156,16 +163,16 @@ class _SetupPasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         AFOutlinedTextButton.normal(
-          text: 'Cancel',
+          text: LocaleKeys.button_cancel.tr(),
           textStyle: theme.textStyle.body.standard(
             color: theme.textColorScheme.primary,
             weight: FontWeight.w400,
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
-        const HSpace(16),
+        HSpace(theme.spacing.l),
         AFFilledTextButton.primary(
-          text: 'Save',
+          text: LocaleKeys.button_save.tr(),
           textStyle: theme.textStyle.body.standard(
             color: theme.textColorScheme.onFill,
             weight: FontWeight.w400,
@@ -232,12 +239,15 @@ class _SetupPasswordDialogContentState
     if (setPasswordResult != null) {
       setPasswordResult.fold(
         (success) {
-          message = 'Password set';
-          description = 'Your password has been set';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordSetupSuccessfully
+              .tr();
         },
         (error) {
           hasError = true;
-          message = 'Failed to set password';
+          message = LocaleKeys
+              .newSettings_myAccount_password_toast_passwordSetupFailed
+              .tr();
           description = error.msg;
         },
       );
@@ -249,6 +259,10 @@ class _SetupPasswordDialogContentState
         description: description,
         type: hasError ? ToastificationType.error : ToastificationType.success,
       );
+
+      if (!hasError) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }

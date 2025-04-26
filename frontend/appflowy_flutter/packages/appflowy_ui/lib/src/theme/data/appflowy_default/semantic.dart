@@ -13,7 +13,6 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../shared.dart';
-import 'primitive.dart';
 
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   @override

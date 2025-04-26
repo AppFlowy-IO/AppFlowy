@@ -80,8 +80,8 @@ void main() {
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
-      expect(find.byType(AppFlowyEditorPage), findsNothing);
-      expect(find.text('Blank page'), findsOne);
+      expect(find.byType(AppFlowyEditorPage), findsOneWidget);
+      expect(find.text('Blank page'), findsNothing);
     });
   });
 }

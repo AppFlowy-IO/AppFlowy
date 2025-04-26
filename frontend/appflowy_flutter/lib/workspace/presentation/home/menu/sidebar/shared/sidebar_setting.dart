@@ -117,6 +117,7 @@ void showSettingsDialog(
   PasswordBloc? passwordBloc,
   SettingsPage? initPage,
 }) {
+  final userProfile = context.read<UserWorkspaceBloc>().state.userProfile;
   AFFocusManager.maybeOf(context)?.notifyLoseFocus();
   showDialog(
     context: context,
@@ -128,9 +129,7 @@ void showSettingsDialog(
                 value: passwordBloc,
               )
             : BlocProvider(
-                create: (context) => PasswordBloc(
-                  userWorkspaceBloc.state.userProfile,
-                )
+                create: (context) => PasswordBloc(userProfile)
                   ..add(PasswordEvent.init())
                   ..add(PasswordEvent.checkHasPassword()),
               ),
@@ -142,7 +141,7 @@ void showSettingsDialog(
         ),
       ],
       child: SettingsDialog(
-        userWorkspaceBloc.state.userProfile,
+        userProfile,
         initPage: initPage,
         didLogout: () async {
           // Pop the dialog using the dialog context

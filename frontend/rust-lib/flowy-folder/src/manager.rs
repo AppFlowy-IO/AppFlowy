@@ -1253,12 +1253,9 @@ impl FolderManager {
       workspace_id: workspace_id.to_string(),
       latest_view: view,
     };
-    folder_notification_builder(
-      self.user.user_id()?,
-      FolderNotification::DidUpdateWorkspaceSetting,
-    )
-    .payload(setting)
-    .send();
+    folder_notification_builder(workspace_id, FolderNotification::DidUpdateWorkspaceSetting)
+      .payload(setting)
+      .send();
     Ok(())
   }
 
