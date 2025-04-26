@@ -106,8 +106,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildLogoAndTitle() {
-    final theme = AppFlowyTheme.of(context);
-
     return TitleLogo(
       title: 'Reset password',
       description: 'Enter your email to reset your password',

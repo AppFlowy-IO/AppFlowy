@@ -92,29 +92,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           switchLoginType: (type) {
             emit(state.copyWith(loginType: type));
           },
-          forgotPassword: (email) async {
-            emit(
-              state.copyWith(
-                isSubmitting: true,
-              ),
-            );
-
-            final result = await passwordService?.forgotPassword(email: email);
-
-            result?.fold(
-              (success) {
-                emit(state.copyWith(isSubmitting: false));
-              },
-              (error) {
-                emit(
-                  state.copyWith(
-                    isSubmitting: false,
-                    successOrFail: FlowyResult.failure(error),
-                  ),
-                );
-              },
-            );
-          },
+          forgotPassword: (email) => _onForgotPassword(emit, email: email),
           validateResetPasswordToken: (email, token) async {},
           resetPassword: (email, newPassword) async {},
         );
