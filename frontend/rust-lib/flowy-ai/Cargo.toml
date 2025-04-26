@@ -49,8 +49,11 @@ collab-integrate.workspace = true
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
 ollama-rs = "0.3.0"
-#faiss = { version = "0.12.1" }
+faiss = { version = "0.12.1" }
 af-mcp = { version = "0.1.0" }
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+text-splitter = { version = "0.25.1" }
+
 
 [dev-dependencies]
 uuid.workspace = true

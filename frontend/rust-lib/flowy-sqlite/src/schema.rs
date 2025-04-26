@@ -43,6 +43,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    collab_embeddings_table (fragment_id, oid) {
+        fragment_id -> Text,
+        oid -> Text,
+        faiss_id -> Integer,
+        content_type -> Integer,
+        content -> Nullable<Text>,
+        metadata -> Nullable<Text>,
+        fragment_index -> Integer,
+        embedder_type -> Integer,
+    }
+}
+
+diesel::table! {
     collab_snapshot (id) {
         id -> Text,
         object_id -> Text,
@@ -51,6 +64,17 @@ diesel::table! {
         collab_type -> Text,
         timestamp -> BigInt,
         data -> Binary,
+    }
+}
+
+diesel::table! {
+    collab_table (oid) {
+        oid -> Text,
+        content -> Text,
+        collab_type -> SmallInt,
+        updated_at -> Timestamp,
+        indexed_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
     }
 }
 
@@ -139,18 +163,22 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(collab_embeddings_table -> collab_table (oid));
+
 diesel::allow_tables_to_appear_in_same_query!(
-  af_collab_metadata,
-  chat_local_setting_table,
-  chat_message_table,
-  chat_table,
-  collab_snapshot,
-  local_ai_model_table,
-  upload_file_part,
-  upload_file_table,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
-  workspace_members_table,
-  workspace_setting_table,
+    af_collab_metadata,
+    chat_local_setting_table,
+    chat_message_table,
+    chat_table,
+    collab_embeddings_table,
+    collab_snapshot,
+    collab_table,
+    local_ai_model_table,
+    upload_file_part,
+    upload_file_table,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
+    workspace_members_table,
+    workspace_setting_table,
 );
