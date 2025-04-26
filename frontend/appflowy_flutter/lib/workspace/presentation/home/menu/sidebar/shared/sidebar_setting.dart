@@ -31,7 +31,10 @@ HotKeyItem openSettingsHotKey(
       ),
       keyDownHandler: (_) {
         if (_settingsDialogKey.currentContext == null) {
-          showSettingsDialog(context);
+          showSettingsDialog(
+            context,
+            userWorkspaceBloc: context.read<UserWorkspaceBloc>(),
+          );
         } else {
           Navigator.of(context, rootNavigator: true)
               .popUntil((route) => route.isFirst);
@@ -110,7 +113,7 @@ class _UserSettingButtonState extends State<UserSettingButton> {
 
 void showSettingsDialog(
   BuildContext context, {
-  UserWorkspaceBloc? userWorkspaceBloc,
+  required UserWorkspaceBloc userWorkspaceBloc,
   PasswordBloc? passwordBloc,
   SettingsPage? initPage,
 }) {
@@ -134,7 +137,7 @@ void showSettingsDialog(
           value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
         ),
         BlocProvider.value(
-          value: userWorkspaceBloc ?? context.read<UserWorkspaceBloc>(),
+          value: userWorkspaceBloc,
         ),
       ],
       child: SettingsDialog(

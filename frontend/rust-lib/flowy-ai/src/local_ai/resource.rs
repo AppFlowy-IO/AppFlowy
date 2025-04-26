@@ -161,7 +161,6 @@ impl LocalAIResourceController {
 
     let setting = self.get_llm_setting();
     let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
-
     match client.get(&setting.ollama_server_url).send().await {
       Ok(resp) if resp.status().is_success() => {
         info!(
