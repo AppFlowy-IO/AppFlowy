@@ -217,51 +217,41 @@ class _CurrentModelButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: DesktopAIPromptSizes.actionBarButtonSize,
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            alignment: AlignmentDirectional.centerStart,
-            clipBehavior: Clip.none,
-            child: FlowyHover(
-              style: const HoverStyle(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(4.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      // TODO: remove this after change icon to 20px
-                      padding: EdgeInsets.all(2),
-                      child: FlowySvg(
-                        FlowySvgs.ai_sparks_s,
-                        color: Theme.of(context).hintColor,
-                        size: Size.square(16),
-                      ),
-                    ),
-                    if (model != null && !model!.isDefault)
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.easeOutCubic,
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.only(end: 2.0),
-                          child: FlowyText(
-                            model!.i18n,
-                            fontSize: 12,
-                            figmaLineHeight: 16,
-                            color: Theme.of(context).hintColor,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    FlowySvg(
-                      FlowySvgs.ai_source_drop_down_s,
+          child: FlowyHover(
+            style: const HoverStyle(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    // TODO: remove this after change icon to 20px
+                    padding: EdgeInsets.all(2),
+                    child: FlowySvg(
+                      FlowySvgs.ai_sparks_s,
                       color: Theme.of(context).hintColor,
-                      size: const Size.square(8),
+                      size: Size.square(16),
                     ),
-                  ],
-                ),
+                  ),
+                  if (model != null && !model!.isDefault)
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(end: 2.0),
+                      child: FlowyText(
+                        model!.i18n,
+                        fontSize: 12,
+                        figmaLineHeight: 16,
+                        color: Theme.of(context).hintColor,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  FlowySvg(
+                    FlowySvgs.ai_source_drop_down_s,
+                    color: Theme.of(context).hintColor,
+                    size: const Size.square(8),
+                  ),
+                ],
               ),
             ),
           ),
