@@ -93,7 +93,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit(state.copyWith(loginType: type));
           },
           forgotPassword: (email) => _onForgotPassword(emit, email: email),
-          validateResetPasswordToken: (email, token) async {},
+          validateResetPasswordToken: (email, token) async =>
+              _onValidateResetPasswordToken(
+            emit,
+            email: email,
+            token: token,
+          ),
           resetPassword: (email, newPassword) async {},
         );
       },
@@ -332,6 +337,42 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _onValidateResetPasswordToken(
+    Emitter<SignInState> emit, {
+    required String email,
+    required String token,
+  }) async {
+    if (state.isSubmitting) {
+      Log.error('Validate reset password token is already in progress');
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+      ),
+    );
+
+    final result = await passwordService?.verifyResetPasswordToken(
+      email: email,
+      token: token,
+    );
+
+    result?.fold(
+      (success) {
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            validateResetPasswordTokenSuccessOrFail: FlowyResult.success(
+              success,
+            ),
+          ),
+        );
+      },
+      (error) => _stateFromCode(error),
     );
   }
 

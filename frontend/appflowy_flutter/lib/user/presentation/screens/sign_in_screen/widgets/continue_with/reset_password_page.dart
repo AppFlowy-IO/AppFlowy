@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/application/password/password_http_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/back_to_login_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
@@ -11,6 +10,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+enum ResetPasswordPageState {
+  enterPasscode,
+  setNewPassword,
+}
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({
@@ -31,19 +35,11 @@ class ResetPasswordPage extends StatefulWidget {
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final passcodeController = TextEditingController();
 
-  bool isEnteringPasscode = true;
-
   ToastificationItem? toastificationItem;
 
   final inputPasscodeKey = GlobalKey<AFTextFieldState>();
 
-  bool isSubmitting = false;
-
-  late final PasswordHttpService resetPasswordService = PasswordHttpService(
-    baseUrl: widget.baseUrl,
-    // leave the auth token empty, the user is not signed in yet
-    authToken: '',
-  );
+  ResetPasswordPageState state = ResetPasswordPageState.enterPasscode;
 
   @override
   void dispose() {
@@ -54,43 +50,46 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignInBloc, SignInState>(
+    return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) {
-        final successOrFail = state.successOrFail;
-        if (successOrFail != null && successOrFail.isFailure) {
-          successOrFail.onFailure((error) {
-            inputPasscodeKey.currentState?.syncError(
-              errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
-            );
-          });
-        }
-
-        if (state.isSubmitting != isSubmitting) {
-          setState(() => isSubmitting = state.isSubmitting);
+        final successOrFail = state.validateResetPasswordTokenSuccessOrFail;
+        if (successOrFail != null) {
+          successOrFail.fold(
+            (success) {
+              // navigate to the set new password page
+            },
+            (error) {
+              inputPasscodeKey.currentState?.syncError(
+                errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
+              );
+            },
+          );
         }
       },
-      child: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: 320,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo, title and description
-                _buildLogoTitleAndDescription(),
+      builder: (context, state) {
+        return Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo, title and description
+                  _buildLogoTitleAndDescription(),
 
-                // Enter code manually
-                ..._buildEnterCodeManually(),
+                  // Enter code manually
+                  ..._buildEnterCodeManually(),
 
-                // Back to login
-                BackToLoginButton(
-                  onTap: widget.backToLogin,
-                ),
-              ],
+                  // Back to login
+                  BackToLoginButton(
+                    onTap: widget.backToLogin,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -120,10 +119,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       VSpace(12),
 
       // continue to login
-      isSubmitting
+      context.read<SignInBloc>().state.isSubmitting
           ? const VerifyingButton()
           : ContinueWithButton(
-              text: LocaleKeys.signIn_continueToSignIn.tr(),
+              text: 'Continue to reset password',
               onTap: () {
                 final passcode = passcodeController.text;
                 if (passcode.isEmpty) {
@@ -164,7 +163,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       return;
     }
 
-    // final signInBloc = context.read<SignInBloc>();
-    // final result = await forgotPasswordService.forgotPassword(email: email);
+    context.read<SignInBloc>().add(
+          ValidateResetPasswordToken(
+            email: widget.email,
+            token: passcode,
+          ),
+        );
   }
 }
