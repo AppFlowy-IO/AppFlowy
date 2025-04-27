@@ -107,8 +107,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget _buildLogoAndTitle() {
     return TitleLogo(
-      title: 'Reset password',
-      description: 'Enter your email to reset your password',
+      title: LocaleKeys.signIn_resetPassword.tr(),
+      description: LocaleKeys.signIn_resetPasswordDescription.tr(),
     );
   }
 
@@ -136,7 +136,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       isSubmitting
           ? const VerifyingButton()
           : ContinueWithButton(
-              text: 'Submit',
+              text: LocaleKeys.button_submit.tr(),
               onTap: _onSubmit,
             ),
       VSpace(theme.spacing.xxl),

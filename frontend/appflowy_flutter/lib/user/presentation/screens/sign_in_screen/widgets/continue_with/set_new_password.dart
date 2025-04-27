@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/back_to_login_in_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
@@ -5,6 +6,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/contin
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/verifying_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,8 +52,7 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
           successOrFail.fold(
             (success) {
               showToastNotification(
-                message: 'Password reset successfully',
-                description: 'You can now login with your new password',
+                message: LocaleKeys.signIn_resetPasswordSuccess.tr(),
               );
               // pop until the login screen is found
               Navigator.popUntil(context, (route) {
@@ -98,12 +99,12 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
   Widget _buildLogoAndTitle() {
     final theme = AppFlowyTheme.of(context);
     return TitleLogo(
-      title: 'Reset password',
+      title: LocaleKeys.signIn_resetPassword.tr(),
       informationBuilder: (context) => RichText(
         text: TextSpan(
           children: [
             TextSpan(
-              text: 'Enter new password for ',
+              text: LocaleKeys.signIn_enterNewPasswordFor.tr(),
               style: theme.textStyle.body.standard(
                 color: theme.textColorScheme.primary,
               ),
@@ -127,7 +128,7 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'New password',
+          LocaleKeys.signIn_newPassword.tr(),
           style: theme.textStyle.caption.enhanced(
             color: theme.textColorScheme.secondary,
           ),
@@ -137,12 +138,12 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
           key: newPasswordKey,
           controller: newPasswordController,
           obscureText: true,
-          hintText: 'Enter new password',
+          hintText: LocaleKeys.signIn_enterNewPassword.tr(),
           onSubmitted: (_) => _validateAndSubmit(),
         ),
         const VSpace(16),
         Text(
-          'Confirm password',
+          LocaleKeys.signIn_confirmPassword.tr(),
           style: theme.textStyle.caption.enhanced(
             color: theme.textColorScheme.secondary,
           ),
@@ -152,7 +153,7 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
           key: confirmPasswordKey,
           controller: confirmPasswordController,
           obscureText: true,
-          hintText: 'Confirm password',
+          hintText: LocaleKeys.signIn_confirmNewPassword.tr(),
           onSubmitted: (_) => _validateAndSubmit(),
         ),
       ],
@@ -163,7 +164,7 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
     return isSubmitting
         ? const VerifyingButton()
         : ContinueWithButton(
-            text: 'Reset password',
+            text: LocaleKeys.signIn_resetPassword.tr(),
             onTap: _validateAndSubmit,
           );
   }
@@ -174,21 +175,21 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
 
     if (newPassword.isEmpty) {
       newPasswordKey.currentState?.syncError(
-        errorText: 'Password cannot be empty',
+        errorText: LocaleKeys.signIn_newPasswordCannotBeEmpty.tr(),
       );
       return;
     }
 
     if (confirmPassword.isEmpty) {
       confirmPasswordKey.currentState?.syncError(
-        errorText: 'Password cannot be empty',
+        errorText: LocaleKeys.signIn_confirmPasswordCannotBeEmpty.tr(),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       confirmPasswordKey.currentState?.syncError(
-        errorText: 'Passwords do not match',
+        errorText: LocaleKeys.signIn_passwordsDoNotMatch.tr(),
       );
       return;
     }

@@ -58,7 +58,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
             (error) {
               widget.onValidateResetPasswordToken(false);
               inputPasscodeKey.currentState?.syncError(
-                errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
+                errorText: LocaleKeys.signIn_resetPasswordFailed.tr(),
               );
             },
           );
@@ -124,7 +124,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
       isSubmitting
           ? const VerifyingButton()
           : ContinueWithButton(
-              text: 'Continue to reset password',
+              text: LocaleKeys.signIn_continueToResetPassword.tr(),
               onTap: () {
                 final passcode = passcodeController.text;
                 if (passcode.isEmpty) {
