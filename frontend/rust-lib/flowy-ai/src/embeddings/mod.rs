@@ -1,7 +1,5 @@
 mod document_indexer;
 mod embedder;
-mod faiss;
-#[cfg(test)]
-mod faiss_test;
+// mod faiss;
 mod indexer;
 mod scheduler;

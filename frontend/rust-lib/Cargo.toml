@@ -29,7 +29,7 @@ members = [
   "flowy-search-pub",
   "flowy-ai",
   "flowy-ai-pub",
-  "flowy-storage-pub",
+  "flowy-storage-pub", "flowy-sqlite-vec",
 ]
 
 resolver = "2"

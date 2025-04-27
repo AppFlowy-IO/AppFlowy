@@ -147,11 +147,8 @@ impl GroupData {
   pub fn add_row(&mut self, row: Row) {
     #[cfg(feature = "verbose_log")]
     tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
-    match self.rows.iter().find(|r| r.id == row.id) {
-      None => {
-        self.rows.push(row);
-      },
-      Some(_) => {},
+    if self.rows.iter().find(|r| r.id == row.id) == None {
+      self.rows.push(row);
     }
   }
 

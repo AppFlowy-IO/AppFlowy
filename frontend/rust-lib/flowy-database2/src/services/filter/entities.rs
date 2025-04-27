@@ -37,8 +37,7 @@ impl Filter {
     match &self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => children
         .iter()
-        .map(|filter| filter.is_empty())
-        .all(|is_empty| is_empty),
+        .all(|filter| filter.is_empty()),
       FilterInner::Data { .. } => false,
     }
   }

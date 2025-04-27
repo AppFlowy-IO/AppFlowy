@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub struct CollabEmbeddingsTable {
   pub fragment_id: String,
   pub oid: String,
-  pub faiss_id: u64,
+  pub faiss_id: i64,
   pub content_type: i32,
   pub content: Option<String>,
   pub metadata: Option<String>,
@@ -55,7 +55,7 @@ pub fn select_collabs_fragment_ids(
     if let Ok(uuid) = Uuid::parse_str(&oid) {
       fragment_ids_by_oid
         .entry(uuid)
-        .or_insert_with(Vec::new)
+        .or_default()
         .push(fragment_id);
     }
   }
@@ -95,7 +95,7 @@ pub fn upsert_collab_embeddings(
       .map(|v| CollabEmbeddingsTable {
         fragment_id: v.data.fragment_id.clone(),
         oid: oid.to_string(),
-        faiss_id: v.faiss_id,
+        faiss_id: v.faiss_id as i64,
         content_type: v.data.content_type,
         content: v.data.contents.clone(),
         metadata: Some(serde_json::to_string(&v.data.metadata).unwrap_or_default()),

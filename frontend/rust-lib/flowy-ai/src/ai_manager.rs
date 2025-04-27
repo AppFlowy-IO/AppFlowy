@@ -662,7 +662,6 @@ impl AIManager {
   ///    - `before_message_id` is the first message ID in the current chat messages.
   ///
   /// 4. `after_message_id` and `before_message_id` cannot be specified at the same time.
-
   pub async fn load_prev_chat_messages(
     &self,
     chat_id: &Uuid,

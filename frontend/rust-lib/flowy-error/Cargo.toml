@@ -38,7 +38,6 @@ uuid.workspace = true
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 ollama-rs = "0.3.0"
-faiss = { version = "0.12.1" }
 
 
 [features]

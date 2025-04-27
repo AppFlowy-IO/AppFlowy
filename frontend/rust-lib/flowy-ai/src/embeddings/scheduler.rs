@@ -1,6 +1,5 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
-use crate::embeddings::faiss::FaissController;
-use crate::embeddings::indexer::{EmbeddedChunk, EmbeddingModel, IndexerProvider};
+use crate::embeddings::indexer::{EmbeddedChunk, IndexerProvider};
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::CollabType;
 use flowy_ai_pub::persistence::{
@@ -28,7 +27,6 @@ pub struct EmbeddingScheduler {
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
   ollama: ArcSwapOption<Ollama>,
-  faiss: Arc<RwLock<FaissController>>,
 }
 
 impl EmbeddingScheduler {
@@ -40,11 +38,11 @@ impl EmbeddingScheduler {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
     let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
-    let faiss = Arc::new(RwLock::new(FaissController::new(
-      db.embedding_db_dir().unwrap(),
-      workspace_id.to_string(),
-      EmbeddingModel::NomicEmbedText,
-    )?));
+    // let faiss = Arc::new(RwLock::new(FaissController::new(
+    //   db.embedding_db_dir().unwrap(),
+    //   workspace_id.to_string(),
+    //   EmbeddingModel::NomicEmbedText,
+    // )?));
 
     let this = Arc::new(Self {
       db,
@@ -52,7 +50,6 @@ impl EmbeddingScheduler {
       write_embedding_tx,
       generate_embedding_tx,
       ollama,
-      faiss,
     });
 
     let weak_this = Arc::downgrade(&this);
@@ -120,25 +117,25 @@ pub async fn spawn_write_embeddings(
       );
 
       let mut chunks = vec![];
-      let mut faiss_write = scheduler.faiss.write().await;
-      for chunk in record.chunks {
-        if let Some(embeddings) = chunk.embedding {
-          if let Ok(faiss_id) = faiss_write.add(&embeddings) {
-            chunks.push(FaissFragment {
-              faiss_id,
-              data: Fragment {
-                fragment_id: chunk.fragment_id,
-                content_type: 0,
-                contents: chunk.content,
-                metadata: chunk.metadata,
-                fragment_index: chunk.fragment_index,
-                embedded_type: chunk.embedded_type,
-              },
-            });
-          }
-        }
-      }
-      drop(faiss_write);
+      // let mut faiss_write = scheduler.faiss.write().await;
+      // for chunk in record.chunks {
+      //   if let Some(embeddings) = chunk.embedding {
+      //     if let Ok(faiss_id) = faiss_write.add(&embeddings) {
+      //       chunks.push(FaissFragment {
+      //         faiss_id,
+      //         data: Fragment {
+      //           fragment_id: chunk.fragment_id,
+      //           content_type: 0,
+      //           contents: chunk.content,
+      //           metadata: chunk.metadata,
+      //           fragment_index: chunk.fragment_index,
+      //           embedded_type: chunk.embedded_type,
+      //         },
+      //       });
+      //     }
+      //   }
+      // }
+      // drop(faiss_write);
 
       match upsert_collab_embeddings(&mut conn, &record.object_id.to_string(), chunks) {
         Ok(_) => {
