@@ -52,6 +52,7 @@ class WorkspaceMemberBloc
         updateSubscriptionInfo: (info) async =>
             _onUpdateSubscriptionInfo(emit, info),
         upgradePlan: () async => _onUpgradePlan(),
+        getInviteCode: () async => _onGetInviteCode(emit),
         updateInviteLink: (inviteLink) async => emit(
           state.copyWith(
             inviteLink: inviteLink,
@@ -82,26 +83,6 @@ class WorkspaceMemberBloc
 
     if (myRole.isOwner) {
       unawaited(_fetchWorkspaceSubscriptionInfo());
-    }
-
-    final baseUrl = await getAppFlowyCloudUrl();
-    final authToken = userProfile.authToken;
-    if (authToken != null) {
-      _memberHttpService = MemberHttpService(
-        baseUrl: baseUrl,
-        authToken: authToken,
-      );
-      unawaited(
-        _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
-          (s) async {
-            final inviteLink = await _buildInviteLink(inviteCode: s);
-            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
-          },
-          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
-        ),
-      );
-    } else {
-      Log.error('Failed to get auth token');
     }
 
     emit(
@@ -297,6 +278,28 @@ class WorkspaceMemberBloc
     }
   }
 
+  Future<void> _onGetInviteCode(Emitter<WorkspaceMemberState> emit) async {
+    final baseUrl = await getAppFlowyCloudUrl();
+    final authToken = userProfile.authToken;
+    if (authToken != null) {
+      _memberHttpService = MemberHttpService(
+        baseUrl: baseUrl,
+        authToken: authToken,
+      );
+      unawaited(
+        _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
+          (s) async {
+            final inviteLink = await _buildInviteLink(inviteCode: s);
+            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+          },
+          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
+        ),
+      );
+    } else {
+      Log.error('Failed to get auth token');
+    }
+  }
+
   AFRolePB _getMyRole(List<WorkspaceMemberPB> members) {
     final role = members
         .firstWhereOrNull(
@@ -354,6 +357,8 @@ class WorkspaceMemberBloc
 @freezed
 class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   const factory WorkspaceMemberEvent.initial() = Initial;
+
+  // Members related events
   const factory WorkspaceMemberEvent.getWorkspaceMembers() =
       GetWorkspaceMembers;
   const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =
@@ -364,19 +369,23 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   const factory WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
     String email,
   ) = RemoveWorkspaceMemberByEmail;
-  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByLink(String link) =
-      InviteWorkspaceMemberByLink;
-  const factory WorkspaceMemberEvent.generateInviteLink() = GenerateInviteLink;
   const factory WorkspaceMemberEvent.updateWorkspaceMember(
     String email,
     AFRolePB role,
   ) = UpdateWorkspaceMember;
+
+  // Subscription related events
   const factory WorkspaceMemberEvent.updateSubscriptionInfo(
     WorkspaceSubscriptionInfoPB subscriptionInfo,
   ) = UpdateSubscriptionInfo;
-
   const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
 
+  // Invite link related events
+  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByLink(
+    String link,
+  ) = InviteWorkspaceMemberByLink;
+  const factory WorkspaceMemberEvent.getInviteCode() = GetInviteCode;
+  const factory WorkspaceMemberEvent.generateInviteLink() = GenerateInviteLink;
   const factory WorkspaceMemberEvent.updateInviteLink(String inviteLink) =
       UpdateInviteLink;
 }
