@@ -19,6 +19,13 @@ impl EmbeddingModel {
       EmbeddingModel::NomicEmbedText => "nomic-embed-text",
     }
   }
+
+  pub fn dimension(&self) -> usize {
+    match self {
+      // https://ollama.com/library/nomic-embed-text/blobs/970aa74c0a90
+      EmbeddingModel::NomicEmbedText => 768,
+    }
+  }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

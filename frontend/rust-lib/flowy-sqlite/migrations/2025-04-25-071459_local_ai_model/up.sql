@@ -19,7 +19,7 @@ CREATE TABLE collab_embeddings_table
 (
     fragment_id    TEXT    NOT NULL,
     oid            TEXT    NOT NULL,
-    faiss_id       INTEGER NOT NULL,
+    faiss_id       BIGINT  NOT NULL,
     content_type   INTEGER NOT NULL,
     content        TEXT,
     metadata       TEXT,

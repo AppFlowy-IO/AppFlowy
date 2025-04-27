@@ -1054,9 +1054,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.83"
+version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1174fb0b6ec23863f8b971027804a42614e347eafb0a95bf0b12cdae21fc4d0"
+checksum = "e9e8aabfac534be767c909e0690571677d49f41bd8465ae876fe043d52ba5292"
 dependencies = [
  "jobserver",
  "libc",
@@ -1251,6 +1251,15 @@ dependencies = [
  "tokio-tungstenite 0.20.1",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "cmake"
+version = "0.1.54"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7caa3f9de89ddbe2c607f4101924c5abec803763ae9534e4f4d7d8f84aa81f0"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -2545,6 +2554,7 @@ dependencies = [
  "arc-swap",
  "base64 0.21.5",
  "bytes",
+ "cmake",
  "collab-integrate",
  "dashmap 6.0.1",
  "faiss",
@@ -2835,6 +2845,7 @@ dependencies = [
  "collab-document",
  "collab-folder",
  "collab-plugins",
+ "faiss",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
@@ -4236,9 +4247,9 @@ checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
 name = "jobserver"
-version = "0.1.26"
+version = "0.1.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "936cfd212a0155903bcbc060e316fb6cc7cbf2e1907329391ebadc1fe0ce77c2"
+checksum = "48d1dbcbbeb6a7fec7e059840aa538bd62aaccf972c7346c4d9d2059312853d0"
 dependencies = [
  "libc",
 ]

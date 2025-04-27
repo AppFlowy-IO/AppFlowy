@@ -46,7 +46,7 @@ diesel::table! {
     collab_embeddings_table (fragment_id, oid) {
         fragment_id -> Text,
         oid -> Text,
-        faiss_id -> Integer,
+        faiss_id -> BigInt,
         content_type -> Integer,
         content -> Nullable<Text>,
         metadata -> Nullable<Text>,

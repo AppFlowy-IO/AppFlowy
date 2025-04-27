@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub struct CollabEmbeddingsTable {
   pub fragment_id: String,
   pub oid: String,
-  pub faiss_id: i32,
+  pub faiss_id: u64,
   pub content_type: i32,
   pub content: Option<String>,
   pub metadata: Option<String>,
@@ -33,7 +33,7 @@ pub struct Fragment {
 }
 
 pub struct FaissFragment {
-  pub faiss_id: i32,
+  pub faiss_id: u64,
   pub data: Fragment,
 }
 

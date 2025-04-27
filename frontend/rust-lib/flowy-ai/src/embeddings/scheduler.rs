@@ -1,5 +1,6 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
-use crate::embeddings::indexer::{EmbeddedChunk, IndexerProvider};
+use crate::embeddings::faiss::FaissController;
+use crate::embeddings::indexer::{EmbeddedChunk, EmbeddingModel, IndexerProvider};
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::CollabType;
 use flowy_ai_pub::persistence::{
@@ -11,14 +12,14 @@ use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tokio::sync::mpsc;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use tokio::sync::{mpsc, RwLock};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;
 
 pub trait EmbeddingSchedulerDB: Send + Sync {
   fn db_connection(&self) -> FlowyResult<DBConnection>;
-  fn faiss_db_path(&self) -> FlowyResult<PathBuf>;
+  fn embedding_db_dir(&self) -> FlowyResult<PathBuf>;
 }
 
 pub struct EmbeddingScheduler {
@@ -27,22 +28,31 @@ pub struct EmbeddingScheduler {
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
   ollama: ArcSwapOption<Ollama>,
+  faiss: Arc<RwLock<FaissController>>,
 }
 
 impl EmbeddingScheduler {
   pub fn new(
+    workspace_id: &Uuid,
     db: Arc<dyn EmbeddingSchedulerDB>,
     ollama: ArcSwapOption<Ollama>,
-  ) -> Arc<EmbeddingScheduler> {
+  ) -> FlowyResult<Arc<EmbeddingScheduler>> {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
     let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
+    let faiss = Arc::new(RwLock::new(FaissController::new(
+      db.embedding_db_dir().unwrap(),
+      workspace_id.to_string(),
+      EmbeddingModel::NomicEmbedText,
+    )?));
+
     let this = Arc::new(Self {
       db,
       indexer_provider,
       write_embedding_tx,
       generate_embedding_tx,
       ollama,
+      faiss,
     });
 
     let weak_this = Arc::downgrade(&this);
@@ -54,7 +64,7 @@ impl EmbeddingScheduler {
     let weak_this = Arc::downgrade(&this);
     tokio::spawn(spawn_write_embeddings(write_embedding_rx, weak_this));
 
-    this
+    Ok(this)
   }
 
   pub(crate) fn create_embedder(&self) -> Result<Embedder, FlowyError> {
@@ -109,21 +119,26 @@ pub async fn spawn_write_embeddings(
         record.object_id,
       );
 
-      let chunks = record
-        .chunks
-        .into_iter()
-        .map(|chunk| FaissFragment {
-          faiss_id: 0,
-          data: Fragment {
-            fragment_id: chunk.fragment_id,
-            content_type: 0,
-            contents: chunk.content,
-            metadata: chunk.metadata,
-            fragment_index: chunk.fragment_index,
-            embedded_type: chunk.embedded_type,
-          },
-        })
-        .collect::<Vec<_>>();
+      let mut chunks = vec![];
+      let mut faiss_write = scheduler.faiss.write().await;
+      for chunk in record.chunks {
+        if let Some(embeddings) = chunk.embedding {
+          if let Ok(faiss_id) = faiss_write.add(&embeddings) {
+            chunks.push(FaissFragment {
+              faiss_id,
+              data: Fragment {
+                fragment_id: chunk.fragment_id,
+                content_type: 0,
+                contents: chunk.content,
+                metadata: chunk.metadata,
+                fragment_index: chunk.fragment_index,
+                embedded_type: chunk.embedded_type,
+              },
+            });
+          }
+        }
+      }
+      drop(faiss_write);
 
       match upsert_collab_embeddings(&mut conn, &record.object_id.to_string(), chunks) {
         Ok(_) => {

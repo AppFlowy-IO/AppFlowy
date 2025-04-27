@@ -271,3 +271,10 @@ impl From<ollama_rs::error::OllamaError> for FlowyError {
     FlowyError::local_ai().with_context(value)
   }
 }
+
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+impl From<faiss::error::Error> for FlowyError {
+  fn from(value: faiss::error::Error) -> Self {
+    FlowyError::local_ai().with_context(value)
+  }
+}

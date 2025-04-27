@@ -60,6 +60,8 @@ uuid.workspace = true
 
 [build-dependencies]
 flowy-codegen.workspace = true
+cmake = "0.1"
+
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
