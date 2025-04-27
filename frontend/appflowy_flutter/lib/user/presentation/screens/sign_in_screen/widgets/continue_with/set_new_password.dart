@@ -3,6 +3,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/contin
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/title_logo.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/verifying_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,26 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
     final spacing = theme.spacing.xxl;
     return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) {
+        final successOrFail = state.resetPasswordSuccessOrFail;
+        if (successOrFail != null) {
+          successOrFail.fold(
+            (success) {
+              showToastNotification(
+                message: 'Password reset successfully',
+                description: 'You can now login with your new password',
+              );
+              // pop until the login screen is found
+              Navigator.popUntil(context, (route) {
+                return route.settings.name == '/continue-with-password';
+              });
+            },
+            (error) {
+              newPasswordKey.currentState?.syncError(
+                errorText: error.msg,
+              );
+            },
+          );
+        }
         // Handle state changes and validation results here
         if (state.isSubmitting != isSubmitting) {
           setState(() => isSubmitting = state.isSubmitting);

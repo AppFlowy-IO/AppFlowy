@@ -49,7 +49,8 @@ class PasswordHttpService {
   });
 
   final String baseUrl;
-  final String authToken;
+
+  String authToken;
 
   final http.Client client = http.Client();
 
@@ -137,7 +138,7 @@ class PasswordHttpService {
   }
 
   // Verify the reset password token
-  Future<FlowyResult<bool, FlowyError>> verifyResetPasswordToken({
+  Future<FlowyResult<String, FlowyError>> verifyResetPasswordToken({
     required String email,
     required String token,
   }) async {
@@ -153,7 +154,10 @@ class PasswordHttpService {
 
     try {
       return result.fold(
-        (data) => FlowyResult.success(true),
+        (data) {
+          final authToken = data['access_token'];
+          return FlowyResult.success(authToken);
+        },
         (error) => FlowyResult.failure(error),
       );
     } catch (e) {

@@ -170,6 +170,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
+            settings: const RouteSettings(name: '/reset-password'),
             builder: (context) => BlocProvider.value(
               value: signInBloc,
               child: ResetPasswordPage(

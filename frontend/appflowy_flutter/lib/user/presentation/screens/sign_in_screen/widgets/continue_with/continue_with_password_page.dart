@@ -189,6 +189,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
       await Navigator.push(
         context,
         MaterialPageRoute(
+          settings: const RouteSettings(name: '/forgot-password'),
           builder: (context) => BlocProvider.value(
             value: signInBloc,
             child: ForgotPasswordPage(
