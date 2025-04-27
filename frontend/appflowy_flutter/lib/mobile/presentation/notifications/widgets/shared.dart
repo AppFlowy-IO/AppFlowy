@@ -147,7 +147,7 @@ class _NotificationContentState extends State<NotificationContent> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // title & time
-            _buildHeader(state.createdAt, !widget.reminder.isRead),
+            _buildHeader(state.scheduledAt, !widget.reminder.isRead),
             // page name
             _buildPageName(context, state.isLocked, state.pageTitle),
             // content

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/loading.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -105,6 +106,11 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     final actionResult = state.actionResult;
     if (actionResult == null) {
       return;
+    }
+
+    final settingBloc = context.read<HomeSettingBloc?>();
+    if (settingBloc?.state.isNotificationPanelCollapsed == false) {
+      settingBloc?.add(HomeSettingEvent.collapseNotificationPanel());
     }
 
     final actionType = actionResult.actionType;

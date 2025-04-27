@@ -32,7 +32,7 @@ class NotificationItemContentV2 extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildHeader(state.createdAt, theme),
+            _buildHeader(state.scheduledAt, theme),
             _buildPageName(context, state.isLocked, state.pageTitle, theme),
             _buildContent(view, state.nodes, theme),
           ],

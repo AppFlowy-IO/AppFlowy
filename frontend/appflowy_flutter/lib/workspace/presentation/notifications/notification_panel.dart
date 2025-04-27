@@ -2,12 +2,9 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +25,6 @@ class NotificationPanel extends StatefulWidget {
 class _NotificationPanelState extends State<NotificationPanel>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  final ReminderBloc reminderBloc = getIt<ReminderBloc>();
   final PopoverController moreActionController = PopoverController();
 
   final tabs = [
@@ -225,18 +221,6 @@ class _NotificationPanelState extends State<NotificationPanel>
               ?.copyWith(color: Theme.of(context).hintColor),
         ),
       ],
-    );
-  }
-
-  void onAction(ReminderPB reminder, int? path, ViewPB? view) {
-    reminderBloc.add(
-      ReminderEvent.pressReminder(reminderId: reminder.id, path: path),
-    );
-  }
-
-  void onReadChanged(ReminderPB reminder, bool isRead) {
-    reminderBloc.add(
-      ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),
     );
   }
 }

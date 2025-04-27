@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/notifications/widgets/empty.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -44,10 +45,8 @@ class _NotificationTabState extends State<NotificationTab>
         final List<ReminderPB> todayReminders = [];
         final List<ReminderPB> olderReminders = [];
         for (final reminder in reminders) {
-          final createAt = reminder.createdAt;
-          if (createAt == null) continue;
-          final dateTimeCreate = DateTime.fromMillisecondsSinceEpoch(createAt);
-          if (dateTimeNow.difference(dateTimeCreate).inDays < 1) {
+          final scheduledAt = reminder.scheduledAt.toDateTime();
+          if (dateTimeNow.difference(scheduledAt).inDays < 1) {
             todayReminders.add(reminder);
           } else {
             olderReminders.add(reminder);

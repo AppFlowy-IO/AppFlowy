@@ -95,7 +95,9 @@ class WorkspaceMemberBloc
         _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
           (s) async {
             final inviteLink = await _buildInviteLink(inviteCode: s);
-            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+            if (!isClosed) {
+              add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+            }
           },
           (e) => Log.info('Failed to get invite code: ${e.msg}', e),
         ),
