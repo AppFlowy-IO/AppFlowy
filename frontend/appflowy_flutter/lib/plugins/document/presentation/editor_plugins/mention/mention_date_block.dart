@@ -75,14 +75,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   void didUpdateWidget(covariant oldWidget) {
     parsedDate = DateTime.tryParse(widget.date);
     if (widget.reminderId != oldWidget.reminderId) {
-      final oldId = oldWidget.reminderId;
       _reminderId = widget.reminderId;
-      if (oldId != null) {
-        final rootContext = widget.editorState.document.root.context;
-        rootContext
-            ?.read<ReminderBloc?>()
-            ?.add(ReminderEvent.remove(reminderId: oldId));
-      }
     }
     if (widget.includeTime != oldWidget.includeTime) {
       _includeTime = widget.includeTime;

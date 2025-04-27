@@ -109,7 +109,10 @@ class NotificationItemContentV2 extends StatelessWidget {
   }
 
   Widget _buildContent(
-      ViewPB view, List<Node>? nodes, AppFlowyThemeData theme,) {
+    ViewPB view,
+    List<Node>? nodes,
+    AppFlowyThemeData theme,
+  ) {
     if (view.layout.isDocumentView && nodes != null) {
       return IntrinsicHeight(
         child: BlocProvider(
