@@ -14,9 +14,24 @@ class ChangePasswordDialogContent extends StatefulWidget {
   const ChangePasswordDialogContent({
     super.key,
     required this.userProfile,
+    this.showTitle = true,
+    this.showCloseAndSaveButton = true,
+    this.showSaveButton = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
   });
 
   final UserProfilePB userProfile;
+
+  // display the title
+  final bool showTitle;
+
+  // display the desktop style close and save button
+  final bool showCloseAndSaveButton;
+
+  // display the mobile style save button
+  final bool showSaveButton;
+
+  final EdgeInsets padding;
 
   @override
   State<ChangePasswordDialogContent> createState() =>
@@ -50,7 +65,7 @@ class _ChangePasswordDialogContentState
     return BlocListener<PasswordBloc, PasswordState>(
       listener: _onPasswordStateChanged,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: widget.padding,
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(theme.borderRadius.xl),
@@ -59,15 +74,22 @@ class _ChangePasswordDialogContentState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitle(context),
-            VSpace(theme.spacing.l),
+            if (widget.showTitle) ...[
+              _buildTitle(context),
+              VSpace(theme.spacing.xl),
+            ],
             ..._buildCurrentPasswordFields(context),
-            VSpace(theme.spacing.l),
+            VSpace(theme.spacing.xl),
             ..._buildNewPasswordFields(context),
-            VSpace(theme.spacing.l),
+            VSpace(theme.spacing.xl),
             ..._buildConfirmPasswordFields(context),
-            VSpace(theme.spacing.l),
-            _buildSubmitButton(context),
+            VSpace(theme.spacing.xl),
+            if (widget.showCloseAndSaveButton) ...[
+              _buildSubmitButton(context),
+            ],
+            if (widget.showSaveButton) ...[
+              _buildSaveButton(context),
+            ],
           ],
         ),
       ),
@@ -221,6 +243,19 @@ class _ChangePasswordDialogContentState
     );
   }
 
+  Widget _buildSaveButton(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.button_save.tr(),
+      textStyle: theme.textStyle.body.standard(
+        color: theme.textColorScheme.onFill,
+      ),
+      size: AFButtonSize.l,
+      alignment: Alignment.center,
+      onTap: () => _save(context),
+    );
+  }
+
   void _save(BuildContext context) async {
     _resetError();
 
@@ -331,7 +366,6 @@ class _ChangePasswordDialogContentState
     if (!state.isSubmitting && message.isNotEmpty) {
       showToastNotification(
         message: message,
-        description: description,
         type: hasError ? ToastificationType.error : ToastificationType.success,
       );
 
