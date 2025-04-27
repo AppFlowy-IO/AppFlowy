@@ -68,8 +68,6 @@ pub struct AppFlowyCore {
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
-  #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
-  vector_db: Arc<Option<flowy_sqlite_vec::db::VectorSqliteDB>>,
 }
 
 impl Drop for AppFlowyCore {
@@ -124,8 +122,9 @@ impl AppFlowyCore {
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
 
-    #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
-    let vector_db = Arc::new(flowy_sqlite_vec::db::VectorSqliteDB::new(PathBuf::from(&config.application_path)).ok());
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    flowy_ai::embeddings::scheduler::EmbedContext::shared()
+      .init_vector_db(PathBuf::from(&config.storage_path));
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(10));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
@@ -300,25 +299,6 @@ impl AppFlowyCore {
       ),
     ));
 
-    #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
-    Self {
-      config,
-      user_manager,
-      document_manager,
-      folder_manager,
-      database_manager,
-      event_dispatcher,
-      server_provider,
-      task_dispatcher,
-      store_preference,
-      search_manager,
-      ai_manager,
-      storage_manager,
-      collab_builder,
-      vector_db,
-    }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     Self {
       config,
       user_manager,

@@ -10,7 +10,8 @@ pub mod local_ai;
 // #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 // pub mod mcp;
 
-mod embeddings;
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+pub mod embeddings;
 mod middleware;
 pub mod notification;
 pub mod offline;

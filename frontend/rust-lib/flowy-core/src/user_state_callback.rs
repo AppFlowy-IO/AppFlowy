@@ -155,9 +155,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self.document_manager()?.initialize(user_id).await?;
 
-    let cloned_ai_manager = self.ai_manager()?;
     let workspace_id = *workspace_id;
+    let cloned_ai_manager = self.ai_manager()?;
+    let server_provider = self.server_provider()?;
+    let workspace_type = *workspace_type;
     self.runtime.spawn(async move {
+      server_provider.on_launch_if_authenticated(&workspace_type);
       if let Err(err) = cloned_ai_manager
         .on_launch_if_authenticated(&workspace_id)
         .await
@@ -165,6 +168,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         error!("Failed to initialize AIManager: {:?}", err);
       }
     });
+
     Ok(())
   }
 
@@ -181,6 +185,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       workspace_id,
       device_id
     );
+    let server_provider = self.server_provider()?;
+    let c_workspace_type = *workspace_type;
+    self.runtime.spawn(async move {
+      server_provider.on_sign_in(&c_workspace_type);
+    });
+
     let data_source = self
       .folder_init_data_source(user_id, workspace_id, workspace_type)
       .await?;
@@ -220,6 +230,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       workspace_id,
       device_id
     );
+    let c_workspace_type = *workspace_type;
+    let server_provider = self.server_provider()?;
+    self.runtime.spawn(async move {
+      server_provider.on_sign_in(&c_workspace_type);
+    });
+
     let data_source = self
       .folder_init_data_source(user_profile.uid, workspace_id, workspace_type)
       .await?;
@@ -271,6 +287,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .folder_init_data_source(user_id, workspace_id, workspace_type)
       .await?;
 
+    let server_provider = self.server_provider()?;
+    let c_workspace_type = *workspace_type;
+    self.runtime.spawn(async move {
+      server_provider.init_after_open_workspace(&c_workspace_type);
+    });
+
     self
       .folder_manager()?
       .initialize_after_open_workspace(user_id, data_source)
@@ -291,6 +313,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .storage_manager()?
       .initialize_after_open_workspace(workspace_id)
       .await;
+
     Ok(())
   }
 

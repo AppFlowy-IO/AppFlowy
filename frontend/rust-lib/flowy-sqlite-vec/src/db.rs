@@ -1,3 +1,4 @@
+use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
 use rusqlite::{params, Connection, ToSql};
@@ -16,7 +17,10 @@ unsafe impl Send for VectorSqliteDB {}
 unsafe impl Sync for VectorSqliteDB {}
 
 impl VectorSqliteDB {
-  pub fn new(db_path: PathBuf) -> Result<Self> {
+  pub fn new(root: PathBuf) -> Result<Self> {
+    init_sqlite_vector_extension();
+
+    let db_path = root.join("vector.db");
     let conn = Arc::new(Mutex::new(init_sqlite_with_migrations(db_path.as_path())?));
     Ok(Self { conn })
   }

@@ -21,6 +21,7 @@ impl EmbeddingModel {
     }
   }
 
+  #[allow(dead_code)]
   pub fn dimension(&self) -> usize {
     match self {
       // https://ollama.com/library/nomic-embed-text/blobs/970aa74c0a90
@@ -65,9 +66,5 @@ impl IndexerProvider {
   /// returns `None`.
   pub fn indexer_for(&self, collab_type: CollabType) -> Option<Arc<dyn Indexer>> {
     self.indexer_cache.get(&collab_type).cloned()
-  }
-
-  pub fn is_indexing_enabled(&self, collab_type: CollabType) -> bool {
-    self.indexer_cache.contains_key(&collab_type)
   }
 }

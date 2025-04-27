@@ -4,28 +4,85 @@ use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::CollabType;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite_vec::db::{EmbeddedChunk, VectorSqliteDB};
+use lib_infra::util::get_operating_system;
 use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Weak};
+use std::path::PathBuf;
+use std::sync::{Arc, OnceLock, Weak};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;
 
 pub struct EmbedContext {
-  pub ollama: ArcSwapOption<Ollama>,
-  pub vector_db: Arc<VectorSqliteDB>,
+  ollama: ArcSwapOption<Ollama>,
+  vector_db: ArcSwapOption<VectorSqliteDB>,
+  scheduler: ArcSwapOption<EmbeddingScheduler>,
+}
+
+impl EmbedContext {
+  pub fn shared() -> &'static Arc<EmbedContext> {
+    static INSTANCE: OnceLock<Arc<EmbedContext>> = OnceLock::new();
+    INSTANCE.get_or_init(|| {
+      Arc::new(EmbedContext {
+        ollama: ArcSwapOption::empty(),
+        vector_db: ArcSwapOption::empty(),
+        scheduler: Default::default(),
+      })
+    })
+  }
+
+  pub fn init_vector_db(&self, db_path: PathBuf) {
+    let sys = get_operating_system();
+    if !sys.is_desktop() {
+      warn!("[Embedding] Vector db is not supported on {:?}", sys);
+      return;
+    }
+
+    info!("Initializing vector db");
+    match VectorSqliteDB::new(db_path.clone()) {
+      Ok(db) => {
+        info!("[Embedding] Vector db created at: {:?}", db_path);
+        self.vector_db.store(Some(Arc::new(db)));
+        self.try_create_scheduler();
+      },
+      Err(err) => {
+        error!("[Embedding] Failed to create vector db: {}", err);
+      },
+    }
+  }
+
+  pub fn set_ollama(&self, ollama: Arc<Ollama>) {
+    self.ollama.store(Some(ollama.clone()));
+    self.try_create_scheduler();
+  }
+
+  fn try_create_scheduler(&self) {
+    if let (Some(ollama), Some(vector_db)) = (self.ollama.load_full(), self.vector_db.load_full()) {
+      info!("[Embedding] Creating scheduler");
+      match EmbeddingScheduler::new(ollama, vector_db) {
+        Ok(s) => {
+          self.scheduler.store(Some(s));
+        },
+        Err(err) => error!("[Embedding] Failed to create scheduler: {}", err),
+      }
+    }
+  }
 }
 
 pub struct EmbeddingScheduler {
   indexer_provider: Arc<IndexerProvider>,
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
-  context: EmbedContext,
+  ollama: Arc<Ollama>,
+  vector_db: Arc<VectorSqliteDB>,
 }
 
 impl EmbeddingScheduler {
-  pub fn new(context: EmbedContext) -> FlowyResult<Arc<EmbeddingScheduler>> {
+  pub fn new(
+    ollama: Arc<Ollama>,
+    vector_db: Arc<VectorSqliteDB>,
+  ) -> FlowyResult<Arc<EmbeddingScheduler>> {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
     let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
@@ -34,7 +91,8 @@ impl EmbeddingScheduler {
       indexer_provider,
       write_embedding_tx,
       generate_embedding_tx,
-      context,
+      ollama,
+      vector_db,
     });
 
     let weak_this = Arc::downgrade(&this);
@@ -50,19 +108,17 @@ impl EmbeddingScheduler {
   }
 
   pub(crate) fn create_embedder(&self) -> Result<Embedder, FlowyError> {
-    let ollama = self
-      .context
-      .ollama
-      .load_full()
-      .ok_or_else(|| FlowyError::local_ai().with_context("Failed to load ollama"))?;
     let embedder = Embedder::Ollama(OllamaEmbedder {
-      ollama: ollama.clone(),
+      ollama: self.ollama.clone(),
     });
     Ok(embedder)
   }
 
-  pub fn index_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
-    // Perform indexing logic here
+  #[allow(dead_code)]
+  pub async fn index_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
+    if let Err(err) = self.generate_embedding_tx.send(data).await {
+      error!("[Embedding] error generating embedding: {}", err);
+    }
     Ok(())
   }
 }
@@ -97,7 +153,6 @@ pub async fn spawn_write_embeddings(
       );
 
       match scheduler
-        .context
         .vector_db
         .upsert_collabs_embeddings(&record.object_id.to_string(), record.chunks)
         .await
@@ -146,7 +201,6 @@ async fn spawn_generate_embeddings(
       Ok(embedder) => {
         let params: Vec<_> = records.iter().map(|r| r.object_id.to_string()).collect();
         let existing_embeddings = scheduler
-          .context
           .vector_db
           .select_collabs_fragment_ids(&params)
           .await
@@ -180,7 +234,6 @@ async fn spawn_generate_embeddings(
                 match result {
                   Ok(chunks) => {
                     let record = EmbeddingRecord {
-                      workspace_id: record.workspace_id,
                       object_id: record.object_id,
                       chunks,
                     };
@@ -213,7 +266,6 @@ async fn spawn_generate_embeddings(
 }
 
 pub struct EmbeddingRecord {
-  pub workspace_id: Uuid,
   pub object_id: Uuid,
   pub chunks: Vec<EmbeddedChunk>,
 }
@@ -224,7 +276,6 @@ pub struct UnindexedCollab {
   pub object_id: Uuid,
   pub collab_type: CollabType,
   pub data: UnindexedData,
-  pub created_at: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

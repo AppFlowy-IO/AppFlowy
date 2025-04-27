@@ -386,6 +386,9 @@ pub enum ErrorCode {
 
   #[error("Reference resource is not available")]
   WeakRefDrop = 132,
+
+  #[error("Local embedding not ready")]
+  LocalEmbeddingNotReady = 133,
 }
 
 impl ErrorCode {

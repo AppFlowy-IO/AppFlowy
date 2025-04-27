@@ -366,6 +366,7 @@ impl AIManager {
     }
 
     if need_restart {
+      self.local_ai.reload_ollama_client();
       self.local_ai.restart_plugin().await;
     }
 

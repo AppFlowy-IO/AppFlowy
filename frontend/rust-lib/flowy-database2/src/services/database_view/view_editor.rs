@@ -387,11 +387,11 @@ impl DatabaseViewEditor {
     let _ = self.filter_controller.filter_rows_and_notify(rows).await;
   }
 
-  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn v_sort_rows(&self, rows: &mut [Arc<Row>]) {
     self.sort_controller.write().await.sort_rows(rows).await
   }
 
-  pub async fn v_sort_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn v_sort_rows_and_notify(&self, rows: &mut [Arc<Row>]) {
     self
       .sort_controller
       .write()
