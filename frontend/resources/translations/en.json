@@ -103,7 +103,9 @@
     "confirmPasswordCannotBeEmpty": "Confirm password cannot be empty",
     "passwordsDoNotMatch": "Passwords do not match",
     "verifying": "Verifying...",
-    "continueWithPassword": "Continue with password"
+    "continueWithPassword": "Continue with password",
+    "youAreInLocalMode": "You're in local mode.",
+    "loginToAppFlowyCloud": "Login to AppFlowy Cloud"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",

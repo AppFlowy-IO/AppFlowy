@@ -91,7 +91,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
   Widget _buildEmailItem(BuildContext context, UserProfilePB userProfile) {
     final theme = AppFlowyTheme.of(context);
     return MobileSettingItem(
-      name: 'Email',
+      name: LocaleKeys.settings_accountPage_email_title.tr(),
       trailing: Text(
         userProfile.email,
         style: theme.textStyle.heading4.standard(
@@ -110,7 +110,7 @@ class PersonalInfoSettingGroup extends StatelessWidget {
             : LocaleKeys.newSettings_myAccount_password_setupPassword.tr();
         final passwordBloc = context.read<PasswordBloc>();
         return MobileSettingItem(
-          name: 'Password',
+          name: LocaleKeys.newSettings_myAccount_password_title.tr(),
           trailing: MobileSettingTrailing(
             text: '',
           ),
@@ -160,14 +160,14 @@ class PersonalInfoSettingGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'You\'re in local mode.',
+          LocaleKeys.signIn_youAreInLocalMode.tr(),
           style: theme.textStyle.body.standard(
             color: theme.textColorScheme.secondary,
           ),
         ),
         VSpace(theme.spacing.m),
         AFOutlinedTextButton.normal(
-          text: 'Login to AppFlowy Cloud',
+          text: LocaleKeys.signIn_loginToAppFlowyCloud.tr(),
           size: AFButtonSize.l,
           alignment: Alignment.center,
           onTap: () async {
