@@ -2672,6 +2672,7 @@ dependencies = [
  "flowy-server",
  "flowy-server-pub",
  "flowy-sqlite",
+ "flowy-sqlite-vec",
  "flowy-storage",
  "flowy-storage-pub",
  "flowy-user",

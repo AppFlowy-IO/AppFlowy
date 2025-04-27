@@ -61,6 +61,10 @@ sysinfo = "0.30.5"
 semver = { version = "1.0.22", features = ["serde"] }
 url = "2.5.0"
 
+
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
+flowy-sqlite-vec = { workspace = true }
+
 [features]
 profiling = ["console-subscriber", "tokio/tracing"]
 http_sync = []
