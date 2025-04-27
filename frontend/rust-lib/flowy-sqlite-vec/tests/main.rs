@@ -4,8 +4,8 @@ use flowy_sqlite_vec::init_sqlite_vector_extension;
 use tempfile::tempdir;
 use uuid::Uuid;
 
-#[test]
-fn test_vector_sqlite_db_basic_operations() -> Result<()> {
+#[tokio::test]
+async fn test_vector_sqlite_db_basic_operations() -> Result<()> {
   // Initialize sqlite-vec extension
   init_sqlite_vector_extension();
 
@@ -14,7 +14,7 @@ fn test_vector_sqlite_db_basic_operations() -> Result<()> {
   let db_path = temp_dir.path().join("test_vector.db");
 
   // Create the VectorSqliteDB
-  let mut db = VectorSqliteDB::new(&db_path)?;
+  let db = VectorSqliteDB::new(db_path)?;
 
   // Test inserting vector embeddings
   let oid = Uuid::new_v4().to_string();
@@ -24,22 +24,19 @@ fn test_vector_sqlite_db_basic_operations() -> Result<()> {
     create_test_fragment(&oid, 2, vec![0.3, 0.3, 0.3, 0.3]),
   ];
 
-  db.upsert_collabs_embeddings(&oid, fragments)?;
+  db.upsert_collabs_embeddings(&oid, fragments).await?;
 
   // Test querying fragment IDs
-  let result = db.select_collabs_fragment_ids(&[oid.clone()])?;
+  let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
   assert_eq!(result.len(), 1);
   assert!(result.contains_key(&Uuid::parse_str(&oid)?));
   assert_eq!(result.get(&Uuid::parse_str(&oid)?).unwrap().len(), 3);
 
-  // Clean up
-  db.close()?;
-
   Ok(())
 }
 
-#[test]
-fn test_upsert_and_remove_fragments() -> Result<()> {
+#[tokio::test]
+async fn test_upsert_and_remove_fragments() -> Result<()> {
   // Initialize sqlite-vec extension
   init_sqlite_vector_extension();
 
@@ -48,7 +45,7 @@ fn test_upsert_and_remove_fragments() -> Result<()> {
   let db_path = temp_dir.path().join("test_upsert_remove.db");
 
   // Create the VectorSqliteDB
-  let mut db = VectorSqliteDB::new(&db_path)?;
+  let db = VectorSqliteDB::new(db_path)?;
 
   // Test inserting initial vector embeddings
   let oid = Uuid::new_v4().to_string();
@@ -58,10 +55,11 @@ fn test_upsert_and_remove_fragments() -> Result<()> {
     create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
 
-  db.upsert_collabs_embeddings(&oid, initial_fragments)?;
+  db.upsert_collabs_embeddings(&oid, initial_fragments)
+    .await?;
 
   // Verify initial fragments
-  let result = db.select_collabs_fragment_ids(&[oid.clone()])?;
+  let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
   assert_eq!(result.get(&Uuid::parse_str(&oid)?).unwrap().len(), 3);
 
   // Update with a subset of fragments (this should remove the missing one)
@@ -70,21 +68,20 @@ fn test_upsert_and_remove_fragments() -> Result<()> {
     create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
 
-  db.upsert_collabs_embeddings(&oid, updated_fragments)?;
+  db.upsert_collabs_embeddings(&oid, updated_fragments)
+    .await?;
   // Verify fragment count is now 2
-  let result = db.select_collabs_fragment_ids(&[oid.clone()])?;
+  let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
   assert_eq!(result.get(&Uuid::parse_str(&oid)?).unwrap().len(), 2);
 
   let result = db
     .search(&generate_embedding_with_size(768, 0.1), 1)
+    .await
     .unwrap();
   assert!(!result.is_empty());
   assert_eq!(result[0].oid, oid);
   assert_eq!(result[0].content, "Content for fragment 0".to_string());
   dbg!(result);
-
-  // Clean up
-  db.close()?;
 
   Ok(())
 }
@@ -98,9 +95,9 @@ fn create_test_fragment(oid: &str, index: i32, embeddings: Vec<f32>) -> Embedded
 
   EmbeddedChunk {
     fragment_id,
-    oid: oid.to_string(),
+    object_id: oid.to_string(),
     content_type: 1,
-    content: format!("Content for fragment {}", index),
+    content: Some(format!("Content for fragment {}", index)),
     metadata: Some(format!("Metadata for fragment {}", index)),
     fragment_index: index,
     embedder_type: 1,

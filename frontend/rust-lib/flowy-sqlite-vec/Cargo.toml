@@ -12,6 +12,8 @@ anyhow.workspace = true
 tracing.workspace = true
 uuid.workspace = true
 zerocopy = "0.9.0-alpha.0"
+tokio.workspace = true
+once_cell = "1.18.0"
 
 [dev-dependencies]
 tempfile = "3.8.0"

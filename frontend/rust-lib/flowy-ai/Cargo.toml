@@ -52,6 +52,7 @@ ollama-rs = "0.3.0"
 af-mcp = { version = "0.1.0" }
 twox-hash = { version = "2.1.0", features = ["xxhash64"] }
 text-splitter = { version = "0.25.1" }
+flowy-sqlite-vec.workspace = true
 
 
 [dev-dependencies]

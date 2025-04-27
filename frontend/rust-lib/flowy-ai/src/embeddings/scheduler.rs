@@ -1,55 +1,40 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
-use crate::embeddings::indexer::{EmbeddedChunk, IndexerProvider};
+use crate::embeddings::indexer::IndexerProvider;
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::CollabType;
-use flowy_ai_pub::persistence::{
-  select_collabs_fragment_ids, upsert_collab_embeddings, FaissFragment, Fragment,
-};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sqlite::DBConnection;
+use flowy_sqlite_vec::db::{EmbeddedChunk, VectorSqliteDB};
 use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 use std::sync::{Arc, Weak};
+use tokio::sync::mpsc;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
-use tokio::sync::{mpsc, RwLock};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;
 
-pub trait EmbeddingSchedulerDB: Send + Sync {
-  fn db_connection(&self) -> FlowyResult<DBConnection>;
-  fn embedding_db_dir(&self) -> FlowyResult<PathBuf>;
+pub struct EmbedContext {
+  pub ollama: ArcSwapOption<Ollama>,
+  pub vector_db: Arc<VectorSqliteDB>,
 }
 
 pub struct EmbeddingScheduler {
-  db: Arc<dyn EmbeddingSchedulerDB>,
   indexer_provider: Arc<IndexerProvider>,
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
-  ollama: ArcSwapOption<Ollama>,
+  context: EmbedContext,
 }
 
 impl EmbeddingScheduler {
-  pub fn new(
-    workspace_id: &Uuid,
-    db: Arc<dyn EmbeddingSchedulerDB>,
-    ollama: ArcSwapOption<Ollama>,
-  ) -> FlowyResult<Arc<EmbeddingScheduler>> {
+  pub fn new(context: EmbedContext) -> FlowyResult<Arc<EmbeddingScheduler>> {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
     let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
-    // let faiss = Arc::new(RwLock::new(FaissController::new(
-    //   db.embedding_db_dir().unwrap(),
-    //   workspace_id.to_string(),
-    //   EmbeddingModel::NomicEmbedText,
-    // )?));
 
     let this = Arc::new(Self {
-      db,
       indexer_provider,
       write_embedding_tx,
       generate_embedding_tx,
-      ollama,
+      context,
     });
 
     let weak_this = Arc::downgrade(&this);
@@ -66,6 +51,7 @@ impl EmbeddingScheduler {
 
   pub(crate) fn create_embedder(&self) -> Result<Embedder, FlowyError> {
     let ollama = self
+      .context
       .ollama
       .load_full()
       .ok_or_else(|| FlowyError::local_ai().with_context("Failed to load ollama"))?;
@@ -102,12 +88,6 @@ pub async fn spawn_write_embeddings(
         break;
       },
     };
-    let mut conn = match scheduler.db.db_connection() {
-      Ok(conn) => conn,
-      Err(_) => {
-        return;
-      },
-    };
 
     let records = buf.drain(..n).collect::<Vec<_>>();
     for record in records.into_iter() {
@@ -116,28 +96,12 @@ pub async fn spawn_write_embeddings(
         record.object_id,
       );
 
-      let mut chunks = vec![];
-      // let mut faiss_write = scheduler.faiss.write().await;
-      // for chunk in record.chunks {
-      //   if let Some(embeddings) = chunk.embedding {
-      //     if let Ok(faiss_id) = faiss_write.add(&embeddings) {
-      //       chunks.push(FaissFragment {
-      //         faiss_id,
-      //         data: Fragment {
-      //           fragment_id: chunk.fragment_id,
-      //           content_type: 0,
-      //           contents: chunk.content,
-      //           metadata: chunk.metadata,
-      //           fragment_index: chunk.fragment_index,
-      //           embedded_type: chunk.embedded_type,
-      //         },
-      //       });
-      //     }
-      //   }
-      // }
-      // drop(faiss_write);
-
-      match upsert_collab_embeddings(&mut conn, &record.object_id.to_string(), chunks) {
+      match scheduler
+        .context
+        .vector_db
+        .upsert_collabs_embeddings(&record.object_id.to_string(), record.chunks)
+        .await
+      {
         Ok(_) => {
           trace!(
             "[Embedding] Successfully wrote collab:{} embeddings to db",
@@ -178,19 +142,15 @@ async fn spawn_generate_embeddings(
     let write_embedding_tx = scheduler.write_embedding_tx.clone();
     let embedder = scheduler.create_embedder();
 
-    let mut conn = match scheduler.db.db_connection() {
-      Ok(conn) => conn,
-      Err(err) => {
-        error!("[Embedding] Failed to get db connection: {}", err);
-        return;
-      },
-    };
-
     match embedder {
       Ok(embedder) => {
         let params: Vec<_> = records.iter().map(|r| r.object_id.to_string()).collect();
-        let existing_embeddings =
-          select_collabs_fragment_ids(&mut conn, &params).unwrap_or_else(|err| {
+        let existing_embeddings = scheduler
+          .context
+          .vector_db
+          .select_collabs_fragment_ids(&params)
+          .await
+          .unwrap_or_else(|err| {
             error!("[Embedding] failed to get existing embeddings: {}", err);
             Default::default()
           });

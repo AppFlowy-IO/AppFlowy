@@ -2,6 +2,7 @@ use crate::embeddings::document_indexer::DocumentIndexer;
 use crate::embeddings::embedder::Embedder;
 use flowy_ai_pub::cloud::CollabType;
 use flowy_error::FlowyError;
+use flowy_sqlite_vec::db::EmbeddedChunk;
 use lib_infra::async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -26,18 +27,6 @@ impl EmbeddingModel {
       EmbeddingModel::NomicEmbedText => 768,
     }
   }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct EmbeddedChunk {
-  pub fragment_id: String,
-  pub object_id: String,
-  pub content: Option<String>,
-  pub embedding: Option<Vec<f32>>,
-  pub metadata: serde_json::Value,
-  pub fragment_index: i32,
-  pub embedded_type: i16,
-  pub embeddings: Option<Vec<f32>>,
 }
 
 #[async_trait]

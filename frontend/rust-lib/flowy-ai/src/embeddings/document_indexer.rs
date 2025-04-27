@@ -1,6 +1,7 @@
 use crate::embeddings::embedder::Embedder;
-use crate::embeddings::indexer::{EmbeddedChunk, EmbeddingModel, Indexer};
+use crate::embeddings::indexer::{EmbeddingModel, Indexer};
 use flowy_error::FlowyError;
+use flowy_sqlite_vec::db::EmbeddedChunk;
 use lib_infra::async_trait::async_trait;
 use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use serde_json::json;
@@ -73,7 +74,7 @@ impl Indexer for DocumentIndexer {
 
     for (index, embedding) in resp.embeddings.into_iter().enumerate() {
       let chunk_idx = valid_indices[index];
-      chunks[chunk_idx].embedding = Some(embedding);
+      chunks[chunk_idx].embeddings = Some(embedding);
     }
 
     Ok(chunks)
@@ -116,12 +117,12 @@ pub fn split_text_into_chunks(
       chunks.push(EmbeddedChunk {
         fragment_id,
         object_id: object_id.to_string(),
+        content_type: 0,
         content: Some(content),
-        embedding: None,
-        metadata: metadata.clone(),
-        fragment_index: index as i32,
-        embedded_type: 0,
         embeddings: None,
+        metadata: Some(metadata.to_string()),
+        fragment_index: index as i32,
+        embedder_type: 0,
       });
     } else {
       debug!(

@@ -103,6 +103,7 @@ tantivy = { version = "0.24.0" }
 af-plugin = { version = "0.1" }
 af-local-ai = { version = "0.1" }
 num_enum = "0.7.3"
+flowy-sqlite-vec = { path = "flowy-sqlite-vec" }
 
 # Please using the following command to update the revision id
 # Current directory: frontend

@@ -2,22 +2,26 @@ use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
 use rusqlite::{params, Connection, ToSql};
 use std::collections::HashMap;
-use std::path::Path;
-use tracing::{error, info};
+use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 use zerocopy::IntoBytes;
 
 pub struct VectorSqliteDB {
-  pub conn: Connection,
+  conn: Arc<Mutex<Connection>>,
 }
 
+unsafe impl Send for VectorSqliteDB {}
+unsafe impl Sync for VectorSqliteDB {}
+
 impl VectorSqliteDB {
-  pub fn new(db_path: &Path) -> Result<Self> {
-    let conn = init_sqlite_with_migrations(db_path)?;
+  pub fn new(db_path: PathBuf) -> Result<Self> {
+    let conn = Arc::new(Mutex::new(init_sqlite_with_migrations(db_path.as_path())?));
     Ok(Self { conn })
   }
 
-  pub fn select_collabs_fragment_ids(
+  pub async fn select_collabs_fragment_ids(
     &self,
     object_ids: &[String],
   ) -> Result<HashMap<Uuid, Vec<String>>> {
@@ -38,8 +42,8 @@ impl VectorSqliteDB {
     );
 
     // Prepare the statement
-    let mut stmt = self
-      .conn
+    let conn = self.conn.lock().await;
+    let mut stmt = conn
       .prepare(&sql)
       .context("Preparing select_collabs_fragment_ids")?;
 
@@ -63,8 +67,8 @@ impl VectorSqliteDB {
     Ok(map)
   }
 
-  pub fn upsert_collabs_embeddings(
-    &mut self,
+  pub async fn upsert_collabs_embeddings(
+    &self,
     oid: &str,
     fragments: Vec<EmbeddedChunk>,
   ) -> Result<()> {
@@ -73,7 +77,8 @@ impl VectorSqliteDB {
     }
 
     // no `mut` needed here
-    let tx = self.conn.transaction().context("Starting transaction")?;
+    let mut conn = self.conn.lock().await;
+    let tx = conn.transaction().context("Starting transaction")?;
 
     // build a Vec<&str> and repeat("?"), not '?'
     let fragment_ids: Vec<&str> = fragments.iter().map(|f| f.fragment_id.as_str()).collect();
@@ -104,11 +109,15 @@ impl VectorSqliteDB {
       )?;
 
       for fragment in fragments {
+        if fragment.content.is_none() {
+          continue;
+        }
+
         insert_stmt.execute(rusqlite::params![
           fragment.fragment_id,
           oid,
           fragment.content_type,
-          fragment.content,
+          fragment.content.unwrap_or_default(),
           fragment.metadata,
           fragment.fragment_index,
           fragment.embedder_type,
@@ -123,7 +132,7 @@ impl VectorSqliteDB {
             select_stmt.query_row(rusqlite::params![fragment.fragment_id], |row| row.get(0))?;
 
           let mut embed_stmt =
-            tx.prepare("INSERT INTO embeddings_v0(rowid, embedding) VALUES (?, ?)")?;
+            tx.prepare("INSERT INTO embeddings_768_v0(rowid, embedding) VALUES (?, ?)")?;
           embed_stmt.execute(rusqlite::params![embed_id, embeddings.as_bytes()])?;
         }
       }
@@ -133,21 +142,19 @@ impl VectorSqliteDB {
     Ok(())
   }
 
-  pub fn search(&self, query: &[f32], top_k: i32) -> Result<Vec<SearchResult>> {
+  pub async fn search(&self, query: &[f32], top_k: i32) -> Result<Vec<SearchResult>> {
     let query_blob: &[u8] = query.as_bytes();
     let sql = "\
             SELECT info.oid, info.content, info.metadata
-              FROM embeddings_v0 AS emb
+              FROM embeddings_768_v0 AS emb
          JOIN chunk_embeddings_info AS info
                ON emb.rowid = info.embed_id
              WHERE emb.embedding MATCH ?
                AND k = ?
         ";
 
-    let mut stmt = self
-      .conn
-      .prepare(sql)
-      .context("Preparing search statement")?;
+    let conn = self.conn.lock().await;
+    let mut stmt = conn.prepare(sql).context("Preparing search statement")?;
 
     // 3) bind the vector blob and the limit
     let rows = stmt
@@ -167,24 +174,14 @@ impl VectorSqliteDB {
     }
     Ok(results)
   }
-
-  pub fn close(self) -> Result<()> {
-    match self.conn.close() {
-      Ok(_) => info!("Vector Sqlite Database connection closed successfully"),
-      Err((_, e)) => {
-        error!("Vector Sqlite database connection error: {:?}", e);
-      },
-    }
-    Ok(())
-  }
 }
 
 #[derive(Debug, Clone)]
 pub struct EmbeddedChunk {
   pub fragment_id: String,
-  pub oid: String,
+  pub object_id: String,
   pub content_type: i32,
-  pub content: String,
+  pub content: Option<String>,
   pub metadata: Option<String>,
   pub fragment_index: i32,
   pub embedder_type: i32,

@@ -14,6 +14,6 @@ CREATE TABLE chunk_embeddings_info
 CREATE INDEX idx_chunk_embeddings_info_oid
     ON chunk_embeddings_info(oid);
 
-create virtual table embeddings_v0 using vec0(
+create virtual table embeddings_768_v0 using vec0(
   embedding float[768]
 );

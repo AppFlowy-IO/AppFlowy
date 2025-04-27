@@ -132,5 +132,5 @@ async fn is_current_search(
   search_id: &str,
 ) -> bool {
   let current = current_search.lock().await;
-  current.as_ref().map_or(false, |id| id == search_id)
+  current.as_deref() == Some(search_id)
 }
