@@ -47,9 +47,10 @@ class NotificationReminderBloc
                 status: NotificationReminderStatus.error,
               ),
             );
+            return;
           }
 
-          final layout = view!.layout;
+          final layout = view.layout;
 
           if (layout.isDocumentView) {
             final node = await _getContent(reminder);
