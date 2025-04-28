@@ -239,6 +239,14 @@ async fn spawn_generate_embeddings(
                   }
                 }
 
+                if chunks.iter().all(|c| c.content.is_none()) {
+                  trace!(
+                    "[Embedding] skip generating embeddings for collab: {}",
+                    record.object_id
+                  );
+                  continue;
+                }
+
                 let result = indexer.embed(&embedder, chunks).await;
                 match result {
                   Ok(chunks) => {
