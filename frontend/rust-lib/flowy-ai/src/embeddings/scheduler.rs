@@ -123,6 +123,7 @@ impl EmbeddingScheduler {
   }
 
   pub async fn index_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
+    trace!("[Embedding] got {} unindexd data", data.object_id);
     if let Err(err) = self.generate_embedding_tx.send(data).await {
       error!("[Embedding] error generating embedding: {}", err);
     }
@@ -155,7 +156,7 @@ pub async fn spawn_write_embeddings(
     let records = buf.drain(..n).collect::<Vec<_>>();
     for record in records.into_iter() {
       debug!(
-        "[Embedding] pg write collab:{} embeddings",
+        "[Embedding] write collab to disk:{} embeddings",
         record.object_id,
       );
 
@@ -191,6 +192,7 @@ async fn spawn_generate_embeddings(
     let scheduler = match scheduler.upgrade() {
       Some(scheduler) => scheduler,
       None => {
+        info!("[Embedding] Failed to upgrade scheduler connection, break loop");
         break;
       },
     };

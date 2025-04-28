@@ -170,7 +170,10 @@ impl AppFlowyCore {
       );
 
       let embedding_writer = if get_operating_system().is_desktop() {
-        Some(PeriodicallyEmbeddingWrite::new(PeriodicallyWriterImpl))
+        Some(Arc::new(PeriodicallyEmbeddingWrite::new(
+          PeriodicallyWriterImpl,
+          &runtime.inner,
+        )))
       } else {
         None
       };

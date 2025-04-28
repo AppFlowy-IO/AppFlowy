@@ -5,12 +5,32 @@ use collab_entity::{CollabObject, CollabType};
 use flowy_ai_pub::entities::UnindexedData;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
+use lib_infra::util::get_operating_system;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
+use tokio::runtime::Runtime;
 use tracing::{error, trace};
+#[async_trait]
+pub trait CollabBorrower: Send + Sync + 'static {
+  /// upgrade and get a &Collab
+  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData>;
+}
 
+/// blanket-impl for any `RwLock<T>` where `T: BorrowMut<Collab>`
+#[async_trait]
+impl<T> CollabBorrower for RwLock<T>
+where
+  T: BorrowMut<Collab> + Send + Sync + 'static,
+{
+  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData> {
+    let guard = self.read().await;
+    index_data_for_collab(guard.borrow(), collab_type)
+  }
+}
+
+/// writer interface
 #[async_trait]
 pub trait PeriodicallyWriter: Send + Sync + 'static {
   async fn write(
@@ -22,113 +42,73 @@ pub trait PeriodicallyWriter: Send + Sync + 'static {
 
 pub struct WriteObject {
   pub collab_object: CollabObject,
-  pub collab: Weak<dyn CollabBorrower + Send + Sync + 'static>,
-}
-
-// Define a trait that all collab types can implement
-pub trait CollabBorrower {
-  fn borrow_collab(&self) -> &Collab;
-}
-
-// Implement for any type that implements BorrowMut<Collab>
-impl<T: BorrowMut<Collab> + 'static> CollabBorrower for RwLock<T> {
-  fn borrow_collab(&self) -> &Collab {
-    // This requires interior mutability which RwLock provides
-    unsafe {
-      // Safety: We're just borrowing the Collab for a reference
-      // The actual mutation happens through proper channels
-      let collab_ptr = self as *const RwLock<T>;
-      let collab_ref = &*collab_ptr;
-      let guard = collab_ref.blocking_read();
-      let collab_ref = guard.borrow() as *const Collab;
-      &*collab_ref
-    }
-  }
-}
-
-// Implement CollabBorrower for Arc<dyn CollabBorrower>
-impl CollabBorrower for Arc<dyn CollabBorrower + Send + Sync> {
-  fn borrow_collab(&self) -> &Collab {
-    (**self).borrow_collab()
-  }
+  /// trait‐object reference to any RwLock<T> that can yield a Collab
+  pub collab: Weak<dyn CollabBorrower>,
 }
 
 pub struct PeriodicallyEmbeddingWrite {
-  #[allow(dead_code)]
-  // Just use to bind the lifetime of the spawned task
   collab_by_object: Arc<RwLock<HashMap<String, WriteObject>>>,
 }
 
 impl PeriodicallyEmbeddingWrite {
-  pub fn new(writer: impl PeriodicallyWriter) -> PeriodicallyEmbeddingWrite {
-    let duration = Duration::from_secs(30);
+  pub fn new(writer: impl PeriodicallyWriter, runtime: &Runtime) -> PeriodicallyEmbeddingWrite {
+    let duration = Duration::from_secs(20);
     let collab_by_object = Arc::new(RwLock::new(HashMap::<String, WriteObject>::new()));
-    let weak_collab_by_object = Arc::downgrade(&collab_by_object);
+    let weak_map = Arc::downgrade(&collab_by_object);
 
-    tokio::spawn(async move {
-      loop {
+    if get_operating_system().is_desktop() {
+      runtime.spawn(async move {
+        // initial delay
         tokio::time::sleep(duration).await;
-        match weak_collab_by_object.upgrade() {
-          Some(collab_by_object) => {
-            let mut objects_to_remove = Vec::new();
-
-            // First pass: process objects and identify ones to remove
+        loop {
+          tokio::time::sleep(duration).await;
+          if let Some(map_arc) = weak_map.upgrade() {
+            let mut to_remove = Vec::new();
             {
-              let guard = collab_by_object.read().await;
-              trace!("[Embedding] Processing {} collab objects", guard.len());
-
-              for (object_id, write_object) in guard.iter() {
-                if let Some(collab) = write_object.collab.upgrade() {
-                  let data = index_data_for_collab_borrower(
-                    &collab,
-                    &write_object.collab_object.collab_type,
-                  );
+              let guard = map_arc.read().await;
+              trace!("[Embedding] Processing {} objects", guard.len());
+              for (id, wo) in guard.iter() {
+                if let Some(carc) = wo.collab.upgrade() {
+                  // use the trait to borrow Collab
+                  let data = carc.get_unindexed_data(&wo.collab_object.collab_type).await;
                   if let Some(data) = data {
-                    if let Err(e) = writer.write(&write_object.collab_object, data).await {
-                      error!("Failed to write collab object {}: {}", object_id, e);
+                    if let Err(e) = writer.write(&wo.collab_object, data).await {
+                      error!("Failed to write {}: {}", id, e);
                     }
                   }
                 } else {
-                  // Weak reference can't be upgraded, mark for removal
-                  objects_to_remove.push(object_id.clone());
+                  to_remove.push(id.clone());
                 }
               }
             }
-
-            // Second pass: remove objects that can't be upgraded
-            if !objects_to_remove.is_empty() {
-              let mut guard = collab_by_object.write().await;
-              for object_id in objects_to_remove {
-                guard.remove(&object_id);
+            if !to_remove.is_empty() {
+              let mut guard = map_arc.write().await;
+              for id in to_remove {
+                guard.remove(&id);
               }
             }
-          },
-          None => break,
+          } else {
+            break;
+          }
         }
-      }
-    });
-
-    Self { collab_by_object }
-  }
-
-  pub fn support_collab_type(&self, collab_type: &CollabType) -> bool {
-    match collab_type {
-      CollabType::Document => true,
-      _ => false,
+      });
     }
+
+    PeriodicallyEmbeddingWrite { collab_by_object }
   }
 
-  pub fn add_collab<T>(&self, collab_object: CollabObject, collab: Weak<RwLock<T>>)
-  where
-    T: BorrowMut<Collab> + Send + Sync + 'static,
-  {
-    // Cast from Weak<RwLock<T>> to Weak<dyn CollabBorrower>
-    let collab: Weak<dyn CollabBorrower + Send + Sync> = collab;
+  pub fn support_collab_type(&self, t: &CollabType) -> bool {
+    matches!(t, CollabType::Document)
+  }
 
-    let object_id = collab_object.object_id.clone();
-    let mut guard = self.collab_by_object.blocking_write();
-    guard.insert(
-      object_id,
+  /// --- 3) now takes a trait‐object Weak
+  pub async fn add_collab(&self, collab_object: CollabObject, collab: Weak<dyn CollabBorrower>) {
+    if !get_operating_system().is_desktop() {
+      return;
+    }
+    let mut map = self.collab_by_object.write().await;
+    map.insert(
+      collab_object.object_id.clone(),
       WriteObject {
         collab_object,
         collab,
@@ -137,21 +117,17 @@ impl PeriodicallyEmbeddingWrite {
   }
 }
 
-fn index_data_for_collab_borrower(
-  collab: &(dyn CollabBorrower + Send + Sync),
-  collab_type: &CollabType,
-) -> Option<UnindexedData> {
-  let collab = collab.borrow_collab();
-  index_data_for_collab(collab, collab_type)
-}
-
 fn index_data_for_collab(collab: &Collab, collab_type: &CollabType) -> Option<UnindexedData> {
   match collab_type {
     CollabType::Document => {
       let txn = collab.doc().try_transact().ok()?;
-      let document = DocumentBody::from_collab(collab)?;
-      let paragraphs = document.paragraphs(txn);
-      Some(UnindexedData::Paragraphs(paragraphs))
+      let doc = DocumentBody::from_collab(collab)?;
+      let paras = doc.paragraphs(txn);
+      if paras.is_empty() {
+        trace!("[Embedding] No paragraphs in {}", collab.object_id());
+        return None;
+      }
+      Some(UnindexedData::Paragraphs(paras))
     },
     _ => None,
   }

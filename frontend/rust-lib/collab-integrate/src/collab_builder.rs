@@ -35,6 +35,7 @@ use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
 use crate::period_write::PeriodicallyEmbeddingWrite;
 use flowy_error::FlowyError;
+use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
 use uuid::Uuid;
@@ -80,14 +81,14 @@ pub struct AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
-  embeddings_writer: Option<PeriodicallyEmbeddingWrite>,
+  embeddings_writer: Option<Arc<PeriodicallyEmbeddingWrite>>,
 }
 
 impl AppFlowyCollabBuilder {
   pub fn new(
     storage_provider: impl CollabCloudPluginProvider + 'static,
     workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
-    embeddings_writer: Option<PeriodicallyEmbeddingWrite>,
+    embeddings_writer: Option<Arc<PeriodicallyEmbeddingWrite>>,
   ) -> Self {
     Self {
       embeddings_writer,
@@ -310,10 +311,17 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
-    if let Some(embedding_writer) = self.embeddings_writer.as_ref() {
-      if embedding_writer.support_collab_type(&object.collab_type) {
-        embedding_writer.add_collab(object.clone(), Arc::downgrade(&collab));
-      }
+    if get_operating_system().is_desktop() {
+      let cloned_object = object.clone();
+      let weak_collab = Arc::downgrade(&collab);
+      let weak_embedding_writer = self.embeddings_writer.as_ref().map(Arc::downgrade);
+      tokio::spawn(async move {
+        if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
+          embedding_writer
+            .add_collab(cloned_object, weak_collab)
+            .await;
+        }
+      });
     }
 
     let mut write_collab = collab.try_write()?;

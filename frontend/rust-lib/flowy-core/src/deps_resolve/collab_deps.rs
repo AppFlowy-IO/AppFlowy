@@ -255,6 +255,7 @@ impl PeriodicallyWriter for PeriodicallyWriterImpl {
           collab_type: collab_object.collab_type,
           data,
         };
+
         if let Err(err) = scheduler.index_collab(unindex_collab).await {
           error!("[Embedding] error generating embedding: {}", err);
         }

@@ -7,7 +7,7 @@ use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
 
 pub struct AFPluginRuntime {
-  pub(crate) inner: Runtime,
+  pub inner: Runtime,
 }
 
 impl Display for AFPluginRuntime {
