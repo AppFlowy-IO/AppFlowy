@@ -16,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -65,14 +66,7 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
         builder: (context, state) => Column(
           children: [
             if (UniversalPlatform.isWindows)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WindowTitleBar(
-                    leftChildren: [_buildToggleMenuButton(context)],
-                  ),
-                ],
-              ),
+              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
             Padding(
               padding: EdgeInsets.only(left: widget.layout.menuSpacing),
               child: TabsManager(
