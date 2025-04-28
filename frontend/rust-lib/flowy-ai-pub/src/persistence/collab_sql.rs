@@ -15,6 +15,7 @@ use flowy_sqlite::{
 #[diesel(primary_key(oid))]
 pub struct CollabTable {
   pub oid: String,
+  pub workspace_id: String,
   pub content: String,
   pub collab_type: i16,
   pub updated_at: NaiveDateTime,
@@ -23,8 +24,9 @@ pub struct CollabTable {
 }
 
 impl CollabTable {
-  pub fn new(oid: String, collab_type: i16, content: String) -> Self {
+  pub fn new(workspace_id: String, oid: String, collab_type: i16, content: String) -> Self {
     Self {
+      workspace_id,
       oid,
       content,
       collab_type,

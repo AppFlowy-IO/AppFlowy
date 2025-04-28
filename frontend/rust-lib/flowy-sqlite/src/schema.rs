@@ -57,6 +57,7 @@ diesel::table! {
 diesel::table! {
     collab_table (oid) {
         oid -> Text,
+        workspace_id -> Text,
         content -> Text,
         collab_type -> SmallInt,
         updated_at -> Timestamp,
