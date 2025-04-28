@@ -1353,8 +1353,8 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "inviteFailedDialogTitle": "Failed to send invite",
-        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
+        "inviteFailedDialogTitle": "Upgrade to Pro Plan",
+        "inviteFailedMemberLimit": "This workspace has reached the free limit. Please upgrade to Pro to unlock more members.",
         "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",

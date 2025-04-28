@@ -252,7 +252,12 @@ class WorkspaceMembersPage extends StatelessWidget {
                 .settings_appearance_members_inviteFailedDialogTitle
                 .tr(),
             description: message,
-            confirmLabel: LocaleKeys.button_ok.tr(),
+            confirmLabel: LocaleKeys
+                .settings_appearance_members_memberLimitExceededUpgrade
+                .tr(),
+            onConfirm: () => context
+                .read<WorkspaceMemberBloc>()
+                .add(const WorkspaceMemberEvent.upgradePlan()),
           );
         },
       );

@@ -85,7 +85,28 @@ class _Description extends StatelessWidget {
   }
 
   Future<void> _onGenerateInviteLink(BuildContext context) async {
-    final inviteLink = context.read<WorkspaceMemberBloc>().state.inviteLink;
+    final state = context.read<WorkspaceMemberBloc>().state;
+    final inviteLink = state.inviteLink;
+
+    // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
+    // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
+    if (inviteLink == null && state.members.length >= 3) {
+      await showConfirmDialog(
+        context: context,
+        title:
+            LocaleKeys.settings_appearance_members_inviteFailedDialogTitle.tr(),
+        description:
+            LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
+        confirmLabel: LocaleKeys
+            .settings_appearance_members_memberLimitExceededUpgrade
+            .tr(),
+        onConfirm: () => context
+            .read<WorkspaceMemberBloc>()
+            .add(const WorkspaceMemberEvent.upgradePlan()),
+      );
+      return;
+    }
+
     if (inviteLink != null) {
       // show a dialog to confirm if the user wants to copy the link to the clipboard
       await showConfirmDialog(
@@ -142,10 +163,32 @@ class _CopyLinkButtonState extends State<_CopyLinkButton> {
         horizontal: theme.spacing.l,
         vertical: theme.spacing.s,
       ),
-      onTap: () {
-        final link = context.read<WorkspaceMemberBloc>().state.inviteLink;
+      onTap: () async {
+        final state = context.read<WorkspaceMemberBloc>().state;
+        // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
+        // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
+        if (state.members.length >= 3) {
+          await showConfirmDialog(
+            context: context,
+            title: LocaleKeys
+                .settings_appearance_members_inviteFailedDialogTitle
+                .tr(),
+            description: LocaleKeys
+                .settings_appearance_members_inviteFailedMemberLimit
+                .tr(),
+            confirmLabel: LocaleKeys
+                .settings_appearance_members_memberLimitExceededUpgrade
+                .tr(),
+            onConfirm: () => context
+                .read<WorkspaceMemberBloc>()
+                .add(const WorkspaceMemberEvent.upgradePlan()),
+          );
+          return;
+        }
+
+        final link = state.inviteLink;
         if (link != null) {
-          getIt<ClipboardService>().setData(
+          await getIt<ClipboardService>().setData(
             ClipboardServiceData(
               plainText: link,
             ),
