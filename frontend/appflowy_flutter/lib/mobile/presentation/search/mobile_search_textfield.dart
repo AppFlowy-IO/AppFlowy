@@ -11,11 +11,13 @@ class MobileSearchTextfield extends StatefulWidget {
     this.onChanged,
     required this.hintText,
     required this.query,
+    required this.focusNode,
   });
 
   final String hintText;
   final String query;
   final ValueChanged<String>? onChanged;
+  final FocusNode focusNode;
 
   @override
   State<MobileSearchTextfield> createState() => _MobileSearchTextfieldState();
@@ -23,18 +25,15 @@ class MobileSearchTextfield extends StatefulWidget {
 
 class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   late final TextEditingController controller;
-  late final FocusNode focusNode;
   final ValueNotifier<bool> hasFocusValueNotifier = ValueNotifier(true);
+
+  FocusNode get focusNode => widget.focusNode;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.query);
-    focusNode = FocusNode();
-    focusNode.addListener(() {
-      if (!mounted) return;
-      hasFocusValueNotifier.value = focusNode.hasFocus;
-    });
+    focusNode.addListener(onFocusChanged);
     controller.addListener(() {
       if (!mounted) return;
       widget.onChanged?.call(controller.text);
@@ -46,7 +45,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   @override
   void dispose() {
     controller.dispose();
-    focusNode.dispose();
+    focusNode.removeListener(onFocusChanged);
     hasFocusValueNotifier.dispose();
     bottomNavigationBarItemType.removeListener(onBackOrLeave);
     super.dispose();
@@ -157,11 +156,17 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     );
   }
 
+  void onFocusChanged() {
+    if (!mounted) return;
+    hasFocusValueNotifier.value = focusNode.hasFocus;
+  }
+
   void onBackOrLeave() {
     final label = bottomNavigationBarItemType.value;
     if (label == BottomNavigationBarItemType.search.label) {
       focusNode.requestFocus();
     } else {
+      focusNode.unfocus();
       controller.clear();
     }
   }

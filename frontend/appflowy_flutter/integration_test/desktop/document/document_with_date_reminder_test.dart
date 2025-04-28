@@ -237,11 +237,11 @@ void main() {
       await tester.tapButton(find.byType(MentionDateBlock));
       await tester.pumpAndSettle();
 
-      // set date to be fifteenth of the next month
+      // set date to be fifteenth of the last month
       await tester.tap(
         find.descendant(
           of: find.byType(DesktopAppFlowyDatePicker),
-          matching: find.byFlowySvg(FlowySvgs.arrow_right_s),
+          matching: find.byFlowySvg(FlowySvgs.arrow_left_s),
         ),
       );
       await tester.pumpAndSettle();
@@ -275,9 +275,9 @@ void main() {
         timeFormat: UserTimeFormatPB.TwentyFourHour,
       );
       final now = DateTime.now();
-      final fifteenthOfNextMonth = DateTime(now.year, now.month + 1, 15);
+      final fifteenthOfLastMonth = DateTime(now.year, now.month - 1, 15);
       final formattedDate =
-          dateTimeSettings.dateFormat.formatDate(fifteenthOfNextMonth, false);
+          dateTimeSettings.dateFormat.formatDate(fifteenthOfLastMonth, false);
 
       expect(find.byType(MentionDateBlock), findsOneWidget);
       expect(find.text('@$formattedDate'), findsOneWidget);
@@ -378,11 +378,11 @@ void main() {
       await tester.tapButton(find.byType(MentionDateBlock));
       await tester.pumpAndSettle();
 
-      // set date to be fifteenth of the next month
+      // set date to be fifteenth of the last month
       await tester.tap(
         find.descendant(
           of: find.byType(DesktopAppFlowyDatePicker),
-          matching: find.byFlowySvg(FlowySvgs.arrow_right_s),
+          matching: find.byFlowySvg(FlowySvgs.arrow_left_s),
         ),
       );
       await tester.pumpAndSettle();
@@ -416,9 +416,9 @@ void main() {
         timeFormat: UserTimeFormatPB.TwentyFourHour,
       );
       final now = DateTime.now();
-      final fifteenthOfNextMonth = DateTime(now.year, now.month + 1, 15);
+      final fifteenthOfLastMonth = DateTime(now.year, now.month - 1, 15);
       final formattedDate =
-          dateTimeSettings.dateFormat.formatDate(fifteenthOfNextMonth, false);
+          dateTimeSettings.dateFormat.formatDate(fifteenthOfLastMonth, false);
 
       expect(find.byType(MentionDateBlock), findsOneWidget);
       expect(find.text('@$formattedDate'), findsOneWidget);

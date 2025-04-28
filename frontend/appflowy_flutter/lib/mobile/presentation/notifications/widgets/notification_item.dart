@@ -48,14 +48,19 @@ class NotificationItem extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          final child = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: _SlidableNotificationItem(
-              tabType: tabType,
-              reminder: reminder,
-              child: _InnerNotificationItem(
+          final child = GestureDetector(
+            onLongPress: () {
+              context.onMoreAction();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: _SlidableNotificationItem(
                 tabType: tabType,
                 reminder: reminder,
+                child: _InnerNotificationItem(
+                  tabType: tabType,
+                  reminder: reminder,
+                ),
               ),
             ),
           );
@@ -102,14 +107,11 @@ class _InnerNotificationItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const HSpace(8.0),
-        !reminder.isRead ? const UnreadRedDot() : const HSpace(6.0),
-        const HSpace(4.0),
+        const HSpace(10.0),
         NotificationIcon(reminder: reminder),
         const HSpace(12.0),
-        Expanded(
-          child: NotificationContent(reminder: reminder),
-        ),
+        Expanded(child: NotificationContent(reminder: reminder)),
+        const HSpace(6.0),
       ],
     );
   }

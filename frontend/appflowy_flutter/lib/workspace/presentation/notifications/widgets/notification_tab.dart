@@ -1,8 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/empty.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -38,19 +39,14 @@ class _NotificationTabState extends State<NotificationTab>
       builder: (context, state) {
         final reminders = _filterReminders(state.reminders);
 
-        if (reminders.isEmpty) return EmptyNotificationsWidget();
+        if (reminders.isEmpty) return EmptyNotification(type: widget.tabType);
 
         final dateTimeNow = DateTime.now();
         final List<ReminderPB> todayReminders = [];
         final List<ReminderPB> olderReminders = [];
         for (final reminder in reminders) {
-          final createAt = reminder.createdAt;
-          if (createAt == null) {
-            olderReminders.add(reminder);
-            continue;
-          }
-          final dateTimeCreate = DateTime.fromMillisecondsSinceEpoch(createAt);
-          if (dateTimeNow.difference(dateTimeCreate).inDays < 1) {
+          final scheduledAt = reminder.scheduledAt.toDateTime();
+          if (dateTimeNow.difference(scheduledAt).inDays < 1) {
             todayReminders.add(reminder);
           } else {
             olderReminders.add(reminder);
@@ -97,6 +93,7 @@ class _NotificationTabState extends State<NotificationTab>
             figmaLineHeight: 18,
           ),
         ),
+        const VSpace(4),
         ...List.generate(reminders.length, (index) {
           final reminder = reminders[index];
           return NotificationItemV2(
@@ -142,26 +139,5 @@ class _NotificationTabState extends State<NotificationTab>
             .toList()
             .unique((reminder) => reminder.id);
     }
-  }
-}
-
-class EmptyNotificationsWidget extends StatelessWidget {
-  const EmptyNotificationsWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const FlowySvg(FlowySvgs.m_empty_notification_xl),
-        const VSpace(12.0),
-        FlowyText(
-          LocaleKeys.notificationHub_noNotifications.tr(),
-          fontSize: 16.0,
-          figmaLineHeight: 24.0,
-          fontWeight: FontWeight.w500,
-        ),
-      ],
-    );
   }
 }

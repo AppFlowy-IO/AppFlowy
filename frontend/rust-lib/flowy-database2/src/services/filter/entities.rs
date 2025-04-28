@@ -35,9 +35,9 @@ impl Filter {
   /// multiple AND/OR filters but no Data filters is considered "empty".
   pub fn is_empty(&self) -> bool {
     match &self.inner {
-      FilterInner::And { children } | FilterInner::Or { children } => children
-        .iter()
-        .all(|filter| filter.is_empty()),
+      FilterInner::And { children } | FilterInner::Or { children } => {
+        children.iter().all(|filter| filter.is_empty())
+      },
       FilterInner::Data { .. } => false,
     }
   }

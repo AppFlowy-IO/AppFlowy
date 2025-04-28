@@ -32,7 +32,7 @@ class UserSessionSettingGroup extends StatelessWidget {
       children: [
         // third party sign in buttons
         if (showThirdPartyLogin) _buildThirdPartySignInButtons(context),
-        const VSpace(8.0),
+        VSpace(theme.spacing.xxl),
 
         // logout button
         MobileLogoutButton(
@@ -43,7 +43,7 @@ class UserSessionSettingGroup extends StatelessWidget {
         // delete account button
         // only show the delete account button in cloud mode
         if (userProfile.userAuthType == AuthTypePB.Server) ...[
-          VSpace(theme.spacing.l),
+          VSpace(theme.spacing.xxl),
           AFOutlinedTextButton.destructive(
             alignment: Alignment.center,
             text: LocaleKeys.button_deleteAccount.tr(),
@@ -54,6 +54,8 @@ class UserSessionSettingGroup extends StatelessWidget {
             size: AFButtonSize.l,
           ),
         ],
+
+        VSpace(theme.spacing.xxl),
       ],
     );
   }

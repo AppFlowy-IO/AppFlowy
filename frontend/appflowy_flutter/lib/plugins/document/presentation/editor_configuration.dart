@@ -68,10 +68,13 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node node)? customPadding,
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
-  final configuration = _buildDefaultConfiguration(context);
+  final configuration = _buildDefaultConfiguration(
+    context,
+    padding: customPadding,
+  );
   final builders = _buildBlockComponentBuilderMap(
     context,
     configuration: configuration,
@@ -97,7 +100,10 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   return builders;
 }
 
-BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
+BlockComponentConfiguration _buildDefaultConfiguration(
+  BuildContext context, {
+  EdgeInsets Function(Node node)? padding,
+}) {
   final configuration = BlockComponentConfiguration(
     padding: (node) {
       if (UniversalPlatform.isMobile) {
@@ -117,7 +123,7 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
             right: EditorStyleCustomizer.nodeHorizontalPadding,
           );
         }
-        return edgeInsets;
+        return padding?.call(node) ?? edgeInsets;
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);

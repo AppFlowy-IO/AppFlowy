@@ -260,11 +260,12 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     if (widget.isStreaming) {
       return;
     }
-    final trimmedText = inputControlCubit.formatIntputText(
-      widget.textController.text.trim(),
-    );
+    String userInput = widget.textController.text.trim();
+    userInput = inputControlCubit.formatIntputText(userInput);
+    userInput = AiPromptInputTextEditingController.restore(userInput);
+
     widget.textController.clear();
-    if (trimmedText.isEmpty) {
+    if (userInput.isEmpty) {
       return;
     }
 
@@ -276,7 +277,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     final predefinedFormat = bloc.state.predefinedFormat;
 
     widget.onSubmitted(
-      trimmedText,
+      userInput,
       showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
