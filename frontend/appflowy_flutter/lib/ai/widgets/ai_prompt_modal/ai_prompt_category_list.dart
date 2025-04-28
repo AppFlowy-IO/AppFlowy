@@ -22,7 +22,7 @@ class AiPromptCategoryList extends StatelessWidget {
       child: TextFieldTapRegion(
         groupId: "ai_prompt_category_list",
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.spacing.s,
           children: [
             _buildSearchField(context),
@@ -98,15 +98,12 @@ class AiPromptCategoryList extends StatelessWidget {
         }
       },
       builder: (context, isHovering, disabled) {
-        return Row(
-          children: [
-            Text(
-              LocaleKeys.ai_customPrompt_featured.tr(),
-              style: AppFlowyTheme.of(context).textStyle.body.standard(
-                    color: theme.textColorScheme.primary,
-                  ),
-            ),
-          ],
+        return Text(
+          LocaleKeys.ai_customPrompt_featured.tr(),
+          style: AppFlowyTheme.of(context).textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
+          overflow: TextOverflow.ellipsis,
         );
       },
       borderRadius: theme.borderRadius.m,
@@ -152,15 +149,12 @@ class AiPromptCategoryItem extends StatelessWidget {
     return AFBaseButton(
       onTap: onSelect,
       builder: (context, isHovering, disabled) {
-        return Row(
-          children: [
-            Text(
-              category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
-              style: AppFlowyTheme.of(context).textStyle.body.standard(
-                    color: theme.textColorScheme.primary,
-                  ),
-            ),
-          ],
+        return Text(
+          category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
+          style: AppFlowyTheme.of(context).textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
+          overflow: TextOverflow.ellipsis,
         );
       },
       borderRadius: theme.borderRadius.m,

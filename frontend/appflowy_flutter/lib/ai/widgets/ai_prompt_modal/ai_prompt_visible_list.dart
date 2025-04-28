@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:diffutil_dart/diffutil.dart';
@@ -141,13 +139,6 @@ class _AiPromptListItem extends StatefulWidget {
 
 class _AiPromptListItemState extends State<_AiPromptListItem> {
   bool isHovering = false;
-  Timer? timer;
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,24 +156,10 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
         sizeFactor: curvedAnimation,
         child: MouseRegion(
           onEnter: (_) {
-            setState(() {
-              isHovering = true;
-              timer = Timer(
-                const Duration(milliseconds: 300),
-                () {
-                  if (isHovering) {
-                    cubit.selectPrompt(widget.prompt.id);
-                  }
-                },
-              );
-            });
+            setState(() => isHovering = true);
           },
           onExit: (_) {
-            setState(() {
-              isHovering = false;
-              timer?.cancel();
-              timer = null;
-            });
+            setState(() => isHovering = false);
           },
           child: GestureDetector(
             onTap: () {
