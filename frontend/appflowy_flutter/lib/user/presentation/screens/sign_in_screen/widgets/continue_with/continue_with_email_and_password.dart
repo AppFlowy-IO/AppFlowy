@@ -162,6 +162,7 @@ class _ContinueWithEmailAndPasswordState
     Navigator.push(
       context,
       MaterialPageRoute(
+        settings: const RouteSettings(name: '/continue-with-password'),
         builder: (context) => BlocProvider.value(
           value: signInBloc,
           child: ContinueWithPasswordPage(

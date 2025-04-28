@@ -14,9 +14,25 @@ class SetupPasswordDialogContent extends StatefulWidget {
   const SetupPasswordDialogContent({
     super.key,
     required this.userProfile,
+    this.showCloseAndSaveButton = true,
+    this.showSaveButton = false,
+    this.showTitle = true,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
   });
 
   final UserProfilePB userProfile;
+
+  // display the desktop style close and save button
+  final bool showCloseAndSaveButton;
+
+  // display the mobile style save button
+  final bool showSaveButton;
+
+  // display the title
+  final bool showTitle;
+
+  // padding
+  final EdgeInsets padding;
 
   @override
   State<SetupPasswordDialogContent> createState() =>
@@ -46,7 +62,7 @@ class _SetupPasswordDialogContentState
     return BlocListener<PasswordBloc, PasswordState>(
       listener: _onPasswordStateChanged,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: widget.padding,
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(theme.borderRadius.xl),
@@ -55,13 +71,20 @@ class _SetupPasswordDialogContentState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitle(context),
-            VSpace(theme.spacing.l),
+            if (widget.showTitle) ...[
+              _buildTitle(context),
+              VSpace(theme.spacing.xl),
+            ],
             ..._buildPasswordFields(context),
-            VSpace(theme.spacing.l),
+            VSpace(theme.spacing.xl),
             ..._buildConfirmPasswordFields(context),
-            VSpace(theme.spacing.l),
-            _buildSubmitButton(context),
+            VSpace(theme.spacing.xl),
+            if (widget.showCloseAndSaveButton) ...[
+              _buildSubmitButton(context),
+            ],
+            if (widget.showSaveButton) ...[
+              _buildSaveButton(context),
+            ],
           ],
         ),
       ),
@@ -180,6 +203,19 @@ class _SetupPasswordDialogContentState
           onTap: () => _save(context),
         ),
       ],
+    );
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.button_save.tr(),
+      textStyle: theme.textStyle.body.standard(
+        color: theme.textColorScheme.onFill,
+      ),
+      size: AFButtonSize.l,
+      alignment: Alignment.center,
+      onTap: () => _save(context),
     );
   }
 
