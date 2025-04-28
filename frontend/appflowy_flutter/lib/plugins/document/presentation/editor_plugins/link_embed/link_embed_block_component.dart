@@ -157,7 +157,9 @@ class LinkEmbedBlockComponentState
       child: ValueListenableBuilder<bool>(
         valueListenable: showActionsNotifier,
         builder: (context, showActions, child) {
-          if (!showActions) return SizedBox.shrink();
+          if (!showActions || UniversalPlatform.isMobile) {
+            return SizedBox.shrink();
+          }
           return LinkEmbedMenu(
             editorState: context.read<EditorState>(),
             node: node,
