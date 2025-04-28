@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -81,6 +82,7 @@ class FlowyNavigation extends StatelessWidget {
               ),
             ],
           );
+          final theme = AppFlowyTheme.of(context);
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SizedBox(
@@ -101,8 +103,10 @@ class FlowyNavigation extends StatelessWidget {
                           child: FlowyIconButton(
                             width: 24,
                             onPressed: () {},
-                            iconPadding: const EdgeInsets.all(4),
-                            icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                            icon: FlowySvg(
+                              FlowySvgs.double_back_arrow_m,
+                              color: theme.iconColorScheme.secondary,
+                            ),
                           ),
                         ),
                       ),

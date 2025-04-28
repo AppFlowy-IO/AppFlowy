@@ -276,7 +276,7 @@ class DesktopHomeScreen extends StatelessWidget {
             .animatedPanelX(
               closeX: -layout.notificationPanelWidth,
               isClosed: !layout.showNotificationPanel,
-              curve: Curves.easeInOut,
+              curve: Curves.easeOutQuad,
               duration: layout.animDuration.inMilliseconds * 0.001,
             )
             .positioned(

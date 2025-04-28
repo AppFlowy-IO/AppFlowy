@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -83,6 +84,7 @@ class SidebarTopMenu extends StatelessWidget {
           ),
       ],
     );
+    final theme = AppFlowyTheme.of(context);
 
     return ValueListenableBuilder(
       valueListenable: isSidebarOnHover,
@@ -97,10 +99,12 @@ class SidebarTopMenu extends StatelessWidget {
               onPointerDown: (_) =>
                   context.read<HomeSettingBloc>().collapseMenu(),
               child: FlowyHover(
-                child: Container(
+                child: SizedBox(
                   width: 24,
-                  padding: const EdgeInsets.all(4),
-                  child: const FlowySvg(FlowySvgs.hide_menu_s),
+                  child: FlowySvg(
+                    FlowySvgs.double_back_arrow_m,
+                    color: theme.iconColorScheme.secondary,
+                  ),
                 ),
               ),
             ),
