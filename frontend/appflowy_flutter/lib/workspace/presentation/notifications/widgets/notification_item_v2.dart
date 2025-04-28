@@ -15,11 +15,14 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'notification_content_v2.dart';
 
 class NotificationItemV2 extends StatelessWidget {
   const NotificationItemV2({
@@ -60,58 +63,62 @@ class NotificationItemV2 extends StatelessWidget {
           }
 
           final child = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 14, 14, 10),
             child: _InnerNotificationItem(
               tabType: tabType,
               reminder: reminder,
             ),
           );
 
-          return FlowyHover(
-            style: HoverStyle(
-              hoverColor: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.zero,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FlowyHover(
+              style: HoverStyle(
+                hoverColor: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              resetHoverOnRebuild: false,
+              builder: (context, hover) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Stack(
+                    children: [
+                      child,
+                      if (hover) buildActions(context),
+                    ],
+                  ),
+                  onTap: () async {
+                    final view = state.view;
+                    if (view == null) {
+                      return;
+                    }
+
+                    homeSetting
+                        .add(HomeSettingEvent.collapseNotificationPanel());
+
+                    final documentFuture = DocumentService().openDocument(
+                      documentId: reminder.objectId,
+                    );
+
+                    final blockId = reminder.meta[ReminderMetaKeys.blockId];
+
+                    int? path;
+                    if (blockId != null) {
+                      final node =
+                          await _getNodeFromDocument(documentFuture, blockId);
+                      path = node?.path.first;
+                    }
+
+                    reminderBloc.add(
+                      ReminderEvent.pressReminder(
+                        reminderId: reminder.id,
+                        path: path,
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            resetHoverOnRebuild: false,
-            builder: (context, hover) {
-              return GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                child: Stack(
-                  children: [
-                    child,
-                    if (hover) buildActions(context),
-                  ],
-                ),
-                onTap: () async {
-                  final view = state.view;
-                  if (view == null) {
-                    return;
-                  }
-
-                  homeSetting.add(HomeSettingEvent.collapseNotificationPanel());
-
-                  final documentFuture = DocumentService().openDocument(
-                    documentId: reminder.objectId,
-                  );
-
-                  final blockId = reminder.meta[ReminderMetaKeys.blockId];
-
-                  int? path;
-                  if (blockId != null) {
-                    final node =
-                        await _getNodeFromDocument(documentFuture, blockId);
-                    path = node?.path.first;
-                  }
-
-                  reminderBloc.add(
-                    ReminderEvent.pressReminder(
-                      reminderId: reminder.id,
-                      path: path,
-                    ),
-                  );
-                },
-              );
-            },
           );
         },
       ),
@@ -119,11 +126,12 @@ class NotificationItemV2 extends StatelessWidget {
   }
 
   Widget buildActions(BuildContext context) {
-    const borderColor = Color(0x1F23291F);
+    final theme = AppFlowyTheme.of(context);
+    final borderColor = theme.borderColorScheme.primary;
     final decoration = BoxDecoration(
       border: Border.all(color: borderColor),
       borderRadius: BorderRadius.all(Radius.circular(6)),
-      color: Theme.of(context).cardColor,
+      color: theme.surfaceColorScheme.primary,
     );
 
     Widget child;
@@ -133,7 +141,7 @@ class NotificationItemV2 extends StatelessWidget {
         height: 28,
         decoration: decoration,
         child: FlowyIconButton(
-          tooltipText: LocaleKeys.notificationHub_unarchievedTooltip.tr(),
+          tooltipText: LocaleKeys.notificationHub_unarchiveTooltip.tr(),
           icon: FlowySvg(FlowySvgs.notification_unarchive_s),
           onPressed: () {
             context.read<ReminderBloc>().add(
@@ -180,7 +188,7 @@ class NotificationItemV2 extends StatelessWidget {
               HSpace(6),
             ],
             FlowyIconButton(
-              tooltipText: LocaleKeys.notificationHub_archievedTooltip.tr(),
+              tooltipText: LocaleKeys.notificationHub_archivedTooltip.tr(),
               icon: FlowySvg(
                 FlowySvgs.notification_archive_s,
               ),
@@ -198,8 +206,7 @@ class NotificationItemV2 extends StatelessWidget {
                     );
 
                 showToastNotification(
-                  message: LocaleKeys
-                      .notificationHub_markAsArchievedSucceedToast
+                  message: LocaleKeys.notificationHub_markAsArchivedSucceedToast
                       .tr(),
                 );
               },
@@ -209,8 +216,8 @@ class NotificationItemV2 extends StatelessWidget {
       );
     }
     return Positioned(
-      top: 12,
-      right: 14,
+      top: 8,
+      right: 8,
       child: child,
     );
   }
@@ -269,10 +276,10 @@ class _InnerNotificationItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NotificationIcon(reminder: reminder),
+        NotificationIcon(reminder: reminder, atSize: 14),
         const HSpace(12.0),
         Expanded(
-          child: NotificationContent(reminder: reminder),
+          child: NotificationItemContentV2(reminder: reminder),
         ),
       ],
     );

@@ -2,13 +2,11 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +25,6 @@ class NotificationPanel extends StatefulWidget {
 class _NotificationPanelState extends State<NotificationPanel>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  final ReminderBloc reminderBloc = getIt<ReminderBloc>();
   final PopoverController moreActionController = PopoverController();
 
   final tabs = [
@@ -52,47 +49,46 @@ class _NotificationPanelState extends State<NotificationPanel>
   @override
   Widget build(BuildContext context) {
     final settingBloc = context.read<HomeSettingBloc>();
+    final theme = AppFlowyTheme.of(context);
     return GestureDetector(
-      onTap: () => settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
+      onTap: () =>
+          settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
       child: Container(
         color: Colors.transparent,
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Container(
-            width: 380,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 24,
-                  offset: Offset(8, 0),
-                  spreadRadius: 8,
-                  color: Color(0x1F23290A),
-                ),
-              ],
-            ),
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildTitle(
-                  context: context,
-                  onHide: () =>
-                      settingBloc.add(HomeSettingEvent.collapseNotificationPanel()),
-                ),
-                const VSpace(12),
-                NotificationTabBar(
-                  tabController: tabController,
-                  tabs: tabs,
-                ),
-                const VSpace(14),
-                Expanded(
-                  child: TabBarView(
-                    controller: tabController,
-                    children: tabs.map((e) => NotificationTab(tabType: e)).toList(),
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: 380,
+              decoration: BoxDecoration(
+                color: theme.backgroundColorScheme.primary,
+                boxShadow: theme.shadow.small,
+              ),
+              padding: EdgeInsets.symmetric(vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildTitle(
+                    context: context,
+                    onHide: () => settingBloc
+                        .add(HomeSettingEvent.collapseNotificationPanel()),
                   ),
-                ),
-              ],
+                  const VSpace(12),
+                  NotificationTabBar(
+                    tabController: tabController,
+                    tabs: tabs,
+                  ),
+                  const VSpace(14),
+                  Expanded(
+                    child: TabBarView(
+                      controller: tabController,
+                      children:
+                          tabs.map((e) => NotificationTab(tabType: e)).toList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -196,7 +192,7 @@ class _NotificationPanelState extends State<NotificationPanel>
               onTap: () {
                 showToastNotification(
                   message: LocaleKeys
-                      .notificationHub_markAllAsArchievedSucceedToast
+                      .notificationHub_markAllAsArchivedSucceedToast
                       .tr(),
                 );
                 context
@@ -225,18 +221,6 @@ class _NotificationPanelState extends State<NotificationPanel>
               ?.copyWith(color: Theme.of(context).hintColor),
         ),
       ],
-    );
-  }
-
-  void onAction(ReminderPB reminder, int? path, ViewPB? view) {
-    reminderBloc.add(
-      ReminderEvent.pressReminder(reminderId: reminder.id, path: path),
-    );
-  }
-
-  void onReadChanged(ReminderPB reminder, bool isRead) {
-    reminderBloc.add(
-      ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),
     );
   }
 }

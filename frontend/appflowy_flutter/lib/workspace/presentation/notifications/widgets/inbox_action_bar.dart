@@ -13,11 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class InboxActionBar extends StatelessWidget {
   const InboxActionBar({
     super.key,
-    required this.hasUnreads,
     required this.showUnreadsOnly,
   });
 
-  final bool hasUnreads;
   final bool showUnreadsOnly;
 
   @override
@@ -36,11 +34,9 @@ class InboxActionBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _MarkAsReadButton(
-              onMarkAllRead: !hasUnreads
-                  ? null
-                  : () => context
-                      .read<ReminderBloc>()
-                      .add(const ReminderEvent.markAllRead()),
+              onMarkAllRead: () => context
+                  .read<ReminderBloc>()
+                  .add(const ReminderEvent.markAllRead()),
             ),
             _ToggleUnreadsButton(
               showUnreadsOnly: showUnreadsOnly,
