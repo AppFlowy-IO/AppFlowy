@@ -120,8 +120,15 @@ class _Description extends StatelessWidget {
   }
 }
 
-class _CopyLinkButton extends StatelessWidget {
+class _CopyLinkButton extends StatefulWidget {
   const _CopyLinkButton();
+
+  @override
+  State<_CopyLinkButton> createState() => _CopyLinkButtonState();
+}
+
+class _CopyLinkButtonState extends State<_CopyLinkButton> {
+  ToastificationItem? toastificationItem;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +151,11 @@ class _CopyLinkButton extends StatelessWidget {
             ),
           );
 
-          showToastNotification(
+          if (toastificationItem != null) {
+            toastification.dismiss(toastificationItem!);
+          }
+
+          toastificationItem = showToastNotification(
             message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
           );
         } else {
