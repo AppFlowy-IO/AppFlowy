@@ -258,21 +258,57 @@ class WorkspaceMembersPage extends StatelessWidget {
       );
     } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
       result.fold(
-        (s) {
+        (s) async {
           showToastNotification(
-            message: 'Invite link generated successfully',
+            message: LocaleKeys
+                .settings_appearance_members_generatedLinkSuccessfully
+                .tr(),
           );
 
           // copy the invite link to the clipboard
           final inviteLink = state.inviteLink;
           if (inviteLink != null) {
-            getIt<ClipboardService>().setPlainText(inviteLink);
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            showToastNotification(
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
           }
         },
         (f) {
           Log.error('generate invite link failed: $f');
           showToastNotification(
-            message: 'Failed to generate invite link',
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_generatedLinkFailed.tr(),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.resetInviteLink) {
+      result.fold(
+        (s) async {
+          showToastNotification(
+            message: LocaleKeys
+                .settings_appearance_members_resetLinkSuccessfully
+                .tr(),
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            Future.delayed(const Duration(milliseconds: 200), () {
+              showToastNotification(
+                message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+              );
+            });
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_resetLinkFailed.tr(),
           );
         },
       );

@@ -1386,7 +1386,9 @@
         "noInviteLink": "You haven't generated an invite link yet.",
         "copyLink": "Copied link",
         "generatedLinkSuccessfully": "Generated link successfully",
-        "resetLinkSuccessfully": "Reset link successfully"
+        "generatedLinkFailed": "Failed to generate link",
+        "resetLinkSuccessfully": "Reset link successfully",
+        "resetLinkFailed": "Failed to reset link"
       }
     },
     "files": {
