@@ -10,7 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-search/query.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/search_filter.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:nanoid/nanoid.dart';
 import 'package:fixnum/fixnum.dart';
 
 class SearchBackendService {
@@ -18,7 +17,7 @@ class SearchBackendService {
     String keyword, {
     String? workspaceId,
   }) async {
-    final searchId = nanoid(6);
+    final searchId = DateTime.now().millisecondsSinceEpoch.toString();
     final stream = SearchResponseStream(searchId: searchId);
 
     final filter = SearchFilterPB(workspaceId: workspaceId);
@@ -85,6 +84,9 @@ class SearchResponseStream {
         );
       }
       if (searchState.response.hasSearchSummary()) {
+        print(
+            'searchState.response.searchSummary.items: ${searchState.response.searchSummary.items}');
+
         _onSummaries?.call(
           searchState.response.searchSummary.items,
           searchId,

@@ -30,14 +30,13 @@ struct SummarySearchSchema {
 }
 
 const SYSTEM_PROMPT: &str = r#"
-You are a strict, context-bound question answering assistant. Answer solely based on the text provided below. If the context lacks sufficient information for a confident response, reply with an empty answer.
+You are a strict, context-bound question answering assistant. Answer solely based on the context provided below. If the context lacks sufficient information for a confident response, reply with an empty answer.
+Do not reference or use any information beyond what is provided in the context.
 
 Output must include:
 - `answer`: a detailed, on-point answer to the user’s question.
 - `highlights`:A markdown bullet list that highlights key themes and important details (e.g., date, time, location, etc.).
 - `sources`: array of source IDs used for the answer.
-
-Do not reference or use any information beyond what is provided in the context.
 "#;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -73,22 +72,28 @@ pub async fn summarize_documents(
     ChatMessage::new(MessageRole::System, context),
     ChatMessage::new(MessageRole::User, question.to_string()),
   ];
+
   let format = FormatType::StructuredJson(JsonStructure::new::<SummarySearchSchema>());
   let request = ChatMessageRequest::new(model_name.to_string(), messages).format(format);
   match client.send_chat_messages(request).await {
     Ok(resp) => {
-      let resp: SummarySearchSchema = serde_json::from_str(&resp.message.content)?;
-      Ok(SummarySearchResponse {
-        summaries: vec![SearchSummary {
-          content: resp.answer,
-          highlights: resp.highlights,
-          sources: resp
-            .sources
-            .into_iter()
-            .flat_map(|s| Uuid::parse_str(&s).ok())
-            .collect(),
-        }],
-      })
+      if resp.final_data.is_some() {
+        let resp: SummarySearchSchema = serde_json::from_str(&resp.message.content)?;
+        let resp = SummarySearchResponse {
+          summaries: vec![SearchSummary {
+            content: resp.answer,
+            highlights: resp.highlights,
+            sources: resp
+              .sources
+              .into_iter()
+              .flat_map(|s| Uuid::parse_str(&s).ok())
+              .collect(),
+          }],
+        };
+        Ok(resp)
+      } else {
+        Ok(SummarySearchResponse { summaries: vec![] })
+      }
     },
     Err(err) => {
       error!("Error generating summary: {}", err);

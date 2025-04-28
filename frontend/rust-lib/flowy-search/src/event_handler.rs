@@ -1,9 +1,9 @@
 use std::sync::{Arc, Weak};
 
+use crate::{entities::SearchQueryPB, services::manager::SearchManager};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{AFPluginData, AFPluginState};
-
-use crate::{entities::SearchQueryPB, services::manager::SearchManager};
+use lib_infra::util::timestamp;
 
 fn upgrade_manager(
   search_manager: AFPluginState<Weak<SearchManager>>,
@@ -21,13 +21,9 @@ pub(crate) async fn search_handler(
 ) -> Result<(), FlowyError> {
   let query = data.into_inner();
   let manager = upgrade_manager(manager)?;
+  let search_id = query.search_id.parse::<i64>().unwrap_or(timestamp());
   manager
-    .perform_search(
-      query.search,
-      query.stream_port,
-      query.filter,
-      query.search_id,
-    )
+    .perform_search(query.search, query.stream_port, query.filter, search_id)
     .await;
 
   Ok(())

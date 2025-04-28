@@ -205,6 +205,10 @@ impl EmbeddingScheduler {
     model_name: &str,
     search_results: Vec<SearchResult>,
   ) -> FlowyResult<SearchSummaryResult> {
+    if search_results.is_empty() {
+      return Ok(SearchSummaryResult { summaries: vec![] });
+    }
+
     let docs = search_results
       .into_iter()
       .map(|v| LLMDocument {
@@ -225,10 +229,16 @@ impl EmbeddingScheduler {
     let summaries = resp
       .summaries
       .into_iter()
-      .map(|s| Summary {
-        content: s.content,
-        highlights: s.highlights,
-        sources: s.sources,
+      .flat_map(|s| {
+        if s.content.is_empty() {
+          None
+        } else {
+          Some(Summary {
+            content: s.content,
+            highlights: s.highlights,
+            sources: s.sources,
+          })
+        }
       })
       .collect::<Vec<_>>();
     Ok(SearchSummaryResult { summaries })

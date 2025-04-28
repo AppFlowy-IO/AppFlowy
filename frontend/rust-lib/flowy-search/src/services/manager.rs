@@ -34,7 +34,7 @@ pub trait SearchHandler: Send + Sync + 'static {
 ///
 pub struct SearchManager {
   pub handlers: HashMap<SearchType, Arc<dyn SearchHandler>>,
-  current_search: Arc<tokio::sync::Mutex<Option<String>>>,
+  current_search: Arc<tokio::sync::Mutex<Option<i64>>>,
 }
 
 impl SearchManager {
@@ -59,10 +59,16 @@ impl SearchManager {
     query: String,
     stream_port: i64,
     filter: Option<SearchFilterPB>,
-    search_id: String,
+    search_id: i64,
   ) {
-    // Cancel previous search by updating current_search
-    *self.current_search.lock().await = Some(search_id.clone());
+    let mut current = self.current_search.lock().await;
+    if current.map_or(false, |cur| cur > search_id) {
+      return;
+    }
+
+    // Otherwise register this as the latest search
+    *current = Some(search_id);
+    drop(current);
 
     let handlers = self.handlers.clone();
     let sink = IsolateSink::new(Isolate::new(stream_port));
@@ -74,25 +80,24 @@ impl SearchManager {
       let mut clone_sink = sink.clone();
       let query = query.clone();
       let filter = filter.clone();
-      let search_id = search_id.clone();
       let current_search = current_search.clone();
 
       let handle = tokio::spawn(async move {
-        if !is_current_search(&current_search, &search_id).await {
+        if !is_current_search(&current_search, search_id).await {
           trace!("[Search] cancel search: {}", query);
           return;
         }
 
         let mut stream = handler.perform_search(query.clone(), filter).await;
         while let Some(Ok(search_result)) = stream.next().await {
-          if !is_current_search(&current_search, &search_id).await {
-            trace!("[Search] discard search stream: {}", query);
+          if !is_current_search(&current_search, search_id).await {
+            trace!("[Search] perform search cancel: {}", query);
             return;
           }
 
           let resp = SearchStatePB {
             response: Some(search_result),
-            search_id: search_id.clone(),
+            search_id: search_id.to_string(),
           };
           if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
             if let Err(err) = clone_sink.send(data).await {
@@ -102,14 +107,14 @@ impl SearchManager {
           }
         }
 
-        if !is_current_search(&current_search, &search_id).await {
-          trace!("[Search] discard search result: {}", query);
+        if !is_current_search(&current_search, search_id).await {
+          trace!("[Search] perform search cancel: {}", query);
           return;
         }
 
         let resp = SearchStatePB {
           response: None,
-          search_id: search_id.clone(),
+          search_id: search_id.to_string(),
         };
         if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
           let _ = clone_sink.send(data).await;
@@ -128,9 +133,12 @@ impl Drop for SearchManager {
 }
 
 async fn is_current_search(
-  current_search: &Arc<tokio::sync::Mutex<Option<String>>>,
-  search_id: &str,
+  current_search: &Arc<tokio::sync::Mutex<Option<i64>>>,
+  search_id: i64,
 ) -> bool {
   let current = current_search.lock().await;
-  current.as_deref() == Some(search_id)
+  match *current {
+    None => true,
+    Some(c) => c == search_id,
+  }
 }
