@@ -37,7 +37,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     _listener = AppLifecycleListener(
       onResume: () {
         if (!isClosed) {
-          add(const ReminderEvent.refresh());
           add(const ReminderEvent.resetTimer());
         }
       },
@@ -437,15 +436,11 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
   Future<bool> checkReminderAvailable(
     ReminderPB reminder,
-    Set<String> reminderIds, {
-    Set<String>? removedIds,
-  }) async {
+    Set<String> reminderIds,
+  ) async {
     /// blockId is null means no node
     final blockId = reminder.meta[ReminderMetaKeys.blockId];
-    if (blockId == null) {
-      removedIds?.add(reminder.id);
-      return false;
-    }
+    if (blockId == null) return false;
 
     /// check if schedule time is comming
     final scheduledAt = reminder.scheduledAt.toDateTime();
@@ -457,19 +452,13 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     final viewId = reminder.objectId;
     final view =
         await ViewBackendService.getView(viewId).fold((s) => s, (_) => null);
-    if (view == null) {
-      removedIds?.add(reminder.id);
-      return false;
-    }
+    if (view == null) return false;
 
     /// check if document is not null
     final document = await DocumentService()
         .openDocument(documentId: viewId)
         .fold((s) => s.toDocument(), (_) => null);
-    if (document == null) {
-      removedIds?.add(reminder.id);
-      return false;
-    }
+    if (document == null) return false;
     Node? searchById(Node current, String id) {
       if (current.id == id) {
         return current;
@@ -488,10 +477,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
     /// check if node is not null
     final node = searchById(document.root, blockId);
-    if (node == null) {
-      removedIds?.add(reminder.id);
-      return false;
-    }
+    if (node == null) return false;
     final textInserts = node.delta?.whereType<TextInsert>();
     if (textInserts == null) return false;
     for (final text in textInserts) {
@@ -502,8 +488,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
         return true;
       }
     }
-
-    removedIds?.add(reminder.id);
     return false;
   }
 
@@ -512,18 +496,10 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   ) async {
     final List<ReminderPB> availableReminders = [];
     final reminderIds = reminders.map((e) => e.id).toSet();
-    final removedIds = <String>{};
     for (final r in reminders) {
-      if (await checkReminderAvailable(
-        r,
-        reminderIds,
-        removedIds: removedIds,
-      )) {
+      if (await checkReminderAvailable(r, reminderIds)) {
         availableReminders.add(r);
       }
-    }
-    for (final id in removedIds) {
-      add(ReminderEvent.remove(reminderId: id));
     }
     return availableReminders;
   }
