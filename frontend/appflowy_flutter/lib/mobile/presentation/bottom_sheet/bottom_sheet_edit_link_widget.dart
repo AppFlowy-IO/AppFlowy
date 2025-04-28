@@ -186,6 +186,11 @@ class _MobileBottomSheetEditLinkWidgetState
             autofocus: true,
             context: context,
             contentPadding: EdgeInsets.all(14),
+            textStyle: TextStyle(
+              fontSize: 16,
+              height: 20 / 16,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           VSpace(6),
           searchTextField.buildResultContainer(
@@ -267,6 +272,7 @@ class _MobileBottomSheetEditLinkWidgetState
       height: 48,
       decoration: buildBorderDecoration(),
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: showSearchResult,
         child: Padding(
           padding: EdgeInsets.all(12),
@@ -291,6 +297,7 @@ class _MobileBottomSheetEditLinkWidgetState
   Widget buildRemoveLink() {
     if (!showRemoveLink) return SizedBox.shrink();
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         widget.onRemoveLink(linkInfo);
         context.pop();
