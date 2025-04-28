@@ -109,9 +109,9 @@ num_enum = "0.7.3"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
-workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c7176311ca375a672bc01bec0baa101986af023f" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6ed0f4e" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6ed0f4e" }
+workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6ed0f4e" }
 
 [profile.dev]
 opt-level = 0
