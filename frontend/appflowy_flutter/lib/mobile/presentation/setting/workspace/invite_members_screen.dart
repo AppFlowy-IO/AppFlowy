@@ -179,9 +179,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     final actionType = actionResult.actionType;
     final result = actionResult.result;
 
-    // get keyboard height
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
     // only show the result dialog when the action is WorkspaceMemberActionType.add
     if (actionType == WorkspaceMemberActionType.addByEmail) {
       result.fold(
@@ -189,7 +186,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             message:
                 LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -204,7 +200,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           });
           showToastNotification(
             type: ToastificationType.error,
-            bottomPadding: keyboardHeight,
             message: message,
           );
         },
@@ -215,7 +210,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             message:
                 LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -229,10 +223,10 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           setState(() {
             exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
           });
+
           showToastNotification(
             type: ToastificationType.error,
             message: message,
-            bottomPadding: keyboardHeight,
           );
         },
       );
@@ -243,7 +237,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceSuccess
                 .tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -252,7 +245,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceFailed
                 .tr(),
-            bottomPadding: keyboardHeight,
           );
         },
       );
@@ -260,20 +252,53 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       result.fold(
         (s) {
           showToastNotification(
-            message: 'Invite link generated successfully',
+            message: LocaleKeys
+                .settings_appearance_members_generatedLinkSuccessfully
+                .tr(),
           );
 
           // copy the invite link to the clipboard
           final inviteLink = state.inviteLink;
           if (inviteLink != null) {
             getIt<ClipboardService>().setPlainText(inviteLink);
+            showToastNotification(
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
           }
         },
         (f) {
           Log.error('generate invite link failed: $f');
           showToastNotification(
             type: ToastificationType.error,
-            message: 'Failed to generate invite link',
+            message:
+                LocaleKeys.settings_appearance_members_generatedLinkFailed.tr(),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.resetInviteLink) {
+      result.fold(
+        (s) {
+          showToastNotification(
+            message: LocaleKeys
+                .settings_appearance_members_resetLinkSuccessfully
+                .tr(),
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            getIt<ClipboardService>().setPlainText(inviteLink);
+            showToastNotification(
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_resetLinkFailed.tr(),
           );
         },
       );

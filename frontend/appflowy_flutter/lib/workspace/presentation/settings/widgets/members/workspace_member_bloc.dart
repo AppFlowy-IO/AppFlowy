@@ -239,12 +239,16 @@ class WorkspaceMemberBloc
     String link,
   ) async {}
 
-  Future<void> _onGenerateInviteLink(Emitter<WorkspaceMemberState> emit) async {
+  Future<void> _onGenerateInviteLink(
+    Emitter<WorkspaceMemberState> emit,
+  ) async {
     final workspaceId = _workspaceId.value;
     if (workspaceId == null) {
       Log.error('Failed to generate invite link: workspaceId is null');
       return;
     }
+
+    final resetInviteLink = state.inviteLink != null;
 
     final result = await _memberHttpService?.generateInviteCode(
       workspaceId: workspaceId,
@@ -257,7 +261,9 @@ class WorkspaceMemberBloc
           state.copyWith(
             inviteLink: inviteLink,
             actionResult: WorkspaceMemberActionResult(
-              actionType: WorkspaceMemberActionType.generateInviteLink,
+              actionType: resetInviteLink
+                  ? WorkspaceMemberActionType.resetInviteLink
+                  : WorkspaceMemberActionType.generateInviteLink,
               result: result,
             ),
           ),
@@ -268,7 +274,9 @@ class WorkspaceMemberBloc
         emit(
           state.copyWith(
             actionResult: WorkspaceMemberActionResult(
-              actionType: WorkspaceMemberActionType.generateInviteLink,
+              actionType: resetInviteLink
+                  ? WorkspaceMemberActionType.resetInviteLink
+                  : WorkspaceMemberActionType.generateInviteLink,
               result: result,
             ),
           ),
@@ -359,7 +367,9 @@ class WorkspaceMemberBloc
         _memberHttpService?.getInviteCode(workspaceId: workspaceId).fold(
           (s) async {
             final inviteLink = await _buildInviteLink(inviteCode: s);
-            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+            if (!isClosed) {
+              add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+            }
           },
           (e) => Log.info('Failed to get invite code: ${e.msg}', e),
         ),
@@ -472,6 +482,7 @@ enum WorkspaceMemberActionType {
   inviteByEmail,
   inviteByLink,
   generateInviteLink,
+  resetInviteLink,
   // this event will add the member without sending an invitation
   addByEmail,
   removeByEmail,
