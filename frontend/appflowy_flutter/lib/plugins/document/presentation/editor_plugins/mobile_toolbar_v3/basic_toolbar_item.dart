@@ -165,7 +165,7 @@ final linkToolbarItem = AppFlowyMobileToolbarItem(
     return AppFlowyMobileToolbarIconItem(
       editorState: editorState,
       shouldListenToToggledStyle: true,
-      icon: FlowySvgs.toolbar_link_m,
+      icon: FlowySvgs.m_toolbar_link_m,
       onTap: () {
         onMobileLinkButtonTap(editorState);
       },
