@@ -323,13 +323,13 @@ jobs:
     needs: create-release
     env:
       LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
-      LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-x86_64.tar.gz
-      LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
-      LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
-      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
-      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
-      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
-      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
+      LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-${{ matrix.job.arch }}.tar.gz
+      LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.deb
+      LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.rpm
+      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.-${{ matrix.job.arch }}.rpm
+      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}--${{ matrix.job.arch }}.AppImage
+      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.AppImage
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.tar.gz
 
     strategy:
       fail-fast: false
@@ -341,6 +341,13 @@ jobs:
             os: ubuntu-22.04,
             extra-build-args: "",
             flutter_profile: production-linux-x86_64,
+          }
+          - {
+            arch: arm64,
+            target: arm64-unknown-linux-gnu,
+            os: ubuntu-22.04-arm,
+            extra-build-args: "",
+            flutter_profile: production-linux-arm64,
           }
     steps:
       - name: Checkout source code
@@ -403,6 +410,7 @@ jobs:
           cp -r ${{ env.LINUX_PACKAGE_TMP_RPM_NAME }} ${{ env.LINUX_PACKAGE_RPM_NAME }}
 
       - name: Build Linux package (.AppImage)
+        if: ${{ matrix.job.target == 'x86_64-unknown-linux-gnu' }}
         working-directory: frontend
         continue-on-error: true
         run: |
@@ -444,6 +452,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload AppImage package
+        if: ${{ matrix.job.target == 'x86_64-unknown-linux-gnu' }}
         id: upload-release-asset-install-package-appimage
         uses: actions/upload-release-asset@v1
         env:
