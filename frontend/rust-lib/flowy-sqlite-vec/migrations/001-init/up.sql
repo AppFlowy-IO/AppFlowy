@@ -8,7 +8,6 @@ CREATE TABLE chunk_embeddings_info
     metadata       TEXT,
     fragment_index INTEGER NOT NULL DEFAULT 0,
     embedder_type  INTEGER NOT NULL DEFAULT 0,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(fragment_id, oid)
 );
 

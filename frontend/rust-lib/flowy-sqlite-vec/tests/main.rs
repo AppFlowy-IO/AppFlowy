@@ -12,17 +12,16 @@ async fn test_vector_sqlite_db_basic_operations() -> Result<()> {
 
   // Create a temporary directory for the test database
   let temp_dir = tempdir()?;
-  let db_path = temp_dir.path().join("test_vector.db");
 
   // Create the VectorSqliteDB
-  let db = VectorSqliteDB::new(db_path)?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
   // Test inserting vector embeddings
   let oid = Uuid::new_v4().to_string();
   let fragments = vec![
-    create_test_fragment(&oid, 0, vec![0.1, 0.1, 0.1, 0.1]),
-    create_test_fragment(&oid, 1, vec![0.2, 0.2, 0.2, 0.2]),
-    create_test_fragment(&oid, 2, vec![0.3, 0.3, 0.3, 0.3]),
+    create_test_fragment(&oid, 0, generate_embedding_with_size(768, 0.1)),
+    create_test_fragment(&oid, 1, generate_embedding_with_size(768, 0.2)),
+    create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
 
   db.upsert_collabs_embeddings(&oid, fragments).await?;
@@ -43,10 +42,9 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
 
   // Create a temporary directory for the test database
   let temp_dir = tempdir()?;
-  let db_path = temp_dir.path().join("test_upsert_remove.db");
 
   // Create the VectorSqliteDB
-  let db = VectorSqliteDB::new(db_path)?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
   // Test inserting initial vector embeddings
   let oid = Uuid::new_v4().to_string();
