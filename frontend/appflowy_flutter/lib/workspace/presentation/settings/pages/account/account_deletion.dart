@@ -45,7 +45,6 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Column(

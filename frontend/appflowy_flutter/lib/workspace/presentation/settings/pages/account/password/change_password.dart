@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/error_extensions.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -342,18 +343,25 @@ class _ChangePasswordDialogContentState
           message = LocaleKeys
               .newSettings_myAccount_password_toast_passwordUpdatedFailed
               .tr();
-          if (error.msg.contains('Incorrect current password')) {
+
+          if (AFPasswordErrorExtension.incorrectPasswordPattern
+              .hasMatch(error.msg)) {
             currentPasswordTextFieldKey.currentState?.syncError(
-              errorText: LocaleKeys
-                  .newSettings_myAccount_password_error_currentPasswordIsIncorrect
-                  .tr(),
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
             );
-          } else if (error.msg
-              .contains('Password should be at least 6 characters.')) {
+          } else if (AFPasswordErrorExtension.tooShortPasswordPattern
+              .hasMatch(error.msg)) {
             newPasswordTextFieldKey.currentState?.syncError(
-              errorText: LocaleKeys
-                  .newSettings_myAccount_password_error_passwordShouldBeAtLeast6Characters
-                  .tr(),
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else if (AFPasswordErrorExtension.tooLongPasswordPattern
+              .hasMatch(error.msg)) {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: error.msg,
             );
           }
         },
@@ -367,9 +375,6 @@ class _ChangePasswordDialogContentState
         },
         (error) {
           hasError = true;
-          message = LocaleKeys
-              .newSettings_myAccount_password_toast_passwordSetupFailed
-              .tr();
         },
       );
     }
@@ -379,9 +384,6 @@ class _ChangePasswordDialogContentState
         showToastNotification(
           message: message,
         );
-      }
-
-      if (!hasError) {
         Navigator.of(context).pop();
       }
     }
