@@ -240,7 +240,7 @@ pub struct PeriodicallyWriterImpl;
 
 #[async_trait]
 impl PeriodicallyWriter for PeriodicallyWriterImpl {
-  async fn write(
+  async fn write_embed(
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
@@ -257,6 +257,20 @@ impl PeriodicallyWriter for PeriodicallyWriterImpl {
         };
 
         if let Err(err) = scheduler.index_collab(unindex_collab).await {
+          error!("[Embedding] error generating embedding: {}", err);
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+  async fn delete_embed(&self, workspace_id: &Uuid, object_id: &Uuid) -> Result<(), FlowyError> {
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    {
+      use flowy_ai::embeddings::scheduler::EmbedContext;
+      if let Ok(scheduler) = EmbedContext::shared().get_scheduler() {
+        if let Err(err) = scheduler.delete_collab(workspace_id, object_id).await {
           error!("[Embedding] error generating embedding: {}", err);
         }
       }

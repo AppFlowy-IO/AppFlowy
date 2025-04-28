@@ -318,7 +318,7 @@ impl AppFlowyCollabBuilder {
       tokio::spawn(async move {
         if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
           embedding_writer
-            .add_collab(cloned_object, weak_collab)
+            .queue_collab_embed(cloned_object, weak_collab)
             .await;
         }
       });

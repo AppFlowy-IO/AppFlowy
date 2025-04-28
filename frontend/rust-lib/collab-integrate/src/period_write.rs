@@ -12,6 +12,8 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::runtime::Runtime;
 use tracing::{error, trace};
+use uuid::Uuid;
+
 #[async_trait]
 pub trait CollabIndexDataProvider: Send + Sync + 'static {
   /// upgrade and get a &Collab
@@ -33,11 +35,13 @@ where
 /// writer interface
 #[async_trait]
 pub trait PeriodicallyWriter: Send + Sync + 'static {
-  async fn write(
+  async fn write_embed(
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
   ) -> Result<(), FlowyError>;
+
+  async fn delete_embed(&self, workspace_id: &Uuid, object_id: &Uuid) -> Result<(), FlowyError>;
 }
 
 pub struct WriteObject {
@@ -57,7 +61,6 @@ impl PeriodicallyEmbeddingWrite {
 
     if get_operating_system().is_desktop() {
       runtime.spawn(async move {
-        // initial delay
         tokio::time::sleep(duration).await;
         loop {
           tokio::time::sleep(duration).await;
@@ -72,7 +75,7 @@ impl PeriodicallyEmbeddingWrite {
                     .get_unindexed_data(&wo.collab_object.collab_type)
                     .await;
                   if let Some(data) = data {
-                    if let Err(e) = writer.write(&wo.collab_object, data).await {
+                    if let Err(e) = writer.write_embed(&wo.collab_object, data).await {
                       error!("Failed to write {}: {}", id, e);
                     }
                   }
@@ -101,7 +104,7 @@ impl PeriodicallyEmbeddingWrite {
     matches!(t, CollabType::Document)
   }
 
-  pub async fn add_collab(
+  pub async fn queue_collab_embed(
     &self,
     collab_object: CollabObject,
     collab: Weak<dyn CollabIndexDataProvider>,

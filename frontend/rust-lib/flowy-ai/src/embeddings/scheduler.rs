@@ -156,6 +156,18 @@ impl EmbeddingScheduler {
     Ok(())
   }
 
+  pub async fn delete_collab(&self, workspace_id: &Uuid, object_id: &Uuid) -> FlowyResult<()> {
+    self
+      .vector_db
+      .delete_collab(&workspace_id.to_string(), &object_id.to_string())
+      .await
+      .map_err(|err| {
+        error!("[Embedding] Failed to delete collab: {}", err);
+        FlowyError::new(ErrorCode::LocalEmbeddingNotReady, "Failed to delete collab")
+      })?;
+    Ok(())
+  }
+
   pub async fn search(
     &self,
     workspace_id: &Uuid,
@@ -173,7 +185,7 @@ impl EmbeddingScheduler {
       Some(query_embed) => {
         let result = self
           .vector_db
-          .search(query_embed, 10)
+          .search_with_score(&workspace_id.to_string(), query_embed, 10, 0.4)
           .await
           .map_err(|err| {
             error!("[Embedding] Failed to search: {}", err);
@@ -284,7 +296,7 @@ pub async fn spawn_write_embeddings(
           debug!("[Embedding] Writing {} chunks for {}", record.chunks.len(), record.object_id);
           match scheduler
               .vector_db
-              .upsert_collabs_embeddings(&record.object_id.to_string(), record.chunks)
+              .upsert_collabs_embeddings(&record.workspace_id.to_string(), &record.object_id.to_string(), record.chunks)
               .await
           {
             Ok(_) => trace!("[Embedding] Successfully wrote embeddings for {}", record.object_id),
@@ -373,6 +385,7 @@ async fn spawn_generate_embeddings(
                     match result {
                       Ok(chunks) => {
                         let record = EmbeddingRecord {
+                          workspace_id: record.workspace_id,
                           object_id: record.object_id,
                           chunks,
                         };

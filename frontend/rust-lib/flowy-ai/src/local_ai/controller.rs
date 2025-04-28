@@ -171,10 +171,6 @@ impl LocalAIController {
 
   pub fn reload_ollama_client(&self) {
     if !self.is_enabled() {
-      warn!("[Local AI] no local ai controller is enabled");
-
-      #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-      crate::embeddings::scheduler::EmbedContext::shared().set_ollama(None);
       return;
     }
 

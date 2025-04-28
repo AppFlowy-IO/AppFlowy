@@ -2,6 +2,7 @@ use anyhow::Result;
 use flowy_ai_pub::entities::EmbeddedChunk;
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use flowy_sqlite_vec::init_sqlite_vector_extension;
+use std::collections::HashSet;
 use tempfile::tempdir;
 use uuid::Uuid;
 
@@ -23,8 +24,9 @@ async fn test_vector_sqlite_db_basic_operations() -> Result<()> {
     create_test_fragment(&oid, 1, generate_embedding_with_size(768, 0.2)),
     create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
-
-  db.upsert_collabs_embeddings(&oid, fragments).await?;
+  let workspace_id = Uuid::new_v4();
+  db.upsert_collabs_embeddings(&workspace_id.to_string(), &oid, fragments)
+    .await?;
 
   // Test querying fragment IDs
   let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
@@ -54,7 +56,8 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
     create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
 
-  db.upsert_collabs_embeddings(&oid, initial_fragments)
+  let workspace_id = Uuid::new_v4();
+  db.upsert_collabs_embeddings(&workspace_id.to_string(), &oid, initial_fragments)
     .await?;
 
   // Verify initial fragments
@@ -67,20 +70,220 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
     create_test_fragment(&oid, 2, generate_embedding_with_size(768, 0.3)),
   ];
 
-  db.upsert_collabs_embeddings(&oid, updated_fragments)
+  db.upsert_collabs_embeddings(&workspace_id.to_string(), &oid, updated_fragments)
     .await?;
   // Verify fragment count is now 2
   let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
   assert_eq!(result.get(&Uuid::parse_str(&oid)?).unwrap().len(), 2);
 
   let result = db
-    .search(&generate_embedding_with_size(768, 0.1), 1)
+    .search(
+      &workspace_id.to_string(),
+      &generate_embedding_with_size(768, 0.1),
+      1,
+    )
     .await
     .unwrap();
   assert!(!result.is_empty());
   assert_eq!(result[0].oid, Uuid::parse_str(&oid).unwrap());
   assert_eq!(result[0].content, "Content for fragment 0".to_string());
   dbg!(result);
+
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_empty_fragments_noop_and_select_empty() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let oid = Uuid::new_v4().to_string();
+  let workspace_id = Uuid::new_v4().to_string();
+
+  // Upsert with an empty fragments Vec should not error and not insert anything
+  db.upsert_collabs_embeddings(&workspace_id, &oid, Vec::new())
+    .await?;
+
+  // select_collabs_fragment_ids should return an empty map
+  let result = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
+  assert!(
+    result.is_empty(),
+    "Expected no fragments stored, got {:?}",
+    result
+  );
+
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_duplicate_upsert_idempotent() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let oid = Uuid::new_v4().to_string();
+  let workspace_id = Uuid::new_v4().to_string();
+  let fragments = vec![
+    create_test_fragment(&oid, 0, generate_embedding_with_size(768, 0.5)),
+    create_test_fragment(&oid, 1, generate_embedding_with_size(768, 0.6)),
+  ];
+
+  // First upsert
+  db.upsert_collabs_embeddings(&workspace_id, &oid, fragments.clone())
+    .await?;
+  let first = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
+  let set1: HashSet<_> = first
+    .get(&Uuid::parse_str(&oid)?)
+    .unwrap()
+    .clone()
+    .into_iter()
+    .collect();
+
+  // Second upsert with the exact same fragments
+  db.upsert_collabs_embeddings(&workspace_id, &oid, fragments)
+    .await?;
+  let second = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
+  let set2: HashSet<_> = second
+    .get(&Uuid::parse_str(&oid)?)
+    .unwrap()
+    .clone()
+    .into_iter()
+    .collect();
+
+  assert_eq!(
+    set1, set2,
+    "Upserting the same fragments should be idempotent"
+  );
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_search_no_hits() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let oid = Uuid::new_v4().to_string();
+  let workspace_id = Uuid::new_v4().to_string();
+  // Insert a single fragment at vector [1.0,...]
+  let frags = vec![create_test_fragment(
+    &oid,
+    0,
+    generate_embedding_with_size(768, 1.0),
+  )];
+  db.upsert_collabs_embeddings(&workspace_id, &oid, frags)
+    .await?;
+
+  // Query with a very different vector should return empty
+  let query = generate_embedding_with_size(768, -1.0);
+  let results = db.search(&workspace_id, &query, 1).await?;
+  assert!(
+    results.is_empty(),
+    "Expected no near neighbors for orthogonal vector"
+  );
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_multi_workspace_isolation() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let oid = Uuid::new_v4().to_string();
+  let ws1 = Uuid::new_v4().to_string();
+  let ws2 = Uuid::new_v4().to_string();
+
+  // Insert identical fragment into two workspaces but with different embeddings
+  let frag = create_test_fragment(&oid, 0, generate_embedding_with_size(768, 0.9));
+  db.upsert_collabs_embeddings(&ws1, &oid, vec![frag.clone()])
+    .await?;
+  let frag2 = create_test_fragment(&oid, 0, generate_embedding_with_size(768, -0.9));
+  db.upsert_collabs_embeddings(&ws2, &oid, vec![frag2.clone()])
+    .await?;
+
+  // Searching in ws1 should not return ws2's fragment
+  let res1 = db
+    .search(&ws1, &generate_embedding_with_size(768, 0.9), 1)
+    .await?;
+  assert_eq!(res1.len(), 1);
+  assert_eq!(res1[0].oid, Uuid::parse_str(&oid)?);
+
+  // Searching in ws2 should not return ws1's fragment
+  let res2 = db
+    .search(&ws2, &generate_embedding_with_size(768, -0.9), 1)
+    .await?;
+  assert_eq!(res2.len(), 1);
+  assert_eq!(res2[0].oid, Uuid::parse_str(&oid)?);
+
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_select_multiple_oids() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let ws = Uuid::new_v4().to_string();
+  let oid1 = Uuid::new_v4().to_string();
+  let oid2 = Uuid::new_v4().to_string();
+
+  db.upsert_collabs_embeddings(
+    &ws,
+    &oid1,
+    vec![create_test_fragment(
+      &oid1,
+      0,
+      generate_embedding_with_size(768, 0.1),
+    )],
+  )
+  .await?;
+  db.upsert_collabs_embeddings(
+    &ws,
+    &oid2,
+    vec![create_test_fragment(
+      &oid2,
+      0,
+      generate_embedding_with_size(768, 0.2),
+    )],
+  )
+  .await?;
+
+  let map = db
+    .select_collabs_fragment_ids(&[oid1.clone(), oid2.clone()])
+    .await?;
+  assert_eq!(map.len(), 2);
+  assert!(map.contains_key(&Uuid::parse_str(&oid1)?));
+  assert!(map.contains_key(&Uuid::parse_str(&oid2)?));
+  assert_eq!(map[&Uuid::parse_str(&oid1)?].len(), 1);
+  assert_eq!(map[&Uuid::parse_str(&oid2)?].len(), 1);
+
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_skip_missing_content() -> Result<()> {
+  init_sqlite_vector_extension();
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+
+  let ws = Uuid::new_v4().to_string();
+  let oid = Uuid::new_v4().to_string();
+
+  // One fragment with no content (should be skipped), one with content
+  let mut bad = create_test_fragment(&oid, 0, generate_embedding_with_size(768, 0.1));
+  bad.content = None;
+  let good = create_test_fragment(&oid, 1, generate_embedding_with_size(768, 0.2));
+
+  db.upsert_collabs_embeddings(&ws, &oid, vec![bad, good.clone()])
+    .await?;
+
+  let map = db.select_collabs_fragment_ids(&[oid.clone()]).await?;
+  let frags = &map[&Uuid::parse_str(&oid)?];
+  assert_eq!(frags.len(), 1);
+  assert_eq!(frags[0], good.fragment_id);
 
   Ok(())
 }

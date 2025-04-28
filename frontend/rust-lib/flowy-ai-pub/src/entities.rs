@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub struct EmbeddingRecord {
+  pub workspace_id: Uuid,
   pub object_id: Uuid,
   pub chunks: Vec<EmbeddedChunk>,
 }
@@ -38,4 +39,5 @@ pub struct SearchResult {
   pub oid: Uuid,
   pub content: String,
   pub metadata: Option<serde_json::Value>,
+  pub score: f32,
 }

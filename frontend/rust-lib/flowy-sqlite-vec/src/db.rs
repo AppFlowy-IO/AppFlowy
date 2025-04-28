@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use flowy_ai_pub::entities::{EmbeddedChunk, SearchResult};
 use rusqlite::{params, Connection, ToSql};
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -21,7 +21,6 @@ unsafe impl Sync for VectorSqliteDB {}
 impl VectorSqliteDB {
   pub fn new(root: PathBuf) -> Result<Self> {
     init_sqlite_vector_extension();
-
     let db_path = root.join("vector.db");
     let conn = Arc::new(Mutex::new(init_sqlite_with_migrations(db_path.as_path())?));
     Ok(Self { conn })
@@ -41,157 +40,228 @@ impl VectorSqliteDB {
       .join(", ");
 
     let sql = format!(
-      "SELECT fragment_id, oid \
-             FROM chunk_embeddings_info \
-             WHERE oid IN ({})",
+      "SELECT fragment_id, object_id FROM af_collab_embeddings WHERE object_id IN ({})",
       placeholders
     );
 
-    // Prepare the statement
     let conn = self.conn.lock().await;
     let mut stmt = conn
       .prepare(&sql)
       .context("Preparing select_collabs_fragment_ids")?;
 
-    // Convert &[String] to a Vec<&dyn ToSql> so we can bind them all at once.
     let params: Vec<&dyn ToSql> = object_ids.iter().map(|s| s as &dyn ToSql).collect();
     let mut rows = stmt
       .query(params.as_slice())
-      .context("Executing select_collabs_fragment_ids query")?;
+      .context("Executing select_collabs_fragment_ids")?;
 
-    // Collect into a HashMap<Uuid, Vec<fragment_id>>
     let mut map: HashMap<Uuid, Vec<String>> = HashMap::new();
     while let Some(row) = rows.next()? {
       let fragment_id: String = row.get(0)?;
       let oid_str: String = row.get(1)?;
       let oid = Uuid::parse_str(&oid_str)
         .map_err(|e| anyhow::anyhow!("Invalid UUID `{}` in DB: {}", oid_str, e))?;
-
       map.entry(oid).or_default().push(fragment_id);
     }
 
     Ok(map)
   }
 
+  pub async fn delete_collab(&self, workspace_id: &str, object_id: &str) -> Result<()> {
+    let mut conn = self.conn.lock().await;
+    let tx = conn
+      .transaction()
+      .context("Starting delete_collab transaction")?;
+    tx.execute(
+      "DELETE FROM af_collab_embeddings
+               WHERE workspace_id = ?1
+                 AND object_id    = ?2",
+      rusqlite::params![workspace_id, object_id],
+    )
+    .context("Deleting collab embeddings")?;
+
+    tx.commit()
+      .context("Committing delete_collab transaction")?;
+    Ok(())
+  }
+
+  /// Inserts or replaces all of `fragments` for the given (workspace_id, object_id),
+  /// deleting anything else in that scope first, and storing the new vector blobs.
   pub async fn upsert_collabs_embeddings(
     &self,
-    oid: &str,
+    workspace_id: &str,
+    object_id: &str,
     fragments: Vec<EmbeddedChunk>,
   ) -> Result<()> {
     if fragments.is_empty() {
       return Ok(());
     }
 
-    // no `mut` needed here
     let mut conn = self.conn.lock().await;
     let tx = conn.transaction().context("Starting transaction")?;
 
-    // build a Vec<&str> and repeat("?"), not '?'
-    let fragment_ids: Vec<&str> = fragments.iter().map(|f| f.fragment_id.as_str()).collect();
-    let placeholders = std::iter::repeat("?")
-      .take(fragment_ids.len())
-      .collect::<Vec<_>>()
-      .join(", ");
+    // 1) Collect new IDs
+    let new_ids: Vec<&str> = fragments.iter().map(|f| f.fragment_id.as_str()).collect();
 
-    let delete_sql = format!(
-      "DELETE FROM chunk_embeddings_info WHERE oid = ?1 AND fragment_id NOT IN ({})",
-      placeholders
-    );
+    // 2) Load existing IDs from the DB
+    let mut stmt = tx.prepare(
+      "SELECT fragment_id
+           FROM af_collab_embeddings
+          WHERE workspace_id = ?1
+            AND object_id    = ?2",
+    )?;
+    let existing_ids: HashSet<String> = stmt
+      .query_map(params![workspace_id, object_id], |row| row.get(0))?
+      .collect::<Result<_, _>>()?;
 
-    // first bind oid, then each fragment_id, as a &[&dyn ToSql]
-    let mut delete_params: Vec<&dyn ToSql> = Vec::with_capacity(1 + fragment_ids.len());
-    delete_params.push(&oid);
-    delete_params.extend(fragment_ids.iter().map(|s| s as &dyn ToSql));
+    // 3) Compute which to delete (existing − new)
+    let to_delete: Vec<&str> = existing_ids
+      .iter()
+      .filter_map(|id| {
+        if !new_ids.contains(&id.as_str()) {
+          Some(id.as_str())
+        } else {
+          None
+        }
+      })
+      .collect();
 
-    tx.execute(&delete_sql, delete_params.as_slice())
-      .context("Deleting stale fragments")?;
+    // 4) Delete stale fragments (if any)
+    if !to_delete.is_empty() {
+      let placeholders = std::iter::repeat("?")
+        .take(to_delete.len())
+        .collect::<Vec<_>>()
+        .join(", ");
+      let sql = format!(
+        "DELETE FROM af_collab_embeddings
+               WHERE workspace_id = ?1
+                 AND object_id    = ?2
+                 AND fragment_id IN ({})",
+        placeholders
+      );
+      let mut params: Vec<&dyn ToSql> = Vec::with_capacity(2 + to_delete.len());
+      params.push(&workspace_id);
+      params.push(&object_id);
+      params.extend(to_delete.iter().map(|s| s as &dyn ToSql));
+      tx.execute(&sql, params.as_slice())
+        .context("Deleting stale fragments")?;
+    }
 
-    {
-      // drop this Statement before committing
-      let mut insert_stmt = tx.prepare(
-        "INSERT OR REPLACE INTO chunk_embeddings_info
-             (fragment_id, oid, content_type, content, metadata,fragment_index, embedder_type)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+    // 5) Insert only the brand-new fragments (new − existing)
+    let to_insert: Vec<&EmbeddedChunk> = fragments
+      .iter()
+      .filter(|f| !existing_ids.contains(&f.fragment_id))
+      .collect();
+
+    if !to_insert.is_empty() {
+      let mut insert = tx.prepare(
+        "INSERT INTO af_collab_embeddings
+               (workspace_id, object_id, fragment_id,
+                content_type, content, metadata,
+                fragment_index, embedder_type, embedding)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
       )?;
 
-      for fragment in fragments {
-        if fragment.content.is_none() {
+      for frag in to_insert {
+        // skip if content missing
+        if frag.content.is_none() {
           continue;
         }
-
-        insert_stmt.execute(rusqlite::params![
-          fragment.fragment_id,
-          oid,
-          fragment.content_type,
-          fragment.content.unwrap_or_default(),
-          fragment.metadata,
-          fragment.fragment_index,
-          fragment.embedder_type,
-        ])?;
-
-        // get the inserted embed_id from  chunk_embeddings_info
-
-        if let Some(embeddings) = fragment.embeddings {
-          let mut select_stmt =
-            tx.prepare("SELECT rowid FROM chunk_embeddings_info WHERE fragment_id = ?1")?;
-          let embed_id: i64 =
-            select_stmt.query_row(rusqlite::params![fragment.fragment_id], |row| row.get(0))?;
-
-          let mut embed_stmt =
-            tx.prepare("INSERT INTO embeddings_768_v0(rowid, embedding) VALUES (?, ?)")?;
-          embed_stmt.execute(rusqlite::params![embed_id, embeddings.as_bytes()])?;
-        }
+        insert
+          .execute(rusqlite::params![
+            workspace_id,
+            object_id,
+            &frag.fragment_id,
+            frag.content_type,
+            frag.content.clone().unwrap_or_default(),
+            frag.metadata,
+            frag.fragment_index,
+            frag.embedder_type,
+            frag
+              .embeddings
+              .as_ref()
+              .map(|b| b.as_bytes())
+              .unwrap_or(&[]),
+          ])
+          .context("Inserting new fragment")?;
       }
-    } // insert_stmt dropped here
+      drop(insert);
+    }
+    drop(stmt);
 
     tx.commit().context("Committing transaction")?;
     Ok(())
   }
 
-  pub async fn search(&self, query: &[f32], top_k: i32) -> Result<Vec<SearchResult>> {
-    // 1) Turn your f32 slice into a &[u8]
+  pub async fn search(
+    &self,
+    workspace_id: &str,
+    query: &[f32],
+    top_k: i32,
+  ) -> Result<Vec<SearchResult>> {
+    self
+      .search_with_score(workspace_id, query, top_k, 0.4)
+      .await
+  }
+
+  pub async fn search_with_score(
+    &self,
+    workspace_id: &str,
+    query: &[f32],
+    top_k: i32,
+    min_score: f32,
+  ) -> Result<Vec<SearchResult>> {
+    // clamp min_score to [0,1]
+    let min_score = min_score.clamp(0.0, 1.0);
+    // distance = 1 - score, so we only want distance <= max_distance
+    let max_distance = 1.0 - min_score;
     let query_blob = query.as_bytes();
 
-    // 2) SQL
+    // k-NN MATCH with embedded distance filter, compute score = 1-distance
     let sql = "\
-        SELECT info.oid, info.content, info.metadata
-          FROM embeddings_768_v0 AS emb
-     JOIN chunk_embeddings_info AS info
-           ON emb.rowid = info.embed_id
-         WHERE emb.embedding MATCH ?
-           AND k = ?
-    ";
+            SELECT
+              object_id,
+              content,
+              metadata,
+              distance,
+              (1.0 - distance) AS score
+            FROM af_collab_embeddings
+            WHERE embedding MATCH ?
+              AND k = ?
+              AND workspace_id = ?
+              AND distance <= ?
+            ORDER BY distance ASC
+        ";
 
-    // 3) Prepare & execute
     let conn = self.conn.lock().await;
-    let mut stmt = conn.prepare(sql).context("preparing search statement")?;
-    let mut rows = stmt
-      .query(params![query_blob, top_k])
-      .context("executing search query")?;
+    let mut stmt = conn.prepare(sql)?;
+    let mut rows = stmt.query(params![
+      query_blob,   // MATCH
+      top_k,        // number of neighbors
+      workspace_id, // workspace filter
+      max_distance, // only distances ≤ this
+    ])?;
 
-    // 4) Iterate, parse, and collect
-    let mut results = Vec::new();
-    while let Some(row) = rows.next().context("reading search row")? {
-      // a) Parse OID, skip if invalid
+    let mut out = Vec::new();
+    while let Some(row) = rows.next()? {
       let oid_str: String = row.get(0)?;
       let oid = match Uuid::parse_str(&oid_str) {
         Ok(u) => u,
         Err(_) => continue,
       };
-
-      // b) Content & metadata
       let content: String = row.get(1)?;
       let metadata = row
         .get::<_, Option<String>>(2)?
         .and_then(|s| serde_json::from_str::<Value>(&s).ok());
+      let score: f32 = row.get(4)?;
 
-      results.push(SearchResult {
+      out.push(SearchResult {
         oid,
         content,
         metadata,
+        score,
       });
     }
 
-    Ok(results)
+    Ok(out)
   }
 }
