@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -413,7 +414,7 @@ class _InputState extends State<_Input> {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 150),
           transitionBuilder: (child, animation) {
-            return SizeTransition(
+            return NonClippingSizeTransition(
               sizeFactor: animation,
               axisAlignment: -1,
               child: child,

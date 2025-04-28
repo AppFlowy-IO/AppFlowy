@@ -11,28 +11,26 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ContinueWithMagicLinkOrPasscodePage extends StatefulWidget {
-  const ContinueWithMagicLinkOrPasscodePage({
+class ResetPasswordWidget extends StatefulWidget {
+  const ResetPasswordWidget({
     super.key,
     required this.backToLogin,
     required this.email,
-    required this.onEnterPasscode,
+    required this.baseUrl,
+    required this.onValidateResetPasswordToken,
   });
 
   final String email;
   final VoidCallback backToLogin;
-  final ValueChanged<String> onEnterPasscode;
+  final String baseUrl;
+  final ValueChanged<bool> onValidateResetPasswordToken;
 
   @override
-  State<ContinueWithMagicLinkOrPasscodePage> createState() =>
-      _ContinueWithMagicLinkOrPasscodePageState();
+  State<ResetPasswordWidget> createState() => _ResetPasswordWidgetState();
 }
 
-class _ContinueWithMagicLinkOrPasscodePageState
-    extends State<ContinueWithMagicLinkOrPasscodePage> {
+class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
   final passcodeController = TextEditingController();
-
-  bool isEnteringPasscode = false;
 
   ToastificationItem? toastificationItem;
 
@@ -49,61 +47,57 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignInBloc, SignInState>(
+    return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) {
-        final successOrFail = state.successOrFail;
-        if (successOrFail != null && successOrFail.isFailure) {
-          successOrFail.onFailure((error) {
-            inputPasscodeKey.currentState?.syncError(
-              errorText: LocaleKeys.signIn_tokenHasExpiredOrInvalid.tr(),
-            );
-          });
+        final successOrFail = state.validateResetPasswordTokenSuccessOrFail;
+        if (successOrFail != null) {
+          successOrFail.fold(
+            (success) {
+              widget.onValidateResetPasswordToken(true);
+            },
+            (error) {
+              widget.onValidateResetPasswordToken(false);
+              inputPasscodeKey.currentState?.syncError(
+                errorText: LocaleKeys.signIn_resetPasswordFailed.tr(),
+              );
+            },
+          );
         }
 
         if (state.isSubmitting != isSubmitting) {
           setState(() => isSubmitting = state.isSubmitting);
         }
       },
-      child: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: 320,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo, title and description
-                _buildLogoTitleAndDescription(),
+      builder: (context, state) {
+        return Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo, title and description
+                  _buildLogoTitleAndDescription(),
 
-                // Enter code manually
-                ..._buildEnterCodeManually(),
+                  // Enter code manually
+                  ..._buildEnterCodeManually(),
 
-                // Back to login
-                BackToLoginButton(
-                  onTap: widget.backToLogin,
-                ),
-              ],
+                  // Back to login
+                  BackToLoginButton(
+                    onTap: widget.backToLogin,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   List<Widget> _buildEnterCodeManually() {
     // todo: ask designer to provide the spacing
     final spacing = VSpace(20);
-
-    if (!isEnteringPasscode) {
-      return [
-        AFFilledTextButton.primary(
-          text: LocaleKeys.signIn_enterCodeManually.tr(),
-          onTap: () => setState(() => isEnteringPasscode = true),
-          size: AFButtonSize.l,
-          alignment: Alignment.center,
-        ),
-        spacing,
-      ];
-    }
 
     return [
       // Enter code manually
@@ -119,7 +113,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
               errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
             );
           } else {
-            widget.onEnterPasscode(passcode);
+            //
           }
         },
       ),
@@ -130,7 +124,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
       isSubmitting
           ? const VerifyingButton()
           : ContinueWithButton(
-              text: LocaleKeys.signIn_continueToSignIn.tr(),
+              text: LocaleKeys.signIn_continueToResetPassword.tr(),
               onTap: () {
                 final passcode = passcodeController.text;
                 if (passcode.isEmpty) {
@@ -138,7 +132,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
                     errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
                   );
                 } else {
-                  widget.onEnterPasscode(passcode);
+                  _onSubmit();
                 }
               },
             ),
@@ -149,30 +143,33 @@ class _ContinueWithMagicLinkOrPasscodePageState
 
   Widget _buildLogoTitleAndDescription() {
     final theme = AppFlowyTheme.of(context);
+    return TitleLogo(
+      title: LocaleKeys.signIn_checkYourEmail.tr(),
+      description: LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
+      informationBuilder: (context) => Text(
+        widget.email,
+        style: theme.textStyle.body.enhanced(
+          color: theme.textColorScheme.primary,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 
-    if (!isEnteringPasscode) {
-      return TitleLogo(
-        title: LocaleKeys.signIn_checkYourEmail.tr(),
-        description: LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
-        informationBuilder: (context) => Text(
-          widget.email,
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
+  Future<void> _onSubmit() async {
+    final passcode = passcodeController.text;
+    if (passcode.isEmpty) {
+      inputPasscodeKey.currentState?.syncError(
+        errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
       );
-    } else {
-      return TitleLogo(
-        title: LocaleKeys.signIn_enterCode.tr(),
-        description: LocaleKeys.signIn_temporaryVerificationCodeSent.tr(),
-        informationBuilder: (context) => Text(
-          widget.email,
-          style: theme.textStyle.body.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
+      return;
     }
+
+    context.read<SignInBloc>().add(
+          ValidateResetPasswordToken(
+            email: widget.email,
+            token: passcode,
+          ),
+        );
   }
 }

@@ -185,8 +185,6 @@ class MemberHttpService {
         );
       }
     } catch (e) {
-      Log.error('${endpoint.name} request failed: error: $e');
-
       return FlowyResult.failure(
         FlowyError(msg: 'Network error: ${e.toString()}'),
       );

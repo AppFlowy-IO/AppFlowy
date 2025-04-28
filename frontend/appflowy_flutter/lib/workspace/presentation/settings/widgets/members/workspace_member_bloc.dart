@@ -12,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -52,6 +53,7 @@ class WorkspaceMemberBloc
         updateSubscriptionInfo: (info) async =>
             _onUpdateSubscriptionInfo(emit, info),
         upgradePlan: () async => _onUpgradePlan(),
+        getInviteCode: () async => _onGetInviteCode(emit),
         updateInviteLink: (inviteLink) async => emit(
           state.copyWith(
             inviteLink: inviteLink,
@@ -61,19 +63,40 @@ class WorkspaceMemberBloc
     });
   }
 
+  @override
+  Future<void> close() async {
+    _workspaceId.dispose();
+
+    await super.close();
+  }
+
   final UserProfilePB userProfile;
   final UserWorkspacePB? workspace;
-  late final String _workspaceId;
   final UserBackendService _userBackendService;
+
+  final ValueNotifier<String?> _workspaceId = ValueNotifier<String?>(null);
   MemberHttpService? _memberHttpService;
 
   Future<void> _onInitial(
     Emitter<WorkspaceMemberState> emit,
     String? workspaceId,
   ) async {
+    _workspaceId.addListener(() {
+      if (!isClosed) {
+        add(const WorkspaceMemberEvent.getInviteCode());
+      }
+    });
+
     await _setCurrentWorkspaceId(workspaceId);
 
-    final result = await _userBackendService.getWorkspaceMembers(_workspaceId);
+    final currentWorkspaceId = _workspaceId.value;
+    if (currentWorkspaceId == null) {
+      Log.error('Failed to get workspace members: workspaceId is null');
+      return;
+    }
+
+    final result =
+        await _userBackendService.getWorkspaceMembers(currentWorkspaceId);
     final members = result.fold<List<WorkspaceMemberPB>>(
       (s) => s.items,
       (e) => [],
@@ -82,28 +105,6 @@ class WorkspaceMemberBloc
 
     if (myRole.isOwner) {
       unawaited(_fetchWorkspaceSubscriptionInfo());
-    }
-
-    final baseUrl = await getAppFlowyCloudUrl();
-    final authToken = userProfile.authToken;
-    if (authToken != null) {
-      _memberHttpService = MemberHttpService(
-        baseUrl: baseUrl,
-        authToken: authToken,
-      );
-      unawaited(
-        _memberHttpService?.getInviteCode(workspaceId: _workspaceId).fold(
-          (s) async {
-            final inviteLink = await _buildInviteLink(inviteCode: s);
-            if (!isClosed) {
-              add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
-            }
-          },
-          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
-        ),
-      );
-    } else {
-      Log.error('Failed to get auth token');
     }
 
     emit(
@@ -122,7 +123,13 @@ class WorkspaceMemberBloc
   Future<void> _onGetWorkspaceMembers(
     Emitter<WorkspaceMemberState> emit,
   ) async {
-    final result = await _userBackendService.getWorkspaceMembers(_workspaceId);
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to get workspace members: workspaceId is null');
+      return;
+    }
+
+    final result = await _userBackendService.getWorkspaceMembers(workspaceId);
     final members = result.fold<List<WorkspaceMemberPB>>(
       (s) => s.items,
       (e) => [],
@@ -144,8 +151,14 @@ class WorkspaceMemberBloc
     Emitter<WorkspaceMemberState> emit,
     String email,
   ) async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to add workspace member by email: workspaceId is null');
+      return;
+    }
+
     final result = await _userBackendService.addWorkspaceMember(
-      _workspaceId,
+      workspaceId,
       email,
     );
     emit(
@@ -167,8 +180,16 @@ class WorkspaceMemberBloc
     Emitter<WorkspaceMemberState> emit,
     String email,
   ) async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error(
+        'Failed to invite workspace member by email: workspaceId is null',
+      );
+      return;
+    }
+
     final result = await _userBackendService.inviteWorkspaceMember(
-      _workspaceId,
+      workspaceId,
       email,
       role: AFRolePB.Member,
     );
@@ -186,8 +207,16 @@ class WorkspaceMemberBloc
     Emitter<WorkspaceMemberState> emit,
     String email,
   ) async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error(
+        'Failed to remove workspace member by email: workspaceId is null',
+      );
+      return;
+    }
+
     final result = await _userBackendService.removeWorkspaceMember(
-      _workspaceId,
+      workspaceId,
       email,
     );
     final members = result.fold(
@@ -211,8 +240,14 @@ class WorkspaceMemberBloc
   ) async {}
 
   Future<void> _onGenerateInviteLink(Emitter<WorkspaceMemberState> emit) async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to generate invite link: workspaceId is null');
+      return;
+    }
+
     final result = await _memberHttpService?.generateInviteCode(
-      workspaceId: _workspaceId,
+      workspaceId: workspaceId,
     );
 
     await result?.fold(
@@ -247,8 +282,14 @@ class WorkspaceMemberBloc
     String email,
     AFRolePB role,
   ) async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to update workspace member: workspaceId is null');
+      return;
+    }
+
     final result = await _userBackendService.updateWorkspaceMember(
-      _workspaceId,
+      workspaceId,
       email,
       role,
     );
@@ -281,6 +322,12 @@ class WorkspaceMemberBloc
   }
 
   Future<void> _onUpgradePlan() async {
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to upgrade plan: workspaceId is null');
+      return;
+    }
+
     final plan = state.subscriptionInfo?.plan;
     if (plan == null) {
       return Log.error('Failed to upgrade plan: plan is null');
@@ -288,7 +335,7 @@ class WorkspaceMemberBloc
 
     if (plan == WorkspacePlanPB.FreePlan) {
       final checkoutLink = await _userBackendService.createSubscription(
-        _workspaceId,
+        workspaceId,
         SubscriptionPlanPB.Pro,
       );
 
@@ -296,6 +343,29 @@ class WorkspaceMemberBloc
         (pl) => afLaunchUrlString(pl.paymentLink),
         (f) => Log.error('Failed to create subscription: ${f.msg}', f),
       );
+    }
+  }
+
+  Future<void> _onGetInviteCode(Emitter<WorkspaceMemberState> emit) async {
+    final baseUrl = await getAppFlowyCloudUrl();
+    final authToken = userProfile.authToken;
+    final workspaceId = _workspaceId.value;
+    if (authToken != null && workspaceId != null) {
+      _memberHttpService = MemberHttpService(
+        baseUrl: baseUrl,
+        authToken: authToken,
+      );
+      unawaited(
+        _memberHttpService?.getInviteCode(workspaceId: workspaceId).fold(
+          (s) async {
+            final inviteLink = await _buildInviteLink(inviteCode: s);
+            add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
+          },
+          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
+        ),
+      );
+    } else {
+      Log.error('Failed to get auth token');
     }
   }
 
@@ -314,24 +384,30 @@ class WorkspaceMemberBloc
 
   Future<void> _setCurrentWorkspaceId(String? workspaceId) async {
     if (workspace != null) {
-      _workspaceId = workspace!.workspaceId;
+      _workspaceId.value = workspace!.workspaceId;
     } else if (workspaceId != null && workspaceId.isNotEmpty) {
-      _workspaceId = workspaceId;
+      _workspaceId.value = workspaceId;
     } else {
       final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
       currentWorkspace.fold((s) {
-        _workspaceId = s.id;
+        _workspaceId.value = s.id;
       }, (e) {
         assert(false, 'Failed to read current workspace: $e');
         Log.error('Failed to read current workspace: $e');
-        _workspaceId = '';
       });
     }
   }
 
   Future<void> _fetchWorkspaceSubscriptionInfo() async {
-    final result =
-        await UserBackendService.getWorkspaceSubscriptionInfo(_workspaceId);
+    final workspaceId = _workspaceId.value;
+    if (workspaceId == null) {
+      Log.error('Failed to fetch subscription info: workspaceId is null');
+      return;
+    }
+
+    final result = await UserBackendService.getWorkspaceSubscriptionInfo(
+      workspaceId,
+    );
 
     result.fold(
       (info) {
@@ -356,6 +432,8 @@ class WorkspaceMemberBloc
 @freezed
 class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   const factory WorkspaceMemberEvent.initial() = Initial;
+
+  // Members related events
   const factory WorkspaceMemberEvent.getWorkspaceMembers() =
       GetWorkspaceMembers;
   const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =
@@ -366,19 +444,23 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   const factory WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
     String email,
   ) = RemoveWorkspaceMemberByEmail;
-  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByLink(String link) =
-      InviteWorkspaceMemberByLink;
-  const factory WorkspaceMemberEvent.generateInviteLink() = GenerateInviteLink;
   const factory WorkspaceMemberEvent.updateWorkspaceMember(
     String email,
     AFRolePB role,
   ) = UpdateWorkspaceMember;
+
+  // Subscription related events
   const factory WorkspaceMemberEvent.updateSubscriptionInfo(
     WorkspaceSubscriptionInfoPB subscriptionInfo,
   ) = UpdateSubscriptionInfo;
-
   const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
 
+  // Invite link related events
+  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByLink(
+    String link,
+  ) = InviteWorkspaceMemberByLink;
+  const factory WorkspaceMemberEvent.getInviteCode() = GetInviteCode;
+  const factory WorkspaceMemberEvent.generateInviteLink() = GenerateInviteLink;
   const factory WorkspaceMemberEvent.updateInviteLink(String inviteLink) =
       UpdateInviteLink;
 }

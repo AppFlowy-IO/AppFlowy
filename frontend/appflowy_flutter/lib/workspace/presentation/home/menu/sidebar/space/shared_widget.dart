@@ -140,7 +140,7 @@ class SpacePermissionButton extends StatelessWidget {
 
     return FlowyButton(
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      radius: BorderRadius.circular(10),
+      radius: showArrow ? BorderRadius.circular(10) : BorderRadius.zero,
       iconPadding: 16.0,
       leftIcon: FlowySvg(icon),
       leftIconSize: const Size.square(20),

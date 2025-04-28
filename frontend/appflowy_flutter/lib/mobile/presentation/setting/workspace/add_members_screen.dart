@@ -83,7 +83,8 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
 
         return BlocProvider<WorkspaceMemberBloc>(
           create: (context) => WorkspaceMemberBloc(userProfile: userProfile)
-            ..add(const WorkspaceMemberEvent.initial()),
+            ..add(const WorkspaceMemberEvent.initial())
+            ..add(const WorkspaceMemberEvent.getInviteCode()),
           child: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
             listener: _onListener,
             builder: (context, state) {

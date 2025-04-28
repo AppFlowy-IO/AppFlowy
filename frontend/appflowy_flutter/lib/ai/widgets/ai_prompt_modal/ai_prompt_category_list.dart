@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AiPromptCategoryList extends StatelessWidget {
+class AiPromptCategoryList extends StatefulWidget {
   const AiPromptCategoryList({
     super.key,
     required this.padding,
@@ -14,18 +14,25 @@ class AiPromptCategoryList extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   @override
+  State<AiPromptCategoryList> createState() => _AiPromptCategoryListState();
+}
+
+class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
+  bool isSearching = false;
+  @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
     return Padding(
-      padding: padding,
+      padding: EdgeInsets.all(
+        theme.spacing.l,
+      ),
       child: TextFieldTapRegion(
         groupId: "ai_prompt_category_list",
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.spacing.s,
           children: [
-            _buildSearchField(context),
             _buildFeaturedCategory(context),
             const AFDivider(),
             Expanded(
@@ -62,16 +69,6 @@ class AiPromptCategoryList extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchField(BuildContext context) {
-    return AFTextField(
-      groupId: "ai_prompt_category_list",
-      hintText: "Search",
-      size: AFTextFieldSize.m,
-      controller: context.read<AiPromptSelectorCubit>().filterTextController,
-      autoFocus: true,
-    );
-  }
-
   Widget _buildCategoryItem(
     BuildContext context,
     AiPromptCategory? category,
@@ -98,15 +95,12 @@ class AiPromptCategoryList extends StatelessWidget {
         }
       },
       builder: (context, isHovering, disabled) {
-        return Row(
-          children: [
-            Text(
-              LocaleKeys.ai_customPrompt_featured.tr(),
-              style: AppFlowyTheme.of(context).textStyle.body.standard(
-                    color: theme.textColorScheme.primary,
-                  ),
-            ),
-          ],
+        return Text(
+          LocaleKeys.ai_customPrompt_featured.tr(),
+          style: AppFlowyTheme.of(context).textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
+          overflow: TextOverflow.ellipsis,
         );
       },
       borderRadius: theme.borderRadius.m,
@@ -152,15 +146,12 @@ class AiPromptCategoryItem extends StatelessWidget {
     return AFBaseButton(
       onTap: onSelect,
       builder: (context, isHovering, disabled) {
-        return Row(
-          children: [
-            Text(
-              category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
-              style: AppFlowyTheme.of(context).textStyle.body.standard(
-                    color: theme.textColorScheme.primary,
-                  ),
-            ),
-          ],
+        return Text(
+          category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
+          style: AppFlowyTheme.of(context).textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
+          overflow: TextOverflow.ellipsis,
         );
       },
       borderRadius: theme.borderRadius.m,
