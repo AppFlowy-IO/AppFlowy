@@ -434,6 +434,8 @@ class _MemberItem extends StatelessWidget {
                       style: theme.textStyle.body.enhanced(
                         color: theme.textColorScheme.primary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _formatJoinedDate(member.joinedAt.toInt()),
@@ -524,20 +526,18 @@ class _MemberMoreActionList extends StatelessWidget {
       onSelected: (action, controller) {
         switch (action.inner) {
           case _MemberMoreAction.delete:
-            showDialog(
+            showCancelAndConfirmDialog(
               context: context,
-              builder: (_) => NavigatorOkCancelDialog(
-                title: LocaleKeys.settings_appearance_members_removeMember.tr(),
-                message: LocaleKeys
-                    .settings_appearance_members_areYouSureToRemoveMember
-                    .tr(),
-                onOkPressed: () => context.read<WorkspaceMemberBloc>().add(
-                      WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
-                        action.member.email,
-                      ),
+              title: LocaleKeys.settings_appearance_members_removeMember.tr(),
+              description: LocaleKeys
+                  .settings_appearance_members_areYouSureToRemoveMember
+                  .tr(),
+              confirmLabel: LocaleKeys.button_yes.tr(),
+              onConfirm: () => context.read<WorkspaceMemberBloc>().add(
+                    WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
+                      action.member.email,
                     ),
-                okTitle: LocaleKeys.button_yes.tr(),
-              ),
+                  ),
             );
             break;
         }

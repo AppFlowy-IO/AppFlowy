@@ -77,6 +77,7 @@
     "temporaryVerificationLinkSent": "A temporary verification link has been sent.\nPlease check your inbox at",
     "temporaryVerificationCodeSent": "A temporary verification code has been sent.\nPlease check your inbox at",
     "continueToSignIn": "Continue to sign in",
+    "continueWithLoginCode": "Continue with login code",
     "backToLogin": "Back to login",
     "enterCode": "Enter code",
     "enterCodeManually": "Enter code manually",
@@ -1156,8 +1157,8 @@
       "files": "Files",
       "notifications": "Notifications",
       "open": "Open Settings",
-      "logout": "Logout",
-      "logoutPrompt": "Are you sure you want to logout?",
+      "logout": "Log out",
+      "logoutPrompt": "Are you sure you want to log out?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
@@ -1437,7 +1438,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "clickToLogout": "Click to logout the current user"
+      "clickToLogout": "Click to log out the current user"
     },
     "mobile": {
       "personalInfo": "Personal Information",
