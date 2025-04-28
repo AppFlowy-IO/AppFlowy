@@ -64,18 +64,23 @@ class SidebarTopMenu extends StatelessWidget {
   }
 
   Widget _buildCollapseMenuButton(BuildContext context) {
+    final settingState = context.read<HomeSettingBloc?>()?.state;
+    final isNotificationPanelCollapsed =
+        settingState?.isNotificationPanelCollapsed ?? true;
+
     final textSpan = TextSpan(
       children: [
         TextSpan(
-          text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
+          text: LocaleKeys.sideBar_closeSidebar.tr(),
           style: context.tooltipTextStyle(),
         ),
-        TextSpan(
-          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
-          style: context
-              .tooltipTextStyle()
-              ?.copyWith(color: Theme.of(context).hintColor),
-        ),
+        if (isNotificationPanelCollapsed)
+          TextSpan(
+            text: '\n${Platform.isMacOS ? '⌘+.' : 'Ctrl+\\'}',
+            style: context
+                .tooltipTextStyle()
+                ?.copyWith(color: Theme.of(context).hintColor),
+          ),
       ],
     );
 
@@ -89,9 +94,8 @@ class SidebarTopMenu extends StatelessWidget {
             richMessage: textSpan,
             child: Listener(
               behavior: HitTestBehavior.translucent,
-              onPointerDown: (_) => context
-                  .read<HomeSettingBloc>()
-                  .add(const HomeSettingEvent.collapseMenu()),
+              onPointerDown: (_) =>
+                  context.read<HomeSettingBloc>().collapseMenu(),
               child: FlowyHover(
                 child: Container(
                   width: 24,

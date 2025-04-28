@@ -77,6 +77,7 @@
     "temporaryVerificationLinkSent": "A temporary verification link has been sent.\nPlease check your inbox at",
     "temporaryVerificationCodeSent": "A temporary verification code has been sent.\nPlease check your inbox at",
     "continueToSignIn": "Continue to sign in",
+    "continueWithLoginCode": "Continue with login code",
     "backToLogin": "Back to login",
     "enterCode": "Enter code",
     "enterCodeManually": "Enter code manually",
@@ -85,7 +86,27 @@
     "loginAs": "Login as",
     "invalidVerificationCode": "Please enter a valid verification code",
     "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later.",
-    "invalidLoginCredentials": "Your password is incorrect, please try again"
+    "invalidLoginCredentials": "Your password is incorrect, please try again",
+    "resetPassword": "Reset password",
+    "resetPasswordDescription": "Enter your email to reset your password",
+    "continueToResetPassword": "Continue to reset password",
+    "resetPasswordSuccess": "Password reset successfully",
+    "resetPasswordFailed": "Failed to reset password",
+    "resetPasswordLinkSent": "A password reset link has been sent to your email. Please check your inbox at",
+    "resetPasswordLinkExpired": "The password reset link has expired. Please request a new link.",
+    "resetPasswordLinkInvalid": "The password reset link is invalid. Please request a new link.",
+    "enterNewPasswordFor": "Enter new password for ",
+    "newPassword": "New password",
+    "enterNewPassword": "Enter new password",
+    "confirmPassword": "Confirm password",
+    "confirmNewPassword": "Enter new password",
+    "newPasswordCannotBeEmpty": "New password cannot be empty",
+    "confirmPasswordCannotBeEmpty": "Confirm password cannot be empty",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "verifying": "Verifying...",
+    "continueWithPassword": "Continue with password",
+    "youAreInLocalMode": "You're in local mode.",
+    "loginToAppFlowyCloud": "Login to AppFlowy Cloud"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -114,7 +135,7 @@
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
-    "openSuccess": "Open workspace successfully",
+    "openSuccess": "Opened workspace successfully",
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
@@ -543,7 +564,7 @@
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
         "updateExistingNamespace": "Update existing namespace",
-        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
+        "upgradeToPro": "Upgrade to Pro Plan to claim a custom namespace",
         "redirectToPayment": "Redirecting to payment page...",
         "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
         "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
@@ -866,6 +887,7 @@
         "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
+        "globalLLMModel": "Global Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
@@ -882,6 +904,7 @@
         "localAIDisabled": "You are using local AI, but it is disabled. Please go to settings to enable it or try different model",
         "localAIInitializing": "Local AI is loading. This may take a few seconds depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
+        "localAIDisabledTextFieldPrompt": "You can not edit while Local AI is disabled",
         "failToLoadLocalAI": "Failed to start local AI.",
         "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
@@ -1134,8 +1157,8 @@
       "files": "Files",
       "notifications": "Notifications",
       "open": "Open Settings",
-      "logout": "Logout",
-      "logoutPrompt": "Are you sure you want to logout?",
+      "logout": "Log out",
+      "logoutPrompt": "Are you sure you want to log out?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
@@ -1307,10 +1330,10 @@
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
       "enableRTLToolbarItems": "Enable RTL toolbar items",
       "members": {
-        "title": "Members settings",
+        "title": "Members",
         "inviteMembers": "Invite members",
         "inviteHint": "Invite by email",
-        "sendInvite": "Send invite",
+        "sendInvite": "Invite",
         "copyInviteLink": "Copy invite link",
         "label": "Members",
         "user": "User",
@@ -1331,8 +1354,8 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "inviteFailedDialogTitle": "Failed to send invite",
-        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
+        "inviteFailedDialogTitle": "Upgrade to Pro Plan",
+        "inviteFailedMemberLimit": "This workspace has reached the free limit. Please upgrade to Pro to unlock more members.",
         "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
@@ -1345,7 +1368,28 @@
         "inviteMemberSuccess": "The invitation has been sent successfully",
         "failedToInviteMember": "Failed to invite member",
         "workspaceMembersError": "Oops, something went wrong",
-        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later",
+        "inviteLinkToAddMember": "Invite link to add member",
+        "clickToCopyLink": "Click to copy link",
+        "or": "or",
+        "generateANewLink": "generate a new link",
+        "inviteMemberByEmail": "Invite member by email",
+        "inviteMemberHintText": "Invite by email",
+        "resetInviteLink": "Reset the invite link?",
+        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer valid.",
+        "adminPanel": "Admin Panel",
+        "reset": "Reset",
+        "resetInviteLinkSuccess": "Invite link reset successfully",
+        "resetInviteLinkFailed": "Failed to reset the invite link",
+        "resetInviteLinkFailedDescription": "Please try again later",
+        "memberPageDescription1": "Access the",
+        "memberPageDescription2": "for guest and advanced user management.",
+        "noInviteLink": "You haven't generated an invite link yet.",
+        "copyLink": "Copy link",
+        "generatedLinkSuccessfully": "Generated link successfully",
+        "generatedLinkFailed": "Failed to generate link",
+        "resetLinkSuccessfully": "Reset link successfully",
+        "resetLinkFailed": "Failed to reset link"
       }
     },
     "files": {
@@ -1394,7 +1438,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "clickToLogout": "Click to logout the current user"
+      "clickToLogout": "Click to log out the current user"
     },
     "mobile": {
       "personalInfo": "Personal Information",
@@ -2305,6 +2349,12 @@
   "search": {
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
+    "searchOrAskAI": "Search or ask AI",
+    "askAIAnything": "Ask AI anything",
+    "askAIFor": "Ask AI",
+    "noResultForSearching": "No matches found",
+    "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
+    "bestMatch": "Best match",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -2413,6 +2463,19 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "closeNotification": "Close notification",
+    "viewNotifications": "View notifications",
+    "noNotifications": "No notifications yet",
+    "mentionedYou": "Mentioned you",
+    "archivedTooltip": "Archive this notification",
+    "unarchiveTooltip": "Unarchive this notification",
+    "markAsReadTooltip": "Mark this notification as read",
+    "markAsArchivedSucceedToast": "Archived successfully",
+    "markAllAsArchivedSucceedToast": "Archived all successfully",
+    "markAsReadSucceedToast": "Mark as read successfully",
+    "markAllAsReadSucceedToast": "Mark all as read successfully",
+    "today": "Today",
+    "older": "Older",
     "mobile": {
       "title": "Updates"
     },
@@ -2650,16 +2713,21 @@
       },
       "password": {
         "title": "Password",
+        "confirmPassword": "Confirm password",
         "changePassword": "Change password",
         "currentPassword": "Current password",
         "newPassword": "New password",
         "confirmNewPassword": "Confirm new password",
         "setupPassword": "Setup password",
         "error": {
+          "currentPasswordIsRequired": "Current password is required",
           "newPasswordIsRequired": "New password is required",
           "confirmPasswordIsRequired": "Confirm password is required",
           "passwordsDoNotMatch": "Passwords do not match",
-          "newPasswordIsSameAsCurrent": "New password is same as current password"
+          "newPasswordIsSameAsCurrent": "New password is same as current password",
+          "currentPasswordIsIncorrect": "Current password is incorrect",
+          "passwordShouldBeAtLeast6Characters": "Password should be at least {min} characters",
+          "passwordCannotBeLongerThan72Characters": "Password cannot be longer than {max} characters"
         },
         "toast": {
           "passwordUpdatedSuccessfully": "Password updated successfully",
@@ -2668,6 +2736,8 @@
           "passwordSetupFailed": "Failed to setup password"
         },
         "hint": {
+          "enterYourPassword": "Enter your password",
+          "confirmYourPassword": "Confirm your password",
           "enterYourCurrentPassword": "Enter your current password",
           "enterYourNewPassword": "Enter your new password",
           "confirmYourNewPassword": "Confirm your new password"
@@ -3250,7 +3320,34 @@
     "analyzing": "Analyzing",
     "continueWritingEmptyDocumentTitle": "Continue writing error",
     "continueWritingEmptyDocumentDescription": "We are having trouble expanding on the content in your document. Write a small intro and we can take it from there!",
-    "more": "More"
+    "more": "More",
+    "customPrompt": {
+      "browsePrompts": "Browse prompts",
+      "usePrompt": "Use prompt",
+      "featured": "Featured",
+      "all": "All",
+      "development": "Development",
+      "writing": "Writing",
+      "healthAndFitness": "Health & fitness",
+      "business": "Business",
+      "marketing": "Marketing",
+      "learning": "Learning",
+      "travel": "Travel",
+      "others": "Other",
+      "prompt": "Prompt",
+      "example": "Prompt Example",
+      "sampleOutput": "Sample output",
+      "contentSeo": "Content/SEO",
+      "emailMarketing": "Email Marketing",
+      "paidAds": "Paid Ads",
+      "prCommunication": "PR/Communication",
+      "recruiting": "Recruiting",
+      "sales": "Sales",
+      "socialMedia": "Social Media",
+      "strategy": "Strategy",
+      "caseStudies": "Case Studies",
+      "salesCopy": "Sales Copy"
+    }
   },
   "autoUpdate": {
     "criticalUpdateTitle": "Update required to continue",

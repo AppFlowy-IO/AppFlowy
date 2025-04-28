@@ -36,7 +36,7 @@ Future<void> showSimpleAFDialog({
             AFModalHeader(
               leading: Text(
                 title,
-                style: theme.textStyle.heading4.standard(
+                style: theme.textStyle.heading4.prominent(
                   color: theme.textColorScheme.primary,
                 ),
               ),
@@ -74,29 +74,18 @@ Future<void> showSimpleAFDialog({
                     },
                   ),
                 isDestructive
-                    ? AFFilledButton.destructive(
+                    ? AFFilledTextButton.destructive(
+                        text: primaryAction.$1,
                         onTap: () {
                           primaryAction.$2?.call(context);
                           Navigator.of(context).pop();
-                        },
-                        builder: (context, isHovering, disabled) {
-                          return Text(
-                            primaryAction.$1,
-                            style: TextStyle(
-                              color: AppFlowyTheme.of(context)
-                                  .textColorScheme
-                                  .onFill,
-                            ),
-                          );
                         },
                       )
-                    : AFFilledButton.primary(
+                    : AFFilledTextButton.primary(
+                        text: primaryAction.$1,
                         onTap: () {
                           primaryAction.$2?.call(context);
                           Navigator.of(context).pop();
-                        },
-                        builder: (context, isHovering, disabled) {
-                          return Text(primaryAction.$1);
                         },
                       ),
               ],

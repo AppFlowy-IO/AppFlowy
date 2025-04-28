@@ -1,4 +1,4 @@
-use super::AFRolePB;
+use super::{AFRolePB, WorkspaceTypePB};
 use crate::entities::parser::{UserEmail, UserIcon, UserName};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
@@ -42,7 +42,7 @@ pub struct UserProfilePB {
   pub user_auth_type: AuthTypePB,
 
   #[pb(index = 7)]
-  pub workspace_auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -66,7 +66,7 @@ impl From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       user_auth_type: user_profile.auth_type.into(),
-      workspace_auth_type: user_profile.workspace_auth_type.into(),
+      workspace_type: user_profile.workspace_type.into(),
     }
   }
 }
@@ -156,14 +156,10 @@ pub struct RepeatedUserWorkspacePB {
   pub items: Vec<UserWorkspacePB>,
 }
 
-impl From<(AuthType, Vec<UserWorkspace>)> for RepeatedUserWorkspacePB {
-  fn from(value: (AuthType, Vec<UserWorkspace>)) -> Self {
-    let (auth_type, workspaces) = value;
+impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
+  fn from(workspaces: Vec<UserWorkspace>) -> Self {
     Self {
-      items: workspaces
-        .into_iter()
-        .map(|w| UserWorkspacePB::from((auth_type, w)))
-        .collect(),
+      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
     }
   }
 }
@@ -190,19 +186,19 @@ pub struct UserWorkspacePB {
   pub role: Option<AFRolePB>,
 
   #[pb(index = 7)]
-  pub workspace_auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
-impl From<(AuthType, UserWorkspace)> for UserWorkspacePB {
-  fn from(value: (AuthType, UserWorkspace)) -> Self {
+impl From<UserWorkspace> for UserWorkspacePB {
+  fn from(workspace: UserWorkspace) -> Self {
     Self {
-      workspace_id: value.1.id,
-      name: value.1.name,
-      created_at_timestamp: value.1.created_at.timestamp(),
-      icon: value.1.icon,
-      member_count: value.1.member_count,
-      role: value.1.role.map(AFRolePB::from),
-      workspace_auth_type: AuthTypePB::from(value.0),
+      workspace_id: workspace.id,
+      name: workspace.name,
+      created_at_timestamp: workspace.created_at.timestamp(),
+      icon: workspace.icon,
+      member_count: workspace.member_count,
+      role: workspace.role.map(AFRolePB::from),
+      workspace_type: WorkspaceTypePB::from(workspace.workspace_type),
     }
   }
 }
@@ -216,7 +212,7 @@ impl From<UserWorkspaceTable> for UserWorkspacePB {
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
-      workspace_auth_type: AuthTypePB::from(value.workspace_type),
+      workspace_type: WorkspaceTypePB::from(value.workspace_type),
     }
   }
 }

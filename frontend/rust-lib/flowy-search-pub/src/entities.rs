@@ -38,7 +38,7 @@ pub trait IndexManager: Send + Sync {
 
 #[async_trait]
 pub trait FolderIndexManager: IndexManager {
-  async fn initialize(&self);
+  async fn initialize(&self, workspace_id: &Uuid) -> Result<(), FlowyError>;
 
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid);
 

@@ -36,7 +36,7 @@ class BlankPagePlugin extends Plugin {
   PluginWidgetBuilder get widgetBuilder => BlankPagePluginWidgetBuilder();
 
   @override
-  PluginId get id => "BlankStack";
+  PluginId get id => "";
 
   @override
   PluginType get pluginType => PluginType.blank;

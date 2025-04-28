@@ -9,8 +9,6 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +20,6 @@ final GlobalKey _settingsDialogKey = GlobalKey();
 
 HotKeyItem openSettingsHotKey(
   BuildContext context,
-  UserProfilePB userProfile,
 ) =>
     HotKeyItem(
       hotKey: HotKey(
@@ -34,7 +31,10 @@ HotKeyItem openSettingsHotKey(
       ),
       keyDownHandler: (_) {
         if (_settingsDialogKey.currentContext == null) {
-          showSettingsDialog(context, userProfile: userProfile);
+          showSettingsDialog(
+            context,
+            userWorkspaceBloc: context.read<UserWorkspaceBloc>(),
+          );
         } else {
           Navigator.of(context, rootNavigator: true)
               .popUntil((route) => route.isFirst);
@@ -45,11 +45,9 @@ HotKeyItem openSettingsHotKey(
 class UserSettingButton extends StatefulWidget {
   const UserSettingButton({
     super.key,
-    required this.userProfile,
     this.isHover = false,
   });
 
-  final UserProfilePB userProfile;
   final bool isHover;
 
   @override
@@ -65,7 +63,7 @@ class _UserSettingButtonState extends State<UserSettingButton> {
     super.initState();
 
     _userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    _passwordBloc = PasswordBloc(widget.userProfile)
+    _passwordBloc = PasswordBloc(_userWorkspaceBloc.state.userProfile)
       ..add(PasswordEvent.init())
       ..add(PasswordEvent.checkHasPassword());
   }
@@ -87,7 +85,7 @@ class _UserSettingButtonState extends State<UserSettingButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 24.0,
+      dimension: 28.0,
       child: FlowyTooltip(
         message: LocaleKeys.settings_menu_open.tr(),
         child: BlocProvider.value(
@@ -95,7 +93,6 @@ class _UserSettingButtonState extends State<UserSettingButton> {
           child: FlowyButton(
             onTap: () => showSettingsDialog(
               context,
-              userProfile: widget.userProfile,
               userWorkspaceBloc: _userWorkspaceBloc,
               passwordBloc: _passwordBloc,
             ),
@@ -116,11 +113,11 @@ class _UserSettingButtonState extends State<UserSettingButton> {
 
 void showSettingsDialog(
   BuildContext context, {
-  required UserProfilePB userProfile,
-  UserWorkspaceBloc? userWorkspaceBloc,
+  required UserWorkspaceBloc userWorkspaceBloc,
   PasswordBloc? passwordBloc,
   SettingsPage? initPage,
 }) {
+  final userProfile = context.read<UserWorkspaceBloc>().state.userProfile;
   AFFocusManager.maybeOf(context)?.notifyLoseFocus();
   showDialog(
     context: context,
@@ -140,7 +137,7 @@ void showSettingsDialog(
           value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
         ),
         BlocProvider.value(
-          value: userWorkspaceBloc ?? context.read<UserWorkspaceBloc>(),
+          value: userWorkspaceBloc,
         ),
       ],
       child: SettingsDialog(

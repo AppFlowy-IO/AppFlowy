@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/link_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -23,9 +24,11 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'link_create_menu.dart';
 import 'link_edit_menu.dart';
+import 'link_extension.dart';
 
 class LinkHoverTrigger extends StatefulWidget {
   const LinkHoverTrigger({
@@ -87,6 +90,20 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   @override
   Widget build(BuildContext context) {
+    final placeHolder = Container(
+      color: Colors.black.withAlpha(1),
+      width: size.width,
+      height: size.height,
+    );
+    if (UniversalPlatform.isMobile) {
+      return GestureDetector(
+        onTap: openLink,
+        onLongPress: () async {
+          await showEditLinkBottomSheet(context, selection, editorState);
+        },
+        child: placeHolder,
+      );
+    }
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (v) {
@@ -101,15 +118,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         isHoverTriggerHovering = false;
         tryToDismissLinkHoverMenu();
       },
-      child: buildHoverPopover(
-        buildEditPopover(
-          Container(
-            color: Colors.black.withAlpha(1),
-            width: size.width,
-            height: size.height,
-          ),
-        ),
-      ),
+      child: buildHoverPopover(buildEditPopover(placeHolder)),
     );
   }
 
@@ -147,7 +156,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         onOpenLink: openLink,
         onCopyLink: () => copyLink(context),
         onEditLink: showLinkEditMenu,
-        onRemoveLink: () => removeLink(editorState, selection),
+        onRemoveLink: () => editorState.removeLink(selection),
       ),
       child: child,
     );
@@ -176,18 +185,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         currentViewId: currentViewId,
         linkInfo: LinkInfo(name: title, link: href, isPage: isPage),
         onDismiss: () => editMenuController.close(),
-        onApply: (info) async {
-          final transaction = editorState.transaction;
-          transaction.replaceText(
-            widget.node,
-            selection.startIndex,
-            selection.length,
-            info.name,
-            attributes: info.toAttribute(),
-          );
-          editMenuController.close();
-          await editorState.apply(transaction);
-        },
+        onApply: (info) => editorState.applyLink(selection, info),
         onRemoveLink: (linkinfo) =>
             onRemoveAndReplaceLink(editorState, selection, linkinfo.name),
       ),
@@ -198,7 +196,10 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   void onToolbarShow() => hoverMenuController.close();
 
   void showLinkHoverMenu() {
-    if (isHoverMenuShowing || toolbarController.isToolbarShowing || !mounted) {
+    if (UniversalPlatform.isMobile ||
+        isHoverMenuShowing ||
+        toolbarController.isToolbarShowing ||
+        !mounted) {
       return;
     }
     keepEditorFocusNotifier.increase();
@@ -206,6 +207,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   }
 
   void showLinkEditMenu() {
+    if (UniversalPlatform.isMobile) return;
     keepEditorFocusNotifier.increase();
     hoverMenuController.close();
     editMenuController.show();
@@ -243,29 +245,6 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     final href = widget.attribute.href ?? '';
     await context.copyLink(href);
     hoverMenuController.close();
-  }
-
-  void removeLink(
-    EditorState editorState,
-    Selection selection,
-  ) {
-    final node = editorState.getNodeAtPath(selection.end.path);
-    if (node == null) {
-      return;
-    }
-    final index = selection.normalized.startIndex;
-    final length = selection.length;
-    final transaction = editorState.transaction
-      ..formatText(
-        node,
-        index,
-        length,
-        {
-          BuiltInAttributeKey.href: null,
-          kIsPageLink: null,
-        },
-      );
-    editorState.apply(transaction);
   }
 
   Future<void> convertLinkTo(

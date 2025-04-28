@@ -55,6 +55,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    local_ai_model_table (name) {
+        name -> Text,
+        model_type -> SmallInt,
+    }
+}
+
+diesel::table! {
     upload_file_part (upload_id, e_tag) {
         upload_id -> Text,
         e_tag -> Text,
@@ -120,6 +127,7 @@ diesel::table! {
         uid -> BigInt,
         workspace_id -> Text,
         updated_at -> Timestamp,
+        joined_at -> Nullable<BigInt>,
     }
 }
 
@@ -137,6 +145,7 @@ diesel::allow_tables_to_appear_in_same_query!(
   chat_message_table,
   chat_table,
   collab_snapshot,
+  local_ai_model_table,
   upload_file_part,
   upload_file_table,
   user_data_migration_records,

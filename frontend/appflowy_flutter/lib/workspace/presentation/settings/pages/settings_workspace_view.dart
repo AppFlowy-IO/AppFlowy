@@ -88,7 +88,7 @@ class SettingsWorkspaceView extends StatelessWidget {
             autoSeparate: false,
             children: [
               // We don't allow changing workspace name/icon for local/offline
-              if (userProfile.workspaceAuthType != AuthTypePB.Local) ...[
+              if (userProfile.workspaceType != WorkspaceTypePB.LocalW) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceName_title
                       .tr(),
@@ -180,7 +180,7 @@ class SettingsWorkspaceView extends StatelessWidget {
               ),
               const SettingsCategorySpacer(),
 
-              if (userProfile.workspaceAuthType != AuthTypePB.Local) ...[
+              if (userProfile.workspaceType != WorkspaceTypePB.LocalW) ...[
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
                       .tr(),

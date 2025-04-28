@@ -5,14 +5,26 @@ import 'package:flutter/material.dart';
 /// between categories in settings.
 ///
 class SettingsCategorySpacer extends StatelessWidget {
-  const SettingsCategorySpacer({super.key});
+  const SettingsCategorySpacer({
+    super.key,
+    this.topSpacing,
+    this.bottomSpacing,
+  });
+
+  final double? topSpacing;
+  final double? bottomSpacing;
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Divider(
-      height: 32,
-      color: theme.borderColorScheme.greyPrimary,
+    return Padding(
+      padding: EdgeInsets.only(
+        top: topSpacing ?? theme.spacing.l,
+        bottom: bottomSpacing ?? theme.spacing.l,
+      ),
+      child: Divider(
+        color: theme.borderColorScheme.primary,
+      ),
     );
   }
 }

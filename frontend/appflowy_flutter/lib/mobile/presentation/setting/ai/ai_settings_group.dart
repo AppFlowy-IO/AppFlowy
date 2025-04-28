@@ -2,11 +2,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_group_widget.dart';
 import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_item_widget.dart';
+import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_trailing.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +23,6 @@ class AiSettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return BlocProvider(
       create: (context) => SettingsAIBloc(
         userProfile,
@@ -36,21 +35,8 @@ class AiSettingsGroup extends StatelessWidget {
             settingItemList: [
               MobileSettingItem(
                 name: LocaleKeys.settings_aiPage_keys_llmModelType.tr(),
-                trailing: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 200),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: FlowyText(
-                          state.availableModels?.selectedModel.name ?? "",
-                          color: theme.colorScheme.onSurface,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
+                trailing: MobileSettingTrailing(
+                  text: state.availableModels?.selectedModel.name ?? "",
                 ),
                 onTap: () => _onLLMModelTypeTap(context, state),
               ),

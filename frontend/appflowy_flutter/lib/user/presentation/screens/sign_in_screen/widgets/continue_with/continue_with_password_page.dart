@@ -1,6 +1,11 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/back_to_login_in_button.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/forgot_password_page.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/title_logo.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/verifying_button.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,6 +37,8 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
   final passwordController = TextEditingController();
   final inputPasswordKey = GlobalKey<AFTextFieldState>();
 
+  bool isSubmitting = false;
+
   @override
   void dispose() {
     passwordController.dispose();
@@ -60,18 +67,26 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
               } else {
                 inputPasswordKey.currentState?.clearError();
               }
+
+              if (isSubmitting != state.isSubmitting) {
+                setState(() {
+                  isSubmitting = state.isSubmitting;
+                });
+              }
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo and title
-                ..._buildLogoAndTitle(),
+                _buildLogoAndTitle(),
 
                 // Password input and buttons
                 ..._buildPasswordSection(),
 
                 // Back to login
-                ..._buildBackToLogin(),
+                BackToLoginButton(
+                  onTap: widget.backToLogin,
+                ),
               ],
             ),
           ),
@@ -80,25 +95,12 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
     );
   }
 
-  List<Widget> _buildLogoAndTitle() {
+  Widget _buildLogoAndTitle() {
     final theme = AppFlowyTheme.of(context);
-    final spacing = VSpace(theme.spacing.xxl);
-    return [
-      // logo
-      const AFLogo(),
-      spacing,
-
-      // title
-      Text(
-        LocaleKeys.signIn_enterPassword.tr(),
-        style: theme.textStyle.heading3.enhanced(
-          color: theme.textColorScheme.primary,
-        ),
-      ),
-      spacing,
-
-      // email display
-      RichText(
+    return TitleLogo(
+      title: LocaleKeys.signIn_enterPassword.tr(),
+      informationBuilder: (context) => // email display
+          RichText(
         text: TextSpan(
           children: [
             TextSpan(
@@ -116,13 +118,13 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           ],
         ),
       ),
-      spacing,
-    ];
+    );
   }
 
   List<Widget> _buildPasswordSection() {
     final theme = AppFlowyTheme.of(context);
     final iconSize = 20.0;
+
     return [
       // Password input
       AFTextField(
@@ -153,7 +155,10 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           text: LocaleKeys.signIn_forgotPassword.tr(),
           size: AFButtonSize.s,
           padding: EdgeInsets.zero,
-          onTap: widget.onForgotPassword,
+          onTap: () => _pushForgotPasswordPage(),
+          textStyle: theme.textStyle.body.standard(
+            color: theme.textColorScheme.action,
+          ),
           textColor: (context, isHovering, disabled) {
             final theme = AppFlowyTheme.of(context);
             if (isHovering) {
@@ -163,34 +168,38 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
           },
         ),
       ),
-      VSpace(20),
+      VSpace(theme.spacing.xxl),
 
       // Continue button
-      AFFilledTextButton.primary(
-        text: LocaleKeys.web_continue.tr(),
-        onTap: () => widget.onEnterPassword(passwordController.text),
-        size: AFButtonSize.l,
-        alignment: Alignment.center,
-      ),
+      isSubmitting
+          ? const VerifyingButton()
+          : ContinueWithButton(
+              text: LocaleKeys.web_continue.tr(),
+              onTap: () => widget.onEnterPassword(passwordController.text),
+            ),
       VSpace(20),
     ];
   }
 
-  List<Widget> _buildBackToLogin() {
-    return [
-      AFGhostTextButton(
-        text: LocaleKeys.signIn_backToLogin.tr(),
-        size: AFButtonSize.s,
-        onTap: widget.backToLogin,
-        padding: EdgeInsets.zero,
-        textColor: (context, isHovering, disabled) {
-          final theme = AppFlowyTheme.of(context);
-          if (isHovering) {
-            return theme.fillColorScheme.themeThickHover;
-          }
-          return theme.textColorScheme.theme;
-        },
-      ),
-    ];
+  Future<void> _pushForgotPasswordPage() async {
+    final signInBloc = context.read<SignInBloc>();
+    final baseUrl = await getAppFlowyCloudUrl();
+
+    if (mounted && context.mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          settings: const RouteSettings(name: '/forgot-password'),
+          builder: (context) => BlocProvider.value(
+            value: signInBloc,
+            child: ForgotPasswordPage(
+              email: widget.email,
+              backToLogin: widget.backToLogin,
+              baseUrl: baseUrl,
+            ),
+          ),
+        ),
+      );
+    }
   }
 }

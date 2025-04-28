@@ -67,6 +67,13 @@ pub struct AppFlowyCore {
   pub search_manager: Arc<SearchManager>,
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
+  pub collab_builder: Arc<AppFlowyCollabBuilder>,
+}
+
+impl Drop for AppFlowyCore {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop appflowy core");
+  }
 }
 
 impl AppFlowyCore {
@@ -174,7 +181,7 @@ impl AppFlowyCore {
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         collab_builder.clone(),
-        server_provider.clone(),
+        Arc::downgrade(&server_provider),
         folder_indexer.clone(),
         store_preference.clone(),
       )
@@ -198,7 +205,7 @@ impl AppFlowyCore {
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
-        collab_builder.clone(),
+        Arc::downgrade(&collab_builder),
         server_provider.clone(),
         server_provider.clone(),
         ai_manager.clone(),
@@ -207,19 +214,18 @@ impl AppFlowyCore {
 
       let document_manager = DocumentDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
-        &database_manager,
-        collab_builder.clone(),
+        Arc::downgrade(&collab_builder),
         server_provider.clone(),
         Arc::downgrade(&storage_manager.storage_service),
       );
 
       let user_manager = UserDepsResolver::resolve(
         authenticate_user.clone(),
-        collab_builder.clone(),
-        server_provider.clone(),
+        Arc::downgrade(&collab_builder),
+        Arc::downgrade(&server_provider),
         store_preference.clone(),
-        database_manager.clone(),
-        folder_manager.clone(),
+        Arc::downgrade(&database_manager),
+        Arc::downgrade(&folder_manager),
       )
       .await;
 
@@ -233,9 +239,9 @@ impl AppFlowyCore {
       // Register the folder operation handlers
       register_handlers(
         &folder_manager,
-        document_manager.clone(),
-        database_manager.clone(),
-        ai_manager.clone(),
+        Arc::downgrade(&document_manager),
+        Arc::downgrade(&database_manager),
+        Arc::downgrade(&ai_manager),
       );
 
       (
@@ -253,14 +259,14 @@ impl AppFlowyCore {
     .await;
 
     let user_status_callback = UserStatusCallbackImpl {
-      user_manager: user_manager.clone(),
-      collab_builder,
-      folder_manager: folder_manager.clone(),
-      database_manager: database_manager.clone(),
-      document_manager: document_manager.clone(),
-      server_provider: server_provider.clone(),
-      storage_manager: storage_manager.clone(),
-      ai_manager: ai_manager.clone(),
+      user_manager: Arc::downgrade(&user_manager),
+      collab_builder: Arc::downgrade(&collab_builder),
+      folder_manager: Arc::downgrade(&folder_manager),
+      database_manager: Arc::downgrade(&database_manager),
+      document_manager: Arc::downgrade(&document_manager),
+      server_provider: Arc::downgrade(&server_provider),
+      storage_manager: Arc::downgrade(&storage_manager),
+      ai_manager: Arc::downgrade(&ai_manager),
       runtime: runtime.clone(),
     };
 
@@ -268,16 +274,13 @@ impl AppFlowyCore {
       database_manager: Arc::downgrade(&database_manager),
       document_manager: Arc::downgrade(&document_manager),
     };
-
-    let cloned_user_manager = Arc::downgrade(&user_manager);
-    if let Some(user_manager) = cloned_user_manager.upgrade() {
-      if let Err(err) = user_manager
-        .init_with_callback(user_status_callback, collab_interact_impl)
-        .await
-      {
-        error!("Init user failed: {}", err)
-      }
+    if let Err(err) = user_manager
+      .init_with_callback(user_status_callback, collab_interact_impl)
+      .await
+    {
+      error!("Init user failed: {}", err)
     }
+
     #[allow(clippy::arc_with_non_send_sync)]
     let event_dispatcher = Arc::new(AFPluginDispatcher::new(
       runtime,
@@ -305,6 +308,7 @@ impl AppFlowyCore {
       search_manager,
       ai_manager,
       storage_manager,
+      collab_builder,
     }
   }
 

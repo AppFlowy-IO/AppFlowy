@@ -163,16 +163,16 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
         case MobileSpaceTabType.recent:
           return const MobileRecentSpace();
         case MobileSpaceTabType.spaces:
+          final showAIFloatingButton =
+              widget.userProfile.workspaceType == WorkspaceTypePB.ServerW;
           return Stack(
             children: [
               MobileHomeSpace(userProfile: widget.userProfile),
-              // only show ai chat button for cloud user
-              if (widget.userProfile.workspaceAuthType == AuthTypePB.Server)
+              if (showAIFloatingButton)
                 Positioned(
-                  bottom: MediaQuery.of(context).padding.bottom + 16,
-                  left: 20,
                   right: 20,
-                  child: const FloatingAIEntry(),
+                  bottom: MediaQuery.of(context).padding.bottom + 16,
+                  child: FloatingAIEntryV2(),
                 ),
             ],
           );

@@ -1,4 +1,3 @@
-use crate::ai_manager::AIUserService;
 use crate::entities::{LocalAIPB, RunningStatePB};
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
@@ -17,8 +16,15 @@ use af_local_ai::ollama_plugin::OllamaAIPlugin;
 use af_plugin::core::path::is_plugin_ready;
 use af_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
+use flowy_ai_pub::cloud::AIModel;
+use flowy_ai_pub::persistence::{
+  select_local_ai_model, upsert_local_ai_model, LocalAIModelTable, ModelType,
+};
+use flowy_ai_pub::user_service::AIUserService;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
+use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
+use ollama_rs::Ollama;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::path::PathBuf;
@@ -39,8 +45,8 @@ impl Default for LocalAISetting {
   fn default() -> Self {
     Self {
       ollama_server_url: "http://localhost:11434".to_string(),
-      chat_model_name: "llama3.1".to_string(),
-      embedding_model_name: "nomic-embed-text".to_string(),
+      chat_model_name: "llama3.1:latest".to_string(),
+      embedding_model_name: "nomic-embed-text:latest".to_string(),
     }
   }
 }
@@ -53,6 +59,7 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Weak<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
+  ollama: ArcSwapOption<Ollama>,
 }
 
 impl Deref for LocalAIController {
@@ -83,69 +90,80 @@ impl LocalAIController {
       user_service.clone(),
       res_impl,
     ));
-    // Subscribe to state changes
-    let mut running_state_rx = local_ai.subscribe_running_state();
 
-    let cloned_llm_res = Arc::clone(&local_ai_resource);
-    let cloned_store_preferences = store_preferences.clone();
-    let cloned_local_ai = Arc::clone(&local_ai);
-    let cloned_user_service = Arc::clone(&user_service);
+    let ollama = ArcSwapOption::default();
+    let sys = get_operating_system();
+    if sys.is_desktop() {
+      let setting = local_ai_resource.get_llm_setting();
+      ollama.store(
+        Ollama::try_new(&setting.ollama_server_url)
+          .map(Arc::new)
+          .ok(),
+      );
 
-    // Spawn a background task to listen for plugin state changes
-    tokio::spawn(async move {
-      while let Some(state) = running_state_rx.next().await {
-        // Skip if we can’t get workspace_id
-        let Ok(workspace_id) = cloned_user_service.workspace_id() else {
-          continue;
-        };
+      // Subscribe to state changes
+      let mut running_state_rx = local_ai.subscribe_running_state();
+      let cloned_llm_res = Arc::clone(&local_ai_resource);
+      let cloned_store_preferences = store_preferences.clone();
+      let cloned_local_ai = Arc::clone(&local_ai);
+      let cloned_user_service = Arc::clone(&user_service);
 
-        let key = local_ai_enabled_key(&workspace_id);
-        info!("[AI Plugin] state: {:?}", state);
-
-        // Read whether plugin is enabled from store; default to true
-        if let Some(store_preferences) = cloned_store_preferences.upgrade() {
-          let enabled = store_preferences.get_bool(&key).unwrap_or(true);
-          // Only check resource status if the plugin isn’t in "UnexpectedStop" and is enabled
-          let (plugin_downloaded, lack_of_resource) =
-            if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
-              // Possibly check plugin readiness and resource concurrency in parallel,
-              // but here we do it sequentially for clarity.
-              let downloaded = is_plugin_ready();
-              let resource_lack = cloned_llm_res.get_lack_of_resource().await;
-              (downloaded, resource_lack)
-            } else {
-              (false, None)
-            };
-
-          // If plugin is running, retrieve version
-          let plugin_version = if matches!(state, RunningState::Running { .. }) {
-            match cloned_local_ai.plugin_info().await {
-              Ok(info) => Some(info.version),
-              Err(_) => None,
-            }
-          } else {
-            None
+      // Spawn a background task to listen for plugin state changes
+      tokio::spawn(async move {
+        while let Some(state) = running_state_rx.next().await {
+          // Skip if we can't get workspace_id
+          let Ok(workspace_id) = cloned_user_service.workspace_id() else {
+            continue;
           };
 
-          // Broadcast the new local AI state
-          let new_state = RunningStatePB::from(state);
-          chat_notification_builder(
-            APPFLOWY_AI_NOTIFICATION_KEY,
-            ChatNotification::UpdateLocalAIState,
-          )
-          .payload(LocalAIPB {
-            enabled,
-            plugin_downloaded,
-            lack_of_resource,
-            state: new_state,
-            plugin_version,
-          })
-          .send();
-        } else {
-          warn!("[AI Plugin] store preferences is dropped");
+          let key = crate::local_ai::controller::local_ai_enabled_key(&workspace_id.to_string());
+          info!("[AI Plugin] state: {:?}", state);
+
+          // Read whether plugin is enabled from store; default to true
+          if let Some(store_preferences) = cloned_store_preferences.upgrade() {
+            let enabled = store_preferences.get_bool(&key).unwrap_or(true);
+            // Only check resource status if the plugin isn't in "UnexpectedStop" and is enabled
+            let (plugin_downloaded, lack_of_resource) =
+              if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
+                // Possibly check plugin readiness and resource concurrency in parallel,
+                // but here we do it sequentially for clarity.
+                let downloaded = is_plugin_ready();
+                let resource_lack = cloned_llm_res.get_lack_of_resource().await;
+                (downloaded, resource_lack)
+              } else {
+                (false, None)
+              };
+
+            // If plugin is running, retrieve version
+            let plugin_version = if matches!(state, RunningState::Running { .. }) {
+              match cloned_local_ai.plugin_info().await {
+                Ok(info) => Some(info.version),
+                Err(_) => None,
+              }
+            } else {
+              None
+            };
+
+            // Broadcast the new local AI state
+            let new_state = RunningStatePB::from(state);
+            chat_notification_builder(
+              APPFLOWY_AI_NOTIFICATION_KEY,
+              ChatNotification::UpdateLocalAIState,
+            )
+            .payload(LocalAIPB {
+              enabled,
+              plugin_downloaded,
+              lack_of_resource,
+              state: new_state,
+              plugin_version,
+            })
+            .send();
+          } else {
+            warn!("[AI Plugin] store preferences is dropped");
+          }
         }
-      }
-    });
+      });
+    }
 
     Self {
       ai_plugin: local_ai,
@@ -153,18 +171,20 @@ impl LocalAIController {
       current_chat_id: ArcSwapOption::default(),
       store_preferences,
       user_service,
+      ollama,
     }
   }
   #[instrument(level = "debug", skip_all)]
   pub async fn observe_plugin_resource(&self) {
-    debug!(
-      "[AI Plugin] init plugin when first run. thread: {:?}",
-      std::thread::current().id()
-    );
     let sys = get_operating_system();
     if !sys.is_desktop() {
       return;
     }
+
+    debug!(
+      "[AI Plugin] observer plugin state. thread: {:?}",
+      std::thread::current().id()
+    );
     async fn try_init_plugin(
       resource: &Arc<LocalAIResourceController>,
       ai_plugin: &Arc<OllamaAIPlugin>,
@@ -196,12 +216,6 @@ impl LocalAIController {
     });
   }
 
-  pub async fn reload(&self) -> FlowyResult<()> {
-    let is_enabled = self.is_enabled();
-    self.toggle_plugin(is_enabled).await?;
-    Ok(())
-  }
-
   fn upgrade_store_preferences(&self) -> FlowyResult<Arc<KVStorePreferences>> {
     self
       .store_preferences
@@ -211,9 +225,6 @@ impl LocalAIController {
 
   /// Indicate whether the local AI plugin is running.
   pub fn is_running(&self) -> bool {
-    if !self.is_enabled() {
-      return false;
-    }
     self.ai_plugin.get_plugin_running_state().is_running()
   }
 
@@ -225,17 +236,22 @@ impl LocalAIController {
       return false;
     }
 
-    if let Ok(key) = self
-      .user_service
-      .workspace_id()
-      .map(|workspace_id| local_ai_enabled_key(&workspace_id))
-    {
-      match self.upgrade_store_preferences() {
-        Ok(store) => store.get_bool(&key).unwrap_or(false),
-        Err(_) => false,
-      }
+    if let Ok(workspace_id) = self.user_service.workspace_id() {
+      self.is_enabled_on_workspace(&workspace_id.to_string())
     } else {
       false
+    }
+  }
+
+  pub fn is_enabled_on_workspace(&self, workspace_id: &str) -> bool {
+    let key = local_ai_enabled_key(workspace_id);
+    if !get_operating_system().is_desktop() {
+      return false;
+    }
+
+    match self.upgrade_store_preferences() {
+      Ok(store) => store.get_bool(&key).unwrap_or(false),
+      Err(_) => false,
     }
   }
 
@@ -290,16 +306,85 @@ impl LocalAIController {
     self.resource.get_llm_setting()
   }
 
+  pub async fn get_all_chat_local_models(&self) -> Vec<AIModel> {
+    self
+      .get_filtered_local_models(|name| !name.contains("embed"))
+      .await
+  }
+
+  pub async fn get_all_embedded_local_models(&self) -> Vec<AIModel> {
+    self
+      .get_filtered_local_models(|name| name.contains("embed"))
+      .await
+  }
+
+  // Helper function to avoid code duplication in model retrieval
+  async fn get_filtered_local_models<F>(&self, filter_fn: F) -> Vec<AIModel>
+  where
+    F: Fn(&str) -> bool,
+  {
+    match self.ollama.load_full() {
+      None => vec![],
+      Some(ollama) => ollama
+        .list_local_models()
+        .await
+        .map(|models| {
+          models
+            .into_iter()
+            .filter(|m| filter_fn(&m.name.to_lowercase()))
+            .map(|m| AIModel::local(m.name, String::new()))
+            .collect()
+        })
+        .unwrap_or_default(),
+    }
+  }
+
+  pub async fn check_model_type(&self, model_name: &str) -> FlowyResult<ModelType> {
+    let uid = self.user_service.user_id()?;
+    let mut conn = self.user_service.sqlite_connection(uid)?;
+    match select_local_ai_model(&mut conn, model_name) {
+      None => {
+        let ollama = self
+          .ollama
+          .load_full()
+          .ok_or_else(|| FlowyError::local_ai().with_context("ollama is not initialized"))?;
+
+        let request = GenerateEmbeddingsRequest::new(
+          model_name.to_string(),
+          EmbeddingsInput::Single("Hello".to_string()),
+        );
+
+        let model_type = match ollama.generate_embeddings(request).await {
+          Ok(value) => {
+            if value.embeddings.is_empty() {
+              ModelType::Chat
+            } else {
+              ModelType::Embedding
+            }
+          },
+          Err(_) => ModelType::Chat,
+        };
+
+        upsert_local_ai_model(
+          &mut conn,
+          &LocalAIModelTable {
+            name: model_name.to_string(),
+            model_type: model_type as i16,
+          },
+        )?;
+        Ok(model_type)
+      },
+      Some(r) => Ok(ModelType::from(r.model_type)),
+    }
+  }
+
   pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     info!(
       "[AI Plugin] update local ai setting: {:?}, thread: {:?}",
       setting,
       std::thread::current().id()
     );
-
-    if self.resource.set_llm_setting(setting).await.is_ok() {
-      self.reload().await?;
-    }
+    self.resource.set_llm_setting(setting).await?;
     Ok(())
   }
 
@@ -316,7 +401,7 @@ impl LocalAIController {
         std::thread::current().id()
       );
       return LocalAIPB {
-        enabled: false,
+        enabled,
         plugin_downloaded: false,
         state: RunningStatePB::from(RunningState::ReadyToConnect),
         lack_of_resource: None,
@@ -373,9 +458,10 @@ impl LocalAIController {
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
     let workspace_id = self.user_service.workspace_id()?;
-    let key = local_ai_enabled_key(&workspace_id);
+    let key = local_ai_enabled_key(&workspace_id.to_string());
     let store_preferences = self.upgrade_store_preferences()?;
-    let enabled = !store_preferences.get_bool(&key).unwrap_or(true);
+    let enabled = !store_preferences.get_bool(&key).unwrap_or(false);
+    tracing::trace!("[AI Plugin] toggle local ai, enabled: {}", enabled,);
     store_preferences.set_bool(&key, enabled)?;
     self.toggle_plugin(enabled).await?;
     Ok(enabled)
@@ -482,7 +568,7 @@ impl LocalAIController {
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn toggle_plugin(&self, enabled: bool) -> FlowyResult<()> {
+  pub(crate) async fn toggle_plugin(&self, enabled: bool) -> FlowyResult<()> {
     info!(
       "[AI Plugin] enable: {}, thread id: {:?}",
       enabled,
@@ -618,6 +704,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
 }
 
 const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
-fn local_ai_enabled_key(workspace_id: &Uuid) -> String {
+fn local_ai_enabled_key(workspace_id: &str) -> String {
   format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
 }

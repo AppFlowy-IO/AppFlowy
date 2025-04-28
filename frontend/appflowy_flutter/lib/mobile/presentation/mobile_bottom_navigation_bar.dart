@@ -6,10 +6,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
 import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
-import 'package:appflowy/shared/red_dot.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -28,46 +28,52 @@ final PropertyValueNotifier<ViewLayoutPB?> mobileCreateNewPageNotifier =
     PropertyValueNotifier(null);
 final ValueNotifier<BottomNavigationBarActionType> bottomNavigationBarType =
     ValueNotifier(BottomNavigationBarActionType.home);
+final ValueNotifier<String?> bottomNavigationBarItemType =
+    ValueNotifier(BottomNavigationBarItemType.home.label);
 
 enum BottomNavigationBarItemType {
   home,
+  search,
   add,
   notification;
 
-  String get label {
-    return switch (this) {
-      BottomNavigationBarItemType.home => 'home',
-      BottomNavigationBarItemType.add => 'add',
-      BottomNavigationBarItemType.notification => 'notification',
-    };
-  }
+  String get label => name;
 
   ValueKey get valueKey {
     return ValueKey(label);
   }
+
+  Widget get iconWidget {
+    return switch (this) {
+      home => const FlowySvg(FlowySvgs.m_home_unselected_m),
+      search => const FlowySvg(FlowySvgs.m_home_search_icon_m),
+      add => const FlowySvg(FlowySvgs.m_home_add_m),
+      notification => const _NotificationNavigationBarItemIcon(),
+    };
+  }
+
+  Widget? get activeIcon {
+    return switch (this) {
+      home => const FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
+      search =>
+        const FlowySvg(FlowySvgs.m_home_search_icon_active_m, blendMode: null),
+      add => null,
+      notification => const _NotificationNavigationBarItemIcon(isActive: true),
+    };
+  }
+
+  BottomNavigationBarItem get navigationItem {
+    return BottomNavigationBarItem(
+      key: valueKey,
+      label: label,
+      icon: iconWidget,
+      activeIcon: activeIcon,
+    );
+  }
 }
 
-final _items = <BottomNavigationBarItem>[
-  BottomNavigationBarItem(
-    key: BottomNavigationBarItemType.home.valueKey,
-    label: BottomNavigationBarItemType.home.label,
-    icon: const FlowySvg(FlowySvgs.m_home_unselected_m),
-    activeIcon: const FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
-  ),
-  BottomNavigationBarItem(
-    key: BottomNavigationBarItemType.add.valueKey,
-    label: BottomNavigationBarItemType.add.label,
-    icon: const FlowySvg(FlowySvgs.m_home_add_m),
-  ),
-  BottomNavigationBarItem(
-    key: BottomNavigationBarItemType.notification.valueKey,
-    label: BottomNavigationBarItemType.notification.label,
-    icon: const _NotificationNavigationBarItemIcon(),
-    activeIcon: const _NotificationNavigationBarItemIcon(
-      isActive: true,
-    ),
-  ),
-];
+final _items =
+    BottomNavigationBarItemType.values.map((e) => e.navigationItem).toList();
 
 /// Builds the "shell" for the app by building a Scaffold with a
 /// BottomNavigationBar, where [child] is placed in the body of the Scaffold.
@@ -169,23 +175,28 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
           final hasUnreads = state.reminders.any(
             (reminder) => !reminder.isRead,
           );
-          return Stack(
-            children: [
-              isActive
-                  ? const FlowySvg(
-                      FlowySvgs.m_home_active_notification_m,
-                      blendMode: null,
-                    )
-                  : const FlowySvg(
-                      FlowySvgs.m_home_notification_m,
-                    ),
-              if (hasUnreads)
-                const Positioned(
-                  top: 2,
-                  right: 4,
-                  child: NotificationRedDot(),
+          return SizedBox(
+            width: 40,
+            height: 40,
+            child: Stack(
+              children: [
+                Center(
+                  child: isActive
+                      ? const FlowySvg(
+                          FlowySvgs.m_home_active_notification_m,
+                          blendMode: null,
+                        )
+                      : const FlowySvg(
+                          FlowySvgs.m_home_notification_m,
+                        ),
                 ),
-            ],
+                if (hasUnreads)
+                  const Align(
+                    alignment: Alignment.topRight,
+                    child: NumberedRedDot.mobile(),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -259,6 +270,7 @@ class _HomePageNavigationBar extends StatelessWidget {
     } else if (label == BottomNavigationBarItemType.notification.label) {
       getIt<ReminderBloc>().add(const ReminderEvent.refresh());
     }
+    bottomNavigationBarItemType.value = label;
     // When navigating to a new branch, it's recommended to use the goBranch
     // method, as doing so makes sure the last navigation state of the
     // Navigator for the branch is restored.

@@ -15,6 +15,8 @@ import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../notifications/number_red_dot.dart';
+
 class NavigationNotifier with ChangeNotifier {
   NavigationNotifier({required this.navigationItems});
 
@@ -61,9 +63,10 @@ class FlowyNavigation extends StatelessWidget {
 
   Widget _renderCollapse(BuildContext context) {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      buildWhen: (p, c) => p.menuStatus != c.menuStatus,
       builder: (context, state) {
-        if (!UniversalPlatform.isWindows && state.isMenuCollapsed) {
+        if (!UniversalPlatform.isWindows &&
+            state.menuStatus == MenuStatus.hidden) {
           final textSpan = TextSpan(
             children: [
               TextSpan(
@@ -80,21 +83,36 @@ class FlowyNavigation extends StatelessWidget {
           );
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
-            child: RotationTransition(
-              turns: const AlwaysStoppedAnimation(180 / 360),
-              child: FlowyTooltip(
-                richMessage: textSpan,
-                child: Listener(
-                  onPointerDown: (event) => context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu()),
-                  child: FlowyIconButton(
-                    width: 24,
-                    onPressed: () {},
-                    iconPadding: const EdgeInsets.all(4),
-                    icon: const FlowySvg(FlowySvgs.hide_menu_s),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: Stack(
+                children: [
+                  RotationTransition(
+                    turns: const AlwaysStoppedAnimation(180 / 360),
+                    child: FlowyTooltip(
+                      richMessage: textSpan,
+                      child: Listener(
+                        onPointerDown: (event) =>
+                            context.read<HomeSettingBloc>().collapseMenu(),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: FlowyIconButton(
+                            width: 24,
+                            onPressed: () {},
+                            iconPadding: const EdgeInsets.all(4),
+                            icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: NumberedRedDot.desktop(),
+                  ),
+                ],
               ),
             ),
           );

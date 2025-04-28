@@ -22,7 +22,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import '../chat_avatar.dart';
 import '../layout_define.dart';
 import 'ai_change_model_bottom_sheet.dart';
 import 'ai_message_action_bar.dart';
@@ -126,18 +125,12 @@ class ChatAIBottomInlineActions extends StatelessWidget {
       children: [
         child,
         const VSpace(16.0),
-        Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: DesktopAIChatSizes.avatarSize +
-                DesktopAIChatSizes.avatarAndChatBubbleSpacing,
-          ),
-          child: AIMessageActionBar(
-            message: message,
-            showDecoration: false,
-            onRegenerate: onRegenerate,
-            onChangeFormat: onChangeFormat,
-            onChangeModel: onChangeModel,
-          ),
+        AIMessageActionBar(
+          message: message,
+          showDecoration: false,
+          onRegenerate: onRegenerate,
+          onChangeFormat: onChangeFormat,
+          onChangeModel: onChangeModel,
         ),
         const VSpace(32.0),
       ],
@@ -210,11 +203,6 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
             showWhenUnlinked: false,
             link: layerLink,
             targetAnchor: Alignment.bottomLeft,
-            offset: const Offset(
-              DesktopAIChatSizes.avatarSize +
-                  DesktopAIChatSizes.avatarAndChatBubbleSpacing,
-              0,
-            ),
             child: Align(
               alignment: Alignment.topLeft,
               child: MouseRegion(
@@ -419,7 +407,7 @@ class ChatAIMessagePopup extends StatelessWidget {
     return MobileQuickActionButton(
       onTap: () async {
         final bloc = context.read<AIPromptInputBloc>();
-        final (models, _) = bloc.aiModelStateNotifier.getAvailableModels();
+        final (models, _) = bloc.aiModelStateNotifier.getModelSelection();
         final result = await showChangeModelBottomSheet(context, models);
         if (result != null) {
           onChangeModel?.call(result);
@@ -501,13 +489,10 @@ class _WrapIsSelectingMessage extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isSelectingMessages)
-                  ChatSelectMessageIndicator(isSelected: isSelected)
-                else
-                  SelectionContainer.disabled(
-                    child: const ChatAIAvatar(),
-                  ),
-                const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
+                if (isSelectingMessages) ...[
+                  ChatSelectMessageIndicator(isSelected: isSelected),
+                  const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
+                ],
                 Expanded(
                   child: IgnorePointer(
                     ignoring: isSelectingMessages,

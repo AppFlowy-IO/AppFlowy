@@ -13,12 +13,13 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../shared.dart';
-import 'primitive.dart';
 
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   @override
-  AppFlowyThemeData light() {
-    final textStyle = AppFlowyBaseTextStyle();
+  AppFlowyThemeData light({
+    String? fontFamily,
+  }) {
+    final textStyle = AppFlowyBaseTextStyle.customFontFamily(fontFamily ?? '');
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.light);
@@ -26,7 +27,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     final textColorScheme = AppFlowyTextColorScheme(
       primary: AppFlowyPrimitiveTokens.neutral1000,
       secondary: AppFlowyPrimitiveTokens.neutral600,
-      tertiary: AppFlowyPrimitiveTokens.neutral400,
+      tertiary: AppFlowyPrimitiveTokens.neutral500,
       quaternary: AppFlowyPrimitiveTokens.neutral200,
       inverse: AppFlowyPrimitiveTokens.neutralWhite,
       onFill: AppFlowyPrimitiveTokens.neutralWhite,
@@ -57,6 +58,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final borderColorScheme = AppFlowyBorderColorScheme(
+      primary: AppFlowyPrimitiveTokens.neutral200,
       greyPrimary: AppFlowyPrimitiveTokens.neutral1000,
       greyPrimaryHover: AppFlowyPrimitiveTokens.neutral900,
       greySecondary: AppFlowyPrimitiveTokens.neutral800,
@@ -81,7 +83,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
+      primary: AppFlowyPrimitiveTokens.neutral100,
       primaryHover: AppFlowyPrimitiveTokens.neutral900,
       secondary: AppFlowyPrimitiveTokens.neutral600,
       secondaryHover: AppFlowyPrimitiveTokens.neutral500,
@@ -171,15 +173,17 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   }
 
   @override
-  AppFlowyThemeData dark() {
-    final textStyle = AppFlowyBaseTextStyle();
+  AppFlowyThemeData dark({
+    String? fontFamily,
+  }) {
+    final textStyle = AppFlowyBaseTextStyle.customFontFamily(fontFamily ?? '');
     final borderRadius = AppFlowySharedTokens.buildBorderRadius();
     final spacing = AppFlowySharedTokens.buildSpacing();
     final shadow = AppFlowySharedTokens.buildShadow(Brightness.dark);
 
     final textColorScheme = AppFlowyTextColorScheme(
       primary: AppFlowyPrimitiveTokens.neutral200,
-      secondary: AppFlowyPrimitiveTokens.neutral400,
+      secondary: AppFlowyPrimitiveTokens.neutral500,
       tertiary: AppFlowyPrimitiveTokens.neutral600,
       quaternary: AppFlowyPrimitiveTokens.neutral1000,
       inverse: AppFlowyPrimitiveTokens.neutral1000,
@@ -211,6 +215,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final borderColorScheme = AppFlowyBorderColorScheme(
+      primary: AppFlowyPrimitiveTokens.neutral800,
       greyPrimary: AppFlowyPrimitiveTokens.neutral100,
       greyPrimaryHover: AppFlowyPrimitiveTokens.neutral200,
       greySecondary: AppFlowyPrimitiveTokens.neutral300,
@@ -235,7 +240,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral100,
+      primary: AppFlowyPrimitiveTokens.neutral900,
       primaryHover: AppFlowyPrimitiveTokens.neutral200,
       secondary: AppFlowyPrimitiveTokens.neutral300,
       secondaryHover: AppFlowyPrimitiveTokens.neutral400,

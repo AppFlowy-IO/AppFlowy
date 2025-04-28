@@ -44,20 +44,20 @@ futures-util = "0.3.30"
 pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
 collab-integrate.workspace = true
+ollama-rs = "0.3.0"
 
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
+#faiss = { version = "0.12.1" }
 af-mcp = { version = "0.1.0" }
 
 [dev-dependencies]
-dotenv = "0.15.0"
 uuid.workspace = true
-tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
-simsimd = "4.4.0"
 
 [build-dependencies]
 flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+local_ai = []

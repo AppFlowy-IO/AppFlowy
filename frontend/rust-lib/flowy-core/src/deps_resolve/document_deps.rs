@@ -1,7 +1,6 @@
 use crate::deps_resolve::CollabSnapshotSql;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_database2::DatabaseManager;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -15,8 +14,7 @@ pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
   pub fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
-    _database_manager: &Arc<DatabaseManager>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
     storage_service: Weak<dyn StorageService>,
   ) -> Arc<DocumentManager> {

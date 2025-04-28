@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/error_extensions.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -14,9 +15,24 @@ class ChangePasswordDialogContent extends StatefulWidget {
   const ChangePasswordDialogContent({
     super.key,
     required this.userProfile,
+    this.showTitle = true,
+    this.showCloseAndSaveButton = true,
+    this.showSaveButton = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
   });
 
   final UserProfilePB userProfile;
+
+  // display the title
+  final bool showTitle;
+
+  // display the desktop style close and save button
+  final bool showCloseAndSaveButton;
+
+  // display the mobile style save button
+  final bool showSaveButton;
+
+  final EdgeInsets padding;
 
   @override
   State<ChangePasswordDialogContent> createState() =>
@@ -50,7 +66,7 @@ class _ChangePasswordDialogContentState
     return BlocListener<PasswordBloc, PasswordState>(
       listener: _onPasswordStateChanged,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: widget.padding,
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(theme.borderRadius.xl),
@@ -59,15 +75,22 @@ class _ChangePasswordDialogContentState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitle(context),
-            VSpace(theme.spacing.l),
+            if (widget.showTitle) ...[
+              _buildTitle(context),
+              VSpace(theme.spacing.xl),
+            ],
             ..._buildCurrentPasswordFields(context),
-            VSpace(theme.spacing.l),
+            VSpace(theme.spacing.xl),
             ..._buildNewPasswordFields(context),
-            VSpace(theme.spacing.l),
+            VSpace(theme.spacing.xl),
             ..._buildConfirmPasswordFields(context),
-            VSpace(theme.spacing.l),
-            _buildSubmitButton(context),
+            VSpace(theme.spacing.xl),
+            if (widget.showCloseAndSaveButton) ...[
+              _buildSubmitButton(context),
+            ],
+            if (widget.showSaveButton) ...[
+              _buildSaveButton(context),
+            ],
           ],
         ),
       ),
@@ -80,7 +103,7 @@ class _ChangePasswordDialogContentState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Change password',
+          LocaleKeys.newSettings_myAccount_password_changePassword.tr(),
           style: theme.textStyle.heading4.prominent(
             color: theme.textColorScheme.primary,
           ),
@@ -208,7 +231,7 @@ class _ChangePasswordDialogContentState
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
-        const HSpace(16),
+        HSpace(theme.spacing.l),
         AFFilledTextButton.primary(
           text: LocaleKeys.button_save.tr(),
           textStyle: theme.textStyle.body.standard(
@@ -221,12 +244,34 @@ class _ChangePasswordDialogContentState
     );
   }
 
+  Widget _buildSaveButton(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.button_save.tr(),
+      textStyle: theme.textStyle.body.standard(
+        color: theme.textColorScheme.onFill,
+      ),
+      size: AFButtonSize.l,
+      alignment: Alignment.center,
+      onTap: () => _save(context),
+    );
+  }
+
   void _save(BuildContext context) async {
     _resetError();
 
     final currentPassword = currentPasswordController.text;
     final newPassword = newPasswordController.text;
     final confirmPassword = confirmPasswordController.text;
+
+    if (currentPassword.isEmpty) {
+      currentPasswordTextFieldKey.currentState?.syncError(
+        errorText: LocaleKeys
+            .newSettings_myAccount_password_error_currentPasswordIsRequired
+            .tr(),
+      );
+      return;
+    }
 
     if (newPassword.isEmpty) {
       newPasswordTextFieldKey.currentState?.syncError(
@@ -282,7 +327,6 @@ class _ChangePasswordDialogContentState
   void _onPasswordStateChanged(BuildContext context, PasswordState state) {
     bool hasError = false;
     String message = '';
-    String description = '';
 
     final changePasswordResult = state.changePasswordResult;
     final setPasswordResult = state.setupPasswordResult;
@@ -299,7 +343,27 @@ class _ChangePasswordDialogContentState
           message = LocaleKeys
               .newSettings_myAccount_password_toast_passwordUpdatedFailed
               .tr();
-          description = error.msg;
+
+          if (AFPasswordErrorExtension.incorrectPasswordPattern
+              .hasMatch(error.msg)) {
+            currentPasswordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else if (AFPasswordErrorExtension.tooShortPasswordPattern
+              .hasMatch(error.msg)) {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else if (AFPasswordErrorExtension.tooLongPasswordPattern
+              .hasMatch(error.msg)) {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: error.msg,
+            );
+          }
         },
       );
     } else if (setPasswordResult != null) {
@@ -311,20 +375,17 @@ class _ChangePasswordDialogContentState
         },
         (error) {
           hasError = true;
-          message = LocaleKeys
-              .newSettings_myAccount_password_toast_passwordSetupFailed
-              .tr();
-          description = error.msg;
         },
       );
     }
 
     if (!state.isSubmitting && message.isNotEmpty) {
-      showToastNotification(
-        message: message,
-        description: description,
-        type: hasError ? ToastificationType.error : ToastificationType.success,
-      );
+      if (!hasError) {
+        showToastNotification(
+          message: message,
+        );
+        Navigator.of(context).pop();
+      }
     }
   }
 }

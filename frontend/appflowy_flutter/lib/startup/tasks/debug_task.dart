@@ -13,6 +13,8 @@ class DebugTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // hide the keyboard on mobile
     if (UniversalPlatform.isMobile && kDebugMode) {
       await SystemChannels.textInput.invokeMethod('TextInput.hide');
@@ -41,7 +43,4 @@ class DebugTask extends LaunchTask {
       );
     }
   }
-
-  @override
-  Future<void> dispose() async {}
 }

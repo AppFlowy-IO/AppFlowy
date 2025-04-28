@@ -31,7 +31,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.workspaceAuthType == AuthTypePB.Server,
+                    userProfile?.workspaceType == WorkspaceTypePB.ServerW,
               ),
             );
             _syncStateListener.start(

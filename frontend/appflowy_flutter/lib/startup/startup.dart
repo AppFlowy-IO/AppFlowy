@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:synchronized/synchronized.dart';
 
 import 'deps_resolver.dart';
 import 'entry_point.dart';
@@ -82,6 +83,9 @@ class FlowyRunner {
       IntegrationTestHelper.didInitGetItCallback = didInitGetItCallback;
       IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
     }
+
+    // Disable the log in test mode
+    Log.shared.disableLog = mode.isTest;
 
     // Clear and dispose tasks from previous AppLaunch
     if (getIt.isRegistered(instance: AppLauncher)) {
@@ -210,14 +214,20 @@ enum LaunchTaskType {
 
 /// The interface of an app launch task, which will trigger
 /// some nonresident indispensable task in app launching task.
-abstract class LaunchTask {
+class LaunchTask {
   const LaunchTask();
 
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
-  Future<void> initialize(LaunchContext context);
+  @mustCallSuper
+  Future<void> initialize(LaunchContext context) async {
+    Log.info('LaunchTask: $runtimeType initialize');
+  }
 
-  Future<void> dispose();
+  @mustCallSuper
+  Future<void> dispose() async {
+    Log.info('LaunchTask: $runtimeType dispose');
+  }
 }
 
 class AppLauncher {
@@ -227,26 +237,53 @@ class AppLauncher {
 
   final LaunchContext context;
   final List<LaunchTask> tasks = [];
+  final lock = Lock();
 
   void addTask(LaunchTask task) {
-    tasks.add(task);
+    lock.synchronized(() {
+      Log.info('AppLauncher: adding task: $task');
+      tasks.add(task);
+    });
   }
 
   void addTasks(Iterable<LaunchTask> tasks) {
-    this.tasks.addAll(tasks);
+    lock.synchronized(() {
+      Log.info('AppLauncher: adding tasks: ${tasks.map((e) => e.runtimeType)}');
+      this.tasks.addAll(tasks);
+    });
   }
 
   Future<void> launch() async {
-    for (final task in tasks) {
-      await task.initialize(context);
-    }
+    await lock.synchronized(() async {
+      final startTime = Stopwatch()..start();
+      Log.info('AppLauncher: start initializing tasks');
+
+      for (final task in tasks) {
+        final startTaskTime = Stopwatch()..start();
+        await task.initialize(context);
+        final endTaskTime = startTaskTime.elapsed.inMilliseconds;
+        Log.info(
+          'AppLauncher: task ${task.runtimeType} initialized in $endTaskTime ms',
+        );
+      }
+
+      final endTime = startTime.elapsed.inMilliseconds;
+      Log.info('AppLauncher: tasks initialized in $endTime ms');
+    });
   }
 
   Future<void> dispose() async {
-    for (final task in tasks) {
-      await task.dispose();
-    }
-    tasks.clear();
+    await lock.synchronized(() async {
+      Log.info('AppLauncher: start clearing tasks');
+
+      for (final task in tasks) {
+        await task.dispose();
+      }
+
+      tasks.clear();
+
+      Log.info('AppLauncher: tasks cleared');
+    });
   }
 }
 

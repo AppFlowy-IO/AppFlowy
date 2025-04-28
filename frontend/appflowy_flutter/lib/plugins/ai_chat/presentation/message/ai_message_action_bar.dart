@@ -374,7 +374,7 @@ class _ChangeFormatPopoverContentState
             builder: (context, state) {
               return ChangeFormatBar(
                 spacing: 2.0,
-                showImageFormats: state.aiType.isCloud,
+                showImageFormats: state.modelState.type.isCloud,
                 predefinedFormat: predefinedFormat,
                 onSelectPredefinedFormat: (format) {
                   setState(() => predefinedFormat = format);
@@ -448,7 +448,7 @@ class _ChangeModelButtonState extends State<ChangeModelButton> {
       child: buildButton(context),
       popupBuilder: (_) {
         final bloc = context.read<AIPromptInputBloc>();
-        final (models, _) = bloc.aiModelStateNotifier.getAvailableModels();
+        final (models, _) = bloc.aiModelStateNotifier.getModelSelection();
         return SelectModelPopoverContent(
           models: models,
           selectedModel: null,
@@ -516,7 +516,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   @override
   Widget build(BuildContext context) {
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.userProfile;
+    final userProfile = userWorkspaceBloc.state.userProfile;
     final workspaceId =
         userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
 

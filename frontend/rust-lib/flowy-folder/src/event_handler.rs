@@ -111,7 +111,7 @@ pub(crate) async fn get_view_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let view_id: ViewIdPB = data.into_inner();
+  let view_id = data.try_into_inner()?;
   let view_pb = folder.get_view_pb(&view_id.value).await?;
   data_result_ok(view_pb)
 }

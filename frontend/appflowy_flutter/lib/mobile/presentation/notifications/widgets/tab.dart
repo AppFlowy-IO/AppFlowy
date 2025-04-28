@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart'
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -17,7 +18,7 @@ class NotificationTab extends StatefulWidget {
     required this.tabType,
   });
 
-  final MobileNotificationTabType tabType;
+  final NotificationTabType tabType;
 
   @override
   State<NotificationTab> createState() => _NotificationTabState();
@@ -81,17 +82,17 @@ class _NotificationTabState extends State<NotificationTab>
 
   List<ReminderPB> _filterReminders(List<ReminderPB> reminders) {
     switch (widget.tabType) {
-      case MobileNotificationTabType.inbox:
+      case NotificationTabType.inbox:
         return reminders.reversed
             .where((reminder) => !reminder.isArchived)
             .toList()
             .unique((reminder) => reminder.id);
-      case MobileNotificationTabType.archive:
+      case NotificationTabType.archive:
         return reminders.reversed
             .where((reminder) => reminder.isArchived)
             .toList()
             .unique((reminder) => reminder.id);
-      case MobileNotificationTabType.unread:
+      case NotificationTabType.unread:
         return reminders.reversed
             .where((reminder) => !reminder.isRead)
             .toList()

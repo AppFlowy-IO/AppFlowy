@@ -162,6 +162,7 @@ impl FlowyError {
   static_flowy_error!(local_ai_not_ready, ErrorCode::LocalAINotReady);
   static_flowy_error!(local_ai_disabled, ErrorCode::LocalAIDisabled);
   static_flowy_error!(user_not_login, ErrorCode::UserNotLogin);
+  static_flowy_error!(ref_drop, ErrorCode::WeakRefDrop);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -261,5 +262,12 @@ impl From<collab::error::CollabError> for FlowyError {
 impl From<uuid::Error> for FlowyError {
   fn from(value: uuid::Error) -> Self {
     FlowyError::internal().with_context(value)
+  }
+}
+
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+impl From<ollama_rs::error::OllamaError> for FlowyError {
+  fn from(value: ollama_rs::error::OllamaError) -> Self {
+    FlowyError::local_ai().with_context(value)
   }
 }

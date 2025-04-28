@@ -301,11 +301,15 @@ class _DocumentPageState extends State<DocumentPage>
   }
 
   Path? _getPathFromAction(NavigationAction action, EditorState editorState) {
-    Path? path = action.arguments?[ActionArgumentKeys.nodePath];
-    if (path == null || path.isEmpty) {
-      final blockId = action.arguments?[ActionArgumentKeys.blockId];
-      if (blockId != null) {
-        path = _findNodePathByBlockId(editorState, blockId);
+    final path = action.arguments?[ActionArgumentKeys.nodePath];
+    if (path is int) {
+      return [path];
+    } else if (path is List<int>?) {
+      if (path == null || path.isEmpty) {
+        final blockId = action.arguments?[ActionArgumentKeys.blockId];
+        if (blockId != null) {
+          return _findNodePathByBlockId(editorState, blockId);
+        }
       }
     }
     return path;

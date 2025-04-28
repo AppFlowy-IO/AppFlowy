@@ -7,8 +7,9 @@ use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{AuthType, Role, WorkspaceInvitation, WorkspaceMember};
-use flowy_user_pub::sql::WorkspaceSettingsTable;
+use flowy_user_pub::entities::{
+  AuthType, Role, WorkspaceInvitation, WorkspaceMember, WorkspaceType,
+};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -24,6 +25,9 @@ pub struct WorkspaceMemberPB {
 
   #[pb(index = 4, one_of)]
   pub avatar_url: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub joined_at: Option<i64>,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -33,6 +37,7 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
       name: value.name,
       role: value.role.into(),
       avatar_url: value.avatar_url,
+      joined_at: value.joined_at,
     }
   }
 }
@@ -147,7 +152,7 @@ pub struct UpdateWorkspaceMemberPB {
 }
 
 // Workspace Role
-#[derive(Debug, ProtoBuf_Enum, Clone, Default)]
+#[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
 pub enum AFRolePB {
   Owner = 0,
   Member = 1,
@@ -200,7 +205,7 @@ pub struct OpenUserWorkspacePB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -239,10 +244,46 @@ pub struct CreateWorkspacePB {
   pub name: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub workspace_type: WorkspaceTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Default, Debug, Clone, Eq, PartialEq)]
+#[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
+#[repr(u8)]
+pub enum WorkspaceTypePB {
+  #[default]
+  LocalW = 0,
+  ServerW = 1,
+}
+
+impl From<i32> for WorkspaceTypePB {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => WorkspaceTypePB::LocalW,
+      1 => WorkspaceTypePB::ServerW,
+      _ => WorkspaceTypePB::ServerW,
+    }
+  }
+}
+
+impl From<WorkspaceType> for WorkspaceTypePB {
+  fn from(value: WorkspaceType) -> Self {
+    match value {
+      WorkspaceType::Local => WorkspaceTypePB::LocalW,
+      WorkspaceType::Server => WorkspaceTypePB::ServerW,
+    }
+  }
+}
+
+impl From<WorkspaceTypePB> for WorkspaceType {
+  fn from(value: WorkspaceTypePB) -> Self {
+    match value {
+      WorkspaceTypePB::LocalW => WorkspaceType::Local,
+      WorkspaceTypePB::ServerW => WorkspaceType::Server,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Copy, Default, Debug, Clone, Eq, PartialEq)]
 #[repr(u8)]
 pub enum AuthTypePB {
   #[default]
@@ -443,6 +484,9 @@ pub struct WorkspaceSettingsPB {
 
   #[pb(index = 2)]
   pub ai_model: String,
+
+  #[pb(index = 3)]
+  pub workspace_type: WorkspaceTypePB,
 }
 
 impl From<&AFWorkspaceSettings> for WorkspaceSettingsPB {
@@ -450,15 +494,7 @@ impl From<&AFWorkspaceSettings> for WorkspaceSettingsPB {
     Self {
       disable_search_indexing: value.disable_search_indexing,
       ai_model: value.ai_model.clone(),
-    }
-  }
-}
-
-impl From<WorkspaceSettingsTable> for WorkspaceSettingsPB {
-  fn from(value: WorkspaceSettingsTable) -> Self {
-    Self {
-      disable_search_indexing: value.disable_search_indexing,
-      ai_model: value.ai_model,
+      workspace_type: WorkspaceTypePB::ServerW,
     }
   }
 }

@@ -14,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/src/flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/util/link_util.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,8 @@ class LinkSearchTextField {
     bool autofocus = false,
     bool showError = false,
     required BuildContext context,
+    EdgeInsets contentPadding = const EdgeInsets.fromLTRB(8, 6, 8, 6),
+    TextStyle? textStyle,
   }) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -75,7 +78,7 @@ class LinkSearchTextField {
       focusNode: focusNode,
       textAlign: TextAlign.left,
       controller: textEditingController,
-      style: TextStyle(
+      style: textStyle ?? TextStyle(
         fontSize: 14,
         height: 20 / 14,
         fontWeight: FontWeight.w400,
@@ -93,6 +96,7 @@ class LinkSearchTextField {
         LocaleKeys.document_toolbar_linkInputHint.tr(),
         context,
         showErrorBorder: showError,
+        contentPadding: contentPadding,
       ),
     );
   }
@@ -138,7 +142,7 @@ class LinkSearchTextField {
               padding: EdgeInsets.all(8),
               child: FlowyText.semibold(
                 LocaleKeys.inlineActions_recentPages.tr(),
-                color: LinkStyle.textTertiary,
+                color: AppFlowyTheme.of(context).textColorScheme.tertiary,
                 fontSize: 12,
                 figmaLineHeight: 16,
               ),

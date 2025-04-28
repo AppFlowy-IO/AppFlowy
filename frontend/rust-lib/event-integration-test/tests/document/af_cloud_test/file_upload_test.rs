@@ -39,7 +39,7 @@ async fn af_cloud_upload_big_file_test() {
 
   // Simulate a restart
   let config = test.config.clone();
-  test.skip_clean();
+  test.skip_auto_remove_temp_dir();
   drop(test);
   tokio::time::sleep(Duration::from_secs(3)).await;
 

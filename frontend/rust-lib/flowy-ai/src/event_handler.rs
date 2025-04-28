@@ -1,7 +1,6 @@
-use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
+use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
-use crate::util::ai_available_models_key;
 use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -78,23 +77,24 @@ pub(crate) async fn regenerate_response_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_server_model_list_handler(
+pub(crate) async fn get_setting_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
+  let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
-  let models = ai_manager.get_available_models(source_key).await?;
+  let models = ai_manager.get_available_models(data.source, true).await?;
   data_result_ok(models)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_chat_models_handler(
-  data: AFPluginData<AvailableModelsQueryPB>,
+pub(crate) async fn get_source_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let models = ai_manager.get_available_models(data.source).await?;
+  let models = ai_manager.get_available_models(data.source, false).await?;
   data_result_ok(models)
 }
 
@@ -338,6 +338,15 @@ pub(crate) async fn get_local_ai_setting_handler(
   let setting = ai_manager.local_ai.get_local_ai_setting();
   let pb = LocalAISettingPB::from(setting);
   data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn get_local_ai_models_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ModelSelectionPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let data = ai_manager.get_local_available_models().await?;
+  data_result_ok(data)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

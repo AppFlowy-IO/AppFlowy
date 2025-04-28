@@ -69,7 +69,11 @@ List<AppFlowyMobileToolbarItem> buildMobileToolbarItems(
   }
 
   if (!selection.isCollapsed) {
-    return _textToolbarItems;
+    final items = List.of(_textToolbarItems);
+    if (onlyShowInSingleSelectionAndTextType(editorState)) {
+      items.add(linkToolbarItem);
+    }
+    return items;
   }
 
   final allSelectedAreListType = editorState

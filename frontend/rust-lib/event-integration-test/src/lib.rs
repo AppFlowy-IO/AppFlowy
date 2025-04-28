@@ -100,7 +100,7 @@ impl EventIntegrationTest {
     Self::new_with_config(config).await
   }
 
-  pub fn skip_clean(&mut self) {
+  pub fn skip_auto_remove_temp_dir(&mut self) {
     self.cleaner.should_clean.store(false, Ordering::Release);
   }
 

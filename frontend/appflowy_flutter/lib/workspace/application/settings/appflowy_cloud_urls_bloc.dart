@@ -48,7 +48,7 @@ class AppFlowyCloudURLsBloc
 
             await validateUrl(state.updatedServerUrl).fold(
               (url) async {
-                await useSelfHostedAppFlowyCloudWithURL(url);
+                await useSelfHostedAppFlowyCloud(url);
                 isSuccess = true;
               },
               (err) async => emit(state.copyWith(urlError: err)),

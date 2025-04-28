@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -134,7 +135,7 @@ class _LinkReplaceMenuState extends State<LinkReplaceMenu> {
             padding: const EdgeInsets.only(top: 4),
             child: FlowyText.regular(
               LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
-              color: LinkStyle.textStatusError,
+              color: AppFlowyTheme.maybeOf(context)?.textColorScheme.error,
               fontSize: 12,
               figmaLineHeight: 16,
             ),
@@ -144,6 +145,7 @@ class _LinkReplaceMenuState extends State<LinkReplaceMenu> {
   }
 
   Widget buildReplaceButton() {
+    final fillTheme = AppFlowyTheme.maybeOf(context)?.fillColorScheme;
     return FlowyTextButton(
       LocaleKeys.button_replace.tr(),
       padding: EdgeInsets.zero,
@@ -151,9 +153,9 @@ class _LinkReplaceMenuState extends State<LinkReplaceMenu> {
       constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
       fontSize: 14,
       lineHeight: 20 / 14,
-      hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
+      hoverColor: fillTheme?.themeThick.withAlpha(200),
       fontColor: Colors.white,
-      fillColor: LinkStyle.fillThemeThick,
+      fillColor: fillTheme?.themeThick,
       fontWeight: FontWeight.w400,
       onPressed: onSubmit,
     );

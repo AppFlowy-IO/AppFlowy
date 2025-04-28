@@ -212,24 +212,24 @@ class SearchResultPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Opacity(
-          opacity: 0.5,
-          child: FlowyText(
-            LocaleKeys.commandPalette_pagePreview.tr(),
-            fontSize: 12,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Opacity(
+            opacity: 0.5,
+            child: FlowyText(
+              LocaleKeys.commandPalette_pagePreview.tr(),
+              fontSize: 12,
+            ),
           ),
-        ),
-        const VSpace(6),
-        Expanded(
-          child: FlowyText(
+          const VSpace(6),
+          FlowyText(
             data.content,
-            maxLines: 30,
+            maxLines: null,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

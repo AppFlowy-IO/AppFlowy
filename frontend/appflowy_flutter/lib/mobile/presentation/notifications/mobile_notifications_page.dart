@@ -126,7 +126,6 @@ class _NotificationScreenContent extends StatelessWidget {
                               onAction: _onAction,
                               onReadChanged: _onReadChanged,
                               actionBar: InboxActionBar(
-                                hasUnreads: state.hasUnreads,
                                 showUnreadsOnly: filterState.showUnreadsOnly,
                               ),
                             ),

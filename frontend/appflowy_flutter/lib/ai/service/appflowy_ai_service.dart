@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -11,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
+import 'package:flutter/services.dart';
 
 import 'ai_entities.dart';
 import 'error.dart';
@@ -21,7 +23,7 @@ enum LocalAIStreamingState {
 }
 
 abstract class AIRepository {
-  Future<void> streamCompletion({
+  Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
     required String text,
     PredefinedFormat? format,
@@ -36,9 +38,15 @@ abstract class AIRepository {
     required void Function(LocalAIStreamingState state)
         onLocalAIStreamingStateChange,
   });
+
+  Future<List<AiPrompt>> getBuiltInPrompts();
+
+  void updateFavoritePrompts(List<String> promptIds);
 }
 
 class AppFlowyAIService implements AIRepository {
+  final List<AiPrompt> _builtInPrompts = [];
+
   @override
   Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
@@ -87,6 +95,38 @@ class AppFlowyAIService implements AIRepository {
       },
     );
   }
+
+  @override
+  Future<List<AiPrompt>> getBuiltInPrompts() async {
+    if (_builtInPrompts.isNotEmpty) {
+      return _builtInPrompts;
+    }
+
+    final prompts = <AiPrompt>[];
+
+    try {
+      final jsonString =
+          await rootBundle.loadString('assets/built_in_prompts.json');
+      // final data = await rootBundle.load('assets/built_in_prompts.json');
+      // final jsonString = utf8.decode(data.buffer.asUint8List());
+      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
+      final promptJson = jsonData['prompts'] as List<dynamic>;
+      prompts.addAll(
+        promptJson
+            .map((e) => AiPrompt.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+    } catch (e) {
+      Log.error(e);
+    }
+
+    _builtInPrompts.addAll(prompts);
+
+    return prompts;
+  }
+
+  @override
+  void updateFavoritePrompts(List<String> promptIds) {}
 }
 
 abstract class CompletionStream {

@@ -9,18 +9,21 @@ enum PasswordEndpoint {
   changePassword,
   forgotPassword,
   setupPassword,
-  checkHasPassword;
+  checkHasPassword,
+  verifyResetPasswordToken;
 
   String get path {
     switch (this) {
       case PasswordEndpoint.changePassword:
         return '/gotrue/user/change-password';
       case PasswordEndpoint.forgotPassword:
-        return '/gotrue/user/recover';
+        return '/gotrue/recover';
       case PasswordEndpoint.setupPassword:
         return '/gotrue/user/change-password';
       case PasswordEndpoint.checkHasPassword:
         return '/gotrue/user/auth-info';
+      case PasswordEndpoint.verifyResetPasswordToken:
+        return '/gotrue/verify';
     }
   }
 
@@ -29,6 +32,7 @@ enum PasswordEndpoint {
       case PasswordEndpoint.changePassword:
       case PasswordEndpoint.setupPassword:
       case PasswordEndpoint.forgotPassword:
+      case PasswordEndpoint.verifyResetPasswordToken:
         return 'POST';
       case PasswordEndpoint.checkHasPassword:
         return 'GET';
@@ -45,7 +49,8 @@ class PasswordHttpService {
   });
 
   final String baseUrl;
-  final String authToken;
+
+  String authToken;
 
   final http.Client client = http.Client();
 
@@ -120,10 +125,46 @@ class PasswordHttpService {
       errorMessage: 'Failed to check password status',
     );
 
-    return result.fold(
-      (data) => FlowyResult.success(data['has_password'] ?? false),
-      (error) => FlowyResult.failure(error),
+    try {
+      return result.fold(
+        (data) => FlowyResult.success(data['has_password'] ?? false),
+        (error) => FlowyResult.failure(error),
+      );
+    } catch (e) {
+      return FlowyResult.failure(
+        FlowyError(msg: 'Failed to check password status: $e'),
+      );
+    }
+  }
+
+  // Verify the reset password token
+  Future<FlowyResult<String, FlowyError>> verifyResetPasswordToken({
+    required String email,
+    required String token,
+  }) async {
+    final result = await _makeRequest(
+      endpoint: PasswordEndpoint.verifyResetPasswordToken,
+      body: {
+        'type': 'recovery',
+        'email': email,
+        'token': token,
+      },
+      errorMessage: 'Failed to verify reset password token',
     );
+
+    try {
+      return result.fold(
+        (data) {
+          final authToken = data['access_token'];
+          return FlowyResult.success(authToken);
+        },
+        (error) => FlowyResult.failure(error),
+      );
+    } catch (e) {
+      return FlowyResult.failure(
+        FlowyError(msg: 'Failed to verify reset password token: $e'),
+      );
+    }
   }
 
   /// Makes a request to the specified endpoint with the given body

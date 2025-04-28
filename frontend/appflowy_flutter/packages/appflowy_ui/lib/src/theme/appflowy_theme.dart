@@ -132,7 +132,7 @@ class _AnimatedThemeState
   @override
   Widget build(BuildContext context) {
     return AppFlowyTheme(
-      data: data!.evaluate(animation),
+      data: widget.data,
       child: widget.child,
     );
   }

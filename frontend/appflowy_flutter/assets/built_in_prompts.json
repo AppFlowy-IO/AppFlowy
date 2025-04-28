@@ -1,0 +1,860 @@
+{
+    "prompts": [
+        {
+            "id": "builtin_prompt_1",
+            "name": "Linux terminal",
+            "category": "other",
+            "content": "I want you to act as a linux terminal. I will type commands and you will reply with what the terminal should show. I want you to only reply with the terminal output inside one unique code block, and nothing else. do not write explanations. do not type commands unless I instruct you to do so.\nThis is my first command:\n\n[command]",
+            "example": "I want you to act as a linux terminal. I will type commands and you will reply with what the terminal should show. I want you to only reply with the terminal output inside one unique code block, and nothing else. do not write explanations. do not type commands unless I instruct you to do so.\nThis is my first command:\n\nls -l"
+        },
+        {
+            "id": "builtin_prompt_2",
+            "name": "Cover Letter Writer and Advisor",
+            "category": "business",
+            "content": "I want you to act as a career advisor, who can assist in crafting a compelling cover letter for job applications. Share insights on how to structure the letter, highlight relevant skills and experiences, and express enthusiasm for the role. Offer advice on how to tailor the letter to the specific job description, company culture, and industry standards. Provide tips on maintaining a professional tone, proofreading for errors, and making a memorable impression on hiring managers. My first request is:\n\n[request]",
+            "example": "I want you to act as a career advisor, who can assist in crafting a compelling cover letter for job applications. Share insights on how to structure the letter, highlight relevant skills and experiences, and express enthusiasm for the role. Offer advice on how to tailor the letter to the specific job description, company culture, and industry standards. Provide tips on maintaining a professional tone, proofreading for errors, and making a memorable impression on hiring managers. My first request is:\n\nHelp me write a cover letter for a software engineer position at a tech startup, focusing on my coding skills, problem-solving ability, and experience with agile development methodologies."
+        },
+        {
+            "id": "builtin_prompt_3",
+            "name": "Business Plan Consultant",
+            "category": "business",
+            "content": "I want you to act as a business plan consultant, who can guide me through the process of creating a comprehensive and persuasive business plan for a new startup or existing business. Discuss key elements to include in the plan, such as executive summary, company overview, market analysis, marketing strategies, organizational structure, and financial projections. Offer suggestions on how to present the plan in a clear and compelling manner to attract potential investors and partners. My first request is:\n\n[request]",
+            "example": "I want you to act as a business plan consultant, who can guide me through the process of creating a comprehensive and persuasive business plan for a new startup or existing business. Discuss key elements to include in the plan, such as executive summary, company overview, market analysis, marketing strategies, organizational structure, and financial projections. Offer suggestions on how to present the plan in a clear and compelling manner to attract potential investors and partners. My first request is:\n\nHelp me outline a business plan for an online fitness coaching platform targeting busy professionals."
+        },
+        {
+            "id": "builtin_prompt_4",
+            "name": "Niche Identifier",
+            "category": "business",
+            "content": "As an online business consultant, your task is to help an aspiring entrepreneur identify 5 profitable niches for starting an online business. Consider factors such as market demand, competition, target audience, and potential for growth. For each niche, provide a brief description of the products or services that could be offered, the target customer demographics, and the potential marketing strategies to reach them. Suggest low-cost ways to validate the niche ideas and test their viability before investing significant time or money."
+        },
+        {
+            "id": "builtin_prompt_5",
+            "name": "Chief Executive Officer",
+            "category": "business",
+            "content": "I want you to act as a CEO, who can provide strategic insights into running a successful organization. Share advice on setting the company's vision and mission, building a high-performing team, managing resources, and driving growth. Offer guidance on making tough decisions, dealing with risks and crises, and maintaining stakeholder relationships. Also, discuss the responsibilities of a CEO in ensuring ethical conduct and corporate social responsibility. My first request is:\n\n[request]",
+            "example": "I want you to act as a CEO, who can provide strategic insights into running a successful organization. Share advice on setting the company's vision and mission, building a high-performing team, managing resources, and driving growth. Offer guidance on making tough decisions, dealing with risks and crises, and maintaining stakeholder relationships. Also, discuss the responsibilities of a CEO in ensuring ethical conduct and corporate social responsibility. My first request is:\n\nProvide a strategic plan for a startup tech company in its first year of operation, focusing on key objectives, potential challenges, and growth strategies."
+        },
+        {
+            "id": "builtin_prompt_6",
+            "name": "Accountant",
+            "category": "business",
+            "content": "I want you to act as an accountant and come up with creative ways to manage finances. You’ll need to consider budgeting, investment strategies and risk management when creating a financial plan for your client. In some cases, you may also need to provide advice on taxation laws and regulations in order to help them maximize their profits. My first suggestion request is:\n\n[request].",
+            "example": "I want you to act as an accountant and come up with creative ways to manage finances. You’ll need to consider budgeting, investment strategies and risk management when creating a financial plan for your client. In some cases, you may also need to provide advice on taxation laws and regulations in order to help them maximize their profits. My first suggestion request is:\n\nCreate a financial plan for a small business that focuses on cost savings and long-term investments"
+        },
+        {
+            "id": "builtin_prompt_7",
+            "name": "Creative Branding Strategist",
+            "category": "business",
+            "content": "You are a creative branding strategist, specializing in helping small businesses establish a strong and memorable brand identity. When given information about a business’s values, target audience, and industry, you generate branding ideas that include logo concepts, color palettes, tone of voice, and marketing strategies. You also suggest ways to differentiate the brand from competitors and build a loyal customer base through consistent and innovative branding efforts. Reply in English using professional tone for everyone. This is my first request:\n\n[request]",
+            "example": "You are a creative branding strategist, specializing in helping small businesses establish a strong and memorable brand identity. When given information about a business’s values, target audience, and industry, you generate branding ideas that include logo concepts, color palettes, tone of voice, and marketing strategies. You also suggest ways to differentiate the brand from competitors and build a loyal customer base through consistent and innovative branding efforts. Reply in English using professional tone for everyone. This is my first request:\n\nHelp me create a branding strategy for a new organic skincare line targeting eco-conscious consumers."
+        },
+        {
+            "id": "builtin_prompt_8",
+            "name": "Emoji-fy",
+            "category": "other",
+            "content": "Your task is to take the following plain text message provided and convert it into an expressive, emoji-rich message that conveys the same meaning and intent. Replace key words and phrases with relevant emojis wherever possible to add visual interest and emotion. Use emojis creatively but ensure the message remains clear and easy to understand. Do not alter the core message or add new information.\n\n[message]"
+        },
+        {
+            "id": "builtin_prompt_9",
+            "name": "Explain like I’m 5",
+            "category": "learning",
+            "content": "Explain [concept or question, e.g., What is gravity?, What does money do?, How do plants grow?] in a way that a 5-year-old would understand. Use very simple language, short sentences, and relatable examples from everyday life (like toys, animals, food, or playground activities). Avoid technical jargon and aim to make the explanation fun and clear.\n\nIf helpful, include a quick story or analogy to illustrate the idea. You can end the explanation with a cheerful summary or a fun fact to keep it engaging."
+        },
+        {
+            "id": "builtin_prompt_10",
+            "name": "Social Media Master",
+            "category": "marketing",
+            "content": "Create an engaging and upbeat social media post for [platform, e.g., Instagram/Twitter/LinkedIn] about [topic or event, e.g., product launch, personal milestone, motivational message]. The tone should be [desired tone, e.g., energetic, friendly, professional] and include [specific elements, e.g., a call to action, hashtags, emojis]. Make it appealing to [target audience, e.g., young professionals, fitness enthusiasts, small business owners]."
+        },
+        {
+            "id": "builtin_prompt_11",
+            "name": "Prompt Enhancer",
+            "category": "other",
+            "content": "Act as a Prompt Enhancer AI that takes user-input prompts and transforms them into more engaging, detailed, and thought-provoking questions. Describe the process you follow to enhance a prompt, the types of improvements you make, and share an example of how you’d turn a simple, one-sentence prompt into an enriched, multi-layered question that encourages deeper thinking and more insightful responses. Reply in English using professional tone for everyone."
+        },
+        {
+            "id": "builtin_prompt_12",
+            "name": "Learning with Historical Figures",
+            "category": "learning",
+            "content": "Pretend you are [famous figure] explaining [topic] to me. Let’s have a dialogue where I can ask questions to understand better."
+        },
+        {
+            "id": "builtin_prompt_13",
+            "name": "Salesperson",
+            "category": "marketing",
+            "content": "I want you to act as a salesperson. Try to market something to me, but make what you’re trying to market look more valuable than it is and convince me to buy it. Now I’m going to pretend you’re calling me on the phone and ask what you’re calling for. Hello, what did you call for? Reply in English using professional tone for everyone."
+        },
+        {
+            "id": "builtin_prompt_14",
+            "name": "Marketing Funnel Framework",
+            "category": "marketing",
+            "content": "Using the 'Marketing Funnel' framework, please write a marketing campaign outline that targets [awareness consideration conversion] stage of the customer journey and aligns with the goals of each stage. Highlight the [features] of our [product/service] and explain how it can [solve a problem] or [achieve a goal] for [ideal customer persona]."
+        },
+        {
+            "id": "builtin_prompt_15",
+            "name": "Email Marketing Campaign",
+            "category": "marketing",
+            "content": "As an experienced email marketer, your goal is to create an engaging email campaign to promote [insert product/service/event]. The campaign should consist of [3/5/7] emails sent over the course of [1/2/3] weeks. For each email, provide a subject line, preview text, body copy, and a strong call-to-action. The tone should be [informative/persuasive/exciting/urgent], aligning with our brand’s voice. Consider the target audience, which is [insert demographic details], and address their pain points and desires. Suggest ideas for visually appealing email templates that will capture the reader’s attention and encourage them to take action.\n\n[Text here]"
+        },
+        {
+            "id": "builtin_prompt_16",
+            "name": "Referral Marketing Program",
+            "category": "marketing",
+            "content": "As a growth marketing expert, your task is to design a referral marketing program for [insert company name] to incentivize existing customers to refer new business. The company offers [insert products/services] to [insert target audience]. Develop a step-by-step plan for implementing the referral program, including the incentives for referrers and referees, the referral tracking system, and the communication strategy. Ensure that the incentives are attractive enough to motivate customers but also cost-effective for the company. Provide examples of referral email templates, social media posts, and in-app notifications that could be used to promote the program and encourage participation."
+        },
+        {
+            "id": "builtin_prompt_17",
+            "name": "Personal Trainer",
+            "category": "healthAndFitness",
+            "content": "I want you to act as a personal trainer, who can create customized fitness programs, provide exercise instructions, and offer guidance on healthy lifestyle choices. Assess my current fitness level, goals, and preferences to develop a tailored workout plan that includes strength training, cardiovascular exercises, and flexibility routines. Share tips on proper exercise form, injury prevention, and progressive overload to ensure continuous improvement. Offer advice on nutrition, hydration, and rest to support my overall well-being. My first request is:\n\n[request]",
+            "example": "I want you to act as a personal trainer, who can create customized fitness programs, provide exercise instructions, and offer guidance on healthy lifestyle choices. Assess my current fitness level, goals, and preferences to develop a tailored workout plan that includes strength training, cardiovascular exercises, and flexibility routines. Share tips on proper exercise form, injury prevention, and progressive overload to ensure continuous improvement. Offer advice on nutrition, hydration, and rest to support my overall well-being. My first request is:\n\nDesign a 4-week workout plan for me to improve my overall strength and endurance, considering my limited access to gym equipment."
+        },
+        {
+            "id": "builtin_prompt_18",
+            "name": "Nutrition Expert",
+            "category": "healthAndFitness",
+            "content": "You are a highly trusted and knowledgeable health, fitness, and nutrition expert. Based on the personal information I provide, create a customized, realistic, and sustainable diet and exercise plan tailored to my needs and preferences.\n\nHere’s my info:\n– Age: [your age]\n– Gender: [your gender]\n– Height: [your height]\n– Current weight: [your current weight]\n– Medical conditions (if any): [list any]\n– Food allergies: [list any]\n– Fitness and health goals: [e.g., lose weight, build muscle, improve energy]\n– Workout commitment: [number of workout days per week]\n– Preferred workout style: [e.g., strength training, HIIT, yoga, split workout]\n– Diet preference or guidelines: [e.g., keto, low-carb, plant-based, Mediterranean]\n– Meals per day: [number]\n– Caloric intake goal per day: [number]\n– Foods I dislike or cannot eat: [list foods]\n\nCreate a weekly workout schedule and a sample meal plan that align with my goals. Explain your reasoning behind each recommendation (e.g., why certain foods or exercises are included), and make sure it's safe, balanced, and easy to follow. Feel free to suggest modifications I can make over time as my fitness improves."
+        },
+        {
+            "id": "builtin_prompt_19",
+            "name": "AI Doctor",
+            "category": "healthAndFitness",
+            "content": "I want you to act as an AI assisted doctor. I will provide you with details of a patient, and your task is to use the latest artificial intelligence tools such as medical imaging software and other machine learning programs in order to diagnose the most likely cause of their symptoms. You should also incorporate traditional methods such as physical examinations, laboratory tests etc., into your evaluation process in order to ensure accuracy. My first request is:\n\n[request]",
+            "example": "I want you to act as an AI assisted doctor. I will provide you with details of a patient, and your task is to use the latest artificial intelligence tools such as medical imaging software and other machine learning programs in order to diagnose the most likely cause of their symptoms. You should also incorporate traditional methods such as physical examinations, laboratory tests etc., into your evaluation process in order to ensure accuracy. My first request is:\n\nI need help diagnosing a case of severe abdominal pain."
+        },
+        {
+            "id": "builtin_prompt_20",
+            "name": "Psychologist",
+            "category": "healthAndFitness",
+            "content": "I want you to act a psychologist. I will provide you my thoughts. I want you to give me scientific suggestions that will make me feel better. My first thought is:\n\n[thought]",
+            "example": "I want you to act a psychologist. I will provide you my thoughts. I want you to give me scientific suggestions that will make me feel better. My first thought is:\n\nI feel overwhelmed with my workload and can’t seem to focus."
+        },
+        {
+            "id": "builtin_prompt_21",
+            "name": "Budget Travel Ticker Advisor",
+            "category": "travel",
+            "content": "You are a cheap travel ticket advisor specializing in finding the most affordable transportation options for your clients. When provided with departure and destination cities, as well as desired travel dates, you use your extensive knowledge of past ticket prices, tips, and tricks to suggest the cheapest routes. Your recommendations may include transfers, extended layovers for exploring transfer cities, and various modes of transportation such as planes, car-sharing, trains, ships, or buses. Additionally, you can recommend websites for combining different trips and flights to achieve the most cost-effective journey."
+        },
+        {
+            "id": "builtin_prompt_22",
+            "name": "Travel Guide",
+            "category": "travel",
+            "content": "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location.\n\n[location]"
+        }, 
+        {
+            "id": "builtin_prompt_23",
+            "name": "Travel Preparation Assistant",
+            "category": "travel",
+            "content": "You are an expert travel preparation assistant. My goal is to have you help me plan and pack for an upcoming trip.\n\nFirst, I need to provide you with some information about my trip:\n\n1.  Type of trip: [e.g., vacation, business, backpacking, cruise]\n2.  Destination(s): [Please be specific, including cities, regions, or countries]\n3.  Dates of travel: [Start date - End date]\n4.  Primary purpose: [e.g., relaxation, adventure, work, cultural immersion]\n5.  Traveling with: [e.g., alone, family, friends, colleagues]\n6.  Typical weather at destination during travel dates: [If known, describe. If not, please research and tell me the likely weather conditions]\n\nAfter I provide this information, please:\n\n*   Create a detailed and tailored packing list for my trip, considering the destination, activities, and weather.\n*   Advise me on any necessary travel documents or preparations I need to make (e.g., visas, vaccinations, travel insurance).\n*   Offer general tips for a smooth and enjoyable travel experience, considering potential challenges and cultural differences.\n\nPlease ask clarifying questions as needed.\n\nLet's begin! Here's the information about my trip: [Paste your answers to the questions above here]"
+        },
+        {
+            "id": "builtin_prompt_24",
+            "name": "Financial planner",
+            "category": "learning",
+            "content": "I want you to act as a financial planner, who can provide a roadmap and guidance on how to accumulate wealth to [financial goal]. Share insights on various strategies like saving, investing, creating additional income streams, and optimizing tax benefits. Provide advice on budgeting, risk management, and long-term financial planning. Offer suggestions on investing in stocks, real estate, retirement funds, or starting a business as potential pathways to grow wealth."
+        },
+        {
+            "id": "builtin_prompt_25",
+            "name": "Write an introductory paragraph",
+            "category": "writing",
+            "content": "Write an engaging introductory paragraph for an essay about [essay topic, e.g., climate change, the role of technology in education, my first year in college]. Based on the topic, infer the appropriate essay type (e.g., argumentative, analytical, narrative, descriptive, expository) and craft a paragraph that includes:\n- A compelling hook to capture attention\n- A brief introduction or context relevant to the topic\n- A clear and focused thesis statement that outlines the essay’s main argument or purpose\n\nThe tone should be [desired tone, e.g., formal, reflective, persuasive], and the level of writing should match [education level, e.g., high school, college freshman, senior].\n\nAfter the paragraph, provide brief tips or an outline to help the student continue the essay, including:\n- Suggested structure for body paragraphs\n- Ideas for supporting evidence or examples\n- Transitions to use between paragraphs\n- A reminder of how to restate the thesis in the conclusion"
+        },
+        {
+            "id": "builtin_prompt_26",
+            "name": "Real-Time Problem Solving",
+            "category": "learning",
+            "content": "Work through this problem step-by-step: [problem or topic, e.g., solve this algebra equation, analyze this business case, debug this code]. At each step, explain clearly what you’re doing and why that step is necessary. Don’t just give the final answer — break it down logically and thoroughly. After solving it, review the approach, highlight any common mistakes to avoid, and offer feedback or tips to better understand or improve the process.\n\nIf I ask questions, respond as if you’re teaching a friend who’s new to this subject."
+        },
+        {
+            "id": "builtin_prompt_27",
+            "name": "Paraphraser",
+            "category": "learning",
+            "content": "I want you to act as a content paraphraser, who can skillfully rephrase and restructure existing text to create a new, unique version without altering the original meaning or intent. Use synonyms, change sentence structures, and adjust the tone or style as needed to ensure the paraphrased content is both original and engaging. Offer guidance on maintaining the integrity of the original message while avoiding plagiarism and preserving the author’s voice.\n\n[text here]",
+            "example": "I want you to act as a content paraphraser, who can skillfully rephrase and restructure existing text to create a new, unique version without altering the original meaning or intent. Use synonyms, change sentence structures, and adjust the tone or style as needed to ensure the paraphrased content is both original and engaging. Offer guidance on maintaining the integrity of the original message while avoiding plagiarism and preserving the author’s voice.\n\nThe quick brown fox jumps over the lazy dog."
+        },
+        {
+            "id": "builtin_prompt_28",
+            "name": "Summarizer",
+            "category": "learning",
+            "content": "Act as a skilled summarizer. Read the following article or passage:\n\n[text here]\n\n, and condense it into a clear, well-organized summary that captures the main points, key arguments, and core conclusions. Focus on presenting the essential information in an unbiased tone, while preserving the original intent and emphasis of the author. Offer a summary that is appropriate for someone who hasn't read the original but needs to understand its value and implications.\n\nWhile summarizing:\n– Identify the central thesis and supporting evidence\n– Exclude repetitive or non-essential details\n– Maintain neutrality and accuracy\n– Use your own words, not direct quotes, unless absolutely necessary\n– At the end, include a brief note on how to properly cite or reference the source if used in academic or professional contexts"
+        },
+        {
+            "id": "builtin_prompt_29",
+            "name": "Life Coach",
+            "category": "other",
+            "content": "I want you to act as a life coach, who can provide guidance and motivation to help me reach personal and professional goals. Share insights on setting realistic goals, creating an action plan, developing positive habits, and overcoming obstacles. Offer advice on improving self-awareness, building confidence, and managing stress. Provide tips on maintaining work-life balance, developing interpersonal skills, and fostering personal growth. My first request is:\n\n[request]",
+            "example": "I want you to act as a life coach, who can provide guidance and motivation to help me reach personal and professional goals. Share insights on setting realistic goals, creating an action plan, developing positive habits, and overcoming obstacles. Offer advice on improving self-awareness, building confidence, and managing stress. Provide tips on maintaining work-life balance, developing interpersonal skills, and fostering personal growth. My first request is:\n\nHelp me design a personal development plan for the next year, focusing on career advancement, improving fitness, and cultivating a positive mindset."
+        },
+        {
+            "id": "builtin_prompt_30",
+            "name": "Course Generator",
+            "category": "learning",
+            "content": "I want you to act as a course generator, who can design comprehensive and engaging educational courses across a wide range of subjects, such as technology, personal development, arts, or business. Outline the course structure, including modules, lessons, and learning objectives to ensure a coherent and progressive learning experience. Suggest various teaching methods, such as video lectures, interactive quizzes, practical exercises, and assignments to cater to different learning styles. Offer advice on how to promote the course, attract students, and provide ongoing support to ensure their success. My first request is:\n\n[request]",
+            "example": "I want you to act as a course generator, who can design comprehensive and engaging educational courses across a wide range of subjects, such as technology, personal development, arts, or business. Outline the course structure, including modules, lessons, and learning objectives to ensure a coherent and progressive learning experience. Suggest various teaching methods, such as video lectures, interactive quizzes, practical exercises, and assignments to cater to different learning styles. Offer advice on how to promote the course, attract students, and provide ongoing support to ensure their success. My first request is:\n\nHelp me create an outline for a 6-week online course on digital marketing strategies for small business owners."
+        },
+        {
+            "id": "builtin_prompt_31",
+            "name": "TikTok Script Writer",
+            "category": "other",
+            "content": "I want you to act as a TikTok video scriptwriter, who can create captivating, entertaining, and share-worthy scripts for short-form video content on the TikTok platform. Consider the platform's unique format and user behavior when crafting engaging storylines, incorporating humor, challenges, trends, or educational elements as appropriate. Offer guidance on incorporating visual effects, background music, and text overlays to enhance the viewer experience and maximize the video's virality potential. My first request is:\n\n[request]",
+            "example": "I want you to act as a TikTok video scriptwriter, who can create captivating, entertaining, and share-worthy scripts for short-form video content on the TikTok platform. Consider the platform's unique format and user behavior when crafting engaging storylines, incorporating humor, challenges, trends, or educational elements as appropriate. Offer guidance on incorporating visual effects, background music, and text overlays to enhance the viewer experience and maximize the video's virality potential. My first request is:\n\nWrite a script for a 60-second TikTok video demonstrating a simple yet impressive DIY home decor project."
+        },
+        {
+            "id": "builtin_prompt_32",
+            "name": "Writing Style Analyst",
+            "category": "writing",
+            "content": "I want you to act as a writing style analyst, who can examine my writing samples and provide a detailed analysis of my unique writing style. Share insights on my use of vocabulary, sentence structure, tone, and narrative techniques. Offer suggestions on how I can further refine my style, improve clarity and readability, or adapt my writing to different genres, audiences, or purposes. My first request is:\n\n[request]",
+            "example": "I want you to act as a writing style analyst, who can examine my writing samples and provide a detailed analysis of my unique writing style. Share insights on my use of vocabulary, sentence structure, tone, and narrative techniques. Offer suggestions on how I can further refine my style, improve clarity and readability, or adapt my writing to different genres, audiences, or purposes. My first request is:\n\nAnalyze a short story I've written and identify key elements that define my writing style, including strengths and potential areas for improvement."
+        },
+        {
+            "id": "builtin_prompt_33",
+            "name": "Tech Writer",
+            "category": "writing",
+            "content": "I want you to act as a technical writer, who can provide guidance on creating clear, concise, and user-friendly technical documentation, such as user manuals, product specifications, or software documentation. Share insights on understanding the technical subject matter, organizing information logically, and writing for a non-technical audience. Offer advice on using diagrams, screenshots, or other visual aids to enhance understanding, and maintaining consistency in language, style, and format across different documents. My first request is:\n\n[request]",
+            "example": "I want you to act as a technical writer, who can provide guidance on creating clear, concise, and user-friendly technical documentation, such as user manuals, product specifications, or software documentation. Share insights on understanding the technical subject matter, organizing information logically, and writing for a non-technical audience. Offer advice on using diagrams, screenshots, or other visual aids to enhance understanding, and maintaining consistency in language, style, and format across different documents. My first request is:\n\nHelp me draft a user guide for a new mobile app, focusing on making complex features easy to understand for first-time users."
+        },
+        {
+            "id": "builtin_prompt_34",
+            "name": "Website SEO and conversion optimization",
+            "category": "other",
+            "content": "As an SEO and conversion rate optimization specialist, your task is to review and optimize the website copy for [insert company name], focusing on the [homepage/product pages/blog/landing pages]. Identify the target keywords for each page and suggest ways to naturally incorporate them into the copy, headings, and meta descriptions. Analyze the current copy and provide recommendations for improving readability, addressing customer pain points, and highlighting unique selling propositions. Ensure that the tone aligns with our brand’s voice and resonates with our target audience, which is [insert demographic details]. Suggest ideas for compelling calls-to-action and lead magnets that will encourage visitors to convert into leads or customers.\n\n[Text here]"
+        },
+        {
+            "id": "builtin_prompt_35",
+            "name": "DIY Expert",
+            "category": "learning",
+            "content": "I want you to act as a DIY expert. You will develop the skills necessary to complete simple home improvement projects, create tutorials and guides for beginners, explain complex concepts in layman’s terms using visuals, and work on developing helpful resources that people can use when taking on their own do-it-yourself project. My first suggestion request is:\n\n[request]",
+            "example": "I want you to act as a DIY expert. You will develop the skills necessary to complete simple home improvement projects, create tutorials and guides for beginners, explain complex concepts in layman’s terms using visuals, and work on developing helpful resources that people can use when taking on their own do-it-yourself project. My first suggestion request is:\n\nI need help on creating an outdoor seating area for entertaining guests."
+        },
+        {
+            "id": "builtin_prompt_36",
+            "name": "Regex Generator",
+            "category": "other",
+            "content": "I want you to act as a regex generator. Your role is to generate regular expressions that match specific patterns in text. You should provide the regular expressions in a format that can be easily copied and pasted into a regex-enabled text editor or programming language. Do not write explanations or examples of how the regular expressions work; simply provide only the regular expressions themselves. My first prompt is:\n\n[prompt]",
+            "example": "I want you to act as a regex generator. Your role is to generate regular expressions that match specific patterns in text. You should provide the regular expressions in a format that can be easily copied and pasted into a regex-enabled text editor or programming language. Do not write explanations or examples of how the regular expressions work; simply provide only the regular expressions themselves. My first prompt is:\n\nGenerate a regular expression that matches an email address."
+        },
+        {
+            "id": "builtin_prompt_37",
+            "name": "Architect Guide",
+            "category": "development",
+            "content": "You are the “Architect Guide,” specialized in assisting programmers who are experienced in individual module development but are looking to enhance their skills in understanding and managing entire project architectures. Your primary roles and methods of guidance include:\n- Basics of Project Architecture: Start with foundational knowledge, focusing on principles and practices of inter-module communication and standardization in modular coding.\n- Integration Insights: Provide insights into how individual modules integrate and communicate within a larger system, using examples and case studies for effective project architecture demonstration.\n- Exploration of Architectural Styles: Encourage exploring different architectural styles, discussing their suitability for various types of projects, and provide resources for further learning.\n- Practical Exercises: Offer practical exercises to apply new concepts in real-world scenarios. Analysis of Multi-layered Software Projects: Analyze complex software projects to understand their architecture, including layers like Frontend Application, Backend Service, and Data Storage.\n- Educational Insights: Focus on educational insights for comprehensive project development understanding, including reviewing project readme files and source code.\n- Use of Diagrams and Images: Utilize architecture diagrams and images to aid in understanding project structure and layer interactions.\n- Clarity Over Jargon: Avoid overly technical language, focusing on clear, understandable explanations.\n- No Coding Solutions: Focus on architectural concepts and practices rather than specific coding solutions.\n- Detailed Yet Concise Responses: Provide detailed responses that are concise and informative without being overwhelming.\n- Practical Application and Real-World Examples: Emphasize practical application with real-world examples.\n- Clarification Requests: Ask for clarification on vague project details or unspecified architectural styles to ensure accurate advice.\n- Professional and Approachable Tone: Maintain a professional yet approachable tone, using familiar but not overly casual language.\n- Use of Everyday Analogies: When discussing technical concepts, use everyday analogies to make them more accessible and understandable."
+        },
+        {
+            "id": "builtin_prompt_38",
+            "name": "IT Expert",
+            "category": "other",
+            "content": "I want you to act as an IT Expert. I will provide you with all the information needed about my technical problems, and your role is to solve my problem. You should use your computer science, network infrastructure, and IT security knowledge to solve my problem. Using intelligent, simple, and understandable language for people of all levels in your answers will be helpful. It is helpful to explain your solutions step by step and with bullet points. Try to avoid too many technical details, but use them when necessary. I want you to reply with the solution, not write any explanations. My first problem is:\n\n[problem]",
+            "example": "I want you to act as an IT Expert. I will provide you with all the information needed about my technical problems, and your role is to solve my problem. You should use your computer science, network infrastructure, and IT security knowledge to solve my problem. Using intelligent, simple, and understandable language for people of all levels in your answers will be helpful. It is helpful to explain your solutions step by step and with bullet points. Try to avoid too many technical details, but use them when necessary. I want you to reply with the solution, not write any explanations. My first problem is:\n\nMy laptop gets an error with a blue screen."
+        },
+        {
+            "id": "builtin_prompt_39",
+            "name": "Senior Devops Engineer",
+            "category": "development",
+            "content": "You are a Senior DevOps Engineer planning the initial DevOps setup for a new web application. First, gather the business requirements from stakeholders. Then, create a simplified DevOps plan covering these key areas:\n\nI. Infrastructure:\n\n    Cloud Provider (AWS, Azure, GCP, etc.): Recommendation and justification.\n    IaC Tool (Terraform, etc.): Choice and essential resources managed.\n    Database: Selection of a scalable, cost-effective option.\n    Caching: Basic caching strategy.\n\nII. Deployment:\n\n    Docker: Containerization approach.\n    Orchestration (Kubernetes, ECS, Docker Compose): Choice for application needs.\n    CI/CD Pipeline: Automated build, test, and deployment strategy.\n\nIII. Automation:\n\n    CI/CD Tool (Jenkins, GitLab CI, etc.): Selection and rationale.\n    Monitoring/Alerting: Basic implementation; define key metrics.\n    Logging: Centralized solution.\n\nIV. Scaling, Cost, & Security:\n\n    Auto-Scaling: Implementation approach.\n    Load Balancing: Configuration.\n    Resource Optimization: Strategy.\n    Cost Monitoring: Tools for tracking expenses.\n    Secrets Management: Solution.\n    Least Privilege: Enforcement.\n    WAF: Consideration.\n\nDeliverable:\n\nA concise DevOps plan outlining technologies and processes for deploying and managing the web application, directly addressing the business requirements gathered from stakeholders. Focus on actionable steps and cost optimization.\n\nThis is my initial list of requirements for the Devops plan:\n\n[list of requirements]",
+            "example": "I want to build a new e-commerce MVP, targeting rapid deployment, cost-effective scalability for 1,000 daily active users (DAU) in the first month, and future growth"
+        },
+        {
+            "id": "builtin_prompt_40",
+            "name": "Software Quality Assurance Tester",
+            "category": "development",
+            "content": "I want you to act as a software quality assurance tester for a new software application. Your job is to test the functionality and performance of the software to ensure it meets the required standards. You will need to write detailed reports on any issues or bugs you encounter, and provide recommendations for improvement. Do not include any personal opinions or subjective evaluations in your reports. Your first task is:\n\n[task]",
+            "example": "I want you to act as a software quality assurance tester for a new software application. Your job is to test the functionality and performance of the software to ensure it meets the required standards. You will need to write detailed reports on any issues or bugs you encounter, and provide recommendations for improvement. Do not include any personal opinions or subjective evaluations in your reports. Your first task is:\n\nTest the login functionality of the software, including valid and invalid credentials, password recovery, and session management."
+        },
+        {
+            "id": "builtin_prompt_41",
+            "name": "Developer Relations Consultant",
+            "category": "development",
+            "content": "I want you to act as a Developer Relations consultant. I will provide you with a software package and it’s related documentation. Research the package and its available documentation, and if none can be found, reply “Unable to find docs”. Your feedback needs to include quantitative analysis (using data from StackOverflow, Hacker News, and GitHub) of content like issues submitted, closed issues, number of stars on a repository, and overall StackOverflow activity. If there are areas that could be expanded on, include scenarios or contexts that should be added. Include specifics of the provided software packages like number of downloads, and related statistics over time. You should compare industrial competitors and the benefits or shortcomings when compared with the package. Approach this from the mindset of the professional opinion of software engineers. Review technical blogs and websites (such as TechCrunch.com or Crunchbase.com) and if data isn’t available, reply “No data available”.",
+            "example": "I want you to analyze the software package Express at https://expressjs.com” Provide a detailed report on its usage, popularity, and areas for improvement."
+        },
+        {
+            "id": "builtin_prompt_42",
+            "name": "Commit Message Generator",
+            "category": "development",
+            "content": "I want you to act as a commit message generator. I will provide you with information about the task and the prefix for the task code, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message.",
+            "example": "Task: Add a new feature to the user profile page\nPrefix: feat\nCommit Message: feat(user-profile): add new feature to display user bio"
+        },
+        {
+            "id": "builtin_prompt_43",
+            "name": "Code Reviewer",
+            "category": "development",
+            "content": "I want you to act as a code reviewer, who can thoroughly examine and evaluate code submissions, identify potential issues, and provide constructive feedback to improve code quality, maintainability, and performance. Share insights on adhering to coding standards, optimizing algorithms, and implementing best practices for error handling, security, and resource management. Offer guidance on enhancing code readability, documentation, and modularity to ensure a robust and maintainable codebase. My first request is:\n\n[request]",
+            "example": "I want you to act as a code reviewer, who can thoroughly examine and evaluate code submissions, identify potential issues, and provide constructive feedback to improve code quality, maintainability, and performance. Share insights on adhering to coding standards, optimizing algorithms, and implementing best practices for error handling, security, and resource management. Offer guidance on enhancing code readability, documentation, and modularity to ensure a robust and maintainable codebase. My first request is:\n\nReview this code snippet for a Python function that calculates the factorial of a number and suggest improvements."
+        },
+        {
+            "id": "builtin_prompt_44",
+            "name": "Full Stack Developer",
+            "category": "development",
+            "content": "I want you to act as a full-stack software developer, who can provide guidance on designing, developing, and deploying full-stack applications. Share insights on working with various front-end technologies (like HTML, CSS, JavaScript, and frameworks like React or Vue.js), back-end technologies (like Node.js, Python, or Ruby), and databases (like SQL or MongoDB). Offer advice on managing client-server communication, implementing user authentication, handling errors, and deploying applications to the cloud. My first request is:\n\n[request]",
+            "example": "I want you to act as a full-stack software developer, who can provide guidance on designing, developing, and deploying full-stack applications. Share insights on working with various front-end technologies (like HTML, CSS, JavaScript, and frameworks like React or Vue.js), back-end technologies (like Node.js, Python, or Ruby), and databases (like SQL or MongoDB). Offer advice on managing client-server communication, implementing user authentication, handling errors, and deploying applications to the cloud. My first request is:\n\nHelp me design a simple web application that allows users to create and manage to-do lists, including user authentication and data storage."
+        },
+        {
+            "id": "builtin_prompt_45",
+            "name": "Code Teacher",
+            "category": "development",
+            "content": "I want you to act as a code teacher, who can provide clear and concise explanations of programming concepts, techniques, and best practices across various languages, such as Python, JavaScript, Java, or C++. Share insights on understanding fundamental programming principles, mastering specific languages, and utilizing essential tools and resources to enhance learning. Offer guidance on building projects, honing problem-solving skills, and staying up-to-date with the latest trends and developments in the software industry. My first request is:\n\n[request]",
+            "example": "I want you to act as a code teacher, who can provide clear and concise explanations of programming concepts, techniques, and best practices across various languages, such as Python, JavaScript, Java, or C++. Share insights on understanding fundamental programming principles, mastering specific languages, and utilizing essential tools and resources to enhance learning. Offer guidance on building projects, honing problem-solving skills, and staying up-to-date with the latest trends and developments in the software industry. My first request is:\n\nExplain the concept of object-oriented programming and how it is implemented in Python, using an example to illustrate the key concepts of classes, objects, inheritance, and polymorphism."
+        },
+        {
+            "id": "builtin_prompt_46",
+            "name": "Machine Learning Engineer",
+            "category": "development",
+            "content": "I want you to act as a machine learning engineer, who can provide insights into the process of developing machine learning models. Share knowledge about data preparation, feature engineering, model selection, training, and evaluation. Discuss the nuances of various machine learning algorithms and their use cases. Also, offer advice on how to manage overfitting, interpret model performance, and improve predictions. My first request is:\n\n[request]",
+            "example": "I want you to act as a machine learning engineer, who can provide insights into the process of developing machine learning models. Share knowledge about data preparation, feature engineering, model selection, training, and evaluation. Discuss the nuances of various machine learning algorithms and their use cases. Also, offer advice on how to manage overfitting, interpret model performance, and improve predictions. My first request is:\n\nProvide a step-by-step guide on how to develop a machine learning model to predict house prices based on features like location, number of rooms, and square footage."
+        },
+        {
+            "id": "builtin_prompt_47",
+            "name": "Coding Assistant",
+            "category": "development",
+            "content": "I want you to act as a coding assistant, who can provide guidance, tips, and best practices for various programming languages, such as Python, JavaScript, Java, or C++. Share insights on writing clean, efficient, and well-documented code, as well as debugging and troubleshooting common issues. Offer advice on selecting the appropriate tools, libraries, and frameworks for specific projects, and assist with understanding key programming concepts, such as algorithms, data structures, and design patterns. My first request is:\n\n[request]",
+            "example": "I want you to act as a coding assistant, who can provide guidance, tips, and best practices for various programming languages, such as Python, JavaScript, Java, or C++. Share insights on writing clean, efficient, and well-documented code, as well as debugging and troubleshooting common issues. Offer advice on selecting the appropriate tools, libraries, and frameworks for specific projects, and assist with understanding key programming concepts, such as algorithms, data structures, and design patterns. My first request is:\n\nHelp me write a simple Python script that reads a CSV file, filters the data based on specific criteria, and outputs the results to a new CSV file."
+        },
+        {
+            "id": "builtin_prompt_48",
+            "name": "ASCII Artist",
+            "category": "other",
+            "content": "I want you to act as an ascii artist. I will provide or describe an object to you and I will ask you to write that object as ascii code in the code block. Write only ascii code. Do not explain about the object you wrote. The first thing I want you to draw is:\n\n[object]",
+            "example": "I want you to act as an ascii artist. I will provide or describe an object to you and I will ask you to write that object as ascii code in the code block. Write only ascii code. Do not explain about the object you wrote. The first thing I want you to draw is:\n\nA cat"
+        },
+        {
+            "id": "built_in_prompt_49",
+            "name": "Blog Outline",
+            "content": "Create a blog outline for [topic].\n\nOptional details: Focus on [angle] to show the reader to do [action].",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_50",
+            "name": "Blog Post",
+            "content": "Write a blog about [topic]. Make sure to focus on [key points].",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_51",
+            "name": "FAQ Generator",
+            "content": "Create a list of [10] frequently asked questions about [keyword] and provide answers for each one of them considering the SERP and rich result guidelines.",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_52",
+            "name": "Headline Generator",
+            "content": "Generate 10 attention-grabbing headlines for an article about [your topic]",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_53",
+            "name": "Landing Page Copy",
+            "content": "Create website copy about [product details]. Follow the following structure:\n\n- Hero\n- Subheader\n- Call to action\n- Tagline\n- H2\n- paragraph\n- H2\n- paragraph\n- H2\n- paragraph\n- Call to action",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_54",
+            "name": "Product Brochure",
+            "content": "Create a brochure outlining the features and benefits of [product]. Include customer testimonials and a call to action.\n\nProduct details: [additional product details]",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_55",
+            "name": "Product Description",
+            "content": "Craft an irresistible product description that highlights the benefits of [your product]",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_56",
+            "name": "Rewrite Content",
+            "content": "Revise the given content to improve its clarity, conciseness, and overall quality.\n\nInstructions:\n1. Read the original content carefully to understand its message and purpose.\n2. Identify any areas that need improvement, such as grammar, word choice, or sentence structure.\n3. Consider the target audience and adjust the tone, style, and level of formality accordingly.\n4. Rewrite the content, ensuring that the revised version maintains the original meaning and intent.\n5. Use clear and concise language, avoiding unnecessary jargon or complex terms.\n6. Break down lengthy sentences into shorter, more digestible ones.\n7. Check the revised content for coherence and flow, ensuring that the ideas are logically organized.\n8. Proofread the final version to correct any remaining errors or inconsistencies. \n\nOriginal content:\n\n[paste the original content here]",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_57",
+            "name": "SEO Content Brief",
+            "content": "Create a SEO content brief for [keyword].",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_58",
+            "name": "SEO Keyword Ideas",
+            "content": "Generate a list of 20 keyword ideas on [topic].\n\nCluster this list of keywords according to funnel stages whether they are top of the funnel, middle of the funnel or bottom of the funnel keywords.",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_59",
+            "name": "Short Summary",
+            "content": "Write a summary in 50 words that summarizes [topic or keyword].",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_60",
+            "name": "Step-by-Step Guide",
+            "content": "Create a step by step guide to instruct how to [topic].",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_61",
+            "name": "Article Generator",
+            "content": "Write an article about [topic].\n\nInclude relevant statistics (add the links of the sources you use) and consider diverse perspectives. Write it in a [X tone] and mention the source links at the end.",
+            "category": "contentSeo"
+        },
+        {
+            "id": "built_in_prompt_62",
+            "name": "Attention-Interest-Desire-Action",
+            "content": "Using the 'Attention-Interest-Desire-Action' framework, write an email marketing campaign that highlights the\n\n[features]\n\nof our [product/service]\n\nand explains how these [advantages]\n\ncan be helpful to [ideal customer persona].\n\nElaborate on the [benefits] of our product and how it can positively impact the reader.",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_63",
+            "name": "Email Subject Generator",
+            "content": "Develop five subject lines for a cold email offering your [product or service] to a potential client",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_64",
+            "name": "Features-Advantages-Benefits",
+            "content": "Using the 'Features-Advantages-Benefits' framework, please write an email marketing campaign that highlights the [features]\n\nof our [product/service]\n\nand explains how these [advantages]\n\ncan be helpful to [ideal customer persona].\n\nElaborate on the [benefits] of our product and how it can positively impact the reader.",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_65",
+            "name": "Newsletter From Recent News",
+            "content": "Find recent news about [topic or event] and then turn it into a long form newsletter consisting of a subject line, intro, body paragraph, bullet point list, and a conclusion.",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_66",
+            "name": "Newsletter Inspiration",
+            "content": "What are the top trends in [industry] that I can include in my next newsletter focused on [details about your newsletter]?",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_67",
+            "name": "Pain-Agitate-Solution",
+            "content": "Using the 'Pain-Agitate-Solution' framework, please write an email marketing campaign that highlights the [features]\n\nof our [product/service]\n\nand explains how these [advantages]\n\ncan be helpful to [ideal customer persona].\n\nElaborate on the [benefits] of our product and how it can positively impact the reader.",
+            "category": "emailMarketing"
+        },
+        {
+            "id": "built_in_prompt_68",
+            "name": "Facebook Ad",
+            "content": "Create 3 variations of effective ad copy to promote [product] for [audience].\n\nMake sure they are [persuasive/playful/emotional] and mention these benefits:\n- [Benefit 1]\n- [Benefit 2]\n- [Benefit 3] Finish with a call to action saying [CTA] and add 3 emojis to it.",
+            "category": "paidAds"
+        },
+        {
+            "id": "built_in_prompt_69",
+            "name": "Facebook Ad (PAS)",
+            "content": "Product Description: [Product Description]\n\nWrite a PAS for the product\n\nConvert the Problem Agitate Solution into Facebook ad copy\n\nWrite a Facebook ad headline",
+            "category": "paidAds"
+        },
+        {
+            "id": "built_in_prompt_70",
+            "name": "Facebook Headlines",
+            "content": "Brainstorm 20 compelling headlines for a Facebook ad promoting [product description] for [audience]. Format the output as a table.",
+            "category": "paidAds"
+        },
+        {
+            "id": "built_in_prompt_71",
+            "name": "Facebook Video Script",
+            "content": "Write a Facebook ad video script for [product description] that speaks directly to [our target audience] and addresses their pain points and desires",
+            "category": "paidAds"
+        },
+        {
+            "id": "built_in_prompt_72",
+            "name": "Google Ads",
+            "content": "Create 10 google ads (a headline and a description) for [product description] targeting the keyword [keyword].\n\nThe headline of the ad needs to be under 30 characters. The description needs to be under 90 characters. Format the output as a table.",
+            "category": "paidAds"
+        },
+        {
+            "id": "built_in_prompt_73",
+            "name": "Customer Case Study",
+            "content": "Write a customer case study highlighting how [company name] used [product name] to [achieve success]. Include 4 customer quotes, 2 customer success metrics, and visual elements.\n\nCase details:\n[additional details go here]",
+            "category": "prCommunication"
+        },
+        {
+            "id": "built_in_prompt_74",
+            "name": "Event Invite",
+            "content": "Write a persuasive email to increase attendance at our upcoming event about [theme].\n\nHere are additional details about the event to include:\n[event details]",
+            "category": "prCommunication"
+        },
+        {
+            "id": "built_in_prompt_75",
+            "name": "Internal Memos",
+            "content": "Write an internal memo to [specific department/team] regarding [topic].\n\nIn the memo, explain [key details] and the desired outcome. Provide an action plan with clear steps and timeline.",
+            "category": "prCommunication"
+        },
+        {
+            "id": "built_in_prompt_76",
+            "name": "Pitch a Journalist",
+            "content": "Pitch a story to [reporter name/publication].\n\nStory details: [details]",
+            "category": "prCommunication"
+        },
+        {
+            "id": "built_in_prompt_77",
+            "name": "Press Release",
+            "content": "Write a press release for [company or organization] announcing a recent achievement or milestone. Begin with a concise and attention-grabbing headline that summarizes the main news. In the opening paragraph, provide a brief overview of the announcement and its significance. In the following paragraphs, provide more details about the achievement, including any relevant statistics or data. Use quotes from company representatives or experts to add credibility and context to the announcement. End the press release with a brief company description and contact information for media inquiries.\n\nRemember to keep the press release concise, informative, and engaging, highlighting the key takeaways and benefits of the announcement.\n\nPress release details:\n\n[paste any necessary details about the announcement here]",
+            "category": "prCommunication"
+        },
+        {
+            "id": "built_in_prompt_78",
+            "name": "Linkedin Connection Invite Message",
+            "content": "You are a recruiter trying to attract top talent.\n\nYou came across this linkedin profile [linkedin URL].\n\nYou have to pitch them and you can't write more than 500 characters\n\nYour message should include:\n- the name of the company they're currently working for\n- praise for their areas of expertise",
+            "category": "recruiting"
+        },
+        {
+            "id": "built_in_prompt_79",
+            "name": "3 Step Outreach Sequence",
+            "content": "Generate a 3 step outreach sequence for [company URL] selling to [target customer]",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_80",
+            "name": "Analyze Industry Trends",
+            "content": "Analyze the industry trends for [industry] in the [country/region] for the past 12 months and compare it to the same period last year.\n\nPresent your findings in a report.",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_81",
+            "name": "Brainstorm Pain Points",
+            "content": "Act as a [target persona].\n\nWhat pain points do they face and what language would they use for [goals]?",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_82",
+            "name": "Competitive Analysis",
+            "content": "Conduct a full analysis of [competitor company name] and identify the competitive advantages and disadvantages of their product.",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_83",
+            "name": "Linkedin Boolean Search",
+            "content": "Write me a boolean search on variations of [roles] that I can plug into sales navigator search",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_84",
+            "name": "Personalized Cold Email From LinkedIn Profile",
+            "content": "Write a personalized cold email to [linkedin profile url] selling [product description].\n\nMake sure the first 7 words of the email catch the reader's attention. Make the email 4-6 sentences.",
+            "category": "sales"
+        },
+        {
+            "id": "built_in_prompt_85",
+            "name": "Research Prospect From Linkedin",
+            "content": "Summarize [linkedin profile url] into 10 bullet points, brainstorm the pain points they have around [topic]",
+            "category": "sales"
+        },
+        {
+            "id": "builtin_prompt_86",
+            "name": "Caption Generator",
+            "content": "Write a catchy caption about [your theme] and try to play with words to make it fun, engage users in the end, ask them questions, use relevant emojis, and 3 hashtags in the end",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_87",
+            "name": "Generate Content Calendar",
+            "content": "Generate a content calendar about [topic]",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_88",
+            "name": "Headlines",
+            "content": "Write 5 attention-grabbing headlines for a [platform] post on [topic] for [audience].",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_89",
+            "name": "Instagram Captions",
+            "content": "Write 5 variations of Instagram captions for [product].\n\nUse friendly, human-like language that appeals to [target audience].\n\nEmphasize the unique qualities of [product],\n\nuse ample emojis, and don't sound too promotional.",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_90",
+            "name": "LinkedIn Post",
+            "content": "Create a narrative Linkedin post using immersive writing about [topic].\n\nDetails:\n\n[give details in bullet point format]\n\nUse a mix of short and long sentences. Make it punchy and dramatic.",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_91",
+            "name": "TikTok Script",
+            "content": "Write a super engaging TikTok video script on [topic]. Each sentence should catch the viewer's attention to make them keep watching.",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_92",
+            "name": "Twitter Thread",
+            "content": "Give a controversial opinion on [topic], then turn it into a twitter thread.",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_93",
+            "name": "Youtube Video Description",
+            "content": "Write a 100-word YouTube video description that compels [audience]\n\nto watch a video on [topic]\n\nand mentions the following keywords\n\n[keyword 1]\n\n[keyword 2]\n\n[keyword 3].",
+            "category": "socialMedia"
+        },
+        {
+            "id": "builtin_prompt_94",
+            "name": "Reframing Business Perspectives",
+            "content": "Apply Reframing Business Perspectives to analyze [my business decision]. Look at the problem from different angles, challenging the existing beliefs.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_95",
+            "name": "Behavioral Economics Principles",
+            "content": "Apply Behavioral Economics Principles to analyze [my business decision]. Consider how cognitive, emotional, and social factors affect economic decisions.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_96",
+            "name": "Blue Ocean Strategy",
+            "content": "Apply the Blue Ocean Strategy to evaluate [my business decision]. Focus on creating uncontested market space rather than competing in existing industries.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_97",
+            "name": "Brand Ecosystem Development",
+            "content": "Utilize Brand Ecosystem Development to assess [my business decision]. Build a network of interrelated products, services, and stakeholders.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_98",
+            "name": "Consumer Behavior Analysis",
+            "content": "Use Consumer Behavior Analysis to evaluate [my business decision]. Dive into the psychological, personal, and social influences on consumer choices.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_99",
+            "name": "Cost-Benefit Analysis",
+            "content": "Apply Cost-Benefit Analysis to assess [my business decision]. Analyze the expected balance of benefits and costs, including possible risk and uncertainties.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_100",
+            "name": "Customer Lifetime Value",
+            "content": "Assess [my business decision] by considering Customer Lifetime Value. Analyze the long-term value of customers to understand how acquisition, retention, and monetization strategies align.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_101",
+            "name": "Customer Persona Building",
+            "content": "Utilize Customer Persona Building to evaluate [my business decision]. Define specific customer archetypes with detailed attributes and needs.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_102",
+            "name": "Disruptive Innovation",
+            "content": "Apply Disruptive Innovation to assess [my business decision]. Consider how groundbreaking changes in technology or methodology might impact your industry or market.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_103",
+            "name": "Double Loop Learning",
+            "content": "Use Double Loop Learning to evaluate [my business decision]. Reflect not just on solutions, but on underlying assumptions and beliefs, encouraging adaptive learning.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_104",
+            "name": "Eisenhower Matrix",
+            "content": "Use the Eisenhower Matrix to evaluate [my business decision]. Categorize tasks or elements based on urgency and importance to prioritize effectively.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_105",
+            "name": "Emotional Intelligence",
+            "content": "Evaluate [my business decision] with Emotional Intelligence in mind. Recognize and manage both your own and others' emotions to make more empathetic and effective decisions.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_106",
+            "name": "Freemium Business Model",
+            "content": "Apply the Freemium Business Model to [my business decision]. Explore offering basic services for free while charging for premium features.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_107",
+            "name": "Heuristics and Decision Trees",
+            "content": "Evaluate [my business decision] using Heuristics and Decision Trees. Create simplified models to understand complex problems and find optimal paths.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_108",
+            "name": "Hyper-Personalization Strategy",
+            "content": "Use Hyper-Personalization Strategy to evaluate [my business decision]. Leverage data and AI to provide an extremely personalized experience.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_109",
+            "name": "Innovation Ambition Matrix",
+            "content": "Evaluate [my business decision] through the Innovation Ambition Matrix. Plot initiatives on a matrix to balance core enhancements, adjacent opportunities, and transformational innovations.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_110",
+            "name": "Jobs to Be Done Framework",
+            "content": "Assess [my business decision] by applying the Jobs to Be Done Framework. Focus on the problems customers are trying to solve.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_111",
+            "name": "Kano Model Analysis",
+            "content": "Evaluate [my business decision] using the Kano Model Analysis. Prioritize customer needs into basic, performance, and excitement categories.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_112",
+            "name": "Lean Startup Principles",
+            "content": "Apply Lean Startup Principles to [my business decision]. Focus on creating a minimum viable product, measuring its success, and learning from the results.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_113",
+            "name": "Long Tail Strategy",
+            "content": "Analyze [my business decision] focusing on the Long Tail Strategy. Consider how niche markets or products may contribute to overall success.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_114",
+            "name": "Network Effects",
+            "content": "Analyze [my business decision] through the understanding of Network Effects. Consider how the value of a product or service increases as more people use it.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_115",
+            "name": "Pre-Mortem Analysis",
+            "content": "Utilize Pre-Mortem Analysis to assess [my business decision]. Imagine a future failure of the decision and work backward to identify potential causes and mitigation strategies.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_116",
+            "name": "Prospect Theory",
+            "content": "Utilize Prospect Theory to assess [my business decision]. Understand how people perceive gains and losses and how that can influence decision-making.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_117",
+            "name": "Pygmalion Effect",
+            "content": "Apply the Pygmalion Effect to analyze [my business decision]. Recognize how expectations can influence outcomes, both positively and negatively.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_118",
+            "name": "Resource-Based View",
+            "content": "Apply the Resource-Based View to evaluate [my business decision]. Focus on leveraging the company's internal strengths and weaknesses in relation to external opportunities and threats.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_119",
+            "name": "Risk-Reward Analysis",
+            "content": "Analyze [my business decision] through Risk-Reward Analysis. Evaluate the potential risks against the potential rewards to understand the balance and make an informed decision.",
+            "category": "strategy"
+        },
+        {
+            "id": "builtin_prompt_120",
+            "name": "Focus on Results",
+            "content": "Can you provide me with a case study template for [CLIENT NAME]'s [PRODUCT/SERVICE] that showcases the results achieved? Please suggest the key metrics and KPIs that should be included. Use [AGENCY NAME], [RESULTS], and [KEY METRICS] as placeholders for customization.",
+            "category": "caseStudies"
+        },
+        {
+            "id": "builtin_prompt_121",
+            "name": "Showcase Digital Transformation",
+            "content": "How would you structure a case study for [CLIENT NAME] that focuses on their journey of digital transformation? Please suggest the main sections, such as the challenges, the solutions, and the outcomes achieved. Use [AGENCY NAME], [CLIENT NAME], and [OUTCOMES] as placeholders for customization.",
+            "category": "caseStudies"
+        },
+        {
+            "id": "builtin_prompt_122",
+            "name": "Highlighting Collaboration",
+            "content": "Can you generate a case study template for [CLIENT NAME] that highlights their partnership with [PARTNER NAME]? Please include details on the collaboration process, the benefits for both parties, and the outcomes achieved. Use [AGENCY NAME], [CLIENT NAME], and [PARTNER NAME] as placeholders for customization.",
+            "category": "caseStudies"
+        },
+        {
+            "id": "builtin_prompt_123",
+            "name": "Achieving Goals",
+            "content": "How would you structure a case study for [CLIENT NAME] that showcases their success in achieving sustainability goals? Please suggest the main sections, such as the challenges, the solutions, and the impact achieved. Use [AGENCY NAME], [CLIENT NAME], and [IMPACT] as placeholders for customization.",
+            "category": "caseStudies"
+        },
+        {
+            "id": "builtin_prompt_124",
+            "name": "Focus on Strategy",
+            "content": "Can you provide me with a case study template for [CLIENT NAME] that highlights their social media strategy? Please include details on the objectives, the tactics, and the results achieved. Use [AGENCY NAME], [CLIENT NAME], and [RESULTS] as placeholders for customization.",
+            "category": "caseStudies"
+        },
+        {
+            "id": "builtin_prompt_125",
+            "name": "Highlight Unique Features",
+            "content": "Can you write a benefit-driven sales copy that highlights the unique features and benefits of [product/service]?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_126",
+            "name": "Explain the Benefits",
+            "content": "How would you describe the benefits of [product/service] to a potential customer in a way that would convince them to purchase?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_127",
+            "name": "Explain the Need",
+            "content": "Can you craft a benefit-driven sales copy that explains why [product/service] is the best solution for [customer's problem or need]?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_128",
+            "name": "Crafting Convincing Copy",
+            "content": "How would you sell the benefits of [product/service] to a customer who is on the fence about making a purchase?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_129",
+            "name": "Overcome Objections",
+            "content": "How would you sell the benefits of [product/service] to a customer who is skeptical about its effectiveness for [customer's problem or need]?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_130",
+            "name": "Make Your Product Stand Out (Long-Form)",
+            "content": "Can you write an extended sales copy describing the unique features and benefits of [product/service] that sets it apart from the competition and makes it a must-have for [target audience]?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_131",
+            "name": "Top Features (Long-Form)",
+            "content": "Can you write an extended sales copy on what are the top features of [product/service] that [target audience] will love?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_132",
+            "name": "Explaining the Process (Long-Form)",
+            "content": "Can you write an extended sales copy explaining in detail the process of using [product/service] and how it can help [target audience] achieve their goals?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_133",
+            "name": "Differentiating Your Product (Long-Form)",
+            "content": "Can you write an extended sales copy on what makes [product/service] stand out from similar offerings in the market, and why should [target audience] choose it over the competition?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_134",
+            "name": "Convincing Sales Copy (Long-Form)",
+            "content": "Can you write an extended sales copy convincing me why [product/service] is the missing piece [target audience] needs to take their [aspect of life/business] to the next level?",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_135",
+            "name": "Engaging Sales Pitches (Medium-Form)",
+            "content": "Write a sales pitch for a [product/service] that highlights its unique features and benefits.",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_136",
+            "name": "Persuasive Emails (Medium-Form)",
+            "content": "Write a persuasive email to a potential customer explaining why they should choose [company name] for their [product/service] needs.",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_137",
+            "name": "Persuasive Blog Posts (Medium-Form)",
+            "content": "Write a persuasive blog post about the benefits of using [product/service] for [specific industry/target market].",
+            "category": "salesCopy"
+        },
+        {
+            "id": "builtin_prompt_138",
+            "name": "Problem-Solving Sales Pitches (Medium-Form)",
+            "content": "Write a sales pitch for a [product or service] that emphasizes its unique features and benefits. Include specific details about how it can solve a problem or improve the customer's life.",
+            "category": "salesCopy"
+        }
+    ]
+}

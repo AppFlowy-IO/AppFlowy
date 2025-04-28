@@ -16,6 +16,7 @@ pub struct WorkspaceMemberTable {
   pub uid: i64,
   pub workspace_id: String,
   pub updated_at: chrono::NaiveDateTime,
+  pub joined_at: Option<i64>,
 }
 
 impl From<WorkspaceMemberTable> for WorkspaceMember {
@@ -25,6 +26,7 @@ impl From<WorkspaceMemberTable> for WorkspaceMember {
       role: Role::from(value.role),
       name: value.name,
       avatar_url: value.avatar_url,
+      joined_at: value.joined_at,
     }
   }
 }

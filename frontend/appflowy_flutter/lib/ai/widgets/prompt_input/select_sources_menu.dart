@@ -60,7 +60,7 @@ class _PromptInputDesktopSelectSourcesButtonState
   @override
   Widget build(BuildContext context) {
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.userProfile;
+    final userProfile = userWorkspaceBloc.state.userProfile;
     final workspaceId =
         userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
 

@@ -16,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'home_layout.dart';
 
@@ -53,7 +55,7 @@ class HomeStack extends StatefulWidget {
   State<HomeStack> createState() => _HomeStackState();
 }
 
-class _HomeStackState extends State<HomeStack> {
+class _HomeStackState extends State<HomeStack> with WindowListener {
   int selectedIndex = 0;
 
   @override
@@ -64,14 +66,7 @@ class _HomeStackState extends State<HomeStack> {
         builder: (context, state) => Column(
           children: [
             if (UniversalPlatform.isWindows)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WindowTitleBar(
-                    leftChildren: [_buildToggleMenuButton(context)],
-                  ),
-                ],
-              ),
+              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
             Padding(
               padding: EdgeInsets.only(left: widget.layout.menuSpacing),
               child: TabsManager(
@@ -129,7 +124,7 @@ class _HomeStackState extends State<HomeStack> {
   }
 
   Widget _buildToggleMenuButton(BuildContext context) {
-    if (!context.read<HomeSettingBloc>().state.isMenuCollapsed) {
+    if (context.read<HomeSettingBloc>().isMenuExpanded) {
       return const SizedBox.shrink();
     }
 
@@ -152,9 +147,14 @@ class _HomeStackState extends State<HomeStack> {
       richMessage: textSpan,
       child: Listener(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.collapseMenu()),
+        onPointerDown: (_) {
+          final isMenuExpanded =
+              context.read<HomeSettingBloc>().isMenuExpanded;
+          final status = isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+          context
+              .read<HomeSettingBloc>()
+              .add(HomeSettingEvent.changeMenuStatus(status));
+        },
         child: FlowyHover(
           child: Container(
             width: 24,
@@ -167,6 +167,13 @@ class _HomeStackState extends State<HomeStack> {
         ),
       ),
     );
+  }
+
+  @override
+  void onWindowFocus() {
+    // https://pub.dev/packages/window_manager#windows
+    // must call setState once when the window is focused
+    setState(() {});
   }
 }
 
@@ -631,7 +638,7 @@ class PageNotifier extends ChangeNotifier {
     }
 
     // Set the plugin view as the latest view.
-    if (setLatest) {
+    if (setLatest && newPlugin.id.isNotEmpty) {
       FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
     }
 

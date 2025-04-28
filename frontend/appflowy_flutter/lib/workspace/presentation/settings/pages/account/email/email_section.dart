@@ -28,7 +28,7 @@ class SettingsEmailSection extends StatelessWidget {
         VSpace(theme.spacing.s),
         Text(
           userProfile.email,
-          style: theme.textStyle.body.standard(
+          style: theme.textStyle.caption.standard(
             color: theme.textColorScheme.secondary,
           ),
         ),

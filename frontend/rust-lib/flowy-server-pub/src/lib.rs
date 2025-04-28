@@ -1,3 +1,4 @@
+pub use client_api::entity::*;
 use serde_repr::Deserialize_repr;
 
 macro_rules! if_native {

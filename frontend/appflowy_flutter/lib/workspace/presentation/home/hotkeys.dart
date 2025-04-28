@@ -75,9 +75,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => context
-          .read<HomeSettingBloc>()
-          .add(const HomeSettingEvent.collapseMenu()),
+      keyDownHandler: (_) => colappsedMenus(context),
     ),
 
     // Collapse sidebar menu (using .)
@@ -87,9 +85,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => context
-          .read<HomeSettingBloc>()
-          .add(const HomeSettingEvent.collapseMenu()),
+      keyDownHandler: (_) => colappsedMenus(context),
     ),
 
     // Toggle theme mode light/dark
@@ -210,7 +206,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Open settings dialog
-    openSettingsHotKey(context, widget.userProfile),
+    openSettingsHotKey(context),
   ];
 
   @override
@@ -262,5 +258,16 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     }
 
     await windowSizeManager.setScaleFactor(scaleFactor);
+  }
+
+  void colappsedMenus(BuildContext context) {
+    final bloc = context.read<HomeSettingBloc>();
+    final isNotificationPanelCollapsed =
+        bloc.state.isNotificationPanelCollapsed;
+    if (!isNotificationPanelCollapsed) {
+      bloc.add(const HomeSettingEvent.collapseNotificationPanel());
+    } else {
+      bloc.collapseMenu();
+    }
   }
 }

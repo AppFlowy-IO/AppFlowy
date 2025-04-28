@@ -81,6 +81,11 @@ class AppFlowyThemeData {
 abstract class AppFlowyThemeBuilder {
   const AppFlowyThemeBuilder();
 
-  AppFlowyThemeData light();
-  AppFlowyThemeData dark();
+  AppFlowyThemeData light({
+    String? fontFamily,
+  });
+
+  AppFlowyThemeData dark({
+    String? fontFamily,
+  });
 }

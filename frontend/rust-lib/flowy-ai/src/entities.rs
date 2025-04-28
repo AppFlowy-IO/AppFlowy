@@ -182,7 +182,7 @@ pub struct ChatMessageListPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct ServerAvailableModelsPB {
+pub struct ServerModelSelectionPB {
   #[pb(index = 1)]
   pub models: Vec<AvailableModelPB>,
 }
@@ -200,7 +200,7 @@ pub struct AvailableModelPB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct AvailableModelsQueryPB {
+pub struct ModelSourcePB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub source: String,
@@ -217,12 +217,18 @@ pub struct UpdateSelectedModelPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct AvailableModelsPB {
+pub struct ModelSelectionPB {
   #[pb(index = 1)]
   pub models: Vec<AIModelPB>,
 
   #[pb(index = 2)]
   pub selected_model: AIModelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedAIModelPB {
+  #[pb(index = 1)]
+  pub items: Vec<AIModelPB>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -686,7 +692,7 @@ pub struct LocalAISettingPB {
 
   #[pb(index = 2)]
   #[validate(custom(function = "required_not_empty_str"))]
-  pub chat_model_name: String,
+  pub global_chat_model: String,
 
   #[pb(index = 3)]
   #[validate(custom(function = "required_not_empty_str"))]
@@ -697,7 +703,7 @@ impl From<LocalAISetting> for LocalAISettingPB {
   fn from(value: LocalAISetting) -> Self {
     LocalAISettingPB {
       server_url: value.ollama_server_url,
-      chat_model_name: value.chat_model_name,
+      global_chat_model: value.chat_model_name,
       embedding_model_name: value.embedding_model_name,
     }
   }
@@ -707,7 +713,7 @@ impl From<LocalAISettingPB> for LocalAISetting {
   fn from(value: LocalAISettingPB) -> Self {
     LocalAISetting {
       ollama_server_url: value.server_url,
-      chat_model_name: value.chat_model_name,
+      chat_model_name: value.global_chat_model,
       embedding_model_name: value.embedding_model_name,
     }
   }

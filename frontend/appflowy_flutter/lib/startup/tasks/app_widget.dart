@@ -7,11 +7,13 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -42,6 +44,8 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     WidgetsFlutterBinding.ensureInitialized();
 
     await NotificationService.initialize();
@@ -110,9 +114,6 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
@@ -137,6 +138,8 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
   final _commandPaletteNotifier = ValueNotifier<bool>(false);
+
+  final themeBuilder = AppFlowyDefaultTheme();
 
   @override
   void initState() {
@@ -235,13 +238,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     locale: state.locale,
                     routerConfig: routerConfig,
                     builder: (context, child) {
-                      final themeBuilder = AppFlowyDefaultTheme();
                       final brightness = Theme.of(context).brightness;
+                      final fontFamily =
+                          state.font.orDefault(defaultFontFamily);
 
-                      return AnimatedAppFlowyTheme(
+                      return AppFlowyTheme(
                         data: brightness == Brightness.light
-                            ? themeBuilder.light()
-                            : themeBuilder.dark(),
+                            ? themeBuilder.light(fontFamily: fontFamily)
+                            : themeBuilder.dark(fontFamily: fontFamily),
                         child: MediaQuery(
                           // use the 1.0 as the textScaleFactor to avoid the text size
                           //  affected by the system setting.

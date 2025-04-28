@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/web_url_hint_wi
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class SettingsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.6;
+    final theme = AppFlowyTheme.of(context);
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
@@ -72,12 +74,12 @@ class SettingsDialog extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 564),
           child: ScaffoldMessenger(
             child: Scaffold(
-              backgroundColor: Colors.transparent,
+              backgroundColor: theme.backgroundColorScheme.primary,
               body: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 204,
                     child: SettingsMenu(
                       userProfile: user,
                       changeSelectedPage: (index) => context
@@ -88,21 +90,21 @@ class SettingsDialog extends StatelessWidget {
                       isBillingEnabled: state.isBillingEnabled,
                     ),
                   ),
-                  Expanded(
-                    child: getSettingsView(
-                      context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspace!
-                          .workspaceId,
-                      context.read<SettingsDialogBloc>().state.page,
-                      context.read<SettingsDialogBloc>().state.userProfile,
-                      context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspace
-                          ?.role,
-                    ),
+                  AFDivider(
+                    axis: Axis.vertical,
+                    color: theme.borderColorScheme.primary,
+                  ),
+                  BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+                    builder: (context, state) {
+                      return Expanded(
+                        child: getSettingsView(
+                          state.currentWorkspace!.workspaceId,
+                          context.read<SettingsDialogBloc>().state.page,
+                          state.userProfile,
+                          state.currentWorkspace?.role,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -140,7 +142,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsShortcutsView();
       case SettingsPage.ai:
-        if (user.workspaceAuthType == AuthTypePB.Server) {
+        if (user.workspaceType == WorkspaceTypePB.ServerW) {
           return SettingsAIView(
             key: ValueKey(workspaceId),
             userProfile: user,

@@ -32,6 +32,8 @@ class CachedRecentService {
 
   final _listener = RecentViewsListener();
 
+  bool isDisposed = false;
+
   Future<List<SectionViewPB>> recentViews() async {
     if (_isInitialized || _completer.isCompleted) return _recentViews;
 
@@ -97,6 +99,9 @@ class CachedRecentService {
   }
 
   Future<void> dispose() async {
+    if (isDisposed) return;
+
+    isDisposed = true;
     notifier.dispose();
     await _listener.stop();
   }

@@ -2,12 +2,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ enum NotificationPaneActionType {
 
   MobileSlideActionButton actionButton(
     BuildContext context, {
-    required MobileNotificationTabType tabType,
+    required NotificationTabType tabType,
   }) {
     switch (this) {
       case NotificationPaneActionType.markAsRead:
@@ -76,38 +76,40 @@ enum NotificationPaneActionType {
             topLeft: Radius.circular(10),
             bottomLeft: Radius.circular(10),
           ),
-          onPressed: (context) {
-            final reminderBloc = context.read<ReminderBloc>();
-            final notificationReminderBloc =
-                context.read<NotificationReminderBloc>();
-
-            showMobileBottomSheet(
-              context,
-              showDragHandle: true,
-              showDivider: false,
-              useRootNavigator: true,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              builder: (_) {
-                return MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(value: reminderBloc),
-                    BlocProvider.value(value: notificationReminderBloc),
-                  ],
-                  child: _NotificationMoreActions(
-                    onClickMultipleChoice: () {
-                      Future.delayed(const Duration(milliseconds: 250), () {
-                        bottomNavigationBarType.value =
-                            BottomNavigationBarActionType
-                                .notificationMultiSelect;
-                      });
-                    },
-                  ),
-                );
-              },
-            );
-          },
+          onPressed: (context) => context.onMoreAction(),
         );
     }
+  }
+}
+
+extension NotificationPaneActionExtension on BuildContext {
+  void onMoreAction() {
+    final reminderBloc = read<ReminderBloc>();
+    final notificationReminderBloc = read<NotificationReminderBloc>();
+
+    showMobileBottomSheet(
+      this,
+      showDragHandle: true,
+      showDivider: false,
+      useRootNavigator: true,
+      backgroundColor: Theme.of(this).colorScheme.surface,
+      builder: (_) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: reminderBloc),
+            BlocProvider.value(value: notificationReminderBloc),
+          ],
+          child: _NotificationMoreActions(
+            onClickMultipleChoice: () {
+              Future.delayed(const Duration(milliseconds: 250), () {
+                bottomNavigationBarType.value =
+                    BottomNavigationBarActionType.notificationMultiSelect;
+              });
+            },
+          ),
+        );
+      },
+    );
   }
 }
 

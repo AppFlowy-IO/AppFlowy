@@ -220,10 +220,10 @@ packages:
     dependency: transitive
     description:
       name: bidi
-      sha256: "9a712c7ddf708f7c41b1923aa83648a3ed44cfd75b04f72d598c45e5be287f9d"
+      sha256: "77f475165e94b261745cf1032c751e2032b8ed92ccb2bf5716036db79320637d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.13"
   bitsdojo_window:
     dependency: "direct main"
     description:
@@ -1855,18 +1855,18 @@ packages:
     dependency: "direct main"
     description:
       name: sentry
-      sha256: "1af8308298977259430d118ab25be8e1dda626cdefa1e6ce869073d530d39271"
+      sha256: "599701ca0693a74da361bc780b0752e1abc98226cf5095f6b069648116c896bb"
       url: "https://pub.dev"
     source: hosted
-    version: "8.8.0"
+    version: "8.14.2"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "18fe4d125c2d529bd6127200f0d2895768266a8c60b4fb50b2086fd97e1a4ab2"
+      sha256: "5ba2cf40646a77d113b37a07bd69f61bb3ec8a73cbabe5537b05a7c89d2656f8"
       url: "https://pub.dev"
     source: hosted
-    version: "8.8.0"
+    version: "8.14.2"
   share_plus:
     dependency: "direct main"
     description:
@@ -2574,10 +2574,11 @@ packages:
   window_manager:
     dependency: "direct main"
     description:
-      name: window_manager
-      sha256: "732896e1416297c63c9e3fb95aea72d0355f61390263982a47fd519169dc5059"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/window_manager"
+      ref: "5a43aed"
+      resolved-ref: "5a43aed33ffd9f86e1bac2fc9f4931383cc2ee2b"
+      url: "https://github.com/leanflutter/window_manager.git"
+    source: git
     version: "0.4.3"
   xdg_directories:
     dependency: transitive
