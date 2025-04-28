@@ -223,6 +223,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           setState(() {
             exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
           });
+
           showToastNotification(
             type: ToastificationType.error,
             message: message,
