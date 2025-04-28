@@ -128,9 +128,12 @@ void main() {
       /// remove the link
       await tester.tapButton(find.byFlowySvg(FlowySvgs.toolbar_link_unlink_m));
       final node = editorState.getNodeAtPath([0]);
-      expect(node?.delta?.toJson(), [
-        {'insert': testText}
-      ]);
+      expect(
+        node?.delta?.toJson(),
+        [
+          {'insert': testText},
+        ],
+      );
     });
   });
 }
