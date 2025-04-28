@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/password/password_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/error_extensions.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -268,7 +269,6 @@ class _SetupPasswordDialogContentState
   void _onPasswordStateChanged(BuildContext context, PasswordState state) {
     bool hasError = false;
     String message = '';
-    String description = '';
 
     final setPasswordResult = state.setupPasswordResult;
 
@@ -281,22 +281,31 @@ class _SetupPasswordDialogContentState
         },
         (error) {
           hasError = true;
-          message = LocaleKeys
-              .newSettings_myAccount_password_toast_passwordSetupFailed
-              .tr();
-          description = error.msg;
+          if (AFPasswordErrorExtension.tooShortPasswordPattern
+              .hasMatch(error.msg)) {
+            passwordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else if (AFPasswordErrorExtension.tooLongPasswordPattern
+              .hasMatch(error.msg)) {
+            passwordTextFieldKey.currentState?.syncError(
+              errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else {
+            passwordTextFieldKey.currentState?.syncError(
+              errorText: error.msg,
+            );
+          }
         },
       );
     }
 
     if (!state.isSubmitting && message.isNotEmpty) {
-      showToastNotification(
-        message: message,
-        description: description,
-        type: hasError ? ToastificationType.error : ToastificationType.success,
-      );
-
       if (!hasError) {
+        showToastNotification(
+          message: message,
+        );
+
         Navigator.of(context).pop();
       }
     }

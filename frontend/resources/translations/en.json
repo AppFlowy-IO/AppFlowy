@@ -2721,7 +2721,8 @@
           "passwordsDoNotMatch": "Passwords do not match",
           "newPasswordIsSameAsCurrent": "New password is same as current password",
           "currentPasswordIsIncorrect": "Current password is incorrect",
-          "passwordShouldBeAtLeast6Characters": "Password should be at least 6 characters"
+          "passwordShouldBeAtLeast6Characters": "Password should be at least {min} characters",
+          "passwordCannotBeLongerThan72Characters": "Password cannot be longer than {max} characters"
         },
         "toast": {
           "passwordUpdatedSuccessfully": "Password updated successfully",
