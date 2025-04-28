@@ -96,10 +96,8 @@ impl ServerProvider {
       self.local_ai.reload_ollama_client();
     }
   }
-  pub fn init_after_open_workspace(&self, workspace_type: &WorkspaceType) {
-    if workspace_type.is_local() {
-      self.local_ai.reload_ollama_client();
-    }
+  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
   }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {

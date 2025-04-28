@@ -14,8 +14,9 @@ use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbedd
 use ollama_rs::Ollama;
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock, Weak};
-use tokio::sync::mpsc;
+use tokio::select;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use tokio::sync::{broadcast, mpsc};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;
 
@@ -57,9 +58,17 @@ impl EmbedContext {
     }
   }
 
-  pub fn set_ollama(&self, ollama: Arc<Ollama>) {
-    self.ollama.store(Some(ollama.clone()));
-    self.try_create_scheduler();
+  pub fn set_ollama(&self, ollama: Option<Arc<Ollama>>) {
+    if let Some(ollama) = ollama {
+      self.ollama.store(Some(ollama));
+      self.try_create_scheduler();
+    } else {
+      self.ollama.store(None);
+      if let Some(s) = self.scheduler.swap(None) {
+        info!("[Embedding] Stopping scheduler");
+        let _ = s.stop_tx.send(());
+      }
+    }
   }
 
   pub fn get_scheduler(&self) -> FlowyResult<Arc<EmbeddingScheduler>> {
@@ -91,6 +100,7 @@ pub struct EmbeddingScheduler {
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
   ollama: Arc<Ollama>,
   vector_db: Arc<VectorSqliteDB>,
+  stop_tx: tokio::sync::broadcast::Sender<()>,
 }
 
 impl EmbeddingScheduler {
@@ -101,6 +111,7 @@ impl EmbeddingScheduler {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
     let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
+    let (stop_tx, _) = broadcast::channel::<()>(1);
 
     let this = Arc::new(Self {
       indexer_provider,
@@ -108,16 +119,24 @@ impl EmbeddingScheduler {
       generate_embedding_tx,
       ollama,
       vector_db,
+      stop_tx,
     });
 
     let weak_this = Arc::downgrade(&this);
+    let stop_rx = this.stop_tx.subscribe();
     tokio::spawn(spawn_generate_embeddings(
       gen_embedding_rx,
       weak_this.clone(),
+      stop_rx,
     ));
 
     let weak_this = Arc::downgrade(&this);
-    tokio::spawn(spawn_write_embeddings(write_embedding_rx, weak_this));
+    let stop_rx = this.stop_tx.subscribe();
+    tokio::spawn(spawn_write_embeddings(
+      write_embedding_rx,
+      weak_this,
+      stop_rx,
+    ));
 
     Ok(this)
   }
@@ -221,148 +240,159 @@ const EMBEDDING_RECORD_BUFFER_SIZE: usize = 10;
 pub async fn spawn_write_embeddings(
   mut rx: UnboundedReceiver<EmbeddingRecord>,
   scheduler: Weak<EmbeddingScheduler>,
+  mut stop_rx: broadcast::Receiver<()>,
 ) {
   let mut buf = Vec::with_capacity(EMBEDDING_RECORD_BUFFER_SIZE);
+
   loop {
-    let n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE).await;
-    if n == 0 {
-      info!("Stop writing embeddings");
-      break;
-    }
+    select! {
+      // Shutdown signal arrives
+      _ = stop_rx.recv() => {
+          info!("Received stop signal; shutting down embedding writer");
+          break;
+      }
+      // Next batch from the input channel
+      n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE) => {
+        // channel closed
+        if n == 0 {
+          info!("Input channel closed; stopping write embeddings");
+          break;
+        }
 
-    let scheduler = match scheduler.upgrade() {
-      Some(db) => db,
-      None => {
-        error!("Failed to upgrade db connection");
-        break;
-      },
-    };
+        // upgrade scheduler reference
+        let scheduler = match scheduler.upgrade() {
+          Some(db) => db,
+          None => {
+              error!("EmbeddingScheduler dropped; stopping write embeddings");
+              break;
+          }
+        };
 
-    let records = buf.drain(..n).collect::<Vec<_>>();
-    for record in records.into_iter() {
-      debug!(
-        "[Embedding] write collab to disk:{} embeddings",
-        record.object_id,
-      );
-
-      match scheduler
-        .vector_db
-        .upsert_collabs_embeddings(&record.object_id.to_string(), record.chunks)
-        .await
-      {
-        Ok(_) => {
-          trace!(
-            "[Embedding] Successfully wrote collab:{} embeddings to db",
-            record.object_id
-          );
-        },
-        Err(err) => {
-          error!(
-            "[Embedding] Failed to write collab:{} embeddings to db: {}",
-            record.object_id, err
-          );
-        },
+        // drain and process exactly `n` records
+        let records = buf.drain(..n).collect::<Vec<_>>();
+        for record in records {
+          debug!("[Embedding] Writing {} chunks for {}", record.chunks.len(), record.object_id);
+          match scheduler
+              .vector_db
+              .upsert_collabs_embeddings(&record.object_id.to_string(), record.chunks)
+              .await
+          {
+            Ok(_) => trace!("[Embedding] Successfully wrote embeddings for {}", record.object_id),
+            Err(err) => error!("[Embedding] Failed to write embeddings for {}: {}", record.object_id, err),
+          }
+        }
       }
     }
   }
+
+  info!("spawn_write_embeddings exited");
 }
 
 async fn spawn_generate_embeddings(
   mut rx: mpsc::Receiver<UnindexedCollab>,
   scheduler: Weak<EmbeddingScheduler>,
+  mut stop_rx: broadcast::Receiver<()>,
 ) {
   let mut buf = Vec::with_capacity(EMBEDDING_RECORD_BUFFER_SIZE);
   loop {
-    let n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE).await;
-    let scheduler = match scheduler.upgrade() {
-      Some(scheduler) => scheduler,
-      None => {
-        info!("[Embedding] Failed to upgrade scheduler connection, break loop");
+    select! {
+      _ = stop_rx.recv() => {
+        info!("Received stop signal; shutting down embedding writer");
         break;
-      },
-    };
-    if n == 0 {
-      info!("[Embedding] Stop generating embeddings");
-      break;
-    }
+      }
+      n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE) => {
+        let scheduler = match scheduler.upgrade() {
+          Some(scheduler) => scheduler,
+          None => {
+            info!("[Embedding] Failed to upgrade scheduler connection, break loop");
+            break;
+          },
+        };
+        if n == 0 {
+          info!("[Embedding] Stop generating embeddings");
+          break;
+        }
 
-    let records = buf.drain(..n).collect::<Vec<_>>();
-    let indexer_provider = scheduler.indexer_provider.clone();
-    let write_embedding_tx = scheduler.write_embedding_tx.clone();
-    let embedder = scheduler.create_embedder();
+        let records = buf.drain(..n).collect::<Vec<_>>();
+        let indexer_provider = scheduler.indexer_provider.clone();
+        let write_embedding_tx = scheduler.write_embedding_tx.clone();
+        let embedder = scheduler.create_embedder();
 
-    match embedder {
-      Ok(embedder) => {
-        let params: Vec<_> = records.iter().map(|r| r.object_id.to_string()).collect();
-        let existing_embeddings = scheduler
-          .vector_db
-          .select_collabs_fragment_ids(&params)
-          .await
-          .unwrap_or_else(|err| {
-            error!("[Embedding] failed to get existing embeddings: {}", err);
-            Default::default()
-          });
+        match embedder {
+          Ok(embedder) => {
+            let params: Vec<_> = records.iter().map(|r| r.object_id.to_string()).collect();
+            let existing_embeddings = scheduler
+                .vector_db
+                .select_collabs_fragment_ids(&params)
+                .await
+                .unwrap_or_else(|err| {
+                  error!("[Embedding] failed to get existing embeddings: {}", err);
+                  Default::default()
+                });
 
-        for record in records {
-          if let Some(indexer) = indexer_provider.indexer_for(record.collab_type) {
-            let paragraphs = match record.data {
-              UnindexedData::Paragraphs(paragraphs) => paragraphs,
-              UnindexedData::Text(text) => text.split('\n').map(|s| s.to_string()).collect(),
-            };
-            let embedder = embedder.clone();
-            match indexer.create_embedded_chunks_from_text(
-              record.object_id,
-              paragraphs,
-              embedder.model(),
-            ) {
-              Ok(mut chunks) => {
-                if let Some(fragment_ids) = existing_embeddings.get(&record.object_id) {
-                  for chunk in chunks.iter_mut() {
-                    if fragment_ids.contains(&chunk.fragment_id) {
-                      chunk.content = None;
+            for record in records {
+              if let Some(indexer) = indexer_provider.indexer_for(record.collab_type) {
+                let paragraphs = match record.data {
+                  UnindexedData::Paragraphs(paragraphs) => paragraphs,
+                  UnindexedData::Text(text) => text.split('\n').map(|s| s.to_string()).collect(),
+                };
+                let embedder = embedder.clone();
+                match indexer.create_embedded_chunks_from_text(
+                  record.object_id,
+                  paragraphs,
+                  embedder.model(),
+                ) {
+                  Ok(mut chunks) => {
+                    if let Some(fragment_ids) = existing_embeddings.get(&record.object_id) {
+                      for chunk in chunks.iter_mut() {
+                        if fragment_ids.contains(&chunk.fragment_id) {
+                          chunk.content = None;
+                        }
+                      }
                     }
-                  }
-                }
 
-                if chunks.iter().all(|c| c.content.is_none()) {
-                  trace!(
-                    "[Embedding] skip generating embeddings for collab: {}",
-                    record.object_id
-                  );
-                  continue;
-                }
+                    if chunks.iter().all(|c| c.content.is_none()) {
+                      trace!(
+                        "[Embedding] skip generating embeddings for collab: {}",
+                        record.object_id
+                      );
+                      continue;
+                    }
 
-                let result = indexer.embed(&embedder, chunks).await;
-                match result {
-                  Ok(chunks) => {
-                    let record = EmbeddingRecord {
-                      object_id: record.object_id,
-                      chunks,
-                    };
-                    if let Err(err) = write_embedding_tx.send(record) {
-                      error!("Failed to send embedding record: {}", err);
+                    let result = indexer.embed(&embedder, chunks).await;
+                    match result {
+                      Ok(chunks) => {
+                        let record = EmbeddingRecord {
+                          object_id: record.object_id,
+                          chunks,
+                        };
+                        if let Err(err) = write_embedding_tx.send(record) {
+                          error!("Failed to send embedding record: {}", err);
+                        }
+                      },
+                      Err(err) => {
+                        error!(
+                          "[Embedding] Failed to create embeddings content for collab: {}, error:{}",
+                          record.object_id, err
+                        );
+                      },
                     }
                   },
                   Err(err) => {
-                    error!(
-                      "[Embedding] Failed to create embeddings content for collab: {}, error:{}",
+                    warn!(
+                      "Failed to create embedded chunks for collab: {}, error:{}",
                       record.object_id, err
                     );
+                    continue;
                   },
                 }
-              },
-              Err(err) => {
-                warn!(
-                  "Failed to create embedded chunks for collab: {}, error:{}",
-                  record.object_id, err
-                );
-                continue;
-              },
+              }
             }
-          }
+          },
+          Err(err) => error!("[Embedding] Failed to create embedder: {}", err),
         }
-      },
-      Err(err) => error!("[Embedding] Failed to create embedder: {}", err),
+      }
     }
   }
+  info!("spawn_generate_embeddings exited");
 }
