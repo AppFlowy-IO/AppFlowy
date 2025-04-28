@@ -342,6 +342,20 @@ class _ChangePasswordDialogContentState
           message = LocaleKeys
               .newSettings_myAccount_password_toast_passwordUpdatedFailed
               .tr();
+          if (error.msg.contains('Incorrect current password')) {
+            currentPasswordTextFieldKey.currentState?.syncError(
+              errorText: LocaleKeys
+                  .newSettings_myAccount_password_error_currentPasswordIsIncorrect
+                  .tr(),
+            );
+          } else if (error.msg
+              .contains('Password should be at least 6 characters.')) {
+            newPasswordTextFieldKey.currentState?.syncError(
+              errorText: LocaleKeys
+                  .newSettings_myAccount_password_error_passwordShouldBeAtLeast6Characters
+                  .tr(),
+            );
+          }
         },
       );
     } else if (setPasswordResult != null) {
@@ -361,10 +375,11 @@ class _ChangePasswordDialogContentState
     }
 
     if (!state.isSubmitting && message.isNotEmpty) {
-      showToastNotification(
-        message: message,
-        type: hasError ? ToastificationType.error : ToastificationType.success,
-      );
+      if (!hasError) {
+        showToastNotification(
+          message: message,
+        );
+      }
 
       if (!hasError) {
         Navigator.of(context).pop();

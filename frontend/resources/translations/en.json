@@ -2718,7 +2718,9 @@
           "newPasswordIsRequired": "New password is required",
           "confirmPasswordIsRequired": "Confirm password is required",
           "passwordsDoNotMatch": "Passwords do not match",
-          "newPasswordIsSameAsCurrent": "New password is same as current password"
+          "newPasswordIsSameAsCurrent": "New password is same as current password",
+          "currentPasswordIsIncorrect": "Current password is incorrect",
+          "passwordShouldBeAtLeast6Characters": "Password should be at least 6 characters"
         },
         "toast": {
           "passwordUpdatedSuccessfully": "Password updated successfully",
