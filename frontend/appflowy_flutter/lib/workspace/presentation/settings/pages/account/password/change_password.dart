@@ -326,7 +326,6 @@ class _ChangePasswordDialogContentState
   void _onPasswordStateChanged(BuildContext context, PasswordState state) {
     bool hasError = false;
     String message = '';
-    String description = '';
 
     final changePasswordResult = state.changePasswordResult;
     final setPasswordResult = state.setupPasswordResult;
@@ -343,7 +342,6 @@ class _ChangePasswordDialogContentState
           message = LocaleKeys
               .newSettings_myAccount_password_toast_passwordUpdatedFailed
               .tr();
-          description = error.msg;
         },
       );
     } else if (setPasswordResult != null) {
@@ -358,7 +356,6 @@ class _ChangePasswordDialogContentState
           message = LocaleKeys
               .newSettings_myAccount_password_toast_passwordSetupFailed
               .tr();
-          description = error.msg;
         },
       );
     }

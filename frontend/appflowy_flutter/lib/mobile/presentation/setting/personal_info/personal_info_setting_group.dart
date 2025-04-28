@@ -27,7 +27,6 @@ class PersonalInfoSettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return MultiBlocProvider(
       providers: [
         BlocProvider<SettingsUserViewBloc>(
