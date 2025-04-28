@@ -16,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -65,14 +66,7 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
         builder: (context, state) => Column(
           children: [
             if (UniversalPlatform.isWindows)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WindowTitleBar(
-                    leftChildren: [_buildToggleMenuButton(context)],
-                  ),
-                ],
-              ),
+              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
             Padding(
               padding: EdgeInsets.only(left: widget.layout.menuSpacing),
               child: TabsManager(
@@ -149,23 +143,46 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       ],
     );
 
-    return FlowyTooltip(
-      richMessage: textSpan,
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden)),
-        child: FlowyHover(
-          child: Container(
-            width: 24,
-            padding: const EdgeInsets.all(4),
-            child: const RotatedBox(
-              quarterTurns: 2,
-              child: FlowySvg(FlowySvgs.hide_menu_s),
+    return SizedBox.square(
+      dimension: 24,
+      child: Stack(
+        children: [
+          FlowyTooltip(
+            richMessage: textSpan,
+            child: GestureDetector(
+              onTap: () {
+                final bloc = context.read<HomeSettingBloc?>();
+                if (bloc == null) return;
+                if (bloc.state.menuStatus == MenuStatus.hidden) {
+                  bloc.add(
+                    const HomeSettingEvent.changeMenuStatus(
+                      MenuStatus.expanded,
+                    ),
+                  );
+                } else {
+                  bloc.add(
+                    const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden),
+                  );
+                }
+              },
+              behavior: HitTestBehavior.opaque,
+              child: FlowyHover(
+                child: Container(
+                  width: 24,
+                  padding: const EdgeInsets.all(4),
+                  child: const RotatedBox(
+                    quarterTurns: 2,
+                    child: FlowySvg(FlowySvgs.hide_menu_s),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          Align(
+            alignment: Alignment.topRight,
+            child: NumberedRedDot.desktop(),
+          ),
+        ],
       ),
     );
   }
