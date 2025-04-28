@@ -143,46 +143,28 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       ],
     );
 
-    return SizedBox.square(
-      dimension: 24,
-      child: Stack(
-        children: [
-          FlowyTooltip(
-            richMessage: textSpan,
-            child: GestureDetector(
-              onTap: () {
-                final bloc = context.read<HomeSettingBloc?>();
-                if (bloc == null) return;
-                if (bloc.state.menuStatus == MenuStatus.hidden) {
-                  bloc.add(
-                    const HomeSettingEvent.changeMenuStatus(
-                      MenuStatus.expanded,
-                    ),
-                  );
-                } else {
-                  bloc.add(
-                    const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden),
-                  );
-                }
-              },
-              behavior: HitTestBehavior.opaque,
-              child: FlowyHover(
-                child: Container(
-                  width: 24,
-                  padding: const EdgeInsets.all(4),
-                  child: const RotatedBox(
-                    quarterTurns: 2,
-                    child: FlowySvg(FlowySvgs.hide_menu_s),
-                  ),
-                ),
-              ),
+    return FlowyTooltip(
+      richMessage: textSpan,
+      child: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) {
+          final isMenuExpanded =
+              context.read<HomeSettingBloc>().isMenuExpanded;
+          final status = isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+          context
+              .read<HomeSettingBloc>()
+              .add(HomeSettingEvent.changeMenuStatus(status));
+        },
+        child: FlowyHover(
+          child: Container(
+            width: 24,
+            padding: const EdgeInsets.all(4),
+            child: const RotatedBox(
+              quarterTurns: 2,
+              child: FlowySvg(FlowySvgs.hide_menu_s),
             ),
           ),
-          Align(
-            alignment: Alignment.topRight,
-            child: NumberedRedDot.desktop(),
-          ),
-        ],
+        ),
       ),
     );
   }
