@@ -361,7 +361,7 @@ class WorkspaceMemberBloc
             final inviteLink = await _buildInviteLink(inviteCode: s);
             add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
           },
-          (e) => Log.info('Failed to get invite code: ${e.msg}', e),
+          (e) {},
         ),
       );
     } else {
