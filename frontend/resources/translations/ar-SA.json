@@ -913,6 +913,7 @@
         "localAIDisabled": "أنت تستخدم الذكاء الاصطناعي المحلي، ولكنه مُعطّل. يُرجى الانتقال إلى الإعدادات لتفعيله أو تجربة نموذج آخر.",
         "localAIInitializing": "يتم تهيئة الذكاء الاصطناعي المحلي وقد يستغرق الأمر بضع دقائق، حسب جهازك",
         "localAINotReadyTextFieldPrompt": "لا يمكنك التحرير أثناء تحميل الذكاء الاصطناعي المحلي",
+        "localAIDisabledTextFieldPrompt": "لا يمكنك التحرير أثناء تعطيل الذكاء الاصطناعي المحلي",
         "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
         "restartLocalAI": "إعادة تشغيل الذكاء الاصطناعي المحلي",
         "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
@@ -1379,7 +1380,19 @@
         "inviteMemberSuccess": "لقد تم ارسال الدعوة بنجاح",
         "failedToInviteMember": "فشل في دعوة العضو",
         "workspaceMembersError": "عفواً، حدث خطأ ما",
-        "workspaceMembersErrorDescription": "لم نتمكن من تحميل قائمة الأعضاء في هذا الوقت. يرجى المحاولة مرة أخرى لاحقًا"
+        "workspaceMembersErrorDescription": "لم نتمكن من تحميل قائمة الأعضاء في هذا الوقت. يرجى المحاولة مرة أخرى لاحقًا",
+        "inviteLinkToAddMember": "رابط الدعوة لإضافة عضو",
+        "clickToCopyLink": "انقر هنا لنسخ الرابط",
+        "or": "أو",
+        "generateANewLink": "إنشاء رابط جديد",
+        "inviteMemberByEmail": "دعوة الأعضاء عبر البريد الإلكتروني",
+        "inviteMemberHintText": "دعوة عبر البريد الإلكتروني",
+        "resetInviteLink": "إعادة ضبط رابط الدعوة؟",
+        "resetInviteLinkDescription": "ستؤدي إعادة الضبط إلى إلغاء تفعيل الرابط الحالي لجميع أعضاء المساحة وإنشاء رابط جديد. لن يعود الرابط القديم صالحًا.",
+        "adminPanel": "لوحة الإدارة",
+        "reset": "إعادة ضبط",
+        "resetInviteLinkSuccess": "تمت إعادة ضبط رابط الدعوة بنجاح",
+        "resetInviteLinkFailed": "فشل إعادة ضبط رابط الدعوة"
       },
       "lightLabel": "فاتح",
       "darkLabel": "غامق"
