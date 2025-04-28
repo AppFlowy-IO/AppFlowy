@@ -264,11 +264,9 @@ void main() {
 
       final now = DateTime.now();
       final yesterday = DateTime(now.year, now.month, now.day - 1);
-      final threeDaysFromToday = DateTime(now.year, now.month, now.day + 3);
 
       bloc.add(DateCellEditorEvent.updateDateTime(yesterday));
       await gridResponseFuture();
-
       bloc.add(
         const DateCellEditorEvent.setReminderOption(
           ReminderOption.onDayOfEvent,
@@ -285,10 +283,6 @@ void main() {
         ),
       );
 
-      bloc.add(DateCellEditorEvent.updateDateTime(threeDaysFromToday));
-      await gridResponseFuture();
-      expect(reminderBloc.state.reminders.length, 1);
-
       bloc.add(
         const DateCellEditorEvent.setReminderOption(ReminderOption.none),
       );
@@ -296,6 +290,31 @@ void main() {
       expect(reminderBloc.state.reminders.length, 0);
       reminderBloc.add(const ReminderEvent.refresh());
       await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 0);
+    });
+
+    test('set reminder option with later time', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 0);
+
+      final now = DateTime.now();
+      final threeDaysFromToday = DateTime(now.year, now.month, now.day + 3);
+
+      bloc.add(DateCellEditorEvent.updateDateTime(threeDaysFromToday));
+      await gridResponseFuture();
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(
+          ReminderOption.onDayOfEvent,
+        ),
+      );
+      await gridResponseFuture();
+
       expect(reminderBloc.state.reminders.length, 0);
     });
 
@@ -309,6 +328,8 @@ void main() {
 
       final now = DateTime.now();
       final yesterday = DateTime(now.year, now.month, now.day - 1);
+      bloc.add(DateCellEditorEvent.updateDateTime(yesterday));
+      await gridResponseFuture();
       bloc.add(
         const DateCellEditorEvent.setReminderOption(
           ReminderOption.onDayOfEvent,
