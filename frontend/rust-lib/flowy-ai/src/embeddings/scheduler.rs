@@ -1,18 +1,16 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
 use crate::embeddings::indexer::IndexerProvider;
 use arc_swap::ArcSwapOption;
-use flowy_ai_pub::cloud::CollabType;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_sqlite_vec::db::{EmbeddedChunk, VectorSqliteDB};
+use flowy_ai_pub::entities::{EmbeddingRecord, UnindexedCollab, UnindexedData};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_sqlite_vec::db::VectorSqliteDB;
 use lib_infra::util::get_operating_system;
 use ollama_rs::Ollama;
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock, Weak};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tracing::{debug, error, info, trace, warn};
-use uuid::Uuid;
 
 pub struct EmbedContext {
   ollama: ArcSwapOption<Ollama>,
@@ -57,11 +55,21 @@ impl EmbedContext {
     self.try_create_scheduler();
   }
 
+  pub fn get_scheduler(&self) -> FlowyResult<Arc<EmbeddingScheduler>> {
+    self.scheduler.load_full().ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::LocalEmbeddingNotReady,
+        "Local embedding is not ready. Please check if the Ollama and vector db are initialized.",
+      )
+    })
+  }
+
   fn try_create_scheduler(&self) {
     if let (Some(ollama), Some(vector_db)) = (self.ollama.load_full(), self.vector_db.load_full()) {
       info!("[Embedding] Creating scheduler");
       match EmbeddingScheduler::new(ollama, vector_db) {
         Ok(s) => {
+          info!("[Embedding] create scheduler successfully");
           self.scheduler.store(Some(s));
         },
         Err(err) => error!("[Embedding] Failed to create scheduler: {}", err),
@@ -114,7 +122,6 @@ impl EmbeddingScheduler {
     Ok(embedder)
   }
 
-  #[allow(dead_code)]
   pub async fn index_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
     if let Err(err) = self.generate_embedding_tx.send(data).await {
       error!("[Embedding] error generating embedding: {}", err);
@@ -263,23 +270,4 @@ async fn spawn_generate_embeddings(
       Err(err) => error!("[Embedding] Failed to create embedder: {}", err),
     }
   }
-}
-
-pub struct EmbeddingRecord {
-  pub object_id: Uuid,
-  pub chunks: Vec<EmbeddedChunk>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UnindexedCollab {
-  pub workspace_id: Uuid,
-  pub object_id: Uuid,
-  pub collab_type: CollabType,
-  pub data: UnindexedData,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum UnindexedData {
-  Text(String),
-  Paragraphs(Vec<String>),
 }

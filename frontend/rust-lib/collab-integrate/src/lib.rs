@@ -4,7 +4,7 @@ pub use collab_plugins::CollabKVDB;
 
 pub mod collab_builder;
 pub mod config;
-pub mod persistence;
+pub mod period_write;
 mod plugin_provider;
 
 pub use collab_plugins::local_storage::kv::doc::CollabKVAction;

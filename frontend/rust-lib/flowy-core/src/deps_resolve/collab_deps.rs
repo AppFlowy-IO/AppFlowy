@@ -1,4 +1,4 @@
-use collab_entity::CollabType;
+use collab_entity::{CollabObject, CollabType};
 use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
 use diesel::dsl::count_star;
 use diesel::SqliteConnection;
@@ -10,9 +10,12 @@ use flowy_sqlite::{
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
+use collab_integrate::period_write::PeriodicallyWriter;
+use flowy_ai_pub::entities::{UnindexedCollab, UnindexedData};
+use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::sync::{Arc, Weak};
-use tracing::debug;
+use tracing::{debug, error};
 use uuid::Uuid;
 
 pub struct SnapshotDBImpl(pub Weak<AuthenticateUser>);
@@ -230,5 +233,34 @@ impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
 
   fn device_id(&self) -> Result<String, FlowyError> {
     Ok(self.upgrade_user()?.user_config.device_id.clone())
+  }
+}
+
+pub struct PeriodicallyWriterImpl;
+
+#[async_trait]
+impl PeriodicallyWriter for PeriodicallyWriterImpl {
+  async fn write(
+    &self,
+    collab_object: &CollabObject,
+    data: UnindexedData,
+  ) -> Result<(), FlowyError> {
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    {
+      use flowy_ai::embeddings::scheduler::EmbedContext;
+      if let Ok(scheduler) = EmbedContext::shared().get_scheduler() {
+        let unindex_collab = UnindexedCollab {
+          workspace_id: Uuid::parse_str(&collab_object.workspace_id)?,
+          object_id: Uuid::parse_str(&collab_object.object_id)?,
+          collab_type: collab_object.collab_type,
+          data,
+        };
+        if let Err(err) = scheduler.index_collab(unindex_collab).await {
+          error!("[Embedding] error generating embedding: {}", err);
+        }
+      }
+    }
+
+    Ok(())
   }
 }

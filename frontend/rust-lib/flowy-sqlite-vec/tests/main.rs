@@ -1,5 +1,6 @@
 use anyhow::Result;
-use flowy_sqlite_vec::db::{EmbeddedChunk, VectorSqliteDB};
+use flowy_ai_pub::entities::EmbeddedChunk;
+use flowy_sqlite_vec::db::VectorSqliteDB;
 use flowy_sqlite_vec::init_sqlite_vector_extension;
 use tempfile::tempdir;
 use uuid::Uuid;

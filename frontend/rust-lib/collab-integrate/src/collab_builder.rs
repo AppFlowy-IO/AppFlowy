@@ -33,6 +33,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
+use crate::period_write::PeriodicallyEmbeddingWrite;
 use flowy_error::FlowyError;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
@@ -79,14 +80,17 @@ pub struct AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
+  embeddings_writer: Option<PeriodicallyEmbeddingWrite>,
 }
 
 impl AppFlowyCollabBuilder {
   pub fn new(
     storage_provider: impl CollabCloudPluginProvider + 'static,
     workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
+    embeddings_writer: Option<PeriodicallyEmbeddingWrite>,
   ) -> Self {
     Self {
+      embeddings_writer,
       network_reachability: CollabConnectReachability::new(),
       plugin_provider: ArcSwap::new(Arc::new(Arc::new(storage_provider))),
       snapshot_persistence: Default::default(),
@@ -306,6 +310,12 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
+    if let Some(embedding_writer) = self.embeddings_writer.as_ref() {
+      if embedding_writer.support_collab_type(&object.collab_type) {
+        embedding_writer.add_collab(object.clone(), Arc::downgrade(&collab));
+      }
+    }
+
     let mut write_collab = collab.try_write()?;
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
     if has_cloud_plugin {

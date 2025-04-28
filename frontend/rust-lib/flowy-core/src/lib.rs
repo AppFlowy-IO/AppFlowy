@@ -1,6 +1,7 @@
 #![allow(unused_doc_comments)]
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::period_write::PeriodicallyEmbeddingWrite;
 use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
@@ -10,6 +11,11 @@ use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::LoggedUser;
+use flowy_sqlite::kv::KVStorePreferences;
+use flowy_storage::manager::StorageManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user::services::entities::UserConfig;
+use flowy_user::user_manager::UserManager;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -18,16 +24,10 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 use uuid::Uuid;
 
-use flowy_sqlite::kv::KVStorePreferences;
-use flowy_storage::manager::StorageManager;
-use flowy_user::services::authenticate_user::AuthenticateUser;
-use flowy_user::services::entities::UserConfig;
-use flowy_user::user_manager::UserManager;
-
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
-use lib_infra::util::OperatingSystem;
+use lib_infra::util::{get_operating_system, OperatingSystem};
 use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
@@ -168,11 +168,18 @@ impl AppFlowyCore {
         server_provider.clone(),
         &user_config.storage_path,
       );
+
+      let embedding_writer = if get_operating_system().is_desktop() {
+        Some(PeriodicallyEmbeddingWrite::new(PeriodicallyWriterImpl))
+      } else {
+        None
+      };
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
         WorkspaceCollabIntegrateImpl(Arc::downgrade(&authenticate_user)),
+        embedding_writer,
       ));
 
       collab_builder

@@ -22,10 +22,9 @@ tracing.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 lib-infra = { workspace = true }
 arc-swap = "1.7"
-flowy-sqlite = { workspace = true }
-diesel.workspace = true
 flowy-error.workspace = true
 uuid.workspace = true
+flowy-ai-pub.workspace = true
 
 [features]
 default = []

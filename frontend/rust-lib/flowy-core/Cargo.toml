@@ -55,7 +55,6 @@ base64 = "0.21.5"
 lib-infra = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
-serde_repr.workspace = true
 uuid.workspace = true
 sysinfo = "0.30.5"
 semver = { version = "1.0.22", features = ["serde"] }

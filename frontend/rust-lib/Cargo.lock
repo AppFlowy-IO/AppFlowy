@@ -1459,9 +1459,8 @@ dependencies = [
  "collab-folder",
  "collab-plugins",
  "collab-user",
- "diesel",
+ "flowy-ai-pub",
  "flowy-error",
- "flowy-sqlite",
  "lib-infra",
  "serde",
  "serde_json",
@@ -2557,7 +2556,6 @@ dependencies = [
  "arc-swap",
  "base64 0.21.5",
  "bytes",
- "collab-integrate",
  "dashmap 6.0.1",
  "flowy-ai-pub",
  "flowy-codegen",
@@ -2684,7 +2682,6 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "serde_repr",
  "sysinfo",
  "tokio",
  "tokio-stream",
@@ -2791,7 +2788,6 @@ dependencies = [
 name = "flowy-document"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "bytes",
  "collab",
  "collab-document",
@@ -2818,7 +2814,6 @@ dependencies = [
  "strum_macros 0.21.1",
  "tempfile",
  "tokio",
- "tokio-stream",
  "tracing",
  "tracing-subscriber",
  "uuid",
@@ -3062,8 +3057,8 @@ name = "flowy-sqlite-vec"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "flowy-ai-pub",
  "include_dir",
- "once_cell",
  "rusqlite",
  "rusqlite_migration",
  "sqlite-vec",

@@ -1,7 +1,7 @@
 use crate::embeddings::embedder::Embedder;
 use crate::embeddings::indexer::{EmbeddingModel, Indexer};
+use flowy_ai_pub::entities::EmbeddedChunk;
 use flowy_error::FlowyError;
-use flowy_sqlite_vec::db::EmbeddedChunk;
 use lib_infra::async_trait::async_trait;
 use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use serde_json::json;

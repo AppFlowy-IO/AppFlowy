@@ -17,10 +17,10 @@ use flowy_sqlite::kv::KVStorePreferences;
 
 use crate::notification::{chat_notification_builder, ChatNotification};
 use crate::util::ai_available_models_key;
-use collab_integrate::persistence::collab_metadata_sql::{
+use flowy_ai_pub::cloud::ai_dto::AvailableModel;
+use flowy_ai_pub::persistence::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
-use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;

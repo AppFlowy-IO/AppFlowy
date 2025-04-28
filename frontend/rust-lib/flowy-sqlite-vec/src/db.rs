@@ -1,6 +1,7 @@
 use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
+use flowy_ai_pub::entities::{EmbeddedChunk, SearchResult};
 use rusqlite::{params, Connection, ToSql};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -178,23 +179,4 @@ impl VectorSqliteDB {
     }
     Ok(results)
   }
-}
-
-#[derive(Debug, Clone)]
-pub struct EmbeddedChunk {
-  pub fragment_id: String,
-  pub object_id: String,
-  pub content_type: i32,
-  pub content: Option<String>,
-  pub metadata: Option<String>,
-  pub fragment_index: i32,
-  pub embedder_type: i32,
-  pub embeddings: Option<Vec<f32>>,
-}
-
-#[derive(Debug, Clone)]
-pub struct SearchResult {
-  pub oid: String,
-  pub content: String,
-  pub metadata: Option<String>,
 }

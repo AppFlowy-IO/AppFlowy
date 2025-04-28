@@ -1,8 +1,8 @@
 use crate::embeddings::document_indexer::DocumentIndexer;
 use crate::embeddings::embedder::Embedder;
 use flowy_ai_pub::cloud::CollabType;
+use flowy_ai_pub::entities::EmbeddedChunk;
 use flowy_error::FlowyError;
-use flowy_sqlite_vec::db::EmbeddedChunk;
 use lib_infra::async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
