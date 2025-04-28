@@ -27,17 +27,18 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
   final scrollController = ScrollController();
   final List<AiPrompt> oldList = [];
 
+  late AiPromptSelectorCubit cubit;
   late bool filterIsEmpty;
 
   @override
   void initState() {
     super.initState();
-    final textController =
-        context.read<AiPromptSelectorCubit>().filterTextController;
-    final prompts = context.read<AiPromptSelectorCubit>().state.maybeMap(
-          ready: (value) => value.visiblePrompts,
-          orElse: () => <AiPrompt>[],
-        );
+    cubit = context.read<AiPromptSelectorCubit>();
+    final textController = cubit.filterTextController;
+    final prompts = cubit.state.maybeMap(
+      ready: (value) => value.visiblePrompts,
+      orElse: () => <AiPrompt>[],
+    );
     filterIsEmpty = textController.text.isEmpty;
     textController.addListener(handleFilterTextChanged);
     oldList.addAll(prompts);
@@ -45,6 +46,7 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
 
   @override
   void dispose() {
+    cubit.filterTextController.removeListener(handleFilterTextChanged);
     scrollController.dispose();
     super.dispose();
   }
@@ -180,7 +182,6 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
   }
 
   void handleFilterTextChanged() {
-    final cubit = context.read<AiPromptSelectorCubit>();
     setState(() {
       filterIsEmpty = cubit.filterTextController.text.isEmpty;
     });
