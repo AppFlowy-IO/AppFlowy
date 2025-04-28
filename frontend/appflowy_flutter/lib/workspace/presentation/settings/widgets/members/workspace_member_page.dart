@@ -269,9 +269,11 @@ class WorkspaceMembersPage extends StatelessWidget {
           final inviteLink = state.inviteLink;
           if (inviteLink != null) {
             await getIt<ClipboardService>().setPlainText(inviteLink);
-            showToastNotification(
-              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
-            );
+            Future.delayed(const Duration(milliseconds: 200), () {
+              showToastNotification(
+                message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+              );
+            });
           }
         },
         (f) {
