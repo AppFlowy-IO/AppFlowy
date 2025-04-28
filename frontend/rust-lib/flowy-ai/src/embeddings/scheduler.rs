@@ -1,16 +1,23 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
 use crate::embeddings::indexer::IndexerProvider;
+use crate::search::summary::{summarize_documents, LLMDocument};
 use arc_swap::ArcSwapOption;
+use flowy_ai_pub::cloud::search_dto::{
+  SearchContentType, SearchDocumentResponseItem, SearchResult, SearchSummaryResult, Summary,
+};
 use flowy_ai_pub::entities::{EmbeddingRecord, UnindexedCollab, UnindexedData};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_sqlite::internal::derives::multiconnection::chrono::Utc;
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use lib_infra::util::get_operating_system;
+use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use ollama_rs::Ollama;
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock, Weak};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tracing::{debug, error, info, trace, warn};
+use uuid::Uuid;
 
 pub struct EmbedContext {
   ollama: ArcSwapOption<Ollama>,
@@ -128,6 +135,84 @@ impl EmbeddingScheduler {
       error!("[Embedding] error generating embedding: {}", err);
     }
     Ok(())
+  }
+
+  pub async fn search(
+    &self,
+    workspace_id: &Uuid,
+    query: &str,
+  ) -> FlowyResult<Vec<SearchDocumentResponseItem>> {
+    let embedder = self.create_embedder()?;
+    let request = GenerateEmbeddingsRequest::new(
+      embedder.model().name().to_string(),
+      EmbeddingsInput::Single(query.to_string()),
+    );
+
+    let resp = embedder.embed(request).await?;
+    match resp.embeddings.first() {
+      None => Ok(vec![]),
+      Some(query_embed) => {
+        let result = self
+          .vector_db
+          .search(query_embed, 10)
+          .await
+          .map_err(|err| {
+            error!("[Embedding] Failed to search: {}", err);
+            FlowyError::new(ErrorCode::LocalEmbeddingNotReady, "Failed to search")
+          })?;
+
+        let rows = result
+          .into_iter()
+          .map(|v| SearchDocumentResponseItem {
+            object_id: v.oid,
+            workspace_id: *workspace_id,
+            score: 1.0,
+            content_type: Some(SearchContentType::PlainText),
+            content: v.content,
+            preview: None,
+            created_by: "".to_string(),
+            created_at: Utc::now(),
+          })
+          .collect::<Vec<_>>();
+
+        Ok(rows)
+      },
+    }
+  }
+
+  pub async fn generate_summary(
+    &self,
+    question: &str,
+    model_name: &str,
+    search_results: Vec<SearchResult>,
+  ) -> FlowyResult<SearchSummaryResult> {
+    let docs = search_results
+      .into_iter()
+      .map(|v| LLMDocument {
+        content: v.content,
+        object_id: v.object_id,
+      })
+      .collect::<Vec<_>>();
+    let resp = summarize_documents(&self.ollama, question, model_name, docs)
+      .await
+      .map_err(|err| {
+        error!("[Embedding] Failed to generate summary: {}", err);
+        FlowyError::new(
+          ErrorCode::LocalEmbeddingNotReady,
+          "Failed to generate summary",
+        )
+      })?;
+
+    let summaries = resp
+      .summaries
+      .into_iter()
+      .map(|s| Summary {
+        content: s.content,
+        highlights: s.highlights,
+        sources: s.sources,
+      })
+      .collect::<Vec<_>>();
+    Ok(SearchSummaryResult { summaries })
   }
 }
 

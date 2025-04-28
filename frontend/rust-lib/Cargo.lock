@@ -2576,6 +2576,7 @@ dependencies = [
  "pin-project",
  "protobuf",
  "reqwest 0.11.27",
+ "schemars",
  "serde",
  "serde_json",
  "sha2",
@@ -2594,6 +2595,7 @@ dependencies = [
 name = "flowy-ai-pub"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "client-api",
  "flowy-error",
  "flowy-sqlite",
@@ -3058,10 +3060,12 @@ name = "flowy-sqlite-vec"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "flowy-ai-pub",
  "include_dir",
  "rusqlite",
  "rusqlite_migration",
+ "serde_json",
  "sqlite-vec",
  "tempfile",
  "tokio",

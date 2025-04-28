@@ -3,6 +3,7 @@ use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
 use flowy_ai_pub::entities::{EmbeddedChunk, SearchResult};
 use rusqlite::{params, Connection, ToSql};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -148,35 +149,49 @@ impl VectorSqliteDB {
   }
 
   pub async fn search(&self, query: &[f32], top_k: i32) -> Result<Vec<SearchResult>> {
-    let query_blob: &[u8] = query.as_bytes();
+    // 1) Turn your f32 slice into a &[u8]
+    let query_blob = query.as_bytes();
+
+    // 2) SQL
     let sql = "\
-            SELECT info.oid, info.content, info.metadata
-              FROM embeddings_768_v0 AS emb
-         JOIN chunk_embeddings_info AS info
-               ON emb.rowid = info.embed_id
-             WHERE emb.embedding MATCH ?
-               AND k = ?
-        ";
+        SELECT info.oid, info.content, info.metadata
+          FROM embeddings_768_v0 AS emb
+     JOIN chunk_embeddings_info AS info
+           ON emb.rowid = info.embed_id
+         WHERE emb.embedding MATCH ?
+           AND k = ?
+    ";
 
+    // 3) Prepare & execute
     let conn = self.conn.lock().await;
-    let mut stmt = conn.prepare(sql).context("Preparing search statement")?;
+    let mut stmt = conn.prepare(sql).context("preparing search statement")?;
+    let mut rows = stmt
+      .query(params![query_blob, top_k])
+      .context("executing search query")?;
 
-    // 3) bind the vector blob and the limit
-    let rows = stmt
-      .query_map(params![query_blob, top_k], |row| {
-        Ok(SearchResult {
-          oid: row.get(0)?,
-          content: row.get(1)?,
-          metadata: row.get(2)?,
-        })
-      })
-      .context("Executing search query")?;
+    // 4) Iterate, parse, and collect
+    let mut results = Vec::new();
+    while let Some(row) = rows.next().context("reading search row")? {
+      // a) Parse OID, skip if invalid
+      let oid_str: String = row.get(0)?;
+      let oid = match Uuid::parse_str(&oid_str) {
+        Ok(u) => u,
+        Err(_) => continue,
+      };
 
-    // 4) collect into Vec<SearchResult>
-    let mut results = Vec::with_capacity(top_k as usize);
-    for row in rows {
-      results.push(row?);
+      // b) Content & metadata
+      let content: String = row.get(1)?;
+      let metadata = row
+        .get::<_, Option<String>>(2)?
+        .and_then(|s| serde_json::from_str::<Value>(&s).ok());
+
+      results.push(SearchResult {
+        oid,
+        content,
+        metadata,
+      });
     }
+
     Ok(results)
   }
 }

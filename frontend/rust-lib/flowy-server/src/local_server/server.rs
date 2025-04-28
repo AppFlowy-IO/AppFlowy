@@ -1,7 +1,8 @@
 use crate::af_cloud::define::LoggedUser;
 use crate::local_server::impls::{
-  LocalChatServiceImpl, LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
-  LocalServerFolderCloudServiceImpl, LocalServerUserServiceImpl,
+  LocalChatServiceImpl, LocalSearchServiceImpl, LocalServerDatabaseCloudServiceImpl,
+  LocalServerDocumentCloudServiceImpl, LocalServerFolderCloudServiceImpl,
+  LocalServerUserServiceImpl,
 };
 use crate::AppFlowyServer;
 use anyhow::Error;
@@ -78,7 +79,10 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
-    None
+    Some(Arc::new(LocalSearchServiceImpl {
+      logged_user: self.logged_user.clone(),
+      local_ai: self.local_ai.clone(),
+    }))
   }
 
   fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {

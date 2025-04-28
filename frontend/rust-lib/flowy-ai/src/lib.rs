@@ -16,5 +16,6 @@ mod middleware;
 pub mod notification;
 pub mod offline;
 mod protobuf;
+mod search;
 mod stream_message;
 mod util;

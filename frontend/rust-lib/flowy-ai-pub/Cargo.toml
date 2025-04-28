@@ -14,3 +14,4 @@ serde_json.workspace = true
 serde.workspace = true
 uuid.workspace = true
 flowy-sqlite = { workspace = true }
+chrono.workspace = true

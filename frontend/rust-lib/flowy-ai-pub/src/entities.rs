@@ -35,7 +35,7 @@ pub struct EmbeddedChunk {
 
 #[derive(Debug, Clone)]
 pub struct SearchResult {
-  pub oid: String,
+  pub oid: Uuid,
   pub content: String,
-  pub metadata: Option<String>,
+  pub metadata: Option<serde_json::Value>,
 }

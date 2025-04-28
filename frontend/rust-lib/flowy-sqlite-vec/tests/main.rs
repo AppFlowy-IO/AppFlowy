@@ -80,7 +80,7 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
     .await
     .unwrap();
   assert!(!result.is_empty());
-  assert_eq!(result[0].oid, oid);
+  assert_eq!(result[0].oid, Uuid::parse_str(&oid).unwrap());
   assert_eq!(result[0].content, "Content for fragment 0".to_string());
   dbg!(result);
 
