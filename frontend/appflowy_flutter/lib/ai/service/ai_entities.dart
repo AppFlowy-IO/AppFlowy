@@ -190,6 +190,10 @@ class AiPrompt extends Equatable {
   final String id;
   final String name;
   final String content;
+  @JsonKey(
+    unknownEnumValue: AiPromptCategory.other,
+    defaultValue: AiPromptCategory.other,
+  )
   final AiPromptCategory category;
   @JsonKey(defaultValue: "")
   final String example;
@@ -197,5 +201,5 @@ class AiPrompt extends Equatable {
   final bool isFeatured;
 
   @override
-  List<Object?> get props => [id, name, content, category];
+  List<Object?> get props => [id, name, content, category, example, isFeatured];
 }

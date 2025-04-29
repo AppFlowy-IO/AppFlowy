@@ -45,8 +45,6 @@ abstract class AIRepository {
 }
 
 class AppFlowyAIService implements AIRepository {
-  final List<AiPrompt> _builtInPrompts = [];
-
   @override
   Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
@@ -98,10 +96,6 @@ class AppFlowyAIService implements AIRepository {
 
   @override
   Future<List<AiPrompt>> getBuiltInPrompts() async {
-    if (_builtInPrompts.isNotEmpty) {
-      return _builtInPrompts;
-    }
-
     final prompts = <AiPrompt>[];
 
     try {
@@ -119,8 +113,6 @@ class AppFlowyAIService implements AIRepository {
     } catch (e) {
       Log.error(e);
     }
-
-    _builtInPrompts.addAll(prompts);
 
     return prompts;
   }

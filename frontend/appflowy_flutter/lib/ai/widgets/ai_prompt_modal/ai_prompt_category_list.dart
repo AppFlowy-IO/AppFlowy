@@ -60,6 +60,7 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
                   _buildCategoryItem(context, AiPromptCategory.strategy),
                   _buildCategoryItem(context, AiPromptCategory.caseStudies),
                   _buildCategoryItem(context, AiPromptCategory.salesCopy),
+                  _buildCategoryItem(context, AiPromptCategory.other),
                 ],
               ),
             ),
