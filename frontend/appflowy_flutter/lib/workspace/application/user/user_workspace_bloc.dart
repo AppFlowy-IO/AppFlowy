@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -285,6 +287,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
+            getIt<ReminderBloc>().add(ReminderEvent.started());
           },
           renameWorkspace: (workspaceId, name) async {
             final result =

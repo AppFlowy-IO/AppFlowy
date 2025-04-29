@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'mention_link_error_preview.dart';
 import 'mention_link_preview.dart';
@@ -91,6 +92,10 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
 
   @override
   Widget build(BuildContext context) {
+    final child = buildIconWithTitle(context);
+
+    if (UniversalPlatform.isMobile) return child;
+
     return AppFlowyPopover(
       key: ValueKey(showAtBottom),
       controller: previewController,
@@ -143,7 +148,12 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               onRemoveLink: removeLink,
               onOpenLink: openLink,
             ),
-      child: buildIconWithTitle(context),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: onEnter,
+        onExit: onExit,
+        child: child,
+      ),
     );
   }
 
@@ -151,50 +161,44 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     final theme = AppFlowyTheme.of(context);
     final siteName = linkInfo.siteName, linkTitle = linkInfo.title ?? url;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: onEnter,
-      onExit: onExit,
-      child: GestureDetector(
-        onTap: () async {
-          await afLaunchUrlString(url, addingHttpSchemeWhenFailed: true);
-        },
-        child: FlowyHoverContainer(
-          style:
-              HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
-          applyStyle: isHovering,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            key: key,
-            children: [
-              HSpace(2),
-              buildIcon(),
-              HSpace(4),
-              Flexible(
-                child: RichText(
-                  overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
-                    children: [
-                      if (siteName != null) ...[
-                        TextSpan(
-                          text: siteName,
-                          style: theme.textStyle.body
-                              .standard(color: theme.textColorScheme.secondary),
-                        ),
-                        WidgetSpan(child: HSpace(2)),
-                      ],
+    return GestureDetector(
+      onTap: () async {
+        await afLaunchUrlString(url, addingHttpSchemeWhenFailed: true);
+      },
+      child: FlowyHoverContainer(
+        style: HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
+        applyStyle: isHovering,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          key: key,
+          children: [
+            HSpace(2),
+            buildIcon(),
+            HSpace(4),
+            Flexible(
+              child: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  children: [
+                    if (siteName != null) ...[
                       TextSpan(
-                        text: linkTitle,
+                        text: siteName,
                         style: theme.textStyle.body
-                            .standard(color: theme.textColorScheme.primary),
+                            .standard(color: theme.textColorScheme.secondary),
                       ),
+                      WidgetSpan(child: HSpace(2)),
                     ],
-                  ),
+                    TextSpan(
+                      text: linkTitle,
+                      style: theme.textStyle.body
+                          .standard(color: theme.textColorScheme.primary),
+                    ),
+                  ],
                 ),
               ),
-              HSpace(2),
-            ],
-          ),
+            ),
+            HSpace(2),
+          ],
         ),
       ),
     );

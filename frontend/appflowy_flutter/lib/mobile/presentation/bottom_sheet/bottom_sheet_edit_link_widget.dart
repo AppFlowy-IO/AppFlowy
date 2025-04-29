@@ -53,6 +53,7 @@ class _MobileBottomSheetEditLinkWidgetState
   ViewPB? currentView;
   bool showErrorText = false;
   bool showRemoveLink = false;
+  String title = LocaleKeys.editor_editLink.tr();
 
   AppFlowyThemeData get theme => AppFlowyTheme.of(context);
 
@@ -73,6 +74,7 @@ class _MobileBottomSheetEditLinkWidgetState
     )..searchRecentViews();
     if (linkInfo.link.isEmpty) {
       isShowingSearchResult = true;
+      title = LocaleKeys.toolbar_addLink.tr();
     } else {
       showRemoveLink = true;
       textFocusNode.requestFocus();
@@ -104,7 +106,7 @@ class _MobileBottomSheetEditLinkWidgetState
         child: Column(
           children: [
             BottomSheetHeader(
-              title: LocaleKeys.editor_editLink.tr(),
+              title: title,
               onClose: () => context.pop(),
               confirmButton: FlowyTextButton(
                 LocaleKeys.button_done.tr(),

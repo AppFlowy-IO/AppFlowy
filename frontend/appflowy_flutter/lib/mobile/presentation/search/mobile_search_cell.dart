@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,12 +22,18 @@ class MobileSearchResultCell extends StatelessWidget {
     final theme = AppFlowyTheme.of(context),
         textColor = theme.textColorScheme.primary;
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
+    final displayName = item.displayName.isEmpty
+        ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+        : item.displayName;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildIcon(theme),
+          SizedBox.square(
+            dimension: 24,
+            child: Center(child: buildIcon(theme)),
+          ),
           HSpace(12),
           Flexible(
             child: Column(
@@ -35,7 +43,7 @@ class MobileSearchResultCell extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   text: buildHighLightSpan(
-                    content: item.displayName,
+                    content: displayName,
                     normal: theme.textStyle.heading4.standard(color: textColor),
                     highlight: theme.textStyle.heading4
                         .standard(color: textColor)
@@ -45,7 +53,7 @@ class MobileSearchResultCell extends StatelessWidget {
                   ),
                 ),
                 buildPath(commandPaletteState, theme),
-                buildSummary(theme),
+                ...buildSummary(theme),
               ],
             ),
           ),
@@ -84,24 +92,25 @@ class MobileSearchResultCell extends StatelessWidget {
     );
   }
 
-  Widget buildSummary(AppFlowyThemeData theme) {
-    if (item.content.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return RichText(
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-      text: buildHighLightSpan(
-        content: item.content,
-        normal: theme.textStyle.heading4
-            .standard(color: theme.textColorScheme.secondary),
-        highlight: theme.textStyle.heading4
-            .standard(color: theme.textColorScheme.primary)
-            .copyWith(
-              backgroundColor: theme.fillColorScheme.themeSelect,
-            ),
+  List<Widget> buildSummary(AppFlowyThemeData theme) {
+    if (item.content.isEmpty) return [];
+    return [
+      VSpace(theme.spacing.m),
+      RichText(
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        text: buildHighLightSpan(
+          content: item.content,
+          normal: theme.textStyle.heading4
+              .standard(color: theme.textColorScheme.secondary),
+          highlight: theme.textStyle.heading4
+              .standard(color: theme.textColorScheme.primary)
+              .copyWith(
+                backgroundColor: theme.fillColorScheme.themeSelect,
+              ),
+        ),
       ),
-    );
+    ];
   }
 
   TextSpan buildHighLightSpan({
