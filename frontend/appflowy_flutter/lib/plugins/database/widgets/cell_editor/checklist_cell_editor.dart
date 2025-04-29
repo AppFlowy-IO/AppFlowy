@@ -280,7 +280,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
           child: ChecklistCellTextfield(
             textController: textController,
             focusNode: textFieldFocusNode,
-            lineHeight: 1.1,
+            lineHeight: Platform.isWindows ? 1.2 : 1.1,
             onChanged: () {
               _debounceOnChanged.call(() {
                 if (!isComposing) {
