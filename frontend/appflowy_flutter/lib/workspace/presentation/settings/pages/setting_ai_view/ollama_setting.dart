@@ -154,6 +154,7 @@ class LocalAIModelSelection extends StatelessWidget {
               height: 40,
               child: SettingsDropdown<AIModelPB>(
                 key: const Key('_AIModelSelection'),
+                textStyle: Theme.of(context).textTheme.bodySmall,
                 onChanged: (model) => context
                     .read<OllamaSettingBloc>()
                     .add(OllamaSettingEvent.setDefaultModel(model)),
