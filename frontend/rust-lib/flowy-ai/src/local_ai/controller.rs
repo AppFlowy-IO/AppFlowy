@@ -110,7 +110,7 @@ impl LocalAIController {
             continue;
           };
 
-          let key = crate::local_ai::controller::local_ai_enabled_key(&workspace_id.to_string());
+          let key = local_ai_enabled_key(&workspace_id.to_string());
           info!("[Local AI] state: {:?}", state);
 
           // Read whether plugin is enabled from store; default to true
@@ -188,7 +188,7 @@ impl LocalAIController {
         self.ollama.store(Some(new_ollama.clone()));
 
         #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-        crate::embeddings::scheduler::EmbedContext::shared().set_ollama(Some(new_ollama.clone()));
+        crate::embeddings::context::EmbedContext::shared().set_ollama(Some(new_ollama.clone()));
       },
       Err(err) => error!(
         "failed to create ollama client: {:?}, thread: {:?}",

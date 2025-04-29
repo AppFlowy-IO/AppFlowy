@@ -29,7 +29,6 @@ serde_json.workspace = true
 tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 tracing.workspace = true
 derive_builder.workspace = true
-strsim = "0.11.0"
 strum_macros = "0.26.1"
 tantivy.workspace = true
 uuid.workspace = true

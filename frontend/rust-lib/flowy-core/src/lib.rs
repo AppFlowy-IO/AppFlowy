@@ -1,5 +1,6 @@
 #![allow(unused_doc_comments)]
 
+use arc_swap::ArcSwapOption;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::period_write::PeriodicallyEmbeddingWrite;
 use collab_plugins::CollabKVDB;
@@ -34,6 +35,7 @@ use module::make_plugins;
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
+use crate::indexed_data_provider::IndexedDataProvider;
 use crate::log_filter::init_log;
 use crate::server_layer::ServerProvider;
 use deps_resolve::reminder_deps::CollabInteractImpl;
@@ -43,6 +45,8 @@ use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
 mod deps_resolve;
+mod indexed_data_consumer;
+mod indexed_data_provider;
 mod log_filter;
 pub mod module;
 pub(crate) mod server_layer;
@@ -68,6 +72,7 @@ pub struct AppFlowyCore {
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
+  pub indexed_data_provider: Arc<RwLock<Option<IndexedDataProvider>>>,
 }
 
 impl Drop for AppFlowyCore {
@@ -123,7 +128,7 @@ impl AppFlowyCore {
     info!("🔥{:?}", &config);
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-    flowy_ai::embeddings::scheduler::EmbedContext::shared()
+    flowy_ai::embeddings::context::EmbedContext::shared()
       .init_vector_db(PathBuf::from(&config.storage_path));
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(10));
@@ -272,6 +277,7 @@ impl AppFlowyCore {
     }
     .await;
 
+    let indexed_data_provider = Arc::new(RwLock::new(None));
     let user_status_callback = UserStatusCallbackImpl {
       user_manager: Arc::downgrade(&user_manager),
       collab_builder: Arc::downgrade(&collab_builder),
@@ -281,6 +287,8 @@ impl AppFlowyCore {
       server_provider: Arc::downgrade(&server_provider),
       storage_manager: Arc::downgrade(&storage_manager),
       ai_manager: Arc::downgrade(&ai_manager),
+      indexed_data_provider: Arc::downgrade(&indexed_data_provider),
+      logged_ser: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
     };
 
@@ -323,6 +331,7 @@ impl AppFlowyCore {
       ai_manager,
       storage_manager,
       collab_builder,
+      indexed_data_provider,
     }
   }
 

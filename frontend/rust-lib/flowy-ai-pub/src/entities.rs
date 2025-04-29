@@ -8,7 +8,7 @@ pub struct EmbeddingRecord {
   pub chunks: Vec<EmbeddedChunk>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UnindexedCollab {
   pub workspace_id: Uuid,
   pub object_id: Uuid,
@@ -16,10 +16,28 @@ pub struct UnindexedCollab {
   pub data: UnindexedData,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum UnindexedData {
   Text(String),
   Paragraphs(Vec<String>),
+}
+
+impl UnindexedData {
+  #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+  pub fn hash(&self) -> String {
+    use twox_hash::xxhash64::Hasher;
+    match self {
+      UnindexedData::Text(text) => {
+        let h = Hasher::oneshot(0, text.as_bytes());
+        format!("{:016x}", h)
+      },
+      UnindexedData::Paragraphs(paragraphs) => {
+        let combined = paragraphs.join("");
+        let h = Hasher::oneshot(0, combined.as_bytes());
+        format!("{:016x}", h)
+      },
+    }
+  }
 }
 
 #[derive(Debug, Clone)]

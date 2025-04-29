@@ -26,8 +26,7 @@ impl SearchCloudService for LocalSearchServiceImpl {
   ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
-      if let Ok(scheduler) = flowy_ai::embeddings::scheduler::EmbedContext::shared().get_scheduler()
-      {
+      if let Ok(scheduler) = flowy_ai::embeddings::context::EmbedContext::shared().get_scheduler() {
         match scheduler.search(workspace_id, &query).await {
           Ok(results) => return Ok(results),
           Err(err) => tracing::error!("Local AI search failed: {:?}", err),
@@ -48,8 +47,7 @@ impl SearchCloudService for LocalSearchServiceImpl {
   ) -> Result<SearchSummaryResult, FlowyError> {
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
-      if let Ok(scheduler) = flowy_ai::embeddings::scheduler::EmbedContext::shared().get_scheduler()
-      {
+      if let Ok(scheduler) = flowy_ai::embeddings::context::EmbedContext::shared().get_scheduler() {
         let setting = self.local_ai.get_local_ai_setting();
         match scheduler
           .generate_summary(&query, &setting.chat_model_name, search_results)

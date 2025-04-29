@@ -277,9 +277,6 @@ pub enum UserEvent {
 
 #[async_trait]
 pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [AuthType] changed, this method will be called. Currently, the auth type
-  /// will be changed when the user sign in or sign up.
-  fn on_auth_type_changed(&self, _authenticator: AuthType) {}
   /// Fires on app launch, but only if the user is already signed in.
   async fn on_launch_if_authenticated(
     &self,

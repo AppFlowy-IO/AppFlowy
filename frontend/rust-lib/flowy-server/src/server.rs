@@ -9,8 +9,6 @@ use arc_swap::ArcSwapOption;
 use client_api::collab_sync::ServerCollabMessage;
 use flowy_ai_pub::cloud::ChatCloudService;
 use tokio_stream::wrappers::WatchStream;
-#[cfg(feature = "enable_supabase")]
-use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -105,22 +103,6 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// Bridge for the Cloud AI Search features
   ///
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
-
-  /// Manages collaborative objects within a remote storage system. This includes operations such as
-  /// checking storage status, retrieving updates and snapshots, and dispatching updates. The service
-  /// also provides subscription capabilities for real-time updates.
-  ///
-  /// # Arguments
-  ///
-  /// * `collab_object` - A reference to the collaborative object.
-  ///
-  /// # Returns
-  ///
-  /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
-  #[cfg(feature = "enable_supabase")]
-  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
-    None
-  }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
     None

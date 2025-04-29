@@ -1,3 +1,4 @@
+use crate::entities::PendingIndexedCollab;
 use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
@@ -263,5 +264,89 @@ impl VectorSqliteDB {
     }
 
     Ok(out)
+  }
+
+  pub async fn delete_pending_indexed_collab(
+    &self,
+    workspace_id: &str,
+    object_ids: Vec<String>,
+  ) -> Result<()> {
+    // Nothing to do if no object_ids provided
+    if object_ids.is_empty() {
+      return Ok(());
+    }
+
+    // Lock and begin a transaction
+    let mut conn = self.conn.lock().await;
+    let tx = conn
+      .transaction()
+      .context("Starting delete_pending_indexed_collab transaction")?;
+
+    // Build the `IN (?, ?, …)` clause dynamically
+    let placeholders = std::iter::repeat("?")
+      .take(object_ids.len())
+      .collect::<Vec<_>>()
+      .join(", ");
+    let sql = format!(
+      "DELETE FROM af_pending_index_collab WHERE workspace_id = ?1 AND object_id IN ({})",
+      placeholders
+    );
+
+    // Bind workspace_id as param 1, then each object_id
+    let mut query_params: Vec<&dyn ToSql> = Vec::with_capacity(1 + object_ids.len());
+    query_params.push(&workspace_id);
+    for oid in &object_ids {
+      query_params.push(oid as &dyn ToSql);
+    }
+
+    // Execute and commit
+    tx.execute(&sql, query_params.as_slice())
+      .context("Deleting pending indexed collabs")?;
+    tx.commit()
+      .context("Committing delete_pending_indexed_collab transaction")?;
+
+    Ok(())
+  }
+
+  pub async fn queue_pending_indexed_collab(&self, data: PendingIndexedCollab) -> Result<()> {
+    self.batch_queue_pending_indexed_collabs(vec![data]).await
+  }
+
+  /// Enqueue multiple pending collabs in a single transaction.
+  pub async fn batch_queue_pending_indexed_collabs(
+    &self,
+    data: Vec<PendingIndexedCollab>,
+  ) -> Result<()> {
+    if data.is_empty() {
+      return Ok(());
+    }
+
+    // lock once, start one transaction
+    let mut conn = self.conn.lock().await;
+    let tx = conn.transaction().context("Starting transaction")?;
+
+    // prepare INSERT only once
+    let mut stmt = tx.prepare(
+      "INSERT INTO af_pending_index_collab
+               (workspace_id, object_id, collab_type, content)
+             VALUES (?1, ?2, ?3, ?4)",
+    )?;
+
+    // execute for each item
+    for item in data {
+      stmt
+        .execute(rusqlite::params![
+          item.workspace_id,
+          item.object_id,
+          item.collab_type,
+          item.content,
+        ])
+        .context("Inserting pending collab")?;
+    }
+
+    // drop the Statement (releases borrow on tx) then commit
+    drop(stmt);
+    tx.commit().context("Committing transaction")?;
+    Ok(())
   }
 }

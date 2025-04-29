@@ -1,4 +1,6 @@
+pub mod context;
 mod document_indexer;
 mod embedder;
 mod indexer;
-pub mod scheduler;
+mod scheduler;
+mod workspace_index;

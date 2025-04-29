@@ -247,7 +247,7 @@ impl PeriodicallyWriter for PeriodicallyWriterImpl {
   ) -> Result<(), FlowyError> {
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
-      use flowy_ai::embeddings::scheduler::EmbedContext;
+      use flowy_ai::embeddings::context::EmbedContext;
       if let Ok(scheduler) = EmbedContext::shared().get_scheduler() {
         let unindex_collab = UnindexedCollab {
           workspace_id: Uuid::parse_str(&collab_object.workspace_id)?,
@@ -268,7 +268,7 @@ impl PeriodicallyWriter for PeriodicallyWriterImpl {
   async fn delete_embed(&self, workspace_id: &Uuid, object_id: &Uuid) -> Result<(), FlowyError> {
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
-      use flowy_ai::embeddings::scheduler::EmbedContext;
+      use flowy_ai::embeddings::context::EmbedContext;
       if let Ok(scheduler) = EmbedContext::shared().get_scheduler() {
         if let Err(err) = scheduler.delete_collab(workspace_id, object_id).await {
           error!("[Embedding] error generating embedding: {}", err);

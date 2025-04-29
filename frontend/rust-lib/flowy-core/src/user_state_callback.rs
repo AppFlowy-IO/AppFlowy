@@ -1,9 +1,11 @@
-use std::sync::{Arc, Weak};
-
 use anyhow::Context;
+use arc_swap::ArcSwapOption;
 use client_api::entity::billing_dto::SubscriptionPlan;
+use std::sync::{Arc, Weak};
+use std::time::Duration;
 use tracing::{error, event, info};
 
+use crate::indexed_data_provider::IndexedDataProvider;
 use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -14,6 +16,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
+use flowy_server::af_cloud::define::LoggedUser;
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::user_manager::UserManager;
@@ -21,6 +24,7 @@ use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{UserProfile, UserWorkspace, WorkspaceType};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
+use tokio::sync::RwLock;
 use uuid::Uuid;
 
 pub(crate) struct UserStatusCallbackImpl {
@@ -32,6 +36,8 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) server_provider: Weak<ServerProvider>,
   pub(crate) storage_manager: Weak<StorageManager>,
   pub(crate) ai_manager: Weak<AIManager>,
+  pub(crate) indexed_data_provider: Weak<RwLock<Option<IndexedDataProvider>>>,
+  pub(crate) logged_ser: Arc<dyn LoggedUser>,
   // By default, all callback will run on the caller thread. If you don't want to block the caller
   // thread, you can use runtime to spawn a new task.
   pub(crate) runtime: Arc<AFPluginRuntime>,
@@ -116,6 +122,62 @@ impl UserStatusCallbackImpl {
     let object_id = object_id.to_string();
     Ok(read.is_exist(user_id, &workspace_id, &object_id))
   }
+
+  async fn create_indexed_data_provider(&self) {
+    let new_provider = IndexedDataProvider::new(
+      self.folder_manager.clone(),
+      Arc::downgrade(&self.logged_ser),
+    );
+
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+    new_provider
+      .register_consumer(Box::new(
+        crate::indexed_data_consumer::EmbeddingIndexConsumer,
+      ))
+      .await;
+
+    let cloned_new_provider = new_provider.clone();
+    self.runtime.spawn(async move {
+      // initial delay before first indexing
+      tokio::time::sleep(Duration::from_secs(30)).await;
+
+      const MAX_ATTEMPTS: usize = 3;
+      let mut attempt = 0;
+      loop {
+        attempt += 1;
+        match cloned_new_provider.full_index_unindexed_documents().await {
+          Ok(()) => {
+            info!(
+              "full_index_unindexed_documents succeeded on attempt {}",
+              attempt
+            );
+            break;
+          },
+          Err(err) if attempt < MAX_ATTEMPTS => {
+            error!(
+              "Attempt {}/{} to index documents failed: {:?}. retrying in 5s…",
+              attempt, MAX_ATTEMPTS, err
+            );
+            tokio::time::sleep(Duration::from_secs(5)).await;
+          },
+          Err(err) => {
+            error!(
+              "Indexing failed after {} attempts: {:?}. giving up.",
+              attempt, err
+            );
+            break;
+          },
+        }
+      }
+    });
+
+    if let Some(provider) = self.indexed_data_provider.upgrade() {
+      let old = provider.write().await.replace(new_provider);
+      if let Some(old) = old {
+        old.cancel_indexing();
+      }
+    }
+  }
 }
 
 #[async_trait]
@@ -159,6 +221,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let cloned_ai_manager = self.ai_manager()?;
     let server_provider = self.server_provider()?;
     let workspace_type = *workspace_type;
+    self.create_indexed_data_provider().await;
+
     self.runtime.spawn(async move {
       server_provider.on_launch_if_authenticated(&workspace_type);
       if let Err(err) = cloned_ai_manager
@@ -268,6 +332,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .ai_manager()?
       .initialize_after_sign_up(workspace_id)
       .await?;
+
     Ok(())
   }
 
@@ -314,6 +379,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_after_open_workspace(workspace_id)
       .await;
 
+    self.create_indexed_data_provider().await;
     Ok(())
   }
 
