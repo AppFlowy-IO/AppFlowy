@@ -5,10 +5,10 @@ VERSION=$2
 PACKAGE_NAME=$3
 ARCHITECTURE=$4
 
-if [-z $ARCHITECTURE] || ["$ARCHITECTURE" = "amd64"] ; then
+if [ -z "$ARCHITECTURE" ] || [ "$ARCHITECTURE" = "amd64" ]; then
     ARCHITECTURE=amd64
     ALT_ARCHITECTURE=arm64
-elif ["$ARCHITECTURE" = "arm64"]
+elif [ "$ARCHITECTURE" = "arm64" ]; then
     ALT_ARCHITECTURE=amd64
 else
     echo "Supported architectures are only amd64 and arm64."
