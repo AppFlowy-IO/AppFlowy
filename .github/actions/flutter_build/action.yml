@@ -28,14 +28,19 @@ runs:
     - name: Checkout source code
       uses: actions/checkout@v4
 
-    - name: Install Rust toolchain
-      id: rust_toolchain
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust
+      if: ${{ !startsWith(inputs.os, 'windows-11-arm') }}
+      uses: dtolnay/rust-toolchain@master
       with:
         toolchain: ${{ inputs.rust_toolchain }}
-        target: ${{ inputs.rust_target }}
-        override: true
-        profile: minimal
+        targets: ${{ inputs.rust_target }}
+
+    - name: Install Rust and target for Windows ARM manually
+      shell: powershell
+      run: |
+        Invoke-WebRequest https://win.rustup.rs/x86_64 -OutFile rustup-init.exe
+        .\rustup-init.exe -y --default-host aarch64-pc-windows-msvc
+        echo "$env:USERPROFILE\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Install flutter
       id: flutter
