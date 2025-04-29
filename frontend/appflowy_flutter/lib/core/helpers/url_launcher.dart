@@ -39,9 +39,11 @@ Future<bool> afLaunchUri(
     );
   }
 
-  // on Linux or Android, add http scheme to the url if it is not present
+  // on Linux or Android or Windows, add http scheme to the url if it is not present
   if ((UniversalPlatform.isLinux ||
-      UniversalPlatform.isAndroid) && !isURL(url, {'require_protocol': true})) {
+          UniversalPlatform.isAndroid ||
+          UniversalPlatform.isWindows) &&
+      !isURL(url, {'require_protocol': true})) {
     uri = Uri.parse('https://$url');
   }
 

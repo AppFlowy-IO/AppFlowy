@@ -77,6 +77,7 @@
     "temporaryVerificationLinkSent": "A temporary verification link has been sent.\nPlease check your inbox at",
     "temporaryVerificationCodeSent": "A temporary verification code has been sent.\nPlease check your inbox at",
     "continueToSignIn": "Continue to sign in",
+    "continueWithLoginCode": "Continue with login code",
     "backToLogin": "Back to login",
     "enterCode": "Enter code",
     "enterCodeManually": "Enter code manually",
@@ -563,7 +564,7 @@
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
         "updateExistingNamespace": "Update existing namespace",
-        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
+        "upgradeToPro": "Upgrade to Pro Plan to claim a custom namespace",
         "redirectToPayment": "Redirecting to payment page...",
         "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
         "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
@@ -1156,8 +1157,8 @@
       "files": "Files",
       "notifications": "Notifications",
       "open": "Open Settings",
-      "logout": "Logout",
-      "logoutPrompt": "Are you sure you want to logout?",
+      "logout": "Log out",
+      "logoutPrompt": "Are you sure you want to log out?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
@@ -1353,8 +1354,8 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "inviteFailedDialogTitle": "Failed to send invite",
-        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
+        "inviteFailedDialogTitle": "Upgrade to Pro Plan",
+        "inviteFailedMemberLimit": "This workspace has reached the free limit. Please upgrade to Pro to unlock more members.",
         "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
@@ -1375,7 +1376,7 @@
         "inviteMemberByEmail": "Invite member by email",
         "inviteMemberHintText": "Invite by email",
         "resetInviteLink": "Reset the invite link?",
-        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer be available.",
+        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer valid.",
         "adminPanel": "Admin Panel",
         "reset": "Reset",
         "resetInviteLinkSuccess": "Invite link reset successfully",
@@ -1384,7 +1385,11 @@
         "memberPageDescription1": "Access the",
         "memberPageDescription2": "for guest and advanced user management.",
         "noInviteLink": "You haven't generated an invite link yet.",
-        "copyLink": "Copy link"
+        "copyLink": "Copy link",
+        "generatedLinkSuccessfully": "Generated link successfully",
+        "generatedLinkFailed": "Failed to generate link",
+        "resetLinkSuccessfully": "Reset link successfully",
+        "resetLinkFailed": "Failed to reset link"
       }
     },
     "files": {
@@ -1433,7 +1438,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "clickToLogout": "Click to logout the current user"
+      "clickToLogout": "Click to log out the current user"
     },
     "mobile": {
       "personalInfo": "Personal Information",

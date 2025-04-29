@@ -76,10 +76,11 @@ class AccountSignInOutButton extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showConfirmDialog(
+    showCancelAndConfirmDialog(
       context: context,
       title: LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
       description: LocaleKeys.settings_menu_logoutPrompt.tr(),
+      confirmLabel: LocaleKeys.button_yes.tr(),
       onConfirm: () async {
         await getIt<AuthService>().signOut();
         onAction();
