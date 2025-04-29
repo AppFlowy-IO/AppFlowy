@@ -145,7 +145,17 @@ enum AiPromptCategory {
   @JsonValue("caseStudies")
   caseStudies,
   @JsonValue("salesCopy")
-  salesCopy;
+  salesCopy,
+  @JsonValue("education")
+  education,
+  @JsonValue("work")
+  work,
+  @JsonValue("podcastProduction")
+  podcastProduction,
+  @JsonValue("copyWriting")
+  copyWriting,
+  @JsonValue("customerSuccess")
+  customerSuccess;
 
   String get i18n {
     return switch (this) {
@@ -167,6 +177,11 @@ enum AiPromptCategory {
       strategy => LocaleKeys.ai_customPrompt_strategy.tr(),
       caseStudies => LocaleKeys.ai_customPrompt_caseStudies.tr(),
       salesCopy => LocaleKeys.ai_customPrompt_salesCopy.tr(),
+      education => LocaleKeys.ai_customPrompt_education.tr(),
+      work => LocaleKeys.ai_customPrompt_work.tr(),
+      podcastProduction => LocaleKeys.ai_customPrompt_podcastProduction.tr(),
+      copyWriting => LocaleKeys.ai_customPrompt_copyWriting.tr(),
+      customerSuccess => LocaleKeys.ai_customPrompt_customerSuccess.tr(),
     };
   }
 }
