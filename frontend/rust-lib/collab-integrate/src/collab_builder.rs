@@ -33,7 +33,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
-use crate::period_write::PeriodicallyEmbeddingWrite;
+use crate::instant_indexed_data_provider::InstantIndexedDataProvider;
 use flowy_error::FlowyError;
 use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
@@ -81,14 +81,14 @@ pub struct AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
-  embeddings_writer: Option<Arc<PeriodicallyEmbeddingWrite>>,
+  embeddings_writer: Option<Weak<InstantIndexedDataProvider>>,
 }
 
 impl AppFlowyCollabBuilder {
   pub fn new(
     storage_provider: impl CollabCloudPluginProvider + 'static,
     workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
-    embeddings_writer: Option<Arc<PeriodicallyEmbeddingWrite>>,
+    embeddings_writer: Option<Weak<InstantIndexedDataProvider>>,
   ) -> Self {
     Self {
       embeddings_writer,
@@ -314,7 +314,7 @@ impl AppFlowyCollabBuilder {
     if get_operating_system().is_desktop() {
       let cloned_object = object.clone();
       let weak_collab = Arc::downgrade(&collab);
-      let weak_embedding_writer = self.embeddings_writer.as_ref().map(Arc::downgrade);
+      let weak_embedding_writer = self.embeddings_writer.clone();
       tokio::spawn(async move {
         if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
           embedding_writer

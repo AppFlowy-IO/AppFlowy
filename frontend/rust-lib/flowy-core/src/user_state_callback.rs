@@ -1,14 +1,15 @@
 use anyhow::Context;
-use arc_swap::ArcSwapOption;
 use client_api::entity::billing_dto::SubscriptionPlan;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tracing::{error, event, info};
 
-use crate::indexed_data_provider::IndexedDataProvider;
+use crate::deps_resolve::EmbeddingsIndexedDataConsumerImpl;
+use crate::full_indexed_data_provider::FullIndexedDataProvider;
 use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataProvider;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai::ai_manager::AIManager;
@@ -25,6 +26,7 @@ use flowy_user_pub::entities::{UserProfile, UserWorkspace, WorkspaceType};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 use tokio::sync::RwLock;
+use tokio::time::interval;
 use uuid::Uuid;
 
 pub(crate) struct UserStatusCallbackImpl {
@@ -36,7 +38,8 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) server_provider: Weak<ServerProvider>,
   pub(crate) storage_manager: Weak<StorageManager>,
   pub(crate) ai_manager: Weak<AIManager>,
-  pub(crate) indexed_data_provider: Weak<RwLock<Option<IndexedDataProvider>>>,
+  pub(crate) instant_indexed_data_provider: Option<Arc<InstantIndexedDataProvider>>,
+  pub(crate) full_indexed_data_provider: Weak<RwLock<Option<FullIndexedDataProvider>>>,
   pub(crate) logged_ser: Arc<dyn LoggedUser>,
   // By default, all callback will run on the caller thread. If you don't want to block the caller
   // thread, you can use runtime to spawn a new task.
@@ -123,55 +126,106 @@ impl UserStatusCallbackImpl {
     Ok(read.is_exist(user_id, &workspace_id, &object_id))
   }
 
-  async fn create_indexed_data_provider(&self) {
-    let new_provider = IndexedDataProvider::new(
+  async fn start_instant_indexed_data_provider(
+    &self,
+    workspace_id: &Uuid,
+    workspace_type: &WorkspaceType,
+  ) {
+    if let Some(instant_indexed_data_provider) = self.instant_indexed_data_provider.clone() {
+      #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+      {
+        if workspace_type.is_local() {
+          instant_indexed_data_provider
+            .register_consumer(Box::new(EmbeddingsIndexedDataConsumerImpl))
+            .await;
+        }
+      }
+
+      if instant_indexed_data_provider.num_consumers().await > 0 {
+        info!(
+          "[Indexing] Starting instant indexed data provider with {} consumers for workspace: {:?}",
+          instant_indexed_data_provider.num_consumers().await,
+          workspace_id
+        );
+        if let Err(err) = instant_indexed_data_provider
+          .spawn_instant_indexed_provider(&self.runtime.inner)
+          .await
+        {
+          error!(
+            "[Indexing] Failed to spawn instant indexed data provider: {:?}",
+            err
+          );
+        }
+      }
+    }
+  }
+
+  async fn start_full_indexed_data_provider(
+    &self,
+    workspace_id: &Uuid,
+    workspace_type: &WorkspaceType,
+  ) {
+    let new_provider = FullIndexedDataProvider::new(
       self.folder_manager.clone(),
       Arc::downgrade(&self.logged_ser),
     );
 
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
-    new_provider
-      .register_consumer(Box::new(
-        crate::indexed_data_consumer::EmbeddingIndexConsumer,
-      ))
-      .await;
-
-    let cloned_new_provider = new_provider.clone();
-    self.runtime.spawn(async move {
-      // initial delay before first indexing
-      tokio::time::sleep(Duration::from_secs(30)).await;
-
-      const MAX_ATTEMPTS: usize = 3;
-      let mut attempt = 0;
-      loop {
-        attempt += 1;
-        match cloned_new_provider.full_index_unindexed_documents().await {
-          Ok(()) => {
-            info!(
-              "full_index_unindexed_documents succeeded on attempt {}",
-              attempt
-            );
-            break;
-          },
-          Err(err) if attempt < MAX_ATTEMPTS => {
-            error!(
-              "Attempt {}/{} to index documents failed: {:?}. retrying in 5s…",
-              attempt, MAX_ATTEMPTS, err
-            );
-            tokio::time::sleep(Duration::from_secs(5)).await;
-          },
-          Err(err) => {
-            error!(
-              "Indexing failed after {} attempts: {:?}. giving up.",
-              attempt, err
-            );
-            break;
-          },
-        }
+    {
+      if workspace_type.is_local() {
+        new_provider
+          .register_full_indexed_consumer(Box::new(
+            crate::full_indexed_data_consumer::EmbeddingIndexConsumer,
+          ))
+          .await;
       }
-    });
+    }
 
-    if let Some(provider) = self.indexed_data_provider.upgrade() {
+    if new_provider.num_consumers().await > 0 {
+      info!(
+        "[Indexing] Starting full indexed data provider with {} consumers for workspace: {:?}",
+        new_provider.num_consumers().await,
+        workspace_id
+      );
+      let cloned_new_provider = new_provider.clone();
+      let interval_dur = Duration::from_secs(30);
+      let mut ticker = interval(interval_dur);
+
+      self.runtime.spawn(async move {
+        ticker.tick().await;
+
+        const MAX_ATTEMPTS: usize = 3;
+        let mut attempt = 0;
+        loop {
+          attempt += 1;
+          match cloned_new_provider.full_index_unindexed_documents().await {
+            Ok(()) => {
+              info!(
+                "[Indexing] full_index_unindexed_documents succeeded on attempt {}",
+                attempt
+              );
+              break;
+            },
+            Err(err) if attempt < MAX_ATTEMPTS => {
+              error!(
+                "[Indexing] Attempt {}/{} to index documents failed: {:?}. retrying in 5s…",
+                attempt, MAX_ATTEMPTS, err
+              );
+              tokio::time::sleep(Duration::from_secs(5)).await;
+            },
+            Err(err) => {
+              error!(
+                "[Indexing] Indexing failed after {} attempts: {:?}. giving up.",
+                attempt, err
+              );
+              break;
+            },
+          }
+        }
+      });
+    }
+
+    if let Some(provider) = self.full_indexed_data_provider.upgrade() {
       let old = provider.write().await.replace(new_provider);
       if let Some(old) = old {
         old.cancel_indexing();
@@ -217,12 +271,18 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .await?;
     self.document_manager()?.initialize(user_id).await?;
 
-    let workspace_id = *workspace_id;
     let cloned_ai_manager = self.ai_manager()?;
     let server_provider = self.server_provider()?;
-    let workspace_type = *workspace_type;
-    self.create_indexed_data_provider().await;
+    self
+      .start_full_indexed_data_provider(workspace_id, workspace_type)
+      .await;
 
+    self
+      .start_instant_indexed_data_provider(workspace_id, workspace_type)
+      .await;
+
+    let workspace_id = *workspace_id;
+    let workspace_type = *workspace_type;
     self.runtime.spawn(async move {
       server_provider.on_launch_if_authenticated(&workspace_type);
       if let Err(err) = cloned_ai_manager
@@ -276,6 +336,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_after_sign_in(workspace_id)
       .await?;
 
+    self
+      .start_instant_indexed_data_provider(workspace_id, workspace_type)
+      .await;
     Ok(())
   }
 
@@ -333,6 +396,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_after_sign_up(workspace_id)
       .await?;
 
+    self
+      .start_instant_indexed_data_provider(workspace_id, workspace_type)
+      .await;
     Ok(())
   }
 
@@ -379,7 +445,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_after_open_workspace(workspace_id)
       .await;
 
-    self.create_indexed_data_provider().await;
+    self
+      .start_full_indexed_data_provider(workspace_id, workspace_type)
+      .await;
+    self
+      .start_instant_indexed_data_provider(workspace_id, workspace_type)
+      .await;
     Ok(())
   }
 

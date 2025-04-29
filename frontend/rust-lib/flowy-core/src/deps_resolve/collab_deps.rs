@@ -10,7 +10,7 @@ use flowy_sqlite::{
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
 use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
-use collab_integrate::period_write::PeriodicallyWriter;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedData};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
@@ -236,11 +236,15 @@ impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
   }
 }
 
-pub struct PeriodicallyWriterImpl;
+pub struct EmbeddingsIndexedDataConsumerImpl;
 
 #[async_trait]
-impl PeriodicallyWriter for PeriodicallyWriterImpl {
-  async fn write_embed(
+impl InstantIndexedDataConsumer for EmbeddingsIndexedDataConsumerImpl {
+  fn indexed_consumer_id(&self) -> String {
+    "EmbeddingsIndexedDataConsumerImpl".to_string()
+  }
+
+  async fn consume_collab(
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
@@ -265,7 +269,11 @@ impl PeriodicallyWriter for PeriodicallyWriterImpl {
     Ok(())
   }
 
-  async fn delete_embed(&self, workspace_id: &Uuid, object_id: &Uuid) -> Result<(), FlowyError> {
+  async fn did_delete_collab(
+    &self,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
+  ) -> Result<(), FlowyError> {
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
       use flowy_ai::embeddings::context::EmbedContext;

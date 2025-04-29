@@ -1,8 +1,7 @@
 #![allow(unused_doc_comments)]
 
-use arc_swap::ArcSwapOption;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::period_write::PeriodicallyEmbeddingWrite;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataProvider;
 use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
@@ -35,7 +34,7 @@ use module::make_plugins;
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
-use crate::indexed_data_provider::IndexedDataProvider;
+use crate::full_indexed_data_provider::FullIndexedDataProvider;
 use crate::log_filter::init_log;
 use crate::server_layer::ServerProvider;
 use deps_resolve::reminder_deps::CollabInteractImpl;
@@ -45,8 +44,8 @@ use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
 mod deps_resolve;
-mod indexed_data_consumer;
-mod indexed_data_provider;
+mod full_indexed_data_consumer;
+mod full_indexed_data_provider;
 mod log_filter;
 pub mod module;
 pub(crate) mod server_layer;
@@ -72,7 +71,7 @@ pub struct AppFlowyCore {
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
-  pub indexed_data_provider: Arc<RwLock<Option<IndexedDataProvider>>>,
+  pub indexed_data_provider: Arc<RwLock<Option<FullIndexedDataProvider>>>,
 }
 
 impl Drop for AppFlowyCore {
@@ -167,6 +166,7 @@ impl AppFlowyCore {
       search_manager,
       ai_manager,
       storage_manager,
+      instant_indexed_data_provider,
     ) = async {
       let storage_manager = FileStorageResolver::resolve(
         Arc::downgrade(&authenticate_user),
@@ -174,11 +174,8 @@ impl AppFlowyCore {
         &user_config.storage_path,
       );
 
-      let embedding_writer = if get_operating_system().is_desktop() {
-        Some(Arc::new(PeriodicallyEmbeddingWrite::new(
-          PeriodicallyWriterImpl,
-          &runtime.inner,
-        )))
+      let instant_indexed_data_provider = if get_operating_system().is_desktop() {
+        Some(Arc::new(InstantIndexedDataProvider::new()))
       } else {
         None
       };
@@ -187,7 +184,7 @@ impl AppFlowyCore {
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
         WorkspaceCollabIntegrateImpl(Arc::downgrade(&authenticate_user)),
-        embedding_writer,
+        instant_indexed_data_provider.as_ref().map(Arc::downgrade),
       ));
 
       collab_builder
@@ -273,6 +270,7 @@ impl AppFlowyCore {
         search_manager,
         ai_manager,
         storage_manager,
+        instant_indexed_data_provider,
       )
     }
     .await;
@@ -287,7 +285,8 @@ impl AppFlowyCore {
       server_provider: Arc::downgrade(&server_provider),
       storage_manager: Arc::downgrade(&storage_manager),
       ai_manager: Arc::downgrade(&ai_manager),
-      indexed_data_provider: Arc::downgrade(&indexed_data_provider),
+      instant_indexed_data_provider,
+      full_indexed_data_provider: Arc::downgrade(&indexed_data_provider),
       logged_ser: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
     };

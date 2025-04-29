@@ -84,9 +84,6 @@ class SearchResponseStream {
         );
       }
       if (searchState.response.hasSearchSummary()) {
-        print(
-            'searchState.response.searchSummary.items: ${searchState.response.searchSummary.items}');
-
         _onSummaries?.call(
           searchState.response.searchSummary.items,
           searchId,

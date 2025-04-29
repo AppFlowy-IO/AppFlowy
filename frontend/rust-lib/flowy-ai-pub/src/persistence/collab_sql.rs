@@ -27,6 +27,32 @@ impl IndexCollabRecordTable {
   }
 }
 
+pub fn batch_upsert_index_collab(
+  conn: &mut SqliteConnection,
+  rows: Vec<IndexCollabRecordTable>,
+) -> FlowyResult<()> {
+  if rows.is_empty() {
+    return Ok(());
+  }
+
+  conn.immediate_transaction::<_, diesel::result::Error, _>(|conn| {
+    for row in rows {
+      diesel::insert_into(index_collab_record_table::table)
+        .values(&row)
+        .on_conflict(index_collab_record_table::oid)
+        .do_update()
+        .set(
+          index_collab_record_table::content_hash
+            .eq(excluded(index_collab_record_table::content_hash)),
+        )
+        .execute(conn)?;
+    }
+    Ok(())
+  })?;
+
+  Ok(())
+}
+
 pub fn upsert_index_collab(
   conn: &mut SqliteConnection,
   row: IndexCollabRecordTable,

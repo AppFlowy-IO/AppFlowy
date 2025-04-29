@@ -4,9 +4,10 @@ use collab_document::document::DocumentBody;
 use collab_entity::CollabType;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use collab_plugins::CollabKVDB;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedData};
-use flowy_ai_pub::persistence::{select_indexed_collab_ids, upsert_index_collab};
+use flowy_ai_pub::persistence::{
+  batch_upsert_index_collab, select_indexed_collab_ids, IndexCollabRecordTable,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_server::af_cloud::define::LoggedUser;
@@ -18,20 +19,20 @@ use tracing::{info, trace, warn};
 use uuid::Uuid;
 
 #[async_trait]
-pub trait IndexedDataConsumer: Send + Sync {
+pub trait FullIndexedDataConsumer: Send + Sync {
   fn consumer_id(&self) -> String;
   async fn consume_indexed_data(&self, uid: i64, data: &UnindexedCollab) -> FlowyResult<()>;
 }
 
 #[derive(Clone)]
-pub struct IndexedDataProvider {
+pub struct FullIndexedDataProvider {
   folder_manager: Weak<FolderManager>,
   logged_user: Weak<dyn LoggedUser>,
   cancel_token: CancellationToken,
-  consumers: Arc<RwLock<Vec<Box<dyn IndexedDataConsumer>>>>,
+  consumers: Arc<RwLock<Vec<Box<dyn FullIndexedDataConsumer>>>>,
 }
 
-impl IndexedDataProvider {
+impl FullIndexedDataProvider {
   pub fn new(folder_manager: Weak<FolderManager>, logged_user: Weak<dyn LoggedUser>) -> Self {
     let cancel_token = CancellationToken::new();
     let consumers = Arc::new(RwLock::new(Vec::new()));
@@ -43,7 +44,13 @@ impl IndexedDataProvider {
     }
   }
 
-  pub async fn register_consumer(&self, consumer: Box<dyn IndexedDataConsumer>) {
+  pub async fn num_consumers(&self) -> usize {
+    let consumers = self.consumers.read().await;
+    consumers.len()
+  }
+
+  pub async fn register_full_indexed_consumer(&self, consumer: Box<dyn FullIndexedDataConsumer>) {
+    info!("[Indexing] Registering {}", consumer.consumer_id());
     let mut consumers = self.consumers.write().await;
     consumers.push(consumer);
   }
@@ -52,14 +59,25 @@ impl IndexedDataProvider {
     self.cancel_token.cancel();
   }
 
+  async fn is_workspace_changed(&self, expected_workspace_id: &Uuid) -> bool {
+    if let Some(logged_user) = self.logged_user.upgrade() {
+      if let Ok(current_workspace_id) = logged_user.workspace_id() {
+        return current_workspace_id != *expected_workspace_id;
+      }
+    }
+    // If we can't determine, assume it changed to be safe
+    true
+  }
+
   pub async fn full_index_unindexed_documents(&self) -> FlowyResult<()> {
     if self.consumers.read().await.is_empty() {
-      warn!("Indexing cancelled: No consumers registered");
+      warn!("[Indexing] Indexing cancelled: No consumers registered");
       return Ok(());
     }
 
     let logged_user = self.logged_user.upgrade().ok_or_else(|| {
-      FlowyError::unauthorized().with_context("Failed to upgrade AuthenticateUser when indexing")
+      FlowyError::unauthorized()
+        .with_context("[Indexing] Failed to upgrade AuthenticateUser when indexing")
     })?;
 
     let uid = logged_user.user_id()?;
@@ -80,33 +98,61 @@ impl IndexedDataProvider {
       .collect::<Vec<_>>();
 
     if unindex_ids.is_empty() {
-      info!("Indexing skip: No unindexed documents");
+      info!("[Indexing] skip: No unindexed documents");
       return Ok(());
     }
 
     // chunk the unindex_ids into smaller chunks
     let chunk_size = 20;
-    info!("Indexing {} unindexed documents", unindex_ids.len());
+    info!("[Indexing] {} unindexed documents", unindex_ids.len());
     let chunks = unindex_ids.chunks(chunk_size);
     for chunk in chunks.into_iter() {
+      if self.is_workspace_changed(&workspace_id).await {
+        info!("[Indexing] cancelled: Workspace changed");
+        break;
+      }
+
       if let Ok(unindexed) = self.index_documents(uid, &workspace_id, chunk).await {
         if self.cancel_token.is_cancelled() {
-          info!("Indexing cancelled");
+          info!("[Indexing] cancelled");
           break;
         }
 
         for consumer in self.consumers.read().await.iter() {
-          for data in unindexed.iter() {
-            trace!("Indexing data for consumer: {}", consumer.consumer_id());
+          for data in &unindexed {
+            trace!("[Indexing] {} consume data", consumer.consumer_id());
             consumer.consume_indexed_data(uid, data).await?;
           }
+        }
+        if let Some(mut db) = self
+          .logged_user
+          .upgrade()
+          .and_then(|v| v.get_sqlite_db(uid).ok())
+        {
+          let rows = unindexed
+            .into_iter()
+            .map(|v| IndexCollabRecordTable {
+              oid: v.object_id.to_string(),
+              workspace_id: v.workspace_id.to_string(),
+              content_hash: v.data.hash(),
+            })
+            .collect::<Vec<_>>();
+
+          batch_upsert_index_collab(&mut db, rows)?;
         }
       }
 
       if self.cancel_token.is_cancelled() {
-        info!("Indexing cancelled");
+        info!("[Indexing] Indexing cancelled");
         break;
       }
+
+      // Check if workspace has changed before sleep
+      if self.is_workspace_changed(&workspace_id).await {
+        info!("[Indexing] Indexing cancelled: Workspace changed");
+        break;
+      }
+
       tokio::time::sleep(std::time::Duration::from_secs(5)).await;
     }
     Ok(())
@@ -134,7 +180,7 @@ impl IndexedDataProvider {
 
       for object_str in unindex_ids {
         // 1) Load into a Collab
-        let mut collab = Collab::new(uid, &object_str, "", vec![], false);
+        let mut collab = Collab::new(uid, &object_str, "indexing_device", vec![], false);
         {
           let mut txn = collab.transact_mut();
           read_txn

@@ -18,7 +18,7 @@ CREATE TABLE af_pending_index_collab
     content      TEXT             NOT NULL,
     collab_type  SMALLINT         NOT NULL,
     updated_at   TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    indexed_at   TIMESTAMP                 DEFAULT NULL,
+    indexed_at   TIMESTAMP                 DEFAULT NULL
 );
 
 -- create index for oid and workspace_id
