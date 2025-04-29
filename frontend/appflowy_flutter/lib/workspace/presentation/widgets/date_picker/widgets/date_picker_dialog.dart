@@ -210,30 +210,41 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
           dateTime: options.selectedDay,
           popoverMutex: widget.popoverMutex,
           reminderOption: options.selectedReminderOption ?? ReminderOption.none,
-          onDaySelected: (d) {
-            widget.options.onDaySelected?.call(d);
-            setState(() {
-              options = options.copyWith(selectedDay: d);
-            });
-          },
-          onIsRangeChanged: (isRange, s, e) {
-            options.onIsRangeChanged?.call(isRange, s, e);
-          },
-          onIncludeTimeChanged: (include, s, e) {
-            options.onIncludeTimeChanged?.call(include, s, e);
-            setState(() {
-              options = options.copyWith(includeTime: include, selectedDay: s);
-            });
-          },
-          onRangeSelected: (s, e) {
-            widget.options.onRangeSelected?.call(s, e);
-          },
-          onReminderSelected: (o) {
-            widget.options.onReminderSelected?.call(o);
-            setState(() {
-              options = options.copyWith(selectedReminderOption: o);
-            });
-          },
+          onDaySelected: options.onDaySelected == null
+              ? null
+              : (d) {
+                  options.onDaySelected?.call(d);
+                  setState(() {
+                    options = options.copyWith(selectedDay: d);
+                  });
+                },
+          onIsRangeChanged: options.onIsRangeChanged == null
+              ? null
+              : (isRange, s, e) {
+                  options.onIsRangeChanged?.call(isRange, s, e);
+                },
+          onIncludeTimeChanged: options.onIncludeTimeChanged == null
+              ? null
+              : (include, s, e) {
+                  options.onIncludeTimeChanged?.call(include, s, e);
+                  setState(() {
+                    options =
+                        options.copyWith(includeTime: include, selectedDay: s);
+                  });
+                },
+          onRangeSelected: options.onRangeSelected == null
+              ? null
+              : (s, e) {
+                  options.onRangeSelected?.call(s, e);
+                },
+          onReminderSelected: options.onReminderSelected == null
+              ? null
+              : (o) {
+                  options.onReminderSelected?.call(o);
+                  setState(() {
+                    options = options.copyWith(selectedReminderOption: o);
+                  });
+                },
         ),
       ),
     );
