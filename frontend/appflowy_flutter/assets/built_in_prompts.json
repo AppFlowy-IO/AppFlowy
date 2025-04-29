@@ -58,7 +58,8 @@
             "id": "builtin_prompt_9",
             "name": "Explain like I’m 5",
             "category": "learning",
-            "content": "Explain [concept or question, e.g., What is gravity?, What does money do?, How do plants grow?] in a way that a 5-year-old would understand. Use very simple language, short sentences, and relatable examples from everyday life (like toys, animals, food, or playground activities). Avoid technical jargon and aim to make the explanation fun and clear.\n\nIf helpful, include a quick story or analogy to illustrate the idea. You can end the explanation with a cheerful summary or a fun fact to keep it engaging."
+            "content": "Explain [concept or question, e.g., What is gravity?, What does money do?, How do plants grow?] in a way that a 5-year-old would understand. Use very simple language, short sentences, and relatable examples from everyday life (like toys, animals, food, or playground activities). Avoid technical jargon and aim to make the explanation fun and clear.\n\nIf helpful, include a quick story or analogy to illustrate the idea. You can end the explanation with a cheerful summary or a fun fact to keep it engaging.",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_10",
@@ -157,7 +158,8 @@
             "id": "builtin_prompt_25",
             "name": "Write an introductory paragraph",
             "category": "writing",
-            "content": "Write an engaging introductory paragraph for an essay about [essay topic, e.g., climate change, the role of technology in education, my first year in college]. Based on the topic, infer the appropriate essay type (e.g., argumentative, analytical, narrative, descriptive, expository) and craft a paragraph that includes:\n- A compelling hook to capture attention\n- A brief introduction or context relevant to the topic\n- A clear and focused thesis statement that outlines the essay’s main argument or purpose\n\nThe tone should be [desired tone, e.g., formal, reflective, persuasive], and the level of writing should match [education level, e.g., high school, college freshman, senior].\n\nAfter the paragraph, provide brief tips or an outline to help the student continue the essay, including:\n- Suggested structure for body paragraphs\n- Ideas for supporting evidence or examples\n- Transitions to use between paragraphs\n- A reminder of how to restate the thesis in the conclusion"
+            "content": "Write an engaging introductory paragraph for an essay about [essay topic, e.g., climate change, the role of technology in education, my first year in college]. Based on the topic, infer the appropriate essay type (e.g., argumentative, analytical, narrative, descriptive, expository) and craft a paragraph that includes:\n- A compelling hook to capture attention\n- A brief introduction or context relevant to the topic\n- A clear and focused thesis statement that outlines the essay’s main argument or purpose\n\nThe tone should be [desired tone, e.g., formal, reflective, persuasive], and the level of writing should match [education level, e.g., high school, college freshman, senior].\n\nAfter the paragraph, provide brief tips or an outline to help the student continue the essay, including:\n- Suggested structure for body paragraphs\n- Ideas for supporting evidence or examples\n- Transitions to use between paragraphs\n- A reminder of how to restate the thesis in the conclusion",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_26",
@@ -176,7 +178,8 @@
             "id": "builtin_prompt_28",
             "name": "Summarizer",
             "category": "learning",
-            "content": "Act as a skilled summarizer. Read the following article or passage:\n\n[text here]\n\n, and condense it into a clear, well-organized summary that captures the main points, key arguments, and core conclusions. Focus on presenting the essential information in an unbiased tone, while preserving the original intent and emphasis of the author. Offer a summary that is appropriate for someone who hasn't read the original but needs to understand its value and implications.\n\nWhile summarizing:\n– Identify the central thesis and supporting evidence\n– Exclude repetitive or non-essential details\n– Maintain neutrality and accuracy\n– Use your own words, not direct quotes, unless absolutely necessary\n– At the end, include a brief note on how to properly cite or reference the source if used in academic or professional contexts"
+            "content": "Act as a skilled summarizer. Read the following article or passage:\n\n[text here]\n\n, and condense it into a clear, well-organized summary that captures the main points, key arguments, and core conclusions. Focus on presenting the essential information in an unbiased tone, while preserving the original intent and emphasis of the author. Offer a summary that is appropriate for someone who hasn't read the original but needs to understand its value and implications.\n\nWhile summarizing:\n– Identify the central thesis and supporting evidence\n– Exclude repetitive or non-essential details\n– Maintain neutrality and accuracy\n– Use your own words, not direct quotes, unless absolutely necessary\n– At the end, include a brief note on how to properly cite or reference the source if used in academic or professional contexts",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_29",
@@ -320,7 +323,8 @@
             "id": "built_in_prompt_49",
             "name": "Blog Outline",
             "content": "Create a blog outline for [topic].\n\nOptional details: Focus on [angle] to show the reader to do [action].",
-            "category": "contentSeo"
+            "category": "contentSeo",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_50",
@@ -332,7 +336,8 @@
             "id": "built_in_prompt_51",
             "name": "FAQ Generator",
             "content": "Create a list of [10] frequently asked questions about [keyword] and provide answers for each one of them considering the SERP and rich result guidelines.",
-            "category": "contentSeo"
+            "category": "contentSeo",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_52",
@@ -350,7 +355,8 @@
             "id": "built_in_prompt_54",
             "name": "Product Brochure",
             "content": "Create a brochure outlining the features and benefits of [product]. Include customer testimonials and a call to action.\n\nProduct details: [additional product details]",
-            "category": "contentSeo"
+            "category": "contentSeo",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_55",
@@ -362,7 +368,8 @@
             "id": "built_in_prompt_56",
             "name": "Rewrite Content",
             "content": "Revise the given content to improve its clarity, conciseness, and overall quality.\n\nInstructions:\n1. Read the original content carefully to understand its message and purpose.\n2. Identify any areas that need improvement, such as grammar, word choice, or sentence structure.\n3. Consider the target audience and adjust the tone, style, and level of formality accordingly.\n4. Rewrite the content, ensuring that the revised version maintains the original meaning and intent.\n5. Use clear and concise language, avoiding unnecessary jargon or complex terms.\n6. Break down lengthy sentences into shorter, more digestible ones.\n7. Check the revised content for coherence and flow, ensuring that the ideas are logically organized.\n8. Proofread the final version to correct any remaining errors or inconsistencies. \n\nOriginal content:\n\n[paste the original content here]",
-            "category": "contentSeo"
+            "category": "contentSeo",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_57",
@@ -386,7 +393,8 @@
             "id": "built_in_prompt_60",
             "name": "Step-by-Step Guide",
             "content": "Create a step by step guide to instruct how to [topic].",
-            "category": "contentSeo"
+            "category": "contentSeo",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_61",
@@ -488,7 +496,8 @@
             "id": "built_in_prompt_77",
             "name": "Press Release",
             "content": "Write a press release for [company or organization] announcing a recent achievement or milestone. Begin with a concise and attention-grabbing headline that summarizes the main news. In the opening paragraph, provide a brief overview of the announcement and its significance. In the following paragraphs, provide more details about the achievement, including any relevant statistics or data. Use quotes from company representatives or experts to add credibility and context to the announcement. End the press release with a brief company description and contact information for media inquiries.\n\nRemember to keep the press release concise, informative, and engaging, highlighting the key takeaways and benefits of the announcement.\n\nPress release details:\n\n[paste any necessary details about the announcement here]",
-            "category": "prCommunication"
+            "category": "prCommunication",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_78",
@@ -518,7 +527,8 @@
             "id": "built_in_prompt_82",
             "name": "Competitive Analysis",
             "content": "Conduct a full analysis of [competitor company name] and identify the competitive advantages and disadvantages of their product.",
-            "category": "sales"
+            "category": "sales",
+            "is_featured": true
         },
         {
             "id": "built_in_prompt_83",
@@ -554,7 +564,8 @@
             "id": "builtin_prompt_88",
             "name": "Headlines",
             "content": "Write 5 attention-grabbing headlines for a [platform] post on [topic] for [audience].",
-            "category": "socialMedia"
+            "category": "socialMedia",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_89",
@@ -566,7 +577,8 @@
             "id": "builtin_prompt_90",
             "name": "LinkedIn Post",
             "content": "Create a narrative Linkedin post using immersive writing about [topic].\n\nDetails:\n\n[give details in bullet point format]\n\nUse a mix of short and long sentences. Make it punchy and dramatic.",
-            "category": "socialMedia"
+            "category": "socialMedia",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_91",
@@ -590,7 +602,8 @@
             "id": "builtin_prompt_94",
             "name": "Reframing Business Perspectives",
             "content": "Apply Reframing Business Perspectives to analyze [my business decision]. Look at the problem from different angles, challenging the existing beliefs.",
-            "category": "strategy"
+            "category": "strategy",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_95",
@@ -626,7 +639,8 @@
             "id": "builtin_prompt_100",
             "name": "Customer Lifetime Value",
             "content": "Assess [my business decision] by considering Customer Lifetime Value. Analyze the long-term value of customers to understand how acquisition, retention, and monetization strategies align.",
-            "category": "strategy"
+            "category": "strategy",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_101",
@@ -662,7 +676,8 @@
             "id": "builtin_prompt_106",
             "name": "Freemium Business Model",
             "content": "Apply the Freemium Business Model to [my business decision]. Explore offering basic services for free while charging for premium features.",
-            "category": "strategy"
+            "category": "strategy",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_107",
@@ -698,7 +713,8 @@
             "id": "builtin_prompt_112",
             "name": "Lean Startup Principles",
             "content": "Apply Lean Startup Principles to [my business decision]. Focus on creating a minimum viable product, measuring its success, and learning from the results.",
-            "category": "strategy"
+            "category": "strategy",
+            "is_featured": true
         },
         {
             "id": "builtin_prompt_113",
