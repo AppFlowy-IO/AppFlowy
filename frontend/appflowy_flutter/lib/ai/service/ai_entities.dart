@@ -122,8 +122,6 @@ enum AiPromptCategory {
   business,
   @JsonValue("marketing")
   marketing,
-  @JsonValue("learning")
-  learning,
   @JsonValue("travel")
   travel,
   @JsonValue("contentSeo")
@@ -165,7 +163,6 @@ enum AiPromptCategory {
       healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness.tr(),
       business => LocaleKeys.ai_customPrompt_business.tr(),
       marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
-      learning => LocaleKeys.ai_customPrompt_learning.tr(),
       travel => LocaleKeys.ai_customPrompt_travel.tr(),
       contentSeo => LocaleKeys.ai_customPrompt_contentSeo.tr(),
       emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing.tr(),

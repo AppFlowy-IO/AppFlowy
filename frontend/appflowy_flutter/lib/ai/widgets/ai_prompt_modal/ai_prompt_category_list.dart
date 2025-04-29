@@ -44,7 +44,6 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
                   _buildCategoryItem(context, AiPromptCategory.writing),
                   _buildCategoryItem(context, AiPromptCategory.business),
                   _buildCategoryItem(context, AiPromptCategory.marketing),
-                  _buildCategoryItem(context, AiPromptCategory.learning),
                   _buildCategoryItem(
                     context,
                     AiPromptCategory.healthAndFitness,

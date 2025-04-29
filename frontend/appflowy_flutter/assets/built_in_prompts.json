@@ -57,7 +57,7 @@
         {
             "id": "builtin_prompt_9",
             "name": "Explain like I’m 5",
-            "category": "learning",
+            "category": "education",
             "content": "Explain [concept or question, e.g., What is gravity?, What does money do?, How do plants grow?] in a way that a 5-year-old would understand. Use very simple language, short sentences, and relatable examples from everyday life (like toys, animals, food, or playground activities). Avoid technical jargon and aim to make the explanation fun and clear.\n\nIf helpful, include a quick story or analogy to illustrate the idea. You can end the explanation with a cheerful summary or a fun fact to keep it engaging.",
             "isFeatured": true
         },
@@ -76,7 +76,7 @@
         {
             "id": "builtin_prompt_12",
             "name": "Learning with Historical Figures",
-            "category": "learning",
+            "category": "education",
             "content": "Pretend you are [famous figure] explaining [topic] to me. Let’s have a dialogue where I can ask questions to understand better."
         },
         {
@@ -151,7 +151,7 @@
         {
             "id": "builtin_prompt_24",
             "name": "Financial planner",
-            "category": "learning",
+            "category": "education",
             "content": "I want you to act as a financial planner, who can provide a roadmap and guidance on how to accumulate wealth to [financial goal]. Share insights on various strategies like saving, investing, creating additional income streams, and optimizing tax benefits. Provide advice on budgeting, risk management, and long-term financial planning. Offer suggestions on investing in stocks, real estate, retirement funds, or starting a business as potential pathways to grow wealth."
         },
         {
@@ -164,20 +164,20 @@
         {
             "id": "builtin_prompt_26",
             "name": "Real-Time Problem Solving",
-            "category": "learning",
+            "category": "education",
             "content": "Work through this problem step-by-step: [problem or topic, e.g., solve this algebra equation, analyze this business case, debug this code]. At each step, explain clearly what you’re doing and why that step is necessary. Don’t just give the final answer — break it down logically and thoroughly. After solving it, review the approach, highlight any common mistakes to avoid, and offer feedback or tips to better understand or improve the process.\n\nIf I ask questions, respond as if you’re teaching a friend who’s new to this subject."
         },
         {
             "id": "builtin_prompt_27",
             "name": "Paraphraser",
-            "category": "learning",
+            "category": "education",
             "content": "I want you to act as a content paraphraser, who can skillfully rephrase and restructure existing text to create a new, unique version without altering the original meaning or intent. Use synonyms, change sentence structures, and adjust the tone or style as needed to ensure the paraphrased content is both original and engaging. Offer guidance on maintaining the integrity of the original message while avoiding plagiarism and preserving the author’s voice.\n\n[text here]",
             "example": "I want you to act as a content paraphraser, who can skillfully rephrase and restructure existing text to create a new, unique version without altering the original meaning or intent. Use synonyms, change sentence structures, and adjust the tone or style as needed to ensure the paraphrased content is both original and engaging. Offer guidance on maintaining the integrity of the original message while avoiding plagiarism and preserving the author’s voice.\n\nThe quick brown fox jumps over the lazy dog."
         },
         {
             "id": "builtin_prompt_28",
             "name": "Summarizer",
-            "category": "learning",
+            "category": "education",
             "content": "Act as a skilled summarizer. Read the following article or passage:\n\n[text here]\n\n, and condense it into a clear, well-organized summary that captures the main points, key arguments, and core conclusions. Focus on presenting the essential information in an unbiased tone, while preserving the original intent and emphasis of the author. Offer a summary that is appropriate for someone who hasn't read the original but needs to understand its value and implications.\n\nWhile summarizing:\n– Identify the central thesis and supporting evidence\n– Exclude repetitive or non-essential details\n– Maintain neutrality and accuracy\n– Use your own words, not direct quotes, unless absolutely necessary\n– At the end, include a brief note on how to properly cite or reference the source if used in academic or professional contexts",
             "isFeatured": true
         },
@@ -191,7 +191,7 @@
         {
             "id": "builtin_prompt_30",
             "name": "Course Generator",
-            "category": "learning",
+            "category": "education",
             "content": "I want you to act as a course generator, who can design comprehensive and engaging educational courses across a wide range of subjects, such as technology, personal development, arts, or business. Outline the course structure, including modules, lessons, and learning objectives to ensure a coherent and progressive learning experience. Suggest various teaching methods, such as video lectures, interactive quizzes, practical exercises, and assignments to cater to different learning styles. Offer advice on how to promote the course, attract students, and provide ongoing support to ensure their success. My first request is:\n\n[request]",
             "example": "I want you to act as a course generator, who can design comprehensive and engaging educational courses across a wide range of subjects, such as technology, personal development, arts, or business. Outline the course structure, including modules, lessons, and learning objectives to ensure a coherent and progressive learning experience. Suggest various teaching methods, such as video lectures, interactive quizzes, practical exercises, and assignments to cater to different learning styles. Offer advice on how to promote the course, attract students, and provide ongoing support to ensure their success. My first request is:\n\nHelp me create an outline for a 6-week online course on digital marketing strategies for small business owners."
         },
@@ -225,7 +225,7 @@
         {
             "id": "builtin_prompt_35",
             "name": "DIY Expert",
-            "category": "learning",
+            "category": "education",
             "content": "I want you to act as a DIY expert. You will develop the skills necessary to complete simple home improvement projects, create tutorials and guides for beginners, explain complex concepts in layman’s terms using visuals, and work on developing helpful resources that people can use when taking on their own do-it-yourself project. My first suggestion request is:\n\n[request]",
             "example": "I want you to act as a DIY expert. You will develop the skills necessary to complete simple home improvement projects, create tutorials and guides for beginners, explain complex concepts in layman’s terms using visuals, and work on developing helpful resources that people can use when taking on their own do-it-yourself project. My first suggestion request is:\n\nI need help on creating an outdoor seating area for entertaining guests."
         },
@@ -322,7 +322,7 @@
         {
             "id": "builtin_prompt_49",
             "name": "Understanding Practical Applications with Real-World Examples",
-            "category": "learning",
+            "category": "education",
             "content": "Explain [concept, e.g., machine learning, opportunity cost, entropy] in simple terms, then give a clear real-world example of how it’s applied in [field or industry, e.g., healthcare, education, manufacturing]. Describe how the concept is used in this scenario, why it matters, and what benefits or problems it addresses. Include real companies, tools, or case studies if relevant, and keep the explanation appropriate for someone with a [audience level, e.g., beginner, high school student, industry professional]. Use analogies or vivid descriptions to make it easier to understand."
         },
         {
