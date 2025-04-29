@@ -324,12 +324,12 @@ jobs:
     env:
       LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-${{ matrix.job.arch }}.tar.gz
-      LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.deb
-      LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.rpm
-      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.-${{ matrix.job.arch }}.rpm
-      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}--${{ matrix.job.arch }}.AppImage
-      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.AppImage
-      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux--${{ matrix.job.arch }}.tar.gz
+      LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-${{ matrix.job.arch }}.deb
+      LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-${{ matrix.job.arch }}.rpm
+      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.${{ matrix.job.arch }}.rpm
+      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-${{ matrix.job.arch }}.AppImage
+      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-${{ matrix.job.arch }}.AppImage
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-${{ matrix.job.arch }}.tar.gz
 
     strategy:
       fail-fast: false

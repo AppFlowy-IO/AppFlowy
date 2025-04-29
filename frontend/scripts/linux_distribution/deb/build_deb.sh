@@ -7,10 +7,7 @@ ARCHITECTURE=$4
 
 if [ -z "$ARCHITECTURE" ] || [ "$ARCHITECTURE" = "amd64" ]; then
     ARCHITECTURE=amd64
-    ALT_ARCHITECTURE=arm64
-elif [ "$ARCHITECTURE" = "arm64" ]; then
-    ALT_ARCHITECTURE=amd64
-else
+elif [ "$ARCHITECTURE" != "arm64" ]; then
     echo "Supported architectures are only amd64 and arm64."
     exit 1
 fi
@@ -37,7 +34,7 @@ cp -R ./scripts/linux_distribution/deb/DEBIAN $PACKAGE
 chmod 0755 $DEBIAN/postinst
 chmod 0755 $DEBIAN/postrm
 grep -rl "\[CHANGE_THIS\]" $DEBIAN/control | xargs sed -i "s/\[CHANGE_THIS\]/$VERSION/"
-grep -rl "$ALT_ARCHITECTURE" $DEBIAN/control | xargs sed -i "s/$ALT_ARCHITECTURE/$ARCHITECTURE/"
+grep -rl "\[ARCHITECTURE\]" $DEBIAN/control | xargs sed -i "s/\[ARCHITECTURE\]/$ARCHITECTURE/"
 
 cp -fR $LINUX_RELEASE_PRODUCTION/AppFlowy $LIB
 cp ./scripts/linux_distribution/deb/AppFlowy.desktop $APPLICATIONS
