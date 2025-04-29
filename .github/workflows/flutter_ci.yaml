@@ -69,6 +69,40 @@ jobs:
           rust_target: ${{ matrix.target }}
           flutter_profile: ${{ matrix.flutter_profile }}
 
+  prepare-linux-arm64:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu-24.04-arm ]
+        include:
+          - os: ubuntu-24.04-arm
+            flutter_profile: development-linux-aarch64
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # the following step is required to avoid running out of space
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter build
+        uses: ./.github/actions/flutter_build
+        with:
+          os: ${{ matrix.os }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+          flutter_profile: ${{ matrix.flutter_profile }}
+
   prepare-windows-x86_64:
     if: github.event.pull_request.draft != true
     strategy:
@@ -101,9 +135,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ windows-latest ]
+        os: [ windows-11-arm ]
         include:
-          - os: windows-latest
+          - os: windows-11-arm
             flutter_profile: development-windows-arm64
             target: aarch64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
