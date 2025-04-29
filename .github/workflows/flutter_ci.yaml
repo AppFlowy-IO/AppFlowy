@@ -69,7 +69,7 @@ jobs:
           rust_target: ${{ matrix.target }}
           flutter_profile: ${{ matrix.flutter_profile }}
 
-  prepare-windows:
+  prepare-windows-x86_64:
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: true
@@ -77,8 +77,35 @@ jobs:
         os: [ windows-latest ]
         include:
           - os: windows-latest
-            flutter_profile: development-windows-x86
+            flutter_profile: development-windows-x86_64
             target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter build
+        uses: ./.github/actions/flutter_build
+        with:
+          os: ${{ matrix.os }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          DISABLE_CI_TEST_LOG: "true"
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+          flutter_profile: ${{ matrix.flutter_profile }}
+
+  prepare-windows-arm64:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ windows-latest ]
+        include:
+          - os: windows-latest
+            flutter_profile: development-windows-arm64
+            target: aarch64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
 
     steps:

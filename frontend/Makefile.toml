@@ -112,7 +112,7 @@ PRODUCT_EXT = "app"
 BUILD_ACTIVE_ARCHS_ONLY = false
 APP_ENVIRONMENT = "production"
 
-[env.development-windows-x86]
+[env.development-windows-x86_64]
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 BUILD_FLAG = "debug"
@@ -131,6 +131,26 @@ PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
 BUILD_ARCHS = "x64"
+APP_ENVIRONMENT = "production"
+
+[env.development-windows-arm64]
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "aarch64-pc-windows-msvc"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "exe"
+CRATE_TYPE = "cdylib"
+LIB_EXT = "dll"
+BUILD_ARCHS = "arm64"
+APP_ENVIRONMENT = "development"
+
+[env.production-windows-arm64]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "aarch64-pc-windows-msvc"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "exe"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]

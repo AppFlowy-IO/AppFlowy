@@ -85,7 +85,7 @@
       "label": "AF: Build Appflowy Core",
       "type": "shell",
       "windows": {
-        "command": "cargo make --profile development-windows-x86 appflowy-core-dev"
+        "command": "cargo make --profile development-windows-x86_64 appflowy-core-dev"
       },
       "linux": {
         "command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
