@@ -2057,7 +2057,7 @@ impl FolderManager {
   pub async fn remove_indices_for_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     self
       .folder_indexer
-      .remove_indices_for_workspace(*workspace_id)
+      .delete_views_for_workspace(*workspace_id)
       .await?;
 
     Ok(())

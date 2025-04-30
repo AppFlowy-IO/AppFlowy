@@ -1,6 +1,5 @@
 use flowy_folder::manager::FolderManager;
 use flowy_search::document::cloud_search_handler::DocumentCloudSearchHandler;
-use flowy_search::folder::handler::FolderSearchHandler;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_search_pub::cloud::SearchCloudService;

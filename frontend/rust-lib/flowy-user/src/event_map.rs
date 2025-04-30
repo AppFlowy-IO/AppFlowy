@@ -277,7 +277,7 @@ pub enum UserEvent {
 }
 
 #[async_trait]
-pub trait UserStatusCallback: Send + Sync + 'static {
+pub trait AppLifeCycle: Send + Sync + 'static {
   /// Fires on app launch, but only if the user is already signed in.
   async fn on_launch_if_authenticated(
     &self,
@@ -342,6 +342,6 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn on_storage_permission_updated(&self, _can_write: bool) {}
 }
 
-/// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
+/// Acts as a placeholder [AppLifeCycle] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
-impl UserStatusCallback for DefaultUserStatusCallback {}
+impl AppLifeCycle for DefaultUserStatusCallback {}

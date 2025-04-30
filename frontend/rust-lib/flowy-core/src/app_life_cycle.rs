@@ -1,14 +1,10 @@
 use anyhow::Context;
 use client_api::entity::billing_dto::SubscriptionPlan;
 use std::sync::{Arc, Weak};
-use std::time::Duration;
 use tracing::{error, event, info, instrument};
 
 use crate::full_indexed_data_provider::FullIndexedDataProvider;
-use crate::indexed_data_consumer::{
-  get_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
-  SearchInstantIndexImpl,
-};
+use crate::indexed_data_consumer::get_document_tantivy_state;
 use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -23,7 +19,7 @@ use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::LoggedUser;
 use flowy_storage::manager::StorageManager;
-use flowy_user::event_map::UserStatusCallback;
+use flowy_user::event_map::AppLifeCycle;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user::user_manager::UserManager;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
@@ -31,10 +27,9 @@ use flowy_user_pub::entities::{UserProfile, UserWorkspace, WorkspaceType};
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 use tokio::sync::RwLock;
-use tokio::time::interval;
 use uuid::Uuid;
 
-pub(crate) struct UserStatusCallbackImpl {
+pub(crate) struct AppLifeCycleImpl {
   pub(crate) user_manager: Weak<UserManager>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) folder_manager: Weak<FolderManager>,
@@ -52,51 +47,51 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) runtime: Arc<AFPluginRuntime>,
 }
 
-impl UserStatusCallbackImpl {
-  fn user_manager(&self) -> Result<Arc<UserManager>, FlowyError> {
+impl AppLifeCycleImpl {
+  pub(crate) fn user_manager(&self) -> Result<Arc<UserManager>, FlowyError> {
     self.user_manager.upgrade().ok_or_else(FlowyError::ref_drop)
   }
 
-  fn folder_manager(&self) -> Result<Arc<FolderManager>, FlowyError> {
+  pub(crate) fn folder_manager(&self) -> Result<Arc<FolderManager>, FlowyError> {
     self
       .folder_manager
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)
   }
 
-  fn database_manager(&self) -> Result<Arc<DatabaseManager>, FlowyError> {
+  pub(crate) fn database_manager(&self) -> Result<Arc<DatabaseManager>, FlowyError> {
     self
       .database_manager
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)
   }
 
-  fn document_manager(&self) -> Result<Arc<DocumentManager>, FlowyError> {
+  pub(crate) fn document_manager(&self) -> Result<Arc<DocumentManager>, FlowyError> {
     self
       .document_manager
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)
   }
 
-  fn server_provider(&self) -> Result<Arc<ServerProvider>, FlowyError> {
+  pub(crate) fn server_provider(&self) -> Result<Arc<ServerProvider>, FlowyError> {
     self
       .server_provider
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)
   }
 
-  fn storage_manager(&self) -> Result<Arc<StorageManager>, FlowyError> {
+  pub(crate) fn storage_manager(&self) -> Result<Arc<StorageManager>, FlowyError> {
     self
       .storage_manager
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)
   }
 
-  fn ai_manager(&self) -> Result<Arc<AIManager>, FlowyError> {
+  pub(crate) fn ai_manager(&self) -> Result<Arc<AIManager>, FlowyError> {
     self.ai_manager.upgrade().ok_or_else(FlowyError::ref_drop)
   }
 
-  fn search_manager(&self) -> Result<Arc<SearchManager>, FlowyError> {
+  pub(crate) fn search_manager(&self) -> Result<Arc<SearchManager>, FlowyError> {
     self
       .search_manager
       .upgrade()
@@ -138,167 +133,10 @@ impl UserStatusCallbackImpl {
     let object_id = object_id.to_string();
     Ok(read.is_exist(user_id, &workspace_id, &object_id))
   }
-
-  #[instrument(skip(self, _user_config, user_paths))]
-  async fn start_instant_indexed_data_provider(
-    &self,
-    user_id: i64,
-    workspace_id: &Uuid,
-    workspace_type: &WorkspaceType,
-    _user_config: &UserConfig,
-    user_paths: &UserPaths,
-  ) {
-    let instant_indexed_data_provider = self.instant_indexed_data_provider.clone();
-    let runtime = self.runtime.clone();
-    let workspace_id_cloned = *workspace_id;
-    let workspace_type_cloned = *workspace_type;
-    let user_paths = user_paths.clone();
-    let folder_manager = self.folder_manager.clone();
-
-    self.runtime.spawn(async move {
-      if let Some(instant_indexed_data_provider) = instant_indexed_data_provider {
-        // Add embedding consumer when workspace type is local
-        #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
-        {
-          if workspace_type_cloned.is_local() {
-            instant_indexed_data_provider
-              .register_consumer(Box::new(EmbeddingsInstantConsumerImpl::new()))
-              .await;
-          }
-        }
-
-        match SearchInstantIndexImpl::new(&workspace_id_cloned, user_paths.tanvity_index_path(user_id), folder_manager) {
-          Ok(consumer) => {
-            instant_indexed_data_provider
-              .register_consumer(Box::new(consumer))
-              .await;
-          },
-          Err(err) => error!(
-            "[Indexing] Failed to create SearchInstantIndexImpl: {:?}",
-            err
-          ),
-        }
-
-        if instant_indexed_data_provider.num_consumers().await > 0 {
-          info!(
-            "[Indexing] Starting instant indexed data provider with {} consumers for workspace: {:?}",
-            instant_indexed_data_provider.num_consumers().await,
-            workspace_id_cloned
-          );
-          if let Err(err) = instant_indexed_data_provider
-            .spawn_instant_indexed_provider(&runtime.inner)
-            .await
-          {
-            error!(
-              "[Indexing] Failed to spawn instant indexed data provider: {:?}",
-              err
-            );
-          }
-        }
-      } else {
-        info!("[Indexing] No instant indexed data provider to start");
-      }
-    });
-  }
-
-  #[instrument(skip(self, _user_config, user_paths))]
-  async fn start_full_indexed_data_provider(
-    &self,
-    uid: i64,
-    workspace_id: &Uuid,
-    workspace_type: &WorkspaceType,
-    _user_config: &UserConfig,
-    user_paths: &UserPaths,
-  ) {
-    let folder_manager = self.folder_manager.clone();
-    let logged_user = self.logged_user.clone();
-    let full_indexed_data_provider = self.full_indexed_data_provider.clone();
-    let runtime = self.runtime.clone();
-    let workspace_id_cloned = *workspace_id;
-    let workspace_type_cloned = *workspace_type;
-    let user_paths = user_paths.clone();
-
-    self.runtime.spawn(async move {
-      let new_provider = FullIndexedDataProvider::new(folder_manager, Arc::downgrade(&logged_user));
-
-      #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
-      {
-        if workspace_type_cloned.is_local() {
-          new_provider
-            .register_full_indexed_consumer(Box::new(
-              crate::indexed_data_consumer::EmbeddingFullIndexConsumer,
-            ))
-            .await;
-        }
-      }
-
-      match SearchFullIndexConsumer::new(&workspace_id_cloned, user_paths.tanvity_index_path(uid)) {
-        Ok(consumer) => {
-          new_provider
-            .register_full_indexed_consumer(Box::new(consumer))
-            .await;
-        },
-        Err(err) => error!(
-          "[Indexing] Failed to create SearchFullIndexConsumer: {:?}",
-          err
-        ),
-      }
-
-      if new_provider.num_consumers().await > 0 {
-        info!(
-          "[Indexing] Starting full indexed data provider with {} consumers for workspace: {:?}",
-          new_provider.num_consumers().await,
-          workspace_id_cloned
-        );
-        let cloned_new_provider = new_provider.clone();
-        let interval_dur = Duration::from_secs(30);
-        let mut ticker = interval(interval_dur);
-
-        runtime.spawn(async move {
-          ticker.tick().await;
-
-          const MAX_ATTEMPTS: usize = 3;
-          let mut attempt = 0;
-          loop {
-            attempt += 1;
-            match cloned_new_provider.full_index_unindexed_documents().await {
-              Ok(()) => {
-                info!("[Indexing] full index succeeded on attempt {}", attempt);
-                break;
-              },
-              Err(err) if attempt < MAX_ATTEMPTS => {
-                error!(
-                  "[Indexing] Attempt {}/{} to index documents failed: {:?}. retrying in 5s…",
-                  attempt, MAX_ATTEMPTS, err
-                );
-                tokio::time::sleep(Duration::from_secs(5)).await;
-              },
-              Err(err) => {
-                error!(
-                  "[Indexing] Indexing failed after {} attempts: {:?}. giving up.",
-                  attempt, err
-                );
-                break;
-              },
-            }
-          }
-        });
-      }
-
-      if let Some(provider) = full_indexed_data_provider.upgrade() {
-        let old = provider.write().await.replace(new_provider);
-        if let Some(old) = old {
-          old.cancel_indexing();
-        }
-      } else {
-        info!("[Indexing] No full indexed data provider to start");
-      }
-    });
-  }
 }
 
 #[async_trait]
-impl UserStatusCallback for UserStatusCallbackImpl {
+impl AppLifeCycle for AppLifeCycleImpl {
   #[instrument(skip_all)]
   async fn on_launch_if_authenticated(
     &self,

@@ -79,7 +79,7 @@ impl InstantIndexedDataProvider {
           Some(m) => m,
           None => break, // provider dropped
         };
-        let consumers_arc = match consumers_weak.upgrade() {
+        let consumers = match consumers_weak.upgrade() {
           Some(c) => c,
           None => break,
         };
@@ -101,8 +101,8 @@ impl InstantIndexedDataProvider {
                   .await
                 {
                   // Snapshot consumers
-                  let consumers_snapshot = consumers_arc.read().await;
-                  for consumer in consumers_snapshot.iter() {
+                  let consumers_guard = consumers.read().await;
+                  for consumer in consumers_guard.iter() {
                     match consumer
                       .consume_collab(&wo.collab_object, data.clone())
                       .await

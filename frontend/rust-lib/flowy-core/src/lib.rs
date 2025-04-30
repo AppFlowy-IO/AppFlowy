@@ -37,19 +37,21 @@ use crate::deps_resolve::*;
 use crate::full_indexed_data_provider::FullIndexedDataProvider;
 use crate::log_filter::init_log;
 use crate::server_layer::ServerProvider;
+use app_life_cycle::AppLifeCycleImpl;
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
 use lib_infra::async_trait::async_trait;
-use user_state_callback::UserStatusCallbackImpl;
 
+pub(crate) mod app_life_cycle;
 pub mod config;
 mod deps_resolve;
+mod folder_view_observer;
 mod full_indexed_data_provider;
 mod indexed_data_consumer;
+mod indexing_data_runner;
 mod log_filter;
 pub mod module;
 pub(crate) mod server_layer;
-pub(crate) mod user_state_callback;
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.
@@ -276,7 +278,7 @@ impl AppFlowyCore {
     .await;
 
     let indexed_data_provider = Arc::new(RwLock::new(None));
-    let user_status_callback = UserStatusCallbackImpl {
+    let user_status_callback = AppLifeCycleImpl {
       user_manager: Arc::downgrade(&user_manager),
       collab_builder: Arc::downgrade(&collab_builder),
       folder_manager: Arc::downgrade(&folder_manager),

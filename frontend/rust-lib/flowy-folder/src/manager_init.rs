@@ -115,7 +115,7 @@ impl FolderManager {
       let index_content_rx = folder.subscribe_index_content();
       self
         .folder_indexer
-        .set_index_content_receiver(index_content_rx, *workspace_id)
+        .set_observer_rx(index_content_rx, *workspace_id)
         .await;
       self.handle_index_folder(*workspace_id, &folder).await;
       folder_state_rx
@@ -203,7 +203,7 @@ impl FolderManager {
       let views = folder.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
       let _ = folder_indexer
-        .remove_indices_for_workspace(workspace_id)
+        .delete_views_for_workspace(workspace_id)
         .await;
       // We spawn a blocking task to index all views in the folder
       spawn_blocking(move || {

@@ -7,7 +7,7 @@ use crate::folder::schema::{
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
+use flowy_search_pub::entities::{FolderIndexManager, FolderViewObserver, ViewObserveData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_infra::async_trait::async_trait;
 use std::path::PathBuf;
@@ -141,11 +141,11 @@ impl FolderIndexManagerImpl {
   }
 
   /// Simple implementation to index all given data by spawning async tasks.
-  fn index_all(&self, data_vec: Vec<IndexableData>) -> Result<(), FlowyError> {
+  fn index_all(&self, data_vec: Vec<ViewObserveData>) -> Result<(), FlowyError> {
     for data in data_vec {
       let indexer = self.clone();
       tokio::spawn(async move {
-        let _ = indexer.add_index(data).await;
+        let _ = indexer.create_view(data).await;
       });
     }
     Ok(())
@@ -189,8 +189,8 @@ impl FolderIndexManagerImpl {
 }
 
 #[async_trait]
-impl IndexManager for FolderIndexManagerImpl {
-  async fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
+impl FolderViewObserver for FolderIndexManagerImpl {
+  async fn set_observer_rx(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
     let indexer = self.clone();
     let wid = workspace_id;
     tokio::spawn(async move {
@@ -199,7 +199,7 @@ impl IndexManager for FolderIndexManagerImpl {
           IndexContent::Create(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
               let _ = indexer
-                .add_index(IndexableData {
+                .create_view(ViewObserveData {
                   id: view.id,
                   data: view.name,
                   icon: view.icon,
@@ -213,7 +213,7 @@ impl IndexManager for FolderIndexManagerImpl {
           IndexContent::Update(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
               let _ = indexer
-                .update_index(IndexableData {
+                .update_view(ViewObserveData {
                   id: view.id,
                   data: view.name,
                   icon: view.icon,
@@ -225,7 +225,7 @@ impl IndexManager for FolderIndexManagerImpl {
             Err(err) => error!("FolderIndexManager error deserialize (update): {:?}", err),
           },
           IndexContent::Delete(ids) => {
-            if let Err(e) = indexer.remove_indices(ids).await {
+            if let Err(e) = indexer.delete_views(ids).await {
               error!("FolderIndexManager error (delete): {:?}", e);
             }
           },
@@ -234,7 +234,7 @@ impl IndexManager for FolderIndexManagerImpl {
     });
   }
 
-  async fn add_index(&self, data: IndexableData) -> Result<(), FlowyError> {
+  async fn create_view(&self, data: ViewObserveData) -> Result<(), FlowyError> {
     let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
     self
       .with_writer(|index_writer, folder_schema| {
@@ -255,7 +255,7 @@ impl IndexManager for FolderIndexManagerImpl {
     Ok(())
   }
 
-  async fn update_index(&self, data: IndexableData) -> Result<(), FlowyError> {
+  async fn update_view(&self, data: ViewObserveData) -> Result<(), FlowyError> {
     self
       .with_writer(|index_writer, folder_schema| {
         let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
@@ -280,7 +280,7 @@ impl IndexManager for FolderIndexManagerImpl {
     Ok(())
   }
 
-  async fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
+  async fn delete_views(&self, ids: Vec<String>) -> Result<(), FlowyError> {
     self
       .with_writer(|index_writer, folder_schema| {
         let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
@@ -297,7 +297,7 @@ impl IndexManager for FolderIndexManagerImpl {
     Ok(())
   }
 
-  async fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
+  async fn delete_views_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
     self
       .with_writer(|index_writer, folder_schema| {
         let id_field = folder_schema
@@ -333,7 +333,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData::from_view(view, workspace_id))
+      .map(|view| ViewObserveData::from_view(view, workspace_id))
       .collect();
     let _ = self.index_all(indexable_data);
   }
@@ -349,26 +349,26 @@ impl FolderIndexManager for FolderIndexManagerImpl {
       match change {
         FolderViewChange::Inserted { view_id } => {
           if let Some(view) = views_iter.find(|view| view.id == view_id) {
-            let indexable_data = IndexableData::from_view(view, workspace_id);
+            let indexable_data = ViewObserveData::from_view(view, workspace_id);
             let f = self.clone();
             tokio::spawn(async move {
-              let _ = f.add_index(indexable_data).await;
+              let _ = f.create_view(indexable_data).await;
             });
           }
         },
         FolderViewChange::Updated { view_id } => {
           if let Some(view) = views_iter.find(|view| view.id == view_id) {
-            let indexable_data = IndexableData::from_view(view, workspace_id);
+            let indexable_data = ViewObserveData::from_view(view, workspace_id);
             let f = self.clone();
             tokio::spawn(async move {
-              let _ = f.update_index(indexable_data).await;
+              let _ = f.update_view(indexable_data).await;
             });
           }
         },
         FolderViewChange::Deleted { view_ids } => {
           let f = self.clone();
           tokio::spawn(async move {
-            let _ = f.remove_indices(view_ids).await;
+            let _ = f.delete_views(view_ids).await;
           });
         },
       }
