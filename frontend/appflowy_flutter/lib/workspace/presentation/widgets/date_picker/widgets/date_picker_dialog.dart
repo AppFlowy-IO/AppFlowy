@@ -23,8 +23,8 @@ class DatePickerOptions {
     this.timeFormat = UserTimeFormatPB.TwentyFourHour,
     this.selectedReminderOption,
     this.onDaySelected,
-    this.onIncludeTimeChanged,
     this.onRangeSelected,
+    this.onIncludeTimeChanged,
     this.onIsRangeChanged,
     this.onReminderSelected,
   }) : focusedDay = focusedDay ?? DateTime.now();
@@ -42,6 +42,37 @@ class DatePickerOptions {
   final IncludeTimeChangedCallback? onIncludeTimeChanged;
   final IsRangeChangedCallback? onIsRangeChanged;
   final OnReminderSelected? onReminderSelected;
+
+  DatePickerOptions copyWith({
+    DateTime? focusedDay,
+    DateTime? selectedDay,
+    bool? includeTime,
+    bool? isRange,
+    UserDateFormatPB? dateFormat,
+    UserTimeFormatPB? timeFormat,
+    ReminderOption? selectedReminderOption,
+    DaySelectedCallback? onDaySelected,
+    RangeSelectedCallback? onRangeSelected,
+    IncludeTimeChangedCallback? onIncludeTimeChanged,
+    IsRangeChangedCallback? onIsRangeChanged,
+    OnReminderSelected? onReminderSelected,
+  }) {
+    return DatePickerOptions(
+      focusedDay: focusedDay ?? this.focusedDay,
+      selectedDay: selectedDay ?? this.selectedDay,
+      includeTime: includeTime ?? this.includeTime,
+      isRange: isRange ?? this.isRange,
+      dateFormat: dateFormat ?? this.dateFormat,
+      timeFormat: timeFormat ?? this.timeFormat,
+      selectedReminderOption:
+          selectedReminderOption ?? this.selectedReminderOption,
+      onDaySelected: onDaySelected ?? this.onDaySelected,
+      onRangeSelected: onRangeSelected ?? this.onRangeSelected,
+      onIncludeTimeChanged: onIncludeTimeChanged ?? this.onIncludeTimeChanged,
+      onIsRangeChanged: onIsRangeChanged ?? this.onIsRangeChanged,
+      onReminderSelected: onReminderSelected ?? this.onReminderSelected,
+    );
+  }
 }
 
 abstract class DatePickerService {
@@ -137,7 +168,7 @@ class DatePickerMenu extends DatePickerService {
   }
 }
 
-class _AnimatedDatePicker extends StatelessWidget {
+class _AnimatedDatePicker extends StatefulWidget {
   const _AnimatedDatePicker({
     required this.offset,
     required this.showBelow,
@@ -151,13 +182,20 @@ class _AnimatedDatePicker extends StatelessWidget {
   final PopoverMutex? popoverMutex;
 
   @override
+  State<_AnimatedDatePicker> createState() => _AnimatedDatePickerState();
+}
+
+class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
+  late DatePickerOptions options = widget.options;
+
+  @override
   Widget build(BuildContext context) {
-    final dy = offset.dy + (showBelow ? _ySpacing : -_ySpacing);
+    final dy = widget.offset.dy + (widget.showBelow ? _ySpacing : -_ySpacing);
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 200),
       top: dy,
-      left: offset.dx,
+      left: widget.offset.dx,
       child: Container(
         decoration: FlowyDecoration.decoration(
           Theme.of(context).cardColor,
@@ -166,18 +204,47 @@ class _AnimatedDatePicker extends StatelessWidget {
         constraints: BoxConstraints.loose(const Size(_datePickerWidth, 465)),
         child: DesktopAppFlowyDatePicker(
           includeTime: options.includeTime,
-          onIncludeTimeChanged: options.onIncludeTimeChanged,
           isRange: options.isRange,
-          onIsRangeChanged: options.onIsRangeChanged,
           dateFormat: options.dateFormat.simplified,
           timeFormat: options.timeFormat.simplified,
           dateTime: options.selectedDay,
-          popoverMutex: popoverMutex,
+          popoverMutex: widget.popoverMutex,
           reminderOption: options.selectedReminderOption ?? ReminderOption.none,
-          onDaySelected: options.onDaySelected,
-          onRangeSelected: options.onRangeSelected,
-          onReminderSelected: options.onReminderSelected,
-          enableDidUpdate: false,
+          onDaySelected: options.onDaySelected == null
+              ? null
+              : (d) {
+                  options.onDaySelected?.call(d);
+                  setState(() {
+                    options = options.copyWith(selectedDay: d);
+                  });
+                },
+          onIsRangeChanged: options.onIsRangeChanged == null
+              ? null
+              : (isRange, s, e) {
+                  options.onIsRangeChanged?.call(isRange, s, e);
+                },
+          onIncludeTimeChanged: options.onIncludeTimeChanged == null
+              ? null
+              : (include, s, e) {
+                  options.onIncludeTimeChanged?.call(include, s, e);
+                  setState(() {
+                    options =
+                        options.copyWith(includeTime: include, selectedDay: s);
+                  });
+                },
+          onRangeSelected: options.onRangeSelected == null
+              ? null
+              : (s, e) {
+                  options.onRangeSelected?.call(s, e);
+                },
+          onReminderSelected: options.onReminderSelected == null
+              ? null
+              : (o) {
+                  options.onReminderSelected?.call(o);
+                  setState(() {
+                    options = options.copyWith(selectedReminderOption: o);
+                  });
+                },
         ),
       ),
     );

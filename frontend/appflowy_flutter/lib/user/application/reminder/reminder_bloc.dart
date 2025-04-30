@@ -11,6 +11,7 @@ import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -50,6 +51,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   Timer? timer;
   late final AppLifecycleListener _listener;
 
+  bool hasReminder(String reminderId) =>
+      state.allReminders.where((e) => e.id == reminderId).firstOrNull != null;
+
   void _dispatch() {
     on<ReminderEvent>(
       (event, emit) async {
@@ -59,8 +63,10 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             final result = await _reminderService.fetchReminders();
             await result.fold(
               (reminders) async {
-                final availableReminders =
-                    await filterAvailableReminders(reminders);
+                final availableReminders = await filterAvailableReminders(
+                  reminders,
+                  removeUnavailableReminder: true,
+                );
                 Log.info(
                   'Fetched reminders on startup: ${availableReminders.length}',
                 );
@@ -86,7 +92,13 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             result.fold(
               (_) {
                 Log.info('Removed reminder: $reminderId');
-                if (!isClosed) add(ReminderEvent.refresh());
+                final reminders = List.of(state.reminders);
+                final index = reminders
+                    .indexWhere((reminder) => reminder.id == reminderId);
+                if (index != -1) {
+                  reminders.removeAt(index);
+                  emit(state.copyWith(reminders: reminders));
+                }
               },
               (error) => Log.error(
                 'Failed to remove reminder($reminderId): $error',
@@ -102,13 +114,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                     DateTime.now().millisecondsSinceEpoch.toString();
               });
             }
-
-            final containReminder = [
-                  ...state.serverReminders,
-                  ...state.reminders,
-                ].where((e) => e.id == reminder.id).firstOrNull !=
-                null;
-            if (containReminder) {
+            if (hasReminder(reminder.id)) {
               Log.error('Reminder: ${reminder.id} failed to be added again');
               return;
             }
@@ -121,15 +127,11 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               (_) async {
                 Log.info('Added reminder: ${reminder.id}');
                 Log.info('Before adding reminder: ${state.reminders.length}');
-                final reminderIds = [
-                  ...state.serverReminders,
-                  ...state.reminders,
-                ].map((e) => e.id).toSet();
                 final showRightNow = !DateTime.now()
                         .isBefore(reminder.scheduledAt.toDateTime()) &&
                     !reminder.isRead;
 
-                if (!reminderIds.contains(reminder.id) && showRightNow) {
+                if (showRightNow) {
                   final reminders = [...state.reminders, reminder];
                   Log.info('After adding reminder: ${reminders.length}');
                   emit(state.copyWith(reminders: reminders));
@@ -154,7 +156,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ),
           ),
           update: (updateObject) async {
-            final reminder = state.reminders.firstWhereOrNull(
+            final reminder = state.allReminders.firstWhereOrNull(
               (r) => r.id == updateObject.id,
             );
 
@@ -167,19 +169,28 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               reminder: newReminder,
             );
 
-            Log.info('Updating reminder: ${reminder.id}');
+            Log.info('Updating reminder: ${newReminder.id}');
 
             await failureOrUnit.fold((_) async {
-              Log.info('Updated reminder: ${reminder.id}');
+              Log.info('Updated reminder: ${newReminder.id}');
               final index =
-                  state.reminders.indexWhere((r) => r.id == reminder.id);
-              if (index == -1) return;
+                  state.reminders.indexWhere((r) => r.id == newReminder.id);
+              if (index == -1) {
+                if (await checkReminderAvailable(
+                  newReminder,
+                  state.allReminders.map((e) => e.id).toSet(),
+                )) {
+                  emit(
+                    state
+                        .copyWith(reminders: [...state.reminders, newReminder]),
+                  );
+                }
+                return;
+              }
               final reminders = [...state.reminders];
               if (await checkReminderAvailable(
-                reminder,
-                [...state.serverReminders, ...state.reminders]
-                    .map((e) => e.id)
-                    .toSet(),
+                newReminder,
+                state.allReminders.map((e) => e.id).toSet(),
               )) {
                 reminders.replaceRange(index, index + 1, [newReminder]);
                 emit(state.copyWith(reminders: reminders));
@@ -189,7 +200,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               }
             }, (error) {
               Log.error(
-                'Failed to update reminder(${reminder.id}): $error',
+                'Failed to update reminder(${newReminder.id}): $error',
               );
             });
           },
@@ -436,12 +447,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
   Future<bool> checkReminderAvailable(
     ReminderPB reminder,
-    Set<String> reminderIds,
-  ) async {
-    /// blockId is null means no node
-    final blockId = reminder.meta[ReminderMetaKeys.blockId];
-    if (blockId == null) return false;
-
+    Set<String> reminderIds, {
+    Set<String> removeIds = const {},
+  }) async {
     /// check if schedule time is comming
     final scheduledAt = reminder.scheduledAt.toDateTime();
     if (!DateTime.now().isAfter(scheduledAt) && !reminder.isRead) {
@@ -452,53 +460,82 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     final viewId = reminder.objectId;
     final view =
         await ViewBackendService.getView(viewId).fold((s) => s, (_) => null);
-    if (view == null) return false;
+    if (view == null) {
+      removeIds.add(reminder.id);
+      return false;
+    }
 
-    /// check if document is not null
-    final document = await DocumentService()
-        .openDocument(documentId: viewId)
-        .fold((s) => s.toDocument(), (_) => null);
-    if (document == null) return false;
-    Node? searchById(Node current, String id) {
-      if (current.id == id) {
-        return current;
+    if (view.isDatabase) {
+      return true;
+    } else {
+      /// blockId is null means no node
+      final blockId = reminder.meta[ReminderMetaKeys.blockId];
+      if (blockId == null) {
+        removeIds.add(reminder.id);
+        return false;
       }
-      if (current.children.isNotEmpty) {
-        for (final child in current.children) {
-          final node = searchById(child, id);
 
-          if (node != null) {
-            return node;
+      /// check if document is not null
+      final document = await DocumentService()
+          .openDocument(documentId: viewId)
+          .fold((s) => s.toDocument(), (_) => null);
+      if (document == null) {
+        removeIds.add(reminder.id);
+        return false;
+      }
+      Node? searchById(Node current, String id) {
+        if (current.id == id) {
+          return current;
+        }
+        if (current.children.isNotEmpty) {
+          for (final child in current.children) {
+            final node = searchById(child, id);
+
+            if (node != null) {
+              return node;
+            }
           }
         }
+        return null;
       }
-      return null;
-    }
 
-    /// check if node is not null
-    final node = searchById(document.root, blockId);
-    if (node == null) return false;
-    final textInserts = node.delta?.whereType<TextInsert>();
-    if (textInserts == null) return false;
-    for (final text in textInserts) {
-      final mention =
-          text.attributes?[MentionBlockKeys.mention] as Map<String, dynamic>?;
-      final reminderId = mention?[MentionBlockKeys.reminderId] as String?;
-      if (reminderIds.contains(reminderId)) {
-        return true;
+      /// check if node is not null
+      final node = searchById(document.root, blockId);
+      if (node == null) {
+        removeIds.add(reminder.id);
+        return false;
       }
+      final textInserts = node.delta?.whereType<TextInsert>();
+      if (textInserts == null) return false;
+      for (final text in textInserts) {
+        final mention =
+            text.attributes?[MentionBlockKeys.mention] as Map<String, dynamic>?;
+        final reminderId = mention?[MentionBlockKeys.reminderId] as String?;
+        if (reminderIds.contains(reminderId)) {
+          return true;
+        }
+      }
+      removeIds.add(reminder.id);
+      return false;
     }
-    return false;
   }
 
   Future<List<ReminderPB>> filterAvailableReminders(
-    List<ReminderPB> reminders,
-  ) async {
+    List<ReminderPB> reminders, {
+    bool removeUnavailableReminder = false,
+  }) async {
     final List<ReminderPB> availableReminders = [];
     final reminderIds = reminders.map((e) => e.id).toSet();
+    final removeIds = <String>{};
     for (final r in reminders) {
-      if (await checkReminderAvailable(r, reminderIds)) {
+      if (await checkReminderAvailable(r, reminderIds, removeIds: removeIds)) {
         availableReminders.add(r);
+      }
+    }
+    if (removeUnavailableReminder) {
+      for (final id in removeIds) {
+        Log.warn('Remove unavailable reminder: $id');
+        if (!isClosed) add(ReminderEvent.remove(reminderId: id));
       }
     }
     return availableReminders;
@@ -643,6 +680,8 @@ class ReminderState {
 
   late final List<ReminderPB> _reminders;
   List<ReminderPB> get reminders => _reminders.unique((e) => e.id);
+  List<ReminderPB> get allReminders =>
+      [...serverReminders, ..._reminders].unique((e) => e.id);
 
   late final List<ReminderPB> pastReminders;
   late final List<ReminderPB> upcomingReminders;
