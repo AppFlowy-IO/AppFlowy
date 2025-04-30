@@ -504,7 +504,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       );
     } catch (e) {
       Log.error('fetch workspace error: $e');
-      return (null, <UserWorkspacePB>[], false);
+      return (state.currentWorkspace, state.workspaces, false);
     }
   }
 
