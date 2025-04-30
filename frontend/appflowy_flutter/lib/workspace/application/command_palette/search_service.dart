@@ -13,7 +13,8 @@ import 'package:fixnum/fixnum.dart';
 
 class SearchBackendService {
   static Future<FlowyResult<SearchResponseStream, FlowyError>> performSearch(
-      String keyword) async {
+    String keyword,
+  ) async {
     final searchId = DateTime.now().millisecondsSinceEpoch.toString();
     final stream = SearchResponseStream(searchId: searchId);
 

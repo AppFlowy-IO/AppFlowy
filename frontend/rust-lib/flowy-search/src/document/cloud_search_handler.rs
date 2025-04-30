@@ -112,7 +112,7 @@ impl SearchHandler for DocumentCloudSearchHandler {
           .unwrap(),
       );
 
-      if result_items.is_empty() {
+      if summary_input.is_empty() {
         return;
       }
 

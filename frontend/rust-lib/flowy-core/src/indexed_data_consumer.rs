@@ -1,5 +1,5 @@
 use crate::full_indexed_data_provider::FullIndexedDataConsumer;
-use collab_entity::CollabObject;
+use collab_entity::{CollabObject, CollabType};
 use collab_folder::{IconType, ViewIcon};
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use dashmap::DashMap;
@@ -26,6 +26,10 @@ impl FullIndexedDataConsumer for EmbeddingFullIndexConsumer {
   }
 
   async fn consume_indexed_data(&self, _uid: i64, data: &UnindexedCollab) -> FlowyResult<()> {
+    if !matches!(data.collab_type, CollabType::Document) {
+      return Ok(());
+    }
+
     if data.data.is_empty() {
       return Ok(());
     }

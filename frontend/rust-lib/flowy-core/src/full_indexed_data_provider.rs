@@ -1,7 +1,8 @@
+use client_api::entity::workspace_dto::ViewIcon;
 use collab::preclude::Collab;
 use collab_document::document::DocumentBody;
 use collab_entity::CollabType;
-use collab_folder::View;
+use collab_folder::{View, ViewLayout};
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
@@ -11,6 +12,7 @@ use flowy_ai_pub::persistence::{
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_server::af_cloud::define::LoggedUser;
+use flowy_server_pub::workspace_dto::IconType;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -92,7 +94,7 @@ impl FullIndexedDataProvider {
       .folder_manager
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade FolderManager"))?;
-    let views = folder_manager.get_all_documents().await?;
+    let views = folder_manager.get_all_views().await?;
     let view_ids = views.iter().map(|v| v.id.clone()).collect::<Vec<_>>();
     let view_by_view_id = Arc::new(
       views
@@ -128,7 +130,7 @@ impl FullIndexedDataProvider {
       }
 
       match self
-        .index_documents(uid, &workspace_id, chunk.to_vec(), view_by_view_id.clone())
+        .index_views(uid, &workspace_id, chunk.to_vec(), view_by_view_id.clone())
         .await
       {
         Ok(unindexed) => {
@@ -185,13 +187,18 @@ impl FullIndexedDataProvider {
     Ok(())
   }
 
-  pub async fn index_documents(
+  pub async fn index_views(
     &self,
     uid: i64,
     workspace_id: &Uuid,
     unindex_ids: Vec<String>,
     view_by_id: Arc<HashMap<String, Arc<View>>>,
   ) -> FlowyResult<Vec<UnindexedCollab>> {
+    // Early return for empty input
+    if unindex_ids.is_empty() {
+      return Ok(Vec::new());
+    }
+
     let collab_db = self
       .logged_user
       .upgrade()
@@ -199,54 +206,97 @@ impl FullIndexedDataProvider {
       .and_then(|c| c.upgrade())
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade CollabKVDB"))?;
 
+    // Filter out views that don't exist before the blocking task
+    let filtered_ids: Vec<_> = unindex_ids
+      .into_iter()
+      .filter(|id| view_by_id.contains_key(id))
+      .collect();
+
     // Move everything needed into the blocking closure
     let workspace_id = *workspace_id;
     let handle = tokio::task::spawn_blocking(move || -> FlowyResult<Vec<UnindexedCollab>> {
       let read_txn = collab_db.read_txn();
-      let mut results = Vec::with_capacity(unindex_ids.len());
+      let mut results = Vec::with_capacity(filtered_ids.len());
 
-      for object_str in unindex_ids {
-        // 1) Load into a Collab
-        let mut collab = Collab::new(uid, &object_str, "indexing_device", vec![], false);
-        {
-          let mut txn = collab.transact_mut();
-          if read_txn
-            .load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
-            .is_err()
-          {
-            continue;
-          }
-        }
+      for object_str in filtered_ids {
+        // We know the view exists because of the pre-filtering
+        let view = &view_by_id[&object_str];
 
-        if let Some(view) = view_by_id.get(&object_str) {
-          let metadata = UnindexedCollabMetadata {
-            name: view.name.clone(),
-            icon: None,
-          };
-          if let Some(document) = DocumentBody::from_collab(&collab) {
-            let paragraphs = document.paragraphs(collab.transact());
-            // 3) Parse the UUID string
-            let object_id = Uuid::parse_str(&object_str)?;
-            // 4) Collect
+        // Skip Chat views immediately
+        let collab_type = match view.layout {
+          ViewLayout::Document => CollabType::Document,
+          ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => CollabType::Database,
+          ViewLayout::Chat => continue,
+        };
+
+        // Parse UUID once, outside the match
+        let object_id = match Uuid::parse_str(&object_str) {
+          Ok(id) => id,
+          Err(_) => continue, // Skip invalid UUIDs
+        };
+
+        // Create metadata once for reuse
+        let metadata = UnindexedCollabMetadata {
+          name: view.name.clone(),
+          icon: view.icon.as_ref().map(|icon| ViewIcon {
+            ty: IconType::from(icon.ty.clone() as u8),
+            value: icon.value.clone(),
+          }),
+        };
+
+        match collab_type {
+          CollabType::Document => {
+            // 1) Load into a Collab
+            let mut collab = Collab::new(uid, &object_str, "indexing_device", vec![], false);
+            let load_success = {
+              let mut txn = collab.transact_mut();
+              read_txn
+                .load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
+                .is_ok()
+            };
+
+            if load_success {
+              if let Some(document) = DocumentBody::from_collab(&collab) {
+                let paragraphs = document.paragraphs(collab.transact());
+                results.push(UnindexedCollab {
+                  workspace_id,
+                  object_id,
+                  collab_type: CollabType::Document,
+                  data: UnindexedData::Paragraphs(paragraphs),
+                  metadata,
+                });
+                continue;
+              }
+            }
+            // When load fails or document extraction fails, use empty text
             results.push(UnindexedCollab {
               workspace_id,
               object_id,
               collab_type: CollabType::Document,
-              data: UnindexedData::Paragraphs(paragraphs),
+              data: UnindexedData::Text(String::new()),
               metadata,
             });
-          }
+          },
+          CollabType::Database => {
+            results.push(UnindexedCollab {
+              workspace_id,
+              object_id,
+              collab_type: CollabType::Database,
+              data: UnindexedData::Text(String::new()),
+              metadata,
+            });
+          },
+          _ => {
+            // do nothing for other types
+          },
         }
       }
 
       Ok(results)
     });
 
-    // Now await the blocking task, handling both join‐errors and your domain errors
-    let unindexed = handle
+    handle
       .await
-      .map_err(|e| FlowyError::internal().with_context(format!("join error: {}", e)))??;
-
-    Ok(unindexed)
+      .map_err(|e| FlowyError::internal().with_context(format!("Join error: {}", e)))?
   }
 }

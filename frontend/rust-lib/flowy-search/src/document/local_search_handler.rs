@@ -55,7 +55,6 @@ impl SearchHandler for DocumentLocalSearchHandler {
            let search_result = RepeatedLocalSearchResponseItemPB { items };
            yield Ok(
              CreateSearchResultPBArgs::default()
-               .searching(false)
                .local_search_result(Some(search_result))
                .build()
                .unwrap(),
