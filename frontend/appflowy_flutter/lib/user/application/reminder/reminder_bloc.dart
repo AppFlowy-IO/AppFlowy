@@ -92,7 +92,13 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             result.fold(
               (_) {
                 Log.info('Removed reminder: $reminderId');
-                if (!isClosed) add(ReminderEvent.refresh());
+                final reminders = List.of(state.reminders);
+                final index = reminders
+                    .indexWhere((reminder) => reminder.id == reminderId);
+                if (index != -1) {
+                  reminders.removeAt(index);
+                  emit(state.copyWith(reminders: reminders));
+                }
               },
               (error) => Log.error(
                 'Failed to remove reminder($reminderId): $error',
