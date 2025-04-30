@@ -55,10 +55,11 @@ class DateCellEditorBloc
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final dateCellData = DateCellData.fromPB(cellData);
 
-            ReminderOption reminderOption = ReminderOption.none;
+            ReminderOption reminderOption = state.reminderOption;
 
             if (dateCellData.reminderId.isNotEmpty &&
-                dateCellData.dateTime != null) {
+                dateCellData.dateTime != null &&
+                reminderOption != ReminderOption.none) {
               final reminder = _reminderBloc.state.reminders
                   .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
               if (reminder != null) {
@@ -119,6 +120,7 @@ class DateCellEditorBloc
             await _clearDate();
           },
           setReminderOption: (ReminderOption option) async {
+            emit(state.copyWith(reminderOption: option));
             await _setReminderOption(option);
           },
         );
@@ -246,9 +248,7 @@ class DateCellEditorBloc
   void _updateReminderIfNecessary(
     DateTime? dateTime,
   ) {
-    if (state.reminderId.isEmpty ||
-        state.reminderOption == ReminderOption.none ||
-        dateTime == null) {
+    if (state.reminderId.isEmpty || dateTime == null) {
       return;
     }
 
@@ -400,7 +400,7 @@ class DateCellEditorState with _$DateCellEditorState {
     ReminderOption reminderOption = ReminderOption.none;
 
     if (dateCellData.reminderId.isNotEmpty && dateCellData.dateTime != null) {
-      final reminder = reminderBloc.state.reminders
+      final reminder = reminderBloc.state.allReminders
           .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
       if (reminder != null) {
         final eventDate = dateCellData.includeTime

@@ -78,11 +78,12 @@ class LinkSearchTextField {
       focusNode: focusNode,
       textAlign: TextAlign.left,
       controller: textEditingController,
-      style: textStyle ?? TextStyle(
-        fontSize: 14,
-        height: 20 / 14,
-        fontWeight: FontWeight.w400,
-      ),
+      style: textStyle ??
+          TextStyle(
+            fontSize: 14,
+            height: 20 / 14,
+            fontWeight: FontWeight.w400,
+          ),
       onChanged: (text) {
         if (text.isEmpty) {
           searchedViews.clear();

@@ -147,9 +147,9 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) {
-          final isMenuExpanded =
-              context.read<HomeSettingBloc>().isMenuExpanded;
-          final status = isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+          final isMenuExpanded = context.read<HomeSettingBloc>().isMenuExpanded;
+          final status =
+              isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
           context
               .read<HomeSettingBloc>()
               .add(HomeSettingEvent.changeMenuStatus(status));
