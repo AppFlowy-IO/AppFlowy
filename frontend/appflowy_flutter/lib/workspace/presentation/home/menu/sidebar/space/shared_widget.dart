@@ -208,16 +208,8 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: FlowyButton(
-              useIntrinsicWidth: true,
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-              radius: BorderRadius.circular(8),
-              text: FlowyText.regular(
-                confirmButtonName,
-                lineHeight: 1.0,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+            child: AFFilledTextButton.destructive(
+              text: confirmButtonName,
               onTap: onConfirm,
             ),
           ),

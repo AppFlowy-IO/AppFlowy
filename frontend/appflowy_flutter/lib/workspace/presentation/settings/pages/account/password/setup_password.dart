@@ -4,6 +4,7 @@ import 'package:appflowy/user/application/password/password_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/error_extensions.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -290,6 +291,10 @@ class _SetupPasswordDialogContentState
               .hasMatch(error.msg)) {
             passwordTextFieldKey.currentState?.syncError(
               errorText: AFPasswordErrorExtension.getErrorMessage(error),
+            );
+          } else if (error.code == ErrorCode.NewPasswordTooWeak) {
+            passwordTextFieldKey.currentState?.syncError(
+              errorText: LocaleKeys.signIn_passwordMustContain.tr(),
             );
           } else {
             passwordTextFieldKey.currentState?.syncError(
