@@ -299,6 +299,7 @@ impl UserStatusCallbackImpl {
 
 #[async_trait]
 impl UserStatusCallback for UserStatusCallbackImpl {
+  #[instrument(skip_all)]
   async fn on_launch_if_authenticated(
     &self,
     user_id: i64,
@@ -378,6 +379,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
+  #[instrument(skip_all)]
   async fn on_sign_in(
     &self,
     user_id: i64,
@@ -437,6 +439,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
+  #[instrument(skip_all)]
   async fn on_sign_up(
     &self,
     is_new_user: bool,
@@ -515,6 +518,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
+  #[instrument(skip_all)]
   async fn on_workspace_opened(
     &self,
     user_id: i64,

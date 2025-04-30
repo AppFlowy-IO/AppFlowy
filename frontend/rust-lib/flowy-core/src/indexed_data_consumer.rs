@@ -26,6 +26,10 @@ impl FullIndexedDataConsumer for EmbeddingFullIndexConsumer {
   }
 
   async fn consume_indexed_data(&self, _uid: i64, data: &UnindexedCollab) -> FlowyResult<()> {
+    if data.data.is_empty() {
+      return Ok(());
+    }
+
     let scheduler = flowy_ai::embeddings::context::EmbedContext::shared().get_scheduler()?;
     scheduler.index_collab(data.clone()).await?;
     Ok(())

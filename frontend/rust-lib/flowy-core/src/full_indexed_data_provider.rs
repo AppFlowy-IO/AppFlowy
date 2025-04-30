@@ -115,7 +115,11 @@ impl FullIndexedDataProvider {
 
     // chunk the unindex_ids into smaller chunks
     let chunk_size = 20;
-    info!("[Indexing] {} unindexed documents", unindex_ids.len());
+    info!(
+      "[Indexing] {} consumers start indexing {} unindexed documents",
+      self.consumers.read().await.len(),
+      unindex_ids.len()
+    );
     let chunks = unindex_ids.chunks(chunk_size);
     for chunk in chunks.into_iter() {
       if self.is_workspace_changed(&workspace_id).await {
@@ -136,8 +140,9 @@ impl FullIndexedDataProvider {
           for consumer in self.consumers.read().await.iter() {
             for data in &unindexed {
               trace!(
-                "[Indexing] {} consume unindexed data",
-                consumer.consumer_id()
+                "[Indexing] {} consume {} unindexed data",
+                consumer.consumer_id(),
+                data.object_id
               );
               consumer.consume_indexed_data(uid, data).await?;
             }
