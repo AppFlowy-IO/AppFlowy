@@ -15,6 +15,7 @@ impl LocalSearchTantivySchema {
   pub const CONTENT: &'static str = "content";
   pub const NAME: &'static str = "name";
   pub const ICON: &'static str = "icon";
+  pub const ICON_TYPE: &'static str = "icon_ty";
 
   pub fn new() -> Self {
     let mut builder = Schema::builder();
@@ -23,6 +24,7 @@ impl LocalSearchTantivySchema {
     builder.add_text_field(Self::CONTENT, TEXT | STORED);
     builder.add_text_field(Self::NAME, TEXT | STORED);
     builder.add_text_field(Self::ICON, TEXT | STORED);
+    builder.add_text_field(Self::ICON_TYPE, STRING | STORED);
     LocalSearchTantivySchema(builder.build())
   }
 }

@@ -2,7 +2,7 @@ use collab::lock::RwLock;
 use collab::preclude::{Collab, Transact};
 use collab_document::document::DocumentBody;
 use collab_entity::{CollabObject, CollabType};
-use flowy_ai_pub::entities::{UnindexedCollabMetadata, UnindexedData};
+use flowy_ai_pub::entities::UnindexedData;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::get_operating_system;
@@ -14,41 +14,6 @@ use tokio::runtime::Runtime;
 use tokio::time::interval;
 use tracing::{error, info, trace};
 use uuid::Uuid;
-
-#[async_trait]
-pub trait CollabIndexedData: Send + Sync + 'static {
-  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData>;
-}
-
-#[async_trait]
-impl<T> CollabIndexedData for RwLock<T>
-where
-  T: BorrowMut<Collab> + Send + Sync + 'static,
-{
-  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData> {
-    let collab = self.try_read().ok()?;
-    index_data_for_collab(collab.borrow(), collab_type)
-  }
-}
-
-/// writer interface
-#[async_trait]
-pub trait InstantIndexedDataConsumer: Send + Sync + 'static {
-  fn consumer_id(&self) -> String;
-
-  async fn consume_collab(
-    &self,
-    collab_object: &CollabObject,
-    data: UnindexedData,
-    metadata: &UnindexedCollabMetadata,
-  ) -> Result<bool, FlowyError>;
-
-  async fn did_delete_collab(
-    &self,
-    workspace_id: &Uuid,
-    object_id: &Uuid,
-  ) -> Result<(), FlowyError>;
-}
 
 pub struct WriteObject {
   pub collab_object: CollabObject,
@@ -139,11 +104,7 @@ impl InstantIndexedDataProvider {
                   let consumers_snapshot = consumers_arc.read().await;
                   for consumer in consumers_snapshot.iter() {
                     match consumer
-                      .consume_collab(
-                        &wo.collab_object,
-                        data.clone(),
-                        &UnindexedCollabMetadata::default(),
-                      )
+                      .consume_collab(&wo.collab_object, data.clone())
                       .await
                     {
                       Ok(is_indexed) => {
@@ -216,12 +177,42 @@ fn index_data_for_collab(collab: &Collab, collab_type: &CollabType) -> Option<Un
       let txn = collab.doc().try_transact().ok()?;
       let doc = DocumentBody::from_collab(collab)?;
       let paras = doc.paragraphs(txn);
-      if paras.is_empty() {
-        trace!("[Indexing] No paragraphs in {}", collab.object_id());
-        return None;
-      }
       Some(UnindexedData::Paragraphs(paras))
     },
     _ => None,
   }
+}
+
+#[async_trait]
+pub trait CollabIndexedData: Send + Sync + 'static {
+  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData>;
+}
+
+#[async_trait]
+impl<T> CollabIndexedData for RwLock<T>
+where
+  T: BorrowMut<Collab> + Send + Sync + 'static,
+{
+  async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData> {
+    let collab = self.try_read().ok()?;
+    index_data_for_collab(collab.borrow(), collab_type)
+  }
+}
+
+/// writer interface
+#[async_trait]
+pub trait InstantIndexedDataConsumer: Send + Sync + 'static {
+  fn consumer_id(&self) -> String;
+
+  async fn consume_collab(
+    &self,
+    collab_object: &CollabObject,
+    data: UnindexedData,
+  ) -> Result<bool, FlowyError>;
+
+  async fn did_delete_collab(
+    &self,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
+  ) -> Result<(), FlowyError>;
 }

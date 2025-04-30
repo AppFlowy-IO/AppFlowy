@@ -1,7 +1,5 @@
 use flowy_derive::ProtoBuf;
 
-use super::SearchFilterPB;
-
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct SearchQueryPB {
   #[pb(index = 1)]

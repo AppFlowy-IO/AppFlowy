@@ -1659,20 +1659,19 @@ impl FolderManager {
     self.get_sections(Section::Favorite).await
   }
 
-  pub async fn get_all_documents_ids(&self) -> FlowyResult<Vec<String>> {
+  pub async fn get_all_documents(&self) -> FlowyResult<Vec<Arc<View>>> {
     let lock = self
       .mutex_folder
       .load_full()
       .ok_or_else(folder_not_init_error)?;
-    let ids = lock
+    let views = lock
       .read()
       .await
       .get_all_views()
       .into_iter()
       .filter(|v| v.layout == ViewLayout::Document)
-      .map(|v| v.id.clone())
       .collect::<Vec<_>>();
-    Ok(ids)
+    Ok(views)
   }
 
   #[tracing::instrument(level = "debug", skip(self))]

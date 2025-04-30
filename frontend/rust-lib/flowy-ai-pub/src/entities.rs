@@ -1,3 +1,4 @@
+use crate::cloud::workspace_dto::ViewIcon;
 use crate::cloud::CollabType;
 use uuid::Uuid;
 
@@ -7,10 +8,10 @@ pub struct EmbeddingRecord {
   pub chunks: Vec<EmbeddedChunk>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct UnindexedCollabMetadata {
   pub name: String,
-  pub icon: String,
+  pub icon: Option<ViewIcon>,
 }
 
 #[derive(Debug, Clone)]
@@ -29,6 +30,13 @@ pub enum UnindexedData {
 }
 
 impl UnindexedData {
+  pub fn is_empty(&self) -> bool {
+    match self {
+      UnindexedData::Text(text) => text.is_empty(),
+      UnindexedData::Paragraphs(paragraphs) => paragraphs.is_empty(),
+    }
+  }
+
   pub fn into_string(&self) -> String {
     match self {
       UnindexedData::Text(text) => text.clone(),

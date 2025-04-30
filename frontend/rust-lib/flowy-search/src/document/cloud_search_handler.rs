@@ -3,7 +3,7 @@ use crate::entities::{
   SearchResponsePB, SearchSourcePB, SearchSummaryPB,
 };
 use crate::{
-  entities::{ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResponseItemPB},
+  entities::{ResultIconPB, ResultIconTypePB, SearchResponseItemPB},
   services::manager::{SearchHandler, SearchType},
 };
 use async_stream::stream;
@@ -13,7 +13,6 @@ use flowy_folder::{manager::FolderManager, ViewLayout};
 use flowy_search_pub::cloud::{SearchCloudService, SearchResult};
 use lib_infra::async_trait::async_trait;
 use std::pin::Pin;
-use std::str::FromStr;
 use std::sync::Arc;
 use tokio_stream::{self, Stream};
 use tracing::{trace, warn};

@@ -153,6 +153,7 @@ impl UserStatusCallbackImpl {
     let workspace_id_cloned = *workspace_id;
     let workspace_type_cloned = *workspace_type;
     let user_paths = user_paths.clone();
+    let folder_manager = self.folder_manager.clone();
 
     self.runtime.spawn(async move {
       if let Some(instant_indexed_data_provider) = instant_indexed_data_provider {
@@ -166,7 +167,7 @@ impl UserStatusCallbackImpl {
           }
         }
 
-        match SearchInstantIndexImpl::new(&workspace_id_cloned, user_paths.tanvity_index_path(user_id)) {
+        match SearchInstantIndexImpl::new(&workspace_id_cloned, user_paths.tanvity_index_path(user_id), folder_manager) {
           Ok(consumer) => {
             instant_indexed_data_provider
               .register_consumer(Box::new(consumer))

@@ -8,22 +8,17 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/query.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/search_filter.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
 class SearchBackendService {
   static Future<FlowyResult<SearchResponseStream, FlowyError>> performSearch(
-    String keyword, {
-    String? workspaceId,
-  }) async {
+      String keyword) async {
     final searchId = DateTime.now().millisecondsSinceEpoch.toString();
     final stream = SearchResponseStream(searchId: searchId);
 
-    final filter = SearchFilterPB(workspaceId: workspaceId);
     final request = SearchQueryPB(
       search: keyword,
-      filter: filter,
       searchId: searchId,
       streamPort: Int64(stream.nativePort),
     );

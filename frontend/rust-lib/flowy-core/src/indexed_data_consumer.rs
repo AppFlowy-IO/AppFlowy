@@ -1,9 +1,11 @@
 use crate::full_indexed_data_provider::FullIndexedDataConsumer;
 use collab_entity::CollabObject;
+use collab_folder::{IconType, ViewIcon};
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use dashmap::DashMap;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_folder::manager::FolderManager;
 use flowy_search::document::local_search_handler::DocumentTantivyState;
 use lib_infra::async_trait::async_trait;
 use once_cell::sync::Lazy;
@@ -52,10 +54,14 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
-    metadata: &UnindexedCollabMetadata,
   ) -> Result<bool, FlowyError> {
+    if data.is_empty() {
+      return Ok(false);
+    }
+
+    let content_hash = data.content_hash();
     if let Some(entry) = self.consume_history.get(&collab_object.object_id) {
-      if entry.value() == &data.content_hash() {
+      if entry.value() == &content_hash {
         trace!(
           "[Indexing] {} instant embedding already indexed, skipping",
           collab_object.object_id
@@ -66,7 +72,7 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
 
     self
       .consume_history
-      .insert(collab_object.object_id.clone(), data.content_hash());
+      .insert(collab_object.object_id.clone(), content_hash);
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
@@ -77,7 +83,16 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
           object_id: Uuid::parse_str(&collab_object.object_id)?,
           collab_type: collab_object.collab_type,
           data,
-          metadata: metadata.clone(),
+          metadata: UnindexedCollabMetadata {
+            name: "".to_string(),
+            icon: None,
+          }, // metadata: UnindexedCollabMetadata {
+             //   name: view.name.clone(),
+             //   icon: view.icon.clone().map(|v| workspace_dto::ViewIcon {
+             //     ty: workspace_dto::IconType::from(v.ty.clone() as u8),
+             //     value: v.value,
+             //   }),
+             // },
         };
 
         if let Err(err) = scheduler.index_collab(unindex_collab).await {
@@ -178,11 +193,15 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
       .ok_or_else(|| FlowyError::internal().with_context("Tantivy state dropped"))?;
     let object_id = data.object_id.to_string();
     let content = data.data.clone().into_string();
+
     strong.write().await.add_document(
       &object_id,
       content,
       data.metadata.name.clone(),
-      data.metadata.icon.clone(),
+      data.metadata.icon.clone().map(|v| ViewIcon {
+        ty: IconType::from(v.ty as u8),
+        value: v.value,
+      }),
     )?;
     Ok(())
   }
@@ -194,14 +213,20 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
 pub struct SearchInstantIndexImpl {
   state: Weak<RwLock<DocumentTantivyState>>,
   consume_history: DashMap<String, String>,
+  folder_manager: Weak<FolderManager>,
 }
 
 impl SearchInstantIndexImpl {
-  pub fn new(workspace_id: &Uuid, data_path: PathBuf) -> FlowyResult<Self> {
+  pub fn new(
+    workspace_id: &Uuid,
+    data_path: PathBuf,
+    folder_manager: Weak<FolderManager>,
+  ) -> FlowyResult<Self> {
     let strong = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
     Ok(Self {
       state: Arc::downgrade(&strong),
       consume_history: Default::default(),
+      folder_manager,
     })
   }
 }
@@ -216,28 +241,46 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
-    metadata: &UnindexedCollabMetadata,
   ) -> Result<bool, FlowyError> {
+    let folder_manager = self
+      .folder_manager
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)?;
+    let view = folder_manager.get_view(&collab_object.object_id).await?;
+
+    // Create a combined hash that includes content + view name + icon
+    let content_hash = data.content_hash();
+    let name_hash = format!("{}:{}", content_hash, view.name);
+    let combined_hash = if let Some(icon) = &view.icon {
+      format!("{}:{}:{}", name_hash, icon.ty.clone() as u8, icon.value)
+    } else {
+      name_hash
+    };
+
     if let Some(entry) = self.consume_history.get(&collab_object.object_id) {
-      if entry.value() == &data.content_hash() {
+      if entry.value() == &combined_hash {
         return Ok(false);
       }
     }
 
     self
       .consume_history
-      .insert(collab_object.object_id.clone(), data.content_hash());
+      .insert(collab_object.object_id.clone(), combined_hash);
 
     let strong = self
       .state
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Tantivy state dropped"))?;
     let content = data.into_string();
+
     strong.write().await.add_document(
       &collab_object.object_id,
       content,
-      metadata.name.clone(),
-      metadata.icon.clone(),
+      view.name.clone(),
+      view.icon.clone().map(|v| ViewIcon {
+        ty: IconType::from(v.ty as u8),
+        value: v.value,
+      }),
     )?;
     Ok(true)
   }

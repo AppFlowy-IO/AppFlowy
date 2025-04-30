@@ -1,12 +1,11 @@
 use crate::document::local_search_handler::{DocumentLocalSearchHandler, DocumentTantivyState};
-use crate::entities::{SearchFilterPB, SearchResponsePB, SearchStatePB};
+use crate::entities::{SearchResponsePB, SearchStatePB};
 use allo_isolate::Isolate;
 use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use lib_infra::async_trait::async_trait;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
-use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
@@ -108,46 +107,52 @@ impl SearchManager {
   }
 
   pub async fn perform_search(&self, query: String, stream_port: i64, search_id: i64) {
-    let mut current = self.current_search.lock().await;
-    if current.map_or(false, |cur| cur > search_id) {
-      return;
-    }
-    let workspace_id = self.workspace_id.load_full();
-    if workspace_id.is_none() {
-      error!("No workspace id found");
-      return;
+    // Check workspace_id before acquiring lock
+    let workspace_id = match self.workspace_id.load_full() {
+      Some(id) => id,
+      None => {
+        error!("No workspace id found");
+        return;
+      },
+    };
+
+    // Check and update current search
+    {
+      let mut current = self.current_search.lock().await;
+      if current.map_or(false, |cur| cur > search_id) {
+        return;
+      }
+      *current = Some(search_id);
     }
 
-    // Otherwise register this as the latest search
-    *current = Some(search_id);
-    drop(current);
+    tracing::info!("[Search] perform search: {}", query);
 
     let handlers = self.handlers.clone();
     let sink = IsolateSink::new(Isolate::new(stream_port));
-    let mut join_handles = vec![];
     let current_search = self.current_search.clone();
-    let workspace_id = workspace_id.unwrap();
 
-    tracing::info!("[Search] perform search: {}", query);
-    for (_, search_handler) in self.handlers.iter().enumerate() {
-      let mut clone_sink = sink.clone();
-      let query = query.clone();
-      let current_search = current_search.clone();
-      let search_handler = search_handler.value().clone();
+    let mut join_handles = vec![];
 
-      let workspace_id = workspace_id.clone();
+    for handler in handlers.iter().map(|entry| entry.value().clone()) {
+      let mut sink_clone = sink.clone();
+      let query_clone = query.clone();
+      let current_search_clone = current_search.clone();
+      let workspace_id_clone = workspace_id.clone();
+
       let handle = tokio::spawn(async move {
-        if !is_current_search(&current_search, search_id).await {
-          trace!("[Search] cancel search: {}", query);
+        // Check if still current search before starting
+        if !is_current_search(&current_search_clone, search_id).await {
+          trace!("[Search] cancel search: {}", query_clone);
           return;
         }
 
-        let mut stream = search_handler
-          .perform_search(query.clone(), &workspace_id)
+        let mut stream = handler
+          .perform_search(query_clone.clone(), &workspace_id_clone)
           .await;
+
         while let Some(Ok(search_result)) = stream.next().await {
-          if !is_current_search(&current_search, search_id).await {
-            trace!("[Search] perform search cancel: {}", query);
+          if !is_current_search(&current_search_clone, search_id).await {
+            trace!("[Search] perform search cancel: {}", query_clone);
             return;
           }
 
@@ -155,29 +160,30 @@ impl SearchManager {
             response: Some(search_result),
             search_id: search_id.to_string(),
           };
+
           if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
-            if let Err(err) = clone_sink.send(data).await {
+            if let Err(err) = sink_clone.send(data).await {
               error!("Failed to send search result: {}", err);
               break;
             }
           }
         }
 
-        if !is_current_search(&current_search, search_id).await {
-          trace!("[Search] perform search cancel: {}", query);
-          return;
-        }
-
-        let resp = SearchStatePB {
-          response: None,
-          search_id: search_id.to_string(),
-        };
-        if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
-          let _ = clone_sink.send(data).await;
+        // Send completion message
+        if is_current_search(&current_search_clone, search_id).await {
+          let resp = SearchStatePB {
+            response: None,
+            search_id: search_id.to_string(),
+          };
+          if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
+            let _ = sink_clone.send(data).await;
+          }
         }
       });
+
       join_handles.push(handle);
     }
+
     futures::future::join_all(join_handles).await;
   }
 }

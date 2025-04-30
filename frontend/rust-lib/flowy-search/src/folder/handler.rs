@@ -1,6 +1,6 @@
 use super::indexer::FolderIndexManagerImpl;
 use crate::entities::{
-  CreateSearchResultPBArgs, RepeatedLocalSearchResponseItemPB, SearchFilterPB, SearchResponsePB,
+  CreateSearchResultPBArgs, RepeatedLocalSearchResponseItemPB, SearchResponsePB,
 };
 use crate::services::manager::{SearchHandler, SearchType};
 use async_stream::stream;

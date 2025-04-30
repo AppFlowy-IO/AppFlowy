@@ -1,10 +1,10 @@
-use anyhow::Context;
 use collab::preclude::Collab;
 use collab_document::document::DocumentBody;
 use collab_entity::CollabType;
+use collab_folder::View;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
-use flowy_ai_pub::entities::{UnindexedCollab, UnindexedData};
+use collab_plugins::local_storage::kv::KVTransactionDB;
+use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_ai_pub::persistence::{
   batch_upsert_index_collab, select_indexed_collab_ids, IndexCollabRecordTable,
 };
@@ -12,6 +12,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_server::af_cloud::define::LoggedUser;
 use lib_infra::async_trait::async_trait;
+use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
@@ -91,11 +92,18 @@ impl FullIndexedDataProvider {
       .folder_manager
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade FolderManager"))?;
-    let document_ids = folder_manager.get_all_documents_ids().await?;
+    let views = folder_manager.get_all_documents().await?;
+    let view_ids = views.iter().map(|v| v.id.clone()).collect::<Vec<_>>();
+    let view_by_view_id = Arc::new(
+      views
+        .into_iter()
+        .map(|v| (v.id.clone(), v))
+        .collect::<HashMap<_, _>>(),
+    );
     drop(folder_manager);
 
     let indexed = select_indexed_collab_ids(&mut conn, workspace_id.to_string())?;
-    let unindex_ids = document_ids
+    let unindex_ids = view_ids
       .into_iter()
       .filter(|id| !indexed.contains(id))
       .collect::<Vec<_>>();
@@ -115,7 +123,10 @@ impl FullIndexedDataProvider {
         break;
       }
 
-      match self.index_documents(uid, &workspace_id, chunk).await {
+      match self
+        .index_documents(uid, &workspace_id, chunk.to_vec(), view_by_view_id.clone())
+        .await
+      {
         Ok(unindexed) => {
           if self.cancel_token.is_cancelled() {
             info!("[Indexing] cancelled");
@@ -173,7 +184,8 @@ impl FullIndexedDataProvider {
     &self,
     uid: i64,
     workspace_id: &Uuid,
-    unindex_ids: &[String],
+    unindex_ids: Vec<String>,
+    view_by_id: Arc<HashMap<String, Arc<View>>>,
   ) -> FlowyResult<Vec<UnindexedCollab>> {
     let collab_db = self
       .logged_user
@@ -183,7 +195,6 @@ impl FullIndexedDataProvider {
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade CollabKVDB"))?;
 
     // Move everything needed into the blocking closure
-    let unindex_ids = unindex_ids.to_vec();
     let workspace_id = *workspace_id;
     let handle = tokio::task::spawn_blocking(move || -> FlowyResult<Vec<UnindexedCollab>> {
       let read_txn = collab_db.read_txn();
@@ -194,25 +205,32 @@ impl FullIndexedDataProvider {
         let mut collab = Collab::new(uid, &object_str, "indexing_device", vec![], false);
         {
           let mut txn = collab.transact_mut();
-          if let Err(err) =
-            read_txn.load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
+          if read_txn
+            .load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
+            .is_err()
           {
             continue;
           }
         }
-        // 2) Turn it into DocumentBody → paragraphs
-        if let Some(document) = DocumentBody::from_collab(&collab) {
-          let paragraphs = document.paragraphs(collab.transact());
-          // 3) Parse the UUID string
-          let object_id = Uuid::parse_str(&object_str)?;
-          // 4) Collect
-          results.push(UnindexedCollab {
-            workspace_id,
-            object_id,
-            collab_type: CollabType::Document,
-            data: UnindexedData::Paragraphs(paragraphs),
-            metadata: Default::default(),
-          });
+
+        if let Some(view) = view_by_id.get(&object_str) {
+          let metadata = UnindexedCollabMetadata {
+            name: view.name.clone(),
+            icon: None,
+          };
+          if let Some(document) = DocumentBody::from_collab(&collab) {
+            let paragraphs = document.paragraphs(collab.transact());
+            // 3) Parse the UUID string
+            let object_id = Uuid::parse_str(&object_str)?;
+            // 4) Collect
+            results.push(UnindexedCollab {
+              workspace_id,
+              object_id,
+              collab_type: CollabType::Document,
+              data: UnindexedData::Paragraphs(paragraphs),
+              metadata,
+            });
+          }
         }
       }
 
