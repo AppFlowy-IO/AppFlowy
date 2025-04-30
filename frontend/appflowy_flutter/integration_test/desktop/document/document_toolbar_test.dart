@@ -366,5 +366,77 @@ void main() {
       expect(getLinkFromNode(node), link);
       expect(getNodeText(node), afterText);
     });
+
+    testWidgets('edit link text with style', (tester) async {
+      Attributes getAttribute(Node node, Selection selection) {
+        Attributes attributes = {};
+        final ops = node.delta?.whereType<TextInsert>() ?? [];
+        final startOffset = selection.start.offset;
+        var start = 0;
+        for (final op in ops) {
+          if (start > startOffset) break;
+          final length = op.length;
+          if (start + length > startOffset) {
+            attributes = op.attributes ?? {};
+            break;
+          }
+          start += length;
+        }
+
+        return attributes;
+      }
+
+      const text = 'edit text with style', link = 'https://test.appflowy.cloud';
+      await prepareForToolbar(tester, text);
+      final constSelection =
+          Selection.single(path: [0], startOffset: 0, endOffset: text.length);
+
+      final bold = find.byFlowySvg(FlowySvgs.toolbar_bold_m),
+          italic = find.byFlowySvg(FlowySvgs.toolbar_inline_italic_m),
+          underline = find.byFlowySvg(FlowySvgs.toolbar_underline_m);
+      await tester.tapButton(bold);
+      await tester.tapButton(italic);
+      await tester.tapButton(underline);
+
+      Node node = tester.editor.getNodeAtPath([0]);
+      Attributes attributes = getAttribute(node, constSelection);
+      expect(attributes, {
+        AppFlowyRichTextKeys.bold: true,
+        AppFlowyRichTextKeys.italic: true,
+        AppFlowyRichTextKeys.underline: true,
+      });
+
+      /// tap link button to show CreateLinkMenu
+      final linkButton = find.byFlowySvg(FlowySvgs.toolbar_link_m);
+      await tester.tapButton(linkButton);
+
+      /// search for page and select it
+      final textField = find.descendant(
+        of: find.byType(LinkCreateMenu),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(textField, gettingStarted);
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+
+      node = tester.editor.getNodeAtPath([0]);
+      attributes = getAttribute(node, constSelection);
+      expect(isPageLink(node), true);
+      expect(getLinkFromNode(node) == link, false);
+      expect(attributes[AppFlowyRichTextKeys.bold], true);
+      expect(attributes[AppFlowyRichTextKeys.italic], true);
+      expect(attributes[AppFlowyRichTextKeys.underline], true);
+      
+      /// remove link
+      await tester.hoverOnWidget(find.byType(LinkHoverTrigger));
+      await tester.tapButton(find.byFlowySvg(FlowySvgs.toolbar_link_unlink_m));
+      node = tester.editor.getNodeAtPath([0]);
+      attributes = getAttribute(node, constSelection);
+      expect(getLinkFromNode(node) == link, false);
+      expect(attributes[AppFlowyRichTextKeys.bold], true);
+      expect(attributes[AppFlowyRichTextKeys.italic], true);
+      expect(attributes[AppFlowyRichTextKeys.underline], true);
+    });
   });
 }
