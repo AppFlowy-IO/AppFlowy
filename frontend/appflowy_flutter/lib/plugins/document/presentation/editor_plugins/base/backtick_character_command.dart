@@ -31,15 +31,22 @@ Future<bool> _convertBacktickToCodeBlock({
   }
 
   // only active when the backtick is at the beginning of the line
+  final keyword = '``';
   final plainText = delta.toPlainText();
-  if (plainText != '``') {
+  if (!plainText.startsWith(keyword)) {
     return false;
   }
 
   final transaction = editorState.transaction;
-  transaction.insertNode(
+  final deltaWithoutKeyword = delta.compose(Delta()..delete(keyword.length));
+  transaction.insertNodes(
     selection.end.path,
-    codeBlockNode(),
+    [
+      codeBlockNode(
+        delta: deltaWithoutKeyword,
+      ),
+      if (node.children.isNotEmpty) ...node.children.map((e) => e.copyWith()),
+    ],
   );
   transaction.deleteNode(node);
   transaction.afterSelection = Selection.collapsed(
