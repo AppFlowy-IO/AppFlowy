@@ -204,9 +204,12 @@ class PasswordHttpService {
         final errorBody =
             response.body.isNotEmpty ? jsonDecode(response.body) : {};
 
-        Log.info(
-          '${endpoint.name} request failed: ${response.statusCode}, $errorBody ',
-        );
+        // the checkHasPassword endpoint will return 403, which is not an error
+        if (endpoint != PasswordEndpoint.checkHasPassword) {
+          Log.info(
+            '${endpoint.name} request failed: ${response.statusCode}, $errorBody ',
+          );
+        }
 
         ErrorCode errorCode = ErrorCode.Internal;
 
