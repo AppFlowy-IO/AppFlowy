@@ -3331,7 +3331,6 @@
       "healthAndFitness": "Health & fitness",
       "business": "Business",
       "marketing": "Marketing",
-      "learning": "Learning",
       "travel": "Travel",
       "others": "Other",
       "prompt": "Prompt",
@@ -3346,7 +3345,12 @@
       "socialMedia": "Social Media",
       "strategy": "Strategy",
       "caseStudies": "Case Studies",
-      "salesCopy": "Sales Copy"
+      "salesCopy": "Sales Copy",
+      "education": "Education",
+      "work": "Work",
+      "podcastProduction": "Podcast Production",
+      "copyWriting": "Copy Writing",
+      "customerSuccess": "Customer Success"
     }
   },
   "autoUpdate": {
