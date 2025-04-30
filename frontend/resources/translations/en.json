@@ -48,6 +48,7 @@
     "createAccount": "Create account",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
+    "passwordMustContain": "Password must contain at least one letter, one number, and one symbol.",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "or",
     "signInWithGoogle": "Continue with Google",
