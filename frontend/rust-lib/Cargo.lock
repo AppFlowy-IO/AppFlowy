@@ -2683,6 +2683,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lib-log",
+ "once_cell",
  "semver",
  "serde",
  "serde_json",
@@ -2945,10 +2946,12 @@ name = "flowy-search"
 version = "0.1.0"
 dependencies = [
  "allo-isolate",
+ "arc-swap",
  "async-stream",
  "bytes",
  "collab",
  "collab-folder",
+ "dashmap 6.0.1",
  "derive_builder 0.20.2",
  "flowy-codegen",
  "flowy-derive",

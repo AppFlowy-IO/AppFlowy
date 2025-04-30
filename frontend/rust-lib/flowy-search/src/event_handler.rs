@@ -23,7 +23,7 @@ pub(crate) async fn search_handler(
   let manager = upgrade_manager(manager)?;
   let search_id = query.search_id.parse::<i64>().unwrap_or(timestamp());
   manager
-    .perform_search(query.search, query.stream_port, query.filter, search_id)
+    .perform_search(query.search, query.stream_port, search_id)
     .await;
 
   Ok(())

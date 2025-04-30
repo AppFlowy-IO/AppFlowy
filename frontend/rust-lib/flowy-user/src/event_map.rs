@@ -10,6 +10,7 @@ use strum_macros::Display;
 use uuid::Uuid;
 
 use crate::event_handler::*;
+use crate::services::entities::{UserConfig, UserPaths};
 use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
@@ -283,7 +284,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _cloud_config: &Option<UserCloudConfig>,
     _workspace_id: &Uuid,
-    _device_id: &str,
+    _user_config: &UserConfig,
+    _user_path: &UserPaths,
     _workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     Ok(())
@@ -298,7 +300,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _workspace_id: &Uuid,
-    _device_id: &str,
+    _user_config: &UserConfig,
+    _user_path: &UserPaths,
     _workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     Ok(())
@@ -310,7 +313,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _is_new_user: bool,
     _user_profile: &UserProfile,
     _workspace_id: &Uuid,
-    _device_id: &str,
+    _user_config: &UserConfig,
+    _user_path: &UserPaths,
     _workspace_type: &WorkspaceType,
   ) -> FlowyResult<()> {
     Ok(())
@@ -328,6 +332,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _workspace_id: &Uuid,
     _user_workspace: &UserWorkspace,
     _workspace_type: &WorkspaceType,
+    _user_config: &UserConfig,
+    _user_path: &UserPaths,
   ) -> FlowyResult<()> {
     Ok(())
   }

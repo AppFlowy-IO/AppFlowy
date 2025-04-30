@@ -2,7 +2,7 @@ use collab::lock::RwLock;
 use collab::preclude::{Collab, Transact};
 use collab_document::document::DocumentBody;
 use collab_entity::{CollabObject, CollabType};
-use flowy_ai_pub::entities::UnindexedData;
+use flowy_ai_pub::entities::{UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::get_operating_system;
@@ -12,16 +12,14 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::runtime::Runtime;
 use tokio::time::interval;
-use tracing::{error, trace};
+use tracing::{error, info, trace};
 use uuid::Uuid;
 
 #[async_trait]
 pub trait CollabIndexedData: Send + Sync + 'static {
-  /// upgrade and get a &Collab
   async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData>;
 }
 
-/// blanket-impl for any `RwLock<T>` where `T: BorrowMut<Collab>`
 #[async_trait]
 impl<T> CollabIndexedData for RwLock<T>
 where
@@ -36,13 +34,14 @@ where
 /// writer interface
 #[async_trait]
 pub trait InstantIndexedDataConsumer: Send + Sync + 'static {
-  fn indexed_consumer_id(&self) -> String;
+  fn consumer_id(&self) -> String;
 
   async fn consume_collab(
     &self,
     collab_object: &CollabObject,
     data: UnindexedData,
-  ) -> Result<(), FlowyError>;
+    metadata: &UnindexedCollabMetadata,
+  ) -> Result<bool, FlowyError>;
 
   async fn did_delete_collab(
     &self,
@@ -86,6 +85,10 @@ impl InstantIndexedDataProvider {
   }
 
   pub async fn register_consumer(&self, consumer: Box<dyn InstantIndexedDataConsumer>) {
+    info!(
+      "[Indexing] Registering instant index consumer: {}",
+      consumer.consumer_id()
+    );
     let mut guard = self.consumers.write().await;
     guard.push(consumer);
   }
@@ -119,7 +122,6 @@ impl InstantIndexedDataProvider {
         // Snapshot keys and consumers under read locks
         let (object_ids, mut to_remove) = {
           let guard = collab_by_object.read().await;
-          trace!("[Indexing] Found {} objects to check", guard.len());
           let keys: Vec<_> = guard.keys().cloned().collect();
           (keys, Vec::new())
         };
@@ -136,21 +138,27 @@ impl InstantIndexedDataProvider {
                   // Snapshot consumers
                   let consumers_snapshot = consumers_arc.read().await;
                   for consumer in consumers_snapshot.iter() {
-                    trace!(
-                      "[Indexing] {} consuming {}",
-                      consumer.indexed_consumer_id(),
-                      id
-                    );
-                    if let Err(e) = consumer
-                      .consume_collab(&wo.collab_object, data.clone())
+                    match consumer
+                      .consume_collab(
+                        &wo.collab_object,
+                        data.clone(),
+                        &UnindexedCollabMetadata::default(),
+                      )
                       .await
                     {
-                      error!(
-                        "Consumer {} failed on {}: {}",
-                        consumer.indexed_consumer_id(),
-                        id,
-                        e
-                      );
+                      Ok(is_indexed) => {
+                        if is_indexed {
+                          trace!("[Indexing] {} consumed {}", consumer.consumer_id(), id);
+                        }
+                      },
+                      Err(err) => {
+                        error!(
+                          "Consumer {} failed on {}: {}",
+                          consumer.consumer_id(),
+                          id,
+                          err
+                        );
+                      },
                     }
                   }
                 }

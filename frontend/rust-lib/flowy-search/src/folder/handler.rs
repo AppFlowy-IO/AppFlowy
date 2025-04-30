@@ -9,6 +9,7 @@ use lib_infra::async_trait::async_trait;
 use std::pin::Pin;
 use std::sync::Arc;
 use tokio_stream::{self, Stream};
+use uuid::Uuid;
 
 pub struct FolderSearchHandler {
   pub index_manager: Arc<FolderIndexManagerImpl>,
@@ -29,8 +30,9 @@ impl SearchHandler for FolderSearchHandler {
   async fn perform_search(
     &self,
     query: String,
-    filter: Option<SearchFilterPB>,
+    workspace_id: &Uuid,
   ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>> {
+    let workspace_id = workspace_id.to_string();
     let index_manager = self.index_manager.clone();
 
     Box::pin(stream! {
@@ -43,9 +45,7 @@ impl SearchHandler for FolderSearchHandler {
             }
         };
 
-        if let Some(filter) = filter {
-            items.retain(|result| result.workspace_id == filter.workspace_id);
-        }
+        items.retain(|result| result.workspace_id == workspace_id);
 
         // Build the search result.
         let search_result = RepeatedLocalSearchResponseItemPB {items};

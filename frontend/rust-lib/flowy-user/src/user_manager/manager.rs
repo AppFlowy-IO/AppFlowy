@@ -287,7 +287,8 @@ impl UserManager {
           uid,
           &cloud_config,
           &workspace_uuid,
-          &self.authenticate_user.user_config.device_id,
+          &self.authenticate_user.user_config,
+          &self.authenticate_user.user_paths,
           &workspace_type,
         )
         .await?;
@@ -381,7 +382,8 @@ impl UserManager {
       .on_sign_in(
         user_profile.uid,
         &workspace_id,
-        &self.authenticate_user.user_config.device_id,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
         &user_profile.workspace_type,
       )
       .await?;
@@ -447,7 +449,8 @@ impl UserManager {
         response.is_new_user,
         new_user_profile,
         &workspace_id,
-        &self.authenticate_user.user_config.device_id,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
         &new_user_profile.workspace_type,
       )
       .await?;

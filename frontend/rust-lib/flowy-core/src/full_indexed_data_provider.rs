@@ -3,7 +3,7 @@ use collab::preclude::Collab;
 use collab_document::document::DocumentBody;
 use collab_entity::CollabType;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedData};
 use flowy_ai_pub::persistence::{
   batch_upsert_index_collab, select_indexed_collab_ids, IndexCollabRecordTable,
@@ -15,7 +15,7 @@ use lib_infra::async_trait::async_trait;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
-use tracing::{info, trace, warn};
+use tracing::{error, info, trace, warn};
 use uuid::Uuid;
 
 #[async_trait]
@@ -50,7 +50,10 @@ impl FullIndexedDataProvider {
   }
 
   pub async fn register_full_indexed_consumer(&self, consumer: Box<dyn FullIndexedDataConsumer>) {
-    info!("[Indexing] Registering {}", consumer.consumer_id());
+    info!(
+      "[Indexing] Registering full index consumer: {}",
+      consumer.consumer_id()
+    );
     let mut consumers = self.consumers.write().await;
     consumers.push(consumer);
   }
@@ -112,34 +115,42 @@ impl FullIndexedDataProvider {
         break;
       }
 
-      if let Ok(unindexed) = self.index_documents(uid, &workspace_id, chunk).await {
-        if self.cancel_token.is_cancelled() {
-          info!("[Indexing] cancelled");
-          break;
-        }
-
-        for consumer in self.consumers.read().await.iter() {
-          for data in &unindexed {
-            trace!("[Indexing] {} consume data", consumer.consumer_id());
-            consumer.consume_indexed_data(uid, data).await?;
+      match self.index_documents(uid, &workspace_id, chunk).await {
+        Ok(unindexed) => {
+          if self.cancel_token.is_cancelled() {
+            info!("[Indexing] cancelled");
+            break;
           }
-        }
-        if let Some(mut db) = self
-          .logged_user
-          .upgrade()
-          .and_then(|v| v.get_sqlite_db(uid).ok())
-        {
-          let rows = unindexed
-            .into_iter()
-            .map(|v| IndexCollabRecordTable {
-              oid: v.object_id.to_string(),
-              workspace_id: v.workspace_id.to_string(),
-              content_hash: v.data.hash(),
-            })
-            .collect::<Vec<_>>();
 
-          batch_upsert_index_collab(&mut db, rows)?;
-        }
+          for consumer in self.consumers.read().await.iter() {
+            for data in &unindexed {
+              trace!(
+                "[Indexing] {} consume unindexed data",
+                consumer.consumer_id()
+              );
+              consumer.consume_indexed_data(uid, data).await?;
+            }
+          }
+          if let Some(mut db) = self
+            .logged_user
+            .upgrade()
+            .and_then(|v| v.get_sqlite_db(uid).ok())
+          {
+            let rows = unindexed
+              .into_iter()
+              .map(|v| IndexCollabRecordTable {
+                oid: v.object_id.to_string(),
+                workspace_id: v.workspace_id.to_string(),
+                content_hash: v.data.content_hash(),
+              })
+              .collect::<Vec<_>>();
+
+            batch_upsert_index_collab(&mut db, rows)?;
+          }
+        },
+        Err(err) => {
+          error!("[Indexing] Failed to index documents: {:?}", err);
+        },
       }
 
       if self.cancel_token.is_cancelled() {
@@ -183,23 +194,26 @@ impl FullIndexedDataProvider {
         let mut collab = Collab::new(uid, &object_str, "indexing_device", vec![], false);
         {
           let mut txn = collab.transact_mut();
-          read_txn
-            .load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
-            .context("loading document into Collab")?;
+          if let Err(err) =
+            read_txn.load_doc_with_txn(uid, &workspace_id.to_string(), &object_str, &mut txn)
+          {
+            continue;
+          }
         }
         // 2) Turn it into DocumentBody → paragraphs
-        let document = DocumentBody::from_collab(&collab)
-          .ok_or_else(|| FlowyError::internal().with_context("Collab→DocumentBody failed"))?;
-        let paragraphs = document.paragraphs(collab.transact());
-        // 3) Parse the UUID string
-        let object_id = Uuid::parse_str(&object_str)?;
-        // 4) Collect
-        results.push(UnindexedCollab {
-          workspace_id,
-          object_id,
-          collab_type: CollabType::Document,
-          data: UnindexedData::Paragraphs(paragraphs),
-        });
+        if let Some(document) = DocumentBody::from_collab(&collab) {
+          let paragraphs = document.paragraphs(collab.transact());
+          // 3) Parse the UUID string
+          let object_id = Uuid::parse_str(&object_str)?;
+          // 4) Collect
+          results.push(UnindexedCollab {
+            workspace_id,
+            object_id,
+            collab_type: CollabType::Document,
+            data: UnindexedData::Paragraphs(paragraphs),
+            metadata: Default::default(),
+          });
+        }
       }
 
       Ok(results)

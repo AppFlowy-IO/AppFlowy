@@ -36,6 +36,8 @@ allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 futures.workspace = true
 tokio-stream.workspace = true
 async-stream = "0.3.6"
+dashmap.workspace = true
+arc-swap.workspace = true
 
 [build-dependencies]
 flowy-codegen.workspace = true

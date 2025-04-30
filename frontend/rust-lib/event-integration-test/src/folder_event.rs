@@ -124,7 +124,7 @@ impl EventIntegrationTest {
       .parse::<UserWorkspacePB>()
   }
 
-  pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
+  pub fn get_folder_search_handler(&self) -> Arc<dyn SearchHandler> {
     self
       .appflowy_core
       .search_manager

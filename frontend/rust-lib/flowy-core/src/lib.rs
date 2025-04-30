@@ -44,8 +44,8 @@ use user_state_callback::UserStatusCallbackImpl;
 
 pub mod config;
 mod deps_resolve;
-mod full_indexed_data_consumer;
 mod full_indexed_data_provider;
+mod indexed_data_consumer;
 mod log_filter;
 pub mod module;
 pub(crate) mod server_layer;
@@ -285,9 +285,10 @@ impl AppFlowyCore {
       server_provider: Arc::downgrade(&server_provider),
       storage_manager: Arc::downgrade(&storage_manager),
       ai_manager: Arc::downgrade(&ai_manager),
+      search_manager: Arc::downgrade(&search_manager),
       instant_indexed_data_provider,
       full_indexed_data_provider: Arc::downgrade(&indexed_data_provider),
-      logged_ser: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
+      logged_user: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
     };
 

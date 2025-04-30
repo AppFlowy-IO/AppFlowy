@@ -7,7 +7,7 @@ pub const FOLDER_ICON_TY_FIELD_NAME: &str = "icon_ty";
 pub const FOLDER_WORKSPACE_ID_FIELD_NAME: &str = "workspace_id";
 
 #[derive(Clone)]
-pub struct FolderSchema {
+pub struct FolderTantivySchema {
   pub schema: Schema,
 }
 
@@ -18,7 +18,7 @@ pub struct FolderSchema {
 /// If you need to change the schema, create a migration that removes the old index,
 /// and creates a new one with the new schema.
 ///
-impl FolderSchema {
+impl FolderTantivySchema {
   pub fn new() -> Self {
     let mut schema_builder = Schema::builder();
     schema_builder.add_text_field(
@@ -45,7 +45,7 @@ impl FolderSchema {
   }
 }
 
-impl Default for FolderSchema {
+impl Default for FolderTantivySchema {
   fn default() -> Self {
     Self::new()
   }

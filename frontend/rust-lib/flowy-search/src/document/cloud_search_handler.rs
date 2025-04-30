@@ -19,12 +19,12 @@ use tokio_stream::{self, Stream};
 use tracing::{trace, warn};
 use uuid::Uuid;
 
-pub struct DocumentSearchHandler {
+pub struct DocumentCloudSearchHandler {
   pub cloud_service: Arc<dyn SearchCloudService>,
   pub folder_manager: Arc<FolderManager>,
 }
 
-impl DocumentSearchHandler {
+impl DocumentCloudSearchHandler {
   pub fn new(
     cloud_service: Arc<dyn SearchCloudService>,
     folder_manager: Arc<FolderManager>,
@@ -35,38 +35,23 @@ impl DocumentSearchHandler {
     }
   }
 }
+
 #[async_trait]
-impl SearchHandler for DocumentSearchHandler {
+impl SearchHandler for DocumentCloudSearchHandler {
   fn search_type(&self) -> SearchType {
-    SearchType::Document
+    SearchType::DocumentCloud
   }
 
   async fn perform_search(
     &self,
     query: String,
-    filter: Option<SearchFilterPB>,
+    workspace_id: &Uuid,
   ) -> Pin<Box<dyn Stream<Item = FlowyResult<SearchResponsePB>> + Send + 'static>> {
     let cloud_service = self.cloud_service.clone();
     let folder_manager = self.folder_manager.clone();
+    let workspace_id = *workspace_id;
 
     Box::pin(stream! {
-      // Exit early if there is no filter.
-      let filter = if let Some(f) = filter {
-        f
-      } else {
-        yield Ok(CreateSearchResultPBArgs::default().build().unwrap());
-        return;
-      };
-
-      // Parse workspace id.
-      let workspace_id = match Uuid::from_str(&filter.workspace_id) {
-        Ok(id) => id,
-        Err(e) => {
-          yield Err(e.into());
-          return;
-        }
-      };
-
       // Retrieve all available views.
       let views = match folder_manager.get_all_views_pb().await {
         Ok(views) => views,

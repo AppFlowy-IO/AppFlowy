@@ -17,6 +17,8 @@ use tokio::sync::{broadcast, mpsc};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;
 
+type UnindexedCollabContext = UnindexedCollab;
+
 pub struct EmbeddingScheduler {
   indexer_provider: Arc<IndexerProvider>,
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
@@ -33,7 +35,7 @@ impl EmbeddingScheduler {
   ) -> FlowyResult<Arc<EmbeddingScheduler>> {
     let indexer_provider = IndexerProvider::new();
     let (write_embedding_tx, write_embedding_rx) = unbounded_channel::<EmbeddingRecord>();
-    let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollab>(100);
+    let (generate_embedding_tx, gen_embedding_rx) = mpsc::channel::<UnindexedCollabContext>(100);
     let (stop_tx, _) = broadcast::channel::<()>(1);
 
     let this = Arc::new(Self {

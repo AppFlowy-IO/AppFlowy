@@ -1,7 +1,7 @@
 use super::entities::FolderIndexData;
 use crate::entities::{LocalSearchResponseItemPB, ResultIconTypePB};
 use crate::folder::schema::{
-  FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
+  FolderTantivySchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
   FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
@@ -21,24 +21,24 @@ use tokio::sync::RwLock;
 use tracing::{error, info};
 use uuid::Uuid;
 
-pub struct TantivyState {
+pub struct FolderTantivyState {
   pub path: PathBuf,
   pub index: Index,
-  pub folder_schema: FolderSchema,
+  pub folder_schema: FolderTantivySchema,
   pub index_reader: IndexReader,
   pub index_writer: IndexWriter,
 }
 
-impl Drop for TantivyState {
+impl Drop for FolderTantivyState {
   fn drop(&mut self) {
-    tracing::trace!("Dropping TantivyState at {:?}", self.path);
+    tracing::trace!("Dropping FolderTantivyState at {:?}", self.path);
   }
 }
 
 #[derive(Clone)]
 pub struct FolderIndexManagerImpl {
   auth_user: Weak<AuthenticateUser>,
-  state: Arc<RwLock<Option<TantivyState>>>,
+  state: Arc<RwLock<Option<FolderTantivyState>>>,
 }
 
 impl FolderIndexManagerImpl {
@@ -51,7 +51,7 @@ impl FolderIndexManagerImpl {
 
   async fn with_writer<F, R>(&self, f: F) -> FlowyResult<R>
   where
-    F: FnOnce(&mut IndexWriter, &FolderSchema) -> FlowyResult<R>,
+    F: FnOnce(&mut IndexWriter, &FolderTantivySchema) -> FlowyResult<R>,
   {
     let mut lock = self.state.write().await;
     if let Some(ref mut state) = *lock {
@@ -64,7 +64,6 @@ impl FolderIndexManagerImpl {
   /// Initializes the state using the workspace directory.
   async fn initialize(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     if let Some(state) = self.state.write().await.take() {
-      info!("Re-initializing folder indexer");
       drop(state);
     }
 
@@ -89,12 +88,13 @@ impl FolderIndexManagerImpl {
     }
 
     info!("Folder indexer initialized at: {:?}", index_path);
-    let folder_schema = FolderSchema::new();
+    let folder_schema = FolderTantivySchema::new();
     let dir = MmapDirectory::open(index_path.clone())?;
     let index = Index::open_or_create(dir, folder_schema.schema.clone())?;
     let index_reader = index.reader()?;
 
-    let index_writer = match index.writer::<_>(50_000_000) {
+    let memory_size = 15_000_000; // minimum value
+    let index_writer = match index.writer::<_>(memory_size) {
       Ok(index_writer) => index_writer,
       Err(err) => {
         if let TantivyError::LockFailure(_, _) = err {
@@ -104,11 +104,11 @@ impl FolderIndexManagerImpl {
           );
           tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
         }
-        index.writer::<_>(50_000_000)?
+        index.writer::<_>(memory_size)?
       },
     };
 
-    *self.state.write().await = Some(TantivyState {
+    *self.state.write().await = Some(FolderTantivyState {
       path: index_path,
       index,
       folder_schema,
@@ -377,7 +377,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
 }
 
 fn get_schema_fields(
-  folder_schema: &FolderSchema,
+  folder_schema: &FolderTantivySchema,
 ) -> Result<(Field, Field, Field, Field, Field), FlowyError> {
   let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
   let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;

@@ -199,7 +199,14 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .on_workspace_opened(uid, workspace_id, &user_workspace, &workspace_type)
+      .on_workspace_opened(
+        uid,
+        workspace_id,
+        &user_workspace,
+        &workspace_type,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
+      )
       .await
     {
       error!("Open workspace failed: {:?}", err);

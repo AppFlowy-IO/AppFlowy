@@ -1,5 +1,4 @@
 use crate::cloud::CollabType;
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub struct EmbeddingRecord {
@@ -8,23 +7,37 @@ pub struct EmbeddingRecord {
   pub chunks: Vec<EmbeddedChunk>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Clone)]
+pub struct UnindexedCollabMetadata {
+  pub name: String,
+  pub icon: String,
+}
+
+#[derive(Debug, Clone)]
 pub struct UnindexedCollab {
   pub workspace_id: Uuid,
   pub object_id: Uuid,
   pub collab_type: CollabType,
   pub data: UnindexedData,
+  pub metadata: UnindexedCollabMetadata,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub enum UnindexedData {
   Text(String),
   Paragraphs(Vec<String>),
 }
 
 impl UnindexedData {
+  pub fn into_string(&self) -> String {
+    match self {
+      UnindexedData::Text(text) => text.clone(),
+      UnindexedData::Paragraphs(paragraphs) => paragraphs.join("\n"),
+    }
+  }
+
   #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
-  pub fn hash(&self) -> String {
+  pub fn content_hash(&self) -> String {
     use twox_hash::xxhash64::Hasher;
     match self {
       UnindexedData::Text(text) => {
