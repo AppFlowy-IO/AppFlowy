@@ -8,9 +8,9 @@ extension LinkExtension on EditorState {
     if (node == null) {
       return;
     }
-    final attributes = _getAttribute(node, selection)
-      ..remove(BuiltInAttributeKey.href)
-      ..remove(kIsPageLink);
+    final attributes = _getAttribute(node, selection);
+    attributes[BuiltInAttributeKey.href] = null;
+    attributes[kIsPageLink] = null;
     final index = selection.normalized.startIndex;
     final length = selection.length;
     final transaction = this.transaction
@@ -42,9 +42,9 @@ extension LinkExtension on EditorState {
     if (node == null) {
       return;
     }
-    final attributes = _getAttribute(node, selection)
-      ..remove(BuiltInAttributeKey.href)
-      ..remove(kIsPageLink);
+    final attributes = _getAttribute(node, selection);
+    attributes[BuiltInAttributeKey.href] = null;
+    attributes[kIsPageLink] = null;
     final index = selection.normalized.startIndex;
     final length = selection.length;
     final transaction = this.transaction
