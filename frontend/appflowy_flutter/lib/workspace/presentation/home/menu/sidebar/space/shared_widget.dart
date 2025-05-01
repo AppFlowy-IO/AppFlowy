@@ -182,6 +182,7 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   final String confirmButtonName;
   final Color? confirmButtonColor;
   final WidgetBuilder? confirmButtonBuilder;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
@@ -208,8 +209,16 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: AFFilledTextButton.destructive(
-              text: confirmButtonName,
+            child: FlowyButton(
+              useIntrinsicWidth: true,
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+              radius: BorderRadius.circular(8),
+              text: FlowyText.regular(
+                confirmButtonName,
+                lineHeight: 1.0,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
               onTap: onConfirm,
             ),
           ),

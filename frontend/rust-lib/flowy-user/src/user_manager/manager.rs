@@ -151,7 +151,25 @@ impl UserManager {
       );
       let workspace_uuid = Uuid::parse_str(&session.workspace_id)?;
       let mut conn = self.db_connection(session.user_id)?;
-      let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+      let workspace_type =
+        select_user_workspace_type(&session.workspace_id, &mut conn).or_else(|err| {
+          // Anonymous workspaces aren’t yet recorded in user_workspace_table,
+          // so calling select_user_workspace_type(...) will Err for anon users.
+          // As a temporary workaround, if we detect the current user is anonymous,
+          // we force the workspace type to WorkspaceType::Local.
+          // In the upcoming run_data_migration, we’ll insert proper anon‐user records
+          // and can remove this special case.
+          if self
+            .get_anon_user_id()
+            .ok()
+            .filter(|&anon_id| anon_id == session.user_id)
+            .is_some()
+          {
+            Ok(WorkspaceType::Local)
+          } else {
+            Err(err)
+          }
+        })?;
 
       let uid = session.user_id;
       let auth_type = AuthType::from(workspace_type);

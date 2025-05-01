@@ -1,4 +1,4 @@
-use crate::migrations::session_migration::{get_session_workspace, migrate_session};
+use crate::migrations::session_migration::{get_v0_session_workspace, migrate_session};
 
 use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
@@ -108,7 +108,7 @@ pub(crate) fn prepare_import(
   {
     Ok(w) => w.database_storage_id,
     Err(_) => {
-      let session_workspace = get_session_workspace(&other_store_preferences)
+      let session_workspace = get_v0_session_workspace(&other_store_preferences)
         .ok_or(anyhow!("Can't find the session workspace"))?;
       session_workspace.workspace_database_id
     },

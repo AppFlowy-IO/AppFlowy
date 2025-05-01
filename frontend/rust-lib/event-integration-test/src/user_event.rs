@@ -438,7 +438,10 @@ pub struct SignUpContext {
   pub user_profile: UserProfilePB,
   pub password: String,
 }
-
+pub async fn use_local_mode() {
+  AuthenticatorType::Local.write_env();
+  AFCloudConfiguration::default().write_env();
+}
 pub async fn use_localhost_af_cloud() {
   AuthenticatorType::AppFlowyCloud.write_env();
   let base_url =

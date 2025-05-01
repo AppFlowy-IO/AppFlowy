@@ -9,7 +9,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::{AuthType, WorkspaceType};
 
 use crate::migrations::migration::UserDataMigration;
-use crate::migrations::session_migration::get_session_workspace;
+use crate::migrations::session_migration::get_v0_session_workspace;
 use flowy_user_pub::session::Session;
 use flowy_user_pub::sql::{select_user_workspace, upsert_user_workspace};
 
@@ -43,7 +43,7 @@ impl UserDataMigration for AnonUserWorkspaceTableMigration {
     // For historical reason, anon user doesn't have a workspace in user_workspace_table.
     // So we need to create a new entry for the anon user in the user_workspace_table.
     if matches!(user_auth_type, AuthType::Local) {
-      if let Some(mut user_workspace) = get_session_workspace(store_preferences) {
+      if let Some(mut user_workspace) = get_v0_session_workspace(store_preferences) {
         if select_user_workspace(&user_workspace.id, db).ok().is_none() {
           user_workspace.workspace_type = WorkspaceType::Local;
           upsert_user_workspace(user.user_id, WorkspaceType::Local, user_workspace, db)?;
