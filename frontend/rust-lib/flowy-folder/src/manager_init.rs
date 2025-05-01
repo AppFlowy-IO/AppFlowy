@@ -27,6 +27,7 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
+    let _ = self.folder_ready_notifier.send_replace(false);
 
     if let Some(old_folder) = self.mutex_folder.swap(None) {
       let old_folder = old_folder.read().await;
@@ -114,6 +115,7 @@ impl FolderManager {
     };
 
     self.mutex_folder.store(Some(folder.clone()));
+    let _ = self.folder_ready_notifier.send_replace(true);
 
     let weak_mutex_folder = Arc::downgrade(&folder);
     subscribe_folder_sync_state_changed(*workspace_id, folder_state_rx, Arc::downgrade(&self.user));

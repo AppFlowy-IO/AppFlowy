@@ -63,6 +63,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Weak<dyn FolderCloudService>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
+  pub(crate) folder_ready_notifier: tokio::sync::watch::Sender<bool>,
 }
 
 impl Drop for FolderManager {
@@ -78,6 +79,7 @@ impl FolderManager {
     cloud_service: Weak<dyn FolderCloudService>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
+    let (folder_ready_notifier, _) = tokio::sync::watch::channel(false);
     let manager = Self {
       user,
       mutex_folder: Default::default(),
@@ -85,9 +87,14 @@ impl FolderManager {
       operation_handlers: Default::default(),
       cloud_service,
       store_preferences,
+      folder_ready_notifier,
     };
 
     Ok(manager)
+  }
+
+  pub fn subscribe_folder_ready_notifier(&self) -> tokio::sync::watch::Receiver<bool> {
+    self.folder_ready_notifier.subscribe()
   }
 
   pub fn cloud_service(&self) -> FlowyResult<Arc<dyn FolderCloudService>> {

@@ -3,15 +3,50 @@ use crate::full_indexed_data_provider::FullIndexedDataProvider;
 use crate::indexed_data_consumer::{
   EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer, SearchInstantIndexImpl,
 };
+use flowy_folder::manager::FolderManager;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
-use tokio::time::interval;
-use tracing::{error, info, instrument};
+use tokio::time::{interval, timeout};
+use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
 
 impl AppLifeCycleImpl {
+  async fn wait_for_folder_ready(folder_manager: &Weak<FolderManager>) -> bool {
+    let mut folder_ready_notify = match folder_manager.upgrade() {
+      Some(folder) => folder.subscribe_folder_ready_notifier(),
+      None => {
+        warn!("[Indexing] No folder manager available, skipping indexed data provider");
+        return false;
+      },
+    };
+
+    // Check if the folder is already ready
+    if *folder_ready_notify.borrow() {
+      // We don't want to start indexing immediately after the folder is ready
+      tokio::time::sleep(Duration::from_secs(10)).await;
+      return true;
+    }
+
+    // Wait for the folder to become ready with timeout
+    match timeout(Duration::from_secs(20), folder_ready_notify.changed()).await {
+      Err(_) => {
+        warn!("[Indexing] Timeout waiting for folder ready");
+        false
+      },
+      Ok(_) => {
+        let is_ready = *folder_ready_notify.borrow();
+        if is_ready {
+          // We don't want to start indexing immediately after the folder is ready
+          tokio::time::sleep(Duration::from_secs(10)).await;
+        }
+
+        is_ready
+      },
+    }
+  }
+
   #[instrument(skip(self, _user_config, user_paths))]
   pub(crate) async fn start_instant_indexed_data_provider(
     &self,
@@ -29,8 +64,10 @@ impl AppLifeCycleImpl {
     let folder_manager = self.folder_manager.clone();
 
     self.runtime.spawn(async move {
-      // TODO(nathan): start when folder manager is ready
-      tokio::time::sleep(Duration::from_secs(10)).await;
+      if !Self::wait_for_folder_ready(&folder_manager).await {
+        return;
+      }
+
       info!(
         "[Indexing] Starting instant indexed data provider for workspace: {:?}",
         workspace_id_cloned
@@ -106,8 +143,10 @@ impl AppLifeCycleImpl {
     let user_paths = user_paths.clone();
 
     self.runtime.spawn(async move {
-      // TODO(nathan): start when folder manager is ready
-      tokio::time::sleep(Duration::from_secs(10)).await;
+      if !Self::wait_for_folder_ready(&folder_manager).await {
+        return;
+      }
+
       info!(
         "[Indexing] Starting full indexed data provider for workspace: {:?}",
         workspace_id_cloned
