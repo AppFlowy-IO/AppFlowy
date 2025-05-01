@@ -236,7 +236,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyTooltip(
-        message: LocaleKeys.settings_sites_namespace_upgradeToPro.tr(),
+        message: LocaleKeys.settings_sites_homePage_upgradeToPro.tr(),
         child: PrimaryRoundedButton(
           text: 'Pro ↗',
           fontSize: 12.0,
