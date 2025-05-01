@@ -138,6 +138,8 @@ impl InstantIndexedDataProvider {
           trace!("[Indexing] Removed {} stale entries", to_remove.len());
         }
       }
+
+      info!("[Indexing] Instant indexed data provider stopped");
     });
 
     Ok(())

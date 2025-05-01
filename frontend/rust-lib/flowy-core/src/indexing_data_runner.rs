@@ -31,6 +31,10 @@ impl AppLifeCycleImpl {
     self.runtime.spawn(async move {
       // TODO(nathan): start when folder manager is ready
       tokio::time::sleep(Duration::from_secs(10)).await;
+      info!(
+        "[Indexing] Starting instant indexed data provider for workspace: {:?}",
+        workspace_id_cloned
+      );
 
       if let Some(instant_indexed_data_provider) = instant_indexed_data_provider {
         // Add embedding consumer when workspace type is local
@@ -64,10 +68,10 @@ impl AppLifeCycleImpl {
 
         if instant_indexed_data_provider.num_consumers().await > 0 {
           info!(
-       "[Indexing] Starting instant indexed data provider with {} consumers for workspace: {:?}",
-       instant_indexed_data_provider.num_consumers().await,
-       workspace_id_cloned
-     );
+            "[Indexing] instant indexed data provider with {} consumers for workspace: {:?}",
+            instant_indexed_data_provider.num_consumers().await,
+            workspace_id_cloned
+          );
           if let Err(err) = instant_indexed_data_provider
             .spawn_instant_indexed_provider(&runtime.inner)
             .await
@@ -104,6 +108,10 @@ impl AppLifeCycleImpl {
     self.runtime.spawn(async move {
       // TODO(nathan): start when folder manager is ready
       tokio::time::sleep(Duration::from_secs(10)).await;
+      info!(
+        "[Indexing] Starting full indexed data provider for workspace: {:?}",
+        workspace_id_cloned
+      );
 
       let new_provider = FullIndexedDataProvider::new(folder_manager, Arc::downgrade(&logged_user));
       #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
@@ -131,7 +139,7 @@ impl AppLifeCycleImpl {
 
       if new_provider.num_consumers().await > 0 {
         info!(
-          "[Indexing] Starting full indexed data provider with {} consumers for workspace: {:?}",
+          "[Indexing] full indexed data provider with {} consumers for workspace: {:?}",
           new_provider.num_consumers().await,
           workspace_id_cloned
         );
@@ -167,6 +175,8 @@ impl AppLifeCycleImpl {
               },
             }
           }
+
+          info!("[Indexing] full indexed data provider stopped");
         });
       }
 

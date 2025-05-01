@@ -260,6 +260,16 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await?;
 
     self
+      .start_full_indexed_data_provider(
+        user_id,
+        workspace_id,
+        workspace_type,
+        user_config,
+        user_paths,
+      )
+      .await;
+
+    self
       .start_instant_indexed_data_provider(
         user_id,
         workspace_id,
@@ -333,6 +343,15 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_sign_up(workspace_id)
       .await?;
 
+    self
+      .start_full_indexed_data_provider(
+        user_profile.uid,
+        workspace_id,
+        workspace_type,
+        user_config,
+        user_paths,
+      )
+      .await;
     self
       .start_instant_indexed_data_provider(
         user_profile.uid,
