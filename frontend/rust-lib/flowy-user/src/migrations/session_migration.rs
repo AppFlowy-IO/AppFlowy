@@ -1,3 +1,4 @@
+use crate::user_manager::manager_history_user::ANON_USER;
 use chrono::Utc;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceType};
@@ -19,6 +20,15 @@ pub fn migrate_session(
   if !store_preferences.get_bool_or_default(MIGRATION_SESSION)
     && store_preferences.set_bool(MIGRATION_SESSION, true).is_ok()
   {
+    if let Some(anon_session) = store_preferences.get_object::<SessionBackup>(ANON_USER) {
+      let new_anon_session = Session {
+        user_id: anon_session.user_id,
+        user_uuid: anon_session.user_uuid,
+        workspace_id: anon_session.user_workspace.id,
+      };
+      let _ = store_preferences.set_object(ANON_USER, &new_anon_session);
+    }
+
     if let Some(session) = store_preferences.get_object::<SessionBackup>(session_cache_key) {
       let _ = store_preferences.set_object(SESSION_CACHE_KEY_BACKUP, &session);
       let new_session = Session {
@@ -29,7 +39,6 @@ pub fn migrate_session(
       let _ = store_preferences.set_object(session_cache_key, &new_session);
     }
   }
-
   store_preferences.get_object::<Session>(session_cache_key)
 }
 
@@ -39,7 +48,9 @@ struct SessionBackup {
   user_uuid: Uuid,
   user_workspace: UserWorkspace,
 }
-pub fn get_session_workspace(store_preferences: &Arc<KVStorePreferences>) -> Option<UserWorkspace> {
+pub fn get_v0_session_workspace(
+  store_preferences: &Arc<KVStorePreferences>,
+) -> Option<UserWorkspace> {
   store_preferences
     .get_object::<SessionBackup>(SESSION_CACHE_KEY_BACKUP)
     .map(|v| v.user_workspace)
