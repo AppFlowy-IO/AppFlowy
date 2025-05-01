@@ -1,5 +1,6 @@
 use crate::cloud::workspace_dto::ViewIcon;
 use crate::cloud::CollabType;
+use twox_hash::xxhash64::Hasher;
 use uuid::Uuid;
 
 pub struct EmbeddingRecord {
@@ -44,9 +45,7 @@ impl UnindexedData {
     }
   }
 
-  #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
   pub fn content_hash(&self) -> String {
-    use twox_hash::xxhash64::Hasher;
     match self {
       UnindexedData::Text(text) => {
         let h = Hasher::oneshot(0, text.as_bytes());
