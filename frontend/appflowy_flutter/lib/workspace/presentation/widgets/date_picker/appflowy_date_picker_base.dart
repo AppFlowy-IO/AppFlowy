@@ -23,7 +23,6 @@ abstract class AppFlowyDatePicker extends StatefulWidget {
     this.onIncludeTimeChanged,
     this.onIsRangeChanged,
     this.onReminderSelected,
-    this.enableDidUpdate = true,
   });
 
   final DateTime? dateTime;
@@ -56,7 +55,6 @@ abstract class AppFlowyDatePicker extends StatefulWidget {
 
   final ReminderOption reminderOption;
   final OnReminderSelected? onReminderSelected;
-  final bool enableDidUpdate;
 }
 
 abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
@@ -77,29 +75,32 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
   @override
   void initState() {
     super.initState();
-    initData();
 
-    focusedDateTime = widget.dateTime ?? DateTime.now();
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    if (widget.enableDidUpdate) {
-      initData();
-    }
-    if (oldWidget.reminderOption != widget.reminderOption) {
-      reminderOption = widget.reminderOption;
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void initData() {
     dateTime = widget.dateTime;
     startDateTime = widget.isRange ? widget.dateTime : null;
     endDateTime = widget.isRange ? widget.endDateTime : null;
     includeTime = widget.includeTime;
     isRange = widget.isRange;
     reminderOption = widget.reminderOption;
+
+    focusedDateTime = widget.dateTime ?? DateTime.now();
+  }
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    dateTime = widget.dateTime;
+    if (widget.isRange) {
+      startDateTime = widget.dateTime;
+      endDateTime = widget.endDateTime;
+    } else {
+      startDateTime = endDateTime = null;
+    }
+    includeTime = widget.includeTime;
+    isRange = widget.isRange;
+    if (oldWidget.reminderOption != widget.reminderOption) {
+      reminderOption = widget.reminderOption;
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   void onDateSelectedFromDatePicker(

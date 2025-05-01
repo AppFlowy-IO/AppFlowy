@@ -44,7 +44,6 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
                   _buildCategoryItem(context, AiPromptCategory.writing),
                   _buildCategoryItem(context, AiPromptCategory.business),
                   _buildCategoryItem(context, AiPromptCategory.marketing),
-                  _buildCategoryItem(context, AiPromptCategory.learning),
                   _buildCategoryItem(
                     context,
                     AiPromptCategory.healthAndFitness,
@@ -60,6 +59,15 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
                   _buildCategoryItem(context, AiPromptCategory.strategy),
                   _buildCategoryItem(context, AiPromptCategory.caseStudies),
                   _buildCategoryItem(context, AiPromptCategory.salesCopy),
+                  _buildCategoryItem(context, AiPromptCategory.education),
+                  _buildCategoryItem(context, AiPromptCategory.work),
+                  _buildCategoryItem(
+                    context,
+                    AiPromptCategory.podcastProduction,
+                  ),
+                  _buildCategoryItem(context, AiPromptCategory.copyWriting),
+                  _buildCategoryItem(context, AiPromptCategory.customerSuccess),
+                  _buildCategoryItem(context, AiPromptCategory.other),
                 ],
               ),
             ),

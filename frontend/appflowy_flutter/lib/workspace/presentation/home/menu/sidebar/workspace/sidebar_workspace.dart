@@ -296,47 +296,44 @@ class _SidebarSwitchWorkspaceButtonState
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => context.read<UserWorkspaceBloc>(),
-      child: AppFlowyPopover(
-        direction: PopoverDirection.bottomWithCenterAligned,
-        offset: const Offset(0, 5),
-        constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
-        margin: EdgeInsets.zero,
-        animationDuration: Durations.short3,
-        beginScaleFactor: 1.0,
-        beginOpacity: 0.8,
-        controller: _popoverController,
-        triggerActions: PopoverTriggerFlags.none,
-        onOpen: () {
-          context
-              .read<UserWorkspaceBloc>()
-              .add(const UserWorkspaceEvent.fetchWorkspaces());
-        },
-        popupBuilder: (_) {
-          return BlocProvider<UserWorkspaceBloc>.value(
-            value: context.read<UserWorkspaceBloc>(),
-            child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-              builder: (context, state) {
-                final currentWorkspace = state.currentWorkspace;
-                final workspaces = state.workspaces;
-                if (currentWorkspace == null) {
-                  return const SizedBox.shrink();
-                }
-                return WorkspacesMenu(
-                  userProfile: widget.userProfile,
-                  currentWorkspace: currentWorkspace,
-                  workspaces: workspaces,
-                );
-              },
-            ),
-          );
-        },
-        child: _SideBarSwitchWorkspaceButtonChild(
-          currentWorkspace: widget.currentWorkspace,
-          popoverController: _popoverController,
-          isHover: widget.isHover,
-        ),
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 5),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      margin: EdgeInsets.zero,
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      controller: _popoverController,
+      triggerActions: PopoverTriggerFlags.none,
+      onOpen: () {
+        context
+            .read<UserWorkspaceBloc>()
+            .add(const UserWorkspaceEvent.fetchWorkspaces());
+      },
+      popupBuilder: (_) {
+        return BlocProvider<UserWorkspaceBloc>.value(
+          value: context.read<UserWorkspaceBloc>(),
+          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+            builder: (context, state) {
+              final currentWorkspace = state.currentWorkspace;
+              final workspaces = state.workspaces;
+              if (currentWorkspace == null) {
+                return const SizedBox.shrink();
+              }
+              return WorkspacesMenu(
+                userProfile: widget.userProfile,
+                currentWorkspace: currentWorkspace,
+                workspaces: workspaces,
+              );
+            },
+          ),
+        );
+      },
+      child: _SideBarSwitchWorkspaceButtonChild(
+        currentWorkspace: widget.currentWorkspace,
+        popoverController: _popoverController,
+        isHover: widget.isHover,
       ),
     );
   }

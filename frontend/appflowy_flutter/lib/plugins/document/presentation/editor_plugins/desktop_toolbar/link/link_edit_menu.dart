@@ -423,6 +423,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
       return;
     }
     widget.onApply.call(linkInfo);
+    onDismiss();
   }
 
   void onConfirm() {

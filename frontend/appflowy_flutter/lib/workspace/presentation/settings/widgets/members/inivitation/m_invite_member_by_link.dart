@@ -141,11 +141,11 @@ class _CopyLinkButton extends StatelessWidget {
           );
 
           showToastNotification(
-            message: LocaleKeys.document_inlineLink_copyLink.tr(),
+            message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
           );
         } else {
           showToastNotification(
-            message: 'You haven\'t generated an invite link yet.',
+            message: LocaleKeys.settings_appearance_members_noInviteLink.tr(),
             type: ToastificationType.error,
           );
         }

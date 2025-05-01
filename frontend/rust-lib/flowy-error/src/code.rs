@@ -389,6 +389,18 @@ pub enum ErrorCode {
 
   #[error("Local embedding not ready")]
   LocalEmbeddingNotReady = 133,
+
+  #[error("New password is too weak")]
+  NewPasswordTooWeak = 134,
+
+  #[error("Invalid new password")]
+  InvalidNewPassword = 135,
+
+  #[error("New password is too long")]
+  NewPasswordTooLong = 136,
+
+  #[error("New password is too short")]
+  NewPasswordTooShort = 137,
 }
 
 impl ErrorCode {

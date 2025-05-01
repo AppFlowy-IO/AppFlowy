@@ -55,7 +55,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return SizedBox(
-      height: 40,
+      height: 42,
       child: ValueListenableBuilder(
         valueListenable: controller,
         builder: (context, _, __) {
@@ -84,12 +84,17 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                   if (!hasFocus || !hasText) return SizedBox.shrink();
                   return GestureDetector(
                     onTap: () => focusNode.unfocus(),
-                    child: Padding(
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      height: 42,
                       padding: EdgeInsets.only(left: 8),
-                      child: Text(
-                        LocaleKeys.button_cancel.tr(),
-                        style: theme.textStyle.body
-                            .standard(color: theme.textColorScheme.action),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          LocaleKeys.button_cancel.tr(),
+                          style: theme.textStyle.body
+                              .standard(color: theme.textColorScheme.action),
+                        ),
                       ),
                     ),
                   );

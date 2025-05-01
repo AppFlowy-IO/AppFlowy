@@ -130,7 +130,7 @@ class _ContinueWithMagicLinkOrPasscodePageState
       isSubmitting
           ? const VerifyingButton()
           : ContinueWithButton(
-              text: LocaleKeys.signIn_continueToSignIn.tr(),
+              text: LocaleKeys.signIn_continueWithLoginCode.tr(),
               onTap: () {
                 final passcode = passcodeController.text;
                 if (passcode.isEmpty) {

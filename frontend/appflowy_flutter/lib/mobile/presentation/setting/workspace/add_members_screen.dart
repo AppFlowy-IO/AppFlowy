@@ -121,41 +121,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     );
   }
 
-  // Widget _buildInviteMemberArea(BuildContext context) {
-  //   return Column(
-  //     children: [
-  //       TextFormField(
-  //         autofocus: true,
-  //         controller: emailController,
-  //         keyboardType: TextInputType.text,
-  //         decoration: InputDecoration(
-  //           hintText: LocaleKeys.settings_appearance_members_inviteHint.tr(),
-  //         ),
-  //       ),
-  //       const VSpace(16),
-  //       if (exceededLimit) ...[
-  //         FlowyText.regular(
-  //           LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
-  //               .tr(),
-  //           fontSize: 14.0,
-  //           maxLines: 3,
-  //           color: Theme.of(context).colorScheme.error,
-  //         ),
-  //         const VSpace(16),
-  //       ],
-  //       SizedBox(
-  //         width: double.infinity,
-  //         child: ElevatedButton(
-  //           onPressed: () => _inviteMember(context),
-  //           child: Text(
-  //             LocaleKeys.settings_appearance_members_sendInvite.tr(),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildError(BuildContext context) {
     return Center(
       child: Padding(
@@ -194,9 +159,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     final actionType = actionResult.actionType;
     final result = actionResult.result;
 
-    // get keyboard height
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
     // only show the result dialog when the action is WorkspaceMemberActionType.add
     if (actionType == WorkspaceMemberActionType.addByEmail) {
       result.fold(
@@ -204,7 +166,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             message:
                 LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -219,7 +180,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           });
           showToastNotification(
             type: ToastificationType.error,
-            bottomPadding: keyboardHeight,
             message: message,
           );
         },
@@ -230,7 +190,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             message:
                 LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -247,7 +206,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             type: ToastificationType.error,
             message: message,
-            bottomPadding: keyboardHeight,
           );
         },
       );
@@ -258,7 +216,6 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceSuccess
                 .tr(),
-            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -267,48 +224,65 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceFailed
                 .tr(),
-            bottomPadding: keyboardHeight,
           );
         },
       );
     } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
       result.fold(
-        (s) {
+        (s) async {
           showToastNotification(
-            message: 'Invite link generated successfully',
+            message: LocaleKeys
+                .settings_appearance_members_generatedLinkSuccessfully
+                .tr(),
           );
 
           // copy the invite link to the clipboard
           final inviteLink = state.inviteLink;
           if (inviteLink != null) {
-            getIt<ClipboardService>().setPlainText(inviteLink);
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            showToastNotification(
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
           }
         },
         (f) {
           Log.error('generate invite link failed: $f');
           showToastNotification(
-            message: 'Failed to generate invite link',
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_generatedLinkFailed.tr(),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.resetInviteLink) {
+      result.fold(
+        (s) async {
+          showToastNotification(
+            message: LocaleKeys
+                .settings_appearance_members_resetLinkSuccessfully
+                .tr(),
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            showToastNotification(
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_resetLinkFailed.tr(),
           );
         },
       );
     }
   }
-
-  // void _inviteMember(BuildContext context) {
-  //   final email = emailController.text;
-  //   if (!isEmail(email)) {
-  //     showToastNotification(
-  //       type: ToastificationType.error,
-  //       message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
-  //     );
-  //     return;
-  //   }
-  //   context
-  //       .read<WorkspaceMemberBloc>()
-  //       .add(WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(email));
-  //   // clear the email field after inviting
-  //   emailController.clear();
-  // }
 }
 
 class _LeaveWorkspaceButton extends StatelessWidget {
