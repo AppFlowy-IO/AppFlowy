@@ -24,7 +24,7 @@ class SearchBackendService {
       streamPort: Int64(stream.nativePort),
     );
 
-    unawaited(SearchEventSearch(request).send());
+    unawaited(SearchEventStreamSearch(request).send());
     return FlowyResult.success(stream);
   }
 }
