@@ -89,7 +89,7 @@ impl DartAppFlowyCore {
         None => {
           error!("Failed to get dispatcher: dispatcher is None");
           return;
-        }
+        },
       };
 
       if let Some(sender) = sender_guard.as_ref() {
