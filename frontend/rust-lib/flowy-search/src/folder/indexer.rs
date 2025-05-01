@@ -4,7 +4,7 @@ use crate::folder::schema::{
   FolderTantivySchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
   FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
 };
-use collab_folder::{ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{ViewIcon, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use std::path::PathBuf;
@@ -12,7 +12,7 @@ use std::sync::{Arc, Weak};
 use std::{collections::HashMap, fs};
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, query::QueryParser, schema::Field, Document, Index,
-  IndexReader, IndexWriter, TantivyDocument, TantivyError, Term,
+  IndexReader, IndexWriter, TantivyDocument, TantivyError,
 };
 use tokio::sync::RwLock;
 use tracing::{error, info};

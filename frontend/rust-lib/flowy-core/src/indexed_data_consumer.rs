@@ -9,7 +9,7 @@ use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, Unindexed
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::document::local_search_handler::DocumentTantivyState;
-use flowy_search_pub::entities::{FolderViewObserver, ViewObserveData};
+use flowy_search_pub::entities::FolderViewObserver;
 use lib_infra::async_trait::async_trait;
 use once_cell::sync::Lazy;
 use std::path::PathBuf;
@@ -225,6 +225,8 @@ pub struct SearchInstantIndexImpl {
   state: Weak<RwLock<DocumentTantivyState>>,
   consume_history: DashMap<String, String>,
   folder_manager: Weak<FolderManager>,
+  #[allow(deead_code)]
+  // bind the folder_observer lifetime to the SearchInstantIndexImpl
   folder_observer: FolderViewObserverImpl,
 }
 
@@ -237,47 +239,6 @@ impl SearchInstantIndexImpl {
     let state = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
     let folder_observer = FolderViewObserverImpl::new(workspace_id, Arc::downgrade(&state));
     if let Some(folder_manager) = folder_manager.upgrade() {
-      if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
-        let views = folder_manager.get_all_views().await?;
-        let mut views_iter = views.into_iter();
-        for change in changes {
-          match change {
-            FolderViewChange::Inserted { view_id } => {
-              if let Some(view) = views_iter.find(|view| view.id == view_id) {
-                let _ = state.write().await.add_document_metadata(
-                  &view.id,
-                  view.name.clone(),
-                  view.icon.clone().map(|v| ViewIcon {
-                    ty: IconType::from(v.ty as u8),
-                    value: v.value,
-                  }),
-                );
-              }
-            },
-            FolderViewChange::Updated { view_id } => {
-              if let Some(view) = views_iter.find(|view| view.id == view_id) {
-                let _ = state.write().await.add_document_metadata(
-                  &view.id,
-                  view.name.clone(),
-                  view.icon.clone().map(|v| ViewIcon {
-                    ty: IconType::from(v.ty as u8),
-                    value: v.value,
-                  }),
-                );
-              }
-            },
-            FolderViewChange::Deleted { view_ids } => {
-              let _ = state.write().await.delete_documents(
-                &view_ids
-                  .iter()
-                  .map(|id| id.to_string())
-                  .collect::<Vec<String>>(),
-              );
-            },
-          }
-        }
-      }
-
       if let Ok(rx) = folder_manager.subscribe_folder_change_rx().await {
         folder_observer.set_observer_rx(rx).await;
       } else {
@@ -291,6 +252,51 @@ impl SearchInstantIndexImpl {
       folder_manager,
       folder_observer,
     })
+  }
+
+  pub fn refresh_search_index(&self) {
+    let weak_state = self.state.clone();
+    let folder_manager = self.folder_manager.clone();
+
+    tokio::spawn(async move {
+      if let (Some(folder_manager), Some(state)) = (folder_manager.upgrade(), weak_state.upgrade())
+      {
+        if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
+          let views = folder_manager.get_all_views().await?;
+          let views_map: std::collections::HashMap<String, _> = views
+            .into_iter()
+            .map(|view| (view.id.clone(), view))
+            .collect();
+
+          for change in changes {
+            match change {
+              FolderViewChange::Inserted { view_id } | FolderViewChange::Updated { view_id } => {
+                if let Some(view) = views_map.get(&view_id) {
+                  let _ = state.write().await.add_document_metadata(
+                    &view.id,
+                    view.name.clone(),
+                    view.icon.clone().map(|v| ViewIcon {
+                      ty: IconType::from(v.ty as u8),
+                      value: v.value,
+                    }),
+                  );
+                }
+              },
+              FolderViewChange::Deleted { view_ids } => {
+                let _ = state.write().await.delete_documents(
+                  &view_ids
+                    .iter()
+                    .map(|id| id.to_string())
+                    .collect::<Vec<String>>(),
+                );
+              },
+            }
+          }
+        }
+      }
+
+      Ok::<_, FlowyError>(())
+    });
   }
 }
 

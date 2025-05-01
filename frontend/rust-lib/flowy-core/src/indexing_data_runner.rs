@@ -29,6 +29,9 @@ impl AppLifeCycleImpl {
     let folder_manager = self.folder_manager.clone();
 
     self.runtime.spawn(async move {
+      // TODO(nathan): start when folder manager is ready
+      tokio::time::sleep(Duration::from_secs(10)).await;
+
       if let Some(instant_indexed_data_provider) = instant_indexed_data_provider {
         // Add embedding consumer when workspace type is local
         #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
@@ -48,6 +51,7 @@ impl AppLifeCycleImpl {
         .await
         {
           Ok(consumer) => {
+            consumer.refresh_search_index();
             instant_indexed_data_provider
               .register_consumer(Box::new(consumer))
               .await;
@@ -98,6 +102,9 @@ impl AppLifeCycleImpl {
     let user_paths = user_paths.clone();
 
     self.runtime.spawn(async move {
+      // TODO(nathan): start when folder manager is ready
+      tokio::time::sleep(Duration::from_secs(10)).await;
+
       let new_provider = FullIndexedDataProvider::new(folder_manager, Arc::downgrade(&logged_user));
       #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
       {

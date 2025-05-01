@@ -12,7 +12,6 @@ use flowy_user_pub::workspace_service::UserWorkspaceService;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
-use tracing::info;
 
 pub struct UserDepsResolver();
 

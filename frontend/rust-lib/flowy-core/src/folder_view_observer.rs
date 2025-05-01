@@ -10,16 +10,12 @@ use tracing::error;
 use uuid::Uuid;
 
 pub struct FolderViewObserverImpl {
-  workspace_id: Uuid,
   state: Weak<RwLock<DocumentTantivyState>>,
 }
 
 impl FolderViewObserverImpl {
-  pub fn new(workspace_id: &Uuid, state: Weak<RwLock<DocumentTantivyState>>) -> Self {
-    Self {
-      workspace_id: *workspace_id,
-      state,
-    }
+  pub fn new(_workspace_id: &Uuid, state: Weak<RwLock<DocumentTantivyState>>) -> Self {
+    Self { state }
   }
 
   fn get_state(&self) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
