@@ -225,7 +225,7 @@ pub struct SearchInstantIndexImpl {
   state: Weak<RwLock<DocumentTantivyState>>,
   consume_history: DashMap<String, String>,
   folder_manager: Weak<FolderManager>,
-  #[allow(deead_code)]
+  #[allow(dead_code)]
   // bind the folder_observer lifetime to the SearchInstantIndexImpl
   folder_observer: FolderViewObserverImpl,
 }
