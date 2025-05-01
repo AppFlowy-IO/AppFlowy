@@ -159,6 +159,7 @@ class CommandPaletteBloc
       onServerItems: (items, searchId, searching, generatingAIOverview) =>
           _handleResultsUpdate(
         searchId: searchId,
+        summaries: [], // when got server search result, summaries should be empty
         serverItems: items,
         searching: searching,
         generatingAIOverview: generatingAIOverview,

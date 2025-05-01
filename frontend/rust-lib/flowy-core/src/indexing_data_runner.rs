@@ -1,8 +1,10 @@
 use crate::app_life_cycle::AppLifeCycleImpl;
 use crate::full_indexed_data_provider::FullIndexedDataProvider;
 use crate::indexed_data_consumer::{
-  EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer, SearchInstantIndexImpl,
+  get_or_init_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
+  SearchInstantIndexImpl,
 };
+use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
@@ -123,6 +125,16 @@ impl AppLifeCycleImpl {
         info!("[Indexing] No instant indexed data provider to start");
       }
     });
+  }
+
+  pub(crate) async fn create_thanvity_state_if_not_exists(
+    &self,
+    uid: i64,
+    workspace_id: &Uuid,
+    user_paths: &UserPaths,
+  ) {
+    let data_path = user_paths.tanvity_index_path(uid);
+    let _ = get_or_init_document_tantivy_state(*workspace_id, data_path);
   }
 
   #[instrument(skip(self, _user_config, user_paths))]

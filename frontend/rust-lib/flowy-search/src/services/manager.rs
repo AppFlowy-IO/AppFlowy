@@ -10,7 +10,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 use tokio_stream::{self, Stream, StreamExt};
-use tracing::{error, trace};
+use tracing::{error, info, trace};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -64,9 +64,12 @@ impl SearchManager {
   fn create_local_document_search(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>) {
     if let Some(state) = state {
       let handler = DocumentLocalSearchHandler::new(state);
+      info!("[Tanvity] create local document search handler");
       self
         .handlers
         .insert(SearchType::DocumentLocal, Arc::new(handler));
+    } else {
+      error!("[Tanvity] Failed to create local document search handler");
     }
   }
 

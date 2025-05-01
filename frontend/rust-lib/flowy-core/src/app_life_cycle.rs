@@ -177,6 +177,9 @@ impl AppLifeCycle for AppLifeCycleImpl {
     let cloned_ai_manager = self.ai_manager()?;
     let server_provider = self.server_provider()?;
     self
+      .create_thanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
+    self
       .start_full_indexed_data_provider(
         user_id,
         workspace_id,
@@ -259,6 +262,9 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_sign_in(workspace_id)
       .await?;
 
+    self
+      .create_thanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
     self
       .start_full_indexed_data_provider(
         user_id,
@@ -344,6 +350,9 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await?;
 
     self
+      .create_thanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
+      .await;
+    self
       .start_full_indexed_data_provider(
         user_profile.uid,
         workspace_id,
@@ -416,6 +425,9 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_open_workspace(workspace_id)
       .await;
 
+    self
+      .create_thanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
     self
       .start_full_indexed_data_provider(
         user_id,

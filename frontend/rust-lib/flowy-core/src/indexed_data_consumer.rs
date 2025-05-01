@@ -138,7 +138,7 @@ type DocIndexMap = DashMap<Uuid, Arc<RwLock<DocumentTantivyState>>>;
 static SEARCH_INDEX: Lazy<DocIndexMap> = Lazy::new(DocIndexMap::new);
 
 /// Returns a strong handle, creating it if needed.
-fn get_or_init_document_tantivy_state(
+pub(crate) fn get_or_init_document_tantivy_state(
   workspace_id: Uuid,
   data_path: PathBuf,
 ) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
@@ -148,6 +148,7 @@ fn get_or_init_document_tantivy_state(
     .filter(|k| *k != workspace_id)
     .collect();
   for k in to_remove {
+    info!("[Indexing] Removing tantivy state for workspace: {}", k);
     SEARCH_INDEX.remove(&k);
   }
 
