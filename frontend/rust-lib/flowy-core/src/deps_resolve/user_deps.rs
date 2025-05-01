@@ -13,7 +13,6 @@ use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use tracing::info;
-use uuid::Uuid;
 
 pub struct UserDepsResolver();
 
@@ -85,22 +84,6 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
       .ok_or_else(FlowyError::ref_drop)?
       .update_database_indexing(ids_by_database_id)
       .await?;
-    Ok(())
-  }
-
-  async fn did_delete_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
-    // The remove_indices_for_workspace should not block the deletion of the workspace
-    // Log the error and continue
-    if let Err(err) = self
-      .folder_manager
-      .upgrade()
-      .ok_or_else(FlowyError::ref_drop)?
-      .remove_indices_for_workspace(workspace_id)
-      .await
-    {
-      info!("Error removing indices for workspace: {}", err);
-    }
-
     Ok(())
   }
 }

@@ -8,7 +8,6 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::LoggedUser;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -192,15 +191,10 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
-      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Arc::downgrade(
-        &authenticate_user,
-      )));
-
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         collab_builder.clone(),
         Arc::downgrade(&server_provider),
-        folder_indexer.clone(),
         store_preference.clone(),
       )
       .await;
@@ -247,12 +241,8 @@ impl AppFlowyCore {
       )
       .await;
 
-      let search_manager = SearchDepsResolver::resolve(
-        folder_indexer,
-        server_provider.clone(),
-        folder_manager.clone(),
-      )
-      .await;
+      let search_manager =
+        SearchDepsResolver::resolve(server_provider.clone(), folder_manager.clone()).await;
 
       // Register the folder operation handlers
       register_handlers(

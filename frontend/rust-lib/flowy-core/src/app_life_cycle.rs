@@ -424,6 +424,14 @@ impl AppLifeCycle for AppLifeCycleImpl {
     Ok(())
   }
 
+  async fn on_workspace_deleted(&self, user_id: i64, workspace_id: &Uuid) -> FlowyResult<()> {
+    self
+      .folder_manager()?
+      .on_workspace_deleted(user_id, workspace_id)
+      .await?;
+    Ok(())
+  }
+
   fn on_network_status_changed(&self, reachable: bool) {
     info!("Notify did update network: reachable: {}", reachable);
     if let Some(collab_builder) = self.collab_builder.upgrade() {

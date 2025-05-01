@@ -4,18 +4,15 @@ use crate::folder::schema::{
   FolderTantivySchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
   FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
 };
-use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_search_pub::entities::{FolderIndexManager, FolderViewObserver, ViewObserveData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
-use lib_infra::async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::{collections::HashMap, fs};
 use tantivy::{
-  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
-  Index, IndexReader, IndexWriter, TantivyDocument, TantivyError, Term,
+  collector::TopDocs, directory::MmapDirectory, query::QueryParser, schema::Field, Document, Index,
+  IndexReader, IndexWriter, TantivyDocument, TantivyError, Term,
 };
 use tokio::sync::RwLock;
 use tracing::{error, info};
@@ -140,17 +137,6 @@ impl FolderIndexManagerImpl {
     (icon, icon_ty)
   }
 
-  /// Simple implementation to index all given data by spawning async tasks.
-  fn index_all(&self, data_vec: Vec<ViewObserveData>) -> Result<(), FlowyError> {
-    for data in data_vec {
-      let indexer = self.clone();
-      tokio::spawn(async move {
-        let _ = indexer.create_view(data).await;
-      });
-    }
-    Ok(())
-  }
-
   /// Searches the index using the given query string.
   pub async fn search(&self, query: String) -> Result<Vec<LocalSearchResponseItemPB>, FlowyError> {
     let lock = self.state.read().await;
@@ -185,194 +171,6 @@ impl FolderIndexManagerImpl {
     }
 
     Ok(results)
-  }
-}
-
-#[async_trait]
-impl FolderViewObserver for FolderIndexManagerImpl {
-  async fn set_observer_rx(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
-    let indexer = self.clone();
-    let wid = workspace_id;
-    tokio::spawn(async move {
-      while let Ok(msg) = rx.recv().await {
-        match msg {
-          IndexContent::Create(value) => match serde_json::from_value::<ViewIndexContent>(value) {
-            Ok(view) => {
-              let _ = indexer
-                .create_view(ViewObserveData {
-                  id: view.id,
-                  data: view.name,
-                  icon: view.icon,
-                  layout: view.layout,
-                  workspace_id: wid,
-                })
-                .await;
-            },
-            Err(err) => tracing::error!("FolderIndexManager error deserialize (create): {:?}", err),
-          },
-          IndexContent::Update(value) => match serde_json::from_value::<ViewIndexContent>(value) {
-            Ok(view) => {
-              let _ = indexer
-                .update_view(ViewObserveData {
-                  id: view.id,
-                  data: view.name,
-                  icon: view.icon,
-                  layout: view.layout,
-                  workspace_id: wid,
-                })
-                .await;
-            },
-            Err(err) => error!("FolderIndexManager error deserialize (update): {:?}", err),
-          },
-          IndexContent::Delete(ids) => {
-            if let Err(e) = indexer.delete_views(ids).await {
-              error!("FolderIndexManager error (delete): {:?}", e);
-            }
-          },
-        }
-      }
-    });
-  }
-
-  async fn create_view(&self, data: ViewObserveData) -> Result<(), FlowyError> {
-    let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
-    self
-      .with_writer(|index_writer, folder_schema| {
-        let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
-          get_schema_fields(folder_schema)?;
-        let _ = index_writer.add_document(doc![
-            id_field => data.id,
-            title_field => data.data,
-            icon_field => icon.unwrap_or_default(),
-            icon_ty_field => icon_ty,
-            workspace_id_field => data.workspace_id.to_string(),
-        ]);
-        index_writer.commit()?;
-        Ok(())
-      })
-      .await?;
-
-    Ok(())
-  }
-
-  async fn update_view(&self, data: ViewObserveData) -> Result<(), FlowyError> {
-    self
-      .with_writer(|index_writer, folder_schema| {
-        let (id_field, title_field, icon_field, icon_ty_field, workspace_id_field) =
-          get_schema_fields(folder_schema)?;
-        let delete_term = Term::from_field_text(id_field, &data.id);
-        index_writer.delete_term(delete_term);
-
-        let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
-        let _ = index_writer.add_document(doc![
-            id_field => data.id,
-            title_field => data.data,
-            icon_field => icon.unwrap_or_default(),
-            icon_ty_field => icon_ty,
-            workspace_id_field => data.workspace_id.to_string(),
-        ]);
-
-        index_writer.commit()?;
-        Ok(())
-      })
-      .await?;
-
-    Ok(())
-  }
-
-  async fn delete_views(&self, ids: Vec<String>) -> Result<(), FlowyError> {
-    self
-      .with_writer(|index_writer, folder_schema| {
-        let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
-        for id in ids {
-          let delete_term = Term::from_field_text(id_field, &id);
-          index_writer.delete_term(delete_term);
-        }
-
-        index_writer.commit()?;
-        Ok(())
-      })
-      .await?;
-
-    Ok(())
-  }
-
-  async fn delete_views_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
-    self
-      .with_writer(|index_writer, folder_schema| {
-        let id_field = folder_schema
-          .schema
-          .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
-
-        let delete_term = Term::from_field_text(id_field, &workspace_id.to_string());
-        index_writer.delete_term(delete_term);
-        index_writer.commit()?;
-        Ok(())
-      })
-      .await?;
-    Ok(())
-  }
-
-  async fn is_indexed(&self) -> bool {
-    let lock = self.state.read().await;
-    if let Some(ref state) = *lock {
-      state.index_reader.searcher().num_docs() > 0
-    } else {
-      false
-    }
-  }
-}
-
-#[async_trait]
-impl FolderIndexManager for FolderIndexManagerImpl {
-  async fn initialize(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    self.initialize(workspace_id).await?;
-    Ok(())
-  }
-
-  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {
-    let indexable_data = views
-      .into_iter()
-      .map(|view| ViewObserveData::from_view(view, workspace_id))
-      .collect();
-    let _ = self.index_all(indexable_data);
-  }
-
-  fn index_view_changes(
-    &self,
-    views: Vec<Arc<View>>,
-    changes: Vec<FolderViewChange>,
-    workspace_id: Uuid,
-  ) {
-    let mut views_iter = views.into_iter();
-    for change in changes {
-      match change {
-        FolderViewChange::Inserted { view_id } => {
-          if let Some(view) = views_iter.find(|view| view.id == view_id) {
-            let indexable_data = ViewObserveData::from_view(view, workspace_id);
-            let f = self.clone();
-            tokio::spawn(async move {
-              let _ = f.create_view(indexable_data).await;
-            });
-          }
-        },
-        FolderViewChange::Updated { view_id } => {
-          if let Some(view) = views_iter.find(|view| view.id == view_id) {
-            let indexable_data = ViewObserveData::from_view(view, workspace_id);
-            let f = self.clone();
-            tokio::spawn(async move {
-              let _ = f.update_view(indexable_data).await;
-            });
-          }
-        },
-        FolderViewChange::Deleted { view_ids } => {
-          let f = self.clone();
-          tokio::spawn(async move {
-            let _ = f.delete_views(view_ids).await;
-          });
-        },
-      }
-    }
   }
 }
 

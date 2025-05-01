@@ -44,7 +44,9 @@ impl AppLifeCycleImpl {
           &workspace_id_cloned,
           user_paths.tanvity_index_path(user_id),
           folder_manager,
-        ) {
+        )
+        .await
+        {
           Ok(consumer) => {
             instant_indexed_data_provider
               .register_consumer(Box::new(consumer))
@@ -97,7 +99,6 @@ impl AppLifeCycleImpl {
 
     self.runtime.spawn(async move {
       let new_provider = FullIndexedDataProvider::new(folder_manager, Arc::downgrade(&logged_user));
-
       #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
       {
         if workspace_type_cloned.is_local() {

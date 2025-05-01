@@ -337,6 +337,10 @@ pub trait AppLifeCycle: Send + Sync + 'static {
   ) -> FlowyResult<()> {
     Ok(())
   }
+
+  async fn on_workspace_deleted(&self, _user_id: i64, _workspace_id: &Uuid) -> FlowyResult<()> {
+    Ok(())
+  }
   fn on_network_status_changed(&self, _reachable: bool) {}
   fn on_subscription_plans_updated(&self, _plans: Vec<SubscriptionPlan>) {}
   fn on_storage_permission_updated(&self, _can_write: bool) {}

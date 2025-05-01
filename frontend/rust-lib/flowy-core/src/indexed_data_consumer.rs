@@ -1,5 +1,7 @@
+use crate::folder_view_observer::FolderViewObserverImpl;
 use crate::full_indexed_data_provider::FullIndexedDataConsumer;
 use collab_entity::{CollabObject, CollabType};
+use collab_folder::folder_diff::FolderViewChange;
 use collab_folder::{IconType, ViewIcon};
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use dashmap::DashMap;
@@ -7,6 +9,7 @@ use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, Unindexed
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::document::local_search_handler::DocumentTantivyState;
+use flowy_search_pub::entities::{FolderViewObserver, ViewObserveData};
 use lib_infra::async_trait::async_trait;
 use once_cell::sync::Lazy;
 use std::path::PathBuf;
@@ -222,19 +225,71 @@ pub struct SearchInstantIndexImpl {
   state: Weak<RwLock<DocumentTantivyState>>,
   consume_history: DashMap<String, String>,
   folder_manager: Weak<FolderManager>,
+  folder_observer: FolderViewObserverImpl,
 }
 
 impl SearchInstantIndexImpl {
-  pub fn new(
+  pub async fn new(
     workspace_id: &Uuid,
     data_path: PathBuf,
     folder_manager: Weak<FolderManager>,
   ) -> FlowyResult<Self> {
-    let strong = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
+    let state = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
+    let folder_observer = FolderViewObserverImpl::new(workspace_id, Arc::downgrade(&state));
+    if let Some(folder_manager) = folder_manager.upgrade() {
+      if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
+        let views = folder_manager.get_all_views().await?;
+        let mut views_iter = views.into_iter();
+        for change in changes {
+          match change {
+            FolderViewChange::Inserted { view_id } => {
+              if let Some(view) = views_iter.find(|view| view.id == view_id) {
+                let _ = state.write().await.add_document_metadata(
+                  &view.id,
+                  view.name.clone(),
+                  view.icon.clone().map(|v| ViewIcon {
+                    ty: IconType::from(v.ty as u8),
+                    value: v.value,
+                  }),
+                );
+              }
+            },
+            FolderViewChange::Updated { view_id } => {
+              if let Some(view) = views_iter.find(|view| view.id == view_id) {
+                let _ = state.write().await.add_document_metadata(
+                  &view.id,
+                  view.name.clone(),
+                  view.icon.clone().map(|v| ViewIcon {
+                    ty: IconType::from(v.ty as u8),
+                    value: v.value,
+                  }),
+                );
+              }
+            },
+            FolderViewChange::Deleted { view_ids } => {
+              let _ = state.write().await.delete_documents(
+                &view_ids
+                  .iter()
+                  .map(|id| id.to_string())
+                  .collect::<Vec<String>>(),
+              );
+            },
+          }
+        }
+      }
+
+      if let Ok(rx) = folder_manager.subscribe_folder_change_rx().await {
+        folder_observer.set_observer_rx(rx).await;
+      } else {
+        error!("[Indexing] Failed to subscribe to folder changes");
+      }
+    }
+
     Ok(Self {
-      state: Arc::downgrade(&strong),
+      state: Arc::downgrade(&state),
       consume_history: Default::default(),
       folder_manager,
+      folder_observer,
     })
   }
 }
@@ -250,6 +305,11 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
     collab_object: &CollabObject,
     data: UnindexedData,
   ) -> Result<bool, FlowyError> {
+    let state = self
+      .state
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Tantivy state dropped"))?;
+
     let folder_manager = self
       .folder_manager
       .upgrade()
@@ -275,15 +335,9 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
       .consume_history
       .insert(collab_object.object_id.clone(), combined_hash);
 
-    let strong = self
-      .state
-      .upgrade()
-      .ok_or_else(|| FlowyError::internal().with_context("Tantivy state dropped"))?;
-    let content = data.into_string();
-
-    strong.write().await.add_document(
+    state.write().await.add_document(
       &collab_object.object_id,
-      content,
+      data.into_string(),
       view.name.clone(),
       view.icon.clone().map(|v| ViewIcon {
         ty: IconType::from(v.ty as u8),

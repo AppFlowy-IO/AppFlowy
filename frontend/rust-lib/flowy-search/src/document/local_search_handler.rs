@@ -9,7 +9,7 @@ use tantivy::directory::MmapDirectory;
 use tantivy::schema::Value;
 use tantivy::{doc, Index, IndexReader, IndexWriter, TantivyDocument, Term};
 use tokio::sync::RwLock;
-use tracing::{error, info, trace, warn};
+use tracing::{error, trace, warn};
 use uuid::Uuid;
 
 use crate::entities::{
@@ -74,6 +74,13 @@ pub struct DocumentTantivyState {
   pub writer: IndexWriter,
   pub reader: IndexReader,
   pub workspace_id: Uuid,
+  // Cached fields for better performance
+  field_workspace_id: tantivy::schema::Field,
+  field_object_id: tantivy::schema::Field,
+  field_content: tantivy::schema::Field,
+  field_name: tantivy::schema::Field,
+  field_icon: tantivy::schema::Field,
+  field_icon_type: tantivy::schema::Field,
 }
 
 impl DocumentTantivyState {
@@ -92,6 +99,32 @@ impl DocumentTantivyState {
     let writer = index.writer(15_000_000)?; // 15 MB buffer
     let reader = index.reader()?;
 
+    // Cache field lookups
+    let field_workspace_id = schema
+      .0
+      .get_field(LocalSearchTantivySchema::WORKSPACE_ID)
+      .map_err(|_| FlowyError::internal().with_context("workspace_id field missing"))?;
+    let field_object_id = schema
+      .0
+      .get_field(LocalSearchTantivySchema::OBJECT_ID)
+      .map_err(|_| FlowyError::internal().with_context("object_id field missing"))?;
+    let field_content = schema
+      .0
+      .get_field(LocalSearchTantivySchema::CONTENT)
+      .map_err(|_| FlowyError::internal().with_context("content field missing"))?;
+    let field_name = schema
+      .0
+      .get_field(LocalSearchTantivySchema::NAME)
+      .map_err(|_| FlowyError::internal().with_context("name field missing"))?;
+    let field_icon = schema
+      .0
+      .get_field(LocalSearchTantivySchema::ICON)
+      .map_err(|_| FlowyError::internal().with_context("icon field missing"))?;
+    let field_icon_type = schema
+      .0
+      .get_field(LocalSearchTantivySchema::ICON_TYPE)
+      .map_err(|_| FlowyError::internal().with_context("icon_type field missing"))?;
+
     Ok(Self {
       path,
       index,
@@ -99,6 +132,12 @@ impl DocumentTantivyState {
       writer,
       reader,
       workspace_id: *workspace_id,
+      field_workspace_id,
+      field_object_id,
+      field_content,
+      field_name,
+      field_icon,
+      field_icon_type,
     })
   }
 
@@ -109,52 +148,21 @@ impl DocumentTantivyState {
     name: String,
     icon: Option<ViewIcon>,
   ) -> FlowyResult<()> {
-    info!("[Tanvity] Adding document with id:{}, name:{}", id, name);
-
-    // look up your fields by name once
-    let f_workspace = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::WORKSPACE_ID)
-      .expect("workspace_id field missing");
-    let f_object = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::OBJECT_ID)
-      .expect("object_id field missing");
-    let f_content = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::CONTENT)
-      .expect("content field missing");
-
-    let f_name = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::NAME)
-      .expect("name field missing");
-
-    let f_icon = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::ICON)
-      .expect("icon field missing");
-
-    let f_icon_type = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::ICON_TYPE)
-      .expect("icon field missing");
+    trace!("[Tantivy] Adding document with id:{}, name:{}", id, name);
+    let term = Term::from_field_text(self.field_object_id, id);
+    // Delete existing document with same ID
+    self.writer.delete_term(term);
 
     let (icon, icon_type) = icon.map(|v| (v.value, v.ty as u8)).unwrap_or_default();
 
+    // Create document with cached fields
     let tantivy_doc = doc!(
-        f_workspace => self.workspace_id.to_string(),
-        f_object    => id,
-        f_content   => content,
-        f_name => name,
-        f_icon => icon,
-        f_icon_type=> icon_type.to_string()
+        self.field_workspace_id => self.workspace_id.to_string(),
+        self.field_object_id => id,
+        self.field_content => content,
+        self.field_name => name,
+        self.field_icon => icon,
+        self.field_icon_type => icon_type.to_string()
     );
 
     self.writer.add_document(tantivy_doc)?;
@@ -163,17 +171,55 @@ impl DocumentTantivyState {
     Ok(())
   }
 
+  pub fn add_document_metadata(
+    &mut self,
+    id: &str,
+    name: String,
+    icon: Option<ViewIcon>,
+  ) -> FlowyResult<()> {
+    let term = Term::from_field_text(self.field_object_id, id);
+    let searcher = self.reader.searcher();
+    let query =
+      tantivy::query::TermQuery::new(term.clone(), tantivy::schema::IndexRecordOption::Basic);
+
+    // Search for the document
+    let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(1))?;
+    let content = if let Some((_score, doc_address)) = top_docs.first() {
+      let retrieved: TantivyDocument = searcher.doc(*doc_address)?;
+      retrieved
+        .get_first(self.field_content)
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_string()
+    } else {
+      String::new()
+    };
+    self.add_document(id, content, name, icon)?;
+    Ok(())
+  }
+
+  pub fn delete_workspace(&mut self, workspace_id: &Uuid) -> FlowyResult<()> {
+    let term = Term::from_field_text(self.field_workspace_id, &workspace_id.to_string());
+    self.writer.delete_term(term);
+    self.writer.commit()?;
+
+    Ok(())
+  }
+
   /// Delete a document (all fields) matching this `object_id`
   pub fn delete_document(&mut self, id: &str) -> FlowyResult<()> {
-    info!("[Tanvity] Deleting document with id: {}", id);
-    let object_field = self
-      .schema
-      .0
-      .get_field(LocalSearchTantivySchema::OBJECT_ID)
-      .expect("object_id field missing");
-    let term = Term::from_field_text(object_field, id);
-
+    let term = Term::from_field_text(self.field_object_id, id);
     self.writer.delete_term(term);
+    self.writer.commit()?;
+
+    Ok(())
+  }
+
+  pub fn delete_documents(&mut self, ids: &[String]) -> FlowyResult<()> {
+    for id in ids {
+      let term = Term::from_field_text(self.field_object_id, id);
+      self.writer.delete_term(term);
+    }
     self.writer.commit()?;
 
     Ok(())
@@ -187,49 +233,40 @@ impl DocumentTantivyState {
     let workspace_id = workspace_id.to_string();
     let reader = self.reader.clone();
     let searcher = reader.searcher();
-    let schema = self.schema.0.clone();
-    let qp = tantivy::query::QueryParser::for_index(
+
+    // Use cached fields for query parser
+    let mut qp = tantivy::query::QueryParser::for_index(
       &self.index,
-      vec![
-        schema.get_field(LocalSearchTantivySchema::CONTENT)?,
-        schema.get_field(LocalSearchTantivySchema::NAME)?,
-      ],
+      vec![self.field_content, self.field_name],
     );
+    // Enable fuzzy matching for name field (better user experience for typos)
+    qp.set_field_fuzzy(self.field_name, true, 2, true);
+
     let query = qp.parse_query(query)?;
     let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(10))?;
 
-    // pre-look up the fields once
-    let f_workspace = schema
-      .get_field(LocalSearchTantivySchema::WORKSPACE_ID)
-      .unwrap();
-    let f_object = schema
-      .get_field(LocalSearchTantivySchema::OBJECT_ID)
-      .unwrap();
-    let f_name = schema.get_field(LocalSearchTantivySchema::NAME).unwrap();
-    let f_icon = schema.get_field(LocalSearchTantivySchema::ICON).ok();
-    let f_icon_type = schema.get_field(LocalSearchTantivySchema::ICON_TYPE).ok();
-
     let mut results = Vec::with_capacity(top_docs.len());
     let mut seen_ids = std::collections::HashSet::new();
+
     for (_score, doc_address) in top_docs {
       let retrieved: TantivyDocument = searcher.doc(doc_address)?;
-
-      // pull out each stored field
+      // Pull out each stored field using cached field references
       let workspace_id_str = retrieved
-        .get_first(f_workspace)
+        .get_first(self.field_workspace_id)
         .and_then(|v| v.as_str())
         .unwrap_or_default()
         .to_string();
+
       if workspace_id != workspace_id_str {
         warn!(
-          "[Tanvity] Document workspace_id mismatch: {} != {}",
+          "[Tantivy] Document workspace_id mismatch: {} != {}",
           workspace_id, workspace_id_str
         );
         continue;
       }
 
       let object_id = retrieved
-        .get_first(f_object)
+        .get_first(self.field_object_id)
         .and_then(|v| v.as_str())
         .unwrap_or_default()
         .to_string();
@@ -245,40 +282,37 @@ impl DocumentTantivyState {
       }
 
       let name = retrieved
-        .get_first(f_name)
+        .get_first(self.field_name)
         .and_then(|v| v.as_str())
         .unwrap_or_default()
         .to_string();
 
-      // Get icon value and type if available
-      let icon = match (f_icon, f_icon_type) {
-        (Some(icon_field), Some(icon_type_field)) => {
-          let icon_value = retrieved
-            .get_first(icon_field)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
+      // Get icon value and type
+      let icon = {
+        let icon_value = retrieved
+          .get_first(self.field_icon)
+          .and_then(|v| v.as_str())
+          .unwrap_or_default()
+          .to_string();
 
-          let icon_type_str = retrieved
-            .get_first(icon_type_field)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default();
+        let icon_type_str = retrieved
+          .get_first(self.field_icon_type)
+          .and_then(|v| v.as_str())
+          .unwrap_or_default();
 
-          let icon_type: ResultIconTypePB = match icon_type_str.parse::<i64>() {
-            Ok(val) => val.into(),
-            Err(_) => ResultIconTypePB::default(),
-          };
+        let icon_type: ResultIconTypePB = match icon_type_str.parse::<i64>() {
+          Ok(val) => val.into(),
+          Err(_) => ResultIconTypePB::default(),
+        };
 
-          if icon_value.is_empty() {
-            None
-          } else {
-            Some(ResultIconPB {
-              ty: icon_type,
-              value: icon_value,
-            })
-          }
-        },
-        _ => None,
+        if icon_value.is_empty() {
+          None
+        } else {
+          Some(ResultIconPB {
+            ty: icon_type,
+            value: icon_value,
+          })
+        }
       };
 
       results.push(LocalSearchResponseItemPB {
