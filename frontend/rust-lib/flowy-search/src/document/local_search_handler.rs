@@ -47,18 +47,35 @@ impl SearchHandler for DocumentLocalSearchHandler {
     Box::pin(stream! {
       match state.upgrade() {
         None => {
-          // Do nothing if the state is not available
+          yield Ok(
+            CreateSearchResultPBArgs::default()
+              .local_search_result(None)
+              .build()
+              .unwrap(),
+          );
         },
         Some(state) => {
-          if let Ok(items) = state.read().await.search(&workspace_id, &query) {
-            trace!("[Tanvity] local document search result: {:?}", items);
-           let search_result = RepeatedLocalSearchResponseItemPB { items };
-           yield Ok(
-             CreateSearchResultPBArgs::default()
-               .local_search_result(Some(search_result))
-               .build()
-               .unwrap(),
-           );
+          match state.read().await.search(&workspace_id, &query) {
+            Ok(items) => {
+              trace!("[Tanvity] local document search result: {:?}", items);
+              if items.is_empty() {
+                yield Ok(
+                  CreateSearchResultPBArgs::default()
+                    .local_search_result(None)
+                    .build()
+                    .unwrap(),
+                );
+              } else {
+                let search_result = RepeatedLocalSearchResponseItemPB { items };
+                yield Ok(
+                  CreateSearchResultPBArgs::default()
+                    .local_search_result(Some(search_result))
+                    .build()
+                    .unwrap(),
+                );
+              }
+            },
+            Err(err) => error!("[Tantivy] Failed to search documents, {:?}", err),
           }
         }
       }
@@ -208,6 +225,7 @@ impl DocumentTantivyState {
 
   /// Delete a document (all fields) matching this `object_id`
   pub fn delete_document(&mut self, id: &str) -> FlowyResult<()> {
+    trace!("[Tantivy] delete document with id: {}", id);
     let term = Term::from_field_text(self.field_object_id, id);
     self.writer.delete_term(term);
     self.writer.commit()?;
@@ -216,6 +234,7 @@ impl DocumentTantivyState {
   }
 
   pub fn delete_documents(&mut self, ids: &[String]) -> FlowyResult<()> {
+    trace!("[Tantivy] delete documents with ids: {:?}", ids);
     for id in ids {
       let term = Term::from_field_text(self.field_object_id, id);
       self.writer.delete_term(term);

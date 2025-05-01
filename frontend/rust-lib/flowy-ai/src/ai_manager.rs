@@ -498,17 +498,22 @@ impl AIManager {
 
     match model {
       None => {
-        if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-          model = Some(AIModel::local(local_model, "".to_string()));
-        }
+        model = self
+          .store_preferences
+          .get_object::<AIModel>(&ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY));
+
         model
       },
       Some(mut model) => {
-        let models = self.local_ai.get_all_chat_local_models().await;
-        if !models.contains(&model) {
-          if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-            model = AIModel::local(local_model, "".to_string());
-          }
+        let mut all_models = vec![];
+        if let Ok(m) = self.get_server_available_models().await {
+          all_models.extend(m.into_iter().map(AIModel::from));
+        }
+
+        let local_models = self.local_ai.get_all_chat_local_models().await;
+        all_models.extend(local_models);
+        if !all_models.contains(&model) {
+          model = AIModel::default()
         }
         Some(model)
       },
@@ -556,7 +561,15 @@ impl AIManager {
         let setting = self.local_ai.get_local_ai_setting();
         all_models.push(AIModel::local(setting.chat_model_name, "".to_string()));
       } else {
-        all_models.extend(self.local_ai.get_all_chat_local_models().await);
+        let local_models = self.local_ai.get_all_chat_local_models().await;
+        trace!(
+          "[Model Selection]: Available Local models: {:?}",
+          local_models
+            .iter()
+            .map(|m| m.name.as_str())
+            .collect::<Vec<&str>>()
+        );
+        all_models.extend(local_models);
       }
     }
 
@@ -605,6 +618,14 @@ impl AIManager {
           .unwrap_or_else(|| default_model.clone())
       },
     };
+
+    trace!(
+      "[Model Selection] all models: {:?}",
+      all_models
+        .iter()
+        .map(|m| m.name.as_str())
+        .collect::<Vec<&str>>()
+    );
 
     // Determine final active model - use user's selection if available, otherwise default
     let active_model = all_models

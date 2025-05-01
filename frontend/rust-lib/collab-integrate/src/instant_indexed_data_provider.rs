@@ -49,6 +49,12 @@ impl InstantIndexedDataProvider {
     consumers.len()
   }
 
+  pub async fn clear_consumers(&self) {
+    let mut consumers = self.consumers.write().await;
+    consumers.clear();
+    info!("[Indexing] Cleared all instant index consumers");
+  }
+
   pub async fn register_consumer(&self, consumer: Box<dyn InstantIndexedDataConsumer>) {
     info!(
       "[Indexing] Registering instant index consumer: {}",

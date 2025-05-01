@@ -9,7 +9,7 @@ use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
-use tokio::time::{interval, timeout};
+use tokio::time::timeout;
 use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
 
@@ -25,8 +25,7 @@ impl AppLifeCycleImpl {
 
     // Check if the folder is already ready
     if *folder_ready_notify.borrow() {
-      // We don't want to start indexing immediately after the folder is ready
-      tokio::time::sleep(Duration::from_secs(10)).await;
+      tokio::time::sleep(Duration::from_secs(5)).await;
       return true;
     }
 
@@ -40,7 +39,7 @@ impl AppLifeCycleImpl {
         let is_ready = *folder_ready_notify.borrow();
         if is_ready {
           // We don't want to start indexing immediately after the folder is ready
-          tokio::time::sleep(Duration::from_secs(10)).await;
+          tokio::time::sleep(Duration::from_secs(5)).await;
         }
 
         is_ready
@@ -48,7 +47,7 @@ impl AppLifeCycleImpl {
     }
   }
 
-  #[instrument(skip(self, _user_config, user_paths))]
+  #[instrument(skip_all)]
   pub(crate) async fn start_instant_indexed_data_provider(
     &self,
     user_id: i64,
@@ -63,6 +62,7 @@ impl AppLifeCycleImpl {
     let workspace_type_cloned = *workspace_type;
     let user_paths = user_paths.clone();
     let folder_manager = self.folder_manager.clone();
+    let weak_logged_user = Arc::downgrade(&self.logged_user);
 
     self.runtime.spawn(async move {
       if !Self::wait_for_folder_ready(&folder_manager).await {
@@ -75,6 +75,8 @@ impl AppLifeCycleImpl {
       );
 
       if let Some(instant_indexed_data_provider) = instant_indexed_data_provider {
+        instant_indexed_data_provider.clear_consumers().await;
+
         // Add embedding consumer when workspace type is local
         #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
         {
@@ -89,6 +91,7 @@ impl AppLifeCycleImpl {
           &workspace_id_cloned,
           user_paths.tanvity_index_path(user_id),
           folder_manager,
+          weak_logged_user,
         )
         .await
         {
@@ -148,10 +151,11 @@ impl AppLifeCycleImpl {
     let folder_manager = self.folder_manager.clone();
     let logged_user = self.logged_user.clone();
     let full_indexed_data_provider = self.full_indexed_data_provider.clone();
-    let runtime = self.runtime.clone();
     let workspace_id_cloned = *workspace_id;
     let workspace_type_cloned = *workspace_type;
     let user_paths = user_paths.clone();
+    let full_indexed_finish_sender = self.full_indexed_finish_sender.clone();
+    full_indexed_finish_sender.send_replace(false);
 
     self.runtime.spawn(async move {
       if !Self::wait_for_folder_ready(&folder_manager).await {
@@ -163,7 +167,11 @@ impl AppLifeCycleImpl {
         workspace_id_cloned
       );
 
-      let new_provider = FullIndexedDataProvider::new(folder_manager, Arc::downgrade(&logged_user));
+      let new_provider = FullIndexedDataProvider::new(
+        workspace_id_cloned,
+        folder_manager,
+        Arc::downgrade(&logged_user),
+      );
       #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
       {
         if workspace_type_cloned.is_local() {
@@ -193,41 +201,16 @@ impl AppLifeCycleImpl {
           new_provider.num_consumers().await,
           workspace_id_cloned
         );
-        let cloned_new_provider = new_provider.clone();
-        let interval_dur = Duration::from_secs(30);
-        let mut ticker = interval(interval_dur);
-
-        runtime.spawn(async move {
-          ticker.tick().await;
-
-          const MAX_ATTEMPTS: usize = 3;
-          let mut attempt = 0;
-          loop {
-            attempt += 1;
-            match cloned_new_provider.full_index_unindexed_documents().await {
-              Ok(()) => {
-                info!("[Indexing] full index succeeded on attempt {}", attempt);
-                break;
-              },
-              Err(err) if attempt < MAX_ATTEMPTS => {
-                error!(
-                  "[Indexing] Attempt {}/{} to index documents failed: {:?}. retrying in 5s…",
-                  attempt, MAX_ATTEMPTS, err
-                );
-                tokio::time::sleep(Duration::from_secs(5)).await;
-              },
-              Err(err) => {
-                error!(
-                  "[Indexing] Indexing failed after {} attempts: {:?}. giving up.",
-                  attempt, err
-                );
-                break;
-              },
-            }
-          }
-
-          info!("[Indexing] full indexed data provider stopped");
-        });
+        match new_provider.full_index_unindexed_documents().await {
+          Ok(()) => {
+            info!("[Indexing] full index succeeded");
+          },
+          Err(err) => {
+            error!("[Indexing] full index failed {:?}", err);
+          },
+        }
+        full_indexed_finish_sender.send_replace(true);
+        info!("[Indexing] full indexed data provider stopped");
       }
 
       if let Some(provider) = full_indexed_data_provider.upgrade() {

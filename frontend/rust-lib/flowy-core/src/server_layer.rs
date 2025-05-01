@@ -79,16 +79,12 @@ impl ServerProvider {
     }
   }
 
-  pub fn on_launch_if_authenticated(&self, workspace_type: &WorkspaceType) {
-    if workspace_type.is_local() {
-      self.local_ai.reload_ollama_client();
-    }
+  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
   }
 
-  pub fn on_sign_in(&self, workspace_type: &WorkspaceType) {
-    if workspace_type.is_local() {
-      self.local_ai.reload_ollama_client();
-    }
+  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
   }
 
   pub fn on_sign_up(&self, workspace_type: &WorkspaceType) {

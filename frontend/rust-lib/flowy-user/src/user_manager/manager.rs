@@ -46,7 +46,7 @@ pub struct UserManager {
   pub(crate) cloud_service: Weak<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
   pub(crate) user_awareness_by_workspace: DashMap<Uuid, Arc<RwLock<UserAwareness>>>,
-  pub(crate) app_life_cycle: RwLock<Arc<dyn AppLifeCycle>>,
+  pub app_life_cycle: RwLock<Arc<dyn AppLifeCycle>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
@@ -139,8 +139,8 @@ impl UserManager {
     user_status_callback: C,
     collab_interact: I,
   ) -> Result<(), FlowyError> {
-    let user_status_callback = Arc::new(user_status_callback);
-    *self.app_life_cycle.write().await = user_status_callback.clone();
+    let app_life_cycle = Arc::new(user_status_callback);
+    *self.app_life_cycle.write().await = app_life_cycle.clone();
     *self.collab_interact.write().await = Arc::new(collab_interact);
     let cloud_service = self.cloud_service()?;
 
@@ -282,7 +282,7 @@ impl UserManager {
         )
         .await;
 
-      user_status_callback
+      app_life_cycle
         .on_launch_if_authenticated(
           uid,
           &cloud_config,

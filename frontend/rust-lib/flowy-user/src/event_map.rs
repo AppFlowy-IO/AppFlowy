@@ -325,6 +325,10 @@ pub trait AppLifeCycle: Send + Sync + 'static {
     Ok(())
   }
 
+  async fn on_workspace_closed(&self, _workspace_id: &Uuid) -> FlowyResult<()> {
+    Ok(())
+  }
+
   /// Fires when a workspace is opened by the user.
   async fn on_workspace_opened(
     &self,
@@ -344,6 +348,10 @@ pub trait AppLifeCycle: Send + Sync + 'static {
   fn on_network_status_changed(&self, _reachable: bool) {}
   fn on_subscription_plans_updated(&self, _plans: Vec<SubscriptionPlan>) {}
   fn on_storage_permission_updated(&self, _can_write: bool) {}
+
+  fn subscribe_full_indexed_finish(&self) -> Option<tokio::sync::watch::Receiver<bool>> {
+    None
+  }
 }
 
 /// Acts as a placeholder [AppLifeCycle] for the user session, but does not perform any function

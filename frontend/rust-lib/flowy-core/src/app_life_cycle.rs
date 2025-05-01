@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 use tracing::{error, event, info, instrument};
 
 use crate::full_indexed_data_provider::FullIndexedDataProvider;
-use crate::indexed_data_consumer::get_document_tantivy_state;
+use crate::indexed_data_consumer::{close_document_tantivy_state, get_document_tantivy_state};
 use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -45,6 +45,7 @@ pub(crate) struct AppLifeCycleImpl {
   // By default, all callback will run on the caller thread. If you don't want to block the caller
   // thread, you can use runtime to spawn a new task.
   pub(crate) runtime: Arc<AFPluginRuntime>,
+  pub(crate) full_indexed_finish_sender: tokio::sync::watch::Sender<bool>,
 }
 
 impl AppLifeCycleImpl {
@@ -384,6 +385,11 @@ impl AppLifeCycle for AppLifeCycleImpl {
     Ok(())
   }
 
+  async fn on_workspace_closed(&self, workspace_id: &Uuid) -> FlowyResult<()> {
+    close_document_tantivy_state(workspace_id);
+    Ok(())
+  }
+
   #[instrument(skip_all)]
   async fn on_workspace_opened(
     &self,
@@ -497,6 +503,10 @@ impl AppLifeCycle for AppLifeCycleImpl {
         storage.disable_storage_write_access();
       }
     }
+  }
+
+  fn subscribe_full_indexed_finish(&self) -> Option<tokio::sync::watch::Receiver<bool>> {
+    Some(self.full_indexed_finish_sender.subscribe())
   }
 }
 

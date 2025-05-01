@@ -144,6 +144,24 @@ impl UserManager {
     workspace_id: &Uuid,
     workspace_type: WorkspaceType,
   ) -> FlowyResult<()> {
+    let current_workspace_id = self.workspace_id()?;
+    if current_workspace_id != *workspace_id {
+      match self
+        .app_life_cycle
+        .read()
+        .await
+        .on_workspace_closed(&current_workspace_id)
+        .await
+      {
+        Ok(_) => {
+          trace!("close workspace: {:?}", current_workspace_id);
+        },
+        Err(err) => {
+          error!("close workspace failed: {:?}", err);
+        },
+      }
+    }
+
     info!(
       "open workspace: {}, auth type:{:?}",
       workspace_id, workspace_type

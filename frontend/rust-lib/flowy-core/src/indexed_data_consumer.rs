@@ -10,6 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_search::document::local_search_handler::DocumentTantivyState;
 use flowy_search_pub::entities::FolderViewObserver;
+use flowy_server::af_cloud::define::LoggedUser;
 use lib_infra::async_trait::async_trait;
 use once_cell::sync::Lazy;
 use std::path::PathBuf;
@@ -97,13 +98,7 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
           metadata: UnindexedCollabMetadata {
             name: "".to_string(),
             icon: None,
-          }, // metadata: UnindexedCollabMetadata {
-             //   name: view.name.clone(),
-             //   icon: view.icon.clone().map(|v| workspace_dto::ViewIcon {
-             //     ty: workspace_dto::IconType::from(v.ty.clone() as u8),
-             //     value: v.value,
-             //   }),
-             // },
+          },
         };
 
         if let Err(err) = scheduler.index_collab(unindex_collab).await {
@@ -142,16 +137,6 @@ pub(crate) fn get_or_init_document_tantivy_state(
   workspace_id: Uuid,
   data_path: PathBuf,
 ) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
-  let to_remove: Vec<Uuid> = SEARCH_INDEX
-    .iter()
-    .map(|r| *r.key())
-    .filter(|k| *k != workspace_id)
-    .collect();
-  for k in to_remove {
-    info!("[Indexing] Removing tantivy state for workspace: {}", k);
-    SEARCH_INDEX.remove(&k);
-  }
-
   Ok(
     SEARCH_INDEX
       .entry(workspace_id)
@@ -168,6 +153,15 @@ pub(crate) fn get_or_init_document_tantivy_state(
   )
 }
 
+pub(crate) fn close_document_tantivy_state(workspace_id: &Uuid) {
+  if SEARCH_INDEX.remove(workspace_id).is_some() {
+    info!(
+      "[Indexing] close tantivy state for workspace: {}",
+      workspace_id
+    );
+  }
+}
+
 pub fn get_document_tantivy_state(
   workspace_id: &Uuid,
 ) -> Option<Weak<RwLock<DocumentTantivyState>>> {
@@ -180,6 +174,7 @@ pub fn get_document_tantivy_state(
 /// Full‐index consumer holds only a Weak reference:
 /// -----------------------------------------------------
 pub struct SearchFullIndexConsumer {
+  workspace_id: Uuid,
   state: Weak<RwLock<DocumentTantivyState>>,
 }
 
@@ -187,6 +182,7 @@ impl SearchFullIndexConsumer {
   pub fn new(workspace_id: &Uuid, data_path: PathBuf) -> FlowyResult<Self> {
     let strong = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
     Ok(Self {
+      workspace_id: *workspace_id,
       state: Arc::downgrade(&strong),
     })
   }
@@ -199,6 +195,10 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
   }
 
   async fn consume_indexed_data(&self, _uid: i64, data: &UnindexedCollab) -> FlowyResult<()> {
+    if self.workspace_id != data.workspace_id {
+      return Ok(());
+    }
+
     let strong = self
       .state
       .upgrade()
@@ -223,12 +223,14 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
 /// Instant‐index consumer also holds a Weak:
 /// -----------------------------------------------------
 pub struct SearchInstantIndexImpl {
+  workspace_id: Uuid,
   state: Weak<RwLock<DocumentTantivyState>>,
   consume_history: DashMap<String, String>,
   folder_manager: Weak<FolderManager>,
   #[allow(dead_code)]
   // bind the folder_observer lifetime to the SearchInstantIndexImpl
   folder_observer: FolderViewObserverImpl,
+  logged_user: Weak<dyn LoggedUser>,
 }
 
 impl SearchInstantIndexImpl {
@@ -236,6 +238,7 @@ impl SearchInstantIndexImpl {
     workspace_id: &Uuid,
     data_path: PathBuf,
     folder_manager: Weak<FolderManager>,
+    logged_user: Weak<dyn LoggedUser>,
   ) -> FlowyResult<Self> {
     let state = get_or_init_document_tantivy_state(*workspace_id, data_path)?;
     let folder_observer = FolderViewObserverImpl::new(workspace_id, Arc::downgrade(&state));
@@ -248,18 +251,30 @@ impl SearchInstantIndexImpl {
     }
 
     Ok(Self {
+      workspace_id: *workspace_id,
       state: Arc::downgrade(&state),
       consume_history: Default::default(),
       folder_manager,
       folder_observer,
+      logged_user,
     })
   }
 
   pub fn refresh_search_index(&self) {
     let weak_state = self.state.clone();
     let folder_manager = self.folder_manager.clone();
+    let weak_logged_user = self.logged_user.clone();
+    let expected_workspace_id = self.workspace_id;
 
     tokio::spawn(async move {
+      if weak_logged_user
+        .upgrade()
+        .and_then(|user| user.workspace_id().ok())
+        != Some(expected_workspace_id)
+      {
+        return Ok(());
+      }
+
       if let (Some(folder_manager), Some(state)) = (folder_manager.upgrade(), weak_state.upgrade())
       {
         if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
@@ -312,6 +327,10 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
     collab_object: &CollabObject,
     data: UnindexedData,
   ) -> Result<bool, FlowyError> {
+    if self.workspace_id.to_string() != collab_object.workspace_id {
+      return Ok(false);
+    }
+
     let state = self
       .state
       .upgrade()

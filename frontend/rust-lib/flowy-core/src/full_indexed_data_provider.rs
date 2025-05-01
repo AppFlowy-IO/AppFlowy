@@ -29,6 +29,7 @@ pub trait FullIndexedDataConsumer: Send + Sync {
 
 #[derive(Clone)]
 pub struct FullIndexedDataProvider {
+  workspace_id: Uuid,
   folder_manager: Weak<FolderManager>,
   logged_user: Weak<dyn LoggedUser>,
   cancel_token: CancellationToken,
@@ -36,10 +37,15 @@ pub struct FullIndexedDataProvider {
 }
 
 impl FullIndexedDataProvider {
-  pub fn new(folder_manager: Weak<FolderManager>, logged_user: Weak<dyn LoggedUser>) -> Self {
+  pub fn new(
+    workspace_id: Uuid,
+    folder_manager: Weak<FolderManager>,
+    logged_user: Weak<dyn LoggedUser>,
+  ) -> Self {
     let cancel_token = CancellationToken::new();
     let consumers = Arc::new(RwLock::new(Vec::new()));
     Self {
+      workspace_id,
       folder_manager,
       cancel_token,
       logged_user,
@@ -65,10 +71,10 @@ impl FullIndexedDataProvider {
     self.cancel_token.cancel();
   }
 
-  async fn is_workspace_changed(&self, expected_workspace_id: &Uuid) -> bool {
+  async fn is_workspace_changed(&self) -> bool {
     if let Some(logged_user) = self.logged_user.upgrade() {
       if let Ok(current_workspace_id) = logged_user.workspace_id() {
-        return current_workspace_id != *expected_workspace_id;
+        return current_workspace_id != self.workspace_id;
       }
     }
     // If we can't determine, assume it changed to be safe
@@ -124,7 +130,7 @@ impl FullIndexedDataProvider {
     );
     let chunks = unindex_ids.chunks(chunk_size);
     for chunk in chunks.into_iter() {
-      if self.is_workspace_changed(&workspace_id).await {
+      if self.is_workspace_changed().await {
         info!("[Indexing] cancelled: Workspace changed");
         break;
       }
@@ -146,7 +152,13 @@ impl FullIndexedDataProvider {
                 consumer.consumer_id(),
                 data.object_id
               );
-              consumer.consume_indexed_data(uid, data).await?;
+              if let Err(err) = consumer.consume_indexed_data(uid, data).await {
+                error!(
+                  "[Indexing] Failed to consume unindexed data: {}: {:?}",
+                  consumer.consumer_id(),
+                  err
+                );
+              }
             }
           }
           if let Some(mut db) = self
@@ -177,7 +189,7 @@ impl FullIndexedDataProvider {
       }
 
       // Check if workspace has changed before sleep
-      if self.is_workspace_changed(&workspace_id).await {
+      if self.is_workspace_changed().await {
         info!("[Indexing] Indexing cancelled: Workspace changed");
         break;
       }

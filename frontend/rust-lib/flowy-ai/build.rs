@@ -1,5 +1,3 @@
-use std::env;
-
 fn main() {
   #[cfg(feature = "dart")]
   {

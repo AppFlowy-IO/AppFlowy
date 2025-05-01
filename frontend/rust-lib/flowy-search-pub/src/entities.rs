@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
 use collab_folder::{View, ViewIcon, ViewLayout};
-use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
 
@@ -29,5 +28,4 @@ impl ViewObserveData {
 #[async_trait]
 pub trait FolderViewObserver: Send + Sync {
   async fn set_observer_rx(&self, rx: IndexContentReceiver);
-  async fn delete_views_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError>;
 }

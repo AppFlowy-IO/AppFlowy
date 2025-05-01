@@ -268,7 +268,8 @@ impl AppFlowyCore {
     .await;
 
     let indexed_data_provider = Arc::new(RwLock::new(None));
-    let user_status_callback = AppLifeCycleImpl {
+    let (full_indexed_finish_sender, _) = tokio::sync::watch::channel(false);
+    let app_life_cycle = AppLifeCycleImpl {
       user_manager: Arc::downgrade(&user_manager),
       collab_builder: Arc::downgrade(&collab_builder),
       folder_manager: Arc::downgrade(&folder_manager),
@@ -282,6 +283,7 @@ impl AppFlowyCore {
       full_indexed_data_provider: Arc::downgrade(&indexed_data_provider),
       logged_user: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
+      full_indexed_finish_sender,
     };
 
     let collab_interact_impl = CollabInteractImpl {
@@ -289,7 +291,7 @@ impl AppFlowyCore {
       document_manager: Arc::downgrade(&document_manager),
     };
     if let Err(err) = user_manager
-      .init_with_callback(user_status_callback, collab_interact_impl)
+      .init_with_callback(app_life_cycle, collab_interact_impl)
       .await
     {
       error!("Init user failed: {}", err)

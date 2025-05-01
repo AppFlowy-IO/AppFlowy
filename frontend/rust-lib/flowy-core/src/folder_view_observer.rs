@@ -1,10 +1,9 @@
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::ViewIndexContent;
-use flowy_error::{FlowyError, FlowyResult};
 use flowy_search::document::local_search_handler::DocumentTantivyState;
 use flowy_search_pub::entities::FolderViewObserver;
 use lib_infra::async_trait::async_trait;
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 use tokio::sync::RwLock;
 use tracing::error;
 use uuid::Uuid;
@@ -16,11 +15,6 @@ pub struct FolderViewObserverImpl {
 impl FolderViewObserverImpl {
   pub fn new(_workspace_id: &Uuid, state: Weak<RwLock<DocumentTantivyState>>) -> Self {
     Self { state }
-  }
-
-  fn get_state(&self) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
-    let state = self.state.upgrade().ok_or_else(FlowyError::ref_drop)?;
-    Ok(state)
   }
 }
 
@@ -64,11 +58,5 @@ impl FolderViewObserver for FolderViewObserverImpl {
         }
       }
     });
-  }
-
-  async fn delete_views_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError> {
-    let state = self.get_state()?;
-    state.write().await.delete_workspace(&workspace_id)?;
-    Ok(())
   }
 }
