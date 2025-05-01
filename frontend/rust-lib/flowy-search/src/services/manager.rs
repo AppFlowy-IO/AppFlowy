@@ -128,12 +128,10 @@ impl SearchManager {
       *current = Some(search_id);
     }
 
-    tracing::info!("[Search] perform search: {}", query);
-
+    info!("[Search] perform search: {}", query);
     let handlers = self.handlers.clone();
     let sink = IsolateSink::new(Isolate::new(stream_port));
     let current_search = self.current_search.clone();
-
     let mut join_handles = vec![];
 
     for handler in handlers.iter().map(|entry| entry.value().clone()) {

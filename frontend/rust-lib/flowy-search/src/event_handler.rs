@@ -15,7 +15,7 @@ fn upgrade_manager(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub(crate) async fn search_handler(
+pub(crate) async fn stream_search_handler(
   data: AFPluginData<SearchQueryPB>,
   manager: AFPluginState<Weak<SearchManager>>,
 ) -> Result<(), FlowyError> {

@@ -4,7 +4,6 @@ use crate::indexed_data_consumer::{
   get_or_init_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
   SearchInstantIndexImpl,
 };
-use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
