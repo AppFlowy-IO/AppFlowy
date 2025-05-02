@@ -55,6 +55,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    index_collab_record_table (oid) {
+        oid -> Text,
+        workspace_id -> Text,
+        content_hash -> Text,
+    }
+}
+
+diesel::table! {
     local_ai_model_table (name) {
         name -> Text,
         model_type -> SmallInt,
@@ -145,6 +153,7 @@ diesel::allow_tables_to_appear_in_same_query!(
   chat_message_table,
   chat_table,
   collab_snapshot,
+  index_collab_record_table,
   local_ai_model_table,
   upload_file_part,
   upload_file_table,

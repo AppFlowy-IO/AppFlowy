@@ -19,7 +19,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CLOUD_VERSION: 0.8.3-amd64
-  RUST_TOOLCHAIN: "1.81.0"
+  RUST_TOOLCHAIN: "1.84.0"
 
 jobs:
   ubuntu-job:

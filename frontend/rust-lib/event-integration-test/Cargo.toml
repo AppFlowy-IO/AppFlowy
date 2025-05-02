@@ -48,9 +48,8 @@ zip.workspace = true
 walkdir = "2.5.0"
 futures = "0.3.31"
 flowy-ai-pub = { workspace = true }
+serial_test = "2.0.0"
 
 [features]
-default = ["supabase_cloud_test"]
 dart = ["flowy-core/dart"]
-supabase_cloud_test = []
 single_thread = []

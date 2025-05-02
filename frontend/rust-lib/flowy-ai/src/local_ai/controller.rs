@@ -77,7 +77,7 @@ impl LocalAIController {
     user_service: Arc<dyn AIUserService>,
   ) -> Self {
     debug!(
-      "[AI Plugin] init local ai controller, thread: {:?}",
+      "[Local AI] init local ai controller, thread: {:?}",
       std::thread::current().id()
     );
 
@@ -92,15 +92,9 @@ impl LocalAIController {
     ));
 
     let ollama = ArcSwapOption::default();
+
     let sys = get_operating_system();
     if sys.is_desktop() {
-      let setting = local_ai_resource.get_llm_setting();
-      ollama.store(
-        Ollama::try_new(&setting.ollama_server_url)
-          .map(Arc::new)
-          .ok(),
-      );
-
       // Subscribe to state changes
       let mut running_state_rx = local_ai.subscribe_running_state();
       let cloned_llm_res = Arc::clone(&local_ai_resource);
@@ -116,8 +110,8 @@ impl LocalAIController {
             continue;
           };
 
-          let key = crate::local_ai::controller::local_ai_enabled_key(&workspace_id.to_string());
-          info!("[AI Plugin] state: {:?}", state);
+          let key = local_ai_enabled_key(&workspace_id.to_string());
+          info!("[Local AI] state: {:?}", state);
 
           // Read whether plugin is enabled from store; default to true
           if let Some(store_preferences) = cloned_store_preferences.upgrade() {
@@ -159,7 +153,7 @@ impl LocalAIController {
             })
             .send();
           } else {
-            warn!("[AI Plugin] store preferences is dropped");
+            warn!("[Local AI] store preferences is dropped");
           }
         }
       });
@@ -174,6 +168,36 @@ impl LocalAIController {
       ollama,
     }
   }
+
+  pub fn reload_ollama_client(&self) {
+    if !self.is_enabled() {
+      return;
+    }
+
+    let setting = self.resource.get_llm_setting();
+    if let Some(ollama) = self.ollama.load_full() {
+      if ollama.url_str() == setting.ollama_server_url {
+        info!("[Local AI] ollama client is already initialized");
+        return;
+      }
+    }
+
+    info!("[Local AI] reloading ollama client");
+    match Ollama::try_new(setting.ollama_server_url).map(Arc::new) {
+      Ok(new_ollama) => {
+        self.ollama.store(Some(new_ollama.clone()));
+
+        #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+        crate::embeddings::context::EmbedContext::shared().set_ollama(Some(new_ollama.clone()));
+      },
+      Err(err) => error!(
+        "failed to create ollama client: {:?}, thread: {:?}",
+        err,
+        std::thread::current().id()
+      ),
+    }
+  }
+
   #[instrument(level = "debug", skip_all)]
   pub async fn observe_plugin_resource(&self) {
     let sys = get_operating_system();
@@ -182,7 +206,7 @@ impl LocalAIController {
     }
 
     debug!(
-      "[AI Plugin] observer plugin state. thread: {:?}",
+      "[Local AI] observer plugin state. thread: {:?}",
       std::thread::current().id()
     );
     async fn try_init_plugin(
@@ -190,7 +214,7 @@ impl LocalAIController {
       ai_plugin: &Arc<OllamaAIPlugin>,
     ) {
       if let Err(err) = initialize_ai_plugin(ai_plugin, resource, None).await {
-        error!("[AI Plugin] failed to setup plugin: {:?}", err);
+        error!("[Local AI] failed to setup plugin: {:?}", err);
       }
     }
 
@@ -203,11 +227,11 @@ impl LocalAIController {
       loop {
         select! {
             _ = app_state_watcher.recv() => {
-                info!("[AI Plugin] app state changed, try to init plugin");
+                info!("[Local AI] app state changed, try to init plugin");
                 try_init_plugin(&resource_clone, &ai_plugin_clone).await;
             },
             _ = resource_notify.recv() => {
-                info!("[AI Plugin] resource changed, try to init plugin");
+                info!("[Local AI] resource changed, try to init plugin");
                 try_init_plugin(&resource_clone, &ai_plugin_clone).await;
             },
             else => break,
@@ -270,7 +294,7 @@ impl LocalAIController {
     // Only keep one chat open at a time. Since loading multiple models at the same time will cause
     // memory issues.
     if let Some(current_chat_id) = self.current_chat_id.load().as_ref() {
-      debug!("[AI Plugin] close previous chat: {}", current_chat_id);
+      debug!("[Local AI] close previous chat: {}", current_chat_id);
       self.close_chat(current_chat_id);
     }
 
@@ -280,7 +304,7 @@ impl LocalAIController {
     tokio::spawn(async move {
       if let Some(ctrl) = weak_ctrl.upgrade() {
         if let Err(err) = ctrl.create_chat(&chat_id).await {
-          error!("[AI Plugin] failed to open chat: {:?}", err);
+          error!("[Local AI] failed to open chat: {:?}", err);
         }
       }
     });
@@ -290,13 +314,13 @@ impl LocalAIController {
     if !self.is_running() {
       return;
     }
-    info!("[AI Plugin] notify close chat: {}", chat_id);
+    info!("[Local AI] notify close chat: {}", chat_id);
     let weak_ctrl = Arc::downgrade(&self.ai_plugin);
     let chat_id = chat_id.to_string();
     tokio::spawn(async move {
       if let Some(ctrl) = weak_ctrl.upgrade() {
         if let Err(err) = ctrl.close_chat(&chat_id).await {
-          error!("[AI Plugin] failed to close chat: {:?}", err);
+          error!("[Local AI] failed to close chat: {:?}", err);
         }
       }
     });
@@ -380,7 +404,7 @@ impl LocalAIController {
 
   pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     info!(
-      "[AI Plugin] update local ai setting: {:?}, thread: {:?}",
+      "[Local AI] update local ai setting: {:?}, thread: {:?}",
       setting,
       std::thread::current().id()
     );
@@ -396,7 +420,7 @@ impl LocalAIController {
     // If not enabled, return immediately.
     if !enabled {
       debug!(
-        "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
+        "[Local AI] get local ai state, elapsed: {:?}, thread: {:?}",
         start.elapsed(),
         std::thread::current().id()
       );
@@ -429,7 +453,7 @@ impl LocalAIController {
 
     let elapsed = start.elapsed();
     debug!(
-      "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
+      "[Local AI] get local ai state, elapsed: {:?}, thread: {:?}",
       elapsed,
       std::thread::current().id()
     );
@@ -445,7 +469,7 @@ impl LocalAIController {
   #[instrument(level = "debug", skip_all)]
   pub async fn restart_plugin(&self) {
     if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, None).await {
-      error!("[AI Plugin] failed to setup plugin: {:?}", err);
+      error!("[Local AI] failed to setup plugin: {:?}", err);
     }
   }
 
@@ -461,7 +485,7 @@ impl LocalAIController {
     let key = local_ai_enabled_key(&workspace_id.to_string());
     let store_preferences = self.upgrade_store_preferences()?;
     let enabled = !store_preferences.get_bool(&key).unwrap_or(false);
-    tracing::trace!("[AI Plugin] toggle local ai, enabled: {}", enabled,);
+    tracing::trace!("[Local AI] toggle local ai, enabled: {}", enabled,);
     store_preferences.set_bool(&key, enabled)?;
     self.toggle_plugin(enabled).await?;
     Ok(enabled)
@@ -475,7 +499,7 @@ impl LocalAIController {
   //   index_process_sink: &mut (impl Sink<String> + Unpin),
   // ) -> FlowyResult<()> {
   //   if !self.is_enabled() {
-  //     info!("[AI Plugin] local ai is disabled, skip indexing");
+  //     info!("[Local AI] local ai is disabled, skip indexing");
   //     return Ok(());
   //   }
   //
@@ -492,14 +516,14 @@ impl LocalAIController {
   //       );
   //     }
   //     info!(
-  //       "[AI Plugin] embed file: {:?}, with metadata: {:?}",
+  //       "[Local AI] embed file: {:?}, with metadata: {:?}",
   //       file_path, file_metadata
   //     );
   //
   //     match &metadata.data.content_type {
   //       ContextLoader::Unknown => {
   //         error!(
-  //           "[AI Plugin] unsupported content type: {:?}",
+  //           "[Local AI] unsupported content type: {:?}",
   //           metadata.data.content_type
   //         );
   //       },
@@ -560,7 +584,7 @@ impl LocalAIController {
         let _ = index_process_sink
           .send(StreamMessage::IndexFileError { file_name }.to_string())
           .await;
-        error!("[AI Plugin] failed to index file: {:?}", err);
+        error!("[Local AI] failed to index file: {:?}", err);
       },
     }
 
@@ -570,19 +594,19 @@ impl LocalAIController {
   #[instrument(level = "debug", skip_all)]
   pub(crate) async fn toggle_plugin(&self, enabled: bool) -> FlowyResult<()> {
     info!(
-      "[AI Plugin] enable: {}, thread id: {:?}",
+      "[Local AI] enable: {}, thread id: {:?}",
       enabled,
       std::thread::current().id()
     );
     if enabled {
       let (tx, rx) = tokio::sync::oneshot::channel();
       if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, Some(tx)).await {
-        error!("[AI Plugin] failed to initialize local ai: {:?}", err);
+        error!("[Local AI] failed to initialize local ai: {:?}", err);
       }
       let _ = rx.await;
     } else {
       if let Err(err) = self.ai_plugin.destroy_plugin().await {
-        error!("[AI Plugin] failed to destroy plugin: {:?}", err);
+        error!("[Local AI] failed to destroy plugin: {:?}", err);
       }
 
       chat_notification_builder(
@@ -625,7 +649,7 @@ async fn initialize_ai_plugin(
 
   if let Some(lack_of_resource) = lack_of_resource {
     info!(
-      "[AI Plugin] lack of resource: {:?} to initialize plugin, thread: {:?}",
+      "[Local AI] lack of resource: {:?} to initialize plugin, thread: {:?}",
       lack_of_resource,
       std::thread::current().id()
     );
@@ -641,7 +665,7 @@ async fn initialize_ai_plugin(
 
   if let Err(err) = plugin.destroy_plugin().await {
     error!(
-      "[AI Plugin] failed to destroy plugin when lack of resource: {:?}",
+      "[Local AI] failed to destroy plugin when lack of resource: {:?}",
       err
     );
   }
@@ -653,14 +677,14 @@ async fn initialize_ai_plugin(
       match cloned_llm_res.get_plugin_config(true).await {
         Ok(config) => {
           info!(
-            "[AI Plugin] initialize plugin with config: {:?}, thread: {:?}",
+            "[Local AI] initialize plugin with config: {:?}, thread: {:?}",
             config,
             std::thread::current().id()
           );
 
           match plugin.init_plugin(config).await {
             Ok(_) => {},
-            Err(err) => error!("[AI Plugin] failed to setup plugin: {:?}", err),
+            Err(err) => error!("[Local AI] failed to setup plugin: {:?}", err),
           }
 
           if let Some(ret) = ret {
@@ -668,7 +692,7 @@ async fn initialize_ai_plugin(
           }
         },
         Err(err) => {
-          error!("[AI Plugin] failed to get plugin config: {:?}", err);
+          error!("[Local AI] failed to get plugin config: {:?}", err);
         },
       };
     })

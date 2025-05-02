@@ -42,6 +42,7 @@ impl DocumentTest {
       WorkspaceCollabIntegrateImpl {
         workspace_id: user.workspace_id,
       },
+      None,
     ));
 
     let manager = DocumentManager::new(

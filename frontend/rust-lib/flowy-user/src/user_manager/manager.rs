@@ -25,7 +25,7 @@ use tracing::{debug, error, event, info, instrument, warn};
 use uuid::Uuid;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
-use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
+use crate::event_map::{AppLifeCycle, DefaultUserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{
   save_migration_record, UserDataMigration, UserLocalDataMigration, FIRST_TIME_INSTALL_VERSION,
@@ -46,7 +46,7 @@ pub struct UserManager {
   pub(crate) cloud_service: Weak<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
   pub(crate) user_awareness_by_workspace: DashMap<Uuid, Arc<RwLock<UserAwareness>>>,
-  pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
+  pub app_life_cycle: RwLock<Arc<dyn AppLifeCycle>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
@@ -69,7 +69,7 @@ impl UserManager {
     authenticate_user: Arc<AuthenticateUser>,
     user_workspace_service: Arc<dyn UserWorkspaceService>,
   ) -> Arc<Self> {
-    let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
+    let user_status_callback: RwLock<Arc<dyn AppLifeCycle>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
 
     let refresh_user_profile_since = AtomicI64::new(0);
@@ -77,7 +77,7 @@ impl UserManager {
       cloud_service: cloud_services,
       store_preferences,
       user_awareness_by_workspace: Default::default(),
-      user_status_callback,
+      app_life_cycle: user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
       authenticate_user,
@@ -134,13 +134,13 @@ impl UserManager {
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
   #[instrument(level = "debug", skip_all, err)]
-  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: UserReminder>(
+  pub async fn init_with_callback<C: AppLifeCycle + 'static, I: UserReminder>(
     &self,
     user_status_callback: C,
     collab_interact: I,
   ) -> Result<(), FlowyError> {
-    let user_status_callback = Arc::new(user_status_callback);
-    *self.user_status_callback.write().await = user_status_callback.clone();
+    let app_life_cycle = Arc::new(user_status_callback);
+    *self.app_life_cycle.write().await = app_life_cycle.clone();
     *self.collab_interact.write().await = Arc::new(collab_interact);
     let cloud_service = self.cloud_service()?;
 
@@ -300,12 +300,13 @@ impl UserManager {
         )
         .await;
 
-      user_status_callback
+      app_life_cycle
         .on_launch_if_authenticated(
           uid,
           &cloud_config,
           &workspace_uuid,
-          &self.authenticate_user.user_config.device_id,
+          &self.authenticate_user.user_config,
+          &self.authenticate_user.user_paths,
           &workspace_type,
         )
         .await?;
@@ -393,13 +394,14 @@ impl UserManager {
       )
       .await;
     self
-      .user_status_callback
+      .app_life_cycle
       .read()
       .await
       .on_sign_in(
         user_profile.uid,
         &workspace_id,
-        &self.authenticate_user.user_config.device_id,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
         &user_profile.workspace_type,
       )
       .await?;
@@ -458,14 +460,15 @@ impl UserManager {
       .await;
     let workspace_id = Uuid::parse_str(&new_session.workspace_id)?;
     self
-      .user_status_callback
+      .app_life_cycle
       .read()
       .await
       .on_sign_up(
         response.is_new_user,
         new_user_profile,
         &workspace_id,
-        &self.authenticate_user.user_config.device_id,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
         &new_user_profile.workspace_type,
       )
       .await?;

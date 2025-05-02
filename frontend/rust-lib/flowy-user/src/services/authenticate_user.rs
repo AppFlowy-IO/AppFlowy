@@ -89,7 +89,7 @@ impl AuthenticateUser {
 
   pub fn get_index_path(&self) -> FlowyResult<PathBuf> {
     let uid = self.user_id()?;
-    Ok(PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes"))
+    Ok(self.user_paths.tanvity_index_path(uid))
   }
 
   pub fn get_user_data_dir(&self) -> FlowyResult<PathBuf> {

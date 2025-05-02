@@ -13,7 +13,6 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_folder::entities::UpdateViewParams;
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::ViewLayout;
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::load_collab_by_object_id;
@@ -35,7 +34,6 @@ impl FolderDepsResolver {
     authenticate_user: Weak<AuthenticateUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Weak<ServerProvider>,
-    folder_indexer: Arc<FolderIndexManagerImpl>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
@@ -47,7 +45,6 @@ impl FolderDepsResolver {
         user.clone(),
         collab_builder,
         server_provider.clone(),
-        folder_indexer,
         store_preferences,
       )
       .unwrap(),

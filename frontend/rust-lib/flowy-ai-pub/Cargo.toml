@@ -14,3 +14,6 @@ serde_json.workspace = true
 serde.workspace = true
 uuid.workspace = true
 flowy-sqlite = { workspace = true }
+chrono.workspace = true
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+

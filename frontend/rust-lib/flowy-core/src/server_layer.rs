@@ -31,6 +31,7 @@ pub struct ServerProvider {
 // Our little guard wrapper:
 pub struct ServerHandle<'a>(Ref<'a, AuthType, Arc<dyn AppFlowyServer>>);
 
+#[allow(clippy::needless_lifetimes)]
 impl<'a> Deref for ServerHandle<'a> {
   type Target = dyn AppFlowyServer;
   fn deref(&self) -> &Self::Target {
@@ -76,6 +77,23 @@ impl ServerProvider {
       uid: Default::default(),
       local_ai,
     }
+  }
+
+  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
+  }
+
+  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
+  }
+
+  pub fn on_sign_up(&self, workspace_type: &WorkspaceType) {
+    if workspace_type.is_local() {
+      self.local_ai.reload_ollama_client();
+    }
+  }
+  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {
+    self.local_ai.reload_ollama_client();
   }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {

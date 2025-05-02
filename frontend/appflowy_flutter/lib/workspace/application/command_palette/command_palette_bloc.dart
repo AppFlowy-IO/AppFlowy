@@ -49,7 +49,6 @@ class CommandPaletteBloc
   final TrashService _trashService = TrashService();
   final TrashListener _trashListener = TrashListener();
   String? _activeQuery;
-  String? _workspaceId;
 
   @override
   Future<void> close() {
@@ -115,7 +114,6 @@ class CommandPaletteBloc
       unawaited(
         SearchBackendService.performSearch(
           event.search,
-          workspaceId: _workspaceId,
         ).then(
           (result) => result.fold(
             (stream) {
@@ -161,6 +159,7 @@ class CommandPaletteBloc
       onServerItems: (items, searchId, searching, generatingAIOverview) =>
           _handleResultsUpdate(
         searchId: searchId,
+        summaries: [], // when got server search result, summaries should be empty
         serverItems: items,
         searching: searching,
         generatingAIOverview: generatingAIOverview,
@@ -263,7 +262,6 @@ class CommandPaletteBloc
     _WorkspaceChanged event,
     Emitter<CommandPaletteState> emit,
   ) {
-    _workspaceId = event.workspaceId;
     emit(
       state.copyWith(
         query: '',
