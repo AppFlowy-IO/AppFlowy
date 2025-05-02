@@ -154,6 +154,17 @@ impl AIManager {
     }
   }
 
+  async fn prepare_local_ai(&self, workspace_id: &Uuid) {
+    self
+      .local_ai
+      .reload_ollama_client(&workspace_id.to_string());
+    self
+      .model_control
+      .lock()
+      .await
+      .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+  }
+
   #[instrument(skip_all, err)]
   pub async fn on_launch_if_authenticated(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     let is_enabled = self
@@ -162,14 +173,7 @@ impl AIManager {
 
     info!("local is enabled: {}", is_enabled);
     if is_enabled {
-      self
-        .local_ai
-        .reload_ollama_client(&workspace_id.to_string());
-      self
-        .model_control
-        .lock()
-        .await
-        .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+      self.prepare_local_ai(workspace_id).await;
     } else {
       self.model_control.lock().await.remove_local_source();
     }
@@ -407,6 +411,7 @@ impl AIManager {
       notify_source.extend(ids);
     }
 
+    trace!("[Model Selection] notify sources: {:?}", notify_source);
     for source in notify_source {
       chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
         .payload(AIModelPB::from(model.clone()))
@@ -416,25 +421,48 @@ impl AIManager {
     Ok(())
   }
 
-  #[instrument(skip_all, level = "debug")]
+  #[instrument(skip_all, level = "debug", err)]
   pub async fn toggle_local_ai(&self) -> FlowyResult<()> {
     let enabled = self.local_ai.toggle_local_ai().await?;
+    let workspace_id = self.user_service.workspace_id()?;
     if enabled {
-      self
-        .model_control
-        .lock()
-        .await
-        .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+      self.prepare_local_ai(&workspace_id).await;
 
       if let Some(name) = self.local_ai.get_plugin_chat_model() {
         let model = AIModel::local(name, "".to_string());
-        info!("Set global active model to local ai: {}", model.name);
-        self
+        info!(
+          "[Model Selection] Set global active model to local ai: {}",
+          model.name
+        );
+        if let Err(err) = self
           .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
-          .await?;
+          .await
+        {
+          error!(
+            "[Model Selection] Failed to set global active model: {}",
+            err
+          );
+        }
       }
     } else {
-      self.model_control.lock().await.remove_local_source();
+      let mut model_control = self.model_control.lock().await;
+      model_control.remove_local_source();
+
+      let model = model_control.get_global_active_model(&workspace_id).await;
+      let mut notify_source = model_control.get_all_unset_sources().await;
+      notify_source.push(GLOBAL_ACTIVE_MODEL_KEY.to_string());
+      drop(model_control);
+
+      trace!(
+        "[Model Selection] notify sources: {:?}, model:{}, when disable local ai",
+        notify_source,
+        model.name
+      );
+      for source in notify_source {
+        chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
+          .payload(AIModelPB::from(model.clone()))
+          .send();
+      }
     }
 
     Ok(())

@@ -133,6 +133,15 @@ impl ModelSelectionControl {
     unset_sources.iter().cloned().collect()
   }
 
+  pub async fn get_global_active_model(&self, workspace_id: &Uuid) -> Model {
+    self
+      .get_active_model(
+        workspace_id,
+        &SourceKey::new(GLOBAL_ACTIVE_MODEL_KEY.to_string()),
+      )
+      .await
+  }
+
   /// Retrieves the active model: first tries local storage, then server storage. Ensures validity in the model list.
   /// If neither storage yields a valid model, falls back to default.
   pub async fn get_active_model(&self, workspace_id: &Uuid, source_key: &SourceKey) -> Model {
@@ -143,7 +152,6 @@ impl ModelSelectionControl {
       if let Some(local_model) = storage.get_selected_model(workspace_id, source_key).await {
         trace!("[Model Selection] Found local model: {}", local_model.name);
         if available.iter().any(|m| m.name == local_model.name) {
-          trace!("[Model Selection] Found local model: {}", local_model.name);
           return local_model;
         } else {
           trace!(
