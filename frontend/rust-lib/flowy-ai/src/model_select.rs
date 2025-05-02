@@ -7,10 +7,11 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, info};
+use tracing::{error, info, trace};
 use uuid::Uuid;
 
 type Model = AIModel;
+pub const GLOBAL_ACTIVE_MODEL_KEY: &str = "global_active_model";
 
 /// Manages multiple sources and provides operations for model selection
 pub struct ModelSelectionControl {
@@ -44,11 +45,13 @@ impl ModelSelectionControl {
 
   /// Add a new model source at runtime
   pub fn add_source(&mut self, source: Box<dyn ModelSource>) {
+    info!("[Model Selection] Adding source: {}", source.source_name());
     self.sources.push(source);
   }
 
   /// Remove all sources matching the given name
   pub fn remove_local_source(&mut self) {
+    info!("[Model Selection] Removing local source");
     self
       .sources
       .retain(|source| source.source_name() != "local");
@@ -68,9 +71,15 @@ impl ModelSelectionControl {
     }
   }
 
-  /// return server models plus one local model, if the model name is not present in the local models
-  /// then do not include
-  pub async fn get_models_with_one_local(
+  /// Fetches all server‐side models and, if specified, a single local model by name.
+  ///
+  /// First collects models from any source named `"server"`. Then it fetches all local models
+  /// (from the `"local"` source) and:
+  /// - If `local_model_name` is `Some(name)`, it will append exactly that local model
+  ///   if it exists.
+  /// - If `local_model_name` is `None`, it will append *all* local models.
+  ///
+  pub async fn get_models_with_specific_local_model(
     &self,
     workspace_id: &Uuid,
     local_model_name: Option<String>,
@@ -117,21 +126,62 @@ impl ModelSelectionControl {
     let available = self.get_models(workspace_id).await;
     // Try local storage
     if let Some(storage) = self.local_storage.load_full() {
+      trace!("[Model Selection] Checking local storage");
       if let Some(local_model) = storage.get_selected_model(workspace_id, source_key).await {
+        trace!("[Model Selection] Found local model: {}", local_model.name);
         if available.contains(&local_model) {
+          info!("[Model Selection] Found local model: {}", local_model.name);
           return local_model;
         }
       }
     }
+
+    // use local model if user doesn't set the model for given source
+    if self
+      .sources
+      .iter()
+      .any(|source| source.source_name() == "local")
+    {
+      trace!("[Model Selection] Checking global active model");
+      let global_source = SourceKey::new(GLOBAL_ACTIVE_MODEL_KEY.to_string());
+      if let Some(storage) = self.local_storage.load_full() {
+        if let Some(local_model) = storage
+          .get_selected_model(workspace_id, &global_source)
+          .await
+        {
+          trace!(
+            "[Model Selection] Found global active model: {}",
+            local_model.name
+          );
+          if available.contains(&local_model) {
+            return local_model;
+          }
+        }
+      }
+    }
+
     // Try server storage
     if let Some(storage) = self.server_storage.load_full() {
+      trace!("[Model Selection] Checking server storage");
       if let Some(server_model) = storage.get_selected_model(workspace_id, source_key).await {
+        trace!(
+          "[Model Selection] Found server model: {}",
+          server_model.name
+        );
         if available.contains(&server_model) {
+          info!(
+            "[Model Selection] Found server model: {}",
+            server_model.name
+          );
           return server_model;
         }
       }
     }
     // Fallback: default
+    info!(
+      "[Model Selection] No active model found, using default: {}",
+      self.default_model.name
+    );
     self.default_model.clone()
   }
 
@@ -147,13 +197,15 @@ impl ModelSelectionControl {
       // Update local storage
       if let Some(storage) = self.local_storage.load_full() {
         storage
-          .set_selected_model(source_key, model.clone())
+          .set_selected_model(workspace_id, source_key, model.clone())
           .await?;
       }
 
       // Update server storage
       if let Some(storage) = self.server_storage.load_full() {
-        storage.set_selected_model(source_key, model).await?;
+        storage
+          .set_selected_model(workspace_id, source_key, model)
+          .await?;
       }
       Ok(())
     } else {
@@ -306,6 +358,7 @@ pub trait UserModelStorage: Send + Sync {
   async fn get_selected_model(&self, workspace_id: &Uuid, source_key: &SourceKey) -> Option<Model>;
   async fn set_selected_model(
     &self,
+    workspace_id: &Uuid,
     source_key: &SourceKey,
     model: Model,
   ) -> Result<(), FlowyError>;
@@ -315,7 +368,11 @@ pub struct ServerModelStorageImpl(pub Arc<dyn ChatCloudService>);
 
 #[async_trait]
 impl UserModelStorage for ServerModelStorageImpl {
-  async fn get_selected_model(&self, workspace_id: &Uuid, source_key: &SourceKey) -> Option<Model> {
+  async fn get_selected_model(
+    &self,
+    workspace_id: &Uuid,
+    _source_key: &SourceKey,
+  ) -> Option<Model> {
     let name = self
       .0
       .get_workspace_default_model(workspace_id)
@@ -326,9 +383,19 @@ impl UserModelStorage for ServerModelStorageImpl {
 
   async fn set_selected_model(
     &self,
-    source_key: &SourceKey,
+    workspace_id: &Uuid,
+    _source_key: &SourceKey,
     model: Model,
   ) -> Result<(), FlowyError> {
+    if model.is_local {
+      // local model does not need to be set
+      return Ok(());
+    }
+
+    self
+      .0
+      .set_workspace_default_model(workspace_id, &model.name)
+      .await?;
     Ok(())
   }
 }
@@ -337,12 +404,17 @@ pub struct LocalModelStorageImpl(pub Arc<KVStorePreferences>);
 
 #[async_trait]
 impl UserModelStorage for LocalModelStorageImpl {
-  async fn get_selected_model(&self, workspace_id: &Uuid, source_key: &SourceKey) -> Option<Model> {
+  async fn get_selected_model(
+    &self,
+    _workspace_id: &Uuid,
+    source_key: &SourceKey,
+  ) -> Option<Model> {
     self.0.get_object::<AIModel>(&source_key.storage_id())
   }
 
   async fn set_selected_model(
     &self,
+    _workspace_id: &Uuid,
     source_key: &SourceKey,
     model: Model,
   ) -> Result<(), FlowyError> {

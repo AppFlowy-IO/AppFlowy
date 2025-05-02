@@ -818,6 +818,18 @@ impl ChatCloudService for ServerProvider {
       .get_workspace_default_model(workspace_id)
       .await
   }
+
+  async fn set_workspace_default_model(
+    &self,
+    workspace_id: &Uuid,
+    model: &str,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .set_workspace_default_model(workspace_id, model)
+      .await
+  }
 }
 
 #[async_trait]

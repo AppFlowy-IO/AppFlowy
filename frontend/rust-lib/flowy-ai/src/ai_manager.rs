@@ -9,31 +9,26 @@ use flowy_ai_pub::persistence::read_chat_metadata;
 use std::collections::HashMap;
 
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatSettings, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
-};
+use flowy_ai_pub::cloud::{AIModel, ChatCloudService, ChatSettings, UpdateChatParams};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 
 use crate::model_select::{
-  LocalAiSource, LocalModelStorageImpl, ModelSelectionControl, ModelSource, ServerAiSource,
-  ServerModelStorageImpl, SourceKey,
+  LocalAiSource, LocalModelStorageImpl, ModelSelectionControl, ServerAiSource,
+  ServerModelStorageImpl, SourceKey, GLOBAL_ACTIVE_MODEL_KEY,
 };
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::util::ai_available_models_key;
-use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::persistence::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::timestamp;
 use serde_json::json;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
 
@@ -55,14 +50,6 @@ pub trait AIExternalService: Send + Sync + 'static {
 
   async fn notify_did_send_message(&self, chat_id: &Uuid, message: &str) -> Result<(), FlowyError>;
 }
-
-#[derive(Debug, Default)]
-struct ServerModelsCache {
-  models: Vec<AvailableModel>,
-  timestamp: Option<i64>,
-}
-
-pub const GLOBAL_ACTIVE_MODEL_KEY: &str = "global_active_model";
 
 pub struct AIManager {
   pub cloud_service_wm: Arc<ChatServiceMiddleware>,
@@ -181,12 +168,21 @@ impl AIManager {
       .local_ai
       .is_enabled_on_workspace(&workspace_id.to_string());
 
+    info!("local is enabled: {}", is_enabled);
     if is_enabled {
       self
         .local_ai
         .reload_ollama_client(&workspace_id.to_string());
-      self.reload_with_workspace_id(workspace_id).await;
+      self
+        .model_control
+        .lock()
+        .await
+        .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+    } else {
+      self.model_control.lock().await.remove_local_source();
     }
+
+    self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
@@ -393,19 +389,6 @@ impl AIManager {
     Ok(())
   }
 
-  async fn get_workspace_select_model(&self) -> FlowyResult<String> {
-    let workspace_id = self.user_service.workspace_id()?;
-    let model = self
-      .cloud_service_wm
-      .get_workspace_default_model(&workspace_id)
-      .await?;
-
-    if model.is_empty() {
-      return Ok(DEFAULT_AI_MODEL_NAME.to_string());
-    }
-    Ok(model)
-  }
-
   pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
     let workspace_id = self.user_service.workspace_id()?;
     let source_key = SourceKey::new(source.clone());
@@ -498,19 +481,19 @@ impl AIManager {
     }
 
     let workspace_id = self.user_service.workspace_id()?;
-    let local_model_name = if self.local_ai.is_enabled() && setting_only {
+    let local_model_name = if setting_only {
       Some(self.local_ai.get_local_ai_setting().chat_model_name)
     } else {
       None
     };
 
     let source_key = SourceKey::new(source);
-    let mut model_control = self.model_control.lock().await;
+    let model_control = self.model_control.lock().await;
     let active_model = model_control
       .get_active_model(&workspace_id, &source_key)
       .await;
     let all_models = model_control
-      .get_models_with_one_local(&workspace_id, local_model_name)
+      .get_models_with_specific_local_model(&workspace_id, local_model_name)
       .await;
     drop(model_control);
 

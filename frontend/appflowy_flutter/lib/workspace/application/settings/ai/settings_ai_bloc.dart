@@ -75,9 +75,6 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           );
         },
         selectModel: (AIModelPB model) async {
-          if (!model.isLocal) {
-            await _updateUserWorkspaceSetting(model: model.name);
-          }
           await AIEventUpdateSelectedModel(
             UpdateSelectedModelPB(
               source: aiModelsGlobalActiveModel,

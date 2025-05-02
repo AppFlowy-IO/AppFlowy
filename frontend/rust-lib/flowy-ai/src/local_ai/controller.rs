@@ -268,11 +268,11 @@ impl LocalAIController {
   }
 
   pub fn is_enabled_on_workspace(&self, workspace_id: &str) -> bool {
-    let key = local_ai_enabled_key(workspace_id);
     if !get_operating_system().is_desktop() {
       return false;
     }
 
+    let key = local_ai_enabled_key(workspace_id);
     match self.upgrade_store_preferences() {
       Ok(store) => store.get_bool(&key).unwrap_or(false),
       Err(_) => false,

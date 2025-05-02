@@ -14,9 +14,10 @@ pub mod local_ai;
 pub mod embeddings;
 mod middleware;
 mod model_select;
+#[cfg(test)]
+mod model_select_test;
 pub mod notification;
 pub mod offline;
 mod protobuf;
 mod search;
 mod stream_message;
-mod util;
