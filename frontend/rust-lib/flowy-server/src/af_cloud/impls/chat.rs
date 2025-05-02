@@ -8,8 +8,8 @@ use client_api::entity::chat_dto::{
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, ModelList, StreamAnswer,
-  StreamComplete, UpdateChatParams,
+  AFWorkspaceSettingsChange, AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings,
+  ModelList, StreamAnswer, StreamComplete, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -266,5 +266,19 @@ where
       .get_workspace_settings(workspace_id.to_string().as_str())
       .await?;
     Ok(setting.ai_model)
+  }
+
+  async fn set_workspace_default_model(
+    &self,
+    workspace_id: &Uuid,
+    model: &str,
+  ) -> Result<(), FlowyError> {
+    let change = AFWorkspaceSettingsChange::new().ai_model(model.to_string());
+    let setting = self
+      .inner
+      .try_get_client()?
+      .update_workspace_settings(workspace_id.to_string().as_str(), &change)
+      .await?;
+    Ok(())
   }
 }

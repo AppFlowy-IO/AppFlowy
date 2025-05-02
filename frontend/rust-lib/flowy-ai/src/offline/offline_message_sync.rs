@@ -255,4 +255,15 @@ impl ChatCloudService for AutoSyncChatService {
       .get_workspace_default_model(workspace_id)
       .await
   }
+
+  async fn set_workspace_default_model(
+    &self,
+    workspace_id: &Uuid,
+    model: &str,
+  ) -> Result<(), FlowyError> {
+    self
+      .cloud_service
+      .set_workspace_default_model(workspace_id, model)
+      .await
+  }
 }

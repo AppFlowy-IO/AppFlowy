@@ -11,7 +11,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
 
-const String aiModelsGlobalActiveModel = "ai_models_global_active_model";
+const String aiModelsGlobalActiveModel = "global_active_model";
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
@@ -75,9 +75,6 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           );
         },
         selectModel: (AIModelPB model) async {
-          if (!model.isLocal) {
-            await _updateUserWorkspaceSetting(model: model.name);
-          }
           await AIEventUpdateSelectedModel(
             UpdateSelectedModelPB(
               source: aiModelsGlobalActiveModel,
