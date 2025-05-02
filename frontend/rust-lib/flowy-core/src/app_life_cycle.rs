@@ -258,10 +258,14 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_sign_in(user_id)
       .await?;
 
-    self
-      .ai_manager()?
-      .initialize_after_sign_in(workspace_id)
-      .await?;
+    let ai_manager = self.ai_manager()?;
+    let cloned_workspace_id = *workspace_id;
+    self.runtime.spawn(async move {
+      ai_manager
+        .initialize_after_sign_in(&cloned_workspace_id)
+        .await?;
+      Ok::<_, FlowyError>(())
+    });
 
     self
       .create_thanvity_state_if_not_exists(user_id, workspace_id, user_paths)
@@ -345,10 +349,14 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await
       .context("DocumentManager error")?;
 
-    self
-      .ai_manager()?
-      .initialize_after_sign_up(workspace_id)
-      .await?;
+    let ai_manager = self.ai_manager()?;
+    let cloned_workspace_id = *workspace_id;
+    self.runtime.spawn(async move {
+      ai_manager
+        .initialize_after_sign_up(&cloned_workspace_id)
+        .await?;
+      Ok::<_, FlowyError>(())
+    });
 
     self
       .create_thanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
@@ -422,10 +430,15 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .document_manager()?
       .initialize_after_open_workspace(user_id)
       .await?;
-    self
-      .ai_manager()?
-      .initialize_after_open_workspace(workspace_id)
-      .await?;
+
+    let ai_manager = self.ai_manager()?;
+    let cloned_workspace_id = *workspace_id;
+    self.runtime.spawn(async move {
+      ai_manager
+        .initialize_after_open_workspace(&cloned_workspace_id)
+        .await?;
+      Ok::<_, FlowyError>(())
+    });
     self
       .storage_manager()?
       .initialize_after_open_workspace(workspace_id)

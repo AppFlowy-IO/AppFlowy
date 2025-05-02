@@ -33,6 +33,17 @@ pub struct AIModel {
   pub desc: String,
 }
 
+impl AIModel {
+  /// Create a new model instance
+  pub fn new(name: impl Into<String>, description: impl Into<String>, is_local: bool) -> Self {
+    Self {
+      name: name.into(),
+      desc: description.into(),
+      is_local,
+    }
+  }
+}
+
 impl From<AvailableModel> for AIModel {
   fn from(value: AvailableModel) -> Self {
     let desc = value

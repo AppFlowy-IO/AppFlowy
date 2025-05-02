@@ -13,6 +13,7 @@ pub mod local_ai;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub mod embeddings;
 mod middleware;
+mod model_select;
 pub mod notification;
 pub mod offline;
 mod protobuf;

@@ -59,7 +59,7 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Weak<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
-  ollama: ArcSwapOption<Ollama>,
+  pub(crate) ollama: ArcSwapOption<Ollama>,
 }
 
 impl Deref for LocalAIController {
@@ -169,8 +169,8 @@ impl LocalAIController {
     }
   }
 
-  pub fn reload_ollama_client(&self) {
-    if !self.is_enabled() {
+  pub fn reload_ollama_client(&self, workspace_id: &str) {
+    if !self.is_enabled_on_workspace(workspace_id) {
       return;
     }
 
