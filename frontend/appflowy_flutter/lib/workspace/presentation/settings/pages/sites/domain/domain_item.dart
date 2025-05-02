@@ -255,7 +255,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
               showToastNotification(
                 message:
                     LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
-                type: ToastificationType.info,
+                type: ToastificationType.error,
               );
 
               context.read<SettingsSitesBloc>().add(
@@ -266,7 +266,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
                 message: LocaleKeys
                     .settings_sites_namespace_pleaseAskOwnerToSetHomePage
                     .tr(),
-                type: ToastificationType.info,
+                type: ToastificationType.error,
               );
             }
           },
