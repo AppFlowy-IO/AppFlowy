@@ -129,10 +129,6 @@ impl AIManager {
       info!("[AI Manager] Local AI is running but not enabled, shutting it down");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
-        // Wait for 5 seconds to allow other services to initialize
-        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
-        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-
         if let Err(err) = local_ai.toggle_plugin(false).await {
           error!("[AI Manager] failed to shutdown local AI: {:?}", err);
         }
@@ -145,10 +141,6 @@ impl AIManager {
       info!("[AI Manager] Local AI is enabled but not running, starting it now");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
-        // Wait for 5 seconds to allow other services to initialize
-        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
-        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-
         if let Err(err) = local_ai.toggle_plugin(true).await {
           error!("[AI Manager] failed to start local AI: {:?}", err);
         }
@@ -367,17 +359,14 @@ impl AIManager {
       .await?;
 
     // Handle model change if needed
-    let model_changed = old_settings.chat_model_name != setting.chat_model_name;
-    if model_changed {
-      info!(
-        "[AI Plugin] update global active model, previous: {}, current: {}",
-        old_settings.chat_model_name, setting.chat_model_name
-      );
-      let model = AIModel::local(setting.chat_model_name, "".to_string());
-      self
-        .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
-        .await?;
-    }
+    info!(
+      "[AI Plugin] update global active model, previous: {}, current: {}",
+      old_settings.chat_model_name, setting.chat_model_name
+    );
+    let model = AIModel::local(setting.chat_model_name, "".to_string());
+    self
+      .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
+      .await?;
 
     if need_restart {
       self
@@ -389,6 +378,7 @@ impl AIManager {
     Ok(())
   }
 
+  #[instrument(skip_all, level = "debug")]
   pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
     let workspace_id = self.user_service.workspace_id()?;
     let source_key = SourceKey::new(source.clone());
@@ -419,15 +409,15 @@ impl AIManager {
         .lock()
         .await
         .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+
       if let Some(name) = self.local_ai.get_plugin_chat_model() {
-        info!("Set global active model to local ai: {}", name);
         let model = AIModel::local(name, "".to_string());
+        info!("Set global active model to local ai: {}", model.name);
         self
           .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
           .await?;
       }
     } else {
-      info!("Set global active model to default");
       self.model_control.lock().await.remove_local_source();
     }
 

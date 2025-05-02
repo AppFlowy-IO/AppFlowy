@@ -98,6 +98,7 @@ pub(crate) async fn get_source_model_selection_handler(
   data_result_ok(models)
 }
 
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_selected_model_handler(
   data: AFPluginData<UpdateSelectedModelPB>,
   ai_manager: AFPluginState<Weak<AIManager>>,

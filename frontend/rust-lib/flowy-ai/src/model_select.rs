@@ -46,6 +46,11 @@ impl ModelSelectionControl {
   /// Add a new model source at runtime
   pub fn add_source(&mut self, source: Box<dyn ModelSource>) {
     info!("[Model Selection] Adding source: {}", source.source_name());
+    // remove existing source with the same name
+    self
+      .sources
+      .retain(|s| s.source_name() != source.source_name());
+
     self.sources.push(source);
   }
 
@@ -129,9 +134,15 @@ impl ModelSelectionControl {
       trace!("[Model Selection] Checking local storage");
       if let Some(local_model) = storage.get_selected_model(workspace_id, source_key).await {
         trace!("[Model Selection] Found local model: {}", local_model.name);
-        if available.contains(&local_model) {
-          info!("[Model Selection] Found local model: {}", local_model.name);
+        if available.iter().any(|m| m.name == local_model.name) {
+          trace!("[Model Selection] Found local model: {}", local_model.name);
           return local_model;
+        } else {
+          trace!(
+            "[Model Selection] Local {} not found in available list, available: {:?}",
+            local_model.name,
+            available.iter().map(|m| &m.name).collect::<Vec<_>>()
+          );
         }
       }
     }
@@ -153,7 +164,7 @@ impl ModelSelectionControl {
             "[Model Selection] Found global active model: {}",
             local_model.name
           );
-          if available.contains(&local_model) {
+          if available.iter().any(|m| m.name == local_model.name) {
             return local_model;
           }
         }
@@ -168,12 +179,14 @@ impl ModelSelectionControl {
           "[Model Selection] Found server model: {}",
           server_model.name
         );
-        if available.contains(&server_model) {
-          info!(
-            "[Model Selection] Found server model: {}",
-            server_model.name
-          );
+        if available.iter().any(|m| m.name == server_model.name) {
           return server_model;
+        } else {
+          trace!(
+            "[Model Selection] Server {} not found in available list, available: {:?}",
+            server_model.name,
+            available.iter().map(|m| &m.name).collect::<Vec<_>>()
+          );
         }
       }
     }
@@ -192,6 +205,10 @@ impl ModelSelectionControl {
     source_key: &SourceKey,
     model: Model,
   ) -> Result<(), FlowyError> {
+    info!(
+      "[Model Selection] active model: {} for source: {}",
+      model.name, source_key.key
+    );
     let available = self.get_models(workspace_id).await;
     if available.contains(&model) {
       // Update local storage
@@ -384,11 +401,15 @@ impl UserModelStorage for ServerModelStorageImpl {
   async fn set_selected_model(
     &self,
     workspace_id: &Uuid,
-    _source_key: &SourceKey,
+    source_key: &SourceKey,
     model: Model,
   ) -> Result<(), FlowyError> {
     if model.is_local {
       // local model does not need to be set
+      return Ok(());
+    }
+
+    if source_key.key != GLOBAL_ACTIVE_MODEL_KEY {
       return Ok(());
     }
 
