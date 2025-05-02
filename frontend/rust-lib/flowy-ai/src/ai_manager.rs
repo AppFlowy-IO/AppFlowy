@@ -394,9 +394,25 @@ impl AIManager {
       model,
       source_key.storage_id()
     );
-    chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
-      .payload(AIModelPB::from(model))
-      .send();
+
+    let mut notify_source = vec![source.clone()];
+    if source == GLOBAL_ACTIVE_MODEL_KEY {
+      let ids = self
+        .model_control
+        .lock()
+        .await
+        .get_all_unset_sources()
+        .await;
+      info!("[Model Selection] notify all unset sources: {:?}", ids);
+      notify_source.extend(ids);
+    }
+
+    for source in notify_source {
+      chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
+        .payload(AIModelPB::from(model.clone()))
+        .send();
+    }
+
     Ok(())
   }
 

@@ -5,6 +5,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
+use std::collections::HashSet;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{error, info, trace};
@@ -19,6 +20,7 @@ pub struct ModelSelectionControl {
   default_model: Model,
   local_storage: ArcSwapOption<Box<dyn UserModelStorage>>,
   server_storage: ArcSwapOption<Box<dyn UserModelStorage>>,
+  unset_sources: RwLock<HashSet<String>>,
 }
 
 impl ModelSelectionControl {
@@ -30,6 +32,7 @@ impl ModelSelectionControl {
       default_model,
       local_storage: ArcSwapOption::new(None),
       server_storage: ArcSwapOption::new(None),
+      unset_sources: Default::default(),
     }
   }
 
@@ -125,6 +128,11 @@ impl ModelSelectionControl {
     vec![]
   }
 
+  pub async fn get_all_unset_sources(&self) -> Vec<String> {
+    let unset_sources = self.unset_sources.read().await;
+    unset_sources.iter().cloned().collect()
+  }
+
   /// Retrieves the active model: first tries local storage, then server storage. Ensures validity in the model list.
   /// If neither storage yields a valid model, falls back to default.
   pub async fn get_active_model(&self, workspace_id: &Uuid, source_key: &SourceKey) -> Model {
@@ -144,6 +152,12 @@ impl ModelSelectionControl {
             available.iter().map(|m| &m.name).collect::<Vec<_>>()
           );
         }
+      } else {
+        self
+          .unset_sources
+          .write()
+          .await
+          .insert(source_key.key.clone());
       }
     }
 
@@ -209,6 +223,8 @@ impl ModelSelectionControl {
       "[Model Selection] active model: {} for source: {}",
       model.name, source_key.key
     );
+    self.unset_sources.write().await.remove(&source_key.key);
+
     let available = self.get_models(workspace_id).await;
     if available.contains(&model) {
       // Update local storage
