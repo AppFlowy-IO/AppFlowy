@@ -77,6 +77,12 @@ impl ServerProvider {
       local_ai,
     }
   }
+  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {}
+
+  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {}
+
+  pub fn on_sign_up(&self, _workspace_type: &WorkspaceType) {}
+  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {}
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
     let old_type = self.get_auth_type();

@@ -33,6 +33,17 @@ pub struct AIModel {
   pub desc: String,
 }
 
+impl AIModel {
+  /// Create a new model instance
+  pub fn new(name: impl Into<String>, description: impl Into<String>, is_local: bool) -> Self {
+    Self {
+      name: name.into(),
+      desc: description.into(),
+      is_local,
+    }
+  }
+}
+
 impl From<AvailableModel> for AIModel {
   fn from(value: AvailableModel) -> Self {
     let desc = value
@@ -175,4 +186,9 @@ pub trait ChatCloudService: Send + Sync + 'static {
 
   async fn get_available_models(&self, workspace_id: &Uuid) -> Result<ModelList, FlowyError>;
   async fn get_workspace_default_model(&self, workspace_id: &Uuid) -> Result<String, FlowyError>;
+  async fn set_workspace_default_model(
+    &self,
+    workspace_id: &Uuid,
+    model: &str,
+  ) -> Result<(), FlowyError>;
 }

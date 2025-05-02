@@ -59,7 +59,7 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Weak<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
-  ollama: ArcSwapOption<Ollama>,
+  pub(crate) ollama: ArcSwapOption<Ollama>,
 }
 
 impl Deref for LocalAIController {
@@ -174,6 +174,33 @@ impl LocalAIController {
       ollama,
     }
   }
+
+  pub fn reload_ollama_client(&self, workspace_id: &str) {
+    if !self.is_enabled_on_workspace(workspace_id) {
+      return;
+    }
+
+    let setting = self.resource.get_llm_setting();
+    if let Some(ollama) = self.ollama.load_full() {
+      if ollama.url_str() == setting.ollama_server_url {
+        info!("[Local AI] ollama client is already initialized");
+        return;
+      }
+    }
+
+    info!("[Local AI] reloading ollama client");
+    match Ollama::try_new(setting.ollama_server_url).map(Arc::new) {
+      Ok(new_ollama) => {
+        self.ollama.store(Some(new_ollama.clone()));
+      },
+      Err(err) => error!(
+        "failed to create ollama client: {:?}, thread: {:?}",
+        err,
+        std::thread::current().id()
+      ),
+    }
+  }
+
   #[instrument(level = "debug", skip_all)]
   pub async fn observe_plugin_resource(&self) {
     let sys = get_operating_system();
@@ -244,11 +271,11 @@ impl LocalAIController {
   }
 
   pub fn is_enabled_on_workspace(&self, workspace_id: &str) -> bool {
-    let key = local_ai_enabled_key(workspace_id);
     if !get_operating_system().is_desktop() {
       return false;
     }
 
+    let key = local_ai_enabled_key(workspace_id);
     match self.upgrade_store_preferences() {
       Ok(store) => store.get_bool(&key).unwrap_or(false),
       Err(_) => false,

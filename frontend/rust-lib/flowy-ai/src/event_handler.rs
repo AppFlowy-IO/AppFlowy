@@ -98,6 +98,7 @@ pub(crate) async fn get_source_model_selection_handler(
   data_result_ok(models)
 }
 
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_selected_model_handler(
   data: AFPluginData<UpdateSelectedModelPB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
@@ -192,7 +193,7 @@ pub(crate) async fn start_complete_text_handler(
   let data = data.into_inner();
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let ai_model = ai_manager.get_active_model(&data.object_id).await;
-  let task = tools.create_complete_task(data, ai_model).await?;
+  let task = tools.create_complete_task(data, Some(ai_model)).await?;
   data_result_ok(task)
 }
 

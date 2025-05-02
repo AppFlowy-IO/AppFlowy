@@ -319,6 +319,15 @@ impl ChatCloudService for LocalChatServiceImpl {
   async fn get_workspace_default_model(&self, _workspace_id: &Uuid) -> Result<String, FlowyError> {
     Ok(DEFAULT_AI_MODEL_NAME.to_string())
   }
+
+  async fn set_workspace_default_model(
+    &self,
+    _workspace_id: &Uuid,
+    _model: &str,
+  ) -> Result<(), FlowyError> {
+    // do nothing
+    Ok(())
+  }
 }
 
 fn chat_message_from_row(row: ChatMessageTable) -> ChatMessage {
