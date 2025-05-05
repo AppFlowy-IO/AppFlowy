@@ -48,6 +48,7 @@
     "createAccount": "إنشاء حساب",
     "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
     "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
+    "passwordMustContain": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد ورمز واحد على الأقل.",
     "syncPromptMessage": "قد تستغرق مزامنة البيانات بعض الوقت. من فضلك لا تغلق هذه الصفحة",
     "or": "أو",
     "signInWithGoogle": "استكمال باستخدام Google",
@@ -569,6 +570,9 @@
       "selectHomePage": "حدد الصفحة",
       "clearHomePage": "مسح الصفحة الرئيسية لهذه المساحة الاسمية",
       "customUrl": "عنوان URL مخصص",
+      "homePage": {
+        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية لتعيين الصفحة الرئيسية"
+      },
       "namespace": {
         "description": "سيتم تطبيق هذا التغيير على جميع الصفحات المنشورة الموجودة على مساحة الاسم هذه بشكل فوري",
         "tooltip": "نحن نحتفظ بالحق في إزالة أي مساحات أسماء غير مناسبة",
@@ -1392,7 +1396,16 @@
         "adminPanel": "لوحة الإدارة",
         "reset": "إعادة ضبط",
         "resetInviteLinkSuccess": "تمت إعادة ضبط رابط الدعوة بنجاح",
-        "resetInviteLinkFailed": "فشل إعادة ضبط رابط الدعوة"
+        "resetInviteLinkFailed": "فشل إعادة ضبط رابط الدعوة",
+        "resetInviteLinkFailedDescription": "الرجاء المحاولة مرة أخرى لاحقًا",
+        "memberPageDescription1": "الوصول إلى",
+        "memberPageDescription2": "لإدارة الضيوف والمستخدمين المتقدمين.",
+        "noInviteLink": "لم تقم بإنشاء رابط دعوة بعد.",
+        "copyLink": "انسخ الرابط",
+        "generatedLinkSuccessfully": "تم إنشاء الرابط بنجاح",
+        "generatedLinkFailed": "فشل في إنشاء الرابط",
+        "resetLinkSuccessfully": "تم إعادة ضبط الرابط بنجاح",
+        "resetLinkFailed": "فشل إعادة ضبط الرابط"
       },
       "lightLabel": "فاتح",
       "darkLabel": "غامق"
@@ -2352,11 +2365,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
@@ -2372,6 +2385,12 @@
   "search": {
     "label": "يبحث",
     "sidebarSearchIcon": "ابحث وانتقل بسرعة إلى الصفحة",
+    "searchOrAskAI": "ابحث أو اسأل الذكاء الاصطناعي",
+    "askAIAnything": "اسأل الذكاء الاصطناعي عن أي شيء",
+    "askAIFor": "اسأل الذكاء الاصطناعي",
+    "noResultForSearching": "لم يتم العثور على أي تطابقات",
+    "noResultForSearchingHint": "حاول استخدام أسئلة أو كلمات رئيسية مختلفة.\nقد تكون بعض الصفحات في سلة المهملات.",
+    "bestMatch": "أفضل تطابق",
     "placeholder": {
       "actions": "إجراءات البحث ..."
     }
@@ -2480,6 +2499,19 @@
   },
   "notificationHub": {
     "title": "إشعارات",
+    "closeNotification": "إغلاق الإشعار",
+    "viewNotifications": "عرض الإشعارات",
+    "noNotifications": "لا يوجد إشعارات حتى الآن",
+    "mentionedYou": "ذكرتك",
+    "archivedTooltip": "أرشفة هذا الإشعار",
+    "unarchiveTooltip": "إلغاء أرشفة هذا الإشعار",
+    "markAsReadTooltip": "قم بتمييز هذا الإشعار كمقروء",
+    "markAsArchivedSucceedToast": "تم الأرشفة بنجاح",
+    "markAllAsArchivedSucceedToast": "تم أرشفة كل شيء بنجاح",
+    "markAsReadSucceedToast": "وضع علامة كمقروءة بنجاح",
+    "markAllAsReadSucceedToast": "تم وضع علامة على كل شيء كمقروء بنجاح",
+    "today": "اليوم",
+    "older": "أقدم",
     "mobile": {
       "title": "تحديثات"
     },
@@ -2718,16 +2750,21 @@
       },
       "password": {
         "title": "كلمة المرور",
+        "confirmPassword": "تأكيد كلمة المرور",
         "changePassword": "تغيير كلمة المرور",
         "currentPassword": "كلمة المرور الحالية",
         "newPassword": "كلمة المرور الجديدة",
         "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
         "setupPassword": "إعداد كلمة المرور",
         "error": {
+          "currentPasswordIsRequired": "كلمة المرور الحالية مطلوبة",
           "newPasswordIsRequired": "مطلوب كلمة مرور جديدة",
           "confirmPasswordIsRequired": "تأكيد كلمة المرور مطلوب",
           "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
-          "newPasswordIsSameAsCurrent": "كلمة المرور الجديدة هي نفس كلمة المرور الحالية"
+          "newPasswordIsSameAsCurrent": "كلمة المرور الجديدة هي نفس كلمة المرور الحالية",
+          "currentPasswordIsIncorrect": "كلمة المرور الحالية غير صحيحة",
+          "passwordShouldBeAtLeast6Characters": "يجب أن تتكون كلمة المرور من {min} مِحْرَف على الأقل",
+          "passwordCannotBeLongerThan72Characters": "لا يمكن أن تكون كلمة المرور أطول من {max} مِحْرَف"
         },
         "toast": {
           "passwordUpdatedSuccessfully": "تم تحديث كلمة المرور بنجاح",
@@ -2736,6 +2773,8 @@
           "passwordSetupFailed": "فشل في إعداد كلمة المرور"
         },
         "hint": {
+          "enterYourPassword": "أدخل كلمة المرور الخاصة بك",
+          "confirmYourPassword": "تأكيد كلمة المرور الخاصة بك",
           "enterYourCurrentPassword": "أدخل كلمة المرور الحالية الخاصة بك",
           "enterYourNewPassword": "أدخل كلمة المرور الجديدة",
           "confirmYourNewPassword": "تأكيد كلمة المرور الجديدة"
@@ -3318,7 +3357,10 @@
     "analyzing": "تحليل",
     "continueWritingEmptyDocumentTitle": "استمر في كتابة الخطأ",
     "continueWritingEmptyDocumentDescription": "نواجه مشكلة في توسيع نطاق المحتوى في مستندك. اكتب مقدمة قصيرة وسنتولى الأمر من هناك!",
-    "more": "أكثر"
+    "more": "أكثر",
+    "customPrompt": {
+      "browsePrompts": "تصفح المطالبات"
+    }
   },
   "autoUpdate": {
     "criticalUpdateTitle": "التحديث ضروري للمتابعة",
