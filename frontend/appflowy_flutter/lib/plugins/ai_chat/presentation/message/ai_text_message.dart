@@ -41,6 +41,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.isLastMessage = false,
     this.isStreaming = false,
     this.isSelectingMessages = false,
+    this.enableAnimation = true,
   });
 
   final User user;
@@ -59,6 +60,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final bool isStreaming;
   final bool isLastMessage;
   final bool isSelectingMessages;
+  final bool enableAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +118,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           isLastMessage: isLastMessage,
                           isStreaming: isStreaming,
                           isSelectingMessages: isSelectingMessages,
+                          enableAnimation: enableAnimation,
                         );
                 },
                 onError: (error) {
@@ -196,6 +199,7 @@ class _NonEmptyMessage extends StatelessWidget {
     this.isLastMessage = false,
     this.isStreaming = false,
     this.isSelectingMessages = false,
+    this.enableAnimation = true,
   });
 
   final User user;
@@ -214,6 +218,7 @@ class _NonEmptyMessage extends StatelessWidget {
   final bool isStreaming;
   final bool isLastMessage;
   final bool isSelectingMessages;
+  final bool enableAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +237,7 @@ class _NonEmptyMessage extends StatelessWidget {
         children: [
           AIMarkdownText(
             markdown: state.text,
-            withAnimation: stream != null,
+            withAnimation: enableAnimation && stream != null,
           ),
           if (state.sources.isNotEmpty)
             SelectionContainer.disabled(

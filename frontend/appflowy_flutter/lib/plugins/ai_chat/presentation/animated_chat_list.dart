@@ -22,6 +22,7 @@ class ChatAnimatedList extends StatefulWidget {
     this.scrollToBottomAppearanceDelay = const Duration(milliseconds: 250),
     this.bottomPadding = 8,
     this.onLoadPreviousMessages,
+    this.scrollBottomPadding = 440,
   });
 
   final ScrollController scrollController;
@@ -32,6 +33,7 @@ class ChatAnimatedList extends StatefulWidget {
   final Duration scrollToBottomAppearanceDelay;
   final double? bottomPadding;
   final VoidCallback? onLoadPreviousMessages;
+  final double scrollBottomPadding;
 
   @override
   ChatAnimatedListState createState() => ChatAnimatedListState();
@@ -53,7 +55,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
   bool _userHasScrolled = false;
   bool _isScrollingToBottom = false;
-  String _lastInsertedMessageId = '';
+  // String _lastInsertedMessageId = '';
 
   @override
   void initState() {
@@ -136,6 +138,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   @override
   Widget build(BuildContext context) {
     final builders = context.watch<Builders>();
+    final height = MediaQuery.of(context).size.height;
 
     return NotificationListener<Notification>(
       onNotification: (notification) {
@@ -163,6 +166,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
         children: [
           CustomScrollView(
             controller: widget.scrollController,
+            physics: ClampingScrollPhysics(),
             slivers: <Widget>[
               SliverPadding(
                 padding: EdgeInsets.only(
@@ -178,12 +182,20 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
                   Animation<double> animation,
                 ) {
                   final message = _chatController.messages[index];
-                  return widget.itemBuilder(
+                  final child = widget.itemBuilder(
                     context,
                     animation,
                     message,
                   );
+                  return RepaintBoundary(
+                    child: child,
+                  );
                 },
+              ),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  bottom: max(0, height - widget.scrollBottomPadding),
+                ),
               ),
             ],
           ),
@@ -201,53 +213,62 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     );
   }
 
-  void _subsequentScrollToEnd(Message data) async {
-    final user = Provider.of<User>(context, listen: false);
+  // void _subsequentScrollToEnd(Message data) async {
+  //   final user = Provider.of<User>(context, listen: false);
 
-    // We only want to scroll to the bottom if user has not scrolled up
-    // or if the message is sent by the current user.
-    if (data.id == _lastInsertedMessageId &&
-        widget.scrollController.offset <
-            widget.scrollController.position.maxScrollExtent &&
-        (user.id == data.author.id && _userHasScrolled)) {
-      if (widget.scrollToEndAnimationDuration == Duration.zero) {
-        widget.scrollController
-            .jumpTo(widget.scrollController.position.maxScrollExtent);
-      } else {
-        await widget.scrollController.animateTo(
-          widget.scrollController.position.maxScrollExtent,
-          duration: widget.scrollToEndAnimationDuration,
-          curve: Curves.linearToEaseOut,
-        );
-      }
+  //   // We only want to scroll to the bottom if user has not scrolled up
+  //   // or if the message is sent by the current user.
+  //   if (data.id == _lastInsertedMessageId &&
+  //       widget.scrollController.offset <
+  //           widget.scrollController.position.maxScrollExtent &&
+  //       (user.id != data.author.id && !_userHasScrolled)) {
+  //     if (widget.scrollToEndAnimationDuration == Duration.zero) {
+  //       widget.scrollController
+  //           .jumpTo(widget.scrollController.position.maxScrollExtent);
+  //     } else {
+  //       await widget.scrollController.animateTo(
+  //         widget.scrollController.position.maxScrollExtent,
+  //         duration: widget.scrollToEndAnimationDuration,
+  //         curve: Curves.linearToEaseOut,
+  //       );
+  //     }
 
-      if (!widget.scrollController.hasClients || !mounted) return;
+  //     if (!widget.scrollController.hasClients || !mounted) return;
 
-      // Because of the issue I have opened here https://github.com/flutter/flutter/issues/129768
-      // we need an additional jump to the end. Sometimes Flutter
-      // will not scroll to the very end. Sometimes it will not scroll to the
-      // very end even with this, so this is something that needs to be
-      // addressed by the Flutter team.
-      //
-      // Additionally here we have a check for the message id, because
-      // if new message arrives in the meantime it will trigger another
-      // scroll to the end animation, making this logic redundant.
-      if (data.id == _lastInsertedMessageId &&
-          widget.scrollController.offset <
-              widget.scrollController.position.maxScrollExtent &&
-          (user.id == data.author.id && _userHasScrolled)) {
-        widget.scrollController
-            .jumpTo(widget.scrollController.position.maxScrollExtent);
-      }
-    }
-  }
+  //     // Because of the issue I have opened here https://github.com/flutter/flutter/issues/129768
+  //     // we need an additional jump to the end. Sometimes Flutter
+  //     // will not scroll to the very end. Sometimes it will not scroll to the
+  //     // very end even with this, so this is something that needs to be
+  //     // addressed by the Flutter team.
+  //     //
+  //     // Additionally here we have a check for the message id, because
+  //     // if new message arrives in the meantime it will trigger another
+  //     // scroll to the end animation, making this logic redundant.
+  //     if (data.id == _lastInsertedMessageId &&
+  //         widget.scrollController.offset <
+  //             widget.scrollController.position.maxScrollExtent &&
+  //         (user.id == data.author.id && _userHasScrolled)) {
+  //       widget.scrollController
+  //           .jumpTo(widget.scrollController.position.maxScrollExtent);
+  //     }
+  //   }
+  // }
 
-  void _scrollToEnd(Message data) {
+  void _scrollToTop(Message data) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         if (!widget.scrollController.hasClients || !mounted) return;
 
-        _subsequentScrollToEnd(data);
+        final user = Provider.of<User>(context, listen: false);
+        final lastMessage = _chatController.messages.last;
+        if (lastMessage.author.id == user.id) {
+          // scroll the current message to the top
+          widget.scrollController.animateTo(
+            widget.scrollController.position.maxScrollExtent,
+            duration: Durations.medium4,
+            curve: Curves.linearToEaseOut,
+          );
+        }
       },
     );
   }
@@ -259,25 +280,22 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.scrollController.hasClients || !mounted) return;
 
+      final height = MediaQuery.of(context).size.height;
+      final paddingHeight = height - widget.scrollBottomPadding;
+      final offset =
+          widget.scrollController.position.maxScrollExtent - paddingHeight;
+
       if (widget.scrollToEndAnimationDuration == Duration.zero) {
-        widget.scrollController
-            .jumpTo(widget.scrollController.position.maxScrollExtent);
+        widget.scrollController.jumpTo(offset);
       } else {
         await widget.scrollController.animateTo(
-          widget.scrollController.position.maxScrollExtent,
+          offset,
           duration: widget.scrollToEndAnimationDuration,
           curve: Curves.linearToEaseOut,
         );
       }
 
       if (!widget.scrollController.hasClients || !mounted) return;
-
-      if (widget.scrollController.offset <
-          widget.scrollController.position.maxScrollExtent) {
-        widget.scrollController.jumpTo(
-          widget.scrollController.position.maxScrollExtent,
-        );
-      }
 
       _isScrollingToBottom = false;
     });
@@ -288,9 +306,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       return;
     }
 
+    final paddingHeight =
+        MediaQuery.of(context).size.height - widget.scrollBottomPadding;
     _scrollToBottomShowTimer?.cancel();
     if (widget.scrollController.offset <
-        widget.scrollController.position.maxScrollExtent) {
+        widget.scrollController.position.maxScrollExtent - paddingHeight) {
       _scrollToBottomShowTimer =
           Timer(widget.scrollToBottomAppearanceDelay, () {
         if (mounted) {
@@ -325,10 +345,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     );
 
     // Used later to trigger scroll to end only for the last inserted message.
-    _lastInsertedMessageId = data.id;
+    // _lastInsertedMessageId = data.id;
 
     if (position == _oldList.length) {
-      _scrollToEnd(data);
+      _scrollToTop(data);
+      // _scrollToEnd(data);
     }
   }
 

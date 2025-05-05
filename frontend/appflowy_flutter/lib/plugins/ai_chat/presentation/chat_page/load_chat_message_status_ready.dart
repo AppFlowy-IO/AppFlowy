@@ -79,9 +79,12 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                     animation: animation,
                     onPressed: onPressed,
                   ),
-                  chatAnimatedListBuilder:
-                      (context, scrollController, itemBuilder) =>
-                          ChatAnimationListWidget(
+                  chatAnimatedListBuilder: (
+                    context,
+                    scrollController,
+                    itemBuilder,
+                  ) =>
+                      ChatAnimationListWidget(
                     userProfile: userProfile,
                     scrollController: scrollController,
                     itemBuilder: itemBuilder,

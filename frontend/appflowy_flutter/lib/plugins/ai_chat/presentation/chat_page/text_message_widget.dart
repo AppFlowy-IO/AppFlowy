@@ -24,11 +24,13 @@ class TextMessageWidget extends StatelessWidget {
     required this.message,
     required this.userProfile,
     required this.view,
+    this.enableAnimation = true,
   });
 
   final TextMessage message;
   final UserProfilePB userProfile;
   final ViewPB view;
+  final bool enableAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +97,7 @@ class TextMessageWidget extends StatelessWidget {
                   state.promptResponseState != PromptResponseState.ready,
               isLastMessage: isLastMessage,
               isSelectingMessages: isSelectingMessages,
+              enableAnimation: enableAnimation,
               onSelectedMetadata: (metadata) =>
                   _onSelectMetadata(context, metadata),
               onRegenerate: () => context

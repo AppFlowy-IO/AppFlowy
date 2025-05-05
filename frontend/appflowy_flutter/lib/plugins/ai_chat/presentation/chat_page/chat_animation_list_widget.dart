@@ -1,6 +1,7 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list_reversed.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_welcome_page.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -14,11 +15,13 @@ class ChatAnimationListWidget extends StatefulWidget {
     required this.userProfile,
     required this.scrollController,
     required this.itemBuilder,
+    this.enableReversedList = false,
   });
 
   final UserProfilePB userProfile;
   final ScrollController scrollController;
   final ChatItem itemBuilder;
+  final bool enableReversedList;
 
   @override
   State<ChatAnimationListWidget> createState() =>
@@ -59,29 +62,27 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
-        // if (reversed) {
-        //   return ChatAnimatedListReversed(
-        //     scrollController: widget.scrollController,
-        //     itemBuilder: widget.itemBuilder,
-        //     bottomPadding: isSelectingMessages
-        //         ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
-        //         : 8.0,
-        //     onLoadPreviousMessages: () {
-        //       bloc.add(const ChatEvent.loadPreviousMessages());
-        //     },
-        //   );
-        // } else {
-        return ChatAnimatedList(
-          scrollController: widget.scrollController,
-          itemBuilder: widget.itemBuilder,
-          bottomPadding: isSelectingMessages
-              ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
-              : 8.0,
-          onLoadPreviousMessages: () {
-            bloc.add(const ChatEvent.loadPreviousMessages());
-          },
-        );
-        // }
+        return widget.enableReversedList
+            ? ChatAnimatedListReversed(
+                scrollController: widget.scrollController,
+                itemBuilder: widget.itemBuilder,
+                bottomPadding: isSelectingMessages
+                    ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
+                    : 8.0,
+                onLoadPreviousMessages: () {
+                  bloc.add(const ChatEvent.loadPreviousMessages());
+                },
+              )
+            : ChatAnimatedList(
+                scrollController: widget.scrollController,
+                itemBuilder: widget.itemBuilder,
+                bottomPadding: isSelectingMessages
+                    ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
+                    : 8.0,
+                onLoadPreviousMessages: () {
+                  bloc.add(const ChatEvent.loadPreviousMessages());
+                },
+              );
       },
     );
   }

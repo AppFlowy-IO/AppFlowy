@@ -74,64 +74,69 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown>
       shrinkWrap: true,
     );
 
-    markdownOutputTimer =
-        Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (offset >= widget.markdown.length || !widget.withAnimation) {
-        return;
-      }
+    if (widget.withAnimation) {
+      markdownOutputTimer =
+          Timer.periodic(const Duration(milliseconds: 60), (timer) {
+        if (offset >= widget.markdown.length || !widget.withAnimation) {
+          return;
+        }
 
-      final markdown = widget.markdown.substring(0, offset);
-      offset += 30;
+        final markdown = widget.markdown.substring(0, offset);
+        offset += 30;
 
-      final editorState = _parseMarkdown(
-        markdown,
-        previousDocument: this.editorState.document,
-      );
-      final lastCurrentNode = editorState.document.last;
-      final lastPreviousNode = this.editorState.document.last;
-      if (lastCurrentNode?.id != lastPreviousNode?.id ||
-          lastCurrentNode?.type != lastPreviousNode?.type ||
-          lastCurrentNode?.delta?.toPlainText() !=
-              lastPreviousNode?.delta?.toPlainText()) {
-        setState(() {
-          this.editorState.dispose();
-          this.editorState = editorState;
-          scrollController.dispose();
-          scrollController = EditorScrollController(
-            editorState: editorState,
-            shrinkWrap: true,
-          );
-        });
-      }
-    });
+        final editorState = _parseMarkdown(
+          markdown,
+          previousDocument: this.editorState.document,
+        );
+        final lastCurrentNode = editorState.document.last;
+        final lastPreviousNode = this.editorState.document.last;
+        if (lastCurrentNode?.id != lastPreviousNode?.id ||
+            lastCurrentNode?.type != lastPreviousNode?.type ||
+            lastCurrentNode?.delta?.toPlainText() !=
+                lastPreviousNode?.delta?.toPlainText()) {
+          setState(() {
+            this.editorState.dispose();
+            this.editorState = editorState;
+            scrollController.dispose();
+            scrollController = EditorScrollController(
+              editorState: editorState,
+              shrinkWrap: true,
+            );
+          });
+        }
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant _AppFlowyEditorMarkdown oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // if (oldWidget.markdown != widget.markdown) {
-    //   final editorState = _parseMarkdown(
-    //     widget.markdown.trim(),
-    //     previousDocument: this.editorState.document,
-    //   );
-    //   this.editorState.dispose();
-    //   this.editorState = editorState;
-    //   scrollController.dispose();
-    //   scrollController = EditorScrollController(
-    //     editorState: editorState,
-    //     shrinkWrap: true,
-    //   );
-    // }
+    if (oldWidget.markdown != widget.markdown && !widget.withAnimation) {
+      final editorState = _parseMarkdown(
+        widget.markdown.trim(),
+        previousDocument: this.editorState.document,
+      );
+      this.editorState.dispose();
+      this.editorState = editorState;
+      scrollController.dispose();
+      scrollController = EditorScrollController(
+        editorState: editorState,
+        shrinkWrap: true,
+      );
+    }
   }
 
   @override
   void dispose() {
     scrollController.dispose();
     editorState.dispose();
-    markdownOutputTimer.cancel();
-    for (final controller in _animations.values.map((e) => e.$1)) {
-      controller.dispose();
+
+    if (widget.withAnimation) {
+      markdownOutputTimer.cancel();
+      for (final controller in _animations.values.map((e) => e.$1)) {
+        controller.dispose();
+      }
     }
 
     super.dispose();
@@ -183,7 +188,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown>
           if (!_animations.containsKey(node.id)) {
             final controller = AnimationController(
               vsync: this,
-              duration: const Duration(milliseconds: 1400),
+              duration: const Duration(milliseconds: 1600),
             );
             final fade = Tween<double>(
               begin: 0,
