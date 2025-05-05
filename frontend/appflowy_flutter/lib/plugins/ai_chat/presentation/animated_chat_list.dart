@@ -207,8 +207,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     // We only want to scroll to the bottom if user has not scrolled up
     // or if the message is sent by the current user.
     if (data.id == _lastInsertedMessageId &&
-        widget.scrollController.offset >
-            widget.scrollController.position.minScrollExtent &&
+        widget.scrollController.offset <
+            widget.scrollController.position.maxScrollExtent &&
         (user.id == data.author.id && _userHasScrolled)) {
       if (widget.scrollToEndAnimationDuration == Duration.zero) {
         widget.scrollController
@@ -233,11 +233,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       // if new message arrives in the meantime it will trigger another
       // scroll to the end animation, making this logic redundant.
       if (data.id == _lastInsertedMessageId &&
-          widget.scrollController.offset >
-              widget.scrollController.position.minScrollExtent &&
+          widget.scrollController.offset <
+              widget.scrollController.position.maxScrollExtent &&
           (user.id == data.author.id && _userHasScrolled)) {
         widget.scrollController
-            .jumpTo(widget.scrollController.position.minScrollExtent);
+            .jumpTo(widget.scrollController.position.maxScrollExtent);
       }
     }
   }
@@ -264,7 +264,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             .jumpTo(widget.scrollController.position.minScrollExtent);
       } else {
         await widget.scrollController.animateTo(
-          widget.scrollController.position.minScrollExtent,
+          widget.scrollController.position.maxScrollExtent,
           duration: widget.scrollToEndAnimationDuration,
           curve: Curves.linearToEaseOut,
         );
@@ -273,9 +273,9 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       if (!widget.scrollController.hasClients || !mounted) return;
 
       if (widget.scrollController.offset <
-          widget.scrollController.position.minScrollExtent) {
+          widget.scrollController.position.maxScrollExtent) {
         widget.scrollController.jumpTo(
-          widget.scrollController.position.minScrollExtent,
+          widget.scrollController.position.maxScrollExtent,
         );
       }
 
@@ -289,8 +289,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     }
 
     _scrollToBottomShowTimer?.cancel();
-    if (widget.scrollController.offset >
-        widget.scrollController.position.minScrollExtent) {
+    if (widget.scrollController.offset <
+        widget.scrollController.position.maxScrollExtent) {
       _scrollToBottomShowTimer =
           Timer(widget.scrollToBottomAppearanceDelay, () {
         if (mounted) {
