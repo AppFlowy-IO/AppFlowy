@@ -7,8 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart'
-    hide ChatAnimatedListReversed;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class LoadChatMessageStatusReady extends StatelessWidget {

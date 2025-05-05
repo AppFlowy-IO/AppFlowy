@@ -218,10 +218,11 @@ class _NonEmptyMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ChatAIMessageBloc>().state;
+    final showActions = stream == null && state.text.isNotEmpty && !isStreaming;
     return ChatAIMessageBubble(
       message: message,
       isLastMessage: isLastMessage,
-      showActions: stream == null && state.text.isNotEmpty && !isStreaming,
+      showActions: showActions,
       isSelectingMessages: isSelectingMessages,
       onRegenerate: onRegenerate,
       onChangeFormat: onChangeFormat,
@@ -231,6 +232,7 @@ class _NonEmptyMessage extends StatelessWidget {
         children: [
           AIMarkdownText(
             markdown: state.text,
+            withAnimation: !showActions,
           ),
           if (state.sources.isNotEmpty)
             SelectionContainer.disabled(

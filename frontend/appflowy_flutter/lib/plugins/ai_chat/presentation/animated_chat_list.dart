@@ -146,7 +146,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           } else {
             // When user overscolls to the bottom or stays idle at the bottom, set `_userHasScrolled` to false
             if (notification.metrics.pixels ==
-                notification.metrics.minScrollExtent) {
+                notification.metrics.maxScrollExtent) {
               _userHasScrolled = false;
             }
           }
@@ -212,10 +212,10 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
         (user.id == data.author.id && _userHasScrolled)) {
       if (widget.scrollToEndAnimationDuration == Duration.zero) {
         widget.scrollController
-            .jumpTo(widget.scrollController.position.minScrollExtent);
+            .jumpTo(widget.scrollController.position.maxScrollExtent);
       } else {
         await widget.scrollController.animateTo(
-          widget.scrollController.position.minScrollExtent,
+          widget.scrollController.position.maxScrollExtent,
           duration: widget.scrollToEndAnimationDuration,
           curve: Curves.linearToEaseOut,
         );
@@ -261,7 +261,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
       if (widget.scrollToEndAnimationDuration == Duration.zero) {
         widget.scrollController
-            .jumpTo(widget.scrollController.position.minScrollExtent);
+            .jumpTo(widget.scrollController.position.maxScrollExtent);
       } else {
         await widget.scrollController.animateTo(
           widget.scrollController.position.maxScrollExtent,
@@ -314,8 +314,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     // animation is triggered.
     if (position == 0 &&
         _userHasScrolled &&
-        widget.scrollController.offset >
-            widget.scrollController.position.minScrollExtent) {
+        widget.scrollController.offset <
+            widget.scrollController.position.maxScrollExtent) {
       _userHasScrolled = false;
     }
 

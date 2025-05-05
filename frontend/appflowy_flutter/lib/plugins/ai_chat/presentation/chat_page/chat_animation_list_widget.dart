@@ -54,9 +54,23 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
         .read<ChatSelectMessageBloc>()
         .add(ChatSelectMessageEvent.enableStartSelectingMessages());
 
+    // final bool reversed = false;
+
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
+        // if (reversed) {
+        //   return ChatAnimatedListReversed(
+        //     scrollController: widget.scrollController,
+        //     itemBuilder: widget.itemBuilder,
+        //     bottomPadding: isSelectingMessages
+        //         ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
+        //         : 8.0,
+        //     onLoadPreviousMessages: () {
+        //       bloc.add(const ChatEvent.loadPreviousMessages());
+        //     },
+        //   );
+        // } else {
         return ChatAnimatedList(
           scrollController: widget.scrollController,
           itemBuilder: widget.itemBuilder,
@@ -67,6 +81,7 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
             bloc.add(const ChatEvent.loadPreviousMessages());
           },
         );
+        // }
       },
     );
   }

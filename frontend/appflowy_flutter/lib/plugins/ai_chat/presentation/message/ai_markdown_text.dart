@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -17,16 +19,21 @@ class AIMarkdownText extends StatelessWidget {
   const AIMarkdownText({
     super.key,
     required this.markdown,
+    this.withAnimation = false,
   });
 
   final String markdown;
+  final bool withAnimation;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DocumentPageStyleBloc(view: ViewPB())
         ..add(const DocumentPageStyleEvent.initial()),
-      child: _AppFlowyEditorMarkdown(markdown: markdown),
+      child: _AppFlowyEditorMarkdown(
+        markdown: markdown,
+        withAnimation: withAnimation,
+      ),
     );
   }
 }
@@ -34,19 +41,28 @@ class AIMarkdownText extends StatelessWidget {
 class _AppFlowyEditorMarkdown extends StatefulWidget {
   const _AppFlowyEditorMarkdown({
     required this.markdown,
+    this.withAnimation = false,
   });
 
   // the text should be the markdown format
   final String markdown;
+
+  /// Whether to animate the text.
+  final bool withAnimation;
 
   @override
   State<_AppFlowyEditorMarkdown> createState() =>
       _AppFlowyEditorMarkdownState();
 }
 
-class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
+class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown>
+    with TickerProviderStateMixin {
   late EditorState editorState;
   late EditorScrollController scrollController;
+  late Timer markdownOutputTimer;
+  int offset = 0;
+
+  final Map<String, (AnimationController, Animation<double>)> _animations = {};
 
   @override
   void initState() {
@@ -57,31 +73,66 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
       editorState: editorState,
       shrinkWrap: true,
     );
+
+    markdownOutputTimer =
+        Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (offset >= widget.markdown.length || !widget.withAnimation) {
+        return;
+      }
+
+      final markdown = widget.markdown.substring(0, offset);
+      offset += 30;
+
+      final editorState = _parseMarkdown(
+        markdown,
+        previousDocument: this.editorState.document,
+      );
+      final lastCurrentNode = editorState.document.last;
+      final lastPreviousNode = this.editorState.document.last;
+      if (lastCurrentNode?.id != lastPreviousNode?.id ||
+          lastCurrentNode?.type != lastPreviousNode?.type ||
+          lastCurrentNode?.delta?.toPlainText() !=
+              lastPreviousNode?.delta?.toPlainText()) {
+        setState(() {
+          this.editorState.dispose();
+          this.editorState = editorState;
+          scrollController.dispose();
+          scrollController = EditorScrollController(
+            editorState: editorState,
+            shrinkWrap: true,
+          );
+        });
+      }
+    });
   }
 
   @override
   void didUpdateWidget(covariant _AppFlowyEditorMarkdown oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.markdown != widget.markdown) {
-      final editorState = _parseMarkdown(
-        widget.markdown.trim(),
-        previousDocument: this.editorState.document,
-      );
-      this.editorState.dispose();
-      this.editorState = editorState;
-      scrollController.dispose();
-      scrollController = EditorScrollController(
-        editorState: editorState,
-        shrinkWrap: true,
-      );
-    }
+    // if (oldWidget.markdown != widget.markdown) {
+    //   final editorState = _parseMarkdown(
+    //     widget.markdown.trim(),
+    //     previousDocument: this.editorState.document,
+    //   );
+    //   this.editorState.dispose();
+    //   this.editorState = editorState;
+    //   scrollController.dispose();
+    //   scrollController = EditorScrollController(
+    //     editorState: editorState,
+    //     shrinkWrap: true,
+    //   );
+    // }
   }
 
   @override
   void dispose() {
     scrollController.dispose();
     editorState.dispose();
+    markdownOutputTimer.cancel();
+    for (final controller in _animations.values.map((e) => e.$1)) {
+      controller.dispose();
+    }
 
     super.dispose();
   }
@@ -120,6 +171,33 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         commandShortcutEvents: [customCopyCommand],
         disableAutoScroll: true,
         editorState: editorState,
+        blockWrapper: (
+          context, {
+          required Node node,
+          required Widget child,
+        }) {
+          if (!widget.withAnimation) {
+            return child;
+          }
+
+          if (!_animations.containsKey(node.id)) {
+            final controller = AnimationController(
+              vsync: this,
+              duration: const Duration(milliseconds: 1400),
+            );
+            final fade = Tween<double>(
+              begin: 0,
+              end: 1,
+            ).animate(controller);
+            _animations[node.id] = (controller, fade);
+            controller.forward();
+          }
+          final (controller, fade) = _animations[node.id]!;
+          return _AnimatedWrapper(
+            fade: fade,
+            child: child,
+          );
+        },
         contextMenuItems: [
           [
             ContextMenuItem(
@@ -159,5 +237,41 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
     }
     final editorState = EditorState(document: document);
     return editorState;
+  }
+}
+
+class _AnimatedWrapper extends StatelessWidget {
+  const _AnimatedWrapper({
+    required this.fade,
+    required this.child,
+  });
+
+  final Animation<double> fade;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: fade,
+      builder: (context, childWidget) {
+        return ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              stops: [fade.value, fade.value],
+              colors: const [
+                Colors.white,
+                Colors.transparent,
+              ],
+            ).createShader(bounds);
+          },
+          blendMode: BlendMode.dstIn,
+          child: Opacity(
+            opacity: fade.value,
+            child: childWidget,
+          ),
+        );
+      },
+      child: child,
+    );
   }
 }
