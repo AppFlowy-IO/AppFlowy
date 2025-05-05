@@ -11,8 +11,8 @@ import 'package:flutter_chat_ui/src/scroll_to_bottom.dart';
 import 'package:flutter_chat_ui/src/utils/message_list_diff.dart';
 import 'package:provider/provider.dart';
 
-class ChatAnimatedList extends StatefulWidget {
-  const ChatAnimatedList({
+class ChatAnimatedListReversed extends StatefulWidget {
+  const ChatAnimatedListReversed({
     super.key,
     required this.scrollController,
     required this.itemBuilder,
@@ -34,10 +34,11 @@ class ChatAnimatedList extends StatefulWidget {
   final VoidCallback? onLoadPreviousMessages;
 
   @override
-  ChatAnimatedListState createState() => ChatAnimatedListState();
+  ChatAnimatedListReversedState createState() =>
+      ChatAnimatedListReversedState();
 }
 
-class ChatAnimatedListState extends State<ChatAnimatedList>
+class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     with SingleTickerProviderStateMixin {
   final GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
   late final ChatController _chatController = Provider.of<ChatController>(
@@ -162,6 +163,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       child: Stack(
         children: [
           CustomScrollView(
+            reverse: true,
             controller: widget.scrollController,
             slivers: <Widget>[
               SliverPadding(
@@ -177,7 +179,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
                   int index,
                   Animation<double> animation,
                 ) {
-                  final message = _chatController.messages[index];
+                  final message = _chatController.messages[
+                      max(_chatController.messages.length - 1 - index, 0)];
                   return widget.itemBuilder(
                     context,
                     animation,

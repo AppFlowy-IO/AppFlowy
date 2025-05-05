@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_page/load_chat_message_statu_ready.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_page/load_chat_message_status_ready.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';

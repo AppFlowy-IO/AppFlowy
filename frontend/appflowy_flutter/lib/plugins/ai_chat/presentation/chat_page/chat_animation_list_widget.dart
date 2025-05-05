@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-class ChatAnimationListWidget extends StatelessWidget {
+class ChatAnimationListWidget extends StatefulWidget {
   const ChatAnimationListWidget({
     super.key,
     required this.userProfile,
@@ -21,12 +21,19 @@ class ChatAnimationListWidget extends StatelessWidget {
   final ChatItem itemBuilder;
 
   @override
+  State<ChatAnimationListWidget> createState() =>
+      _ChatAnimationListWidgetState();
+}
+
+class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
+  @override
   Widget build(BuildContext context) {
     final bloc = context.read<ChatBloc>();
 
+    // this logic is quite weird, why don't we just get the message from the state?
     if (bloc.chatController.messages.isEmpty) {
       return ChatWelcomePage(
-        userProfile: userProfile,
+        userProfile: widget.userProfile,
         onSelectedQuestion: (question) {
           final aiPromptInputBloc = context.read<AIPromptInputBloc>();
           final showPredefinedFormats =
@@ -42,6 +49,7 @@ class ChatAnimationListWidget extends StatelessWidget {
       );
     }
 
+    // don't call this in the build method
     context
         .read<ChatSelectMessageBloc>()
         .add(ChatSelectMessageEvent.enableStartSelectingMessages());
@@ -49,9 +57,9 @@ class ChatAnimationListWidget extends StatelessWidget {
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
-        return ChatAnimatedListReversed(
-          scrollController: scrollController,
-          itemBuilder: itemBuilder,
+        return ChatAnimatedList(
+          scrollController: widget.scrollController,
+          itemBuilder: widget.itemBuilder,
           bottomPadding: isSelectingMessages
               ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
               : 8.0,

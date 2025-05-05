@@ -51,14 +51,16 @@ class LoadChatMessageStatusReady extends StatelessWidget {
         child: _wrapConstraints(
           SelectionArea(
             child: ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              behavior: ScrollConfiguration.of(context).copyWith(
+                scrollbars: false,
+              ),
               child: Chat(
                 chatController: chatController,
                 user: User(id: userProfile.id.toString()),
                 darkTheme: ChatTheme.fromThemeData(Theme.of(context)),
                 theme: ChatTheme.fromThemeData(Theme.of(context)),
                 builders: Builders(
+                  // we have a custom input builder, so we don't need the default one
                   inputBuilder: (_) => const SizedBox.shrink(),
                   textMessageBuilder: (context, message) => TextMessageWidget(
                     message: message,
