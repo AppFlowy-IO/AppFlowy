@@ -3,13 +3,13 @@ pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;
 
-use crate::embeddings::store::SqliteVectorStore;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
 use crate::local_ai::chat::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::completion::chain::CompletionChain;
 use crate::local_ai::database::summary::DatabaseSummaryChain;
 use crate::local_ai::database::translate::DatabaseTranslateChain;
+use crate::SqliteVectorStore;
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::ai_dto::{TranslateRowData, TranslateRowResponse};
 use flowy_ai_pub::cloud::chat_dto::ChatAuthorType;
@@ -20,7 +20,6 @@ use flowy_ai_pub::persistence::select_latest_user_message;
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_database_pub::cloud::{SummaryRowContent, TranslateRowContent};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sqlite_vec::db::VectorSqliteDB;
 use futures_util::StreamExt;
 use ollama_rs::Ollama;
 use serde_json::Value;
@@ -53,7 +52,12 @@ impl LLMChatController {
     self.client.read().await.is_some()
   }
 
-  pub async fn initialize(&self, ollama: Weak<Ollama>, vector_db: Weak<VectorSqliteDB>) {
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+  pub async fn initialize(
+    &self,
+    ollama: Weak<Ollama>,
+    vector_db: Weak<flowy_sqlite_vec::db::VectorSqliteDB>,
+  ) {
     let store = SqliteVectorStore::new(ollama.clone(), vector_db);
     *self.client.write().await = Some(ollama);
     *self.store.write().await = Some(store);

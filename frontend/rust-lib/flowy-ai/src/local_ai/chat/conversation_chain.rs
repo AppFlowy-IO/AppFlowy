@@ -1,7 +1,7 @@
-use crate::embeddings::store::SOURCE_ID;
 use crate::local_ai::chat::llm::LLMOllama;
 use async_stream::stream;
 use async_trait::async_trait;
+use flowy_ai_pub::entities::SOURCE_ID;
 use futures::Stream;
 use futures_util::{pin_mut, StreamExt};
 use langchain_rust::chain::{

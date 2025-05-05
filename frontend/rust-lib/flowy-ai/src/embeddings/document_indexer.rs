@@ -1,7 +1,6 @@
 use crate::embeddings::embedder::Embedder;
 use crate::embeddings::indexer::{EmbeddingModel, Indexer};
-use crate::embeddings::store::{SOURCE, SOURCE_ID, SOURCE_NAME};
-use flowy_ai_pub::entities::EmbeddedChunk;
+use flowy_ai_pub::entities::{EmbeddedChunk, SOURCE, SOURCE_ID, SOURCE_NAME};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};

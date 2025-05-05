@@ -3,6 +3,7 @@ use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
 use crate::embeddings::indexer::{EmbeddingModel, IndexerProvider};
 use async_trait::async_trait;
 use flowy_ai_pub::cloud::CollabType;
+use flowy_ai_pub::entities::SOURCE_ID;
 use flowy_error::FlowyError;
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use futures::stream::{self, StreamExt};
@@ -19,9 +20,6 @@ use std::sync::{Arc, Weak};
 use tracing::{error, trace};
 use uuid::Uuid;
 
-pub const SOURCE_ID: &str = "id";
-pub const SOURCE: &str = "appflowy";
-pub const SOURCE_NAME: &str = "document";
 #[derive(Clone)]
 pub struct SqliteVectorStore {
   ollama: Weak<OllamaClient>,

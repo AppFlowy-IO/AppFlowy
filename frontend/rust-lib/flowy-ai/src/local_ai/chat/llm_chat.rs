@@ -1,11 +1,12 @@
-use crate::embeddings::store::{SqliteVectorStore, SOURCE_ID};
 use crate::local_ai::chat::conversation_chain::{
   AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder,
 };
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::OllamaClientRef;
 use crate::local_ai::prompt::format_prompt;
+use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
+use flowy_ai_pub::entities::SOURCE_ID;
 use flowy_error::{FlowyError, FlowyResult};
 use futures::StreamExt;
 use langchain_rust::chain::{Chain, ChainError};

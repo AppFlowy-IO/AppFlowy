@@ -1,9 +1,10 @@
 use crate::setup_log;
-use flowy_ai::embeddings::store::{SqliteVectorStore, SOURCE_ID};
+use flowy_ai::embeddings::store::SqliteVectorStore;
 use flowy_ai::local_ai::chat::llm::LLMOllama;
 use flowy_ai::local_ai::chat::llm_chat::LLMChat;
 use flowy_ai::local_ai::chat::related_question_chain::RelatedQuestionChain;
 use flowy_ai_pub::cloud::{OutputLayout, QuestionStreamValue, ResponseFormat, StreamAnswer};
+use flowy_ai_pub::entities::SOURCE_ID;
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use ollama_rs::Ollama;
 use reqwest::Url;
