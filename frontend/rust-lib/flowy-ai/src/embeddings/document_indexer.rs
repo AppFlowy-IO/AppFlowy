@@ -1,5 +1,6 @@
 use crate::embeddings::embedder::Embedder;
 use crate::embeddings::indexer::{EmbeddingModel, Indexer};
+use crate::embeddings::store::{SOURCE, SOURCE_ID, SOURCE_NAME};
 use flowy_ai_pub::entities::EmbeddedChunk;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -102,9 +103,9 @@ pub fn split_text_into_chunks(
   }
   let split_contents = group_paragraphs_by_max_content_len(paragraphs, chunk_size, overlap);
   let metadata = json!({
-      "id": object_id,
-      "source": "appflowy",
-      "name": "document",
+      SOURCE_ID: object_id,
+      SOURCE: "appflowy",
+      SOURCE_NAME: "document",
   });
 
   let mut seen = std::collections::HashSet::new();

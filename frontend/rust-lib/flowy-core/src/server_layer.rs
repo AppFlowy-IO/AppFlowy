@@ -1,5 +1,4 @@
 use crate::AppFlowyCoreConfig;
-use af_plugin::manager::PluginManager;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
@@ -60,12 +59,7 @@ impl ServerProvider {
     let auth_type = ArcSwap::from(Arc::new(initial_auth));
     let encryption = Arc::new(EncryptionImpl::new(None)) as Arc<dyn AppFlowyEncryption>;
     let ai_user = Arc::new(AIUserServiceImpl(Arc::downgrade(&logged_user)));
-    let plugins = Arc::new(PluginManager::new());
-    let local_ai = Arc::new(LocalAIController::new(
-      plugins,
-      store_preferences,
-      ai_user.clone(),
-    ));
+    let local_ai = Arc::new(LocalAIController::new(store_preferences, ai_user.clone()));
 
     ServerProvider {
       config,

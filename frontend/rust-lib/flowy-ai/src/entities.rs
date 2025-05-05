@@ -590,13 +590,7 @@ pub struct LocalAIPB {
   pub lack_of_resource: Option<LackOfAIResourcePB>,
 
   #[pb(index = 3)]
-  pub state: RunningStatePB,
-
-  #[pb(index = 4, one_of)]
-  pub plugin_version: Option<String>,
-
-  #[pb(index = 5)]
-  pub plugin_downloaded: bool,
+  pub is_ready: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

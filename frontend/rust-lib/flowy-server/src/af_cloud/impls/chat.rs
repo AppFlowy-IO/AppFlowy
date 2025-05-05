@@ -182,7 +182,7 @@ where
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
@@ -197,12 +197,12 @@ where
     &self,
     workspace_id: &Uuid,
     params: CompleteTextParams,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamComplete, FlowyError> {
     let stream = self
       .inner
       .try_get_client()?
-      .stream_completion_v2(workspace_id, params, ai_model.map(|v| v.name))
+      .stream_completion_v2(workspace_id, params, Some(ai_model.name))
       .await
       .map_err(FlowyError::from)?
       .map_err(FlowyError::from);

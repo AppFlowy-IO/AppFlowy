@@ -3,8 +3,6 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
@@ -55,11 +53,6 @@ pub enum PendingResource {
 pub struct LocalAIResourceController {
   user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
-  resource_notify: tokio::sync::broadcast::Sender<()>,
-  #[cfg(any(target_os = "macos", target_os = "linux"))]
-  #[allow(dead_code)]
-  app_disk_watch: Option<WatchContext>,
-  app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
 impl LocalAIResourceController {
@@ -67,47 +60,10 @@ impl LocalAIResourceController {
     user_service: Arc<dyn AIUserService>,
     resource_service: impl LLMResourceService,
   ) -> Self {
-    let (resource_notify, _) = tokio::sync::broadcast::channel(1);
-    let (app_state_sender, _) = tokio::sync::broadcast::channel(1);
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    let mut offline_app_disk_watch: Option<WatchContext> = None;
-
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    {
-      match watch_offline_app() {
-        Ok((new_watcher, mut rx)) => {
-          let sender = app_state_sender.clone();
-          tokio::spawn(async move {
-            while let Some(event) = rx.recv().await {
-              if let Err(err) = sender.send(event) {
-                error!("[LLM Resource] Failed to send offline app state: {:?}", err);
-              }
-            }
-          });
-          offline_app_disk_watch = Some(new_watcher);
-        },
-        Err(err) => {
-          error!("[LLM Resource] Failed to watch offline app path: {:?}", err);
-        },
-      }
-    }
-
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
-      #[cfg(any(target_os = "macos", target_os = "linux"))]
-      app_disk_watch: offline_app_disk_watch,
-      app_state_sender,
-      resource_notify,
     }
-  }
-
-  pub fn subscribe_resource_notify(&self) -> tokio::sync::broadcast::Receiver<()> {
-    self.resource_notify.subscribe()
-  }
-
-  pub fn subscribe_app_state(&self) -> tokio::sync::broadcast::Receiver<WatchDiskEvent> {
-    self.app_state_sender.subscribe()
   }
 
   /// Returns true when all resources are downloaded and ready to use.

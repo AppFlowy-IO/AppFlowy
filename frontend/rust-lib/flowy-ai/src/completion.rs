@@ -40,7 +40,7 @@ impl AICompletion {
   pub async fn create_complete_task(
     &self,
     complete: CompleteTextPB,
-    preferred_model: Option<AIModel>,
+    preferred_model: AIModel,
   ) -> FlowyResult<CompleteTextTaskPB> {
     if matches!(complete.completion_type, CompletionTypePB::CustomPrompt)
       && complete.custom_prompt.is_none()
@@ -84,14 +84,14 @@ pub struct CompletionTask {
   stop_rx: tokio::sync::mpsc::Receiver<()>,
   context: CompleteTextPB,
   cloud_service: Weak<dyn ChatCloudService>,
-  preferred_model: Option<AIModel>,
+  preferred_model: AIModel,
 }
 
 impl CompletionTask {
   pub fn new(
     workspace_id: Uuid,
     context: CompleteTextPB,
-    preferred_model: Option<AIModel>,
+    preferred_model: AIModel,
     cloud_service: Weak<dyn ChatCloudService>,
     stop_rx: tokio::sync::mpsc::Receiver<()>,
   ) -> Self {
@@ -117,7 +117,7 @@ impl CompletionTask {
           CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
           CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
           CompletionTypePB::ExplainSelected => CompletionType::Explain,
-          CompletionTypePB::UserQuestion => CompletionType::UserQuestion,
+          CompletionTypePB::UserQuestion => CompletionType::AskAI,
           CompletionTypePB::CustomPrompt => CompletionType::CustomPrompt,
         };
 

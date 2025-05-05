@@ -76,11 +76,6 @@ impl AIManager {
     local_ai: Arc<LocalAIController>,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
-    let cloned_local_ai = local_ai.clone();
-    tokio::spawn(async move {
-      cloned_local_ai.observe_plugin_resource().await;
-    });
-
     let external_service = Arc::new(query_service);
     let cloud_service_wm = Arc::new(ChatServiceMiddleware::new(
       user_service.clone(),
@@ -118,14 +113,14 @@ impl AIManager {
     let is_enabled = self
       .local_ai
       .is_enabled_on_workspace(&workspace_id.to_string());
-    let is_running = self.local_ai.is_running();
+    let is_ready = self.local_ai.is_ready().await;
     info!(
-      "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_running: {}",
-      workspace_id, is_local, is_enabled, is_running
+      "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_ready: {}",
+      workspace_id, is_local, is_enabled, is_ready
     );
 
     // Shutdown AI if it's running but shouldn't be (not enabled and not in local mode)
-    if is_running && !is_enabled && !is_local {
+    if is_ready && !is_enabled && !is_local {
       info!("[AI Manager] Local AI is running but not enabled, shutting it down");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
@@ -137,7 +132,7 @@ impl AIManager {
     }
 
     // Start AI if it's enabled but not running
-    if is_enabled && !is_running {
+    if is_enabled && !is_ready {
       info!("[AI Manager] Local AI is enabled but not running, starting it now");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
@@ -149,7 +144,7 @@ impl AIManager {
     }
 
     // Log status for other cases
-    if is_running {
+    if is_ready {
       info!("[AI Manager] Local AI is already running");
     }
   }
@@ -157,7 +152,8 @@ impl AIManager {
   async fn prepare_local_ai(&self, workspace_id: &Uuid) {
     self
       .local_ai
-      .reload_ollama_client(&workspace_id.to_string());
+      .reload_ollama_client(&workspace_id.to_string())
+      .await;
     self
       .model_control
       .lock()
@@ -210,9 +206,15 @@ impl AIManager {
         self.cloud_service_wm.clone(),
       ))
     });
-    if self.local_ai.is_running() {
+
+    if self.local_ai.is_ready().await {
+      let workspace_id = self.user_service.workspace_id()?;
+      let model = self.get_active_model(&chat_id.to_string()).await;
       trace!("[AI Plugin] notify open chat: {}", chat_id);
-      self.local_ai.open_chat(chat_id);
+      self
+        .local_ai
+        .open_chat(&workspace_id, chat_id, &model.name)
+        .await?;
     }
 
     let user_service = self.user_service.clone();
@@ -255,11 +257,7 @@ impl AIManager {
   pub async fn delete_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
-
-      if self.local_ai.is_running() {
-        info!("[AI Plugin] notify close chat: {}", chat_id);
-        self.local_ai.close_chat(chat_id);
-      }
+      self.local_ai.close_chat(chat_id);
     }
     Ok(())
   }
@@ -353,8 +351,7 @@ impl AIManager {
     let workspace_id = self.user_service.workspace_id()?;
     let old_settings = self.local_ai.get_local_ai_setting();
     // Only restart if the server URL has changed and local AI is not running
-    let need_restart =
-      old_settings.ollama_server_url != setting.ollama_server_url && !self.local_ai.is_running();
+    let need_restart = old_settings.ollama_server_url != setting.ollama_server_url;
 
     // Update settings first
     self
@@ -375,7 +372,8 @@ impl AIManager {
     if need_restart {
       self
         .local_ai
-        .reload_ollama_client(&workspace_id.to_string());
+        .reload_ollama_client(&workspace_id.to_string())
+        .await;
       self.local_ai.restart_plugin().await;
     }
 
@@ -428,7 +426,7 @@ impl AIManager {
     if enabled {
       self.prepare_local_ai(&workspace_id).await;
 
-      if let Some(name) = self.local_ai.get_plugin_chat_model() {
+      if let Some(name) = self.local_ai.get_local_chat_model() {
         let model = AIModel::local(name, "".to_string());
         info!(
           "[Model Selection] Set global active model to local ai: {}",
@@ -601,9 +599,7 @@ impl AIManager {
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let ai_model = self.get_active_model(&chat_id.to_string()).await;
-    let resp = chat
-      .get_related_question(message_id, Some(ai_model))
-      .await?;
+    let resp = chat.get_related_question(message_id, ai_model).await?;
     Ok(resp)
   }
 

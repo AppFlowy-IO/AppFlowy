@@ -1,5 +1,6 @@
 pub mod context;
 mod document_indexer;
 mod embedder;
-mod indexer;
+pub(crate) mod indexer;
 mod scheduler;
+pub mod store;

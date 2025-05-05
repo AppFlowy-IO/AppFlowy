@@ -70,11 +70,6 @@ class AIModelStateNotifier {
         stateCallback: (state) async {
           _localAIState = state;
           _updateAll();
-          if (state.state == RunningStatePB.Running ||
-              state.state == RunningStatePB.Stopped) {
-            await _loadModelSelection();
-            _updateAll();
-          }
         },
       );
     }
@@ -190,7 +185,7 @@ class AIModelStateNotifier {
     }
 
     final enabled = _localAIState!.enabled;
-    final running = _localAIState!.state == RunningStatePB.Running;
+    final running = _localAIState!.isReady;
     final hintKey = enabled
         ? (running
             ? LocaleKeys.chat_inputLocalAIMessageHint

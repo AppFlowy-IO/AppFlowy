@@ -26,6 +26,10 @@ impl EmbedContext {
     })
   }
 
+  pub fn get_vector_db(&self) -> Option<Arc<VectorSqliteDB>> {
+    self.vector_db.load_full()
+  }
+
   pub fn init_vector_db(&self, db_path: PathBuf) {
     let sys = get_operating_system();
     if !sys.is_desktop() {

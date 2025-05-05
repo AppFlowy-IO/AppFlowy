@@ -82,7 +82,8 @@ uuid = { version = "1.5.0", features = ["serde", "v4", "v5"] }
 serde_repr = "0.1"
 futures = "0.3.31"
 tokio = "1.38.0"
-tokio-stream = "0.1.14"
+tokio-stream = "0.1.17"
+ollama-rs = { version = "0.3.0" }
 async-trait = "0.1.81"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 collab = { version = "0.2" }
@@ -110,9 +111,9 @@ flowy-sqlite-vec = { path = "flowy-sqlite-vec" }
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "bfe9da67254f4e17a9cb05ffb88bd4a586a71179" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "bfe9da67254f4e17a9cb05ffb88bd4a586a71179" }
-workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "bfe9da67254f4e17a9cb05ffb88bd4a586a71179" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "667bb51f57f63ec02137053be71e77236f56faa7" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "667bb51f57f63ec02137053be71e77236f56faa7" }
+workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "667bb51f57f63ec02137053be71e77236f56faa7" }
 
 [profile.dev]
 opt-level = 0
@@ -163,3 +164,5 @@ collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFl
 af-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa" }
 af-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa" }
 af-mcp = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa" }
+
+langchain-rust = { version = "4.6.0", git = "https://github.com/appflowy/langchain-rust", branch = "bump_ollama_rs" }
