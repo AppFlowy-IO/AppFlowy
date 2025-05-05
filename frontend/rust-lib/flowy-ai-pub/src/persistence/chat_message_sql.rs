@@ -1,3 +1,4 @@
+use crate::cloud::chat_dto::ChatAuthorType;
 use crate::cloud::MessageCursor;
 use client_api::entity::chat_dto::ChatMessage;
 use flowy_error::{FlowyError, FlowyResult};
@@ -38,6 +39,19 @@ impl ChatMessageTable {
       is_sync,
     }
   }
+}
+
+pub fn select_latest_user_message(
+  mut conn: DBConnection,
+  chat_id_val: &str,
+  auth_type: ChatAuthorType,
+) -> FlowyResult<ChatMessageTable> {
+  dsl::chat_message_table
+    .filter(chat_message_table::chat_id.eq(chat_id_val))
+    .filter(chat_message_table::author_type.eq(auth_type as i64))
+    .order(chat_message_table::created_at.desc())
+    .first::<ChatMessageTable>(&mut *conn)
+    .map_err(FlowyError::from)
 }
 
 pub fn update_chat_message_is_sync(

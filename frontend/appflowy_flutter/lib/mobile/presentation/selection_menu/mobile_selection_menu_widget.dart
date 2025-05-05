@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -328,6 +329,7 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -350,7 +352,10 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
             child: Center(
               child: Text(
                 LocaleKeys.inlineActions_noResults.tr(),
-                style: TextStyle(fontSize: 18.0, color: Color(0x801F2225)),
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: theme.textColorScheme.primary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

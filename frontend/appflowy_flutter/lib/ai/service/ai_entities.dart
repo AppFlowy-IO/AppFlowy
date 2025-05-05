@@ -122,8 +122,6 @@ enum AiPromptCategory {
   business,
   @JsonValue("marketing")
   marketing,
-  @JsonValue("learning")
-  learning,
   @JsonValue("travel")
   travel,
   @JsonValue("contentSeo")
@@ -145,7 +143,17 @@ enum AiPromptCategory {
   @JsonValue("caseStudies")
   caseStudies,
   @JsonValue("salesCopy")
-  salesCopy;
+  salesCopy,
+  @JsonValue("education")
+  education,
+  @JsonValue("work")
+  work,
+  @JsonValue("podcastProduction")
+  podcastProduction,
+  @JsonValue("copyWriting")
+  copyWriting,
+  @JsonValue("customerSuccess")
+  customerSuccess;
 
   String get i18n {
     return switch (this) {
@@ -155,7 +163,6 @@ enum AiPromptCategory {
       healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness.tr(),
       business => LocaleKeys.ai_customPrompt_business.tr(),
       marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
-      learning => LocaleKeys.ai_customPrompt_learning.tr(),
       travel => LocaleKeys.ai_customPrompt_travel.tr(),
       contentSeo => LocaleKeys.ai_customPrompt_contentSeo.tr(),
       emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing.tr(),
@@ -167,6 +174,11 @@ enum AiPromptCategory {
       strategy => LocaleKeys.ai_customPrompt_strategy.tr(),
       caseStudies => LocaleKeys.ai_customPrompt_caseStudies.tr(),
       salesCopy => LocaleKeys.ai_customPrompt_salesCopy.tr(),
+      education => LocaleKeys.ai_customPrompt_education.tr(),
+      work => LocaleKeys.ai_customPrompt_work.tr(),
+      podcastProduction => LocaleKeys.ai_customPrompt_podcastProduction.tr(),
+      copyWriting => LocaleKeys.ai_customPrompt_copyWriting.tr(),
+      customerSuccess => LocaleKeys.ai_customPrompt_customerSuccess.tr(),
     };
   }
 }
@@ -190,6 +202,10 @@ class AiPrompt extends Equatable {
   final String id;
   final String name;
   final String content;
+  @JsonKey(
+    unknownEnumValue: AiPromptCategory.other,
+    defaultValue: AiPromptCategory.other,
+  )
   final AiPromptCategory category;
   @JsonKey(defaultValue: "")
   final String example;
@@ -197,5 +213,5 @@ class AiPrompt extends Equatable {
   final bool isFeatured;
 
   @override
-  List<Object?> get props => [id, name, content, category];
+  List<Object?> get props => [id, name, content, category, example, isFeatured];
 }

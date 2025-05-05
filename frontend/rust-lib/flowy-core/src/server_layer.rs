@@ -1,5 +1,4 @@
 use crate::AppFlowyCoreConfig;
-use af_plugin::manager::PluginManager;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
@@ -31,6 +30,7 @@ pub struct ServerProvider {
 // Our little guard wrapper:
 pub struct ServerHandle<'a>(Ref<'a, AuthType, Arc<dyn AppFlowyServer>>);
 
+#[allow(clippy::needless_lifetimes)]
 impl<'a> Deref for ServerHandle<'a> {
   type Target = dyn AppFlowyServer;
   fn deref(&self) -> &Self::Target {
@@ -59,12 +59,7 @@ impl ServerProvider {
     let auth_type = ArcSwap::from(Arc::new(initial_auth));
     let encryption = Arc::new(EncryptionImpl::new(None)) as Arc<dyn AppFlowyEncryption>;
     let ai_user = Arc::new(AIUserServiceImpl(Arc::downgrade(&logged_user)));
-    let plugins = Arc::new(PluginManager::new());
-    let local_ai = Arc::new(LocalAIController::new(
-      plugins,
-      store_preferences,
-      ai_user.clone(),
-    ));
+    let local_ai = Arc::new(LocalAIController::new(store_preferences, ai_user.clone()));
 
     ServerProvider {
       config,
@@ -77,6 +72,13 @@ impl ServerProvider {
       local_ai,
     }
   }
+
+  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {}
+
+  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {}
+
+  pub fn on_sign_up(&self, _workspace_type: &WorkspaceType) {}
+  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {}
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
     let old_type = self.get_auth_type();

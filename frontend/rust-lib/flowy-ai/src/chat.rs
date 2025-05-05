@@ -152,7 +152,6 @@ impl Chat {
     self.stream_buffer.lock().await.clear();
 
     let format = format.map(Into::into).unwrap_or_default();
-
     let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
@@ -503,7 +502,7 @@ impl Chat {
   pub async fn get_related_question(
     &self,
     message_id: i64,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     let resp = self

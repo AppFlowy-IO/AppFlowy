@@ -29,12 +29,14 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
 
   void _loadPrompts() async {
     availablePrompts.addAll(await _aiService.getBuiltInPrompts());
-    final visiblePrompts = _getFilteredPrompts(availablePrompts);
+    final featuredPrompts =
+        availablePrompts.where((prompt) => prompt.isFeatured);
+    final visiblePrompts = _getFilteredPrompts(featuredPrompts);
     emit(
       AiPromptSelectorState.ready(
         visiblePrompts: visiblePrompts,
         showCustomPrompts: false,
-        isFeaturedCategorySelected: false,
+        isFeaturedCategorySelected: true,
         selectedPromptId: visiblePrompts.firstOrNull?.id,
         selectedCategory: null,
         favoritePrompts: [],
@@ -45,12 +47,13 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
   void selectFeaturedCategory() {
     state.maybeMap(
       ready: (readyState) {
+        final prompts = availablePrompts.where((prompt) => prompt.isFeatured);
+        final visiblePrompts = _getFilteredPrompts(prompts);
         emit(
           readyState.copyWith(
-            // TODO(RS): Add logic to filter prompts based on the featured category
-            // visiblePrompts: prompts,
+            visiblePrompts: visiblePrompts,
             isFeaturedCategorySelected: true,
-            // selectedPromptId: prompts.firstOrNull?.id,
+            selectedPromptId: visiblePrompts.firstOrNull?.id,
           ),
         );
       },
@@ -136,22 +139,13 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
     );
   }
 
-  AiPrompt? get selectedPrompt {
-    return state.maybeMap(
-      ready: (readyState) {
-        return readyState.visiblePrompts.firstWhereOrNull(
-          (prompt) => prompt.id == readyState.selectedPromptId,
-        );
-      },
-      orElse: () => null,
-    );
-  }
-
   void _filterTextChanged() {
     state.maybeMap(
       ready: (readyState) {
         final unfilteredPrompts = readyState.selectedCategory == null
-            ? availablePrompts
+            ? readyState.isFeaturedCategorySelected
+                ? availablePrompts.where((prompt) => prompt.isFeatured)
+                : availablePrompts
             : availablePrompts.where(
                 (prompt) => prompt.category == readyState.selectedCategory,
               );

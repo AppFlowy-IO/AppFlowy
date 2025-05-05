@@ -5,6 +5,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/contin
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/title_logo.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/verifying_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -60,9 +61,15 @@ class _SetNewPasswordWidgetState extends State<SetNewPasswordWidget> {
               });
             },
             (error) {
-              newPasswordKey.currentState?.syncError(
-                errorText: error.msg,
-              );
+              if (error.code == ErrorCode.NewPasswordTooWeak) {
+                newPasswordKey.currentState?.syncError(
+                  errorText: LocaleKeys.signIn_passwordMustContain.tr(),
+                );
+              } else {
+                newPasswordKey.currentState?.syncError(
+                  errorText: error.msg,
+                );
+              }
             },
           );
         }

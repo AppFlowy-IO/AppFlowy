@@ -182,6 +182,7 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   final String confirmButtonName;
   final Color? confirmButtonColor;
   final WidgetBuilder? confirmButtonBuilder;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);

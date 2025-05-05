@@ -19,35 +19,14 @@ on:
 
 env:
   FLUTTER_VERSION: "3.27.4"
-  RUST_TOOLCHAIN: "1.81.0"
+  RUST_TOOLCHAIN: "1.84.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-self-hosted:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: self-hosted
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
-
-      - name: Build AppFlowy
-        working-directory: frontend
-        run: |
-          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
-          cargo make --profile development-ios-arm64-sim code_generation
-
-      - uses: futureware-tech/simulator-action@v3
-        id: simulator-action
-        with:
-          model: "iPhone 15"
-          shutdown_after_job: false
-
   integration-tests:
-    if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: macos-latest
 
     steps:

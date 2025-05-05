@@ -33,6 +33,17 @@ pub struct AIModel {
   pub desc: String,
 }
 
+impl AIModel {
+  /// Create a new model instance
+  pub fn new(name: impl Into<String>, description: impl Into<String>, is_local: bool) -> Self {
+    Self {
+      name: name.into(),
+      desc: description.into(),
+      is_local,
+    }
+  }
+}
+
 impl From<AvailableModel> for AIModel {
   fn from(value: AvailableModel) -> Self {
     let desc = value
@@ -142,14 +153,14 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<RepeatedRelatedQuestion, FlowyError>;
 
   async fn stream_complete(
     &self,
     workspace_id: &Uuid,
     params: CompleteTextParams,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamComplete, FlowyError>;
 
   async fn embed_file(
@@ -175,4 +186,9 @@ pub trait ChatCloudService: Send + Sync + 'static {
 
   async fn get_available_models(&self, workspace_id: &Uuid) -> Result<ModelList, FlowyError>;
   async fn get_workspace_default_model(&self, workspace_id: &Uuid) -> Result<String, FlowyError>;
+  async fn set_workspace_default_model(
+    &self,
+    workspace_id: &Uuid,
+    model: &str,
+  ) -> Result<(), FlowyError>;
 }

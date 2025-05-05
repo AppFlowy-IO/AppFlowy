@@ -99,32 +99,37 @@ class _NotificationPanelState extends State<NotificationPanel>
   Widget buildTitle({
     required BuildContext context,
     required VoidCallback onHide,
-  }) =>
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        height: 24,
-        child: Row(
-          children: [
-            FlowyText.medium(
-              LocaleKeys.notificationHub_title.tr(),
-              fontSize: 16,
-              figmaLineHeight: 24,
+  }) {
+    final theme = AppFlowyTheme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 24,
+      child: Row(
+        children: [
+          FlowyText.medium(
+            LocaleKeys.notificationHub_title.tr(),
+            fontSize: 16,
+            figmaLineHeight: 24,
+          ),
+          Spacer(),
+          FlowyIconButton(
+            width: 24,
+            icon: FlowySvg(
+              FlowySvgs.double_back_arrow_m,
+              color: theme.iconColorScheme.secondary,
             ),
-            Spacer(),
-            FlowyIconButton(
-              icon: FlowySvg(FlowySvgs.hide_menu_s),
-              width: 24,
-              richTooltipText: colappsedButtonTooltip(context),
-              onPressed: onHide,
-              iconPadding: const EdgeInsets.all(4),
-            ),
-            HSpace(8),
-            buildMoreActionButton(context),
-          ],
-        ),
-      );
+            richTooltipText: colappsedButtonTooltip(context),
+            onPressed: onHide,
+          ),
+          HSpace(8),
+          buildMoreActionButton(context),
+        ],
+      ),
+    );
+  }
 
   Widget buildMoreActionButton(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 78)),
       offset: const Offset(-24, 24),
@@ -134,13 +139,15 @@ class _NotificationPanelState extends State<NotificationPanel>
       onClose: () => keepEditorFocusNotifier.decrease(),
       popupBuilder: (_) => buildMoreActions(),
       child: FlowyIconButton(
-        icon: FlowySvg(FlowySvgs.three_dots_s),
         width: 24,
+        icon: FlowySvg(
+          FlowySvgs.three_dots_m,
+          color: theme.iconColorScheme.secondary,
+        ),
         onPressed: () {
           keepEditorFocusNotifier.increase();
           moreActionController.show();
         },
-        iconPadding: const EdgeInsets.all(4),
       ),
     );
   }

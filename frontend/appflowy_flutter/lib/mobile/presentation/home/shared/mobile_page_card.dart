@@ -200,7 +200,9 @@ class MobileViewPage extends StatelessWidget {
             const WidgetSpan(child: HSpace(8.0)),
           ],
           TextSpan(
-            text: name,
+            text: name.orDefault(
+              LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+            ),
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w600,

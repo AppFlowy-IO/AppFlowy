@@ -122,7 +122,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: () => afLaunchUrlString(url),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
           child: child,
         ),
       );
@@ -133,7 +134,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       editorState: context.read<EditorState>(),
       extendActionWidgets: _buildExtendActionWidgets(context),
       child: GestureDetector(
-        onTap: () => afLaunchUrlString(url),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
         child: child,
       ),
     );

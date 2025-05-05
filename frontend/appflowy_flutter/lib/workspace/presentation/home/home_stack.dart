@@ -16,7 +16,6 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -148,9 +147,9 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) {
-          final isMenuExpanded =
-              context.read<HomeSettingBloc>().isMenuExpanded;
-          final status = isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+          final isMenuExpanded = context.read<HomeSettingBloc>().isMenuExpanded;
+          final status =
+              isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
           context
               .read<HomeSettingBloc>()
               .add(HomeSettingEvent.changeMenuStatus(status));

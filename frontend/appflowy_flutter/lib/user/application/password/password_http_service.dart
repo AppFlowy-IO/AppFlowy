@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:http/http.dart' as http;
@@ -203,12 +204,22 @@ class PasswordHttpService {
         final errorBody =
             response.body.isNotEmpty ? jsonDecode(response.body) : {};
 
-        Log.info(
-          '${endpoint.name} request failed: ${response.statusCode}, $errorBody ',
-        );
+        // the checkHasPassword endpoint will return 403, which is not an error
+        if (endpoint != PasswordEndpoint.checkHasPassword) {
+          Log.info(
+            '${endpoint.name} request failed: ${response.statusCode}, $errorBody ',
+          );
+        }
+
+        ErrorCode errorCode = ErrorCode.Internal;
+
+        if (response.statusCode == 422) {
+          errorCode = ErrorCode.NewPasswordTooWeak;
+        }
 
         return FlowyResult.failure(
           FlowyError(
+            code: errorCode,
             msg: errorBody['msg'] ?? errorMessage,
           ),
         );

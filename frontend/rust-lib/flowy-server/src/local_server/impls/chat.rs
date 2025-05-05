@@ -1,14 +1,12 @@
 use crate::af_cloud::define::LoggedUser;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
-use client_api::entity::CompletionStream;
 use flowy_ai::local_ai::controller::LocalAIController;
-use flowy_ai::local_ai::stream_util::QuestionStream;
 use flowy_ai_pub::cloud::chat_dto::{ChatAuthor, ChatAuthorType};
 use flowy_ai_pub::cloud::{
-  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
-  ChatSettings, CompleteTextParams, MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage,
-  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
+  MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, ResponseFormat, StreamAnswer,
+  StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
 use flowy_ai_pub::persistence::{
   deserialize_chat_metadata, deserialize_rag_ids, read_chat,
@@ -17,7 +15,6 @@ use flowy_ai_pub::persistence::{
   ChatMessageTable, ChatTable, ChatTableChangeset,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures_util::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use serde_json::{json, Value};
@@ -109,25 +106,12 @@ impl ChatCloudService for LocalChatServiceImpl {
     format: ResponseFormat,
     _ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_ai.is_running() {
+    if self.local_ai.is_ready().await {
       let content = self.get_message_content(message_id)?;
-      match self
+      self
         .local_ai
-        .stream_question(
-          &chat_id.to_string(),
-          &content,
-          Some(json!(format)),
-          json!({}),
-        )
+        .stream_question(chat_id, &content, format)
         .await
-      {
-        Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
-        Err(err) => Ok(
-          stream::once(async { Err(FlowyError::local_ai_unavailable().with_context(err)) }).boxed(),
-        ),
-      }
-    } else if self.local_ai.is_enabled() {
-      Err(FlowyError::local_ai_not_ready())
     } else {
       Err(FlowyError::local_ai_disabled())
     }
@@ -193,12 +177,12 @@ impl ChatCloudService for LocalChatServiceImpl {
     _workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_ai.is_running() {
+    if self.local_ai.is_ready().await {
       let questions = self
         .local_ai
-        .get_related_question(&chat_id.to_string())
+        .get_related_question(&ai_model.name, chat_id, message_id)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       trace!("LocalAI related questions: {:?}", questions);
@@ -224,30 +208,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     &self,
     _workspace_id: &Uuid,
     params: CompleteTextParams,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamComplete, FlowyError> {
-    if self.local_ai.is_running() {
-      match self
-        .local_ai
-        .complete_text_v2(
-          &params.text,
-          params.completion_type.unwrap() as u8,
-          Some(json!(params.format)),
-          Some(json!(params.metadata)),
-        )
-        .await
-      {
-        Ok(stream) => Ok(
-          CompletionStream::new(
-            stream.map_err(|err| AppResponseError::new(AppErrorCode::Internal, err.to_string())),
-          )
-          .map_err(FlowyError::from)
-          .boxed(),
-        ),
-        Err(_) => Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed()),
-      }
-    } else if self.local_ai.is_enabled() {
-      Err(FlowyError::local_ai_not_ready())
+    if self.local_ai.is_ready().await {
+      self.local_ai.complete_text(&ai_model.name, params).await
     } else {
       Err(FlowyError::local_ai_disabled())
     }
@@ -260,10 +224,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     chat_id: &Uuid,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
-    if self.local_ai.is_running() {
+    if self.local_ai.is_ready().await {
       self
         .local_ai
-        .embed_file(&chat_id.to_string(), file_path.to_path_buf(), metadata)
+        .embed_file(chat_id, file_path.to_path_buf(), metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())
@@ -318,6 +282,15 @@ impl ChatCloudService for LocalChatServiceImpl {
 
   async fn get_workspace_default_model(&self, _workspace_id: &Uuid) -> Result<String, FlowyError> {
     Ok(DEFAULT_AI_MODEL_NAME.to_string())
+  }
+
+  async fn set_workspace_default_model(
+    &self,
+    _workspace_id: &Uuid,
+    _model: &str,
+  ) -> Result<(), FlowyError> {
+    // do nothing
+    Ok(())
   }
 }
 

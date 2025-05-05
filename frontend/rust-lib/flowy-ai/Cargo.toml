@@ -33,7 +33,7 @@ log = "0.4.21"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 anyhow = "1.0.86"
-tokio-stream = "0.1.15"
+tokio-stream.workspace = true
 tokio-util = { workspace = true, features = ["full"] }
 af-local-ai = { workspace = true }
 af-plugin = { workspace = true }
@@ -43,21 +43,38 @@ base64 = "0.21.5"
 futures-util = "0.3.30"
 pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
-collab-integrate.workspace = true
-ollama-rs = "0.3.0"
-
+ollama-rs.workspace = true
+schemars = "0.8.22"
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+async-trait.workspace = true
+async-stream = "0.3.6"
+flowy-database-pub = { workspace = true }
+once_cell = "1.21.3"
+langchain-rust = { version = "4.6.0", features = ["ollama"] }
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
-#faiss = { version = "0.12.1" }
 af-mcp = { version = "0.1.0" }
+text-splitter = { version = "0.25.1" }
+flowy-sqlite-vec.workspace = true
+lopdf = { version = "0.36.0", optional = true }
+pulldown-cmark = { version = "0.13.0", optional = true }
+
 
 [dev-dependencies]
 uuid.workspace = true
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
+tempfile = "3.8.1"
+
 
 [build-dependencies]
 flowy-codegen.workspace = true
+tempdir = "0.3.7"
+
 
 [features]
+default = []
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 local_ai = []
+file_reader = ["lopdf", "pulldown-cmark"]
+ai-tool = []

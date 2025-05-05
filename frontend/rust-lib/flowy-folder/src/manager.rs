@@ -19,9 +19,10 @@ use crate::view_operation::{
 use arc_swap::ArcSwapOption;
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
-use collab::core::collab::DataSource;
+use collab::core::collab::{DataSource, IndexContentReceiver};
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
+use collab_folder::folder_diff::FolderViewChange;
 use collab_folder::hierarchy_builder::{ParentChildViews, ViewExtraBuilder};
 use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
@@ -37,7 +38,6 @@ use flowy_folder_pub::entities::{
   PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
   PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
-use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
 use std::collections::HashMap;
@@ -62,8 +62,8 @@ pub struct FolderManager {
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Weak<dyn FolderCloudService>,
-  pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
+  pub(crate) folder_ready_notifier: tokio::sync::watch::Sender<bool>,
 }
 
 impl Drop for FolderManager {
@@ -77,20 +77,24 @@ impl FolderManager {
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Weak<dyn FolderCloudService>,
-    folder_indexer: Arc<dyn FolderIndexManager>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
+    let (folder_ready_notifier, _) = tokio::sync::watch::channel(false);
     let manager = Self {
       user,
       mutex_folder: Default::default(),
       collab_builder,
       operation_handlers: Default::default(),
       cloud_service,
-      folder_indexer,
       store_preferences,
+      folder_ready_notifier,
     };
 
     Ok(manager)
+  }
+
+  pub fn subscribe_folder_ready_notifier(&self) -> tokio::sync::watch::Receiver<bool> {
+    self.folder_ready_notifier.subscribe()
   }
 
   pub fn cloud_service(&self) -> FlowyResult<Arc<dyn FolderCloudService>> {
@@ -307,6 +311,43 @@ impl FolderManager {
     data_source: FolderInitDataSource,
   ) -> FlowyResult<()> {
     self.initialize_after_sign_in(uid, data_source).await
+  }
+
+  pub async fn subscribe_folder_change_rx(&self) -> FlowyResult<IndexContentReceiver> {
+    let folder = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(folder_not_init_error)?;
+    let read_guard = folder.read().await;
+    Ok(read_guard.subscribe_index_content())
+  }
+
+  pub async fn consumer_recent_workspace_changes(&self) -> FlowyResult<Vec<FolderViewChange>> {
+    let folder = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(folder_not_init_error)?;
+    let workspace_id = self.user.workspace_id()?.to_string();
+    let encoded_collab = self
+      .store_preferences
+      .get_object::<EncodedCollab>(&workspace_id);
+
+    if encoded_collab.is_none() {
+      return Ok(vec![]);
+    }
+
+    let folder = folder.read().await;
+    let changes = folder.calculate_view_changes(encoded_collab.unwrap())?;
+
+    let encoded_collab = folder.encode_collab();
+    if let Ok(encoded) = encoded_collab {
+      let _ = self.store_preferences.set_object(&workspace_id, &encoded);
+    }
+    Ok(changes)
+  }
+
+  pub async fn on_workspace_deleted(&self, _uid: i64, _workspace_id: &Uuid) -> FlowyResult<()> {
+    Ok(())
   }
 
   /// Initialize the folder for the new user.
@@ -1659,6 +1700,20 @@ impl FolderManager {
     self.get_sections(Section::Favorite).await
   }
 
+  pub async fn get_all_views(&self) -> FlowyResult<Vec<Arc<View>>> {
+    let lock = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(folder_not_init_error)?;
+    let views = lock
+      .read()
+      .await
+      .get_all_views()
+      .into_iter()
+      .collect::<Vec<_>>();
+    Ok(views)
+  }
+
   #[tracing::instrument(level = "debug", skip(self))]
   pub(crate) async fn get_my_recent_sections(&self) -> Vec<SectionItem> {
     self.get_sections(Section::Recent).await
@@ -2038,15 +2093,6 @@ impl FolderManager {
       .into_iter()
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
-  }
-
-  pub async fn remove_indices_for_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
-    self
-      .folder_indexer
-      .remove_indices_for_workspace(*workspace_id)
-      .await?;
-
-    Ok(())
   }
 }
 

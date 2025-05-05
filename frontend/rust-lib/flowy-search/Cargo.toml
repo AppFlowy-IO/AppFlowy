@@ -29,7 +29,6 @@ serde_json.workspace = true
 tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 tracing.workspace = true
 derive_builder.workspace = true
-strsim = "0.11.0"
 strum_macros = "0.26.1"
 tantivy.workspace = true
 uuid.workspace = true
@@ -37,6 +36,8 @@ allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 futures.workspace = true
 tokio-stream.workspace = true
 async-stream = "0.3.6"
+dashmap.workspace = true
+arc-swap.workspace = true
 
 [build-dependencies]
 flowy-codegen.workspace = true

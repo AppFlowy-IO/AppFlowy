@@ -95,7 +95,7 @@ class DateTransactionHandler extends MentionTransactionHandler {
     final reminderId = data.$2[MentionBlockKeys.reminderId];
 
     if (reminderId case String _ when reminderId.isNotEmpty) {
-      getIt<ReminderBloc>().add(ReminderEvent.remove(reminderId: reminderId));
+      getIt<ReminderBloc>().add(ReminderEvent.removeReminder(reminderId: reminderId));
     }
   }
 
