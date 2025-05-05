@@ -232,7 +232,7 @@ class _NonEmptyMessage extends StatelessWidget {
         children: [
           AIMarkdownText(
             markdown: state.text,
-            withAnimation: !showActions,
+            withAnimation: stream != null,
           ),
           if (state.sources.isNotEmpty)
             SelectionContainer.disabled(
