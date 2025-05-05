@@ -3,28 +3,45 @@ use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
 use flowy_ai_pub::entities::{EmbeddedChunk, SearchResult};
-use rusqlite::{params, Connection, ToSql};
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::{params, ToSql};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use uuid::Uuid;
 use zerocopy::IntoBytes;
 
 pub struct VectorSqliteDB {
-  conn: Arc<Mutex<Connection>>,
+  pool: Pool<SqliteConnectionManager>,
 }
-
-unsafe impl Send for VectorSqliteDB {}
-unsafe impl Sync for VectorSqliteDB {}
 
 impl VectorSqliteDB {
   pub fn new(root: PathBuf) -> Result<Self> {
-    init_sqlite_vector_extension();
     let db_path = root.join("vector.db");
-    let conn = Arc::new(Mutex::new(init_sqlite_with_migrations(db_path.as_path())?));
-    Ok(Self { conn })
+
+    // Setup the connection manager with the database path
+    let manager = SqliteConnectionManager::file(db_path);
+
+    // Initialize SQLite extensions and settings in each new connection
+    let manager = manager.with_init(|_| {
+      init_sqlite_vector_extension();
+      Ok(())
+    });
+
+    // Create the connection pool
+    let pool = Pool::builder()
+      .max_size(10) // Adjust based on your needs
+      .build(manager)
+      .context("Failed to create connection pool")?;
+
+    // Ensure database is migrated
+    let mut conn = pool
+      .get()
+      .context("Failed to get connection for migration")?;
+    init_sqlite_with_migrations(&mut conn)?;
+
+    Ok(Self { pool })
   }
 
   pub async fn select_collabs_fragment_ids(
@@ -45,7 +62,10 @@ impl VectorSqliteDB {
       placeholders
     );
 
-    let conn = self.conn.lock().await;
+    let conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
     let mut stmt = conn
       .prepare(&sql)
       .context("Preparing select_collabs_fragment_ids")?;
@@ -68,7 +88,10 @@ impl VectorSqliteDB {
   }
 
   pub async fn delete_collab(&self, workspace_id: &str, object_id: &str) -> Result<()> {
-    let mut conn = self.conn.lock().await;
+    let mut conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
     let tx = conn
       .transaction()
       .context("Starting delete_collab transaction")?;
@@ -97,7 +120,10 @@ impl VectorSqliteDB {
       return Ok(());
     }
 
-    let mut conn = self.conn.lock().await;
+    let mut conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
     let tx = conn.transaction().context("Starting transaction")?;
 
     // 1) Collect new IDs
@@ -196,44 +222,68 @@ impl VectorSqliteDB {
   pub async fn search(
     &self,
     workspace_id: &str,
+    object_ids: Vec<String>,
     query: &[f32],
     top_k: i32,
   ) -> Result<Vec<SearchResult>> {
     self
-      .search_with_score(workspace_id, query, top_k, 0.4)
+      .search_with_score(workspace_id, object_ids, query, top_k, 0.4)
       .await
   }
 
   pub async fn search_with_score(
     &self,
     workspace_id: &str,
+    object_ids: Vec<String>,
     query: &[f32],
     top_k: i32,
     min_score: f32,
   ) -> Result<Vec<SearchResult>> {
     // clamp min_score to [0,1]
     let min_score = min_score.clamp(0.0, 1.0);
+    if object_ids.is_empty() {
+      self
+        .search_without_object_ids(workspace_id, query, top_k, min_score)
+        .await
+    } else {
+      self
+        .search_with_object_ids(workspace_id, object_ids, query, top_k, min_score)
+        .await
+    }
+  }
+
+  async fn search_without_object_ids(
+    &self,
+    workspace_id: &str,
+    query: &[f32],
+    top_k: i32,
+    min_score: f32,
+  ) -> Result<Vec<SearchResult>> {
     // distance = 1 - score, so we only want distance <= max_distance
     let max_distance = 1.0 - min_score;
     let query_blob = query.as_bytes();
 
-    // k-NN MATCH with embedded distance filter, compute score = 1-distance
-    let sql = "\
-            SELECT
-              object_id,
-              content,
-              metadata,
-              distance,
-              (1.0 - distance) AS score
-            FROM af_collab_embeddings
-            WHERE embedding MATCH ?
-              AND k = ?
-              AND workspace_id = ?
-              AND distance <= ?
-            ORDER BY distance ASC
-        ";
+    let conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
 
-    let conn = self.conn.lock().await;
+    // k-NN MATCH without object_id filter
+    let sql = "\
+          SELECT
+            object_id,
+            content,
+            metadata,
+            distance,
+            (1.0 - distance) AS score
+          FROM af_collab_embeddings
+          WHERE embedding MATCH ?
+            AND k = ?
+            AND workspace_id = ?
+            AND distance <= ?
+          ORDER BY distance ASC
+      ";
+
     let mut stmt = conn.prepare(sql)?;
     let mut rows = stmt.query(params![
       query_blob,   // MATCH
@@ -242,7 +292,71 @@ impl VectorSqliteDB {
       max_distance, // only distances ≤ this
     ])?;
 
-    let mut out = Vec::new();
+    self.process_search_results(&mut rows)
+  }
+
+  async fn search_with_object_ids(
+    &self,
+    workspace_id: &str,
+    object_ids: Vec<String>,
+    query: &[f32],
+    top_k: i32,
+    min_score: f32,
+  ) -> Result<Vec<SearchResult>> {
+    // distance = 1 - score, so we only want distance <= max_distance
+    let max_distance = 1.0 - min_score;
+    let query_blob = query.as_bytes();
+
+    let conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
+
+    // Create placeholders for the IN clause
+    let placeholders = std::iter::repeat("?")
+      .take(object_ids.len())
+      .collect::<Vec<_>>()
+      .join(", ");
+
+    // k-NN MATCH with object_id filter
+    let sql = format!(
+      "SELECT
+        object_id,
+        content,
+        metadata,
+        distance,
+        (1.0 - distance) AS score
+      FROM af_collab_embeddings
+      WHERE embedding MATCH ?
+        AND k = ?
+        AND workspace_id = ?
+        AND object_id IN ({})
+        AND distance <= ?
+      ORDER BY distance ASC",
+      placeholders
+    );
+
+    let mut stmt = conn.prepare(&sql)?;
+
+    // Create the parameter vector with all params
+    let mut query_params: Vec<&dyn ToSql> = Vec::with_capacity(4 + object_ids.len());
+    query_params.push(&query_blob as &dyn ToSql);
+    query_params.push(&top_k as &dyn ToSql);
+    query_params.push(&workspace_id as &dyn ToSql);
+
+    // Add each object_id as an individual parameter
+    for oid in &object_ids {
+      query_params.push(oid as &dyn ToSql);
+    }
+
+    query_params.push(&max_distance as &dyn ToSql);
+    let mut rows = stmt.query(query_params.as_slice())?;
+    self.process_search_results(&mut rows)
+  }
+
+  /// Process the query results and convert them to SearchResult objects
+  fn process_search_results(&self, rows: &mut rusqlite::Rows) -> Result<Vec<SearchResult>> {
+    let mut results = Vec::new();
     while let Some(row) = rows.next()? {
       let oid_str: String = row.get(0)?;
       let oid = match Uuid::parse_str(&oid_str) {
@@ -255,7 +369,7 @@ impl VectorSqliteDB {
         .and_then(|s| serde_json::from_str::<Value>(&s).ok());
       let score: f32 = row.get(4)?;
 
-      out.push(SearchResult {
+      results.push(SearchResult {
         oid,
         content,
         metadata,
@@ -263,7 +377,7 @@ impl VectorSqliteDB {
       });
     }
 
-    Ok(out)
+    Ok(results)
   }
 
   pub async fn delete_pending_indexed_collab(
@@ -276,8 +390,11 @@ impl VectorSqliteDB {
       return Ok(());
     }
 
-    // Lock and begin a transaction
-    let mut conn = self.conn.lock().await;
+    // Get connection from pool
+    let mut conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
     let tx = conn
       .transaction()
       .context("Starting delete_pending_indexed_collab transaction")?;
@@ -321,8 +438,11 @@ impl VectorSqliteDB {
       return Ok(());
     }
 
-    // lock once, start one transaction
-    let mut conn = self.conn.lock().await;
+    // Get connection from pool
+    let mut conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
     let tx = conn.transaction().context("Starting transaction")?;
 
     // prepare INSERT only once

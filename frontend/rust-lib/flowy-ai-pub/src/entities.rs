@@ -2,7 +2,9 @@ use crate::cloud::workspace_dto::ViewIcon;
 use crate::cloud::CollabType;
 use twox_hash::xxhash64::Hasher;
 use uuid::Uuid;
-
+pub const SOURCE_ID: &str = "id";
+pub const SOURCE: &str = "appflowy";
+pub const SOURCE_NAME: &str = "document";
 pub struct EmbeddingRecord {
   pub workspace_id: Uuid,
   pub object_id: Uuid,

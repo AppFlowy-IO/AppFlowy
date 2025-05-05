@@ -8,9 +8,6 @@ use uuid::Uuid;
 
 #[tokio::test]
 async fn test_vector_sqlite_db_basic_operations() -> Result<()> {
-  // Initialize sqlite-vec extension
-  init_sqlite_vector_extension();
-
   // Create a temporary directory for the test database
   let temp_dir = tempdir()?;
 
@@ -39,9 +36,6 @@ async fn test_vector_sqlite_db_basic_operations() -> Result<()> {
 
 #[tokio::test]
 async fn test_upsert_and_remove_fragments() -> Result<()> {
-  // Initialize sqlite-vec extension
-  init_sqlite_vector_extension();
-
   // Create a temporary directory for the test database
   let temp_dir = tempdir()?;
 
@@ -79,6 +73,7 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
   let result = db
     .search(
       &workspace_id.to_string(),
+      vec![],
       &generate_embedding_with_size(768, 0.1),
       1,
     )
@@ -94,7 +89,6 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
 
 #[tokio::test]
 async fn test_empty_fragments_noop_and_select_empty() -> Result<()> {
-  init_sqlite_vector_extension();
   let temp_dir = tempdir()?;
   let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
@@ -160,7 +154,6 @@ async fn test_duplicate_upsert_idempotent() -> Result<()> {
 
 #[tokio::test]
 async fn test_search_no_hits() -> Result<()> {
-  init_sqlite_vector_extension();
   let temp_dir = tempdir()?;
   let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
@@ -177,7 +170,7 @@ async fn test_search_no_hits() -> Result<()> {
 
   // Query with a very different vector should return empty
   let query = generate_embedding_with_size(768, -1.0);
-  let results = db.search(&workspace_id, &query, 1).await?;
+  let results = db.search(&workspace_id, vec![], &query, 1).await?;
   assert!(
     results.is_empty(),
     "Expected no near neighbors for orthogonal vector"
@@ -187,7 +180,6 @@ async fn test_search_no_hits() -> Result<()> {
 
 #[tokio::test]
 async fn test_multi_workspace_isolation() -> Result<()> {
-  init_sqlite_vector_extension();
   let temp_dir = tempdir()?;
   let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
@@ -205,14 +197,14 @@ async fn test_multi_workspace_isolation() -> Result<()> {
 
   // Searching in ws1 should not return ws2's fragment
   let res1 = db
-    .search(&ws1, &generate_embedding_with_size(768, 0.9), 1)
+    .search(&ws1, vec![], &generate_embedding_with_size(768, 0.9), 1)
     .await?;
   assert_eq!(res1.len(), 1);
   assert_eq!(res1[0].oid, Uuid::parse_str(&oid)?);
 
   // Searching in ws2 should not return ws1's fragment
   let res2 = db
-    .search(&ws2, &generate_embedding_with_size(768, -0.9), 1)
+    .search(&ws2, vec![], &generate_embedding_with_size(768, -0.9), 1)
     .await?;
   assert_eq!(res2.len(), 1);
   assert_eq!(res2[0].oid, Uuid::parse_str(&oid)?);
@@ -222,7 +214,6 @@ async fn test_multi_workspace_isolation() -> Result<()> {
 
 #[tokio::test]
 async fn test_select_multiple_oids() -> Result<()> {
-  init_sqlite_vector_extension();
   let temp_dir = tempdir()?;
   let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
@@ -265,7 +256,6 @@ async fn test_select_multiple_oids() -> Result<()> {
 
 #[tokio::test]
 async fn test_skip_missing_content() -> Result<()> {
-  init_sqlite_vector_extension();
   let temp_dir = tempdir()?;
   let db = VectorSqliteDB::new(temp_dir.into_path())?;
 
@@ -284,6 +274,91 @@ async fn test_skip_missing_content() -> Result<()> {
   let frags = &map[&Uuid::parse_str(&oid)?];
   assert_eq!(frags.len(), 1);
   assert_eq!(frags[0], good.fragment_id);
+
+  Ok(())
+}
+
+#[tokio::test]
+async fn test_object_ids_handling() -> Result<()> {
+  let temp_dir = tempdir()?;
+  let db = VectorSqliteDB::new(temp_dir.into_path())?;
+  let workspace_id = Uuid::new_v4().to_string();
+
+  // Test with different object ID formats
+  let standard_oid = Uuid::new_v4().to_string();
+  let special_oid = Uuid::new_v4().to_string(); // Zero UUID instead of empty
+  let very_long_oid = Uuid::new_v4().to_string();
+
+  // Insert fragments with different oids
+  db.upsert_collabs_embeddings(
+    &workspace_id,
+    &standard_oid,
+    vec![create_test_fragment(
+      &standard_oid,
+      0,
+      generate_embedding_with_size(768, 0.1),
+    )],
+  )
+  .await?;
+
+  db.upsert_collabs_embeddings(
+    &workspace_id,
+    &special_oid,
+    vec![create_test_fragment(
+      &special_oid,
+      0,
+      generate_embedding_with_size(768, 0.2),
+    )],
+  )
+  .await?;
+
+  db.upsert_collabs_embeddings(
+    &workspace_id,
+    &very_long_oid,
+    vec![create_test_fragment(
+      &very_long_oid,
+      0,
+      generate_embedding_with_size(768, 0.3),
+    )],
+  )
+  .await?;
+
+  // Verify we can retrieve all three types of object IDs
+  let all_oids = [
+    standard_oid.clone(),
+    special_oid.clone(),
+    very_long_oid.clone(),
+  ];
+  let result = db.select_collabs_fragment_ids(&all_oids).await?;
+
+  assert_eq!(
+    result.len(),
+    3,
+    "Should retrieve fragments for all three object IDs"
+  );
+  assert!(result.contains_key(&Uuid::parse_str(&standard_oid)?));
+  assert!(result.contains_key(&Uuid::parse_str(&special_oid)?));
+  assert!(result.contains_key(&Uuid::parse_str(&very_long_oid)?));
+
+  // Test search functionality works with different object IDs
+  let search_results = db
+    .search(
+      &workspace_id,
+      vec![],
+      &generate_embedding_with_size(768, 0.2),
+      10,
+    )
+    .await?;
+
+  // Verify we can find results for our special UUID
+  let found_special_id = search_results
+    .iter()
+    .any(|r| r.content == "Content for fragment 0" && r.oid.to_string() == special_oid);
+
+  assert!(
+    found_special_id,
+    "Should find the fragment with special UUID"
+  );
 
   Ok(())
 }
