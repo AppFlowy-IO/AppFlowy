@@ -2356,6 +2356,7 @@
     "searchOrAskAI": "Search or ask AI",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
+    "searching": "Searching...",
     "noResultForSearching": "No matches found",
     "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
     "bestMatch": "Best match",

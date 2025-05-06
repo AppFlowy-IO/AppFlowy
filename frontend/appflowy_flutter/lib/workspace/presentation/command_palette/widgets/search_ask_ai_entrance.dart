@@ -1,0 +1,136 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class SearchAskAiEntrance extends StatelessWidget {
+  const SearchAskAiEntrance({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<CommandPaletteBloc?>(), state = bloc?.state;
+    final generatingAIOverview = state?.generatingAIOverview ?? false;
+    final hasAIOverview = state?.resultSummaries.isNotEmpty ?? false;
+
+    if (generatingAIOverview) {
+      return _AISearching();
+    } else if (hasAIOverview) {
+      return _AIOverview();
+    }
+    return _AskAIFor();
+  }
+}
+
+class _AskAIFor extends StatelessWidget {
+  const _AskAIFor();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
+    return Container(
+      height: 64,
+      padding: EdgeInsets.symmetric(vertical: sapceM, horizontal: spaceL),
+      child: AFBaseButton(
+        borderRadius: sapceM,
+        padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
+        backgroundColor: (context, isHovering, disable) {
+          if (isHovering) {
+            return theme.fillColorScheme.quaternaryHover;
+          }
+          return theme.fillColorScheme.transparent;
+        },
+        borderColor: (context, isHovering, disable, isFocused) =>
+            theme.fillColorScheme.transparent,
+        builder: (ctx, isHovering, disable) {
+          return Row(
+            children: [
+              FlowySvg(
+                FlowySvgs.m_home_ai_chat_icon_m,
+                size: Size.square(20),
+                blendMode: null,
+              ),
+              HSpace(12),
+              buildText(context),
+            ],
+          );
+        },
+        onTap: () {},
+      ),
+    );
+  }
+
+  Widget buildText(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    final bloc = context.read<CommandPaletteBloc?>();
+    final queryText = bloc?.state.query ?? '';
+    if (queryText.isEmpty) {
+      return Text(
+        LocaleKeys.search_askAIAnything.tr(),
+        style:
+            theme.textStyle.body.standard(color: theme.textColorScheme.primary),
+      );
+    }
+    return Flexible(
+      child: RichText(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: LocaleKeys.search_askAIFor.tr(),
+              style: theme.textStyle.body
+                  .standard(color: theme.textColorScheme.primary),
+            ),
+            TextSpan(
+              text: ' "$queryText"',
+              style: theme.textStyle.body
+                  .enhanced(color: theme.textColorScheme.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AISearching extends StatelessWidget {
+  const _AISearching();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Container(
+      height: 54,
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      child: Row(
+        children: [
+          FlowySvg(
+            FlowySvgs.ai_searching_icon_m,
+            size: Size.square(20),
+            blendMode: null,
+          ),
+          HSpace(8),
+          Text(
+            LocaleKeys.search_askAIAnything.tr(),
+            style: theme.textStyle.heading4
+                .standard(color: theme.textColorScheme.secondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AIOverview extends StatelessWidget {
+  const _AIOverview();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

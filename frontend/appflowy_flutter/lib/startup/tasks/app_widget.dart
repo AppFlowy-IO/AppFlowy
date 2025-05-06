@@ -137,7 +137,7 @@ class ApplicationWidget extends StatefulWidget {
 class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
-  final _commandPaletteNotifier = ValueNotifier<bool>(false);
+  final _commandPaletteNotifier = ValueNotifier(CommandPaletteNotifierValue());
 
   final themeBuilder = AppFlowyDefaultTheme();
 

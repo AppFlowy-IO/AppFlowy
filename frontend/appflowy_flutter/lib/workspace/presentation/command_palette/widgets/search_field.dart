@@ -1,3 +1,4 @@
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -96,80 +97,56 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    // Cache theme and text styles
-    final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodySmall?.copyWith(fontSize: 14);
-    final hintStyle = theme.textTheme.bodySmall?.copyWith(
-      fontSize: 14,
-      color: theme.hintColor,
-    );
+    final theme = AppFlowyTheme.of(context);
 
-    // Choose the leading icon based on loading state
-    final Widget leadingIcon = widget.isLoading
-        ? FlowyTooltip(
-            message: LocaleKeys.commandPalette_loadingTooltip.tr(),
-            child: const SizedBox(
-              width: 20,
-              height: 20,
-              child: Padding(
-                padding: EdgeInsets.all(3.0),
-                child: CircularProgressIndicator(strokeWidth: 2.0),
-              ),
-            ),
-          )
-        : SizedBox(
-            width: 20,
-            height: 20,
-            child: FlowySvg(
-              FlowySvgs.search_m,
-              color: theme.hintColor,
-            ),
-          );
-
-    return Row(
-      children: [
-        const HSpace(12),
-        leadingIcon,
-        Expanded(
-          child: FlowyTextField(
-            focusNode: focusNode,
-            controller: controller,
-            textStyle: textStyle,
-            decoration: InputDecoration(
-              constraints: const BoxConstraints(maxHeight: 48),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.transparent),
-                borderRadius: Corners.s8Border,
-              ),
-              isDense: false,
-              hintText: LocaleKeys.commandPalette_placeholder.tr(),
-              hintStyle: hintStyle,
-              errorStyle: theme.textTheme.bodySmall!
-                  .copyWith(color: theme.colorScheme.error),
-              suffix: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildSuffixIcon(context),
-                  const HSpace(8),
-                ],
-              ),
-              counterText: "",
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: Corners.s8Border,
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: Corners.s8Border,
-                borderSide: BorderSide(color: theme.colorScheme.error),
-              ),
-            ),
-            onChanged: (value) => context
-                .read<CommandPaletteBloc>()
-                .add(CommandPaletteEvent.searchChanged(search: value)),
+    return Container(
+      height: 52,
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 16),
+      child: Row(
+        children: [
+          FlowySvg(
+            FlowySvgs.search_icon_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(20),
           ),
-        ),
-      ],
+          HSpace(8),
+          Expanded(
+            child: FlowyTextField(
+              focusNode: focusNode,
+              controller: controller,
+              textStyle: theme.textStyle.heading4
+                  .standard(color: theme.textColorScheme.primary),
+              decoration: InputDecoration(
+                constraints: const BoxConstraints(maxHeight: 48),
+                contentPadding: EdgeInsets.zero,
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
+                  borderRadius: Corners.s8Border,
+                ),
+                isDense: false,
+                hintText: LocaleKeys.search_searchOrAskAI.tr(),
+                hintStyle: theme.textStyle.heading4
+                    .standard(color: theme.textColorScheme.tertiary),
+                suffix: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildSuffixIcon(context),
+                    const HSpace(8),
+                  ],
+                ),
+                counterText: "",
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: Corners.s8Border,
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+              ),
+              onChanged: (value) => context
+                  .read<CommandPaletteBloc>()
+                  .add(CommandPaletteEvent.searchChanged(search: value)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
