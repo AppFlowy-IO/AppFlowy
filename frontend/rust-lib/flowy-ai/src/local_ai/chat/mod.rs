@@ -1,4 +1,5 @@
 mod conversation_chain;
+mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;

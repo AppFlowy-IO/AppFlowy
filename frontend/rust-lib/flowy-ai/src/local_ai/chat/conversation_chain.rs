@@ -14,12 +14,11 @@ use langchain_rust::prompt::{FormatPrompter, PromptArgs};
 use langchain_rust::schemas::{BaseMemory, Document, Message, Retriever, StreamData};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
 use serde_json::{json, Value};
-use std::collections::HashSet;
 use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use tokio_util::either::Either;
-use tracing::trace;
+use tracing::{info, trace};
 
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
@@ -40,64 +39,6 @@ pub struct ConversationalRetrieverChain {
   pub(crate) output_key: String,
 }
 impl ConversationalRetrieverChain {
-  pub fn set_rag_ids(&mut self, new_rag_ids: Vec<String>) {
-    let filters = self
-      .retriever
-      .options
-      .filters
-      .get_or_insert_with(|| json!({}));
-    filters[RAG_IDS] = json!(new_rag_ids);
-  }
-
-  pub fn add_rag_ids<I, S>(&mut self, rag_ids: I)
-  where
-    I: IntoIterator<Item = S>,
-    S: AsRef<str>,
-  {
-    // Ensure a filter object exists
-    let filters = self
-      .retriever
-      .options
-      .filters
-      .get_or_insert_with(|| json!({}));
-
-    let arr = filters
-      .as_object_mut()
-      .expect("filters must be a JSON object")
-      .entry("RAG_IDS")
-      .or_insert_with(|| json!([]))
-      .as_array_mut()
-      .expect("`rag_ids` must be an array");
-
-    let mut existing: HashSet<String> = arr
-      .iter()
-      .filter_map(|v| v.as_str().map(|s| s.to_string()))
-      .collect();
-
-    // Insert new IDs if not already present
-    for id in rag_ids {
-      let id_str = id.as_ref();
-      if existing.insert(id_str.to_string()) {
-        arr.push(json!(id_str));
-      }
-    }
-  }
-
-  pub fn remove_rag_ids(&mut self, rag_ids: Vec<String>) {
-    if let Some(filters) = self.retriever.options.filters.as_mut() {
-      if let Some(current_rag_ids) = filters
-        .get_mut(RAG_IDS)
-        .and_then(|filter| filter.as_array_mut())
-      {
-        // Remove specified rag_ids from the array
-        current_rag_ids.retain(|id| {
-          id.as_str()
-            .map_or(true, |id_str| !rag_ids.contains(&id_str.to_string()))
-        });
-      }
-    }
-  }
-
   async fn get_question(
     &self,
     history: &[Message],
@@ -139,11 +80,18 @@ impl ConversationalRetrieverChain {
       .await
       .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
 
-    if !self.retriever.get_rag_ids().is_empty() && documents.is_empty() {
-      return Ok(Either::Right(GenerateResult {
-        tokens: None,
-        generation: "I don't know".to_string(),
-      }));
+    if documents.is_empty() {
+      let rag_ids = self.retriever.get_rag_ids();
+      if !rag_ids.is_empty() {
+        trace!(
+          "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. return I don't know",
+          rag_ids
+        );
+        return Ok(Either::Right(GenerateResult {
+          tokens: None,
+          generation: "I don't know".to_string(),
+        }));
+      }
     }
 
     Ok(Either::Left(documents))
@@ -480,8 +428,14 @@ impl AFRetriever {
       options,
     }
   }
+  pub fn set_rag_ids(&mut self, new_rag_ids: Vec<String>) {
+    trace!("[VectorStore] retriever {:p}", self);
+    let filters = self.options.filters.get_or_insert_with(|| json!({}));
+    filters[RAG_IDS] = json!(new_rag_ids);
+  }
 
   pub fn get_rag_ids(&self) -> Vec<&str> {
+    trace!("[VectorStore] retriever {:p}", self);
     self
       .options
       .filters
