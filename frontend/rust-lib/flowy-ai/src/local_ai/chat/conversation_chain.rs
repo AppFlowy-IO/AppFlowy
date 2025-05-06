@@ -18,7 +18,7 @@ use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use tokio_util::either::Either;
-use tracing::{info, trace};
+use tracing::trace;
 
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
@@ -89,7 +89,7 @@ impl ConversationalRetrieverChain {
         );
         return Ok(Either::Right(GenerateResult {
           tokens: None,
-          generation: "I don't know".to_string(),
+          generation: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
         }));
       }
     }

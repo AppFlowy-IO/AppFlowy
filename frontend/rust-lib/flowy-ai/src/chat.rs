@@ -542,6 +542,12 @@ impl Chat {
     limit: u64,
     offset: MessageCursor,
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
+    trace!(
+      "[Chat] Loading messages from disk: chat_id={}, limit={}, offset={:?}",
+      self.chat_id,
+      limit,
+      offset
+    );
     let conn = self.user_service.sqlite_connection(self.uid)?;
     let rows = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?.messages;
     let messages = rows

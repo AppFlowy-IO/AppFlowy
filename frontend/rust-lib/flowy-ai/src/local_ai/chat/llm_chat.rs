@@ -1,30 +1,21 @@
 use crate::local_ai::chat::conversation_chain::{
   AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder, RetrieverOption,
 };
-use crate::local_ai::chat::format_prompt::DynamicMessageFormatter;
+use crate::local_ai::chat::format_prompt::AFMessageFormatter;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::OllamaClientRef;
-use crate::local_ai::prompt::format_prompt;
 use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sqlite_vec::entities::SqliteEmbeddedDocument;
 use futures::StreamExt;
 use langchain_rust::chain::{Chain, ChainError};
 use langchain_rust::memory::SimpleMemory;
-use langchain_rust::prompt::{
-  FormatPrompter, HumanMessagePromptTemplate, MessageFormatter, MessageFormatterStruct,
-  MessageOrTemplate, PromptArgs, PromptError,
-};
-use langchain_rust::schemas::{Document, Message, PromptValue};
+use langchain_rust::prompt_args;
+use langchain_rust::schemas::{Document, Message};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
-use langchain_rust::{fmt_message, fmt_template, message_formatter, prompt_args, template_jinja2};
 use serde_json::json;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::sync::Mutex;
-use tokio::sync::Mutex as TokioMutex;
 use tracing::{info, trace};
 use uuid::Uuid;
 
@@ -33,10 +24,10 @@ pub struct LLMChat {
   chat_id: Uuid,
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
+  #[allow(dead_code)]
   client: OllamaClientRef,
   rag_ids: Vec<String>,
-  format_instruction: Arc<Mutex<Message>>,
-  current_format: Arc<Mutex<ResponseFormat>>,
+  dynamic_formatter: AFMessageFormatter,
 }
 
 impl LLMChat {
@@ -50,9 +41,7 @@ impl LLMChat {
   ) -> FlowyResult<Self> {
     let initial_format = ResponseFormat::default();
     let formatter = create_dynamic_prompt_with_format(&initial_format);
-    let (format_instruction, current_format) = formatter.get_shared_handles();
-
-    let (chain, _) = create_chain(
+    let (chain, dynamic_formatter) = create_chain(
       &workspace_id,
       model,
       &client,
@@ -69,8 +58,7 @@ impl LLMChat {
       chain,
       client,
       rag_ids,
-      format_instruction,
-      current_format,
+      dynamic_formatter,
     })
   }
 
@@ -104,7 +92,10 @@ impl LLMChat {
     Ok(result)
   }
 
-  pub async fn get_all_embedded_documents(&self) -> FlowyResult<Vec<SqliteEmbeddedDocument>> {
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+  pub async fn get_all_embedded_documents(
+    &self,
+  ) -> FlowyResult<Vec<flowy_sqlite_vec::entities::SqliteEmbeddedDocument>> {
     let store = self
       .store
       .as_ref()
@@ -155,39 +146,7 @@ impl LLMChat {
     message: &str,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    // Get the current format
-    let current_format = {
-      let lock = self.current_format.lock().map_err(|_| {
-        FlowyError::local_ai().with_context("Failed to acquire lock on current_format")
-      })?;
-      (*lock).clone()
-    };
-
-    // Check if format has changed
-    if current_format.output_layout != format.output_layout {
-      trace!(
-        "[LLMChat] Updating format from {:?} to {:?}",
-        current_format.output_layout,
-        format.output_layout
-      );
-
-      // Update the shared format instruction
-      {
-        let mut format_lock = self.format_instruction.lock().map_err(|_| {
-          FlowyError::local_ai().with_context("Failed to acquire lock on format_instruction")
-        })?;
-        *format_lock = format_prompt(&format);
-      }
-
-      // Update the current format
-      {
-        let mut format_lock = self.current_format.lock().map_err(|_| {
-          FlowyError::local_ai().with_context("Failed to acquire lock on current_format")
-        })?;
-        *format_lock = format.clone();
-      }
-    }
-
+    self.dynamic_formatter.update_format(&format)?;
     let input_variables = prompt_args! {
         "question" => message,
     };
@@ -214,11 +173,11 @@ impl LLMChat {
   }
 }
 
-fn create_dynamic_prompt_with_format(format: &ResponseFormat) -> DynamicMessageFormatter {
+fn create_dynamic_prompt_with_format(format: &ResponseFormat) -> AFMessageFormatter {
   let system_message =
     Message::new_system_message("You are an assistant for question-answering tasks");
 
-  DynamicMessageFormatter::new(system_message, format)
+  AFMessageFormatter::new(system_message, format)
 }
 
 fn create_retriever(
@@ -243,9 +202,9 @@ async fn create_chain(
   model: &str,
   client: &OllamaClientRef,
   rag_ids: Vec<String>,
-  formatter: DynamicMessageFormatter,
+  formatter: AFMessageFormatter,
   store: Option<SqliteVectorStore>,
-) -> FlowyResult<(ConversationalRetrieverChain, DynamicMessageFormatter)> {
+) -> FlowyResult<(ConversationalRetrieverChain, AFMessageFormatter)> {
   let llm = create_llm(client, model).await?;
 
   let mut builder = ConversationalRetrieverChainBuilder::new()

@@ -2722,6 +2722,7 @@ dependencies = [
  "lib-infra",
  "serde",
  "serde_json",
+ "tracing",
  "twox-hash",
  "uuid",
 ]

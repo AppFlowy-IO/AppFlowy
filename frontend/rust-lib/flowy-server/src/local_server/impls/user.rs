@@ -4,7 +4,7 @@ use crate::af_cloud::define::LoggedUser;
 use crate::local_server::template::create_workspace::{
   create_workspace_for_user, CreateWorkspaceCollab,
 };
-use crate::local_server::uid::UserIDGenerator;
+use crate::local_server::uid::IDGenerator;
 use anyhow::Context;
 use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
@@ -35,7 +35,7 @@ use tokio::sync::Mutex;
 use uuid::Uuid;
 
 lazy_static! {
-  static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
+  static ref ID_GEN: Mutex<IDGenerator> = Mutex::new(IDGenerator::new(1));
 }
 
 pub(crate) struct LocalServerUserServiceImpl {

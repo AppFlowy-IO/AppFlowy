@@ -3,7 +3,6 @@ mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;
-mod suggest_question_chain;
 
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;

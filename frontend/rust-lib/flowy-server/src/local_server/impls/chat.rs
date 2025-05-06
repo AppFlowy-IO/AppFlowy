@@ -1,4 +1,5 @@
 use crate::af_cloud::define::LoggedUser;
+use crate::local_server::uid::IDGenerator;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use flowy_ai::local_ai::controller::LocalAIController;
@@ -15,14 +16,20 @@ use flowy_ai_pub::persistence::{
   ChatMessageTable, ChatTable, ChatTableChangeset,
 };
 use flowy_error::{FlowyError, FlowyResult};
+use lazy_static::lazy_static;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 use tracing::trace;
 use uuid::Uuid;
+
+lazy_static! {
+  static ref ID_GEN: Mutex<IDGenerator> = Mutex::new(IDGenerator::new(2));
+}
 
 pub struct LocalChatServiceImpl {
   pub logged_user: Arc<dyn LoggedUser>,
@@ -73,9 +80,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<ChatMessage, FlowyError> {
+    let message_id = ID_GEN.lock().await.next_id();
     let message = match message_type {
-      ChatMessageType::System => ChatMessage::new_system(timestamp(), message.to_string()),
-      ChatMessageType::User => ChatMessage::new_human(timestamp(), message.to_string(), None),
+      ChatMessageType::System => ChatMessage::new_system(message_id, message.to_string()),
+      ChatMessageType::User => ChatMessage::new_human(message_id, message.to_string(), None),
     };
 
     self.upsert_message(chat_id, message.clone()).await?;
