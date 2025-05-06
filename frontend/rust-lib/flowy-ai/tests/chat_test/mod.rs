@@ -4,10 +4,11 @@ use flowy_ai::local_ai::chat::llm::LLMOllama;
 use flowy_ai::local_ai::chat::llm_chat::LLMChat;
 use flowy_ai::local_ai::chat::related_question_chain::RelatedQuestionChain;
 use flowy_ai_pub::cloud::{OutputLayout, QuestionStreamValue, ResponseFormat, StreamAnswer};
-use flowy_ai_pub::entities::SOURCE_ID;
+use flowy_ai_pub::entities::{SOURCE, SOURCE_ID, SOURCE_NAME};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use ollama_rs::Ollama;
 use reqwest::Url;
+use serde_json::Value;
 use std::sync::Arc;
 use tempfile::tempdir;
 use tokio::sync::RwLock;
@@ -25,14 +26,14 @@ pub struct TestContext {
 
 impl TestContext {
   pub fn new() -> anyhow::Result<Self> {
-    let ollama_url = "http://localhost:11434";
+    setup_log();
 
+    let ollama_url = "http://localhost:11434";
     let url = Url::parse(ollama_url)?;
     let ollama = Arc::new(Ollama::from_url(url.clone()));
 
     let temp_dir = tempdir()?;
     let db = Arc::new(VectorSqliteDB::new(temp_dir.into_path())?);
-
     let vector_store = SqliteVectorStore::new(Arc::downgrade(&ollama), Arc::downgrade(&db));
 
     Ok(Self {
@@ -75,7 +76,7 @@ async fn local_ollama_test_simple_question() {
 }
 
 #[tokio::test]
-async fn local_ollama_test_chat_context_retrieve() {
+async fn local_ollama_test_chat_with_multiple_docs_retrieve() {
   let context = TestContext::new().unwrap();
   let mut chat = context.create_chat(vec![]).await;
   let mut ids = vec![];
@@ -86,7 +87,29 @@ async fn local_ollama_test_chat_context_retrieve() {
         ids.push(id.to_string());
         chat.embed_paragraphs(&id.to_string(), vec![doc.to_string()]).await.unwrap();
     }
-  chat.set_rag_ids(ids.clone()).await.unwrap();
+  chat.set_rag_ids(ids.clone()).await;
+
+  let all_docs = chat.get_all_embedded_documents().await.unwrap();
+  assert_eq!(all_docs.len(), 3);
+  assert_eq!(all_docs[0].fragments.len(), 1);
+  assert_eq!(all_docs[1].fragments.len(), 1);
+  assert_eq!(all_docs[2].fragments.len(), 1);
+
+  let docs = chat
+    .search("Rust is a multiplayer survival game", 5, ids.clone())
+    .await
+    .unwrap();
+  assert_eq!(docs.len(), 1);
+
+  let docs = chat
+    .search(
+      "chemical process of rust formation on metal",
+      5,
+      ids.clone(),
+    )
+    .await
+    .unwrap();
+  assert_eq!(docs.len(), 1);
 
   let stream = chat
     .stream_question("Rust is a multiplayer survival game", Default::default())
@@ -97,7 +120,17 @@ async fn local_ollama_test_chat_context_retrieve() {
   dbg!(&sources);
 
   assert!(!answer.is_empty());
-  assert_eq!(sources.len(), 1);
+  assert!(!sources.is_empty());
+  assert!(sources[0].get(SOURCE_ID).unwrap().as_str().is_some());
+  assert!(sources[0].get(SOURCE).unwrap().as_str().is_some());
+  assert!(sources[0].get(SOURCE_NAME).unwrap().as_str().is_some());
+
+  let stream = chat
+    .stream_question("Japan ski resort", Default::default())
+    .await
+    .unwrap();
+  let (answer, _) = collect_stream(stream).await;
+  dbg!(&answer);
 }
 
 #[tokio::test]
@@ -116,7 +149,7 @@ async fn local_ollama_test_chat_format() {
   assert!(!answer.is_empty());
 }
 
-async fn collect_stream(stream: StreamAnswer) -> (String, Vec<String>) {
+async fn collect_stream(stream: StreamAnswer) -> (String, Vec<Value>) {
   let mut result = String::new();
   let mut sources = vec![];
   let mut stream = stream;
@@ -127,7 +160,8 @@ async fn collect_stream(stream: StreamAnswer) -> (String, Vec<String>) {
           result.push_str(&value);
         },
         QuestionStreamValue::Metadata { value } => {
-          sources.push(value.get(SOURCE_ID).unwrap().to_string());
+          dbg!("metadata", &value);
+          sources.push(value);
         },
         QuestionStreamValue::KeepAlive => {},
       },

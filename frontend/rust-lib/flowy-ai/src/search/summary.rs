@@ -31,7 +31,6 @@ struct SummarySearchSchema {
 
 const SYSTEM_PROMPT: &str = r#"
 You are a strict, context-bound question answering assistant. Answer solely based on the context provided below. If the context lacks sufficient information for a confident response, reply with an empty answer.
-Do not reference or use any information beyond what is provided in the context.
 
 Output must include:
 - `answer`: a detailed, on-point answer to the user’s question.

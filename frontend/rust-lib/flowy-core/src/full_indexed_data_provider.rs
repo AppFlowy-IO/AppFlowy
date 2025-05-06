@@ -1,8 +1,8 @@
 use client_api::entity::workspace_dto::ViewIcon;
 use collab::preclude::Collab;
-use collab_document::document::DocumentBody;
 use collab_entity::CollabType;
 use collab_folder::{View, ViewLayout};
+use collab_integrate::instant_indexed_data_provider::unindexed_data_form_collab;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
@@ -28,7 +28,7 @@ pub trait FullIndexedDataConsumer: Send + Sync {
 }
 
 #[derive(Clone)]
-pub struct FullIndexedDataProvider {
+pub struct FullIndexedDataWriter {
   workspace_id: Uuid,
   folder_manager: Weak<FolderManager>,
   logged_user: Weak<dyn LoggedUser>,
@@ -36,7 +36,7 @@ pub struct FullIndexedDataProvider {
   consumers: Arc<RwLock<Vec<Box<dyn FullIndexedDataConsumer>>>>,
 }
 
-impl FullIndexedDataProvider {
+impl FullIndexedDataWriter {
   pub fn new(
     workspace_id: Uuid,
     folder_manager: Weak<FolderManager>,
@@ -249,7 +249,7 @@ impl FullIndexedDataProvider {
 
         // Create metadata once for reuse
         let metadata = UnindexedCollabMetadata {
-          name: view.name.clone(),
+          name: Some(view.name.clone()),
           icon: view.icon.as_ref().map(|icon| ViewIcon {
             ty: IconType::from(icon.ty.clone() as u8),
             value: icon.value.clone(),
@@ -268,26 +268,16 @@ impl FullIndexedDataProvider {
             };
 
             if load_success {
-              if let Some(document) = DocumentBody::from_collab(&collab) {
-                let paragraphs = document.paragraphs(collab.transact());
+              if let Some(data) = unindexed_data_form_collab(&collab, &collab_type) {
                 results.push(UnindexedCollab {
                   workspace_id,
                   object_id,
-                  collab_type: CollabType::Document,
-                  data: UnindexedData::Paragraphs(paragraphs),
+                  collab_type,
+                  data,
                   metadata,
                 });
-                continue;
               }
             }
-            // When load fails or document extraction fails, use empty text
-            results.push(UnindexedCollab {
-              workspace_id,
-              object_id,
-              collab_type: CollabType::Document,
-              data: UnindexedData::Text(String::new()),
-              metadata,
-            });
           },
           CollabType::Database => {
             results.push(UnindexedCollab {

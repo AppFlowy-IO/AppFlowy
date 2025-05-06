@@ -1,7 +1,7 @@
 use crate::local_ai::chat::llm::LLMOllama;
 use async_stream::stream;
 use async_trait::async_trait;
-use flowy_ai_pub::entities::SOURCE_ID;
+use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
 use futures::Stream;
 use futures_util::{pin_mut, StreamExt};
 use langchain_rust::chain::{
@@ -18,6 +18,8 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
+use tokio_util::either::Either;
+use tracing::trace;
 
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
@@ -28,7 +30,7 @@ const CONVERSATIONAL_RETRIEVAL_QA_DEFAULT_INPUT_KEY: &str = "question";
 
 pub struct ConversationalRetrieverChain {
   pub(crate) ollama: LLMOllama,
-  pub(crate) retriever: AFRetriever<Value>,
+  pub(crate) retriever: AFRetriever,
   pub memory: Arc<Mutex<dyn BaseMemory>>,
   pub(crate) combine_documents_chain: Box<dyn Chain>,
   pub(crate) condense_question_chain: Box<dyn Chain>,
@@ -44,8 +46,7 @@ impl ConversationalRetrieverChain {
       .options
       .filters
       .get_or_insert_with(|| json!({}));
-
-    filters["rag_ids"] = json!(new_rag_ids);
+    filters[RAG_IDS] = json!(new_rag_ids);
   }
 
   pub fn add_rag_ids<I, S>(&mut self, rag_ids: I)
@@ -63,7 +64,7 @@ impl ConversationalRetrieverChain {
     let arr = filters
       .as_object_mut()
       .expect("filters must be a JSON object")
-      .entry("rag_ids")
+      .entry("RAG_IDS")
       .or_insert_with(|| json!([]))
       .as_array_mut()
       .expect("`rag_ids` must be an array");
@@ -85,7 +86,7 @@ impl ConversationalRetrieverChain {
   pub fn remove_rag_ids(&mut self, rag_ids: Vec<String>) {
     if let Some(filters) = self.retriever.options.filters.as_mut() {
       if let Some(current_rag_ids) = filters
-        .get_mut("rag_ids")
+        .get_mut(RAG_IDS)
         .and_then(|filter| filter.as_array_mut())
       {
         // Remove specified rag_ids from the array
@@ -127,6 +128,26 @@ impl ConversationalRetrieverChain {
 
     Ok((question, token_usage))
   }
+
+  async fn get_documents_or_result(
+    &self,
+    question: &str,
+  ) -> Result<Either<Vec<Document>, GenerateResult>, ChainError> {
+    let documents = self
+      .retriever
+      .get_relevant_documents(question)
+      .await
+      .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
+
+    if !self.retriever.get_rag_ids().is_empty() && documents.is_empty() {
+      return Ok(Either::Right(GenerateResult {
+        tokens: None,
+        generation: "I don't know".to_string(),
+      }));
+    }
+
+    Ok(Either::Left(documents))
+  }
 }
 
 #[async_trait]
@@ -157,11 +178,19 @@ impl Chain for ConversationalRetrieverChain {
       token_usage = Some(token);
     }
 
-    let documents = self
-      .retriever
-      .get_relevant_documents(&question)
-      .await
-      .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
+    let documents = match self.get_documents_or_result(&question).await? {
+      Either::Left(docs) => docs,
+      Either::Right(result) => {
+        let mut memory = self.memory.lock().await;
+        memory.add_message(human_message);
+        memory.add_message(Message::new_ai_message(&result.generation));
+
+        let mut output = HashMap::new();
+        output.insert(self.output_key.clone(), json!(result.generation));
+        output.insert(DEFAULT_RESULT_KEY.to_string(), json!(result));
+        return Ok(output);
+      },
+    };
 
     let mut output = self
       .combine_documents_chain
@@ -188,7 +217,6 @@ impl Chain for ConversationalRetrieverChain {
 
     let mut result = HashMap::new();
     result.insert(self.output_key.clone(), json!(output.generation));
-
     result.insert(DEFAULT_RESULT_KEY.to_string(), json!(output));
 
     if self.return_source_documents {
@@ -224,11 +252,22 @@ impl Chain for ConversationalRetrieverChain {
 
     let (question, _) = self.get_question(&history, &human_message.content).await?;
 
-    let documents = self
-      .retriever
-      .get_relevant_documents(&question)
-      .await
-      .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
+    let documents = match self.get_documents_or_result(&question).await? {
+      Either::Left(docs) => docs,
+      Either::Right(result) => {
+        let mut memory = self.memory.lock().await;
+        memory.add_message(human_message);
+        memory.add_message(Message::new_ai_message(&result.generation));
+
+        return Ok(Box::pin(stream! {
+          yield Ok(StreamData::new(
+            json!(result),
+            result.tokens,
+            result.generation,
+          ));
+        }));
+      },
+    };
 
     let stream = self
       .combine_documents_chain
@@ -254,7 +293,6 @@ impl Chain for ConversationalRetrieverChain {
               "".to_string(),
           ));
         }
-
 
         while let Some(result) = stream.next().await {
             match result {
@@ -302,7 +340,7 @@ impl Chain for ConversationalRetrieverChain {
 
 pub struct ConversationalRetrieverChainBuilder {
   llm: Option<LLMOllama>,
-  retriever: Option<AFRetriever<Value>>,
+  retriever: Option<AFRetriever>,
   memory: Option<Arc<Mutex<dyn BaseMemory>>>,
   combine_documents_chain: Option<Box<dyn Chain>>,
   condense_question_chain: Option<Box<dyn Chain>>,
@@ -328,7 +366,7 @@ impl ConversationalRetrieverChainBuilder {
     }
   }
 
-  pub fn retriever(mut self, retriever: AFRetriever<Value>) -> Self {
+  pub fn retriever(mut self, retriever: AFRetriever) -> Self {
     self.retriever = Some(retriever);
     self
   }
@@ -424,34 +462,46 @@ impl ConversationalRetrieverChainBuilder {
 }
 
 // Retriever is a retriever for vector stores.
-pub struct AFRetriever<F> {
-  vstore: Box<dyn VectorStore<Options = VecStoreOptions<F>>>,
+pub type RetrieverOption = VecStoreOptions<Value>;
+pub struct AFRetriever {
+  vector_store: Box<dyn VectorStore<Options = RetrieverOption>>,
   num_docs: usize,
-  options: VecStoreOptions<F>,
+  options: RetrieverOption,
 }
-impl<F> AFRetriever<F> {
-  pub fn new<V: Into<Box<dyn VectorStore<Options = VecStoreOptions<F>>>>>(
-    vstore: V,
+impl AFRetriever {
+  pub fn new<V: Into<Box<dyn VectorStore<Options = RetrieverOption>>>>(
+    vector_store: V,
     num_docs: usize,
+    options: RetrieverOption,
   ) -> Self {
     AFRetriever {
-      vstore: vstore.into(),
+      vector_store: vector_store.into(),
       num_docs,
-      options: VecStoreOptions::<F>::new(),
+      options,
     }
   }
 
-  pub fn with_options(mut self, options: VecStoreOptions<F>) -> Self {
-    self.options = options;
+  pub fn get_rag_ids(&self) -> Vec<&str> {
     self
+      .options
+      .filters
+      .as_ref()
+      .and_then(|filters| filters.get(RAG_IDS).and_then(|rag_ids| rag_ids.as_array()))
+      .map(|rag_ids| rag_ids.iter().filter_map(|id| id.as_str()).collect())
+      .unwrap_or_default()
   }
 }
 
 #[async_trait]
-impl<O: Sync + Send> Retriever for AFRetriever<O> {
+impl Retriever for AFRetriever {
   async fn get_relevant_documents(&self, query: &str) -> Result<Vec<Document>, Box<dyn Error>> {
+    trace!(
+      "[VectorStore] filters: {:?}, retrieving documents for query: {}",
+      self.options.filters,
+      query,
+    );
     self
-      .vstore
+      .vector_store
       .similarity_search(query, self.num_docs, &self.options)
       .await
   }

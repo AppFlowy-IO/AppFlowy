@@ -177,11 +177,20 @@ impl LocalAIController {
     Some(self.resource.get_llm_setting().chat_model_name)
   }
 
+  pub async fn set_chat_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+    if !self.is_enabled() {
+      return;
+    }
+
+    self.llm_controller.set_rag_ids(chat_id, rag_ids).await;
+  }
+
   pub async fn open_chat(
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
     model: &str,
+    rag_ids: Vec<String>,
   ) -> FlowyResult<()> {
     if !self.is_enabled() {
       return Ok(());
@@ -197,7 +206,7 @@ impl LocalAIController {
     self.current_chat_id.store(Some(Arc::new(*chat_id)));
     self
       .llm_controller
-      .open_chat(workspace_id, chat_id, model)
+      .open_chat(workspace_id, chat_id, model, rag_ids)
       .await?;
     Ok(())
   }

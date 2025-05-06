@@ -4,7 +4,7 @@ use crate::local_server::impls::{
   LocalServerDocumentCloudServiceImpl, LocalServerFolderCloudServiceImpl,
   LocalServerUserServiceImpl,
 };
-use crate::AppFlowyServer;
+use crate::{AppFlowyServer, EmbeddingWriter};
 use anyhow::Error;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
@@ -21,14 +21,20 @@ pub struct LocalServer {
   logged_user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
+  embedding_writer: Option<Arc<dyn EmbeddingWriter>>,
 }
 
 impl LocalServer {
-  pub fn new(logged_user: Arc<dyn LoggedUser>, local_ai: Arc<LocalAIController>) -> Self {
+  pub fn new(
+    logged_user: Arc<dyn LoggedUser>,
+    local_ai: Arc<LocalAIController>,
+    embedding_writer: Option<Arc<dyn EmbeddingWriter>>,
+  ) -> Self {
     Self {
       logged_user,
       local_ai,
       stop_tx: Default::default(),
+      embedding_writer,
     }
   }
 
@@ -54,6 +60,7 @@ impl AppFlowyServer for LocalServer {
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     Arc::new(LocalServerFolderCloudServiceImpl {
       logged_user: self.logged_user.clone(),
+      embedding_writer: self.embedding_writer.clone(),
     })
   }
 

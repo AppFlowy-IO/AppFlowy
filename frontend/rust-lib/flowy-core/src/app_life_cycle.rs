@@ -3,12 +3,12 @@ use client_api::entity::billing_dto::SubscriptionPlan;
 use std::sync::{Arc, Weak};
 use tracing::{error, event, info, instrument};
 
-use crate::full_indexed_data_provider::FullIndexedDataProvider;
+use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::indexed_data_consumer::{close_document_tantivy_state, get_document_tantivy_state};
 use crate::server_layer::ServerProvider;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::instant_indexed_data_provider::InstantIndexedDataProvider;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai::ai_manager::AIManager;
@@ -39,8 +39,8 @@ pub(crate) struct AppLifeCycleImpl {
   pub(crate) storage_manager: Weak<StorageManager>,
   pub(crate) search_manager: Weak<SearchManager>,
   pub(crate) ai_manager: Weak<AIManager>,
-  pub(crate) instant_indexed_data_provider: Option<Arc<InstantIndexedDataProvider>>,
-  pub(crate) full_indexed_data_provider: Weak<RwLock<Option<FullIndexedDataProvider>>>,
+  pub(crate) instant_indexed_data_writer: Option<Arc<InstantIndexedDataWriter>>,
+  pub(crate) full_indexed_data_writer: Weak<RwLock<Option<FullIndexedDataWriter>>>,
   pub(crate) logged_user: Arc<dyn LoggedUser>,
   // By default, all callback will run on the caller thread. If you don't want to block the caller
   // thread, you can use runtime to spawn a new task.

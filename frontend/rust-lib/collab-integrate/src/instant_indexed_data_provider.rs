@@ -1,8 +1,11 @@
+use collab::core::collab::DataSource;
+use collab::core::origin::CollabOrigin;
+use collab::entity::EncodedCollab;
 use collab::lock::RwLock;
 use collab::preclude::{Collab, Transact};
 use collab_document::document::DocumentBody;
 use collab_entity::{CollabObject, CollabType};
-use flowy_ai_pub::entities::UnindexedData;
+use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::get_operating_system;
@@ -20,25 +23,25 @@ pub struct WriteObject {
   pub collab: Weak<dyn CollabIndexedData>,
 }
 
-pub struct InstantIndexedDataProvider {
+pub struct InstantIndexedDataWriter {
   collab_by_object: Arc<RwLock<HashMap<String, WriteObject>>>,
   consumers: Arc<RwLock<Vec<Box<dyn InstantIndexedDataConsumer>>>>,
 }
 
-impl Default for InstantIndexedDataProvider {
+impl Default for InstantIndexedDataWriter {
   fn default() -> Self {
     Self::new()
   }
 }
 
-impl InstantIndexedDataProvider {
-  pub fn new() -> InstantIndexedDataProvider {
+impl InstantIndexedDataWriter {
+  pub fn new() -> InstantIndexedDataWriter {
     let collab_by_object = Arc::new(RwLock::new(HashMap::<String, WriteObject>::new()));
     let consumers = Arc::new(RwLock::new(
       Vec::<Box<dyn InstantIndexedDataConsumer>>::new(),
     ));
 
-    InstantIndexedDataProvider {
+    InstantIndexedDataWriter {
       collab_by_object,
       consumers,
     }
@@ -109,8 +112,30 @@ impl InstantIndexedDataProvider {
                   // Snapshot consumers
                   let consumers_guard = consumers.read().await;
                   for consumer in consumers_guard.iter() {
+                    let workspace_id = match Uuid::parse_str(&wo.collab_object.workspace_id) {
+                      Ok(id) => id,
+                      Err(err) => {
+                        error!(
+                          "Invalid workspace_id {}: {}",
+                          wo.collab_object.workspace_id, err
+                        );
+                        continue;
+                      },
+                    };
+                    let object_id = match Uuid::parse_str(&wo.collab_object.object_id) {
+                      Ok(id) => id,
+                      Err(err) => {
+                        error!("Invalid object_id {}: {}", wo.collab_object.object_id, err);
+                        continue;
+                      },
+                    };
                     match consumer
-                      .consume_collab(&wo.collab_object, data.clone())
+                      .consume_collab(
+                        &workspace_id,
+                        data.clone(),
+                        &object_id,
+                        wo.collab_object.collab_type,
+                      )
                       .await
                     {
                       Ok(is_indexed) => {
@@ -155,6 +180,56 @@ impl InstantIndexedDataProvider {
     matches!(t, CollabType::Document)
   }
 
+  pub async fn index_encoded_collab(
+    &self,
+    workspace_id: Uuid,
+    object_id: Uuid,
+    data: EncodedCollab,
+    collab_type: CollabType,
+  ) -> FlowyResult<()> {
+    match unindexed_collab_from_encoded_collab(workspace_id, object_id, data, collab_type) {
+      None => Err(FlowyError::internal().with_context("Failed to create unindexed collab")),
+      Some(data) => {
+        self.index_unindexed_collab(data).await?;
+        Ok(())
+      },
+    }
+  }
+
+  pub async fn index_unindexed_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
+    let consumers_guard = self.consumers.read().await;
+    for consumer in consumers_guard.iter() {
+      match consumer
+        .consume_collab(
+          &data.workspace_id,
+          data.data.clone(),
+          &data.object_id,
+          data.collab_type,
+        )
+        .await
+      {
+        Ok(is_indexed) => {
+          if is_indexed {
+            trace!(
+              "[Indexing] {} consumed {}",
+              consumer.consumer_id(),
+              data.object_id
+            );
+          }
+        },
+        Err(err) => {
+          error!(
+            "Consumer {} failed on {}: {}",
+            consumer.consumer_id(),
+            data.object_id,
+            err
+          );
+        },
+      }
+    }
+    Ok(())
+  }
+
   pub async fn queue_collab_embed(
     &self,
     collab_object: CollabObject,
@@ -179,13 +254,45 @@ impl InstantIndexedDataProvider {
   }
 }
 
-fn index_data_for_collab(collab: &Collab, collab_type: &CollabType) -> Option<UnindexedData> {
+pub fn unindexed_data_form_collab(
+  collab: &Collab,
+  collab_type: &CollabType,
+) -> Option<UnindexedData> {
   match collab_type {
     CollabType::Document => {
       let txn = collab.doc().try_transact().ok()?;
       let doc = DocumentBody::from_collab(collab)?;
       let paras = doc.paragraphs(txn);
       Some(UnindexedData::Paragraphs(paras))
+    },
+    _ => None,
+  }
+}
+
+pub fn unindexed_collab_from_encoded_collab(
+  workspace_id: Uuid,
+  object_id: Uuid,
+  encoded_collab: EncodedCollab,
+  collab_type: CollabType,
+) -> Option<UnindexedCollab> {
+  match collab_type {
+    CollabType::Document => {
+      let collab = Collab::new_with_source(
+        CollabOrigin::Empty,
+        &object_id.to_string(),
+        DataSource::DocStateV1(encoded_collab.doc_state.to_vec()),
+        vec![],
+        false,
+      )
+      .ok()?;
+      let data = unindexed_data_form_collab(&collab, &collab_type)?;
+      Some(UnindexedCollab {
+        workspace_id,
+        object_id,
+        collab_type,
+        data,
+        metadata: UnindexedCollabMetadata::default(), // default means do not update metadata
+      })
     },
     _ => None,
   }
@@ -203,7 +310,7 @@ where
 {
   async fn get_unindexed_data(&self, collab_type: &CollabType) -> Option<UnindexedData> {
     let collab = self.try_read().ok()?;
-    index_data_for_collab(collab.borrow(), collab_type)
+    unindexed_data_form_collab(collab.borrow(), collab_type)
   }
 }
 
@@ -214,8 +321,10 @@ pub trait InstantIndexedDataConsumer: Send + Sync + 'static {
 
   async fn consume_collab(
     &self,
-    collab_object: &CollabObject,
+    workspace_id: &Uuid,
     data: UnindexedData,
+    object_id: &Uuid,
+    collab_type: CollabType,
   ) -> Result<bool, FlowyError>;
 
   async fn did_delete_collab(

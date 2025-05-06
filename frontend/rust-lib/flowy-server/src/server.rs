@@ -7,15 +7,33 @@ use std::sync::Arc;
 use anyhow::Error;
 use arc_swap::ArcSwapOption;
 use client_api::collab_sync::ServerCollabMessage;
+use collab::entity::EncodedCollab;
+use collab_entity::CollabType;
 use flowy_ai_pub::cloud::ChatCloudService;
-use tokio_stream::wrappers::WatchStream;
-
+use flowy_ai_pub::entities::UnindexedCollab;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
+use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
+use lib_infra::async_trait::async_trait;
+use tokio_stream::wrappers::WatchStream;
+use uuid::Uuid;
+
+#[async_trait]
+pub trait EmbeddingWriter: Send + Sync + 'static {
+  async fn index_encoded_collab(
+    &self,
+    workspace_id: Uuid,
+    object_id: Uuid,
+    data: EncodedCollab,
+    collab_type: CollabType,
+  ) -> FlowyResult<()>;
+
+  async fn index_unindexed_collab(&self, data: UnindexedCollab) -> FlowyResult<()>;
+}
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;

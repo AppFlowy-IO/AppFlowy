@@ -73,7 +73,7 @@ async fn test_upsert_and_remove_fragments() -> Result<()> {
   let result = db
     .search(
       &workspace_id.to_string(),
-      vec![],
+      &[],
       &generate_embedding_with_size(768, 0.1),
       1,
     )
@@ -170,7 +170,7 @@ async fn test_search_no_hits() -> Result<()> {
 
   // Query with a very different vector should return empty
   let query = generate_embedding_with_size(768, -1.0);
-  let results = db.search(&workspace_id, vec![], &query, 1).await?;
+  let results = db.search(&workspace_id, &[], &query, 1).await?;
   assert!(
     results.is_empty(),
     "Expected no near neighbors for orthogonal vector"
@@ -197,14 +197,14 @@ async fn test_multi_workspace_isolation() -> Result<()> {
 
   // Searching in ws1 should not return ws2's fragment
   let res1 = db
-    .search(&ws1, vec![], &generate_embedding_with_size(768, 0.9), 1)
+    .search(&ws1, &[], &generate_embedding_with_size(768, 0.9), 1)
     .await?;
   assert_eq!(res1.len(), 1);
   assert_eq!(res1[0].oid, Uuid::parse_str(&oid)?);
 
   // Searching in ws2 should not return ws1's fragment
   let res2 = db
-    .search(&ws2, vec![], &generate_embedding_with_size(768, -0.9), 1)
+    .search(&ws2, &[], &generate_embedding_with_size(768, -0.9), 1)
     .await?;
   assert_eq!(res2.len(), 1);
   assert_eq!(res2[0].oid, Uuid::parse_str(&oid)?);
@@ -344,7 +344,7 @@ async fn test_object_ids_handling() -> Result<()> {
   let search_results = db
     .search(
       &workspace_id,
-      vec![],
+      &[],
       &generate_embedding_with_size(768, 0.2),
       10,
     )
