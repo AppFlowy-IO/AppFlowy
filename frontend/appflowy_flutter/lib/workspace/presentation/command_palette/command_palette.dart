@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_v
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -150,6 +151,7 @@ class CommandPaletteModal extends StatelessWidget {
     final workspaceState = context.read<UserWorkspaceBloc?>()?.state;
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
+    final theme = AppFlowyTheme.of(context);
 
     return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
       builder: (context, state) => FlowyDialog(
@@ -166,9 +168,13 @@ class CommandPaletteModal extends StatelessWidget {
           Column(
             children: [
               SearchField(query: state.query, isLoading: state.searching),
-              if (showAskingAI) SearchAskAiEntrance(),
+              if (showAskingAI) ...[
+                Divider(height: 1, color: theme.borderColorScheme.primary),
+                SearchAskAiEntrance(),
+              ],
               if (state.query?.isEmpty ?? true) ...[
-                const Divider(height: 0),
+                if (!showAskingAI)
+                  Divider(height: 1, color: theme.borderColorScheme.primary),
                 Flexible(
                   child: RecentViewsList(
                     onSelected: () => FlowyOverlay.pop(context),
@@ -177,7 +183,7 @@ class CommandPaletteModal extends StatelessWidget {
               ],
               if (state.combinedResponseItems.isNotEmpty &&
                   (state.query?.isNotEmpty ?? false)) ...[
-                const Divider(height: 0),
+                if (!showAskingAI) const Divider(height: 0),
                 Flexible(
                   child: SearchResultList(
                     trash: state.trash,
@@ -190,7 +196,7 @@ class CommandPaletteModal extends StatelessWidget {
               // show the no results message, centered in the available space.
               else if ((state.query?.isNotEmpty ?? false) &&
                   !state.searching) ...[
-                const Divider(height: 0),
+                Divider(height: 1, color: theme.borderColorScheme.primary),
                 Expanded(
                   child: const _NoResultsHint(),
                 ),

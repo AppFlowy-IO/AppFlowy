@@ -6,8 +6,8 @@ import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,39 +26,55 @@ class RecentViewsList extends StatelessWidget {
           // We remove duplicates by converting the list to a set first
           final List<ViewPB> recentViews =
               state.views.map((e) => e.item).toSet().toList();
+          final theme = AppFlowyTheme.of(context);
 
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            itemCount: recentViews.length + 1,
-            itemBuilder: (_, index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+          return SingleChildScrollView(
+            physics: ClampingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 20,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Text(
+                    LocaleKeys.sideBar_recent.tr(),
+                    style: theme.textStyle.body
+                        .enhanced(color: theme.textColorScheme.secondary),
                   ),
-                  child: FlowyText(
-                    LocaleKeys.commandPalette_recentHistory.tr(),
+                ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: recentViews.length,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  itemBuilder: (_, index) {
+                    final view = recentViews[index];
+                    final icon = view.icon.value.isNotEmpty
+                        ? RawEmojiIconWidget(
+                            emoji: view.icon.toEmojiIconData(),
+                            emojiSize: 16.0,
+                            lineHeight: 20 / 16,
+                          )
+                        : FlowySvg(view.iconData, size: const Size.square(20));
+
+                    return SearchRecentViewCell(
+                      icon: SizedBox.square(
+                        dimension: 24,
+                        child: Center(child: icon),
+                      ),
+                      view: view,
+                      onSelected: onSelected,
+                    );
+                  },
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: theme.borderColorScheme.primary,
                   ),
-                );
-              }
-
-              final view = recentViews[index - 1];
-              final icon = view.icon.value.isNotEmpty
-                  ? EmojiIconWidget(
-                      emoji: view.icon.toEmojiIconData(),
-                      emojiSize: 18.0,
-                    )
-                  : FlowySvg(view.iconData, size: const Size.square(20));
-
-              return SearchRecentViewCell(
-                icon: SizedBox(width: 24, child: icon),
-                view: view,
-                onSelected: onSelected,
-              );
-            },
-            separatorBuilder: (_, __) => const Divider(height: 0),
+                ),
+              ],
+            ),
           );
         },
       ),

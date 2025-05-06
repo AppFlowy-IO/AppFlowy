@@ -47,6 +47,70 @@ class _SearchResultListState extends State<SearchResultList> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: BlocProvider.value(
+        value: bloc,
+        child: BlocListener<SearchResultListBloc, SearchResultListState>(
+          listener: (context, state) {
+            if (state.openPageId != null) {
+              FlowyOverlay.pop(context);
+              getIt<ActionNavigationBloc>().add(
+                ActionNavigationEvent.performAction(
+                  action: NavigationAction(objectId: state.openPageId!),
+                ),
+              );
+            }
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                flex: 7,
+                child: BlocBuilder<SearchResultListBloc, SearchResultListState>(
+                  buildWhen: (previous, current) =>
+                      previous.hoveredResult != current.hoveredResult ||
+                      previous.hoveredSummary != current.hoveredSummary,
+                  builder: (context, state) {
+                    return ListView(
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      children: [
+                        _buildAIOverviewSection(context),
+                        const VSpace(10),
+                        if (widget.resultItems.isNotEmpty)
+                          _buildResultsSection(context),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const HSpace(10),
+              if (widget.resultItems
+                  .any((item) => item.content.isNotEmpty)) ...[
+                const VerticalDivider(
+                  thickness: 1.0,
+                ),
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 16,
+                    ),
+                    child: const SearchCellPreview(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(String title) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8) +
             const EdgeInsets.only(left: 8),
@@ -125,70 +189,6 @@ class _SearchResultListState extends State<SearchResultList> {
           },
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: BlocProvider.value(
-        value: bloc,
-        child: BlocListener<SearchResultListBloc, SearchResultListState>(
-          listener: (context, state) {
-            if (state.openPageId != null) {
-              FlowyOverlay.pop(context);
-              getIt<ActionNavigationBloc>().add(
-                ActionNavigationEvent.performAction(
-                  action: NavigationAction(objectId: state.openPageId!),
-                ),
-              );
-            }
-          },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                flex: 7,
-                child: BlocBuilder<SearchResultListBloc, SearchResultListState>(
-                  buildWhen: (previous, current) =>
-                      previous.hoveredResult != current.hoveredResult ||
-                      previous.hoveredSummary != current.hoveredSummary,
-                  builder: (context, state) {
-                    return ListView(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      children: [
-                        _buildAIOverviewSection(context),
-                        const VSpace(10),
-                        if (widget.resultItems.isNotEmpty)
-                          _buildResultsSection(context),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              const HSpace(10),
-              if (widget.resultItems
-                  .any((item) => item.content.isNotEmpty)) ...[
-                const VerticalDivider(
-                  thickness: 1.0,
-                ),
-                Flexible(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 16,
-                    ),
-                    child: const SearchCellPreview(),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
