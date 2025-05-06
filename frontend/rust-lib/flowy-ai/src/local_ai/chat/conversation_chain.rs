@@ -74,27 +74,29 @@ impl ConversationalRetrieverChain {
     &self,
     question: &str,
   ) -> Result<Either<Vec<Document>, GenerateResult>, ChainError> {
-    let documents = self
-      .retriever
-      .get_relevant_documents(question)
-      .await
-      .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
+    let rag_ids = self.retriever.get_rag_ids();
+    if rag_ids.is_empty() {
+      Ok(Either::Left(vec![]))
+    } else {
+      let documents = self
+        .retriever
+        .get_relevant_documents(question)
+        .await
+        .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
 
-    if documents.is_empty() {
-      let rag_ids = self.retriever.get_rag_ids();
-      if !rag_ids.is_empty() {
+      if documents.is_empty() {
         trace!(
           "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. return I don't know",
           rag_ids
         );
         return Ok(Either::Right(GenerateResult {
-          tokens: None,
-          generation: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
-        }));
+            tokens: None,
+            generation: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
+          }));
       }
-    }
 
-    Ok(Either::Left(documents))
+      Ok(Either::Left(documents))
+    }
   }
 }
 
