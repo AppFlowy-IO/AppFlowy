@@ -88,6 +88,7 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                     userProfile: userProfile,
                     scrollController: scrollController,
                     itemBuilder: itemBuilder,
+                    enableReversedList: true,
                   ),
                 ),
               ),
