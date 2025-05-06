@@ -720,7 +720,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     final viewBloc = context.read<ViewBloc>();
 
     // the name of new document should be empty
-    final viewName = pluginBuilder.layoutType == ViewLayoutPB.Document
+    final viewName = ![ViewLayoutPB.Document, ViewLayoutPB.Chat]
+            .contains(pluginBuilder.layoutType)
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
         : '';
     viewBloc.add(
