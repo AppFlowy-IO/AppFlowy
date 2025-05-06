@@ -207,13 +207,20 @@ impl AIManager {
       ))
     });
 
-    if self.local_ai.is_ready().await {
+    if self.local_ai.is_enabled() {
       let workspace_id = self.user_service.workspace_id()?;
       let model = self.get_active_model(&chat_id.to_string()).await;
       trace!("[AI Plugin] notify open chat: {}", chat_id);
+      let mut rag_ids = vec![];
+      if let Some(settings) = self
+        .store_preferences
+        .get_object::<ChatSettings>(&setting_store_key(chat_id))
+      {
+        rag_ids = settings.rag_ids;
+      }
       self
         .local_ai
-        .open_chat(&workspace_id, chat_id, &model.name)
+        .open_chat(&workspace_id, chat_id, &model.name, rag_ids)
         .await?;
     }
 
@@ -221,6 +228,7 @@ impl AIManager {
     let cloud_service_wm = self.cloud_service_wm.clone();
     let store_preferences = self.store_preferences.clone();
     let external_service = self.external_service.clone();
+    let local_ai = self.local_ai.clone();
     let chat_id = *chat_id;
     tokio::spawn(async move {
       match refresh_chat_setting(
@@ -232,6 +240,7 @@ impl AIManager {
       .await
       {
         Ok(settings) => {
+          local_ai.set_rag_ids(&chat_id, &settings.rag_ids).await;
           let rag_ids = settings
             .rag_ids
             .into_iter()
@@ -316,7 +325,7 @@ impl AIManager {
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(&params.chat_id).await?;
     let ai_model = self.get_active_model(&params.chat_id.to_string()).await;
-    let question = chat.stream_chat_message(&params, Some(ai_model)).await?;
+    let question = chat.stream_chat_message(&params, ai_model).await?;
     let _ = self
       .external_service
       .notify_did_send_message(&params.chat_id, &params.message)
@@ -342,7 +351,7 @@ impl AIManager {
       Some(model) => model.into(),
     };
     chat
-      .stream_regenerate_response(question_message_id, answer_stream_port, format, Some(model))
+      .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
     Ok(())
   }
@@ -481,8 +490,10 @@ impl AIManager {
     }
   }
 
-  pub async fn get_local_available_models(&self) -> FlowyResult<ModelSelectionPB> {
-    let setting = self.local_ai.get_local_ai_setting();
+  pub async fn get_local_available_models(
+    &self,
+    source: Option<String>,
+  ) -> FlowyResult<ModelSelectionPB> {
     let workspace_id = self.user_service.workspace_id()?;
     let mut models = self
       .model_control
@@ -491,10 +502,25 @@ impl AIManager {
       .get_local_models(&workspace_id)
       .await;
 
-    let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
-    if models.is_empty() {
-      models.push(selected_model.clone());
-    }
+    let selected_model = match source {
+      None => {
+        let setting = self.local_ai.get_local_ai_setting();
+        let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+        if models.is_empty() {
+          models.push(selected_model.clone());
+        }
+        selected_model
+      },
+      Some(source) => {
+        let source_key = SourceKey::new(source);
+        self
+          .model_control
+          .lock()
+          .await
+          .get_active_model(&workspace_id, &source_key)
+          .await
+      },
+    };
 
     Ok(ModelSelectionPB {
       models: models.into_iter().map(AIModelPB::from).collect(),
@@ -509,7 +535,7 @@ impl AIManager {
   ) -> FlowyResult<ModelSelectionPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
-      return self.get_local_available_models().await;
+      return self.get_local_available_models(Some(source)).await;
     }
 
     let workspace_id = self.user_service.workspace_id()?;
@@ -524,6 +550,14 @@ impl AIManager {
     let active_model = model_control
       .get_active_model(&workspace_id, &source_key)
       .await;
+
+    trace!(
+      "[Model Selection] {} active model: {:?}, global model:{:?}",
+      source_key.storage_id(),
+      active_model,
+      local_model_name
+    );
+
     let all_models = model_control
       .get_models_with_specific_local_model(&workspace_id, local_model_name)
       .await;
@@ -674,6 +708,8 @@ impl AIManager {
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
+    self.local_ai.set_rag_ids(chat_id, &rag_ids).await;
+
     let rag_ids = rag_ids
       .into_iter()
       .flat_map(|r| Uuid::from_str(&r).ok())
@@ -705,7 +741,6 @@ async fn sync_chat_documents(
       {
         if let Ok(uid) = user_service.user_id() {
           if let Ok(conn) = user_service.sqlite_connection(uid) {
-            info!("sync rag documents success: {}", metadatas.len());
             batch_insert_collab_metadata(conn, &metadatas).unwrap();
           }
         }

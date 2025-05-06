@@ -7,7 +7,7 @@ use std::pin::Pin;
 use std::sync::Weak;
 use tantivy::directory::MmapDirectory;
 use tantivy::schema::Value;
-use tantivy::{doc, Index, IndexReader, IndexWriter, TantivyDocument, Term};
+use tantivy::{Index, IndexReader, IndexWriter, TantivyDocument, Term};
 use tokio::sync::RwLock;
 use tracing::{error, trace, warn};
 use uuid::Uuid;
@@ -162,27 +162,86 @@ impl DocumentTantivyState {
     &mut self,
     id: &str,
     content: String,
-    name: String,
+    name: Option<String>,
     icon: Option<ViewIcon>,
   ) -> FlowyResult<()> {
-    trace!("[Tantivy] Adding document with id:{}, name:{}", id, name);
+    trace!("[Tantivy] Adding document with id:{}, name:{:?}", id, name);
     let term = Term::from_field_text(self.field_object_id, id);
+    let searcher = self.reader.searcher();
+    let query =
+      tantivy::query::TermQuery::new(term.clone(), tantivy::schema::IndexRecordOption::Basic);
+    let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(1))?;
+
+    let (existing_name, existing_icon) = if let Some((_score, doc_address)) = top_docs.first() {
+      let retrieved: TantivyDocument = searcher.doc(*doc_address)?;
+
+      // Get existing name if needed
+      let existing_name = if name.is_none() {
+        retrieved
+          .get_first(self.field_name)
+          .and_then(|v| v.as_str())
+          .map(|s| s.to_string())
+      } else {
+        None
+      };
+
+      // Get existing icon if needed
+      let existing_icon = if icon.is_none() {
+        let icon_value = retrieved
+          .get_first(self.field_icon)
+          .and_then(|v| v.as_str())
+          .map(|s| s.to_string());
+
+        if let Some(icon_value) = icon_value {
+          let icon_type_str = retrieved
+            .get_first(self.field_icon_type)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
+
+          let icon_type = icon_type_str.parse::<u8>().unwrap_or_default();
+
+          // Recreate the ViewIcon from stored values
+          Some(ViewIcon {
+            value: icon_value,
+            ty: icon_type.into(),
+          })
+        } else {
+          None
+        }
+      } else {
+        None
+      };
+
+      (existing_name, existing_icon)
+    } else {
+      (None, None)
+    };
+
     // Delete existing document with same ID
     self.writer.delete_term(term);
 
-    let (icon, icon_type) = icon.map(|v| (v.value, v.ty as u8)).unwrap_or_default();
+    // Use existing values if new ones not provided
+    let final_name = name.or(existing_name);
+    let final_icon = icon.or(existing_icon);
 
-    // Create document with cached fields
-    let tantivy_doc = doc!(
+    // Ensure we have a name
+    let document_name = final_name.unwrap_or_else(|| String::from("Untitled"));
+
+    // Create base document with required fields
+    let mut doc_builder = tantivy::doc!(
         self.field_workspace_id => self.workspace_id.to_string(),
         self.field_object_id => id,
         self.field_content => content,
-        self.field_name => name,
-        self.field_icon => icon,
-        self.field_icon_type => icon_type.to_string()
+        self.field_name => document_name
     );
 
-    self.writer.add_document(tantivy_doc)?;
+    // Only add icon fields if icon is present
+    if let Some(view_icon) = final_icon {
+      doc_builder.add_text(self.field_icon, view_icon.value);
+      doc_builder.add_text(self.field_icon_type, (view_icon.ty as u8).to_string());
+    }
+
+    self.writer.add_document(doc_builder)?;
     self.writer.commit()?;
 
     Ok(())
@@ -191,7 +250,7 @@ impl DocumentTantivyState {
   pub fn add_document_metadata(
     &mut self,
     id: &str,
-    name: String,
+    name: Option<String>,
     icon: Option<ViewIcon>,
   ) -> FlowyResult<()> {
     let term = Term::from_field_text(self.field_object_id, id);
@@ -201,17 +260,86 @@ impl DocumentTantivyState {
 
     // Search for the document
     let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(1))?;
-    let content = if let Some((_score, doc_address)) = top_docs.first() {
-      let retrieved: TantivyDocument = searcher.doc(*doc_address)?;
-      retrieved
-        .get_first(self.field_content)
-        .and_then(|v| v.as_str())
-        .unwrap_or_default()
-        .to_string()
-    } else {
-      String::new()
-    };
-    self.add_document(id, content, name, icon)?;
+
+    let (existing_content, existing_name, existing_icon) =
+      if let Some((_score, doc_address)) = top_docs.first() {
+        let retrieved: TantivyDocument = searcher.doc(*doc_address)?;
+
+        // Get existing content
+        let content = retrieved
+          .get_first(self.field_content)
+          .and_then(|v| v.as_str())
+          .unwrap_or_default()
+          .to_string();
+
+        // Get existing name if needed
+        let existing_name = if name.is_none() {
+          retrieved
+            .get_first(self.field_name)
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string())
+        } else {
+          None
+        };
+
+        // Get existing icon if needed
+        let existing_icon = if icon.is_none() {
+          let icon_value = retrieved
+            .get_first(self.field_icon)
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+
+          if let Some(icon_value) = icon_value {
+            let icon_type_str = retrieved
+              .get_first(self.field_icon_type)
+              .and_then(|v| v.as_str())
+              .unwrap_or_default();
+
+            let icon_type = icon_type_str.parse::<u8>().unwrap_or_default();
+
+            Some(ViewIcon {
+              value: icon_value,
+              ty: icon_type.into(),
+            })
+          } else {
+            None
+          }
+        } else {
+          None
+        };
+
+        (content, existing_name, existing_icon)
+      } else {
+        (String::new(), None, None)
+      };
+
+    // Use existing values if new ones not provided
+    let final_name = name.or(existing_name);
+    let final_icon = icon.or(existing_icon);
+
+    // Ensure we have a name
+    let document_name = final_name.unwrap_or_else(|| String::from("Untitled"));
+
+    // Delete existing document
+    self.writer.delete_term(term);
+
+    // Create base document with required fields
+    let mut doc_builder = tantivy::doc!(
+        self.field_workspace_id => self.workspace_id.to_string(),
+        self.field_object_id => id,
+        self.field_content => existing_content,
+        self.field_name => document_name
+    );
+
+    // Only add icon fields if icon is present
+    if let Some(view_icon) = final_icon {
+      doc_builder.add_text(self.field_icon, view_icon.value);
+      doc_builder.add_text(self.field_icon_type, (view_icon.ty as u8).to_string());
+    }
+
+    self.writer.add_document(doc_builder)?;
+    self.writer.commit()?;
+
     Ok(())
   }
 
@@ -314,23 +442,24 @@ impl DocumentTantivyState {
           .unwrap_or_default()
           .to_string();
 
-        let icon_type_str = retrieved
-          .get_first(self.field_icon_type)
-          .and_then(|v| v.as_str())
-          .unwrap_or_default();
+        // Only proceed with creating an icon if we have an actual value
+        if !icon_value.is_empty() {
+          let icon_type_str = retrieved
+            .get_first(self.field_icon_type)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
 
-        let icon_type: ResultIconTypePB = match icon_type_str.parse::<i64>() {
-          Ok(val) => val.into(),
-          Err(_) => ResultIconTypePB::default(),
-        };
+          let icon_type: ResultIconTypePB = match icon_type_str.parse::<i64>() {
+            Ok(val) => val.into(),
+            Err(_) => ResultIconTypePB::default(),
+          };
 
-        if icon_value.is_empty() {
-          None
-        } else {
           Some(ResultIconPB {
             ty: icon_type,
             value: icon_value,
           })
+        } else {
+          None
         }
       };
 

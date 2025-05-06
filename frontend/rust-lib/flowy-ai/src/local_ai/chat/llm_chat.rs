@@ -1,33 +1,33 @@
 use crate::local_ai::chat::conversation_chain::{
-  AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder,
+  AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder, RetrieverOption,
 };
+use crate::local_ai::chat::format_prompt::AFMessageFormatter;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::OllamaClientRef;
-use crate::local_ai::prompt::format_prompt;
 use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
-use flowy_ai_pub::entities::SOURCE_ID;
+use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
 use flowy_error::{FlowyError, FlowyResult};
 use futures::StreamExt;
 use langchain_rust::chain::{Chain, ChainError};
 use langchain_rust::memory::SimpleMemory;
-use langchain_rust::prompt::{HumanMessagePromptTemplate, MessageFormatterStruct};
+use langchain_rust::prompt_args;
 use langchain_rust::schemas::{Document, Message};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
-use langchain_rust::{fmt_message, fmt_template, message_formatter, prompt_args, template_jinja2};
-use serde_json::{json, Value};
+use serde_json::json;
 use std::collections::HashMap;
+use tracing::{info, trace};
 use uuid::Uuid;
 
 pub struct LLMChat {
   workspace_id: Uuid,
-  #[allow(dead_code)]
   chat_id: Uuid,
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
+  #[allow(dead_code)]
   client: OllamaClientRef,
-  current_format: ResponseFormat,
   rag_ids: Vec<String>,
+  dynamic_formatter: AFMessageFormatter,
 }
 
 impl LLMChat {
@@ -39,13 +39,14 @@ impl LLMChat {
     store: Option<SqliteVectorStore>,
     rag_ids: Vec<String>,
   ) -> FlowyResult<Self> {
-    let current_format = ResponseFormat::default();
-    let chain = create_chain(
+    let initial_format = ResponseFormat::default();
+    let formatter = create_dynamic_prompt_with_format(&initial_format);
+    let (chain, dynamic_formatter) = create_chain(
       &workspace_id,
       model,
       &client,
       rag_ids.clone(),
-      &current_format,
+      formatter,
       store.clone(),
     )
     .await?;
@@ -56,28 +57,55 @@ impl LLMChat {
       store,
       chain,
       client,
-      current_format,
       rag_ids,
+      dynamic_formatter,
     })
   }
 
-  pub async fn set_chat_model(&mut self, model: &str) -> FlowyResult<()> {
+  pub fn set_chat_model(&mut self, model: &str) {
     self.chain.ollama.set_model(model);
-    Ok(())
   }
 
-  pub async fn add_rag_id(&mut self, id: String) -> FlowyResult<()> {
-    self.chain.add_rag_ids(vec![id]);
-    Ok(())
+  pub async fn set_rag_ids(&mut self, rag_ids: Vec<String>) {
+    info!("[VectorStore]: {} set rag ids: {:?}", self.chat_id, rag_ids);
+    self.chain.retriever.set_rag_ids(rag_ids);
   }
 
-  pub async fn set_rag_ids(&mut self, rag_ids: Vec<String>) -> FlowyResult<()> {
-    self.chain.set_rag_ids(rag_ids);
-    Ok(())
+  pub async fn search(
+    &self,
+    query: &str,
+    limit: usize,
+    ids: Vec<String>,
+  ) -> FlowyResult<Vec<Document>> {
+    let store = self
+      .store
+      .as_ref()
+      .ok_or_else(|| FlowyError::local_ai().with_context("VectorStore is not initialized"))?;
+
+    let options =
+      RetrieverOption::new().with_filters(json!({RAG_IDS: ids, "workspace_id": self.workspace_id}));
+    let result = store
+      .similarity_search(query, limit, &options)
+      .await
+      .map_err(|err| FlowyError::local_ai().with_context(err))?;
+    Ok(result)
   }
 
-  pub fn remove_rag_id(&mut self, id: String) {
-    self.chain.remove_rag_ids(vec![id]);
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+  pub async fn get_all_embedded_documents(
+    &self,
+  ) -> FlowyResult<Vec<flowy_sqlite_vec::entities::SqliteEmbeddedDocument>> {
+    let store = self
+      .store
+      .as_ref()
+      .ok_or_else(|| FlowyError::local_ai().with_context("VectorStore is not initialized"))?;
+
+    store
+      .select_all_embedded_documents(&self.workspace_id.to_string(), &self.rag_ids)
+      .await
+      .map_err(|err| {
+        FlowyError::local_ai().with_context(format!("Failed to select embedded documents: {}", err))
+      })
   }
 
   pub async fn embed_paragraphs(
@@ -117,19 +145,7 @@ impl LLMChat {
     message: &str,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.current_format.output_layout != format.output_layout {
-      self.current_format = format.clone();
-      self.chain = create_chain(
-        &self.workspace_id,
-        self.chain.ollama.model_name.as_ref(),
-        &self.client,
-        self.rag_ids.clone(),
-        &self.current_format,
-        self.store.clone(),
-      )
-      .await?;
-    }
-
+    self.dynamic_formatter.update_format(&format)?;
     let input_variables = prompt_args! {
         "question" => message,
     };
@@ -140,6 +156,7 @@ impl LLMChat {
       result
         .map(|stream_data| {
           if let Some(source) = stream_data.value.as_object().and_then(|v| v.get("source")) {
+            trace!("[VectorStore]: reference sources: {:?}", source);
             QuestionStreamValue::Metadata {
               value: source.clone(),
             }
@@ -155,37 +172,28 @@ impl LLMChat {
   }
 }
 
-fn create_prompt_with_format(format: &ResponseFormat) -> MessageFormatterStruct {
-  let format_instruction = format_prompt(format);
-  message_formatter![
-    fmt_message!(Message::new_system_message(
-      "You are a helpful assistant", 
-    )),
-    fmt_message!(format_instruction),
-    fmt_template!(HumanMessagePromptTemplate::new(
-      template_jinja2!("
-        Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-        {{context}}
+fn create_dynamic_prompt_with_format(format: &ResponseFormat) -> AFMessageFormatter {
+  let system_message =
+    Message::new_system_message("You are an assistant for question-answering tasks");
 
-        Question:{{question}}
-        Answer:
-        ",
-        "context",
-        "question"
-      )
-    ))
-  ]
+  AFMessageFormatter::new(system_message, format)
 }
 
 fn create_retriever(
   workspace_id: &Uuid,
   rag_ids: Vec<String>,
   store: SqliteVectorStore,
-) -> AFRetriever<Value> {
+) -> AFRetriever {
+  trace!(
+    "[VectorStore]: {} create retriever with rag_ids: {:?}",
+    workspace_id,
+    rag_ids,
+  );
   let options = VecStoreOptions::default()
-    .with_score_threshold(0.4)
-    .with_filters(json!({"rag_ids": rag_ids, "workspace_id": workspace_id}));
-  AFRetriever::<Value>::new(store, 5).with_options(options)
+    .with_score_threshold(0.2)
+    .with_filters(json!({RAG_IDS: rag_ids, "workspace_id": workspace_id}));
+
+  AFRetriever::new(store, 5, options)
 }
 
 async fn create_chain(
@@ -193,15 +201,14 @@ async fn create_chain(
   model: &str,
   client: &OllamaClientRef,
   rag_ids: Vec<String>,
-  format: &ResponseFormat,
+  formatter: AFMessageFormatter,
   store: Option<SqliteVectorStore>,
-) -> FlowyResult<ConversationalRetrieverChain> {
+) -> FlowyResult<(ConversationalRetrieverChain, AFMessageFormatter)> {
   let llm = create_llm(client, model).await?;
-  let prompt = create_prompt_with_format(format);
 
   let mut builder = ConversationalRetrieverChainBuilder::new()
     .llm(llm)
-    .rephrase_question(true)
+    .rephrase_question(false)
     .memory(SimpleMemory::new().into());
 
   if let Some(store) = store {
@@ -210,11 +217,11 @@ async fn create_chain(
   }
 
   let chain = builder
-    .prompt(prompt)
+    .prompt(formatter.clone())
     .build()
     .map_err(|err| FlowyError::local_ai().with_context(err))?;
 
-  Ok(chain)
+  Ok((chain, formatter))
 }
 
 async fn create_llm(client: &OllamaClientRef, model: &str) -> FlowyResult<LLMOllama> {

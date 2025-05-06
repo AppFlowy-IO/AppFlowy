@@ -1,4 +1,5 @@
 mod conversation_chain;
+mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;
@@ -27,7 +28,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::trace;
+use tracing::{info, trace};
 use uuid::Uuid;
 
 type OllamaClientRef = Arc<RwLock<Option<Weak<Ollama>>>>;
@@ -63,20 +64,28 @@ impl LLMChatController {
     *self.store.write().await = Some(store);
   }
 
+  pub async fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+    if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
+      chat.set_rag_ids(rag_ids.to_vec()).await;
+    }
+  }
+
   pub async fn open_chat(
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
     model: &str,
+    rag_ids: Vec<String>,
   ) -> FlowyResult<()> {
     let store = self.store.read().await.clone();
+    info!("[VectorStore]: {} open chat: {:?}", chat_id, model);
     let chat = LLMChat::new(
       *workspace_id,
       *chat_id,
       model,
       self.client.clone(),
       store,
-      vec![],
+      rag_ids,
     )
     .await?;
     self.chat_by_id.insert(*chat_id, chat);
@@ -208,8 +217,11 @@ impl LLMChatController {
     chat_id: &Uuid,
     question: &str,
     format: ResponseFormat,
+    model_name: &str,
   ) -> FlowyResult<StreamAnswer> {
     if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
+      chat.set_chat_model(model_name);
+
       let response = chat.stream_question(question, format).await;
       return response;
     }

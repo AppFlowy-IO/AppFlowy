@@ -2,18 +2,19 @@ use crate::cloud::workspace_dto::ViewIcon;
 use crate::cloud::CollabType;
 use twox_hash::xxhash64::Hasher;
 use uuid::Uuid;
+pub const RAG_IDS: &str = "rag_ids";
 pub const SOURCE_ID: &str = "id";
-pub const SOURCE: &str = "appflowy";
-pub const SOURCE_NAME: &str = "document";
+pub const SOURCE: &str = "source";
+pub const SOURCE_NAME: &str = "name";
 pub struct EmbeddingRecord {
   pub workspace_id: Uuid,
   pub object_id: Uuid,
   pub chunks: Vec<EmbeddedChunk>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct UnindexedCollabMetadata {
-  pub name: String,
+  pub name: Option<String>,
   pub icon: Option<ViewIcon>,
 }
 

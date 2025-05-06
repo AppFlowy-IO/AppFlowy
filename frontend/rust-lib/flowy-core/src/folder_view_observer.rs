@@ -36,7 +36,7 @@ impl FolderViewObserver for FolderViewObserverImpl {
             Ok(view) => {
               let _ = state.write().await.add_document_metadata(
                 &view.id,
-                view.name.clone(),
+                Some(view.name.clone()),
                 view.icon.clone(),
               );
             },
@@ -46,7 +46,7 @@ impl FolderViewObserver for FolderViewObserverImpl {
             Ok(view) => {
               let _ = state.write().await.add_document_metadata(
                 &view.id,
-                view.name.clone(),
+                Some(view.name.clone()),
                 view.icon.clone(),
               );
             },

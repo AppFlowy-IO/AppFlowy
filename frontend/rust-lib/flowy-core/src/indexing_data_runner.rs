@@ -1,5 +1,5 @@
 use crate::app_life_cycle::AppLifeCycleImpl;
-use crate::full_indexed_data_provider::FullIndexedDataProvider;
+use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::indexed_data_consumer::{
   get_or_init_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
   SearchInstantIndexImpl,
@@ -56,7 +56,7 @@ impl AppLifeCycleImpl {
     _user_config: &UserConfig,
     user_paths: &UserPaths,
   ) {
-    let instant_indexed_data_provider = self.instant_indexed_data_provider.clone();
+    let instant_indexed_data_provider = self.instant_indexed_data_writer.clone();
     let runtime = self.runtime.clone();
     let workspace_id_cloned = *workspace_id;
     let workspace_type_cloned = *workspace_type;
@@ -150,7 +150,7 @@ impl AppLifeCycleImpl {
   ) {
     let folder_manager = self.folder_manager.clone();
     let logged_user = self.logged_user.clone();
-    let full_indexed_data_provider = self.full_indexed_data_provider.clone();
+    let full_indexed_data_writer = self.full_indexed_data_writer.clone();
     let workspace_id_cloned = *workspace_id;
     let workspace_type_cloned = *workspace_type;
     let user_paths = user_paths.clone();
@@ -167,7 +167,7 @@ impl AppLifeCycleImpl {
         workspace_id_cloned
       );
 
-      let new_provider = FullIndexedDataProvider::new(
+      let new_full_indexed_data_writer = FullIndexedDataWriter::new(
         workspace_id_cloned,
         folder_manager,
         Arc::downgrade(&logged_user),
@@ -175,7 +175,7 @@ impl AppLifeCycleImpl {
       #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
       {
         if workspace_type_cloned.is_local() {
-          new_provider
+          new_full_indexed_data_writer
             .register_full_indexed_consumer(Box::new(
               crate::indexed_data_consumer::EmbeddingFullIndexConsumer,
             ))
@@ -185,7 +185,7 @@ impl AppLifeCycleImpl {
 
       match SearchFullIndexConsumer::new(&workspace_id_cloned, user_paths.tanvity_index_path(uid)) {
         Ok(consumer) => {
-          new_provider
+          new_full_indexed_data_writer
             .register_full_indexed_consumer(Box::new(consumer))
             .await;
         },
@@ -195,13 +195,16 @@ impl AppLifeCycleImpl {
         ),
       }
 
-      if new_provider.num_consumers().await > 0 {
+      if new_full_indexed_data_writer.num_consumers().await > 0 {
         info!(
           "[Indexing] full indexed data provider with {} consumers for workspace: {:?}",
-          new_provider.num_consumers().await,
+          new_full_indexed_data_writer.num_consumers().await,
           workspace_id_cloned
         );
-        match new_provider.full_index_unindexed_documents().await {
+        match new_full_indexed_data_writer
+          .full_index_unindexed_documents()
+          .await
+        {
           Ok(()) => {
             info!("[Indexing] full index succeeded");
           },
@@ -213,8 +216,8 @@ impl AppLifeCycleImpl {
         info!("[Indexing] full indexed data provider stopped");
       }
 
-      if let Some(provider) = full_indexed_data_provider.upgrade() {
-        let old = provider.write().await.replace(new_provider);
+      if let Some(writer) = full_indexed_data_writer.upgrade() {
+        let old = writer.write().await.replace(new_full_indexed_data_writer);
         if let Some(old) = old {
           old.cancel_indexing();
         }

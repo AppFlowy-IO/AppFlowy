@@ -2,6 +2,7 @@
 
 use crate::af_cloud::define::LoggedUser;
 use crate::local_server::util::default_encode_collab_for_collab_type;
+use crate::EmbeddingWriter;
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab::core::origin::CollabOrigin;
@@ -21,6 +22,7 @@ use uuid::Uuid;
 pub(crate) struct LocalServerFolderCloudServiceImpl {
   #[allow(dead_code)]
   pub logged_user: Arc<dyn LoggedUser>,
+  pub embedding_writer: Option<Arc<dyn EmbeddingWriter>>,
 }
 
 #[async_trait]
@@ -68,6 +70,17 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     workspace_id: &Uuid,
     params: FullSyncCollabParams,
   ) -> Result<(), FlowyError> {
+    if let Some(embedding_writer) = self.embedding_writer.as_ref() {
+      embedding_writer
+        .index_encoded_collab(
+          *workspace_id,
+          params.object_id,
+          params.encoded_collab,
+          params.collab_type,
+        )
+        .await?;
+    }
+
     Ok(())
   }
 

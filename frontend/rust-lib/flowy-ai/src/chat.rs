@@ -73,7 +73,7 @@ impl Chat {
   pub async fn stream_chat_message(
     &self,
     params: &StreamMessageParams,
-    preferred_ai_model: Option<AIModel>,
+    preferred_ai_model: AIModel,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, format={:?}",
@@ -138,7 +138,7 @@ impl Chat {
     question_id: i64,
     answer_stream_port: i64,
     format: Option<PredefinedFormatPB>,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> FlowyResult<()> {
     trace!(
       "[Chat] regenerate and stream chat message: chat_id={}",
@@ -178,7 +178,7 @@ impl Chat {
     workspace_id: Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) {
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id;
@@ -542,6 +542,12 @@ impl Chat {
     limit: u64,
     offset: MessageCursor,
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
+    trace!(
+      "[Chat] Loading messages from disk: chat_id={}, limit={}, offset={:?}",
+      self.chat_id,
+      limit,
+      offset
+    );
     let conn = self.user_service.sqlite_connection(self.uid)?;
     let rows = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?.messages;
     let messages = rows

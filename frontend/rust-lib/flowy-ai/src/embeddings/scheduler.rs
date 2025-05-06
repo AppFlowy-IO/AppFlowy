@@ -110,7 +110,7 @@ impl EmbeddingScheduler {
       Some(query_embed) => {
         let result = self
           .vector_db
-          .search_with_score(&workspace_id.to_string(), vec![], query_embed, 10, 0.4)
+          .search_with_score(&workspace_id.to_string(), &[], query_embed, 10, 0.4)
           .await
           .map_err(|err| {
             error!("[Embedding] Failed to search: {}", err);
