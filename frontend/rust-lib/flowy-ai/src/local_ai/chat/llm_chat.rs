@@ -62,9 +62,8 @@ impl LLMChat {
     })
   }
 
-  pub async fn set_chat_model(&mut self, model: &str) -> FlowyResult<()> {
+  pub fn set_chat_model(&mut self, model: &str) {
     self.chain.ollama.set_model(model);
-    Ok(())
   }
 
   pub async fn set_rag_ids(&mut self, rag_ids: Vec<String>) {

@@ -133,7 +133,7 @@ impl ChatCloudService for AutoSyncChatService {
     chat_id: &Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
     self
       .cloud_service

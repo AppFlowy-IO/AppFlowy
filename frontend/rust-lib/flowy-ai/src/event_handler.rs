@@ -346,7 +346,7 @@ pub(crate) async fn get_local_ai_models_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ModelSelectionPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let data = ai_manager.get_local_available_models().await?;
+  let data = ai_manager.get_local_available_models(None).await?;
   data_result_ok(data)
 }
 

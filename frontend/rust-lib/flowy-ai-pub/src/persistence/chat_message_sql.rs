@@ -10,7 +10,6 @@ use flowy_sqlite::{
   DBConnection, ExpressionMethods, Identifiable, Insertable, OptionalExtension, QueryResult,
   Queryable,
 };
-use tracing::trace;
 
 #[derive(Queryable, Insertable, Identifiable, Debug)]
 #[diesel(table_name = chat_message_table)]
@@ -74,7 +73,7 @@ pub fn upsert_chat_messages(
   mut conn: DBConnection,
   new_messages: &[ChatMessageTable],
 ) -> FlowyResult<()> {
-  trace!("Upserting chat messages: {:?}", new_messages);
+  //trace!("Upserting chat messages: {:?}", new_messages);
   conn.immediate_transaction(|conn| {
     for message in new_messages {
       let _ = insert_into(chat_message_table::table)

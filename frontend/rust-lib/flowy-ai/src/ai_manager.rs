@@ -325,7 +325,7 @@ impl AIManager {
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(&params.chat_id).await?;
     let ai_model = self.get_active_model(&params.chat_id.to_string()).await;
-    let question = chat.stream_chat_message(&params, Some(ai_model)).await?;
+    let question = chat.stream_chat_message(&params, ai_model).await?;
     let _ = self
       .external_service
       .notify_did_send_message(&params.chat_id, &params.message)
@@ -351,7 +351,7 @@ impl AIManager {
       Some(model) => model.into(),
     };
     chat
-      .stream_regenerate_response(question_message_id, answer_stream_port, format, Some(model))
+      .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
     Ok(())
   }
@@ -490,8 +490,10 @@ impl AIManager {
     }
   }
 
-  pub async fn get_local_available_models(&self) -> FlowyResult<ModelSelectionPB> {
-    let setting = self.local_ai.get_local_ai_setting();
+  pub async fn get_local_available_models(
+    &self,
+    source: Option<String>,
+  ) -> FlowyResult<ModelSelectionPB> {
     let workspace_id = self.user_service.workspace_id()?;
     let mut models = self
       .model_control
@@ -500,10 +502,25 @@ impl AIManager {
       .get_local_models(&workspace_id)
       .await;
 
-    let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
-    if models.is_empty() {
-      models.push(selected_model.clone());
-    }
+    let selected_model = match source {
+      None => {
+        let setting = self.local_ai.get_local_ai_setting();
+        let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+        if models.is_empty() {
+          models.push(selected_model.clone());
+        }
+        selected_model
+      },
+      Some(source) => {
+        let source_key = SourceKey::new(source);
+        self
+          .model_control
+          .lock()
+          .await
+          .get_active_model(&workspace_id, &source_key)
+          .await
+      },
+    };
 
     Ok(ModelSelectionPB {
       models: models.into_iter().map(AIModelPB::from).collect(),
@@ -518,7 +535,7 @@ impl AIManager {
   ) -> FlowyResult<ModelSelectionPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
-      return self.get_local_available_models().await;
+      return self.get_local_available_models(Some(source)).await;
     }
 
     let workspace_id = self.user_service.workspace_id()?;
@@ -533,6 +550,14 @@ impl AIManager {
     let active_model = model_control
       .get_active_model(&workspace_id, &source_key)
       .await;
+
+    trace!(
+      "[Model Selection] {} active model: {:?}, global model:{:?}",
+      source_key.storage_id(),
+      active_model,
+      local_model_name
+    );
+
     let all_models = model_control
       .get_models_with_specific_local_model(&workspace_id, local_model_name)
       .await;

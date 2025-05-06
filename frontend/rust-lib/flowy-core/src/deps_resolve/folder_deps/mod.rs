@@ -25,6 +25,7 @@ use crate::deps_resolve::folder_deps::folder_deps_doc_impl::DocumentFolderOperat
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_folder_pub::query::{FolderQueryService, FolderService, FolderViewEdit, QueryCollab};
 use lib_infra::async_trait::async_trait;
+use tracing::trace;
 use uuid::Uuid;
 
 pub struct FolderDepsResolver();
@@ -126,10 +127,10 @@ impl FolderServiceImpl {
 #[async_trait]
 impl FolderViewEdit for FolderServiceImpl {
   async fn set_view_title_if_empty(&self, view_id: &Uuid, title: &str) -> FlowyResult<()> {
+    trace!("Set view title: view_id: {}, title: {}", view_id, title);
     if title.is_empty() {
       return Ok(());
     }
-
     if let Some(folder_manager) = self.folder_manager.upgrade() {
       if let Ok(view) = folder_manager.get_view(view_id.to_string().as_str()).await {
         if view.name.is_empty() {

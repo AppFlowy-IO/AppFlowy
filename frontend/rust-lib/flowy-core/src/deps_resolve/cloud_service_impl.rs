@@ -688,7 +688,7 @@ impl ChatCloudService for ServerProvider {
     chat_id: &Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
     let server = self.get_server()?;
     server

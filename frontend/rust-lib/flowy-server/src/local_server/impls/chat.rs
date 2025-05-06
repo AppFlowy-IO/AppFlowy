@@ -110,15 +110,15 @@ impl ChatCloudService for LocalChatServiceImpl {
     &self,
     _workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_ai.is_ready().await {
-      let content = self.get_message_content(message_id)?;
+      let content = self.get_message_content(question_id)?;
       self
         .local_ai
-        .stream_question(chat_id, &content, format)
+        .stream_question(chat_id, &content, format, &ai_model.name)
         .await
     } else {
       Err(FlowyError::local_ai_disabled())

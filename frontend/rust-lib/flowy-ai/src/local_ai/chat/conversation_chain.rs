@@ -233,15 +233,6 @@ impl Chain for ConversationalRetrieverChain {
     let complete_ai_message_clone = complete_ai_message.clone();
     let output_stream = stream! {
         pin_mut!(stream);
-
-        for source in sources {
-          yield Ok(StreamData::new(
-              json!({"source": source}),
-              None,
-              "".to_string(),
-          ));
-        }
-
         while let Some(result) = stream.next().await {
             match result {
                 Ok(data) => {
@@ -255,6 +246,14 @@ impl Chain for ConversationalRetrieverChain {
                     yield Err(e);
                 }
             }
+        }
+
+        for source in sources {
+          yield Ok(StreamData::new(
+              json!({"source": source}),
+              None,
+              "".to_string(),
+          ));
         }
 
         let mut memory = memory.lock().await;

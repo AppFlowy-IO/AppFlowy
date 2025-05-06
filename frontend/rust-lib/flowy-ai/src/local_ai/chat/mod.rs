@@ -217,8 +217,11 @@ impl LLMChatController {
     chat_id: &Uuid,
     question: &str,
     format: ResponseFormat,
+    model_name: &str,
   ) -> FlowyResult<StreamAnswer> {
     if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
+      chat.set_chat_model(model_name);
+
       let response = chat.stream_question(question, format).await;
       return response;
     }
