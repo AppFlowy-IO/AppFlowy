@@ -168,7 +168,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
             slivers: <Widget>[
               SliverPadding(
                 padding: EdgeInsets.only(
-                  top: widget.bottomPadding ?? 0,
+                  top: 400,
                 ),
               ),
               SliverAnimatedList(

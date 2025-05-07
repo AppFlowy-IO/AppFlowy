@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -198,7 +199,11 @@ class EditorStyleCustomizer {
       fontSize = state.fontLayout.fontSize;
       fontSizes = state.fontLayout.headingFontSizes;
     } else {
-      fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+      fontFamily = context
+          .read<DocumentAppearanceCubit>()
+          .state
+          .fontFamily
+          .orDefault(context.read<AppearanceSettingsCubit>().state.font);
       fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
       fontSizes = [
         fontSize + 16,

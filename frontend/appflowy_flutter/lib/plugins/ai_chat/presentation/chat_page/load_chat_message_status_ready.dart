@@ -1,13 +1,14 @@
 import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_page/chat_animation_list_widget.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_page/chat_footer.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_page/chat_message_widget.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_page/text_message_widget.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/scroll_to_bottom.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' hide ChatMessage;
 import 'package:universal_platform/universal_platform.dart';
 
 class LoadChatMessageStatusReady extends StatelessWidget {
@@ -61,20 +62,31 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                 builders: Builders(
                   // we have a custom input builder, so we don't need the default one
                   inputBuilder: (_) => const SizedBox.shrink(),
-                  textMessageBuilder: (context, message) => TextMessageWidget(
+                  textMessageBuilder: (
+                    context,
+                    message,
+                  ) =>
+                      TextMessageWidget(
                     message: message,
                     userProfile: userProfile,
                     view: view,
                   ),
-                  chatMessageBuilder: (context, message, animation, child) =>
+                  chatMessageBuilder: (
+                    context,
+                    message,
+                    animation,
+                    child,
+                  ) =>
                       ChatMessage(
                     message: message,
-                    animation: animation,
                     padding: const EdgeInsets.symmetric(vertical: 18.0),
-                    receivedMessageScaleAnimationAlignment: Alignment.center,
                     child: child,
                   ),
-                  scrollToBottomBuilder: (context, animation, onPressed) =>
+                  scrollToBottomBuilder: (
+                    context,
+                    animation,
+                    onPressed,
+                  ) =>
                       CustomScrollToBottom(
                     animation: animation,
                     onPressed: onPressed,
@@ -88,7 +100,6 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                     userProfile: userProfile,
                     scrollController: scrollController,
                     itemBuilder: itemBuilder,
-                    enableReversedList: true,
                   ),
                 ),
               ),
