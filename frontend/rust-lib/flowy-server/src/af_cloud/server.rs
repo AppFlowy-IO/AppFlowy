@@ -46,7 +46,6 @@ use uuid::Uuid;
 
 pub(crate) type AFCloudClient = Client;
 
-#[derive(Clone)]
 pub struct AppFlowyCloudServer {
   #[allow(dead_code)]
   pub(crate) config: AFCloudConfiguration,
@@ -57,6 +56,7 @@ pub struct AppFlowyCloudServer {
   ws_client: Arc<WSClient>,
   logged_user: Weak<dyn LoggedUser>,
   ai_user_service: Arc<dyn AIUserService>,
+  tanvity_state: RwLock<Option<Weak<RwLock<DocumentTantivyState>>>>,
 }
 
 impl AppFlowyCloudServer {
@@ -106,6 +106,7 @@ impl AppFlowyCloudServer {
       ws_client,
       logged_user,
       ai_user_service,
+      tanvity_state: Default::default(),
     }
   }
 
@@ -266,12 +267,16 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let state = self.tanvity_state.read().await.clone();
     Some(Arc::new(AFCloudSearchCloudServiceImpl {
-      inner: self.get_server_impl(),
+      server: self.get_server_impl(),
+      state,
     }))
   }
 
-  async fn set_tanvity_state(&self, _state: Option<Weak<RwLock<DocumentTantivyState>>>) {}
+  async fn set_tanvity_state(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    *self.tanvity_state.write().await = state;
+  }
 }
 
 /// Spawns a new asynchronous task to handle WebSocket connections based on token state.
