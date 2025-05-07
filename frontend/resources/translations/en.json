@@ -2361,6 +2361,7 @@
     "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
     "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
+    "seeMore": "See more",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -2806,6 +2807,7 @@
     "aiOverview": "AI overview",
     "aiOverviewSource": "Reference sources",
     "aiOverviewMoreDetails": "More details",
+    "aiAskFollowUp": "Ask follow-up",
     "pagePreview": "Content preview",
     "clickToOpenPage": "Click to open page",
     "recentHistory": "Recent history",

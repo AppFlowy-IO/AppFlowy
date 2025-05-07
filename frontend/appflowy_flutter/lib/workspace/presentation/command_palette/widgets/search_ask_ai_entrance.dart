@@ -17,7 +17,6 @@ class SearchAskAiEntrance extends StatelessWidget {
     final bloc = context.read<CommandPaletteBloc?>(), state = bloc?.state;
     final generatingAIOverview = state?.generatingAIOverview ?? false;
     final hasAIOverview = state?.resultSummaries.isNotEmpty ?? false;
-
     if (generatingAIOverview) {
       return _AISearching();
     } else if (hasAIOverview) {
@@ -138,19 +137,85 @@ class _AIOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<CommandPaletteBloc?>(), state = bloc?.state;
+    final theme = AppFlowyTheme.of(context);
     final summaries = state?.resultSummaries ?? [];
     if (summaries.isEmpty) {
       return const SizedBox.shrink();
     }
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildHeader(context),
+          VSpace(8),
+          LayoutBuilder(
+            builder: (context, constrains) {
+              final summary = summaries.first;
+              return SearchSummaryCell(
+                key: ValueKey(summary.content.trim()),
+                summary: summary,
+                maxWidth: constrains.maxWidth,
+                theme: AppFlowyTheme.of(context),
+              );
+            },
+          ),
+          VSpace(8),
+          SizedBox(
+            width: 143,
+            child: AFOutlinedButton.normal(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              borderRadius: 16,
+              builder: (context, hovering, disabled) {
+                return Row(
+                  children: [
+                    FlowySvg(
+                      FlowySvgs.chat_ai_page_s,
+                      size: Size.square(20),
+                      blendMode: null,
+                    ),
+                    HSpace(8),
+                    Text(
+                      LocaleKeys.commandPalette_aiAskFollowUp.tr(),
+                      style: theme.textStyle.body.standard(
+                        color: theme.textColorScheme.primary,
+                      ),
+                    ),
+                  ],
+                );
+              },
+              onTap: () {
+                context.read<CommandPaletteBloc?>()?.add(
+                      CommandPaletteEvent.gointToAskAI(
+                        sources: summaries.first.sources,
+                      ),
+                    );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    return ListView.separated(
-      physics: const ClampingScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: summaries.length,
-      separatorBuilder: (_, __) => const Divider(height: 0),
-      itemBuilder: (_, index) => SearchSummaryCell(
-        summary: summaries[index],
-        isHovered: false,
+  Widget buildHeader(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return SizedBox(
+      height: 22,
+      child: Row(
+        children: [
+          FlowySvg(
+            FlowySvgs.ai_searching_icon_m,
+            size: Size.square(20),
+            blendMode: null,
+          ),
+          HSpace(8),
+          Text(
+            LocaleKeys.commandPalette_aiOverview.tr(),
+            style: theme.textStyle.heading4
+                .enhanced(color: theme.textColorScheme.primary),
+          ),
+        ],
       ),
     );
   }

@@ -230,10 +230,15 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     if (!isAskingAI) return;
     final query = paletteState?.query ?? '';
     if (query.isEmpty) return;
+    final sources =
+        (paletteState?.askAISources ?? []).map((e) => e.id).toList();
     final metadata =
         context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
     final promptState = context.read<AIPromptInputBloc?>()?.state;
     final predefinedFormat = promptState?.predefinedFormat;
+    if (sources.isNotEmpty) {
+      widget.onUpdateSelectedSources(sources);
+    }
     widget.onSubmitted.call(query, predefinedFormat, metadata);
     paletteBloc?.add(CommandPaletteEvent.askedAI());
   }

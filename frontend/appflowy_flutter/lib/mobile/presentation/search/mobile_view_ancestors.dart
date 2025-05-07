@@ -71,7 +71,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         TextPainter textPainter =
             _buildTextPainter(displayPath.join(' / '), textStyle);
         textPainter.layout(maxWidth: constrains.maxWidth);
-        if (textPainter.didExceedMaxLines) {
+        if (textPainter.didExceedMaxLines && displayPath.length > 2) {
           displayPath.removeAt(displayPath.length - 2);
           displayPath.insert(displayPath.length - 1, '...');
         }

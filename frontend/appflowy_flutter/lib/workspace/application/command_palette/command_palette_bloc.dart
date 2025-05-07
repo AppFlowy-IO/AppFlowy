@@ -286,14 +286,14 @@ class CommandPaletteBloc
     _GoingToAskAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: true));
+    emit(state.copyWith(askAI: true, askAISources: event.sources));
   }
 
   FutureOr<void> _onAskedAI(
     _AskedAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: false));
+    emit(state.copyWith(askAI: false, askAISources: null));
   }
 
   bool _isActiveSearch(String searchId) =>
@@ -325,7 +325,9 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     @Default(null) String? workspaceId,
   }) = _WorkspaceChanged;
   const factory CommandPaletteEvent.clearSearch() = _ClearSearch;
-  const factory CommandPaletteEvent.gointToAskAI() = _GoingToAskAI;
+  const factory CommandPaletteEvent.gointToAskAI({
+    @Default(null) List<SearchSourcePB>? sources,
+  }) = _GoingToAskAI;
   const factory CommandPaletteEvent.askedAI() = _AskedAI;
 }
 
@@ -358,6 +360,7 @@ class CommandPaletteState with _$CommandPaletteState {
     required bool searching,
     required bool generatingAIOverview,
     @Default(false) bool askAI,
+    @Default(null) List<SearchSourcePB>? askAISources,
     @Default([]) List<TrashPB> trash,
     @Default(null) String? searchId,
   }) = _CommandPaletteState;
