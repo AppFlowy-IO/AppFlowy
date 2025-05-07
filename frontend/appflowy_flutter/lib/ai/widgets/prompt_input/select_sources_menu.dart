@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -18,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../service/view_selector_cubit.dart';
+import '../view_selector.dart';
 import 'layout_define.dart';
 import 'mention_page_menu.dart';
 
@@ -72,23 +72,10 @@ class _PromptInputDesktopSelectSourcesButtonState
 
   @override
   Widget build(BuildContext context) {
-    final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.state.userProfile;
-    final workspaceId =
-        userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => SpaceBloc(
-            userProfile: userProfile,
-            workspaceId: workspaceId,
-          )..add(const SpaceEvent.initial(openFirstPage: false)),
-        ),
-        BlocProvider.value(
-          value: cubit,
-        ),
-      ],
+    return ViewSelector(
+      viewSelectorCubit: BlocProvider.value(
+        value: cubit,
+      ),
       child: BlocBuilder<SpaceBloc, SpaceState>(
         builder: (context, state) {
           return AppFlowyPopover(
@@ -201,6 +188,8 @@ class _PopoverContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
       builder: (context, state) {
+        final theme = AppFlowyTheme.of(context);
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -213,7 +202,10 @@ class _PopoverContent extends StatelessWidget {
                 hintText: LocaleKeys.search_label.tr(),
               ),
             ),
-            _buildDivider(),
+            AFDivider(
+              startIndent: theme.spacing.l,
+              endIndent: theme.spacing.l,
+            ),
             Flexible(
               child: ListView(
                 shrinkWrap: true,
@@ -222,9 +214,10 @@ class _PopoverContent extends StatelessWidget {
                   ..._buildSelectedSources(context, state),
                   if (state.selectedSources.isNotEmpty &&
                       state.visibleSources.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: _buildDivider(),
+                    AFDivider(
+                      spacing: 4.0,
+                      startIndent: theme.spacing.l,
+                      endIndent: theme.spacing.l,
                     ),
                   ..._buildVisibleSources(context, state),
                 ],
@@ -233,15 +226,6 @@ class _PopoverContent extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildDivider() {
-    return const Divider(
-      height: 1.0,
-      thickness: 1.0,
-      indent: 8.0,
-      endIndent: 8.0,
     );
   }
 
@@ -424,17 +408,10 @@ class ViewSelectorTreeItemInner extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
-        if (!isSelectedSection) {
-          onSelected?.call(viewSelectorItem);
-        }
-      },
+      onTap: () => onSelected?.call(viewSelectorItem),
       child: FlowyHover(
-        cursor: isSelectedSection ? SystemMouseCursors.basic : null,
         style: HoverStyle(
-          hoverColor: isSelectedSection
-              ? Colors.transparent
-              : AFThemeExtension.of(context).lightGreyHover,
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
         ),
         builder: (context, onHover) {
           final isSaveButtonVisible =

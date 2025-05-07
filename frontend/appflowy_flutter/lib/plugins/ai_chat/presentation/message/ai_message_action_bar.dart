@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/ai/widgets/view_selector.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -514,33 +514,20 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
 
   @override
   Widget build(BuildContext context) {
-    final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.state.userProfile;
-    final workspaceId =
-        userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => SpaceBloc(
-            userProfile: userProfile,
-            workspaceId: workspaceId,
-          )..add(const SpaceEvent.initial(openFirstPage: false)),
-        ),
-        BlocProvider(
-          create: (context) => ViewSelectorCubit(
-            getIgnoreViewType: (view) {
-              if (view.isSpace) {
-                return IgnoreViewType.none;
-              }
-              if (view.layout != ViewLayoutPB.Document) {
-                return IgnoreViewType.hide;
-              }
+    return ViewSelector(
+      viewSelectorCubit: BlocProvider(
+        create: (context) => ViewSelectorCubit(
+          getIgnoreViewType: (view) {
+            if (view.isSpace) {
               return IgnoreViewType.none;
-            },
-          ),
+            }
+            if (view.layout != ViewLayoutPB.Document) {
+              return IgnoreViewType.hide;
+            }
+            return IgnoreViewType.none;
+          },
         ),
-      ],
+      ),
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
         selector: (state) => state.currentSpace,
         builder: (context, spaceView) {
@@ -708,6 +695,8 @@ class SaveToPagePopoverContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
       builder: (context, state) {
+        final theme = AppFlowyTheme.of(context);
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -716,10 +705,10 @@ class SaveToPagePopoverContent extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: FlowyText(
+                child: Text(
                   LocaleKeys.chat_addToPageTitle.tr(),
-                  fontSize: 12.0,
-                  color: Theme.of(context).hintColor,
+                  style: theme.textStyle.caption
+                      .standard(color: theme.textColorScheme.secondary),
                 ),
               ),
             ),
@@ -732,7 +721,10 @@ class SaveToPagePopoverContent extends StatelessWidget {
                 size: AFTextFieldSize.m,
               ),
             ),
-            _buildDivider(),
+            AFDivider(
+              startIndent: theme.spacing.l,
+              endIndent: theme.spacing.l,
+            ),
             Expanded(
               child: ListView(
                 shrinkWrap: true,
@@ -743,15 +735,6 @@ class SaveToPagePopoverContent extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildDivider() {
-    return const Divider(
-      height: 1.0,
-      thickness: 1.0,
-      indent: 12.0,
-      endIndent: 12.0,
     );
   }
 
