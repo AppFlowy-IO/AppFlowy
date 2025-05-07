@@ -35,10 +35,10 @@ diesel::table! {
     chat_table (chat_id) {
         chat_id -> Text,
         created_at -> BigInt,
-        name -> Text,
         metadata -> Text,
         rag_ids -> Nullable<Text>,
         is_sync -> Bool,
+        summary -> Text,
     }
 }
 
