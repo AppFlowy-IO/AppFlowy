@@ -154,57 +154,58 @@ class CommandPaletteModal extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
 
     return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
-      builder: (context, state) => FlowyDialog(
-        alignment: Alignment.topCenter,
-        insetPadding: const EdgeInsets.only(top: 100),
-        constraints: const BoxConstraints(
-          maxHeight: 600,
-          maxWidth: 800,
-          minHeight: 600,
-        ),
-        expandHeight: false,
-        child: shortcutBuilder(
-          // Change mainAxisSize to max so Expanded works correctly.
-          Column(
-            children: [
-              SearchField(query: state.query, isLoading: state.searching),
-              if (showAskingAI) ...[
-                Divider(height: 1, color: theme.borderColorScheme.primary),
-                SearchAskAiEntrance(),
-              ],
-              if (state.query?.isEmpty ?? true) ...[
-                if (!showAskingAI)
-                  Divider(height: 1, color: theme.borderColorScheme.primary),
-                Flexible(
-                  child: RecentViewsList(
-                    onSelected: () => FlowyOverlay.pop(context),
-                  ),
-                ),
-              ],
-              if (state.combinedResponseItems.isNotEmpty &&
-                  (state.query?.isNotEmpty ?? false)) ...[
-                if (!showAskingAI) const Divider(height: 0),
-                Flexible(
-                  child: SearchResultList(
-                    trash: state.trash,
-                    resultItems: state.combinedResponseItems.values.toList(),
-                    resultSummaries: state.resultSummaries,
-                  ),
-                ),
-              ]
-              // When there are no results and the query is not empty and not loading,
-              // show the no results message, centered in the available space.
-              else if ((state.query?.isNotEmpty ?? false) &&
-                  !state.searching) ...[
-                Divider(height: 1, color: theme.borderColorScheme.primary),
-                Expanded(
-                  child: const _NoResultsHint(),
-                ),
-              ],
-            ],
+      builder: (context, state) {
+        final noQuery = state.query?.isEmpty ?? true;
+        return FlowyDialog(
+          alignment: Alignment.topCenter,
+          insetPadding: const EdgeInsets.only(top: 100),
+          constraints: const BoxConstraints(
+            maxHeight: 600,
+            maxWidth: 800,
+            minHeight: 600,
           ),
-        ),
-      ),
+          expandHeight: false,
+          child: shortcutBuilder(
+            // Change mainAxisSize to max so Expanded works correctly.
+            Column(
+              children: [
+                SearchField(query: state.query, isLoading: state.searching),
+                if (showAskingAI && noQuery) ...[
+                  Divider(height: 1, color: theme.borderColorScheme.primary),
+                  SearchAskAiEntrance(),
+                ],
+                if (noQuery) ...[
+                  if (!showAskingAI)
+                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                  Flexible(
+                    child: RecentViewsList(
+                      onSelected: () => FlowyOverlay.pop(context),
+                    ),
+                  ),
+                ],
+                if (state.combinedResponseItems.isNotEmpty && !noQuery) ...[
+                  Divider(height: 1, color: theme.borderColorScheme.primary),
+                  Flexible(
+                    child: SearchResultList(
+                      trash: state.trash,
+                      resultItems: state.combinedResponseItems.values.toList(),
+                      resultSummaries: state.resultSummaries,
+                    ),
+                  ),
+                ]
+                // When there are no results and the query is not empty and not loading,
+                // show the no results message, centered in the available space.
+                else if (!noQuery && !state.searching) ...[
+                  Divider(height: 1, color: theme.borderColorScheme.primary),
+                  Expanded(
+                    child: const _NoResultsHint(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

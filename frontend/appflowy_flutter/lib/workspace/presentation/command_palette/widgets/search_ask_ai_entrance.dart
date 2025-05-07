@@ -7,6 +7,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'search_summary_cell.dart';
+
 class SearchAskAiEntrance extends StatelessWidget {
   const SearchAskAiEntrance({super.key});
 
@@ -40,7 +42,7 @@ class _AskAIFor extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
         backgroundColor: (context, isHovering, disable) {
           if (isHovering) {
-            return theme.fillColorScheme.quaternaryHover;
+            return Theme.of(context).colorScheme.secondary;
           }
           return theme.fillColorScheme.transparent;
         },
@@ -116,7 +118,7 @@ class _AISearching extends StatelessWidget {
           ),
           HSpace(8),
           Text(
-            LocaleKeys.search_askAIAnything.tr(),
+            LocaleKeys.search_searching.tr(),
             style: theme.textStyle.heading4
                 .standard(color: theme.textColorScheme.secondary),
           ),
@@ -131,6 +133,21 @@ class _AIOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final bloc = context.read<CommandPaletteBloc?>(), state = bloc?.state;
+    final summaries = state?.resultSummaries ?? [];
+    if (summaries.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return ListView.separated(
+      physics: const ClampingScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: summaries.length,
+      separatorBuilder: (_, __) => const Divider(height: 0),
+      itemBuilder: (_, index) => SearchSummaryCell(
+        summary: summaries[index],
+        isHovered: false,
+      ),
+    );
   }
 }

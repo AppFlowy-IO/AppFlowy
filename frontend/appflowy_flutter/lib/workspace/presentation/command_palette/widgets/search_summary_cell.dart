@@ -3,8 +3,6 @@ import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.d
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
@@ -23,28 +21,11 @@ class SearchSummaryCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyHover(
-      isSelected: () => isHovered,
-      onHover: (value) {
-        context.read<SearchResultListBloc>().add(
-              SearchResultListEvent.onHoverSummary(
-                summary: summary,
-                userHovered: true,
-              ),
-            );
-      },
-      style: HoverStyle(
-        borderRadius: BorderRadius.circular(8),
-        hoverColor:
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        foregroundColorOnHover: AFThemeExtension.of(context).textColor,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: FlowyText(
-          summary.content,
-          maxLines: 10,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: FlowyText(
+        summary.content,
+        maxLines: 10,
       ),
     );
   }

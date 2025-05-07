@@ -2814,7 +2814,10 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field"
+    "clearSearchTooltip": "Clear search field",
+    "location": "Location",
+    "created": "Created",
+    "edited": "Edited"
   },
   "space": {
     "delete": "Delete",

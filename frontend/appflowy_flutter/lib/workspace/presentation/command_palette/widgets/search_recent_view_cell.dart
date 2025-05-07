@@ -32,7 +32,7 @@ class SearchRecentViewCell extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
       backgroundColor: (context, isHovering, disable) {
         if (isHovering) {
-          return theme.fillColorScheme.quaternaryHover;
+          return Theme.of(context).colorScheme.secondary;
         }
         return theme.fillColorScheme.transparent;
       },
@@ -73,53 +73,8 @@ class SearchRecentViewCell extends StatelessWidget {
     return BlocProvider(
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
-        builder: (context, state) {
-          final ancestors = state.ancestor.ancestors;
-          return LayoutBuilder(
-            builder: (context, constrains) {
-              final List<String> displayPath =
-                  ancestors.map((e) => e.name).toList();
-              final style = theme.textStyle.caption
-                  .standard(color: theme.textColorScheme.tertiary);
-              TextPainter textPainter =
-                  buildTextPainter(displayPath.join(' / '), theme);
-              textPainter.layout(maxWidth: constrains.maxWidth);
-              if (textPainter.didExceedMaxLines) {
-                displayPath.removeAt(displayPath.length - 2);
-                displayPath.insert(displayPath.length - 1, '...');
-              }
-              textPainter = buildTextPainter(displayPath.join(' / '), theme);
-              textPainter.layout(maxWidth: constrains.maxWidth);
-              while (textPainter.didExceedMaxLines && displayPath.length > 3) {
-                displayPath.removeAt(displayPath.length - 2);
-                textPainter = buildTextPainter(displayPath.join(' / '), theme);
-                textPainter.layout(maxWidth: constrains.maxWidth);
-              }
-
-              return Text(
-                displayPath.join(' / '),
-                style: style,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              );
-            },
-          );
-        },
+        builder: (context, state) => state.buildPath(context),
       ),
     );
   }
-
-  TextPainter buildTextPainter(
-    String text,
-    AppFlowyThemeData theme,
-  ) =>
-      TextPainter(
-        text: TextSpan(
-          text: text,
-          style: theme.textStyle.caption
-              .standard(color: theme.textColorScheme.tertiary),
-        ),
-        maxLines: 1,
-        textDirection: TextDirection.ltr,
-      );
 }
