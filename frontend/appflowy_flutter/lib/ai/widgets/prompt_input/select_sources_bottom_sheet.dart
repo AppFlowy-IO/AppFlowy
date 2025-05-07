@@ -34,6 +34,7 @@ class PromptInputMobileSelectSourcesButton extends StatefulWidget {
 class _PromptInputMobileSelectSourcesButtonState
     extends State<PromptInputMobileSelectSourcesButton> {
   late final cubit = ViewSelectorCubit(
+    maxSelectedParentPageCount: 3,
     getIgnoreViewType: (view) {
       if (view.isSpace) {
         return IgnoreViewType.none;

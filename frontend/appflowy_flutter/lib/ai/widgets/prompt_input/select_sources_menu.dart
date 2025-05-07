@@ -39,6 +39,7 @@ class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
 class _PromptInputDesktopSelectSourcesButtonState
     extends State<PromptInputDesktopSelectSourcesButton> {
   late final cubit = ViewSelectorCubit(
+    maxSelectedParentPageCount: 3,
     getIgnoreViewType: (view) {
       if (view.isSpace) {
         return IgnoreViewType.none;
