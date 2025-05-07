@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -231,16 +232,7 @@ class SearchResultPreview extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         final view = snapshot.data?.toNullable();
-        if (view == null) {
-          return Center(
-            child: Text(
-              LocaleKeys.search_noResultForSearching.tr(),
-              style: theme.textStyle.heading3.standard(
-                color: theme.textColorScheme.primary,
-              ),
-            ),
-          );
-        }
+        if (view == null) return NoSearchResultsHint();
 
         return Padding(
           padding: const EdgeInsets.symmetric(

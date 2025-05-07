@@ -2359,6 +2359,7 @@
     "searching": "Searching...",
     "noResultForSearching": "No matches found",
     "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
+    "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
     "placeholder": {
       "actions": "Search actions..."

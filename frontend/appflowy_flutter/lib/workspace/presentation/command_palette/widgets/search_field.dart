@@ -7,7 +7,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -64,32 +63,23 @@ class _SearchFieldState extends State<SearchField> {
       valueListenable: controller,
       builder: (context, value, _) {
         final hasText = value.text.trim().isNotEmpty;
-        final clearIcon = Container(
-          padding: const EdgeInsets.all(1),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AFThemeExtension.of(context).lightGreyHover,
+        if (!hasText) return const SizedBox.shrink();
+        return FlowyTooltip(
+          message: LocaleKeys.commandPalette_clearSearchTooltip.tr(),
+          child: AFGhostButton.normal(
+            onTap: _clearSearch,
+            padding: EdgeInsets.zero,
+            builder: (context, isHovering, disabled) => SizedBox.square(
+              dimension: 28,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.search_clear_m,
+                  color: AppFlowyTheme.of(context).iconColorScheme.tertiary,
+                  size: const Size.square(20),
+                ),
+              ),
+            ),
           ),
-          child: const FlowySvg(
-            FlowySvgs.close_s,
-            size: Size.square(16),
-          ),
-        );
-        return AnimatedOpacity(
-          opacity: hasText ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 200),
-          child: hasText
-              ? FlowyTooltip(
-                  message: LocaleKeys.commandPalette_clearSearchTooltip.tr(),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: _clearSearch,
-                      child: clearIcon,
-                    ),
-                  ),
-                )
-              : clearIcon,
         );
       },
     );
@@ -101,7 +91,7 @@ class _SearchFieldState extends State<SearchField> {
 
     return Container(
       height: 52,
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           FlowySvg(
@@ -111,40 +101,37 @@ class _SearchFieldState extends State<SearchField> {
           ),
           HSpace(8),
           Expanded(
-            child: FlowyTextField(
-              focusNode: focusNode,
-              controller: controller,
-              textStyle: theme.textStyle.heading4
-                  .standard(color: theme.textColorScheme.primary),
-              decoration: InputDecoration(
-                constraints: const BoxConstraints(maxHeight: 48),
-                contentPadding: EdgeInsets.zero,
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.transparent),
-                  borderRadius: Corners.s8Border,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: FlowyTextField(
+                focusNode: focusNode,
+                controller: controller,
+                textStyle: theme.textStyle.heading4
+                    .standard(color: theme.textColorScheme.primary),
+                decoration: InputDecoration(
+                  constraints: const BoxConstraints(maxHeight: 48),
+                  contentPadding: EdgeInsets.zero,
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                    borderRadius: Corners.s8Border,
+                  ),
+                  isDense: false,
+                  hintText: LocaleKeys.search_searchOrAskAI.tr(),
+                  hintStyle: theme.textStyle.heading4
+                      .standard(color: theme.textColorScheme.tertiary),
+                  counterText: "",
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: Corners.s8Border,
+                    borderSide: BorderSide(color: Colors.transparent),
+                  ),
                 ),
-                isDense: false,
-                hintText: LocaleKeys.search_searchOrAskAI.tr(),
-                hintStyle: theme.textStyle.heading4
-                    .standard(color: theme.textColorScheme.tertiary),
-                suffix: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildSuffixIcon(context),
-                    const HSpace(8),
-                  ],
-                ),
-                counterText: "",
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: Corners.s8Border,
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
+                onChanged: (value) => context
+                    .read<CommandPaletteBloc>()
+                    .add(CommandPaletteEvent.searchChanged(search: value)),
               ),
-              onChanged: (value) => context
-                  .read<CommandPaletteBloc>()
-                  .add(CommandPaletteEvent.searchChanged(search: value)),
             ),
           ),
+          _buildSuffixIcon(context),
         ],
       ),
     );

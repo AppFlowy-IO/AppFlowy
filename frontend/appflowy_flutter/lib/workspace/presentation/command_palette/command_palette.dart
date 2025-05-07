@@ -1,15 +1,21 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -225,8 +231,9 @@ class CommandPaletteModal extends StatelessWidget {
                   // show the no results message, centered in the available space.
                   else if (!noQuery && !state.searching) ...[
                     Divider(height: 1, color: theme.borderColorScheme.primary),
+                    if (showAskingAI) SearchAskAiEntrance(),
                     Expanded(
-                      child: const _NoResultsHint(),
+                      child: const NoSearchResultsHint(),
                     ),
                   ],
                 ],
@@ -240,15 +247,54 @@ class CommandPaletteModal extends StatelessWidget {
 }
 
 /// Updated _NoResultsHint now centers its content.
-class _NoResultsHint extends StatelessWidget {
-  const _NoResultsHint();
+class NoSearchResultsHint extends StatelessWidget {
+  const NoSearchResultsHint({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context),
+        textColor = theme.textColorScheme.secondary;
     return Center(
-      child: FlowyText.regular(
-        LocaleKeys.commandPalette_noResultsHint.tr(),
-        textAlign: TextAlign.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FlowySvg(
+            FlowySvgs.m_home_search_icon_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(24),
+          ),
+          const VSpace(8),
+          Text(
+            LocaleKeys.search_noResultForSearching.tr(),
+            style: theme.textStyle.body.enhanced(color: textColor),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const VSpace(4),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: LocaleKeys.search_noResultForSearchingHintWithoutTrash.tr(),
+              style: theme.textStyle.caption.standard(color: textColor),
+              children: [
+                TextSpan(
+                  text: LocaleKeys.trash_text.tr(),
+                  style: theme.textStyle.caption.underline(color: textColor),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      FlowyOverlay.pop(context);
+                      getIt<MenuSharedState>().latestOpenView = null;
+                      getIt<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: makePlugin(pluginType: PluginType.trash),
+                        ),
+                      );
+                    },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
