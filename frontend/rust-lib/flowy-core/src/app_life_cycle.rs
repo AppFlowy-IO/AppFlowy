@@ -16,9 +16,7 @@ use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_search::services::manager::SearchManager;
-use flowy_search_pub::tantivy_state_init::{
-  close_document_tantivy_state, get_document_tantivy_state,
-};
+use flowy_search_pub::tantivy_state_init::close_document_tantivy_state;
 use flowy_server::af_cloud::define::LoggedUser;
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::AppLifeCycle;
@@ -200,16 +198,15 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await;
 
     // do not change the order of this function
-    self
-      .search_manager()?
-      .on_launch_if_authenticated(workspace_id, get_document_tantivy_state(workspace_id))
-      .await;
-
     let tanvity_state = self
       .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
       .await;
-    let workspace_id = *workspace_id;
+    self
+      .search_manager()?
+      .on_launch_if_authenticated(workspace_id, tanvity_state.clone())
+      .await;
 
+    let workspace_id = *workspace_id;
     self.runtime.spawn(async move {
       server_provider
         .on_launch_if_authenticated(tanvity_state)
@@ -258,21 +255,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_sign_in(user_id)
       .await?;
 
-    let ai_manager = self.ai_manager()?;
-    let server_provider = self.server_provider()?;
-    let tanvity_state = self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-
-    let cloned_workspace_id = *workspace_id;
-    self.runtime.spawn(async move {
-      server_provider.on_sign_in(tanvity_state).await;
-      ai_manager
-        .initialize_after_sign_in(&cloned_workspace_id)
-        .await?;
-      Ok::<_, FlowyError>(())
-    });
-
     self
       .start_full_indexed_data_provider(
         user_id,
@@ -293,11 +275,25 @@ impl AppLifeCycle for AppLifeCycleImpl {
       )
       .await;
 
-    // do not change the order of this function
+    let server_provider = self.server_provider()?;
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
     self
       .search_manager()?
-      .initialize_after_sign_in(workspace_id, get_document_tantivy_state(workspace_id))
+      .initialize_after_sign_in(workspace_id, tanvity_state.clone())
       .await;
+
+    let ai_manager = self.ai_manager()?;
+    let cloned_workspace_id = *workspace_id;
+    self.runtime.spawn(async move {
+      server_provider.on_sign_in(tanvity_state).await;
+      ai_manager
+        .initialize_after_sign_in(&cloned_workspace_id)
+        .await?;
+      Ok::<_, FlowyError>(())
+    });
+
     Ok(())
   }
 
@@ -347,19 +343,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await
       .context("DocumentManager error")?;
 
-    let ai_manager = self.ai_manager()?;
-    let cloned_workspace_id = *workspace_id;
-    let tanvity_state = self
-      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
-      .await;
-    self.runtime.spawn(async move {
-      server_provider.on_sign_in(tanvity_state).await;
-      ai_manager
-        .initialize_after_sign_up(&cloned_workspace_id)
-        .await?;
-      Ok::<_, FlowyError>(())
-    });
-
     self
       .start_full_indexed_data_provider(
         user_profile.uid,
@@ -379,11 +362,24 @@ impl AppLifeCycle for AppLifeCycleImpl {
       )
       .await;
 
-    // do not change the order of this function
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
+      .await;
     self
       .search_manager()?
-      .initialize_after_sign_up(workspace_id, get_document_tantivy_state(workspace_id))
+      .initialize_after_sign_up(workspace_id, tanvity_state.clone())
       .await;
+
+    let ai_manager = self.ai_manager()?;
+    let cloned_workspace_id = *workspace_id;
+    self.runtime.spawn(async move {
+      server_provider.on_sign_in(tanvity_state).await;
+      ai_manager
+        .initialize_after_sign_up(&cloned_workspace_id)
+        .await?;
+      Ok::<_, FlowyError>(())
+    });
+
     Ok(())
   }
 
@@ -424,12 +420,22 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .initialize_after_open_workspace(user_id)
       .await?;
 
-    let ai_manager = self.ai_manager()?;
+    self
+      .storage_manager()?
+      .initialize_after_open_workspace(workspace_id)
+      .await;
+
     let tanvity_state = self
       .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
       .await;
+    self
+      .search_manager()?
+      .initialize_after_open_workspace(workspace_id, tanvity_state.clone())
+      .await;
+
     let server_provider = self.server_provider()?;
     let cloned_workspace_id = *workspace_id;
+    let ai_manager = self.ai_manager()?;
     self.runtime.spawn(async move {
       server_provider.on_workspace_opened(tanvity_state).await;
       ai_manager
@@ -437,10 +443,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
         .await?;
       Ok::<_, FlowyError>(())
     });
-    self
-      .storage_manager()?
-      .initialize_after_open_workspace(workspace_id)
-      .await;
 
     self
       .start_full_indexed_data_provider(
@@ -461,11 +463,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
       )
       .await;
 
-    // do not change the order of this function
-    self
-      .search_manager()?
-      .initialize_after_open_workspace(workspace_id, get_document_tantivy_state(workspace_id))
-      .await;
     Ok(())
   }
 
