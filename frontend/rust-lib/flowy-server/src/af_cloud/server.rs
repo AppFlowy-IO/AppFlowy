@@ -45,6 +45,7 @@ use uuid::Uuid;
 
 pub(crate) type AFCloudClient = Client;
 
+#[derive(Clone)]
 pub struct AppFlowyCloudServer {
   #[allow(dead_code)]
   pub(crate) config: AFCloudConfiguration,

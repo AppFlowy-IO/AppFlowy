@@ -160,10 +160,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
           .set_encrypt_secret(cloud_config.encrypt_secret.clone());
       }
     }
-    self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-    let tanvity_state = get_document_tantivy_state(workspace_id);
 
     self
       .folder_manager()?
@@ -209,6 +205,9 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .on_launch_if_authenticated(workspace_id, get_document_tantivy_state(workspace_id))
       .await;
 
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
     let workspace_id = *workspace_id;
     server_provider.on_launch_if_authenticated(workspace_type, tanvity_state);
 
@@ -239,12 +238,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
       workspace_id,
       user_config.device_id,
     );
-    let server_provider = self.server_provider()?;
-    self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-    let tanvity_state = get_document_tantivy_state(workspace_id);
-    server_provider.on_sign_in(workspace_type, tanvity_state);
 
     let data_source = self
       .folder_init_data_source(user_id, workspace_id, workspace_type)
@@ -270,6 +263,12 @@ impl AppLifeCycle for AppLifeCycleImpl {
         .await?;
       Ok::<_, FlowyError>(())
     });
+
+    let server_provider = self.server_provider()?;
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
+    server_provider.on_sign_in(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(
@@ -316,14 +315,7 @@ impl AppLifeCycle for AppLifeCycleImpl {
       workspace_id,
       user_config.device_id,
     );
-    let c_workspace_type = *workspace_type;
     let server_provider = self.server_provider()?;
-    self
-      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
-      .await;
-    let tanvity_state = get_document_tantivy_state(workspace_id);
-    server_provider.on_sign_in(&c_workspace_type, tanvity_state);
-
     let data_source = self
       .folder_init_data_source(user_profile.uid, workspace_id, workspace_type)
       .await?;
@@ -360,6 +352,11 @@ impl AppLifeCycle for AppLifeCycleImpl {
         .await?;
       Ok::<_, FlowyError>(())
     });
+
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
+      .await;
+    server_provider.on_sign_in(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(
@@ -411,12 +408,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
     let data_source = self
       .folder_init_data_source(user_id, workspace_id, workspace_type)
       .await?;
-    self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-    let tanvity_state = get_document_tantivy_state(workspace_id);
-    let server_provider = self.server_provider()?;
-    server_provider.on_workspace_opened(workspace_type, tanvity_state);
 
     self
       .folder_manager()?
@@ -443,6 +434,12 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .storage_manager()?
       .initialize_after_open_workspace(workspace_id)
       .await;
+
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
+    let server_provider = self.server_provider()?;
+    server_provider.on_workspace_opened(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(

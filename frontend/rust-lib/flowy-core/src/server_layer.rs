@@ -3,7 +3,7 @@ use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
-use dashmap::mapref::one::Ref;
+use dashmap::try_result::TryResult;
 use dashmap::DashMap;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::entities::UnindexedCollab;
@@ -17,16 +17,15 @@ use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
 use lib_infra::async_trait::async_trait;
-use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::info;
+use tracing::{error, info};
 use uuid::Uuid;
 
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  providers: DashMap<AuthType, Box<dyn AppFlowyServer>>,
+  providers: DashMap<AuthType, Arc<dyn AppFlowyServer>>,
   auth_type: ArcSwap<AuthType>,
   logged_user: Arc<dyn LoggedUser>,
   pub local_ai: Arc<LocalAIController>,
@@ -37,17 +36,6 @@ pub struct ServerProvider {
 }
 
 // Our little guard wrapper:
-pub struct ServerHandle<'a>(Ref<'a, AuthType, Box<dyn AppFlowyServer>>);
-
-#[allow(clippy::needless_lifetimes)]
-impl<'a> Deref for ServerHandle<'a> {
-  type Target = dyn AppFlowyServer;
-  fn deref(&self) -> &Self::Target {
-    // `self.0.value()` is an `&Arc<dyn AppFlowyServer>`
-    // so `&**` gives us a `&dyn AppFlowyServer`
-    &**self.0.value()
-  }
-}
 
 /// Determine current server type from ENV
 pub fn current_server_type() -> AuthType {
@@ -84,15 +72,24 @@ impl ServerProvider {
     }
   }
 
+  fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    match self.providers.try_get_mut(self.auth_type.load().as_ref()) {
+      TryResult::Present(mut r) => {
+        r.set_tanvity_state(tanvity_state);
+      },
+      TryResult::Absent => {},
+      TryResult::Locked => {
+        error!("ServerProvider: Failed to get server for auth type");
+      },
+    }
+  }
+
   pub fn on_launch_if_authenticated(
     &self,
     _workspace_type: &WorkspaceType,
     tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
   ) {
-    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
-    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
-      r.set_tanvity_state(tanvity_state);
-    }
+    self.set_tanvity_state(tanvity_state);
   }
 
   pub fn on_sign_in(
@@ -100,10 +97,7 @@ impl ServerProvider {
     _workspace_type: &WorkspaceType,
     tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
   ) {
-    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
-    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
-      r.set_tanvity_state(tanvity_state);
-    }
+    self.set_tanvity_state(tanvity_state);
   }
 
   pub fn on_workspace_opened(
@@ -111,10 +105,7 @@ impl ServerProvider {
     _workspace_type: &WorkspaceType,
     tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
   ) {
-    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
-    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
-      r.set_tanvity_state(tanvity_state);
-    }
+    self.set_tanvity_state(tanvity_state);
   }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
@@ -137,20 +128,20 @@ impl ServerProvider {
   }
 
   /// Lazily create or fetch an AppFlowyServer instance
-  pub fn get_server(&self) -> FlowyResult<ServerHandle> {
+  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     let auth_type = self.get_auth_type();
     if let Some(r) = self.providers.get(&auth_type) {
-      return Ok(ServerHandle(r));
+      return Ok(r.value().clone());
     }
 
-    let server: Box<dyn AppFlowyServer> = match auth_type {
+    let server: Arc<dyn AppFlowyServer> = match auth_type {
       AuthType::Local => {
         let embedding_writer = self.indexed_data_writer.clone().map(|w| {
           Arc::new(EmbeddingWriterImpl {
             indexed_data_writer: w,
           }) as Arc<dyn EmbeddingWriter>
         });
-        Box::new(LocalServer::new(
+        Arc::new(LocalServer::new(
           self.logged_user.clone(),
           self.local_ai.clone(),
           embedding_writer,
@@ -163,7 +154,7 @@ impl ServerProvider {
           .clone()
           .ok_or_else(|| FlowyError::internal().with_context("Missing cloud config"))?;
         let ai_user_service = Arc::new(AIUserServiceImpl(Arc::downgrade(&self.logged_user)));
-        Box::new(AppFlowyCloudServer::new(
+        Arc::new(AppFlowyCloudServer::new(
           cfg,
           self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),
@@ -176,7 +167,7 @@ impl ServerProvider {
 
     self.providers.insert(auth_type, server);
     let guard = self.providers.get(&auth_type).unwrap();
-    Ok(ServerHandle(guard))
+    Ok(guard.clone())
   }
 }
 

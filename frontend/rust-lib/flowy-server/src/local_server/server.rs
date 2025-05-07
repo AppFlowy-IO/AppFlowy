@@ -18,6 +18,7 @@ use flowy_user_pub::cloud::UserCloudService;
 use std::sync::{Arc, Weak};
 use tokio::sync::{mpsc, RwLock};
 
+#[derive(Clone)]
 pub struct LocalServer {
   logged_user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
