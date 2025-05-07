@@ -3,10 +3,12 @@ use crate::local_ai::chat::conversation_chain::{
 };
 use crate::local_ai::chat::format_prompt::AFMessageFormatter;
 use crate::local_ai::chat::llm::LLMOllama;
-use crate::local_ai::chat::OllamaClientRef;
+use crate::local_ai::chat::summary_memory::SummaryMemory;
+use crate::local_ai::chat::{LLMChatInfo, OllamaClientRef};
 use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
+use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use futures::StreamExt;
 use langchain_rust::chain::{Chain, ChainError};
@@ -16,49 +18,56 @@ use langchain_rust::schemas::{Document, Message};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
 use serde_json::json;
 use std::collections::HashMap;
+use std::sync::Weak;
 use tracing::{info, trace};
 use uuid::Uuid;
 
 pub struct LLMChat {
-  workspace_id: Uuid,
-  chat_id: Uuid,
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
   #[allow(dead_code)]
   client: OllamaClientRef,
-  rag_ids: Vec<String>,
-  dynamic_formatter: AFMessageFormatter,
+  formatter: AFMessageFormatter,
+  info: LLMChatInfo,
 }
 
 impl LLMChat {
   pub async fn new(
-    workspace_id: Uuid,
-    chat_id: Uuid,
-    model: &str,
+    info: LLMChatInfo,
     client: OllamaClientRef,
     store: Option<SqliteVectorStore>,
-    rag_ids: Vec<String>,
+    user_service: Option<Weak<dyn AIUserService>>,
   ) -> FlowyResult<Self> {
-    let initial_format = ResponseFormat::default();
-    let formatter = create_dynamic_prompt_with_format(&initial_format);
-    let (chain, dynamic_formatter) = create_chain(
-      &workspace_id,
-      model,
-      &client,
-      rag_ids.clone(),
-      formatter,
-      store.clone(),
-    )
-    .await?;
+    let response_format = ResponseFormat::default();
+    let formatter = create_formatter_prompt_with_format(&response_format);
+    let llm = create_llm(&client, &info.model).await?;
+    let summary_llm = create_llm(&client, &info.model).await?;
+    let memory = SummaryMemory::new(summary_llm, info.summary.clone(), user_service)
+      .await
+      .map(|v| v.into())
+      .unwrap_or(SimpleMemory::new().into());
+
+    let mut builder = ConversationalRetrieverChainBuilder::new()
+      .llm(llm)
+      .rephrase_question(false)
+      .memory(memory);
+
+    if let Some(store) = store.clone() {
+      let retriever = create_retriever(&info.workspace_id, info.rag_ids.clone(), store);
+      builder = builder.retriever(retriever);
+    }
+
+    let chain = builder
+      .prompt(formatter.clone())
+      .build()
+      .map_err(|err| FlowyError::local_ai().with_context(err))?;
 
     Ok(Self {
-      workspace_id,
-      chat_id,
       store,
       chain,
       client,
-      rag_ids,
-      dynamic_formatter,
+      formatter,
+      info,
     })
   }
 
@@ -67,7 +76,10 @@ impl LLMChat {
   }
 
   pub async fn set_rag_ids(&mut self, rag_ids: Vec<String>) {
-    info!("[VectorStore]: {} set rag ids: {:?}", self.chat_id, rag_ids);
+    info!(
+      "[VectorStore]: {} set rag ids: {:?}",
+      self.info.chat_id, rag_ids
+    );
     self.chain.retriever.set_rag_ids(rag_ids);
   }
 
@@ -82,8 +94,8 @@ impl LLMChat {
       .as_ref()
       .ok_or_else(|| FlowyError::local_ai().with_context("VectorStore is not initialized"))?;
 
-    let options =
-      RetrieverOption::new().with_filters(json!({RAG_IDS: ids, "workspace_id": self.workspace_id}));
+    let options = RetrieverOption::new()
+      .with_filters(json!({RAG_IDS: ids, "workspace_id": self.info.workspace_id}));
     let result = store
       .similarity_search(query, limit, &options)
       .await
@@ -101,7 +113,7 @@ impl LLMChat {
       .ok_or_else(|| FlowyError::local_ai().with_context("VectorStore is not initialized"))?;
 
     store
-      .select_all_embedded_documents(&self.workspace_id.to_string(), &self.rag_ids)
+      .select_all_embedded_documents(&self.info.workspace_id.to_string(), &self.info.rag_ids)
       .await
       .map_err(|err| {
         FlowyError::local_ai().with_context(format!("Failed to select embedded documents: {}", err))
@@ -114,7 +126,7 @@ impl LLMChat {
     paragraphs: Vec<String>,
   ) -> FlowyResult<()> {
     let mut metadata = HashMap::new();
-    metadata.insert("workspace_id".to_string(), json!(self.workspace_id));
+    metadata.insert("workspace_id".to_string(), json!(self.info.workspace_id));
     metadata.insert(SOURCE_ID.to_string(), json!(object_id));
     let document = Document::new(paragraphs.join("\n\n")).with_metadata(metadata);
     if let Some(store) = &self.store {
@@ -145,7 +157,7 @@ impl LLMChat {
     message: &str,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    self.dynamic_formatter.update_format(&format)?;
+    self.formatter.update_format(&format)?;
     let input_variables = prompt_args! {
         "question" => message,
     };
@@ -172,7 +184,7 @@ impl LLMChat {
   }
 }
 
-fn create_dynamic_prompt_with_format(format: &ResponseFormat) -> AFMessageFormatter {
+fn create_formatter_prompt_with_format(format: &ResponseFormat) -> AFMessageFormatter {
   let system_message =
     Message::new_system_message("You are an assistant for question-answering tasks");
 
@@ -194,34 +206,6 @@ fn create_retriever(
     .with_filters(json!({RAG_IDS: rag_ids, "workspace_id": workspace_id}));
 
   AFRetriever::new(store, 5, options)
-}
-
-async fn create_chain(
-  workspace_id: &Uuid,
-  model: &str,
-  client: &OllamaClientRef,
-  rag_ids: Vec<String>,
-  formatter: AFMessageFormatter,
-  store: Option<SqliteVectorStore>,
-) -> FlowyResult<(ConversationalRetrieverChain, AFMessageFormatter)> {
-  let llm = create_llm(client, model).await?;
-
-  let mut builder = ConversationalRetrieverChainBuilder::new()
-    .llm(llm)
-    .rephrase_question(false)
-    .memory(SimpleMemory::new().into());
-
-  if let Some(store) = store {
-    let retriever = create_retriever(workspace_id, rag_ids, store);
-    builder = builder.retriever(retriever);
-  }
-
-  let chain = builder
-    .prompt(formatter.clone())
-    .build()
-    .map_err(|err| FlowyError::local_ai().with_context(err))?;
-
-  Ok((chain, formatter))
 }
 
 async fn create_llm(client: &OllamaClientRef, model: &str) -> FlowyResult<LLMOllama> {
