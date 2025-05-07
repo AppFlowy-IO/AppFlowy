@@ -289,7 +289,7 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
         : children;
   }
 
-  void toggleSelectedStatus(ViewSelectorItem item) {
+  void toggleSelectedStatus(ViewSelectorItem item, bool isSelectedSection) {
     if (item.view.isSpace) {
       return;
     }
@@ -309,6 +309,13 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
           selectedSourceIds.remove(id);
         }
       }
+    }
+
+    if (isSelectedSection) {
+      item.selectedStatusNotifier.value = item.selectedStatus.isUnselected ||
+              item.selectedStatus.isPartiallySelected
+          ? ViewSelectedStatus.selected
+          : ViewSelectedStatus.unselected;
     }
 
     updateSelectedStatus();

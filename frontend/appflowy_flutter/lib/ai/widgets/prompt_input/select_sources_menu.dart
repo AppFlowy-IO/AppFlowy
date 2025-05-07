@@ -243,7 +243,7 @@ class _PopoverContent extends StatelessWidget {
         isDescendentOfSpace: e.view.isSpace,
         isSelectedSection: true,
         onSelected: (item) {
-          context.read<ViewSelectorCubit>().toggleSelectedStatus(item);
+          context.read<ViewSelectorCubit>().toggleSelectedStatus(item, true);
         },
         height: 30.0,
       ),
@@ -264,7 +264,7 @@ class _PopoverContent extends StatelessWidget {
         isDescendentOfSpace: e.view.isSpace,
         isSelectedSection: false,
         onSelected: (item) {
-          context.read<ViewSelectorCubit>().toggleSelectedStatus(item);
+          context.read<ViewSelectorCubit>().toggleSelectedStatus(item, false);
         },
         height: 30.0,
       ),

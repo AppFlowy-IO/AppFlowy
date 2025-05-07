@@ -209,7 +209,7 @@ class _MobileSelectSourcesSheetBody extends StatelessWidget {
                     onSelected: (item) {
                       context
                           .read<ViewSelectorCubit>()
-                          .toggleSelectedStatus(item);
+                          .toggleSelectedStatus(item, false);
                     },
                     height: 40.0,
                   );
