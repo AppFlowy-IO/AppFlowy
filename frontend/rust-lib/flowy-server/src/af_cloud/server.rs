@@ -24,6 +24,7 @@ use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 
+use super::impls::AFCloudSearchCloudServiceImpl;
 use crate::af_cloud::impls::{
   AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
   AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl, CloudChatServiceImpl,
@@ -31,17 +32,17 @@ use crate::af_cloud::impls::{
 use crate::AppFlowyServer;
 use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
 use flowy_ai_pub::user_service::AIUserService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use lib_infra::async_trait::async_trait;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
-use tokio::sync::watch;
+use tokio::sync::{watch, RwLock};
 use tokio::task::JoinHandle;
 use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-
-use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -55,6 +56,7 @@ pub struct AppFlowyCloudServer {
   ws_client: Arc<WSClient>,
   logged_user: Weak<dyn LoggedUser>,
   ai_user_service: Arc<dyn AIUserService>,
+  tanvity_state: RwLock<Option<Weak<RwLock<DocumentTantivyState>>>>,
 }
 
 impl AppFlowyCloudServer {
@@ -104,6 +106,7 @@ impl AppFlowyCloudServer {
       ws_client,
       logged_user,
       ai_user_service,
+      tanvity_state: Default::default(),
     }
   }
 
@@ -117,6 +120,7 @@ impl AppFlowyCloudServer {
   }
 }
 
+#[async_trait]
 impl AppFlowyServer for AppFlowyCloudServer {
   fn set_token(&self, token: &str) -> Result<(), Error> {
     self
@@ -262,10 +266,16 @@ impl AppFlowyServer for AppFlowyCloudServer {
     )))
   }
 
-  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+  async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let state = self.tanvity_state.read().await.clone();
     Some(Arc::new(AFCloudSearchCloudServiceImpl {
-      inner: self.get_server_impl(),
+      server: self.get_server_impl(),
+      state,
     }))
+  }
+
+  async fn set_tanvity_state(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    *self.tanvity_state.write().await = state;
   }
 }
 

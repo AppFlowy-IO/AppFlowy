@@ -3100,8 +3100,13 @@ dependencies = [
  "client-api",
  "collab",
  "collab-folder",
+ "dashmap 6.0.1",
  "flowy-error",
  "lib-infra",
+ "once_cell",
+ "tantivy",
+ "tokio",
+ "tracing",
  "uuid",
 ]
 

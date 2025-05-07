@@ -1,3 +1,4 @@
+use crate::indexed_data_consumer::index_views_from_folder;
 use client_api::entity::workspace_dto::ViewIcon;
 use collab::preclude::Collab;
 use collab_entity::CollabType;
@@ -100,12 +101,7 @@ impl FullIndexedDataWriter {
       .folder_manager
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Failed to upgrade FolderManager"))?;
-    let views = folder_manager
-      .get_all_views()
-      .await?
-      .into_iter()
-      .filter(|v| v.space_info().is_none())
-      .collect::<Vec<_>>();
+    let views = index_views_from_folder(&folder_manager).await?;
     let view_ids = views.iter().map(|v| v.id.clone()).collect::<Vec<_>>();
     let view_by_view_id = Arc::new(
       views

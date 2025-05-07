@@ -3,11 +3,12 @@ use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
-use dashmap::mapref::one::Ref;
+use dashmap::try_result::TryResult;
 use dashmap::DashMap;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::entities::UnindexedCollab;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use flowy_server::af_cloud::define::AIUserServiceImpl;
 use flowy_server::af_cloud::{define::LoggedUser, AppFlowyCloudServer};
 use flowy_server::local_server::LocalServer;
@@ -16,10 +17,10 @@ use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
 use lib_infra::async_trait::async_trait;
-use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
-use tracing::info;
+use tokio::sync::RwLock;
+use tracing::{error, info};
 use uuid::Uuid;
 
 pub struct ServerProvider {
@@ -35,17 +36,6 @@ pub struct ServerProvider {
 }
 
 // Our little guard wrapper:
-pub struct ServerHandle<'a>(Ref<'a, AuthType, Arc<dyn AppFlowyServer>>);
-
-#[allow(clippy::needless_lifetimes)]
-impl<'a> Deref for ServerHandle<'a> {
-  type Target = dyn AppFlowyServer;
-  fn deref(&self) -> &Self::Target {
-    // `self.0.value()` is an `&Arc<dyn AppFlowyServer>`
-    // so `&**` gives us a `&dyn AppFlowyServer`
-    &**self.0.value()
-  }
-}
 
 /// Determine current server type from ENV
 pub fn current_server_type() -> AuthType {
@@ -82,12 +72,35 @@ impl ServerProvider {
     }
   }
 
-  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {}
+  async fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    match self.providers.try_get(self.auth_type.load().as_ref()) {
+      TryResult::Present(r) => {
+        r.set_tanvity_state(tanvity_state).await;
+      },
+      TryResult::Absent => {},
+      TryResult::Locked => {
+        error!("ServerProvider: Failed to get server for auth type");
+      },
+    }
+  }
 
-  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {}
+  pub async fn on_launch_if_authenticated(
+    &self,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
 
-  pub fn on_sign_up(&self, _workspace_type: &WorkspaceType) {}
-  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {}
+  pub async fn on_sign_in(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
+
+  pub async fn on_workspace_opened(
+    &self,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
     let old_type = self.get_auth_type();
@@ -109,10 +122,10 @@ impl ServerProvider {
   }
 
   /// Lazily create or fetch an AppFlowyServer instance
-  pub fn get_server(&self) -> FlowyResult<ServerHandle> {
+  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     let auth_type = self.get_auth_type();
     if let Some(r) = self.providers.get(&auth_type) {
-      return Ok(ServerHandle(r));
+      return Ok(r.value().clone());
     }
 
     let server: Arc<dyn AppFlowyServer> = match auth_type {
@@ -148,7 +161,7 @@ impl ServerProvider {
 
     self.providers.insert(auth_type, server);
     let guard = self.providers.get(&auth_type).unwrap();
-    Ok(ServerHandle(guard))
+    Ok(guard.clone())
   }
 }
 

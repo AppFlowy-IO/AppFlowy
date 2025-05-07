@@ -1,14 +1,16 @@
 use crate::app_life_cycle::AppLifeCycleImpl;
 use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::indexed_data_consumer::{
-  get_or_init_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
-  SearchInstantIndexImpl,
+  EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer, SearchInstantIndexImpl,
 };
 use flowy_folder::manager::FolderManager;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_search_pub::tantivy_state_init::get_or_init_document_tantivy_state;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
+use tokio::sync::RwLock;
 use tokio::time::timeout;
 use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
@@ -129,14 +131,15 @@ impl AppLifeCycleImpl {
     });
   }
 
-  pub(crate) async fn create_thanvity_state_if_not_exists(
+  pub(crate) async fn create_tanvity_state_if_not_exists(
     &self,
     uid: i64,
     workspace_id: &Uuid,
     user_paths: &UserPaths,
-  ) {
+  ) -> Option<Weak<RwLock<DocumentTantivyState>>> {
     let data_path = user_paths.tanvity_index_path(uid);
-    let _ = get_or_init_document_tantivy_state(*workspace_id, data_path);
+    let state = get_or_init_document_tantivy_state(*workspace_id, data_path).ok();
+    state.map(|state| Arc::downgrade(&state))
   }
 
   #[instrument(skip(self, _user_config, user_paths))]

@@ -131,8 +131,8 @@ impl From<IconType> for ResultIconTypePB {
   }
 }
 
-impl std::convert::From<i64> for ResultIconTypePB {
-  fn from(icon_ty: i64) -> Self {
+impl std::convert::From<u8> for ResultIconTypePB {
+  fn from(icon_ty: u8) -> Self {
     match icon_ty {
       0 => ResultIconTypePB::Emoji,
       1 => ResultIconTypePB::Url,
