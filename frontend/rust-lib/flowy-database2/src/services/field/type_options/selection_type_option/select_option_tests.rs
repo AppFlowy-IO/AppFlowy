@@ -145,12 +145,15 @@ mod tests {
 
     // insert
     let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-    let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
+    let (cell, select_option_ids) = single_select.apply_changeset(changeset, None).unwrap();
     assert_eq!(&*select_option_ids, &vec![google.id]);
 
     // delete
     let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
-    let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
+    let select_option_ids = single_select
+      .apply_changeset(changeset, Some(cell))
+      .unwrap()
+      .1;
     assert!(select_option_ids.is_empty());
   }
 
@@ -166,12 +169,15 @@ mod tests {
 
     // insert
     let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-    let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;
+    let (cell, select_option_ids) = multi_select.apply_changeset(changeset, None).unwrap();
     assert_eq!(&*select_option_ids, &option_ids);
 
     // delete
     let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
-    let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;
+    let select_option_ids = multi_select
+      .apply_changeset(changeset, Some(cell))
+      .unwrap()
+      .1;
     assert!(select_option_ids.is_empty());
   }
 }
