@@ -1,9 +1,10 @@
-use crate::document::local_search_handler::{DocumentLocalSearchHandler, DocumentTantivyState};
+use crate::document::local_search_handler::DocumentLocalSearchHandler;
 use crate::entities::{SearchResponsePB, SearchStatePB};
 use allo_isolate::Isolate;
 use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use lib_infra::async_trait::async_trait;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use std::pin::Pin;

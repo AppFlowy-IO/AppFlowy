@@ -2,7 +2,7 @@ use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use arc_swap::ArcSwapOption;
@@ -15,10 +15,12 @@ use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
 use lib_infra::async_trait::async_trait;
+use tokio::sync::RwLock;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
@@ -58,7 +60,7 @@ where
 /// for managing and accessing user data, folders, collaborative objects, and documents in a cloud environment.
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn set_token(&self, _token: &str) -> Result<(), Error>;
-
+  fn set_tanvity_state(&mut self, state: Option<Weak<RwLock<DocumentTantivyState>>>);
   fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
     Ok(())
   }

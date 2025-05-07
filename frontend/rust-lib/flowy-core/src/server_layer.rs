@@ -8,6 +8,7 @@ use dashmap::DashMap;
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::entities::UnindexedCollab;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use flowy_server::af_cloud::define::AIUserServiceImpl;
 use flowy_server::af_cloud::{define::LoggedUser, AppFlowyCloudServer};
 use flowy_server::local_server::LocalServer;
@@ -19,12 +20,13 @@ use lib_infra::async_trait::async_trait;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tracing::info;
 use uuid::Uuid;
 
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  providers: DashMap<AuthType, Arc<dyn AppFlowyServer>>,
+  providers: DashMap<AuthType, Box<dyn AppFlowyServer>>,
   auth_type: ArcSwap<AuthType>,
   logged_user: Arc<dyn LoggedUser>,
   pub local_ai: Arc<LocalAIController>,
@@ -35,7 +37,7 @@ pub struct ServerProvider {
 }
 
 // Our little guard wrapper:
-pub struct ServerHandle<'a>(Ref<'a, AuthType, Arc<dyn AppFlowyServer>>);
+pub struct ServerHandle<'a>(Ref<'a, AuthType, Box<dyn AppFlowyServer>>);
 
 #[allow(clippy::needless_lifetimes)]
 impl<'a> Deref for ServerHandle<'a> {
@@ -82,12 +84,38 @@ impl ServerProvider {
     }
   }
 
-  pub fn on_launch_if_authenticated(&self, _workspace_type: &WorkspaceType) {}
+  pub fn on_launch_if_authenticated(
+    &self,
+    _workspace_type: &WorkspaceType,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
+    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
+      r.set_tanvity_state(tanvity_state);
+    }
+  }
 
-  pub fn on_sign_in(&self, _workspace_type: &WorkspaceType) {}
+  pub fn on_sign_in(
+    &self,
+    _workspace_type: &WorkspaceType,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
+    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
+      r.set_tanvity_state(tanvity_state);
+    }
+  }
 
-  pub fn on_sign_up(&self, _workspace_type: &WorkspaceType) {}
-  pub fn init_after_open_workspace(&self, _workspace_type: &WorkspaceType) {}
+  pub fn on_workspace_opened(
+    &self,
+    _workspace_type: &WorkspaceType,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    debug_assert!(self.providers.get(self.auth_type.load().as_ref()).is_some());
+    if let Some(mut r) = self.providers.get_mut(self.auth_type.load().as_ref()) {
+      r.set_tanvity_state(tanvity_state);
+    }
+  }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {
     let old_type = self.get_auth_type();
@@ -115,14 +143,14 @@ impl ServerProvider {
       return Ok(ServerHandle(r));
     }
 
-    let server: Arc<dyn AppFlowyServer> = match auth_type {
+    let server: Box<dyn AppFlowyServer> = match auth_type {
       AuthType::Local => {
         let embedding_writer = self.indexed_data_writer.clone().map(|w| {
           Arc::new(EmbeddingWriterImpl {
             indexed_data_writer: w,
           }) as Arc<dyn EmbeddingWriter>
         });
-        Arc::new(LocalServer::new(
+        Box::new(LocalServer::new(
           self.logged_user.clone(),
           self.local_ai.clone(),
           embedding_writer,
@@ -135,7 +163,7 @@ impl ServerProvider {
           .clone()
           .ok_or_else(|| FlowyError::internal().with_context("Missing cloud config"))?;
         let ai_user_service = Arc::new(AIUserServiceImpl(Arc::downgrade(&self.logged_user)));
-        Arc::new(AppFlowyCloudServer::new(
+        Box::new(AppFlowyCloudServer::new(
           cfg,
           self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),

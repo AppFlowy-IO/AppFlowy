@@ -146,6 +146,7 @@ impl EmbeddingScheduler {
       return Ok(SearchSummaryResult { summaries: vec![] });
     }
 
+    trace!("[Search] generate local ai overview");
     let docs = search_results
       .into_iter()
       .map(|v| LLMDocument {
@@ -153,6 +154,7 @@ impl EmbeddingScheduler {
         object_id: v.object_id,
       })
       .collect::<Vec<_>>();
+
     let resp = summarize_documents(&self.ollama, question, model_name, docs)
       .await
       .map_err(|err| {

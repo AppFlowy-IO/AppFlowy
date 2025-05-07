@@ -2,21 +2,21 @@ use crate::folder_view_observer::FolderViewObserverImpl;
 use crate::full_indexed_data_provider::FullIndexedDataConsumer;
 use collab_entity::CollabType;
 use collab_folder::folder_diff::FolderViewChange;
-use collab_folder::{IconType, ViewIcon};
+use collab_folder::{IconType, View, ViewIcon};
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use dashmap::DashMap;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
-use flowy_search::document::local_search_handler::DocumentTantivyState;
 use flowy_search_pub::entities::FolderViewObserver;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_search_pub::tantivy_state_init::get_or_init_document_tantivy_state;
 use flowy_server::af_cloud::define::LoggedUser;
 use lib_infra::async_trait::async_trait;
-use once_cell::sync::Lazy;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::{error, info, trace};
+use tracing::{error, trace};
 use uuid::Uuid;
 
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
@@ -126,48 +126,7 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
     Ok(())
   }
 }
-/// Global map: workspace_id → a *weak* handle to its index state.
-type DocIndexMap = DashMap<Uuid, Arc<RwLock<DocumentTantivyState>>>;
-static SEARCH_INDEX: Lazy<DocIndexMap> = Lazy::new(DocIndexMap::new);
 
-/// Returns a strong handle, creating it if needed.
-pub(crate) fn get_or_init_document_tantivy_state(
-  workspace_id: Uuid,
-  data_path: PathBuf,
-) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
-  Ok(
-    SEARCH_INDEX
-      .entry(workspace_id)
-      .or_try_insert_with(|| {
-        info!(
-          "[Indexing] Creating new tantivy state for workspace: {}",
-          workspace_id
-        );
-        let state = DocumentTantivyState::new(&workspace_id, data_path.clone())?;
-        let arc_state = Arc::new(RwLock::new(state));
-        Ok::<_, FlowyError>(arc_state)
-      })?
-      .clone(),
-  )
-}
-
-pub(crate) fn close_document_tantivy_state(workspace_id: &Uuid) {
-  if SEARCH_INDEX.remove(workspace_id).is_some() {
-    info!(
-      "[Indexing] close tantivy state for workspace: {}",
-      workspace_id
-    );
-  }
-}
-
-pub fn get_document_tantivy_state(
-  workspace_id: &Uuid,
-) -> Option<Weak<RwLock<DocumentTantivyState>>> {
-  if let Some(existing) = SEARCH_INDEX.get(workspace_id) {
-    return Some(Arc::downgrade(existing.value()));
-  }
-  None
-}
 /// -----------------------------------------------------
 /// Full‐index consumer holds only a Weak reference:
 /// -----------------------------------------------------
@@ -276,7 +235,7 @@ impl SearchInstantIndexImpl {
       if let (Some(folder_manager), Some(state)) = (folder_manager.upgrade(), weak_state.upgrade())
       {
         if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
-          let views = folder_manager.get_all_views().await?;
+          let views = index_views_from_folder(&folder_manager).await?;
           let views_map: std::collections::HashMap<String, _> = views
             .into_iter()
             .map(|view| (view.id.clone(), view))
@@ -394,4 +353,17 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
       .delete_document(&object_id.to_string())?;
     Ok(())
   }
+}
+
+pub(crate) async fn index_views_from_folder(
+  folder_manager: &FolderManager,
+) -> FlowyResult<Vec<Arc<View>>> {
+  Ok(
+    folder_manager
+      .get_all_views()
+      .await?
+      .into_iter()
+      .filter(|v| v.space_info().is_none() && v.layout.is_document())
+      .collect::<Vec<_>>(),
+  )
 }

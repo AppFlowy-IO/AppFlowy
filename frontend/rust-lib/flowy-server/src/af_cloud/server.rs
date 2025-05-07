@@ -24,6 +24,7 @@ use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 
+use super::impls::AFCloudSearchCloudServiceImpl;
 use crate::af_cloud::impls::{
   AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
   AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl, CloudChatServiceImpl,
@@ -31,17 +32,16 @@ use crate::af_cloud::impls::{
 use crate::AppFlowyServer;
 use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
 use flowy_ai_pub::user_service::AIUserService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
-use tokio::sync::watch;
+use tokio::sync::{watch, RwLock};
 use tokio::task::JoinHandle;
 use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-
-use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -267,6 +267,8 @@ impl AppFlowyServer for AppFlowyCloudServer {
       inner: self.get_server_impl(),
     }))
   }
+
+  fn set_tanvity_state(&mut self, _state: Option<Weak<RwLock<DocumentTantivyState>>>) {}
 }
 
 /// Spawns a new asynchronous task to handle WebSocket connections based on token state.

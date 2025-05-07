@@ -1,10 +1,10 @@
 use crate::app_life_cycle::AppLifeCycleImpl;
 use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::indexed_data_consumer::{
-  get_or_init_document_tantivy_state, EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer,
-  SearchInstantIndexImpl,
+  EmbeddingsInstantConsumerImpl, SearchFullIndexConsumer, SearchInstantIndexImpl,
 };
 use flowy_folder::manager::FolderManager;
+use flowy_search_pub::tantivy_state_init::get_or_init_document_tantivy_state;
 use flowy_user::services::entities::{UserConfig, UserPaths};
 use flowy_user_pub::entities::WorkspaceType;
 use std::sync::{Arc, Weak};
@@ -129,7 +129,7 @@ impl AppLifeCycleImpl {
     });
   }
 
-  pub(crate) async fn create_thanvity_state_if_not_exists(
+  pub(crate) async fn create_tanvity_state_if_not_exists(
     &self,
     uid: i64,
     workspace_id: &Uuid,

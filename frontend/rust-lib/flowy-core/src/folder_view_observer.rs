@@ -1,7 +1,7 @@
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::ViewIndexContent;
-use flowy_search::document::local_search_handler::DocumentTantivyState;
 use flowy_search_pub::entities::FolderViewObserver;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use lib_infra::async_trait::async_trait;
 use std::sync::Weak;
 use tokio::sync::RwLock;

@@ -12,16 +12,18 @@ use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_search_pub::cloud::SearchCloudService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
-use std::sync::Arc;
-use tokio::sync::mpsc;
+use std::sync::{Arc, Weak};
+use tokio::sync::{mpsc, RwLock};
 
 pub struct LocalServer {
   logged_user: Arc<dyn LoggedUser>,
   local_ai: Arc<LocalAIController>,
   stop_tx: Option<mpsc::Sender<()>>,
   embedding_writer: Option<Arc<dyn EmbeddingWriter>>,
+  tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
 }
 
 impl LocalServer {
@@ -35,6 +37,7 @@ impl LocalServer {
       local_ai,
       stop_tx: Default::default(),
       embedding_writer,
+      tanvity_state: Default::default(),
     }
   }
 
@@ -49,6 +52,10 @@ impl LocalServer {
 impl AppFlowyServer for LocalServer {
   fn set_token(&self, _token: &str) -> Result<(), Error> {
     Ok(())
+  }
+
+  fn set_tanvity_state(&mut self, state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    self.tanvity_state = state
   }
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
@@ -89,6 +96,7 @@ impl AppFlowyServer for LocalServer {
     Some(Arc::new(LocalSearchServiceImpl {
       logged_user: self.logged_user.clone(),
       local_ai: self.local_ai.clone(),
+      state: self.tanvity_state.clone(),
     }))
   }
 

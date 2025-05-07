@@ -1,6 +1,5 @@
 use tantivy::schema::{Schema, STORED, STRING, TEXT};
 
-/// Wraps the schema and exposes field‐name constants
 pub struct LocalSearchTantivySchema(pub Schema);
 
 impl Default for LocalSearchTantivySchema {
