@@ -209,9 +209,12 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
       .await;
     let workspace_id = *workspace_id;
-    server_provider.on_launch_if_authenticated(workspace_type, tanvity_state);
 
     self.runtime.spawn(async move {
+      server_provider
+        .on_launch_if_authenticated(tanvity_state)
+        .await;
+
       if let Err(err) = cloned_ai_manager
         .on_launch_if_authenticated(&workspace_id)
         .await
@@ -256,19 +259,19 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await?;
 
     let ai_manager = self.ai_manager()?;
+    let server_provider = self.server_provider()?;
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
+
     let cloned_workspace_id = *workspace_id;
     self.runtime.spawn(async move {
+      server_provider.on_sign_in(tanvity_state).await;
       ai_manager
         .initialize_after_sign_in(&cloned_workspace_id)
         .await?;
       Ok::<_, FlowyError>(())
     });
-
-    let server_provider = self.server_provider()?;
-    let tanvity_state = self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-    server_provider.on_sign_in(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(
@@ -346,17 +349,16 @@ impl AppLifeCycle for AppLifeCycleImpl {
 
     let ai_manager = self.ai_manager()?;
     let cloned_workspace_id = *workspace_id;
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
+      .await;
     self.runtime.spawn(async move {
+      server_provider.on_sign_in(tanvity_state).await;
       ai_manager
         .initialize_after_sign_up(&cloned_workspace_id)
         .await?;
       Ok::<_, FlowyError>(())
     });
-
-    let tanvity_state = self
-      .create_tanvity_state_if_not_exists(user_profile.uid, workspace_id, user_paths)
-      .await;
-    server_provider.on_sign_in(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(
@@ -423,8 +425,13 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .await?;
 
     let ai_manager = self.ai_manager()?;
+    let tanvity_state = self
+      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
+      .await;
+    let server_provider = self.server_provider()?;
     let cloned_workspace_id = *workspace_id;
     self.runtime.spawn(async move {
+      server_provider.on_workspace_opened(tanvity_state).await;
       ai_manager
         .initialize_after_open_workspace(&cloned_workspace_id)
         .await?;
@@ -434,12 +441,6 @@ impl AppLifeCycle for AppLifeCycleImpl {
       .storage_manager()?
       .initialize_after_open_workspace(workspace_id)
       .await;
-
-    let tanvity_state = self
-      .create_tanvity_state_if_not_exists(user_id, workspace_id, user_paths)
-      .await;
-    let server_provider = self.server_provider()?;
-    server_provider.on_workspace_opened(workspace_type, tanvity_state);
 
     self
       .start_full_indexed_data_provider(

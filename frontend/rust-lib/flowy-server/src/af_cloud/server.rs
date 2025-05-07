@@ -33,6 +33,7 @@ use crate::AppFlowyServer;
 use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use lib_infra::async_trait::async_trait;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -118,6 +119,7 @@ impl AppFlowyCloudServer {
   }
 }
 
+#[async_trait]
 impl AppFlowyServer for AppFlowyCloudServer {
   fn set_token(&self, token: &str) -> Result<(), Error> {
     self
@@ -263,13 +265,13 @@ impl AppFlowyServer for AppFlowyCloudServer {
     )))
   }
 
-  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+  async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
     Some(Arc::new(AFCloudSearchCloudServiceImpl {
       inner: self.get_server_impl(),
     }))
   }
 
-  fn set_tanvity_state(&mut self, _state: Option<Weak<RwLock<DocumentTantivyState>>>) {}
+  async fn set_tanvity_state(&self, _state: Option<Weak<RwLock<DocumentTantivyState>>>) {}
 }
 
 /// Spawns a new asynchronous task to handle WebSocket connections based on token state.

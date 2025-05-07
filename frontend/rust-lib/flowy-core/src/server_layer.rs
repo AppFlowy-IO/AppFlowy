@@ -72,10 +72,10 @@ impl ServerProvider {
     }
   }
 
-  fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
-    match self.providers.try_get_mut(self.auth_type.load().as_ref()) {
-      TryResult::Present(mut r) => {
-        r.set_tanvity_state(tanvity_state);
+  async fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    match self.providers.try_get(self.auth_type.load().as_ref()) {
+      TryResult::Present(r) => {
+        r.set_tanvity_state(tanvity_state).await;
       },
       TryResult::Absent => {},
       TryResult::Locked => {
@@ -84,28 +84,22 @@ impl ServerProvider {
     }
   }
 
-  pub fn on_launch_if_authenticated(
+  pub async fn on_launch_if_authenticated(
     &self,
-    _workspace_type: &WorkspaceType,
     tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
   ) {
-    self.set_tanvity_state(tanvity_state);
+    self.set_tanvity_state(tanvity_state).await;
   }
 
-  pub fn on_sign_in(
-    &self,
-    _workspace_type: &WorkspaceType,
-    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
-  ) {
-    self.set_tanvity_state(tanvity_state);
+  pub async fn on_sign_in(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    self.set_tanvity_state(tanvity_state).await;
   }
 
-  pub fn on_workspace_opened(
+  pub async fn on_workspace_opened(
     &self,
-    _workspace_type: &WorkspaceType,
     tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
   ) {
-    self.set_tanvity_state(tanvity_state);
+    self.set_tanvity_state(tanvity_state).await;
   }
 
   pub fn set_auth_type(&self, new_auth_type: AuthType) {

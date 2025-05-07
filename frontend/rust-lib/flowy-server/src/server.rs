@@ -58,9 +58,10 @@ where
 /// `AppFlowyServer` trait defines a collection of services that offer cloud-based interactions
 /// and functionalities in AppFlowy. The methods provided ensure efficient, asynchronous operations
 /// for managing and accessing user data, folders, collaborative objects, and documents in a cloud environment.
+#[async_trait]
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn set_token(&self, _token: &str) -> Result<(), Error>;
-  fn set_tanvity_state(&mut self, state: Option<Weak<RwLock<DocumentTantivyState>>>);
+  async fn set_tanvity_state(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>);
   fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
     Ok(())
   }
@@ -122,7 +123,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
 
   /// Bridge for the Cloud AI Search features
   ///
-  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
+  async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
     None
