@@ -50,6 +50,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   late final ReminderService _reminderService;
   Timer? timer;
   late final AppLifecycleListener _listener;
+  final _deepEquality = DeepCollectionEquality();
 
   bool hasReminder(String reminderId) =>
       state.allReminders.where((e) => e.id == reminderId).firstOrNull != null;
@@ -75,9 +76,20 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               (reminders) async {
                 final availableReminders =
                     await filterAvailableReminders(reminders);
-                Log.info(
-                  'Fetched reminders on refresh: ${availableReminders.length}',
+                // only print the reminder ids are not the same as the previous ones
+                final previousReminderIds =
+                    state.reminders.map((e) => e.id).toSet();
+                final newReminderIds =
+                    availableReminders.map((e) => e.id).toSet();
+                final diff = _deepEquality.equals(
+                  previousReminderIds,
+                  newReminderIds,
                 );
+                if (!diff) {
+                  Log.info(
+                    'Fetched reminders on refresh: ${availableReminders.length}',
+                  );
+                }
                 if (!isClosed && !emit.isDone) {
                   emit(
                     state.copyWith(
