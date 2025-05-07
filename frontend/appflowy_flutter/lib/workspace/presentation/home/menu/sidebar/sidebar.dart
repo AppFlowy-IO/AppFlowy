@@ -517,7 +517,11 @@ class _SidebarSearchButton extends StatelessWidget {
           // exit editing mode when doing search to avoid the toolbar showing up
           EditorNotification.exitEditing().post();
           final workspaceBloc = context.read<UserWorkspaceBloc?>();
-          CommandPalette.of(context).toggle(workspaceBloc: workspaceBloc);
+          final spaceBloc = context.read<SpaceBloc?>();
+          CommandPalette.of(context).toggle(
+            workspaceBloc: workspaceBloc,
+            spaceBloc: spaceBloc,
+          );
         },
         leftIcon: const FlowySvg(FlowySvgs.search_s),
         iconPadding: 12.0,

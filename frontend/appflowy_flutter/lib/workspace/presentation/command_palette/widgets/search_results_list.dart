@@ -74,7 +74,7 @@ class _SearchResultListState extends State<SearchResultList> {
                 Flexible(flex: 2, child: _buildResultsSection(context)),
                 if (showPreview) ...[
                   VerticalDivider(
-                    thickness: 1.0,
+                    width: 1,
                     color: theme.borderColorScheme.primary,
                   ),
                   Flexible(child: const SearchCellPreview()),

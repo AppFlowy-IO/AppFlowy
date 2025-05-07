@@ -281,8 +281,8 @@ class SearchResultPreview extends StatelessWidget {
     return view.icon.value.isNotEmpty
         ? RawEmojiIconWidget(
             emoji: view.icon.toEmojiIconData(),
-            emojiSize: 16.0,
-            lineHeight: 20 / 16,
+            emojiSize: 20.0,
+            lineHeight: 1,
           )
         : FlowySvg(view.iconData, size: const Size.square(20));
   }

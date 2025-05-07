@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.da
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -74,6 +75,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
+      checkForAskingAI();
     });
   }
 
@@ -219,6 +221,21 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       ),
       borderRadius: const BorderRadius.all(Radius.circular(12.0)),
     );
+  }
+
+  void checkForAskingAI() {
+    final paletteBloc = context.read<CommandPaletteBloc?>(),
+        paletteState = paletteBloc?.state;
+    final isAskingAI = paletteState?.askAI ?? false;
+    if (!isAskingAI) return;
+    final query = paletteState?.query ?? '';
+    if (query.isEmpty) return;
+    final metadata =
+        context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
+    final promptState = context.read<AIPromptInputBloc?>()?.state;
+    final predefinedFormat = promptState?.predefinedFormat;
+    widget.onSubmitted.call(query, predefinedFormat, metadata);
+    paletteBloc?.add(CommandPaletteEvent.askedAI());
   }
 
   void startMentionPageFromButton() {

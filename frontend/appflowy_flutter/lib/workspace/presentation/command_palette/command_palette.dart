@@ -1,9 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -37,11 +39,13 @@ class CommandPalette extends InheritedWidget {
 
   void toggle({
     UserWorkspaceBloc? workspaceBloc,
+    SpaceBloc? spaceBloc,
   }) {
     final value = notifier.value;
     notifier.value = notifier.value.copyWith(
       isOpen: !value.isOpen,
       userWorkspaceBloc: workspaceBloc,
+      spaceBloc: spaceBloc,
     );
   }
 
@@ -98,12 +102,14 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
     if (_toggleNotifier.value.isOpen && !_isOpen) {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
+      final spaceBloc = _toggleNotifier.value.spaceBloc;
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider.value(value: context.read<CommandPaletteBloc>()),
             if (workspaceBloc != null) BlocProvider.value(value: workspaceBloc),
+            if (spaceBloc != null) BlocProvider.value(value: spaceBloc),
           ],
           child: CommandPaletteModal(shortcutBuilder: _buildShortcut),
         ),
@@ -153,59 +159,82 @@ class CommandPaletteModal extends StatelessWidget {
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
     final theme = AppFlowyTheme.of(context);
 
-    return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
-      builder: (context, state) {
-        final noQuery = state.query?.isEmpty ?? true;
-        return FlowyDialog(
-          alignment: Alignment.topCenter,
-          insetPadding: const EdgeInsets.only(top: 100),
-          constraints: const BoxConstraints(
-            maxHeight: 600,
-            maxWidth: 800,
-            minHeight: 600,
-          ),
-          expandHeight: false,
-          child: shortcutBuilder(
-            // Change mainAxisSize to max so Expanded works correctly.
-            Column(
-              children: [
-                SearchField(query: state.query, isLoading: state.searching),
-                if (showAskingAI && noQuery) ...[
-                  Divider(height: 1, color: theme.borderColorScheme.primary),
-                  SearchAskAiEntrance(),
-                ],
-                if (noQuery) ...[
-                  if (!showAskingAI)
-                    Divider(height: 1, color: theme.borderColorScheme.primary),
-                  Flexible(
-                    child: RecentViewsList(
-                      onSelected: () => FlowyOverlay.pop(context),
-                    ),
-                  ),
-                ],
-                if (state.combinedResponseItems.isNotEmpty && !noQuery) ...[
-                  Divider(height: 1, color: theme.borderColorScheme.primary),
-                  Flexible(
-                    child: SearchResultList(
-                      trash: state.trash,
-                      resultItems: state.combinedResponseItems.values.toList(),
-                      resultSummaries: state.resultSummaries,
-                    ),
-                  ),
-                ]
-                // When there are no results and the query is not empty and not loading,
-                // show the no results message, centered in the available space.
-                else if (!noQuery && !state.searching) ...[
-                  Divider(height: 1, color: theme.borderColorScheme.primary),
-                  Expanded(
-                    child: const _NoResultsHint(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
+    return BlocListener<CommandPaletteBloc, CommandPaletteState>(
+      listener: (context, state) {
+        if (state.askAI && context.mounted) {
+          FlowyOverlay.pop(context);
+          final currentWorkspace = workspaceState?.workspaces;
+          final spaceBloc = context.read<SpaceBloc?>();
+          if (currentWorkspace != null && spaceBloc != null) {
+            spaceBloc.add(
+              SpaceEvent.createPage(
+                name: '',
+                layout: ViewLayoutPB.Chat,
+                index: 0,
+                openAfterCreate: true,
+              ),
+            );
+          }
+        }
       },
+      child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
+        builder: (context, state) {
+          final noQuery = state.query?.isEmpty ?? true;
+          return FlowyDialog(
+            alignment: Alignment.topCenter,
+            insetPadding: const EdgeInsets.only(top: 100),
+            constraints: const BoxConstraints(
+              maxHeight: 600,
+              maxWidth: 800,
+              minHeight: 600,
+            ),
+            expandHeight: false,
+            child: shortcutBuilder(
+              // Change mainAxisSize to max so Expanded works correctly.
+              Column(
+                children: [
+                  SearchField(query: state.query, isLoading: state.searching),
+                  if (showAskingAI && noQuery) ...[
+                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    SearchAskAiEntrance(),
+                  ],
+                  if (noQuery) ...[
+                    if (!showAskingAI)
+                      Divider(
+                        height: 1,
+                        color: theme.borderColorScheme.primary,
+                      ),
+                    Flexible(
+                      child: RecentViewsList(
+                        onSelected: () => FlowyOverlay.pop(context),
+                      ),
+                    ),
+                  ],
+                  if (state.combinedResponseItems.isNotEmpty && !noQuery) ...[
+                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    Flexible(
+                      child: SearchResultList(
+                        trash: state.trash,
+                        resultItems:
+                            state.combinedResponseItems.values.toList(),
+                        resultSummaries: state.resultSummaries,
+                      ),
+                    ),
+                  ]
+                  // When there are no results and the query is not empty and not loading,
+                  // show the no results message, centered in the available space.
+                  else if (!noQuery && !state.searching) ...[
+                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    Expanded(
+                      child: const _NoResultsHint(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -229,18 +258,22 @@ class CommandPaletteNotifierValue {
   CommandPaletteNotifierValue({
     this.isOpen = false,
     this.userWorkspaceBloc,
+    this.spaceBloc,
   });
 
   final bool isOpen;
   final UserWorkspaceBloc? userWorkspaceBloc;
+  final SpaceBloc? spaceBloc;
 
   CommandPaletteNotifierValue copyWith({
     bool? isOpen,
     UserWorkspaceBloc? userWorkspaceBloc,
+    SpaceBloc? spaceBloc,
   }) {
     return CommandPaletteNotifierValue(
       isOpen: isOpen ?? this.isOpen,
       userWorkspaceBloc: userWorkspaceBloc ?? this.userWorkspaceBloc,
+      spaceBloc: spaceBloc ?? this.spaceBloc,
     );
   }
 }

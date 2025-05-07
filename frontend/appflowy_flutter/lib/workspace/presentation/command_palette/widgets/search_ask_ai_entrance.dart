@@ -61,7 +61,11 @@ class _AskAIFor extends StatelessWidget {
             ],
           );
         },
-        onTap: () {},
+        onTap: () {
+          context
+              .read<CommandPaletteBloc?>()
+              ?.add(CommandPaletteEvent.gointToAskAI());
+        },
       ),
     );
   }

@@ -19,7 +19,8 @@ extension GetIcon on ResultIconPB {
               lineHeight: lineHeight,
             )
           : null;
-    } else if (iconType == ResultIconTypePB.Icon || iconType == ResultIconTypePB.Url) {
+    } else if (iconType == ResultIconTypePB.Icon ||
+        iconType == ResultIconTypePB.Url) {
       if (_resultIconValueTypes.contains(iconValue)) {
         return FlowySvg(
           getViewSvg(),
