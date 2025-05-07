@@ -6,7 +6,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
@@ -18,13 +17,13 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -529,7 +528,17 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           )..add(const SpaceEvent.initial(openFirstPage: false)),
         ),
         BlocProvider(
-          create: (context) => ChatSettingsCubit(hideDisabled: true),
+          create: (context) => ViewSelectorCubit(
+            getIgnoreViewType: (view) {
+              if (view.isSpace) {
+                return IgnoreViewType.none;
+              }
+              if (view.layout != ViewLayoutPB.Document) {
+                return IgnoreViewType.hide;
+              }
+              return IgnoreViewType.none;
+            },
+          ),
         ),
       ],
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
@@ -546,7 +555,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             onClose: () {
               if (spaceView != null) {
                 context
-                    .read<ChatSettingsCubit>()
+                    .read<ViewSelectorCubit>()
                     .refreshSources([spaceView], spaceView);
               }
               widget.onOverrideVisibility?.call(false);
@@ -584,7 +593,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
               context
-                  .read<ChatSettingsCubit>()
+                  .read<ViewSelectorCubit>()
                   .refreshSources([spaceView], spaceView);
             }
             popoverController.show();
@@ -596,7 +605,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
 
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
-      value: context.read<ChatSettingsCubit>(),
+      value: context.read<ViewSelectorCubit>(),
       child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) {
           addMessageToNewPage(context, parentViewId);
@@ -697,7 +706,7 @@ class SaveToPagePopoverContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+    return BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
       builder: (context, state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -716,10 +725,11 @@ class SaveToPagePopoverContent extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
-              child: SpaceSearchField(
-                width: 600,
-                onSearch: (context, value) =>
-                    context.read<ChatSettingsCubit>().updateFilter(value),
+              child: AFTextField(
+                controller:
+                    context.read<ViewSelectorCubit>().filterTextController,
+                hintText: LocaleKeys.search_label.tr(),
+                size: AFTextFieldSize.m,
               ),
             ),
             _buildDivider(),
@@ -747,33 +757,31 @@ class SaveToPagePopoverContent extends StatelessWidget {
 
   Iterable<Widget> _buildVisibleSources(
     BuildContext context,
-    ChatSettingsState state,
+    ViewSelectorState state,
   ) {
-    return state.visibleSources
-        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-        .map(
-          (e) => ChatSourceTreeItem(
-            key: ValueKey(
-              'save_to_page_tree_item_${e.view.id}',
-            ),
-            chatSource: e,
-            level: 0,
-            isDescendentOfSpace: e.view.isSpace,
-            isSelectedSection: false,
-            showCheckbox: false,
-            showSaveButton: true,
-            onSelected: (source) {
-              if (source.view.isSpace) {
-                onAddToNewPage(source.view.id);
-              } else {
-                onAddToExistingPage(source.view.id);
-              }
-            },
-            onAdd: (source) {
-              onAddToNewPage(source.view.id);
-            },
-            height: 30.0,
-          ),
-        );
+    return state.visibleSources.map(
+      (e) => ViewSelectorTreeItem(
+        key: ValueKey(
+          'save_to_page_tree_item_${e.view.id}',
+        ),
+        viewSelectorItem: e,
+        level: 0,
+        isDescendentOfSpace: e.view.isSpace,
+        isSelectedSection: false,
+        showCheckbox: false,
+        showSaveButton: true,
+        onSelected: (source) {
+          if (source.view.isSpace) {
+            onAddToNewPage(source.view.id);
+          } else {
+            onAddToExistingPage(source.view.id);
+          }
+        },
+        onAdd: (source) {
+          onAddToNewPage(source.view.id);
+        },
+        height: 30.0,
+      ),
+    );
   }
 }

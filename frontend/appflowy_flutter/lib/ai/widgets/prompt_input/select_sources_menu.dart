@@ -2,15 +2,14 @@ import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -18,6 +17,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../service/view_selector_cubit.dart';
 import 'layout_define.dart';
 import 'mention_page_menu.dart';
 
@@ -38,7 +38,20 @@ class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
 
 class _PromptInputDesktopSelectSourcesButtonState
     extends State<PromptInputDesktopSelectSourcesButton> {
-  late final cubit = ChatSettingsCubit();
+  late final cubit = ViewSelectorCubit(
+    getIgnoreViewType: (view) {
+      if (view.isSpace) {
+        return IgnoreViewType.none;
+      }
+      if (view.layout == ViewLayoutPB.Chat) {
+        return IgnoreViewType.hide;
+      }
+      if (view.layout != ViewLayoutPB.Document) {
+        return IgnoreViewType.disable;
+      }
+      return IgnoreViewType.none;
+    },
+  );
   final popoverController = PopoverController();
 
   @override
@@ -86,18 +99,18 @@ class _PromptInputDesktopSelectSourcesButtonState
             controller: popoverController,
             onOpen: () {
               context
-                  .read<ChatSettingsCubit>()
+                  .read<ViewSelectorCubit>()
                   .refreshSources(state.spaces, state.currentSpace);
             },
             onClose: () {
               widget.onUpdateSelectedSources(cubit.selectedSourceIds);
               context
-                  .read<ChatSettingsCubit>()
+                  .read<ViewSelectorCubit>()
                   .refreshSources(state.spaces, state.currentSpace);
             },
             popupBuilder: (_) {
               return BlocProvider.value(
-                value: context.read<ChatSettingsCubit>(),
+                value: context.read<ViewSelectorCubit>(),
                 child: const _PopoverContent(),
               );
             },
@@ -186,17 +199,18 @@ class _PopoverContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+    return BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
       builder: (context, state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-              child: SpaceSearchField(
-                width: 600,
-                onSearch: (context, value) =>
-                    context.read<ChatSettingsCubit>().updateFilter(value),
+              child: AFTextField(
+                size: AFTextFieldSize.m,
+                controller:
+                    context.read<ViewSelectorCubit>().filterTextController,
+                hintText: LocaleKeys.search_label.tr(),
               ),
             ),
             _buildDivider(),
@@ -233,59 +247,51 @@ class _PopoverContent extends StatelessWidget {
 
   Iterable<Widget> _buildSelectedSources(
     BuildContext context,
-    ChatSettingsState state,
+    ViewSelectorState state,
   ) {
-    return state.selectedSources
-        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-        .map(
-          (e) => ChatSourceTreeItem(
-            key: ValueKey(
-              'selected_select_sources_tree_item_${e.view.id}',
-            ),
-            chatSource: e,
-            level: 0,
-            isDescendentOfSpace: e.view.isSpace,
-            isSelectedSection: true,
-            onSelected: (chatSource) {
-              context
-                  .read<ChatSettingsCubit>()
-                  .toggleSelectedStatus(chatSource);
-            },
-            height: 30.0,
-          ),
-        );
+    return state.selectedSources.map(
+      (e) => ViewSelectorTreeItem(
+        key: ValueKey(
+          'selected_select_sources_tree_item_${e.view.id}',
+        ),
+        viewSelectorItem: e,
+        level: 0,
+        isDescendentOfSpace: e.view.isSpace,
+        isSelectedSection: true,
+        onSelected: (item) {
+          context.read<ViewSelectorCubit>().toggleSelectedStatus(item);
+        },
+        height: 30.0,
+      ),
+    );
   }
 
   Iterable<Widget> _buildVisibleSources(
     BuildContext context,
-    ChatSettingsState state,
+    ViewSelectorState state,
   ) {
-    return state.visibleSources
-        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-        .map(
-          (e) => ChatSourceTreeItem(
-            key: ValueKey(
-              'visible_select_sources_tree_item_${e.view.id}',
-            ),
-            chatSource: e,
-            level: 0,
-            isDescendentOfSpace: e.view.isSpace,
-            isSelectedSection: false,
-            onSelected: (chatSource) {
-              context
-                  .read<ChatSettingsCubit>()
-                  .toggleSelectedStatus(chatSource);
-            },
-            height: 30.0,
-          ),
-        );
+    return state.visibleSources.map(
+      (e) => ViewSelectorTreeItem(
+        key: ValueKey(
+          'visible_select_sources_tree_item_${e.view.id}',
+        ),
+        viewSelectorItem: e,
+        level: 0,
+        isDescendentOfSpace: e.view.isSpace,
+        isSelectedSection: false,
+        onSelected: (item) {
+          context.read<ViewSelectorCubit>().toggleSelectedStatus(item);
+        },
+        height: 30.0,
+      ),
+    );
   }
 }
 
-class ChatSourceTreeItem extends StatefulWidget {
-  const ChatSourceTreeItem({
+class ViewSelectorTreeItem extends StatefulWidget {
+  const ViewSelectorTreeItem({
     super.key,
-    required this.chatSource,
+    required this.viewSelectorItem,
     required this.level,
     required this.isDescendentOfSpace,
     required this.isSelectedSection,
@@ -296,7 +302,7 @@ class ChatSourceTreeItem extends StatefulWidget {
     this.showCheckbox = true,
   });
 
-  final ChatSource chatSource;
+  final ViewSelectorItem viewSelectorItem;
 
   /// nested level of the view item
   final int level;
@@ -305,9 +311,9 @@ class ChatSourceTreeItem extends StatefulWidget {
 
   final bool isSelectedSection;
 
-  final void Function(ChatSource chatSource) onSelected;
+  final void Function(ViewSelectorItem viewSelectorItem) onSelected;
 
-  final void Function(ChatSource chatSource)? onAdd;
+  final void Function(ViewSelectorItem viewSelectorItem)? onAdd;
 
   final bool showSaveButton;
 
@@ -316,16 +322,16 @@ class ChatSourceTreeItem extends StatefulWidget {
   final bool showCheckbox;
 
   @override
-  State<ChatSourceTreeItem> createState() => _ChatSourceTreeItemState();
+  State<ViewSelectorTreeItem> createState() => _ViewSelectorTreeItemState();
 }
 
-class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
+class _ViewSelectorTreeItemState extends State<ViewSelectorTreeItem> {
   @override
   Widget build(BuildContext context) {
     final child = SizedBox(
       height: widget.height,
-      child: ChatSourceTreeItemInner(
-        chatSource: widget.chatSource,
+      child: ViewSelectorTreeItemInner(
+        viewSelectorItem: widget.viewSelectorItem,
         level: widget.level,
         isDescendentOfSpace: widget.isDescendentOfSpace,
         isSelectedSection: widget.isSelectedSection,
@@ -336,33 +342,30 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
       ),
     );
 
-    final disabledEnabledChild =
-        widget.chatSource.ignoreStatus == IgnoreViewType.disable
-            ? FlowyTooltip(
-                message: widget.showCheckbox
-                    ? switch (widget.chatSource.view.layout) {
-                        ViewLayoutPB.Document =>
-                          LocaleKeys.chat_sourcesLimitReached.tr(),
-                        _ => LocaleKeys.chat_sourceUnsupported.tr(),
-                      }
-                    : "",
-                child: Opacity(
-                  opacity: 0.5,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.forbidden,
-                    child: IgnorePointer(child: child),
-                  ),
-                ),
-              )
-            : child;
+    final disabledEnabledChild = widget.viewSelectorItem.isDisabled
+        ? FlowyTooltip(
+            message: widget.showCheckbox
+                ? switch (widget.viewSelectorItem.view.layout) {
+                    ViewLayoutPB.Document =>
+                      LocaleKeys.chat_sourcesLimitReached.tr(),
+                    _ => LocaleKeys.chat_sourceUnsupported.tr(),
+                  }
+                : "",
+            child: Opacity(
+              opacity: 0.5,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.forbidden,
+                child: IgnorePointer(child: child),
+              ),
+            ),
+          )
+        : child;
 
     return ValueListenableBuilder(
-      valueListenable: widget.chatSource.isExpandedNotifier,
+      valueListenable: widget.viewSelectorItem.isExpandedNotifier,
       builder: (context, isExpanded, child) {
         // filter the child views that should be ignored
-        final childViews = widget.chatSource.children
-            .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-            .toList();
+        final childViews = widget.viewSelectorItem.children;
 
         if (!isExpanded || childViews.isEmpty) {
           return disabledEnabledChild;
@@ -373,11 +376,11 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
           children: [
             disabledEnabledChild,
             ...childViews.map(
-              (childSource) => ChatSourceTreeItem(
+              (childSource) => ViewSelectorTreeItem(
                 key: ValueKey(
                   'select_sources_tree_item_${childSource.view.id}',
                 ),
-                chatSource: childSource,
+                viewSelectorItem: childSource,
                 level: widget.level + 1,
                 isDescendentOfSpace: widget.isDescendentOfSpace,
                 isSelectedSection: widget.isSelectedSection,
@@ -395,10 +398,10 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
   }
 }
 
-class ChatSourceTreeItemInner extends StatelessWidget {
-  const ChatSourceTreeItemInner({
+class ViewSelectorTreeItemInner extends StatelessWidget {
+  const ViewSelectorTreeItemInner({
     super.key,
-    required this.chatSource,
+    required this.viewSelectorItem,
     required this.level,
     required this.isDescendentOfSpace,
     required this.isSelectedSection,
@@ -408,14 +411,14 @@ class ChatSourceTreeItemInner extends StatelessWidget {
     this.onAdd,
   });
 
-  final ChatSource chatSource;
+  final ViewSelectorItem viewSelectorItem;
   final int level;
   final bool isDescendentOfSpace;
   final bool isSelectedSection;
   final bool showCheckbox;
   final bool showSaveButton;
-  final void Function(ChatSource)? onSelected;
-  final void Function(ChatSource)? onAdd;
+  final void Function(ViewSelectorItem)? onSelected;
+  final void Function(ViewSelectorItem)? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -423,7 +426,7 @@ class ChatSourceTreeItemInner extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () {
         if (!isSelectedSection) {
-          onSelected?.call(chatSource);
+          onSelected?.call(viewSelectorItem);
         }
       },
       child: FlowyHover(
@@ -435,7 +438,7 @@ class ChatSourceTreeItemInner extends StatelessWidget {
         ),
         builder: (context, onHover) {
           final isSaveButtonVisible =
-              showSaveButton && !chatSource.view.isSpace;
+              showSaveButton && !viewSelectorItem.view.isSpace;
           final isAddButtonVisible = onAdd != null;
           return Row(
             children: [
@@ -443,26 +446,26 @@ class ChatSourceTreeItemInner extends StatelessWidget {
               HSpace(max(20.0 * level - (isDescendentOfSpace ? 2 : 0), 0)),
               // builds the >, ^ or · button
               ToggleIsExpandedButton(
-                chatSource: chatSource,
+                viewSelectorItem: viewSelectorItem,
                 isSelectedSection: isSelectedSection,
               ),
               const HSpace(2.0),
               // checkbox
-              if (!chatSource.view.isSpace && showCheckbox) ...[
+              if (!viewSelectorItem.view.isSpace && showCheckbox) ...[
                 SourceSelectedStatusCheckbox(
-                  chatSource: chatSource,
+                  viewSelectorItem: viewSelectorItem,
                 ),
                 const HSpace(4.0),
               ],
               // icon
               MentionViewIcon(
-                view: chatSource.view,
+                view: viewSelectorItem.view,
               ),
               const HSpace(6.0),
               // title
               Expanded(
                 child: FlowyText(
-                  chatSource.view.nameOrDefault,
+                  viewSelectorItem.view.nameOrDefault,
                   overflow: TextOverflow.ellipsis,
                   fontSize: 14.0,
                   figmaLineHeight: 18.0,
@@ -479,7 +482,7 @@ class ChatSourceTreeItemInner extends StatelessWidget {
                       size: const Size.square(16),
                       color: Theme.of(context).hintColor,
                     ),
-                    onPressed: () => onSelected?.call(chatSource),
+                    onPressed: () => onSelected?.call(viewSelectorItem),
                   ),
                 if (isSaveButtonVisible && isAddButtonVisible)
                   const HSpace(4.0),
@@ -492,7 +495,7 @@ class ChatSourceTreeItemInner extends StatelessWidget {
                       size: const Size.square(16),
                       color: Theme.of(context).hintColor,
                     ),
-                    onPressed: () => onAdd?.call(chatSource),
+                    onPressed: () => onAdd?.call(viewSelectorItem),
                   ),
                 const HSpace(4.0),
               ],
@@ -507,27 +510,30 @@ class ChatSourceTreeItemInner extends StatelessWidget {
 class ToggleIsExpandedButton extends StatelessWidget {
   const ToggleIsExpandedButton({
     super.key,
-    required this.chatSource,
+    required this.viewSelectorItem,
     required this.isSelectedSection,
   });
 
-  final ChatSource chatSource;
+  final ViewSelectorItem viewSelectorItem;
   final bool isSelectedSection;
 
   @override
   Widget build(BuildContext context) {
-    if (isReferencedDatabaseView(chatSource.view, chatSource.parentView)) {
+    if (isReferencedDatabaseView(
+      viewSelectorItem.view,
+      viewSelectorItem.parentView,
+    )) {
       return const _DotIconWidget();
     }
 
-    if (chatSource.children.isEmpty) {
+    if (viewSelectorItem.children.isEmpty) {
       return const SizedBox.square(dimension: 16.0);
     }
 
     return FlowyHover(
       child: GestureDetector(
         child: ValueListenableBuilder(
-          valueListenable: chatSource.isExpandedNotifier,
+          valueListenable: viewSelectorItem.isExpandedNotifier,
           builder: (context, value, _) => FlowySvg(
             value
                 ? FlowySvgs.view_item_expand_s
@@ -536,8 +542,8 @@ class ToggleIsExpandedButton extends StatelessWidget {
           ),
         ),
         onTap: () => context
-            .read<ChatSettingsCubit>()
-            .toggleIsExpanded(chatSource, isSelectedSection),
+            .read<ViewSelectorCubit>()
+            .toggleIsExpanded(viewSelectorItem, isSelectedSection),
       ),
     );
   }
@@ -565,20 +571,20 @@ class _DotIconWidget extends StatelessWidget {
 class SourceSelectedStatusCheckbox extends StatelessWidget {
   const SourceSelectedStatusCheckbox({
     super.key,
-    required this.chatSource,
+    required this.viewSelectorItem,
   });
 
-  final ChatSource chatSource;
+  final ViewSelectorItem viewSelectorItem;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: chatSource.selectedStatusNotifier,
+      valueListenable: viewSelectorItem.selectedStatusNotifier,
       builder: (context, selectedStatus, _) => FlowySvg(
         switch (selectedStatus) {
-          SourceSelectedStatus.unselected => FlowySvgs.uncheck_s,
-          SourceSelectedStatus.selected => FlowySvgs.check_filled_s,
-          SourceSelectedStatus.partiallySelected => FlowySvgs.check_partial_s,
+          ViewSelectedStatus.unselected => FlowySvgs.uncheck_s,
+          ViewSelectedStatus.selected => FlowySvgs.check_filled_s,
+          ViewSelectedStatus.partiallySelected => FlowySvgs.check_partial_s,
         },
         size: const Size.square(18.0),
         blendMode: null,

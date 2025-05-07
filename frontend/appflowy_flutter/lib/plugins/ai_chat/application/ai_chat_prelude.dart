@@ -11,5 +11,4 @@ export 'chat_message_service.dart';
 export 'chat_message_stream.dart';
 export 'chat_notification.dart';
 export 'chat_select_message_bloc.dart';
-export 'chat_select_sources_cubit.dart';
 export 'chat_user_message_bloc.dart';

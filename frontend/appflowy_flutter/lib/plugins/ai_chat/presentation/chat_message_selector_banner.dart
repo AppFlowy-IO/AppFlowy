@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_message_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -12,6 +12,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -147,7 +148,17 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           )..add(const SpaceEvent.initial(openFirstPage: false)),
         ),
         BlocProvider(
-          create: (context) => ChatSettingsCubit(hideDisabled: true),
+          create: (context) => ViewSelectorCubit(
+            getIgnoreViewType: (view) {
+              if (view.isSpace) {
+                return IgnoreViewType.none;
+              }
+              if (view.layout != ViewLayoutPB.Document) {
+                return IgnoreViewType.hide;
+              }
+              return IgnoreViewType.none;
+            },
+          ),
         ),
       ],
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
@@ -189,7 +200,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
                     } else {
                       if (spaceView != null) {
                         context
-                            .read<ChatSettingsCubit>()
+                            .read<ViewSelectorCubit>()
                             .refreshSources([spaceView], spaceView);
                       }
                       popoverController.show();
@@ -210,7 +221,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
 
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
-      value: context.read<ChatSettingsCubit>(),
+      value: context.read<ViewSelectorCubit>(),
       child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) async {
           await addMessageToNewPage(context, parentViewId);

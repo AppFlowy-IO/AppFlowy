@@ -5,6 +5,7 @@ export 'service/appflowy_ai_service.dart';
 export 'service/error.dart';
 export 'service/ai_model_state_notifier.dart';
 export 'service/select_model_bloc.dart';
+export 'service/view_selector_cubit.dart';
 export 'widgets/loading_indicator.dart';
 export 'widgets/prompt_input/action_buttons.dart';
 export 'widgets/prompt_input/desktop_prompt_input.dart';
