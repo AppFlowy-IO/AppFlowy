@@ -185,6 +185,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
   ) -> Result<(), FlowyError>;
 
   async fn get_available_models(&self, workspace_id: &Uuid) -> Result<ModelList, FlowyError>;
+
   async fn get_workspace_default_model(&self, workspace_id: &Uuid) -> Result<String, FlowyError>;
   async fn set_workspace_default_model(
     &self,

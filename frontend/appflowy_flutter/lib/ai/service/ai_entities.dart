@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -192,7 +193,22 @@ class AiPrompt extends Equatable {
     required this.category,
     required this.example,
     required this.isFeatured,
+    required this.isCustom,
   });
+
+  factory AiPrompt.fromPB(CustomPromptPB pb) {
+    return AiPrompt(
+      id: pb.id,
+      name: pb.name,
+      content: pb.content,
+      category: AiPromptCategory.values.firstWhere(
+        (e) => e.name == pb.category,
+      ),
+      example: pb.example,
+      isFeatured: false,
+      isCustom: true,
+    );
+  }
 
   factory AiPrompt.fromJson(Map<String, dynamic> json) =>
       _$AiPromptFromJson(json);
@@ -211,7 +227,10 @@ class AiPrompt extends Equatable {
   final String example;
   @JsonKey(defaultValue: false)
   final bool isFeatured;
+  @JsonKey(defaultValue: false)
+  final bool isCustom;
 
   @override
-  List<Object?> get props => [id, name, content, category, example, isFeatured];
+  List<Object?> get props =>
+      [id, name, content, category, example, isFeatured, isCustom];
 }

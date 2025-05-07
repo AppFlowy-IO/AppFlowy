@@ -722,6 +722,28 @@ impl AIManager {
     sync_chat_documents(user_service, external_service, rag_ids).await?;
     Ok(())
   }
+
+  pub async fn get_custom_prompt_database_view_id(&self) -> FlowyResult<Option<String>> {
+    let view_id = self
+      .store_preferences
+      .get_object::<String>(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY);
+
+    Ok(view_id)
+  }
+
+  pub async fn set_custom_prompt_database_view_id(&self, view_id: String) -> FlowyResult<()> {
+    if let Err(err) = self
+      .store_preferences
+      .set_object(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY, &view_id)
+    {
+      error!(
+        "failed to set custom prompt database view id settings: {}",
+        err
+      );
+    }
+
+    Ok(())
+  }
 }
 
 async fn sync_chat_documents(
@@ -784,3 +806,5 @@ async fn refresh_chat_setting(
 fn setting_store_key(chat_id: &Uuid) -> String {
   format!("chat_settings_{}", chat_id)
 }
+
+const CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY: &str = "custom_prompt_database_view_id";
