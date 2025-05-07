@@ -100,7 +100,7 @@ tokio-util = "0.7.11"
 zip = "2.2.0"
 dashmap = "6.0.1"
 derive_builder = "0.20.2"
-tantivy = { version = "0.24.0" }
+tantivy = { version = "0.24.1" }
 af-plugin = { version = "0.1" }
 af-local-ai = { version = "0.1" }
 num_enum = "0.7.3"
@@ -165,4 +165,4 @@ af-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-
 af-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa" }
 af-mcp = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "093d3f4916a7b924ac66b4f0a9d81cc5fcc72eaa" }
 
-langchain-rust = { version = "4.6.0", git = "https://github.com/appflowy/langchain-rust", branch = "bump_ollama_rs" }
+langchain-rust = { version = "4.6.0", git = "https://github.com/appflowy/langchain-rust", branch = "af" }

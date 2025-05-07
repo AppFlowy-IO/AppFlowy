@@ -10,10 +10,10 @@ use flowy_ai_pub::cloud::{
   StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
 use flowy_ai_pub::persistence::{
-  deserialize_chat_metadata, deserialize_rag_ids, read_chat,
-  select_answer_where_match_reply_message_id, select_chat_messages, select_message_content,
-  serialize_chat_metadata, serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages,
-  ChatMessageTable, ChatTable, ChatTableChangeset,
+  deserialize_chat_metadata, deserialize_rag_ids, select_answer_where_match_reply_message_id,
+  select_chat, select_chat_messages, select_message_content, serialize_chat_metadata,
+  serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages, ChatMessageTable, ChatTable,
+  ChatTableChangeset,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lazy_static::lazy_static;
@@ -252,11 +252,11 @@ impl ChatCloudService for LocalChatServiceImpl {
     let chat_id = chat_id.to_string();
     let uid = self.logged_user.user_id()?;
     let db = self.logged_user.get_sqlite_db(uid)?;
-    let row = read_chat(db, &chat_id)?;
+    let row = select_chat(db, &chat_id)?;
     let rag_ids = deserialize_rag_ids(&row.rag_ids);
     let metadata = deserialize_chat_metadata::<Value>(&row.metadata);
     let setting = ChatSettings {
-      name: row.name,
+      name: "".to_string(),
       rag_ids,
       metadata,
     };
@@ -271,16 +271,16 @@ impl ChatCloudService for LocalChatServiceImpl {
     s: UpdateChatParams,
   ) -> Result<(), FlowyError> {
     let uid = self.logged_user.user_id()?;
-    let mut db = self.logged_user.get_sqlite_db(uid)?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
     let changeset = ChatTableChangeset {
       chat_id: id.to_string(),
-      name: s.name,
       metadata: s.metadata.map(|s| serialize_chat_metadata(&s)),
       rag_ids: s.rag_ids.map(|s| serialize_rag_ids(&s)),
       is_sync: None,
+      summary: None,
     };
 
-    update_chat(&mut db, changeset)?;
+    update_chat(db, changeset)?;
     Ok(())
   }
 

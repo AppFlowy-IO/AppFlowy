@@ -3,6 +3,7 @@ mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;
+mod summary_memory;
 
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
@@ -28,10 +29,18 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::{info, trace};
+use tracing::trace;
 use uuid::Uuid;
 
 type OllamaClientRef = Arc<RwLock<Option<Weak<Ollama>>>>;
+
+pub struct LLMChatInfo {
+  pub chat_id: Uuid,
+  pub workspace_id: Uuid,
+  pub model: String,
+  pub rag_ids: Vec<String>,
+  pub summary: String,
+}
 
 pub struct LLMChatController {
   chat_by_id: DashMap<Uuid, LLMChat>,
@@ -70,25 +79,17 @@ impl LLMChatController {
     }
   }
 
-  pub async fn open_chat(
-    &self,
-    workspace_id: &Uuid,
-    chat_id: &Uuid,
-    model: &str,
-    rag_ids: Vec<String>,
-  ) -> FlowyResult<()> {
+  pub async fn open_chat(&self, info: LLMChatInfo) -> FlowyResult<()> {
     let store = self.store.read().await.clone();
-    info!("[VectorStore]: {} open chat: {:?}", chat_id, model);
+    let chat_id = info.chat_id;
     let chat = LLMChat::new(
-      *workspace_id,
-      *chat_id,
-      model,
+      info,
       self.client.clone(),
       store,
-      rag_ids,
+      Some(self.user_service.clone()),
     )
     .await?;
-    self.chat_by_id.insert(*chat_id, chat);
+    self.chat_by_id.insert(chat_id, chat);
     Ok(())
   }
 

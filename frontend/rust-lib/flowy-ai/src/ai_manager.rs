@@ -5,7 +5,9 @@ use crate::entities::{
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
-use flowy_ai_pub::persistence::read_chat_metadata;
+use flowy_ai_pub::persistence::{
+  select_chat_metadata, select_chat_rag_ids, select_chat_summary, update_chat, ChatTableChangeset,
+};
 use std::collections::HashMap;
 
 use dashmap::DashMap;
@@ -22,6 +24,7 @@ use flowy_ai_pub::persistence::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
 use flowy_ai_pub::user_service::AIUserService;
+use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use serde_json::json;
@@ -29,7 +32,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use tokio::sync::Mutex;
-use tracing::{error, info, instrument, trace};
+use tracing::{error, info, instrument, trace, warn};
 use uuid::Uuid;
 
 /// AIExternalService is an interface for external services that AI plugin can interact with.
@@ -209,18 +212,16 @@ impl AIManager {
 
     if self.local_ai.is_enabled() {
       let workspace_id = self.user_service.workspace_id()?;
+      let uid = self.user_service.user_id()?;
+      let mut conn = self.user_service.sqlite_connection(uid)?;
+      let rag_ids = self.get_rag_ids(chat_id, &mut conn).await?;
+      let summary = select_chat_summary(&mut conn, chat_id).unwrap_or_default();
+
       let model = self.get_active_model(&chat_id.to_string()).await;
       trace!("[AI Plugin] notify open chat: {}", chat_id);
-      let mut rag_ids = vec![];
-      if let Some(settings) = self
-        .store_preferences
-        .get_object::<ChatSettings>(&setting_store_key(chat_id))
-      {
-        rag_ids = settings.rag_ids;
-      }
       self
         .local_ai
-        .open_chat(&workspace_id, chat_id, &model.name, rag_ids)
+        .open_chat(&workspace_id, chat_id, &model.name, rag_ids, summary)
         .await?;
     }
 
@@ -274,7 +275,7 @@ impl AIManager {
   pub async fn get_chat_info(&self, chat_id: &str) -> FlowyResult<ChatInfoPB> {
     let uid = self.user_service.user_id()?;
     let mut conn = self.user_service.sqlite_connection(uid)?;
-    let metadata = read_chat_metadata(&mut conn, chat_id)?;
+    let metadata = select_chat_metadata(&mut conn, chat_id)?;
     let files = metadata
       .files
       .into_iter()
@@ -659,12 +660,25 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn get_rag_ids(&self, chat_id: &Uuid) -> FlowyResult<Vec<String>> {
-    if let Some(settings) = self
-      .store_preferences
-      .get_object::<ChatSettings>(&setting_store_key(chat_id))
-    {
-      return Ok(settings.rag_ids);
+  pub async fn get_rag_ids(
+    &self,
+    chat_id: &Uuid,
+    conn: &mut DBConnection,
+  ) -> FlowyResult<Vec<String>> {
+    match select_chat_rag_ids(&mut *conn, &chat_id.to_string()) {
+      Ok(ids) => {
+        return Ok(ids);
+      },
+      Err(_) => {
+        // we no long use store_preferences to store chat settings
+        warn!("[Chat] failed to get chat rag ids from sqlite, try to get from store_preferences");
+        if let Some(settings) = self
+          .store_preferences
+          .get_object::<ChatSettings>(&setting_store_key(chat_id))
+        {
+          return Ok(settings.rag_ids);
+        }
+      },
     }
 
     let settings = refresh_chat_setting(
@@ -690,21 +704,12 @@ impl AIManager {
       .update_chat_settings(&workspace_id, chat_id, update_setting)
       .await?;
 
-    let chat_setting_store_key = setting_store_key(chat_id);
-    if let Some(settings) = self
-      .store_preferences
-      .get_object::<ChatSettings>(&chat_setting_store_key)
-    {
-      if let Err(err) = self.store_preferences.set_object(
-        &chat_setting_store_key,
-        &ChatSettings {
-          rag_ids: rag_ids.clone(),
-          ..settings
-        },
-      ) {
-        error!("failed to set chat settings: {}", err);
-      }
-    }
+    let uid = self.user_service.user_id()?;
+    let conn = self.user_service.sqlite_connection(uid)?;
+    update_chat(
+      conn,
+      ChatTableChangeset::rag_ids(chat_id.to_string(), rag_ids.clone()),
+    )?;
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();

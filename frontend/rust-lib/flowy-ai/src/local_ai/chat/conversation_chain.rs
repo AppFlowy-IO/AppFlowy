@@ -120,7 +120,7 @@ impl Chain for ConversationalRetrieverChain {
     let human_message = Message::new_human_message(input_variable);
     let history = {
       let memory = self.memory.lock().await;
-      memory.messages()
+      memory.messages().await
     };
 
     let (question, token) = self.get_question(&history, &human_message.content).await?;
@@ -132,8 +132,10 @@ impl Chain for ConversationalRetrieverChain {
       Either::Left(docs) => docs,
       Either::Right(result) => {
         let mut memory = self.memory.lock().await;
-        memory.add_message(human_message);
-        memory.add_message(Message::new_ai_message(&result.generation));
+        memory.add_message(human_message).await;
+        memory
+          .add_message(Message::new_ai_message(&result.generation))
+          .await;
 
         let mut output = HashMap::new();
         output.insert(self.output_key.clone(), json!(result.generation));
@@ -161,8 +163,10 @@ impl Chain for ConversationalRetrieverChain {
 
     {
       let mut memory = self.memory.lock().await;
-      memory.add_message(human_message);
-      memory.add_message(Message::new_ai_message(&output.generation));
+      memory.add_message(human_message).await;
+      memory
+        .add_message(Message::new_ai_message(&output.generation))
+        .await;
     }
 
     let mut result = HashMap::new();
@@ -197,7 +201,7 @@ impl Chain for ConversationalRetrieverChain {
     let human_message = Message::new_human_message(input_variable);
     let history = {
       let memory = self.memory.lock().await;
-      memory.messages()
+      memory.messages().await
     };
 
     let (question, _) = self.get_question(&history, &human_message.content).await?;
@@ -206,8 +210,10 @@ impl Chain for ConversationalRetrieverChain {
       Either::Left(docs) => docs,
       Either::Right(result) => {
         let mut memory = self.memory.lock().await;
-        memory.add_message(human_message);
-        memory.add_message(Message::new_ai_message(&result.generation));
+        memory.add_message(human_message).await;
+        memory
+          .add_message(Message::new_ai_message(&result.generation))
+          .await;
 
         return Ok(Box::pin(stream! {
           yield Ok(StreamData::new(
@@ -259,8 +265,8 @@ impl Chain for ConversationalRetrieverChain {
         }
 
         let mut memory = memory.lock().await;
-        memory.add_message(human_message);
-        memory.add_message(Message::new_ai_message(&complete_ai_message.lock().await));
+        memory.add_message(human_message).await;
+        memory.add_message(Message::new_ai_message(&complete_ai_message.lock().await)).await;
     };
 
     Ok(Box::pin(output_stream))
