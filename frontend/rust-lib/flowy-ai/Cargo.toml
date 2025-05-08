@@ -50,6 +50,7 @@ async-trait.workspace = true
 async-stream = "0.3.6"
 flowy-database-pub = { workspace = true }
 langchain-rust = { version = "4.6.0", features = ["ollama"] }
+serde_repr.workspace = true
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -37,7 +38,7 @@ class AnswerStream {
   void Function()? _onAIImageResponseLimit;
   void Function(String message)? _onAIMaxRequired;
   void Function(MetadataCollection metadata)? _onMetadata;
-  void Function(List<String> questions)? _onSuggestedQuestions;
+  void Function(AIQuestionData)? _onAIQuestionData;
   // Caches for events that occur before listen() is called.
   final List<String> _pendingAIMaxRequiredEvents = [];
   bool _pendingLocalAINotReady = false;
@@ -88,11 +89,9 @@ class AnswerStream {
       } else {
         _pendingLocalAINotReady = true;
       }
-    } else if (event.startsWith(AIStreamEventPrefix.suggestedQuestions)) {
-      final questions = event
-          .substring(AIStreamEventPrefix.suggestedQuestions.length)
-          .split(',');
-      _onSuggestedQuestions?.call(questions);
+    } else if (event.startsWith(AIStreamEventPrefix.aiQuestionData)) {
+      final s = event.substring(AIStreamEventPrefix.aiQuestionData.length);
+      _onAIQuestionData?.call(AIQuestionData.fromJson(jsonDecode(s)));
     }
   }
 
@@ -119,7 +118,7 @@ class AnswerStream {
     void Function(String message)? onAIMaxRequired,
     void Function(MetadataCollection metadata)? onMetadata,
     void Function()? onLocalAIInitializing,
-    void Function(List<String> questions)? onSuggestedQuestions,
+    void Function(AIQuestionData)? onAIQuestionData,
   }) {
     _onData = onData;
     _onStart = onStart;
@@ -130,7 +129,7 @@ class AnswerStream {
     _onAIMaxRequired = onAIMaxRequired;
     _onMetadata = onMetadata;
     _onLocalAIInitializing = onLocalAIInitializing;
-    _onSuggestedQuestions = onSuggestedQuestions;
+    _onAIQuestionData = onAIQuestionData;
     // Flush pending AI_MAX_REQUIRED events.
     if (_onAIMaxRequired != null && _pendingAIMaxRequiredEvents.isNotEmpty) {
       for (final msg in _pendingAIMaxRequiredEvents) {
@@ -244,5 +243,53 @@ class QuestionStream {
     _onIndexStart = onIndexStart;
     _onIndexEnd = onIndexEnd;
     _onDone = onDone;
+  }
+}
+
+class AIQuestionData {
+  final AIQuestionDataMetadata data;
+  final String content;
+
+  AIQuestionData({
+    required this.data,
+    required this.content,
+  });
+
+  factory AIQuestionData.fromJson(Map<String, dynamic> json) {
+    return AIQuestionData(
+      data: AIQuestionDataMetadata.fromJson(json['data']),
+      content: json['content'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'data': data.toJson(),
+        'content': content,
+      };
+}
+
+class AIQuestionDataMetadata {
+  final List<String>? suggestedQuestions;
+
+  AIQuestionDataMetadata({
+    this.suggestedQuestions,
+  });
+
+  factory AIQuestionDataMetadata.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('SuggestedQuestion')) {
+      return AIQuestionDataMetadata(
+        suggestedQuestions: List<String>.from(json['SuggestedQuestion']),
+      );
+    }
+    return AIQuestionDataMetadata();
+  }
+
+  Map<String, dynamic> toJson() {
+    if (suggestedQuestions != null) {
+      return {
+        'SuggestedQuestion': suggestedQuestions,
+      };
+    }
+    return {};
   }
 }

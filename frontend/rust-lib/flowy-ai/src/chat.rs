@@ -4,7 +4,7 @@ use crate::entities::{
 };
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::stream_message::StreamMessage;
+use crate::stream_message::{AIQuestionData, AIQuestionDataMetadata, StreamMessage};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
@@ -221,28 +221,21 @@ impl Chat {
                     suggested_questions,
                   } => {
                     answer_stream_buffer.lock().await.push_str(&value);
-                    match answer_sink
-                      .send(StreamMessage::OnData(value).to_string())
+                    let questions = suggested_questions
+                      .into_iter()
+                      .map(|q| q.content)
+                      .collect::<Vec<_>>();
+
+                    let data = AIQuestionData {
+                      data: AIQuestionDataMetadata::SuggestedQuestion(questions),
+                      content: value,
+                    };
+
+                    if let Err(err) = answer_sink
+                      .send(StreamMessage::AIQuestion(data).to_string())
                       .await
                     {
-                      Ok(_) => {
-                        if !suggested_questions.is_empty() {
-                          info!("suggested questions: {:?}", suggested_questions);
-                          let questions = suggested_questions
-                            .into_iter()
-                            .map(|q| q.content)
-                            .collect::<Vec<_>>();
-                          if let Err(err) = answer_sink
-                            .send(StreamMessage::OnSuggestedQuestion(questions).to_string())
-                            .await
-                          {
-                            error!("Failed to stream answer via IsolateSink: {}", err);
-                          }
-                        }
-                      },
-                      Err(err) => {
-                        error!("Failed to stream answer via IsolateSink: {}", err);
-                      },
+                      error!("Failed to stream answer via IsolateSink: {}", err);
                     }
                   },
                 }

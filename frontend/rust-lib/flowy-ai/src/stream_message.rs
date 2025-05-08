@@ -1,3 +1,4 @@
+use serde::Serialize;
 use std::fmt::Display;
 
 #[allow(dead_code)]
@@ -7,13 +8,24 @@ pub enum StreamMessage {
   IndexEnd,
   Text(String),
   OnData(String),
-  OnSuggestedQuestion(Vec<String>),
+  AIQuestion(AIQuestionData),
   OnError(String),
   Metadata(String),
   Done,
   StartIndexFile { file_name: String },
   EndIndexFile { file_name: String },
   IndexFileError { file_name: String },
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AIQuestionData {
+  pub data: AIQuestionDataMetadata,
+  pub content: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum AIQuestionDataMetadata {
+  SuggestedQuestion(Vec<String>),
 }
 
 impl Display for StreamMessage {
@@ -38,8 +50,12 @@ impl Display for StreamMessage {
       StreamMessage::IndexFileError { file_name } => {
         write!(f, "index_file_error:{}", file_name)
       },
-      StreamMessage::OnSuggestedQuestion(questions) => {
-        write!(f, "suggested_questions:{}", questions.join(","))
+      StreamMessage::AIQuestion(data) => {
+        if let Ok(s) = serde_json::to_string(&data) {
+          write!(f, "ai_question:{}", s)
+        } else {
+          write!(f, "ai_question:{}", data.content)
+        }
       },
     }
   }

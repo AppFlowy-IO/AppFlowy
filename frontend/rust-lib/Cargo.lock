@@ -2694,6 +2694,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "serde_repr",
  "sha2",
  "strum_macros 0.21.1",
  "tempdir",
