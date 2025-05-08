@@ -1,7 +1,7 @@
 use crate::entities::*;
 use crate::notification::{database_notification_builder, DatabaseNotification};
 use crate::services::calculations::Calculation;
-use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
+use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, stringify_cell, CellCache};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{
@@ -1852,6 +1852,70 @@ impl DatabaseEditor {
         Ok(row_data)
       },
     }
+  }
+
+  pub async fn get_prompts_from_database(
+    &self,
+    view_id: &str,
+  ) -> Result<Vec<CustomPromptPB>, FlowyError> {
+    let fields = self.get_fields(view_id, None).await;
+    let primary_field = fields
+      .iter()
+      .find(|f| f.is_primary)
+      .ok_or(FlowyError::internal().with_context("Cannot find primary field"))?;
+    let content_field = fields
+      .iter()
+      .find(|f| f.name.to_lowercase() == "content" && f.field_type == FieldType::RichText.value())
+      .or_else(|| {
+        fields
+          .iter()
+          .find(|f| !f.is_primary && f.field_type == FieldType::RichText.value())
+      })
+      .ok_or(FlowyError::internal().with_context("Cannot find content field"))?;
+    let example_field = fields.iter().find(|f| f.name.to_lowercase() == "example");
+    let category_field = fields.iter().find(|f| f.name.to_lowercase() == "category");
+
+    fn extract_cell_value(row: &Row, field: &Field) -> Option<String> {
+      row
+        .cells
+        .get(&field.id)
+        .map(|cell| stringify_cell(cell, field))
+    }
+
+    let custom_prompts = self
+      .get_all_rows(view_id)
+      .await?
+      .into_iter()
+      .filter_map(|row| {
+        let id = row.id.to_string();
+
+        let primary_cell = row.cells.get(&primary_field.id);
+        let name = primary_cell
+          .map(|cell| stringify_cell(cell, primary_field))
+          .unwrap_or_default();
+
+        let content_cell = row.cells.get(&content_field.id);
+        let content = content_cell.map(|cell| stringify_cell(cell, content_field))?;
+
+        let example = example_field
+          .and_then(|field| extract_cell_value(&row, field))
+          .unwrap_or_default();
+
+        let category = category_field
+          .and_then(|field| extract_cell_value(&row, field))
+          .unwrap_or_else(|| "other".to_string());
+
+        Some(CustomPromptPB {
+          id,
+          name,
+          content,
+          example,
+          category,
+        })
+      })
+      .collect::<Vec<_>>();
+
+    Ok(custom_prompts)
   }
 
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {

@@ -22,10 +22,8 @@ class AiPromptPreview extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(
-              top: theme.spacing.l,
-              left: theme.spacing.l,
-              right: theme.spacing.l,
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.l,
             ),
             child: SelectionContainer.disabled(
               child: Row(
