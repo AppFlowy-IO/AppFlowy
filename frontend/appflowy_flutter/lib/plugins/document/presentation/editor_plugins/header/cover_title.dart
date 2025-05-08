@@ -52,6 +52,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   late final titleFocusNode = editorContext.coverTitleFocusNode;
   int lineCount = 1;
 
+  bool updatingViewName = false;
+
   @override
   void initState() {
     super.initState();
@@ -87,7 +89,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listenWhen: (previous, current) =>
-          previous.view.name != current.view.name,
+          previous.view.name != current.view.name && !updatingViewName,
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
@@ -206,6 +208,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   }
 
   void _onViewNameChanged() {
+    updatingViewName = true;
+
     Debounce.debounce(
       'update view name',
       const Duration(milliseconds: 250),
@@ -222,6 +226,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         context
             .read<ViewInfoBloc?>()
             ?.add(ViewInfoEvent.titleChanged(titleTextController.text));
+
+        updatingViewName = false;
       },
     );
   }
