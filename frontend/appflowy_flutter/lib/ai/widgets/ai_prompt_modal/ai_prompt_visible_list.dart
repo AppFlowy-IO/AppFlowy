@@ -35,12 +35,12 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
     super.initState();
     cubit = context.read<AiPromptSelectorCubit>();
     final textController = cubit.filterTextController;
+    filterIsEmpty = textController.text.isEmpty;
+    textController.addListener(handleFilterTextChanged);
     final prompts = cubit.state.maybeMap(
       ready: (value) => value.visiblePrompts,
       orElse: () => <AiPrompt>[],
     );
-    filterIsEmpty = textController.text.isEmpty;
-    textController.addListener(handleFilterTextChanged);
     oldList.addAll(prompts);
   }
 
@@ -56,49 +56,56 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
     final spacing = AppFlowyTheme.of(context).spacing;
     return BlocListener<AiPromptSelectorCubit, AiPromptSelectorState>(
       listener: (context, state) {
-        final list = state.maybeMap(
-          ready: (state) => state.visiblePrompts,
-          orElse: () => <AiPrompt>[],
+        state.maybeMap(
+          ready: (state) {
+            handleVisiblePromptListChanged(state.visiblePrompts);
+          },
+          orElse: () {},
         );
-        handleVisiblePromptListChanged(list);
       },
       child: Column(
         children: [
-          VSpace(spacing.l),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: spacing.l),
             child: buildSearchField(context),
           ),
           VSpace(spacing.s),
           Expanded(
-            child: AnimatedList(
-              controller: scrollController,
-              padding: EdgeInsets.all(spacing.l),
-              key: listKey,
-              initialItemCount: oldList.length,
-              itemBuilder: (context, index, animation) {
-                final cubit = context.read<AiPromptSelectorCubit>();
+            child: TextFieldTapRegion(
+              groupId: "ai_prompt_category_list",
+              child: AnimatedList(
+                controller: scrollController,
+                padding: EdgeInsets.all(spacing.l),
+                key: listKey,
+                initialItemCount: oldList.length,
+                itemBuilder: (context, index, animation) {
+                  return BlocBuilder<AiPromptSelectorCubit,
+                      AiPromptSelectorState>(
+                    builder: (context, state) {
+                      return state.maybeMap(
+                        ready: (state) {
+                          final prompt = state.visiblePrompts[index];
 
-                return cubit.state.maybeMap(
-                  ready: (state) {
-                    final prompt = state.visiblePrompts[index];
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        top: index == 0 ? 0 : spacing.s,
-                        bottom: index == state.visiblePrompts.length - 1
-                            ? 0
-                            : spacing.s,
-                      ),
-                      child: _AiPromptListItem(
-                        animation: animation,
-                        prompt: prompt,
-                        isSelected: state.selectedPromptId == prompt.id,
-                      ),
-                    );
-                  },
-                  orElse: () => const SizedBox.shrink(),
-                );
-              },
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              top: index == 0 ? 0 : spacing.s,
+                              bottom: index == state.visiblePrompts.length - 1
+                                  ? 0
+                                  : spacing.s,
+                            ),
+                            child: _AiPromptListItem(
+                              animation: animation,
+                              prompt: prompt,
+                              isSelected: state.selectedPromptId == prompt.id,
+                            ),
+                          );
+                        },
+                        orElse: () => const SizedBox.shrink(),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],

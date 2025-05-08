@@ -50,6 +50,14 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
       get_setting_model_selection_handler,
     )
     .event(AIEvent::UpdateSelectedModel, update_selected_model_handler)
+    .event(
+      AIEvent::GetCustomPromptDatabaseViewId,
+      get_custom_prompt_database_view_id_handler,
+    )
+    .event(
+      AIEvent::SetCustomPromptDatabaseViewId,
+      set_custom_prompt_database_view_id_handler,
+    )
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -128,4 +136,10 @@ pub enum AIEvent {
 
   #[event(input = "ModelSourcePB", output = "ModelSelectionPB")]
   GetSourceModelSelection = 34,
+
+  #[event(output = "CustomPromptDatabaseViewIdPB")]
+  GetCustomPromptDatabaseViewId = 35,
+
+  #[event(input = "CustomPromptDatabaseViewIdPB")]
+  SetCustomPromptDatabaseViewId = 36,
 }
