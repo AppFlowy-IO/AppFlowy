@@ -121,7 +121,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     on<_OnAIQuestionData>((event, emit) {
       emit(
         state.copyWith(
-          messageState: MessageState.onAIQuestionData(event.questionData),
+          messageState: MessageState.onAIQuestion(event.questionData),
         ),
       );
     });
@@ -223,6 +223,6 @@ class MessageState with _$MessageState {
   const factory MessageState.onInitializingLocalAI() = _LocalAIInitializing;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
-  const factory MessageState.onAIQuestionData(AIQuestionData questionData) =
-      _OnAIQuestionData;
+  const factory MessageState.onAIQuestion(AIQuestionData questionData) =
+      _OnAIQuestion;
 }

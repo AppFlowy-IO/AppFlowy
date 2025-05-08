@@ -92,7 +92,7 @@ impl ConversationalRetrieverChain {
 
       if documents.is_empty() {
         trace!(
-          "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. return I don't know",
+          "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. generating suggested questions",
           rag_ids
         );
 

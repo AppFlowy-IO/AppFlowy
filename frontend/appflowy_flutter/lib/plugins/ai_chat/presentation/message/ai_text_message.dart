@@ -151,8 +151,11 @@ class ChatAIMessageWidget extends StatelessWidget {
                         .tr(),
                   );
                 },
-                onAIQuestionData: (questionData) {
-                  return AIQuestionDataWidget(questionData: questionData);
+                onAIQuestion: (questionData) {
+                  return AIQuestionDataWidget(
+                    message: message,
+                    questionData: questionData,
+                  );
                 },
               ),
             ),
@@ -259,17 +262,50 @@ class _NonEmptyMessage extends StatelessWidget {
 class AIQuestionDataWidget extends StatelessWidget {
   const AIQuestionDataWidget({
     super.key,
+    required this.message,
     required this.questionData,
   });
 
   final AIQuestionData questionData;
+  final Message message;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(questionData.content),
-      ],
+    return ChatAIMessageBubble(
+      message: message,
+      showActions: false,
+      child: Column(
+        children: [
+          AIMarkdownText(
+            markdown: questionData.content,
+          ),
+          const VSpace(8.0),
+          ...questionData.data.suggestedQuestions?.map(
+                (question) => _AIQuestionDataItem(question: question),
+              ) ??
+              [],
+        ],
+      ),
+    );
+  }
+}
+
+class _AIQuestionDataItem extends StatelessWidget {
+  const _AIQuestionDataItem({
+    required this.question,
+  });
+
+  final String question;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      text: FlowyText(question),
+      onTap: () {
+        context.read<ChatBloc>().add(
+              ChatEvent.sendMessage(message: question),
+            );
+      },
     );
   }
 }
