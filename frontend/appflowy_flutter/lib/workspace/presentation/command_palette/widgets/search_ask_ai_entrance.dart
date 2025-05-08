@@ -35,9 +35,8 @@ class _AskAIFor extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
-    return Container(
-      height: 64,
-      padding: EdgeInsets.symmetric(vertical: sapceM, horizontal: spaceL),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(spaceL, sapceM, spaceL, 0),
       child: AFBaseButton(
         borderRadius: sapceM,
         padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
@@ -111,23 +110,25 @@ class _AISearching extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Container(
-      height: 54,
-      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      child: Row(
-        children: [
-          FlowySvg(
-            FlowySvgs.ai_searching_icon_m,
-            size: Size.square(20),
-            blendMode: null,
-          ),
-          HSpace(8),
-          Text(
-            LocaleKeys.search_searching.tr(),
-            style: theme.textStyle.heading4
-                .standard(color: theme.textColorScheme.secondary),
-          ),
-        ],
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+      child: SizedBox(
+        height: 22,
+        child: Row(
+          children: [
+            FlowySvg(
+              FlowySvgs.ai_searching_icon_m,
+              size: Size.square(20),
+              blendMode: null,
+            ),
+            HSpace(8),
+            Text(
+              LocaleKeys.search_searching.tr(),
+              style: theme.textStyle.heading4
+                  .standard(color: theme.textColorScheme.secondary),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -145,7 +146,7 @@ class _AIOverview extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
