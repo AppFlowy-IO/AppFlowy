@@ -63,7 +63,7 @@ class _AskAIFor extends StatelessWidget {
         onTap: () {
           context
               .read<CommandPaletteBloc?>()
-              ?.add(CommandPaletteEvent.gointToAskAI());
+              ?.add(CommandPaletteEvent.goingToAskAI());
         },
       ),
     );
@@ -186,7 +186,7 @@ class _AIOverview extends StatelessWidget {
               },
               onTap: () {
                 context.read<CommandPaletteBloc?>()?.add(
-                      CommandPaletteEvent.gointToAskAI(
+                      CommandPaletteEvent.goingToAskAI(
                         sources: summaries.first.sources,
                       ),
                     );

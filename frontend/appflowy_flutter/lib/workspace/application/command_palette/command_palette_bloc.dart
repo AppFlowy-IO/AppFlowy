@@ -325,7 +325,7 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     @Default(null) String? workspaceId,
   }) = _WorkspaceChanged;
   const factory CommandPaletteEvent.clearSearch() = _ClearSearch;
-  const factory CommandPaletteEvent.gointToAskAI({
+  const factory CommandPaletteEvent.goingToAskAI({
     @Default(null) List<SearchSourcePB>? sources,
   }) = _GoingToAskAI;
   const factory CommandPaletteEvent.askedAI() = _AskedAI;
