@@ -362,3 +362,36 @@ pub(crate) async fn update_local_ai_setting_handler(
   ai_manager.update_local_ai_setting(data.into()).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_custom_prompt_database_view_id_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<CustomPromptDatabaseViewIdPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let id = ai_manager
+    .get_custom_prompt_database_view_id()
+    .await?
+    .ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::RecordNotFound,
+        "Custom prompt database view id not found",
+      )
+    })?;
+
+  data_result_ok(CustomPromptDatabaseViewIdPB { id })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn set_custom_prompt_database_view_id_handler(
+  data: AFPluginData<CustomPromptDatabaseViewIdPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> Result<(), FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let view_id = data.into_inner().id;
+
+  ai_manager
+    .set_custom_prompt_database_view_id(view_id)
+    .await?;
+
+  Ok(())
+}

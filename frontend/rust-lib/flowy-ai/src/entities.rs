@@ -748,3 +748,9 @@ impl From<PendingResource> for LackOfAIResourcePB {
     }
   }
 }
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct CustomPromptDatabaseViewIdPB {
+  #[pb(index = 1)]
+  pub id: String,
+}

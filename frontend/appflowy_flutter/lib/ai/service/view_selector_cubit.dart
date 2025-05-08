@@ -81,6 +81,14 @@ class ViewSelectorItem {
     }
   }
 
+  void setIsSelectedStatusRecursive(ViewSelectedStatus selectedStatus) {
+    selectedStatusNotifier.value = selectedStatus;
+
+    for (final child in children) {
+      child.setIsSelectedStatusRecursive(selectedStatus);
+    }
+  }
+
   void dispose() {
     for (final child in children) {
       child.dispose();
@@ -312,10 +320,12 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
     }
 
     if (isSelectedSection) {
-      item.selectedStatusNotifier.value = item.selectedStatus.isUnselected ||
-              item.selectedStatus.isPartiallySelected
-          ? ViewSelectedStatus.selected
-          : ViewSelectedStatus.unselected;
+      item.setIsSelectedStatusRecursive(
+        item.selectedStatus.isUnselected ||
+                item.selectedStatus.isPartiallySelected
+            ? ViewSelectedStatus.selected
+            : ViewSelectedStatus.unselected,
+      );
     }
 
     updateSelectedStatus();

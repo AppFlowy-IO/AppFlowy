@@ -8,10 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class AiPromptCategoryList extends StatefulWidget {
   const AiPromptCategoryList({
     super.key,
-    required this.padding,
   });
-
-  final EdgeInsetsGeometry padding;
 
   @override
   State<AiPromptCategoryList> createState() => _AiPromptCategoryListState();
@@ -23,58 +20,57 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.all(
-        theme.spacing.l,
-      ),
-      child: TextFieldTapRegion(
-        groupId: "ai_prompt_category_list",
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: theme.spacing.s,
-          children: [
-            _buildFeaturedCategory(context),
-            const AFDivider(),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildCategoryItem(context, null),
-                  _buildCategoryItem(context, AiPromptCategory.development),
-                  _buildCategoryItem(context, AiPromptCategory.writing),
-                  _buildCategoryItem(context, AiPromptCategory.business),
-                  _buildCategoryItem(context, AiPromptCategory.marketing),
-                  _buildCategoryItem(
-                    context,
-                    AiPromptCategory.healthAndFitness,
-                  ),
-                  _buildCategoryItem(context, AiPromptCategory.travel),
-                  _buildCategoryItem(context, AiPromptCategory.contentSeo),
-                  _buildCategoryItem(context, AiPromptCategory.emailMarketing),
-                  _buildCategoryItem(context, AiPromptCategory.paidAds),
-                  _buildCategoryItem(context, AiPromptCategory.prCommunication),
-                  _buildCategoryItem(context, AiPromptCategory.recruiting),
-                  _buildCategoryItem(context, AiPromptCategory.sales),
-                  _buildCategoryItem(context, AiPromptCategory.socialMedia),
-                  _buildCategoryItem(context, AiPromptCategory.strategy),
-                  _buildCategoryItem(context, AiPromptCategory.caseStudies),
-                  _buildCategoryItem(context, AiPromptCategory.salesCopy),
-                  _buildCategoryItem(context, AiPromptCategory.education),
-                  _buildCategoryItem(context, AiPromptCategory.work),
-                  _buildCategoryItem(
-                    context,
-                    AiPromptCategory.podcastProduction,
-                  ),
-                  _buildCategoryItem(context, AiPromptCategory.copyWriting),
-                  _buildCategoryItem(context, AiPromptCategory.customerSuccess),
-                  _buildCategoryItem(context, AiPromptCategory.other),
-                ],
-              ),
+    return TextFieldTapRegion(
+      groupId: "ai_prompt_category_list",
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              right: theme.spacing.l,
             ),
-          ],
-        ),
+            child: AiPromptFeaturedSection(),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              right: theme.spacing.l,
+            ),
+            child: AiPromptCustomPromptSection(),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              top: theme.spacing.s,
+              right: theme.spacing.l,
+            ),
+            child: AFDivider(),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.only(
+                top: theme.spacing.s,
+                right: theme.spacing.l,
+              ),
+              children: [
+                _buildCategoryItem(context, null),
+                ...sortedCategories.map(
+                  (category) => _buildCategoryItem(
+                    context,
+                    category,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  static Iterable<AiPromptCategory> get sortedCategories {
+    final categories = [...AiPromptCategory.values];
+    categories.sort((a, b) => a.i18n.compareTo(b.i18n));
+
+    return categories;
   }
 
   Widget _buildCategoryItem(
@@ -88,18 +84,25 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
       },
     );
   }
+}
 
-  Widget _buildFeaturedCategory(BuildContext context) {
+class AiPromptFeaturedSection extends StatelessWidget {
+  const AiPromptFeaturedSection({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final isSelected = context.watch<AiPromptSelectorCubit>().state.maybeMap(
-          ready: (state) => state.isFeaturedCategorySelected,
+          ready: (state) => state.isFeaturedSectionSelected,
           orElse: () => false,
         );
 
     return AFBaseButton(
       onTap: () {
         if (!isSelected) {
-          context.read<AiPromptSelectorCubit>().selectFeaturedCategory();
+          context.read<AiPromptSelectorCubit>().selectFeaturedSection();
         }
       },
       builder: (context, isHovering, disabled) {
@@ -131,6 +134,70 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
   }
 }
 
+class AiPromptCustomPromptSection extends StatelessWidget {
+  const AiPromptCustomPromptSection({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    return BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+      builder: (context, state) {
+        return state.maybeMap(
+          ready: (readyState) {
+            final isSelected = readyState.isCustomPromptSectionSelected;
+            final isDisabled = context
+                .read<AiPromptSelectorCubit>()
+                .availablePrompts
+                .every((prompt) => !prompt.isCustom);
+            return AFBaseButton(
+              disabled: isDisabled,
+              onTap: () {
+                if (!isSelected) {
+                  context.read<AiPromptSelectorCubit>().selectCustomSection();
+                }
+              },
+              builder: (context, isHovering, disabled) {
+                return Text(
+                  LocaleKeys.ai_customPrompt_custom.tr(),
+                  style: AppFlowyTheme.of(context).textStyle.body.standard(
+                        color: disabled
+                            ? theme.textColorScheme.tertiary
+                            : theme.textColorScheme.primary,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                );
+              },
+              borderRadius: theme.borderRadius.m,
+              padding: EdgeInsets.symmetric(
+                vertical: theme.spacing.s,
+                horizontal: theme.spacing.m,
+              ),
+              borderColor: (context, isHovering, disabled, isFocused) =>
+                  Colors.transparent,
+              backgroundColor: (context, isHovering, disabled) {
+                if (disabled) {
+                  return Colors.transparent;
+                }
+                if (isSelected) {
+                  return theme.fillColorScheme.themeSelect;
+                }
+                if (isHovering) {
+                  return theme.fillColorScheme.primaryAlpha5;
+                }
+                return Colors.transparent;
+              },
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+}
+
 class AiPromptCategoryItem extends StatelessWidget {
   const AiPromptCategoryItem({
     super.key,
@@ -143,40 +210,46 @@ class AiPromptCategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-    final isSelected = context.watch<AiPromptSelectorCubit>().state.maybeMap(
-          ready: (state) =>
-              !state.isFeaturedCategorySelected &&
-              state.selectedCategory == category,
+    return BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+      builder: (context, state) {
+        final theme = AppFlowyTheme.of(context);
+        final isSelected = state.maybeMap(
+          ready: (state) {
+            return !state.isFeaturedSectionSelected &&
+                !state.isCustomPromptSectionSelected &&
+                state.selectedCategory == category;
+          },
           orElse: () => false,
         );
 
-    return AFBaseButton(
-      onTap: onSelect,
-      builder: (context, isHovering, disabled) {
-        return Text(
-          category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
-          style: AppFlowyTheme.of(context).textStyle.body.standard(
-                color: theme.textColorScheme.primary,
-              ),
-          overflow: TextOverflow.ellipsis,
+        return AFBaseButton(
+          onTap: onSelect,
+          builder: (context, isHovering, disabled) {
+            return Text(
+              category?.i18n ?? LocaleKeys.ai_customPrompt_all.tr(),
+              style: AppFlowyTheme.of(context).textStyle.body.standard(
+                    color: theme.textColorScheme.primary,
+                  ),
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+          borderRadius: theme.borderRadius.m,
+          padding: EdgeInsets.symmetric(
+            vertical: theme.spacing.s,
+            horizontal: theme.spacing.m,
+          ),
+          borderColor: (context, isHovering, disabled, isFocused) =>
+              Colors.transparent,
+          backgroundColor: (context, isHovering, disabled) {
+            if (isSelected) {
+              return theme.fillColorScheme.themeSelect;
+            }
+            if (isHovering) {
+              return theme.fillColorScheme.primaryAlpha5;
+            }
+            return Colors.transparent;
+          },
         );
-      },
-      borderRadius: theme.borderRadius.m,
-      padding: EdgeInsets.symmetric(
-        vertical: theme.spacing.s,
-        horizontal: theme.spacing.m,
-      ),
-      borderColor: (context, isHovering, disabled, isFocused) =>
-          Colors.transparent,
-      backgroundColor: (context, isHovering, disabled) {
-        if (isSelected) {
-          return theme.fillColorScheme.themeSelect;
-        }
-        if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
-        }
-        return Colors.transparent;
       },
     );
   }

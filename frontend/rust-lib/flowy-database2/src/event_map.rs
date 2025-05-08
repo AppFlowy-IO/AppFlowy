@@ -98,6 +98,10 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          // Media
          .event(DatabaseEvent::UpdateMediaCell, update_media_cell_handler)
          .event(DatabaseEvent::RenameMediaFile, rename_media_cell_file_handler)
+         .event(
+          DatabaseEvent::GetDatabaseCustomPrompts,
+          get_database_custom_prompts_handler,
+        )
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -401,4 +405,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "RenameMediaChangesetPB")]
   RenameMediaFile = 201,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedCustomPromptPB")]
+  GetDatabaseCustomPrompts = 500,
 }
