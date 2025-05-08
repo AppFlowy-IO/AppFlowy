@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:appflowy/util/debounce.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,12 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   int _lastUserMessageIndex = 0;
   bool _isScrollingToBottom = false;
 
+  final _loadPreviousMessagesDebounce = Debounce(
+    duration: const Duration(milliseconds: 200),
+  );
+
+  final int _initialScrollIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -85,8 +92,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
-          _onInserted(event.index!, event.message!);
-          _oldList = List.from(_chatController.messages);
+
           break;
         case ChatOperationType.remove:
           assert(
@@ -134,8 +140,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       _handleToggleScrollToBottom();
     });
 
-    scrollOffsetListener.changes.listen((event) {
-      debugPrint('scrollOffsetListener: $event');
+    itemPositionsListener.itemPositions.addListener(() {
+      _handleLoadPreviousMessages();
     });
   }
 
@@ -170,7 +176,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           initialAlignment: initialAlignment,
           scrollOffsetListener: scrollOffsetListener,
           itemPositionsListener: itemPositionsListener,
-          physics: ClampingScrollPhysics(),
           shrinkWrap: true,
           // the extra item is a vertical padding.
           itemCount: _chatController.messages.length + 1,
@@ -250,9 +255,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     // get the max item
     final sortedItems = itemPositionsListener.itemPositions.value.toList()
       ..sort((a, b) => a.index.compareTo(b.index));
-    final maxItem = sortedItems.last;
+    final maxItem = sortedItems.lastOrNull;
 
-    debugPrint('maxItem: $maxItem');
+    if (maxItem == null) {
+      return;
+    }
 
     if (maxItem.index > _chatController.messages.length - 1 ||
         (maxItem.index == _chatController.messages.length - 1 &&
@@ -270,7 +277,28 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     });
   }
 
+  void _handleLoadPreviousMessages() {
+    final sortedItems = itemPositionsListener.itemPositions.value.toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
+    final minItem = sortedItems.firstOrNull;
+
+    if (minItem == null || minItem.index > 0 || minItem.itemLeadingEdge <= 0) {
+      return;
+    }
+
+    _loadPreviousMessagesDebounce.call(
+      () {
+        widget.onLoadPreviousMessages?.call();
+      },
+    );
+  }
+
   void _onInserted(final int position, final Message data) {
+    _listKey.currentState!.insertItem(
+      0,
+      duration: widget.insertAnimationDuration,
+    );
+
     if (position == _oldList.length) {
       _scrollLastMessageToTop(data);
     }
