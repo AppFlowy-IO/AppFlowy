@@ -7,6 +7,7 @@ pub enum StreamMessage {
   IndexEnd,
   Text(String),
   OnData(String),
+  OnSuggestedQuestion(Vec<String>),
   OnError(String),
   Metadata(String),
   Done,
@@ -36,6 +37,9 @@ impl Display for StreamMessage {
       },
       StreamMessage::IndexFileError { file_name } => {
         write!(f, "index_file_error:{}", file_name)
+      },
+      StreamMessage::OnSuggestedQuestion(questions) => {
+        write!(f, "suggested_questions:{}", questions.join(","))
       },
     }
   }

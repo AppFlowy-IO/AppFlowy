@@ -19,6 +19,7 @@ class AIStreamEventPrefix {
   static const aiMaxRequired = 'AI_MAX_REQUIRED:';
   static const localAINotReady = 'LOCAL_AI_NOT_READY';
   static const localAIDisabled = 'LOCAL_AI_DISABLED';
+  static const suggestedQuestions = 'suggested_questions:';
 }
 
 enum AiType {

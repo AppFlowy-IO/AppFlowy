@@ -1,7 +1,11 @@
+use crate::local_ai::chat::chains::context_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
+use crate::SqliteVectorStore;
 use async_stream::stream;
 use async_trait::async_trait;
+use flowy_ai_pub::cloud::{QuestionStreamValue, SuggestedQuestion};
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
+use flowy_error::{FlowyError, FlowyResult};
 use futures::Stream;
 use futures_util::{pin_mut, StreamExt};
 use langchain_rust::chain::{
@@ -18,7 +22,8 @@ use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use tokio_util::either::Either;
-use tracing::trace;
+use tracing::{error, trace, warn};
+use uuid::Uuid;
 
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
@@ -33,6 +38,7 @@ pub struct ConversationalRetrieverChain {
   pub memory: Arc<Mutex<dyn BaseMemory>>,
   pub(crate) combine_documents_chain: Box<dyn Chain>,
   pub(crate) condense_question_chain: Box<dyn Chain>,
+  pub(crate) context_question_chain: Option<RelatedQuestionChain>,
   pub(crate) rephrase_question: bool,
   pub(crate) return_source_documents: bool,
   pub(crate) input_key: String,
@@ -73,7 +79,7 @@ impl ConversationalRetrieverChain {
   async fn get_documents_or_result(
     &self,
     question: &str,
-  ) -> Result<Either<Vec<Document>, GenerateResult>, ChainError> {
+  ) -> Result<Either<Vec<Document>, QuestionStreamValue>, ChainError> {
     let rag_ids = self.retriever.get_rag_ids();
     if rag_ids.is_empty() {
       Ok(Either::Left(vec![]))
@@ -89,10 +95,38 @@ impl ConversationalRetrieverChain {
           "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. return I don't know",
           rag_ids
         );
-        return Ok(Either::Right(GenerateResult {
-            tokens: None,
-            generation: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
-          }));
+
+        let mut suggested_questions = vec![];
+        if let Some(c) = self.context_question_chain.as_ref() {
+          let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
+          match c.generate_questions(&rag_ids).await {
+            Ok(questions) => {
+              trace!("[Chat]: context related questions: {:?}", questions);
+              suggested_questions = questions
+                .into_iter()
+                .map(|q| SuggestedQuestion {
+                  content: q.content,
+                  object_id: q.object_id,
+                })
+                .collect::<Vec<_>>();
+            },
+            Err(err) => {
+              error!("[Chat] Error generating context related questions: {}", err);
+            },
+          }
+        }
+
+        return if suggested_questions.is_empty() {
+          Ok(Either::Right(QuestionStreamValue::LackOfContext {
+            value: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
+            suggested_questions,
+          }))
+        } else {
+          Ok(Either::Right(QuestionStreamValue::LackOfContext {
+            value: "I couldn’t find any relevant information in the sources you selected. Please try ask following questions".to_string(),
+            suggested_questions,
+          }))
+        };
       }
 
       Ok(Either::Left(documents))
@@ -133,12 +167,22 @@ impl Chain for ConversationalRetrieverChain {
       Either::Right(result) => {
         let mut memory = self.memory.lock().await;
         memory.add_message(human_message).await;
-        memory
-          .add_message(Message::new_ai_message(&result.generation))
-          .await;
 
         let mut output = HashMap::new();
-        output.insert(self.output_key.clone(), json!(result.generation));
+        match &result {
+          QuestionStreamValue::Answer { value } => {
+            memory.add_message(Message::new_ai_message(value)).await;
+            output.insert(self.output_key.clone(), json!(value));
+          },
+          QuestionStreamValue::Metadata { .. } => {
+            warn!("[Chat] should not receive metadata here. It must be a bug here");
+          },
+          QuestionStreamValue::LackOfContext { value, .. } => {
+            memory.add_message(Message::new_ai_message(value)).await;
+            output.insert(self.output_key.clone(), json!(value));
+          },
+        }
+
         output.insert(DEFAULT_RESULT_KEY.to_string(), json!(result));
         return Ok(output);
       },
@@ -203,23 +247,33 @@ impl Chain for ConversationalRetrieverChain {
       let memory = self.memory.lock().await;
       memory.messages().await
     };
-
     let (question, _) = self.get_question(&history, &human_message.content).await?;
-
     let documents = match self.get_documents_or_result(&question).await? {
       Either::Left(docs) => docs,
       Either::Right(result) => {
         let mut memory = self.memory.lock().await;
         memory.add_message(human_message).await;
-        memory
-          .add_message(Message::new_ai_message(&result.generation))
-          .await;
+
+        let mut content = "".to_string();
+        match &result {
+          QuestionStreamValue::Answer { value } => {
+            memory.add_message(Message::new_ai_message(value)).await;
+            content = value.clone();
+          },
+          QuestionStreamValue::Metadata { .. } => {
+            warn!("[Chat] should not receive metadata here. It must be a bug here");
+          },
+          QuestionStreamValue::LackOfContext { value, .. } => {
+            memory.add_message(Message::new_ai_message(value)).await;
+            content = value.clone();
+          },
+        }
 
         return Ok(Box::pin(stream! {
           yield Ok(StreamData::new(
             json!(result),
-            result.tokens,
-            result.generation,
+            None,
+            content
           ));
         }));
       },
@@ -247,8 +301,11 @@ impl Chain for ConversationalRetrieverChain {
                     let mut complete_ai_message_clone =
                         complete_ai_message_clone.lock().await;
                     complete_ai_message_clone.push_str(&data.content);
-
-                    yield Ok(data);
+                    yield Ok(StreamData::new(
+                        json!(QuestionStreamValue::Answer { value: data.content.clone() }),
+                        data.tokens,
+                        data.content.clone(),
+                    ));
                 },
                 Err(e) => {
                     yield Err(e);
@@ -258,7 +315,7 @@ impl Chain for ConversationalRetrieverChain {
 
         for source in sources {
           yield Ok(StreamData::new(
-              json!({"source": source}),
+              json!(source),
               None,
               "".to_string(),
           ));
@@ -294,36 +351,36 @@ impl Chain for ConversationalRetrieverChain {
 }
 
 pub struct ConversationalRetrieverChainBuilder {
-  llm: Option<LLMOllama>,
-  retriever: Option<AFRetriever>,
+  workspace_id: Uuid,
+  llm: LLMOllama,
+  retriever: AFRetriever,
   memory: Option<Arc<Mutex<dyn BaseMemory>>>,
-  combine_documents_chain: Option<Box<dyn Chain>>,
-  condense_question_chain: Option<Box<dyn Chain>>,
   prompt: Option<Box<dyn FormatPrompter>>,
   rephrase_question: bool,
   return_source_documents: bool,
   input_key: String,
   output_key: String,
+  store: Option<SqliteVectorStore>,
 }
 impl ConversationalRetrieverChainBuilder {
-  pub fn new() -> Self {
+  pub fn new(
+    workspace_id: Uuid,
+    llm: LLMOllama,
+    retriever: AFRetriever,
+    store: Option<SqliteVectorStore>,
+  ) -> Self {
     ConversationalRetrieverChainBuilder {
-      llm: None,
-      retriever: None,
+      workspace_id,
+      llm,
+      retriever,
       memory: None,
-      combine_documents_chain: None,
-      condense_question_chain: None,
       prompt: None,
       rephrase_question: true,
       return_source_documents: true,
       input_key: CONVERSATIONAL_RETRIEVAL_QA_DEFAULT_INPUT_KEY.to_string(),
       output_key: DEFAULT_OUTPUT_KEY.to_string(),
+      store,
     }
-  }
-
-  pub fn retriever(mut self, retriever: AFRetriever) -> Self {
-    self.retriever = Some(retriever);
-    self
   }
 
   ///If you want to add a custom prompt,keep in mind which variables are obligatory.
@@ -334,31 +391,6 @@ impl ConversationalRetrieverChainBuilder {
 
   pub fn memory(mut self, memory: Arc<Mutex<dyn BaseMemory>>) -> Self {
     self.memory = Some(memory);
-    self
-  }
-
-  pub fn llm(mut self, llm: LLMOllama) -> Self {
-    self.llm = Some(llm);
-    self
-  }
-
-  ///Chain designed to take the documents and the question and generate an output
-  #[allow(dead_code)]
-  pub fn combine_documents_chain<C: Into<Box<dyn Chain>>>(
-    mut self,
-    combine_documents_chain: C,
-  ) -> Self {
-    self.combine_documents_chain = Some(combine_documents_chain.into());
-    self
-  }
-
-  ///Chain designed to reformulate the question based on the cat history
-  #[allow(dead_code)]
-  pub fn condense_question_chain<C: Into<Box<dyn Chain>>>(
-    mut self,
-    condense_question_chain: C,
-  ) -> Self {
-    self.condense_question_chain = Some(condense_question_chain.into());
     self
   }
 
@@ -373,41 +405,33 @@ impl ConversationalRetrieverChainBuilder {
     self
   }
 
-  pub fn build(mut self) -> Result<ConversationalRetrieverChain, ChainError> {
-    if let Some(llm) = self.llm.as_ref() {
-      let combine_documents_chain = {
-        let mut builder = StuffDocumentBuilder::new().llm(llm.clone());
-        if let Some(prompt) = self.prompt {
-          builder = builder.prompt(prompt);
-        }
-        builder.build()?
-      };
-      let condense_question_chain = CondenseQuestionGeneratorChain::new(llm.clone());
-      self.combine_documents_chain = Some(Box::new(combine_documents_chain));
-      self.condense_question_chain = Some(Box::new(condense_question_chain));
-    }
+  pub fn build(self) -> FlowyResult<ConversationalRetrieverChain> {
+    let combine_documents_chain = {
+      let mut builder = StuffDocumentBuilder::new().llm(self.llm.clone());
+      if let Some(prompt) = self.prompt {
+        builder = builder.prompt(prompt);
+      }
+      builder
+        .build()
+        .map_err(|err| FlowyError::local_ai().with_context(err))?
+    };
 
-    let retriever = self
-      .retriever
-      .ok_or_else(|| ChainError::MissingObject("Retriever must be set".into()))?;
-
+    let condense_question_chain = CondenseQuestionGeneratorChain::new(self.llm.clone());
     let memory = self
       .memory
       .unwrap_or_else(|| Arc::new(Mutex::new(SimpleMemory::new())));
 
-    let combine_documents_chain = self.combine_documents_chain.ok_or_else(|| {
-      ChainError::MissingObject("Combine documents chain must be set or llm must be set".into())
-    })?;
-    let condense_question_chain = self.condense_question_chain.ok_or_else(|| {
-      ChainError::MissingObject("Condense question chain must be set or llm must be set".into())
-    })?;
+    let context_question_chain = self
+      .store
+      .map(|store| RelatedQuestionChain::new(self.workspace_id, self.llm.clone(), store));
 
     Ok(ConversationalRetrieverChain {
-      ollama: self.llm.unwrap(),
-      retriever,
+      ollama: self.llm,
+      retriever: self.retriever,
       memory,
-      combine_documents_chain,
-      condense_question_chain,
+      combine_documents_chain: Box::new(combine_documents_chain),
+      condense_question_chain: Box::new(condense_question_chain),
+      context_question_chain,
       rephrase_question: self.rephrase_question,
       return_source_documents: self.return_source_documents,
       input_key: self.input_key,
@@ -419,18 +443,18 @@ impl ConversationalRetrieverChainBuilder {
 // Retriever is a retriever for vector stores.
 pub type RetrieverOption = VecStoreOptions<Value>;
 pub struct AFRetriever {
-  vector_store: Box<dyn VectorStore<Options = RetrieverOption>>,
+  vector_store: Option<Box<dyn VectorStore<Options = RetrieverOption>>>,
   num_docs: usize,
   options: RetrieverOption,
 }
 impl AFRetriever {
   pub fn new<V: Into<Box<dyn VectorStore<Options = RetrieverOption>>>>(
-    vector_store: V,
+    vector_store: Option<V>,
     num_docs: usize,
     options: RetrieverOption,
   ) -> Self {
     AFRetriever {
-      vector_store: vector_store.into(),
+      vector_store: vector_store.map(Into::into),
       num_docs,
       options,
     }
@@ -461,19 +485,29 @@ impl Retriever for AFRetriever {
       self.options.filters,
       query,
     );
-    self
-      .vector_store
-      .similarity_search(query, self.num_docs, &self.options)
-      .await
+
+    match self.vector_store.as_ref() {
+      None => Ok(vec![]),
+      Some(vector_store) => {
+        vector_store
+          .similarity_search(query, self.num_docs, &self.options)
+          .await
+      },
+    }
   }
 }
 
 /// Deduplicates metadata from a list of documents by merging metadata entries with the same keys
-fn deduplicate_metadata(documents: &[Document]) -> Vec<Value> {
-  let mut merged_metadata: HashMap<String, Value> = HashMap::new();
+fn deduplicate_metadata(documents: &[Document]) -> Vec<QuestionStreamValue> {
+  let mut merged_metadata: HashMap<String, QuestionStreamValue> = HashMap::new();
   for document in documents {
     if let Some(object_id) = document.metadata.get(SOURCE_ID).and_then(|s| s.as_str()) {
-      merged_metadata.insert(object_id.to_string(), json!(document.metadata.clone()));
+      merged_metadata.insert(
+        object_id.to_string(),
+        QuestionStreamValue::Metadata {
+          value: json!(document.metadata.clone()),
+        },
+      );
     }
   }
   merged_metadata.into_values().collect()

@@ -1,4 +1,6 @@
-use crate::entities::{PendingIndexedCollab, SqliteEmbeddedDocument, SqliteEmbeddedFragment};
+use crate::entities::{
+  EmbeddedContent, PendingIndexedCollab, SqliteEmbeddedDocument, SqliteEmbeddedFragment,
+};
 use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
@@ -107,6 +109,55 @@ impl VectorSqliteDB {
     tx.commit()
       .context("Committing delete_collab transaction")?;
     Ok(())
+  }
+
+  pub async fn select_all_embedded_content(
+    &self,
+    workspace_id: &str,
+    rag_ids: &[String],
+    limit: usize,
+  ) -> Result<Vec<EmbeddedContent>> {
+    let conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
+
+    // Build SQL query based on whether rag_ids are provided
+    let (sql, params) = if rag_ids.is_empty() {
+      // No rag_ids provided, select all content for workspace
+      let sql =
+        "SELECT object_id, content FROM af_collab_embeddings WHERE workspace_id = ? LIMIT ?";
+      let params: Vec<&dyn ToSql> = vec![&workspace_id, &limit];
+      (sql.to_string(), params)
+    } else {
+      // Filter by provided rag_ids
+      let placeholders = std::iter::repeat("?")
+        .take(rag_ids.len())
+        .collect::<Vec<_>>()
+        .join(", ");
+
+      let sql = format!(
+        "SELECT object_id, content FROM af_collab_embeddings WHERE workspace_id = ? AND object_id IN ({}) LIMIT ?",
+        placeholders
+      );
+
+      let mut params: Vec<&dyn ToSql> = vec![&workspace_id];
+      params.extend(rag_ids.iter().map(|id| id as &dyn ToSql));
+      params.push(&limit);
+      (sql, params)
+    };
+
+    let mut stmt = conn.prepare(&sql)?;
+    let mut rows = stmt.query(params.as_slice())?;
+
+    let mut contents = Vec::new();
+    while let Some(row) = rows.next()? {
+      let object_id: String = row.get(0)?;
+      let content: String = row.get(1)?;
+      contents.push(EmbeddedContent { content, object_id });
+    }
+
+    Ok(contents)
   }
 
   pub async fn select_all_embedded_documents(

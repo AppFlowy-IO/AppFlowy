@@ -37,7 +37,7 @@ class AnswerStream {
   void Function()? _onAIImageResponseLimit;
   void Function(String message)? _onAIMaxRequired;
   void Function(MetadataCollection metadata)? _onMetadata;
-
+  void Function(List<String> questions)? _onSuggestedQuestions;
   // Caches for events that occur before listen() is called.
   final List<String> _pendingAIMaxRequiredEvents = [];
   bool _pendingLocalAINotReady = false;
@@ -88,6 +88,11 @@ class AnswerStream {
       } else {
         _pendingLocalAINotReady = true;
       }
+    } else if (event.startsWith(AIStreamEventPrefix.suggestedQuestions)) {
+      final questions = event
+          .substring(AIStreamEventPrefix.suggestedQuestions.length)
+          .split(',');
+      _onSuggestedQuestions?.call(questions);
     }
   }
 
@@ -114,6 +119,7 @@ class AnswerStream {
     void Function(String message)? onAIMaxRequired,
     void Function(MetadataCollection metadata)? onMetadata,
     void Function()? onLocalAIInitializing,
+    void Function(List<String> questions)? onSuggestedQuestions,
   }) {
     _onData = onData;
     _onStart = onStart;
@@ -124,7 +130,7 @@ class AnswerStream {
     _onAIMaxRequired = onAIMaxRequired;
     _onMetadata = onMetadata;
     _onLocalAIInitializing = onLocalAIInitializing;
-
+    _onSuggestedQuestions = onSuggestedQuestions;
     // Flush pending AI_MAX_REQUIRED events.
     if (_onAIMaxRequired != null && _pendingAIMaxRequiredEvents.isNotEmpty) {
       for (final msg in _pendingAIMaxRequiredEvents) {
@@ -205,7 +211,6 @@ class QuestionStream {
   void Function()? _onIndexStart;
   void Function()? _onIndexEnd;
   void Function()? _onDone;
-
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
   String? get error => _error;

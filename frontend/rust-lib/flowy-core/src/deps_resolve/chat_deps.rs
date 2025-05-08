@@ -108,7 +108,10 @@ impl AIExternalService for ChatQueryServiceImpl {
           )?;
 
           if !is_change_since_sv(&collab, &prev_sv) {
-            info!("[Embedding] skip full sync {}, no changes", rag_id);
+            info!(
+              "[Embedding] skip full sync rag document {}, no changes",
+              rag_id
+            );
             continue;
           }
         }
@@ -127,7 +130,10 @@ impl AIExternalService for ChatQueryServiceImpl {
         .full_sync_collab_object(workspace_id, params)
         .await
       {
-        error!("Failed to sync rag document: {} error: {}", rag_id, err);
+        error!(
+          "[Embedding] failed to sync rag document: {} error: {}",
+          rag_id, err
+        );
       } else {
         result.push(AFCollabMetadata {
           object_id: rag_id.to_string(),

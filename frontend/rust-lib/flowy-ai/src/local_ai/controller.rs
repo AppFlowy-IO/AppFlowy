@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, trace};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -98,6 +98,13 @@ impl LocalAIController {
 
   pub async fn reload_ollama_client(&self, workspace_id: &str) {
     if !self.is_enabled_on_workspace(workspace_id) {
+      #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+      {
+        trace!("[Local AI] local ai is disabled, clear ollama client",);
+        let shared = crate::embeddings::context::EmbedContext::shared();
+        shared.set_ollama(None);
+        self.ollama.store(None);
+      }
       return;
     }
 
@@ -182,7 +189,7 @@ impl LocalAIController {
       return;
     }
 
-    self.llm_controller.set_rag_ids(chat_id, rag_ids).await;
+    self.llm_controller.set_rag_ids(chat_id, rag_ids);
   }
 
   pub async fn open_chat(

@@ -1,18 +1,17 @@
-mod conversation_chain;
+pub mod chains;
 mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
-pub mod related_question_chain;
 mod summary_memory;
 
+use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
-use crate::local_ai::chat::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::completion::chain::CompletionChain;
 use crate::local_ai::database::summary::DatabaseSummaryChain;
 use crate::local_ai::database::translate::DatabaseTranslateChain;
 use crate::SqliteVectorStore;
-use dashmap::DashMap;
+use dashmap::{DashMap, Entry};
 use flowy_ai_pub::cloud::ai_dto::{TranslateRowData, TranslateRowResponse};
 use flowy_ai_pub::cloud::chat_dto::ChatAuthorType;
 use flowy_ai_pub::cloud::{
@@ -73,23 +72,34 @@ impl LLMChatController {
     *self.store.write().await = Some(store);
   }
 
-  pub async fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+  pub fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
     if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
-      chat.set_rag_ids(rag_ids.to_vec()).await;
+      chat.set_rag_ids(rag_ids.to_vec());
     }
   }
 
-  pub async fn open_chat(&self, info: LLMChatInfo) -> FlowyResult<()> {
+  async fn create_chat_if_not_exist(&self, info: LLMChatInfo) -> FlowyResult<()> {
     let store = self.store.read().await.clone();
-    let chat_id = info.chat_id;
-    let chat = LLMChat::new(
-      info,
-      self.client.clone(),
-      store,
-      Some(self.user_service.clone()),
-    )
-    .await?;
-    self.chat_by_id.insert(chat_id, chat);
+    let client = self
+      .client
+      .read()
+      .await
+      .as_ref()
+      .ok_or_else(|| FlowyError::local_ai().with_context("Ollama client not initialized"))?
+      .upgrade()
+      .ok_or_else(|| FlowyError::local_ai().with_context("Ollama client has been dropped"))?
+      .clone();
+    let entry = self.chat_by_id.entry(info.chat_id);
+
+    if let Entry::Vacant(e) = entry {
+      let chat = LLMChat::new(info, client, store, Some(self.user_service.clone()))?;
+      e.insert(chat);
+    }
+    Ok(())
+  }
+
+  pub async fn open_chat(&self, info: LLMChatInfo) -> FlowyResult<()> {
+    let _ = self.create_chat_if_not_exist(info).await;
     Ok(())
   }
 

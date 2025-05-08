@@ -22,7 +22,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{error, instrument, trace};
+use tracing::{error, info, instrument, trace};
 use uuid::Uuid;
 
 enum PrevMessageState {
@@ -216,8 +216,34 @@ impl Chat {
                         .await;
                     }
                   },
-                  QuestionStreamValue::KeepAlive => {
-                    // trace!("[Chat] stream keep alive");
+                  QuestionStreamValue::LackOfContext {
+                    value,
+                    suggested_questions,
+                  } => {
+                    answer_stream_buffer.lock().await.push_str(&value);
+                    match answer_sink
+                      .send(StreamMessage::OnData(value).to_string())
+                      .await
+                    {
+                      Ok(_) => {
+                        if !suggested_questions.is_empty() {
+                          info!("suggested questions: {:?}", suggested_questions);
+                          let questions = suggested_questions
+                            .into_iter()
+                            .map(|q| q.content)
+                            .collect::<Vec<_>>();
+                          if let Err(err) = answer_sink
+                            .send(StreamMessage::OnSuggestedQuestion(questions).to_string())
+                            .await
+                          {
+                            error!("Failed to stream answer via IsolateSink: {}", err);
+                          }
+                        }
+                      },
+                      Err(err) => {
+                        error!("Failed to stream answer via IsolateSink: {}", err);
+                      },
+                    }
                   },
                 }
               },

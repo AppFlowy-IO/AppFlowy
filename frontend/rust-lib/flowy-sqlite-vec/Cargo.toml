@@ -18,6 +18,7 @@ serde_json.workspace = true
 r2d2 = { version = "0.8" }
 r2d2_sqlite = { version = "0.28" }
 chrono.workspace = true
+serde = { version = "1.0.219", features = ["derive"] }
 
 [dev-dependencies]
 tempfile = "3.8.0"

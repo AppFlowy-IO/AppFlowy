@@ -6,12 +6,14 @@ mod translate_test;
 use flowy_ai::local_ai::chat::llm_chat::LLMChat;
 use flowy_ai::local_ai::chat::LLMChatInfo;
 use flowy_ai::SqliteVectorStore;
+use flowy_ai_pub::cloud::{QuestionStreamValue, StreamAnswer, SuggestedQuestion};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use langchain_rust::url::Url;
 use ollama_rs::Ollama;
+use serde_json::Value;
 use std::sync::{Arc, Once};
 use tempfile::tempdir;
-use tokio::sync::RwLock;
+use tokio_stream::StreamExt;
 use tracing_subscriber::fmt::Subscriber;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
@@ -66,7 +68,6 @@ impl TestContext {
     let workspace_id = Uuid::new_v4();
     let chat_id = Uuid::new_v4();
     let model = "llama3.1";
-    let ollama_client = Arc::new(RwLock::new(Some(Arc::downgrade(&self.ollama))));
     let info = LLMChatInfo {
       chat_id,
       workspace_id,
@@ -75,8 +76,56 @@ impl TestContext {
       summary: "".to_string(),
     };
 
-    LLMChat::new(info, ollama_client, Some(self.store.clone()), None)
-      .await
-      .unwrap()
+    LLMChat::new(info, self.ollama.clone(), Some(self.store.clone()), None).unwrap()
   }
+}
+
+#[derive(Debug)]
+pub struct StreamResult {
+  pub answer: String,
+  pub sources: Vec<Value>,
+  pub suggested_questions: Vec<SuggestedQuestion>,
+}
+
+pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
+  let mut result = String::new();
+  let mut sources = vec![];
+  let mut questions = vec![];
+  let mut stream = stream;
+  while let Some(chunk) = stream.next().await {
+    match chunk {
+      Ok(value) => match value {
+        QuestionStreamValue::Answer { value } => {
+          result.push_str(&value);
+        },
+        QuestionStreamValue::Metadata { value } => {
+          dbg!("metadata", &value);
+          sources.push(value);
+        },
+        QuestionStreamValue::LackOfContext {
+          value,
+          suggested_questions,
+        } => {
+          result.push_str(&value);
+          questions = suggested_questions;
+        },
+      },
+      Err(e) => {
+        eprintln!("Error: {}", e);
+      },
+    }
+  }
+
+  StreamResult {
+    answer: result,
+    sources,
+    suggested_questions: questions,
+  }
+}
+
+pub fn load_asset_content(name: &str) -> String {
+  let path = format!("tests/asset/{}", name);
+  std::fs::read_to_string(path).unwrap_or_else(|_| {
+    panic!("Failed to read asset file: {}", name);
+  })
 }

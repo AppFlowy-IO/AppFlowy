@@ -137,6 +137,9 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         },
         onLocalAIInitializing: () =>
             _safeAdd(const ChatAIMessageEvent.onLocalAIInitializing()),
+        onSuggestedQuestions: (questions) {
+          Log.info("Suggested questions: $questions");
+        },
       );
     }
   }
