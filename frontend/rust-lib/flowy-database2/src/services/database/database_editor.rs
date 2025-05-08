@@ -1865,7 +1865,7 @@ impl DatabaseEditor {
       .ok_or(FlowyError::internal().with_context("Cannot find primary field"))?;
     let content_field = fields
       .iter()
-      .find(|f| f.name == "Content" && f.field_type == FieldType::RichText.value())
+      .find(|f| f.name.to_lowercase() == "content" && f.field_type == FieldType::RichText.value())
       .or_else(|| {
         fields
           .iter()
@@ -1874,6 +1874,13 @@ impl DatabaseEditor {
       .ok_or(FlowyError::internal().with_context("Cannot find content field"))?;
     let example_field = fields.iter().find(|f| f.name.to_lowercase() == "example");
     let category_field = fields.iter().find(|f| f.name.to_lowercase() == "category");
+
+    fn extract_cell_value(row: &Row, field: &Field) -> Option<String> {
+      row
+        .cells
+        .get(&field.id)
+        .map(|cell| stringify_cell(cell, field))
+    }
 
     let custom_prompts = self
       .get_all_rows(view_id)
@@ -1891,17 +1898,11 @@ impl DatabaseEditor {
         let content = content_cell.map(|cell| stringify_cell(cell, content_field))?;
 
         let example = example_field
-          .and_then(|example_field| {
-            let example_cell = row.cells.get(&example_field.id);
-            example_cell.map(|cell| stringify_cell(cell, example_field))
-          })
+          .and_then(|field| extract_cell_value(&row, field))
           .unwrap_or_default();
 
         let category = category_field
-          .and_then(|category_field| {
-            let category_cell = row.cells.get(&category_field.id);
-            category_cell.map(|cell| stringify_cell(cell, category_field))
-          })
+          .and_then(|field| extract_cell_value(&row, field))
           .unwrap_or_else(|| "other".to_string());
 
         Some(CustomPromptPB {
