@@ -5,6 +5,9 @@ import 'dart:isolate';
 
 import 'package:appflowy/ai/service/ai_entities.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'chat_message_stream.g.dart';
 
 /// A stream that receives answer events from an isolate or external process.
 /// It caches events that might occur before a listener is attached.
@@ -246,50 +249,31 @@ class QuestionStream {
   }
 }
 
+@JsonSerializable()
 class AIQuestionData {
-  final AIQuestionDataMetadata data;
-  final String content;
-
   AIQuestionData({
     required this.data,
     required this.content,
   });
 
-  factory AIQuestionData.fromJson(Map<String, dynamic> json) {
-    return AIQuestionData(
-      data: AIQuestionDataMetadata.fromJson(json['data']),
-      content: json['content'],
-    );
-  }
+  factory AIQuestionData.fromJson(Map<String, dynamic> json) =>
+      _$AIQuestionDataFromJson(json);
+  final AIQuestionDataMetadata data;
+  final String content;
 
-  Map<String, dynamic> toJson() => {
-        'data': data.toJson(),
-        'content': content,
-      };
+  Map<String, dynamic> toJson() => _$AIQuestionDataToJson(this);
 }
 
+@JsonSerializable()
 class AIQuestionDataMetadata {
-  final List<String>? suggestedQuestions;
+  factory AIQuestionDataMetadata.fromJson(Map<String, dynamic> json) =>
+      _$AIQuestionDataMetadataFromJson(json);
 
   AIQuestionDataMetadata({
     this.suggestedQuestions,
   });
+  @JsonKey(name: 'SuggestedQuestion')
+  final List<String>? suggestedQuestions;
 
-  factory AIQuestionDataMetadata.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey('SuggestedQuestion')) {
-      return AIQuestionDataMetadata(
-        suggestedQuestions: List<String>.from(json['SuggestedQuestion']),
-      );
-    }
-    return AIQuestionDataMetadata();
-  }
-
-  Map<String, dynamic> toJson() {
-    if (suggestedQuestions != null) {
-      return {
-        'SuggestedQuestion': suggestedQuestions,
-      };
-    }
-    return {};
-  }
+  Map<String, dynamic> toJson() => _$AIQuestionDataMetadataToJson(this);
 }

@@ -151,6 +151,9 @@ class ChatAIMessageWidget extends StatelessWidget {
                         .tr(),
                   );
                 },
+                onAIQuestionData: (questionData) {
+                  return AIQuestionDataWidget(questionData: questionData);
+                },
               ),
             ),
           );
@@ -249,6 +252,24 @@ class _NonEmptyMessage extends StatelessWidget {
           if (state.sources.isNotEmpty && !isLastMessage) const VSpace(8.0),
         ],
       ),
+    );
+  }
+}
+
+class AIQuestionDataWidget extends StatelessWidget {
+  const AIQuestionDataWidget({
+    super.key,
+    required this.questionData,
+  });
+
+  final AIQuestionData questionData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(questionData.content),
+      ],
     );
   }
 }

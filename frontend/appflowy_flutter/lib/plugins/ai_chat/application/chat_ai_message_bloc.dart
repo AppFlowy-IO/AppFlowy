@@ -117,6 +117,14 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         ),
       );
     });
+
+    on<_OnAIQuestionData>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: MessageState.onAIQuestionData(event.questionData),
+        ),
+      );
+    });
   }
 
   void _initializeStreamListener() {
@@ -137,8 +145,8 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         },
         onLocalAIInitializing: () =>
             _safeAdd(const ChatAIMessageEvent.onLocalAIInitializing()),
-        onSuggestedQuestions: (questions) {
-          // Log.info("Suggested questions: $questions");
+        onAIQuestionData: (data) {
+          _safeAdd(ChatAIMessageEvent.onAIQuestionData(data));
         },
       );
     }
@@ -177,6 +185,9 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
+  const factory ChatAIMessageEvent.onAIQuestionData(
+    AIQuestionData questionData,
+  ) = _OnAIQuestionData;
 }
 
 @freezed
@@ -212,4 +223,6 @@ class MessageState with _$MessageState {
   const factory MessageState.onInitializingLocalAI() = _LocalAIInitializing;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
+  const factory MessageState.onAIQuestionData(AIQuestionData questionData) =
+      _OnAIQuestionData;
 }
