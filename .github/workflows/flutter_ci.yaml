@@ -40,11 +40,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            flutter-profile: development-linux-arm64
+            target: arm64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -128,11 +131,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            flutter-profile: development-linux-arm64
+            target: arm64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -221,11 +227,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            flutter-profile: development-linux-arm64
+            target: arm64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -345,11 +354,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         test_number: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
+          - os: ubuntu-24.04-arm
+            target: "arm64-unknown-linux-gnu"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code
