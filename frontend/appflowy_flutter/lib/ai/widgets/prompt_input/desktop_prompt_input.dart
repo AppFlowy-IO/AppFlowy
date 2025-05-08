@@ -226,13 +226,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   void checkForAskingAI() {
     final paletteBloc = context.read<CommandPaletteBloc?>(),
         paletteState = paletteBloc?.state;
-    final isAskingAI = paletteState?.askAI ?? false;
+    if (paletteBloc == null || paletteState == null) return;
+    final isAskingAI = paletteState.askAI;
     if (!isAskingAI) return;
-    paletteBloc?.add(CommandPaletteEvent.askedAI());
-    final query = paletteState?.query ?? '';
+    paletteBloc.add(CommandPaletteEvent.askedAI());
+    final query = paletteState.query ?? '';
     if (query.isEmpty) return;
-    final sources =
-        (paletteState?.askAISources ?? []).map((e) => e.id).toList();
+    final sources = (paletteState.askAISources ?? []).map((e) => e.id).toList();
     final metadata =
         context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
     final promptState = context.read<AIPromptInputBloc?>()?.state;

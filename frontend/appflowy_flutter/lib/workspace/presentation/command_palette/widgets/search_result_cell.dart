@@ -130,7 +130,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
                           content: title,
                           normal:
                               theme.textStyle.body.standard(color: textColor),
-                          highlight: theme.textStyle.caption
+                          highlight: theme.textStyle.body
                               .standard(color: textColor)
                               .copyWith(
                                 backgroundColor:

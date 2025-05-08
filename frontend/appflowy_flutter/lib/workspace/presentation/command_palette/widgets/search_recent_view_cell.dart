@@ -49,7 +49,7 @@ class SearchRecentViewCell extends StatelessWidget {
               children: [
                 Text(
                   view.nameOrDefault,
-                  style: theme.textStyle.heading4.standard(color: textColor),
+                  style: theme.textStyle.body.standard(color: textColor),
                 ),
                 buildPath(theme),
               ],
