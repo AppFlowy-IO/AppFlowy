@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:appflowy_backend/log.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -134,6 +133,10 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     itemPositionsListener.itemPositions.addListener(() {
       _handleToggleScrollToBottom();
     });
+
+    scrollOffsetListener.changes.listen((event) {
+      debugPrint('scrollOffsetListener: $event');
+    });
   }
 
   @override
@@ -150,13 +153,21 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     final builders = context.watch<Builders>();
     final height = MediaQuery.of(context).size.height;
 
-    return Stack(
+    // A trick to avoid the first message being scrolled to the top
+    int initialScrollIndex = _chatController.messages.length;
+    double initialAlignment = 1.0;
+    if (_chatController.messages.length <= 2) {
+      initialScrollIndex = 0;
+      initialAlignment = 0.0;
+    }
+
+    final Widget child = Stack(
       children: [
         ScrollablePositionedList.builder(
           scrollOffsetController: scrollOffsetController,
           itemScrollController: itemScrollController,
-          initialScrollIndex: _chatController.messages.length,
-          initialAlignment: 1,
+          initialScrollIndex: initialScrollIndex,
+          initialAlignment: initialAlignment,
           scrollOffsetListener: scrollOffsetListener,
           itemPositionsListener: itemPositionsListener,
           physics: ClampingScrollPhysics(),
@@ -165,7 +176,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           itemCount: _chatController.messages.length + 1,
           itemBuilder: (context, index) {
             if (index == _chatController.messages.length) {
-              return VSpace(height - 400);
+              return VSpace(height - 360);
             }
 
             final message = _chatController.messages[index];
@@ -192,6 +203,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             ),
       ],
     );
+
+    return child;
   }
 
   void _scrollLastMessageToTop(Message data) {
@@ -202,7 +215,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
     if (_lastUserMessageIndex != lastUserMessageIndex) {
       // scroll the current message to the top
-      Log.info('scrolling the last message to the top');
       itemScrollController.scrollTo(
         index: lastUserMessageIndex,
         duration: const Duration(milliseconds: 300),
@@ -240,7 +252,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       ..sort((a, b) => a.index.compareTo(b.index));
     final maxItem = sortedItems.last;
 
-    if (maxItem.index >= _chatController.messages.length - 1) {
+    debugPrint('maxItem: $maxItem');
+
+    if (maxItem.index > _chatController.messages.length - 1 ||
+        (maxItem.index == _chatController.messages.length - 1 &&
+            maxItem.itemTrailingEdge <= 1.01)) {
       _scrollToBottomShowTimer?.cancel();
       _scrollToBottomController.reverse();
       return;
