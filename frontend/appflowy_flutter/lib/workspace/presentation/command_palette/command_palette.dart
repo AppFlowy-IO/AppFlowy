@@ -166,9 +166,9 @@ class CommandPaletteModal extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
 
     return BlocListener<CommandPaletteBloc, CommandPaletteState>(
-      listener: (context, state) {
+      listener: (_, state) {
         if (state.askAI && context.mounted) {
-          FlowyOverlay.pop(context);
+          if (Navigator.canPop(context)) FlowyOverlay.pop(context);
           final currentWorkspace = workspaceState?.workspaces;
           final spaceBloc = context.read<SpaceBloc?>();
           if (currentWorkspace != null && spaceBloc != null) {

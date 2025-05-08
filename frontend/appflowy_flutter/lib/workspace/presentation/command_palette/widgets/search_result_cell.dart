@@ -20,6 +20,7 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -296,17 +297,20 @@ class SearchResultPreview extends StatelessWidget {
             ),
           ),
           HSpace(4),
-          AFGhostButton.normal(
-            size: AFButtonSize.s,
-            padding: EdgeInsets.all(theme.spacing.xs),
-            onTap: () {
-              context.read<SearchResultListBloc?>()?.add(
-                    SearchResultListEvent.openPage(pageId: view.id),
-                  );
-            },
-            builder: (context, isHovering, disabled) => FlowySvg(
-              FlowySvgs.search_arrow_right_m,
-              size: const Size.square(20),
+          FlowyTooltip(
+            message: LocaleKeys.settings_files_open.tr(),
+            child: AFGhostButton.normal(
+              size: AFButtonSize.s,
+              padding: EdgeInsets.all(theme.spacing.xs),
+              onTap: () {
+                context.read<SearchResultListBloc?>()?.add(
+                      SearchResultListEvent.openPage(pageId: view.id),
+                    );
+              },
+              builder: (context, isHovering, disabled) => FlowySvg(
+                FlowySvgs.search_arrow_right_m,
+                size: const Size.square(20),
+              ),
             ),
           ),
         ],

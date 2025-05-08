@@ -228,6 +228,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
         paletteState = paletteBloc?.state;
     final isAskingAI = paletteState?.askAI ?? false;
     if (!isAskingAI) return;
+    paletteBloc?.add(CommandPaletteEvent.askedAI());
     final query = paletteState?.query ?? '';
     if (query.isEmpty) return;
     final sources =
@@ -240,7 +241,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       widget.onUpdateSelectedSources(sources);
     }
     widget.onSubmitted.call(query, predefinedFormat, metadata);
-    paletteBloc?.add(CommandPaletteEvent.askedAI());
   }
 
   void startMentionPageFromButton() {
