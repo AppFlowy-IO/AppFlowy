@@ -66,8 +66,6 @@ extension ViewAncestorTextExtension on ViewAncestorState {
       builder: (context, constrains) {
         final List<String> displayPath = ancestors.map((e) => e.name).toList();
         if (displayPath.isEmpty) return const SizedBox.shrink();
-        final style = theme.textStyle.caption
-            .standard(color: theme.textColorScheme.tertiary);
         TextPainter textPainter =
             _buildTextPainter(displayPath.join(' / '), textStyle);
         textPainter.layout(maxWidth: constrains.maxWidth);
@@ -84,7 +82,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         }
         return Text(
           displayPath.join(' / '),
-          style: style,
+          style: textStyle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         );

@@ -175,6 +175,7 @@ class _AIOverview extends StatelessWidget {
                       FlowySvgs.chat_ai_page_s,
                       size: Size.square(20),
                       blendMode: null,
+                      color: theme.iconColorScheme.primary,
                     ),
                     HSpace(8),
                     Text(
