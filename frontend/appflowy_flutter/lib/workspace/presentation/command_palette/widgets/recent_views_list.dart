@@ -57,7 +57,11 @@ class RecentViewsList extends StatelessWidget {
                             emojiSize: 16.0,
                             lineHeight: 20 / 16,
                           )
-                        : FlowySvg(view.iconData, size: const Size.square(20));
+                        : FlowySvg(
+                            view.iconData,
+                            size: const Size.square(20),
+                            color: theme.iconColorScheme.secondary,
+                          );
 
                     return SearchRecentViewCell(
                       icon: SizedBox.square(

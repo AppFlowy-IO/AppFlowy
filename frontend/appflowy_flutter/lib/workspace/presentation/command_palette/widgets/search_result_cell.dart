@@ -153,11 +153,11 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   Widget buildIcon(AppFlowyThemeData theme) {
     final icon = item.icon;
+    final color = theme.iconColorScheme.secondary;
     if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 20) ?? SizedBox.shrink();
+      return icon.getIcon(size: 20, iconColor: color) ?? SizedBox.shrink();
     } else {
-      return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
-          SizedBox.shrink();
+      return icon.getIcon(size: 20, iconColor: color) ?? SizedBox.shrink();
     }
   }
 
@@ -277,7 +277,11 @@ class SearchResultPreview extends StatelessWidget {
             emojiSize: 20.0,
             lineHeight: 1,
           )
-        : FlowySvg(view.iconData, size: const Size.square(20));
+        : FlowySvg(
+            view.iconData,
+            size: const Size.square(20),
+            color: theme.iconColorScheme.secondary,
+          );
   }
 
   Widget buildTitle(BuildContext context, ViewPB view) {
