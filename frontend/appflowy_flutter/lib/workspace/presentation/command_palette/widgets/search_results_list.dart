@@ -50,7 +50,6 @@ class _SearchResultListState extends State<SearchResultList> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return BlocProvider.value(
       value: bloc,
       child: BlocListener<SearchResultListBloc, SearchResultListState>(
@@ -72,10 +71,7 @@ class _SearchResultListState extends State<SearchResultList> {
               children: [
                 Flexible(flex: 2, child: _buildResultsSection(context)),
                 if (showPreview) ...[
-                  VerticalDivider(
-                    width: 1,
-                    color: theme.borderColorScheme.primary,
-                  ),
+                  AFDivider(axis: Axis.vertical),
                   Flexible(child: const SearchCellPreview()),
                 ],
               ],
@@ -109,7 +105,6 @@ class _SearchResultListState extends State<SearchResultList> {
     final resultItems = widget.resultItems
         .where((item) => !trashIds.contains(item.id))
         .toList();
-    final theme = AppFlowyTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,10 +123,7 @@ class _SearchResultListState extends State<SearchResultList> {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: resultItems.length,
-                    separatorBuilder: (_, __) => Divider(
-                      height: 1,
-                      color: theme.borderColorScheme.primary,
-                    ),
+                    separatorBuilder: (_, __) => AFDivider(),
                     itemBuilder: (_, index) {
                       final item = resultItems[index];
                       return SearchResultCell(

@@ -163,8 +163,6 @@ class CommandPaletteModal extends StatelessWidget {
     final workspaceState = context.read<UserWorkspaceBloc?>()?.state;
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
-    final theme = AppFlowyTheme.of(context);
-
     return BlocListener<CommandPaletteBloc, CommandPaletteState>(
       listener: (_, state) {
         if (state.askAI && context.mounted) {
@@ -201,15 +199,11 @@ class CommandPaletteModal extends StatelessWidget {
                 children: [
                   SearchField(query: state.query, isLoading: state.searching),
                   if (showAskingAI && noQuery) ...[
-                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    AFDivider(),
                     SearchAskAiEntrance(),
                   ],
                   if (noQuery) ...[
-                    if (!showAskingAI)
-                      Divider(
-                        height: 1,
-                        color: theme.borderColorScheme.primary,
-                      ),
+                    if (!showAskingAI) AFDivider(),
                     Flexible(
                       child: RecentViewsList(
                         onSelected: () => FlowyOverlay.pop(context),
@@ -217,7 +211,7 @@ class CommandPaletteModal extends StatelessWidget {
                     ),
                   ],
                   if (state.combinedResponseItems.isNotEmpty && !noQuery) ...[
-                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    AFDivider(),
                     Flexible(
                       child: SearchResultList(
                         trash: state.trash,
@@ -230,7 +224,7 @@ class CommandPaletteModal extends StatelessWidget {
                   // When there are no results and the query is not empty and not loading,
                   // show the no results message, centered in the available space.
                   else if (!noQuery && !state.searching) ...[
-                    Divider(height: 1, color: theme.borderColorScheme.primary),
+                    AFDivider(),
                     if (showAskingAI) SearchAskAiEntrance(),
                     Expanded(
                       child: const NoSearchResultsHint(),

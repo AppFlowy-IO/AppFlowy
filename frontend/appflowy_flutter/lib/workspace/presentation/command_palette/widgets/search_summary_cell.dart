@@ -368,10 +368,7 @@ class ReferenceSources extends StatelessWidget {
                   ),
                 );
               },
-              separatorBuilder: (context, index) => Divider(
-                height: 1,
-                color: theme.borderColorScheme.primary,
-              ),
+              separatorBuilder: (context, index) => AFDivider(),
               itemCount: sources.length,
             ),
           ],
