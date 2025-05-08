@@ -275,6 +275,7 @@ class AIQuestionDataWidget extends StatelessWidget {
       message: message,
       showActions: false,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AIMarkdownText(
             markdown: questionData.content,
