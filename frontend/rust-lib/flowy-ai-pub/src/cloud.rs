@@ -123,7 +123,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError>;
 
   async fn get_answer(

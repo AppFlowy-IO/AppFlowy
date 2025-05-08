@@ -1,7 +1,9 @@
 mod conversation_chain;
+mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
 pub mod related_question_chain;
+mod summary_memory;
 
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
@@ -31,6 +33,14 @@ use tracing::trace;
 use uuid::Uuid;
 
 type OllamaClientRef = Arc<RwLock<Option<Weak<Ollama>>>>;
+
+pub struct LLMChatInfo {
+  pub chat_id: Uuid,
+  pub workspace_id: Uuid,
+  pub model: String,
+  pub rag_ids: Vec<String>,
+  pub summary: String,
+}
 
 pub struct LLMChatController {
   chat_by_id: DashMap<Uuid, LLMChat>,
@@ -63,23 +73,23 @@ impl LLMChatController {
     *self.store.write().await = Some(store);
   }
 
-  pub async fn open_chat(
-    &self,
-    workspace_id: &Uuid,
-    chat_id: &Uuid,
-    model: &str,
-  ) -> FlowyResult<()> {
+  pub async fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+    if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
+      chat.set_rag_ids(rag_ids.to_vec()).await;
+    }
+  }
+
+  pub async fn open_chat(&self, info: LLMChatInfo) -> FlowyResult<()> {
     let store = self.store.read().await.clone();
+    let chat_id = info.chat_id;
     let chat = LLMChat::new(
-      *workspace_id,
-      *chat_id,
-      model,
+      info,
       self.client.clone(),
       store,
-      vec![],
+      Some(self.user_service.clone()),
     )
     .await?;
-    self.chat_by_id.insert(*chat_id, chat);
+    self.chat_by_id.insert(chat_id, chat);
     Ok(())
   }
 
@@ -208,8 +218,11 @@ impl LLMChatController {
     chat_id: &Uuid,
     question: &str,
     format: ResponseFormat,
+    model_name: &str,
   ) -> FlowyResult<StreamAnswer> {
     if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
+      chat.set_chat_model(model_name);
+
       let response = chat.stream_question(question, format).await;
       return response;
     }

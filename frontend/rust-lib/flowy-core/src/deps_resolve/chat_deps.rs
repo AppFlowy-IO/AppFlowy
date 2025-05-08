@@ -108,7 +108,7 @@ impl AIExternalService for ChatQueryServiceImpl {
           )?;
 
           if !is_change_since_sv(&collab, &prev_sv) {
-            info!("[Chat] no change since sv: {}", rag_id);
+            info!("[Embedding] skip full sync {}, no changes", rag_id);
             continue;
           }
         }
@@ -121,6 +121,7 @@ impl AIExternalService for ChatQueryServiceImpl {
         encoded_collab: query_collab.encoded_collab.clone(),
       };
 
+      info!("[Embedding] full sync rag document: {}", params.object_id);
       if let Err(err) = self
         .folder_cloud_service
         .full_sync_collab_object(workspace_id, params)
@@ -128,7 +129,6 @@ impl AIExternalService for ChatQueryServiceImpl {
       {
         error!("Failed to sync rag document: {} error: {}", rag_id, err);
       } else {
-        info!("[Chat] full sync rag document: {}", rag_id);
         result.push(AFCollabMetadata {
           object_id: rag_id.to_string(),
           updated_at: timestamp(),

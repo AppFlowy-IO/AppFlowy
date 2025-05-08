@@ -1,22 +1,22 @@
 use crate::folder_view_observer::FolderViewObserverImpl;
 use crate::full_indexed_data_provider::FullIndexedDataConsumer;
-use collab_entity::{CollabObject, CollabType};
+use collab_entity::CollabType;
 use collab_folder::folder_diff::FolderViewChange;
-use collab_folder::{IconType, ViewIcon};
+use collab_folder::{IconType, View, ViewIcon};
 use collab_integrate::instant_indexed_data_provider::InstantIndexedDataConsumer;
 use dashmap::DashMap;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
-use flowy_search::document::local_search_handler::DocumentTantivyState;
 use flowy_search_pub::entities::FolderViewObserver;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_search_pub::tantivy_state_init::get_or_init_document_tantivy_state;
 use flowy_server::af_cloud::define::LoggedUser;
 use lib_infra::async_trait::async_trait;
-use once_cell::sync::Lazy;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::{error, info, trace};
+use tracing::{error, trace};
 use uuid::Uuid;
 
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
@@ -45,7 +45,7 @@ impl FullIndexedDataConsumer for EmbeddingFullIndexConsumer {
 }
 
 pub struct EmbeddingsInstantConsumerImpl {
-  consume_history: DashMap<String, String>,
+  consume_history: DashMap<Uuid, String>,
 }
 
 impl EmbeddingsInstantConsumerImpl {
@@ -64,41 +64,39 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
 
   async fn consume_collab(
     &self,
-    collab_object: &CollabObject,
+    workspace_id: &Uuid,
     data: UnindexedData,
+    object_id: &Uuid,
+    collab_type: CollabType,
   ) -> Result<bool, FlowyError> {
     if data.is_empty() {
       return Ok(false);
     }
 
     let content_hash = data.content_hash();
-    if let Some(entry) = self.consume_history.get(&collab_object.object_id) {
+    if let Some(entry) = self.consume_history.get(object_id) {
       if entry.value() == &content_hash {
         trace!(
-          "[Indexing] {} instant embedding already indexed, skipping",
-          collab_object.object_id
+          "[Indexing] {} instant embedding already indexed, hash:{}, skipping",
+          object_id,
+          content_hash,
         );
         return Ok(false);
       }
     }
 
-    self
-      .consume_history
-      .insert(collab_object.object_id.clone(), content_hash);
+    self.consume_history.insert(*object_id, content_hash);
 
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
       use flowy_ai::embeddings::context::EmbedContext;
       if let Ok(scheduler) = EmbedContext::shared().get_scheduler() {
         let unindex_collab = UnindexedCollab {
-          workspace_id: Uuid::parse_str(&collab_object.workspace_id)?,
-          object_id: Uuid::parse_str(&collab_object.object_id)?,
-          collab_type: collab_object.collab_type,
+          workspace_id: *workspace_id,
+          object_id: *object_id,
+          collab_type,
           data,
-          metadata: UnindexedCollabMetadata {
-            name: "".to_string(),
-            icon: None,
-          },
+          metadata: UnindexedCollabMetadata::default(),
         };
 
         if let Err(err) = scheduler.index_collab(unindex_collab).await {
@@ -128,48 +126,7 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
     Ok(())
   }
 }
-/// Global map: workspace_id → a *weak* handle to its index state.
-type DocIndexMap = DashMap<Uuid, Arc<RwLock<DocumentTantivyState>>>;
-static SEARCH_INDEX: Lazy<DocIndexMap> = Lazy::new(DocIndexMap::new);
 
-/// Returns a strong handle, creating it if needed.
-pub(crate) fn get_or_init_document_tantivy_state(
-  workspace_id: Uuid,
-  data_path: PathBuf,
-) -> FlowyResult<Arc<RwLock<DocumentTantivyState>>> {
-  Ok(
-    SEARCH_INDEX
-      .entry(workspace_id)
-      .or_try_insert_with(|| {
-        info!(
-          "[Indexing] Creating new tantivy state for workspace: {}",
-          workspace_id
-        );
-        let state = DocumentTantivyState::new(&workspace_id, data_path.clone())?;
-        let arc_state = Arc::new(RwLock::new(state));
-        Ok::<_, FlowyError>(arc_state)
-      })?
-      .clone(),
-  )
-}
-
-pub(crate) fn close_document_tantivy_state(workspace_id: &Uuid) {
-  if SEARCH_INDEX.remove(workspace_id).is_some() {
-    info!(
-      "[Indexing] close tantivy state for workspace: {}",
-      workspace_id
-    );
-  }
-}
-
-pub fn get_document_tantivy_state(
-  workspace_id: &Uuid,
-) -> Option<Weak<RwLock<DocumentTantivyState>>> {
-  if let Some(existing) = SEARCH_INDEX.get(workspace_id) {
-    return Some(Arc::downgrade(existing.value()));
-  }
-  None
-}
 /// -----------------------------------------------------
 /// Full‐index consumer holds only a Weak reference:
 /// -----------------------------------------------------
@@ -225,7 +182,7 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
 pub struct SearchInstantIndexImpl {
   workspace_id: Uuid,
   state: Weak<RwLock<DocumentTantivyState>>,
-  consume_history: DashMap<String, String>,
+  consume_history: DashMap<Uuid, String>,
   folder_manager: Weak<FolderManager>,
   #[allow(dead_code)]
   // bind the folder_observer lifetime to the SearchInstantIndexImpl
@@ -278,7 +235,7 @@ impl SearchInstantIndexImpl {
       if let (Some(folder_manager), Some(state)) = (folder_manager.upgrade(), weak_state.upgrade())
       {
         if let Ok(changes) = folder_manager.consumer_recent_workspace_changes().await {
-          let views = folder_manager.get_all_views().await?;
+          let views = index_views_from_folder(&folder_manager).await?;
           let views_map: std::collections::HashMap<String, _> = views
             .into_iter()
             .map(|view| (view.id.clone(), view))
@@ -290,7 +247,7 @@ impl SearchInstantIndexImpl {
                 if let Some(view) = views_map.get(&view_id) {
                   let _ = state.write().await.add_document_metadata(
                     &view.id,
-                    view.name.clone(),
+                    Some(view.name.clone()),
                     view.icon.clone().map(|v| ViewIcon {
                       ty: IconType::from(v.ty as u8),
                       value: v.value,
@@ -324,10 +281,12 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
 
   async fn consume_collab(
     &self,
-    collab_object: &CollabObject,
+    workspace_id: &Uuid,
     data: UnindexedData,
+    object_id: &Uuid,
+    _collab_type: CollabType,
   ) -> Result<bool, FlowyError> {
-    if self.workspace_id.to_string() != collab_object.workspace_id {
+    if self.workspace_id != *workspace_id {
       return Ok(false);
     }
 
@@ -340,7 +299,7 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
       .folder_manager
       .upgrade()
       .ok_or_else(FlowyError::ref_drop)?;
-    let view = folder_manager.get_view(&collab_object.object_id).await?;
+    let view = folder_manager.get_view(&object_id.to_string()).await?;
 
     // Create a combined hash that includes content + view name + icon
     let content_hash = data.content_hash();
@@ -351,20 +310,26 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
       name_hash
     };
 
-    if let Some(entry) = self.consume_history.get(&collab_object.object_id) {
+    if let Some(entry) = self.consume_history.get(object_id) {
+      if entry.value() == &content_hash {
+        trace!(
+          "[Indexing] {} instant search already indexed, hash:{}, skipping",
+          object_id,
+          content_hash,
+        );
+        return Ok(false);
+      }
+
       if entry.value() == &combined_hash {
         return Ok(false);
       }
     }
 
-    self
-      .consume_history
-      .insert(collab_object.object_id.clone(), combined_hash);
-
+    self.consume_history.insert(*object_id, combined_hash);
     state.write().await.add_document(
-      &collab_object.object_id,
+      &object_id.to_string(),
       data.into_string(),
-      view.name.clone(),
+      Some(view.name.clone()),
       view.icon.clone().map(|v| ViewIcon {
         ty: IconType::from(v.ty as u8),
         value: v.value,
@@ -388,4 +353,17 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
       .delete_document(&object_id.to_string())?;
     Ok(())
   }
+}
+
+pub(crate) async fn index_views_from_folder(
+  folder_manager: &FolderManager,
+) -> FlowyResult<Vec<Arc<View>>> {
+  Ok(
+    folder_manager
+      .get_all_views()
+      .await?
+      .into_iter()
+      .filter(|v| v.space_info().is_none() && v.layout.is_document())
+      .collect::<Vec<_>>(),
+  )
 }

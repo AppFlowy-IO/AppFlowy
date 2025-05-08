@@ -688,7 +688,7 @@ impl ChatCloudService for ServerProvider {
     chat_id: &Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
     let server = self.get_server()?;
     server
@@ -840,7 +840,7 @@ impl SearchCloudService for ServerProvider {
     query: String,
   ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
     let server = self.get_server()?;
-    match server.search_service() {
+    match server.search_service().await {
       Some(search_service) => search_service.document_search(workspace_id, query).await,
       None => Err(FlowyError::internal().with_context("SearchCloudService not found")),
     }
@@ -853,7 +853,7 @@ impl SearchCloudService for ServerProvider {
     search_results: Vec<SearchResult>,
   ) -> Result<SearchSummaryResult, FlowyError> {
     let server = self.get_server()?;
-    match server.search_service() {
+    match server.search_service().await {
       Some(search_service) => {
         search_service
           .generate_search_summary(workspace_id, query, search_results)

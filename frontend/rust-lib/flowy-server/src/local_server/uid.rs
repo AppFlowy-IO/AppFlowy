@@ -7,15 +7,15 @@ const NODE_ID_SHIFT: u64 = SEQUENCE_BITS;
 const TIMESTAMP_SHIFT: u64 = NODE_ID_BITS + SEQUENCE_BITS;
 const SEQUENCE_MASK: u64 = (1 << SEQUENCE_BITS) - 1;
 
-pub struct UserIDGenerator {
+pub struct IDGenerator {
   node_id: u64,
   sequence: u64,
   last_timestamp: u64,
 }
 
-impl UserIDGenerator {
-  pub fn new(node_id: u64) -> UserIDGenerator {
-    UserIDGenerator {
+impl IDGenerator {
+  pub fn new(node_id: u64) -> IDGenerator {
+    IDGenerator {
       node_id,
       sequence: 0,
       last_timestamp: 0,

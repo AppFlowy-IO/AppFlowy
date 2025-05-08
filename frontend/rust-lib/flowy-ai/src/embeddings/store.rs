@@ -3,9 +3,10 @@ use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
 use crate::embeddings::indexer::{EmbeddingModel, IndexerProvider};
 use async_trait::async_trait;
 use flowy_ai_pub::cloud::CollabType;
-use flowy_ai_pub::entities::SOURCE_ID;
-use flowy_error::FlowyError;
+use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite_vec::db::VectorSqliteDB;
+use flowy_sqlite_vec::entities::SqliteEmbeddedDocument;
 use futures::stream::{self, StreamExt};
 use langchain_rust::llm::client::OllamaClient;
 use langchain_rust::{
@@ -17,7 +18,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::error::Error;
 use std::sync::{Arc, Weak};
-use tracing::{error, trace};
+use tracing::{error, trace, warn};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -44,6 +45,25 @@ impl SqliteVectorStore {
 
     let embedder = Embedder::Ollama(OllamaEmbedder { ollama });
     Ok(embedder)
+  }
+
+  pub(crate) async fn select_all_embedded_documents(
+    &self,
+    workspace_id: &str,
+    rag_ids: &[String],
+  ) -> FlowyResult<Vec<SqliteEmbeddedDocument>> {
+    // Get the vector database
+    let vector_db = match self.vector_db.upgrade() {
+      Some(db) => db,
+      None => return Err(FlowyError::internal().with_context("Vector database not initialized")),
+    };
+
+    vector_db
+      .select_all_embedded_documents(workspace_id, rag_ids)
+      .await
+      .map_err(|err| {
+        FlowyError::internal().with_context(format!("Failed to select embedded documents: {}", err))
+      })
   }
 }
 
@@ -156,7 +176,7 @@ impl VectorStore for SqliteVectorStore {
     let rag_ids = opt
       .filters
       .as_ref()
-      .and_then(|filters| filters.get("rag_ids"))
+      .and_then(|filters| filters.get(RAG_IDS))
       .and_then(|value| value.as_array())
       .map(|array| {
         array
@@ -177,7 +197,10 @@ impl VectorStore for SqliteVectorStore {
     // Return empty result if workspace_id is missing
     let workspace_id = match workspace_id {
       Some(id) => id.to_string(),
-      None => return Ok(Vec::new()),
+      None => {
+        warn!("[VectorStore] Missing workspace_id in filters. Returning empty result.");
+        return Ok(Vec::new());
+      },
     };
 
     // Get the vector database
@@ -203,13 +226,14 @@ impl VectorStore for SqliteVectorStore {
     }
 
     let score_threshold = opt.score_threshold.unwrap_or(0.4);
+    debug_assert!(embedding.len() == 1);
     let query_embedding = embedding.first().unwrap();
 
     // Perform similarity search in the database
     let results = vector_db
       .search_with_score(
         &workspace_id,
-        rag_ids,
+        &rag_ids,
         query_embedding,
         limit as i32,
         score_threshold,
@@ -217,9 +241,11 @@ impl VectorStore for SqliteVectorStore {
       .await?;
 
     trace!(
-      "[VectorStore] Found {} results for query: {}",
+      "[VectorStore] Found {} results for query:{}, rag_ids: {:?}, score_threshold: {}",
       results.len(),
-      query
+      query,
+      rag_ids,
+      score_threshold
     );
 
     // Convert results to Documents

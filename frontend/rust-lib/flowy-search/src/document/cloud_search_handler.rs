@@ -74,7 +74,7 @@ impl SearchHandler for DocumentCloudSearchHandler {
           return;
         }
       };
-      trace!("[Search] search result: {:?}", result_items);
+      trace!("[Search] ai search result: {:?}", result_items);
 
       // Prepare input for search summary generation.
       let summary_input: Vec<SearchResult> = result_items

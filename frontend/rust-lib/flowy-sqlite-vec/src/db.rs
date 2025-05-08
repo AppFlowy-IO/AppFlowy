@@ -1,4 +1,4 @@
-use crate::entities::PendingIndexedCollab;
+use crate::entities::{PendingIndexedCollab, SqliteEmbeddedDocument, SqliteEmbeddedFragment};
 use crate::init_sqlite_vector_extension;
 use crate::migration::init_sqlite_with_migrations;
 use anyhow::{Context, Result};
@@ -9,6 +9,7 @@ use rusqlite::{params, ToSql};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
+use tracing::{trace, warn};
 use uuid::Uuid;
 use zerocopy::IntoBytes;
 
@@ -108,6 +109,91 @@ impl VectorSqliteDB {
     Ok(())
   }
 
+  pub async fn select_all_embedded_documents(
+    &self,
+    workspace_id: &str,
+    rag_ids: &[String],
+  ) -> Result<Vec<SqliteEmbeddedDocument>> {
+    let conn = self
+      .pool
+      .get()
+      .context("Failed to get connection from pool")?;
+
+    // Build SQL query based on whether rag_ids are provided
+    let (sql, params) = if rag_ids.is_empty() {
+      // No rag_ids provided, select all documents for workspace
+      let sql = "SELECT object_id, content, embedding 
+                FROM af_collab_embeddings 
+                WHERE workspace_id = ?";
+      let params: Vec<&dyn ToSql> = vec![&workspace_id];
+      (sql.to_string(), params)
+    } else {
+      // Filter by provided rag_ids
+      let placeholders = std::iter::repeat("?")
+        .take(rag_ids.len())
+        .collect::<Vec<_>>()
+        .join(", ");
+
+      let sql = format!(
+        "SELECT object_id, content, embedding 
+         FROM af_collab_embeddings 
+         WHERE workspace_id = ? AND object_id IN ({})",
+        placeholders
+      );
+
+      let mut params: Vec<&dyn ToSql> = vec![&workspace_id];
+      params.extend(rag_ids.iter().map(|id| id as &dyn ToSql));
+      (sql, params)
+    };
+
+    let mut stmt = conn.prepare(&sql)?;
+    let mut rows = stmt.query(params.as_slice())?;
+
+    // Group results by object_id
+    let mut documents_map: HashMap<String, Vec<SqliteEmbeddedFragment>> = HashMap::new();
+
+    while let Some(row) = rows.next()? {
+      let object_id: String = row.get(0)?;
+      let content: String = row.get(1)?;
+
+      // Convert embedding blob to Vec<f32>
+      let embedding_blob: Vec<u8> = row.get(2)?;
+      let embeddings = if !embedding_blob.is_empty() {
+        // Convert bytes to Vec<f32> - each f32 is 4 bytes
+        let mut vec = Vec::with_capacity(embedding_blob.len() / 4);
+        for chunk in embedding_blob.chunks_exact(4) {
+          if let Ok(array) = chunk.try_into() {
+            vec.push(f32::from_le_bytes(array));
+          }
+        }
+        vec
+      } else {
+        Vec::new()
+      };
+
+      // Add fragment to the corresponding object_id
+      documents_map
+        .entry(object_id)
+        .or_default()
+        .push(SqliteEmbeddedFragment {
+          content,
+          embeddings,
+        });
+    }
+
+    // Convert the map to the required Vec<SqliteEmbeddedDocument>
+    let documents = documents_map
+      .into_iter()
+      .map(|(object_id, fragments)| SqliteEmbeddedDocument {
+        workspace_id: workspace_id.to_string(),
+        object_id,
+        fragments,
+      })
+      .collect();
+
+    Ok(documents)
+  }
+
   /// Inserts or replaces all of `fragments` for the given (workspace_id, object_id),
   /// deleting anything else in that scope first, and storing the new vector blobs.
   pub async fn upsert_collabs_embeddings(
@@ -119,6 +205,13 @@ impl VectorSqliteDB {
     if fragments.is_empty() {
       return Ok(());
     }
+
+    trace!(
+      "[VectorStore] workspace:{} upserting {} fragments for {}",
+      workspace_id,
+      fragments.len(),
+      object_id
+    );
 
     let mut conn = self
       .pool
@@ -139,6 +232,7 @@ impl VectorSqliteDB {
     let existing_ids: HashSet<String> = stmt
       .query_map(params![workspace_id, object_id], |row| row.get(0))?
       .collect::<Result<_, _>>()?;
+    drop(stmt);
 
     // 3) Compute which to delete (existing − new)
     let to_delete: Vec<&str> = existing_ids
@@ -154,6 +248,11 @@ impl VectorSqliteDB {
 
     // 4) Delete stale fragments (if any)
     if !to_delete.is_empty() {
+      trace!(
+        "[VectorStore] Deleting {} {} stale fragments",
+        object_id,
+        to_delete.len()
+      );
       let placeholders = std::iter::repeat("?")
         .take(to_delete.len())
         .collect::<Vec<_>>()
@@ -180,6 +279,15 @@ impl VectorSqliteDB {
       .collect();
 
     if !to_insert.is_empty() {
+      trace!(
+        "[VectorStore] Inserting {} {} new fragments. ids: {:?}",
+        object_id,
+        to_insert.len(),
+        to_insert
+          .iter()
+          .map(|f| f.fragment_id.as_str())
+          .collect::<Vec<_>>()
+      );
       let mut insert = tx.prepare(
         "INSERT INTO af_collab_embeddings
                (workspace_id, object_id, fragment_id,
@@ -211,9 +319,7 @@ impl VectorSqliteDB {
           ])
           .context("Inserting new fragment")?;
       }
-      drop(insert);
     }
-    drop(stmt);
 
     tx.commit().context("Committing transaction")?;
     Ok(())
@@ -222,7 +328,7 @@ impl VectorSqliteDB {
   pub async fn search(
     &self,
     workspace_id: &str,
-    object_ids: Vec<String>,
+    object_ids: &[String],
     query: &[f32],
     top_k: i32,
   ) -> Result<Vec<SearchResult>> {
@@ -234,7 +340,7 @@ impl VectorSqliteDB {
   pub async fn search_with_score(
     &self,
     workspace_id: &str,
-    object_ids: Vec<String>,
+    object_ids: &[String],
     query: &[f32],
     top_k: i32,
     min_score: f32,
@@ -259,6 +365,11 @@ impl VectorSqliteDB {
     top_k: i32,
     min_score: f32,
   ) -> Result<Vec<SearchResult>> {
+    trace!(
+      "[VectorStore] Searching workspace:{} score:{}",
+      workspace_id,
+      min_score
+    );
     // distance = 1 - score, so we only want distance <= max_distance
     let max_distance = 1.0 - min_score;
     let query_blob = query.as_bytes();
@@ -298,11 +409,17 @@ impl VectorSqliteDB {
   async fn search_with_object_ids(
     &self,
     workspace_id: &str,
-    object_ids: Vec<String>,
+    object_ids: &[String],
     query: &[f32],
     top_k: i32,
     min_score: f32,
   ) -> Result<Vec<SearchResult>> {
+    trace!(
+      "[VectorStore] Searching workspace:{} with object_ids: {:?}, score:{}",
+      workspace_id,
+      object_ids,
+      min_score
+    );
     // distance = 1 - score, so we only want distance <= max_distance
     let max_distance = 1.0 - min_score;
     let query_blob = query.as_bytes();
@@ -343,12 +460,7 @@ impl VectorSqliteDB {
     query_params.push(&query_blob as &dyn ToSql);
     query_params.push(&top_k as &dyn ToSql);
     query_params.push(&workspace_id as &dyn ToSql);
-
-    // Add each object_id as an individual parameter
-    for oid in &object_ids {
-      query_params.push(oid as &dyn ToSql);
-    }
-
+    query_params.extend(object_ids.iter().map(|oid| oid as &dyn ToSql));
     query_params.push(&max_distance as &dyn ToSql);
     let mut rows = stmt.query(query_params.as_slice())?;
     self.process_search_results(&mut rows)
@@ -361,14 +473,21 @@ impl VectorSqliteDB {
       let oid_str: String = row.get(0)?;
       let oid = match Uuid::parse_str(&oid_str) {
         Ok(u) => u,
-        Err(_) => continue,
+        Err(err) => {
+          warn!("[VectorStore] Invalid UUID `{}` in DB: {}", oid_str, err);
+          continue;
+        },
       };
       let content: String = row.get(1)?;
       let metadata = row
         .get::<_, Option<String>>(2)?
         .and_then(|s| serde_json::from_str::<Value>(&s).ok());
       let score: f32 = row.get(4)?;
-
+      trace!(
+        "[VectorStore] Found {} embedding record, score: {}",
+        oid,
+        score
+      );
       results.push(SearchResult {
         oid,
         content,

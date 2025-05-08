@@ -87,4 +87,11 @@ impl EventIntegrationTest {
       .await
       .parse::<ChatMessageListPB>()
   }
+
+  pub async fn toggle_local_ai(&self) {
+    EventBuilder::new(self.clone())
+      .event(AIEvent::ToggleLocalAI)
+      .async_send()
+      .await;
+  }
 }

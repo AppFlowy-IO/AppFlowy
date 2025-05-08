@@ -2,12 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
+import 'package:appflowy/ai/service/view_selector_cubit.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,18 @@ class PromptInputMobileSelectSourcesButton extends StatefulWidget {
 
 class _PromptInputMobileSelectSourcesButtonState
     extends State<PromptInputMobileSelectSourcesButton> {
-  late final cubit = ChatSettingsCubit();
+  late final cubit = ViewSelectorCubit(
+    maxSelectedParentPageCount: 3,
+    getIgnoreViewType: (view) {
+      if (view.isSpace) {
+        return IgnoreViewType.none;
+      }
+      if (view.layout != ViewLayoutPB.Document) {
+        return IgnoreViewType.hide;
+      }
+      return IgnoreViewType.none;
+    },
+  );
 
   @override
   void initState() {
@@ -91,7 +103,7 @@ class _PromptInputMobileSelectSourcesButtonState
                 ),
                 onTap: () async {
                   context
-                      .read<ChatSettingsCubit>()
+                      .read<ViewSelectorCubit>()
                       .refreshSources(state.spaces, state.currentSpace);
                   await showMobileBottomSheet<void>(
                     context,
@@ -129,7 +141,7 @@ class _PromptInputMobileSelectSourcesButtonState
   }
 }
 
-class _MobileSelectSourcesSheetBody extends StatefulWidget {
+class _MobileSelectSourcesSheetBody extends StatelessWidget {
   const _MobileSelectSourcesSheetBody({
     required this.scrollController,
   });
@@ -137,24 +149,9 @@ class _MobileSelectSourcesSheetBody extends StatefulWidget {
   final ScrollController scrollController;
 
   @override
-  State<_MobileSelectSourcesSheetBody> createState() =>
-      _MobileSelectSourcesSheetBodyState();
-}
-
-class _MobileSelectSourcesSheetBodyState
-    extends State<_MobileSelectSourcesSheetBody> {
-  final textController = TextEditingController();
-
-  @override
-  void dispose() {
-    textController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      controller: widget.scrollController,
+      controller: scrollController,
       shrinkWrap: true,
       slivers: [
         SliverPersistentHeader(
@@ -183,10 +180,9 @@ class _MobileSelectSourcesSheetBodyState
                     child: SizedBox(
                       height: 44.0,
                       child: FlowySearchTextField(
-                        controller: textController,
-                        onChanged: (value) => context
-                            .read<ChatSettingsCubit>()
-                            .updateFilter(value),
+                        controller: context
+                            .read<ViewSelectorCubit>()
+                            .filterTextController,
                       ),
                     ),
                   ),
@@ -196,27 +192,25 @@ class _MobileSelectSourcesSheetBodyState
             ),
           ),
         ),
-        BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+        BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
           builder: (context, state) {
-            final sources = state.visibleSources
-                .where((e) => e.ignoreStatus != IgnoreViewType.hide);
             return SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount: sources.length,
+                childCount: state.visibleSources.length,
                 (context, index) {
-                  final source = sources.elementAt(index);
-                  return ChatSourceTreeItem(
+                  final source = state.visibleSources.elementAt(index);
+                  return ViewSelectorTreeItem(
                     key: ValueKey(
                       'visible_select_sources_tree_item_${source.view.id}',
                     ),
-                    chatSource: source,
+                    viewSelectorItem: source,
                     level: 0,
                     isDescendentOfSpace: source.view.isSpace,
                     isSelectedSection: false,
-                    onSelected: (chatSource) {
+                    onSelected: (item) {
                       context
-                          .read<ChatSettingsCubit>()
-                          .toggleSelectedStatus(chatSource);
+                          .read<ViewSelectorCubit>()
+                          .toggleSelectedStatus(item, false);
                     },
                     height: 40.0,
                   );

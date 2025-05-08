@@ -656,7 +656,7 @@ class _PromptBottomActions extends StatelessWidget {
 
               const Spacer(),
 
-              if (state.modelState.type == AiType.cloud) _selectSourcesButton(),
+              _selectSourcesButton(),
               if (extraBottomActionButton != null) extraBottomActionButton!,
               // _mentionButton(context),
               if (state.supportChatWithFile) _attachmentButton(context),

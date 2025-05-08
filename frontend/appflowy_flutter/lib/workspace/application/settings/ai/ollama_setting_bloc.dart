@@ -150,14 +150,16 @@ class SettingItem extends Equatable {
     required this.content,
     required this.hintText,
     required this.settingType,
+    this.editable = true,
   });
 
   final String content;
   final String hintText;
   final SettingType settingType;
+  final bool editable;
 
   @override
-  List<Object?> get props => [content, settingType];
+  List<Object?> get props => [content, settingType, editable];
 }
 
 /// Items pending submission
@@ -232,6 +234,7 @@ extension on LocalAISettingPB {
           content: embeddingModelName,
           hintText: kDefaultEmbeddingModel,
           settingType: SettingType.embeddingModel,
+          editable: false, // embedding model is not editable
         ),
       ];
 

@@ -99,9 +99,9 @@ where
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
     trace!(
       "stream_answer: workspace_id={}, chat_id={}, format={:?}, model: {:?}",
@@ -116,10 +116,10 @@ where
         workspace_id,
         ChatQuestionQuery {
           chat_id: chat_id.to_string(),
-          question_id: message_id,
+          question_id,
           format,
         },
-        ai_model.map(|v| v.name),
+        Some(ai_model.name),
       )
       .await;
 

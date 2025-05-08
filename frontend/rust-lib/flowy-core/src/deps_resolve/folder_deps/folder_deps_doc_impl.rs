@@ -14,6 +14,7 @@ use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
   FolderOperationHandler, GatherEncodedCollab, ImportedData, ViewData,
 };
+use flowy_search_pub::tantivy_state_init::get_document_tantivy_state;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::async_trait::async_trait;
 use std::convert::TryFrom;
@@ -77,7 +78,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
   }
 
   async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
-    match self.document_manager()?.delete_document(view_id).await {
+    let document_manager = self.document_manager()?;
+    let workspace_id = document_manager.user_service.workspace_id()?;
+    if let Some(state) = get_document_tantivy_state(&workspace_id).and_then(|v| v.upgrade()) {
+      let _ = state.write().await.delete_document(&view_id.to_string());
+    }
+
+    match document_manager.delete_document(view_id).await {
       Ok(_) => tracing::trace!("Delete document: {}", view_id),
       Err(e) => tracing::error!("🔴delete document failed: {}", e),
     }

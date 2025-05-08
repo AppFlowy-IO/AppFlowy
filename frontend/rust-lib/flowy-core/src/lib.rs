@@ -1,7 +1,7 @@
 #![allow(unused_doc_comments)]
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use collab_integrate::instant_indexed_data_provider::InstantIndexedDataProvider;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
@@ -33,7 +33,7 @@ use module::make_plugins;
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
-use crate::full_indexed_data_provider::FullIndexedDataProvider;
+use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::log_filter::init_log;
 use crate::server_layer::ServerProvider;
 use app_life_cycle::AppLifeCycleImpl;
@@ -72,7 +72,7 @@ pub struct AppFlowyCore {
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
-  pub indexed_data_provider: Arc<RwLock<Option<FullIndexedDataProvider>>>,
+  pub full_indexed_data_writer: Arc<RwLock<Option<FullIndexedDataWriter>>>,
 }
 
 impl Drop for AppFlowyCore {
@@ -149,11 +149,17 @@ impl AppFlowyCore {
     ));
 
     debug!("🔥runtime:{}", runtime);
+    let instant_indexed_data_writer = if get_operating_system().is_desktop() {
+      Some(Arc::new(InstantIndexedDataWriter::new()))
+    } else {
+      None
+    };
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
+      instant_indexed_data_writer.as_ref().map(Arc::downgrade),
     ));
 
     event!(tracing::Level::DEBUG, "Init managers",);
@@ -167,7 +173,7 @@ impl AppFlowyCore {
       search_manager,
       ai_manager,
       storage_manager,
-      instant_indexed_data_provider,
+      instant_indexed_data_writer,
     ) = async {
       let storage_manager = FileStorageResolver::resolve(
         Arc::downgrade(&authenticate_user),
@@ -175,17 +181,12 @@ impl AppFlowyCore {
         &user_config.storage_path,
       );
 
-      let instant_indexed_data_provider = if get_operating_system().is_desktop() {
-        Some(Arc::new(InstantIndexedDataProvider::new()))
-      } else {
-        None
-      };
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
         WorkspaceCollabIntegrateImpl(Arc::downgrade(&authenticate_user)),
-        instant_indexed_data_provider.as_ref().map(Arc::downgrade),
+        instant_indexed_data_writer.as_ref().map(Arc::downgrade),
       ));
 
       collab_builder
@@ -262,12 +263,12 @@ impl AppFlowyCore {
         search_manager,
         ai_manager,
         storage_manager,
-        instant_indexed_data_provider,
+        instant_indexed_data_writer,
       )
     }
     .await;
 
-    let indexed_data_provider = Arc::new(RwLock::new(None));
+    let full_indexed_data_writer = Arc::new(RwLock::new(None));
     let (full_indexed_finish_sender, _) = tokio::sync::watch::channel(false);
     let app_life_cycle = AppLifeCycleImpl {
       user_manager: Arc::downgrade(&user_manager),
@@ -279,8 +280,8 @@ impl AppFlowyCore {
       storage_manager: Arc::downgrade(&storage_manager),
       ai_manager: Arc::downgrade(&ai_manager),
       search_manager: Arc::downgrade(&search_manager),
-      instant_indexed_data_provider,
-      full_indexed_data_provider: Arc::downgrade(&indexed_data_provider),
+      instant_indexed_data_writer,
+      full_indexed_data_writer: Arc::downgrade(&full_indexed_data_writer),
       logged_user: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
       full_indexed_finish_sender,
@@ -325,7 +326,7 @@ impl AppFlowyCore {
       ai_manager,
       storage_manager,
       collab_builder,
-      indexed_data_provider,
+      full_indexed_data_writer,
     }
   }
 

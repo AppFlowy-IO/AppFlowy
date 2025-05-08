@@ -6,13 +6,12 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'chat_select_sources_cubit.freezed.dart';
+part 'view_selector_cubit.freezed.dart';
 
-const int _kMaxSelectedParentPageCount = 3;
-
-enum SourceSelectedStatus {
+enum ViewSelectedStatus {
   unselected,
   selected,
   partiallySelected;
@@ -22,45 +21,46 @@ enum SourceSelectedStatus {
   bool get isPartiallySelected => this == partiallySelected;
 }
 
-class ChatSource {
-  ChatSource({
+class ViewSelectorItem {
+  ViewSelectorItem({
     required this.view,
     required this.parentView,
     required this.children,
     required bool isExpanded,
-    required SourceSelectedStatus selectedStatus,
-    required IgnoreViewType ignoreStatus,
+    required ViewSelectedStatus selectedStatus,
+    required bool isDisabled,
   })  : isExpandedNotifier = ValueNotifier(isExpanded),
         selectedStatusNotifier = ValueNotifier(selectedStatus),
-        ignoreStatusNotifier = ValueNotifier(ignoreStatus);
+        isDisabledNotifier = ValueNotifier(isDisabled);
 
   final ViewPB view;
   final ViewPB? parentView;
-  final List<ChatSource> children;
+  final List<ViewSelectorItem> children;
   final ValueNotifier<bool> isExpandedNotifier;
-  final ValueNotifier<SourceSelectedStatus> selectedStatusNotifier;
-  final ValueNotifier<IgnoreViewType> ignoreStatusNotifier;
+  final ValueNotifier<bool> isDisabledNotifier;
+  final ValueNotifier<ViewSelectedStatus> selectedStatusNotifier;
 
   bool get isExpanded => isExpandedNotifier.value;
-  SourceSelectedStatus get selectedStatus => selectedStatusNotifier.value;
-  IgnoreViewType get ignoreStatus => ignoreStatusNotifier.value;
+  ViewSelectedStatus get selectedStatus => selectedStatusNotifier.value;
+  bool get isDisabled => isDisabledNotifier.value;
 
   void toggleIsExpanded() {
-    isExpandedNotifier.value = !isExpanded;
+    isExpandedNotifier.value = !isExpandedNotifier.value;
   }
 
-  ChatSource copy() {
-    return ChatSource(
+  ViewSelectorItem copy() {
+    return ViewSelectorItem(
       view: view,
       parentView: parentView,
-      children: children.map<ChatSource>((child) => child.copy()).toList(),
-      ignoreStatus: ignoreStatus,
-      isExpanded: isExpanded,
-      selectedStatus: selectedStatus,
+      children:
+          children.map<ViewSelectorItem>((child) => child.copy()).toList(),
+      isDisabled: isDisabledNotifier.value,
+      isExpanded: isExpandedNotifier.value,
+      selectedStatus: selectedStatusNotifier.value,
     );
   }
 
-  ChatSource? findChildBySourceId(String sourceId) {
+  ViewSelectorItem? findChildBySourceId(String sourceId) {
     if (view.id == sourceId) {
       return this;
     }
@@ -73,20 +73,11 @@ class ChatSource {
     return null;
   }
 
-  void resetIgnoreViewTypeRecursive() {
-    ignoreStatusNotifier.value = view.layout.isDocumentView
-        ? IgnoreViewType.none
-        : IgnoreViewType.disable;
+  void setIsDisabledRecursive(bool Function(ViewPB) newIsDisabled) {
+    isDisabledNotifier.value = newIsDisabled(view);
 
     for (final child in children) {
-      child.resetIgnoreViewTypeRecursive();
-    }
-  }
-
-  void updateIgnoreViewTypeRecursive(IgnoreViewType newIgnoreViewType) {
-    ignoreStatusNotifier.value = newIgnoreViewType;
-    for (final child in children) {
-      child.updateIgnoreViewTypeRecursive(newIgnoreViewType);
+      child.setIsDisabledRecursive(newIsDisabled);
     }
   }
 
@@ -96,21 +87,25 @@ class ChatSource {
     }
     isExpandedNotifier.dispose();
     selectedStatusNotifier.dispose();
-    ignoreStatusNotifier.dispose();
+    isDisabledNotifier.dispose();
   }
 }
 
-class ChatSettingsCubit extends Cubit<ChatSettingsState> {
-  ChatSettingsCubit({
-    this.hideDisabled = false,
-  }) : super(ChatSettingsState.initial());
+class ViewSelectorCubit extends Cubit<ViewSelectorState> {
+  ViewSelectorCubit({
+    required this.getIgnoreViewType,
+    this.maxSelectedParentPageCount,
+  }) : super(ViewSelectorState.initial()) {
+    filterTextController.addListener(onFilterChanged);
+  }
 
-  final bool hideDisabled;
+  final IgnoreViewType Function(ViewPB) getIgnoreViewType;
+  final int? maxSelectedParentPageCount;
 
   final List<String> selectedSourceIds = [];
-  final List<ChatSource> sources = [];
-  final List<ChatSource> selectedSources = [];
-  String filter = '';
+  final List<ViewSelectorItem> sources = [];
+  final List<ViewSelectorItem> selectedSources = [];
+  final filterTextController = TextEditingController();
 
   void updateSelectedSources(List<String> newSelectedSourceIds) {
     selectedSourceIds.clear();
@@ -118,7 +113,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   }
 
   void refreshSources(List<ViewPB> spaceViews, ViewPB? currentSpace) async {
-    filter = "";
+    filterTextController.clear();
 
     final newSources = await Future.wait(
       spaceViews.map((view) => _recursiveBuild(view, null)),
@@ -155,29 +150,30 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       ..addAll(selected.map((e) => e.copy()));
   }
 
-  Future<ChatSource> _recursiveBuild(ViewPB view, ViewPB? parentView) async {
-    SourceSelectedStatus selectedStatus = SourceSelectedStatus.unselected;
+  Future<ViewSelectorItem> _recursiveBuild(
+    ViewPB view,
+    ViewPB? parentView,
+  ) async {
+    ViewSelectedStatus selectedStatus = ViewSelectedStatus.unselected;
     final isThisSourceSelected = selectedSourceIds.contains(view.id);
 
     final childrenViews =
         await ViewBackendService.getChildViews(viewId: view.id).toNullable();
 
     int selectedCount = 0;
-    final children = <ChatSource>[];
+    final children = <ViewSelectorItem>[];
 
     if (childrenViews != null) {
       for (final childView in childrenViews) {
-        if (childView.layout == ViewLayoutPB.Chat) {
+        if (getIgnoreViewType(childView) == IgnoreViewType.hide) {
           continue;
         }
-        if (childView.layout != ViewLayoutPB.Document && hideDisabled) {
-          continue;
-        }
-        final childChatSource = await _recursiveBuild(childView, view);
-        if (childChatSource.selectedStatus.isSelected) {
+
+        final childItem = await _recursiveBuild(childView, view);
+        if (childItem.selectedStatus.isSelected) {
           selectedCount++;
         }
-        children.add(childChatSource);
+        children.add(childItem);
       }
 
       final areAllChildrenSelectedOrNoChildren =
@@ -186,47 +182,49 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
           children.any((e) => !e.selectedStatus.isUnselected);
 
       if (isThisSourceSelected && areAllChildrenSelectedOrNoChildren) {
-        selectedStatus = SourceSelectedStatus.selected;
+        selectedStatus = ViewSelectedStatus.selected;
       } else if (isThisSourceSelected || isAnyChildNotUnselected) {
-        selectedStatus = SourceSelectedStatus.partiallySelected;
+        selectedStatus = ViewSelectedStatus.partiallySelected;
       }
     } else if (isThisSourceSelected) {
-      selectedStatus = SourceSelectedStatus.selected;
+      selectedStatus = ViewSelectedStatus.selected;
     }
 
-    return ChatSource(
+    return ViewSelectorItem(
       view: view,
       parentView: parentView,
       children: children,
-      ignoreStatus: view.layout.isDocumentView
-          ? IgnoreViewType.none
-          : IgnoreViewType.disable,
+      isDisabled: getIgnoreViewType(view) == IgnoreViewType.disable,
       isExpanded: false,
       selectedStatus: selectedStatus,
     );
   }
 
-  void _restrictSelectionIfNecessary(List<ChatSource> sources) {
+  void _restrictSelectionIfNecessary(List<ViewSelectorItem> sources) {
+    if (maxSelectedParentPageCount == null) {
+      return;
+    }
     for (final source in sources) {
-      source.resetIgnoreViewTypeRecursive();
+      source.setIsDisabledRecursive((view) {
+        return getIgnoreViewType(view) == IgnoreViewType.disable;
+      });
     }
     if (sources.where((e) => !e.selectedStatus.isUnselected).length >=
-        _kMaxSelectedParentPageCount) {
+        maxSelectedParentPageCount!) {
       sources
-          .where((e) => e.selectedStatus == SourceSelectedStatus.unselected)
+          .where((e) => e.selectedStatus == ViewSelectedStatus.unselected)
           .forEach(
-            (e) => e.updateIgnoreViewTypeRecursive(IgnoreViewType.disable),
+            (e) => e.setIsDisabledRecursive((_) => true),
           );
     }
   }
 
-  void updateFilter(String filter) {
-    this.filter = filter;
+  void onFilterChanged() {
     for (final source in state.visibleSources) {
       source.dispose();
     }
     if (sources.isEmpty) {
-      emit(ChatSettingsState.initial());
+      emit(ViewSelectorState.initial());
     } else {
       final selected =
           selectedSources.map(_buildSearchResults).nonNulls.toList();
@@ -242,13 +240,13 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   }
 
   /// traverse tree to build up search query
-  ChatSource? _buildSearchResults(ChatSource chatSource) {
-    final isVisible = chatSource.view.nameOrDefault
+  ViewSelectorItem? _buildSearchResults(ViewSelectorItem item) {
+    final isVisible = item.view.nameOrDefault
         .toLowerCase()
-        .contains(filter.toLowerCase());
+        .contains(filterTextController.text.toLowerCase());
 
-    final childrenResults = <ChatSource>[];
-    for (final childSource in chatSource.children) {
+    final childrenResults = <ViewSelectorItem>[];
+    for (final childSource in item.children) {
       final childResult = _buildSearchResults(childSource);
       if (childResult != null) {
         childrenResults.add(childResult);
@@ -256,48 +254,50 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     }
 
     return isVisible || childrenResults.isNotEmpty
-        ? ChatSource(
-            view: chatSource.view,
-            parentView: chatSource.parentView,
+        ? ViewSelectorItem(
+            view: item.view,
+            parentView: item.parentView,
             children: childrenResults,
-            ignoreStatus: chatSource.ignoreStatus,
-            isExpanded: chatSource.isExpanded,
-            selectedStatus: chatSource.selectedStatus,
+            isDisabled: item.isDisabled,
+            isExpanded: item.isExpanded,
+            selectedStatus: item.selectedStatus,
           )
         : null;
   }
 
   /// traverse tree to build up selected sources
-  Iterable<ChatSource> _buildSelectedSources(ChatSource chatSource) {
-    final children = <ChatSource>[];
+  Iterable<ViewSelectorItem> _buildSelectedSources(
+    ViewSelectorItem item,
+  ) {
+    final children = <ViewSelectorItem>[];
 
-    for (final childSource in chatSource.children) {
+    for (final childSource in item.children) {
       children.addAll(_buildSelectedSources(childSource));
     }
 
-    return selectedSourceIds.contains(chatSource.view.id)
+    return selectedSourceIds.contains(item.view.id)
         ? [
-            ChatSource(
-              view: chatSource.view,
-              parentView: chatSource.parentView,
+            ViewSelectorItem(
+              view: item.view,
+              parentView: item.parentView,
               children: children,
-              ignoreStatus: chatSource.ignoreStatus,
-              selectedStatus: chatSource.selectedStatus,
+              isDisabled: item.isDisabled,
+              selectedStatus: item.selectedStatus,
               isExpanded: true,
             ),
           ]
         : children;
   }
 
-  void toggleSelectedStatus(ChatSource chatSource) {
-    if (chatSource.view.isSpace) {
+  void toggleSelectedStatus(ViewSelectorItem item, bool isSelectedSection) {
+    if (item.view.isSpace) {
       return;
     }
-    final allIds = _recursiveGetSourceIds(chatSource);
+    final allIds = _recursiveGetSourceIds(item);
 
-    if (chatSource.selectedStatus.isUnselected ||
-        chatSource.selectedStatus.isPartiallySelected &&
-            !chatSource.view.layout.isDocumentView) {
+    if (item.selectedStatus.isUnselected ||
+        item.selectedStatus.isPartiallySelected &&
+            !item.view.layout.isDocumentView) {
       for (final id in allIds) {
         if (!selectedSourceIds.contains(id)) {
           selectedSourceIds.add(id);
@@ -311,13 +311,20 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       }
     }
 
+    if (isSelectedSection) {
+      item.selectedStatusNotifier.value = item.selectedStatus.isUnselected ||
+              item.selectedStatus.isPartiallySelected
+          ? ViewSelectedStatus.selected
+          : ViewSelectedStatus.unselected;
+    }
+
     updateSelectedStatus();
   }
 
-  List<String> _recursiveGetSourceIds(ChatSource chatSource) {
+  List<String> _recursiveGetSourceIds(ViewSelectorItem item) {
     return [
-      if (chatSource.view.layout.isDocumentView) chatSource.view.id,
-      for (final childSource in chatSource.children)
+      if (item.view.layout.isDocumentView) item.view.id,
+      for (final childSource in item.children)
         ..._recursiveGetSourceIds(childSource),
     ];
   }
@@ -342,44 +349,42 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     );
   }
 
-  SourceSelectedStatus _recursiveUpdateSelectedStatus(ChatSource chatSource) {
-    SourceSelectedStatus selectedStatus = SourceSelectedStatus.unselected;
+  ViewSelectedStatus _recursiveUpdateSelectedStatus(ViewSelectorItem item) {
+    ViewSelectedStatus selectedStatus = ViewSelectedStatus.unselected;
 
     int selectedCount = 0;
-    for (final childSource in chatSource.children) {
+    for (final childSource in item.children) {
       final childStatus = _recursiveUpdateSelectedStatus(childSource);
       if (childStatus.isSelected) {
         selectedCount++;
       }
     }
 
-    final isThisSourceSelected = selectedSourceIds.contains(chatSource.view.id);
+    final isThisSourceSelected = selectedSourceIds.contains(item.view.id);
     final areAllChildrenSelectedOrNoChildren =
-        chatSource.children.length == selectedCount;
+        item.children.length == selectedCount;
     final isAnyChildNotUnselected =
-        chatSource.children.any((e) => !e.selectedStatus.isUnselected);
+        item.children.any((e) => !e.selectedStatus.isUnselected);
 
     if (isThisSourceSelected && areAllChildrenSelectedOrNoChildren) {
-      selectedStatus = SourceSelectedStatus.selected;
+      selectedStatus = ViewSelectedStatus.selected;
     } else if (isThisSourceSelected || isAnyChildNotUnselected) {
-      selectedStatus = SourceSelectedStatus.partiallySelected;
+      selectedStatus = ViewSelectedStatus.partiallySelected;
     }
 
-    chatSource.selectedStatusNotifier.value = selectedStatus;
+    item.selectedStatusNotifier.value = selectedStatus;
     return selectedStatus;
   }
 
-  void toggleIsExpanded(ChatSource chatSource, bool isSelectedSection) {
-    chatSource.toggleIsExpanded();
+  void toggleIsExpanded(ViewSelectorItem item, bool isSelectedSection) {
+    item.toggleIsExpanded();
     if (isSelectedSection) {
       for (final selectedSource in selectedSources) {
-        selectedSource
-            .findChildBySourceId(chatSource.view.id)
-            ?.toggleIsExpanded();
+        selectedSource.findChildBySourceId(item.view.id)?.toggleIsExpanded();
       }
     } else {
       for (final source in sources) {
-        final child = source.findChildBySourceId(chatSource.view.id);
+        final child = source.findChildBySourceId(item.view.id);
         if (child != null) {
           child.toggleIsExpanded();
           break;
@@ -402,18 +407,19 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     for (final child in state.visibleSources) {
       child.dispose();
     }
+    filterTextController.dispose();
     return super.close();
   }
 }
 
 @freezed
-class ChatSettingsState with _$ChatSettingsState {
-  const factory ChatSettingsState({
-    required List<ChatSource> visibleSources,
-    required List<ChatSource> selectedSources,
-  }) = _ChatSettingsState;
+class ViewSelectorState with _$ViewSelectorState {
+  const factory ViewSelectorState({
+    required List<ViewSelectorItem> visibleSources,
+    required List<ViewSelectorItem> selectedSources,
+  }) = _ViewSelectorState;
 
-  factory ChatSettingsState.initial() => const ChatSettingsState(
+  factory ViewSelectorState.initial() => const ViewSelectorState(
         visibleSources: [],
         selectedSources: [],
       );

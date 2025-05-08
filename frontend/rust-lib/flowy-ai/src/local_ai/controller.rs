@@ -10,7 +10,7 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::local_ai::chat::LLMChatController;
+use crate::local_ai::chat::{LLMChatController, LLMChatInfo};
 use crate::stream_message::StreamMessage;
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::AIModel;
@@ -177,11 +177,21 @@ impl LocalAIController {
     Some(self.resource.get_llm_setting().chat_model_name)
   }
 
+  pub async fn set_chat_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+    if !self.is_enabled() {
+      return;
+    }
+
+    self.llm_controller.set_rag_ids(chat_id, rag_ids).await;
+  }
+
   pub async fn open_chat(
     &self,
     workspace_id: &Uuid,
     chat_id: &Uuid,
     model: &str,
+    rag_ids: Vec<String>,
+    summary: String,
   ) -> FlowyResult<()> {
     if !self.is_enabled() {
       return Ok(());
@@ -194,11 +204,15 @@ impl LocalAIController {
       self.close_chat(current_chat_id);
     }
 
+    let info = LLMChatInfo {
+      chat_id: *chat_id,
+      workspace_id: *workspace_id,
+      model: model.to_string(),
+      rag_ids,
+      summary,
+    };
     self.current_chat_id.store(Some(Arc::new(*chat_id)));
-    self
-      .llm_controller
-      .open_chat(workspace_id, chat_id, model)
-      .await?;
+    self.llm_controller.open_chat(info).await?;
     Ok(())
   }
 

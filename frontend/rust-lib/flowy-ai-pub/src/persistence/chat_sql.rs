@@ -18,10 +18,10 @@ use uuid::Uuid;
 pub struct ChatTable {
   pub chat_id: String,
   pub created_at: i64,
-  pub name: String,
   pub metadata: String,
   pub rag_ids: Option<String>,
   pub is_sync: bool,
+  pub summary: String,
 }
 
 impl ChatTable {
@@ -32,10 +32,10 @@ impl ChatTable {
     Self {
       chat_id,
       created_at: timestamp(),
-      name: "".to_string(),
       metadata,
       rag_ids,
       is_sync,
+      summary: "".to_string(),
     }
   }
 }
@@ -66,10 +66,33 @@ pub struct ChatTableFile {
 #[diesel(primary_key(chat_id))]
 pub struct ChatTableChangeset {
   pub chat_id: String,
-  pub name: Option<String>,
   pub metadata: Option<String>,
   pub rag_ids: Option<String>,
   pub is_sync: Option<bool>,
+  pub summary: Option<String>,
+}
+
+impl ChatTableChangeset {
+  pub fn summary(chat_id: String, summary: String) -> Self {
+    Self {
+      chat_id,
+      metadata: None,
+      rag_ids: None,
+      is_sync: None,
+      summary: Some(summary),
+    }
+  }
+
+  pub fn rag_ids(chat_id: String, rag_ids: Vec<String>) -> Self {
+    let rag_ids = Some(serialize_rag_ids(&rag_ids));
+    Self {
+      chat_id,
+      metadata: None,
+      rag_ids,
+      is_sync: None,
+      summary: None,
+    }
+  }
 }
 
 pub fn serialize_rag_ids(rag_ids: &[String]) -> String {
@@ -104,7 +127,6 @@ pub fn upsert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .do_update()
     .set((
       chat_table::created_at.eq(excluded(chat_table::created_at)),
-      chat_table::name.eq(excluded(chat_table::name)),
       chat_table::metadata.eq(excluded(chat_table::metadata)),
       chat_table::rag_ids.eq(excluded(chat_table::rag_ids)),
       chat_table::is_sync.eq(excluded(chat_table::is_sync)),
@@ -112,13 +134,33 @@ pub fn upsert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .execute(&mut *conn)
 }
 
-pub fn update_chat(
-  conn: &mut SqliteConnection,
-  changeset: ChatTableChangeset,
-) -> QueryResult<usize> {
-  let filter = dsl::chat_table.filter(chat_table::chat_id.eq(changeset.chat_id.clone()));
-  let affected_row = diesel::update(filter).set(changeset).execute(conn)?;
-  Ok(affected_row)
+pub fn update_chat(mut conn: DBConnection, changeset: ChatTableChangeset) -> QueryResult<usize> {
+  // Check if the chat exists
+  let chat_exists = dsl::chat_table
+    .filter(chat_table::chat_id.eq(&changeset.chat_id))
+    .first::<ChatTable>(&mut *conn)
+    .is_ok();
+
+  if chat_exists {
+    // Update existing chat
+    let filter = dsl::chat_table.filter(chat_table::chat_id.eq(changeset.chat_id.clone()));
+    diesel::update(filter).set(changeset).execute(&mut *conn)
+  } else {
+    // Create a new chat row with default values
+    let chat = ChatTable {
+      chat_id: changeset.chat_id.clone(),
+      created_at: timestamp(),
+      metadata: changeset.metadata.unwrap_or_else(|| "{}".to_string()),
+      rag_ids: changeset.rag_ids,
+      is_sync: changeset.is_sync.unwrap_or(false),
+      summary: changeset.summary.unwrap_or_default(),
+    };
+
+    // Insert the new row
+    diesel::insert_into(chat_table::table)
+      .values(&chat)
+      .execute(&mut *conn)
+  }
 }
 
 pub fn update_chat_is_sync(
@@ -131,14 +173,22 @@ pub fn update_chat_is_sync(
     .execute(&mut *conn)
 }
 
-pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatTable> {
+pub fn select_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatTable> {
   let row = dsl::chat_table
     .filter(chat_table::chat_id.eq(chat_id_val))
     .first::<ChatTable>(&mut *conn)?;
   Ok(row)
 }
 
-pub fn read_chat_rag_ids(
+pub fn select_chat_summary(conn: &mut DBConnection, chat_id_val: &Uuid) -> QueryResult<String> {
+  let summary = dsl::chat_table
+    .select(chat_table::summary)
+    .filter(chat_table::chat_id.eq(chat_id_val.to_string()))
+    .first::<String>(conn)?;
+  Ok(summary)
+}
+
+pub fn select_chat_rag_ids(
   conn: &mut SqliteConnection,
   chat_id_val: &str,
 ) -> FlowyResult<Vec<String>> {
@@ -149,7 +199,7 @@ pub fn read_chat_rag_ids(
   Ok(deserialize_rag_ids(&chat.rag_ids))
 }
 
-pub fn read_chat_metadata(
+pub fn select_chat_metadata(
   conn: &mut SqliteConnection,
   chat_id_val: &str,
 ) -> FlowyResult<ChatTableMetadata> {
@@ -158,17 +208,6 @@ pub fn read_chat_metadata(
     .filter(chat_table::chat_id.eq(chat_id_val))
     .first::<String>(&mut *conn)?;
   Ok(deserialize_chat_metadata(&metadata_str))
-}
-
-#[allow(dead_code)]
-pub fn update_chat_name(
-  mut conn: DBConnection,
-  chat_id_val: &str,
-  new_name: &str,
-) -> QueryResult<usize> {
-  diesel::update(dsl::chat_table.filter(chat_table::chat_id.eq(chat_id_val)))
-    .set(chat_table::name.eq(new_name))
-    .execute(&mut *conn)
 }
 
 #[allow(dead_code)]

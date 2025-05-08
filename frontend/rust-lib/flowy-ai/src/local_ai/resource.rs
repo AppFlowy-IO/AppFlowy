@@ -144,7 +144,6 @@ impl LocalAIResourceController {
           log::error!("[LLM Resource] Failed to parse /api/tags JSON response: {e:?}")
         })?;
         // Check if each of our required models exists in the list of available models
-        trace!("[LLM Resource] ollama available models: {:?}", tags.models);
         for required in &required_models {
           if !tags
             .models

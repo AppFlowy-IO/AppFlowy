@@ -110,7 +110,7 @@ impl EmbeddingScheduler {
       Some(query_embed) => {
         let result = self
           .vector_db
-          .search_with_score(&workspace_id.to_string(), vec![], query_embed, 10, 0.4)
+          .search_with_score(&workspace_id.to_string(), &[], query_embed, 10, 0.4)
           .await
           .map_err(|err| {
             error!("[Embedding] Failed to search: {}", err);
@@ -146,6 +146,7 @@ impl EmbeddingScheduler {
       return Ok(SearchSummaryResult { summaries: vec![] });
     }
 
+    trace!("[Search] generate local ai overview");
     let docs = search_results
       .into_iter()
       .map(|v| LLMDocument {
@@ -153,6 +154,7 @@ impl EmbeddingScheduler {
         object_id: v.object_id,
       })
       .collect::<Vec<_>>();
+
     let resp = summarize_documents(&self.ollama, question, model_name, docs)
       .await
       .map_err(|err| {

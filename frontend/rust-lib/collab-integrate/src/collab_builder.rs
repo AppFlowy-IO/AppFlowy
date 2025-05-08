@@ -33,7 +33,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
-use crate::instant_indexed_data_provider::InstantIndexedDataProvider;
+use crate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use flowy_error::FlowyError;
 use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
@@ -81,14 +81,14 @@ pub struct AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
-  embeddings_writer: Option<Weak<InstantIndexedDataProvider>>,
+  embeddings_writer: Option<Weak<InstantIndexedDataWriter>>,
 }
 
 impl AppFlowyCollabBuilder {
   pub fn new(
     storage_provider: impl CollabCloudPluginProvider + 'static,
     workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
-    embeddings_writer: Option<Weak<InstantIndexedDataProvider>>,
+    embeddings_writer: Option<Weak<InstantIndexedDataWriter>>,
   ) -> Self {
     Self {
       embeddings_writer,

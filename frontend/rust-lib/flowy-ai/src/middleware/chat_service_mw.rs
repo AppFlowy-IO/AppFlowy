@@ -101,20 +101,15 @@ impl ChatCloudService for ChatServiceMiddleware {
     chat_id: &Uuid,
     question_id: i64,
     format: ResponseFormat,
-    ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
-    let use_local_ai = match &ai_model {
-      None => false,
-      Some(model) => model.is_local,
-    };
-
     info!("stream_answer use model: {:?}", ai_model);
-    if use_local_ai {
+    if ai_model.is_local {
       if self.local_ai.is_ready().await {
         let content = self.get_message_content(question_id)?;
         self
           .local_ai
-          .stream_question(chat_id, &content, format)
+          .stream_question(chat_id, &content, format, &ai_model.name)
           .await
       } else {
         Err(FlowyError::local_ai_not_ready())

@@ -29,3 +29,18 @@ impl ViewObserveData {
 pub trait FolderViewObserver: Send + Sync {
   async fn set_observer_rx(&self, rx: IndexContentReceiver);
 }
+
+#[derive(Default, Debug, Clone)]
+pub struct TanvitySearchResponseItem {
+  pub id: String,
+  pub display_name: String,
+  pub icon: Option<ResultIcon>,
+  pub workspace_id: String,
+  pub content: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+pub struct ResultIcon {
+  pub ty: u8,
+  pub value: String,
+}
