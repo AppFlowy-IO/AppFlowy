@@ -75,35 +75,49 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
           return;
         }
 
+        availablePrompts.removeWhere((prompt) => prompt.isCustom);
+
         final customPrompts =
             await _aiService.getDatabasePrompts(databaseViewId);
-        if (customPrompts == null) {
-          emit(
-            readyState.copyWith(isLoadingCustomPrompts: false),
+
+        if (customPrompts == null || customPrompts.isEmpty) {
+          final prompts = availablePrompts.where((prompt) => prompt.isFeatured);
+          final visiblePrompts = _getFilteredPrompts(prompts);
+          final selectedPromptId = _getVisibleSelectedPrompt(
+            visiblePrompts,
+            readyState.selectedPromptId,
           );
-          return;
+
+          emit(
+            readyState.copyWith(
+              visiblePrompts: visiblePrompts.toList(),
+              selectedPromptId: selectedPromptId,
+              customPromptDatabaseViewId: databaseViewId,
+              isLoadingCustomPrompts: false,
+              isFeaturedSectionSelected: true,
+              isCustomPromptSectionSelected: false,
+              selectedCategory: null,
+            ),
+          );
+        } else {
+          availablePrompts.addAll(customPrompts);
+
+          final prompts = _getPromptsByCategory(readyState);
+          final visiblePrompts = _getFilteredPrompts(prompts);
+          final selectedPromptId = _getVisibleSelectedPrompt(
+            visiblePrompts,
+            readyState.selectedPromptId,
+          );
+
+          emit(
+            readyState.copyWith(
+              visiblePrompts: visiblePrompts.toList(),
+              customPromptDatabaseViewId: databaseViewId,
+              isLoadingCustomPrompts: false,
+              selectedPromptId: selectedPromptId,
+            ),
+          );
         }
-
-        availablePrompts
-          ..removeWhere((prompt) => prompt.isCustom)
-          ..addAll(customPrompts);
-
-        final prompts = _getPromptsByCategory(readyState);
-        final visiblePrompts = _getFilteredPrompts(prompts);
-
-        final selectedPromptId = _getVisibleSelectedPrompt(
-          visiblePrompts,
-          readyState.selectedPromptId,
-        );
-
-        emit(
-          readyState.copyWith(
-            visiblePrompts: visiblePrompts.toList(),
-            customPromptDatabaseViewId: databaseViewId,
-            isLoadingCustomPrompts: false,
-            selectedPromptId: selectedPromptId,
-          ),
-        );
       },
       orElse: () {},
     );

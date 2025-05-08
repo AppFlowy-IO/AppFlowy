@@ -1,12 +1,15 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +91,7 @@ class _CustomPromptDatabaseSelectorState
   }
 }
 
-class _Button extends StatefulWidget {
+class _Button extends StatelessWidget {
   const _Button({
     required this.selectedViewId,
     required this.isLoading,
@@ -100,44 +103,17 @@ class _Button extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  State<_Button> createState() => _ButtonState();
-}
-
-class _ButtonState extends State<_Button> {
-  late Future<ViewPB?> future;
-
-  @override
-  void initState() {
-    super.initState();
-    future = widget.selectedViewId == null
-        ? Future(() => null)
-        : ViewBackendService.getView(widget.selectedViewId!)
-            .then((f) => f.toNullable());
-  }
-
-  @override
-  void didUpdateWidget(covariant _Button oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedViewId != widget.selectedViewId) {
-      future = widget.selectedViewId == null
-          ? Future(() => null)
-          : ViewBackendService.getView(widget.selectedViewId!)
-              .then((f) => f.toNullable());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
     return FutureBuilder<ViewPB?>(
-      future: future,
+      future: getView(),
       builder: (context, snapshot) {
         final data = snapshot.data;
 
         final String name;
         final String? tooltip;
-        if (widget.isLoading) {
+        if (isLoading) {
           tooltip = null;
           name = LocaleKeys.ai_customPrompt_loading.tr();
         } else if (!snapshot.hasData ||
@@ -157,7 +133,7 @@ class _ButtonState extends State<_Button> {
               maxWidth: 150,
             ),
             child: AFGhostButton.normal(
-              onTap: widget.onTap,
+              onTap: onTap,
               padding: EdgeInsets.symmetric(
                 vertical: theme.spacing.xs,
                 horizontal: theme.spacing.m,
@@ -167,7 +143,7 @@ class _ButtonState extends State<_Button> {
                   spacing: theme.spacing.xs,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildLoadingIndicator(theme),
+                    buildLoadingIndicator(theme),
                     Flexible(
                       child: Text(
                         name,
@@ -178,7 +154,7 @@ class _ButtonState extends State<_Button> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (!widget.isLoading)
+                    if (!isLoading)
                       FlowySvg(
                         FlowySvgs.toolbar_arrow_down_m,
                         color: theme.iconColorScheme.secondary,
@@ -193,8 +169,8 @@ class _ButtonState extends State<_Button> {
     );
   }
 
-  Widget _buildLoadingIndicator(AppFlowyThemeData theme) {
-    return widget.isLoading
+  Widget buildLoadingIndicator(AppFlowyThemeData theme) {
+    return isLoading
         ? SizedBox.square(
             dimension: 20,
             child: Padding(
@@ -206,6 +182,29 @@ class _ButtonState extends State<_Button> {
             ),
           )
         : const SizedBox.shrink();
+  }
+
+  Future<ViewPB?> getView() async {
+    if (selectedViewId == null) {
+      return null;
+    }
+    final view = await ViewBackendService.getView(selectedViewId!).toNullable();
+
+    if (view != null) {
+      return view;
+    }
+
+    final trashViews = await TrashService().readTrash().toNullable();
+    final trashedItem = trashViews?.items
+        .firstWhereOrNull((element) => element.id == selectedViewId);
+
+    if (trashedItem == null) {
+      return null;
+    }
+
+    return ViewPB()
+      ..id = trashedItem.id
+      ..name = trashedItem.name;
   }
 }
 

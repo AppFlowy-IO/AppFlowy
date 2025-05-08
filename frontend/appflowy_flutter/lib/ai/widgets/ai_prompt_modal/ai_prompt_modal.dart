@@ -73,6 +73,19 @@ class AiPromptModal extends StatelessWidget {
               ),
               trailing: [
                 BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+                  buildWhen: (p, c) {
+                    return p.maybeMap(
+                      ready: (pr) => c.maybeMap(
+                        ready: (cr) =>
+                            pr.customPromptDatabaseViewId !=
+                                cr.customPromptDatabaseViewId ||
+                            pr.isLoadingCustomPrompts !=
+                                cr.isLoadingCustomPrompts,
+                        orElse: () => false,
+                      ),
+                      orElse: () => true,
+                    );
+                  },
                   builder: (context, state) {
                     return state.maybeMap(
                       ready: (readyState) => CustomPromptDatabaseSelector(
