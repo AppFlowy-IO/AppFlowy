@@ -9,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+@visibleForTesting
+bool skipAIChatWelcomePage = false;
+
 class ChatAnimationListWidget extends StatefulWidget {
   const ChatAnimationListWidget({
     super.key,
@@ -34,7 +37,7 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
     final bloc = context.read<ChatBloc>();
 
     // this logic is quite weird, why don't we just get the message from the state?
-    if (bloc.chatController.messages.isEmpty) {
+    if (bloc.chatController.messages.isEmpty && !skipAIChatWelcomePage) {
       return ChatWelcomePage(
         userProfile: widget.userProfile,
         onSelectedQuestion: (question) {
@@ -70,6 +73,9 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
                     ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
                     : 8.0,
                 onLoadPreviousMessages: () {
+                  if (bloc.isClosed) {
+                    return;
+                  }
                   bloc.add(const ChatEvent.loadPreviousMessages());
                 },
               )
@@ -80,6 +86,9 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
                     ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
                     : 8.0,
                 onLoadPreviousMessages: () {
+                  if (bloc.isClosed) {
+                    return;
+                  }
                   bloc.add(const ChatEvent.loadPreviousMessages());
                 },
               );

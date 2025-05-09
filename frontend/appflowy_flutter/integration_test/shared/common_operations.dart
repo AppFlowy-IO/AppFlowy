@@ -1051,6 +1051,8 @@ extension ViewLayoutPBTest on ViewLayoutPB {
         return LocaleKeys.document_menuName.tr();
       case ViewLayoutPB.Calendar:
         return LocaleKeys.calendar_menuName.tr();
+      case ViewLayoutPB.Chat:
+        return LocaleKeys.chat_newChat.tr();
       default:
         throw UnsupportedError('Unsupported layout: $this');
     }
