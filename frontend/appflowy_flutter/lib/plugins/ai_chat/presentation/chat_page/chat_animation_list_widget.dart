@@ -1,6 +1,4 @@
-import 'dart:async';
-
-import 'package:appflowy/ai/service/ai_prompt_input_bloc.dart';
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list_reversed.dart';
@@ -10,6 +8,9 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+
+@visibleForTesting
+bool skipAIChatWelcomePage = false;
 
 class ChatAnimationListWidget extends StatefulWidget {
   const ChatAnimationListWidget({
@@ -31,45 +32,12 @@ class ChatAnimationListWidget extends StatefulWidget {
 }
 
 class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
-  bool hasMessage = false;
-  StreamSubscription<ChatOperation>? subscription;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final bloc = context.read<ChatBloc>();
-    if (bloc.chatController.messages.isNotEmpty) {
-      hasMessage = true;
-    }
-
-    subscription = bloc.chatController.operationsStream.listen((operation) {
-      final newHasMessage = bloc.chatController.messages.isNotEmpty;
-
-      if (!mounted) {
-        return;
-      }
-
-      if (hasMessage != newHasMessage) {
-        setState(() {
-          hasMessage = newHasMessage;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    subscription?.cancel();
-
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<ChatBloc>();
 
-    if (!hasMessage) {
+    // this logic is quite weird, why don't we just get the message from the state?
+    if (bloc.chatController.messages.isEmpty && !skipAIChatWelcomePage) {
       return ChatWelcomePage(
         userProfile: widget.userProfile,
         onSelectedQuestion: (question) {

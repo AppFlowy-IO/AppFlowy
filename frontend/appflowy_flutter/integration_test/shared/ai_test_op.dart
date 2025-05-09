@@ -44,15 +44,25 @@ extension AppFlowyAITest on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
+  ChatBloc getCurrentChatBloc() {
+    return element(find.byType(ChatContentPage)).read<ChatBloc>();
+  }
+
+  Future<void> loadDefaultMessages(List<Message> messages) async {
+    final chatBloc = getCurrentChatBloc();
+    chatBloc.add(ChatEvent.didLoadLatestMessages(messages));
+    await blocResponseFuture();
+  }
+
   Future<void> sendUserMessage(Message message) async {
-    final chatBloc = element(find.byType(ChatContentPage)).read<ChatBloc>();
+    final chatBloc = getCurrentChatBloc();
     // using received message to simulate the user message
     chatBloc.add(ChatEvent.receiveMessage(message));
     await blocResponseFuture();
   }
 
   Future<void> receiveAIMessage(Message message) async {
-    final chatBloc = element(find.byType(ChatContentPage)).read<ChatBloc>();
+    final chatBloc = getCurrentChatBloc();
     chatBloc.add(ChatEvent.receiveMessage(message));
     await blocResponseFuture();
   }
