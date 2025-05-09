@@ -298,6 +298,21 @@ extension ViewExtension on ViewPB {
       return PageStyleFontLayout.normal;
     }
   }
+
+  @visibleForTesting
+  set isSpace(bool value) {
+    try {
+      if (extra.isEmpty) {
+        extra = jsonEncode({ViewExtKeys.isSpaceKey: value});
+      } else {
+        final ext = jsonDecode(extra);
+        ext[ViewExtKeys.isSpaceKey] = value;
+        extra = jsonEncode(ext);
+      }
+    } catch (e) {
+      extra = jsonEncode({ViewExtKeys.isSpaceKey: value});
+    }
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {

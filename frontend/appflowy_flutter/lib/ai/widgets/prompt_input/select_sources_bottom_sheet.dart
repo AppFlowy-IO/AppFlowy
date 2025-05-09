@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
@@ -102,9 +104,12 @@ class _PromptInputMobileSelectSourcesButtonState
                   ],
                 ),
                 onTap: () async {
-                  context
-                      .read<ViewSelectorCubit>()
-                      .refreshSources(state.spaces, state.currentSpace);
+                  unawaited(
+                    context
+                        .read<ViewSelectorCubit>()
+                        .refreshSources(state.spaces, state.currentSpace),
+                  );
+
                   await showMobileBottomSheet<void>(
                     context,
                     backgroundColor: Theme.of(context).colorScheme.surface,
