@@ -14,6 +14,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'page_preview.dart';
 import 'search_ask_ai_entrance.dart';
 
 class RecentViewsList extends StatelessWidget {
@@ -35,69 +36,99 @@ class RecentViewsList extends StatelessWidget {
           final workspaceState = context.read<UserWorkspaceBloc?>()?.state;
           final showAskingAI = workspaceState?.userProfile.workspaceType ==
               WorkspaceTypePB.ServerW;
-          return ScrollControllerBuilder(
-            builder: (context, controller) {
-              return FlowyScrollbar(
-                controller: controller,
-                child: SingleChildScrollView(
-                  controller: controller,
-                  physics: const ClampingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AFDivider(),
-                      if (showAskingAI) SearchAskAiEntrance(),
-                      Container(
-                        height: 20,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          LocaleKeys.sideBar_recent.tr(),
-                          style: theme.textStyle.body
-                              .enhanced(color: theme.textColorScheme.secondary),
-                        ),
-                      ),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: recentViews.length,
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        itemBuilder: (_, index) {
-                          final view = recentViews[index];
-                          final icon = view.icon.value.isNotEmpty
-                              ? RawEmojiIconWidget(
-                                  emoji: view.icon.toEmojiIconData(),
-                                  emojiSize: 16.0,
-                                  lineHeight: 20 / 16,
-                                )
-                              : FlowySvg(
-                                  view.iconData,
-                                  size: const Size.square(20),
-                                  color: theme.iconColorScheme.secondary,
-                                );
+          final hoveredView = state.hoveredView;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AFDivider(),
+              Flexible(
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: ScrollControllerBuilder(
+                        builder: (context, controller) {
+                          return FlowyScrollbar(
+                            controller: controller,
+                            child: SingleChildScrollView(
+                              controller: controller,
+                              physics: const ClampingScrollPhysics(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (showAskingAI) SearchAskAiEntrance(),
+                                  Container(
+                                    height: 20,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    child: Text(
+                                      LocaleKeys.sideBar_recent.tr(),
+                                      style: theme.textStyle.body.enhanced(
+                                        color: theme.textColorScheme.secondary,
+                                      ),
+                                    ),
+                                  ),
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: recentViews.length,
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 12),
+                                    itemBuilder: (_, index) {
+                                      final view = recentViews[index];
 
-                          return SearchRecentViewCell(
-                            icon: SizedBox.square(
-                              dimension: 24,
-                              child: Center(child: icon),
+                                      final icon = view.icon.value.isNotEmpty
+                                          ? RawEmojiIconWidget(
+                                              emoji:
+                                                  view.icon.toEmojiIconData(),
+                                              emojiSize: 16.0,
+                                              lineHeight: 20 / 16,
+                                            )
+                                          : FlowySvg(
+                                              view.iconData,
+                                              size: const Size.square(20),
+                                              color: theme
+                                                  .iconColorScheme.secondary,
+                                            );
+
+                                      return SearchRecentViewCell(
+                                        icon: SizedBox.square(
+                                          dimension: 24,
+                                          child: Center(child: icon),
+                                        ),
+                                        view: view,
+                                        onSelected: onSelected,
+                                      );
+                                    },
+                                    separatorBuilder: (_, __) => AFDivider(),
+                                  ),
+                                ],
+                              ),
                             ),
-                            view: view,
-                            onSelected: onSelected,
                           );
                         },
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: theme.borderColorScheme.primary,
+                      ),
+                    ),
+                    if (hoveredView != null) ...[
+                      AFDivider(axis: Axis.vertical),
+                      Flexible(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: PagePreview(view: hoveredView),
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),
