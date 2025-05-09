@@ -43,7 +43,6 @@ class ChatAnimatedList extends StatefulWidget {
 
 class ChatAnimatedListState extends State<ChatAnimatedList>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
   late final ChatController _chatController = Provider.of<ChatController>(
     context,
     listen: false,
