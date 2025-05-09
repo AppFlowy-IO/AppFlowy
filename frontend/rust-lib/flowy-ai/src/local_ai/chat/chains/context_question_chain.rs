@@ -77,7 +77,7 @@ impl RelatedQuestionChain {
 
   pub async fn generate_questions(&self, rag_ids: &[String]) -> FlowyResult<Vec<ContextQuestion>> {
     trace!(
-      "[Chat] Generating related questions for RAG IDs: {:?}",
+      "[embedding] Generating context related questions for RAG IDs: {:?}",
       rag_ids
     );
     let context = self
@@ -85,7 +85,10 @@ impl RelatedQuestionChain {
       .select_all_embedded_content(&self.workspace_id.to_string(), rag_ids, 3)
       .await?;
 
-    trace!("[Chat] Generating related questions base on: {:?}", context,);
+    trace!(
+      "[embedding] Generating related questions base on: {:?}",
+      context,
+    );
 
     let context_str = json!(context).to_string();
     let input_variables = prompt_args! {

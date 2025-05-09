@@ -92,7 +92,7 @@ impl ConversationalRetrieverChain {
 
       if documents.is_empty() {
         trace!(
-          "[Embedding] No relevant documents found, but we have RAG IDs:{:?}. generating suggested questions",
+          "[Embedding] No relevant documents for given RAG IDs:{:?}. try generating suggested questions",
           rag_ids
         );
 
@@ -101,7 +101,7 @@ impl ConversationalRetrieverChain {
           let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
           match c.generate_questions(&rag_ids).await {
             Ok(questions) => {
-              trace!("[Chat]: context related questions: {:?}", questions);
+              trace!("[embedding]: context related questions: {:?}", questions);
               suggested_questions = questions
                 .into_iter()
                 .map(|q| SuggestedQuestion {
@@ -111,7 +111,10 @@ impl ConversationalRetrieverChain {
                 .collect::<Vec<_>>();
             },
             Err(err) => {
-              error!("[Chat] Error generating context related questions: {}", err);
+              error!(
+                "[embedding] Error generating context related questions: {}",
+                err
+              );
             },
           }
         }

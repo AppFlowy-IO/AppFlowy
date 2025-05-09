@@ -304,7 +304,7 @@ async fn spawn_generate_embeddings(
 
                     if chunks.iter().all(|c| c.content.is_none()) {
                       trace!(
-                        "[Embedding] skip generating embeddings for collab: {}",
+                        "[Embedding] content doesn't change, skip generating embeddings for collab: {}",
                         record.object_id
                       );
                       continue;

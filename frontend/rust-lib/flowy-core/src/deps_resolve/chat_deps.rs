@@ -22,7 +22,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 pub struct ChatDepsResolver;
@@ -83,6 +83,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   ) -> Result<Vec<AFCollabMetadata>, FlowyError> {
     let mut result = Vec::new();
 
+    info!("[Embedding] sync rag documents: {:?}", rag_ids);
     for rag_id in rag_ids {
       // Retrieve the collab object for the current rag_id
       let query_collab = match self
@@ -92,6 +93,10 @@ impl AIExternalService for ChatQueryServiceImpl {
       {
         Some(collab) => collab,
         None => {
+          debug!(
+            "[Embedding] can not find collab data, skip sync rag document: {}",
+            rag_id
+          );
           continue;
         },
       };
@@ -99,20 +104,20 @@ impl AIExternalService for ChatQueryServiceImpl {
       // Check if the state vector exists and detect changes
       if let Some(metadata) = rag_metadata_map.remove(&rag_id) {
         if let Ok(prev_sv) = StateVector::decode_v1(&metadata.prev_sync_state_vector) {
-          let collab = Collab::new_with_source(
+          if let Ok(collab) = Collab::new_with_source(
             CollabOrigin::Empty,
             &rag_id.to_string(),
             DataSource::DocStateV1(query_collab.encoded_collab.doc_state.to_vec()),
             vec![],
             false,
-          )?;
-
-          if !is_change_since_sv(&collab, &prev_sv) {
-            info!(
-              "[Embedding] skip full sync rag document {}, no changes",
-              rag_id
-            );
-            continue;
+          ) {
+            if !is_change_since_sv(&collab, &prev_sv) {
+              info!(
+                "[Embedding] skip full sync rag document {}, no changes",
+                rag_id
+              );
+              continue;
+            }
           }
         }
       }
