@@ -75,7 +75,7 @@ class _SpaceState extends State<_Space> {
     super.initState();
 
     switchToTheNextSpace.addListener(_switchToNextSpace);
-    switchToSpaceIdNotifier.addListener(_switchToSpace);
+    switchToSpaceNotifier.addListener(_switchToSpace);
   }
 
   @override
@@ -184,7 +184,7 @@ class _SpaceState extends State<_Space> {
       return;
     }
 
-    final space = switchToSpaceIdNotifier.value;
+    final space = switchToSpaceNotifier.value;
     if (space == null) {
       return;
     }

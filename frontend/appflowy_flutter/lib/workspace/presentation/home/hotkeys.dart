@@ -19,7 +19,7 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 
 ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
 ValueNotifier<int> createNewPageNotifier = ValueNotifier(0);
-ValueNotifier<ViewPB?> switchToSpaceIdNotifier = ValueNotifier(null);
+ValueNotifier<ViewPB?> switchToSpaceNotifier = ValueNotifier(null);
 
 @visibleForTesting
 final zoomInKeyCodes = [KeyCode.equal, KeyCode.numpadAdd, KeyCode.add];
