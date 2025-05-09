@@ -493,7 +493,7 @@ checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "bincode",
@@ -513,7 +513,7 @@ dependencies = [
 [[package]]
 name = "appflowy-ai-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1233,7 +1233,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "again",
  "anyhow",
@@ -1288,7 +1288,7 @@ dependencies = [
 [[package]]
 name = "client-api-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "collab-entity",
  "collab-rt-entity",
@@ -1301,7 +1301,7 @@ dependencies = [
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1572,7 +1572,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1594,7 +1594,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1877,7 +1877,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -2073,7 +2073,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "bincode",
  "bytes",
@@ -3651,7 +3651,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "getrandom 0.2.10",
@@ -3666,7 +3666,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "app-error",
  "jsonwebtoken",
@@ -4379,7 +4379,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "bytes",
@@ -6049,7 +6049,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9552f850d5f0964a4e4d0bf306459ac29323ddfbae05e35a7c0d35cb0803cc5"
 dependencies = [
  "anyhow",
- "itertools 0.12.1",
+ "itertools 0.13.0",
  "proc-macro2",
  "quote",
  "syn 2.0.94",
@@ -7522,7 +7522,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "app-error",
@@ -9668,7 +9668,7 @@ dependencies = [
 [[package]]
 name = "workspace-template"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f#8e26009c082d0b3a6aaed0b55eb19e5ba98e2c8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=63d428546cffc43411a31d3dfee85aa2669a4c64#63d428546cffc43411a31d3dfee85aa2669a4c64"
 dependencies = [
  "anyhow",
  "async-trait",

@@ -25,8 +25,8 @@ use tokio_util::either::Either;
 use tracing::{error, trace, warn};
 use uuid::Uuid;
 
-pub const CAN_NOT_ANSWER_WITH_CONTEXT: &str = "I couldn’t find any relevant information in the sources you selected. Please try asking a different question";
-pub const ANSWER_WITH_SUGGESTED_QUESTION: &str = "I couldn’t find any relevant information in the sources you selected. Please try ask following questions";
+pub const CAN_NOT_ANSWER_WITH_CONTEXT: &str = "I couldn't find any relevant information in the sources you selected. Please try asking a different question";
+pub const ANSWER_WITH_SUGGESTED_QUESTION: &str = "I couldn't find any relevant information in the sources you selected. Please try ask following questions";
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
 
@@ -259,28 +259,79 @@ impl Chain for ConversationalRetrieverChain {
         let mut memory = self.memory.lock().await;
         memory.add_message(human_message).await;
 
-        let mut content = "".to_string();
-        match &result {
+        return match result {
           QuestionStreamValue::Answer { value } => {
-            memory.add_message(Message::new_ai_message(value)).await;
-            content = value.clone();
+            memory.add_message(Message::new_ai_message(&value)).await;
+            Ok(Box::pin(stream! {
+              yield Ok(StreamData::new(
+                json!( QuestionStreamValue::Answer { value: value.clone() }),
+                None,
+                value.clone()
+              ));
+            }))
           },
-          QuestionStreamValue::Metadata { .. } => {
+          QuestionStreamValue::Metadata { value } => {
             warn!("[Chat] should not receive metadata here. It must be a bug here");
+            Ok(Box::pin(stream! {
+              yield Ok(StreamData::new(
+                json!(QuestionStreamValue::Metadata { value }),
+                None,
+                String::new()
+              ));
+            }))
           },
-          QuestionStreamValue::LackOfContext { value, .. } => {
-            memory.add_message(Message::new_ai_message(value)).await;
-            content = value.clone();
-          },
-        }
+          QuestionStreamValue::LackOfContext {
+            value,
+            suggested_questions,
+          } => {
+            // Create final value for memory once
+            let final_value = if suggested_questions.is_empty() {
+              value.clone()
+            } else {
+              let formatted_questions = suggested_questions
+                .iter()
+                .enumerate()
+                .map(|(i, q)| format!("{}. {}", i + 1, q.content))
+                .collect::<Vec<_>>()
+                .join("\n");
 
-        return Ok(Box::pin(stream! {
-          yield Ok(StreamData::new(
-            json!(result),
-            None,
-            content
-          ));
-        }));
+              format!("{}\n\n{}", value, formatted_questions)
+            };
+
+            memory
+              .add_message(Message::new_ai_message(&final_value))
+              .await;
+
+            Ok(Box::pin(stream! {
+              // Yield the initial message
+              yield Ok(StreamData::new(
+                json!(QuestionStreamValue::Answer { value: value.clone() }),
+                None,
+                value
+              ));
+
+              // If we have questions, add a newline separator before questions
+              if !suggested_questions.is_empty() {
+                yield Ok(StreamData::new(
+                  json!(QuestionStreamValue::Answer { value: "\n\n".to_string() }),
+                  None,
+                  "\n\n".to_string()
+                ));
+
+                // Yield each question separately with a newline
+                for (i, question) in suggested_questions.iter().enumerate() {
+                  tokio::time::sleep(tokio::time::Duration::from_millis(300)).await;
+                  let formatted_question = format!("{}. {}\n", i + 1, question.content);
+                  yield Ok(StreamData::new(
+                    json!(QuestionStreamValue::Answer { value: formatted_question.clone() }),
+                    None,
+                    formatted_question
+                  ));
+                }
+              }
+            }))
+          },
+        };
       },
     };
 
@@ -298,18 +349,18 @@ impl Chain for ConversationalRetrieverChain {
     let memory = self.memory.clone();
     let complete_ai_message = Arc::new(Mutex::new(String::new()));
     let complete_ai_message_clone = complete_ai_message.clone();
+
     let output_stream = stream! {
         pin_mut!(stream);
         while let Some(result) = stream.next().await {
             match result {
                 Ok(data) => {
-                    let mut complete_ai_message_clone =
-                        complete_ai_message_clone.lock().await;
-                    complete_ai_message_clone.push_str(&data.content);
+                    let mut ai_message = complete_ai_message_clone.lock().await;
+                    ai_message.push_str(&data.content);
                     yield Ok(StreamData::new(
                         json!(QuestionStreamValue::Answer { value: data.content.clone() }),
                         data.tokens,
-                        data.content.clone(),
+                        data.content,
                     ));
                 },
                 Err(e) => {
@@ -318,17 +369,20 @@ impl Chain for ConversationalRetrieverChain {
             }
         }
 
+        // Stream source metadata after content
         for source in sources {
-          yield Ok(StreamData::new(
-              json!(source),
-              None,
-              "".to_string(),
-          ));
+            yield Ok(StreamData::new(
+                json!(source),
+                None,
+                String::new(),
+            ));
         }
 
+        // Update memory with the conversation
         let mut memory = memory.lock().await;
         memory.add_message(human_message).await;
-        memory.add_message(Message::new_ai_message(&complete_ai_message.lock().await)).await;
+        let complete_message = complete_ai_message.lock().await;
+        memory.add_message(Message::new_ai_message(&complete_message)).await;
     };
 
     Ok(Box::pin(output_stream))

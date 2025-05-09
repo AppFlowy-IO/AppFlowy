@@ -84,13 +84,13 @@ impl TestContext {
 pub struct StreamResult {
   pub answer: String,
   pub sources: Vec<Value>,
-  pub suggested_questions: Vec<SuggestedQuestion>,
+  pub can_answer: bool,
 }
 
 pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
   let mut result = String::new();
   let mut sources = vec![];
-  let mut questions = vec![];
+  let mut can_answer = true;
   let mut stream = stream;
   while let Some(chunk) = stream.next().await {
     match chunk {
@@ -102,12 +102,8 @@ pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
           dbg!("metadata", &value);
           sources.push(value);
         },
-        QuestionStreamValue::LackOfContext {
-          value,
-          suggested_questions,
-        } => {
-          result.push_str(&value);
-          questions = suggested_questions;
+        QuestionStreamValue::FollowUp { mut can_answer } => {
+          can_answer = can_answer;
         },
       },
       Err(e) => {
@@ -119,7 +115,7 @@ pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
   StreamResult {
     answer: result,
     sources,
-    suggested_questions: questions,
+    can_answer,
   }
 }
 

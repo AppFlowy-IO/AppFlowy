@@ -349,22 +349,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
 
         isFetchingRelatedQuestions = true;
-        await AIEventGetRelatedQuestion(payload).send().fold(
-          (list) {
-            // while fetching related questions, the user might enter a new
-            // question or regenerate a previous response. In such cases, don't
-            // display the relatedQuestions
-            if (!isClosed && isFetchingRelatedQuestions) {
-              add(
-                ChatEvent.didReceiveRelatedQuestions(
-                  list.items.map((e) => e.content).toList(),
-                ),
-              );
-              isFetchingRelatedQuestions = false;
-            }
-          },
-          (err) => Log.error("Failed to get related questions: $err"),
-        );
+        // await AIEventGetRelatedQuestion(payload).send().fold(
+        //   (list) {
+        //     // while fetching related questions, the user might enter a new
+        //     // question or regenerate a previous response. In such cases, don't
+        //     // display the relatedQuestions
+        //     if (!isClosed && isFetchingRelatedQuestions) {
+        //       add(
+        //         ChatEvent.didReceiveRelatedQuestions(
+        //           list.items.map((e) => e.content).toList(),
+        //         ),
+        //       );
+        //       isFetchingRelatedQuestions = false;
+        //     }
+        //   },
+        //   (err) => Log.error("Failed to get related questions: $err"),
+        // );
       },
     );
   }

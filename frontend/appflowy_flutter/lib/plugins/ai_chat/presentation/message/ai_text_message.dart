@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -71,93 +72,90 @@ class ChatAIMessageWidget extends StatelessWidget {
         chatId: chatId,
         questionId: questionId,
       ),
-      child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
-        builder: (context, state) {
-          final loadingText =
-              state.progress?.step ?? LocaleKeys.chat_generatingResponse.tr();
+      child: BlocConsumer<ChatAIMessageBloc, ChatAIMessageState>(
+        listenWhen: (previous, current) =>
+            previous.messageState != current.messageState,
+        listener: (context, state) {
+          if (state.stream?.error?.isEmpty != false) {
+            return;
+          }
+          context.read<ChatBloc>().add(ChatEvent.deleteMessage(message));
+        },
+        builder: (context, blocState) {
+          final loadingText = blocState.progress?.step ??
+              LocaleKeys.chat_generatingResponse.tr();
 
-          return BlocListener<ChatBloc, ChatState>(
-            listenWhen: (previous, current) =>
-                previous.clearErrorMessages != current.clearErrorMessages,
-            listener: (context, chatState) {
-              if (state.stream?.error?.isEmpty != false) {
-                return;
-              }
-              context.read<ChatBloc>().add(ChatEvent.deleteMessage(message));
-            },
-            child: Padding(
-              padding: AIChatUILayout.messageMargin,
-              child: state.messageState.when(
-                loading: () => ChatAIMessageBubble(
-                  message: message,
-                  showActions: false,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: AILoadingIndicator(text: loadingText),
-                  ),
+          return Padding(
+            padding: AIChatUILayout.messageMargin,
+            child: blocState.messageState.when(
+              loading: () => ChatAIMessageBubble(
+                message: message,
+                showActions: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: AILoadingIndicator(text: loadingText),
                 ),
-                ready: () {
-                  return state.text.isEmpty
-                      ? _LoadingMessage(
-                          message: message,
-                          loadingText: loadingText,
-                        )
-                      : _NonEmptyMessage(
-                          user: user,
-                          messageUserId: messageUserId,
-                          message: message,
-                          stream: stream,
-                          questionId: questionId,
-                          chatId: chatId,
-                          refSourceJsonString: refSourceJsonString,
-                          onStopStream: onStopStream,
-                          onSelectedMetadata: onSelectedMetadata,
-                          onRegenerate: onRegenerate,
-                          onChangeFormat: onChangeFormat,
-                          onChangeModel: onChangeModel,
-                          isLastMessage: isLastMessage,
-                          isStreaming: isStreaming,
-                          isSelectingMessages: isSelectingMessages,
-                          enableAnimation: enableAnimation,
-                        );
-                },
-                onError: (error) {
-                  return ChatErrorMessageWidget(
-                    errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                  );
-                },
-                onAIResponseLimit: () {
-                  return ChatErrorMessageWidget(
-                    errorMessage:
-                        LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                  );
-                },
-                onAIImageResponseLimit: () {
-                  return ChatErrorMessageWidget(
-                    errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
-                  );
-                },
-                onAIMaxRequired: (message) {
-                  return ChatErrorMessageWidget(
-                    errorMessage: message,
-                  );
-                },
-                onInitializingLocalAI: () {
-                  onStopStream();
-
-                  return ChatErrorMessageWidget(
-                    errorMessage: LocaleKeys
-                        .settings_aiPage_keys_localAIInitializing
-                        .tr(),
-                  );
-                },
-                onAIQuestion: (questionData) {
-                  return AIQuestionDataWidget(
-                    message: message,
-                    questionData: questionData,
-                  );
-                },
               ),
+              ready: () {
+                return blocState.text.isEmpty
+                    ? _LoadingMessage(
+                        message: message,
+                        loadingText: loadingText,
+                      )
+                    : _NonEmptyMessage(
+                        user: user,
+                        messageUserId: messageUserId,
+                        message: message,
+                        stream: stream,
+                        questionId: questionId,
+                        chatId: chatId,
+                        refSourceJsonString: refSourceJsonString,
+                        onStopStream: onStopStream,
+                        onSelectedMetadata: onSelectedMetadata,
+                        onRegenerate: onRegenerate,
+                        onChangeFormat: onChangeFormat,
+                        onChangeModel: onChangeModel,
+                        isLastMessage: isLastMessage,
+                        isStreaming: isStreaming,
+                        isSelectingMessages: isSelectingMessages,
+                        enableAnimation: enableAnimation,
+                      );
+              },
+              onError: (error) {
+                return ChatErrorMessageWidget(
+                  errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
+                );
+              },
+              onAIResponseLimit: () {
+                return ChatErrorMessageWidget(
+                  errorMessage:
+                      LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                );
+              },
+              onAIImageResponseLimit: () {
+                return ChatErrorMessageWidget(
+                  errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
+                );
+              },
+              onAIMaxRequired: (message) {
+                return ChatErrorMessageWidget(
+                  errorMessage: message,
+                );
+              },
+              onInitializingLocalAI: () {
+                onStopStream();
+
+                return ChatErrorMessageWidget(
+                  errorMessage:
+                      LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+                );
+              },
+              onAIQuestion: (questionData) {
+                return AIQuestionDataWidget(
+                  message: message,
+                  questionData: questionData,
+                );
+              },
             ),
           );
         },
@@ -300,13 +298,16 @@ class _AIQuestionDataItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      text: FlowyText(question),
-      onTap: () {
-        context.read<ChatBloc>().add(
-              ChatEvent.sendMessage(message: question),
-            );
-      },
+    return SizedBox(
+      height: 32,
+      child: FlowyButton(
+        text: FlowyText(question),
+        onTap: () {
+          context.read<ChatBloc>().add(
+                ChatEvent.sendMessage(message: question),
+              );
+        },
+      ),
     );
   }
 }

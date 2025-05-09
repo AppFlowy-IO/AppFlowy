@@ -300,6 +300,8 @@ pub struct ChatMessagePB {
 
   #[pb(index = 7, one_of)]
   pub metadata: Option<String>,
+  // #[pb(index = 8)]
+  // pub should_fetch_related_question: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

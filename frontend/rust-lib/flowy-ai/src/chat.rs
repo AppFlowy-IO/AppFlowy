@@ -94,9 +94,6 @@ impl Chat {
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
-    let _ = question_sink
-      .send(StreamMessage::Text(params.message.to_string()).to_string())
-      .await;
     let question = self
       .chat_service
       .create_question(
@@ -216,28 +213,7 @@ impl Chat {
                         .await;
                     }
                   },
-                  QuestionStreamValue::LackOfContext {
-                    value,
-                    suggested_questions,
-                  } => {
-                    answer_stream_buffer.lock().await.push_str(&value);
-                    let questions = suggested_questions
-                      .into_iter()
-                      .map(|q| q.content)
-                      .collect::<Vec<_>>();
-
-                    let data = AIQuestionData {
-                      data: AIQuestionDataMetadata::SuggestedQuestion(questions),
-                      content: value,
-                    };
-
-                    if let Err(err) = answer_sink
-                      .send(StreamMessage::AIQuestion(data).to_string())
-                      .await
-                    {
-                      error!("Failed to stream answer via IsolateSink: {}", err);
-                    }
-                  },
+                  QuestionStreamValue::FollowUp { can_answer } => {},
                 }
               },
               Err(err) => {

@@ -6,7 +6,6 @@ pub enum StreamMessage {
   MessageId(i64),
   IndexStart,
   IndexEnd,
-  Text(String),
   OnData(String),
   AIQuestion(AIQuestionData),
   OnError(String),
@@ -34,9 +33,6 @@ impl Display for StreamMessage {
       StreamMessage::MessageId(message_id) => write!(f, "message_id:{}", message_id),
       StreamMessage::IndexStart => write!(f, "index_start:"),
       StreamMessage::IndexEnd => write!(f, "index_end"),
-      StreamMessage::Text(text) => {
-        write!(f, "data:{}", text)
-      },
       StreamMessage::OnData(message) => write!(f, "data:{message}"),
       StreamMessage::OnError(message) => write!(f, "error:{message}"),
       StreamMessage::Done => write!(f, "done:"),

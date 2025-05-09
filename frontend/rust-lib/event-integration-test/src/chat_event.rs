@@ -2,7 +2,7 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 use flowy_ai::entities::{
   ChatId, ChatMessageListPB, ChatMessageTypePB, LoadNextChatMessagePB, LoadPrevChatMessagePB,
-  SendChatPayloadPB, StreamChatPayloadPB, UpdateChatSettingsPB,
+  StreamChatPayloadPB, UpdateChatSettingsPB,
 };
 use flowy_ai::event_map::AIEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};

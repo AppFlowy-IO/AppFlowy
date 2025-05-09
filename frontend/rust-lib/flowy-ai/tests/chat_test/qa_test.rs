@@ -28,8 +28,7 @@ async fn local_ollama_test_simple_question() {
     .unwrap();
   let result = collect_stream(stream).await;
   dbg!(&result);
-  assert_eq!(result.answer, CAN_NOT_ANSWER_WITH_CONTEXT.to_string());
-  assert!(result.suggested_questions.is_empty());
+  assert!(result.answer.starts_with(CAN_NOT_ANSWER_WITH_CONTEXT));
 
   // Update the rag document content
   let trip_docs = load_asset_content("japan_trip.md");
@@ -43,8 +42,7 @@ async fn local_ollama_test_simple_question() {
     .unwrap();
   let result = collect_stream(stream).await;
   dbg!(&result);
-  assert_eq!(result.answer, ANSWER_WITH_SUGGESTED_QUESTION.to_string());
-  assert!(!result.suggested_questions.is_empty());
+  assert!(result.answer.starts_with(ANSWER_WITH_SUGGESTED_QUESTION));
 }
 
 #[tokio::test]
