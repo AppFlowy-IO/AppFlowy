@@ -73,8 +73,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     duration: const Duration(milliseconds: 200),
   );
 
-  final int _initialScrollIndex = 0;
-
   @override
   void initState() {
     super.initState();
