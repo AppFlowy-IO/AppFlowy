@@ -183,7 +183,8 @@ class CommandPaletteModal extends StatelessWidget {
       },
       child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
         builder: (context, state) {
-          final noQuery = state.query?.isEmpty ?? true;
+          final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
+          final hasResult = state.combinedResponseItems.isNotEmpty;
           return FlowyDialog(
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
@@ -210,7 +211,7 @@ class CommandPaletteModal extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (state.combinedResponseItems.isNotEmpty && !noQuery) ...[
+                  if (hasResult && hasQuery) ...[
                     AFDivider(),
                     Flexible(
                       child: SearchResultList(
@@ -223,7 +224,7 @@ class CommandPaletteModal extends StatelessWidget {
                   ]
                   // When there are no results and the query is not empty and not loading,
                   // show the no results message, centered in the available space.
-                  else if (!noQuery && !state.searching) ...[
+                  else if (hasQuery && !state.searching) ...[
                     AFDivider(),
                     if (showAskingAI) SearchAskAiEntrance(),
                     Expanded(

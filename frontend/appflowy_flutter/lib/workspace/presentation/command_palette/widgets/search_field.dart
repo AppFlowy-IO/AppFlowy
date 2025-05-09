@@ -66,16 +66,19 @@ class _SearchFieldState extends State<SearchField> {
         if (!hasText) return const SizedBox.shrink();
         return FlowyTooltip(
           message: LocaleKeys.commandPalette_clearSearchTooltip.tr(),
-          child: AFGhostButton.normal(
-            onTap: _clearSearch,
-            padding: EdgeInsets.zero,
-            builder: (context, isHovering, disabled) => SizedBox.square(
-              dimension: 28,
-              child: Center(
-                child: FlowySvg(
-                  FlowySvgs.search_clear_m,
-                  color: AppFlowyTheme.of(context).iconColorScheme.tertiary,
-                  size: const Size.square(20),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _clearSearch,
+              child: SizedBox.square(
+                dimension: 28,
+                child: Center(
+                  child: FlowySvg(
+                    FlowySvgs.search_clear_m,
+                    color: AppFlowyTheme.of(context).iconColorScheme.secondary,
+                    size: const Size.square(20),
+                  ),
                 ),
               ),
             ),
