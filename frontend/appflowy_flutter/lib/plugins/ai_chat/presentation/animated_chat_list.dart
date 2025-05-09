@@ -318,9 +318,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     if (position == _oldList.length) {
       await _scrollLastUserMessageToTop();
     }
-
-    // insert the message
-    setState(() {});
   }
 
   void _onRemoved(final int position, final Message data) {}
