@@ -45,6 +45,7 @@ class LoadChatMessageStatusReady extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context) {
+    final bool enableAnimation = true;
     return Expanded(
       child: Align(
         alignment: Alignment.topCenter,
@@ -70,6 +71,7 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                     message: message,
                     userProfile: userProfile,
                     view: view,
+                    enableAnimation: enableAnimation,
                   ),
                   chatMessageBuilder: (
                     context,
@@ -100,6 +102,7 @@ class LoadChatMessageStatusReady extends StatelessWidget {
                     userProfile: userProfile,
                     scrollController: scrollController,
                     itemBuilder: itemBuilder,
+                    enableReversedList: !enableAnimation,
                   ),
                 ),
               ),
