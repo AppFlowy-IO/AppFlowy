@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -120,15 +121,18 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
     selectedSourceIds.addAll(newSelectedSourceIds);
   }
 
-  void refreshSources(List<ViewPB> spaceViews, ViewPB? currentSpace) async {
+  Future<void> refreshSources(
+    List<ViewPB> spaceViews,
+    ViewPB? currentSpace,
+  ) async {
     filterTextController.clear();
 
     final newSources = await Future.wait(
       spaceViews.map((view) => _recursiveBuild(view, null)),
     );
-    for (final source in newSources) {
-      _restrictSelectionIfNecessary(source.children);
-    }
+
+    _restrictSelectionIfNecessary(newSources);
+
     if (currentSpace != null) {
       newSources
           .firstWhereOrNull((e) => e.view.id == currentSpace.id)
@@ -165,8 +169,13 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
     ViewSelectedStatus selectedStatus = ViewSelectedStatus.unselected;
     final isThisSourceSelected = selectedSourceIds.contains(view.id);
 
-    final childrenViews =
-        await ViewBackendService.getChildViews(viewId: view.id).toNullable();
+    final List<ViewPB>? childrenViews;
+    if (integrationMode().isTest) {
+      childrenViews = view.childViews;
+    } else {
+      childrenViews =
+          await ViewBackendService.getChildViews(viewId: view.id).toNullable();
+    }
 
     int selectedCount = 0;
     final children = <ViewSelectorItem>[];

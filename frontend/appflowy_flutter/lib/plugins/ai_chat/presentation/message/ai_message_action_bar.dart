@@ -578,9 +578,11 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
-              context
-                  .read<ViewSelectorCubit>()
-                  .refreshSources([spaceView], spaceView);
+              unawaited(
+                context
+                    .read<ViewSelectorCubit>()
+                    .refreshSources([spaceView], spaceView),
+              );
             }
             popoverController.show();
           }

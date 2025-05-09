@@ -302,7 +302,7 @@ class DesktopHomeScreen extends StatelessWidget {
           ancestors.items.firstWhereOrNull((ancestor) => ancestor.isSpace),
       (error) => null,
     );
-    switchToSpaceIdNotifier.value = space;
+    switchToSpaceNotifier.value = space;
   }
 }
 

@@ -169,6 +169,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   Widget build(BuildContext context) {
     final builders = context.watch<Builders>();
     final height = MediaQuery.of(context).size.height;
+    // A trick to avoid the first message being scrolled to the top
 
     initialScrollIndex = messages.length;
     initialAlignment = 1.0;
