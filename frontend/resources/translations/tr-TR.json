@@ -36,7 +36,6 @@
     "loginButtonText": "Oturum Aç",
     "loginStartWithAnonymous": "Anonim oturumla başla",
     "continueAnonymousUser": "Anonim oturumla devam et",
-    "anonymous": "Anonim",
     "buttonText": "Oturum Aç",
     "signingInText": "Oturum açılıyor...",
     "forgotPassword": "Parolamı Unuttum?",
@@ -68,7 +67,8 @@
     "logIn": "Oturum Aç",
     "generalError": "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
     "limitRateError": "Güvenlik önlemi olarak, sihirli bağlantı talepleri 60 saniyede bir ile sınırlandırılmıştır.",
-    "magicLinkSentDescription": "E-posta adresinize sihirli bir bağlantı gönderdik. Giriş yapmak için bu bağlantıya tıklayın. Bağlantı 5 dakika içinde geçersiz hale gelecektir."
+    "magicLinkSentDescription": "E-posta adresinize sihirli bir bağlantı gönderdik. Giriş yapmak için bu bağlantıya tıklayın. Bağlantı 5 dakika içinde geçersiz hale gelecektir.",
+    "anonymous": "Anonim"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma alanınızı seçin",

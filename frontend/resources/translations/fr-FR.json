@@ -36,7 +36,9 @@
     "loginButtonText": "Connexion",
     "loginStartWithAnonymous": "Lancer avec une session anonyme",
     "continueAnonymousUser": "Continuer avec une session anonyme",
-    "anonymous": "Anonyme",
+    "continueWithLocalModel": "Continuer avec le modèle local",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "Mode anonyme",
     "buttonText": "Se connecter",
     "signingInText": "Connexion en cours...",
     "forgotPassword": "Mot de passe oublié ?",
@@ -69,6 +71,22 @@
     "generalError": "Une erreur s'est produite. Veuillez réessayer plus tard",
     "limitRateError": "Pour des raisons de sécurité, vous ne pouvez demander un lien magique que toutes les 60 secondes",
     "magicLinkSentDescription": "Un lien magique vous a été envoyé par e-mail. Cliquez sur le lien pour vous connecter. Le lien expirera dans 5 minutes.",
+    "tokenHasExpiredOrInvalid": "Le code a expiré ou est invalide. Veuillez réessayer.",
+    "signingIn": "Connexion...",
+    "checkYourEmail": "Vérifiez votre courrier électronique",
+    "temporaryVerificationLinkSent": "Un lien de vérification temporaire a été envoyé.\nVeuillez vérifier votre boîte de réception sur",
+    "temporaryVerificationCodeSent": "Un code de vérification temporaire a été envoyé.\nVeuillez vérifier votre boîte de réception sur",
+    "continueToSignIn": "Continuer à se connecter",
+    "backToLogin": "Retour à la connexion",
+    "enterCode": "Entrez le code",
+    "enterCodeManually": "Entrez le code manuellement",
+    "continueWithEmail": "Continuer avec l'e-mail",
+    "enterPassword": "Entrez le mot de passe",
+    "loginAs": "Connectez-vous en tant que",
+    "invalidVerificationCode": "Veuillez saisir un code de vérification valide",
+    "tooFrequentVerificationCodeRequest": "Vous avez fait trop de demandes. Veuillez réessayer plus tard.",
+    "invalidLoginCredentials": "Votre mot de passe est incorrect, veuillez réessayer",
+    "anonymous": "Anonyme",
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
@@ -155,7 +173,9 @@
     "wordCountLabel": "Mots:",
     "charCountLabel": "Charactères: ",
     "createdAtLabel": "Créé:",
-    "syncedAtLabel": "Synchronisé"
+    "syncedAtLabel": "Synchronisé",
+    "saveAsNewPage": "Ajouter des messages à la page",
+    "saveAsNewPageDisabled": "Aucun message disponible"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
@@ -164,6 +184,15 @@
     "notionZip": "Fichier ZIP exporté depuis Notion",
     "csv": "CSV",
     "database": "Base de données"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Faites glisser et déposez un fichier, cliquez pour ",
+      "placeholderUpload": "Télécharger",
+      "placeholderRight": ", ou collez un lien d'image.",
+      "dropToUpload": "Déposez un fichier à télécharger",
+      "change": "Changement"
+    }
   },
   "disclosureAction": {
     "rename": "Renommer",
@@ -178,7 +207,8 @@
     "changeIcon": "Changer d'icône",
     "collapseAllPages": "Réduire toutes les sous-pages",
     "movePageTo": "Déplacer vers",
-    "move": "Déplacer"
+    "move": "Déplacer",
+    "lockPage": "Verrouiller la page"
   },
   "blankPageTitle": "Page vierge",
   "newPageText": "Nouvelle page",
@@ -218,6 +248,7 @@
     "indexingFile": "Indexation {}",
     "generatingResponse": "Générer une réponse",
     "selectSources": "Sélectionner Sources",
+    "currentPage": "Page actuelle",
     "sourcesLimitReached": "Vous ne pouvez sélectionner que jusqu'à 3 documents de niveau supérieur et leurs enfants",
     "sourceUnsupported": "Nous ne prenons pas en charge le chat avec des bases de données pour le moment",
     "regenerate": "Réessayer",
@@ -226,7 +257,37 @@
     "addToNewPage": "Ajouter à une nouvelle page",
     "addToNewPageName": "Messages extraits de \"{}\"",
     "addToNewPageSuccessToast": "Message ajouté à",
-    "openPagePreviewFailedToast": "Échec de l'ouverture de la page"
+    "openPagePreviewFailedToast": "Échec de l'ouverture de la page",
+    "changeFormat": {
+      "actionButton": "Changer de format",
+      "confirmButton": "Régénérer avec ce format",
+      "textOnly": "Texte",
+      "imageOnly": "Image seulement",
+      "textAndImage": "Texte et image",
+      "text": "Paragraphe",
+      "bullet": "Liste à puces",
+      "number": "Liste numérotée",
+      "table": "Tableau",
+      "blankDescription": "Format de réponse",
+      "defaultDescription": "Format de réponse automatique",
+      "textWithImageDescription": "@:chat .changeFormat.text avec image",
+      "numberWithImageDescription": "@:chat .changeFormat.number avec image",
+      "bulletWithImageDescription": "@:chat .changeFormat.bullet avec image",
+      "tableWithImageDescription": "@:chat .changeFormat.table avec image"
+    },
+    "switchModel": {
+      "label": "Modèle de commutateur",
+      "localModel": "Modèle local",
+      "cloudModel": "Modèle de nuage",
+      "autoModel": "Auto"
+    },
+    "selectBanner": {
+      "saveButton": "Ajouter à …",
+      "selectMessages": "Sélectionner les messages",
+      "nSelected": "{} sélectionné",
+      "allSelected": "Tous sélectionnés"
+    },
+    "stopTooltip": "Arrêter de générer"
   },
   "trash": {
     "text": "Corbeille",
@@ -269,6 +330,8 @@
   "questionBubble": {
     "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
+    "helpAndDocumentation": "Aide et documentation",
+    "getSupport": "Obtenir de l'aide",
     "markdown": "Rédaction",
     "debug": {
       "name": "Informations de Débogage",
@@ -360,6 +423,8 @@
     "askOwnerToUpgradeToProIOS": "Votre espace de travail manque d’espace de stockage gratuit.",
     "askOwnerToUpgradeToAIMax": "Votre espace de travail est à court de réponses d'IA gratuites. Demandez au propriétaire de votre espace de travail de mettre à niveau le plan ou d'acheter des modules complémentaires d'IA",
     "askOwnerToUpgradeToAIMaxIOS": "Votre espace de travail est à court de réponses IA gratuites.",
+    "purchaseAIMax": "Votre espace de travail est à court de réponses AI Image. Veuillez demander au propriétaire de votre espace d'acheter AI Max.",
+    "aiImageResponseLimit": "Vous n’avez plus de réponses d’image IA.<inlang-LineFeed>\nAccédez à Paramètres -> Plan -> Cliquez sur AI Max pour obtenir plus de réponses d'images AI",
     "purchaseStorageSpace": "Acheter un espace de stockage",
     "singleFileProPlanLimitationDescription": "Vous avez dépassé la taille maximale de téléchargement de fichiers autorisée dans le plan gratuit. Veuillez passer au plan Pro pour télécharger des fichiers plus volumineux",
     "purchaseAIResponse": "Acheter",
@@ -472,6 +537,8 @@
       "settings": "Paramètres",
       "members": "Membres",
       "trash": "Corbeille",
+      "helpAndDocumentation": "Aide et documentation",
+      "getSupport": "Obtenir de l'aide",
       "helpAndSupport": "Aide & Support"
     },
     "sites": {
@@ -553,7 +620,9 @@
         "title": "Connexion au compte",
         "loginLabel": "Connexion",
         "logoutLabel": "Déconnexion"
-      }
+      },
+      "isUpToDate": "@:appName est à jour !",
+      "officialVersion": "Version {version} (version officielle)"
     },
     "workspacePage": {
       "menuLabel": "Espace de travail",
@@ -590,7 +659,8 @@
       "theme": {
         "title": "Thème",
         "description": "Sélectionnez un thème prédéfini ou téléchargez votre propre thème personnalisé.",
-        "uploadCustomThemeTooltip": "Télécharger un thème personnalisé"
+        "uploadCustomThemeTooltip": "Télécharger un thème personnalisé",
+        "failedToLoadThemes": "Échec du chargement des thèmes. Veuillez vérifier vos paramètres d'autorisation dans Paramètres système > Confidentialité et sécurité > Fichiers et dossiers > @:appName"
       },
       "workspaceFont": {
         "title": "Police de caractère de l'espace de travail",
@@ -730,6 +800,7 @@
         "alignLeft": "Aligner le texte à gauche",
         "alignCenter": "Aligner le texte au centre",
         "alignRight": "Aligner le texte à droite",
+        "insertInlineMathEquation": "Insérer une équation mathématique en ligne",
         "undo": "Annuler",
         "redo": "Rétablir",
         "convertToParagraph": "Convertir un bloc en paragraphe",
@@ -820,11 +891,18 @@
         "localAIStart": "Démarrage du chat avec l'IA locale...",
         "localAILoading": "Chargement du modèle d'IA locale...",
         "localAIStopped": "IA locale arrêtée",
+        "localAIRunning": "L'IA locale est en cours d'exécution",
+        "localAINotReadyRetryLater": "L'IA locale est en cours d'initialisation, veuillez réessayer plus tard",
+        "localAIDisabled": "Vous utilisez l'IA locale, mais elle est désactivée. Veuillez accéder aux paramètres pour l'activer ou essayer un autre modèle.",
+        "localAIInitializing": "L'IA locale est en cours de chargement. Cela peut prendre quelques secondes selon votre appareil.",
+        "localAINotReadyTextFieldPrompt": "Vous ne pouvez pas modifier pendant le chargement de l'IA locale",
+        "localAIDisabledTextFieldPrompt": "Vous ne pouvez pas modifier lorsque l'IA locale est désactivée",
         "failToLoadLocalAI": "Impossible de démarrer l'IA locale",
         "restartLocalAI": "Redémarrer l'IA locale",
         "disableLocalAITitle": "Désactiver l'IA locale",
         "disableLocalAIDescription": "Voulez-vous désactiver l'IA locale ?",
         "localAIToggleTitle": "Basculer pour activer ou désactiver l'IA locale",
+        "localAIToggleSubTitle": "Exécutez les modèles d'IA locaux les plus avancés dans AppFlowy pour une confidentialité et une sécurité optimales",
         "offlineAIInstruction1": "Suivre les",
         "offlineAIInstruction2": "instructions",
         "offlineAIInstruction3": "pour activer l'IA hors ligne.",
@@ -833,7 +911,14 @@
         "offlineAIDownload3": "d'abord",
         "activeOfflineAI": "Activer",
         "downloadOfflineAI": "Télécharger",
-        "openModelDirectory": "Ouvrir le dossier"
+        "openModelDirectory": "Ouvrir le dossier",
+        "laiNotReady": "L'application Local AI n'a pas été installée correctement.",
+        "ollamaNotReady": "Le serveur Ollama n'est pas prêt.",
+        "pleaseFollowThese": "Veuillez suivre ces",
+        "instructions": "instructions",
+        "installOllamaLai": "pour configurer Ollama et AppFlowy Local AI.",
+        "modelsMissing": "Impossible de trouver les modèles requis : ",
+        "downloadModel": "pour les télécharger."
       }
     },
     "planPage": {
@@ -975,6 +1060,7 @@
         "itemFour": "Collaboration en temps réel",
         "itemFive": "Application mobile",
         "itemSix": "Réponses de l'IA",
+        "itemSeven": "Images IA",
         "itemFileUpload": "Téléchargements de fichiers",
         "customNamespace": "Nom d'espace personnalisé",
         "tooltipSix": "La durée de vie signifie que le nombre de réponses n'est jamais réinitialisé",
@@ -999,6 +1085,7 @@
         "itemFour": "Oui",
         "itemFive": "Oui",
         "itemSix": "illimité",
+        "itemSeven": "10 images par mois",
         "itemFileUpload": "Illimité",
         "intelligentSearch": "Recherche intelligente"
       },
@@ -1173,6 +1260,7 @@
         "system": "S'adapter au système"
       },
       "fontScaleFactor": "Facteur d'échelle de police",
+      "displaySize": "Taille de l'écran",
       "documentSettings": {
         "cursorColor": "Couleur du curseur du document",
         "selectionColor": "Couleur de sélection du document",
@@ -1272,7 +1360,22 @@
         "inviteMemberSuccess": "L'invitation a été envoyée avec succès",
         "failedToInviteMember": "Impossible d'inviter un membre",
         "workspaceMembersError": "Une erreur s'est produite",
-        "workspaceMembersErrorDescription": "Nous n'avons pas pu charger la liste des membres. Veuillez essayer plus tard s'il vous plait"
+        "workspaceMembersErrorDescription": "Nous n'avons pas pu charger la liste des membres. Veuillez essayer plus tard s'il vous plait",
+        "inviteLinkToAddMember": "Lien d'invitation pour ajouter un membre",
+        "clickToCopyLink": "Cliquez pour copier le lien",
+        "or": "ou",
+        "generateANewLink": "générer un nouveau lien",
+        "inviteMemberByEmail": "Inviter un membre par e-mail",
+        "inviteMemberHintText": "Invitation par email",
+        "resetInviteLink": "Réinitialiser le lien d'invitation ?",
+        "resetInviteLinkDescription": "La réinitialisation désactivera le lien actuel pour tous les membres de l'espace et en générera un nouveau. L'ancien lien ne sera plus disponible.",
+        "adminPanel": "Panneau d'administration",
+        "reset": "Réinitialiser",
+        "resetInviteLinkSuccess": "Le lien d'invitation a été réinitialisé avec succès",
+        "resetInviteLinkFailed": "Échec de la réinitialisation du lien d'invitation",
+        "resetInviteLinkFailedDescription": "Veuillez réessayer plus tard",
+        "memberPageDescription1": "Accéder au",
+        "memberPageDescription2": "pour la gestion des invités et des utilisateurs avancés."
       }
     },
     "files": {
@@ -1381,7 +1484,9 @@
       "filterBy": "Filtrer par...",
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
+      "compactMode": "Mode compact",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1389,8 +1494,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "filter": {
       "empty": "Aucun filtre actif",
@@ -1683,6 +1787,14 @@
         "selectADocumentToLinkTo": "Sélectionnez un Document vers lequel créer un lien"
       },
       "name": {
+        "textStyle": "Style de texte",
+        "list": "Liste",
+        "toggle": "Basculer",
+        "fileAndMedia": "Fichiers et médias",
+        "simpleTable": "Tableau simple",
+        "visuals": "Visuels",
+        "document": "Document",
+        "advanced": "Avancé",
         "text": "Texte",
         "heading1": "Titre 1",
         "heading2": "Titre 2",
@@ -1702,6 +1814,7 @@
         "quote": "Citation",
         "divider": "Diviseur",
         "table": "Tableau",
+        "callout": "Appeler",
         "outline": "Table des matières",
         "mathEquation": "Équation mathématique",
         "code": "Code",
@@ -1714,6 +1827,9 @@
         "dateOrReminder": "Date ou rappel",
         "photoGallery": "Galerie de photos",
         "file": "Fichier",
+        "twoColumns": "2 colonnes",
+        "threeColumns": "3 colonnes",
+        "fourColumns": "4 colonnes",
         "checkbox": "Case à cocher"
       },
       "subPage": {
@@ -1737,6 +1853,16 @@
       "referencedGrid": "Grille référencée",
       "referencedCalendar": "Calendrier référencé",
       "referencedDocument": "Document référencé",
+      "aiWriter": {
+        "userQuestion": "Demandez n'importe quoi à l'IA",
+        "continueWriting": "Continuer à écrire",
+        "fixSpelling": "Corriger l'orthographe et la grammaire",
+        "improveWriting": "Améliorer l'écriture",
+        "summarize": "Résumer",
+        "explain": "Expliquer",
+        "makeShorter": "Rendre plus court",
+        "makeLonger": "Rallonger"
+      },
       "autoGeneratorMenuItemName": "Rédacteur AI",
       "autoGeneratorTitleName": "AI : Demandez à l'IA d'écrire quelque chose...",
       "autoGeneratorLearnMore": "Apprendre encore plus",
@@ -1950,7 +2076,28 @@
           "failedDuplicateFindView": "Impossible de dupliquer la page - vue d'origine non trouvée"
         }
       },
-      "cannotMoveToItsChildren": "Ne peut pas se déplacer vers ses enfants"
+      "cannotMoveToItsChildren": "Ne peut pas se déplacer vers ses enfants",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Coller comme",
+          "mention": "Mention",
+          "URL": "URL",
+          "bookmark": "Signet",
+          "embed": "Intégrer"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Convertir en mention",
+          "toUrl": "Convertir en URL",
+          "toEmbed": "Convertir en intégration",
+          "toBookmark": "Convertir en signet",
+          "copyLink": "Copier le lien",
+          "replace": "Remplacer",
+          "reload": "Recharger",
+          "removeLink": "Supprimer le lien",
+          "pasteHint": "Coller en https://...",
+          "unableToDisplay": "impossible d'afficher"
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "Table de contenu"
@@ -2059,7 +2206,28 @@
       "morePages": "plus de pages"
     },
     "toolbar": {
-      "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
+      "resetToDefaultFont": "Réinitialiser aux valeurs par défaut",
+      "textSize": "Taille du texte",
+      "textColor": "Couleur du texte",
+      "h1": "Titre 1",
+      "h2": "Titre 2",
+      "h3": "Titre 3",
+      "alignLeft": "Aligner à gauche",
+      "alignRight": "Aligner à droite",
+      "alignCenter": "Aligner le centre",
+      "link": "Lien",
+      "textAlign": "Alignement du texte",
+      "moreOptions": "Plus d'options",
+      "font": "Police",
+      "inlineCode": "Code en ligne",
+      "suggestions": "Suggestions",
+      "turnInto": "Devenir",
+      "equation": "Équation",
+      "insert": "Insérer",
+      "linkInputHint": "Coller un lien ou rechercher des pages",
+      "pageOrURL": "Page ou URL",
+      "linkName": "Nom du lien",
+      "linkNameHint": "Nom du lien d'entrée"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "La version actuelle ne prend pas en charge ce bloc.",
@@ -2165,11 +2333,11 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
-      "clickToOpen": "Cliquez pour ouvrir l'évènement",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "clickToOpen": "Cliquez pour ouvrir l'évènement"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -2185,6 +2353,12 @@
   "search": {
     "label": "Recherche",
     "sidebarSearchIcon": "Rechercher et accéder rapidement à une page",
+    "searchOrAskAI": "Rechercher ou demander à l'IA",
+    "askAIAnything": "Demandez n'importe quoi à l'IA",
+    "askAIFor": "Demandez à l'IA",
+    "noResultForSearching": "Aucun résultat pour « {} »",
+    "noResultForSearchingHint": "Certains résultats peuvent être dans vos pages supprimées",
+    "bestMatch": "Meilleure correspondance",
     "placeholder": {
       "actions": "Actions de recherche..."
     }
@@ -2293,6 +2467,19 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "closeNotification": "Fermer la notification",
+    "viewNotifications": "Afficher les notifications",
+    "noNotifications": "Aucune notification pour le moment",
+    "mentionedYou": "vous a mentionné",
+    "archievedTooltip": "Archiver cette notification",
+    "unarchievedTooltip": "Cette notification n'a pas été archivée.",
+    "markAsReadTooltip": "Marquer comme lu cette notification",
+    "markAsArchievedSucceedToast": "Archivage réussi",
+    "markAllAsArchievedSucceedToast": "Tout archiver avec succès",
+    "markAsReadSucceedToast": "Marquer comme lu avec succès",
+    "markAllAsReadSucceedToast": "Tout marquer comme lu avec succès",
+    "today": "Aujourd'hui",
+    "older": "Plus vieux",
     "mobile": {
       "title": "Mises à jour"
     },
@@ -2421,6 +2608,7 @@
     "copyLink": "Copier le lien",
     "removeLink": "Supprimer le lien",
     "editLink": "Modifier le lien",
+    "convertTo": "Convertir en",
     "linkText": "Texte",
     "linkTextHint": "Veuillez saisir du texte",
     "linkAddressHint": "Veuillez entrer l'URL",
@@ -2510,6 +2698,7 @@
       "accountLogin": "Connexion au compte",
       "updateNameError": "Échec de la mise à jour du nom",
       "updateIconError": "Échec de la mise à jour de l'icône",
+      "aboutAppFlowy": "À propos de @:appName",
       "deleteAccount": {
         "title": "Supprimer le compte",
         "subtitle": "Supprimez définitivement votre compte et toutes vos données.",
@@ -2525,7 +2714,34 @@
         "failedToGetCurrentUser": "Impossible d'obtenir l'e-mail de l'utilisateur actuel",
         "confirmTextValidationFailed": "Votre texte de confirmation ne correspond pas à « @:newSettings.myAccount.deleteAccount.confirmHint3 »",
         "deleteAccountSuccess": "Compte supprimé avec succès"
-      }
+      },
+      "password": {
+        "title": "Mot de passe",
+        "changePassword": "Changer le mot de passe",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmNewPassword": "Confirmer le nouveau mot de passe",
+        "setupPassword": "Configurer le mot de passe",
+        "error": {
+          "newPasswordIsRequired": "Un nouveau mot de passe est requis",
+          "confirmPasswordIsRequired": "Confirmer le mot de passe est requis",
+          "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+          "newPasswordIsSameAsCurrent": "Le nouveau mot de passe est identique au mot de passe actuel"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Mot de passe mis à jour avec succès",
+          "passwordUpdatedFailed": "Échec de la mise à jour du mot de passe",
+          "passwordSetupSuccessfully": "Configuration du mot de passe réussie",
+          "passwordSetupFailed": "Échec de la configuration du mot de passe"
+        },
+        "hint": {
+          "enterYourCurrentPassword": "Entrez votre mot de passe actuel",
+          "enterYourNewPassword": "Entrez votre nouveau mot de passe",
+          "confirmYourNewPassword": "Confirmez votre nouveau mot de passe"
+        }
+      },
+      "myAccount": "Mon compte",
+      "myProfile": "Mon profil"
     },
     "workplace": {
       "name": "Lieu de travail",
@@ -2578,6 +2794,11 @@
   "commandPalette": {
     "placeholder": "Tapez pour rechercher des vues...",
     "bestMatches": "Meilleurs résultats",
+    "aiOverview": "Présentation de l'IA",
+    "aiOverviewSource": "Sources de référence",
+    "aiOverviewMoreDetails": "Plus de détails",
+    "pagePreview": "Aperçu du contenu",
+    "clickToOpenPage": "Cliquez pour ouvrir la page",
     "recentHistory": "Historique récent",
     "navigateHint": "naviguer",
     "loadingTooltip": "Nous recherchons des résultats...",
@@ -2780,6 +3001,8 @@
     "deleteFromTemplate": "Supprimer des modèles",
     "preview": "Aperçu du modèle",
     "categories": "Catégories de modèles",
+    "isNewTemplate": "PIN vers un nouveau modèle",
+    "featured": "PIN pour les éléments en vedette",
     "relatedTemplates": "Modèles associés",
     "requiredField": "{field} est requis",
     "addCategory": "Ajouter \"{category}\"",
@@ -2999,6 +3222,154 @@
     "quickNotesEmpty": "Aucune Notes Rapides",
     "emptyNote": "Note vide",
     "deleteNotePrompt": "La note sélectionnée sera supprimée définitivement. Êtes-vous sûr de vouloir la supprimer ?",
-    "addNote": "Nouvelle Note"
+    "addNote": "Nouvelle Note",
+    "noAdditionalText": "Aucun texte supplémentaire"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "Comparez et sélectionnez le plan",
+    "yearly": "Annuel",
+    "save": "Économisez {discount}%",
+    "monthly": "Mensuel",
+    "priceIn": "Prix en ",
+    "free": "Gratuit",
+    "pro": "Pro",
+    "freeDescription": "Pour les particuliers jusqu'à 2 membres pour tout organiser",
+    "proDescription": "Pour les petites équipes pour gérer les projets et les connaissances de l'équipe",
+    "proDuration": {
+      "monthly": "par membre et par mois\nfacturé mensuellement",
+      "yearly": "par membre et par mois\nfacturé annuellement"
+    },
+    "cancel": "Rétrograder",
+    "changePlan": "Passer au plan Pro",
+    "everythingInFree": "Tout en Gratuit +",
+    "currentPlan": "Actuel",
+    "freeDuration": "pour toujours",
+    "freePoints": {
+      "first": "1 espace de travail collaboratif jusqu'à 2 membres",
+      "second": "Pages et blocs illimités",
+      "three": "5 Go de stockage",
+      "four": "Recherche intelligente",
+      "five": "20 réponses de l'IA",
+      "six": "Application mobile",
+      "seven": "Collaboration en temps réel"
+    },
+    "proPoints": {
+      "first": "Stockage illimité",
+      "second": "Jusqu'à 10 membres de l'espace de travail",
+      "three": "Réponses IA illimitées",
+      "four": "Téléchargements de fichiers illimités",
+      "five": "Espace de noms personnalisé"
+    },
+    "cancelPlan": {
+      "title": "Désolé de te voir partir",
+      "success": "Votre abonnement a été annulé avec succès",
+      "description": "Nous sommes désolés de votre départ. Vos commentaires nous aideront à améliorer AppFlowy. Veuillez prendre quelques instants pour répondre à quelques questions.",
+      "commonOther": "Autre",
+      "otherHint": "Écrivez votre réponse ici",
+      "questionOne": {
+        "question": "Qu'est-ce qui vous a poussé à annuler votre abonnement AppFlowy Pro ?",
+        "answerOne": "Coût trop élevé",
+        "answerTwo": "Les fonctionnalités ne répondent pas aux attentes",
+        "answerThree": "J'ai trouvé une meilleure alternative",
+        "answerFour": "Je ne l'ai pas suffisamment utilisé pour justifier la dépense",
+        "answerFive": "Problème de service ou difficultés techniques"
+      },
+      "questionTwo": {
+        "question": "Quelle est la probabilité que vous envisagiez de vous réabonner à AppFlowy Pro à l’avenir ?",
+        "answerOne": "Très probable",
+        "answerTwo": "Assez probable",
+        "answerThree": "Pas sûr",
+        "answerFour": "Peu probable",
+        "answerFive": "Très peu probable"
+      },
+      "questionThree": {
+        "question": "Quelle fonctionnalité Pro avez-vous le plus appréciée pendant votre abonnement ?",
+        "answerOne": "Collaboration multi-utilisateurs",
+        "answerTwo": "Historique des versions à plus long terme",
+        "answerThree": "Réponses IA illimitées",
+        "answerFour": "Accès aux modèles d'IA locaux"
+      },
+      "questionFour": {
+        "question": "Comment décririez-vous votre expérience globale avec AppFlowy ?",
+        "answerOne": "Super",
+        "answerTwo": "Bien",
+        "answerThree": "Moyenne",
+        "answerFour": "En dessous de la moyenne",
+        "answerFive": "Insatisfait"
+      }
+    }
+  },
+  "ai": {
+    "contentPolicyViolation": "La génération de l'image a échoué en raison d'un contenu sensible. Veuillez reformuler votre saisie et réessayer.",
+    "textLimitReachedDescription": "Votre espace de travail est à court de réponses IA gratuites. Passez à l'offre Pro ou achetez une extension IA pour accéder à des réponses illimitées.",
+    "imageLimitReachedDescription": "Vous avez épuisé votre quota d'images IA gratuites. Passez à l'offre Pro ou achetez une extension IA pour accéder à des réponses illimitées.",
+    "limitReachedAction": {
+      "textDescription": "Votre espace de travail est à court de réponses IA gratuites. Pour obtenir plus de réponses, veuillez",
+      "imageDescription": "Vous avez épuisé votre quota d'images IA gratuites. Veuillez",
+      "upgrade": "mise à niveau",
+      "toThe": "au",
+      "proPlan": "Plan Pro",
+      "orPurchaseAn": "ou acheter un",
+      "aiAddon": "module complémentaire d'IA"
+    },
+    "editing": "Édition",
+    "analyzing": "Analyser",
+    "continueWritingEmptyDocumentTitle": "Continuer l'écriture d'erreur",
+    "continueWritingEmptyDocumentDescription": "Nous avons du mal à développer le contenu de votre document. Rédigez une courte introduction et nous pourrons nous en occuper !",
+    "more": "Plus",
+    "customPrompt": {
+      "browsePrompts": "Parcourir les invites",
+      "usePrompt": "Utiliser l'invite",
+      "featured": "En vedette",
+      "all": "Tous",
+      "development": "Développement",
+      "writing": "En écrivant",
+      "healthAndFitness": "Santé et forme physique",
+      "business": "Entreprise",
+      "marketing": "Commercialisation",
+      "learning": "Apprentissage",
+      "travel": "Voyage",
+      "others": "Autre",
+      "example": "Exemple",
+      "sampleOutput": "Exemple de sortie",
+      "contentSeo": "Contenu/SEO",
+      "emailMarketing": "Marketing par e-mail",
+      "paidAds": "Publicités payantes",
+      "prCommunication": "Relations publiques/Communication",
+      "recruiting": "Recrutement",
+      "sales": "Ventes",
+      "socialMedia": "Réseaux sociaux",
+      "strategy": "Stratégie",
+      "caseStudies": "Études de cas",
+      "salesCopy": "Texte de vente"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Mise à jour requise pour continuer",
+    "criticalUpdateDescription": "Nous avons apporté des améliorations pour améliorer votre expérience ! Veuillez mettre à jour la version {currentVersion} vers la version {newVersion} pour continuer à utiliser l'application.",
+    "criticalUpdateButton": "Mise à jour",
+    "bannerUpdateTitle": "Nouvelle version disponible !",
+    "bannerUpdateDescription": "Obtenez les dernières fonctionnalités et correctifs. Cliquez sur « Mettre à jour » pour installer.",
+    "bannerUpdateButton": "Mise à jour",
+    "settingsUpdateTitle": "Nouvelle version ({newVersion}) disponible !",
+    "settingsUpdateDescription": "Version actuelle : {currentVersion} (version officielle) → {newVersion}",
+    "settingsUpdateButton": "Mise à jour",
+    "settingsUpdateWhatsNew": "Quoi de neuf"
+  },
+  "lockPage": {
+    "lockPage": "Fermé",
+    "reLockPage": "Reverrouiller",
+    "lockTooltip": "Page verrouillée pour éviter toute modification accidentelle. Cliquez pour la déverrouiller.",
+    "pageLockedToast": "Page verrouillée. La modification est impossible jusqu'à ce que quelqu'un la déverrouille.",
+    "lockedOperationTooltip": "Page verrouillée pour éviter toute modification accidentelle."
+  },
+  "suggestion": {
+    "accept": "Accepter",
+    "keep": "Garder",
+    "discard": "Jeter",
+    "close": "Fermer",
+    "tryAgain": "Essayer à nouveau",
+    "rewrite": "Récrire",
+    "insertBelow": "Insérer ci-dessous"
   }
 }
