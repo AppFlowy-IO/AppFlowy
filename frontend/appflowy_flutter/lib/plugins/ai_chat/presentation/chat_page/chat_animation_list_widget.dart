@@ -1,4 +1,6 @@
-import 'package:appflowy/ai/ai.dart';
+import 'dart:async';
+
+import 'package:appflowy/ai/service/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/animated_chat_list_reversed.dart';
@@ -30,6 +32,7 @@ class ChatAnimationListWidget extends StatefulWidget {
 
 class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
   bool hasMessage = false;
+  StreamSubscription<ChatOperation>? subscription;
 
   @override
   void initState() {
@@ -40,8 +43,12 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
       hasMessage = true;
     }
 
-    bloc.chatController.operationsStream.listen((operation) {
+    subscription = bloc.chatController.operationsStream.listen((operation) {
       final newHasMessage = bloc.chatController.messages.isNotEmpty;
+
+      if (!mounted) {
+        return;
+      }
 
       if (hasMessage != newHasMessage) {
         setState(() {
@@ -49,6 +56,13 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+
+    super.dispose();
   }
 
   @override
