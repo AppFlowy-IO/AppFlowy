@@ -118,7 +118,8 @@ class _SearchResultListState extends State<SearchResultList> {
                 children: [
                   if (showAskingAI) SearchAskAiEntrance(),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

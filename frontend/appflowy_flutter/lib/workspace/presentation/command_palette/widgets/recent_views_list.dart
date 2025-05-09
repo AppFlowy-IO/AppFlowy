@@ -109,6 +109,7 @@ class RecentViewsList extends StatelessWidget {
                                     },
                                     separatorBuilder: (_, __) => AFDivider(),
                                   ),
+                                  VSpace(8),
                                 ],
                               ),
                             ),
