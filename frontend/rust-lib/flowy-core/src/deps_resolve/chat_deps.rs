@@ -17,6 +17,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
@@ -188,6 +189,10 @@ impl AIUserService for ChatUserServiceImpl {
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    self.upgrade_user()?.workspace_type()
   }
 
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {

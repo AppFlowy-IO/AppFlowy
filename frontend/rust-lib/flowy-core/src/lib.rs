@@ -39,6 +39,7 @@ use crate::server_layer::ServerProvider;
 use app_life_cycle::AppLifeCycleImpl;
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
+use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
 
 pub(crate) mod app_life_cycle;
@@ -352,6 +353,10 @@ impl ServerUserImpl {
 impl LoggedUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    self.upgrade_user()?.workspace_type()
   }
 
   fn user_id(&self) -> FlowyResult<i64> {

@@ -1,5 +1,4 @@
 use crate::af_cloud::define::LoggedUser;
-use crate::local_server::uid::IDGenerator;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use flowy_ai::local_ai::controller::LocalAIController;
@@ -28,7 +27,7 @@ use tracing::trace;
 use uuid::Uuid;
 
 lazy_static! {
-  static ref ID_GEN: Mutex<IDGenerator> = Mutex::new(IDGenerator::new(2));
+  static ref ID_GEN: Mutex<MessageIDGenerator> = Mutex::new(MessageIDGenerator::new());
 }
 
 pub struct LocalChatServiceImpl {
@@ -98,7 +97,8 @@ impl ChatCloudService for LocalChatServiceImpl {
     question_id: i64,
     metadata: Option<serde_json::Value>,
   ) -> Result<ChatMessage, FlowyError> {
-    let mut message = ChatMessage::new_ai(timestamp(), message.to_string(), Some(question_id));
+    let message_id = ID_GEN.lock().await.next_id();
+    let mut message = ChatMessage::new_ai(message_id, message.to_string(), Some(question_id));
     if let Some(metadata) = metadata {
       message.metadata = metadata;
     }
@@ -332,5 +332,33 @@ fn chat_message_from_row(row: ChatMessageTable) -> ChatMessage {
     created_at,
     metadata,
     reply_message_id: row.reply_message_id,
+  }
+}
+
+pub struct MessageIDGenerator {
+  last_timestamp: i64,
+}
+
+impl MessageIDGenerator {
+  pub fn new() -> MessageIDGenerator {
+    MessageIDGenerator {
+      last_timestamp: timestamp(),
+    }
+  }
+
+  pub fn next_id(&mut self) -> i64 {
+    let mut current_timestamp = timestamp();
+    if current_timestamp < self.last_timestamp {
+      current_timestamp = self.last_timestamp;
+    }
+
+    if current_timestamp == self.last_timestamp {
+      self.last_timestamp += 1;
+      current_timestamp = self.last_timestamp;
+    } else {
+      self.last_timestamp = current_timestamp;
+    }
+
+    current_timestamp
   }
 }

@@ -2718,6 +2718,7 @@ dependencies = [
  "client-api",
  "flowy-error",
  "flowy-sqlite",
+ "flowy-user-pub",
  "futures",
  "lib-infra",
  "serde",
