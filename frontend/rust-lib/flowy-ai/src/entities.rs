@@ -625,9 +625,6 @@ pub struct UpdateChatSettingsPB {
 
   #[pb(index = 2)]
   pub rag_ids: Vec<String>,
-
-  #[pb(index = 3)]
-  pub chat_model: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

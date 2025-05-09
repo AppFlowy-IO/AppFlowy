@@ -24,6 +24,11 @@ import 'chat_message_stream.dart';
 
 part 'chat_bloc.freezed.dart';
 
+/// Returns current Unix timestamp (seconds since epoch)
+int timestamp() {
+  return DateTime.now().millisecondsSinceEpoch ~/ 1000;
+}
+
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
     required this.chatId,
@@ -554,8 +559,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Map<String, dynamic>? sentMetadata,
   ) {
     final now = DateTime.now();
-
-    questionStreamMessageId = (now.millisecondsSinceEpoch ~/ 1000).toString();
+    questionStreamMessageId = timestamp().toString();
 
     return TextMessage(
       author: User(id: userId),
