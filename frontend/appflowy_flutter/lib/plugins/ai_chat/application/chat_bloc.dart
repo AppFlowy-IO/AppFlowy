@@ -82,7 +82,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         await event.when(
           // Loading messages
           didLoadLatestMessages: (List<Message> messages) async {
+            Log.debug(
+              "[ChatBloc] did load latest messages: ${messages.length}",
+            );
+
             for (final message in messages) {
+              Log.debug("[ChatBloc] insert message: ${message.toJson()}");
               await chatController.insert(message, index: 0);
             }
 
@@ -160,6 +165,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             chatController.insert(message);
           },
           receiveMessage: (Message message) {
+            Log.debug("[ChatBloc] receive message: ${message.toJson()}");
             final oldMessage = chatController.messages
                 .firstWhereOrNull((m) => m.id == message.id);
             if (oldMessage == null) {

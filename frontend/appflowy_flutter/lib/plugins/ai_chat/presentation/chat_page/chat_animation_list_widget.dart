@@ -29,12 +29,33 @@ class ChatAnimationListWidget extends StatefulWidget {
 }
 
 class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
+  bool hasMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final bloc = context.read<ChatBloc>();
+    if (bloc.chatController.messages.isNotEmpty) {
+      hasMessage = true;
+    }
+
+    bloc.chatController.operationsStream.listen((operation) {
+      final newHasMessage = bloc.chatController.messages.isNotEmpty;
+
+      if (hasMessage != newHasMessage) {
+        setState(() {
+          hasMessage = newHasMessage;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<ChatBloc>();
 
-    // this logic is quite weird, why don't we just get the message from the state?
-    if (bloc.chatController.messages.isEmpty) {
+    if (!hasMessage) {
       return ChatWelcomePage(
         userProfile: widget.userProfile,
         onSelectedQuestion: (question) {

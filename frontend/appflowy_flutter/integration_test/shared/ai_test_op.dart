@@ -1,9 +1,14 @@
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_page/chat_content_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/ai_writer_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_entities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../test/util.dart';
 import 'util.dart';
 
 extension AppFlowyAITest on WidgetTester {
@@ -37,5 +42,18 @@ extension AppFlowyAITest on WidgetTester {
 
     testTextInput.enterText(text);
     await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> sendUserMessage(Message message) async {
+    final chatBloc = element(find.byType(ChatContentPage)).read<ChatBloc>();
+    // using received message to simulate the user message
+    chatBloc.add(ChatEvent.receiveMessage(message));
+    await blocResponseFuture();
+  }
+
+  Future<void> receiveAIMessage(Message message) async {
+    final chatBloc = element(find.byType(ChatContentPage)).read<ChatBloc>();
+    chatBloc.add(ChatEvent.receiveMessage(message));
+    await blocResponseFuture();
   }
 }
