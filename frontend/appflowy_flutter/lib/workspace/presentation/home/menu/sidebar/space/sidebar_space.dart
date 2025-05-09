@@ -73,7 +73,9 @@ class _SpaceState extends State<_Space> {
   @override
   void initState() {
     super.initState();
+
     switchToTheNextSpace.addListener(_switchToNextSpace);
+    switchToSpaceIdNotifier.addListener(_switchToSpace);
   }
 
   @override
@@ -81,6 +83,7 @@ class _SpaceState extends State<_Space> {
     switchToTheNextSpace.removeListener(_switchToNextSpace);
     isHovered.dispose();
     isExpandedNotifier.dispose();
+
     super.dispose();
   }
 
@@ -174,5 +177,18 @@ class _SpaceState extends State<_Space> {
 
   void _switchToNextSpace() {
     context.read<SpaceBloc>().add(const SpaceEvent.switchToNextSpace());
+  }
+
+  void _switchToSpace() {
+    if (!mounted || !context.mounted) {
+      return;
+    }
+
+    final space = switchToSpaceIdNotifier.value;
+    if (space == null) {
+      return;
+    }
+
+    context.read<SpaceBloc>().add(SpaceEvent.open(space));
   }
 }

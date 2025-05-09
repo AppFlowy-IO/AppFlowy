@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/util/debounce.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +43,6 @@ class ChatAnimatedList extends StatefulWidget {
 
 class ChatAnimatedListState extends State<ChatAnimatedList>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
   late final ChatController _chatController = Provider.of<ChatController>(
     context,
     listen: false,
@@ -68,6 +67,10 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
   int _lastUserMessageIndex = 0;
   bool _isScrollingToBottom = false;
+
+  final _loadPreviousMessagesDebounce = Debounce(
+    duration: const Duration(milliseconds: 200),
+  );
 
   @override
   void initState() {
@@ -134,15 +137,19 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     itemPositionsListener.itemPositions.addListener(() {
       _handleToggleScrollToBottom();
     });
+
+    itemPositionsListener.itemPositions.addListener(() {
+      _handleLoadPreviousMessages();
+    });
   }
 
   @override
   void dispose() {
-    super.dispose();
-
     _scrollToBottomShowTimer?.cancel();
     _scrollToBottomController.dispose();
     _operationsSubscription.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -158,7 +165,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       initialAlignment = 0.0;
     }
 
-    return Stack(
+    final Widget child = Stack(
       children: [
         ScrollablePositionedList.builder(
           scrollOffsetController: scrollOffsetController,
@@ -177,7 +184,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             }
 
             if (index == _chatController.messages.length) {
-              return VSpace(height - 400);
+              return VSpace(height - 360);
             }
 
             final message = _chatController.messages[index];
@@ -204,6 +211,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             ),
       ],
     );
+
+    return child;
   }
 
   void _scrollLastMessageToTop(Message data) {
@@ -214,7 +223,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
     if (_lastUserMessageIndex != lastUserMessageIndex) {
       // scroll the current message to the top
-      Log.info('scrolling the last message to the top');
       itemScrollController.scrollTo(
         index: lastUserMessageIndex,
         duration: const Duration(milliseconds: 300),
@@ -250,10 +258,15 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     // get the max item
     final sortedItems = itemPositionsListener.itemPositions.value.toList()
       ..sort((a, b) => a.index.compareTo(b.index));
+    final maxItem = sortedItems.lastOrNull;
 
-    final maxItem = sortedItems.last;
+    if (maxItem == null) {
+      return;
+    }
 
-    if (maxItem.index >= _chatController.messages.length - 1) {
+    if (maxItem.index > _chatController.messages.length - 1 ||
+        (maxItem.index == _chatController.messages.length - 1 &&
+            maxItem.itemTrailingEdge <= 1.01)) {
       _scrollToBottomShowTimer?.cancel();
       _scrollToBottomController.reverse();
       return;
@@ -267,33 +280,31 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     });
   }
 
+  void _handleLoadPreviousMessages() {
+    final sortedItems = itemPositionsListener.itemPositions.value.toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
+    final minItem = sortedItems.firstOrNull;
+
+    if (minItem == null || minItem.index > 0 || minItem.itemLeadingEdge < 0) {
+      return;
+    }
+
+    _loadPreviousMessagesDebounce.call(
+      () {
+        widget.onLoadPreviousMessages?.call();
+      },
+    );
+  }
+
   void _onInserted(final int position, final Message data) {
     if (position == _oldList.length) {
       _scrollLastMessageToTop(data);
     }
   }
 
-  void _onRemoved(final int position, final Message data) {
-    final visualPosition = max(_oldList.length - position - 1, 0);
-    _listKey.currentState!.removeItem(
-      visualPosition,
-      (context, animation) => widget.itemBuilder(
-        context,
-        animation,
-        data,
-        isRemoved: true,
-      ),
-      duration: widget.removeAnimationDuration,
-    );
-  }
+  void _onRemoved(final int position, final Message data) {}
 
-  void _onChanged(int position, Message oldData, Message newData) {
-    _onRemoved(position, oldData);
-    _listKey.currentState!.insertItem(
-      max(_oldList.length - position - 1, 0),
-      duration: widget.insertAnimationDuration,
-    );
-  }
+  void _onChanged(int position, Message oldData, Message newData) {}
 
   void _onDiffUpdate(diffutil.DataDiffUpdate<Message> update) {
     update.when<void>(
