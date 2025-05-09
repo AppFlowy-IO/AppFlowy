@@ -37,6 +37,7 @@ class _SearchSummaryCellState extends State<SearchSummaryCell> {
   bool tappedShowMore = false;
   final maxLines = 5;
   final popoverController = PopoverController();
+  bool isLinkHovering = false, isReferenceHovering = false;
 
   SearchSummaryPB get summary => widget.summary;
   double get maxWidth => widget.maxWidth;
@@ -96,9 +97,24 @@ class _SearchSummaryCellState extends State<SearchSummaryCell> {
       },
       normalWidgetSpan: showReference
           ? WidgetSpan(
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: buildReferenceIcon(),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  onEnter: (event) {
+                    if (!isLinkHovering) {
+                      isLinkHovering = true;
+                      showPopover();
+                    }
+                  },
+                  onExit: (event) {
+                    if (isLinkHovering) {
+                      isLinkHovering = false;
+                      tryToHidePopover();
+                    }
+                  },
+                  child: buildReferenceIcon(),
+                ),
               ),
             )
           : null,
@@ -106,34 +122,55 @@ class _SearchSummaryCellState extends State<SearchSummaryCell> {
   }
 
   Widget buildReferenceIcon() {
+    final iconSize = Size(21, 15), placeholderHeight = iconSize.height + 10.0;
     return AppFlowyPopover(
-      offset: Offset(0, 0),
-      constraints: BoxConstraints(maxWidth: 360, maxHeight: 420),
+      offset: Offset(0, -iconSize.height),
+      constraints:
+          BoxConstraints(maxWidth: 360, maxHeight: 420 + placeholderHeight),
       direction: PopoverDirection.bottomWithCenterAligned,
       margin: EdgeInsets.zero,
       controller: popoverController,
-      popupBuilder: (popoverContext) => ReferenceSources(
-        summary.sources,
-        onClose: () {
-          hidePopover();
-          if (context.mounted) FlowyOverlay.pop(context);
+      decorationColor: Colors.transparent,
+      popoverDecoration: BoxDecoration(),
+      popupBuilder: (popoverContext) => MouseRegion(
+        onEnter: (event) {
+          if (!isReferenceHovering) {
+            isReferenceHovering = true;
+          }
         },
+        onExit: (event) {
+          if (isReferenceHovering) {
+            isReferenceHovering = false;
+            tryToHidePopover();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: placeholderHeight),
+            Flexible(
+              child: ReferenceSources(
+                summary.sources,
+                onClose: () {
+                  hidePopover();
+                  if (context.mounted) FlowyOverlay.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-      child: GestureDetector(
-        onTap: showPopover,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          width: 21,
-          height: 15,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: FlowySvg(
-            FlowySvgs.toolbar_link_m,
-            color: theme.iconColorScheme.primary,
-            size: Size.square(10),
-          ),
+      child: Container(
+        width: iconSize.width,
+        height: iconSize.height,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: FlowySvg(
+          FlowySvgs.toolbar_link_m,
+          color: theme.iconColorScheme.primary,
+          size: Size.square(10),
         ),
       ),
     );
@@ -147,6 +184,15 @@ class _SearchSummaryCellState extends State<SearchSummaryCell> {
   void hidePopover() {
     popoverController.close();
     keepEditorFocusNotifier.decrease();
+  }
+
+  void tryToHidePopover() {
+    if (isLinkHovering || isReferenceHovering) return;
+    Future.delayed(Duration(milliseconds: 500), () {
+      if (!context.mounted) return;
+      if (isLinkHovering || isReferenceHovering) return;
+      hidePopover();
+    });
   }
 
   void refreshTextPainter() {
@@ -292,7 +338,14 @@ class ReferenceSources extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Padding(
+    return Container(
+      decoration: ShapeDecoration(
+        color: theme.surfaceColorScheme.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(theme.spacing.m),
+        ),
+        shadows: theme.shadow.small,
+      ),
       padding: EdgeInsets.all(8),
       child: SingleChildScrollView(
         child: Column(
