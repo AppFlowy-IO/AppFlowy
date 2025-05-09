@@ -136,9 +136,11 @@ class ViewTitleBar extends StatelessWidget {
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
-            context
-                .read<ViewTitleBarBloc>()
-                .add(const ViewTitleBarEvent.reload());
+            if (context.mounted) {
+              context
+                  .read<ViewTitleBarBloc>()
+                  .add(const ViewTitleBarEvent.reload());
+            }
           },
         ),
       );
