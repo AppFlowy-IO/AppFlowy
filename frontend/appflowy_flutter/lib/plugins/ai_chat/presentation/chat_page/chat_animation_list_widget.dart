@@ -70,6 +70,9 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
                     ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
                     : 8.0,
                 onLoadPreviousMessages: () {
+                  if (bloc.isClosed) {
+                    return;
+                  }
                   bloc.add(const ChatEvent.loadPreviousMessages());
                 },
               )
@@ -80,6 +83,9 @@ class _ChatAnimationListWidgetState extends State<ChatAnimationListWidget> {
                     ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
                     : 8.0,
                 onLoadPreviousMessages: () {
+                  if (bloc.isClosed) {
+                    return;
+                  }
                   bloc.add(const ChatEvent.loadPreviousMessages());
                 },
               );
