@@ -2,13 +2,13 @@ use crate::local_ai::chat::chains::conversation_chain::{
   AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder, RetrieverOption,
 };
 use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
-use crate::local_ai::chat::format_prompt::AFMessageFormatter;
+use crate::local_ai::chat::format_prompt::AFContextPrompt;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::summary_memory::SummaryMemory;
 use crate::local_ai::chat::LLMChatInfo;
 use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
-use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
+use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID, WORKSPACE_ID};
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use futures::StreamExt;
@@ -21,14 +21,14 @@ use ollama_rs::Ollama;
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
-use tracing::{info, trace};
+use tracing::trace;
 use uuid::Uuid;
 
 pub struct LLMChat {
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
   client: Arc<Ollama>,
-  formatter: AFMessageFormatter,
+  prompt: AFContextPrompt,
   info: LLMChatInfo,
 }
 
@@ -40,7 +40,7 @@ impl LLMChat {
     user_service: Option<Weak<dyn AIUserService>>,
   ) -> FlowyResult<Self> {
     let response_format = ResponseFormat::default();
-    let formatter = create_formatter_prompt_with_format(&response_format);
+    let formatter = create_formatter_prompt_with_format(&response_format, &info.rag_ids);
     let llm = LLMOllama::new(&info.model, client.clone(), None, None);
     let summary_llm = LLMOllama::new(&info.model, client.clone(), None, None);
     let memory = SummaryMemory::new(summary_llm, info.summary.clone(), user_service)
@@ -58,7 +58,7 @@ impl LLMChat {
       store,
       chain,
       client,
-      formatter,
+      prompt: formatter,
       info,
     })
   }
@@ -84,10 +84,7 @@ impl LLMChat {
   }
 
   pub fn set_rag_ids(&mut self, rag_ids: Vec<String>) {
-    info!(
-      "[VectorStore]: {} set rag ids: {:?}",
-      self.info.chat_id, rag_ids
-    );
+    self.prompt.set_rag_ids(&rag_ids);
     self.chain.retriever.set_rag_ids(rag_ids);
   }
 
@@ -134,7 +131,7 @@ impl LLMChat {
     paragraphs: Vec<String>,
   ) -> FlowyResult<()> {
     let mut metadata = HashMap::new();
-    metadata.insert("workspace_id".to_string(), json!(self.info.workspace_id));
+    metadata.insert(WORKSPACE_ID.to_string(), json!(self.info.workspace_id));
     metadata.insert(SOURCE_ID.to_string(), json!(object_id));
     let document = Document::new(paragraphs.join("\n\n")).with_metadata(metadata);
     if let Some(store) = &self.store {
@@ -166,7 +163,7 @@ impl LLMChat {
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     trace!("[chat]: {} stream question: {}", self.info.chat_id, message);
-    self.formatter.update_format(&format)?;
+    self.prompt.update_format(&format)?;
     let input_variables = prompt_args! {
         "question" => message,
     };
@@ -188,11 +185,13 @@ impl LLMChat {
   }
 }
 
-fn create_formatter_prompt_with_format(format: &ResponseFormat) -> AFMessageFormatter {
+fn create_formatter_prompt_with_format(
+  format: &ResponseFormat,
+  rag_ids: &[String],
+) -> AFContextPrompt {
   let system_message =
     Message::new_system_message("You are an assistant for question-answering tasks");
-
-  AFMessageFormatter::new(system_message, format)
+  AFContextPrompt::new(system_message, format, rag_ids)
 }
 
 fn create_retriever(

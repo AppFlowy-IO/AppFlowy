@@ -22,7 +22,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{error, info, instrument, trace};
+use tracing::{error, instrument, trace};
 use uuid::Uuid;
 
 enum PrevMessageState {
