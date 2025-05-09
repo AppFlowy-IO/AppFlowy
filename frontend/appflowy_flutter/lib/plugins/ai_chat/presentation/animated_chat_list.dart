@@ -90,7 +90,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
-
+          _onInserted(event.index!, event.message!);
+          _oldList = List.from(_chatController.messages);
           break;
         case ChatOperationType.remove:
           assert(
@@ -145,11 +146,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
   @override
   void dispose() {
-    super.dispose();
-
     _scrollToBottomShowTimer?.cancel();
     _scrollToBottomController.dispose();
     _operationsSubscription.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -174,6 +175,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           initialAlignment: initialAlignment,
           scrollOffsetListener: scrollOffsetListener,
           itemPositionsListener: itemPositionsListener,
+          physics: ClampingScrollPhysics(),
           shrinkWrap: true,
           // the extra item is a vertical padding.
           itemCount: _chatController.messages.length + 1,
@@ -280,7 +282,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       ..sort((a, b) => a.index.compareTo(b.index));
     final minItem = sortedItems.firstOrNull;
 
-    if (minItem == null || minItem.index > 0 || minItem.itemLeadingEdge <= 0) {
+    if (minItem == null || minItem.index > 0 || minItem.itemLeadingEdge < 0) {
       return;
     }
 
@@ -292,37 +294,14 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   }
 
   void _onInserted(final int position, final Message data) {
-    _listKey.currentState!.insertItem(
-      0,
-      duration: widget.insertAnimationDuration,
-    );
-
     if (position == _oldList.length) {
       _scrollLastMessageToTop(data);
     }
   }
 
-  void _onRemoved(final int position, final Message data) {
-    final visualPosition = max(_oldList.length - position - 1, 0);
-    _listKey.currentState!.removeItem(
-      visualPosition,
-      (context, animation) => widget.itemBuilder(
-        context,
-        animation,
-        data,
-        isRemoved: true,
-      ),
-      duration: widget.removeAnimationDuration,
-    );
-  }
+  void _onRemoved(final int position, final Message data) {}
 
-  void _onChanged(int position, Message oldData, Message newData) {
-    _onRemoved(position, oldData);
-    _listKey.currentState!.insertItem(
-      max(_oldList.length - position - 1, 0),
-      duration: widget.insertAnimationDuration,
-    );
-  }
+  void _onChanged(int position, Message oldData, Message newData) {}
 
   void _onDiffUpdate(diffutil.DataDiffUpdate<Message> update) {
     update.when<void>(
