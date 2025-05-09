@@ -150,13 +150,21 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     final builders = context.watch<Builders>();
     final height = MediaQuery.of(context).size.height;
 
+    // A trick to avoid the first message being scrolled to the top
+    int initialScrollIndex = _chatController.messages.length;
+    double initialAlignment = 1.0;
+    if (_chatController.messages.length <= 2) {
+      initialScrollIndex = 0;
+      initialAlignment = 0.0;
+    }
+
     return Stack(
       children: [
         ScrollablePositionedList.builder(
           scrollOffsetController: scrollOffsetController,
           itemScrollController: itemScrollController,
-          initialScrollIndex: _chatController.messages.length,
-          initialAlignment: 1,
+          initialScrollIndex: initialScrollIndex,
+          initialAlignment: initialAlignment,
           scrollOffsetListener: scrollOffsetListener,
           itemPositionsListener: itemPositionsListener,
           physics: ClampingScrollPhysics(),
@@ -164,6 +172,10 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           // the extra item is a vertical padding.
           itemCount: _chatController.messages.length + 1,
           itemBuilder: (context, index) {
+            if (index < 0 || index > _chatController.messages.length) {
+              return SizedBox.shrink();
+            }
+
             if (index == _chatController.messages.length) {
               return VSpace(height - 400);
             }
