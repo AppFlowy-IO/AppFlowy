@@ -199,18 +199,12 @@ class CommandPaletteModal extends StatelessWidget {
               Column(
                 children: [
                   SearchField(query: state.query, isLoading: state.searching),
-                  if (showAskingAI && noQuery) ...[
-                    AFDivider(),
-                    SearchAskAiEntrance(),
-                  ],
-                  if (noQuery) ...[
-                    if (!showAskingAI) AFDivider(),
+                  if (noQuery)
                     Flexible(
                       child: RecentViewsList(
                         onSelected: () => FlowyOverlay.pop(context),
                       ),
                     ),
-                  ],
                   if (hasResult && hasQuery) ...[
                     AFDivider(),
                     Flexible(

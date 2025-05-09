@@ -105,40 +105,55 @@ class _SearchResultListState extends State<SearchResultList> {
     final resultItems = widget.resultItems
         .where((item) => !trashIds.contains(item.id))
         .toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (showAskingAI) SearchAskAiEntrance(),
-        Flexible(
+    return ScrollControllerBuilder(
+      builder: (context, controller) {
+        return FlowyScrollbar(
+          controller: controller,
           child: SingleChildScrollView(
+            controller: controller,
             physics: ClampingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            child: Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader(context),
-                  VSpace(8),
-                  ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: resultItems.length,
-                    separatorBuilder: (_, __) => AFDivider(),
-                    itemBuilder: (_, index) {
-                      final item = resultItems[index];
-                      return SearchResultCell(
-                        item: item,
-                        isHovered: bloc.state.hoveredResult?.id == item.id,
-                        query: context.read<CommandPaletteBloc?>()?.state.query,
-                      );
-                    },
+                  if (showAskingAI) SearchAskAiEntrance(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionHeader(context),
+                        VSpace(8),
+                        ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: resultItems.length,
+                          separatorBuilder: (_, __) => AFDivider(),
+                          itemBuilder: (_, index) {
+                            final item = resultItems[index];
+                            return SearchResultCell(
+                              item: item,
+                              isHovered:
+                                  bloc.state.hoveredResult?.id == item.id,
+                              query: context
+                                  .read<CommandPaletteBloc?>()
+                                  ?.state
+                                  .query,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
