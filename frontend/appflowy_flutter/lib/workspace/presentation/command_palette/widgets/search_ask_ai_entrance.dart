@@ -125,7 +125,7 @@ class _AISearching extends StatelessWidget {
             Text(
               LocaleKeys.search_searching.tr(),
               style: theme.textStyle.heading4
-                  .standard(color: theme.textColorScheme.secondary),
+                  .enhanced(color: theme.textColorScheme.secondary),
             ),
           ],
         ),
@@ -175,7 +175,6 @@ class _AIOverview extends StatelessWidget {
                     FlowySvg(
                       FlowySvgs.chat_ai_page_s,
                       size: Size.square(20),
-                      blendMode: null,
                       color: theme.iconColorScheme.primary,
                     ),
                     HSpace(8),

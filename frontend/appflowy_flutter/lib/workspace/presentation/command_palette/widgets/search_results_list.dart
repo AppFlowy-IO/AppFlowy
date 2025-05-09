@@ -90,7 +90,7 @@ class _SearchResultListState extends State<SearchResultList> {
       child: Text(
         LocaleKeys.commandPalette_bestMatches.tr(),
         style: theme.textStyle.body.enhanced(
-          color: theme.textColorScheme.tertiary,
+          color: theme.textColorScheme.secondary,
         ),
       ),
     );
@@ -118,10 +118,7 @@ class _SearchResultListState extends State<SearchResultList> {
                 children: [
                   if (showAskingAI) SearchAskAiEntrance(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 16,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
