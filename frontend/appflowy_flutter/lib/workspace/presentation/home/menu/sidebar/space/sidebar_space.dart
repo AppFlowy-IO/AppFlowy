@@ -180,10 +180,15 @@ class _SpaceState extends State<_Space> {
   }
 
   void _switchToSpace() {
+    if (!mounted || !context.mounted) {
+      return;
+    }
+
     final space = switchToSpaceIdNotifier.value;
     if (space == null) {
       return;
     }
+
     context.read<SpaceBloc>().add(SpaceEvent.open(space));
   }
 }
