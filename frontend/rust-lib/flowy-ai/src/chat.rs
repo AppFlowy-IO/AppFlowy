@@ -4,7 +4,7 @@ use crate::entities::{
 };
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::stream_message::{AIQuestionData, AIQuestionDataMetadata, StreamMessage};
+use crate::stream_message::{AIFollowUpData, StreamMessage};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
@@ -206,14 +206,27 @@ impl Chat {
                   },
                   QuestionStreamValue::Metadata { value } => {
                     if let Ok(s) = serde_json::to_string(&value) {
-                      // trace!("[Chat] stream metadata: {}", s);
                       answer_stream_buffer.lock().await.set_metadata(value);
                       let _ = answer_sink
                         .send(StreamMessage::Metadata(s).to_string())
                         .await;
                     }
                   },
-                  QuestionStreamValue::FollowUp { can_answer } => {},
+                  QuestionStreamValue::SuggestedQuestion {
+                    context_suggested_questions: _,
+                  } => {},
+                  QuestionStreamValue::FollowUp {
+                    should_generate_related_question,
+                  } => {
+                    let _ = answer_sink
+                      .send(
+                        StreamMessage::OnFollowUp(AIFollowUpData {
+                          should_generate_related_question,
+                        })
+                        .to_string(),
+                      )
+                      .await;
+                  },
                 }
               },
               Err(err) => {

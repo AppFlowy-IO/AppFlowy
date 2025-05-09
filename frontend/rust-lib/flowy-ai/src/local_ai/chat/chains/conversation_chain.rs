@@ -3,7 +3,7 @@ use crate::local_ai::chat::llm::LLMOllama;
 use crate::SqliteVectorStore;
 use async_stream::stream;
 use async_trait::async_trait;
-use flowy_ai_pub::cloud::{QuestionStreamValue, SuggestedQuestion};
+use flowy_ai_pub::cloud::{ContextSuggestedQuestion, QuestionStreamValue};
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
 use flowy_error::{FlowyError, FlowyResult};
 use futures::Stream;
@@ -17,12 +17,13 @@ use langchain_rust::memory::SimpleMemory;
 use langchain_rust::prompt::{FormatPrompter, PromptArgs};
 use langchain_rust::schemas::{BaseMemory, Document, Message, Retriever, StreamData};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use tokio_util::either::Either;
-use tracing::{error, trace, warn};
+use tracing::{error, trace};
 use uuid::Uuid;
 
 pub const CAN_NOT_ANSWER_WITH_CONTEXT: &str = "I couldn't find any relevant information in the sources you selected. Please try asking a different question";
@@ -46,6 +47,18 @@ pub struct ConversationalRetrieverChain {
   pub(crate) input_key: String,
   pub(crate) output_key: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+enum StreamValue {
+  Answer {
+    value: String,
+  },
+  ContextSuggested {
+    value: String,
+    suggested_questions: Vec<ContextSuggestedQuestion>,
+  },
+}
+
 impl ConversationalRetrieverChain {
   async fn get_question(
     &self,
@@ -81,7 +94,7 @@ impl ConversationalRetrieverChain {
   async fn get_documents_or_result(
     &self,
     question: &str,
-  ) -> Result<Either<Vec<Document>, QuestionStreamValue>, ChainError> {
+  ) -> Result<Either<Vec<Document>, StreamValue>, ChainError> {
     let rag_ids = self.retriever.get_rag_ids();
     if rag_ids.is_empty() {
       Ok(Either::Left(vec![]))
@@ -106,7 +119,7 @@ impl ConversationalRetrieverChain {
               trace!("[embedding]: context related questions: {:?}", questions);
               suggested_questions = questions
                 .into_iter()
-                .map(|q| SuggestedQuestion {
+                .map(|q| ContextSuggestedQuestion {
                   content: q.content,
                   object_id: q.object_id,
                 })
@@ -122,12 +135,12 @@ impl ConversationalRetrieverChain {
         }
 
         return if suggested_questions.is_empty() {
-          Ok(Either::Right(QuestionStreamValue::LackOfContext {
+          Ok(Either::Right(StreamValue::ContextSuggested {
             value: CAN_NOT_ANSWER_WITH_CONTEXT.to_string(),
             suggested_questions,
           }))
         } else {
-          Ok(Either::Right(QuestionStreamValue::LackOfContext {
+          Ok(Either::Right(StreamValue::ContextSuggested {
             value: ANSWER_WITH_SUGGESTED_QUESTION.to_string(),
             suggested_questions,
           }))
@@ -175,14 +188,11 @@ impl Chain for ConversationalRetrieverChain {
 
         let mut output = HashMap::new();
         match &result {
-          QuestionStreamValue::Answer { value } => {
+          StreamValue::Answer { value } => {
             memory.add_message(Message::new_ai_message(value)).await;
             output.insert(self.output_key.clone(), json!(value));
           },
-          QuestionStreamValue::Metadata { .. } => {
-            warn!("[Chat] should not receive metadata here. It must be a bug here");
-          },
-          QuestionStreamValue::LackOfContext { value, .. } => {
+          StreamValue::ContextSuggested { value, .. } => {
             memory.add_message(Message::new_ai_message(value)).await;
             output.insert(self.output_key.clone(), json!(value));
           },
@@ -260,7 +270,7 @@ impl Chain for ConversationalRetrieverChain {
         memory.add_message(human_message).await;
 
         return match result {
-          QuestionStreamValue::Answer { value } => {
+          StreamValue::Answer { value } => {
             memory.add_message(Message::new_ai_message(&value)).await;
             Ok(Box::pin(stream! {
               yield Ok(StreamData::new(
@@ -270,17 +280,7 @@ impl Chain for ConversationalRetrieverChain {
               ));
             }))
           },
-          QuestionStreamValue::Metadata { value } => {
-            warn!("[Chat] should not receive metadata here. It must be a bug here");
-            Ok(Box::pin(stream! {
-              yield Ok(StreamData::new(
-                json!(QuestionStreamValue::Metadata { value }),
-                None,
-                String::new()
-              ));
-            }))
-          },
-          QuestionStreamValue::LackOfContext {
+          StreamValue::ContextSuggested {
             value,
             suggested_questions,
           } => {
@@ -318,16 +318,30 @@ impl Chain for ConversationalRetrieverChain {
                   "\n\n".to_string()
                 ));
 
+                yield Ok(StreamData::new(
+                  json!(QuestionStreamValue::SuggestedQuestion { context_suggested_questions: suggested_questions.clone() }),
+                  None,
+                  String::new(),
+                ));
+
                 // Yield each question separately with a newline
+                // simulate stream effect
                 for (i, question) in suggested_questions.iter().enumerate() {
-                  tokio::time::sleep(tokio::time::Duration::from_millis(300)).await;
+                  tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
                   let formatted_question = format!("{}. {}\n", i + 1, question.content);
                   yield Ok(StreamData::new(
                     json!(QuestionStreamValue::Answer { value: formatted_question.clone() }),
                     None,
                     formatted_question
                   ));
+                  tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
                 }
+
+                yield Ok(StreamData::new(
+                  json!(QuestionStreamValue::FollowUp { should_generate_related_question: false }),
+                  None,
+                  String::new(),
+                ));
               }
             }))
           },

@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tracing::trace;
 use uuid::Uuid;
+
 const SYSTEM_PROMPT: &str = r#"
 Instruction:
 You are a precise question generator working with a context document that has a unique object_id. Generate exactly three questions that:
@@ -80,6 +81,7 @@ impl RelatedQuestionChain {
       "[embedding] Generating context related questions for RAG IDs: {:?}",
       rag_ids
     );
+
     let context = self
       .store
       .select_all_embedded_content(&self.workspace_id.to_string(), rag_ids, 3)

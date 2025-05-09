@@ -29,6 +29,7 @@ async fn local_ollama_test_simple_question() {
   let result = collect_stream(stream).await;
   dbg!(&result);
   assert!(result.answer.starts_with(CAN_NOT_ANSWER_WITH_CONTEXT));
+  assert!(result.gen_related_question);
 
   // Update the rag document content
   let trip_docs = load_asset_content("japan_trip.md");
@@ -43,6 +44,7 @@ async fn local_ollama_test_simple_question() {
   let result = collect_stream(stream).await;
   dbg!(&result);
   assert!(result.answer.starts_with(ANSWER_WITH_SUGGESTED_QUESTION));
+  assert!(!result.gen_related_question);
 }
 
 #[tokio::test]
@@ -121,6 +123,7 @@ async fn local_ollama_test_chat_format() {
   let result = collect_stream(stream).await;
   dbg!(&result);
   assert!(!result.answer.is_empty());
+  assert!(result.gen_related_question);
 }
 
 #[tokio::test]

@@ -118,10 +118,10 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
       );
     });
 
-    on<_OnAIQuestionData>((event, emit) {
+    on<_OnAIFollowUp>((event, emit) {
       emit(
         state.copyWith(
-          messageState: MessageState.onAIQuestion(event.questionData),
+          messageState: MessageState.aiFollowUp(event.followUpData),
         ),
       );
     });
@@ -145,8 +145,8 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         },
         onLocalAIInitializing: () =>
             _safeAdd(const ChatAIMessageEvent.onLocalAIInitializing()),
-        onAIQuestionData: (data) {
-          _safeAdd(ChatAIMessageEvent.onAIQuestionData(data));
+        onAIFollowUp: (data) {
+          _safeAdd(ChatAIMessageEvent.onAIFollowUp(data));
         },
       );
     }
@@ -185,9 +185,9 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
-  const factory ChatAIMessageEvent.onAIQuestionData(
-    AIQuestionData questionData,
-  ) = _OnAIQuestionData;
+  const factory ChatAIMessageEvent.onAIFollowUp(
+    AIFollowUpData followUpData,
+  ) = _OnAIFollowUp;
 }
 
 @freezed
@@ -223,6 +223,6 @@ class MessageState with _$MessageState {
   const factory MessageState.onInitializingLocalAI() = _LocalAIInitializing;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
-  const factory MessageState.onAIQuestion(AIQuestionData questionData) =
-      _OnAIQuestion;
+  const factory MessageState.aiFollowUp(AIFollowUpData followUpData) =
+      _AIFollowUp;
 }

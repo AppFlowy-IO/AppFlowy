@@ -15,12 +15,12 @@ class AIStreamEventPrefix {
   static const start = 'start:';
   static const finish = 'finish:';
   static const comment = 'comment:';
-  static const aiResponseLimit = 'AI_RESPONSE_LIMIT';
-  static const aiImageResponseLimit = 'AI_IMAGE_RESPONSE_LIMIT';
-  static const aiMaxRequired = 'AI_MAX_REQUIRED:';
-  static const localAINotReady = 'LOCAL_AI_NOT_READY';
-  static const localAIDisabled = 'LOCAL_AI_DISABLED';
-  static const aiQuestionData = 'ai_question:';
+  static const aiResponseLimit = 'ai_response_limit:';
+  static const aiImageResponseLimit = 'ai_image_response_limit:';
+  static const aiMaxRequired = 'ai_max_required:';
+  static const localAINotReady = 'local_ai_not_ready:';
+  static const localAIDisabled = 'local_ai_disabled:';
+  static const aiFollowUp = 'ai_follow_up:';
 }
 
 enum AiType {

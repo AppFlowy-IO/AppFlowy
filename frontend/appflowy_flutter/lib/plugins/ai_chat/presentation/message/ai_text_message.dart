@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -75,12 +74,7 @@ class ChatAIMessageWidget extends StatelessWidget {
       child: BlocConsumer<ChatAIMessageBloc, ChatAIMessageState>(
         listenWhen: (previous, current) =>
             previous.messageState != current.messageState,
-        listener: (context, state) {
-          if (state.stream?.error?.isEmpty != false) {
-            return;
-          }
-          context.read<ChatBloc>().add(ChatEvent.deleteMessage(message));
-        },
+        listener: (context, state) => _handleMessageState(state, context),
         builder: (context, blocState) {
           final loadingText = blocState.progress?.step ??
               LocaleKeys.chat_generatingResponse.tr();
@@ -150,17 +144,32 @@ class ChatAIMessageWidget extends StatelessWidget {
                       LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
                 );
               },
-              onAIQuestion: (questionData) {
-                return AIQuestionDataWidget(
-                  message: message,
-                  questionData: questionData,
-                );
+              aiFollowUp: (followUpData) {
+                return const SizedBox.shrink();
               },
             ),
           );
         },
       ),
     );
+  }
+
+  void _handleMessageState(ChatAIMessageState state, BuildContext context) {
+    if (state.stream?.error?.isEmpty != false) {
+      state.messageState.maybeMap(
+        aiFollowUp: (messageState) {
+          context
+              .read<ChatBloc>()
+              .add(ChatEvent.onAIFollowUp(messageState.followUpData));
+        },
+        orElse: () {
+          // do nothing
+        },
+      );
+
+      return;
+    }
+    context.read<ChatBloc>().add(ChatEvent.deleteMessage(message));
   }
 }
 
@@ -252,61 +261,6 @@ class _NonEmptyMessage extends StatelessWidget {
             ),
           if (state.sources.isNotEmpty && !isLastMessage) const VSpace(8.0),
         ],
-      ),
-    );
-  }
-}
-
-class AIQuestionDataWidget extends StatelessWidget {
-  const AIQuestionDataWidget({
-    super.key,
-    required this.message,
-    required this.questionData,
-  });
-
-  final AIQuestionData questionData;
-  final Message message;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChatAIMessageBubble(
-      message: message,
-      showActions: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AIMarkdownText(
-            markdown: questionData.content,
-          ),
-          const VSpace(8.0),
-          ...questionData.data.suggestedQuestions?.map(
-                (question) => _AIQuestionDataItem(question: question),
-              ) ??
-              [],
-        ],
-      ),
-    );
-  }
-}
-
-class _AIQuestionDataItem extends StatelessWidget {
-  const _AIQuestionDataItem({
-    required this.question,
-  });
-
-  final String question;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 32,
-      child: FlowyButton(
-        text: FlowyText(question),
-        onTap: () {
-          context.read<ChatBloc>().add(
-                ChatEvent.sendMessage(message: question),
-              );
-        },
       ),
     );
   }

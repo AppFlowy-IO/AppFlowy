@@ -9,8 +9,8 @@ pub use client_api::entity::chat_dto::{
   ChatMessage, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader, MessageCursor,
   RepeatedChatMessage, UpdateChatParams,
 };
+pub use client_api::entity::QuestionStreamValue;
 pub use client_api::entity::*;
-pub use client_api::entity::{QuestionStreamValue, SuggestedQuestion};
 pub use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;

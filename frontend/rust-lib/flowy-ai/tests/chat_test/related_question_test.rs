@@ -27,6 +27,8 @@ async fn local_ollama_test_context_related_questions() {
   let result = collect_stream(stream).await;
   dbg!(&result.suggested_questions);
   assert_eq!(result.suggested_questions.len(), 3);
+  assert!(!result.gen_related_question);
+
   // all suggested questions' object id should equal to doc_id
   for question in result.suggested_questions.iter() {
     assert_eq!(question.object_id, doc_id);
@@ -42,4 +44,5 @@ async fn local_ollama_test_context_related_questions() {
   let result = collect_stream(stream).await;
   dbg!(&result);
   assert!(result.suggested_questions.is_empty());
+  assert!(result.gen_related_question);
 }

@@ -6,7 +6,7 @@ mod translate_test;
 use flowy_ai::local_ai::chat::llm_chat::LLMChat;
 use flowy_ai::local_ai::chat::LLMChatInfo;
 use flowy_ai::SqliteVectorStore;
-use flowy_ai_pub::cloud::{QuestionStreamValue, StreamAnswer, SuggestedQuestion};
+use flowy_ai_pub::cloud::{ContextSuggestedQuestion, QuestionStreamValue, StreamAnswer};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use langchain_rust::url::Url;
 use ollama_rs::Ollama;
@@ -84,13 +84,15 @@ impl TestContext {
 pub struct StreamResult {
   pub answer: String,
   pub sources: Vec<Value>,
-  pub can_answer: bool,
+  pub suggested_questions: Vec<ContextSuggestedQuestion>,
+  pub gen_related_question: bool,
 }
 
 pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
   let mut result = String::new();
   let mut sources = vec![];
-  let mut can_answer = true;
+  let mut gen_related_question = true;
+  let mut suggested_questions = vec![];
   let mut stream = stream;
   while let Some(chunk) = stream.next().await {
     match chunk {
@@ -102,8 +104,16 @@ pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
           dbg!("metadata", &value);
           sources.push(value);
         },
-        QuestionStreamValue::FollowUp { mut can_answer } => {
-          can_answer = can_answer;
+
+        QuestionStreamValue::SuggestedQuestion {
+          context_suggested_questions,
+        } => {
+          suggested_questions = context_suggested_questions;
+        },
+        QuestionStreamValue::FollowUp {
+          should_generate_related_question,
+        } => {
+          gen_related_question = should_generate_related_question;
         },
       },
       Err(e) => {
@@ -115,7 +125,8 @@ pub async fn collect_stream(stream: StreamAnswer) -> StreamResult {
   StreamResult {
     answer: result,
     sources,
-    can_answer,
+    suggested_questions,
+    gen_related_question,
   }
 }
 

@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:appflowy/ai/service/ai_entities.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'chat_message_stream.g.dart';
@@ -41,7 +42,7 @@ class AnswerStream {
   void Function()? _onAIImageResponseLimit;
   void Function(String message)? _onAIMaxRequired;
   void Function(MetadataCollection metadata)? _onMetadata;
-  void Function(AIQuestionData)? _onAIQuestionData;
+  void Function(AIFollowUpData)? _onAIFollowUp;
   // Caches for events that occur before listen() is called.
   final List<String> _pendingAIMaxRequiredEvents = [];
   bool _pendingLocalAINotReady = false;
@@ -92,9 +93,15 @@ class AnswerStream {
       } else {
         _pendingLocalAINotReady = true;
       }
-    } else if (event.startsWith(AIStreamEventPrefix.aiQuestionData)) {
-      final s = event.substring(AIStreamEventPrefix.aiQuestionData.length);
-      _onAIQuestionData?.call(AIQuestionData.fromJson(jsonDecode(s)));
+    } else if (event.startsWith(AIStreamEventPrefix.aiFollowUp)) {
+      final s = event.substring(AIStreamEventPrefix.aiFollowUp.length);
+      try {
+        final dynamic jsonData = jsonDecode(s);
+        final data = AIFollowUpData.fromJson(jsonData);
+        _onAIFollowUp?.call(data);
+      } catch (e) {
+        Log.error('Error deserializing AIFollowUp data: $e\nRaw JSON: $s');
+      }
     }
   }
 
@@ -121,7 +128,7 @@ class AnswerStream {
     void Function(String message)? onAIMaxRequired,
     void Function(MetadataCollection metadata)? onMetadata,
     void Function()? onLocalAIInitializing,
-    void Function(AIQuestionData)? onAIQuestionData,
+    void Function(AIFollowUpData)? onAIFollowUp,
   }) {
     _onData = onData;
     _onStart = onStart;
@@ -132,7 +139,7 @@ class AnswerStream {
     _onAIMaxRequired = onAIMaxRequired;
     _onMetadata = onMetadata;
     _onLocalAIInitializing = onLocalAIInitializing;
-    _onAIQuestionData = onAIQuestionData;
+    _onAIFollowUp = onAIFollowUp;
     // Flush pending AI_MAX_REQUIRED events.
     if (_onAIMaxRequired != null && _pendingAIMaxRequiredEvents.isNotEmpty) {
       for (final msg in _pendingAIMaxRequiredEvents) {
@@ -250,30 +257,16 @@ class QuestionStream {
 }
 
 @JsonSerializable()
-class AIQuestionData {
-  AIQuestionData({
-    required this.data,
-    required this.content,
+class AIFollowUpData {
+  AIFollowUpData({
+    required this.shouldGenerateRelatedQuestion,
   });
 
-  factory AIQuestionData.fromJson(Map<String, dynamic> json) =>
-      _$AIQuestionDataFromJson(json);
-  final AIQuestionDataMetadata data;
-  final String content;
+  factory AIFollowUpData.fromJson(Map<String, dynamic> json) =>
+      _$AIFollowUpDataFromJson(json);
 
-  Map<String, dynamic> toJson() => _$AIQuestionDataToJson(this);
-}
+  @JsonKey(name: 'should_generate_related_question')
+  final bool shouldGenerateRelatedQuestion;
 
-@JsonSerializable()
-class AIQuestionDataMetadata {
-  factory AIQuestionDataMetadata.fromJson(Map<String, dynamic> json) =>
-      _$AIQuestionDataMetadataFromJson(json);
-
-  AIQuestionDataMetadata({
-    this.suggestedQuestions,
-  });
-  @JsonKey(name: 'SuggestedQuestion')
-  final List<String>? suggestedQuestions;
-
-  Map<String, dynamic> toJson() => _$AIQuestionDataMetadataToJson(this);
+  Map<String, dynamic> toJson() => _$AIFollowUpDataToJson(this);
 }
