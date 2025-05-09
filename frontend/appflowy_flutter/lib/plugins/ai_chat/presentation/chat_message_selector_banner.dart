@@ -185,9 +185,11 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
                       await updateSelection(documentId);
                     } else {
                       if (spaceView != null) {
-                        context
-                            .read<ViewSelectorCubit>()
-                            .refreshSources([spaceView], spaceView);
+                        unawaited(
+                          context
+                              .read<ViewSelectorCubit>()
+                              .refreshSources([spaceView], spaceView),
+                        );
                       }
                       popoverController.show();
                     }
