@@ -379,7 +379,7 @@ class ReferenceSources extends StatelessWidget {
 
   Widget buildIcon(ResultIconPB icon, AppFlowyThemeData theme) {
     if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 20) ?? SizedBox.shrink();
+      return icon.getIcon(size: 16, lineHeight: 20 / 16) ?? SizedBox.shrink();
     } else {
       return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
           SizedBox.shrink();
