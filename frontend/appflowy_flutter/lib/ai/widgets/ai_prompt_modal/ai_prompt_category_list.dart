@@ -148,12 +148,8 @@ class AiPromptCustomPromptSection extends StatelessWidget {
         return state.maybeMap(
           ready: (readyState) {
             final isSelected = readyState.isCustomPromptSectionSelected;
-            final isDisabled = context
-                .read<AiPromptSelectorCubit>()
-                .availablePrompts
-                .every((prompt) => !prompt.isCustom);
+
             return AFBaseButton(
-              disabled: isDisabled,
               onTap: () {
                 if (!isSelected) {
                   context.read<AiPromptSelectorCubit>().selectCustomSection();
@@ -163,9 +159,7 @@ class AiPromptCustomPromptSection extends StatelessWidget {
                 return Text(
                   LocaleKeys.ai_customPrompt_custom.tr(),
                   style: AppFlowyTheme.of(context).textStyle.body.standard(
-                        color: disabled
-                            ? theme.textColorScheme.tertiary
-                            : theme.textColorScheme.primary,
+                        color: theme.textColorScheme.primary,
                       ),
                   overflow: TextOverflow.ellipsis,
                 );
@@ -178,9 +172,6 @@ class AiPromptCustomPromptSection extends StatelessWidget {
               borderColor: (context, isHovering, disabled, isFocused) =>
                   Colors.transparent,
               backgroundColor: (context, isHovering, disabled) {
-                if (disabled) {
-                  return Colors.transparent;
-                }
                 if (isSelected) {
                   return theme.fillColorScheme.themeSelect;
                 }
