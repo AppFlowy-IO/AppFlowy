@@ -109,7 +109,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             event.message != null,
             'Message must be provided when removing a message.',
           );
-          Log.debug('remove: ${event.index} ${event.message}');
+
           _onRemoved(event.index!, event.message!);
           _oldList = List.from(_chatController.messages);
           break;
@@ -308,7 +308,6 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
 
     _loadPreviousMessagesDebounce.call(
       () {
-        Log.debug('load previous messages');
         widget.onLoadPreviousMessages?.call();
       },
     );
