@@ -250,6 +250,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     // get the max item
     final sortedItems = itemPositionsListener.itemPositions.value.toList()
       ..sort((a, b) => a.index.compareTo(b.index));
+
     final maxItem = sortedItems.last;
 
     if (maxItem.index >= _chatController.messages.length - 1) {

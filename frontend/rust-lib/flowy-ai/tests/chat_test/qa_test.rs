@@ -1,8 +1,12 @@
-use crate::{collect_stream, setup_log, TestContext};
+use crate::{collect_stream, load_asset_content, setup_log, TestContext};
+use flowy_ai::local_ai::chat::chains::conversation_chain::{
+  ANSWER_WITH_SUGGESTED_QUESTION, CAN_NOT_ANSWER_WITH_CONTEXT,
+};
 use flowy_ai::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use flowy_ai::local_ai::chat::llm::LLMOllama;
 use flowy_ai_pub::cloud::{OutputLayout, ResponseFormat};
 use flowy_ai_pub::entities::{SOURCE, SOURCE_ID, SOURCE_NAME};
+use uuid::Uuid;
 
 #[tokio::test]
 async fn local_ollama_test_simple_question() {
@@ -14,6 +18,33 @@ async fn local_ollama_test_simple_question() {
     .unwrap();
   let result = collect_stream(stream).await;
   dbg!(result);
+
+  let doc_id = Uuid::new_v4();
+  // set rag_id but not rag document content, should return CAN_NOT_ANSWER_WITH_CONTEXT
+  chat.set_rag_ids(vec![doc_id.to_string()]);
+  let stream = chat
+    .stream_question("hello world", Default::default())
+    .await
+    .unwrap();
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  assert_eq!(result.answer, CAN_NOT_ANSWER_WITH_CONTEXT.to_string());
+  assert!(result.suggested_questions.is_empty());
+
+  // Update the rag document content
+  let trip_docs = load_asset_content("japan_trip.md");
+  chat
+    .embed_paragraphs(&doc_id.to_string(), vec![trip_docs])
+    .await
+    .unwrap();
+  let stream = chat
+    .stream_question("hello world", Default::default())
+    .await
+    .unwrap();
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  assert_eq!(result.answer, ANSWER_WITH_SUGGESTED_QUESTION.to_string());
+  assert!(!result.suggested_questions.is_empty());
 }
 
 #[tokio::test]

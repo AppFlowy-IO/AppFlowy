@@ -25,6 +25,8 @@ use tokio_util::either::Either;
 use tracing::{error, trace, warn};
 use uuid::Uuid;
 
+pub const CAN_NOT_ANSWER_WITH_CONTEXT: &str = "I couldn’t find any relevant information in the sources you selected. Please try asking a different question";
+pub const ANSWER_WITH_SUGGESTED_QUESTION: &str = "I couldn’t find any relevant information in the sources you selected. Please try ask following questions";
 pub(crate) const DEFAULT_OUTPUT_KEY: &str = "output";
 pub(crate) const DEFAULT_RESULT_KEY: &str = "generate_result";
 
@@ -121,12 +123,12 @@ impl ConversationalRetrieverChain {
 
         return if suggested_questions.is_empty() {
           Ok(Either::Right(QuestionStreamValue::LackOfContext {
-            value: "I couldn’t find any relevant information in the sources you selected. Please try asking a different question".to_string(),
+            value: CAN_NOT_ANSWER_WITH_CONTEXT.to_string(),
             suggested_questions,
           }))
         } else {
           Ok(Either::Right(QuestionStreamValue::LackOfContext {
-            value: "I couldn’t find any relevant information in the sources you selected. Please try ask following questions".to_string(),
+            value: ANSWER_WITH_SUGGESTED_QUESTION.to_string(),
             suggested_questions,
           }))
         };

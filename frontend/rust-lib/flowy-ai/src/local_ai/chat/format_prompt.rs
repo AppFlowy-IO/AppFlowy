@@ -20,10 +20,6 @@ Answer:
 "#;
 
 const QA_TEMPLATE: &str = r#"
-Use the context provided below to formulate your response
-##Context##
-{{context}}
-
 Question:{{question}}
 Answer:
 "#;
