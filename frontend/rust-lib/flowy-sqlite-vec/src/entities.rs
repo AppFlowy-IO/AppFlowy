@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 #[derive(Clone, Debug)]
 pub struct PendingIndexedCollab {
   pub object_id: String,
@@ -17,4 +19,10 @@ pub struct SqliteEmbeddedDocument {
 pub struct SqliteEmbeddedFragment {
   pub content: String,
   pub embeddings: Vec<f32>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct EmbeddedContent {
+  pub content: String,
+  pub object_id: String,
 }

@@ -79,6 +79,8 @@ class TextMessageWidget extends StatelessWidget {
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
         return BlocBuilder<ChatBloc, ChatState>(
+          buildWhen: (previous, current) =>
+              previous.promptResponseState != current.promptResponseState,
           builder: (context, state) {
             final chatController = context.read<ChatBloc>().chatController;
             final messages = chatController.messages

@@ -52,6 +52,13 @@ impl EmbedContext {
 
   pub fn set_ollama(&self, ollama: Option<Arc<Ollama>>) {
     if let Some(ollama) = ollama {
+      if let Some(o) = self.ollama.load().as_ref() {
+        if o.uri() == ollama.uri() {
+          info!("[Embedding] Ollama does not change");
+          return;
+        }
+      }
+
       self.ollama.store(Some(ollama));
       self.try_create_scheduler();
     } else {
@@ -82,6 +89,9 @@ impl EmbedContext {
         },
         Err(err) => error!("[Embedding] Failed to create scheduler: {}", err),
       }
+    } else {
+      info!("[Embedding] Ollama or vector db is not initialized, remove embedding scheduler");
+      self.scheduler.store(None);
     }
   }
 }

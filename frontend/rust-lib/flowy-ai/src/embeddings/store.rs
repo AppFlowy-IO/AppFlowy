@@ -6,7 +6,7 @@ use flowy_ai_pub::cloud::CollabType;
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite_vec::db::VectorSqliteDB;
-use flowy_sqlite_vec::entities::SqliteEmbeddedDocument;
+use flowy_sqlite_vec::entities::{EmbeddedContent, SqliteEmbeddedDocument};
 use futures::stream::{self, StreamExt};
 use langchain_rust::llm::client::OllamaClient;
 use langchain_rust::{
@@ -63,6 +63,25 @@ impl SqliteVectorStore {
       .await
       .map_err(|err| {
         FlowyError::internal().with_context(format!("Failed to select embedded documents: {}", err))
+      })
+  }
+
+  pub async fn select_all_embedded_content(
+    &self,
+    workspace_id: &str,
+    rag_ids: &[String],
+    limit: usize,
+  ) -> FlowyResult<Vec<EmbeddedContent>> {
+    let vector_db = match self.vector_db.upgrade() {
+      Some(db) => db,
+      None => return Err(FlowyError::internal().with_context("Vector database not initialized")),
+    };
+
+    vector_db
+      .select_all_embedded_content(workspace_id, rag_ids, limit)
+      .await
+      .map_err(|err| {
+        FlowyError::internal().with_context(format!("Failed to select embedded content: {}", err))
       })
   }
 }

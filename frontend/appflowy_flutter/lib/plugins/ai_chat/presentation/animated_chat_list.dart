@@ -152,6 +152,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     itemPositionsListener.itemPositions.addListener(() {
       _handleLoadPreviousMessages();
     });
+
+    // A trick to avoid the first message being scrolled to the top
   }
 
   @override
@@ -167,8 +169,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   Widget build(BuildContext context) {
     final builders = context.watch<Builders>();
     final height = MediaQuery.of(context).size.height;
-
     // A trick to avoid the first message being scrolled to the top
+
     initialScrollIndex = messages.length;
     initialAlignment = 1.0;
     if (messages.length <= 2) {

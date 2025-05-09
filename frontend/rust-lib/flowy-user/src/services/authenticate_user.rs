@@ -71,6 +71,13 @@ impl AuthenticateUser {
     Ok(workspace_uuid)
   }
 
+  pub fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    let session = self.get_session()?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+    Ok(workspace_type)
+  }
+
   pub fn workspace_database_object_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
     let mut conn = self.get_sqlite_connection(session.user_id)?;

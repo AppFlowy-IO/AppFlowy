@@ -4,6 +4,7 @@ use twox_hash::xxhash64::Hasher;
 use uuid::Uuid;
 pub const RAG_IDS: &str = "rag_ids";
 pub const SOURCE_ID: &str = "id";
+pub const WORKSPACE_ID: &str = "workspace_id";
 pub const SOURCE: &str = "source";
 pub const SOURCE_NAME: &str = "name";
 pub struct EmbeddingRecord {

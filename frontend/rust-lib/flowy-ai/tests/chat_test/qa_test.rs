@@ -1,10 +1,12 @@
-use crate::{setup_log, TestContext};
+use crate::{collect_stream, load_asset_content, setup_log, TestContext};
+use flowy_ai::local_ai::chat::chains::conversation_chain::{
+  ANSWER_WITH_SUGGESTED_QUESTION, CAN_NOT_ANSWER_WITH_CONTEXT,
+};
+use flowy_ai::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use flowy_ai::local_ai::chat::llm::LLMOllama;
-use flowy_ai::local_ai::chat::related_question_chain::RelatedQuestionChain;
-use flowy_ai_pub::cloud::{OutputLayout, QuestionStreamValue, ResponseFormat, StreamAnswer};
+use flowy_ai_pub::cloud::{OutputLayout, ResponseFormat};
 use flowy_ai_pub::entities::{SOURCE, SOURCE_ID, SOURCE_NAME};
-use serde_json::Value;
-use tokio_stream::StreamExt;
+use uuid::Uuid;
 
 #[tokio::test]
 async fn local_ollama_test_simple_question() {
@@ -16,6 +18,33 @@ async fn local_ollama_test_simple_question() {
     .unwrap();
   let result = collect_stream(stream).await;
   dbg!(result);
+
+  let doc_id = Uuid::new_v4();
+  // set rag_id but not rag document content, should return CAN_NOT_ANSWER_WITH_CONTEXT
+  chat.set_rag_ids(vec![doc_id.to_string()]);
+  let stream = chat
+    .stream_question("hello world", Default::default())
+    .await
+    .unwrap();
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  assert!(result.answer.starts_with(CAN_NOT_ANSWER_WITH_CONTEXT));
+  assert!(result.gen_related_question);
+
+  // Update the rag document content
+  let trip_docs = load_asset_content("japan_trip.md");
+  chat
+    .embed_paragraphs(&doc_id.to_string(), vec![trip_docs])
+    .await
+    .unwrap();
+  let stream = chat
+    .stream_question("hello world", Default::default())
+    .await
+    .unwrap();
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  assert!(result.answer.starts_with(ANSWER_WITH_SUGGESTED_QUESTION));
+  assert!(!result.gen_related_question);
 }
 
 #[tokio::test]
@@ -30,7 +59,7 @@ async fn local_ollama_test_chat_with_multiple_docs_retrieve() {
         ids.push(id.to_string());
         chat.embed_paragraphs(&id.to_string(), vec![doc.to_string()]).await.unwrap();
     }
-  chat.set_rag_ids(ids.clone()).await;
+  chat.set_rag_ids(ids.clone());
 
   let all_docs = chat.get_all_embedded_documents().await.unwrap();
   assert_eq!(all_docs.len(), 3);
@@ -58,22 +87,26 @@ async fn local_ollama_test_chat_with_multiple_docs_retrieve() {
     .stream_question("Rust is a multiplayer survival game", Default::default())
     .await
     .unwrap();
-  let (answer, sources) = collect_stream(stream).await;
-  dbg!(&answer);
-  dbg!(&sources);
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  dbg!(&result.sources);
 
-  assert!(!answer.is_empty());
-  assert!(!sources.is_empty());
-  assert!(sources[0].get(SOURCE_ID).unwrap().as_str().is_some());
-  assert!(sources[0].get(SOURCE).unwrap().as_str().is_some());
-  assert!(sources[0].get(SOURCE_NAME).unwrap().as_str().is_some());
+  assert!(!result.answer.is_empty());
+  assert!(!result.sources.is_empty());
+  assert!(result.sources[0].get(SOURCE_ID).unwrap().as_str().is_some());
+  assert!(result.sources[0].get(SOURCE).unwrap().as_str().is_some());
+  assert!(result.sources[0]
+    .get(SOURCE_NAME)
+    .unwrap()
+    .as_str()
+    .is_some());
 
   let stream = chat
     .stream_question("Japan ski resort", Default::default())
     .await
     .unwrap();
-  let (answer, _) = collect_stream(stream).await;
-  dbg!(&answer);
+  let result = collect_stream(stream).await;
+  dbg!(&result);
 }
 
 #[tokio::test]
@@ -87,34 +120,10 @@ async fn local_ollama_test_chat_format() {
     .stream_question("Compare rust and js", format)
     .await
     .unwrap();
-  let (answer, _) = collect_stream(stream).await;
-  dbg!(&answer);
-  assert!(!answer.is_empty());
-}
-
-async fn collect_stream(stream: StreamAnswer) -> (String, Vec<Value>) {
-  let mut result = String::new();
-  let mut sources = vec![];
-  let mut stream = stream;
-  while let Some(chunk) = stream.next().await {
-    match chunk {
-      Ok(value) => match value {
-        QuestionStreamValue::Answer { value } => {
-          result.push_str(&value);
-        },
-        QuestionStreamValue::Metadata { value } => {
-          dbg!("metadata", &value);
-          sources.push(value);
-        },
-        QuestionStreamValue::KeepAlive => {},
-      },
-      Err(e) => {
-        eprintln!("Error: {}", e);
-      },
-    }
-  }
-
-  (result, sources)
+  let result = collect_stream(stream).await;
+  dbg!(&result);
+  assert!(!result.answer.is_empty());
+  assert!(result.gen_related_question);
 }
 
 #[tokio::test]

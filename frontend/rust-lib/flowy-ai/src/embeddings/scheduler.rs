@@ -192,19 +192,20 @@ pub async fn spawn_write_embeddings(
   mut stop_rx: broadcast::Receiver<()>,
 ) {
   let mut buf = Vec::with_capacity(EMBEDDING_RECORD_BUFFER_SIZE);
+  info!("[Embedding] spawn embedding writer");
 
   loop {
     select! {
       // Shutdown signal arrives
       _ = stop_rx.recv() => {
-          info!("Received stop signal; shutting down embedding writer");
+          info!("[Embedding] Received stop signal; shutting down embedding writer");
           break;
       }
       // Next batch from the input channel
       n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE) => {
         // channel closed
         if n == 0 {
-          info!("Input channel closed; stopping write embeddings");
+          info!("[Embedding] Input channel closed; stopping write embeddings");
           break;
         }
 
@@ -212,7 +213,7 @@ pub async fn spawn_write_embeddings(
         let scheduler = match scheduler.upgrade() {
           Some(db) => db,
           None => {
-              error!("EmbeddingScheduler dropped; stopping write embeddings");
+              error!("[Embedding] EmbeddingScheduler dropped; stopping write embeddings");
               break;
           }
         };
@@ -243,10 +244,11 @@ async fn spawn_generate_embeddings(
   mut stop_rx: broadcast::Receiver<()>,
 ) {
   let mut buf = Vec::with_capacity(EMBEDDING_RECORD_BUFFER_SIZE);
+  info!("[Embedding] spawn embedding generator");
   loop {
     select! {
       _ = stop_rx.recv() => {
-        info!("Received stop signal; shutting down embedding writer");
+        info!("[Embedding] Received stop signal; shutting down embedding writer");
         break;
       }
       n = rx.recv_many(&mut buf, EMBEDDING_RECORD_BUFFER_SIZE) => {
@@ -302,7 +304,7 @@ async fn spawn_generate_embeddings(
 
                     if chunks.iter().all(|c| c.content.is_none()) {
                       trace!(
-                        "[Embedding] skip generating embeddings for collab: {}",
+                        "[Embedding] content doesn't change, skip generating embeddings for collab: {}",
                         record.object_id
                       );
                       continue;

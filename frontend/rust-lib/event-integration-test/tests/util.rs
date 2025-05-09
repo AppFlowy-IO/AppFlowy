@@ -173,3 +173,10 @@ pub fn gen_csv_import_data(file_name: &str, workspace_id: &str) -> ImportPayload
     }],
   }
 }
+
+pub fn load_text_file_content(name: &str) -> String {
+  let path = format!("tests/asset/{}", name);
+  std::fs::read_to_string(path).unwrap_or_else(|_| {
+    panic!("Failed to read asset file: {}", name);
+  })
+}

@@ -50,12 +50,12 @@ async-trait.workspace = true
 async-stream = "0.3.6"
 flowy-database-pub = { workspace = true }
 langchain-rust = { version = "4.6.0", features = ["ollama"] }
+text-splitter = { version = "0.25.1" }
+flowy-sqlite-vec.workspace = true
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
 af-mcp = { version = "0.1.0" }
-text-splitter = { version = "0.25.1" }
-flowy-sqlite-vec.workspace = true
 lopdf = { version = "0.36.0", optional = true }
 pulldown-cmark = { version = "0.13.0", optional = true }
 

@@ -8,7 +8,7 @@ use langchain_rust::schemas::{Message, PromptValue};
 use langchain_rust::template_jinja2;
 use std::sync::{Arc, RwLock};
 
-const DEFAULT_QA_TEMPLATE: &str = r#"
+const QA_CONTEXT_TEMPLATE: &str = r#"
 Only Use the context provided below to formulate your answer. Do not use any other information. If the context doesn't contain sufficient information to answer the question, respond with "I don't know".
 Do not reference external knowledge or information outside the context.
 
@@ -19,32 +19,55 @@ Question:{{question}}
 Answer:
 "#;
 
+const QA_TEMPLATE: &str = r#"
+Question:{{question}}
+Answer:
+"#;
+
+fn template_from_rag_ids(rag_ids: &[String]) -> HumanMessagePromptTemplate {
+  if rag_ids.is_empty() {
+    HumanMessagePromptTemplate::new(template_jinja2!(QA_TEMPLATE, "question"))
+  } else {
+    HumanMessagePromptTemplate::new(template_jinja2!(QA_CONTEXT_TEMPLATE, "context", "question"))
+  }
+}
+
 struct FormatState {
   format_msg: Arc<Message>,
   format: ResponseFormat,
 }
 
-pub struct AFMessageFormatter {
+pub struct AFContextPrompt {
+  rag_ids: Vec<String>,
   system_msg: Arc<Message>,
   state: Arc<RwLock<FormatState>>,
-  user_tmpl: Arc<HumanMessagePromptTemplate>,
+  user_tmpl: Arc<RwLock<HumanMessagePromptTemplate>>,
 }
 
-impl AFMessageFormatter {
-  pub fn new(system_msg: Message, fmt: &ResponseFormat) -> Self {
-    // Compile the Jinja template exactly once
-    let user_tmpl =
-      HumanMessagePromptTemplate::new(template_jinja2!(DEFAULT_QA_TEMPLATE, "context", "question"));
-
+impl AFContextPrompt {
+  pub fn new(system_msg: Message, fmt: &ResponseFormat, rag_ids: &[String]) -> Self {
+    let user_tmpl = template_from_rag_ids(rag_ids);
     let state = FormatState {
       format_msg: Arc::new(format_prompt(fmt)),
       format: fmt.clone(),
     };
 
     Self {
+      rag_ids: rag_ids.to_vec(),
       system_msg: Arc::new(system_msg),
       state: Arc::new(RwLock::new(state)),
-      user_tmpl: Arc::new(user_tmpl),
+      user_tmpl: Arc::new(RwLock::new(user_tmpl)),
+    }
+  }
+
+  pub fn set_rag_ids(&mut self, rag_ids: &[String]) {
+    if self.rag_ids == rag_ids {
+      return;
+    }
+    self.rag_ids = rag_ids.to_vec();
+    let template = template_from_rag_ids(rag_ids);
+    if let Ok(mut w) = self.user_tmpl.try_write() {
+      *w = template;
     }
   }
 
@@ -64,9 +87,10 @@ impl AFMessageFormatter {
   }
 }
 
-impl Clone for AFMessageFormatter {
+impl Clone for AFContextPrompt {
   fn clone(&self) -> Self {
     Self {
+      rag_ids: self.rag_ids.clone(),
       system_msg: Arc::clone(&self.system_msg),
       state: Arc::clone(&self.state),
       user_tmpl: Arc::clone(&self.user_tmpl),
@@ -74,7 +98,7 @@ impl Clone for AFMessageFormatter {
   }
 }
 
-impl MessageFormatter for AFMessageFormatter {
+impl MessageFormatter for AFContextPrompt {
   fn format_messages(&self, args: PromptArgs) -> Result<Vec<Message>, PromptError> {
     let mut out = Vec::with_capacity(3);
     out.push((*self.system_msg).clone());
@@ -83,7 +107,10 @@ impl MessageFormatter for AFMessageFormatter {
       out.push((*st.format_msg).clone());
     }
 
-    out.extend(self.user_tmpl.format_messages(args)?);
+    if let Ok(user_tmpl) = self.user_tmpl.try_read() {
+      out.extend(user_tmpl.format_messages(args)?);
+    }
+
     Ok(out)
   }
 
@@ -92,7 +119,7 @@ impl MessageFormatter for AFMessageFormatter {
   }
 }
 
-impl FormatPrompter for AFMessageFormatter {
+impl FormatPrompter for AFContextPrompt {
   fn format_prompt(&self, input_variables: PromptArgs) -> Result<PromptValue, PromptError> {
     let messages = self.format_messages(input_variables)?;
     Ok(PromptValue::from_messages(messages))

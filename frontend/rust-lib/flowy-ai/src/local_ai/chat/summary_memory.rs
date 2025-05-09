@@ -17,7 +17,7 @@ pub struct SummaryMemory {
 }
 
 impl SummaryMemory {
-  pub async fn new(
+  pub fn new(
     llm: LLMOllama,
     summary: String,
     user_service: Option<Weak<dyn AIUserService>>,

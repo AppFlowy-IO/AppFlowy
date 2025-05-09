@@ -300,6 +300,8 @@ pub struct ChatMessagePB {
 
   #[pb(index = 7, one_of)]
   pub metadata: Option<String>,
+  // #[pb(index = 8)]
+  // pub should_fetch_related_question: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -625,9 +627,6 @@ pub struct UpdateChatSettingsPB {
 
   #[pb(index = 2)]
   pub rag_ids: Vec<String>,
-
-  #[pb(index = 3)]
-  pub chat_model: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

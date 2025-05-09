@@ -17,12 +17,13 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 pub struct ChatDepsResolver;
@@ -83,6 +84,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   ) -> Result<Vec<AFCollabMetadata>, FlowyError> {
     let mut result = Vec::new();
 
+    info!("[Embedding] sync rag documents: {:?}", rag_ids);
     for rag_id in rag_ids {
       // Retrieve the collab object for the current rag_id
       let query_collab = match self
@@ -92,6 +94,10 @@ impl AIExternalService for ChatQueryServiceImpl {
       {
         Some(collab) => collab,
         None => {
+          debug!(
+            "[Embedding] can not find collab data, skip sync rag document: {}",
+            rag_id
+          );
           continue;
         },
       };
@@ -99,17 +105,20 @@ impl AIExternalService for ChatQueryServiceImpl {
       // Check if the state vector exists and detect changes
       if let Some(metadata) = rag_metadata_map.remove(&rag_id) {
         if let Ok(prev_sv) = StateVector::decode_v1(&metadata.prev_sync_state_vector) {
-          let collab = Collab::new_with_source(
+          if let Ok(collab) = Collab::new_with_source(
             CollabOrigin::Empty,
             &rag_id.to_string(),
             DataSource::DocStateV1(query_collab.encoded_collab.doc_state.to_vec()),
             vec![],
             false,
-          )?;
-
-          if !is_change_since_sv(&collab, &prev_sv) {
-            info!("[Embedding] skip full sync {}, no changes", rag_id);
-            continue;
+          ) {
+            if !is_change_since_sv(&collab, &prev_sv) {
+              info!(
+                "[Embedding] skip full sync rag document {}, no changes",
+                rag_id
+              );
+              continue;
+            }
           }
         }
       }
@@ -127,7 +136,10 @@ impl AIExternalService for ChatQueryServiceImpl {
         .full_sync_collab_object(workspace_id, params)
         .await
       {
-        error!("Failed to sync rag document: {} error: {}", rag_id, err);
+        error!(
+          "[Embedding] failed to sync rag document: {} error: {}",
+          rag_id, err
+        );
       } else {
         result.push(AFCollabMetadata {
           object_id: rag_id.to_string(),
@@ -177,6 +189,10 @@ impl AIUserService for ChatUserServiceImpl {
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    self.upgrade_user()?.workspace_type()
   }
 
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {

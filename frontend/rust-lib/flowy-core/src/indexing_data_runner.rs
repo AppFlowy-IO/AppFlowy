@@ -216,7 +216,10 @@ impl AppLifeCycleImpl {
           },
         }
         full_indexed_finish_sender.send_replace(true);
-        info!("[Indexing] full indexed data provider stopped");
+        info!(
+          "[Indexing] {} full indexed data provider stopped",
+          workspace_id_cloned
+        );
       }
 
       if let Some(writer) = full_indexed_data_writer.upgrade() {
