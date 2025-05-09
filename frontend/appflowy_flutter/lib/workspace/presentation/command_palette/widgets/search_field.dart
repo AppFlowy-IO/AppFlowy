@@ -145,5 +145,6 @@ class _SearchFieldState extends State<SearchField> {
     context
         .read<CommandPaletteBloc>()
         .add(const CommandPaletteEvent.clearSearch());
+    focusNode.requestFocus();
   }
 }
