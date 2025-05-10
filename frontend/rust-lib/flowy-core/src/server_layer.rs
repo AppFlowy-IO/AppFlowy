@@ -1,3 +1,4 @@
+use crate::deps_resolve::MultiSourceVSTanvityImpl;
 use crate::AppFlowyCoreConfig;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::entity::EncodedCollab;
@@ -73,6 +74,13 @@ impl ServerProvider {
   }
 
   async fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    let tanvity_store = Arc::new(MultiSourceVSTanvityImpl::new(tanvity_state.clone()));
+
+    self
+      .local_ai
+      .set_retriever_sources(vec![tanvity_store])
+      .await;
+
     match self.providers.try_get(self.auth_type.load().as_ref()) {
       TryResult::Present(r) => {
         r.set_tanvity_state(tanvity_state).await;

@@ -5,6 +5,7 @@ use collab::preclude::{Collab, StateVector};
 use collab::util::is_change_since_sv;
 use collab_entity::CollabType;
 use flowy_ai::ai_manager::{AIExternalService, AIManager};
+use flowy_ai::local_ai::chat::retriever::{LangchainDocument, MultipleSourceRetrieverStore};
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_ai_pub::persistence::AFCollabMetadata;
@@ -13,6 +14,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
 use flowy_folder_pub::query::FolderService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_server::util::tanvity_local_search;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
@@ -23,6 +26,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tracing::{debug, error, info};
 use uuid::Uuid;
 
@@ -203,5 +207,57 @@ impl AIUserService for ChatUserServiceImpl {
     Ok(PathBuf::from(
       self.upgrade_user()?.get_application_root_dir(),
     ))
+  }
+}
+
+#[derive(Clone)]
+pub struct MultiSourceVSTanvityImpl {
+  state: Option<Weak<RwLock<DocumentTantivyState>>>,
+}
+
+impl MultiSourceVSTanvityImpl {
+  pub fn new(state: Option<Weak<RwLock<DocumentTantivyState>>>) -> Self {
+    Self { state }
+  }
+}
+
+#[async_trait]
+impl MultipleSourceRetrieverStore for MultiSourceVSTanvityImpl {
+  fn retriever_name(&self) -> &'static str {
+    "Tanvity Multiple Source Retriever"
+  }
+
+  async fn read_documents(
+    &self,
+    workspace_id: &Uuid,
+    query: &str,
+    limit: usize,
+    rag_ids: &[String],
+    score_threshold: f32,
+    _full_search: bool,
+  ) -> FlowyResult<Vec<LangchainDocument>> {
+    let docs = tanvity_local_search(
+      &self.state,
+      workspace_id,
+      query,
+      Some(rag_ids.to_vec()),
+      limit,
+      score_threshold,
+    )
+    .await;
+
+    match docs {
+      None => Ok(vec![]),
+      Some(docs) => Ok(
+        docs
+          .into_iter()
+          .map(|v| LangchainDocument {
+            page_content: v.content,
+            metadata: Default::default(),
+            score: v.score,
+          })
+          .collect(),
+      ),
+    }
   }
 }

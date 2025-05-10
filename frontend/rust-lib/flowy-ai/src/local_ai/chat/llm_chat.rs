@@ -1,9 +1,12 @@
 use crate::local_ai::chat::chains::conversation_chain::{
-  AFRetriever, ConversationalRetrieverChain, ConversationalRetrieverChainBuilder, RetrieverOption,
+  ConversationalRetrieverChain, ConversationalRetrieverChainBuilder,
 };
 use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::format_prompt::AFContextPrompt;
 use crate::local_ai::chat::llm::LLMOllama;
+use crate::local_ai::chat::retriever::multi_source_retriever::MultipleSourceRetriever;
+use crate::local_ai::chat::retriever::sqlite_retriever::RetrieverOption;
+use crate::local_ai::chat::retriever::{AFRetriever, MultipleSourceRetrieverStore};
 use crate::local_ai::chat::summary_memory::SummaryMemory;
 use crate::local_ai::chat::LLMChatInfo;
 use crate::SqliteVectorStore;
@@ -38,6 +41,7 @@ impl LLMChat {
     client: Arc<Ollama>,
     store: Option<SqliteVectorStore>,
     user_service: Option<Weak<dyn AIUserService>>,
+    retriever_sources: Vec<Weak<dyn MultipleSourceRetrieverStore>>,
   ) -> FlowyResult<Self> {
     let response_format = ResponseFormat::default();
     let formatter = create_formatter_prompt_with_format(&response_format, &info.rag_ids);
@@ -47,7 +51,12 @@ impl LLMChat {
       .map(|v| v.into())
       .unwrap_or(SimpleMemory::new().into());
 
-    let retriever = create_retriever(&info.workspace_id, info.rag_ids.clone(), store.clone());
+    let retriever = create_retriever(
+      &info.workspace_id,
+      info.rag_ids.clone(),
+      store.clone(),
+      retriever_sources,
+    );
     let builder =
       ConversationalRetrieverChainBuilder::new(info.workspace_id, llm, retriever, store.clone())
         .rephrase_question(false)
@@ -198,17 +207,40 @@ fn create_retriever(
   workspace_id: &Uuid,
   rag_ids: Vec<String>,
   store: Option<SqliteVectorStore>,
-) -> AFRetriever {
+  retrievers_sources: Vec<Weak<dyn MultipleSourceRetrieverStore>>,
+) -> Box<dyn AFRetriever> {
   trace!(
     "[VectorStore]: {} create retriever with rag_ids: {:?}",
     workspace_id,
     rag_ids,
   );
-  let options = VecStoreOptions::default()
-    .with_score_threshold(0.2)
-    .with_filters(json!({RAG_IDS: rag_ids, "workspace_id": workspace_id}));
 
-  AFRetriever::new(store, 5, options)
+  let mut stores: Vec<Arc<dyn MultipleSourceRetrieverStore>> = vec![];
+  if let Some(store) = store {
+    stores.push(Arc::new(store));
+  }
+
+  for source in retrievers_sources {
+    if let Some(source) = source.upgrade() {
+      stores.push(source);
+    }
+  }
+
+  trace!(
+    "[VectorStore]: use retrievers sources: {:?}",
+    stores
+      .iter()
+      .map(|s| s.retriever_name())
+      .collect::<Vec<_>>()
+  );
+
+  Box::new(MultipleSourceRetriever::new(
+    *workspace_id,
+    stores,
+    rag_ids.clone(),
+    5,
+    0.2,
+  ))
 }
 
 fn map_chain_error(err: ChainError) -> FlowyError {

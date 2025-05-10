@@ -23,6 +23,9 @@ pub async fn tanvity_local_search(
   state: &Option<Weak<RwLock<DocumentTantivyState>>>,
   workspace_id: &Uuid,
   query: &str,
+  object_ids: Option<Vec<String>>,
+  limit: usize,
+  score_threshold: f32,
 ) -> Option<Vec<SearchDocumentResponseItem>> {
   match state.as_ref().and_then(|v| v.upgrade()) {
     None => {
@@ -30,7 +33,11 @@ pub async fn tanvity_local_search(
       None
     },
     Some(state) => {
-      let results = state.read().await.search(workspace_id, query, None).ok()?;
+      let results = state
+        .read()
+        .await
+        .search(workspace_id, query, object_ids, limit, score_threshold)
+        .ok()?;
       let items = results
         .into_iter()
         .flat_map(|v| tanvity_document_to_search_document(*workspace_id, v))
@@ -49,7 +56,7 @@ pub(crate) fn tanvity_document_to_search_document(
   Some(SearchDocumentResponseItem {
     object_id,
     workspace_id,
-    score: 1.0,
+    score: doc.score as f64,
     content_type: Some(SearchContentType::PlainText),
     content: doc.content,
     preview: None,

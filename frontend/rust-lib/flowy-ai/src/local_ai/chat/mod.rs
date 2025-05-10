@@ -2,11 +2,13 @@ pub mod chains;
 mod format_prompt;
 pub mod llm;
 pub mod llm_chat;
+pub mod retriever;
 mod summary_memory;
 
 use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
+use crate::local_ai::chat::retriever::MultipleSourceRetrieverStore;
 use crate::local_ai::completion::chain::CompletionChain;
 use crate::local_ai::database::summary::DatabaseSummaryChain;
 use crate::local_ai::database::translate::DatabaseTranslateChain;
@@ -41,11 +43,14 @@ pub struct LLMChatInfo {
   pub summary: String,
 }
 
+pub type RetrieversSources = RwLock<Vec<Arc<dyn MultipleSourceRetrieverStore>>>;
+
 pub struct LLMChatController {
   chat_by_id: DashMap<Uuid, LLMChat>,
   store: RwLock<Option<SqliteVectorStore>>,
   client: OllamaClientRef,
   user_service: Weak<dyn AIUserService>,
+  retriever_sources: RetrieversSources,
 }
 impl LLMChatController {
   pub fn new(user_service: Weak<dyn AIUserService>) -> Self {
@@ -54,7 +59,12 @@ impl LLMChatController {
       chat_by_id: DashMap::new(),
       client: Default::default(),
       user_service,
+      retriever_sources: Default::default(),
     }
+  }
+
+  pub async fn set_retriever_sources(&self, sources: Vec<Arc<dyn MultipleSourceRetrieverStore>>) {
+    *self.retriever_sources.write().await = sources;
   }
 
   pub async fn is_ready(&self) -> bool {
@@ -79,6 +89,8 @@ impl LLMChatController {
   }
 
   async fn create_chat_if_not_exist(&self, info: LLMChatInfo) -> FlowyResult<()> {
+    debug_assert!(!self.retriever_sources.read().await.is_empty());
+
     let store = self.store.read().await.clone();
     let client = self
       .client
@@ -90,9 +102,21 @@ impl LLMChatController {
       .ok_or_else(|| FlowyError::local_ai().with_context("Ollama client has been dropped"))?
       .clone();
     let entry = self.chat_by_id.entry(info.chat_id);
-
+    let retriever_sources = self
+      .retriever_sources
+      .read()
+      .await
+      .iter()
+      .map(Arc::downgrade)
+      .collect();
     if let Entry::Vacant(e) = entry {
-      let chat = LLMChat::new(info, client, store, Some(self.user_service.clone()))?;
+      let chat = LLMChat::new(
+        info,
+        client,
+        store,
+        Some(self.user_service.clone()),
+        retriever_sources,
+      )?;
       e.insert(chat);
     }
     Ok(())

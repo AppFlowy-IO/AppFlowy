@@ -305,6 +305,8 @@ impl DocumentTantivyState {
     workspace_id: &Uuid,
     query: &str,
     object_ids: Option<Vec<String>>,
+    limit: usize,
+    score_threshold: f32,
   ) -> FlowyResult<Vec<TanvitySearchResponseItem>> {
     let workspace_id = workspace_id.to_string();
     let reader = self.reader.clone();
@@ -319,7 +321,7 @@ impl DocumentTantivyState {
     qp.set_field_fuzzy(self.field_name, true, 2, true);
 
     let query = qp.parse_query(query)?;
-    let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(10))?;
+    let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(limit))?;
 
     let mut results = Vec::with_capacity(top_docs.len());
     let mut seen_ids = std::collections::HashSet::new();
@@ -333,7 +335,12 @@ impl DocumentTantivyState {
       }
     });
 
-    for (_score, doc_address) in top_docs {
+    for (score, doc_address) in top_docs {
+      // Skip results that don't meet the score threshold
+      if score < score_threshold {
+        continue;
+      }
+
       let retrieved: TantivyDocument = searcher.doc(doc_address)?;
       // Pull out each stored field using cached field references
       let workspace_id_str = retrieved
@@ -416,6 +423,7 @@ impl DocumentTantivyState {
         icon,
         workspace_id: workspace_id_str,
         content,
+        score,
       });
     }
 
