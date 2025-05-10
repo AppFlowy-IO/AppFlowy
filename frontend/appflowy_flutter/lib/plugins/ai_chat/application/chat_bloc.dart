@@ -110,7 +110,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             _handleSendMessage(message, format, metadata, emit),
         finishSending: () async => emit(
           state.copyWith(
-              promptResponseState: PromptResponseState.streamingAnswer),
+            promptResponseState: PromptResponseState.streamingAnswer,
+          ),
         ),
 
         // Stream control
