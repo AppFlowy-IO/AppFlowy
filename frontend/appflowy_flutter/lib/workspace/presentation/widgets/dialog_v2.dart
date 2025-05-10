@@ -43,9 +43,10 @@ Future<void> showSimpleAFDialog({
               trailing: [
                 AFGhostButton.normal(
                   onTap: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.all(theme.spacing.xs),
                   builder: (context, isHovering, disabled) {
                     return FlowySvg(
-                      FlowySvgs.close_s,
+                      FlowySvgs.toast_close_s,
                       size: Size.square(20),
                     );
                   },
@@ -57,7 +58,12 @@ Future<void> showSimpleAFDialog({
                 // AFModalDimension.dialogHeight - header - footer
                 constraints: BoxConstraints(minHeight: 108.0),
                 child: AFModalBody(
-                  child: Text(content),
+                  child: Text(
+                    content,
+                    style: theme.textStyle.body.standard(
+                      color: theme.textColorScheme.primary,
+                    ),
+                  ),
                 ),
               ),
             ),

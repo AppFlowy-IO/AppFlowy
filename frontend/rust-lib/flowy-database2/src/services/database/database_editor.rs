@@ -1897,6 +1897,10 @@ impl DatabaseEditor {
         let content_cell = row.cells.get(&content_field.id);
         let content = content_cell.map(|cell| stringify_cell(cell, content_field))?;
 
+        if content.is_empty() {
+          return None;
+        }
+
         let example = example_field
           .and_then(|field| extract_cell_value(&row, field))
           .unwrap_or_default();

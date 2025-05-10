@@ -2,7 +2,7 @@ import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'ai_prompt_category_list.dart';
-import 'ai_prompt_database_selector.dart';
+import 'ai_prompt_onboarding.dart';
 import 'ai_prompt_preview.dart';
 import 'ai_prompt_visible_list.dart';
 
@@ -53,11 +53,8 @@ class AiPromptModal extends StatelessWidget {
       child: BlocListener<AiPromptSelectorCubit, AiPromptSelectorState>(
         listener: (context, state) {
           state.maybeMap(
-            invalidDatabase: (state) {
-              showToastNotification(
-                message: LocaleKeys.ai_customPrompt_invalidDatabase.tr(),
-                type: ToastificationType.error,
-              );
+            invalidDatabase: (_) {
+              showLoadPromptFailedDialog(context);
             },
             orElse: () {},
           );
@@ -72,33 +69,9 @@ class AiPromptModal extends StatelessWidget {
                 ),
               ),
               trailing: [
-                BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
-                  buildWhen: (p, c) {
-                    return p.maybeMap(
-                      ready: (pr) => c.maybeMap(
-                        ready: (cr) =>
-                            pr.customPromptDatabaseViewId !=
-                                cr.customPromptDatabaseViewId ||
-                            pr.isLoadingCustomPrompts !=
-                                cr.isLoadingCustomPrompts,
-                        orElse: () => false,
-                      ),
-                      orElse: () => true,
-                    );
-                  },
-                  builder: (context, state) {
-                    return state.maybeMap(
-                      ready: (readyState) => CustomPromptDatabaseSelector(
-                        databaseViewId: readyState.customPromptDatabaseViewId,
-                        isLoading: readyState.isLoadingCustomPrompts,
-                      ),
-                      orElse: () => const SizedBox.shrink(),
-                    );
-                  },
-                ),
                 AFGhostButton.normal(
                   onTap: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.all(theme.spacing.s),
+                  padding: EdgeInsets.all(theme.spacing.xs),
                   builder: (context, isHovering, disabled) {
                     return Center(
                       child: FlowySvg(
@@ -121,41 +94,52 @@ class AiPromptModal extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         );
                       },
-                      ready: (_) {
+                      ready: (readyState) {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             const Expanded(
                               child: AiPromptCategoryList(),
                             ),
-                            const Expanded(
-                              flex: 2,
-                              child: AiPromptVisibleList(),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: BlocBuilder<AiPromptSelectorCubit,
-                                  AiPromptSelectorState>(
-                                builder: (context, state) {
-                                  final selectedPrompt = state.maybeMap(
-                                    ready: (state) {
-                                      return state.visiblePrompts
-                                          .firstWhereOrNull(
-                                        (prompt) =>
-                                            prompt.id == state.selectedPromptId,
-                                      );
-                                    },
-                                    orElse: () => null,
-                                  );
-                                  if (selectedPrompt == null) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return AiPromptPreview(
-                                    prompt: selectedPrompt,
-                                  );
-                                },
+                            if (readyState.isCustomPromptSectionSelected &&
+                                readyState.customPromptDatabaseViewId == null)
+                              const Expanded(
+                                flex: 5,
+                                child: Center(
+                                  child: AiPromptOnboarding(),
+                                ),
+                              )
+                            else ...[
+                              const Expanded(
+                                flex: 2,
+                                child: AiPromptVisibleList(),
                               ),
-                            ),
+                              Expanded(
+                                flex: 3,
+                                child: BlocBuilder<AiPromptSelectorCubit,
+                                    AiPromptSelectorState>(
+                                  builder: (context, state) {
+                                    final selectedPrompt = state.maybeMap(
+                                      ready: (state) {
+                                        return state.visiblePrompts
+                                            .firstWhereOrNull(
+                                          (prompt) =>
+                                              prompt.id ==
+                                              state.selectedPromptId,
+                                        );
+                                      },
+                                      orElse: () => null,
+                                    );
+                                    if (selectedPrompt == null) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return AiPromptPreview(
+                                      prompt: selectedPrompt,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ],
                         );
                       },
@@ -170,4 +154,18 @@ class AiPromptModal extends StatelessWidget {
       ),
     );
   }
+}
+
+void showLoadPromptFailedDialog(
+  BuildContext context,
+) {
+  showSimpleAFDialog(
+    context: context,
+    title: LocaleKeys.ai_customPrompt_invalidDatabase.tr(),
+    content: LocaleKeys.ai_customPrompt_invalidDatabaseHelp.tr(),
+    primaryAction: (
+      LocaleKeys.button_ok.tr(),
+      (context) {},
+    ),
+  );
 }
