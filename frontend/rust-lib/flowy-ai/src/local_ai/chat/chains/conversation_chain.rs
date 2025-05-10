@@ -1,12 +1,17 @@
-use crate::local_ai::chat::chains::context_question_chain::RelatedQuestionChain;
+use crate::local_ai::chat::chains::context_question_chain::{
+  embedded_documents_to_context_str, ContextRelatedQuestionChain,
+};
+use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::retriever::AFRetriever;
 use crate::SqliteVectorStore;
+use arc_swap::ArcSwap;
 use async_stream::stream;
 use async_trait::async_trait;
 use flowy_ai_pub::cloud::{ContextSuggestedQuestion, QuestionStreamValue};
 use flowy_ai_pub::entities::SOURCE_ID;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite_vec::entities::EmbeddedContent;
 use futures::Stream;
 use futures_util::{pin_mut, StreamExt};
 use langchain_rust::chain::{
@@ -40,11 +45,12 @@ pub struct ConversationalRetrieverChain {
   pub memory: Arc<Mutex<dyn BaseMemory>>,
   pub(crate) combine_documents_chain: Box<dyn Chain>,
   pub(crate) condense_question_chain: Box<dyn Chain>,
-  pub(crate) context_question_chain: Option<RelatedQuestionChain>,
+  pub(crate) context_question_chain: Option<ContextRelatedQuestionChain>,
   pub(crate) rephrase_question: bool,
   pub(crate) return_source_documents: bool,
   pub(crate) input_key: String,
   pub(crate) output_key: String,
+  latest_context: ArcSwap<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,6 +96,27 @@ impl ConversationalRetrieverChain {
     Ok((question, token_usage))
   }
 
+  pub async fn get_related_questions(&self, question: &str) -> Result<Vec<String>, FlowyError> {
+    let context = self.latest_context.load();
+    let rag_ids = self.retriever.get_rag_ids();
+
+    if context.is_empty() {
+      trace!("[Chat] No context available. Generating related questions");
+      let chain = RelatedQuestionChain::new(self.ollama.clone());
+      chain.generate_related_question(question).await
+    } else if let Some(c) = self.context_question_chain.as_ref() {
+      trace!(
+        "[Chat] found context:{}. Generating context related questions",
+        context
+      );
+      c.generate_questions_from_context(&rag_ids, &context)
+        .await
+        .map(|questions| questions.into_iter().map(|q| q.content).collect())
+    } else {
+      Ok(vec![])
+    }
+  }
+
   async fn get_documents_or_result(
     &self,
     question: &str,
@@ -114,7 +141,8 @@ impl ConversationalRetrieverChain {
         if let Some(c) = self.context_question_chain.as_ref() {
           let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
           match c.generate_questions(&rag_ids).await {
-            Ok(questions) => {
+            Ok((context, questions)) => {
+              self.latest_context.store(Arc::new(context));
               trace!("[embedding]: context related questions: {:?}", questions);
               suggested_questions = questions
                 .into_iter()
@@ -133,7 +161,7 @@ impl ConversationalRetrieverChain {
           }
         }
 
-        return if suggested_questions.is_empty() {
+        if suggested_questions.is_empty() {
           Ok(Either::Right(StreamValue::ContextSuggested {
             value: CAN_NOT_ANSWER_WITH_CONTEXT.to_string(),
             suggested_questions,
@@ -143,10 +171,27 @@ impl ConversationalRetrieverChain {
             value: ANSWER_WITH_SUGGESTED_QUESTION.to_string(),
             suggested_questions,
           }))
-        };
-      }
+        }
+      } else {
+        let embedded_docs = documents
+          .iter()
+          .flat_map(|d| {
+            let object_id = d
+              .metadata
+              .get(SOURCE_ID)
+              .and_then(|v| v.as_str().map(|v| v.to_string()))?;
+            Some(EmbeddedContent {
+              content: d.page_content.clone(),
+              object_id,
+            })
+          })
+          .collect::<Vec<_>>();
 
-      Ok(Either::Left(documents))
+        let context = embedded_documents_to_context_str(embedded_docs);
+        self.latest_context.store(Arc::new(context));
+
+        Ok(Either::Left(documents))
+      }
     }
   }
 }
@@ -495,7 +540,7 @@ impl ConversationalRetrieverChainBuilder {
 
     let context_question_chain = self
       .store
-      .map(|store| RelatedQuestionChain::new(self.workspace_id, self.llm.clone(), store));
+      .map(|store| ContextRelatedQuestionChain::new(self.workspace_id, self.llm.clone(), store));
 
     Ok(ConversationalRetrieverChain {
       ollama: self.llm,
@@ -508,6 +553,7 @@ impl ConversationalRetrieverChainBuilder {
       return_source_documents: self.return_source_documents,
       input_key: self.input_key,
       output_key: self.output_key,
+      latest_context: Default::default(),
     })
   }
 }

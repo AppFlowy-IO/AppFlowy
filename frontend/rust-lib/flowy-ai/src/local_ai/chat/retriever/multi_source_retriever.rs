@@ -101,9 +101,10 @@ impl AFRetriever for MultipleSourceRetriever {
     for result in search_results {
       if let Ok((retriever_name, docs)) = result {
         trace!(
-          "[VectorStore] {} found {} results",
+          "[VectorStore] {} found {} results, scores: {:?}",
           retriever_name,
           docs.len(),
+          docs.iter().map(|doc| doc.score).collect::<Vec<_>>()
         );
         results.extend(docs);
       } else {

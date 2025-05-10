@@ -133,7 +133,7 @@ async fn local_ollama_test_chat_related_question() {
   let ollama = LLMOllama::default().with_model("llama3.1");
   let chain = RelatedQuestionChain::new(ollama);
   let resp = chain
-    .related_question("Compare rust with JS")
+    .generate_related_question("Compare rust with JS")
     .await
     .unwrap();
 

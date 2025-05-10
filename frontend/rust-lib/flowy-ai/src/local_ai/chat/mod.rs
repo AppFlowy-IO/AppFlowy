@@ -5,7 +5,6 @@ pub mod llm_chat;
 pub mod retriever;
 mod summary_memory;
 
-use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
 use crate::local_ai::chat::retriever::MultipleSourceRetrieverStore;
@@ -30,7 +29,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::trace;
+use tracing::warn;
 use uuid::Uuid;
 
 type OllamaClientRef = Arc<RwLock<Option<Weak<Ollama>>>>;
@@ -46,7 +45,7 @@ pub struct LLMChatInfo {
 pub type RetrieversSources = RwLock<Vec<Arc<dyn MultipleSourceRetrieverStore>>>;
 
 pub struct LLMChatController {
-  chat_by_id: DashMap<Uuid, LLMChat>,
+  chat_by_id: DashMap<Uuid, Arc<RwLock<LLMChat>>>,
   store: RwLock<Option<SqliteVectorStore>>,
   client: OllamaClientRef,
   user_service: Weak<dyn AIUserService>,
@@ -82,15 +81,13 @@ impl LLMChatController {
     *self.store.write().await = Some(store);
   }
 
-  pub fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
-    if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
-      chat.set_rag_ids(rag_ids.to_vec());
+  pub async fn set_rag_ids(&self, chat_id: &Uuid, rag_ids: &[String]) {
+    if let Some(chat) = self.get_chat(chat_id) {
+      chat.write().await.set_rag_ids(rag_ids.to_vec());
     }
   }
 
   async fn create_chat_if_not_exist(&self, info: LLMChatInfo) -> FlowyResult<()> {
-    debug_assert!(!self.retriever_sources.read().await.is_empty());
-
     let store = self.store.read().await.clone();
     let client = self
       .client
@@ -117,7 +114,7 @@ impl LLMChatController {
         Some(self.user_service.clone()),
         retriever_sources,
       )?;
-      e.insert(chat);
+      e.insert(Arc::new(RwLock::new(chat)));
     }
     Ok(())
   }
@@ -129,6 +126,10 @@ impl LLMChatController {
 
   pub fn close_chat(&self, chat_id: &Uuid) {
     self.chat_by_id.remove(chat_id);
+  }
+
+  pub fn get_chat(&self, chat_id: &Uuid) -> Option<Arc<RwLock<LLMChat>>> {
+    self.chat_by_id.get(chat_id).map(|c| c.value().clone())
   }
 
   pub async fn summarize_database_row(
@@ -209,38 +210,36 @@ impl LLMChatController {
 
   pub async fn get_related_question(
     &self,
-    model_name: &str,
+    _model_name: &str,
     chat_id: &Uuid,
     _message_id: i64,
   ) -> FlowyResult<Vec<String>> {
-    let client = self
-      .client
-      .read()
-      .await
-      .clone()
-      .ok_or(FlowyError::local_ai())?
-      .upgrade()
-      .ok_or(FlowyError::local_ai())?;
-
-    let user_service = self.user_service.upgrade().ok_or(FlowyError::local_ai())?;
-    let uid = user_service.user_id()?;
-    let conn = user_service.sqlite_connection(uid)?;
-    let message = select_latest_user_message(conn, &chat_id.to_string(), ChatAuthorType::Human)?;
-
-    let chain = RelatedQuestionChain::new(LLMOllama::new(model_name, client, None, None));
-    let questions = chain.related_question(&message.content).await?;
-    trace!(
-      "related questions: {:?} for message: {}",
-      questions,
-      message.content
-    );
-    Ok(questions)
+    match self.get_chat(chat_id) {
+      None => {
+        warn!(
+          "[Chat] Chat with id {} not found, unable to get related question",
+          chat_id
+        );
+        Ok(vec![])
+      },
+      Some(chat) => {
+        let user_service = self.user_service.upgrade().ok_or(FlowyError::local_ai())?;
+        let uid = user_service.user_id()?;
+        let conn = user_service.sqlite_connection(uid)?;
+        let message =
+          select_latest_user_message(conn, &chat_id.to_string(), ChatAuthorType::Human)?;
+        chat
+          .read()
+          .await
+          .get_related_question(message.content)
+          .await
+      },
+    }
   }
 
   pub async fn ask_question(&self, chat_id: &Uuid, question: &str) -> FlowyResult<String> {
-    if let Some(chat) = self.chat_by_id.get(chat_id) {
-      let chat = chat.value();
-      let response = chat.ask_question(question).await;
+    if let Some(chat) = self.get_chat(chat_id) {
+      let response = chat.read().await.ask_question(question).await;
       return response;
     }
 
@@ -254,10 +253,9 @@ impl LLMChatController {
     format: ResponseFormat,
     model_name: &str,
   ) -> FlowyResult<StreamAnswer> {
-    if let Some(mut chat) = self.chat_by_id.get_mut(chat_id) {
-      chat.set_chat_model(model_name);
-
-      let response = chat.stream_question(question, format).await;
+    if let Some(chat) = self.get_chat(chat_id) {
+      chat.write().await.set_chat_model(model_name);
+      let response = chat.write().await.stream_question(question, format).await;
       return response;
     }
 

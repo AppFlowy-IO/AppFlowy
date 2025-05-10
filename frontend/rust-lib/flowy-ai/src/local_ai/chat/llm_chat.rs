@@ -1,7 +1,6 @@
 use crate::local_ai::chat::chains::conversation_chain::{
   ConversationalRetrieverChain, ConversationalRetrieverChainBuilder,
 };
-use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::format_prompt::AFContextPrompt;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::retriever::multi_source_retriever::MultipleSourceRetriever;
@@ -30,6 +29,7 @@ use uuid::Uuid;
 pub struct LLMChat {
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
+  #[allow(dead_code)]
   client: Arc<Ollama>,
   prompt: AFContextPrompt,
   info: LLMChatInfo,
@@ -73,19 +73,7 @@ impl LLMChat {
   }
 
   pub async fn get_related_question(&self, user_message: String) -> FlowyResult<Vec<String>> {
-    let chain = RelatedQuestionChain::new(LLMOllama::new(
-      &self.info.model,
-      self.client.clone(),
-      None,
-      None,
-    ));
-    let questions = chain.related_question(&user_message).await?;
-    trace!(
-      "related questions: {:?} for message: {}",
-      questions,
-      user_message
-    );
-    Ok(questions)
+    self.chain.get_related_questions(&user_message).await
   }
 
   pub fn set_chat_model(&mut self, model: &str) {

@@ -8,6 +8,7 @@ use flowy_ai::ai_manager::{AIExternalService, AIManager};
 use flowy_ai::local_ai::chat::retriever::{LangchainDocument, MultipleSourceRetrieverStore};
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
+use flowy_ai_pub::entities::{SOURCE, SOURCE_ID, SOURCE_NAME};
 use flowy_ai_pub::persistence::AFCollabMetadata;
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
@@ -23,6 +24,7 @@ use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
+use serde_json::json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
@@ -253,7 +255,16 @@ impl MultipleSourceRetrieverStore for MultiSourceVSTanvityImpl {
           .into_iter()
           .map(|v| LangchainDocument {
             page_content: v.content,
-            metadata: Default::default(),
+            metadata: json!({
+                SOURCE_ID: v.object_id,
+                SOURCE: "appflowy",
+                SOURCE_NAME: "document",
+            })
+            .as_object()
+            .unwrap()
+            .clone()
+            .into_iter()
+            .collect(),
             score: v.score,
           })
           .collect(),
