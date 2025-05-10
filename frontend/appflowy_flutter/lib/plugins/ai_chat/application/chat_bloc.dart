@@ -500,7 +500,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
 
     await _streamManager.prepareStreams();
-
     await _streamManager
         .sendRegenerateRequest(
       answerMessageId,
