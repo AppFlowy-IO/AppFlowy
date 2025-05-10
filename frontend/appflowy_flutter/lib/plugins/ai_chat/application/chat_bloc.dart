@@ -432,7 +432,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     AIEventLoadPrevMessage(payload).send();
   }
 
-  // Refactored method to handle message streaming
   Future<void> _startStreamingMessage(
     String message,
     PredefinedFormat? format,
@@ -494,12 +493,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     PredefinedFormat? format,
     AIModelPB? model,
   ) async {
-    final id = _messageHandler.temporaryMessageIDMap.entries
-            .firstWhereOrNull((e) => e.value == answerMessageIdString)
-            ?.key ??
-        answerMessageIdString;
+    final id = _messageHandler.getEffectiveMessageId(answerMessageIdString);
     final answerMessageId = Int64.tryParseInt(id);
-
     if (answerMessageId == null) {
       return;
     }

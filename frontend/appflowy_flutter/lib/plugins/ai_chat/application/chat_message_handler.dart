@@ -27,7 +27,15 @@ class ChatMessageHandler {
   final ChatController chatController;
 
   /// Maps real message IDs to temporary streaming message IDs
-  final HashMap<String, String> temporaryMessageIDMap = HashMap();
+  final HashMap<String, String> _temporaryMessageIDMap = HashMap();
+
+  /// Gets the effective message ID from the temporary map
+  String getEffectiveMessageId(String messageId) {
+    return _temporaryMessageIDMap.entries
+            .firstWhereOrNull((entry) => entry.value == messageId)
+            ?.key ??
+        messageId;
+  }
 
   String answerStreamMessageId = '';
   String questionStreamMessageId = '';
@@ -37,8 +45,8 @@ class ChatMessageHandler {
     String messageId = message.messageId.toString();
 
     /// If the message id is in the temporary map, we will use the previous fake message id
-    if (temporaryMessageIDMap.containsKey(messageId)) {
-      messageId = temporaryMessageIDMap[messageId]!;
+    if (_temporaryMessageIDMap.containsKey(messageId)) {
+      messageId = _temporaryMessageIDMap[messageId]!;
     }
     final metadata = message.metadata == 'null' ? '[]' : message.metadata;
 
@@ -144,7 +152,7 @@ class ChatMessageHandler {
   void processReceivedMessage(ChatMessagePB pb) {
     // 3 means message response from AI
     if (pb.authorType == 3 && answerStreamMessageId.isNotEmpty) {
-      temporaryMessageIDMap.putIfAbsent(
+      _temporaryMessageIDMap.putIfAbsent(
         pb.messageId.toString(),
         () => answerStreamMessageId,
       );
@@ -153,7 +161,7 @@ class ChatMessageHandler {
 
     // 1 means message response from User
     if (pb.authorType == 1 && questionStreamMessageId.isNotEmpty) {
-      temporaryMessageIDMap.putIfAbsent(
+      _temporaryMessageIDMap.putIfAbsent(
         pb.messageId.toString(),
         () => questionStreamMessageId,
       );
