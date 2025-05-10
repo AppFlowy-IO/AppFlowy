@@ -217,7 +217,6 @@ impl AIManager {
       let summary = select_chat_summary(&mut conn, chat_id).unwrap_or_default();
 
       let model = self.get_active_model(&chat_id.to_string()).await;
-      trace!("[AI Plugin] notify open chat: {}", chat_id);
       self
         .local_ai
         .open_chat(&workspace_id, chat_id, &model.name, rag_ids, summary)
@@ -240,7 +239,7 @@ impl AIManager {
       .await
       {
         Ok(settings) => {
-          local_ai.set_rag_ids(&chat_id, &settings.rag_ids);
+          local_ai.set_rag_ids(&chat_id, &settings.rag_ids).await;
           let rag_ids = settings
             .rag_ids
             .into_iter()
@@ -712,7 +711,7 @@ impl AIManager {
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
-    self.local_ai.set_rag_ids(chat_id, &rag_ids);
+    self.local_ai.set_rag_ids(chat_id, &rag_ids).await;
 
     let rag_ids = rag_ids
       .into_iter()

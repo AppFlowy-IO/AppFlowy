@@ -1,6 +1,7 @@
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::SqliteVectorStore;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite_vec::entities::EmbeddedContent;
 use langchain_rust::language_models::llm::LLM;
 use langchain_rust::prompt::TemplateFormat;
 use langchain_rust::prompt::{PromptFromatter, PromptTemplate};
@@ -10,6 +11,7 @@ use ollama_rs::generation::parameters::{FormatType, JsonStructure};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::fmt::Debug;
 use tracing::trace;
 use uuid::Uuid;
 
@@ -60,13 +62,13 @@ pub struct ContextQuestion {
   pub object_id: String,
 }
 
-pub struct RelatedQuestionChain {
+pub struct ContextRelatedQuestionChain {
   workspace_id: Uuid,
   llm: LLMOllama,
   store: SqliteVectorStore,
 }
 
-impl RelatedQuestionChain {
+impl ContextRelatedQuestionChain {
   pub fn new(workspace_id: Uuid, ollama: LLMOllama, store: SqliteVectorStore) -> Self {
     let format = FormatType::StructuredJson(JsonStructure::new::<ContextQuestionsResponse>());
     Self {
@@ -76,25 +78,16 @@ impl RelatedQuestionChain {
     }
   }
 
-  pub async fn generate_questions(&self, rag_ids: &[String]) -> FlowyResult<Vec<ContextQuestion>> {
-    trace!(
-      "[embedding] Generating context related questions for RAG IDs: {:?}",
-      rag_ids
-    );
-
-    let context = self
-      .store
-      .select_all_embedded_content(&self.workspace_id.to_string(), rag_ids, 3)
-      .await?;
-
-    trace!(
-      "[embedding] Generating related questions base on: {:?}",
-      context,
-    );
-
-    let context_str = json!(context).to_string();
+  pub async fn generate_questions_from_context<T>(
+    &self,
+    rag_ids: &[T],
+    context: &str,
+  ) -> FlowyResult<Vec<ContextQuestion>>
+  where
+    T: AsRef<str>,
+  {
     let input_variables = prompt_args! {
-        "context" => context_str,
+        "context" => context,
     };
 
     let template = PromptTemplate::new(
@@ -116,8 +109,42 @@ impl RelatedQuestionChain {
     // filter out questions that are not in the rag_ids
     parsed_result
       .questions
-      .retain(|v| rag_ids.contains(&v.object_id));
+      .retain(|v| rag_ids.iter().any(|id| id.as_ref() == v.object_id));
 
     Ok(parsed_result.questions)
   }
+
+  pub async fn generate_questions<T>(
+    &self,
+    rag_ids: &[T],
+  ) -> FlowyResult<(String, Vec<ContextQuestion>)>
+  where
+    T: AsRef<str> + Debug,
+  {
+    trace!(
+      "[embedding] Generating context related questions for RAG IDs: {:?}",
+      rag_ids
+    );
+
+    let rag_ids_str: Vec<String> = rag_ids.iter().map(|id| id.as_ref().to_string()).collect();
+    let context = self
+      .store
+      .select_all_embedded_content(&self.workspace_id.to_string(), &rag_ids_str, 3)
+      .await?;
+
+    trace!(
+      "[embedding] Generating related questions base on: {:?}",
+      context,
+    );
+
+    let context_str = embedded_documents_to_context_str(context);
+    self
+      .generate_questions_from_context(rag_ids, &context_str)
+      .await
+      .map(|questions| (context_str, questions))
+  }
+}
+
+pub fn embedded_documents_to_context_str(documents: Vec<EmbeddedContent>) -> String {
+  json!(documents).to_string()
 }

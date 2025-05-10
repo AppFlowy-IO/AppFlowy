@@ -9,7 +9,7 @@ use langchain_rust::template_jinja2;
 use std::sync::{Arc, RwLock};
 
 const QA_CONTEXT_TEMPLATE: &str = r#"
-Only Use the context provided below to formulate your answer. Do not use any other information. If the context doesn't contain sufficient information to answer the question, respond with "I don't know".
+Only Use the context provided below to formulate your answer. Do not use any other information.
 Do not reference external knowledge or information outside the context.
 
 ##Context##

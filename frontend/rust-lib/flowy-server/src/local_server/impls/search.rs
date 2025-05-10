@@ -44,7 +44,7 @@ impl SearchCloudService for LocalSearchServiceImpl {
     }
 
     trace!("[Search] Local AI search returned no results, falling back to local search");
-    let items = tanvity_local_search(&self.state, workspace_id, &query)
+    let items = tanvity_local_search(&self.state, workspace_id, &query, None, 10, 0.4)
       .await
       .unwrap_or_default();
     Ok(items)

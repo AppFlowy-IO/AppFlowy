@@ -50,7 +50,7 @@ impl SearchHandler for DocumentLocalSearchHandler {
           );
         },
         Some(state) => {
-          match state.read().await.search(&workspace_id, &query, None) {
+          match state.read().await.search(&workspace_id, &query, None, 10, 0.4) {
             Ok(items) => {
               trace!("[Tanvity] local document search result: {:?}", items);
               if items.is_empty() {
