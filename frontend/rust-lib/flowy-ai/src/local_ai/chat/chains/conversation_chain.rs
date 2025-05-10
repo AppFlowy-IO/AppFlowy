@@ -1,11 +1,17 @@
-use crate::local_ai::chat::chains::context_question_chain::RelatedQuestionChain;
+use crate::local_ai::chat::chains::context_question_chain::{
+  embedded_documents_to_context_str, ContextRelatedQuestionChain,
+};
+use crate::local_ai::chat::chains::related_question_chain::RelatedQuestionChain;
 use crate::local_ai::chat::llm::LLMOllama;
+use crate::local_ai::chat::retriever::AFRetriever;
 use crate::SqliteVectorStore;
+use arc_swap::ArcSwap;
 use async_stream::stream;
 use async_trait::async_trait;
 use flowy_ai_pub::cloud::{ContextSuggestedQuestion, QuestionStreamValue};
-use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
+use flowy_ai_pub::entities::SOURCE_ID;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite_vec::entities::EmbeddedContent;
 use futures::Stream;
 use futures_util::{pin_mut, StreamExt};
 use langchain_rust::chain::{
@@ -15,11 +21,9 @@ use langchain_rust::chain::{
 use langchain_rust::language_models::{GenerateResult, TokenUsage};
 use langchain_rust::memory::SimpleMemory;
 use langchain_rust::prompt::{FormatPrompter, PromptArgs};
-use langchain_rust::schemas::{BaseMemory, Document, Message, Retriever, StreamData};
-use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
+use langchain_rust::schemas::{BaseMemory, Document, Message, StreamData};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::error::Error;
 use std::{collections::HashMap, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use tokio_util::either::Either;
@@ -37,15 +41,16 @@ const CONVERSATIONAL_RETRIEVAL_QA_DEFAULT_INPUT_KEY: &str = "question";
 
 pub struct ConversationalRetrieverChain {
   pub(crate) ollama: LLMOllama,
-  pub(crate) retriever: AFRetriever,
+  pub(crate) retriever: Box<dyn AFRetriever>,
   pub memory: Arc<Mutex<dyn BaseMemory>>,
   pub(crate) combine_documents_chain: Box<dyn Chain>,
   pub(crate) condense_question_chain: Box<dyn Chain>,
-  pub(crate) context_question_chain: Option<RelatedQuestionChain>,
+  pub(crate) context_question_chain: Option<ContextRelatedQuestionChain>,
   pub(crate) rephrase_question: bool,
   pub(crate) return_source_documents: bool,
   pub(crate) input_key: String,
   pub(crate) output_key: String,
+  latest_context: ArcSwap<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,6 +96,27 @@ impl ConversationalRetrieverChain {
     Ok((question, token_usage))
   }
 
+  pub async fn get_related_questions(&self, question: &str) -> Result<Vec<String>, FlowyError> {
+    let context = self.latest_context.load();
+    let rag_ids = self.retriever.get_rag_ids();
+
+    if context.is_empty() {
+      trace!("[Chat] No context available. Generating related questions");
+      let chain = RelatedQuestionChain::new(self.ollama.clone());
+      chain.generate_related_question(question).await
+    } else if let Some(c) = self.context_question_chain.as_ref() {
+      trace!(
+        "[Chat] found context:{}. Generating context related questions",
+        context
+      );
+      c.generate_questions_from_context(&rag_ids, &context)
+        .await
+        .map(|questions| questions.into_iter().map(|q| q.content).collect())
+    } else {
+      Ok(vec![])
+    }
+  }
+
   async fn get_documents_or_result(
     &self,
     question: &str,
@@ -101,7 +127,7 @@ impl ConversationalRetrieverChain {
     } else {
       let documents = self
         .retriever
-        .get_relevant_documents(question)
+        .retrieve_documents(question)
         .await
         .map_err(|e| ChainError::RetrieverError(e.to_string()))?;
 
@@ -115,7 +141,8 @@ impl ConversationalRetrieverChain {
         if let Some(c) = self.context_question_chain.as_ref() {
           let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
           match c.generate_questions(&rag_ids).await {
-            Ok(questions) => {
+            Ok((context, questions)) => {
+              self.latest_context.store(Arc::new(context));
               trace!("[embedding]: context related questions: {:?}", questions);
               suggested_questions = questions
                 .into_iter()
@@ -134,7 +161,7 @@ impl ConversationalRetrieverChain {
           }
         }
 
-        return if suggested_questions.is_empty() {
+        if suggested_questions.is_empty() {
           Ok(Either::Right(StreamValue::ContextSuggested {
             value: CAN_NOT_ANSWER_WITH_CONTEXT.to_string(),
             suggested_questions,
@@ -144,10 +171,27 @@ impl ConversationalRetrieverChain {
             value: ANSWER_WITH_SUGGESTED_QUESTION.to_string(),
             suggested_questions,
           }))
-        };
-      }
+        }
+      } else {
+        let embedded_docs = documents
+          .iter()
+          .flat_map(|d| {
+            let object_id = d
+              .metadata
+              .get(SOURCE_ID)
+              .and_then(|v| v.as_str().map(|v| v.to_string()))?;
+            Some(EmbeddedContent {
+              content: d.page_content.clone(),
+              object_id,
+            })
+          })
+          .collect::<Vec<_>>();
 
-      Ok(Either::Left(documents))
+        let context = embedded_documents_to_context_str(embedded_docs);
+        self.latest_context.store(Arc::new(context));
+
+        Ok(Either::Left(documents))
+      }
     }
   }
 }
@@ -426,7 +470,7 @@ impl Chain for ConversationalRetrieverChain {
 pub struct ConversationalRetrieverChainBuilder {
   workspace_id: Uuid,
   llm: LLMOllama,
-  retriever: AFRetriever,
+  retriever: Box<dyn AFRetriever>,
   memory: Option<Arc<Mutex<dyn BaseMemory>>>,
   prompt: Option<Box<dyn FormatPrompter>>,
   rephrase_question: bool,
@@ -439,7 +483,7 @@ impl ConversationalRetrieverChainBuilder {
   pub fn new(
     workspace_id: Uuid,
     llm: LLMOllama,
-    retriever: AFRetriever,
+    retriever: Box<dyn AFRetriever>,
     store: Option<SqliteVectorStore>,
   ) -> Self {
     ConversationalRetrieverChainBuilder {
@@ -496,7 +540,7 @@ impl ConversationalRetrieverChainBuilder {
 
     let context_question_chain = self
       .store
-      .map(|store| RelatedQuestionChain::new(self.workspace_id, self.llm.clone(), store));
+      .map(|store| ContextRelatedQuestionChain::new(self.workspace_id, self.llm.clone(), store));
 
     Ok(ConversationalRetrieverChain {
       ollama: self.llm,
@@ -509,64 +553,8 @@ impl ConversationalRetrieverChainBuilder {
       return_source_documents: self.return_source_documents,
       input_key: self.input_key,
       output_key: self.output_key,
+      latest_context: Default::default(),
     })
-  }
-}
-
-// Retriever is a retriever for vector stores.
-pub type RetrieverOption = VecStoreOptions<Value>;
-pub struct AFRetriever {
-  vector_store: Option<Box<dyn VectorStore<Options = RetrieverOption>>>,
-  num_docs: usize,
-  options: RetrieverOption,
-}
-impl AFRetriever {
-  pub fn new<V: Into<Box<dyn VectorStore<Options = RetrieverOption>>>>(
-    vector_store: Option<V>,
-    num_docs: usize,
-    options: RetrieverOption,
-  ) -> Self {
-    AFRetriever {
-      vector_store: vector_store.map(Into::into),
-      num_docs,
-      options,
-    }
-  }
-  pub fn set_rag_ids(&mut self, new_rag_ids: Vec<String>) {
-    trace!("[VectorStore] retriever {:p}", self);
-    let filters = self.options.filters.get_or_insert_with(|| json!({}));
-    filters[RAG_IDS] = json!(new_rag_ids);
-  }
-
-  pub fn get_rag_ids(&self) -> Vec<&str> {
-    trace!("[VectorStore] retriever {:p}", self);
-    self
-      .options
-      .filters
-      .as_ref()
-      .and_then(|filters| filters.get(RAG_IDS).and_then(|rag_ids| rag_ids.as_array()))
-      .map(|rag_ids| rag_ids.iter().filter_map(|id| id.as_str()).collect())
-      .unwrap_or_default()
-  }
-}
-
-#[async_trait]
-impl Retriever for AFRetriever {
-  async fn get_relevant_documents(&self, query: &str) -> Result<Vec<Document>, Box<dyn Error>> {
-    trace!(
-      "[VectorStore] filters: {:?}, retrieving documents for query: {}",
-      self.options.filters,
-      query,
-    );
-
-    match self.vector_store.as_ref() {
-      None => Ok(vec![]),
-      Some(vector_store) => {
-        vector_store
-          .similarity_search(query, self.num_docs, &self.options)
-          .await
-      },
-    }
   }
 }
 

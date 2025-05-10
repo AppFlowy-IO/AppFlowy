@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace, warn};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -189,7 +189,7 @@ impl LocalAIController {
       return;
     }
 
-    self.llm_controller.set_rag_ids(chat_id, rag_ids);
+    self.llm_controller.set_rag_ids(chat_id, rag_ids).await;
   }
 
   pub async fn open_chat(
@@ -201,14 +201,17 @@ impl LocalAIController {
     summary: String,
   ) -> FlowyResult<()> {
     if !self.is_enabled() {
+      warn!("[chat] local ai is disabled, skip open chat");
       return Ok(());
     }
 
     // Only keep one chat open at a time. Since loading multiple models at the same time will cause
     // memory issues.
     if let Some(current_chat_id) = self.current_chat_id.load().as_ref() {
-      debug!("[Local AI] close previous chat: {}", current_chat_id);
-      self.close_chat(current_chat_id);
+      if current_chat_id.as_ref() != chat_id {
+        debug!("[Chat] close previous chat: {}", current_chat_id);
+        self.close_chat(current_chat_id);
+      }
     }
 
     let info = LLMChatInfo {
@@ -219,6 +222,7 @@ impl LocalAIController {
       summary,
     };
     self.current_chat_id.store(Some(Arc::new(*chat_id)));
+    trace!("[Chat] open chat: {}", chat_id);
     self.llm_controller.open_chat(info).await?;
     Ok(())
   }
