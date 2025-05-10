@@ -19,7 +19,7 @@ class MobileSearchAskAiEntrance extends StatelessWidget {
       onTap: () {
         context
             .read<CommandPaletteBloc?>()
-            ?.add(CommandPaletteEvent.gointToAskAI());
+            ?.add(CommandPaletteEvent.goingToAskAI());
         mobileCreateNewAIChatNotifier.value =
             mobileCreateNewAIChatNotifier.value + 1;
       },

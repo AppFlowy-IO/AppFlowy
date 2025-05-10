@@ -50,3 +50,32 @@ class _FlowyScrollbarState extends State<FlowyScrollbar> {
     );
   }
 }
+
+class ScrollControllerBuilder extends StatefulWidget {
+  const ScrollControllerBuilder({super.key, required this.builder});
+  final ScrollControllerWidgetBuilder builder;
+
+  @override
+  State<ScrollControllerBuilder> createState() =>
+      _ScrollControllerBuilderState();
+}
+
+class _ScrollControllerBuilderState extends State<ScrollControllerBuilder> {
+  final ScrollController controller = ScrollController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, controller);
+  }
+}
+
+typedef ScrollControllerWidgetBuilder = Widget Function(
+  BuildContext context,
+  ScrollController controller,
+);

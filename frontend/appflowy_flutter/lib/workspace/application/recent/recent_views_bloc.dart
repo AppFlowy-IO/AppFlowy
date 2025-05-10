@@ -46,6 +46,11 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
             await _service.reset();
             add(const RecentViewsEvent.fetchRecentViews());
           },
+          hoverView: (e) async {
+            emit(
+              state.copyWith(hoveredView: e.view),
+            );
+          },
         );
       },
     );
@@ -64,6 +69,7 @@ class RecentViewsEvent with _$RecentViewsEvent {
       RemoveRecentViews;
   const factory RecentViewsEvent.fetchRecentViews() = FetchRecentViews;
   const factory RecentViewsEvent.resetRecentViews() = ResetRecentViews;
+  const factory RecentViewsEvent.hoverView(ViewPB view) = HoverView;
 }
 
 @freezed
@@ -71,6 +77,7 @@ class RecentViewsState with _$RecentViewsState {
   const factory RecentViewsState({
     required List<SectionViewPB> views,
     @Default(true) bool isLoading,
+    @Default(null) ViewPB? hoveredView,
   }) = _RecentViewsState;
 
   factory RecentViewsState.initial() => const RecentViewsState(views: []);

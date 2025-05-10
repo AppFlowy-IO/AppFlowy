@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 
 import 'sizes.dart';
@@ -27,7 +28,11 @@ class TrashCell extends StatelessWidget {
       children: [
         SizedBox(
           width: TrashSizes.fileNameWidth,
-          child: FlowyText(object.name),
+          child: FlowyText(
+            object.name.isEmpty
+                ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                : object.name,
+          ),
         ),
         SizedBox(
           width: TrashSizes.lashModifyWidth,

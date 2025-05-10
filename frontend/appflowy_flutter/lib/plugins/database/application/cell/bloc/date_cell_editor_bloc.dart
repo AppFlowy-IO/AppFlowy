@@ -219,7 +219,8 @@ class DateCellEditorBloc
     } else {
       if (option == ReminderOption.none) {
         // remove reminder from reminder bloc and cell data
-        _reminderBloc.add(ReminderEvent.removeReminder(reminderId: state.reminderId));
+        _reminderBloc
+            .add(ReminderEvent.removeReminder(reminderId: state.reminderId));
         await _updateCellReminderId("");
       } else {
         // Update reminder
