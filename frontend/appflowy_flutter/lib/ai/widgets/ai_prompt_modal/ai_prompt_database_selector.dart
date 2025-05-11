@@ -1,5 +1,4 @@
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -18,12 +17,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CustomPromptDatabaseSelector extends StatefulWidget {
   const CustomPromptDatabaseSelector({
     super.key,
-    required this.databaseViewId,
-    required this.isLoading,
+    this.databaseViewId,
+    this.isLoading = false,
+    this.popoverDirection = PopoverDirection.bottomWithCenterAligned,
+    required this.childBuilder,
   });
 
   final String? databaseViewId;
   final bool isLoading;
+  final PopoverDirection popoverDirection;
+  final Widget Function(VoidCallback) childBuilder;
 
   @override
   State<CustomPromptDatabaseSelector> createState() =>
@@ -40,7 +43,10 @@ class _CustomPromptDatabaseSelectorState
       viewSelectorCubit: BlocProvider(
         create: (context) => ViewSelectorCubit(
           getIgnoreViewType: (view) {
-            if (view.layout.isDatabaseView || view.layout.isDocumentView) {
+            if (view.layout.isDatabaseView) {
+              return IgnoreViewType.none;
+            }
+            if (view.layout.isDocumentView) {
               return IgnoreViewType.none;
             }
             return IgnoreViewType.hide;
@@ -54,8 +60,8 @@ class _CustomPromptDatabaseSelectorState
             controller: popoverController,
             triggerActions: PopoverTriggerFlags.none,
             margin: EdgeInsets.zero,
-            offset: const Offset(0, 2),
-            direction: PopoverDirection.bottomWithRightAligned,
+            offset: const Offset(0, 4.0),
+            direction: widget.popoverDirection,
             constraints: const BoxConstraints.tightFor(width: 300, height: 400),
             popupBuilder: (_) {
               return BlocProvider.value(
@@ -72,10 +78,8 @@ class _CustomPromptDatabaseSelectorState
                 ),
               );
             },
-            child: _Button(
-              selectedViewId: widget.databaseViewId,
-              isLoading: widget.isLoading,
-              onTap: () {
+            child: widget.childBuilder(
+              () {
                 if (!widget.isLoading) {
                   context
                       .read<ViewSelectorCubit>()
@@ -91,8 +95,9 @@ class _CustomPromptDatabaseSelectorState
   }
 }
 
-class _Button extends StatelessWidget {
-  const _Button({
+class AiPromptDatabaseSelectorButton extends StatefulWidget {
+  const AiPromptDatabaseSelectorButton({
+    super.key,
     required this.selectedViewId,
     required this.isLoading,
     required this.onTap,
@@ -103,92 +108,109 @@ class _Button extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<AiPromptDatabaseSelectorButton> createState() =>
+      _AiPromptDatabaseSelectorButtonState();
+}
+
+class _AiPromptDatabaseSelectorButtonState
+    extends State<AiPromptDatabaseSelectorButton> {
+  late Future<ViewPB?> viewFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    viewFuture = getView();
+  }
+
+  @override
+  void didUpdateWidget(covariant AiPromptDatabaseSelectorButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedViewId != widget.selectedViewId) {
+      viewFuture = getView();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
     return FutureBuilder<ViewPB?>(
-      future: getView(),
+      future: viewFuture,
       builder: (context, snapshot) {
-        final data = snapshot.data;
+        String name = "";
 
-        final String name;
-        final String? tooltip;
-        if (isLoading) {
-          tooltip = null;
-          name = LocaleKeys.ai_customPrompt_loading.tr();
-        } else if (!snapshot.hasData ||
-            snapshot.connectionState != ConnectionState.done ||
-            data == null) {
-          name = LocaleKeys.ai_customPrompt_selectDatabase.tr();
-          tooltip = LocaleKeys.ai_customPrompt_selectDatabase.tr();
-        } else {
-          name = tooltip = data.nameOrDefault;
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          name = snapshot.data!.nameOrDefault;
         }
 
-        return FlowyTooltip(
-          message: tooltip,
-          preferBelow: false,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 150,
-            ),
-            child: AFGhostButton.normal(
-              onTap: onTap,
-              padding: EdgeInsets.symmetric(
-                vertical: theme.spacing.xs,
-                horizontal: theme.spacing.m,
+        return Row(
+          spacing: theme.spacing.s,
+          children: [
+            Expanded(
+              child: Text(
+                "${LocaleKeys.ai_customPrompt_promptDatabase.tr()}: $name",
+                maxLines: 1,
+                style: theme.textStyle.body.standard(
+                  color: theme.textColorScheme.primary,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-              builder: (context, isHovering, disabled) {
-                return Row(
-                  spacing: theme.spacing.xs,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildLoadingIndicator(theme),
-                    Flexible(
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        style: theme.textStyle.body.standard(
-                          color: theme.textColorScheme.secondary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (!isLoading)
-                      FlowySvg(
-                        FlowySvgs.toolbar_arrow_down_m,
-                        color: theme.iconColorScheme.secondary,
-                      ),
-                  ],
-                );
-              },
             ),
-          ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 150,
+              ),
+              child: AFOutlinedButton.normal(
+                onTap: widget.onTap,
+                builder: (context, isHovering, disabled) {
+                  return Row(
+                    spacing: theme.spacing.s,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.isLoading) buildLoadingIndicator(theme),
+                      Flexible(
+                        child: Text(
+                          widget.isLoading
+                              ? LocaleKeys.ai_customPrompt_loading.tr()
+                              : LocaleKeys.button_change.tr(),
+                          maxLines: 1,
+                          style: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   Widget buildLoadingIndicator(AppFlowyThemeData theme) {
-    return isLoading
-        ? SizedBox.square(
-            dimension: 20,
-            child: Padding(
-              padding: EdgeInsets.all(2.5),
-              child: CircularProgressIndicator(
-                color: theme.iconColorScheme.tertiary,
-                strokeWidth: 2.0,
-              ),
-            ),
-          )
-        : const SizedBox.shrink();
+    return SizedBox.square(
+      dimension: 20,
+      child: Padding(
+        padding: EdgeInsets.all(2.5),
+        child: CircularProgressIndicator(
+          color: theme.iconColorScheme.tertiary,
+          strokeWidth: 2.0,
+        ),
+      ),
+    );
   }
 
   Future<ViewPB?> getView() async {
-    if (selectedViewId == null) {
+    if (widget.selectedViewId == null) {
       return null;
     }
-    final view = await ViewBackendService.getView(selectedViewId!).toNullable();
+    final view =
+        await ViewBackendService.getView(widget.selectedViewId!).toNullable();
 
     if (view != null) {
       return view;
@@ -196,7 +218,7 @@ class _Button extends StatelessWidget {
 
     final trashViews = await TrashService().readTrash().toNullable();
     final trashedItem = trashViews?.items
-        .firstWhereOrNull((element) => element.id == selectedViewId);
+        .firstWhereOrNull((element) => element.id == widget.selectedViewId);
 
     if (trashedItem == null) {
       return null;
@@ -208,10 +230,33 @@ class _Button extends StatelessWidget {
   }
 }
 
-class _PopoverContent extends StatelessWidget {
-  const _PopoverContent({required this.onSelectView});
+class _PopoverContent extends StatefulWidget {
+  const _PopoverContent({
+    required this.onSelectView,
+  });
 
   final void Function(ViewPB view) onSelectView;
+
+  @override
+  State<_PopoverContent> createState() => _PopoverContentState();
+}
+
+class _PopoverContentState extends State<_PopoverContent> {
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,20 +269,10 @@ class _PopoverContent extends StatelessWidget {
         VSpace(theme.spacing.m),
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: theme.spacing.l,
-          ),
-          child: Text(
-            LocaleKeys.ai_customPrompt_loadDatabasePromptsFrom.tr(),
-            style: theme.textStyle.caption
-                .standard(color: theme.textColorScheme.secondary),
-          ),
-        ),
-        VSpace(theme.spacing.m),
-        Padding(
-          padding: EdgeInsets.symmetric(
             horizontal: theme.spacing.m,
           ),
           child: AFTextField(
+            focusNode: focusNode,
             size: AFTextFieldSize.m,
             hintText: LocaleKeys.search_label.tr(),
             controller: context.read<ViewSelectorCubit>().filterTextController,
@@ -275,7 +310,7 @@ class _PopoverContent extends StatelessWidget {
         isSelectedSection: false,
         showCheckbox: false,
         onSelected: (source) {
-          onSelectView(source.view);
+          widget.onSelectView(source.view);
         },
         height: 30.0,
       ),
