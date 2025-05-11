@@ -6,6 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -119,28 +120,36 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     Emitter<UserWorkspaceState> emit,
     String workspaceId,
   ) async {
-    unawaited(UserBackendService.getWorkspaceSubscriptionInfo(workspaceId).fold(
-      (workspaceSubscriptionInfo) {
-        if (!isClosed) {
-          return;
-        }
+    final enabled = await isBillingEnabled();
+    // If billing is not enabled, we don't need to fetch the workspace subscription info
+    if (!enabled) {
+      return;
+    }
 
-        if (state.currentWorkspace?.workspaceId != workspaceId) {
-          return;
-        }
+    unawaited(
+      UserBackendService.getWorkspaceSubscriptionInfo(workspaceId).fold(
+        (workspaceSubscriptionInfo) {
+          if (isClosed) {
+            return;
+          }
 
-        Log.debug(
-          'fetch workspace subscription info: $workspaceId, $workspaceSubscriptionInfo',
-        );
+          if (state.currentWorkspace?.workspaceId != workspaceId) {
+            return;
+          }
 
-        emit(
-          state.copyWith(
-            workspaceSubscriptionInfo: workspaceSubscriptionInfo,
-          ),
-        );
-      },
-      (e) => Log.error('fetch workspace subscription info error: $e'),
-    ));
+          Log.debug(
+            'fetch workspace subscription info: $workspaceId, $workspaceSubscriptionInfo',
+          );
+
+          emit(
+            state.copyWith(
+              workspaceSubscriptionInfo: workspaceSubscriptionInfo,
+            ),
+          );
+        },
+        (e) => Log.error('fetch workspace subscription info error: $e'),
+      ),
+    );
   }
 
   Future<void> _initializeWorkspaces(Emitter<UserWorkspaceState> emit) async {
