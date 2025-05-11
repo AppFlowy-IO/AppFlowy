@@ -2358,9 +2358,12 @@
     "searchOrAskAI": "Search or ask AI",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
+    "searching": "Searching...",
     "noResultForSearching": "No matches found",
     "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
+    "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
+    "seeMore": "See more",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -2806,6 +2809,7 @@
     "aiOverview": "AI overview",
     "aiOverviewSource": "Reference sources",
     "aiOverviewMoreDetails": "More details",
+    "aiAskFollowUp": "Ask follow-up",
     "pagePreview": "Content preview",
     "clickToOpenPage": "Click to open page",
     "recentHistory": "Recent history",
@@ -2815,7 +2819,10 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field"
+    "clearSearchTooltip": "Clear search field",
+    "location": "Location",
+    "created": "Created",
+    "edited": "Edited"
   },
   "space": {
     "delete": "Delete",
