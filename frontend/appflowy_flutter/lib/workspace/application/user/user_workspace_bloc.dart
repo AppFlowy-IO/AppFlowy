@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -71,6 +74,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          fetchWorkspaceSubscriptionInfo: (workspaceId) async {
+            await _handleFetchWorkspaceSubscriptionInfo(emit, workspaceId);
+          },
         );
       },
     );
@@ -110,6 +116,42 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     );
   }
 
+  Future<void> _handleFetchWorkspaceSubscriptionInfo(
+    Emitter<UserWorkspaceState> emit,
+    String workspaceId,
+  ) async {
+    final enabled = await isBillingEnabled();
+    // If billing is not enabled, we don't need to fetch the workspace subscription info
+    if (!enabled) {
+      return;
+    }
+
+    unawaited(
+      UserBackendService.getWorkspaceSubscriptionInfo(workspaceId).fold(
+        (workspaceSubscriptionInfo) {
+          if (isClosed) {
+            return;
+          }
+
+          if (state.currentWorkspace?.workspaceId != workspaceId) {
+            return;
+          }
+
+          Log.debug(
+            'fetch workspace subscription info: $workspaceId, $workspaceSubscriptionInfo',
+          );
+
+          emit(
+            state.copyWith(
+              workspaceSubscriptionInfo: workspaceSubscriptionInfo,
+            ),
+          );
+        },
+        (e) => Log.error('fetch workspace subscription info error: $e'),
+      ),
+    );
+  }
+
   Future<void> _initializeWorkspaces(Emitter<UserWorkspaceState> emit) async {
     final result = await _fetchWorkspaces(
       initialWorkspaceId: initialWorkspaceId,
@@ -124,6 +166,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       'init workspace, current workspace: ${currentWorkspace?.workspaceId}, '
       'workspaces: ${workspaces.map((e) => e.workspaceId)}, isCollabWorkspaceOn: $isCollabWorkspaceOn',
     );
+
+    if (currentWorkspace != null) {
+      add(
+        UserWorkspaceEvent.fetchWorkspaceSubscriptionInfo(
+          currentWorkspace.workspaceId,
+        ),
+      );
+    }
 
     if (currentWorkspace != null && result.$3 == true) {
       Log.info('init open workspace: ${currentWorkspace.workspaceId}');
@@ -343,6 +393,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 
     result
       ..onSuccess((s) {
+        add(
+          UserWorkspaceEvent.fetchWorkspaceSubscriptionInfo(
+            workspaceId,
+          ),
+        );
+
         Log.info(
           'open workspace success: $workspaceId, current workspace: ${currentWorkspace?.toProto3Json()}',
         );
@@ -629,6 +685,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.updateUserProfile(
     UserProfilePB userProfile,
   ) = UpdateUserProfile;
+  const factory UserWorkspaceEvent.fetchWorkspaceSubscriptionInfo(
+    String workspaceId,
+  ) = FetchWorkspaceSubscriptionInfo;
 }
 
 enum UserWorkspaceActionType {
@@ -669,6 +728,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
     required UserProfilePB userProfile,
+    @Default(null) WorkspaceSubscriptionInfoPB? workspaceSubscriptionInfo,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial(UserProfilePB userProfile) =>
