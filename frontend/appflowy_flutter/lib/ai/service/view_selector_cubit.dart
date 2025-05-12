@@ -127,11 +127,11 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
   ) async {
     filterTextController.clear();
 
-    List<ViewSelectorItem> newSources = await Future.wait(
+    final newSources = await Future.wait(
       spaceViews.map((view) => _recursiveBuild(view, null)),
     );
 
-    newSources = _setIsDisabledAndHideIfNecessary(newSources);
+    _setIsDisabledAndHideIfNecessary(newSources);
 
     _restrictSelectionIfNecessary(newSources);
 
@@ -215,29 +215,19 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
     );
   }
 
-  List<ViewSelectorItem> _setIsDisabledAndHideIfNecessary(
+  void _setIsDisabledAndHideIfNecessary(
     List<ViewSelectorItem> sources,
   ) {
-    final results = <ViewSelectorItem>[];
+    sources.retainWhere((source) {
+      final ignoreViewType = getIgnoreViewType(source);
+      return ignoreViewType != IgnoreViewType.hide;
+    });
 
     for (final source in sources) {
-      final ignoreViewType = getIgnoreViewType(source);
-
-      if (ignoreViewType == IgnoreViewType.hide) {
-        continue;
-      }
-
-      final children = _setIsDisabledAndHideIfNecessary(source.children);
-
-      results.add(
-        source.copy()
-          ..children.clear()
-          ..children.addAll(children)
-          ..isDisabledNotifier.value = ignoreViewType == IgnoreViewType.disable,
-      );
+      source.isDisabledNotifier.value =
+          getIgnoreViewType(source) == IgnoreViewType.disable;
+      _setIsDisabledAndHideIfNecessary(source.children);
     }
-
-    return results;
   }
 
   void _restrictSelectionIfNecessary(List<ViewSelectorItem> sources) {
