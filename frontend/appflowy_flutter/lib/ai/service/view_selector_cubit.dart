@@ -74,8 +74,8 @@ class ViewSelectorItem {
     return null;
   }
 
-  void setIsDisabledRecursive(bool Function(ViewPB) newIsDisabled) {
-    isDisabledNotifier.value = newIsDisabled(view);
+  void setIsDisabledRecursive(bool Function(ViewSelectorItem) newIsDisabled) {
+    isDisabledNotifier.value = newIsDisabled(this);
 
     for (final child in children) {
       child.setIsDisabledRecursive(newIsDisabled);
@@ -108,7 +108,7 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
     filterTextController.addListener(onFilterChanged);
   }
 
-  final IgnoreViewType Function(ViewPB) getIgnoreViewType;
+  final IgnoreViewType Function(ViewSelectorItem) getIgnoreViewType;
   final int? maxSelectedParentPageCount;
 
   final List<String> selectedSourceIds = [];
@@ -127,9 +127,11 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
   ) async {
     filterTextController.clear();
 
-    final newSources = await Future.wait(
+    List<ViewSelectorItem> newSources = await Future.wait(
       spaceViews.map((view) => _recursiveBuild(view, null)),
     );
+
+    newSources = _setIsDisabledAndHideIfNecessary(newSources);
 
     _restrictSelectionIfNecessary(newSources);
 
@@ -182,10 +184,6 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
 
     if (childrenViews != null) {
       for (final childView in childrenViews) {
-        if (getIgnoreViewType(childView) == IgnoreViewType.hide) {
-          continue;
-        }
-
         final childItem = await _recursiveBuild(childView, view);
         if (childItem.selectedStatus.isSelected) {
           selectedCount++;
@@ -211,10 +209,35 @@ class ViewSelectorCubit extends Cubit<ViewSelectorState> {
       view: view,
       parentView: parentView,
       children: children,
-      isDisabled: getIgnoreViewType(view) == IgnoreViewType.disable,
+      isDisabled: false,
       isExpanded: false,
       selectedStatus: selectedStatus,
     );
+  }
+
+  List<ViewSelectorItem> _setIsDisabledAndHideIfNecessary(
+    List<ViewSelectorItem> sources,
+  ) {
+    final results = <ViewSelectorItem>[];
+
+    for (final source in sources) {
+      final ignoreViewType = getIgnoreViewType(source);
+
+      if (ignoreViewType == IgnoreViewType.hide) {
+        continue;
+      }
+
+      final children = _setIsDisabledAndHideIfNecessary(source.children);
+
+      results.add(
+        source.copy()
+          ..children.clear()
+          ..children.addAll(children)
+          ..isDisabledNotifier.value = ignoreViewType == IgnoreViewType.disable,
+      );
+    }
+
+    return results;
   }
 
   void _restrictSelectionIfNecessary(List<ViewSelectorItem> sources) {

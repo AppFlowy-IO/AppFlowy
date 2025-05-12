@@ -136,7 +136,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     return ViewSelector(
       viewSelectorCubit: BlocProvider(
         create: (context) => ViewSelectorCubit(
-          getIgnoreViewType: (view) {
+          getIgnoreViewType: (item) {
+            final view = item.view;
+
             if (view.isSpace) {
               return IgnoreViewType.none;
             }

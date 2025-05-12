@@ -42,15 +42,7 @@ class _CustomPromptDatabaseSelectorState
     return ViewSelector(
       viewSelectorCubit: BlocProvider(
         create: (context) => ViewSelectorCubit(
-          getIgnoreViewType: (view) {
-            if (view.layout.isDatabaseView) {
-              return IgnoreViewType.none;
-            }
-            if (view.layout.isDocumentView) {
-              return IgnoreViewType.none;
-            }
-            return IgnoreViewType.hide;
-          },
+          getIgnoreViewType: getIgnoreViewType,
         ),
       ),
       child: BlocSelector<SpaceBloc, SpaceState, (List<ViewPB>, ViewPB?)>(
@@ -91,6 +83,37 @@ class _CustomPromptDatabaseSelectorState
           );
         },
       ),
+    );
+  }
+
+  IgnoreViewType getIgnoreViewType(ViewSelectorItem item) {
+    final layout = item.view.layout;
+
+    if (layout.isDatabaseView) {
+      return IgnoreViewType.none;
+    }
+    if (layout.isDocumentView) {
+      return hasDatabaseDescendent(item)
+          ? IgnoreViewType.none
+          : IgnoreViewType.hide;
+    }
+    return IgnoreViewType.hide;
+  }
+
+  bool hasDatabaseDescendent(ViewSelectorItem viewSelectorItem) {
+    final layout = viewSelectorItem.view.layout;
+
+    if (layout == ViewLayoutPB.Chat) {
+      return false;
+    }
+
+    if (layout.isDatabaseView) {
+      return true;
+    }
+
+    // document may have children
+    return viewSelectorItem.children.any(
+      (child) => hasDatabaseDescendent(child),
     );
   }
 }
