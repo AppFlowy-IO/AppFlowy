@@ -271,9 +271,6 @@ class _SidebarState extends State<_Sidebar> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScrollChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateBlocState();
-    });
   }
 
   @override
@@ -492,16 +489,6 @@ class _SidebarState extends State<_Sidebar> {
     if (mounted) {
       setState(() => _isScrolling = false);
     }
-  }
-
-  void _updateBlocState() {
-    if (!context.mounted) return;
-    final workspaceBloc = context.read<UserWorkspaceBloc?>();
-    final spaceBloc = context.read<SpaceBloc?>();
-    CommandPalette.maybeOf(context)?.updateBlocs(
-      workspaceBloc: workspaceBloc,
-      spaceBloc: spaceBloc,
-    );
   }
 }
 
