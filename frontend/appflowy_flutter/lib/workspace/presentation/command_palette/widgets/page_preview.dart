@@ -115,7 +115,8 @@ class PagePreview extends StatelessWidget {
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {
-          if (state.ancestor.ancestors.isEmpty) return const SizedBox.shrink();
+          final isEmpty = state.ancestor.ancestors.isEmpty;
+          if (!state.isLoading && isEmpty) return const SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

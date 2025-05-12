@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,6 +21,8 @@ class ViewAncestorBloc extends Bloc<ViewAncestorEvent, ViewAncestorState> {
       (event, emit) async {
         await event.map(
           initial: (e) async {
+            emit(state.copyWith(isLoading: true));
+
             final ancester = await _cache.getAncestor(
               state.viewId,
               onRefresh: (ancestor) {
@@ -62,6 +65,8 @@ extension ViewAncestorTextExtension on ViewAncestorState {
     final ancestors = ancestor.ancestors;
     final textStyle = style ??
         theme.textStyle.caption.standard(color: theme.textColorScheme.tertiary);
+    final textHeight = (textStyle.fontSize ?? 0.0) * (textStyle.height ?? 1.0);
+    if (isLoading) return VSpace(textHeight);
     return LayoutBuilder(
       builder: (context, constrains) {
         final List<String> displayPath = ancestors.map((e) => e.name).toList();
