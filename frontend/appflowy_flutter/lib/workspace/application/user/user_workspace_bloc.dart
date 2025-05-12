@@ -77,6 +77,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           fetchWorkspaceSubscriptionInfo: (workspaceId) async {
             await _handleFetchWorkspaceSubscriptionInfo(emit, workspaceId);
           },
+          updateSubscriptionInfo: (subscriptionInfo) {
+            emit(
+              state.copyWith(
+                workspaceSubscriptionInfo: subscriptionInfo,
+              ),
+            );
+          },
         );
       },
     );
@@ -141,9 +148,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             'fetch workspace subscription info: $workspaceId, $workspaceSubscriptionInfo',
           );
 
-          emit(
-            state.copyWith(
-              workspaceSubscriptionInfo: workspaceSubscriptionInfo,
+          add(
+            UserWorkspaceEvent.updateSubscriptionInfo(
+              workspaceSubscriptionInfo,
             ),
           );
         },
@@ -688,6 +695,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.fetchWorkspaceSubscriptionInfo(
     String workspaceId,
   ) = FetchWorkspaceSubscriptionInfo;
+  const factory UserWorkspaceEvent.updateSubscriptionInfo(
+    WorkspaceSubscriptionInfoPB subscriptionInfo,
+  ) = UpdateSubscriptionInfo;
 }
 
 enum UserWorkspaceActionType {
