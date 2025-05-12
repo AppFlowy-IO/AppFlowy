@@ -1,6 +1,5 @@
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
-use af_plugin::core::plugin::RunningState;
 use flowy_ai_pub::cloud::{
   AIModel, ChatMessage, ChatMessageType, CompletionMessage, LLMModel, OutputContent, OutputLayout,
   RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
@@ -568,19 +567,6 @@ pub enum RunningStatePB {
   Connected = 2,
   Running = 3,
   Stopped = 4,
-}
-
-impl From<RunningState> for RunningStatePB {
-  fn from(value: RunningState) -> Self {
-    match value {
-      RunningState::ReadyToConnect => RunningStatePB::ReadyToRun,
-      RunningState::Connecting => RunningStatePB::Connecting,
-      RunningState::Connected { .. } => RunningStatePB::Connected,
-      RunningState::Running { .. } => RunningStatePB::Running,
-      RunningState::Stopped { .. } => RunningStatePB::Stopped,
-      RunningState::UnexpectedStop { .. } => RunningStatePB::Stopped,
-    }
-  }
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
