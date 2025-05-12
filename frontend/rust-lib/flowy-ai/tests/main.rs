@@ -76,7 +76,14 @@ impl TestContext {
       summary: "".to_string(),
     };
 
-    LLMChat::new(info, self.ollama.clone(), Some(self.store.clone()), None).unwrap()
+    LLMChat::new(
+      info,
+      self.ollama.clone(),
+      Some(self.store.clone()),
+      None,
+      vec![],
+    )
+    .unwrap()
   }
 }
 

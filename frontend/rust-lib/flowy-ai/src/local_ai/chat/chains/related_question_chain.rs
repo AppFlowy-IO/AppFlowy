@@ -6,17 +6,9 @@ use ollama_rs::generation::parameters::{FormatType, JsonStructure};
 use schemars::JsonSchema;
 use serde::Deserialize;
 
-const SUMMARIZE_SYSTEM_PROMPT: &str = r#"
-As an AppFlowy AI assistant, your task is to generate three medium-length, relevant, and informative questions based on the provided conversation history.
-The output should only return a JSON instance that conforms to the JSON schema below.
-
-{
-	"questions": [
-		"What are the key skills needed to tackle a black diamond slope in snowboarding?",
-		"How does the difficulty of black diamond trails compare across different ski resorts?",
-		"Can you provide tips for snowboarders preparing to try a black diamond trail for the first time?"
-	]
-}
+const SYSTEM_PROMPT: &str = r#"
+You are the AppFlowy AI assistant. Given the conversation history, generate exactly three medium-length, relevant, and informative questions.
+Respond with a single JSON object matching the schema below—and nothing else. If you can’t generate questions, return {}.
 "#;
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -36,9 +28,9 @@ impl RelatedQuestionChain {
     }
   }
 
-  pub async fn related_question(&self, question: &str) -> FlowyResult<Vec<String>> {
+  pub async fn generate_related_question(&self, question: &str) -> FlowyResult<Vec<String>> {
     let messages = vec![
-      Message::new_system_message(SUMMARIZE_SYSTEM_PROMPT),
+      Message::new_system_message(SYSTEM_PROMPT),
       Message::new_human_message(question),
     ];
 

@@ -37,6 +37,7 @@ pub struct TanvitySearchResponseItem {
   pub icon: Option<ResultIcon>,
   pub workspace_id: String,
   pub content: String,
+  pub score: f32,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
