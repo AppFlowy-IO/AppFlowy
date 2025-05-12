@@ -42,15 +42,7 @@ class _CustomPromptDatabaseSelectorState
     return ViewSelector(
       viewSelectorCubit: BlocProvider(
         create: (context) => ViewSelectorCubit(
-          getIgnoreViewType: (view) {
-            if (view.layout.isDatabaseView) {
-              return IgnoreViewType.none;
-            }
-            if (view.layout.isDocumentView) {
-              return IgnoreViewType.none;
-            }
-            return IgnoreViewType.hide;
-          },
+          getIgnoreViewType: getIgnoreViewType,
         ),
       ),
       child: BlocSelector<SpaceBloc, SpaceState, (List<ViewPB>, ViewPB?)>(
@@ -67,12 +59,18 @@ class _CustomPromptDatabaseSelectorState
               return BlocProvider.value(
                 value: context.read<ViewSelectorCubit>(),
                 child: _PopoverContent(
-                  onSelectView: (view) {
+                  onSelectViewItem: (item) {
+                    final view = item.view;
                     if (view.layout.isDatabaseView) {
                       context
                           .read<AiPromptSelectorCubit>()
                           .updateCustomPromptDatabaseViewId(view.id);
                       popoverController.close();
+                    } else if (!view.isSpace && view.layout.isDocumentView) {
+                      context.read<ViewSelectorCubit>().toggleIsExpanded(
+                            item,
+                            false,
+                          );
                     }
                   },
                 ),
@@ -91,6 +89,37 @@ class _CustomPromptDatabaseSelectorState
           );
         },
       ),
+    );
+  }
+
+  IgnoreViewType getIgnoreViewType(ViewSelectorItem item) {
+    final layout = item.view.layout;
+
+    if (layout.isDatabaseView) {
+      return IgnoreViewType.none;
+    }
+    if (layout.isDocumentView) {
+      return hasDatabaseDescendent(item)
+          ? IgnoreViewType.none
+          : IgnoreViewType.hide;
+    }
+    return IgnoreViewType.hide;
+  }
+
+  bool hasDatabaseDescendent(ViewSelectorItem viewSelectorItem) {
+    final layout = viewSelectorItem.view.layout;
+
+    if (layout == ViewLayoutPB.Chat) {
+      return false;
+    }
+
+    if (layout.isDatabaseView) {
+      return true;
+    }
+
+    // document may have children
+    return viewSelectorItem.children.any(
+      (child) => hasDatabaseDescendent(child),
     );
   }
 }
@@ -232,10 +261,10 @@ class _AiPromptDatabaseSelectorButtonState
 
 class _PopoverContent extends StatefulWidget {
   const _PopoverContent({
-    required this.onSelectView,
+    required this.onSelectViewItem,
   });
 
-  final void Function(ViewPB view) onSelectView;
+  final void Function(ViewSelectorItem item) onSelectViewItem;
 
   @override
   State<_PopoverContent> createState() => _PopoverContentState();
@@ -309,9 +338,7 @@ class _PopoverContentState extends State<_PopoverContent> {
         isDescendentOfSpace: e.view.isSpace,
         isSelectedSection: false,
         showCheckbox: false,
-        onSelected: (source) {
-          widget.onSelectView(source.view);
-        },
+        onSelected: widget.onSelectViewItem,
         height: 30.0,
       ),
     );

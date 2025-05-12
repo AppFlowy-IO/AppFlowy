@@ -109,6 +109,10 @@ class EditorDropHandler extends StatelessWidget {
   void _onDragUpdated(Offset position) {
     final data = editorState.selectionService.getDropTargetRenderData(position);
 
+    if (dropManagerState?.isDropEnabled == false) {
+      return editorState.selectionService.removeDropTarget();
+    }
+
     if (data != null &&
         data.dropPath != null &&
 

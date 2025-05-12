@@ -15,16 +15,15 @@ class WidgetTestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EasyLocalization(
-      supportedLocales: const [Locale('en')],
+      supportedLocales: const [Locale('en', 'US')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
+      fallbackLocale: const Locale('en', 'US'),
       useFallbackTranslations: true,
       saveLocale: false,
       assetLoader: const TestBundleAssetLoader(),
       child: Builder(
         builder: (context) => MaterialApp(
-          supportedLocales: const [Locale('en')],
-          locale: const Locale('en'),
+          locale: const Locale('en', 'US'),
           localizationsDelegates: context.localizationDelegates,
           theme: ThemeData.light().copyWith(
             extensions: const [

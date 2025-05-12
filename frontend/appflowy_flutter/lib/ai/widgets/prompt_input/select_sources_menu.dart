@@ -40,7 +40,9 @@ class _PromptInputDesktopSelectSourcesButtonState
     extends State<PromptInputDesktopSelectSourcesButton> {
   late final cubit = ViewSelectorCubit(
     maxSelectedParentPageCount: 3,
-    getIgnoreViewType: (view) {
+    getIgnoreViewType: (item) {
+      final view = item.view;
+
       if (view.isSpace) {
         return IgnoreViewType.none;
       }
@@ -50,6 +52,7 @@ class _PromptInputDesktopSelectSourcesButtonState
       if (view.layout != ViewLayoutPB.Document) {
         return IgnoreViewType.disable;
       }
+
       return IgnoreViewType.none;
     },
   );
