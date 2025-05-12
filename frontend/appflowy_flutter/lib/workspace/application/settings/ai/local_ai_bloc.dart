@@ -39,8 +39,7 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
         emit(
           LocalAiPluginState.ready(
             isEnabled: aiState.enabled,
-            version: aiState.pluginVersion,
-            runningState: aiState.state,
+            isReady: aiState.isReady,
             lackOfResource:
                 aiState.hasLackOfResource() ? aiState.lackOfResource : null,
           ),
@@ -116,8 +115,7 @@ class LocalAiPluginState with _$LocalAiPluginState {
 
   const factory LocalAiPluginState.ready({
     required bool isEnabled,
-    required String version,
-    required RunningStatePB runningState,
+    required bool isReady,
     required LackOfAIResourcePB? lackOfResource,
   }) = ReadyLocalAiPluginState;
 
@@ -125,15 +123,15 @@ class LocalAiPluginState with _$LocalAiPluginState {
 
   bool get isEnabled {
     return maybeWhen(
-      ready: (isEnabled, _, __, ___) => isEnabled,
+      ready: (isEnabled, _, ___) => isEnabled,
       orElse: () => false,
     );
   }
 
   bool get showIndicator {
     return maybeWhen(
-      ready: (isEnabled, _, runningState, lackOfResource) =>
-          runningState != RunningStatePB.Running || lackOfResource != null,
+      ready: (isEnabled, isReady, lackOfResource) =>
+          isReady || lackOfResource != null,
       orElse: () => false,
     );
   }

@@ -26,9 +26,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.27.4"
-  RUST_TOOLCHAIN: "1.81.0"
+  RUST_TOOLCHAIN: "1.84.0"
   CARGO_MAKE_VERSION: "0.37.18"
-  CLOUD_VERSION: 0.9.37-amd64
+  CLOUD_VERSION: 0.9.49-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -174,7 +174,7 @@ jobs:
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libcurl4-openssl-dev
           fi
         shell: bash
 
@@ -308,7 +308,7 @@ jobs:
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
           sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libcurl4-openssl-dev
         shell: bash
 
       - name: Enable Flutter Desktop

@@ -76,10 +76,11 @@ class AccountSignInOutButton extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showConfirmDialog(
+    showCancelAndConfirmDialog(
       context: context,
       title: LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
       description: LocaleKeys.settings_menu_logoutPrompt.tr(),
+      confirmLabel: LocaleKeys.button_yes.tr(),
       onConfirm: () async {
         await getIt<AuthService>().signOut();
         onAction();
@@ -146,6 +147,7 @@ class ChangePasswordSection extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => MultiBlocProvider(
         providers: [
           BlocProvider<PasswordBloc>.value(
@@ -168,8 +170,10 @@ class ChangePasswordSection extends StatelessWidget {
   }
 
   Future<void> _showSetPasswordDialog(BuildContext context) async {
+    final theme = AppFlowyTheme.of(context);
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => MultiBlocProvider(
         providers: [
           BlocProvider<PasswordBloc>.value(
@@ -180,6 +184,9 @@ class ChangePasswordSection extends StatelessWidget {
           ),
         ],
         child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+          ),
           child: SetupPasswordDialogContent(
             userProfile: userProfile,
           ),

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/loading.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -86,7 +87,10 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                       isHover: onHover,
                     ),
                     const HSpace(8.0),
-                    NotificationButton(isHover: onHover),
+                    NotificationButton(
+                      isHover: onHover,
+                      key: ValueKey(currentWorkspace.workspaceId),
+                    ),
                     const HSpace(4.0),
                   ],
                 ),
@@ -102,6 +106,11 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     final actionResult = state.actionResult;
     if (actionResult == null) {
       return;
+    }
+
+    final settingBloc = context.read<HomeSettingBloc?>();
+    if (settingBloc?.state.isNotificationPanelCollapsed == false) {
+      settingBloc?.add(HomeSettingEvent.collapseNotificationPanel());
     }
 
     final actionType = actionResult.actionType;
@@ -287,47 +296,44 @@ class _SidebarSwitchWorkspaceButtonState
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => context.read<UserWorkspaceBloc>(),
-      child: AppFlowyPopover(
-        direction: PopoverDirection.bottomWithCenterAligned,
-        offset: const Offset(0, 5),
-        constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
-        margin: EdgeInsets.zero,
-        animationDuration: Durations.short3,
-        beginScaleFactor: 1.0,
-        beginOpacity: 0.8,
-        controller: _popoverController,
-        triggerActions: PopoverTriggerFlags.none,
-        onOpen: () {
-          context
-              .read<UserWorkspaceBloc>()
-              .add(const UserWorkspaceEvent.fetchWorkspaces());
-        },
-        popupBuilder: (_) {
-          return BlocProvider<UserWorkspaceBloc>.value(
-            value: context.read<UserWorkspaceBloc>(),
-            child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-              builder: (context, state) {
-                final currentWorkspace = state.currentWorkspace;
-                final workspaces = state.workspaces;
-                if (currentWorkspace == null) {
-                  return const SizedBox.shrink();
-                }
-                return WorkspacesMenu(
-                  userProfile: widget.userProfile,
-                  currentWorkspace: currentWorkspace,
-                  workspaces: workspaces,
-                );
-              },
-            ),
-          );
-        },
-        child: _SideBarSwitchWorkspaceButtonChild(
-          currentWorkspace: widget.currentWorkspace,
-          popoverController: _popoverController,
-          isHover: widget.isHover,
-        ),
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 5),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      margin: EdgeInsets.zero,
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      controller: _popoverController,
+      triggerActions: PopoverTriggerFlags.none,
+      onOpen: () {
+        context
+            .read<UserWorkspaceBloc>()
+            .add(const UserWorkspaceEvent.fetchWorkspaces());
+      },
+      popupBuilder: (_) {
+        return BlocProvider<UserWorkspaceBloc>.value(
+          value: context.read<UserWorkspaceBloc>(),
+          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+            builder: (context, state) {
+              final currentWorkspace = state.currentWorkspace;
+              final workspaces = state.workspaces;
+              if (currentWorkspace == null) {
+                return const SizedBox.shrink();
+              }
+              return WorkspacesMenu(
+                userProfile: widget.userProfile,
+                currentWorkspace: currentWorkspace,
+                workspaces: workspaces,
+              );
+            },
+          ),
+        );
+      },
+      child: _SideBarSwitchWorkspaceButtonChild(
+        currentWorkspace: widget.currentWorkspace,
+        popoverController: _popoverController,
+        isHover: widget.isHover,
       ),
     );
   }

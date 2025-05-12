@@ -7,7 +7,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.27.4"
-  RUST_TOOLCHAIN: "1.81.0"
+  RUST_TOOLCHAIN: "1.84.0"
 
 jobs:
   create-release:
@@ -232,10 +232,10 @@ jobs:
       matrix:
         job:
           - {
-              targets: "aarch64-apple-darwin,x86_64-apple-darwin",
-              os: macos-latest,
-              extra-build-args: "",
-            }
+            targets: "aarch64-apple-darwin,x86_64-apple-darwin",
+            os: macos-latest,
+            extra-build-args: "",
+          }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -336,12 +336,12 @@ jobs:
       matrix:
         job:
           - {
-              arch: x86_64,
-              target: x86_64-unknown-linux-gnu,
-              os: ubuntu-22.04,
-              extra-build-args: "",
-              flutter_profile: production-linux-x86_64,
-            }
+            arch: x86_64,
+            target: x86_64-unknown-linux-gnu,
+            os: ubuntu-22.04,
+            extra-build-args: "",
+            flutter_profile: production-linux-x86_64,
+          }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -366,9 +366,10 @@ jobs:
         run: |
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev libcurl4-openssl-dev
           sudo apt-get install keybinder-3.0
           sudo apt-get install -y alien libnotify-dev
+          sudo apt install libfuse2
           source $HOME/.cargo/env
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli

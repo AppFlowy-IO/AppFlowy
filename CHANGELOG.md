@@ -1,4 +1,47 @@
 # Release Notes
+## Version 0.9.1 - 01/05/2025
+### Desktop
+#### New Features
+- Added AppFlowy Prompt Library to AI Chat and Document's Ask AI
+- Revamped the desktop in-app notification center
+- Supported login with password, as well as forgot and change password options
+- Supported copying link to invite members
+- Improved the Settings' Members tab with new metadata: member avatar and joined time
+#### Bug Fixes
+- Fixed data loss when using anonymous local
+- Fixed crash when trying to delete an emoji
+- Fixed Windows scaling issue
+- Correctly displayed mention text by decoding web content
+### Mobile
+#### New Features
+- Supported workspace search
+- Improved UX for links in documents
+- Supported changing password in Mobile Settings
+- Added support for inviting members via links
+#### Bug Fixes
+- Correctly displayed mention text by decoding web content
+
+## Version 0.9.0 - 30/04/2025
+### Desktop
+#### New Features
+- Added AppFlowy Prompt Library to AI Chat and Document's Ask AI
+- Revamped the desktop in-app notification center
+- Supported login with password, as well as forgot and change password options
+- Supported copying link to invite members
+- Improved the Settings' Members tab with new metadata: member avatar and joined time
+#### Bug Fixes
+- Fixed crash when trying to delete an emoji
+- Fixed Windows scaling issue
+- Correctly displayed mention text by decoding web content
+### Mobile
+#### New Features
+- Supported workspace search
+- Improved UX for links in documents
+- Supported changing password in Mobile Settings
+- Added support for inviting members via links
+#### Bug Fixes
+- Correctly displayed mention text by decoding web content
+
 ## Version 0.8.9 - 16/04/2025
 ### Desktop
 #### New Features

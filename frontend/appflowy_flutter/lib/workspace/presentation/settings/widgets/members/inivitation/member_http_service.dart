@@ -67,8 +67,8 @@ class MemberHttpService {
     try {
       return result.fold(
         (data) {
-          final code = data['data']['code'] as String;
-          if (code.isEmpty) {
+          final code = data['data']['code'];
+          if (code is! String || code.isEmpty) {
             return FlowyResult.failure(
               FlowyError(msg: 'Failed to get invite code: $code'),
             );
@@ -185,8 +185,6 @@ class MemberHttpService {
         );
       }
     } catch (e) {
-      Log.error('${endpoint.name} request failed: error: $e');
-
       return FlowyResult.failure(
         FlowyError(msg: 'Network error: ${e.toString()}'),
       );

@@ -1,10 +1,12 @@
 use crate::user::af_cloud_test::util::get_synced_workspaces;
+use crate::util::unzip;
 use collab::core::collab::DataSource::DocStateV1;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::Folder;
-use event_integration_test::user_event::use_localhost_af_cloud;
+use event_integration_test::user_event::{use_local_mode, use_localhost_af_cloud};
 use event_integration_test::EventIntegrationTest;
+use flowy_core::DEFAULT_NAME;
 use flowy_user::entities::AFRolePB;
 use flowy_user_pub::cloud::UserCloudServiceProvider;
 use flowy_user_pub::entities::{AuthType, WorkspaceType};
@@ -414,4 +416,34 @@ async fn af_cloud_create_local_workspace_test() {
     2,
     "Server should only see 2 workspaces (the default and server workspace, not the local one)"
   );
+}
+
+#[tokio::test]
+async fn af_cloud_open_089_anon_user_data_folder_test() {
+  let user_db_path = unzip("./tests/asset", "089_local").unwrap();
+  use_localhost_af_cloud().await;
+  let test =
+    EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
+
+  // After 0.8.9, we store user workspace into user_workspace_table and refactor the Session serde struct
+  // So, if everything is correct, we should be able to open the workspace and get the views
+  let workspaces = test.get_all_workspaces().await.items;
+  let views = test.get_all_views().await;
+  dbg!(&views);
+  assert!(views.iter().any(|view| view.name == "Anon 089  document"));
+  assert_eq!(workspaces.len(), 1);
+}
+
+#[tokio::test]
+async fn open_089_anon_user_data_folder_test() {
+  use_local_mode().await;
+  // Almost same as af_cloud_open_089_anon_user_data_folder_test but doesn't use af_cloud as the backend
+  let user_db_path = unzip("./tests/asset", "089_local").unwrap();
+  let test =
+    EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
+  let workspaces = test.get_all_workspaces().await.items;
+  let views = test.get_all_views().await;
+  dbg!(&views);
+  assert!(views.iter().any(|view| view.name == "Anon 089  document"));
+  assert_eq!(workspaces.len(), 1);
 }

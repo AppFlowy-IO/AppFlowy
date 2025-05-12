@@ -11,7 +11,9 @@ part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(WorkspaceLatestPB workspaceSetting)
-      : _workspaceListener = FolderListener(),
+      : _workspaceListener = FolderListener(
+          workspaceId: workspaceSetting.workspaceId,
+        ),
         super(HomeState.initial(workspaceSetting)) {
     _dispatch(workspaceSetting);
   }

@@ -9,7 +9,7 @@
   "title": "Titre",
   "youCanAlso": "Vous pouvez aussi",
   "and": "et",
-  "failedToOpenUrl": "Échec de l'ouverture de l'URL : {}",
+  "failedToOpenUrl": "Échec de l'ouverture de l'URL: {}",
   "blockActions": {
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",

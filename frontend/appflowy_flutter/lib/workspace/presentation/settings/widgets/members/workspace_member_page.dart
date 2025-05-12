@@ -34,7 +34,8 @@ class WorkspaceMembersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<WorkspaceMemberBloc>(
       create: (context) => WorkspaceMemberBloc(userProfile: userProfile)
-        ..add(const WorkspaceMemberEvent.initial()),
+        ..add(const WorkspaceMemberEvent.initial())
+        ..add(const WorkspaceMemberEvent.getInviteCode()),
       child: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
         listener: _showResultDialog,
         builder: (context, state) {
@@ -48,7 +49,9 @@ class WorkspaceMembersPage extends StatelessWidget {
                 const InviteMemberByLink(),
                 const SettingsCategorySpacer(),
                 const InviteMemberByEmail(),
-                const SettingsCategorySpacer(),
+                const SettingsCategorySpacer(
+                  bottomSpacing: 0,
+                ),
               ],
               if (state.members.isNotEmpty)
                 _MemberList(
@@ -249,27 +252,70 @@ class WorkspaceMembersPage extends StatelessWidget {
                 .settings_appearance_members_inviteFailedDialogTitle
                 .tr(),
             description: message,
-            confirmLabel: LocaleKeys.button_ok.tr(),
+            confirmLabel: LocaleKeys
+                .settings_appearance_members_memberLimitExceededUpgrade
+                .tr(),
+            onConfirm: () => context
+                .read<WorkspaceMemberBloc>()
+                .add(const WorkspaceMemberEvent.upgradePlan()),
           );
         },
       );
     } else if (actionType == WorkspaceMemberActionType.generateInviteLink) {
       result.fold(
-        (s) {
+        (s) async {
           showToastNotification(
-            message: 'Invite link generated successfully',
+            message: LocaleKeys
+                .settings_appearance_members_generatedLinkSuccessfully
+                .tr(),
           );
 
           // copy the invite link to the clipboard
           final inviteLink = state.inviteLink;
           if (inviteLink != null) {
-            getIt<ClipboardService>().setPlainText(inviteLink);
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            Future.delayed(const Duration(milliseconds: 200), () {
+              showToastNotification(
+                message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+              );
+            });
           }
         },
         (f) {
           Log.error('generate invite link failed: $f');
           showToastNotification(
-            message: 'Failed to generate invite link',
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_generatedLinkFailed.tr(),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.resetInviteLink) {
+      result.fold(
+        (s) async {
+          showToastNotification(
+            message: LocaleKeys
+                .settings_appearance_members_resetLinkSuccessfully
+                .tr(),
+          );
+
+          // copy the invite link to the clipboard
+          final inviteLink = state.inviteLink;
+          if (inviteLink != null) {
+            await getIt<ClipboardService>().setPlainText(inviteLink);
+            Future.delayed(const Duration(milliseconds: 200), () {
+              showToastNotification(
+                message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+              );
+            });
+          }
+        },
+        (f) {
+          Log.error('generate invite link failed: $f');
+          showToastNotification(
+            type: ToastificationType.error,
+            message:
+                LocaleKeys.settings_appearance_members_resetLinkFailed.tr(),
           );
         },
       );
@@ -379,23 +425,30 @@ class _MemberItem extends StatelessWidget {
                 emojiFontSize: 20,
               ),
               HSpace(8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.name,
-                    style: theme.textStyle.body.enhanced(
-                      color: theme.textColorScheme.primary,
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      member.name,
+                      style: theme.textStyle.body.enhanced(
+                        color: theme.textColorScheme.primary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Text(
-                    _formatJoinedDate(member.joinedAt.toInt()),
-                    style: theme.textStyle.caption.standard(
-                      color: theme.textColorScheme.secondary,
+                    Text(
+                      _formatJoinedDate(member.joinedAt.toInt()),
+                      style: theme.textStyle.caption.standard(
+                        color: theme.textColorScheme.secondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              HSpace(8),
             ],
           ),
         ),
@@ -473,20 +526,18 @@ class _MemberMoreActionList extends StatelessWidget {
       onSelected: (action, controller) {
         switch (action.inner) {
           case _MemberMoreAction.delete:
-            showDialog(
+            showCancelAndConfirmDialog(
               context: context,
-              builder: (_) => NavigatorOkCancelDialog(
-                title: LocaleKeys.settings_appearance_members_removeMember.tr(),
-                message: LocaleKeys
-                    .settings_appearance_members_areYouSureToRemoveMember
-                    .tr(),
-                onOkPressed: () => context.read<WorkspaceMemberBloc>().add(
-                      WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
-                        action.member.email,
-                      ),
+              title: LocaleKeys.settings_appearance_members_removeMember.tr(),
+              description: LocaleKeys
+                  .settings_appearance_members_areYouSureToRemoveMember
+                  .tr(),
+              confirmLabel: LocaleKeys.button_yes.tr(),
+              onConfirm: () => context.read<WorkspaceMemberBloc>().add(
+                    WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
+                      action.member.email,
                     ),
-                okTitle: LocaleKeys.button_yes.tr(),
-              ),
+                  ),
             );
             break;
         }

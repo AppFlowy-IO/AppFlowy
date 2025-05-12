@@ -10,11 +10,11 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 const _kNotificationIconHeight = 36.0;
 
@@ -22,12 +22,15 @@ class NotificationIcon extends StatelessWidget {
   const NotificationIcon({
     super.key,
     required this.reminder,
+    this.atSize = 12,
   });
 
   final ReminderPB reminder;
+  final double atSize;
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return SizedBox(
       width: 42,
       height: 36,
@@ -45,13 +48,13 @@ class NotificationIcon extends StatelessWidget {
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).cardColor,
+                color: theme.fillColorScheme.primary,
               ),
               child: Center(
-                child: FlowyText(
-                  '@',
-                  fontSize: 12,
-                  figmaLineHeight: 14,
+                child: FlowySvg(
+                  FlowySvgs.notification_icon_at_s,
+                  size: Size.square(atSize),
+                  color: theme.iconColorScheme.primary,
                 ),
               ),
             ),
@@ -88,14 +91,15 @@ class UnreadRedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final theme = AppFlowyTheme.of(context);
+    return SizedBox(
       height: _kNotificationIconHeight,
       child: Center(
         child: SizedBox.square(
-          dimension: 6.0,
+          dimension: 7.0,
           child: DecoratedBox(
             decoration: ShapeDecoration(
-              color: Color(0xFFFF6331),
+              color: theme.borderColorScheme.errorThick,
               shape: OvalBorder(),
             ),
           ),
@@ -118,6 +122,8 @@ class NotificationContent extends StatefulWidget {
 }
 
 class _NotificationContentState extends State<NotificationContent> {
+  AppFlowyThemeData get theme => AppFlowyTheme.of(context);
+
   @override
   void didUpdateWidget(covariant NotificationContent oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -141,14 +147,11 @@ class _NotificationContentState extends State<NotificationContent> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // title & time
-            _buildHeader(state.createdAt, !widget.reminder.isRead),
+            _buildHeader(state.scheduledAt, !widget.reminder.isRead),
             // page name
             _buildPageName(context, state.isLocked, state.pageTitle),
             // content
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: _buildContent(view, nodes: state.nodes),
-            ),
+            _buildContent(view, nodes: state.nodes),
           ],
         );
       },
@@ -175,6 +178,8 @@ class _NotificationContentState extends State<NotificationContent> {
           fontSize: 14,
           figmaLineHeight: 22,
           color: context.notificationItemTextColor,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
       );
     }
@@ -191,6 +196,7 @@ class _NotificationContentState extends State<NotificationContent> {
             LocaleKeys.settings_notifications_titles_reminder.tr(),
             fontSize: 14,
             figmaLineHeight: 20,
+            color: theme.textColorScheme.primary,
           ),
           Spacer(),
           if (createAt.isNotEmpty)
@@ -198,7 +204,7 @@ class _NotificationContentState extends State<NotificationContent> {
               createAt,
               fontSize: 12,
               figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+              color: theme.textColorScheme.secondary,
             ),
           if (unread) ...[
             HSpace(4),
@@ -225,19 +231,25 @@ class _NotificationContentState extends State<NotificationContent> {
               LocaleKeys.notificationHub_mentionedYou.tr(),
               fontSize: 12,
               figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+              color: theme.textColorScheme.secondary,
             ),
             const NotificationEllipse(),
             if (isLocked)
               Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: FlowySvg(FlowySvgs.notification_lock_s),
+                child: FlowySvg(
+                  FlowySvgs.notification_lock_s,
+                  color: theme.iconColorScheme.secondary,
+                ),
               ),
-            FlowyText.regular(
-              pageTitle,
-              fontSize: 12,
-              figmaLineHeight: 18,
-              color: context.notificationItemTextColor,
+            Flexible(
+              child: FlowyText.regular(
+                pageTitle,
+                fontSize: 12,
+                figmaLineHeight: 18,
+                color: theme.textColorScheme.secondary,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -254,7 +266,7 @@ class NotificationEllipse extends StatelessWidget {
     return Container(
       width: 2.50,
       height: 2.50,
-      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      margin: const EdgeInsets.symmetric(horizontal: 6.0),
       decoration: ShapeDecoration(
         color: context.notificationItemTextColor,
         shape: const OvalBorder(),
@@ -310,11 +322,7 @@ class NotificationDocumentContent extends StatelessWidget {
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
-      customHeadingPadding: UniversalPlatform.isDesktop
-          ? EdgeInsets.zero
-          : EdgeInsets.symmetric(
-              vertical: EditorStyleCustomizer.nodeHorizontalPadding,
-            ),
+      customPadding: (node) => EdgeInsets.zero,
     );
 
     return IgnorePointer(

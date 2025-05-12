@@ -1413,3 +1413,22 @@ pub(crate) async fn rename_media_cell_file_handler(
 
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn get_database_custom_prompts_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedCustomPromptPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: DatabaseViewIdPB = data.try_into_inner()?;
+  let database_editor = manager
+    .get_database_editor_with_view_id(params.as_ref())
+    .await?;
+  let custom_prompts = database_editor
+    .get_prompts_from_database(params.as_ref())
+    .await?;
+
+  data_result_ok(RepeatedCustomPromptPB {
+    items: custom_prompts,
+  })
+}

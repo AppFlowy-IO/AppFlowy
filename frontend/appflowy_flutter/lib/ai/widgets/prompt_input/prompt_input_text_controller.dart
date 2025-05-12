@@ -57,7 +57,8 @@ class AiPromptInputTextEditingController extends TextEditingController {
             text: restore(string),
             style: theme.textStyle.body.standard().copyWith(
                   color: theme.textColorScheme.purple,
-                  backgroundColor: theme.fillColorScheme.purpleLight,
+                  backgroundColor:
+                      theme.fillColorScheme.purpleThick.withAlpha(51),
                 ),
           ),
         );

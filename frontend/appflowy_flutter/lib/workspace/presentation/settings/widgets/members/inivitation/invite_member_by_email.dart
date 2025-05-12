@@ -43,6 +43,7 @@ class _InviteMemberByEmailState extends State<InviteMemberByEmail> {
           children: [
             Expanded(
               child: AFTextField(
+                size: AFTextFieldSize.m,
                 controller: _emailController,
                 hintText:
                     LocaleKeys.settings_appearance_members_inviteHint.tr(),

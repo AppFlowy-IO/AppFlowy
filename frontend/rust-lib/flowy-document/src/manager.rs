@@ -63,7 +63,7 @@ pub struct DocumentManager {
 
 impl Drop for DocumentManager {
   fn drop(&mut self) {
-    tracing::trace!("[Drop] drop document manager");
+    trace!("[Drop] drop document manager");
   }
 }
 

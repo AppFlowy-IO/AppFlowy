@@ -10,57 +10,81 @@ class AiPromptPreview extends StatelessWidget {
   const AiPromptPreview({
     super.key,
     required this.prompt,
-    required this.padding,
   });
 
   final AiPrompt prompt;
-  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
     return SelectionArea(
-      child: ListView(
-        padding: padding,
+      child: Column(
         children: [
-          SelectionContainer.disabled(
-            child: Text(
-              prompt.name,
-              style: theme.textStyle.headline.standard(
-                color: theme.textColorScheme.primary,
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.l,
+            ),
+            child: SelectionContainer.disabled(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      prompt.name,
+                      style: theme.textStyle.headline.standard(
+                        color: theme.textColorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  HSpace(theme.spacing.s),
+                  AFFilledTextButton.primary(
+                    text: LocaleKeys.ai_customPrompt_usePrompt.tr(),
+                    onTap: () {
+                      Navigator.of(context).pop(prompt);
+                    },
+                  ),
+                ],
               ),
             ),
           ),
           VSpace(theme.spacing.xs),
-          SelectionContainer.disabled(
-            child: Text(
-              LocaleKeys.ai_customPrompt_prompt.tr(),
-              style: theme.textStyle.heading4.standard(
-                color: theme.textColorScheme.primary,
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(
+                theme.spacing.l,
               ),
-            ),
-          ),
-          VSpace(theme.spacing.xs),
-          _PromptContent(
-            prompt: prompt,
-          ),
-          VSpace(theme.spacing.xl),
-          if (prompt.example.isNotEmpty) ...[
-            SelectionContainer.disabled(
-              child: Text(
-                LocaleKeys.ai_customPrompt_example.tr(),
-                style: theme.textStyle.heading4.standard(
-                  color: theme.textColorScheme.primary,
+              children: [
+                SelectionContainer.disabled(
+                  child: Text(
+                    LocaleKeys.ai_customPrompt_prompt.tr(),
+                    style: theme.textStyle.heading4.standard(
+                      color: theme.textColorScheme.primary,
+                    ),
+                  ),
                 ),
-              ),
+                VSpace(theme.spacing.xs),
+                _PromptContent(
+                  prompt: prompt,
+                ),
+                VSpace(theme.spacing.xl),
+                if (prompt.example.isNotEmpty) ...[
+                  SelectionContainer.disabled(
+                    child: Text(
+                      LocaleKeys.ai_customPrompt_example.tr(),
+                      style: theme.textStyle.heading4.standard(
+                        color: theme.textColorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  VSpace(theme.spacing.xs),
+                  _PromptExample(
+                    prompt: prompt,
+                  ),
+                  VSpace(theme.spacing.xl),
+                ],
+              ],
             ),
-            VSpace(theme.spacing.xs),
-            _PromptExample(
-              prompt: prompt,
-            ),
-            VSpace(theme.spacing.xl),
-          ],
+          ),
         ],
       ),
     );

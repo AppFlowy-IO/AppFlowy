@@ -1,4 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -51,5 +53,46 @@ class ViewAncestorState with _$ViewAncestorState {
   factory ViewAncestorState.initial(String viewId) => ViewAncestorState(
         viewId: viewId,
         ancestor: ViewAncestor.empty(),
+      );
+}
+
+extension ViewAncestorTextExtension on ViewAncestorState {
+  Widget buildPath(BuildContext context, {TextStyle? style}) {
+    final theme = AppFlowyTheme.of(context);
+    final ancestors = ancestor.ancestors;
+    final textStyle = style ??
+        theme.textStyle.caption.standard(color: theme.textColorScheme.tertiary);
+    return LayoutBuilder(
+      builder: (context, constrains) {
+        final List<String> displayPath = ancestors.map((e) => e.name).toList();
+        if (displayPath.isEmpty) return const SizedBox.shrink();
+        TextPainter textPainter =
+            _buildTextPainter(displayPath.join(' / '), textStyle);
+        textPainter.layout(maxWidth: constrains.maxWidth);
+        if (textPainter.didExceedMaxLines && displayPath.length > 2) {
+          displayPath.removeAt(displayPath.length - 2);
+          displayPath.insert(displayPath.length - 1, '...');
+        }
+        textPainter = _buildTextPainter(displayPath.join(' / '), textStyle);
+        textPainter.layout(maxWidth: constrains.maxWidth);
+        while (textPainter.didExceedMaxLines && displayPath.length > 3) {
+          displayPath.removeAt(displayPath.length - 2);
+          textPainter = _buildTextPainter(displayPath.join(' / '), textStyle);
+          textPainter.layout(maxWidth: constrains.maxWidth);
+        }
+        return Text(
+          displayPath.join(' / '),
+          style: textStyle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      },
+    );
+  }
+
+  TextPainter _buildTextPainter(String text, TextStyle style) => TextPainter(
+        text: TextSpan(text: text, style: style),
+        maxLines: 1,
+        textDirection: TextDirection.ltr,
       );
 }

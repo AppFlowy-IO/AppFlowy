@@ -11,7 +11,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
 
-const String aiModelsGlobalActiveModel = "ai_models_global_active_model";
+const String aiModelsGlobalActiveModel = "global_active_model";
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
@@ -75,9 +75,6 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           );
         },
         selectModel: (AIModelPB model) async {
-          if (!model.isLocal) {
-            await _updateUserWorkspaceSetting(model: model.name);
-          }
           await AIEventUpdateSelectedModel(
             UpdateSelectedModelPB(
               source: aiModelsGlobalActiveModel,
@@ -93,7 +90,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           );
         },
-        didLoadAvailableModels: (AvailableModelsPB models) {
+        didLoadAvailableModels: (ModelSelectionPB models) {
           emit(
             state.copyWith(
               availableModels: models,
@@ -134,7 +131,8 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
       );
 
   void _loadModelList() {
-    AIEventGetServerAvailableModels().send().then((result) {
+    final payload = ModelSourcePB(source: aiModelsGlobalActiveModel);
+    AIEventGetSettingModelSelection(payload).send().then((result) {
       result.fold((models) {
         if (!isClosed) {
           add(SettingsAIEvent.didLoadAvailableModels(models));
@@ -175,7 +173,7 @@ class SettingsAIEvent with _$SettingsAIEvent {
   ) = _DidReceiveUserProfile;
 
   const factory SettingsAIEvent.didLoadAvailableModels(
-    AvailableModelsPB models,
+    ModelSelectionPB models,
   ) = _DidLoadAvailableModels;
 }
 
@@ -184,7 +182,7 @@ class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
     WorkspaceSettingsPB? aiSettings,
-    AvailableModelsPB? availableModels,
+    ModelSelectionPB? availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
 }

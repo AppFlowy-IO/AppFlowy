@@ -13,7 +13,6 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../shared.dart';
-import 'primitive.dart';
 
 class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
   @override
@@ -28,7 +27,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     final textColorScheme = AppFlowyTextColorScheme(
       primary: AppFlowyPrimitiveTokens.neutral1000,
       secondary: AppFlowyPrimitiveTokens.neutral600,
-      tertiary: AppFlowyPrimitiveTokens.neutral400,
+      tertiary: AppFlowyPrimitiveTokens.neutral500,
       quaternary: AppFlowyPrimitiveTokens.neutral200,
       inverse: AppFlowyPrimitiveTokens.neutralWhite,
       onFill: AppFlowyPrimitiveTokens.neutralWhite,
@@ -84,7 +83,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral1000,
+      primary: AppFlowyPrimitiveTokens.neutral100,
       primaryHover: AppFlowyPrimitiveTokens.neutral900,
       secondary: AppFlowyPrimitiveTokens.neutral600,
       secondaryHover: AppFlowyPrimitiveTokens.neutral500,
@@ -184,7 +183,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
 
     final textColorScheme = AppFlowyTextColorScheme(
       primary: AppFlowyPrimitiveTokens.neutral200,
-      secondary: AppFlowyPrimitiveTokens.neutral400,
+      secondary: AppFlowyPrimitiveTokens.neutral500,
       tertiary: AppFlowyPrimitiveTokens.neutral600,
       quaternary: AppFlowyPrimitiveTokens.neutral1000,
       inverse: AppFlowyPrimitiveTokens.neutral1000,
@@ -241,7 +240,7 @@ class AppFlowyDefaultTheme implements AppFlowyThemeBuilder {
     );
 
     final fillColorScheme = AppFlowyFillColorScheme(
-      primary: AppFlowyPrimitiveTokens.neutral100,
+      primary: AppFlowyPrimitiveTokens.neutral900,
       primaryHover: AppFlowyPrimitiveTokens.neutral200,
       secondary: AppFlowyPrimitiveTokens.neutral300,
       secondaryHover: AppFlowyPrimitiveTokens.neutral400,

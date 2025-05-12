@@ -1,6 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/back_to_login_in_button.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_button.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/title_logo.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/verifying_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -69,13 +72,15 @@ class _ContinueWithMagicLinkOrPasscodePageState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo, title and description
-                ..._buildLogoTitleAndDescription(),
+                _buildLogoTitleAndDescription(),
 
                 // Enter code manually
                 ..._buildEnterCodeManually(),
 
                 // Back to login
-                ..._buildBackToLogin(),
+                BackToLoginButton(
+                  onTap: widget.backToLogin,
+                ),
               ],
             ),
           ),
@@ -87,15 +92,6 @@ class _ContinueWithMagicLinkOrPasscodePageState
   List<Widget> _buildEnterCodeManually() {
     // todo: ask designer to provide the spacing
     final spacing = VSpace(20);
-    final textStyle = AFButtonSize.l.buildTextStyle(context);
-    final textHeight = textStyle.height;
-    final textFontSize = textStyle.fontSize;
-
-    // the indicator height is the height of the text style.
-    double indicatorHeight = 20;
-    if (textHeight != null && textFontSize != null) {
-      indicatorHeight = textHeight * textFontSize;
-    }
 
     if (!isEnteringPasscode) {
       return [
@@ -131,140 +127,52 @@ class _ContinueWithMagicLinkOrPasscodePageState
       VSpace(12),
 
       // continue to login
-      !isSubmitting
-          ? _buildContinueButton(textStyle: textStyle)
-          : _buildIndicator(indicatorHeight: indicatorHeight),
+      isSubmitting
+          ? const VerifyingButton()
+          : ContinueWithButton(
+              text: LocaleKeys.signIn_continueWithLoginCode.tr(),
+              onTap: () {
+                final passcode = passcodeController.text;
+                if (passcode.isEmpty) {
+                  inputPasscodeKey.currentState?.syncError(
+                    errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
+                  );
+                } else {
+                  widget.onEnterPasscode(passcode);
+                }
+              },
+            ),
 
       spacing,
     ];
   }
 
-  Widget _buildContinueButton({
-    required TextStyle textStyle,
-  }) {
-    return AFFilledTextButton.primary(
-      text: LocaleKeys.signIn_continueToSignIn.tr(),
-      onTap: () {
-        final passcode = passcodeController.text;
-        if (passcode.isEmpty) {
-          inputPasscodeKey.currentState?.syncError(
-            errorText: LocaleKeys.signIn_invalidVerificationCode.tr(),
-          );
-        } else {
-          widget.onEnterPasscode(passcode);
-        }
-      },
-      textStyle: textStyle.copyWith(
-        color: AppFlowyTheme.of(context).textColorScheme.onFill,
-      ),
-      size: AFButtonSize.l,
-      alignment: Alignment.center,
-    );
-  }
-
-  Widget _buildIndicator({
-    required double indicatorHeight,
-  }) {
-    return AFFilledButton.disabled(
-      size: AFButtonSize.l,
-      builder: (context, isHovering, disabled) {
-        return Align(
-          child: SizedBox.square(
-            dimension: indicatorHeight,
-            child: CircularProgressIndicator(
-              strokeWidth: 3.0,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  List<Widget> _buildBackToLogin() {
-    return [
-      AFGhostTextButton(
-        text: LocaleKeys.signIn_backToLogin.tr(),
-        size: AFButtonSize.s,
-        onTap: widget.backToLogin,
-        padding: EdgeInsets.zero,
-        textColor: (context, isHovering, disabled) {
-          final theme = AppFlowyTheme.of(context);
-          if (isHovering) {
-            return theme.fillColorScheme.themeThickHover;
-          }
-          return theme.textColorScheme.theme;
-        },
-      ),
-    ];
-  }
-
-  List<Widget> _buildLogoTitleAndDescription() {
+  Widget _buildLogoTitleAndDescription() {
     final theme = AppFlowyTheme.of(context);
-    final spacing = VSpace(theme.spacing.xxl);
+
     if (!isEnteringPasscode) {
-      return [
-        // logo
-        const AFLogo(),
-        spacing,
-
-        // title
-        Text(
-          LocaleKeys.signIn_checkYourEmail.tr(),
-          style: theme.textStyle.heading3.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
-        spacing,
-
-        // description
-        Text(
-          LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        Text(
+      return TitleLogo(
+        title: LocaleKeys.signIn_checkYourEmail.tr(),
+        description: LocaleKeys.signIn_temporaryVerificationLinkSent.tr(),
+        informationBuilder: (context) => Text(
           widget.email,
           style: theme.textStyle.body.enhanced(
             color: theme.textColorScheme.primary,
           ),
-          textAlign: TextAlign.center,
         ),
-        spacing,
-      ];
+      );
     } else {
-      return [
-        // logo
-        const AFLogo(),
-        spacing,
-
-        // title
-        Text(
-          LocaleKeys.signIn_enterCode.tr(),
-          style: theme.textStyle.heading3.enhanced(
-            color: theme.textColorScheme.primary,
-          ),
-        ),
-        spacing,
-
-        // description
-        Text(
-          LocaleKeys.signIn_temporaryVerificationCodeSent.tr(),
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        Text(
+      return TitleLogo(
+        title: LocaleKeys.signIn_enterCode.tr(),
+        description: LocaleKeys.signIn_temporaryVerificationCodeSent.tr(),
+        informationBuilder: (context) => Text(
           widget.email,
           style: theme.textStyle.body.enhanced(
             color: theme.textColorScheme.primary,
           ),
           textAlign: TextAlign.center,
         ),
-        spacing,
-      ];
+      );
     }
   }
 }

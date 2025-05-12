@@ -18,8 +18,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CLOUD_VERSION: 0.8.3-amd64
-  RUST_TOOLCHAIN: "1.81.0"
+  CLOUD_VERSION: 0.9.49-amd64
+  RUST_TOOLCHAIN: "1.84.0"
 
 jobs:
   ubuntu-job:
@@ -106,7 +106,7 @@ jobs:
           af_cloud_test_ws_url: ws://localhost/ws/v1
           af_cloud_test_gotrue_url: http://localhost/gotrue
         run: |
-          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart" -- --skip local_ollama_test
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
@@ -17,14 +18,15 @@ class InviteMemberByLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Title(),
-            _Description(),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Title(),
+              _Description(),
+            ],
+          ),
         ),
-        Spacer(),
         _CopyLinkButton(),
       ],
     );
@@ -42,6 +44,8 @@ class _Title extends StatelessWidget {
       style: theme.textStyle.body.enhanced(
         color: theme.textColorScheme.primary,
       ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -82,7 +86,29 @@ class _Description extends StatelessWidget {
   }
 
   Future<void> _onGenerateInviteLink(BuildContext context) async {
-    final inviteLink = context.read<WorkspaceMemberBloc>().state.inviteLink;
+    final state = context.read<WorkspaceMemberBloc>().state;
+    final subscriptionInfo = state.subscriptionInfo;
+    final inviteLink = state.inviteLink;
+
+    // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
+    // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
+    if (inviteLink == null &&
+        subscriptionInfo?.plan == WorkspacePlanPB.FreePlan &&
+        state.members.length >= 2) {
+      await showConfirmDialog(
+        context: context,
+        title:
+            LocaleKeys.settings_appearance_members_inviteFailedDialogTitle.tr(),
+        description:
+            LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
+        confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
+        onConfirm: () => context
+            .read<WorkspaceMemberBloc>()
+            .add(const WorkspaceMemberEvent.upgradePlan()),
+      );
+      return;
+    }
+
     if (inviteLink != null) {
       // show a dialog to confirm if the user wants to copy the link to the clipboard
       await showConfirmDialog(
@@ -117,14 +143,21 @@ class _Description extends StatelessWidget {
   }
 }
 
-class _CopyLinkButton extends StatelessWidget {
+class _CopyLinkButton extends StatefulWidget {
   const _CopyLinkButton();
+
+  @override
+  State<_CopyLinkButton> createState() => _CopyLinkButtonState();
+}
+
+class _CopyLinkButtonState extends State<_CopyLinkButton> {
+  ToastificationItem? toastificationItem;
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return AFOutlinedTextButton.normal(
-      text: LocaleKeys.button_copyLink.tr(),
+      text: LocaleKeys.settings_appearance_members_copyLink.tr(),
       textStyle: theme.textStyle.body.standard(
         color: theme.textColorScheme.primary,
       ),
@@ -132,21 +165,47 @@ class _CopyLinkButton extends StatelessWidget {
         horizontal: theme.spacing.l,
         vertical: theme.spacing.s,
       ),
-      onTap: () {
-        final link = context.read<WorkspaceMemberBloc>().state.inviteLink;
+      onTap: () async {
+        final state = context.read<WorkspaceMemberBloc>().state;
+        final subscriptionInfo = state.subscriptionInfo;
+        // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
+        // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
+        if (subscriptionInfo?.plan == WorkspacePlanPB.FreePlan &&
+            state.members.length >= 2) {
+          await showConfirmDialog(
+            context: context,
+            title: LocaleKeys
+                .settings_appearance_members_inviteFailedDialogTitle
+                .tr(),
+            description: LocaleKeys
+                .settings_appearance_members_inviteFailedMemberLimit
+                .tr(),
+            confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
+            onConfirm: () => context
+                .read<WorkspaceMemberBloc>()
+                .add(const WorkspaceMemberEvent.upgradePlan()),
+          );
+          return;
+        }
+
+        final link = state.inviteLink;
         if (link != null) {
-          getIt<ClipboardService>().setData(
+          await getIt<ClipboardService>().setData(
             ClipboardServiceData(
               plainText: link,
             ),
           );
 
-          showToastNotification(
-            message: LocaleKeys.document_inlineLink_copyLink.tr(),
+          if (toastificationItem != null) {
+            toastification.dismiss(toastificationItem!);
+          }
+
+          toastificationItem = showToastNotification(
+            message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
           );
         } else {
           showToastNotification(
-            message: 'You haven\'t generated an invite link yet.',
+            message: LocaleKeys.settings_appearance_members_noInviteLink.tr(),
             type: ToastificationType.error,
           );
         }

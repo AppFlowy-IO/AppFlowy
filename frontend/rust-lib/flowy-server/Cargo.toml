@@ -10,7 +10,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 tracing.workspace = true
-futures.workspace = true
 futures-util = "0.3.26"
 serde.workspace = true
 serde_json.workspace = true
@@ -25,7 +24,6 @@ collab = { workspace = true }
 collab-plugins = { workspace = true }
 collab-document = { workspace = true }
 collab-entity = { workspace = true }
-collab-folder = { workspace = true }
 collab-database = { workspace = true }
 collab-user = { workspace = true }
 lib-infra = { workspace = true }
@@ -62,5 +60,3 @@ features = [
 uuid.workspace = true
 serde_json.workspace = true
 
-[features]
-enable_supabase = ["collab-plugins/postgres_plugin"]

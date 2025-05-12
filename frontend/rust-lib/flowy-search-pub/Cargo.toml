@@ -12,3 +12,8 @@ collab-folder = { workspace = true }
 flowy-error = { workspace = true }
 client-api = { workspace = true }
 uuid.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tantivy.workspace = true
+dashmap.workspace = true
+once_cell = "1.18.0"

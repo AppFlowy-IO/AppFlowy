@@ -42,7 +42,7 @@ fancy-regex = "0.11.0"
 uuid.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock"] }
 base64 = "^0.21"
-tokio-stream = "0.1.14"
+tokio-stream.workspace = true
 semver = "1.0.22"
 validator = { workspace = true, features = ["derive"] }
 rayon = "1.10.0"

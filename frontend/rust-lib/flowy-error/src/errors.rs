@@ -264,3 +264,9 @@ impl From<uuid::Error> for FlowyError {
     FlowyError::internal().with_context(value)
   }
 }
+
+impl From<ollama_rs::error::OllamaError> for FlowyError {
+  fn from(value: ollama_rs::error::OllamaError) -> Self {
+    FlowyError::local_ai().with_context(value)
+  }
+}

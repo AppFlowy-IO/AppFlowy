@@ -112,6 +112,15 @@ impl EventIntegrationTest {
       .parse::<WorkspacePB>()
   }
 
+  pub async fn get_workspace_id(&self) -> Uuid {
+    let a = EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadCurrentWorkspace)
+      .async_send()
+      .await
+      .parse::<WorkspacePB>();
+    Uuid::from_str(&a.id).unwrap()
+  }
+
   pub async fn get_user_workspace(&self, workspace_id: &str) -> UserWorkspacePB {
     let payload = UserWorkspaceIdPB {
       workspace_id: workspace_id.to_string(),
@@ -124,7 +133,7 @@ impl EventIntegrationTest {
       .parse::<UserWorkspacePB>()
   }
 
-  pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
+  pub fn get_folder_search_handler(&self) -> Arc<dyn SearchHandler> {
     self
       .appflowy_core
       .search_manager

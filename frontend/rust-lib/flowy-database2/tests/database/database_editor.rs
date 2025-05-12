@@ -5,7 +5,7 @@ use collab_database::database::gen_database_view_id;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{
-  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
+  MultiSelectTypeOption, SelectOption, SelectOptionIds, SingleSelectTypeOption,
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
@@ -274,7 +274,19 @@ impl DatabaseEditorTest {
       .unwrap()
       .clone();
 
-    let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
+    let cell_changeset = if option_id.is_empty() {
+      let cell = self.editor.get_cell(&field.id, &row_id).await.unwrap();
+      let mut selected_ids = SelectOptionIds::from(&cell).into_inner();
+      if selected_ids.is_empty() {
+        SelectOptionCellChangeset::default()
+      } else {
+        let id = selected_ids.pop().unwrap();
+        SelectOptionCellChangeset::from_delete_option_id(&id)
+      }
+    } else {
+      SelectOptionCellChangeset::from_insert_option_id(option_id)
+    };
+
     self
       .update_cell(&field.id, row_id, BoxAny::new(cell_changeset))
       .await
