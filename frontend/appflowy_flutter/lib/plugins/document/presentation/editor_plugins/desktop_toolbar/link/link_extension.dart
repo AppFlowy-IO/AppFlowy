@@ -27,11 +27,12 @@ extension LinkExtension on EditorState {
     final node = getNodeAtPath(selection.start.path);
     if (node == null) return;
     final transaction = this.transaction;
+    final linkName = info.name.isEmpty ? info.link : info.name;
     transaction.replaceText(
       node,
       selection.startIndex,
       selection.length,
-      info.name,
+      linkName,
       attributes: info.toAttribute(),
     );
     apply(transaction);
