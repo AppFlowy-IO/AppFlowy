@@ -107,6 +107,7 @@ class _SearchResultListState extends State<SearchResultList> {
         .toList();
     return ScrollControllerBuilder(
       builder: (context, controller) {
+        final hoveredId = bloc.state.hoveredResult?.id;
         return FlowyScrollbar(
           controller: controller,
           child: SingleChildScrollView(
@@ -129,13 +130,22 @@ class _SearchResultListState extends State<SearchResultList> {
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: resultItems.length,
-                          separatorBuilder: (_, __) => AFDivider(),
+                          separatorBuilder: (_, index) {
+                            final item = resultItems[index];
+                            final isHovered = hoveredId == item.id;
+                            if (isHovered) return VSpace(1);
+                            if (index < resultItems.length - 1) {
+                              final nextView = resultItems[index + 1];
+                              final isNextHovered = hoveredId == nextView.id;
+                              if (isNextHovered) return VSpace(1);
+                            }
+                            return const AFDivider();
+                          },
                           itemBuilder: (_, index) {
                             final item = resultItems[index];
                             return SearchResultCell(
                               item: item,
-                              isHovered:
-                                  bloc.state.hoveredResult?.id == item.id,
+                              isHovered: hoveredId == item.id,
                               query: context
                                   .read<CommandPaletteBloc?>()
                                   ?.state

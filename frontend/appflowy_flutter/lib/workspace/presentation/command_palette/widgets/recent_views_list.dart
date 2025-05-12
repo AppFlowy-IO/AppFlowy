@@ -107,7 +107,19 @@ class RecentViewsList extends StatelessWidget {
                                         onSelected: onSelected,
                                       );
                                     },
-                                    separatorBuilder: (_, __) => AFDivider(),
+                                    separatorBuilder: (_, index) {
+                                      final view = recentViews[index];
+                                      final isHovered =
+                                          hoveredView?.id == view.id;
+                                      if (isHovered) return VSpace(1);
+                                      if (index < recentViews.length - 1) {
+                                        final nextView = recentViews[index + 1];
+                                        final isNextHovered =
+                                            hoveredView?.id == nextView.id;
+                                        if (isNextHovered) return VSpace(1);
+                                      }
+                                      return const AFDivider();
+                                    },
                                   ),
                                   VSpace(8),
                                 ],
