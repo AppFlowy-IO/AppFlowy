@@ -59,12 +59,18 @@ class _CustomPromptDatabaseSelectorState
               return BlocProvider.value(
                 value: context.read<ViewSelectorCubit>(),
                 child: _PopoverContent(
-                  onSelectView: (view) {
+                  onSelectViewItem: (item) {
+                    final view = item.view;
                     if (view.layout.isDatabaseView) {
                       context
                           .read<AiPromptSelectorCubit>()
                           .updateCustomPromptDatabaseViewId(view.id);
                       popoverController.close();
+                    } else if (!view.isSpace && view.layout.isDocumentView) {
+                      context.read<ViewSelectorCubit>().toggleIsExpanded(
+                            item,
+                            false,
+                          );
                     }
                   },
                 ),
@@ -255,10 +261,10 @@ class _AiPromptDatabaseSelectorButtonState
 
 class _PopoverContent extends StatefulWidget {
   const _PopoverContent({
-    required this.onSelectView,
+    required this.onSelectViewItem,
   });
 
-  final void Function(ViewPB view) onSelectView;
+  final void Function(ViewSelectorItem item) onSelectViewItem;
 
   @override
   State<_PopoverContent> createState() => _PopoverContentState();
@@ -332,9 +338,7 @@ class _PopoverContentState extends State<_PopoverContent> {
         isDescendentOfSpace: e.view.isSpace,
         isSelectedSection: false,
         showCheckbox: false,
-        onSelected: (source) {
-          widget.onSelectView(source.view);
-        },
+        onSelected: widget.onSelectViewItem,
         height: 30.0,
       ),
     );
