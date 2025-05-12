@@ -2364,6 +2364,8 @@
     "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
     "seeMore": "See more",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
     }
