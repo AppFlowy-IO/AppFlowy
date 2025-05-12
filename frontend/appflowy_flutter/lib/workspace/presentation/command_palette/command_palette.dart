@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_v
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -109,6 +110,9 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
       final spaceBloc = _toggleNotifier.value.spaceBloc;
+      Log.info(
+        'CommandPalette onToggle: workspaceType ${workspaceBloc?.state.userProfile.workspaceType}',
+      );
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(

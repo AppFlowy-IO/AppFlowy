@@ -158,3 +158,40 @@ class PagePreview extends StatelessWidget {
     ];
   }
 }
+
+class SomethingWentWrong extends StatelessWidget {
+  const SomethingWentWrong({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FlowySvg(
+            FlowySvgs.something_wrong_warning_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(24),
+          ),
+          const VSpace(8),
+          Text(
+            LocaleKeys.search_somethingWentWrong.tr(),
+            style: theme.textStyle.body
+                .enhanced(color: theme.textColorScheme.secondary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const VSpace(4),
+          Text(
+            LocaleKeys.search_tryAgainOrLater.tr(),
+            style: theme.textStyle.caption
+                .standard(color: theme.textColorScheme.secondary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
