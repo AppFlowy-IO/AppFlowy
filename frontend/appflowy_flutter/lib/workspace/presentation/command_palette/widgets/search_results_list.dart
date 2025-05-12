@@ -113,51 +113,50 @@ class _SearchResultListState extends State<SearchResultList> {
           child: SingleChildScrollView(
             controller: controller,
             physics: ClampingScrollPhysics(),
-            child: Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (showAskingAI) SearchAskAiEntrance(),
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionHeader(context),
-                        VSpace(8),
-                        ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: resultItems.length,
-                          separatorBuilder: (_, index) {
-                            final item = resultItems[index];
-                            final isHovered = hoveredId == item.id;
-                            if (isHovered) return VSpace(1);
-                            if (index < resultItems.length - 1) {
-                              final nextView = resultItems[index + 1];
-                              final isNextHovered = hoveredId == nextView.id;
-                              if (isNextHovered) return VSpace(1);
-                            }
-                            return const AFDivider();
-                          },
-                          itemBuilder: (_, index) {
-                            final item = resultItems[index];
-                            return SearchResultCell(
-                              item: item,
-                              isHovered: hoveredId == item.id,
-                              query: context
-                                  .read<CommandPaletteBloc?>()
-                                  ?.state
-                                  .query,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showAskingAI) SearchAskAiEntrance(),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSectionHeader(context),
+                      VSpace(8),
+                      ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: resultItems.length,
+                        separatorBuilder: (_, index) {
+                          final item = resultItems[index];
+                          final isHovered = hoveredId == item.id;
+                          if (isHovered) return VSpace(1);
+                          if (index < resultItems.length - 1) {
+                            final nextView = resultItems[index + 1];
+                            final isNextHovered = hoveredId == nextView.id;
+                            if (isNextHovered) return VSpace(1);
+                          }
+                          return const AFDivider();
+                        },
+                        itemBuilder: (_, index) {
+                          final item = resultItems[index];
+                          return SearchResultCell(
+                            item: item,
+                            isHovered: hoveredId == item.id,
+                            query: context
+                                .read<CommandPaletteBloc?>()
+                                ?.state
+                                .query,
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
