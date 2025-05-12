@@ -37,11 +37,11 @@ class _PromptInputMobileSelectSourcesButtonState
     extends State<PromptInputMobileSelectSourcesButton> {
   late final cubit = ViewSelectorCubit(
     maxSelectedParentPageCount: 3,
-    getIgnoreViewType: (view) {
-      if (view.isSpace) {
+    getIgnoreViewType: (item) {
+      if (item.view.isSpace) {
         return IgnoreViewType.none;
       }
-      if (view.layout != ViewLayoutPB.Document) {
+      if (item.view.layout != ViewLayoutPB.Document) {
         return IgnoreViewType.hide;
       }
       return IgnoreViewType.none;
