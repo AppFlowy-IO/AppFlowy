@@ -23,7 +23,6 @@ class WidgetTestApp extends StatelessWidget {
       assetLoader: const TestBundleAssetLoader(),
       child: Builder(
         builder: (context) => MaterialApp(
-          supportedLocales: const [Locale('en', 'US')],
           locale: const Locale('en', 'US'),
           localizationsDelegates: context.localizationDelegates,
           theme: ThemeData.light().copyWith(
