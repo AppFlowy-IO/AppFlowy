@@ -366,5 +366,88 @@ void main() {
       expect(getLinkFromNode(node), link);
       expect(getNodeText(node), afterText);
     });
+
+    testWidgets('insert link and clear link name', (tester) async {
+      const text = 'edit link', link = 'https://test.appflowy.cloud';
+      await prepareForToolbar(tester, text);
+
+      /// tap link button to show CreateLinkMenu
+      final linkButton = find.byFlowySvg(FlowySvgs.toolbar_link_m);
+      await tester.tapButton(linkButton);
+
+      /// search for page and select it
+      final textField = find.descendant(
+        of: find.byType(LinkCreateMenu),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(textField, link);
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      Node node = tester.editor.getNodeAtPath([0]);
+      expect(getLinkFromNode(node), link);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+
+      /// hover link
+      await tester.hoverOnWidget(find.byType(LinkHoverTrigger));
+
+      /// click edit button to show LinkEditMenu
+      final editButton = find.byFlowySvg(FlowySvgs.toolbar_link_edit_m);
+      await tester.tapButton(editButton);
+      final linkEditMenu = find.byType(LinkEditMenu);
+      expect(linkEditMenu, findsOneWidget);
+
+      /// clear the link name
+      final titleField = find.descendant(
+        of: linkEditMenu,
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(titleField, '');
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      node = tester.editor.getNodeAtPath([0]);
+      expect(getNodeText(node), link);
+    });
+
+    testWidgets('insert link and clear link name and remove link', (tester) async {
+      const text = 'edit link', link = 'https://test.appflowy.cloud';
+      await prepareForToolbar(tester, text);
+
+      /// tap link button to show CreateLinkMenu
+      final linkButton = find.byFlowySvg(FlowySvgs.toolbar_link_m);
+      await tester.tapButton(linkButton);
+
+      /// search for page and select it
+      final textField = find.descendant(
+        of: find.byType(LinkCreateMenu),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(textField, link);
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      Node node = tester.editor.getNodeAtPath([0]);
+      expect(getLinkFromNode(node), link);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+
+      /// hover link
+      await tester.hoverOnWidget(find.byType(LinkHoverTrigger));
+
+      /// click edit button to show LinkEditMenu
+      final editButton = find.byFlowySvg(FlowySvgs.toolbar_link_edit_m);
+      await tester.tapButton(editButton);
+      final linkEditMenu = find.byType(LinkEditMenu);
+      expect(linkEditMenu, findsOneWidget);
+
+      /// clear the link name
+      final titleField = find.descendant(
+        of: linkEditMenu,
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(titleField, '');
+      await tester.pumpAndSettle();
+      await tester.tapButton(find.byFlowySvg(FlowySvgs.toolbar_link_unlink_m));
+      node = tester.editor.getNodeAtPath([0]);
+      expect(getNodeText(node), link);
+      expect(getLinkFromNode(node), null);
+    });
   });
 }
