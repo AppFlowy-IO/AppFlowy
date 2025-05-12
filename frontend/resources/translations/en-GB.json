@@ -36,9 +36,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
-    "continueWithLocalModel": "Continue with local model",
-    "switchToAppFlowyCloud": "AppFlowy Cloud",
-    "anonymousMode": "Anonymous mode",
+    "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -48,9 +46,8 @@
     "createAccount": "Create account",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
-    "passwordMustContain": "Password must contain at least one letter, one number, and one symbol.",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
-    "or": "or",
+    "or": "OR",
     "signInWithGoogle": "Continue with Google",
     "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
@@ -71,43 +68,7 @@
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes.",
-    "tokenHasExpiredOrInvalid": "The code has expired or is invalid. Please try again.",
-    "signingIn": "Signing in...",
-    "checkYourEmail": "Check your email",
-    "temporaryVerificationLinkSent": "A temporary verification link has been sent.\nPlease check your inbox at",
-    "temporaryVerificationCodeSent": "A temporary verification code has been sent.\nPlease check your inbox at",
-    "continueToSignIn": "Continue to sign in",
-    "continueWithLoginCode": "Continue with login code",
-    "backToLogin": "Back to login",
-    "enterCode": "Enter code",
-    "enterCodeManually": "Enter code manually",
-    "continueWithEmail": "Continue with email",
-    "enterPassword": "Enter password",
-    "loginAs": "Login as",
-    "invalidVerificationCode": "Please enter a valid verification code",
-    "tooFrequentVerificationCodeRequest": "You have made too many requests. Please try again later.",
-    "invalidLoginCredentials": "Your password is incorrect, please try again",
-    "resetPassword": "Reset password",
-    "resetPasswordDescription": "Enter your email to reset your password",
-    "continueToResetPassword": "Continue to reset password",
-    "resetPasswordSuccess": "Password reset successfully",
-    "resetPasswordFailed": "Failed to reset password",
-    "resetPasswordLinkSent": "A password reset link has been sent to your email. Please check your inbox at",
-    "resetPasswordLinkExpired": "The password reset link has expired. Please request a new link.",
-    "resetPasswordLinkInvalid": "The password reset link is invalid. Please request a new link.",
-    "enterNewPasswordFor": "Enter new password for ",
-    "newPassword": "New password",
-    "enterNewPassword": "Enter new password",
-    "confirmPassword": "Confirm password",
-    "confirmNewPassword": "Enter new password",
-    "newPasswordCannotBeEmpty": "New password cannot be empty",
-    "confirmPasswordCannotBeEmpty": "Confirm password cannot be empty",
-    "passwordsDoNotMatch": "Passwords do not match",
-    "verifying": "Verifying...",
-    "continueWithPassword": "Continue with password",
-    "youAreInLocalMode": "You're in local mode.",
-    "loginToAppFlowyCloud": "Login to AppFlowy Cloud"
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -136,7 +97,7 @@
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
-    "openSuccess": "Opened workspace successfully",
+    "openSuccess": "Open workspace successfully",
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
@@ -214,11 +175,11 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "unfavorite": "Remove from Favorites",
-    "favorite": "Add to Favorites",
+    "unfavorite": "Remove from Favourites",
+    "favorite": "Add to Favourites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
-    "addToFavorites": "Add to Favorites",
+    "addToFavorites": "Add to Favourites",
     "copyLink": "Copy link",
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
@@ -306,7 +267,7 @@
     "stopTooltip": "Stop generating"
   },
   "trash": {
-    "text": "Trash",
+    "text": "Bin",
     "restoreAll": "Restore All",
     "restore": "Restore",
     "deleteAll": "Delete All",
@@ -316,11 +277,11 @@
       "created": "Created"
     },
     "confirmDeleteAll": {
-      "title": "All pages in trash",
-      "caption": "Are you sure you want to delete everything in Trash? This action cannot be undone."
+      "title": "All pages in bin",
+      "caption": "Are you sure you want to delete everything in Bin? This action cannot be undone."
     },
     "confirmRestoreAll": {
-      "title": "Restore all pages in trash",
+      "title": "Restore all pages in bin",
       "caption": "This action cannot be undone."
     },
     "restorePage": {
@@ -328,16 +289,16 @@
       "caption": "Are you sure you want to restore this page?"
     },
     "mobile": {
-      "actions": "Trash Actions",
-      "empty": "No pages or spaces in Trash",
-      "emptyDescription": "Move things you don't need to the Trash.",
+      "actions": "Bin Actions",
+      "empty": "No pages or spaces in Bin",
+      "emptyDescription": "Move things you don't need to the Bin.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
     "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
   },
   "deletePagePrompt": {
-    "text": "This page is in Trash",
+    "text": "This page is in Bin",
     "restore": "Restore page",
     "deletePermanent": "Delete permanently",
     "deletePermanentDescription": "Are you sure you want to delete this page permanently? This is irreversible."
@@ -373,12 +334,12 @@
     "strike": "Strikethrough",
     "numList": "Numbered list",
     "bulletList": "Bulleted list",
-    "checkList": "Check List",
+    "checkList": "Checklist",
     "inlineCode": "Inline Code",
     "quote": "Quote Block",
     "header": "Header",
     "highlight": "Highlight",
-    "color": "Color",
+    "color": "Colour",
     "addLink": "Add Link"
   },
   "tooltip": {
@@ -400,30 +361,30 @@
     "personal": "Personal",
     "private": "Private",
     "workspace": "Workspace",
-    "favorites": "Favorites",
+    "favorites": "Favourites",
     "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
     "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal space",
-    "clickToHideFavorites": "Click to hide favorite space",
+    "clickToHideFavorites": "Click to hide favourite space",
     "addAPage": "Add a new page",
     "addAPageToPrivate": "Add a page to private space",
     "addAPageToWorkspace": "Add a page to workspace",
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Earlier favorites",
+    "others": "Earlier favourites",
     "earlier": "Earlier",
     "justNow": "just now",
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
-    "favoriteAt": "Favorited",
+    "favoriteAt": "Favourited",
     "emptyRecent": "No Recent Pages",
     "emptyRecentDescription": "As you view pages, they will appear here for easy retrieval.",
-    "emptyFavorite": "No Favorite Pages",
-    "emptyFavoriteDescription": "Mark pages as favorites—they'll be listed here for quick access!",
+    "emptyFavorite": "No Favourite Pages",
+    "emptyFavoriteDescription": "Mark pages as favourites—they'll be listed here for quick access!",
     "removePageFromRecent": "Remove this page from the Recent?",
     "removeSuccess": "Removed successfully",
-    "favoriteSpace": "Favorites",
+    "favoriteSpace": "Favourites",
     "RecentSpace": "Recent",
     "Spaces": "Spaces",
     "upgradeToPro": "Upgrade to Pro",
@@ -466,7 +427,6 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
-    "change": "Change",
     "save": "Save",
     "generate": "Generate",
     "esc": "ESC",
@@ -484,14 +444,14 @@
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
-    "removeFromFavorites": "Remove from Favorites",
+    "removeFromFavorites": "Remove from Favourites",
     "removeFromRecent": "Remove from Recent",
-    "addToFavorites": "Add to Favorites",
-    "favoriteSuccessfully": "Favorited success",
-    "unfavoriteSuccessfully": "Unfavorited success",
+    "addToFavorites": "Add to Favourites",
+    "favoriteSuccessfully": "Favourited success",
+    "unfavoriteSuccessfully": "Unfavourited success",
     "duplicateSuccessfully": "Duplicated successfully",
     "rename": "Rename",
-    "helpCenter": "Help Center",
+    "helpCenter": "Help Centre",
     "add": "Add",
     "yes": "Yes",
     "no": "No",
@@ -536,7 +496,7 @@
     },
     "google": {
       "title": "GOOGLE SIGN-IN",
-      "instruction1": "In order to import your Google Contacts, you'll need to authorize this application using your web browser.",
+      "instruction1": "In order to import your Google Contacts, you'll need to authorise this application using your web browser.",
       "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
       "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
       "instruction4": "Press the button below when you've completed signup:"
@@ -547,7 +507,7 @@
     "popupMenuItem": {
       "settings": "Settings",
       "members": "Members",
-      "trash": "Trash",
+      "trash": "Bin",
       "helpAndDocumentation": "Help & documentation",
       "getSupport": "Get Support"
     },
@@ -562,14 +522,11 @@
       "selectHomePage": "Select a page",
       "clearHomePage": "Clear the home page for this namespace",
       "customUrl": "Custom URL",
-      "homePage": {
-        "upgradeToPro": "Upgrade to Pro Plan to set a homepage"
-      },
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
         "updateExistingNamespace": "Update existing namespace",
-        "upgradeToPro": "Upgrade to Pro Plan to claim a custom namespace",
+        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
         "redirectToPayment": "Redirecting to payment page...",
         "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
         "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
@@ -640,7 +597,7 @@
     "workspacePage": {
       "menuLabel": "Workspace",
       "title": "Workspace",
-      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "description": "Customise your workspace appearance, theme, font, text layout, date-/time-format, and language.",
       "workspaceName": {
         "title": "Workspace name"
       },
@@ -650,7 +607,7 @@
       },
       "appearance": {
         "title": "Appearance",
-        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "description": "Customise your workspace appearance, theme, font, text layout, date, time, and language.",
         "options": {
           "system": "Auto",
           "light": "Light",
@@ -658,12 +615,12 @@
         }
       },
       "resetCursorColor": {
-        "title": "Reset document cursor color",
-        "description": "Are you sure you want to reset the cursor color?"
+        "title": "Reset document cursor colour",
+        "description": "Are you sure you want to reset the cursor colour?"
       },
       "resetSelectionColor": {
-        "title": "Reset document selection color",
-        "description": "Are you sure you want to reset the selection color?"
+        "title": "Reset document selection colour",
+        "description": "Are you sure you want to reset the selection colour?"
       },
       "resetWidth": {
         "resetSuccess": "Reset document width successfully"
@@ -671,8 +628,7 @@
       "theme": {
         "title": "Theme",
         "description": "Select a preset theme, or upload your own custom theme.",
-        "uploadCustomThemeTooltip": "Upload a custom theme",
-        "failedToLoadThemes": "Failed to load themes, please check your permission settings in System Settings > Privacy and Security > Files and Folders > @:appName"
+        "uploadCustomThemeTooltip": "Upload a custom theme"
       },
       "workspaceFont": {
         "title": "Workspace font",
@@ -810,9 +766,9 @@
         "paste": "Paste in content",
         "cut": "Cut selection",
         "alignLeft": "Align text left",
-        "alignCenter": "Align text center",
+        "alignCenter": "Align text centre",
         "alignRight": "Align text right",
-        "insertInlineMathEquation": "Insert inline math eqaution",
+        "insertInlineMathEquation": "Insert inline maths equation",
         "undo": "Undo",
         "redo": "Redo",
         "convertToParagraph": "Convert block to paragraph",
@@ -878,7 +834,7 @@
         "codeBlockSelectAll": "Select all content inside a code block",
         "codeBlockPasteText": "Paste text in codeblock",
         "textAlignLeft": "Align text to the left",
-        "textAlignCenter": "Align text to the center",
+        "textAlignCenter": "Align text to the centre",
         "textAlignRight": "Align text to the right"
       },
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
@@ -892,8 +848,6 @@
         "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
-        "globalLLMModel": "Global Language Model",
-        "readOnlyField": "This field is read-only",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
@@ -906,11 +860,10 @@
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
-        "localAINotReadyRetryLater": "Local AI is initializing, please retry later",
+        "localAINotReadyRetryLater": "Local AI is initialising, please retry later",
         "localAIDisabled": "You are using local AI, but it is disabled. Please go to settings to enable it or try different model",
         "localAIInitializing": "Local AI is loading. This may take a few seconds depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
-        "localAIDisabledTextFieldPrompt": "You can not edit while Local AI is disabled",
         "failToLoadLocalAI": "Failed to start local AI.",
         "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
@@ -931,7 +884,7 @@
         "pleaseFollowThese": "Please follow these",
         "instructions": "instructions",
         "installOllamaLai": "to set up Ollama and AppFlowy Local AI.",
-        "modelsMissing": "Cannot find the required models: ",
+        "modelsMissing": "Cannot find the required models.",
         "downloadModel": "to download them."
       }
     },
@@ -959,7 +912,7 @@
           "price": "{}",
           "priceDescription": "for 1,000 credits",
           "purchase": "Purchase AI",
-          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
+          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customisable AI into your workflow for smarter, faster results with up to:",
           "infoItemOne": "10,000 responses per database",
           "infoItemTwo": "1,000 responses per workspace"
         },
@@ -968,9 +921,9 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals up to 2 members to organize everything",
+          "freeInfo": "Perfect for individuals up to 2 members to organise everything",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
-          "teamInfo": "Perfect for all productive and well-organized teams..",
+          "teamInfo": "Perfect for all productive and well-organised teams..",
           "upgrade": "Change plan",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
         },
@@ -1057,7 +1010,7 @@
       },
       "freePlan": {
         "title": "Free",
-        "description": "For individuals up to 2 members to organize everything",
+        "description": "For individuals up to 2 members to organise everything",
         "price": "{}",
         "priceInfo": "Free forever"
       },
@@ -1079,7 +1032,7 @@
         "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "tooltipSeven": "Allows you to customise part of the URL for your workspace",
         "customNamespaceTooltip": "Custom published site URL"
       },
       "freeLabels": {
@@ -1163,8 +1116,8 @@
       "files": "Files",
       "notifications": "Notifications",
       "open": "Open Settings",
-      "logout": "Log out",
-      "logoutPrompt": "Are you sure you want to log out?",
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure you want to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
@@ -1203,7 +1156,7 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
-      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronisation conflicts and potential data corruption",
       "importAppFlowyData": "Import Data from External @:appName Folder",
       "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
       "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
@@ -1277,14 +1230,14 @@
       "fontScaleFactor": "Font Scale Factor",
       "displaySize": "Display Size",
       "documentSettings": {
-        "cursorColor": "Document cursor color",
-        "selectionColor": "Document selection color",
+        "cursorColor": "Document cursor colour",
+        "selectionColor": "Document selection colour",
         "width": "Document width",
         "changeWidth": "Change",
-        "pickColor": "Select a color",
-        "colorShade": "Color shade",
+        "pickColor": "Select a colour",
+        "colorShade": "Colour shade",
         "opacity": "Opacity",
-        "hexEmptyError": "Hex color cannot be empty",
+        "hexEmptyError": "Hex colour cannot be empty",
         "hexLengthError": "Hex value must be 6 digits long",
         "hexInvalidError": "Invalid hex value",
         "opacityEmptyError": "Opacity cannot be empty",
@@ -1336,10 +1289,10 @@
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
       "enableRTLToolbarItems": "Enable RTL toolbar items",
       "members": {
-        "title": "Members",
+        "title": "Members settings",
         "inviteMembers": "Invite members",
         "inviteHint": "Invite by email",
-        "sendInvite": "Invite",
+        "sendInvite": "Send invite",
         "copyInviteLink": "Copy invite link",
         "label": "Members",
         "user": "User",
@@ -1360,8 +1313,8 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "inviteFailedDialogTitle": "Upgrade to Pro Plan",
-        "inviteFailedMemberLimit": "This workspace has reached the free limit. Please upgrade to Pro to unlock more members.",
+        "inviteFailedDialogTitle": "Failed to send invite",
+        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
         "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
@@ -1374,28 +1327,7 @@
         "inviteMemberSuccess": "The invitation has been sent successfully",
         "failedToInviteMember": "Failed to invite member",
         "workspaceMembersError": "Oops, something went wrong",
-        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later",
-        "inviteLinkToAddMember": "Invite link to add member",
-        "clickToCopyLink": "Click to copy link",
-        "or": "or",
-        "generateANewLink": "generate a new link",
-        "inviteMemberByEmail": "Invite member by email",
-        "inviteMemberHintText": "Invite by email",
-        "resetInviteLink": "Reset the invite link?",
-        "resetInviteLinkDescription": "Resetting will deactivate the current link for all space members and generate a new one. The old link will no longer valid.",
-        "adminPanel": "Admin Panel",
-        "reset": "Reset",
-        "resetInviteLinkSuccess": "Invite link reset successfully",
-        "resetInviteLinkFailed": "Failed to reset the invite link",
-        "resetInviteLinkFailedDescription": "Please try again later",
-        "memberPageDescription1": "Access the",
-        "memberPageDescription2": "for guest and advanced user management.",
-        "noInviteLink": "You haven't generated an invite link yet.",
-        "copyLink": "Copy link",
-        "generatedLinkSuccessfully": "Generated link successfully",
-        "generatedLinkFailed": "Failed to generate link",
-        "resetLinkSuccessfully": "Reset link successfully",
-        "resetLinkFailed": "Failed to reset link"
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
       }
     },
     "files": {
@@ -1444,7 +1376,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "clickToLogout": "Click to log out the current user"
+      "clickToLogout": "Click to logout the current user"
     },
     "mobile": {
       "personalInfo": "Personal Information",
@@ -1522,8 +1454,8 @@
       }
     },
     "checkboxFilter": {
-      "isChecked": "Checked",
-      "isUnchecked": "Unchecked",
+      "isChecked": "Ticked",
+      "isUnchecked": "Unticked",
       "choicechipPrefix": {
         "is": "is"
       }
@@ -1583,7 +1515,7 @@
       "clear": "Clear cells",
       "switchPrimaryFieldTooltip": "Cannot change field type of primary field",
       "textFieldName": "Text",
-      "checkboxFieldName": "Checkbox",
+      "checkboxFieldName": "Tick box",
       "dateFieldName": "Date",
       "updatedAtFieldName": "Last modified",
       "createdAtFieldName": "Created at",
@@ -1697,7 +1629,7 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPanelTitle": "Color",
+      "colorPanelTitle": "Colour",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search for an option or create one",
@@ -1715,8 +1647,9 @@
     },
     "url": {
       "launch": "Open link in browser",
-      "copy": "Copy link to clipboard",
-      "textFieldHint": "Enter a URL"
+      "copy": "Copied link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",
@@ -1816,7 +1749,7 @@
         "table": "Table",
         "callout": "Callout",
         "outline": "Outline",
-        "mathEquation": "Math Equation",
+        "mathEquation": "Maths Equation",
         "code": "Code",
         "toggleList": "Toggle list",
         "toggleHeading1": "Toggle heading 1",
@@ -1857,7 +1790,7 @@
         "continueWriting": "Continue writing",
         "fixSpelling": "Fix spelling & grammar",
         "improveWriting": "Improve writing",
-        "summarize": "Summarize",
+        "summarize": "Summarise",
         "explain": "Explain",
         "makeShorter": "Make shorter",
         "makeLonger": "Make longer"
@@ -1873,7 +1806,7 @@
       "aI": "AI",
       "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
-      "smartEditSummarize": "Summarize",
+      "smartEditSummarize": "Summarise",
       "smartEditImproveWriting": "Improve writing",
       "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Could not fetch result from AI",
@@ -1896,7 +1829,7 @@
       "callout": "Callout",
       "simpleTable": {
         "moreActions": {
-          "color": "Color",
+          "color": "Colour",
           "align": "Align",
           "delete": "Delete",
           "duplicate": "Duplicate",
@@ -1911,8 +1844,8 @@
           "distributeColumnsWidth": "Distribute columns evenly",
           "duplicateRow": "Duplicate row",
           "duplicateColumn": "Duplicate column",
-          "textColor": "Text color",
-          "cellBackgroundColor": "Cell background color",
+          "textColor": "Text colour",
+          "cellBackgroundColor": "Cell background colour",
           "duplicateTable": "Duplicate table"
         },
         "clickToAddNewRow": "Click to add a new row",
@@ -1925,7 +1858,7 @@
       },
       "cover": {
         "changeCover": "Change Cover",
-        "colors": "Colors",
+        "colors": "Colours",
         "images": "Images",
         "clearAll": "Clear All",
         "abstract": "Abstract",
@@ -1950,9 +1883,9 @@
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
       "mathEquation": {
-        "name": "Math Equation",
+        "name": "Maths Equation",
         "addMathEquation": "Add a TeX equation",
-        "editMathEquation": "Edit Math Equation"
+        "editMathEquation": "Edit Maths Equation"
       },
       "optionAction": {
         "click": "Click",
@@ -1964,10 +1897,10 @@
         "turnInto": "Turn into",
         "moveUp": "Move up",
         "moveDown": "Move down",
-        "color": "Color",
+        "color": "Colour",
         "align": "Align",
         "left": "Left",
-        "center": "Center",
+        "center": "Centre",
         "right": "Right",
         "defaultColor": "Default",
         "depth": "Depth",
@@ -1998,7 +1931,7 @@
         "deleteBlockTooltip": "Delete whole gallery"
       },
       "math": {
-        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
+        "copiedToPasteBoard": "The maths equation has been copied to the clipboard"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
@@ -2014,7 +1947,7 @@
         "delete": "Delete",
         "clear": "Clear content",
         "duplicate": "Duplicate",
-        "bgColor": "Background color"
+        "bgColor": "Background colour"
       },
       "contextMenu": {
         "copy": "Copy",
@@ -2076,28 +2009,7 @@
           "failedDuplicateFindView": "Failed to duplicate page - original view not found"
         }
       },
-      "cannotMoveToItsChildren": "Cannot move to its children",
-      "linkPreview": {
-        "typeSelection": {
-          "pasteAs": "Paste as",
-          "mention": "Mention",
-          "URL": "URL",
-          "bookmark": "Bookmark",
-          "embed": "Embed"
-        },
-        "linkPreviewMenu": {
-          "toMetion": "Convert to Mention",
-          "toUrl": "Convert to URL",
-          "toEmbed": "Convert to Embed",
-          "toBookmark": "Convert to Bookmark",
-          "copyLink": "Copy Link",
-          "replace": "Replace",
-          "reload": "Reload",
-          "removeLink": "Remove Link",
-          "pasteHint": "Paste in https://...",
-          "unableToDisplay": "unable to display"
-        }
-      }
+      "cannotMoveToItsChildren": "Cannot move to its children"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -2201,19 +2113,19 @@
       "deletedContent": "This content does not exist or has been deleted",
       "noAccess": "No Access",
       "deletedPage": "Deleted page",
-      "trashHint": " - in trash",
+      "trashHint": " - in bin",
       "morePages": "more pages"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default",
       "textSize": "Text size",
-      "textColor": "Text color",
+      "textColor": "Text colour",
       "h1": "Heading 1",
       "h2": "Heading 2",
       "h3": "Heading 3",
       "alignLeft": "Align left",
       "alignRight": "Align right",
-      "alignCenter": "Align center",
+      "alignCenter": "Align centre",
       "link": "Link",
       "textAlign": "Text align",
       "moreOptions": "More options",
@@ -2355,29 +2267,20 @@
   "search": {
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
-    "searchOrAskAI": "Search or ask AI",
-    "askAIAnything": "Ask AI anything",
-    "askAIFor": "Ask AI",
-    "searching": "Searching...",
-    "noResultForSearching": "No matches found",
-    "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
-    "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
-    "bestMatch": "Best match",
-    "seeMore": "See more",
     "placeholder": {
       "actions": "Search actions..."
     }
   },
   "message": {
     "copy": {
-      "success": "Copied to clipboard",
+      "success": "Copied!",
       "fail": "Unable to copy"
     }
   },
   "unSupportBlock": "The current version does not support this Block.",
   "views": {
     "deleteContentTitle": "Are you sure want to delete the {pageType}?",
-    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the bin."
   },
   "colors": {
     "custom": "Custom",
@@ -2472,19 +2375,6 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "closeNotification": "Close notification",
-    "viewNotifications": "View notifications",
-    "noNotifications": "No notifications yet",
-    "mentionedYou": "Mentioned you",
-    "archivedTooltip": "Archive this notification",
-    "unarchiveTooltip": "Unarchive this notification",
-    "markAsReadTooltip": "Mark this notification as read",
-    "markAsArchivedSucceedToast": "Archived successfully",
-    "markAllAsArchivedSucceedToast": "Archived all successfully",
-    "markAsReadSucceedToast": "Mark as read successfully",
-    "markAllAsReadSucceedToast": "Mark all as read successfully",
-    "today": "Today",
-    "older": "Older",
     "mobile": {
       "title": "Updates"
     },
@@ -2536,13 +2426,13 @@
     "bold": "Bold",
     "bulletedList": "Bulleted list",
     "bulletedListShortForm": "Bulleted",
-    "checkbox": "Checkbox",
+    "checkbox": "Tick box",
     "embedCode": "Embed Code",
     "heading1": "H1",
     "heading2": "H2",
     "heading3": "H3",
     "highlight": "Highlight",
-    "color": "Color",
+    "color": "Colour",
     "image": "Image",
     "date": "Date",
     "page": "Page",
@@ -2606,23 +2496,22 @@
     "mobileHeading4": "Heading 4",
     "mobileHeading5": "Heading 5",
     "mobileHeading6": "Heading 6",
-    "textColor": "Text Color",
-    "backgroundColor": "Background Color",
+    "textColor": "Text Colour",
+    "backgroundColor": "Background Colour",
     "addYourLink": "Add your link",
     "openLink": "Open link",
     "copyLink": "Copy link",
     "removeLink": "Remove link",
     "editLink": "Edit link",
-    "convertTo": "Convert to",
     "linkText": "Text",
     "linkTextHint": "Please enter text",
     "linkAddressHint": "Please enter URL",
-    "highlightColor": "Highlight color",
-    "clearHighlightColor": "Clear highlight color",
-    "customColor": "Custom color",
+    "highlightColor": "Highlight colour",
+    "clearHighlightColor": "Clear highlight colour",
+    "customColor": "Custom colour",
     "hexValue": "Hex value",
     "opacity": "Opacity",
-    "resetToDefaultColor": "Reset to default color",
+    "resetToDefaultColor": "Reset to default colour",
     "ltr": "LTR",
     "rtl": "RTL",
     "auto": "Auto",
@@ -2666,8 +2555,8 @@
     "codeBlockShortForm": "Code"
   },
   "favorite": {
-    "noFavorite": "No favorite page",
-    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
+    "noFavorite": "No favourite page",
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favourites",
     "removeFromSidebar": "Remove from sidebar",
     "addToSidebar": "Pin to sidebar"
   },
@@ -2693,8 +2582,8 @@
   "noLogFiles": "There're no log files",
   "newSettings": {
     "myAccount": {
-      "title": "Account & App",
-      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "title": "My account",
+      "subtitle": "Customise your profile, manage account security, open AI keys, or login into your account.",
       "profileLabel": "Account name & Profile image",
       "profileNamePlaceholder": "Enter your name",
       "accountSecurity": "Account security",
@@ -2715,50 +2604,16 @@
         "confirmHint1": "Please type \"@:newSettings.myAccount.deleteAccount.confirmHint3\" to confirm.",
         "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
         "confirmHint3": "DELETE MY ACCOUNT",
-        "checkToConfirmError": "You must check the box to confirm deletion",
+        "checkToConfirmError": "You must tick the box to confirm deletion",
         "failedToGetCurrentUser": "Failed to get current user email",
         "confirmTextValidationFailed": "Your confirmation text does not match \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "Account deleted successfully"
-      },
-      "password": {
-        "title": "Password",
-        "confirmPassword": "Confirm password",
-        "changePassword": "Change password",
-        "currentPassword": "Current password",
-        "newPassword": "New password",
-        "confirmNewPassword": "Confirm new password",
-        "setupPassword": "Setup password",
-        "error": {
-          "currentPasswordIsRequired": "Current password is required",
-          "newPasswordIsRequired": "New password is required",
-          "confirmPasswordIsRequired": "Confirm password is required",
-          "passwordsDoNotMatch": "Passwords do not match",
-          "newPasswordIsSameAsCurrent": "New password is same as current password",
-          "currentPasswordIsIncorrect": "Current password is incorrect",
-          "passwordShouldBeAtLeast6Characters": "Password should be at least {min} characters",
-          "passwordCannotBeLongerThan72Characters": "Password cannot be longer than {max} characters"
-        },
-        "toast": {
-          "passwordUpdatedSuccessfully": "Password updated successfully",
-          "passwordUpdatedFailed": "Failed to update password",
-          "passwordSetupSuccessfully": "Password setup successfully",
-          "passwordSetupFailed": "Failed to setup password"
-        },
-        "hint": {
-          "enterYourPassword": "Enter your password",
-          "confirmYourPassword": "Confirm your password",
-          "enterYourCurrentPassword": "Enter your current password",
-          "enterYourNewPassword": "Enter your new password",
-          "confirmYourNewPassword": "Confirm your new password"
-        }
-      },
-      "myAccount": "My Account",
-      "myProfile": "My Profile"
+      }
     },
     "workplace": {
       "name": "Workplace",
       "title": "Workplace Settings",
-      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "subtitle": "Customise your workspace appearance, theme, font, text layout, date, time, and language.",
       "workplaceName": "Workplace name",
       "workplaceNamePlaceholder": "Enter workplace name",
       "workplaceIcon": "Workplace icon",
@@ -2787,7 +2642,7 @@
     "layout": "Layout",
     "coverImage": "Cover image",
     "pageIcon": "Page icon",
-    "colors": "Colors",
+    "colors": "Colours",
     "gradient": "Gradient",
     "backgroundImage": "Background image",
     "presets": "Presets",
@@ -2806,35 +2661,26 @@
   "commandPalette": {
     "placeholder": "Search or ask a question...",
     "bestMatches": "Best matches",
-    "aiOverview": "AI overview",
-    "aiOverviewSource": "Reference sources",
-    "aiOverviewMoreDetails": "More details",
-    "aiAskFollowUp": "Ask follow-up",
-    "pagePreview": "Content preview",
-    "clickToOpenPage": "Click to open page",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",
     "loadingTooltip": "We are looking for results...",
     "betaLabel": "BETA",
     "betaTooltip": "We currently only support searching for pages and content in documents",
-    "fromTrashHint": "From trash",
+    "fromTrashHint": "From bin",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field",
-    "location": "Location",
-    "created": "Created",
-    "edited": "Edited"
+    "clearSearchTooltip": "Clear search field"
   },
   "space": {
     "delete": "Delete",
     "deleteConfirmation": "Delete: ",
-    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
+    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Bin, and any published pages will be unpublished.",
     "rename": "Rename Space",
     "changeIcon": "Change icon",
     "manage": "Manage Space",
     "addNewSpace": "Create Space",
     "collapseAllSubPages": "Collapse all subpages",
     "createNewSpace": "Create a new space",
-    "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
+    "createSpaceDescription": "Create multiple public and private spaces to better organise your work.",
     "spaceName": "Space name",
     "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
     "permission": "Space permission",
@@ -2842,7 +2688,7 @@
     "publicPermissionDescription": "All workspace members with full access",
     "privatePermission": "Private",
     "privatePermissionDescription": "Only you can access this space",
-    "spaceIconBackground": "Background color",
+    "spaceIconBackground": "Background colour",
     "spaceIcon": "Icon",
     "dangerZone": "Danger Zone",
     "unableToDeleteLastSpace": "Unable to delete the last Space",
@@ -2851,7 +2697,7 @@
     "title": "Spaces",
     "defaultSpaceName": "General",
     "upgradeSpaceTitle": "Enable Spaces",
-    "upgradeSpaceDescription": "Create multiple public and private Spaces to better organize your workspace.",
+    "upgradeSpaceDescription": "Create multiple public and private Spaces to better organise your workspace.",
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
@@ -2875,7 +2721,7 @@
     "createSpace": "Create space",
     "manageSpace": "Manage space",
     "renameSpace": "Rename space",
-    "mSpaceIconColor": "Space icon color",
+    "mSpaceIconColor": "Space icon colour",
     "mSpaceIcon": "Space icon"
   },
   "publish": {
@@ -2888,7 +2734,7 @@
     "copy": {
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard",
+      "mathBlock": "The maths equation has been copied to the clipboard",
       "fileBlock": "The file link has been copied to the clipboard"
     },
     "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
@@ -2936,8 +2782,8 @@
     "continueWithApple": "Continue with Apple ",
     "moreOptions": "More options",
     "collapse": "Collapse",
-    "signInAgreement": "By clicking \"Continue\" above, you agreed to \nAppFlowy's ",
-    "signInLocalAgreement": "By clicking \"Get Started\" above, you agreed to \nAppFlowy's ",
+    "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
+    "signInLocalAgreement": "By clicking \"Get Started\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
@@ -3031,12 +2877,12 @@
     "category": {
       "name": "Category name",
       "icon": "Category icon",
-      "bgColor": "Category background color",
+      "bgColor": "Category background colour",
       "priority": "Category priority",
       "desc": "Category description",
       "type": "Category type",
       "icons": "Category Icons",
-      "colors": "Category Colors",
+      "colors": "Category Colours",
       "byUseCase": "By Use Case",
       "byFeature": "By Feature",
       "deleteCategory": "Delete category",
@@ -3205,9 +3051,9 @@
     "closeOthers": "Close other tabs",
     "closeOthersHint": "This will close all unpinned tabs except this one",
     "closeOthersDisabledHint": "All tabs are pinned, cannot find any tabs to close",
-    "favorite": "Favorite",
-    "unfavorite": "Unfavorite",
-    "favoriteDisabledHint": "Cannot favorite this view",
+    "favorite": "Favourite",
+    "unfavorite": "Unfavourite",
+    "favoriteDisabledHint": "Cannot favourite this view",
     "pinTab": "Pin",
     "unpinTab": "Unpin"
   },
@@ -3250,7 +3096,7 @@
     "priceIn": "Price in ",
     "free": "Free",
     "pro": "Pro",
-    "freeDescription": "For individuals up to 2 members to organize everything",
+    "freeDescription": "For individuals up to 2 members to organise everything",
     "proDescription": "For small teams to manage projects and team knowledge",
     "proDuration": {
       "monthly": "per member per month\nbilled monthly",
@@ -3330,50 +3176,10 @@
       "aiAddon": "AI add-on"
     },
     "editing": "Editing",
-    "analyzing": "Analyzing",
+    "analyzing": "Analysing",
     "continueWritingEmptyDocumentTitle": "Continue writing error",
     "continueWritingEmptyDocumentDescription": "We are having trouble expanding on the content in your document. Write a small intro and we can take it from there!",
-    "more": "More",
-    "customPrompt": {
-      "browsePrompts": "Browse prompts",
-      "usePrompt": "Use prompt",
-      "featured": "Featured",
-      "custom": "Custom",
-      "customPrompt": "Custom Prompts",
-      "databasePrompts": "Load prompts from your own database",
-      "selectDatabase": "Select database",
-      "promptDatabase": "Prompt database",
-      "loading": "Loading",
-      "invalidDatabase": "Invalid Database",
-      "invalidDatabaseHelp": "Ensure that the database has at least two text properties:\n ◦ One used for the prompt name\n ◦ One used for the prompt content\nYou can also optionally add properties for the prompt example and category.",
-      "noResults": "No prompts found",
-      "all": "All",
-      "development": "Development",
-      "writing": "Writing",
-      "healthAndFitness": "Health & fitness",
-      "business": "Business",
-      "marketing": "Marketing",
-      "travel": "Travel",
-      "others": "Other",
-      "prompt": "Prompt",
-      "example": "Prompt Example",
-      "sampleOutput": "Sample output",
-      "contentSeo": "Content/SEO",
-      "emailMarketing": "Email Marketing",
-      "paidAds": "Paid Ads",
-      "prCommunication": "PR/Communication",
-      "recruiting": "Recruiting",
-      "sales": "Sales",
-      "socialMedia": "Social Media",
-      "strategy": "Strategy",
-      "caseStudies": "Case Studies",
-      "salesCopy": "Sales Copy",
-      "education": "Education",
-      "work": "Work",
-      "podcastProduction": "Podcast Production",
-      "copyWriting": "Copy Writing",
-      "customerSuccess": "Customer Success"
-    }
+    "more": "More"
   },
   "autoUpdate": {
     "criticalUpdateTitle": "Update required to continue",

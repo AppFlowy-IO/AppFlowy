@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -225,7 +224,7 @@ class SearchResultPreview extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         final view = snapshot.data?.toNullable();
-        if (view == null) return NoSearchResultsHint();
+        if (view == null) return SomethingWentWrong();
 
         return PagePreview(view: view);
       },

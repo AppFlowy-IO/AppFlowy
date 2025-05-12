@@ -24,11 +24,12 @@ extension LinkExtension on EditorState {
     final transaction = this.transaction;
     final attributes = _getAttribute(node, selection);
     attributes.addAll(info.toAttribute());
+    final linkName = info.name.isEmpty ? info.link : info.name;
     transaction.replaceText(
       node,
       selection.startIndex,
       selection.length,
-      info.name,
+      linkName,
       attributes: attributes,
     );
     apply(transaction);

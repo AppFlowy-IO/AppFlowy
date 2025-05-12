@@ -186,8 +186,11 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         linkInfo: LinkInfo(name: title, link: href, isPage: isPage),
         onDismiss: () => editMenuController.close(),
         onApply: (info) => editorState.applyLink(selection, info),
-        onRemoveLink: (linkinfo) =>
-            editorState.removeAndReplaceLink(selection, linkinfo.name),
+        onRemoveLink: (linkinfo) {
+          final replaceText =
+              linkinfo.name.isEmpty ? linkinfo.link : linkinfo.name;
+          editorState.removeAndReplaceLink(selection, replaceText);
+        },
       ),
       child: child,
     );

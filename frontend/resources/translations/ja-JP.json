@@ -36,7 +36,6 @@
     "loginButtonText": "ログイン",
     "loginStartWithAnonymous": "匿名で続行",
     "continueAnonymousUser": "匿名で続行",
-    "anonymous": "匿名",
     "buttonText": "サインイン",
     "signingInText": "サインイン中...",
     "forgotPassword": "パスワードを忘れましたか？",
@@ -68,7 +67,8 @@
     "logIn": "ログイン",
     "generalError": "エラーが発生しました。後でもう一度お試しください",
     "limitRateError": "セキュリティのため、Magic Linkは60秒に1回しかリクエストできません",
-    "magicLinkSentDescription": "Magic Linkがあなたのメールアドレスに送信されました。リンクをクリックしてログインを完了してください。リンクは5分後に無効になります。"
+    "magicLinkSentDescription": "Magic Linkがあなたのメールアドレスに送信されました。リンクをクリックしてログインを完了してください。リンクは5分後に無効になります。",
+    "anonymous": "匿名"
   },
   "workspace": {
     "chooseWorkspace": "ワークスペースを選択",
