@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_previ
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'custom_link_preview.dart';
 import 'default_selectable_mixin.dart';
@@ -148,7 +149,7 @@ class CustomLinkPreviewBlockComponentState
     child = Stack(
       children: [
         child,
-        if (showActions)
+        if (showActions && UniversalPlatform.isDesktopOrWeb)
           Positioned(
             top: 12,
             right: 12,

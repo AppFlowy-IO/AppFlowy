@@ -85,7 +85,8 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                   PersonalInfoSettingGroup(
                     userProfile: userProfile,
                   ),
-                  const WorkspaceSettingGroup(),
+                  if (state.userProfile.userAuthType == AuthTypePB.Server)
+                    const WorkspaceSettingGroup(),
                   const AppearanceSettingGroup(),
                   const LanguageSettingGroup(),
                   if (Env.enableCustomCloud) const CloudSettingGroup(),

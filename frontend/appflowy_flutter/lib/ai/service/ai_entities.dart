@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -14,11 +15,12 @@ class AIStreamEventPrefix {
   static const start = 'start:';
   static const finish = 'finish:';
   static const comment = 'comment:';
-  static const aiResponseLimit = 'AI_RESPONSE_LIMIT';
-  static const aiImageResponseLimit = 'AI_IMAGE_RESPONSE_LIMIT';
-  static const aiMaxRequired = 'AI_MAX_REQUIRED:';
-  static const localAINotReady = 'LOCAL_AI_NOT_READY';
-  static const localAIDisabled = 'LOCAL_AI_DISABLED';
+  static const aiResponseLimit = 'ai_response_limit:';
+  static const aiImageResponseLimit = 'ai_image_response_limit:';
+  static const aiMaxRequired = 'ai_max_required:';
+  static const localAINotReady = 'local_ai_not_ready:';
+  static const localAIDisabled = 'local_ai_disabled:';
+  static const aiFollowUp = 'ai_follow_up:';
 }
 
 enum AiType {
@@ -122,8 +124,6 @@ enum AiPromptCategory {
   business,
   @JsonValue("marketing")
   marketing,
-  @JsonValue("learning")
-  learning,
   @JsonValue("travel")
   travel,
   @JsonValue("contentSeo")
@@ -145,7 +145,17 @@ enum AiPromptCategory {
   @JsonValue("caseStudies")
   caseStudies,
   @JsonValue("salesCopy")
-  salesCopy;
+  salesCopy,
+  @JsonValue("education")
+  education,
+  @JsonValue("work")
+  work,
+  @JsonValue("podcastProduction")
+  podcastProduction,
+  @JsonValue("copyWriting")
+  copyWriting,
+  @JsonValue("customerSuccess")
+  customerSuccess;
 
   String get i18n {
     return switch (this) {
@@ -155,7 +165,6 @@ enum AiPromptCategory {
       healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness.tr(),
       business => LocaleKeys.ai_customPrompt_business.tr(),
       marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
-      learning => LocaleKeys.ai_customPrompt_learning.tr(),
       travel => LocaleKeys.ai_customPrompt_travel.tr(),
       contentSeo => LocaleKeys.ai_customPrompt_contentSeo.tr(),
       emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing.tr(),
@@ -167,6 +176,11 @@ enum AiPromptCategory {
       strategy => LocaleKeys.ai_customPrompt_strategy.tr(),
       caseStudies => LocaleKeys.ai_customPrompt_caseStudies.tr(),
       salesCopy => LocaleKeys.ai_customPrompt_salesCopy.tr(),
+      education => LocaleKeys.ai_customPrompt_education.tr(),
+      work => LocaleKeys.ai_customPrompt_work.tr(),
+      podcastProduction => LocaleKeys.ai_customPrompt_podcastProduction.tr(),
+      copyWriting => LocaleKeys.ai_customPrompt_copyWriting.tr(),
+      customerSuccess => LocaleKeys.ai_customPrompt_customerSuccess.tr(),
     };
   }
 }
@@ -180,7 +194,22 @@ class AiPrompt extends Equatable {
     required this.category,
     required this.example,
     required this.isFeatured,
+    required this.isCustom,
   });
+
+  factory AiPrompt.fromPB(CustomPromptPB pb) {
+    return AiPrompt(
+      id: pb.id,
+      name: pb.name,
+      content: pb.content,
+      category: AiPromptCategory.values.firstWhere(
+        (e) => e.name == pb.category,
+      ),
+      example: pb.example,
+      isFeatured: false,
+      isCustom: true,
+    );
+  }
 
   factory AiPrompt.fromJson(Map<String, dynamic> json) =>
       _$AiPromptFromJson(json);
@@ -190,12 +219,19 @@ class AiPrompt extends Equatable {
   final String id;
   final String name;
   final String content;
+  @JsonKey(
+    unknownEnumValue: AiPromptCategory.other,
+    defaultValue: AiPromptCategory.other,
+  )
   final AiPromptCategory category;
   @JsonKey(defaultValue: "")
   final String example;
   @JsonKey(defaultValue: false)
   final bool isFeatured;
+  @JsonKey(defaultValue: false)
+  final bool isCustom;
 
   @override
-  List<Object?> get props => [id, name, content, category];
+  List<Object?> get props =>
+      [id, name, content, category, example, isFeatured, isCustom];
 }

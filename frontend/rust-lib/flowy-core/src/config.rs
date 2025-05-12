@@ -30,6 +30,48 @@ pub struct AppFlowyCoreConfig {
   pub cloud_config: Option<AFCloudConfiguration>,
 }
 impl AppFlowyCoreConfig {
+  pub fn new(
+    app_version: Version,
+    custom_application_path: String,
+    application_path: String,
+    device_id: String,
+    platform: String,
+    name: String,
+  ) -> Self {
+    let cloud_config = AFCloudConfiguration::from_env().ok();
+    // By default enable sync trace log
+    let log_crates = vec!["sync_trace_log".to_string()];
+    let storage_path = match &cloud_config {
+      None => custom_application_path,
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
+    };
+
+    let log_filter = create_log_filter(
+      "info".to_owned(),
+      log_crates,
+      OperatingSystem::from(&platform),
+    );
+
+    AppFlowyCoreConfig {
+      app_version,
+      name,
+      storage_path,
+      application_path,
+      device_id,
+      platform,
+      log_filter,
+      cloud_config,
+    }
+  }
+
+  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
+    self.log_filter = create_log_filter(
+      level.to_owned(),
+      with_crates,
+      OperatingSystem::from(&self.platform),
+    );
+    self
+  }
   pub fn ensure_path(&self) {
     let create_if_needed = |path_str: &str, label: &str| {
       let dir = std::path::Path::new(path_str);
@@ -119,50 +161,5 @@ fn make_user_data_folder(root: &str, url: &str) -> String {
       .into_os_string()
       .into_string()
       .unwrap_or_else(|_| root.to_string())
-  }
-}
-
-impl AppFlowyCoreConfig {
-  pub fn new(
-    app_version: Version,
-    custom_application_path: String,
-    application_path: String,
-    device_id: String,
-    platform: String,
-    name: String,
-  ) -> Self {
-    let cloud_config = AFCloudConfiguration::from_env().ok();
-    // By default enable sync trace log
-    let log_crates = vec!["sync_trace_log".to_string()];
-    let storage_path = match &cloud_config {
-      None => custom_application_path,
-      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
-    };
-
-    let log_filter = create_log_filter(
-      "info".to_owned(),
-      log_crates,
-      OperatingSystem::from(&platform),
-    );
-
-    AppFlowyCoreConfig {
-      app_version,
-      name,
-      storage_path,
-      application_path,
-      device_id,
-      platform,
-      log_filter,
-      cloud_config,
-    }
-  }
-
-  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(
-      level.to_owned(),
-      with_crates,
-      OperatingSystem::from(&self.platform),
-    );
-    self
   }
 }

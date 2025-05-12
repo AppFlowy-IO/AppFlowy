@@ -1,5 +1,6 @@
 import 'package:integration_test/integration_test.dart';
 
+import 'desktop/chat/chat_page_test.dart' as chat_page_test;
 import 'desktop/database/database_icon_test.dart' as database_icon_test;
 import 'desktop/first_test/first_test.dart' as first_test;
 import 'desktop/uncategorized/code_block_language_selector_test.dart'
@@ -17,4 +18,5 @@ Future<void> runIntegration9OnDesktop() async {
   tabs_test.main();
   code_language_selector.main();
   database_icon_test.main();
+  chat_page_test.main();
 }

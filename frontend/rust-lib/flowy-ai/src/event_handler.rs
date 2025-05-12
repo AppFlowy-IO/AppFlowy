@@ -1,7 +1,6 @@
-use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
+use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
-use crate::util::ai_available_models_key;
 use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -78,26 +77,28 @@ pub(crate) async fn regenerate_response_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_server_model_list_handler(
+pub(crate) async fn get_setting_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
+  let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
-  let models = ai_manager.get_available_models(source_key).await?;
+  let models = ai_manager.get_available_models(data.source, true).await?;
   data_result_ok(models)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_chat_models_handler(
-  data: AFPluginData<AvailableModelsQueryPB>,
+pub(crate) async fn get_source_model_selection_handler(
+  data: AFPluginData<ModelSourcePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<AvailableModelsPB, FlowyError> {
+) -> DataResult<ModelSelectionPB, FlowyError> {
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let models = ai_manager.get_available_models(data.source).await?;
+  let models = ai_manager.get_available_models(data.source, false).await?;
   data_result_ok(models)
 }
 
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_selected_model_handler(
   data: AFPluginData<UpdateSelectedModelPB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
@@ -312,7 +313,9 @@ pub(crate) async fn get_chat_settings_handler(
   let chat_id = data.try_into_inner()?.value;
   let chat_id = Uuid::from_str(&chat_id)?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
+  let uid = ai_manager.user_service.user_id()?;
+  let mut conn = ai_manager.user_service.sqlite_connection(uid)?;
+  let rag_ids = ai_manager.get_rag_ids(&chat_id, &mut conn).await?;
   let pb = ChatSettingsPB { rag_ids };
   data_result_ok(pb)
 }
@@ -340,6 +343,15 @@ pub(crate) async fn get_local_ai_setting_handler(
   data_result_ok(pb)
 }
 
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn get_local_ai_models_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ModelSelectionPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let data = ai_manager.get_local_available_models(None).await?;
+  data_result_ok(data)
+}
+
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_local_ai_setting_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
@@ -348,5 +360,38 @@ pub(crate) async fn update_local_ai_setting_handler(
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   ai_manager.update_local_ai_setting(data.into()).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_custom_prompt_database_view_id_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<CustomPromptDatabaseViewIdPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let id = ai_manager
+    .get_custom_prompt_database_view_id()
+    .await?
+    .ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::RecordNotFound,
+        "Custom prompt database view id not found",
+      )
+    })?;
+
+  data_result_ok(CustomPromptDatabaseViewIdPB { id })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn set_custom_prompt_database_view_id_handler(
+  data: AFPluginData<CustomPromptDatabaseViewIdPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> Result<(), FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let view_id = data.into_inner().id;
+
+  ai_manager
+    .set_custom_prompt_database_view_id(view_id)
+    .await?;
+
   Ok(())
 }

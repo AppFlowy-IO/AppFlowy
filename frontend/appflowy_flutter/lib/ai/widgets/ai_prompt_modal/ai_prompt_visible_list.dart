@@ -1,20 +1,24 @@
 import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:diffutil_dart/diffutil.dart';
-import 'package:flutter/widgets.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'ai_prompt_database_selector.dart';
 
 const Duration _listItemAnimationDuration = Duration(milliseconds: 150);
 
 class AiPromptVisibleList extends StatefulWidget {
   const AiPromptVisibleList({
     super.key,
-    required this.padding,
   });
-
-  final EdgeInsetsGeometry padding;
 
   @override
   State<AiPromptVisibleList> createState() => _AiPromptVisibleListState();
@@ -25,61 +29,196 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
   final scrollController = ScrollController();
   final List<AiPrompt> oldList = [];
 
+  late AiPromptSelectorCubit cubit;
+  late bool filterIsEmpty;
+
   @override
   void initState() {
     super.initState();
-    final prompts = context.read<AiPromptSelectorCubit>().state.maybeMap(
-          ready: (value) => value.visiblePrompts,
-          orElse: () => <AiPrompt>[],
-        );
+    cubit = context.read<AiPromptSelectorCubit>();
+    final textController = cubit.filterTextController;
+    filterIsEmpty = textController.text.isEmpty;
+    textController.addListener(handleFilterTextChanged);
+    final prompts = cubit.state.maybeMap(
+      ready: (value) => value.visiblePrompts,
+      orElse: () => <AiPrompt>[],
+    );
     oldList.addAll(prompts);
   }
 
   @override
   void dispose() {
+    cubit.filterTextController.removeListener(handleFilterTextChanged);
     scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final spacing = AppFlowyTheme.of(context).spacing;
+    final theme = AppFlowyTheme.of(context);
+
     return BlocListener<AiPromptSelectorCubit, AiPromptSelectorState>(
       listener: (context, state) {
-        final list = state.maybeMap(
-          ready: (state) => state.visiblePrompts,
-          orElse: () => <AiPrompt>[],
+        state.maybeMap(
+          ready: (state) {
+            handleVisiblePromptListChanged(state.visiblePrompts);
+          },
+          orElse: () {},
         );
-        handleVisiblePromptListChanged(list);
       },
-      child: AnimatedList(
-        controller: scrollController,
-        padding: widget.padding,
-        key: listKey,
-        initialItemCount: oldList.length,
-        itemBuilder: (context, index, animation) {
-          final cubit = context.read<AiPromptSelectorCubit>();
-
-          return cubit.state.maybeMap(
-            ready: (state) {
-              final prompt = state.visiblePrompts[index];
-              return Padding(
-                padding: EdgeInsets.only(
-                  top: index == 0 ? 0 : spacing.s,
-                  bottom:
-                      index == state.visiblePrompts.length - 1 ? 0 : spacing.s,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: theme.spacing.l),
+            child: buildSearchField(context),
+          ),
+          VSpace(
+            theme.spacing.s,
+          ),
+          BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+            buildWhen: (p, c) {
+              return p.maybeMap(
+                ready: (pr) => c.maybeMap(
+                  ready: (cr) =>
+                      pr.customPromptDatabaseViewId !=
+                          cr.customPromptDatabaseViewId ||
+                      pr.isLoadingCustomPrompts != cr.isLoadingCustomPrompts ||
+                      pr.isCustomPromptSectionSelected !=
+                          cr.isCustomPromptSectionSelected,
+                  orElse: () => false,
                 ),
-                child: _AiPromptListItem(
-                  animation: animation,
-                  prompt: prompt,
-                  isSelected: state.selectedPromptId == prompt.id,
-                ),
+                orElse: () => true,
               );
             },
-            orElse: () => const SizedBox.shrink(),
-          );
-        },
+            builder: (context, state) {
+              return state.maybeMap(
+                ready: (readyState) {
+                  if (!readyState.isCustomPromptSectionSelected) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: theme.spacing.l,
+                      top: theme.spacing.s,
+                      right: theme.spacing.l,
+                    ),
+                    child: CustomPromptDatabaseSelector(
+                      databaseViewId: readyState.customPromptDatabaseViewId,
+                      isLoading: readyState.isLoadingCustomPrompts,
+                      popoverDirection: PopoverDirection.bottomWithRightAligned,
+                      childBuilder: (onTap) {
+                        return AiPromptDatabaseSelectorButton(
+                          selectedViewId: readyState.customPromptDatabaseViewId,
+                          isLoading: readyState.isLoadingCustomPrompts,
+                          onTap: onTap,
+                        );
+                      },
+                    ),
+                  );
+                },
+                orElse: () => const SizedBox.shrink(),
+              );
+            },
+          ),
+          Expanded(
+            child: TextFieldTapRegion(
+              groupId: "ai_prompt_category_list",
+              child: BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+                builder: (context, state) {
+                  return state.maybeMap(
+                    ready: (readyState) {
+                      if (readyState.visiblePrompts.isEmpty) {
+                        return Center(
+                          child: Text(
+                            LocaleKeys.ai_customPrompt_noResults.tr(),
+                            style: theme.textStyle.body.standard(
+                              color: theme.textColorScheme.primary,
+                            ),
+                          ),
+                        );
+                      }
+                      return buildPromptList();
+                    },
+                    orElse: () => const SizedBox.shrink(),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget buildSearchField(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    final iconSize = 20.0;
+
+    return AFTextField(
+      groupId: "ai_prompt_category_list",
+      hintText: "Search",
+      controller: context.read<AiPromptSelectorCubit>().filterTextController,
+      autoFocus: true,
+      suffixIconConstraints: BoxConstraints.tightFor(
+        width: iconSize + theme.spacing.m,
+        height: iconSize,
+      ),
+      suffixIconBuilder: filterIsEmpty
+          ? null
+          : (context, isObscured) => TextFieldTapRegion(
+                groupId: "ai_prompt_category_list",
+                child: Padding(
+                  padding: EdgeInsets.only(right: theme.spacing.m),
+                  child: GestureDetector(
+                    onTap: () => context
+                        .read<AiPromptSelectorCubit>()
+                        .filterTextController
+                        .clear(),
+                    child: FlowySvg(
+                      FlowySvgs.toast_close_s,
+                      color: theme.textColorScheme.secondary,
+                      size: const Size.square(20),
+                    ),
+                  ),
+                ),
+              ),
+    );
+  }
+
+  Widget buildPromptList() {
+    final theme = AppFlowyTheme.of(context);
+
+    return AnimatedList(
+      controller: scrollController,
+      padding: EdgeInsets.all(theme.spacing.l),
+      key: listKey,
+      initialItemCount: oldList.length,
+      itemBuilder: (context, index, animation) {
+        return BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+          builder: (context, state) {
+            return state.maybeMap(
+              ready: (state) {
+                final prompt = state.visiblePrompts[index];
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: index == 0 ? 0 : theme.spacing.s,
+                    bottom: index == state.visiblePrompts.length - 1
+                        ? 0
+                        : theme.spacing.s,
+                  ),
+                  child: _AiPromptListItem(
+                    animation: animation,
+                    prompt: prompt,
+                    isSelected: state.selectedPromptId == prompt.id,
+                  ),
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -122,6 +261,12 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
       ..clear()
       ..addAll(newList);
   }
+
+  void handleFilterTextChanged() {
+    setState(() {
+      filterIsEmpty = cubit.filterTextController.text.isEmpty;
+    });
+  }
 }
 
 class _AiPromptListItem extends StatefulWidget {
@@ -146,6 +291,7 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
   @override
   void dispose() {
     timer?.cancel();
+    timer = null;
     super.dispose();
   }
 
@@ -159,6 +305,9 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
       curve: Curves.easeIn,
     );
 
+    final surfacePrimaryHover =
+        Theme.of(context).isLightMode ? Color(0xFFF8FAFF) : Color(0xFF3C3F4E);
+
     return FadeTransition(
       opacity: curvedAnimation,
       child: SizeTransition(
@@ -167,74 +316,103 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
           onEnter: (_) {
             setState(() {
               isHovering = true;
-              timer = Timer(
-                const Duration(milliseconds: 300),
-                () {
-                  if (isHovering) {
-                    cubit.selectPrompt(widget.prompt.id);
-                  }
-                },
-              );
+              timer = Timer(const Duration(milliseconds: 300), () {
+                if (mounted) {
+                  cubit.selectPrompt(widget.prompt.id);
+                }
+              });
             });
           },
           onExit: (_) {
             setState(() {
               isHovering = false;
               timer?.cancel();
-              timer = null;
             });
           },
           child: GestureDetector(
             onTap: () {
               cubit.selectPrompt(widget.prompt.id);
             },
-            onDoubleTap: () {
-              Navigator.of(context).pop(widget.prompt);
-            },
-            child: Container(
-              padding: EdgeInsets.all(theme.spacing.m),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(theme.borderRadius.m),
-                border: Border.all(
-                  color: widget.isSelected
-                      ? isHovering
-                          ? theme.borderColorScheme.themeThickHover
-                          : theme.borderColorScheme.themeThick
-                      : isHovering
-                          ? theme.borderColorScheme.greyTertiaryHover
-                          : theme.borderColorScheme.greyTertiary,
-                ),
-                color: theme.surfaceColorScheme.primary,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(theme.spacing.m),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.m),
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? isHovering
+                              ? theme.borderColorScheme.themeThickHover
+                              : theme.borderColorScheme.themeThick
+                          : isHovering
+                              ? theme.borderColorScheme.greyTertiaryHover
+                              : theme.borderColorScheme.greyTertiary,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          widget.prompt.name,
-                          maxLines: 1,
-                          style: theme.textStyle.body.standard(
-                            color: theme.textColorScheme.primary,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.prompt.name,
+                              maxLines: 1,
+                              style: theme.textStyle.body.standard(
+                                color: theme.textColorScheme.primary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
+                        ],
+                      ),
+                      Text(
+                        widget.prompt.content,
+                        maxLines: 2,
+                        style: theme.textStyle.caption.standard(
+                          color: theme.textColorScheme.secondary,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
                       ),
                     ],
                   ),
-                  Text(
-                    widget.prompt.content,
-                    maxLines: 2,
-                    style: theme.textStyle.caption.standard(
-                      color: theme.textColorScheme.secondary,
+                ),
+                if (isHovering)
+                  Positioned(
+                    top: theme.spacing.s,
+                    right: theme.spacing.s,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(boxShadow: theme.shadow.small),
+                      child: AFBaseButton(
+                        onTap: () {
+                          Navigator.of(context).pop(widget.prompt);
+                        },
+                        builder: (context, isHovering, disabled) {
+                          return Text(
+                            LocaleKeys.ai_customPrompt_usePrompt.tr(),
+                            style: theme.textStyle.body.standard(
+                              color: theme.textColorScheme.primary,
+                            ),
+                          );
+                        },
+                        backgroundColor: (context, isHovering, disabled) {
+                          if (isHovering) {
+                            return surfacePrimaryHover;
+                          }
+                          return theme.surfaceColorScheme.primary;
+                        },
+                        padding: EdgeInsets.symmetric(
+                          vertical: theme.spacing.s,
+                          horizontal: theme.spacing.m,
+                        ),
+                        borderRadius: theme.borderRadius.m,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
                   ),
-                ],
-              ),
+              ],
             ),
           ),
         ),

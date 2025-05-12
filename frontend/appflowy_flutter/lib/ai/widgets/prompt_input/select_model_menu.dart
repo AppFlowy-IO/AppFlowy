@@ -90,38 +90,40 @@ class SelectModelPopoverContent extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (localModels.isNotEmpty) ...[
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_localModel.tr(),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (localModels.isNotEmpty) ...[
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_localModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...localModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
             ),
-            const VSpace(4.0),
+            if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
+              const VSpace(8.0),
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_cloudModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...cloudModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
+            ),
           ],
-          ...localModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-          if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
-            const VSpace(8.0),
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_cloudModel.tr(),
-            ),
-            const VSpace(4.0),
-          ],
-          ...cloudModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -215,45 +217,41 @@ class _CurrentModelButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: DesktopAIPromptSizes.actionBarButtonSize,
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 50),
-            curve: Curves.easeInOut,
-            alignment: AlignmentDirectional.centerStart,
-            child: FlowyHover(
-              style: const HoverStyle(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(4.0),
-                child: Row(
-                  children: [
-                    Padding(
-                      // TODO: remove this after change icon to 20px
-                      padding: EdgeInsets.all(2),
-                      child: FlowySvg(
-                        FlowySvgs.ai_sparks_s,
-                        color: Theme.of(context).hintColor,
-                        size: Size.square(16),
-                      ),
-                    ),
-                    if (model != null && !model!.isDefault)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(end: 2.0),
-                        child: FlowyText(
-                          model!.i18n,
-                          fontSize: 12,
-                          figmaLineHeight: 16,
-                          color: Theme.of(context).hintColor,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    FlowySvg(
-                      FlowySvgs.ai_source_drop_down_s,
+          child: FlowyHover(
+            style: const HoverStyle(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    // TODO: remove this after change icon to 20px
+                    padding: EdgeInsets.all(2),
+                    child: FlowySvg(
+                      FlowySvgs.ai_sparks_s,
                       color: Theme.of(context).hintColor,
-                      size: const Size.square(8),
+                      size: Size.square(16),
                     ),
-                  ],
-                ),
+                  ),
+                  if (model != null && !model!.isDefault)
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(end: 2.0),
+                      child: FlowyText(
+                        model!.i18n,
+                        fontSize: 12,
+                        figmaLineHeight: 16,
+                        color: Theme.of(context).hintColor,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  FlowySvg(
+                    FlowySvgs.ai_source_drop_down_s,
+                    color: Theme.of(context).hintColor,
+                    size: const Size.square(8),
+                  ),
+                ],
               ),
             ),
           ),

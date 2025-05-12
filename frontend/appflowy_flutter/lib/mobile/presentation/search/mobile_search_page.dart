@@ -10,7 +10,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mobile_search_ask_ai_entrance.dart';
 import 'mobile_search_result.dart';
@@ -54,23 +53,11 @@ class MobileSearchScreen extends StatelessWidget {
           return const WorkspaceFailedScreen();
         }
 
-        Sentry.configureScope(
-          (scope) => scope.setUser(
-            SentryUser(
-              id: userProfile.id.toString(),
-            ),
-          ),
-        );
-        return Scaffold(
-          body: SafeArea(
-            bottom: false,
-            child: Provider.value(
-              value: userProfile,
-              child: MobileSearchPage(
-                userProfile: userProfile,
-                workspaceLatestPB: latest,
-              ),
-            ),
+        return Provider.value(
+          value: userProfile,
+          child: MobileSearchPage(
+            userProfile: userProfile,
+            workspaceLatestPB: latest,
           ),
         );
       },
@@ -78,7 +65,7 @@ class MobileSearchScreen extends StatelessWidget {
   }
 }
 
-class MobileSearchPage extends StatelessWidget {
+class MobileSearchPage extends StatefulWidget {
   const MobileSearchPage({
     super.key,
     required this.userProfile,
@@ -88,31 +75,62 @@ class MobileSearchPage extends StatelessWidget {
   final UserProfilePB userProfile;
   final WorkspaceLatestPB workspaceLatestPB;
 
+  @override
+  State<MobileSearchPage> createState() => _MobileSearchPageState();
+}
+
+class _MobileSearchPageState extends State<MobileSearchPage> {
   bool get enableShowAISearch =>
-      userProfile.workspaceType == WorkspaceTypePB.ServerW;
+      widget.userProfile.workspaceType == WorkspaceTypePB.ServerW;
+
+  final focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MobileSearchTextfield(
-                hintText: enableShowAISearch
-                    ? LocaleKeys.search_searchOrAskAI.tr()
-                    : LocaleKeys.search_label.tr(),
-                query: state.query ?? '',
-                onChanged: (value) => context
-                    .read<CommandPaletteBloc>()
-                    .add(CommandPaletteEvent.searchChanged(search: value)),
+        return SafeArea(
+          child: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MobileSearchTextfield(
+                    focusNode: focusNode,
+                    hintText: enableShowAISearch
+                        ? LocaleKeys.search_searchOrAskAI.tr()
+                        : LocaleKeys.search_label.tr(),
+                    query: state.query ?? '',
+                    onChanged: (value) =>
+                        context.read<CommandPaletteBloc>().add(
+                              CommandPaletteEvent.searchChanged(search: value),
+                            ),
+                  ),
+                  if (enableShowAISearch)
+                    MobileSearchAskAiEntrance(query: state.query),
+                  Flexible(
+                    child: NotificationListener(
+                      child: MobileSearchResult(),
+                      onNotification: (t) {
+                        if (t is ScrollUpdateNotification) {
+                          if (focusNode.hasFocus) {
+                            focusNode.unfocus();
+                          }
+                        }
+                        return true;
+                      },
+                    ),
+                  ),
+                ],
               ),
-              if (enableShowAISearch)
-                MobileSearchAskAiEntrance(query: state.query),
-              Flexible(child: SafeArea(child: MobileSearchResult())),
-            ],
+            ),
           ),
         );
       },

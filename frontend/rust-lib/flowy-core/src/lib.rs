@@ -1,15 +1,20 @@
 #![allow(unused_doc_comments)]
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use collab_plugins::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::LoggedUser;
+use flowy_sqlite::kv::KVStorePreferences;
+use flowy_storage::manager::StorageManager;
+use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user::services::entities::UserConfig;
+use flowy_user::user_manager::UserManager;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -18,35 +23,35 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 use uuid::Uuid;
 
-use flowy_sqlite::kv::KVStorePreferences;
-use flowy_storage::manager::StorageManager;
-use flowy_user::services::authenticate_user::AuthenticateUser;
-use flowy_user::services::entities::UserConfig;
-use flowy_user::user_manager::UserManager;
-
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
-use lib_infra::util::OperatingSystem;
+use lib_infra::util::{get_operating_system, OperatingSystem};
 use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
+use crate::full_indexed_data_provider::FullIndexedDataWriter;
 use crate::log_filter::init_log;
 use crate::server_layer::ServerProvider;
+use app_life_cycle::AppLifeCycleImpl;
 use deps_resolve::reminder_deps::CollabInteractImpl;
 use flowy_sqlite::DBConnection;
+use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
-use user_state_callback::UserStatusCallbackImpl;
 
+pub(crate) mod app_life_cycle;
 pub mod config;
 mod deps_resolve;
+mod folder_view_observer;
+mod full_indexed_data_provider;
+mod indexed_data_consumer;
+mod indexing_data_runner;
 mod log_filter;
 pub mod module;
 pub(crate) mod server_layer;
-pub(crate) mod user_state_callback;
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.
@@ -68,6 +73,7 @@ pub struct AppFlowyCore {
   pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
   pub collab_builder: Arc<AppFlowyCollabBuilder>,
+  pub full_indexed_data_writer: Arc<RwLock<Option<FullIndexedDataWriter>>>,
 }
 
 impl Drop for AppFlowyCore {
@@ -122,6 +128,10 @@ impl AppFlowyCore {
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
 
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    flowy_ai::embeddings::context::EmbedContext::shared()
+      .init_vector_db(PathBuf::from(&config.storage_path));
+
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(10));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
@@ -140,11 +150,17 @@ impl AppFlowyCore {
     ));
 
     debug!("🔥runtime:{}", runtime);
+    let instant_indexed_data_writer = if get_operating_system().is_desktop() {
+      Some(Arc::new(InstantIndexedDataWriter::new()))
+    } else {
+      None
+    };
 
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       Arc::downgrade(&store_preference),
       ServerUserImpl(Arc::downgrade(&authenticate_user)),
+      instant_indexed_data_writer.as_ref().map(Arc::downgrade),
     ));
 
     event!(tracing::Level::DEBUG, "Init managers",);
@@ -158,31 +174,29 @@ impl AppFlowyCore {
       search_manager,
       ai_manager,
       storage_manager,
+      instant_indexed_data_writer,
     ) = async {
       let storage_manager = FileStorageResolver::resolve(
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         &user_config.storage_path,
       );
+
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
         WorkspaceCollabIntegrateImpl(Arc::downgrade(&authenticate_user)),
+        instant_indexed_data_writer.as_ref().map(Arc::downgrade),
       ));
 
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
-      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Arc::downgrade(
-        &authenticate_user,
-      )));
-
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         collab_builder.clone(),
         Arc::downgrade(&server_provider),
-        folder_indexer.clone(),
         store_preference.clone(),
       )
       .await;
@@ -229,12 +243,8 @@ impl AppFlowyCore {
       )
       .await;
 
-      let search_manager = SearchDepsResolver::resolve(
-        folder_indexer,
-        server_provider.clone(),
-        folder_manager.clone(),
-      )
-      .await;
+      let search_manager =
+        SearchDepsResolver::resolve(server_provider.clone(), folder_manager.clone()).await;
 
       // Register the folder operation handlers
       register_handlers(
@@ -254,11 +264,14 @@ impl AppFlowyCore {
         search_manager,
         ai_manager,
         storage_manager,
+        instant_indexed_data_writer,
       )
     }
     .await;
 
-    let user_status_callback = UserStatusCallbackImpl {
+    let full_indexed_data_writer = Arc::new(RwLock::new(None));
+    let (full_indexed_finish_sender, _) = tokio::sync::watch::channel(false);
+    let app_life_cycle = AppLifeCycleImpl {
       user_manager: Arc::downgrade(&user_manager),
       collab_builder: Arc::downgrade(&collab_builder),
       folder_manager: Arc::downgrade(&folder_manager),
@@ -267,7 +280,12 @@ impl AppFlowyCore {
       server_provider: Arc::downgrade(&server_provider),
       storage_manager: Arc::downgrade(&storage_manager),
       ai_manager: Arc::downgrade(&ai_manager),
+      search_manager: Arc::downgrade(&search_manager),
+      instant_indexed_data_writer,
+      full_indexed_data_writer: Arc::downgrade(&full_indexed_data_writer),
+      logged_user: Arc::new(ServerUserImpl(Arc::downgrade(&authenticate_user))),
       runtime: runtime.clone(),
+      full_indexed_finish_sender,
     };
 
     let collab_interact_impl = CollabInteractImpl {
@@ -275,7 +293,7 @@ impl AppFlowyCore {
       document_manager: Arc::downgrade(&document_manager),
     };
     if let Err(err) = user_manager
-      .init_with_callback(user_status_callback, collab_interact_impl)
+      .init_with_callback(app_life_cycle, collab_interact_impl)
       .await
     {
       error!("Init user failed: {}", err)
@@ -309,6 +327,7 @@ impl AppFlowyCore {
       ai_manager,
       storage_manager,
       collab_builder,
+      full_indexed_data_writer,
     }
   }
 
@@ -334,6 +353,10 @@ impl ServerUserImpl {
 impl LoggedUser for ServerUserImpl {
   fn workspace_id(&self) -> FlowyResult<Uuid> {
     self.upgrade_user()?.workspace_id()
+  }
+
+  fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    self.upgrade_user()?.workspace_type()
   }
 
   fn user_id(&self) -> FlowyResult<i64> {

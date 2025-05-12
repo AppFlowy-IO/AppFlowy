@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -720,7 +721,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     final viewBloc = context.read<ViewBloc>();
 
     // the name of new document should be empty
-    final viewName = pluginBuilder.layoutType != ViewLayoutPB.Document
+    final viewName = ![ViewLayoutPB.Document, ViewLayoutPB.Chat]
+            .contains(pluginBuilder.layoutType)
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
         : '';
     viewBloc.add(
@@ -886,6 +888,8 @@ void moveViewCrossSpace(
       'Move view(${from.name}) to another space(${toSpace.name}), unpublish the view',
     );
     context.read<ViewBloc>().add(const ViewEvent.unpublish(sync: false));
+
+    switchToSpaceNotifier.value = toSpace;
   }
 
   context.read<ViewBloc>().add(ViewEvent.move(from, toId, null, null, null));

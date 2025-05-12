@@ -23,9 +23,9 @@ import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../layout_define.dart';
+import 'ai_change_format_bottom_sheet.dart';
 import 'ai_change_model_bottom_sheet.dart';
 import 'ai_message_action_bar.dart';
-import 'ai_change_format_bottom_sheet.dart';
 import 'message_util.dart';
 
 /// Wraps an AI response message with the avatar and actions. On desktop,
@@ -132,7 +132,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
           onChangeFormat: onChangeFormat,
           onChangeModel: onChangeModel,
         ),
-        const VSpace(32.0),
+        const VSpace(16.0),
       ],
     );
   }
@@ -407,7 +407,7 @@ class ChatAIMessagePopup extends StatelessWidget {
     return MobileQuickActionButton(
       onTap: () async {
         final bloc = context.read<AIPromptInputBloc>();
-        final (models, _) = bloc.aiModelStateNotifier.getAvailableModels();
+        final (models, _) = bloc.aiModelStateNotifier.getModelSelection();
         final result = await showChangeModelBottomSheet(context, models);
         if (result != null) {
           onChangeModel?.call(result);

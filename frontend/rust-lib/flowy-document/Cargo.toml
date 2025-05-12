@@ -29,11 +29,9 @@ serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["rt"] }
-anyhow.workspace = true
 indexmap = { version = "2.1.0", features = ["serde"] }
 uuid.workspace = true
 futures.workspace = true
-tokio-stream = { workspace = true, features = ["sync"] }
 dashmap.workspace = true
 scraper = "0.18.0"
 

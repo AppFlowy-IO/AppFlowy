@@ -84,7 +84,7 @@ impl ChunkedBytes {
 
   /// Get the total number of chunks in the file.
   pub fn total_chunks(&self) -> usize {
-    ((self.file_size + self.chunk_size as u64 - 1) / self.chunk_size as u64) as usize
+    self.file_size.div_ceil(self.chunk_size as u64) as usize
   }
 
   /// Get the current offset in the file.

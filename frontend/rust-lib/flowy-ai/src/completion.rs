@@ -40,7 +40,7 @@ impl AICompletion {
   pub async fn create_complete_task(
     &self,
     complete: CompleteTextPB,
-    preferred_model: Option<AIModel>,
+    preferred_model: AIModel,
   ) -> FlowyResult<CompleteTextTaskPB> {
     if matches!(complete.completion_type, CompletionTypePB::CustomPrompt)
       && complete.custom_prompt.is_none()
@@ -84,14 +84,14 @@ pub struct CompletionTask {
   stop_rx: tokio::sync::mpsc::Receiver<()>,
   context: CompleteTextPB,
   cloud_service: Weak<dyn ChatCloudService>,
-  preferred_model: Option<AIModel>,
+  preferred_model: AIModel,
 }
 
 impl CompletionTask {
   pub fn new(
     workspace_id: Uuid,
     context: CompleteTextPB,
-    preferred_model: Option<AIModel>,
+    preferred_model: AIModel,
     cloud_service: Weak<dyn ChatCloudService>,
     stop_rx: tokio::sync::mpsc::Receiver<()>,
   ) -> Self {
@@ -117,7 +117,7 @@ impl CompletionTask {
           CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
           CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
           CompletionTypePB::ExplainSelected => CompletionType::Explain,
-          CompletionTypePB::UserQuestion => CompletionType::UserQuestion,
+          CompletionTypePB::UserQuestion => CompletionType::AskAI,
           CompletionTypePB::CustomPrompt => CompletionType::CustomPrompt,
         };
 
@@ -189,15 +189,15 @@ impl CompletionTask {
 
 async fn handle_error(sink: &mut IsolateSink, err: FlowyError) {
   if err.is_ai_response_limit_exceeded() {
-    let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+    let _ = sink.send("ai_response_limit:".to_string()).await;
   } else if err.is_ai_image_response_limit_exceeded() {
-    let _ = sink.send("AI_IMAGE_RESPONSE_LIMIT".to_string()).await;
+    let _ = sink.send("ai_image_response_limit:".to_string()).await;
   } else if err.is_ai_max_required() {
-    let _ = sink.send(format!("AI_MAX_REQUIRED:{}", err.msg)).await;
+    let _ = sink.send(format!("ai_max_required:{}", err.msg)).await;
   } else if err.is_local_ai_not_ready() {
-    let _ = sink.send(format!("LOCAL_AI_NOT_READY:{}", err.msg)).await;
+    let _ = sink.send(format!("local_ai_not_ready:{}", err.msg)).await;
   } else if err.is_local_ai_disabled() {
-    let _ = sink.send(format!("LOCAL_AI_DISABLED:{}", err.msg)).await;
+    let _ = sink.send(format!("local_ai_disabled:{}", err.msg)).await;
   } else {
     let _ = sink
       .send(StreamMessage::OnError(err.msg.clone()).to_string())

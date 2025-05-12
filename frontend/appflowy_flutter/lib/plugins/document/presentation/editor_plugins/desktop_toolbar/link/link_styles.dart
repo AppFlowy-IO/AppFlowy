@@ -11,10 +11,11 @@ class LinkStyle {
     BuildContext context, {
     bool showErrorBorder = false,
     EdgeInsets? contentPadding,
+    double? radius,
   }) {
     final theme = AppFlowyTheme.of(context);
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      borderRadius: BorderRadius.all(Radius.circular(radius ?? 8.0)),
       borderSide: BorderSide(color: borderColor(context)),
     );
     final enableBorder = border.copyWith(

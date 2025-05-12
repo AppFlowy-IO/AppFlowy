@@ -9,6 +9,7 @@ import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -41,12 +42,12 @@ abstract class AIRepository {
 
   Future<List<AiPrompt>> getBuiltInPrompts();
 
+  Future<List<AiPrompt>?> getDatabasePrompts(String databaseViewId);
+
   void updateFavoritePrompts(List<String> promptIds);
 }
 
 class AppFlowyAIService implements AIRepository {
-  final List<AiPrompt> _builtInPrompts = [];
-
   @override
   Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
@@ -98,10 +99,6 @@ class AppFlowyAIService implements AIRepository {
 
   @override
   Future<List<AiPrompt>> getBuiltInPrompts() async {
-    if (_builtInPrompts.isNotEmpty) {
-      return _builtInPrompts;
-    }
-
     final prompts = <AiPrompt>[];
 
     try {
@@ -120,9 +117,24 @@ class AppFlowyAIService implements AIRepository {
       Log.error(e);
     }
 
-    _builtInPrompts.addAll(prompts);
-
     return prompts;
+  }
+
+  @override
+  Future<List<AiPrompt>?> getDatabasePrompts(
+    String databaseViewId,
+  ) async {
+    return DatabaseEventGetDatabaseCustomPrompts(
+      DatabaseViewIdPB(value: databaseViewId),
+    ).send().fold(
+      (databasePromptsPB) {
+        return databasePromptsPB.items.map(AiPrompt.fromPB).toList();
+      },
+      (err) {
+        Log.error(err);
+        return null;
+      },
+    );
   }
 
   @override

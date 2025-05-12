@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'link_embed_menu.dart';
 
@@ -136,7 +137,7 @@ class LinkEmbedBlockComponentState
       height: 450,
       key: widgetKey,
       decoration: BoxDecoration(
-        color: isIdle ? Theme.of(context).cardColor : fillSceme.tertiaryHover,
+        color: fillSceme.quaternary,
         borderRadius: BorderRadius.all(Radius.circular(16)),
         border: Border.all(color: borderScheme.greyTertiary),
       ),
@@ -156,7 +157,9 @@ class LinkEmbedBlockComponentState
       child: ValueListenableBuilder<bool>(
         valueListenable: showActionsNotifier,
         builder: (context, showActions, child) {
-          if (!showActions) return SizedBox.shrink();
+          if (!showActions || UniversalPlatform.isMobile) {
+            return SizedBox.shrink();
+          }
           return LinkEmbedMenu(
             editorState: context.read<EditorState>(),
             node: node,
@@ -189,11 +192,19 @@ class LinkEmbedBlockComponentState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: FlowyNetworkImage(
-              url: linkInfo.imageUrl ?? '',
-              width: MediaQuery.of(context).size.width,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: !UniversalPlatform.isMobile
+                ? null
+                : () =>
+                    afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
+            child: ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+              child: FlowyNetworkImage(
+                url: linkInfo.imageUrl ?? '',
+                width: MediaQuery.of(context).size.width,
+              ),
             ),
           ),
         ),
@@ -258,46 +269,53 @@ class LinkEmbedBlockComponentState
               child: CircularProgressIndicator.adaptive(),
             ),
           )
-        : Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
-                  FlowySvgs.embed_error_xl.path,
-                ),
-                VSpace(4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '$url ',
-                          style: TextStyle(
-                            color: textSceme.primary,
-                            fontSize: 14,
-                            height: 20 / 14,
-                            fontWeight: FontWeight.w700,
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: !UniversalPlatform.isMobile
+                ? null
+                : () =>
+                    afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    FlowySvgs.embed_error_xl.path,
+                  ),
+                  VSpace(4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '$url ',
+                            style: TextStyle(
+                              color: textSceme.secondary,
+                              fontSize: 14,
+                              height: 20 / 14,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: LocaleKeys
-                              .document_plugins_linkPreview_linkPreviewMenu_unableToDisplay
-                              .tr(),
-                          style: TextStyle(
-                            color: textSceme.primary,
-                            fontSize: 14,
-                            height: 20 / 14,
-                            fontWeight: FontWeight.w400,
+                          TextSpan(
+                            text: LocaleKeys
+                                .document_plugins_linkPreview_linkPreviewMenu_unableToDisplay
+                                .tr(),
+                            style: TextStyle(
+                              color: textSceme.secondary,
+                              fontSize: 14,
+                              height: 20 / 14,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
   }

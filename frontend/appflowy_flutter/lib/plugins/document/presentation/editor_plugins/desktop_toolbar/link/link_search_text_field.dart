@@ -70,6 +70,7 @@ class LinkSearchTextField {
     bool showError = false,
     required BuildContext context,
     EdgeInsets contentPadding = const EdgeInsets.fromLTRB(8, 6, 8, 6),
+    TextStyle? textStyle,
   }) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -77,11 +78,12 @@ class LinkSearchTextField {
       focusNode: focusNode,
       textAlign: TextAlign.left,
       controller: textEditingController,
-      style: TextStyle(
-        fontSize: 14,
-        height: 20 / 14,
-        fontWeight: FontWeight.w400,
-      ),
+      style: textStyle ??
+          TextStyle(
+            fontSize: 14,
+            height: 20 / 14,
+            fontWeight: FontWeight.w400,
+          ),
       onChanged: (text) {
         if (text.isEmpty) {
           searchedViews.clear();

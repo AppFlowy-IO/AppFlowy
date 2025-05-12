@@ -84,13 +84,25 @@ impl DartAppFlowyCore {
     ret: Option<mpsc::Sender<AFPluginEventResponse>>,
   ) {
     if let Ok(sender_guard) = self.sender.read() {
-      if let Err(e) = sender_guard.as_ref().unwrap().send(Task {
-        dispatcher: self.dispatcher().unwrap(),
-        request,
-        port,
-        ret,
-      }) {
-        error!("Failed to send task: {}", e);
+      let dispatcher = match self.dispatcher() {
+        Some(dispatcher) => dispatcher,
+        None => {
+          error!("Failed to get dispatcher: dispatcher is None");
+          return;
+        },
+      };
+
+      if let Some(sender) = sender_guard.as_ref() {
+        if let Err(e) = sender.send(Task {
+          dispatcher,
+          request,
+          port,
+          ret,
+        }) {
+          error!("Failed to send task: {}", e);
+        }
+      } else {
+        error!("Failed to send task: sender is None");
       }
     } else {
       warn!("Failed to acquire read lock for sender");

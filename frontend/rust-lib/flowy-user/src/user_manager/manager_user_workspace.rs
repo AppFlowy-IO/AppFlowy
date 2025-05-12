@@ -144,6 +144,24 @@ impl UserManager {
     workspace_id: &Uuid,
     workspace_type: WorkspaceType,
   ) -> FlowyResult<()> {
+    let current_workspace_id = self.workspace_id()?;
+    if current_workspace_id != *workspace_id {
+      match self
+        .app_life_cycle
+        .read()
+        .await
+        .on_workspace_closed(&current_workspace_id)
+        .await
+      {
+        Ok(_) => {
+          trace!("close workspace: {:?}", current_workspace_id);
+        },
+        Err(err) => {
+          error!("close workspace failed: {:?}", err);
+        },
+      }
+    }
+
     info!(
       "open workspace: {}, auth type:{:?}",
       workspace_id, workspace_type
@@ -196,10 +214,17 @@ impl UserManager {
 
     let user_uuid = self.user_uuid()?;
     if let Err(err) = self
-      .user_status_callback
+      .app_life_cycle
       .read()
       .await
-      .on_workspace_opened(uid, workspace_id, &user_workspace, &workspace_type)
+      .on_workspace_opened(
+        uid,
+        workspace_id,
+        &user_workspace,
+        &workspace_type,
+        &self.authenticate_user.user_config,
+        &self.authenticate_user.user_paths,
+      )
       .await
     {
       error!("Open workspace failed: {:?}", err);
@@ -291,10 +316,13 @@ impl UserManager {
     let conn = self.db_connection(uid)?;
     delete_user_workspace(conn, workspace_id.to_string().as_str())?;
 
-    self
-      .user_workspace_service
-      .did_delete_workspace(workspace_id)
+    let _ = self
+      .app_life_cycle
+      .read()
       .await
+      .on_workspace_deleted(uid, workspace_id)
+      .await;
+    Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -310,11 +338,12 @@ impl UserManager {
       .delete_workspace(workspace_id)
       .await?;
 
-    self
-      .user_workspace_service
-      .did_delete_workspace(workspace_id)
-      .await?;
-
+    let _ = self
+      .app_life_cycle
+      .read()
+      .await
+      .on_workspace_deleted(uid, workspace_id)
+      .await;
     Ok(())
   }
 
@@ -570,7 +599,7 @@ impl UserManager {
       workspace_usage.storage_bytes < workspace_usage.storage_bytes_limit
     };
     self
-      .user_status_callback
+      .app_life_cycle
       .read()
       .await
       .on_storage_permission_updated(can_write);
@@ -736,7 +765,7 @@ impl UserManager {
 
     trace!("Current plans: {:?}", plans);
     self
-      .user_status_callback
+      .app_life_cycle
       .read()
       .await
       .on_subscription_plans_updated(plans);

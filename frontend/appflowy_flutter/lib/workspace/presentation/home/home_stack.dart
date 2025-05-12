@@ -65,14 +65,7 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
         builder: (context, state) => Column(
           children: [
             if (UniversalPlatform.isWindows)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WindowTitleBar(
-                    leftChildren: [_buildToggleMenuButton(context)],
-                  ),
-                ],
-              ),
+              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
             Padding(
               padding: EdgeInsets.only(left: widget.layout.menuSpacing),
               child: TabsManager(
@@ -153,9 +146,14 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       richMessage: textSpan,
       child: Listener(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden)),
+        onPointerDown: (_) {
+          final isMenuExpanded = context.read<HomeSettingBloc>().isMenuExpanded;
+          final status =
+              isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+          context
+              .read<HomeSettingBloc>()
+              .add(HomeSettingEvent.changeMenuStatus(status));
+        },
         child: FlowyHover(
           child: Container(
             width: 24,

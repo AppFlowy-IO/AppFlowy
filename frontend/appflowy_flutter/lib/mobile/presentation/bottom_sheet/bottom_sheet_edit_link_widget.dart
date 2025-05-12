@@ -53,6 +53,7 @@ class _MobileBottomSheetEditLinkWidgetState
   ViewPB? currentView;
   bool showErrorText = false;
   bool showRemoveLink = false;
+  String title = LocaleKeys.editor_editLink.tr();
 
   AppFlowyThemeData get theme => AppFlowyTheme.of(context);
 
@@ -73,6 +74,7 @@ class _MobileBottomSheetEditLinkWidgetState
     )..searchRecentViews();
     if (linkInfo.link.isEmpty) {
       isShowingSearchResult = true;
+      title = LocaleKeys.toolbar_addLink.tr();
     } else {
       showRemoveLink = true;
       textFocusNode.requestFocus();
@@ -104,7 +106,7 @@ class _MobileBottomSheetEditLinkWidgetState
         child: Column(
           children: [
             BottomSheetHeader(
-              title: LocaleKeys.editor_editLink.tr(),
+              title: title,
               onClose: () => context.pop(),
               confirmButton: FlowyTextButton(
                 LocaleKeys.button_done.tr(),
@@ -163,6 +165,7 @@ class _MobileBottomSheetEditLinkWidgetState
         decoration: LinkStyle.buildLinkTextFieldInputDecoration(
           LocaleKeys.document_toolbar_linkNameHint.tr(),
           contentPadding: EdgeInsets.all(14),
+          radius: 12,
           context,
         ),
       ),
@@ -186,6 +189,11 @@ class _MobileBottomSheetEditLinkWidgetState
             autofocus: true,
             context: context,
             contentPadding: EdgeInsets.all(14),
+            textStyle: TextStyle(
+              fontSize: 16,
+              height: 20 / 16,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           VSpace(6),
           searchTextField.buildResultContainer(
@@ -267,6 +275,7 @@ class _MobileBottomSheetEditLinkWidgetState
       height: 48,
       decoration: buildBorderDecoration(),
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: showSearchResult,
         child: Padding(
           padding: EdgeInsets.all(12),
@@ -291,6 +300,7 @@ class _MobileBottomSheetEditLinkWidgetState
   Widget buildRemoveLink() {
     if (!showRemoveLink) return SizedBox.shrink();
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         widget.onRemoveLink(linkInfo);
         context.pop();

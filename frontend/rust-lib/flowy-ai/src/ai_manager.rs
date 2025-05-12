@@ -1,36 +1,38 @@
 use crate::chat::Chat;
 use crate::entities::{
-  AIModelPB, AvailableModelsPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
-  FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
+  AIModelPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB,
+  ModelSelectionPB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
-use flowy_ai_pub::persistence::read_chat_metadata;
+use flowy_ai_pub::persistence::{
+  select_chat_metadata, select_chat_rag_ids, select_chat_summary, update_chat, ChatTableChangeset,
+};
 use std::collections::HashMap;
 
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{
-  AIModel, ChatCloudService, ChatSettings, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
-};
+use flowy_ai_pub::cloud::{AIModel, ChatCloudService, ChatSettings, UpdateChatParams};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 
+use crate::model_select::{
+  LocalAiSource, LocalModelStorageImpl, ModelSelectionControl, ServerAiSource,
+  ServerModelStorageImpl, SourceKey, GLOBAL_ACTIVE_MODEL_KEY,
+};
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::util::ai_available_models_key;
-use collab_integrate::persistence::collab_metadata_sql::{
+use flowy_ai_pub::persistence::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
-use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::user_service::AIUserService;
+use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::timestamp;
 use serde_json::json;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tokio::sync::RwLock;
-use tracing::{error, info, instrument, trace};
+use tokio::sync::Mutex;
+use tracing::{error, info, instrument, trace, warn};
 use uuid::Uuid;
 
 /// AIExternalService is an interface for external services that AI plugin can interact with.
@@ -52,14 +54,6 @@ pub trait AIExternalService: Send + Sync + 'static {
   async fn notify_did_send_message(&self, chat_id: &Uuid, message: &str) -> Result<(), FlowyError>;
 }
 
-#[derive(Debug, Default)]
-struct ServerModelsCache {
-  models: Vec<AvailableModel>,
-  timestamp: Option<i64>,
-}
-
-pub const GLOBAL_ACTIVE_MODEL_KEY: &str = "global_active_model";
-
 pub struct AIManager {
   pub cloud_service_wm: Arc<ChatServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
@@ -67,7 +61,7 @@ pub struct AIManager {
   chats: Arc<DashMap<Uuid, Arc<Chat>>>,
   pub local_ai: Arc<LocalAIController>,
   pub store_preferences: Arc<KVStorePreferences>,
-  server_models: Arc<RwLock<ServerModelsCache>>,
+  model_control: Mutex<ModelSelectionControl>,
 }
 impl Drop for AIManager {
   fn drop(&mut self) {
@@ -85,11 +79,6 @@ impl AIManager {
     local_ai: Arc<LocalAIController>,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
-    let cloned_local_ai = local_ai.clone();
-    tokio::spawn(async move {
-      cloned_local_ai.observe_plugin_resource().await;
-    });
-
     let external_service = Arc::new(query_service);
     let cloud_service_wm = Arc::new(ChatServiceMiddleware::new(
       user_service.clone(),
@@ -97,6 +86,10 @@ impl AIManager {
       local_ai.clone(),
       storage_service,
     ));
+    let mut model_control = ModelSelectionControl::new();
+    model_control.set_local_storage(LocalModelStorageImpl(store_preferences.clone()));
+    model_control.set_server_storage(ServerModelStorageImpl(cloud_service_wm.clone()));
+    model_control.add_source(Box::new(ServerAiSource::new(cloud_service_wm.clone())));
 
     Self {
       cloud_service_wm,
@@ -105,7 +98,7 @@ impl AIManager {
       local_ai,
       external_service,
       store_preferences,
-      server_models: Arc::new(Default::default()),
+      model_control: Mutex::new(model_control),
     }
   }
 
@@ -123,21 +116,17 @@ impl AIManager {
     let is_enabled = self
       .local_ai
       .is_enabled_on_workspace(&workspace_id.to_string());
-    let is_running = self.local_ai.is_running();
+    let is_ready = self.local_ai.is_ready().await;
     info!(
-      "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_running: {}",
-      workspace_id, is_local, is_enabled, is_running
+      "[AI Manager] Reloading workspace: {}, is_local: {}, is_enabled: {}, is_ready: {}",
+      workspace_id, is_local, is_enabled, is_ready
     );
 
     // Shutdown AI if it's running but shouldn't be (not enabled and not in local mode)
-    if is_running && !is_enabled && !is_local {
+    if is_ready && !is_enabled && !is_local {
       info!("[AI Manager] Local AI is running but not enabled, shutting it down");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
-        // Wait for 5 seconds to allow other services to initialize
-        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
-        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-
         if let Err(err) = local_ai.toggle_plugin(false).await {
           error!("[AI Manager] failed to shutdown local AI: {:?}", err);
         }
@@ -146,14 +135,10 @@ impl AIManager {
     }
 
     // Start AI if it's enabled but not running
-    if is_enabled && !is_running {
+    if is_enabled && !is_ready {
       info!("[AI Manager] Local AI is enabled but not running, starting it now");
       let local_ai = self.local_ai.clone();
       tokio::spawn(async move {
-        // Wait for 5 seconds to allow other services to initialize
-        // TODO: pick a right time to start plugin service. Maybe [UserStatusCallback::did_launch]
-        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-
         if let Err(err) = local_ai.toggle_plugin(true).await {
           error!("[AI Manager] failed to start local AI: {:?}", err);
         }
@@ -162,24 +147,46 @@ impl AIManager {
     }
 
     // Log status for other cases
-    if is_running {
+    if is_ready {
       info!("[AI Manager] Local AI is already running");
+    }
+  }
+
+  async fn prepare_local_ai(&self, workspace_id: &Uuid, is_enabled: bool) {
+    self
+      .local_ai
+      .reload_ollama_client(&workspace_id.to_string())
+      .await;
+    if is_enabled {
+      self
+        .model_control
+        .lock()
+        .await
+        .add_source(Box::new(LocalAiSource::new(self.local_ai.clone())));
+    } else {
+      self.model_control.lock().await.remove_local_source();
     }
   }
 
   #[instrument(skip_all, err)]
   pub async fn on_launch_if_authenticated(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
+    let is_enabled = self
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string());
+
+    info!("{} local ai is enabled: {}", workspace_id, is_enabled);
+    self.prepare_local_ai(workspace_id, is_enabled).await;
     self.reload_with_workspace_id(workspace_id).await;
     Ok(())
   }
 
   pub async fn initialize_after_sign_in(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    self.reload_with_workspace_id(workspace_id).await;
+    self.on_launch_if_authenticated(workspace_id).await?;
     Ok(())
   }
 
   pub async fn initialize_after_sign_up(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
-    self.reload_with_workspace_id(workspace_id).await;
+    self.on_launch_if_authenticated(workspace_id).await?;
     Ok(())
   }
 
@@ -188,7 +195,7 @@ impl AIManager {
     &self,
     workspace_id: &Uuid,
   ) -> Result<(), FlowyError> {
-    self.reload_with_workspace_id(workspace_id).await;
+    self.on_launch_if_authenticated(workspace_id).await?;
     Ok(())
   }
 
@@ -201,15 +208,26 @@ impl AIManager {
         self.cloud_service_wm.clone(),
       ))
     });
-    if self.local_ai.is_running() {
-      trace!("[AI Plugin] notify open chat: {}", chat_id);
-      self.local_ai.open_chat(chat_id);
+
+    if self.local_ai.is_enabled() {
+      let workspace_id = self.user_service.workspace_id()?;
+      let uid = self.user_service.user_id()?;
+      let mut conn = self.user_service.sqlite_connection(uid)?;
+      let rag_ids = self.get_rag_ids(chat_id, &mut conn).await?;
+      let summary = select_chat_summary(&mut conn, chat_id).unwrap_or_default();
+
+      let model = self.get_active_model(&chat_id.to_string()).await;
+      self
+        .local_ai
+        .open_chat(&workspace_id, chat_id, &model.name, rag_ids, summary)
+        .await?;
     }
 
     let user_service = self.user_service.clone();
     let cloud_service_wm = self.cloud_service_wm.clone();
     let store_preferences = self.store_preferences.clone();
     let external_service = self.external_service.clone();
+    let local_ai = self.local_ai.clone();
     let chat_id = *chat_id;
     tokio::spawn(async move {
       match refresh_chat_setting(
@@ -221,6 +239,7 @@ impl AIManager {
       .await
       {
         Ok(settings) => {
+          local_ai.set_rag_ids(&chat_id, &settings.rag_ids).await;
           let rag_ids = settings
             .rag_ids
             .into_iter()
@@ -246,11 +265,7 @@ impl AIManager {
   pub async fn delete_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
-
-      if self.local_ai.is_running() {
-        info!("[AI Plugin] notify close chat: {}", chat_id);
-        self.local_ai.close_chat(chat_id);
-      }
+      self.local_ai.close_chat(chat_id);
     }
     Ok(())
   }
@@ -258,7 +273,7 @@ impl AIManager {
   pub async fn get_chat_info(&self, chat_id: &str) -> FlowyResult<ChatInfoPB> {
     let uid = self.user_service.user_id()?;
     let mut conn = self.user_service.sqlite_connection(uid)?;
-    let metadata = read_chat_metadata(&mut conn, chat_id)?;
+    let metadata = select_chat_metadata(&mut conn, chat_id)?;
     let files = metadata
       .files
       .into_iter()
@@ -330,14 +345,10 @@ impl AIManager {
       .get_question_id_from_answer_id(chat_id, answer_message_id)
       .await?;
 
-    let model = model.map_or_else(
-      || {
-        self
-          .store_preferences
-          .get_object::<AIModel>(&ai_available_models_key(&chat_id.to_string()))
-      },
-      |model| Some(model.into()),
-    );
+    let model = match model {
+      None => self.get_active_model(&chat_id.to_string()).await,
+      Some(model) => model.into(),
+    };
     chat
       .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
@@ -345,258 +356,216 @@ impl AIManager {
   }
 
   pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
-    let previous_model = self.local_ai.get_local_ai_setting().chat_model_name;
-    self.local_ai.update_local_ai_setting(setting).await?;
-    let current_model = self.local_ai.get_local_ai_setting().chat_model_name;
-
-    if previous_model != current_model {
-      info!(
-        "[AI Plugin] update global active model, previous: {}, current: {}",
-        previous_model, current_model
-      );
-      let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
-      let model = AIModel::local(current_model, "".to_string());
-      self.update_selected_model(source_key, model).await?;
-    }
-
-    Ok(())
-  }
-
-  async fn get_workspace_select_model(&self) -> FlowyResult<String> {
     let workspace_id = self.user_service.workspace_id()?;
-    let model = self
-      .cloud_service_wm
-      .get_workspace_default_model(&workspace_id)
+    let old_settings = self.local_ai.get_local_ai_setting();
+    // Only restart if the server URL has changed and local AI is not running
+    let need_restart = old_settings.ollama_server_url != setting.ollama_server_url;
+
+    // Update settings first
+    self
+      .local_ai
+      .update_local_ai_setting(setting.clone())
       .await?;
 
-    if model.is_empty() {
-      return Ok(DEFAULT_AI_MODEL_NAME.to_string());
-    }
-    Ok(model)
-  }
-
-  async fn get_server_available_models(&self) -> FlowyResult<Vec<AvailableModel>> {
-    let workspace_id = self.user_service.workspace_id()?;
-    let now = timestamp();
-
-    // First, try reading from the cache with expiration check
-    let should_fetch = {
-      let cached_models = self.server_models.read().await;
-      cached_models.models.is_empty() || cached_models.timestamp.map_or(true, |ts| now - ts >= 300)
-    };
-
-    if !should_fetch {
-      // Cache is still valid, return cached data
-      let cached_models = self.server_models.read().await;
-      return Ok(cached_models.models.clone());
-    }
-
-    // Cache miss or expired: fetch from the cloud.
-    match self
-      .cloud_service_wm
-      .get_available_models(&workspace_id)
-      .await
-    {
-      Ok(list) => {
-        let models = list.models;
-        if let Err(err) = self.update_models_cache(&models, now).await {
-          error!("Failed to update models cache: {}", err);
-        }
-
-        Ok(models)
-      },
-      Err(err) => {
-        error!("Failed to fetch available models: {}", err);
-
-        // Return cached data if available, even if expired
-        let cached_models = self.server_models.read().await;
-        if !cached_models.models.is_empty() {
-          info!("Returning expired cached models due to fetch failure");
-          return Ok(cached_models.models.clone());
-        }
-
-        // If no cached data, return empty list
-        Ok(Vec::new())
-      },
-    }
-  }
-
-  async fn update_models_cache(
-    &self,
-    models: &[AvailableModel],
-    timestamp: i64,
-  ) -> FlowyResult<()> {
-    match self.server_models.try_write() {
-      Ok(mut cache) => {
-        cache.models = models.to_vec();
-        cache.timestamp = Some(timestamp);
-        Ok(())
-      },
-      Err(_) => {
-        // Handle lock acquisition failure
-        Err(FlowyError::internal().with_context("Failed to acquire write lock for models cache"))
-      },
-    }
-  }
-
-  pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
+    // Handle model change if needed
     info!(
-      "[Model Selection] update {} selected model: {:?}",
-      source, model
+      "[AI Plugin] update global active model, previous: {}, current: {}",
+      old_settings.chat_model_name, setting.chat_model_name
     );
-    let source_key = ai_available_models_key(&source);
+    let model = AIModel::local(setting.chat_model_name, "".to_string());
     self
-      .store_preferences
-      .set_object::<AIModel>(&source_key, &model)?;
+      .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
+      .await?;
 
-    chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
-      .payload(AIModelPB::from(model))
-      .send();
+    if need_restart {
+      self
+        .local_ai
+        .reload_ollama_client(&workspace_id.to_string())
+        .await;
+      self.local_ai.restart_plugin().await;
+    }
+
     Ok(())
   }
 
   #[instrument(skip_all, level = "debug")]
+  pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let source_key = SourceKey::new(source.clone());
+    self
+      .model_control
+      .lock()
+      .await
+      .set_active_model(&workspace_id, &source_key, model.clone())
+      .await?;
+
+    info!(
+      "[Model Selection] selected model: {:?} for key:{}",
+      model,
+      source_key.storage_id()
+    );
+
+    let mut notify_source = vec![source.clone()];
+    if source == GLOBAL_ACTIVE_MODEL_KEY {
+      let ids = self
+        .model_control
+        .lock()
+        .await
+        .get_all_unset_sources()
+        .await;
+      info!("[Model Selection] notify all unset sources: {:?}", ids);
+      notify_source.extend(ids);
+    }
+
+    trace!("[Model Selection] notify sources: {:?}", notify_source);
+    for source in notify_source {
+      chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
+        .payload(AIModelPB::from(model.clone()))
+        .send();
+    }
+
+    Ok(())
+  }
+
+  #[instrument(skip_all, level = "debug", err)]
   pub async fn toggle_local_ai(&self) -> FlowyResult<()> {
     let enabled = self.local_ai.toggle_local_ai().await?;
-    let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
+    let workspace_id = self.user_service.workspace_id()?;
     if enabled {
-      if let Some(name) = self.local_ai.get_plugin_chat_model() {
-        info!("Set global active model to local ai: {}", name);
+      self.prepare_local_ai(&workspace_id, enabled).await;
+
+      if let Some(name) = self.local_ai.get_local_chat_model() {
         let model = AIModel::local(name, "".to_string());
-        self.update_selected_model(source_key, model).await?;
+        info!(
+          "[Model Selection] Set global active model to local ai: {}",
+          model.name
+        );
+        if let Err(err) = self
+          .update_selected_model(GLOBAL_ACTIVE_MODEL_KEY.to_string(), model)
+          .await
+        {
+          error!(
+            "[Model Selection] Failed to set global active model: {}",
+            err
+          );
+        }
       }
     } else {
-      info!("Set global active model to default");
-      let global_active_model = self.get_workspace_select_model().await?;
-      let models = self.get_server_available_models().await?;
-      if let Some(model) = models.into_iter().find(|m| m.name == global_active_model) {
-        self
-          .update_selected_model(source_key, AIModel::from(model))
-          .await?;
+      let mut model_control = self.model_control.lock().await;
+      model_control.remove_local_source();
+
+      let model = model_control.get_global_active_model(&workspace_id).await;
+      let mut notify_source = model_control.get_all_unset_sources().await;
+      notify_source.push(GLOBAL_ACTIVE_MODEL_KEY.to_string());
+      drop(model_control);
+
+      trace!(
+        "[Model Selection] notify sources: {:?}, model:{}, when disable local ai",
+        notify_source,
+        model.name
+      );
+      for source in notify_source {
+        chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
+          .payload(AIModelPB::from(model.clone()))
+          .send();
       }
     }
 
     Ok(())
   }
 
-  pub async fn get_active_model(&self, source: &str) -> Option<AIModel> {
-    let mut model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(source));
-
-    if model.is_none() {
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        model = Some(AIModel::local(local_model, "".to_string()));
-      }
+  pub async fn get_active_model(&self, source: &str) -> AIModel {
+    match self.user_service.workspace_id() {
+      Ok(workspace_id) => {
+        let source_key = SourceKey::new(source.to_string());
+        self
+          .model_control
+          .lock()
+          .await
+          .get_active_model(&workspace_id, &source_key)
+          .await
+      },
+      Err(_) => AIModel::default(),
     }
-
-    model
   }
 
-  pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
+  pub async fn get_local_available_models(
+    &self,
+    source: Option<String>,
+  ) -> FlowyResult<ModelSelectionPB> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let mut models = self
+      .model_control
+      .lock()
+      .await
+      .get_local_models(&workspace_id)
+      .await;
+
+    let selected_model = match source {
+      None => {
+        let setting = self.local_ai.get_local_ai_setting();
+        let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
+        if models.is_empty() {
+          models.push(selected_model.clone());
+        }
+        selected_model
+      },
+      Some(source) => {
+        let source_key = SourceKey::new(source);
+        self
+          .model_control
+          .lock()
+          .await
+          .get_active_model(&workspace_id, &source_key)
+          .await
+      },
+    };
+
+    Ok(ModelSelectionPB {
+      models: models.into_iter().map(AIModelPB::from).collect(),
+      selected_model: AIModelPB::from(selected_model),
+    })
+  }
+
+  pub async fn get_available_models(
+    &self,
+    source: String,
+    setting_only: bool,
+  ) -> FlowyResult<ModelSelectionPB> {
     let is_local_mode = self.user_service.is_local_model().await?;
     if is_local_mode {
-      let setting = self.local_ai.get_local_ai_setting();
-      let selected_model = AIModel::local(setting.chat_model_name, "".to_string());
-      let models = vec![selected_model.clone()];
-
-      Ok(AvailableModelsPB {
-        models: models.into_iter().map(|m| m.into()).collect(),
-        selected_model: AIModelPB::from(selected_model),
-      })
-    } else {
-      // Build the models list from server models and mark them as non-local.
-      let mut models: Vec<AIModel> = self
-        .get_server_available_models()
-        .await?
-        .into_iter()
-        .map(AIModel::from)
-        .collect();
-
-      trace!("[Model Selection]: Available models: {:?}", models);
-      let mut current_active_local_ai_model = None;
-
-      // If user enable local ai, then add local ai model to the list.
-      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-        let model = AIModel::local(local_model, "".to_string());
-        current_active_local_ai_model = Some(model.clone());
-        trace!("[Model Selection] current local ai model: {}", model.name);
-        models.push(model);
-      }
-
-      if models.is_empty() {
-        return Ok(AvailableModelsPB {
-          models: models.into_iter().map(|m| m.into()).collect(),
-          selected_model: AIModelPB::default(),
-        });
-      }
-
-      // Global active model is the model selected by the user in the workspace settings.
-      let mut server_active_model = self
-        .get_workspace_select_model()
-        .await
-        .map(|m| AIModel::server(m, "".to_string()))
-        .unwrap_or_else(|_| AIModel::default());
-
-      trace!(
-        "[Model Selection] server active model: {:?}",
-        server_active_model
-      );
-
-      let mut user_selected_model = server_active_model.clone();
-      // when current select model is deprecated, reset the model to default
-      if !models.iter().any(|m| m.name == server_active_model.name) {
-        server_active_model = AIModel::default();
-      }
-
-      let source_key = ai_available_models_key(&source);
-      // We use source to identify user selected model. source can be document id or chat id.
-      match self.store_preferences.get_object::<AIModel>(&source_key) {
-        None => {
-          // when there is selected model and current local ai is active, then use local ai
-          if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
-            user_selected_model = local_ai_model.clone();
-          }
-        },
-        Some(mut model) => {
-          trace!("[Model Selection] user previous select model: {:?}", model);
-          // If source is provided, try to get the user-selected model from the store. User selected
-          // model will be used as the active model if it exists.
-          if model.is_local {
-            if let Some(local_ai_model) = &current_active_local_ai_model {
-              if local_ai_model.name != model.name {
-                model = local_ai_model.clone();
-              }
-            }
-          }
-
-          user_selected_model = model;
-        },
-      }
-
-      // If user selected model is not available in the list, use the global active model.
-      let active_model = models
-        .iter()
-        .find(|m| m.name == user_selected_model.name)
-        .cloned()
-        .or(Some(server_active_model.clone()));
-
-      // Update the stored preference if a different model is used.
-      if let Some(ref active_model) = active_model {
-        if active_model.name != user_selected_model.name {
-          self
-            .store_preferences
-            .set_object::<AIModel>(&source_key, &active_model.clone())?;
-        }
-      }
-
-      trace!("[Model Selection] final active model: {:?}", active_model);
-      let selected_model = AIModelPB::from(active_model.unwrap_or_default());
-      Ok(AvailableModelsPB {
-        models: models.into_iter().map(|m| m.into()).collect(),
-        selected_model,
-      })
+      return self.get_local_available_models(Some(source)).await;
     }
+
+    let workspace_id = self.user_service.workspace_id()?;
+    let local_model_name = if setting_only {
+      Some(self.local_ai.get_local_ai_setting().chat_model_name)
+    } else {
+      None
+    };
+
+    let source_key = SourceKey::new(source);
+    let model_control = self.model_control.lock().await;
+    let active_model = model_control
+      .get_active_model(&workspace_id, &source_key)
+      .await;
+
+    trace!(
+      "[Model Selection] {} active model: {:?}, global model:{:?}",
+      source_key.storage_id(),
+      active_model,
+      local_model_name
+    );
+
+    let all_models = model_control
+      .get_models_with_specific_local_model(&workspace_id, local_model_name)
+      .await;
+    drop(model_control);
+
+    Ok(ModelSelectionPB {
+      models: all_models.into_iter().map(AIModelPB::from).collect(),
+      selected_model: AIModelPB::from(active_model),
+    })
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &Uuid) -> Result<Arc<Chat>, FlowyError> {
@@ -630,7 +599,6 @@ impl AIManager {
   ///    - `before_message_id` is the first message ID in the current chat messages.
   ///
   /// 4. `after_message_id` and `before_message_id` cannot be specified at the same time.
-
   pub async fn load_prev_chat_messages(
     &self,
     chat_id: &Uuid,
@@ -690,12 +658,25 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn get_rag_ids(&self, chat_id: &Uuid) -> FlowyResult<Vec<String>> {
-    if let Some(settings) = self
-      .store_preferences
-      .get_object::<ChatSettings>(&setting_store_key(chat_id))
-    {
-      return Ok(settings.rag_ids);
+  pub async fn get_rag_ids(
+    &self,
+    chat_id: &Uuid,
+    conn: &mut DBConnection,
+  ) -> FlowyResult<Vec<String>> {
+    match select_chat_rag_ids(&mut *conn, &chat_id.to_string()) {
+      Ok(ids) => {
+        return Ok(ids);
+      },
+      Err(_) => {
+        // we no long use store_preferences to store chat settings
+        warn!("[Chat] failed to get chat rag ids from sqlite, try to get from store_preferences");
+        if let Some(settings) = self
+          .store_preferences
+          .get_object::<ChatSettings>(&setting_store_key(chat_id))
+        {
+          return Ok(settings.rag_ids);
+        }
+      },
     }
 
     let settings = refresh_chat_setting(
@@ -721,29 +702,44 @@ impl AIManager {
       .update_chat_settings(&workspace_id, chat_id, update_setting)
       .await?;
 
-    let chat_setting_store_key = setting_store_key(chat_id);
-    if let Some(settings) = self
-      .store_preferences
-      .get_object::<ChatSettings>(&chat_setting_store_key)
-    {
-      if let Err(err) = self.store_preferences.set_object(
-        &chat_setting_store_key,
-        &ChatSettings {
-          rag_ids: rag_ids.clone(),
-          ..settings
-        },
-      ) {
-        error!("failed to set chat settings: {}", err);
-      }
-    }
+    let uid = self.user_service.user_id()?;
+    let conn = self.user_service.sqlite_connection(uid)?;
+    update_chat(
+      conn,
+      ChatTableChangeset::rag_ids(chat_id.to_string(), rag_ids.clone()),
+    )?;
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
+    self.local_ai.set_rag_ids(chat_id, &rag_ids).await;
+
     let rag_ids = rag_ids
       .into_iter()
       .flat_map(|r| Uuid::from_str(&r).ok())
       .collect();
     sync_chat_documents(user_service, external_service, rag_ids).await?;
+    Ok(())
+  }
+
+  pub async fn get_custom_prompt_database_view_id(&self) -> FlowyResult<Option<String>> {
+    let view_id = self
+      .store_preferences
+      .get_object::<String>(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY);
+
+    Ok(view_id)
+  }
+
+  pub async fn set_custom_prompt_database_view_id(&self, view_id: String) -> FlowyResult<()> {
+    if let Err(err) = self
+      .store_preferences
+      .set_object(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY, &view_id)
+    {
+      error!(
+        "failed to set custom prompt database view id settings: {}",
+        err
+      );
+    }
+
     Ok(())
   }
 }
@@ -770,7 +766,6 @@ async fn sync_chat_documents(
       {
         if let Ok(uid) = user_service.user_id() {
           if let Ok(conn) = user_service.sqlite_connection(uid) {
-            info!("sync rag documents success: {}", metadatas.len());
             batch_insert_collab_metadata(conn, &metadatas).unwrap();
           }
         }
@@ -809,3 +804,5 @@ async fn refresh_chat_setting(
 fn setting_store_key(chat_id: &Uuid) -> String {
   format!("chat_settings_{}", chat_id)
 }
+
+const CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY: &str = "custom_prompt_database_view_id";

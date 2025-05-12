@@ -36,7 +36,7 @@ void main() {
       expect(find.byType(MobileSearchRecentList), findsNothing);
       expect(find.byType(MobileSearchResultList), findsOneWidget);
       expect(
-        find.text(LocaleKeys.search_noResultForSearching.tr(args: [query])),
+        find.text(LocaleKeys.search_noResultForSearching.tr()),
         findsOneWidget,
       );
 

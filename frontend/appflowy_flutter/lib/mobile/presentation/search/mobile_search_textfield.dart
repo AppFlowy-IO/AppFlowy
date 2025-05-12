@@ -11,11 +11,13 @@ class MobileSearchTextfield extends StatefulWidget {
     this.onChanged,
     required this.hintText,
     required this.query,
+    required this.focusNode,
   });
 
   final String hintText;
   final String query;
   final ValueChanged<String>? onChanged;
+  final FocusNode focusNode;
 
   @override
   State<MobileSearchTextfield> createState() => _MobileSearchTextfieldState();
@@ -23,18 +25,15 @@ class MobileSearchTextfield extends StatefulWidget {
 
 class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   late final TextEditingController controller;
-  late final FocusNode focusNode;
   final ValueNotifier<bool> hasFocusValueNotifier = ValueNotifier(true);
+
+  FocusNode get focusNode => widget.focusNode;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.query);
-    focusNode = FocusNode();
-    focusNode.addListener(() {
-      if (!mounted) return;
-      hasFocusValueNotifier.value = focusNode.hasFocus;
-    });
+    focusNode.addListener(onFocusChanged);
     controller.addListener(() {
       if (!mounted) return;
       widget.onChanged?.call(controller.text);
@@ -46,7 +45,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   @override
   void dispose() {
     controller.dispose();
-    focusNode.dispose();
+    focusNode.removeListener(onFocusChanged);
     hasFocusValueNotifier.dispose();
     bottomNavigationBarItemType.removeListener(onBackOrLeave);
     super.dispose();
@@ -56,7 +55,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return SizedBox(
-      height: 40,
+      height: 42,
       child: ValueListenableBuilder(
         valueListenable: controller,
         builder: (context, _, __) {
@@ -85,12 +84,17 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                   if (!hasFocus || !hasText) return SizedBox.shrink();
                   return GestureDetector(
                     onTap: () => focusNode.unfocus(),
-                    child: Padding(
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      height: 42,
                       padding: EdgeInsets.only(left: 8),
-                      child: Text(
-                        LocaleKeys.button_cancel.tr(),
-                        style: theme.textStyle.body
-                            .standard(color: theme.textColorScheme.action),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          LocaleKeys.button_cancel.tr(),
+                          style: theme.textStyle.body
+                              .standard(color: theme.textColorScheme.action),
+                        ),
                       ),
                     ),
                   );
@@ -146,10 +150,9 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(4, 10, 8, 10),
                 child: FlowySvg(
-                  FlowySvgs.clear_s,
-                  blendMode: null,
-                  color: theme.iconColorScheme.tertiary,
-                  size: Size.square(20),
+                  FlowySvgs.search_clear_m,
+                  color: theme.iconColorScheme.secondary,
+                  size: const Size.square(20),
                 ),
               ),
             )
@@ -157,11 +160,17 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     );
   }
 
+  void onFocusChanged() {
+    if (!mounted) return;
+    hasFocusValueNotifier.value = focusNode.hasFocus;
+  }
+
   void onBackOrLeave() {
     final label = bottomNavigationBarItemType.value;
     if (label == BottomNavigationBarItemType.search.label) {
       focusNode.requestFocus();
     } else {
+      focusNode.unfocus();
       controller.clear();
     }
   }

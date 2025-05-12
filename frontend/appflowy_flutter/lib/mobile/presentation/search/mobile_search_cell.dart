@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
@@ -23,12 +22,18 @@ class MobileSearchResultCell extends StatelessWidget {
     final theme = AppFlowyTheme.of(context),
         textColor = theme.textColorScheme.primary;
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
+    final displayName = item.displayName.isEmpty
+        ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+        : item.displayName;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildIcon(),
+          SizedBox.square(
+            dimension: 24,
+            child: Center(child: buildIcon(theme)),
+          ),
           HSpace(12),
           Flexible(
             child: Column(
@@ -38,7 +43,7 @@ class MobileSearchResultCell extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   text: buildHighLightSpan(
-                    content: item.displayName,
+                    content: displayName,
                     normal: theme.textStyle.heading4.standard(color: textColor),
                     highlight: theme.textStyle.heading4
                         .standard(color: textColor)
@@ -48,7 +53,7 @@ class MobileSearchResultCell extends StatelessWidget {
                   ),
                 ),
                 buildPath(commandPaletteState, theme),
-                buildSummary(theme),
+                ...buildSummary(theme),
               ],
             ),
           ),
@@ -57,74 +62,55 @@ class MobileSearchResultCell extends StatelessWidget {
     );
   }
 
-  Widget buildIcon() {
+  Widget buildIcon(AppFlowyThemeData theme) {
     final icon = item.icon;
     if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 16.0, lineHeight: 20 / 16) ?? SizedBox.shrink();
-    } else {
       return icon.getIcon(size: 20) ?? SizedBox.shrink();
+    } else {
+      return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
+          SizedBox.shrink();
     }
   }
 
   Widget buildPath(CommandPaletteState state, AppFlowyThemeData theme) {
-    bool isInTrash = false;
-    for (final view in state.trash) {
-      if (view.id == item.id) {
-        isInTrash = true;
-        break;
-      }
-    }
-    if (isInTrash) {
-      return Row(
-        children: [
-          const FlowySvg(FlowySvgs.trash_s, size: Size.square(20)),
-          const HSpace(4.0),
-          Text(
-            '${LocaleKeys.trash_text.tr()} / ${item.displayName}',
+    return BlocProvider(
+      create: (context) => ViewAncestorBloc(item.id),
+      child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
+        builder: (context, state) {
+          final ancestors = state.ancestor.ancestors;
+          List<String> displayPath = ancestors.map((e) => e.name).toList();
+          if (ancestors.length > 2) {
+            displayPath = [ancestors.first.name, '...', ancestors.last.name];
+          }
+          return Text(
+            displayPath.join(' / '),
             style: theme.textStyle.body
                 .standard(color: theme.textColorScheme.secondary),
-          ),
-        ],
-      );
-    } else {
-      return BlocProvider(
-        create: (context) => ViewAncestorBloc(item.id),
-        child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
-          builder: (context, state) {
-            final ancestors = state.ancestor.ancestors;
-            List<String> displayPath = ancestors.map((e) => e.name).toList();
-            if (ancestors.length > 2) {
-              displayPath = [ancestors.first.name, '...', ancestors.last.name];
-            }
-            return Text(
-              displayPath.join(' / '),
-              style: theme.textStyle.body
-                  .standard(color: theme.textColorScheme.secondary),
-            );
-          },
-        ),
-      );
-    }
-  }
-
-  Widget buildSummary(AppFlowyThemeData theme) {
-    if (item.content.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return RichText(
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-      text: buildHighLightSpan(
-        content: item.content,
-        normal: theme.textStyle.heading4
-            .standard(color: theme.textColorScheme.secondary),
-        highlight: theme.textStyle.heading4
-            .standard(color: theme.textColorScheme.primary)
-            .copyWith(
-              backgroundColor: theme.fillColorScheme.themeSelect,
-            ),
+          );
+        },
       ),
     );
+  }
+
+  List<Widget> buildSummary(AppFlowyThemeData theme) {
+    if (item.content.isEmpty) return [];
+    return [
+      VSpace(theme.spacing.m),
+      RichText(
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        text: buildHighLightSpan(
+          content: item.content,
+          normal: theme.textStyle.heading4
+              .standard(color: theme.textColorScheme.secondary),
+          highlight: theme.textStyle.heading4
+              .standard(color: theme.textColorScheme.primary)
+              .copyWith(
+                backgroundColor: theme.fillColorScheme.themeSelect,
+              ),
+        ),
+      ),
+    ];
   }
 
   TextSpan buildHighLightSpan({

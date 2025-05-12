@@ -16,7 +16,7 @@ serde_json.workspace = true
 serde_repr.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
 tokio = { workspace = true, features = ["sync"] }
-tokio-stream = "0.1.14"
+tokio-stream.workspace = true
 flowy-folder-pub.workspace = true
 collab-folder = { workspace = true }
 tracing.workspace = true

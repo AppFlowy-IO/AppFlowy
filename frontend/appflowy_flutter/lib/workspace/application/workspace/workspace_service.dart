@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -86,17 +85,6 @@ class WorkspaceService {
   }
 
   Future<FlowyResult<WorkspaceUsagePB?, FlowyError>> getWorkspaceUsage() async {
-    final request = WorkspaceMemberIdPB()..uid = userId;
-    final result = await UserEventGetMemberInfo(request).send();
-    final isOwner = result.fold(
-      (member) => member.role.isOwner,
-      (_) => false,
-    );
-
-    if (!isOwner) {
-      return FlowyResult.success(null);
-    }
-
     final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
     return UserEventGetWorkspaceUsage(payload).send();
   }

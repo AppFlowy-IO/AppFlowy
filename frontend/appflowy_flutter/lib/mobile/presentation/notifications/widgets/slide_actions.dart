@@ -76,38 +76,40 @@ enum NotificationPaneActionType {
             topLeft: Radius.circular(10),
             bottomLeft: Radius.circular(10),
           ),
-          onPressed: (context) {
-            final reminderBloc = context.read<ReminderBloc>();
-            final notificationReminderBloc =
-                context.read<NotificationReminderBloc>();
-
-            showMobileBottomSheet(
-              context,
-              showDragHandle: true,
-              showDivider: false,
-              useRootNavigator: true,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              builder: (_) {
-                return MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(value: reminderBloc),
-                    BlocProvider.value(value: notificationReminderBloc),
-                  ],
-                  child: _NotificationMoreActions(
-                    onClickMultipleChoice: () {
-                      Future.delayed(const Duration(milliseconds: 250), () {
-                        bottomNavigationBarType.value =
-                            BottomNavigationBarActionType
-                                .notificationMultiSelect;
-                      });
-                    },
-                  ),
-                );
-              },
-            );
-          },
+          onPressed: (context) => context.onMoreAction(),
         );
     }
+  }
+}
+
+extension NotificationPaneActionExtension on BuildContext {
+  void onMoreAction() {
+    final reminderBloc = read<ReminderBloc>();
+    final notificationReminderBloc = read<NotificationReminderBloc>();
+
+    showMobileBottomSheet(
+      this,
+      showDragHandle: true,
+      showDivider: false,
+      useRootNavigator: true,
+      backgroundColor: Theme.of(this).colorScheme.surface,
+      builder: (_) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: reminderBloc),
+            BlocProvider.value(value: notificationReminderBloc),
+          ],
+          child: _NotificationMoreActions(
+            onClickMultipleChoice: () {
+              Future.delayed(const Duration(milliseconds: 250), () {
+                bottomNavigationBarType.value =
+                    BottomNavigationBarActionType.notificationMultiSelect;
+              });
+            },
+          ),
+        );
+      },
+    );
   }
 }
 

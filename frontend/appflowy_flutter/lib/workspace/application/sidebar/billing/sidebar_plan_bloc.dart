@@ -194,8 +194,18 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     ).getWorkspaceUsage().then((result) {
       result.fold(
         (usage) {
-          if (!isClosed && usage != null) {
-            add(SidebarPlanEvent.updateWorkspaceUsage(usage));
+          if (!isClosed) {
+            // if the user cannot fetch the workspace usage,
+            // clear the tier indicator
+            if (usage == null) {
+              add(
+                const SidebarPlanEvent.updateTierIndicator(
+                  SidebarToastTierIndicator.loading(),
+                ),
+              );
+            } else {
+              add(SidebarPlanEvent.updateWorkspaceUsage(usage));
+            }
           }
         },
         (error) => Log.error("Failed to get workspace usage: $error"),

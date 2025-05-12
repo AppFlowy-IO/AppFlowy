@@ -478,7 +478,7 @@ pub async fn update_network_state_handler(
   let reachable = data.into_inner().ty.is_reachable();
   manager.cloud_service()?.set_network_reachable(reachable);
   manager
-    .user_status_callback
+    .app_life_cycle
     .read()
     .await
     .on_network_status_changed(reachable);

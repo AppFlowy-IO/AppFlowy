@@ -1,31 +1,34 @@
 use crate::af_cloud::define::LoggedUser;
 use chrono::{TimeZone, Utc};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
-use client_api::entity::CompletionStream;
 use flowy_ai::local_ai::controller::LocalAIController;
-use flowy_ai::local_ai::stream_util::QuestionStream;
 use flowy_ai_pub::cloud::chat_dto::{ChatAuthor, ChatAuthorType};
 use flowy_ai_pub::cloud::{
-  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageType,
-  ChatSettings, CompleteTextParams, MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage,
-  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
+  MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, ResponseFormat, StreamAnswer,
+  StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
 };
 use flowy_ai_pub::persistence::{
-  deserialize_chat_metadata, deserialize_rag_ids, read_chat,
-  select_answer_where_match_reply_message_id, select_chat_messages, select_message_content,
-  serialize_chat_metadata, serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages,
-  ChatMessageTable, ChatTable, ChatTableChangeset,
+  deserialize_chat_metadata, deserialize_rag_ids, select_answer_where_match_reply_message_id,
+  select_chat, select_chat_messages, select_message_content, serialize_chat_metadata,
+  serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages, ChatMessageTable, ChatTable,
+  ChatTableChangeset,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures_util::{stream, StreamExt, TryStreamExt};
+use lazy_static::lazy_static;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 use tracing::trace;
 use uuid::Uuid;
+
+lazy_static! {
+  static ref ID_GEN: Mutex<MessageIDGenerator> = Mutex::new(MessageIDGenerator::new());
+}
 
 pub struct LocalChatServiceImpl {
   pub logged_user: Arc<dyn LoggedUser>,
@@ -76,9 +79,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<ChatMessage, FlowyError> {
+    let message_id = ID_GEN.lock().await.next_id();
     let message = match message_type {
-      ChatMessageType::System => ChatMessage::new_system(timestamp(), message.to_string()),
-      ChatMessageType::User => ChatMessage::new_human(timestamp(), message.to_string(), None),
+      ChatMessageType::System => ChatMessage::new_system(message_id, message.to_string()),
+      ChatMessageType::User => ChatMessage::new_human(message_id, message.to_string(), None),
     };
 
     self.upsert_message(chat_id, message.clone()).await?;
@@ -93,7 +97,8 @@ impl ChatCloudService for LocalChatServiceImpl {
     question_id: i64,
     metadata: Option<serde_json::Value>,
   ) -> Result<ChatMessage, FlowyError> {
-    let mut message = ChatMessage::new_ai(timestamp(), message.to_string(), Some(question_id));
+    let message_id = ID_GEN.lock().await.next_id();
+    let mut message = ChatMessage::new_ai(message_id, message.to_string(), Some(question_id));
     if let Some(metadata) = metadata {
       message.metadata = metadata;
     }
@@ -105,29 +110,16 @@ impl ChatCloudService for LocalChatServiceImpl {
     &self,
     _workspace_id: &Uuid,
     chat_id: &Uuid,
-    message_id: i64,
+    question_id: i64,
     format: ResponseFormat,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_ai.is_running() {
-      let content = self.get_message_content(message_id)?;
-      match self
+    if self.local_ai.is_ready().await {
+      let content = self.get_message_content(question_id)?;
+      self
         .local_ai
-        .stream_question(
-          &chat_id.to_string(),
-          &content,
-          Some(json!(format)),
-          json!({}),
-        )
+        .stream_question(chat_id, &content, format, &ai_model.name)
         .await
-      {
-        Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
-        Err(err) => Ok(
-          stream::once(async { Err(FlowyError::local_ai_unavailable().with_context(err)) }).boxed(),
-        ),
-      }
-    } else if self.local_ai.is_enabled() {
-      Err(FlowyError::local_ai_not_ready())
     } else {
       Err(FlowyError::local_ai_disabled())
     }
@@ -193,12 +185,12 @@ impl ChatCloudService for LocalChatServiceImpl {
     _workspace_id: &Uuid,
     chat_id: &Uuid,
     message_id: i64,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_ai.is_running() {
+    if self.local_ai.is_ready().await {
       let questions = self
         .local_ai
-        .get_related_question(&chat_id.to_string())
+        .get_related_question(&ai_model.name, chat_id, message_id)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       trace!("LocalAI related questions: {:?}", questions);
@@ -224,30 +216,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     &self,
     _workspace_id: &Uuid,
     params: CompleteTextParams,
-    _ai_model: Option<AIModel>,
+    ai_model: AIModel,
   ) -> Result<StreamComplete, FlowyError> {
-    if self.local_ai.is_running() {
-      match self
-        .local_ai
-        .complete_text_v2(
-          &params.text,
-          params.completion_type.unwrap() as u8,
-          Some(json!(params.format)),
-          Some(json!(params.metadata)),
-        )
-        .await
-      {
-        Ok(stream) => Ok(
-          CompletionStream::new(
-            stream.map_err(|err| AppResponseError::new(AppErrorCode::Internal, err.to_string())),
-          )
-          .map_err(FlowyError::from)
-          .boxed(),
-        ),
-        Err(_) => Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed()),
-      }
-    } else if self.local_ai.is_enabled() {
-      Err(FlowyError::local_ai_not_ready())
+    if self.local_ai.is_ready().await {
+      self.local_ai.complete_text(&ai_model.name, params).await
     } else {
       Err(FlowyError::local_ai_disabled())
     }
@@ -260,10 +232,10 @@ impl ChatCloudService for LocalChatServiceImpl {
     chat_id: &Uuid,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
-    if self.local_ai.is_running() {
+    if self.local_ai.is_ready().await {
       self
         .local_ai
-        .embed_file(&chat_id.to_string(), file_path.to_path_buf(), metadata)
+        .embed_file(chat_id, file_path.to_path_buf(), metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())
@@ -280,11 +252,11 @@ impl ChatCloudService for LocalChatServiceImpl {
     let chat_id = chat_id.to_string();
     let uid = self.logged_user.user_id()?;
     let db = self.logged_user.get_sqlite_db(uid)?;
-    let row = read_chat(db, &chat_id)?;
+    let row = select_chat(db, &chat_id)?;
     let rag_ids = deserialize_rag_ids(&row.rag_ids);
     let metadata = deserialize_chat_metadata::<Value>(&row.metadata);
     let setting = ChatSettings {
-      name: row.name,
+      name: "".to_string(),
       rag_ids,
       metadata,
     };
@@ -299,16 +271,16 @@ impl ChatCloudService for LocalChatServiceImpl {
     s: UpdateChatParams,
   ) -> Result<(), FlowyError> {
     let uid = self.logged_user.user_id()?;
-    let mut db = self.logged_user.get_sqlite_db(uid)?;
+    let db = self.logged_user.get_sqlite_db(uid)?;
     let changeset = ChatTableChangeset {
       chat_id: id.to_string(),
-      name: s.name,
       metadata: s.metadata.map(|s| serialize_chat_metadata(&s)),
       rag_ids: s.rag_ids.map(|s| serialize_rag_ids(&s)),
       is_sync: None,
+      summary: None,
     };
 
-    update_chat(&mut db, changeset)?;
+    update_chat(db, changeset)?;
     Ok(())
   }
 
@@ -318,6 +290,15 @@ impl ChatCloudService for LocalChatServiceImpl {
 
   async fn get_workspace_default_model(&self, _workspace_id: &Uuid) -> Result<String, FlowyError> {
     Ok(DEFAULT_AI_MODEL_NAME.to_string())
+  }
+
+  async fn set_workspace_default_model(
+    &self,
+    _workspace_id: &Uuid,
+    _model: &str,
+  ) -> Result<(), FlowyError> {
+    // do nothing
+    Ok(())
   }
 }
 
@@ -351,5 +332,33 @@ fn chat_message_from_row(row: ChatMessageTable) -> ChatMessage {
     created_at,
     metadata,
     reply_message_id: row.reply_message_id,
+  }
+}
+
+pub struct MessageIDGenerator {
+  last_timestamp: i64,
+}
+
+impl MessageIDGenerator {
+  pub fn new() -> MessageIDGenerator {
+    MessageIDGenerator {
+      last_timestamp: timestamp(),
+    }
+  }
+
+  pub fn next_id(&mut self) -> i64 {
+    let mut current_timestamp = timestamp();
+    if current_timestamp < self.last_timestamp {
+      current_timestamp = self.last_timestamp;
+    }
+
+    if current_timestamp == self.last_timestamp {
+      self.last_timestamp += 1;
+      current_timestamp = self.last_timestamp;
+    } else {
+      self.last_timestamp = current_timestamp;
+    }
+
+    current_timestamp
   }
 }
