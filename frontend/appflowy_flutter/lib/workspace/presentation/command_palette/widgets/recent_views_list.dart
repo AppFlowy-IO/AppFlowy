@@ -47,74 +47,78 @@ class RecentViewsList extends StatelessWidget {
                   children: [
                     Flexible(
                       flex: 2,
-                      child: ScrollControllerBuilder(
-                        builder: (context, controller) {
-                          return FlowyScrollbar(
-                            controller: controller,
-                            child: SingleChildScrollView(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: ScrollControllerBuilder(
+                          builder: (context, controller) {
+                            return FlowyScrollbar(
                               controller: controller,
-                              physics: const ClampingScrollPhysics(),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (showAskingAI) SearchAskAiEntrance(),
-                                  Container(
-                                    height: 20,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    child: Text(
-                                      LocaleKeys.sideBar_recent.tr(),
-                                      style: theme.textStyle.body.enhanced(
-                                        color: theme.textColorScheme.secondary,
+                              child: SingleChildScrollView(
+                                controller: controller,
+                                physics: const ClampingScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (showAskingAI) SearchAskAiEntrance(),
+                                    Container(
+                                      height: 20,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      child: Text(
+                                        LocaleKeys.sideBar_recent.tr(),
+                                        style: theme.textStyle.body.enhanced(
+                                          color:
+                                              theme.textColorScheme.secondary,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  ListView.separated(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: recentViews.length,
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 12),
-                                    itemBuilder: (_, index) {
-                                      final view = recentViews[index];
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: recentViews.length,
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 12),
+                                      itemBuilder: (_, index) {
+                                        final view = recentViews[index];
 
-                                      final icon = view.icon.value.isNotEmpty
-                                          ? RawEmojiIconWidget(
-                                              emoji:
-                                                  view.icon.toEmojiIconData(),
-                                              emojiSize: 16.0,
-                                              lineHeight: 20 / 16,
-                                            )
-                                          : FlowySvg(
-                                              view.iconData,
-                                              size: const Size.square(20),
-                                              color: theme
-                                                  .iconColorScheme.secondary,
-                                            );
+                                        final icon = view.icon.value.isNotEmpty
+                                            ? RawEmojiIconWidget(
+                                                emoji:
+                                                    view.icon.toEmojiIconData(),
+                                                emojiSize: 16.0,
+                                                lineHeight: 20 / 16,
+                                              )
+                                            : FlowySvg(
+                                                view.iconData,
+                                                size: const Size.square(20),
+                                                color: theme
+                                                    .iconColorScheme.secondary,
+                                              );
 
-                                      return SearchRecentViewCell(
-                                        icon: SizedBox.square(
-                                          dimension: 24,
-                                          child: Center(child: icon),
-                                        ),
-                                        view: view,
-                                        onSelected: onSelected,
-                                      );
-                                    },
-                                    separatorBuilder: (_, __) => AFDivider(),
-                                  ),
-                                  VSpace(8),
-                                ],
+                                        return SearchRecentViewCell(
+                                          icon: SizedBox.square(
+                                            dimension: 24,
+                                            child: Center(child: icon),
+                                          ),
+                                          view: view,
+                                          onSelected: onSelected,
+                                        );
+                                      },
+                                      separatorBuilder: (_, __) => AFDivider(),
+                                    ),
+                                    VSpace(8),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                     if (hoveredView != null) ...[
