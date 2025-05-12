@@ -128,14 +128,7 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                   return state.maybeMap(
                     ready: (readyState) {
                       if (readyState.visiblePrompts.isEmpty) {
-                        return Center(
-                          child: Text(
-                            LocaleKeys.ai_customPrompt_noResults.tr(),
-                            style: theme.textStyle.body.standard(
-                              color: theme.textColorScheme.primary,
-                            ),
-                          ),
-                        );
+                        return buildEmptyPrompts();
                       }
                       return buildPromptList();
                     },
@@ -182,6 +175,31 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                   ),
                 ),
               ),
+    );
+  }
+
+  Widget buildEmptyPrompts() {
+    final theme = AppFlowyTheme.of(context);
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FlowySvg(
+            FlowySvgs.m_home_search_icon_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(24),
+          ),
+          VSpace(theme.spacing.m),
+          Text(
+            LocaleKeys.ai_customPrompt_noResults.tr(),
+            style: theme.textStyle.body
+                .standard(color: theme.textColorScheme.secondary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 
