@@ -17,8 +17,6 @@ class AIModelSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsAIBloc, SettingsAIState>(
-      buildWhen: (previous, current) =>
-          previous.availableModels != current.availableModels,
       builder: (context, state) {
         final models = state.availableModels?.models;
         if (models == null) {
@@ -44,7 +42,7 @@ class AIModelSelection extends StatelessWidget {
               ),
               Flexible(
                 child: SettingsDropdown<AIModelPB>(
-                  key: const Key('_AIModelSelection'),
+                  key: ValueKey(selectedModel.name),
                   onChanged: (model) => context
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),

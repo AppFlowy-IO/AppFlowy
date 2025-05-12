@@ -15,7 +15,6 @@ class Log {
   bool enableFlutterLog = true;
 
   // used to disable log in tests
-  @visibleForTesting
   bool disableLog = false;
 
   Log() {

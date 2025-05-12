@@ -66,9 +66,9 @@ if [ "$exclude_packages" = false ]; then
         fi
       fi
       if [ "$verbose" = true ]; then
-        dart run build_runner build
+        dart run build_runner build --delete-conflicting-outputs
       else
-        dart run build_runner build >/dev/null 2>&1
+        dart run build_runner build --delete-conflicting-outputs >/dev/null 2>&1
       fi
       echo "🧊 Done generating freezed files ($d)."
     fi
@@ -108,9 +108,9 @@ fi
 
 # Start the build_runner in the background
 if [ "$verbose" = true ]; then
-  dart run build_runner build -d &
+  dart run build_runner build --delete-conflicting-outputs &
 else
-  dart run build_runner build -d >/dev/null 2>&1 &
+  dart run build_runner build --delete-conflicting-outputs >/dev/null 2>&1 &
 fi
 
 # Get the PID of the background process

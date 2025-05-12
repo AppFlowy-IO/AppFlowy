@@ -11,8 +11,8 @@ use flowy_folder_pub::entities::PublishPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
-  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
-  WorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, UserWorkspaceIdPB, UserWorkspacePB,
+  WorkspaceMemberInvitationPB, WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
@@ -112,7 +112,28 @@ impl EventIntegrationTest {
       .parse::<WorkspacePB>()
   }
 
-  pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
+  pub async fn get_workspace_id(&self) -> Uuid {
+    let a = EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadCurrentWorkspace)
+      .async_send()
+      .await
+      .parse::<WorkspacePB>();
+    Uuid::from_str(&a.id).unwrap()
+  }
+
+  pub async fn get_user_workspace(&self, workspace_id: &str) -> UserWorkspacePB {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(UserEvent::GetUserWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserWorkspacePB>()
+  }
+
+  pub fn get_folder_search_handler(&self) -> Arc<dyn SearchHandler> {
     self
       .appflowy_core
       .search_manager
@@ -384,19 +405,4 @@ impl ViewTest {
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
     Self::new(sdk, ViewLayout::Calendar, data).await
   }
-}
-
-#[allow(dead_code)]
-async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
-  let request = CreateWorkspacePayloadPB {
-    name: name.to_owned(),
-    desc: desc.to_owned(),
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateFolderWorkspace)
-    .payload(request)
-    .async_send()
-    .await
-    .parse::<WorkspacePB>()
 }

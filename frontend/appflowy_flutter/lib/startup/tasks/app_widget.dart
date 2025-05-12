@@ -7,11 +7,14 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -19,6 +22,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -41,6 +45,8 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     WidgetsFlutterBinding.ensureInitialized();
 
     await NotificationService.initialize();
@@ -99,6 +105,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('zh', 'TW'),
           Locale('fa'),
           Locale('hin'),
+          Locale('mr', 'IN'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en', 'US'),
@@ -109,9 +116,6 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
-
-  @override
-  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
@@ -135,7 +139,9 @@ class ApplicationWidget extends StatefulWidget {
 class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
-  final _commandPaletteNotifier = ValueNotifier<bool>(false);
+  final _commandPaletteNotifier = ValueNotifier(CommandPaletteNotifierValue());
+
+  final themeBuilder = AppFlowyDefaultTheme();
 
   @override
   void initState() {
@@ -225,22 +231,6 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     }
                   },
                   child: MaterialApp.router(
-                    builder: (context, child) => MediaQuery(
-                      // use the 1.0 as the textScaleFactor to avoid the text size
-                      //  affected by the system setting.
-                      data: MediaQuery.of(context).copyWith(
-                        textScaler: TextScaler.linear(state.textScaleFactor),
-                      ),
-                      child: overlayManagerBuilder(
-                        context,
-                        !UniversalPlatform.isMobile && FeatureFlag.search.isOn
-                            ? CommandPalette(
-                                notifier: _commandPaletteNotifier,
-                                child: child,
-                              )
-                            : child,
-                      ),
-                    ),
                     debugShowCheckedModeBanner: false,
                     theme: state.lightTheme,
                     darkTheme: state.darkTheme,
@@ -249,6 +239,36 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     supportedLocales: context.supportedLocales,
                     locale: state.locale,
                     routerConfig: routerConfig,
+                    builder: (context, child) {
+                      final brightness = Theme.of(context).brightness;
+                      final fontFamily = state.font
+                          .orDefault(defaultFontFamily)
+                          .fontFamilyName;
+
+                      return AppFlowyTheme(
+                        data: brightness == Brightness.light
+                            ? themeBuilder.light(fontFamily: fontFamily)
+                            : themeBuilder.dark(fontFamily: fontFamily),
+                        child: MediaQuery(
+                          // use the 1.0 as the textScaleFactor to avoid the text size
+                          //  affected by the system setting.
+                          data: MediaQuery.of(context).copyWith(
+                            textScaler:
+                                TextScaler.linear(state.textScaleFactor),
+                          ),
+                          child: overlayManagerBuilder(
+                            context,
+                            !UniversalPlatform.isMobile &&
+                                    FeatureFlag.search.isOn
+                                ? CommandPalette(
+                                    notifier: _commandPaletteNotifier,
+                                    child: child,
+                                  )
+                                : child,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

@@ -101,8 +101,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
-    return type == AuthenticatorPB.Local;
+    final type = userProfilePB?.workspaceType ?? WorkspaceTypePB.LocalW;
+    return type == WorkspaceTypePB.LocalW;
   }
 
   @override
@@ -442,7 +442,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       final context = AppGlobals.rootNavKey.currentContext;
       if (context != null && context.mounted) {
         showToastNotification(
-          context,
           message: 'document integrity check failed',
           type: ToastificationType.error,
         );

@@ -40,6 +40,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
     onRemoveNode: () {
       aiWriterRegistered = false;
       widget.editorState.service.keyboardService?.enableShortcuts();
+      widget.editorState.service.keyboardService?.enable();
     },
     onAppendToDocument: onAppendToDocument,
   );
@@ -57,6 +58,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
   @override
   void dispose() {
     aiWriterCubit.close();
+    throttler.dispose();
     super.dispose();
   }
 

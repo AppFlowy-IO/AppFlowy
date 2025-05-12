@@ -1,12 +1,11 @@
-use std::any::Any;
 use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
-use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewLayout};
-use flowy_error::FlowyError;
+use collab_folder::{View, ViewIcon, ViewLayout};
+use lib_infra::async_trait::async_trait;
 use uuid::Uuid;
 
-pub struct IndexableData {
+pub struct ViewObserveData {
   pub id: String,
   pub data: String,
   pub icon: Option<ViewIcon>,
@@ -14,9 +13,9 @@ pub struct IndexableData {
   pub workspace_id: Uuid,
 }
 
-impl IndexableData {
+impl ViewObserveData {
   pub fn from_view(view: Arc<View>, workspace_id: Uuid) -> Self {
-    IndexableData {
+    ViewObserveData {
       id: view.id.clone(),
       data: view.name.clone(),
       icon: view.icon.clone(),
@@ -26,23 +25,23 @@ impl IndexableData {
   }
 }
 
-pub trait IndexManager: Send + Sync {
-  fn set_index_content_receiver(&self, rx: IndexContentReceiver, workspace_id: Uuid);
-  fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
-  fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
-  fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
-  fn remove_indices_for_workspace(&self, workspace_id: Uuid) -> Result<(), FlowyError>;
-  fn is_indexed(&self) -> bool;
-
-  fn as_any(&self) -> &dyn Any;
+#[async_trait]
+pub trait FolderViewObserver: Send + Sync {
+  async fn set_observer_rx(&self, rx: IndexContentReceiver);
 }
 
-pub trait FolderIndexManager: IndexManager {
-  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid);
-  fn index_view_changes(
-    &self,
-    views: Vec<Arc<View>>,
-    changes: Vec<FolderViewChange>,
-    workspace_id: Uuid,
-  );
+#[derive(Default, Debug, Clone)]
+pub struct TanvitySearchResponseItem {
+  pub id: String,
+  pub display_name: String,
+  pub icon: Option<ResultIcon>,
+  pub workspace_id: String,
+  pub content: String,
+  pub score: f32,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+pub struct ResultIcon {
+  pub ty: u8,
+  pub value: String,
 }

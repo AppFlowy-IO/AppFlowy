@@ -108,7 +108,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
             top: 0,
             bottom: 0,
             right: 0,
-            child: _DragToExpandLine(),
+            child: DragToExpandLine(),
           );
 
           return _GridHeaderCellContainer(
@@ -158,8 +158,11 @@ class _GridHeaderCellContainer extends StatelessWidget {
   }
 }
 
-class _DragToExpandLine extends StatelessWidget {
-  const _DragToExpandLine();
+@visibleForTesting
+class DragToExpandLine extends StatelessWidget {
+  const DragToExpandLine({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

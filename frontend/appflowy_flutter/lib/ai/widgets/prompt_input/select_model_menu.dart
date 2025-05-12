@@ -31,9 +31,6 @@ class _SelectModelMenuState extends State<SelectModelMenu> {
       ),
       child: BlocBuilder<SelectModelBloc, SelectModelState>(
         builder: (context, state) {
-          if (state.selectedModel == null) {
-            return const SizedBox.shrink();
-          }
           return AppFlowyPopover(
             offset: Offset(-12.0, 0.0),
             constraints: BoxConstraints(maxWidth: 250, maxHeight: 600),
@@ -55,8 +52,12 @@ class _SelectModelMenuState extends State<SelectModelMenu> {
               );
             },
             child: _CurrentModelButton(
-              model: state.selectedModel!,
-              onTap: () => popoverController.show(),
+              model: state.selectedModel,
+              onTap: () {
+                if (state.selectedModel != null) {
+                  popoverController.show();
+                }
+              },
             ),
           );
         },
@@ -89,38 +90,40 @@ class SelectModelPopoverContent extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (localModels.isNotEmpty) ...[
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_localModel.tr(),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (localModels.isNotEmpty) ...[
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_localModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...localModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
             ),
-            const VSpace(4.0),
+            if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
+              const VSpace(8.0),
+              _ModelSectionHeader(
+                title: LocaleKeys.chat_switchModel_cloudModel.tr(),
+              ),
+              const VSpace(4.0),
+            ],
+            ...cloudModels.map(
+              (model) => _ModelItem(
+                model: model,
+                isSelected: model == selectedModel,
+                onTap: () => onSelectModel?.call(model),
+              ),
+            ),
           ],
-          ...localModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-          if (cloudModels.isNotEmpty && localModels.isNotEmpty) ...[
-            const VSpace(8.0),
-            _ModelSectionHeader(
-              title: LocaleKeys.chat_switchModel_cloudModel.tr(),
-            ),
-            const VSpace(4.0),
-          ],
-          ...cloudModels.map(
-            (model) => _ModelItem(
-              model: model,
-              isSelected: model == selectedModel,
-              onTap: () => onSelectModel?.call(model),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -202,7 +205,7 @@ class _CurrentModelButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final AIModelPB model;
+  final AIModelPB? model;
   final VoidCallback onTap;
 
   @override
@@ -221,6 +224,7 @@ class _CurrentModelButton extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsetsDirectional.all(4.0),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
                     // TODO: remove this after change icon to 20px
@@ -231,11 +235,11 @@ class _CurrentModelButton extends StatelessWidget {
                       size: Size.square(16),
                     ),
                   ),
-                  if (!model.isDefault)
+                  if (model != null && !model!.isDefault)
                     Padding(
                       padding: EdgeInsetsDirectional.only(end: 2.0),
                       child: FlowyText(
-                        model.i18n,
+                        model!.i18n,
                         fontSize: 12,
                         figmaLineHeight: 16,
                         color: Theme.of(context).hintColor,

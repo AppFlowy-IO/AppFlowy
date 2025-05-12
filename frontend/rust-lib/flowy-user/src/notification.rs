@@ -1,11 +1,13 @@
+use crate::entities::AuthStateChangedPB;
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
-
-use crate::entities::AuthStateChangedPB;
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+use tracing::trace;
 
 const USER_OBSERVABLE_SOURCE: &str = "User";
 
-#[derive(ProtoBuf_Enum, Debug, Default)]
+#[derive(ProtoBuf_Enum, Debug, Default, IntoPrimitive, TryFromPrimitive, Clone)]
+#[repr(i32)]
 pub(crate) enum UserNotification {
   #[default]
   Unknown = 0,
@@ -14,18 +16,17 @@ pub(crate) enum UserNotification {
   DidUpdateUserWorkspaces = 3,
   DidUpdateCloudConfig = 4,
   DidUpdateUserWorkspace = 5,
-  DidUpdateAISetting = 6,
+  DidUpdateWorkspaceSetting = 6,
+  DidLoadUserAwareness = 7,
+  // TODO: implement reminder observer
+  DidUpdateReminder = 8,
+  DidOpenWorkspace = 9,
 }
 
-impl std::convert::From<UserNotification> for i32 {
-  fn from(notification: UserNotification) -> Self {
-    notification as i32
-  }
-}
-
-#[tracing::instrument(level = "trace")]
-pub(crate) fn send_notification(id: &str, ty: UserNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, USER_OBSERVABLE_SOURCE)
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn send_notification<T: ToString>(id: T, ty: UserNotification) -> NotificationBuilder {
+  trace!("UserNotification: id = {}, ty = {:?}", id.to_string(), ty);
+  NotificationBuilder::new(&id.to_string(), ty, USER_OBSERVABLE_SOURCE)
 }
 
 #[tracing::instrument(level = "trace")]

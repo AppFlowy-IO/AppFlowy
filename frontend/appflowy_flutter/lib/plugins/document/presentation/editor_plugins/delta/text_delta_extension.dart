@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -27,8 +28,14 @@ extension TextDeltaExtension on Delta {
         if (op.text == MentionBlockKeys.mentionChar) {
           final mention = attributes?[MentionBlockKeys.mention];
           final mentionPageId = mention?[MentionBlockKeys.pageId];
+          final mentionType = mention?[MentionBlockKeys.type];
           if (mentionPageId != null) {
             text += await getMentionPageName(mentionPageId);
+            continue;
+          } else if (mentionType == MentionType.externalLink.name) {
+            final url = mention?[MentionBlockKeys.url] ?? '';
+            final info = await LinkInfoCache.get(url);
+            text += info?.title ?? url;
             continue;
           }
         }

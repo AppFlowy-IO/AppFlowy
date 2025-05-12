@@ -53,7 +53,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
   @override
   void initState() {
     super.initState();
-    _userProfile = context.read<UserWorkspaceBloc?>()?.userProfile ??
+    _userProfile = context.read<UserWorkspaceBloc?>()?.state.userProfile ??
         context.read<DocumentBloc>().state.userProfilePB;
   }
 

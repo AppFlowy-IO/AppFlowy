@@ -2,8 +2,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,29 +29,23 @@ class SignInAnonymousButtonV3 extends StatelessWidget {
             },
             child: BlocBuilder<AnonUserBloc, AnonUserState>(
               builder: (context, state) {
-                final text = LocaleKeys.signUp_getStartedText.tr();
+                final text = LocaleKeys.signIn_continueWithLocalModel.tr();
                 final onTap = state.anonUsers.isEmpty
                     ? () {
                         context
                             .read<SignInBloc>()
-                            .add(const SignInEvent.signedInAsGuest());
+                            .add(const SignInEvent.signInAsGuest());
                       }
                     : () {
                         final bloc = context.read<AnonUserBloc>();
                         final user = bloc.state.anonUsers.first;
                         bloc.add(AnonUserEvent.openAnonUser(user));
                       };
-                return ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 32),
-                    maximumSize: const Size(double.infinity, 38),
-                  ),
-                  onPressed: onTap,
-                  child: FlowyText(
-                    text,
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                return AFFilledTextButton.primary(
+                  text: text,
+                  size: AFButtonSize.l,
+                  alignment: Alignment.center,
+                  onTap: onTap,
                 );
               },
             ),

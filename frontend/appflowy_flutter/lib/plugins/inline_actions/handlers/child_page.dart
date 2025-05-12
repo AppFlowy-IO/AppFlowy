@@ -24,7 +24,7 @@ class InlineChildPageService extends InlineActionsDelegate {
       results.add(
         InlineActionsMenuItem(
           label: LocaleKeys.inlineActions_createPage.tr(args: [search]),
-          icon: (_) => const FlowySvg(FlowySvgs.add_s),
+          iconBuilder: (_) => const FlowySvg(FlowySvgs.add_s),
           onSelected: (context, editorState, service, replacement) =>
               _onSelected(context, editorState, service, replacement, search),
         ),
@@ -71,12 +71,11 @@ class InlineChildPageService extends InlineActionsDelegate {
         replacement.$1,
         replacement.$2,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.childPage.name,
-            MentionBlockKeys.pageId: view.id,
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.childPage,
+          pageId: view.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction);

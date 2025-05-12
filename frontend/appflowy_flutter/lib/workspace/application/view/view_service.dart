@@ -111,6 +111,12 @@ class ViewBackendService {
   static Future<FlowyResult<List<ViewPB>, FlowyError>> getChildViews({
     required String viewId,
   }) {
+    if (viewId.isEmpty) {
+      return Future.value(
+        FlowyResult<List<ViewPB>, FlowyError>.success(<ViewPB>[]),
+      );
+    }
+
     final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventGetView(payload).send().then((result) {
@@ -262,6 +268,9 @@ class ViewBackendService {
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
     String viewId,
   ) async {
+    if (viewId.isEmpty) {
+      Log.error('ViewId is empty');
+    }
     final payload = ViewIdPB.create()..value = viewId;
     return FolderEventGetView(payload).send();
   }

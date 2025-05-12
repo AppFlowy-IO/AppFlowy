@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class MobileSelectionMenuWidget extends StatefulWidget {
     required this.deleteSlashByDefault,
     required this.singleColumn,
     required this.startOffset,
+    required this.showAtTop,
     this.nameBuilder,
   });
 
@@ -38,6 +40,7 @@ class MobileSelectionMenuWidget extends StatefulWidget {
 
   final bool deleteSlashByDefault;
   final bool singleColumn;
+  final bool showAtTop;
   final int startOffset;
 
   final SelectionMenuItemNameBuilder? nameBuilder;
@@ -172,27 +175,37 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _focusNode,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: widget.selectionMenuStyle.selectionMenuBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 5,
-              spreadRadius: 1,
-              color: Colors.black.withValues(alpha: 0.1),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(6.0),
-        ),
-        child: _showingItems.isEmpty
-            ? _buildNoResultsWidget(context)
-            : _buildResultsWidget(
-                context,
-                _showingItems,
-                widget.itemCountFilter,
+    return SizedBox(
+      height: 192,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.showAtTop) Spacer(),
+          Focus(
+            focusNode: _focusNode,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: widget.selectionMenuStyle.selectionMenuBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 5,
+                    spreadRadius: 1,
+                    color: Colors.black.withValues(alpha: 0.1),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(6.0),
               ),
+              child: _showingItems.isEmpty
+                  ? _buildNoResultsWidget(context)
+                  : _buildResultsWidget(
+                      context,
+                      _showingItems,
+                      widget.itemCountFilter,
+                    ),
+            ),
+          ),
+          if (!widget.showAtTop) Spacer(),
+        ],
       ),
     );
   }
@@ -316,6 +329,7 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -338,7 +352,10 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
             child: Center(
               child: Text(
                 LocaleKeys.inlineActions_noResults.tr(),
-                style: TextStyle(fontSize: 18.0, color: Color(0x801F2225)),
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: theme.textColorScheme.primary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

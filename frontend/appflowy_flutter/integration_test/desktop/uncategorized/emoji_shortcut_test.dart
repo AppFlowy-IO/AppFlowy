@@ -1,53 +1,72 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/emoji/emoji_handler.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/editor/editor_component/service/editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
-import '../../shared/keyboard.dart';
 import '../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  Future<void> prepare(WidgetTester tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent();
+    await tester.editor.tapLineOfEditorAt(0);
+  }
+
   // May be better to move this to an existing test but unsure what it fits with
   group('Keyboard shortcuts related to emojis', () {
     testWidgets('cmd/ctrl+alt+e shortcut opens the emoji picker',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
+      await prepare(tester);
 
-      final Finder editor = find.byType(AppFlowyEditor);
-      await tester.tap(editor);
-      await tester.pumpAndSettle();
+      expect(find.byType(EmojiHandler), findsNothing);
 
-      expect(find.byType(EmojiSelectionMenu), findsNothing);
-
-      await FlowyTestKeyboard.simulateKeyDownEvent(
-        [
-          Platform.isMacOS
-              ? LogicalKeyboardKey.meta
-              : LogicalKeyboardKey.control,
-          LogicalKeyboardKey.alt,
-          LogicalKeyboardKey.keyE,
-        ],
-        tester: tester,
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyE,
+        isAltPressed: true,
+        isMetaPressed: Platform.isMacOS,
+        isControlPressed: !Platform.isMacOS,
       );
+      await tester.pumpAndSettle(Duration(seconds: 1));
+      expect(find.byType(EmojiHandler), findsOneWidget);
 
-      expect(find.byType(EmojiSelectionMenu), findsOneWidget);
+      /// press backspace to hide the emoji picker
+      await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+      expect(find.byType(EmojiHandler), findsNothing);
+    });
+
+    testWidgets('insert emoji by slash menu', (tester) async {
+      await prepare(tester);
+      await tester.editor.showSlashMenu();
+
+      /// show emoji picler
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_emoji.tr(),
+        offset: 100,
+      );
+      await tester.pumpAndSettle(Duration(seconds: 1));
+      expect(find.byType(EmojiHandler), findsOneWidget);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      final firstNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+
+      /// except the emoji is in document
+      expect(firstNode.delta!.toPlainText().contains('😀'), true);
     });
   });
 
   group('insert emoji by colon', () {
-    Future<void> createNewDocumentAndShowEmojiList(WidgetTester tester, {String? search}) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-      await tester.createNewPageWithNameUnderParent();
-      await tester.editor.tapLineOfEditorAt(0);
+    Future<void> createNewDocumentAndShowEmojiList(
+      WidgetTester tester, {
+      String? search,
+    }) async {
+      await prepare(tester);
       await tester.ime.insertText(':${search ?? 'a'}');
       await tester.pumpAndSettle(Duration(seconds: 1));
     }

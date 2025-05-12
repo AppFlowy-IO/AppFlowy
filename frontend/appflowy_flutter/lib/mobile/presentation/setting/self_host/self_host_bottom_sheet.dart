@@ -87,7 +87,7 @@ class _SelfHostUrlBottomSheetState extends State<SelfHostUrlBottomSheet> {
               case SelfHostUrlBottomSheetType.shareDomain:
                 await useBaseWebDomain(url);
               case SelfHostUrlBottomSheetType.cloudURL:
-                await useSelfHostedAppFlowyCloudWithURL(url);
+                await useSelfHostedAppFlowyCloud(url);
             }
             await runAppFlowy();
           },

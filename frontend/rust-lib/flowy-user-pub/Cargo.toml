@@ -15,11 +15,11 @@ collab-entity = { workspace = true }
 serde_json.workspace = true
 serde_repr.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
-anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
-tokio-stream = "0.1.14"
+tokio-stream.workspace = true
 flowy-folder-pub.workspace = true
 collab-folder = { workspace = true }
 tracing.workspace = true
 base64 = "0.21"
 client-api = { workspace = true }
+flowy-sqlite.workspace = true

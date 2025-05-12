@@ -56,29 +56,39 @@ impl DatabaseFilterTest {
 
   fn find_filter(
     filter: &FilterPB,
-    filter_type: FilterType,
-    field_type: Option<FieldType>,
+    target_type: FilterType,
+    target_field: Option<FieldType>,
   ) -> Option<FilterPB> {
-    match &filter.filter_type {
-      FilterType::And | FilterType::Or if filter.filter_type == filter_type => Some(filter.clone()),
-      FilterType::And | FilterType::Or => {
-        for child_filter in filter.children.iter() {
-          if let Some(result) = Self::find_filter(child_filter, filter_type, field_type) {
-            return Some(result);
+    // 1) Does this node match the requested filter type?
+    if filter.filter_type == target_type {
+      match &filter.filter_type {
+        // Logical nodes match immediately
+        FilterType::And | FilterType::Or => {
+          return Some(filter.clone());
+        },
+
+        // Data nodes match only if their field_type matches the target
+        FilterType::Data => {
+          if let (Some(data), Some(field)) = (&filter.data, target_field) {
+            if data.field_type == field {
+              return Some(filter.clone());
+            }
           }
-        }
-        None
-      },
-      FilterType::Data
-        if filter.filter_type == filter_type
-          && field_type.map_or(false, |field_type| {
-            field_type == filter.data.clone().unwrap().field_type
-          }) =>
-      {
-        Some(filter.clone())
-      },
-      _ => None,
+        },
+      }
     }
+
+    // 2) If it’s a logical node, dive into its children
+    if matches!(filter.filter_type, FilterType::And | FilterType::Or) {
+      for child in &filter.children {
+        if let Some(found) = Self::find_filter(child, target_type, target_field) {
+          return Some(found);
+        }
+      }
+    }
+
+    // 3) No match here nor below
+    None
   }
 
   pub async fn update_text_cell_with_change(

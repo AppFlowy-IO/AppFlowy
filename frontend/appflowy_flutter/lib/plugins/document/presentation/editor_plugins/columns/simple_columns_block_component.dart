@@ -92,17 +92,18 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   final ScrollController scrollController = ScrollController();
 
+  final ValueNotifier<double?> heightValueNotifier = ValueNotifier(null);
+
   @override
   void initState() {
     super.initState();
-
     _updateColumnsBlock();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
-
+    heightValueNotifier.dispose();
     super.dispose();
   }
 
@@ -110,15 +111,13 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   Widget build(BuildContext context) {
     Widget child = Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: _buildChildren(),
     );
 
     child = Align(
       alignment: Alignment.topLeft,
-      child: IntrinsicHeight(
-        child: child,
-      ),
+      child: child,
     );
 
     child = Padding(
@@ -141,7 +140,10 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
     // the columns block does not support the block actions and selection
     // because the columns block is a layout wrapper, it does not have a content
-    return child;
+    return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: (v) => updateHeightValueNotifier(v),
+      child: SizeChangedLayoutNotifier(child: child),
+    );
   }
 
   List<Widget> _buildChildren() {
@@ -164,9 +166,15 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
       if (i != length - 1) {
         children.add(
-          SimpleColumnBlockWidthResizer(
-            columnNode: childNode,
-            editorState: editorState,
+          ValueListenableBuilder(
+            valueListenable: heightValueNotifier,
+            builder: (context, height, child) {
+              return SimpleColumnBlockWidthResizer(
+                columnNode: childNode,
+                editorState: editorState,
+                height: height,
+              );
+            },
           ),
         );
       }
@@ -192,6 +200,16 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     if (transaction.operations.isNotEmpty) {
       editorState.apply(transaction);
     }
+  }
+
+  bool updateHeightValueNotifier(SizeChangedLayoutNotification notification) {
+    if (!mounted) return true;
+    final height = _renderBox?.size.height;
+    if (heightValueNotifier.value == height) return true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      heightValueNotifier.value = height;
+    });
+    return true;
   }
 
   @override

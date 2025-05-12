@@ -25,6 +25,8 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use uuid::Uuid;
 
 pub struct DocumentTest {
+  #[allow(dead_code)]
+  builder: Arc<AppFlowyCollabBuilder>,
   inner: DocumentManager,
 }
 
@@ -40,16 +42,20 @@ impl DocumentTest {
       WorkspaceCollabIntegrateImpl {
         workspace_id: user.workspace_id,
       },
+      None,
     ));
 
     let manager = DocumentManager::new(
       Arc::new(user),
-      builder,
+      Arc::downgrade(&builder),
       cloud_service,
       Arc::downgrade(&file_storage),
       document_snapshot,
     );
-    Self { inner: manager }
+    Self {
+      inner: manager,
+      builder,
+    }
   }
 }
 

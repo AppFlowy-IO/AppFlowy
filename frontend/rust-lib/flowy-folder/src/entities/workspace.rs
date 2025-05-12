@@ -134,7 +134,7 @@ impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
-pub struct WorkspaceSettingPB {
+pub struct WorkspaceLatestPB {
   #[pb(index = 1)]
   pub workspace_id: String,
 

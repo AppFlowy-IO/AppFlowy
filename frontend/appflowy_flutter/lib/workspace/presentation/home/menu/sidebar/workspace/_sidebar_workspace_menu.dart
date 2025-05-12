@@ -24,7 +24,7 @@ import '_sidebar_import_notion.dart';
 const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 
 @visibleForTesting
-const importNotionButtonKey = ValueKey('importNotinoButton');
+const importNotionButtonKey = ValueKey('importNotionButton');
 
 class WorkspacesMenu extends StatefulWidget {
   const WorkspacesMenu({
@@ -306,9 +306,12 @@ class _WorkspaceInfo extends StatelessWidget {
       // Persist and close other tabs when switching workspace, restore tabs for new workspace
       getIt<TabsBloc>().add(TabsEvent.switchWorkspace(workspace.workspaceId));
 
-      context
-          .read<UserWorkspaceBloc>()
-          .add(UserWorkspaceEvent.openWorkspace(workspace.workspaceId));
+      context.read<UserWorkspaceBloc>().add(
+            UserWorkspaceEvent.openWorkspace(
+              workspace.workspaceId,
+              workspace.workspaceType,
+            ),
+          );
 
       PopoverContainer.of(context).closeAll();
     }
@@ -383,7 +386,12 @@ class _CreateWorkspaceButton extends StatelessWidget {
       final workspaceBloc = context.read<UserWorkspaceBloc>();
       await CreateWorkspaceDialog(
         onConfirm: (name) {
-          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
+          workspaceBloc.add(
+            UserWorkspaceEvent.createWorkspace(
+              name,
+              WorkspaceTypePB.ServerW,
+            ),
+          );
         },
       ).show(context);
     }

@@ -31,12 +31,9 @@ tracing.workspace = true
 bytes.workspace = true
 serde = { workspace = true, features = ["rc"] }
 serde_json.workspace = true
-serde_repr.workspace = true
 protobuf.workspace = true
 lazy_static = "1.4.0"
 diesel.workspace = true
-diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
-once_cell = "1.17.1"
 strum = "0.25"
 strum_macros = "0.25.2"
 tokio = { workspace = true, features = ["rt"] }
@@ -45,13 +42,13 @@ fancy-regex = "0.11.0"
 uuid.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock"] }
 base64 = "^0.21"
-tokio-stream = "0.1.14"
+tokio-stream.workspace = true
 semver = "1.0.22"
 validator = { workspace = true, features = ["derive"] }
 rayon = "1.10.0"
+num_enum.workspace = true
 
 [dev-dependencies]
-nanoid = "0.4.0"
 fake = "2.0.0"
 rand = "0.8.4"
 quickcheck = "1.0.3"

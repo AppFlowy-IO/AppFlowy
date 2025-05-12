@@ -59,16 +59,22 @@ pub struct DatabaseManager {
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   pub(crate) editors: Mutex<DatabaseEditorMap>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  collab_builder: Weak<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
   ai_service: Arc<dyn DatabaseAIService>,
+}
+
+impl Drop for DatabaseManager {
+  fn drop(&mut self) {
+    tracing::trace!("[Drop] drop database manager");
+  }
 }
 
 impl DatabaseManager {
   pub fn new(
     database_user: Arc<dyn DatabaseUser>,
     task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
   ) -> Self {
@@ -82,6 +88,10 @@ impl DatabaseManager {
       cloud_service,
       ai_service,
     }
+  }
+
+  fn collab_builder(&self) -> FlowyResult<Arc<AppFlowyCollabBuilder>> {
+    self.collab_builder.upgrade().ok_or(FlowyError::ref_drop())
   }
 
   /// When initialize with new workspace, all the resources will be cleared.
@@ -119,7 +129,7 @@ impl DatabaseManager {
       .await?;
     let collab_object = collab_service
       .build_collab_object(&workspace_database_object_id, CollabType::WorkspaceDatabase)?;
-    let workspace_database = self.collab_builder.create_workspace_database_manager(
+    let workspace_database = self.collab_builder()?.create_workspace_database_manager(
       collab_object,
       workspace_database_collab,
       collab_db,
@@ -134,12 +144,12 @@ impl DatabaseManager {
   }
 
   #[instrument(
-    name = "database_initialize_with_new_user",
+    name = "database_initialize_after_sign_up",
     level = "debug",
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_after_sign_up(
     &self,
     user_id: i64,
     is_local_user: bool,
@@ -148,13 +158,22 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let lock = self.workspace_database()?;
-    let wdb = lock.read().await;
-    let database_collab = wdb.get_or_init_database(database_id).await?;
-    drop(wdb);
-    let lock_guard = database_collab.read().await;
-    Ok(lock_guard.get_inline_view_id())
+  pub async fn initialize_after_open_workspace(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
+  }
+
+  pub async fn initialize_after_sign_in(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
+    Ok(())
   }
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
@@ -164,6 +183,15 @@ impl DatabaseManager {
       items = wdb.get_all_database_meta()
     }
     items
+  }
+
+  pub async fn get_database_meta(&self, database_id: &str) -> FlowyResult<Option<DatabaseMeta>> {
+    let mut database_meta = None;
+    if let Some(lock) = self.workspace_database_manager.load_full() {
+      let wdb = lock.read().await;
+      database_meta = wdb.get_database_meta(database_id);
+    }
+    Ok(database_meta)
   }
 
   #[instrument(level = "trace", skip_all, err)]
@@ -263,11 +291,12 @@ impl DatabaseManager {
     // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
     // The workaround is to add a retry mechanism to attempt fetching the database again.
     let database = open_database_with_retry(workspace_database, database_id).await?;
+    let collab_builder = self.collab_builder()?;
     let editor = DatabaseEditor::new(
       self.user.clone(),
       database,
       self.task_scheduler.clone(),
-      self.collab_builder.clone(),
+      collab_builder,
     )
     .await?;
 
@@ -691,7 +720,7 @@ impl DatabaseManager {
 struct WorkspaceDatabaseCollabServiceImpl {
   is_local_user: bool,
   user: Arc<dyn DatabaseUser>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  collab_builder: Weak<AppFlowyCollabBuilder>,
   persistence: Arc<dyn DatabaseCollabPersistenceService>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -700,7 +729,7 @@ impl WorkspaceDatabaseCollabServiceImpl {
   fn new(
     is_local_user: bool,
     user: Arc<dyn DatabaseUser>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
     let persistence = DatabasePersistenceImpl { user: user.clone() };
@@ -711,6 +740,13 @@ impl WorkspaceDatabaseCollabServiceImpl {
       persistence: Arc::new(persistence),
       cloud_service,
     }
+  }
+
+  fn collab_builder(&self) -> Result<Arc<AppFlowyCollabBuilder>, DatabaseError> {
+    self
+      .collab_builder
+      .upgrade()
+      .ok_or_else(|| DatabaseError::Internal(anyhow!("Collab builder is not initialized")))
   }
 
   async fn get_encode_collab(
@@ -779,7 +815,7 @@ impl WorkspaceDatabaseCollabServiceImpl {
       .workspace_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     let object = self
-      .collab_builder
+      .collab_builder()?
       .collab_object(&workspace_id, uid, object_id, object_type)
       .map_err(|err| DatabaseError::Internal(anyhow!("Failed to build collab object: {}", err)))?;
     Ok(object)
@@ -888,7 +924,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
 
     let collab_db = self.collab_db()?;
     let collab = self
-      .collab_builder
+      .collab_builder()?
       .build_collab(&object, &collab_db, data_source)
       .await?;
     Ok(collab)

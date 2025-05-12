@@ -46,6 +46,7 @@ class ChecklistCellTextfield extends StatelessWidget {
       horizontal: 2,
     ),
     this.onSubmitted,
+    this.lineHeight,
   });
 
   final TextEditingController textController;
@@ -53,13 +54,17 @@ class ChecklistCellTextfield extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
   final VoidCallback? onSubmitted;
   final VoidCallback? onChanged;
+  final double? lineHeight;
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium;
     return TextField(
       controller: textController,
       focusNode: focusNode,
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: textStyle?.copyWith(
+        height: lineHeight,
+      ),
       maxLines: null,
       decoration: InputDecoration(
         border: InputBorder.none,

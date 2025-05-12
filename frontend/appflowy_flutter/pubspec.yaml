@@ -4,7 +4,7 @@ description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   your data. The best open source alternative to Notion.
 publish_to: "none"
 
-version: 0.8.8
+version: 0.9.1
 
 environment:
   flutter: ">=3.27.4"
@@ -25,7 +25,8 @@ dependencies:
     path: packages/appflowy_popover
   appflowy_result:
     path: packages/appflowy_result
-
+  appflowy_ui:
+    path: packages/appflowy_ui
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
   auto_updater: ^1.0.0
@@ -123,8 +124,6 @@ dependencies:
   scaled_app: ^2.3.0
   scroll_to_index: ^3.0.1
   scrollable_positioned_list: ^0.3.8
-  sentry: 8.8.0
-  sentry_flutter: 8.8.0
   share_plus: ^10.0.2
   shared_preferences: ^2.2.2
   sheet:
@@ -151,6 +150,8 @@ dependencies:
   talker_bloc_logger: ^4.7.1
   talker: ^4.7.1
 
+  analyzer: 6.11.0
+
 dev_dependencies:
   # Introduce talker to log the bloc events, and only log the events in the development mode
 
@@ -174,7 +175,7 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
-  device_info_plus: ^10.1.0
+  device_info_plus: ^11.2.2
 
   url_protocol:
     git:
@@ -184,7 +185,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "552f95f"
+      ref: "470c4e7"
 
   appflowy_editor_plugins:
     git:
@@ -197,6 +198,12 @@ dependency_overrides:
       url: https://github.com/jamesblasco/modal_bottom_sheet
       ref: e44458d
       path: sheet
+
+  window_manager:
+    git:
+      url: https://github.com/leanflutter/window_manager.git
+      ref: "5a43aed"
+      path: packages/window_manager
 
   uuid: ^4.4.0
 
@@ -253,9 +260,6 @@ flutter:
   uses-material-design: true
 
   fonts:
-    - family: FlowyIconData
-      fonts:
-        - asset: assets/fonts/FlowyIconData.ttf
     - family: Poppins
       fonts:
         - asset: assets/google_fonts/Poppins/Poppins-ExtraLight.ttf
@@ -281,6 +285,9 @@ flutter:
         - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Regular.ttf
         - asset: assets/google_fonts/Roboto_Mono/RobotoMono-Italic.ttf
           style: italic
+    # White-label font configuration will be added here
+    # BEGIN: WHITE_LABEL_FONT
+    # END: WHITE_LABEL_FONT
 
   # To add assets to your application, add an assets section, like this:
   assets:
@@ -297,6 +304,8 @@ flutter:
     - assets/images/login/
     - assets/translations/
     - assets/icons/icons.json
+    - assets/fonts/
+    - assets/built_in_prompts.json
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE

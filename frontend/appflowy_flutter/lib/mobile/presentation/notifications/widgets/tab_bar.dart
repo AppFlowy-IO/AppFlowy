@@ -1,39 +1,7 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_tabbar/reorderable_tabbar.dart';
-
-enum MobileNotificationTabType {
-  inbox,
-  unread,
-  archive;
-
-  String get tr {
-    switch (this) {
-      case MobileNotificationTabType.inbox:
-        return LocaleKeys.settings_notifications_tabs_inbox.tr();
-      case MobileNotificationTabType.unread:
-        return LocaleKeys.settings_notifications_tabs_unread.tr();
-      case MobileNotificationTabType.archive:
-        return LocaleKeys.settings_notifications_tabs_archived.tr();
-    }
-  }
-
-  List<NotificationPaneActionType> get actions {
-    switch (this) {
-      case MobileNotificationTabType.inbox:
-        return [
-          NotificationPaneActionType.more,
-          NotificationPaneActionType.markAsRead,
-        ];
-      case MobileNotificationTabType.unread:
-      case MobileNotificationTabType.archive:
-        return [];
-    }
-  }
-}
 
 class MobileNotificationTabBar extends StatelessWidget {
   const MobileNotificationTabBar({
@@ -44,7 +12,7 @@ class MobileNotificationTabBar extends StatelessWidget {
   });
 
   final double height;
-  final List<MobileNotificationTabType> tabs;
+  final List<NotificationTabType> tabs;
   final TabController tabController;
 
   @override

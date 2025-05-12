@@ -7,14 +7,37 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:protobuf/protobuf.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-typedef OnModelStateChangedCallback = void Function(AiType, bool, String);
+typedef OnModelStateChangedCallback = void Function(AIModelState state);
 typedef OnAvailableModelsChangedCallback = void Function(
   List<AIModelPB>,
   AIModelPB?,
 );
+
+/// Represents the state of an AI model
+class AIModelState {
+  const AIModelState({
+    required this.type,
+    required this.hintText,
+    required this.tooltip,
+    required this.isEditable,
+    required this.localAIEnabled,
+  });
+  final AiType type;
+
+  /// The text displayed as placeholder/hint in the input field
+  /// Shows different messages based on AI state (enabled, initializing, disabled)
+  final String hintText;
+
+  /// Optional tooltip text that appears on hover
+  /// Provides additional context about the current state of the AI
+  /// Null when no tooltip should be shown
+  final String? tooltip;
+
+  final bool isEditable;
+  final bool localAIEnabled;
+}
 
 class AIModelStateNotifier {
   AIModelStateNotifier({required this.objectId})
@@ -28,51 +51,50 @@ class AIModelStateNotifier {
   final String objectId;
   final LocalAIStateListener? _localAIListener;
   final AIModelSwitchListener _aiModelSwitchListener;
-  LocalAIPB? _localAIState;
-  AvailableModelsPB? _availableModels;
 
-  // callbacks
+  LocalAIPB? _localAIState;
+  ModelSelectionPB? _modelSelection;
+
+  AIModelState _currentState = _defaultState();
+  List<AIModelPB> _availableModels = [];
+  AIModelPB? _selectedModel;
+
   final List<OnModelStateChangedCallback> _stateChangedCallbacks = [];
   final List<OnAvailableModelsChangedCallback>
       _availableModelsChangedCallbacks = [];
 
+  /// Starts platform-specific listeners
   void _startListening() {
     if (UniversalPlatform.isDesktop) {
       _localAIListener?.start(
         stateCallback: (state) async {
           _localAIState = state;
-          _notifyStateChanged();
-
-          if (state.state == RunningStatePB.Running ||
-              state.state == RunningStatePB.Stopped) {
-            await _loadAvailableModels();
-            _notifyAvailableModelsChanged();
-          }
+          _updateAll();
         },
       );
     }
 
     _aiModelSwitchListener.start(
       onUpdateSelectedModel: (model) async {
-        final updatedModels = _availableModels?.deepCopy()
-          ?..selectedModel = model;
-        _availableModels = updatedModels;
-        _notifyAvailableModelsChanged();
-
+        _selectedModel = model;
+        _updateAll();
         if (model.isLocal && UniversalPlatform.isDesktop) {
-          await _loadLocalAiState();
+          await _loadLocalState();
+          _updateAll();
         }
-        _notifyStateChanged();
       },
     );
   }
 
-  void _init() async {
-    await Future.wait([_loadLocalAiState(), _loadAvailableModels()]);
-    _notifyStateChanged();
-    _notifyAvailableModelsChanged();
+  Future<void> _init() async {
+    await Future.wait([
+      if (UniversalPlatform.isDesktop) _loadLocalState(),
+      _loadModelSelection(),
+    ]);
+    _updateAll();
   }
 
+  /// Register callbacks for state or available-models changes
   void addListener({
     OnModelStateChangedCallback? onStateChanged,
     OnAvailableModelsChangedCallback? onAvailableModelsChanged,
@@ -85,6 +107,7 @@ class AIModelStateNotifier {
     }
   }
 
+  /// Remove previously registered callbacks
   void removeListener({
     OnModelStateChangedCallback? onStateChanged,
     OnAvailableModelsChangedCallback? onAvailableModelsChanged,
@@ -104,78 +127,88 @@ class AIModelStateNotifier {
     await _aiModelSwitchListener.stop();
   }
 
-  (AiType, String, bool) getState() {
-    if (UniversalPlatform.isMobile) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
+  /// Returns current AIModelState
+  AIModelState getState() => _currentState;
+
+  /// Returns available models and the selected model
+  (List<AIModelPB>, AIModelPB?) getModelSelection() =>
+      (_availableModels, _selectedModel);
+
+  void _updateAll() {
+    _currentState = _computeState();
+    for (final cb in _stateChangedCallbacks) {
+      cb(_currentState);
     }
-
-    final availableModels = _availableModels;
-    final localAiState = _localAIState;
-
-    if (availableModels == null) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
-    }
-    if (localAiState == null) {
-      Log.warn("Cannot get local AI state");
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
-    }
-
-    if (!availableModels.selectedModel.isLocal) {
-      return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
-    }
-
-    final editable = localAiState.state == RunningStatePB.Running;
-    final hintText = editable
-        ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
-        : LocaleKeys.settings_aiPage_keys_localAIInitializing.tr();
-
-    return (AiType.local, hintText, editable);
-  }
-
-  (List<AIModelPB>, AIModelPB?) getAvailableModels() {
-    final availableModels = _availableModels;
-    if (availableModels == null) {
-      return ([], null);
-    }
-    return (availableModels.models, availableModels.selectedModel);
-  }
-
-  void _notifyAvailableModelsChanged() {
-    final (models, selectedModel) = getAvailableModels();
-    for (final callback in _availableModelsChangedCallbacks) {
-      callback(models, selectedModel);
+    for (final cb in _availableModelsChangedCallbacks) {
+      cb(_availableModels, _selectedModel);
     }
   }
 
-  void _notifyStateChanged() {
-    final (type, hintText, isEditable) = getState();
-    for (final callback in _stateChangedCallbacks) {
-      callback(type, isEditable, hintText);
-    }
+  Future<void> _loadModelSelection() async {
+    await AIEventGetSourceModelSelection(
+      ModelSourcePB(source: objectId),
+    ).send().fold(
+      (ms) {
+        _modelSelection = ms;
+        _availableModels = ms.models;
+        _selectedModel = ms.selectedModel;
+      },
+      (e) => Log.error("Failed to fetch models: \$e"),
+    );
   }
 
-  Future<void> _loadAvailableModels() {
-    final payload = AvailableModelsQueryPB(source: objectId);
-    return AIEventGetAvailableModels(payload).send().fold(
-          (models) => _availableModels = models,
-          (err) => Log.error("Failed to get available models: $err"),
+  Future<void> _loadLocalState() async {
+    await AIEventGetLocalAIState().send().fold(
+          (s) => _localAIState = s,
+          (e) => Log.error("Failed to fetch local AI state: \$e"),
         );
   }
 
-  Future<void> _loadLocalAiState() {
-    return AIEventGetLocalAIState().send().fold(
-          (localAIState) => _localAIState = localAIState,
-          (error) => Log.error("Failed to get local AI state: $error"),
-        );
+  static AIModelState _defaultState() => AIModelState(
+        type: AiType.cloud,
+        hintText: LocaleKeys.chat_inputMessageHint.tr(),
+        tooltip: null,
+        isEditable: true,
+        localAIEnabled: false,
+      );
+
+  /// Core logic computing the state from local and selection data
+  AIModelState _computeState() {
+    if (UniversalPlatform.isMobile) return _defaultState();
+
+    if (_modelSelection == null || _localAIState == null) {
+      return _defaultState();
+    }
+
+    if (!_selectedModel!.isLocal) {
+      return _defaultState();
+    }
+
+    final enabled = _localAIState!.enabled;
+    final running = _localAIState!.isReady;
+    final hintKey = enabled
+        ? (running
+            ? LocaleKeys.chat_inputLocalAIMessageHint
+            : LocaleKeys.settings_aiPage_keys_localAIInitializing)
+        : LocaleKeys.settings_aiPage_keys_localAIDisabled;
+    final tooltipKey = enabled
+        ? (running
+            ? null
+            : LocaleKeys.settings_aiPage_keys_localAINotReadyTextFieldPrompt)
+        : LocaleKeys.settings_aiPage_keys_localAIDisabledTextFieldPrompt;
+
+    return AIModelState(
+      type: AiType.local,
+      hintText: hintKey.tr(),
+      tooltip: tooltipKey?.tr(),
+      isEditable: running,
+      localAIEnabled: enabled,
+    );
   }
 }
 
-extension AiModelExtension on AIModelPB {
-  bool get isDefault {
-    return name == "Auto";
-  }
-
-  String get i18n {
-    return isDefault ? LocaleKeys.chat_switchModel_autoModel.tr() : name;
-  }
+extension AIModelPBExtension on AIModelPB {
+  bool get isDefault => name == 'Auto';
+  String get i18n =>
+      isDefault ? LocaleKeys.chat_switchModel_autoModel.tr() : name;
 }

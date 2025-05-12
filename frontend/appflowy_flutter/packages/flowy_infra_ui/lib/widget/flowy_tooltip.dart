@@ -89,7 +89,6 @@ class _ManualTooltipState extends State<ManualTooltip> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Tooltip(

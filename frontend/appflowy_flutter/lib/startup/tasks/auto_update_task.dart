@@ -23,6 +23,8 @@ class AutoUpdateTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // the auto updater is not supported on mobile
     if (UniversalPlatform.isMobile) {
       return;
@@ -38,6 +40,8 @@ class AutoUpdateTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     autoUpdater.removeListener(_listener);
 
     ApplicationInfo.isCriticalUpdateNotifier.removeListener(

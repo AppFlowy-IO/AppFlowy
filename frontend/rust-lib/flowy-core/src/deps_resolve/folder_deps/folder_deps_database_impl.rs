@@ -19,21 +19,26 @@ use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use uuid::Uuid;
 
-pub struct DatabaseFolderOperation(pub Arc<DatabaseManager>);
+pub struct DatabaseFolderOperation(pub Weak<DatabaseManager>);
+impl DatabaseFolderOperation {
+  fn database_manager(&self) -> Result<Arc<DatabaseManager>, FlowyError> {
+    self.0.upgrade().ok_or_else(FlowyError::ref_drop)
+  }
+}
 
 #[async_trait]
 impl FolderOperationHandler for DatabaseFolderOperation {
   async fn open_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
-    self.0.open_database_view(view_id).await?;
+    self.database_manager()?.open_database_view(view_id).await?;
     Ok(())
   }
 
   async fn close_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
     self
-      .0
+      .database_manager()?
       .close_database_view(view_id.to_string().as_str())
       .await?;
     Ok(())
@@ -41,7 +46,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
     match self
-      .0
+      .database_manager()?
       .delete_database_view(view_id.to_string().as_str())
       .await
     {
@@ -58,17 +63,18 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   ) -> Result<GatherEncodedCollab, FlowyError> {
     let workspace_id = _user.workspace_id()?;
     let view_id_str = view_id.to_string();
+    let database_manager = self.database_manager()?;
     // get the collab_object_id for the database.
     //
     // the collab object_id for the database is not the view_id,
     //  we should use the view_id to get the database_id
-    let oid = self.0.get_database_id_with_view_id(&view_id_str).await?;
-    let row_oids = self
-      .0
+    let oid = database_manager
+      .get_database_id_with_view_id(&view_id_str)
+      .await?;
+    let row_oids = database_manager
       .get_database_row_ids_with_view_id(&view_id_str)
       .await?;
-    let row_metas = self
-      .0
+    let row_metas = database_manager
       .get_database_row_metas_with_view_id(view_id, row_oids.clone())
       .await?;
     let row_document_ids = row_metas
@@ -79,7 +85,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .into_iter()
       .map(|oid| oid.into_inner())
       .collect::<Vec<_>>();
-    let database_metas = self.0.get_all_databases_meta().await;
+    let database_metas = database_manager.get_all_databases_meta().await;
 
     let uid = _user
       .user_id()
@@ -178,14 +184,14 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           let duplicated_view_id =
             String::from_utf8(data.to_vec()).map_err(|_| FlowyError::invalid_data())?;
           let encoded_collab = self
-            .0
+            .database_manager()?
             .duplicate_database(&duplicated_view_id, &params.view_id.to_string())
             .await?;
           Ok(Some(encoded_collab))
         },
         ViewData::Data(data) => {
           let encoded_collab = self
-            .0
+            .database_manager()?
             .create_database_with_data(&params.view_id.to_string(), data.to_vec())
             .await?;
           Ok(Some(encoded_collab))
@@ -198,14 +204,16 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
           ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
           ViewLayoutPB::Document | ViewLayoutPB::Chat => {
-            return Err(FlowyError::not_support());
+            return Err(
+              FlowyError::invalid_data().with_context("Can't handle document layout type"),
+            );
           },
         };
         let name = params.name.to_string();
         let database_view_id = params.view_id.to_string();
         let database_parent_view_id = params.parent_view_id.to_string();
         self
-          .0
+          .database_manager()?
           .create_linked_view(
             name,
             layout.into(),
@@ -243,7 +251,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         );
       },
     };
-    let result = self.0.import_database(data).await;
+    let result = self.database_manager()?.import_database(data).await;
     match result {
       Ok(_) => Ok(()),
       Err(err) => {
@@ -274,7 +282,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
     .await??;
     let result = self
-      .0
+      .database_manager()?
       .import_csv(view_id.to_string(), content, format)
       .await?;
     Ok(
@@ -307,7 +315,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let content =
       String::from_utf8(data).map_err(|e| FlowyError::invalid_data().with_context(e))?;
     let _ = self
-      .0
+      .database_manager()?
       .import_csv(view_id.to_string(), content, CSVFormat::Original)
       .await?;
     Ok(())
@@ -325,7 +333,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
     if old.layout != new.layout {
       self
-        .0
+        .database_manager()?
         .update_database_layout(&new.id, database_layout)
         .await?;
       Ok(())

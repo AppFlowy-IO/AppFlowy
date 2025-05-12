@@ -30,13 +30,16 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
     LocalAiPluginEvent event,
     Emitter<LocalAiPluginState> emit,
   ) async {
+    if (isClosed) {
+      return;
+    }
+
     await event.when(
       didReceiveAiState: (aiState) {
         emit(
           LocalAiPluginState.ready(
             isEnabled: aiState.enabled,
-            version: aiState.pluginVersion,
-            runningState: aiState.state,
+            isReady: aiState.isReady,
             lackOfResource:
                 aiState.hasLackOfResource() ? aiState.lackOfResource : null,
           ),
@@ -54,7 +57,9 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
         emit(LocalAiPluginState.loading());
         await AIEventToggleLocalAI().send().fold(
           (aiState) {
-            add(LocalAiPluginEvent.didReceiveAiState(aiState));
+            if (!isClosed) {
+              add(LocalAiPluginEvent.didReceiveAiState(aiState));
+            }
           },
           Log.error,
         );
@@ -69,10 +74,14 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
   void _startListening() {
     listener.start(
       stateCallback: (pluginState) {
-        add(LocalAiPluginEvent.didReceiveAiState(pluginState));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveAiState(pluginState));
+        }
       },
       resourceCallback: (data) {
-        add(LocalAiPluginEvent.didReceiveLackOfResources(data));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveLackOfResources(data));
+        }
       },
     );
   }
@@ -80,7 +89,9 @@ class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
   void _getLocalAiState() {
     AIEventGetLocalAIState().send().fold(
       (aiState) {
-        add(LocalAiPluginEvent.didReceiveAiState(aiState));
+        if (!isClosed) {
+          add(LocalAiPluginEvent.didReceiveAiState(aiState));
+        }
       },
       Log.error,
     );
@@ -104,8 +115,7 @@ class LocalAiPluginState with _$LocalAiPluginState {
 
   const factory LocalAiPluginState.ready({
     required bool isEnabled,
-    required String version,
-    required RunningStatePB runningState,
+    required bool isReady,
     required LackOfAIResourcePB? lackOfResource,
   }) = ReadyLocalAiPluginState;
 
@@ -113,32 +123,15 @@ class LocalAiPluginState with _$LocalAiPluginState {
 
   bool get isEnabled {
     return maybeWhen(
-      ready: (isEnabled, _, __, ___) => isEnabled,
+      ready: (isEnabled, _, ___) => isEnabled,
       orElse: () => false,
     );
   }
 
   bool get showIndicator {
     return maybeWhen(
-      ready: (isEnabled, _, runningState, lackOfResource) =>
-          runningState != RunningStatePB.Running || lackOfResource != null,
-      orElse: () => false,
-    );
-  }
-
-  bool get showSettings {
-    return maybeWhen(
-      ready: (isEnabled, _, runningState, lackOfResource) {
-        final isConnecting = [
-          RunningStatePB.Connecting,
-          RunningStatePB.Connected,
-        ].contains(runningState);
-
-        final resourcesReadyOrMissingModel = lackOfResource == null ||
-            lackOfResource.resourceType == LackOfAIResourceTypePB.MissingModel;
-
-        return !isConnecting && resourcesReadyOrMissingModel;
-      },
+      ready: (isEnabled, isReady, lackOfResource) =>
+          isReady || lackOfResource != null,
       orElse: () => false,
     );
   }

@@ -2,12 +2,14 @@ use collab_folder::{View, ViewIcon, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
+use lib_infra::validator_fn::required_not_empty_str;
 use std::collections::HashMap;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
@@ -394,18 +396,15 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
   }
 }
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
-}
-
-impl std::convert::From<&str> for ViewIdPB {
-  fn from(value: &str) -> Self {
-    ViewIdPB {
-      value: value.to_string(),
-    }
-  }
+  //
+  // #[pb(index = 2)]
+  // #[validate(custom(function = "required_not_empty_str"))]
+  // pub workspace_id: String,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

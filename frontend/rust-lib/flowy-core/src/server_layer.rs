@@ -1,194 +1,205 @@
-use arc_swap::ArcSwapOption;
+use crate::deps_resolve::MultiSourceVSTanvityImpl;
+use crate::AppFlowyCoreConfig;
+use arc_swap::{ArcSwap, ArcSwapOption};
+use collab::entity::EncodedCollab;
+use collab_entity::CollabType;
+use collab_integrate::instant_indexed_data_provider::InstantIndexedDataWriter;
+use dashmap::try_result::TryResult;
 use dashmap::DashMap;
-use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::{Arc, Weak};
-
-use serde_repr::*;
-
+use flowy_ai::local_ai::controller::LocalAIController;
+use flowy_ai_pub::entities::UnindexedCollab;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_server::af_cloud::define::ServerUser;
-use flowy_server::af_cloud::AppFlowyCloudServer;
-use flowy_server::local_server::{LocalServer, LocalServerDB};
-use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_server::af_cloud::define::AIUserServiceImpl;
+use flowy_server::af_cloud::{define::LoggedUser, AppFlowyCloudServer};
+use flowy_server::local_server::LocalServer;
+use flowy_server::{AppFlowyEncryption, AppFlowyServer, EmbeddingWriter, EncryptionImpl};
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
+use lib_infra::async_trait::async_trait;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
+use tracing::{error, info};
+use uuid::Uuid;
 
-use crate::AppFlowyCoreConfig;
-
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
-pub enum Server {
-  /// Local server provider.
-  /// Offline mode, no user authentication and the data is stored locally.
-  Local = 0,
-  /// AppFlowy Cloud server provider.
-  /// See: https://github.com/AppFlowy-IO/AppFlowy-Cloud
-  AppFlowyCloud = 1,
-}
-
-impl Server {
-  pub fn is_local(&self) -> bool {
-    matches!(self, Server::Local)
-  }
-}
-
-impl Display for Server {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Server::Local => write!(f, "Local"),
-      Server::AppFlowyCloud => write!(f, "AppFlowyCloud"),
-    }
-  }
-}
-
-/// The [ServerProvider] provides list of [AppFlowyServer] base on the [Authenticator]. Using
-/// the auth type, the [ServerProvider] will create a new [AppFlowyServer] if it doesn't
-/// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  providers: DashMap<Server, Arc<dyn AppFlowyServer>>,
-  pub(crate) encryption: Arc<dyn AppFlowyEncryption>,
-  #[allow(dead_code)]
-  pub(crate) store_preferences: Weak<KVStorePreferences>,
-  pub(crate) user_enable_sync: AtomicBool,
+  providers: DashMap<AuthType, Arc<dyn AppFlowyServer>>,
+  auth_type: ArcSwap<AuthType>,
+  logged_user: Arc<dyn LoggedUser>,
+  pub local_ai: Arc<LocalAIController>,
+  pub uid: Arc<ArcSwapOption<i64>>,
+  pub user_enable_sync: Arc<AtomicBool>,
+  pub encryption: Arc<dyn AppFlowyEncryption>,
+  pub indexed_data_writer: Option<Weak<InstantIndexedDataWriter>>,
+}
 
-  /// The authenticator type of the user.
-  authenticator: AtomicU8,
-  user: Arc<dyn ServerUser>,
-  pub(crate) uid: Arc<ArcSwapOption<i64>>,
+// Our little guard wrapper:
+
+/// Determine current server type from ENV
+pub fn current_server_type() -> AuthType {
+  match AuthenticatorType::from_env() {
+    AuthenticatorType::Local => AuthType::Local,
+    AuthenticatorType::AppFlowyCloud => AuthType::AppFlowyCloud,
+  }
 }
 
 impl ServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
-    server: Server,
     store_preferences: Weak<KVStorePreferences>,
-    server_user: impl ServerUser + 'static,
+    user_service: impl LoggedUser + 'static,
+    indexed_data_writer: Option<Weak<InstantIndexedDataWriter>>,
   ) -> Self {
-    let user = Arc::new(server_user);
-    let encryption = EncryptionImpl::new(None);
-    Self {
+    let initial_auth = current_server_type();
+    let logged_user = Arc::new(user_service) as Arc<dyn LoggedUser>;
+    let auth_type = ArcSwap::from(Arc::new(initial_auth));
+    let encryption = Arc::new(EncryptionImpl::new(None)) as Arc<dyn AppFlowyEncryption>;
+    let ai_user = Arc::new(AIUserServiceImpl(Arc::downgrade(&logged_user)));
+    let local_ai = Arc::new(LocalAIController::new(store_preferences, ai_user.clone()));
+
+    ServerProvider {
       config,
       providers: DashMap::new(),
-      user_enable_sync: AtomicBool::new(true),
-      authenticator: AtomicU8::new(Authenticator::from(server) as u8),
-      encryption: Arc::new(encryption),
-      store_preferences,
+      encryption,
+      user_enable_sync: Arc::new(AtomicBool::new(true)),
+      auth_type,
+      logged_user,
       uid: Default::default(),
-      user,
+      local_ai,
+      indexed_data_writer,
     }
   }
 
-  pub fn get_server_type(&self) -> Server {
-    match Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32) {
-      Authenticator::Local => Server::Local,
-      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-    }
-  }
+  async fn set_tanvity_state(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    let tanvity_store = Arc::new(MultiSourceVSTanvityImpl::new(tanvity_state.clone()));
 
-  pub fn set_authenticator(&self, authenticator: Authenticator) {
-    let old_server_type = self.get_server_type();
     self
-      .authenticator
-      .store(authenticator as u8, Ordering::Release);
-    let new_server_type = self.get_server_type();
+      .local_ai
+      .set_retriever_sources(vec![tanvity_store])
+      .await;
 
-    if old_server_type != new_server_type {
-      self.providers.remove(&old_server_type);
-    }
-  }
-
-  pub fn get_authenticator(&self) -> Authenticator {
-    Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32)
-  }
-
-  /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
-  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
-    let server_type = self.get_server_type();
-
-    if let Some(provider) = self.providers.get(&server_type) {
-      return Ok(provider.value().clone());
-    }
-
-    let server = match server_type {
-      Server::Local => {
-        let local_db = Arc::new(LocalServerDBImpl {
-          storage_path: self.config.storage_path.clone(),
-        });
-        let server = Arc::new(LocalServer::new(local_db));
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
+    match self.providers.try_get(self.auth_type.load().as_ref()) {
+      TryResult::Present(r) => {
+        r.set_tanvity_state(tanvity_state).await;
       },
-      Server::AppFlowyCloud => {
-        let config = self.config.cloud_config.clone().ok_or_else(|| {
-          FlowyError::internal().with_context("AppFlowyCloud configuration is missing")
-        })?;
-        let server = Arc::new(AppFlowyCloudServer::new(
-          config,
+      TryResult::Absent => {},
+      TryResult::Locked => {
+        error!("ServerProvider: Failed to get server for auth type");
+      },
+    }
+  }
+
+  pub async fn on_launch_if_authenticated(
+    &self,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
+
+  pub async fn on_sign_in(&self, tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
+
+  pub async fn on_workspace_opened(
+    &self,
+    tanvity_state: Option<Weak<RwLock<DocumentTantivyState>>>,
+  ) {
+    self.set_tanvity_state(tanvity_state).await;
+  }
+
+  pub fn set_auth_type(&self, new_auth_type: AuthType) {
+    let old_type = self.get_auth_type();
+    if old_type != new_auth_type {
+      info!(
+        "ServerProvider: auth type from {:?} to {:?}",
+        old_type, new_auth_type
+      );
+
+      self.auth_type.store(Arc::new(new_auth_type));
+      if let Some((auth_type, _)) = self.providers.remove(&old_type) {
+        info!("ServerProvider: remove old auth type: {:?}", auth_type);
+      }
+    }
+  }
+
+  pub fn get_auth_type(&self) -> AuthType {
+    *self.auth_type.load_full().as_ref()
+  }
+
+  /// Lazily create or fetch an AppFlowyServer instance
+  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+    let auth_type = self.get_auth_type();
+    if let Some(r) = self.providers.get(&auth_type) {
+      return Ok(r.value().clone());
+    }
+
+    let server: Arc<dyn AppFlowyServer> = match auth_type {
+      AuthType::Local => {
+        let embedding_writer = self.indexed_data_writer.clone().map(|w| {
+          Arc::new(EmbeddingWriterImpl {
+            indexed_data_writer: w,
+          }) as Arc<dyn EmbeddingWriter>
+        });
+        Arc::new(LocalServer::new(
+          self.logged_user.clone(),
+          self.local_ai.clone(),
+          embedding_writer,
+        ))
+      },
+      AuthType::AppFlowyCloud => {
+        let cfg = self
+          .config
+          .cloud_config
+          .clone()
+          .ok_or_else(|| FlowyError::internal().with_context("Missing cloud config"))?;
+        let ai_user_service = Arc::new(AIUserServiceImpl(Arc::downgrade(&self.logged_user)));
+        Arc::new(AppFlowyCloudServer::new(
+          cfg,
           self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),
           self.config.app_version.clone(),
-          self.user.clone(),
-        ));
-
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
+          Arc::downgrade(&self.logged_user),
+          ai_user_service,
+        ))
       },
-    }?;
+    };
 
-    self.providers.insert(server_type.clone(), server.clone());
-    Ok(server)
+    self.providers.insert(auth_type, server);
+    let guard = self.providers.get(&auth_type).unwrap();
+    Ok(guard.clone())
   }
 }
 
-impl From<Authenticator> for Server {
-  fn from(auth_provider: Authenticator) -> Self {
-    match auth_provider {
-      Authenticator::Local => Server::Local,
-      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-    }
-  }
+struct EmbeddingWriterImpl {
+  indexed_data_writer: Weak<InstantIndexedDataWriter>,
 }
 
-impl From<Server> for Authenticator {
-  fn from(ty: Server) -> Self {
-    match ty {
-      Server::Local => Authenticator::Local,
-      Server::AppFlowyCloud => Authenticator::AppFlowyCloud,
-    }
-  }
-}
-impl From<&Authenticator> for Server {
-  fn from(auth_provider: &Authenticator) -> Self {
-    Self::from(auth_provider.clone())
-  }
-}
-
-pub fn current_server_type() -> Server {
-  match AuthenticatorType::from_env() {
-    AuthenticatorType::Local => Server::Local,
-    AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
-  }
-}
-
-struct LocalServerDBImpl {
-  #[allow(dead_code)]
-  storage_path: String,
-}
-
-impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, _uid: i64) -> Result<UserProfile, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_profile"),
-    )
+#[async_trait]
+impl EmbeddingWriter for EmbeddingWriterImpl {
+  async fn index_encoded_collab(
+    &self,
+    workspace_id: Uuid,
+    object_id: Uuid,
+    data: EncodedCollab,
+    collab_type: CollabType,
+  ) -> FlowyResult<()> {
+    let indexed_data_writer = self.indexed_data_writer.upgrade().ok_or_else(|| {
+      FlowyError::internal().with_context("Failed to upgrade InstantIndexedDataWriter")
+    })?;
+    indexed_data_writer
+      .index_encoded_collab(workspace_id, object_id, data, collab_type)
+      .await?;
+    Ok(())
   }
 
-  fn get_user_workspace(&self, _uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    Err(
-      FlowyError::local_version_not_support()
-        .with_context("LocalServer doesn't support get_user_workspace"),
-    )
+  async fn index_unindexed_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
+    let indexed_data_writer = self.indexed_data_writer.upgrade().ok_or_else(|| {
+      FlowyError::internal().with_context("Failed to upgrade InstantIndexedDataWriter")
+    })?;
+    indexed_data_writer.index_unindexed_collab(data).await?;
+    Ok(())
   }
 }

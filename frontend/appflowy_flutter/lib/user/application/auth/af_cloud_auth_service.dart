@@ -18,7 +18,7 @@ class AppFlowyCloudAuthService implements AuthService {
   AppFlowyCloudAuthService();
 
   final BackendAuthService _backendAuthService = BackendAuthService(
-    AuthenticatorPB.AppFlowyCloud,
+    AuthTypePB.Server,
   );
 
   @override
@@ -32,12 +32,17 @@ class AppFlowyCloudAuthService implements AuthService {
   }
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
   }) async {
-    throw UnimplementedError();
+    return _backendAuthService.signInWithEmailPassword(
+      email: email,
+      password: password,
+      params: params,
+    );
   }
 
   @override
@@ -103,6 +108,17 @@ class AppFlowyCloudAuthService implements AuthService {
     return _backendAuthService.signInWithMagicLink(
       email: email,
       params: params,
+    );
+  }
+
+  @override
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>> signInWithPasscode({
+    required String email,
+    required String passcode,
+  }) async {
+    return _backendAuthService.signInWithPasscode(
+      email: email,
+      passcode: passcode,
     );
   }
 

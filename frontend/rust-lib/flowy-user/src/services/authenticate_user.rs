@@ -1,7 +1,6 @@
-use crate::migrations::session_migration::migrate_session_with_user_uuid;
+use crate::migrations::session_migration::migrate_session;
 use crate::services::db::UserDB;
 use crate::services::entities::{UserConfig, UserPaths};
-use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
 use arc_swap::ArcSwapOption;
@@ -10,15 +9,14 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
-use flowy_user_pub::entities::UserWorkspace;
+use flowy_user_pub::entities::{UserWorkspace, WorkspaceType};
 use flowy_user_pub::session::Session;
+use flowy_user_pub::sql::{select_user_workspace, select_user_workspace_type};
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
-
-const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
   pub user_config: UserConfig,
@@ -28,13 +26,20 @@ pub struct AuthenticateUser {
   session: ArcSwapOption<Session>,
 }
 
+impl Drop for AuthenticateUser {
+  fn drop(&mut self) {
+    tracing::trace!(
+      "[Drop ]Drop AuthenticateUser: {:?}",
+      self.session.load_full().map(|s| s.user_id)
+    );
+  }
+}
+
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
-    let session =
-      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences)
-        .map(Arc::new);
+    let session = migrate_session(&user_config.session_cache_key, &store_preferences).map(Arc::new);
     Self {
       user_config,
       database,
@@ -44,26 +49,16 @@ impl AuthenticateUser {
     }
   }
 
-  pub fn vacuum_database_if_need(&self) {
-    if !self
-      .store_preferences
-      .get_bool_or_default(SQLITE_VACUUM_042)
-    {
-      if let Ok(session) = self.get_session() {
-        let _ = self.store_preferences.set_bool(SQLITE_VACUUM_042, true);
-        if let Ok(conn) = self.database.get_connection(session.user_id) {
-          info!("vacuum database 042");
-          if let Err(err) = vacuum_database(conn) {
-            error!("vacuum database error: {:?}", err);
-          }
-        }
-      }
-    }
-  }
-
   pub fn user_id(&self) -> FlowyResult<i64> {
     let session = self.get_session()?;
     Ok(session.user_id)
+  }
+
+  pub async fn is_local_mode(&self) -> FlowyResult<bool> {
+    let session = self.get_session()?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+    Ok(matches!(workspace_type, WorkspaceType::Local))
   }
 
   pub fn device_id(&self) -> FlowyResult<String> {
@@ -72,30 +67,36 @@ impl AuthenticateUser {
 
   pub fn workspace_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    let workspace_uuid = Uuid::from_str(&session.user_workspace.id)?;
+    let workspace_uuid = Uuid::from_str(&session.workspace_id)?;
     Ok(workspace_uuid)
+  }
+
+  pub fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    let session = self.get_session()?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace_type = select_user_workspace_type(&session.workspace_id, &mut conn)?;
+    Ok(workspace_type)
   }
 
   pub fn workspace_database_object_id(&self) -> FlowyResult<Uuid> {
     let session = self.get_session()?;
-    let id = Uuid::from_str(&session.user_workspace.workspace_database_id)?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace = select_user_workspace(&session.workspace_id, &mut conn)?;
+    let id = Uuid::from_str(&workspace.database_storage_id)?;
     Ok(id)
   }
 
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {
-    self
-      .database
-      .get_collab_db(uid)
-      .map(|collab_db| Arc::downgrade(&collab_db))
+    self.database.get_collab_db(uid)
   }
 
   pub fn get_sqlite_connection(&self, uid: i64) -> FlowyResult<DBConnection> {
     self.database.get_connection(uid)
   }
 
-  pub fn get_index_path(&self) -> PathBuf {
-    let uid = self.user_id().unwrap_or(0);
-    PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes")
+  pub fn get_index_path(&self) -> FlowyResult<PathBuf> {
+    let uid = self.user_id()?;
+    Ok(self.user_paths.tanvity_index_path(uid))
   }
 
   pub fn get_user_data_dir(&self) -> FlowyResult<PathBuf> {
@@ -116,9 +117,13 @@ impl AuthenticateUser {
 
   pub fn is_collab_on_disk(&self, uid: i64, object_id: &str) -> FlowyResult<bool> {
     let session = self.get_session()?;
-    let collab_db = self.database.get_collab_db(uid)?;
+    let collab_db = self
+      .database
+      .get_collab_db(uid)?
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Collab db is not initialized"))?;
     let read_txn = collab_db.read_txn();
-    Ok(read_txn.is_exist(uid, session.user_workspace.id.as_str(), object_id))
+    Ok(read_txn.is_exist(uid, session.workspace_id.as_str(), object_id))
   }
 
   pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {
@@ -147,7 +152,7 @@ impl AuthenticateUser {
     self.set_session(Some(Arc::new(Session {
       user_id: session.user_id,
       user_uuid: session.user_uuid,
-      user_workspace,
+      workspace_id: user_workspace.id,
     })))
   }
 
@@ -158,13 +163,14 @@ impl AuthenticateUser {
 
     match self
       .store_preferences
-      .get_object::<Arc<Session>>(&self.user_config.session_cache_key)
+      .get_object::<Session>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        "User is not logged in",
+        "Can't find user session. Please login again",
       )),
       Some(session) => {
+        let session = Arc::new(session);
         self.session.store(Some(session.clone()));
         Ok(session)
       },

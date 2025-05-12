@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'editor_plugins/link_preview/custom_link_preview_block_component.dart';
 import 'editor_plugins/page_block/custom_page_block_component.dart';
 
 /// A global configuration for the editor.
@@ -67,10 +68,13 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node node)? customPadding,
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
-  final configuration = _buildDefaultConfiguration(context);
+  final configuration = _buildDefaultConfiguration(
+    context,
+    padding: customPadding,
+  );
   final builders = _buildBlockComponentBuilderMap(
     context,
     configuration: configuration,
@@ -96,7 +100,10 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   return builders;
 }
 
-BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
+BlockComponentConfiguration _buildDefaultConfiguration(
+  BuildContext context, {
+  EdgeInsets Function(Node node)? padding,
+}) {
   final configuration = BlockComponentConfiguration(
     padding: (node) {
       if (UniversalPlatform.isMobile) {
@@ -116,7 +123,7 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
             right: EditorStyleCustomizer.nodeHorizontalPadding,
           );
         }
-        return edgeInsets;
+        return padding?.call(node) ?? edgeInsets;
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);
@@ -969,11 +976,11 @@ OutlineBlockComponentBuilder _buildOutlineBlockComponentBuilder(
   );
 }
 
-LinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
+CustomLinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return LinkPreviewBlockComponentBuilder(
+  return CustomLinkPreviewBlockComponentBuilder(
     configuration: configuration.copyWith(
       padding: (node) {
         if (UniversalPlatform.isMobile) {
@@ -981,21 +988,6 @@ LinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
         }
         return const EdgeInsets.symmetric(vertical: 10);
       },
-    ),
-    cache: LinkPreviewDataCache(),
-    showMenu: true,
-    menuBuilder: (context, node, state) => Positioned(
-      top: 10,
-      right: 0,
-      child: LinkPreviewMenu(node: node, state: state),
-    ),
-    builder: (_, node, url, title, description, imageUrl) =>
-        CustomLinkPreviewWidget(
-      node: node,
-      url: url,
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
     ),
   );
 }

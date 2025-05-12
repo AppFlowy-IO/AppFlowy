@@ -263,13 +263,10 @@ void main() {
       expect(reminderBloc.state.reminders.length, 0);
 
       final now = DateTime.now();
-      final threeDaysFromToday = DateTime(now.year, now.month, now.day + 3);
-      final fourDaysFromToday = DateTime(now.year, now.month, now.day + 4);
-      final fiveDaysFromToday = DateTime(now.year, now.month, now.day + 5);
+      final yesterday = DateTime(now.year, now.month, now.day - 1);
 
-      bloc.add(DateCellEditorEvent.updateDateTime(threeDaysFromToday));
+      bloc.add(DateCellEditorEvent.updateDateTime(yesterday));
       await gridResponseFuture();
-
       bloc.add(
         const DateCellEditorEvent.setReminderOption(
           ReminderOption.onDayOfEvent,
@@ -281,68 +278,7 @@ void main() {
       expect(
         reminderBloc.state.reminders.first.scheduledAt,
         Int64(
-          threeDaysFromToday
-                  .add(const Duration(hours: 9))
-                  .millisecondsSinceEpoch ~/
-              1000,
-        ),
-      );
-
-      reminderBloc.add(const ReminderEvent.refresh());
-      await gridResponseFuture();
-
-      expect(reminderBloc.state.reminders.length, 1);
-      expect(
-        reminderBloc.state.reminders.first.scheduledAt,
-        Int64(
-          threeDaysFromToday
-                  .add(const Duration(hours: 9))
-                  .millisecondsSinceEpoch ~/
-              1000,
-        ),
-      );
-
-      bloc.add(DateCellEditorEvent.updateDateTime(fourDaysFromToday));
-      await gridResponseFuture();
-      expect(reminderBloc.state.reminders.length, 1);
-      expect(
-        reminderBloc.state.reminders.first.scheduledAt,
-        Int64(
-          fourDaysFromToday
-                  .add(const Duration(hours: 9))
-                  .millisecondsSinceEpoch ~/
-              1000,
-        ),
-      );
-
-      bloc.add(DateCellEditorEvent.updateDateTime(fiveDaysFromToday));
-      await gridResponseFuture();
-      reminderBloc.add(const ReminderEvent.refresh());
-      await gridResponseFuture();
-      expect(reminderBloc.state.reminders.length, 1);
-      expect(
-        reminderBloc.state.reminders.first.scheduledAt,
-        Int64(
-          fiveDaysFromToday
-                  .add(const Duration(hours: 9))
-                  .millisecondsSinceEpoch ~/
-              1000,
-        ),
-      );
-
-      bloc.add(
-        const DateCellEditorEvent.setReminderOption(
-          ReminderOption.twoDaysBefore,
-        ),
-      );
-      await gridResponseFuture();
-      expect(reminderBloc.state.reminders.length, 1);
-      expect(
-        reminderBloc.state.reminders.first.scheduledAt,
-        Int64(
-          threeDaysFromToday
-                  .add(const Duration(hours: 9))
-                  .millisecondsSinceEpoch ~/
+          yesterday.add(const Duration(hours: 9)).millisecondsSinceEpoch ~/
               1000,
         ),
       );
@@ -357,6 +293,31 @@ void main() {
       expect(reminderBloc.state.reminders.length, 0);
     });
 
+    test('set reminder option with later time', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 0);
+
+      final now = DateTime.now();
+      final threeDaysFromToday = DateTime(now.year, now.month, now.day + 3);
+
+      bloc.add(DateCellEditorEvent.updateDateTime(threeDaysFromToday));
+      await gridResponseFuture();
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(
+          ReminderOption.onDayOfEvent,
+        ),
+      );
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 0);
+    });
+
     test('set reminder option from empty', () async {
       final reminderBloc = ReminderBloc();
       final bloc = DateCellEditorBloc(
@@ -366,7 +327,9 @@ void main() {
       await gridResponseFuture();
 
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = DateTime(now.year, now.month, now.day - 1);
+      bloc.add(DateCellEditorEvent.updateDateTime(yesterday));
+      await gridResponseFuture();
       bloc.add(
         const DateCellEditorEvent.setReminderOption(
           ReminderOption.onDayOfEvent,
@@ -374,12 +337,13 @@ void main() {
       );
       await gridResponseFuture();
 
-      expect(bloc.state.dateTime, today);
+      expect(bloc.state.dateTime, yesterday);
       expect(reminderBloc.state.reminders.length, 1);
       expect(
         reminderBloc.state.reminders.first.scheduledAt,
         Int64(
-          today.add(const Duration(hours: 9)).millisecondsSinceEpoch ~/ 1000,
+          yesterday.add(const Duration(hours: 9)).millisecondsSinceEpoch ~/
+              1000,
         ),
       );
 

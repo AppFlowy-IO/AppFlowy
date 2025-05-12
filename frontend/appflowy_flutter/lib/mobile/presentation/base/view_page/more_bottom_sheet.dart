@@ -66,7 +66,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         break;
       case MobileViewBottomSheetBodyAction.delete:
         context.read<ViewBloc>().add(const ViewEvent.delete());
-        context.pop();
+        Navigator.of(context).pop();
         break;
       case MobileViewBottomSheetBodyAction.addToFavorites:
         _addFavorite(context);
@@ -161,7 +161,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     context.pop();
 
     showToastNotification(
-      context,
       message: LocaleKeys.button_duplicateSuccessfully.tr(),
     );
   }
@@ -170,7 +169,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     _toggleFavorite(context);
 
     showToastNotification(
-      context,
       message: LocaleKeys.button_favoriteSuccessfully.tr(),
     );
   }
@@ -179,7 +177,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     _toggleFavorite(context);
 
     showToastNotification(
-      context,
       message: LocaleKeys.button_unfavoriteSuccessfully.tr(),
     );
   }
@@ -202,8 +199,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         ),
       );
       showToastNotification(
-        context,
-        message: LocaleKeys.grid_url_copy.tr(),
+        message: LocaleKeys.message_copy_success.tr(),
       );
     }
   }
@@ -234,12 +230,10 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         ),
       );
       showToastNotification(
-        context,
         message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
       );
     } else {
       showToastNotification(
-        context,
         message: LocaleKeys.shareAction_copyLinkToBlockFailed.tr(),
         type: ToastificationType.error,
       );
@@ -323,11 +317,9 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     if (state.publishResult != null) {
       state.publishResult!.fold(
         (value) => showToastNotification(
-          context,
           message: LocaleKeys.publish_publishSuccessfully.tr(),
         ),
         (error) => showToastNotification(
-          context,
           message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
           type: ToastificationType.error,
         ),
@@ -335,11 +327,9 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     } else if (state.unpublishResult != null) {
       state.unpublishResult!.fold(
         (value) => showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishSuccessfully.tr(),
         ),
         (error) => showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           description: error.msg,
           type: ToastificationType.error,
@@ -349,7 +339,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
       state.updatePathNameResult!.onSuccess(
         (value) {
           showToastNotification(
-            context,
             message:
                 LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
           );

@@ -33,12 +33,10 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          updateAIState: (aiType, editable, hintText) {
+          updateAIState: (modelState) {
             emit(
               state.copyWith(
-                aiType: aiType,
-                editable: editable,
-                hintText: hintText,
+                modelState: modelState,
               ),
             );
           },
@@ -105,15 +103,19 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 
   void _startListening() {
     aiModelStateNotifier.addListener(
-      onStateChanged: (aiType, editable, hintText) {
-        add(AIPromptInputEvent.updateAIState(aiType, editable, hintText));
+      onStateChanged: (modelState) {
+        add(
+          AIPromptInputEvent.updateAIState(modelState),
+        );
       },
     );
   }
 
   void _init() {
-    final (aiType, hintText, isEditable) = aiModelStateNotifier.getState();
-    add(AIPromptInputEvent.updateAIState(aiType, isEditable, hintText));
+    final modelState = aiModelStateNotifier.getState();
+    add(
+      AIPromptInputEvent.updateAIState(modelState),
+    );
   }
 
   Map<String, dynamic> consumeMetadata() {
@@ -133,9 +135,7 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 @freezed
 class AIPromptInputEvent with _$AIPromptInputEvent {
   const factory AIPromptInputEvent.updateAIState(
-    AiType aiType,
-    bool editable,
-    String hintText,
+    AIModelState modelState,
   ) = _UpdateAIState;
 
   const factory AIPromptInputEvent.toggleShowPredefinedFormat() =
@@ -156,25 +156,27 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
-    required AiType aiType,
+    required AIModelState modelState,
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
     required PredefinedFormat? predefinedFormat,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
-    required bool editable,
-    required String hintText,
   }) = _AIPromptInputState;
 
   factory AIPromptInputState.initial(PredefinedFormat? format) =>
       AIPromptInputState(
-        aiType: AiType.cloud,
+        modelState: AIModelState(
+          type: AiType.cloud,
+          isEditable: true,
+          hintText: '',
+          localAIEnabled: false,
+          tooltip: null,
+        ),
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
         predefinedFormat: format,
         attachedFiles: [],
         mentionedPages: [],
-        editable: true,
-        hintText: '',
       );
 }

@@ -1,4 +1,3 @@
-use af_local_ai::ai_ops::{LocalAITranslateItem, LocalAITranslateRowData};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
@@ -21,7 +20,7 @@ impl DatabaseDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
     ai_manager: Arc<AIManager>,
@@ -50,53 +49,54 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
     &self,
     workspace_id: &Uuid,
     object_id: &Uuid,
-    _summary_row: SummaryRowContent,
+    summary_row: SummaryRowContent,
   ) -> Result<String, FlowyError> {
-    if self.ai_manager.local_ai.is_running() {
+    if self
+      .ai_manager
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string())
+    {
+      let model = self
+        .ai_manager
+        .get_active_model(&object_id.to_string())
+        .await;
       self
         .ai_manager
         .local_ai
-        .summary_database_row(_summary_row)
+        .summarize_database_row(&model.name, summary_row)
         .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))
     } else {
       self
         .ai_service
-        .summary_database_row(workspace_id, object_id, _summary_row)
+        .summary_database_row(workspace_id, object_id, summary_row)
         .await
     }
   }
 
   async fn translate_database_row(
     &self,
-    _workspace_id: &Uuid,
-    _translate_row: TranslateRowContent,
-    _language: &str,
+    workspace_id: &Uuid,
+    translate_row: TranslateRowContent,
+    language: &str,
   ) -> Result<TranslateRowResponse, FlowyError> {
-    if self.ai_manager.local_ai.is_running() {
-      let data = LocalAITranslateRowData {
-        cells: _translate_row
-          .into_iter()
-          .map(|row| LocalAITranslateItem {
-            title: row.title,
-            content: row.content,
-          })
-          .collect(),
-        language: _language.to_string(),
-        include_header: false,
-      };
-      let resp = self
+    if self
+      .ai_manager
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string())
+    {
+      let model = self
+        .ai_manager
+        .get_active_model(&workspace_id.to_string())
+        .await;
+      self
         .ai_manager
         .local_ai
-        .translate_database_row(data)
+        .translate_database_row(&model.name, translate_row, language)
         .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))?;
-
-      Ok(TranslateRowResponse { items: resp.items })
     } else {
       self
         .ai_service
-        .translate_database_row(_workspace_id, _translate_row, _language)
+        .translate_database_row(workspace_id, translate_row, language)
         .await
     }
   }

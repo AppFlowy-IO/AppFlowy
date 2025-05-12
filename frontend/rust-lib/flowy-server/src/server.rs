@@ -2,23 +2,40 @@ use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use arc_swap::ArcSwapOption;
 use client_api::collab_sync::ServerCollabMessage;
+use collab::entity::EncodedCollab;
+use collab_entity::CollabType;
 use flowy_ai_pub::cloud::ChatCloudService;
-use tokio_stream::wrappers::WatchStream;
-#[cfg(feature = "enable_supabase")]
-use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
-
-use crate::default_impl::DefaultChatCloudServiceImpl;
+use flowy_ai_pub::entities::UnindexedCollab;
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
+use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
+use lib_infra::async_trait::async_trait;
+use tokio::sync::RwLock;
+use tokio_stream::wrappers::WatchStream;
+use uuid::Uuid;
+
+#[async_trait]
+pub trait EmbeddingWriter: Send + Sync + 'static {
+  async fn index_encoded_collab(
+    &self,
+    workspace_id: Uuid,
+    object_id: Uuid,
+    data: EncodedCollab,
+    collab_type: CollabType,
+  ) -> FlowyResult<()>;
+
+  async fn index_unindexed_collab(&self, data: UnindexedCollab) -> FlowyResult<()>;
+}
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;
@@ -41,11 +58,10 @@ where
 /// `AppFlowyServer` trait defines a collection of services that offer cloud-based interactions
 /// and functionalities in AppFlowy. The methods provided ensure efficient, asynchronous operations
 /// for managing and accessing user data, folders, collaborative objects, and documents in a cloud environment.
+#[async_trait]
 pub trait AppFlowyServer: Send + Sync + 'static {
-  fn set_token(&self, _token: &str) -> Result<(), Error> {
-    Ok(())
-  }
-
+  fn set_token(&self, _token: &str) -> Result<(), Error>;
+  async fn set_tanvity_state(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>);
   fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
     Ok(())
   }
@@ -103,29 +119,11 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// An `Arc` wrapping the `DocumentCloudService` interface.
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
 
-  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
-    Arc::new(DefaultChatCloudServiceImpl)
-  }
+  fn chat_service(&self) -> Arc<dyn ChatCloudService>;
 
   /// Bridge for the Cloud AI Search features
   ///
-  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
-
-  /// Manages collaborative objects within a remote storage system. This includes operations such as
-  /// checking storage status, retrieving updates and snapshots, and dispatching updates. The service
-  /// also provides subscription capabilities for real-time updates.
-  ///
-  /// # Arguments
-  ///
-  /// * `collab_object` - A reference to the collaborative object.
-  ///
-  /// # Returns
-  ///
-  /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
-  #[cfg(feature = "enable_supabase")]
-  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
-    None
-  }
+  async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
     None

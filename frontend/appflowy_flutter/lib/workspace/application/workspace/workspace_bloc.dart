@@ -2,6 +2,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -64,7 +65,8 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     String desc,
     Emitter<WorkspaceState> emit,
   ) async {
-    final result = await userService.createWorkspace(name, desc);
+    final result =
+        await userService.createUserWorkspace(name, WorkspaceTypePB.ServerW);
     emit(
       result.fold(
         (workspace) {

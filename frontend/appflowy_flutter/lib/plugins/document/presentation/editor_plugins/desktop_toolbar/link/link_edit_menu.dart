@@ -3,16 +3,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/util/link_util.dart';
+import 'package:flutter/services.dart';
 import 'link_create_menu.dart';
 import 'link_search_text_field.dart';
 import 'link_styles.dart';
@@ -38,20 +39,21 @@ class LinkEditMenu extends StatefulWidget {
 }
 
 class _LinkEditMenuState extends State<LinkEditMenu> {
-  ValueChanged<LinkInfo> get onApply => widget.onApply;
-
   ValueChanged<LinkInfo> get onRemoveLink => widget.onRemoveLink;
 
   VoidCallback get onDismiss => widget.onDismiss;
 
   late TextEditingController linkNameController =
       TextEditingController(text: linkInfo.name);
-  final textFocusNode = FocusNode();
+  late FocusNode textFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late FocusNode menuFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
   late LinkInfo linkInfo = widget.linkInfo;
   late LinkSearchTextField searchTextField;
   bool isShowingSearchResult = false;
   ViewPB? currentView;
   bool showErrorText = false;
+
+  AppFlowyThemeData? get theme => AppFlowyTheme.maybeOf(context);
 
   @override
   void initState() {
@@ -74,12 +76,14 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         if (mounted) setState(() {});
       },
     )..searchRecentViews();
+    makeSureHasFocus();
   }
 
   @override
   void dispose() {
     linkNameController.dispose();
     textFocusNode.dispose();
+    menuFocusNode.dispose();
     searchTextField.dispose();
     super.dispose();
   }
@@ -89,58 +93,62 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     final showingRecent =
         searchTextField.showingRecent && isShowingSearchResult;
     final errorHeight = showErrorText ? 20.0 : 0.0;
+    final theme = AppFlowyTheme.of(context);
     return GestureDetector(
       onTap: onDismiss,
-      child: Container(
-        width: 400,
-        height: 250 + (showingRecent ? 32 : 0),
-        color: Colors.white.withAlpha(1),
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: hideSearchResult,
-              child: Container(
-                width: 400,
-                height: 192 + errorHeight,
-                decoration: buildToolbarLinkDecoration(context),
+      child: Focus(
+        focusNode: menuFocusNode,
+        child: Container(
+          width: 400,
+          height: 250 + (showingRecent ? 32 : 0),
+          color: Colors.white.withAlpha(1),
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: hideSearchResult,
+                child: Container(
+                  width: 400,
+                  height: 192 + errorHeight,
+                  decoration: buildToolbarLinkDecoration(context),
+                ),
               ),
-            ),
-            Positioned(
-              top: 16,
-              left: 20,
-              child: FlowyText.semibold(
-                LocaleKeys.document_toolbar_pageOrURL.tr(),
-                color: LinkStyle.textTertiary,
-                fontSize: 12,
-                figmaLineHeight: 16,
+              Positioned(
+                top: 16,
+                left: 20,
+                child: FlowyText.semibold(
+                  LocaleKeys.document_toolbar_pageOrURL.tr(),
+                  color: theme.textColorScheme.tertiary,
+                  fontSize: 12,
+                  figmaLineHeight: 16,
+                ),
               ),
-            ),
-            Positioned(
-              top: 80 + errorHeight,
-              left: 20,
-              child: FlowyText.semibold(
-                LocaleKeys.document_toolbar_linkName.tr(),
-                color: LinkStyle.textTertiary,
-                fontSize: 12,
-                figmaLineHeight: 16,
+              Positioned(
+                top: 80 + errorHeight,
+                left: 20,
+                child: FlowyText.semibold(
+                  LocaleKeys.document_toolbar_linkName.tr(),
+                  color: theme.textColorScheme.tertiary,
+                  fontSize: 12,
+                  figmaLineHeight: 16,
+                ),
               ),
-            ),
-            Positioned(
-              top: 144 + errorHeight,
-              left: 20,
-              child: buildButtons(),
-            ),
-            Positioned(
-              top: 100 + errorHeight,
-              left: 20,
-              child: buildNameTextField(),
-            ),
-            Positioned(
-              top: 36,
-              left: 20,
-              child: buildLinkField(),
-            ),
-          ],
+              Positioned(
+                top: 144 + errorHeight,
+                left: 20,
+                child: buildButtons(),
+              ),
+              Positioned(
+                top: 100 + errorHeight,
+                left: 20,
+                child: buildNameTextField(),
+              ),
+              Positioned(
+                top: 36,
+                left: 20,
+                child: buildLinkField(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -189,7 +197,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
             padding: const EdgeInsets.only(top: 4),
             child: FlowyText.regular(
               LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
-              color: LinkStyle.textStatusError,
+              color: theme?.textColorScheme.error,
               fontSize: 12,
               figmaLineHeight: 16,
             ),
@@ -231,9 +239,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                 constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
                 fontSize: 14,
                 lineHeight: 20 / 14,
-                fontColor: Theme.of(context).isLightMode
-                    ? LinkStyle.textPrimary
-                    : Theme.of(context).iconTheme.color,
+                fontColor: theme?.textColorScheme.primary,
                 fillColor: Colors.transparent,
                 fontWeight: FontWeight.w400,
                 onPressed: onDismiss,
@@ -250,27 +256,11 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                   constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
                   fontSize: 14,
                   lineHeight: 20 / 14,
-                  hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
+                  hoverColor: theme?.fillColorScheme.themeThick.withAlpha(200),
                   fontColor: Colors.white,
-                  fillColor: LinkStyle.fillThemeThick,
+                  fillColor: theme?.fillColorScheme.themeThick,
                   fontWeight: FontWeight.w400,
-                  onPressed: () {
-                    if (isShowingSearchResult) {
-                      onConfirm();
-                      return;
-                    }
-                    if (linkInfo.link.isEmpty) {
-                      widget.onRemoveLink(linkInfo);
-                      return;
-                    }
-                    if (linkInfo.link.isEmpty || !isUri(linkInfo.link)) {
-                      setState(() {
-                        showErrorText = true;
-                      });
-                      return;
-                    }
-                    widget.onApply.call(linkInfo);
-                  },
+                  onPressed: onApply,
                 );
               },
             ),
@@ -287,6 +277,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         focusNode: textFocusNode,
+        autofocus: true,
         textAlign: TextAlign.left,
         controller: linkNameController,
         style: TextStyle(
@@ -395,6 +386,46 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     );
   }
 
+  KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
+    if (key is! KeyDownEvent) return KeyEventResult.ignored;
+    if (key.logicalKey == LogicalKeyboardKey.enter) {
+      onApply();
+      return KeyEventResult.handled;
+    } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+      onDismiss();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Future<void> makeSureHasFocus() async {
+    final focusNode = textFocusNode;
+    if (!mounted || focusNode.hasFocus) return;
+    focusNode.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      makeSureHasFocus();
+    });
+  }
+
+  void onApply() {
+    if (isShowingSearchResult) {
+      onConfirm();
+      return;
+    }
+    if (linkInfo.link.isEmpty) {
+      widget.onRemoveLink(linkInfo);
+      return;
+    }
+    if (linkInfo.link.isEmpty || !isUri(linkInfo.link)) {
+      setState(() {
+        showErrorText = true;
+      });
+      return;
+    }
+    widget.onApply.call(linkInfo);
+    onDismiss();
+  }
+
   void onConfirm() {
     searchTextField.onSearchResult(
       onLink: onLinkSelected,
@@ -404,6 +435,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         searchTextField.unfocus();
       },
     );
+    menuFocusNode.requestFocus();
   }
 
   Future<void> getPageView() async {

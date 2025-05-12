@@ -32,7 +32,6 @@ class DesktopAppFlowyDatePicker extends AppFlowyDatePicker {
     super.onIncludeTimeChanged,
     super.onIsRangeChanged,
     super.onReminderSelected,
-    super.enableDidUpdate,
     this.popoverMutex,
     this.options = const [],
   });
@@ -152,7 +151,7 @@ class DesktopAppFlowyDatePickerState
               const _GroupSeparator(),
               ReminderSelector(
                 mutex: widget.popoverMutex,
-                hasTime: widget.includeTime,
+                hasTime: includeTime,
                 timeFormat: widget.timeFormat,
                 selectedOption: reminderOption,
                 onOptionSelected: (option) {

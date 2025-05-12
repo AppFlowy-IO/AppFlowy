@@ -1,8 +1,8 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::define::LoggedUser;
 use anyhow::Error;
 use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
@@ -24,24 +24,25 @@ use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 
+use super::impls::AFCloudSearchCloudServiceImpl;
+use crate::af_cloud::impls::{
+  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
+  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl, CloudChatServiceImpl,
+};
+use crate::AppFlowyServer;
+use flowy_ai::offline::offline_message_sync::AutoSyncChatService;
+use flowy_ai_pub::user_service::AIUserService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use lib_infra::async_trait::async_trait;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
-use tokio::sync::watch;
+use tokio::sync::{watch, RwLock};
 use tokio::task::JoinHandle;
 use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-
-use crate::af_cloud::impls::{
-  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
-  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
-};
-
-use crate::AppFlowyServer;
-
-use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -53,7 +54,9 @@ pub struct AppFlowyCloudServer {
   network_reachable: Arc<AtomicBool>,
   pub device_id: String,
   ws_client: Arc<WSClient>,
-  user: Arc<dyn ServerUser>,
+  logged_user: Weak<dyn LoggedUser>,
+  ai_user_service: Arc<dyn AIUserService>,
+  tanvity_state: RwLock<Option<Weak<RwLock<DocumentTantivyState>>>>,
 }
 
 impl AppFlowyCloudServer {
@@ -62,7 +65,8 @@ impl AppFlowyCloudServer {
     enable_sync: bool,
     mut device_id: String,
     client_version: Version,
-    user: Arc<dyn ServerUser>,
+    logged_user: Weak<dyn LoggedUser>,
+    ai_user_service: Arc<dyn AIUserService>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -91,8 +95,8 @@ impl AppFlowyCloudServer {
     );
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
-
     spawn_ws_conn(token_state_rx, &ws_client, &api_client, &enable_sync);
+
     Self {
       config,
       client: api_client,
@@ -100,19 +104,23 @@ impl AppFlowyCloudServer {
       network_reachable,
       device_id,
       ws_client,
-      user,
+      logged_user,
+      ai_user_service,
+      tanvity_state: Default::default(),
     }
   }
 
-  fn get_client(&self) -> Option<Arc<AFCloudClient>> {
-    if self.enable_sync.load(Ordering::SeqCst) {
+  fn get_server_impl(&self) -> AFServerImpl {
+    let client = if self.enable_sync.load(Ordering::SeqCst) {
       Some(self.client.clone())
     } else {
       None
-    }
+    };
+    AFServerImpl { client }
   }
 }
 
+#[async_trait]
 impl AppFlowyServer for AppFlowyCloudServer {
   fn set_token(&self, token: &str) -> Result<(), Error> {
     self
@@ -165,9 +173,6 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
     tokio::spawn(async move {
@@ -185,57 +190,47 @@ impl AppFlowyServer for AppFlowyCloudServer {
     });
 
     Arc::new(AFCloudUserAuthServiceImpl::new(
-      server,
+      self.get_server_impl(),
       rx,
-      self.user.clone(),
+      self.logged_user.clone(),
     ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudFolderCloudServiceImpl {
-      inner: server,
-      user: self.user.clone(),
+      inner: self.get_server_impl(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudDatabaseCloudServiceImpl {
-      inner: server,
-      user: self.user.clone(),
+      inner: self.get_server_impl(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
   fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Some(Arc::new(AFCloudDatabaseCloudServiceImpl {
-      inner: server,
-      user: self.user.clone(),
+      inner: self.get_server_impl(),
+      logged_user: self.logged_user.clone(),
     }))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
     Arc::new(AFCloudDocumentCloudServiceImpl {
-      inner: server,
-      user: self.user.clone(),
+      inner: self.get_server_impl(),
+      logged_user: self.logged_user.clone(),
     })
   }
 
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
-    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
+    Arc::new(AutoSyncChatService::new(
+      Arc::new(CloudChatServiceImpl {
+        inner: self.get_server_impl(),
+      }),
+      self.ai_user_service.clone(),
+    ))
   }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
@@ -265,21 +260,22 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
-    let client = AFServerImpl {
-      client: self.get_client(),
-    };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(
-      client,
+      self.get_server_impl(),
       self.config.maximum_upload_file_size_in_bytes,
     )))
   }
 
-  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
-    let server = AFServerImpl {
-      client: self.get_client(),
-    };
+  async fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let state = self.tanvity_state.read().await.clone();
+    Some(Arc::new(AFCloudSearchCloudServiceImpl {
+      server: self.get_server_impl(),
+      state,
+    }))
+  }
 
-    Some(Arc::new(AFCloudSearchCloudServiceImpl { inner: server }))
+  async fn set_tanvity_state(&self, state: Option<Weak<RwLock<DocumentTantivyState>>>) {
+    *self.tanvity_state.write().await = state;
   }
 }
 

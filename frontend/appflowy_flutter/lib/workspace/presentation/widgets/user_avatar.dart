@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -17,12 +18,14 @@ class UserAvatar extends StatelessWidget {
     required this.fontSize,
     this.isHovering = false,
     this.decoration,
+    this.emojiFontSize,
   });
 
   final String iconUrl;
   final String name;
   final double size;
   final double fontSize;
+  final double? emojiFontSize;
   final Decoration? decoration;
 
   // If true, a border will be applied on top of the avatar
@@ -40,6 +43,7 @@ class UserAvatar extends StatelessWidget {
   }
 
   Widget _buildEmptyAvatar(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final String nameOrDefault = _userName(name);
     final Color color = ColorGenerator(name).toColor();
     const initialsCount = 2;
@@ -67,10 +71,11 @@ class UserAvatar extends StatelessWidget {
                   )
                 : null,
           ),
-      child: FlowyText.medium(
+      child: Text(
         nameInitials,
-        color: Colors.black,
-        fontSize: fontSize,
+        style: theme.textStyle.caption
+            .standard(color: AppFlowyPrimitiveTokens.subtleColorIron600)
+            .copyWith(fontSize: fontSize),
       ),
     );
   }
@@ -127,7 +132,10 @@ class UserAvatar extends StatelessWidget {
                     FlowySvgData('emoji/$iconUrl'),
                     blendMode: null,
                   )
-                : FlowyText.emoji(iconUrl, fontSize: fontSize),
+                : FlowyText.emoji(
+                    iconUrl,
+                    fontSize: emojiFontSize ?? fontSize,
+                  ),
           ),
         ),
       ),

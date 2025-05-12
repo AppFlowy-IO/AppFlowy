@@ -10,6 +10,8 @@ class PlatformErrorCatcherTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // Handle platform errors not caught by Flutter.
     // Reduces the likelihood of the app crashing, and logs the error.
     // only active in non debug mode.
@@ -37,7 +39,4 @@ class PlatformErrorCatcherTask extends LaunchTask {
       return const SizedBox.shrink();
     };
   }
-
-  @override
-  Future<void> dispose() async {}
 }

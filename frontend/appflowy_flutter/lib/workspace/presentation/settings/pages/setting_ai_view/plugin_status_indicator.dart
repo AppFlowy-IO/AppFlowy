@@ -19,84 +19,19 @@ class LocalAIStatusIndicator extends StatelessWidget {
     return BlocBuilder<LocalAiPluginBloc, LocalAiPluginState>(
       builder: (context, state) {
         return state.maybeWhen(
-          ready: (_, version, runningState, lackOfResource) {
+          ready: (_, isReady, lackOfResource) {
             if (lackOfResource != null) {
               return _LackOfResource(resource: lackOfResource);
             }
 
-            return switch (runningState) {
-              RunningStatePB.ReadyToRun => const _ReadyToRun(),
-              RunningStatePB.Connecting ||
-              RunningStatePB.Connected =>
-                _Initializing(),
-              RunningStatePB.Running => _LocalAIRunning(version: version),
-              RunningStatePB.Stopped => const _RestartPluginButton(),
-              _ => const SizedBox.shrink(),
+            return switch (isReady) {
+              true => const _LocalAIRunning(),
+              false => const _RestartPluginButton(),
             };
           },
           orElse: () => const SizedBox.shrink(),
         );
       },
-    );
-  }
-}
-
-class _ReadyToRun extends StatelessWidget {
-  const _ReadyToRun();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const SizedBox.square(
-            dimension: 20.0,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.0,
-              strokeAlign: BorderSide.strokeAlignInside,
-            ),
-          ),
-          const HSpace(8.0),
-          Expanded(
-            child: FlowyText(
-              LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Initializing extends StatelessWidget {
-  const _Initializing();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const SizedBox.square(
-            dimension: 20.0,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.0,
-              strokeAlign: BorderSide.strokeAlignInside,
-            ),
-          ),
-          HSpace(8),
-          Expanded(
-            child: FlowyText(
-              LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -163,16 +98,11 @@ class _RestartPluginButton extends StatelessWidget {
 }
 
 class _LocalAIRunning extends StatelessWidget {
-  const _LocalAIRunning({
-    required this.version,
-  });
-
-  final String version;
+  const _LocalAIRunning();
 
   @override
   Widget build(BuildContext context) {
     final runningText = LocaleKeys.settings_aiPage_keys_localAIRunning.tr();
-    final text = version.isEmpty ? runningText : "$runningText ($version)";
 
     return Container(
       decoration: const BoxDecoration(
@@ -189,7 +119,7 @@ class _LocalAIRunning extends StatelessWidget {
           const HSpace(6),
           Expanded(
             child: FlowyText(
-              text,
+              runningText,
               color: const Color(0xFF1E4620),
               maxLines: 3,
             ),
@@ -286,6 +216,10 @@ class _LackOfResource extends StatelessWidget {
         children: [
           TextSpan(
             text: LocaleKeys.settings_aiPage_keys_modelsMissing.tr(),
+            style: textStyle,
+          ),
+          TextSpan(
+            text: modelNames.join(', '),
             style: textStyle,
           ),
           TextSpan(

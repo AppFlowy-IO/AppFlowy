@@ -54,17 +54,27 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
               );
             });
           },
-          removeUserIcon: () {
-            // Empty Icon URL = No icon
-            _userService.updateUserProfile(iconUrl: "").then((result) {
+          updateUserEmail: (String email) {
+            _userService.updateUserProfile(email: email).then((result) {
               result.fold(
                 (l) => null,
                 (err) => Log.error(err),
               );
             });
           },
-          updateUserEmail: (String email) {
-            _userService.updateUserProfile(email: email).then((result) {
+          updateUserPassword: (String oldPassword, String newPassword) {
+            _userService
+                .updateUserProfile(password: newPassword)
+                .then((result) {
+              result.fold(
+                (l) => null,
+                (err) => Log.error(err),
+              );
+            });
+          },
+          removeUserIcon: () {
+            // Empty Icon URL = No icon
+            _userService.updateUserProfile(iconUrl: "").then((result) {
               result.fold(
                 (l) => null,
                 (err) => Log.error(err),
@@ -104,10 +114,19 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 @freezed
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
-  const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory SettingsUserEvent.updateUserEmail(String email) = _UpdateEmail;
-  const factory SettingsUserEvent.updateUserIcon({required String iconUrl}) =
-      _UpdateUserIcon;
+  const factory SettingsUserEvent.updateUserName({
+    required String name,
+  }) = _UpdateUserName;
+  const factory SettingsUserEvent.updateUserEmail({
+    required String email,
+  }) = _UpdateEmail;
+  const factory SettingsUserEvent.updateUserIcon({
+    required String iconUrl,
+  }) = _UpdateUserIcon;
+  const factory SettingsUserEvent.updateUserPassword({
+    required String oldPassword,
+    required String newPassword,
+  }) = _UpdateUserPassword;
   const factory SettingsUserEvent.removeUserIcon() = _RemoveUserIcon;
   const factory SettingsUserEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,

@@ -33,7 +33,9 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
+use crate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use flowy_error::FlowyError;
+use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
 use uuid::Uuid;
@@ -79,14 +81,17 @@ pub struct AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
+  embeddings_writer: Option<Weak<InstantIndexedDataWriter>>,
 }
 
 impl AppFlowyCollabBuilder {
   pub fn new(
     storage_provider: impl CollabCloudPluginProvider + 'static,
     workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
+    embeddings_writer: Option<Weak<InstantIndexedDataWriter>>,
   ) -> Self {
     Self {
+      embeddings_writer,
       network_reachability: CollabConnectReachability::new(),
       plugin_provider: ArcSwap::new(Arc::new(Arc::new(storage_provider))),
       snapshot_persistence: Default::default(),
@@ -277,7 +282,7 @@ impl AppFlowyCollabBuilder {
     let collab_db = collab_db.clone();
     let device_id = self.workspace_integrate.device_id()?;
     let collab = tokio::task::spawn_blocking(move || {
-      let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
+      let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
         .with_device_id(device_id)
         .build()?;
       let persistence_config = CollabPersistenceConfig::default();
@@ -290,7 +295,6 @@ impl AppFlowyCollabBuilder {
         persistence_config,
       );
       collab.add_plugin(Box::new(db_plugin));
-      collab.initialize();
       Ok::<_, Error>(collab)
     })
     .await??;
@@ -307,6 +311,19 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
+    if get_operating_system().is_desktop() {
+      let cloned_object = object.clone();
+      let weak_collab = Arc::downgrade(&collab);
+      let weak_embedding_writer = self.embeddings_writer.clone();
+      tokio::spawn(async move {
+        if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
+          embedding_writer
+            .queue_collab_embed(cloned_object, weak_collab)
+            .await;
+        }
+      });
+    }
+
     let mut write_collab = collab.try_write()?;
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
     if has_cloud_plugin {
@@ -360,7 +377,12 @@ impl AppFlowyCollabBuilder {
   {
     if let Some(collab_db) = collab_db.upgrade() {
       let write_txn = collab_db.write_txn();
-      trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
+      trace!(
+        "flush workspace: {} {}:collab:{} to disk",
+        workspace_id,
+        collab_type,
+        object_id
+      );
       let collab: &Collab = collab.borrow();
       let encode_collab =
         collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;

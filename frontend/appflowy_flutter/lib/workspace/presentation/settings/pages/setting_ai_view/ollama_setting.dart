@@ -7,6 +7,14 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 class OllamaSettingPage extends StatelessWidget {
   const OllamaSettingPage({super.key});
 
@@ -32,6 +40,7 @@ class OllamaSettingPage extends StatelessWidget {
               children: [
                 for (final item in state.inputItems)
                   _SettingItemWidget(item: item),
+                const LocalAIModelSelection(),
                 _SaveButton(isEdited: state.isEdited),
               ],
             ),
@@ -61,14 +70,26 @@ class _SettingItemWidget extends StatelessWidget {
         const VSpace(4),
         SizedBox(
           height: 32,
-          child: FlowyTextField(
-            hintText: item.hintText,
-            text: item.content,
-            onChanged: (content) {
-              context.read<OllamaSettingBloc>().add(
-                    OllamaSettingEvent.onEdit(content, item.settingType),
-                  );
-            },
+          child: FlowyTooltip(
+            message: item.editable
+                ? null
+                : LocaleKeys.settings_aiPage_keys_readOnlyField.tr(),
+            child: FlowyTextField(
+              autoFocus: false,
+              hintText: item.hintText,
+              text: item.content,
+              readOnly: !item.editable,
+              onChanged: item.editable
+                  ? (content) {
+                      context.read<OllamaSettingBloc>().add(
+                            OllamaSettingEvent.onEdit(
+                              content,
+                              item.settingType,
+                            ),
+                          );
+                    }
+                  : null,
+            ),
           ),
         ),
       ],
@@ -109,6 +130,63 @@ class _SaveButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LocalAIModelSelection extends StatelessWidget {
+  const LocalAIModelSelection({super.key});
+  static const double height = 49;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<OllamaSettingBloc, OllamaSettingState>(
+      buildWhen: (previous, current) =>
+          previous.localModels != current.localModels,
+      builder: (context, state) {
+        final models = state.localModels;
+        if (models == null) {
+          return const SizedBox(
+            // Using same height as SettingsDropdown to avoid layout shift
+            height: height,
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlowyText.medium(
+              LocaleKeys.settings_aiPage_keys_globalLLMModel.tr(),
+              fontSize: 12,
+              figmaLineHeight: 16,
+            ),
+            const VSpace(4),
+            SizedBox(
+              height: 40,
+              child: SettingsDropdown<AIModelPB>(
+                key: const Key('_AIModelSelection'),
+                textStyle: Theme.of(context).textTheme.bodySmall,
+                onChanged: (model) => context
+                    .read<OllamaSettingBloc>()
+                    .add(OllamaSettingEvent.setDefaultModel(model)),
+                selectedOption: models.selectedModel,
+                selectOptionCompare: (left, right) => left?.name == right?.name,
+                options: models.models
+                    .map(
+                      (model) => buildDropdownMenuEntry<AIModelPB>(
+                        context,
+                        value: model,
+                        label: model.i18n,
+                        subLabel: model.desc,
+                        maximumHeight: height,
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

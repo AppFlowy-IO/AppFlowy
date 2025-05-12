@@ -13,10 +13,12 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart'
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/search/mobile_search_page.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
+import 'package:appflowy/mobile/presentation/setting/workspace/add_members_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/workspace/invite_members_screen.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
@@ -51,7 +53,6 @@ GoRouter generateRouter(Widget child) {
       // Routes in both desktop and mobile
       _signInScreenRoute(),
       _skipLogInScreenRoute(),
-      _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
       if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
@@ -104,6 +105,7 @@ GoRouter generateRouter(Widget child) {
 
         // invite members
         _mobileInviteMembersPageRoute(),
+        _mobileAddMembersPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -114,18 +116,6 @@ GoRouter generateRouter(Widget child) {
           return CustomTransitionPage(
             child: WorkspaceStartScreen(
               userProfile: args[WorkspaceStartScreen.argUserProfile],
-            ),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
-      GoRoute(
-        path: SignUpScreen.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            child: SignUpScreen(
-              router: getIt<AuthRouter>(),
             ),
             transitionsBuilder: _buildFadeTransition,
             transitionDuration: _slowDuration,
@@ -157,6 +147,16 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
             path: MobileHomeScreen.routeName,
             builder: (BuildContext context, GoRouterState state) {
               return const MobileHomeScreen();
+            },
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: <RouteBase>[
+          GoRoute(
+            path: MobileSearchScreen.routeName,
+            builder: (BuildContext context, GoRouterState state) {
+              return const MobileSearchScreen();
             },
           ),
         ],
@@ -213,6 +213,16 @@ GoRoute _mobileInviteMembersPageRoute() {
       return const MaterialExtendedPage(
         child: InviteMembersScreen(),
       );
+    },
+  );
+}
+
+GoRoute _mobileAddMembersPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: AddMembersScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialExtendedPage(child: AddMembersScreen());
     },
   );
 }
@@ -463,23 +473,6 @@ GoRoute _workspaceErrorScreenRoute() {
         child: WorkspaceErrorScreen(
           error: args[WorkspaceErrorScreen.argError],
           userFolder: args[WorkspaceErrorScreen.argUserFolder],
-        ),
-        transitionsBuilder: _buildFadeTransition,
-        transitionDuration: _slowDuration,
-      );
-    },
-  );
-}
-
-GoRoute _encryptSecretScreenRoute() {
-  return GoRoute(
-    path: EncryptSecretScreen.routeName,
-    pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
-      return CustomTransitionPage(
-        child: EncryptSecretScreen(
-          user: args[EncryptSecretScreen.argUser],
-          key: args[EncryptSecretScreen.argKey],
         ),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,

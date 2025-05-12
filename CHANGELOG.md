@@ -1,4 +1,67 @@
 # Release Notes
+## Version 0.9.1 - 01/05/2025
+### Desktop
+#### New Features
+- Added AppFlowy Prompt Library to AI Chat and Document's Ask AI
+- Revamped the desktop in-app notification center
+- Supported login with password, as well as forgot and change password options
+- Supported copying link to invite members
+- Improved the Settings' Members tab with new metadata: member avatar and joined time
+#### Bug Fixes
+- Fixed data loss when using anonymous local
+- Fixed crash when trying to delete an emoji
+- Fixed Windows scaling issue
+- Correctly displayed mention text by decoding web content
+### Mobile
+#### New Features
+- Supported workspace search
+- Improved UX for links in documents
+- Supported changing password in Mobile Settings
+- Added support for inviting members via links
+#### Bug Fixes
+- Correctly displayed mention text by decoding web content
+
+## Version 0.9.0 - 30/04/2025
+### Desktop
+#### New Features
+- Added AppFlowy Prompt Library to AI Chat and Document's Ask AI
+- Revamped the desktop in-app notification center
+- Supported login with password, as well as forgot and change password options
+- Supported copying link to invite members
+- Improved the Settings' Members tab with new metadata: member avatar and joined time
+#### Bug Fixes
+- Fixed crash when trying to delete an emoji
+- Fixed Windows scaling issue
+- Correctly displayed mention text by decoding web content
+### Mobile
+#### New Features
+- Supported workspace search
+- Improved UX for links in documents
+- Supported changing password in Mobile Settings
+- Added support for inviting members via links
+#### Bug Fixes
+- Correctly displayed mention text by decoding web content
+
+## Version 0.8.9 - 16/04/2025
+### Desktop
+#### New Features
+- Supported pasting a link as a mention, providing a more condensed visualization of linked content
+- Supported converting between link formats (e.g. transforming a mention into a bookmark)
+- Improved the link editing experience with enhanced UX
+- Added OTP (One-Time Password) support for sign-in authentication
+- Added latest AI models: GPT-4.1, GPT-4.1-mini, and Claude 3.7 Sonnet
+#### Bug Fixes
+- Fixed an issue where properties were not displaying in the row detail page
+- Fixed a bug where Undo didn't work in the row detail page
+- Fixed an issue where blocks didn't grow when the grid got bigger
+- Fixed several bugs related to AI writers
+### Mobile
+#### New Features
+- Added sign-in with OTP (One-Time Password)
+#### Bug Fixes
+- Fixed an issue where the slash menu sometimes failed to display
+- Updated the mention page block to handle page selection with more context.
+
 ## Version 0.8.8 - 01/04/2025
 ### New Features
 - Added support for selecting AI models in AI writer

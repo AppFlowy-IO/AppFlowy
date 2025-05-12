@@ -3,12 +3,11 @@ use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
-use collab_entity::{CollabType, EncodedCollab};
+use collab_entity::CollabType;
 use collab_folder::{Folder, FolderNotify};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
-use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
 use uuid::Uuid;
 
@@ -28,6 +27,7 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
+    let _ = self.folder_ready_notifier.send_replace(false);
 
     if let Some(old_folder) = self.mutex_folder.swap(None) {
       let old_folder = old_folder.read().await;
@@ -73,7 +73,7 @@ impl FolderManager {
           // 3. If the folder doesn't exist and create_if_not_exist is false, try to fetch the folder data from cloud/
           // This will happen user can't fetch the folder data when the user sign in.
           let doc_state = self
-            .cloud_service
+            .cloud_service()?
             .get_folder_doc_state(workspace_id, uid, CollabType::Folder, workspace_id)
             .await?;
 
@@ -111,16 +111,11 @@ impl FolderManager {
 
     let folder_state_rx = {
       let folder = folder.read().await;
-      let folder_state_rx = folder.subscribe_sync_state();
-      let index_content_rx = folder.subscribe_index_content();
-      self
-        .folder_indexer
-        .set_index_content_receiver(index_content_rx, *workspace_id);
-      self.handle_index_folder(*workspace_id, &folder);
-      folder_state_rx
+      folder.subscribe_sync_state()
     };
 
     self.mutex_folder.store(Some(folder.clone()));
+    let _ = self.folder_ready_notifier.send_replace(true);
 
     let weak_mutex_folder = Arc::downgrade(&folder);
     subscribe_folder_sync_state_changed(*workspace_id, folder_state_rx, Arc::downgrade(&self.user));
@@ -164,53 +159,5 @@ impl FolderManager {
       )
       .await?;
     Ok(folder)
-  }
-
-  fn handle_index_folder(&self, workspace_id: Uuid, folder: &Folder) {
-    let mut index_all = true;
-
-    let encoded_collab = self
-      .store_preferences
-      .get_object::<EncodedCollab>(workspace_id.to_string().as_str());
-
-    if let Some(encoded_collab) = encoded_collab {
-      if let Ok(changes) = folder.calculate_view_changes(encoded_collab) {
-        let folder_indexer = self.folder_indexer.clone();
-
-        let views = folder.get_all_views();
-        if !changes.is_empty() && !views.is_empty() {
-          spawn_blocking(move || {
-            // We index the changes
-            folder_indexer.index_view_changes(views, changes, workspace_id);
-          });
-          index_all = false;
-        }
-      }
-    }
-
-    if index_all {
-      let views = folder.get_all_views();
-      let folder_indexer = self.folder_indexer.clone();
-      // We spawn a blocking task to index all views in the folder
-      spawn_blocking(move || {
-        // We remove old indexes just in case
-        let _ = folder_indexer.remove_indices_for_workspace(workspace_id);
-
-        // We index all views from the workspace
-        folder_indexer.index_all_views(views, workspace_id);
-      });
-    }
-
-    self.save_collab_to_preferences(folder);
-  }
-
-  fn save_collab_to_preferences(&self, folder: &Folder) {
-    if let Some(workspace_id) = folder.get_workspace_id() {
-      let encoded_collab = folder.encode_collab();
-
-      if let Ok(encoded) = encoded_collab {
-        let _ = self.store_preferences.set_object(&workspace_id, &encoded);
-      }
-    }
   }
 }

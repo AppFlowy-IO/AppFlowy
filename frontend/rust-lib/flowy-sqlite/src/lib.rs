@@ -18,9 +18,6 @@ mod sqlite_impl;
 
 pub mod schema;
 
-#[macro_use]
-pub mod macros;
-
 pub type Error = diesel::result::Error;
 pub mod prelude {
   pub use diesel::SqliteConnection;

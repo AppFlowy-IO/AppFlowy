@@ -46,7 +46,7 @@ class ChatWelcomePage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const FlowySvg(
-          FlowySvgs.flowy_logo_xl,
+          FlowySvgs.app_logo_xl,
           size: Size.square(32),
           blendMode: null,
         ),
