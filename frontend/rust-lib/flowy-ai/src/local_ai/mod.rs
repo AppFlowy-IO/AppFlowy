@@ -7,4 +7,3 @@ pub mod completion;
 pub mod database;
 pub mod prompt;
 pub mod stream_util;
-pub mod watch;

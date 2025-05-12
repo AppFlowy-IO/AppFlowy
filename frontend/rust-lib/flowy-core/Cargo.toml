@@ -38,8 +38,6 @@ flowy-storage-pub = { workspace = true }
 client-api.workspace = true
 flowy-ai = { workspace = true }
 flowy-ai-pub = { workspace = true }
-af-local-ai = { workspace = true }
-af-plugin = { workspace = true }
 
 
 tracing.workspace = true
