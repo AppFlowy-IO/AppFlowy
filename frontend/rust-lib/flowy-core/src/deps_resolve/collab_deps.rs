@@ -1,4 +1,5 @@
 use collab_entity::CollabType;
+use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
 use diesel::dsl::count_star;
 use diesel::SqliteConnection;
@@ -8,8 +9,6 @@ use flowy_sqlite::{
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
 use flowy_user::services::authenticate_user::AuthenticateUser;
-
-use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use lib_infra::util::timestamp;
 use std::sync::{Arc, Weak};
 use tracing::debug;

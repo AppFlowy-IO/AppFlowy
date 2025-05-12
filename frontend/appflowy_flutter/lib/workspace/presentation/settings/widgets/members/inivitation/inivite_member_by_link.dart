@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
@@ -86,20 +87,21 @@ class _Description extends StatelessWidget {
 
   Future<void> _onGenerateInviteLink(BuildContext context) async {
     final state = context.read<WorkspaceMemberBloc>().state;
+    final subscriptionInfo = state.subscriptionInfo;
     final inviteLink = state.inviteLink;
 
     // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
     // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
-    if (inviteLink == null && state.members.length >= 3) {
+    if (inviteLink == null &&
+        subscriptionInfo?.plan == WorkspacePlanPB.FreePlan &&
+        state.members.length >= 2) {
       await showConfirmDialog(
         context: context,
         title:
             LocaleKeys.settings_appearance_members_inviteFailedDialogTitle.tr(),
         description:
             LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
-        confirmLabel: LocaleKeys
-            .settings_appearance_members_memberLimitExceededUpgrade
-            .tr(),
+        confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
         onConfirm: () => context
             .read<WorkspaceMemberBloc>()
             .add(const WorkspaceMemberEvent.upgradePlan()),
@@ -165,9 +167,11 @@ class _CopyLinkButtonState extends State<_CopyLinkButton> {
       ),
       onTap: () async {
         final state = context.read<WorkspaceMemberBloc>().state;
+        final subscriptionInfo = state.subscriptionInfo;
         // check the current workspace member count, if it exceed the limit, show a upgrade dialog.
         // prevent hard code here, because the member count may exceed the limit after the invite link is generated.
-        if (state.members.length >= 3) {
+        if (subscriptionInfo?.plan == WorkspacePlanPB.FreePlan &&
+            state.members.length >= 2) {
           await showConfirmDialog(
             context: context,
             title: LocaleKeys
@@ -176,9 +180,7 @@ class _CopyLinkButtonState extends State<_CopyLinkButton> {
             description: LocaleKeys
                 .settings_appearance_members_inviteFailedMemberLimit
                 .tr(),
-            confirmLabel: LocaleKeys
-                .settings_appearance_members_memberLimitExceededUpgrade
-                .tr(),
+            confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
             onConfirm: () => context
                 .read<WorkspaceMemberBloc>()
                 .add(const WorkspaceMemberEvent.upgradePlan()),

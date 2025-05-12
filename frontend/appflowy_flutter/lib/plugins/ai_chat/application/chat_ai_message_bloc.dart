@@ -117,6 +117,14 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         ),
       );
     });
+
+    on<_OnAIFollowUp>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: MessageState.aiFollowUp(event.followUpData),
+        ),
+      );
+    });
   }
 
   void _initializeStreamListener() {
@@ -137,6 +145,9 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         },
         onLocalAIInitializing: () =>
             _safeAdd(const ChatAIMessageEvent.onLocalAIInitializing()),
+        onAIFollowUp: (data) {
+          _safeAdd(ChatAIMessageEvent.onAIFollowUp(data));
+        },
       );
     }
   }
@@ -174,6 +185,9 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
+  const factory ChatAIMessageEvent.onAIFollowUp(
+    AIFollowUpData followUpData,
+  ) = _OnAIFollowUp;
 }
 
 @freezed
@@ -209,4 +223,6 @@ class MessageState with _$MessageState {
   const factory MessageState.onInitializingLocalAI() = _LocalAIInitializing;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
+  const factory MessageState.aiFollowUp(AIFollowUpData followUpData) =
+      _AIFollowUp;
 }

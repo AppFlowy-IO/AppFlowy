@@ -300,6 +300,8 @@ pub struct ChatMessagePB {
 
   #[pb(index = 7, one_of)]
   pub metadata: Option<String>,
+  // #[pb(index = 8)]
+  // pub should_fetch_related_question: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -590,13 +592,7 @@ pub struct LocalAIPB {
   pub lack_of_resource: Option<LackOfAIResourcePB>,
 
   #[pb(index = 3)]
-  pub state: RunningStatePB,
-
-  #[pb(index = 4, one_of)]
-  pub plugin_version: Option<String>,
-
-  #[pb(index = 5)]
-  pub plugin_downloaded: bool,
+  pub is_ready: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -631,9 +627,6 @@ pub struct UpdateChatSettingsPB {
 
   #[pb(index = 2)]
   pub rag_ids: Vec<String>,
-
-  #[pb(index = 3)]
-  pub chat_model: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -753,4 +746,10 @@ impl From<PendingResource> for LackOfAIResourcePB {
       },
     }
   }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct CustomPromptDatabaseViewIdPB {
+  #[pb(index = 1)]
+  pub id: String,
 }

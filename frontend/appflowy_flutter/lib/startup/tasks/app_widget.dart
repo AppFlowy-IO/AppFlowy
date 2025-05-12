@@ -7,6 +7,7 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -137,7 +138,7 @@ class ApplicationWidget extends StatefulWidget {
 class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
-  final _commandPaletteNotifier = ValueNotifier<bool>(false);
+  final _commandPaletteNotifier = ValueNotifier(CommandPaletteNotifierValue());
 
   final themeBuilder = AppFlowyDefaultTheme();
 
@@ -239,8 +240,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                     routerConfig: routerConfig,
                     builder: (context, child) {
                       final brightness = Theme.of(context).brightness;
-                      final fontFamily =
-                          state.font.orDefault(defaultFontFamily);
+                      final fontFamily = state.font
+                          .orDefault(defaultFontFamily)
+                          .fontFamilyName;
 
                       return AppFlowyTheme(
                         data: brightness == Brightness.light

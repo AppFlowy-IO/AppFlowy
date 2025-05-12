@@ -387,17 +387,20 @@ pub enum ErrorCode {
   #[error("Reference resource is not available")]
   WeakRefDrop = 132,
 
+  #[error("Local embedding not ready")]
+  LocalEmbeddingNotReady = 133,
+
   #[error("New password is too weak")]
-  NewPasswordTooWeak = 133,
+  NewPasswordTooWeak = 134,
 
   #[error("Invalid new password")]
-  InvalidNewPassword = 134,
+  InvalidNewPassword = 135,
 
   #[error("New password is too long")]
-  NewPasswordTooLong = 135,
+  NewPasswordTooLong = 136,
 
   #[error("New password is too short")]
-  NewPasswordTooShort = 136,
+  NewPasswordTooShort = 137,
 }
 
 impl ErrorCode {

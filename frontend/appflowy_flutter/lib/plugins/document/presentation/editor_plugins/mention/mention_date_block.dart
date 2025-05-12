@@ -146,9 +146,9 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               } else {
                 final rootContext = widget.editorState.document.root.context;
                 if (rootContext != null && _reminderId != null) {
-                  rootContext
-                      .read<ReminderBloc?>()
-                      ?.add(ReminderEvent.remove(reminderId: _reminderId!));
+                  rootContext.read<ReminderBloc?>()?.add(
+                        ReminderEvent.removeReminder(reminderId: _reminderId!),
+                      );
                 }
                 _updateBlock(selectedDay, includeTime: _includeTime);
               }
@@ -266,7 +266,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
         // Delete existing reminder
         return rootContext
             .read<ReminderBloc>()
-            .add(ReminderEvent.remove(reminderId: reminder.id));
+            .add(ReminderEvent.removeReminder(reminderId: reminder.id));
       }
 
       // Update existing reminder

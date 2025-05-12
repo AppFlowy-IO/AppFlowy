@@ -109,10 +109,7 @@ class LockPageButtonWrapper extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.lockPage_lockedOperationTooltip.tr(),
       child: IgnorePointer(
-        child: Opacity(
-          opacity: 0.5,
-          child: child,
-        ),
+        child: child,
       ),
     );
   }

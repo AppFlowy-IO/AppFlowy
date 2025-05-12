@@ -15,6 +15,7 @@ class CustomPageBlockComponentBuilder extends BlockComponentBuilder {
       node: blockComponentContext.node,
       header: blockComponentContext.header,
       footer: blockComponentContext.footer,
+      wrapper: blockComponentContext.wrapper,
     );
   }
 }
@@ -29,10 +30,12 @@ class CustomPageBlockComponent extends BlockComponentStatelessWidget {
     super.configuration = const BlockComponentConfiguration(),
     this.header,
     this.footer,
+    this.wrapper,
   });
 
   final Widget? header;
   final Widget? footer;
+  final BlockComponentWrapper? wrapper;
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +55,20 @@ class CustomPageBlockComponent extends BlockComponentStatelessWidget {
               children: [
                 if (header != null) header!,
                 ...items.map(
-                  (e) => Container(
-                    constraints: BoxConstraints(
-                      maxWidth:
-                          editorState.editorStyle.maxWidth ?? double.infinity,
-                    ),
-                    padding: editorState.editorStyle.padding,
-                    child: editorState.renderer.build(context, e),
-                  ),
+                  (e) {
+                    Widget child = editorState.renderer.build(context, e);
+                    if (wrapper != null) {
+                      child = wrapper!(context, node: e, child: child);
+                    }
+                    return Container(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                            editorState.editorStyle.maxWidth ?? double.infinity,
+                      ),
+                      padding: editorState.editorStyle.padding,
+                      child: child,
+                    );
+                  },
                 ),
                 if (footer != null) footer!,
               ],
@@ -92,6 +101,11 @@ class CustomPageBlockComponent extends BlockComponentStatelessWidget {
           final childNode = items[index - (header != null ? 1 : 0)];
           final isOverflowType = overflowTypes.contains(childNode.type);
 
+          Widget child = editorState.renderer.build(context, childNode);
+          if (wrapper != null) {
+            child = wrapper!(context, node: childNode, child: child);
+          }
+
           final item = Container(
             constraints: BoxConstraints(
               maxWidth: editorState.editorStyle.maxWidth ?? double.infinity,
@@ -99,10 +113,7 @@ class CustomPageBlockComponent extends BlockComponentStatelessWidget {
             padding: isOverflowType
                 ? EdgeInsets.zero
                 : editorState.editorStyle.padding,
-            child: editorState.renderer.build(
-              context,
-              childNode,
-            ),
+            child: child,
           );
 
           return isOverflowType ? item : Center(child: item);

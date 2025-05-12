@@ -236,7 +236,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyTooltip(
-        message: LocaleKeys.settings_sites_namespace_upgradeToPro.tr(),
+        message: LocaleKeys.settings_sites_homePage_upgradeToPro.tr(),
         child: PrimaryRoundedButton(
           text: 'Pro ↗',
           fontSize: 12.0,
@@ -255,7 +255,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
               showToastNotification(
                 message:
                     LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
-                type: ToastificationType.info,
+                type: ToastificationType.error,
               );
 
               context.read<SettingsSitesBloc>().add(
@@ -266,7 +266,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
                 message: LocaleKeys
                     .settings_sites_namespace_pleaseAskOwnerToSetHomePage
                     .tr(),
-                type: ToastificationType.info,
+                type: ToastificationType.error,
               );
             }
           },

@@ -4,25 +4,32 @@ use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{Collab, StateVector};
 use collab::util::is_change_since_sv;
 use collab_entity::CollabType;
-use collab_integrate::persistence::collab_metadata_sql::AFCollabMetadata;
 use flowy_ai::ai_manager::{AIExternalService, AIManager};
+use flowy_ai::local_ai::chat::retriever::{LangchainDocument, MultipleSourceRetrieverStore};
 use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::ChatCloudService;
+use flowy_ai_pub::entities::{SOURCE, SOURCE_ID, SOURCE_NAME};
+use flowy_ai_pub::persistence::AFCollabMetadata;
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
 use flowy_folder_pub::query::FolderService;
+use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use flowy_server::util::tanvity_local_search;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user_pub::entities::WorkspaceType;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
+use serde_json::json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{error, info};
+use tokio::sync::RwLock;
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 pub struct ChatDepsResolver;
@@ -83,6 +90,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   ) -> Result<Vec<AFCollabMetadata>, FlowyError> {
     let mut result = Vec::new();
 
+    info!("[Embedding] sync rag documents: {:?}", rag_ids);
     for rag_id in rag_ids {
       // Retrieve the collab object for the current rag_id
       let query_collab = match self
@@ -92,6 +100,10 @@ impl AIExternalService for ChatQueryServiceImpl {
       {
         Some(collab) => collab,
         None => {
+          debug!(
+            "[Embedding] can not find collab data, skip sync rag document: {}",
+            rag_id
+          );
           continue;
         },
       };
@@ -99,17 +111,20 @@ impl AIExternalService for ChatQueryServiceImpl {
       // Check if the state vector exists and detect changes
       if let Some(metadata) = rag_metadata_map.remove(&rag_id) {
         if let Ok(prev_sv) = StateVector::decode_v1(&metadata.prev_sync_state_vector) {
-          let collab = Collab::new_with_source(
+          if let Ok(collab) = Collab::new_with_source(
             CollabOrigin::Empty,
             &rag_id.to_string(),
             DataSource::DocStateV1(query_collab.encoded_collab.doc_state.to_vec()),
             vec![],
             false,
-          )?;
-
-          if !is_change_since_sv(&collab, &prev_sv) {
-            info!("[Chat] no change since sv: {}", rag_id);
-            continue;
+          ) {
+            if !is_change_since_sv(&collab, &prev_sv) {
+              info!(
+                "[Embedding] skip full sync rag document {}, no changes",
+                rag_id
+              );
+              continue;
+            }
           }
         }
       }
@@ -121,14 +136,17 @@ impl AIExternalService for ChatQueryServiceImpl {
         encoded_collab: query_collab.encoded_collab.clone(),
       };
 
+      info!("[Embedding] full sync rag document: {}", params.object_id);
       if let Err(err) = self
         .folder_cloud_service
         .full_sync_collab_object(workspace_id, params)
         .await
       {
-        error!("Failed to sync rag document: {} error: {}", rag_id, err);
+        error!(
+          "[Embedding] failed to sync rag document: {} error: {}",
+          rag_id, err
+        );
       } else {
-        info!("[Chat] full sync rag document: {}", rag_id);
         result.push(AFCollabMetadata {
           object_id: rag_id.to_string(),
           updated_at: timestamp(),
@@ -179,6 +197,10 @@ impl AIUserService for ChatUserServiceImpl {
     self.upgrade_user()?.workspace_id()
   }
 
+  fn workspace_type(&self) -> FlowyResult<WorkspaceType> {
+    self.upgrade_user()?.workspace_type()
+  }
+
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     self.upgrade_user()?.get_sqlite_connection(uid)
   }
@@ -187,5 +209,66 @@ impl AIUserService for ChatUserServiceImpl {
     Ok(PathBuf::from(
       self.upgrade_user()?.get_application_root_dir(),
     ))
+  }
+}
+
+#[derive(Clone)]
+pub struct MultiSourceVSTanvityImpl {
+  state: Option<Weak<RwLock<DocumentTantivyState>>>,
+}
+
+impl MultiSourceVSTanvityImpl {
+  pub fn new(state: Option<Weak<RwLock<DocumentTantivyState>>>) -> Self {
+    Self { state }
+  }
+}
+
+#[async_trait]
+impl MultipleSourceRetrieverStore for MultiSourceVSTanvityImpl {
+  fn retriever_name(&self) -> &'static str {
+    "Tanvity Multiple Source Retriever"
+  }
+
+  async fn read_documents(
+    &self,
+    workspace_id: &Uuid,
+    query: &str,
+    limit: usize,
+    rag_ids: &[String],
+    score_threshold: f32,
+    _full_search: bool,
+  ) -> FlowyResult<Vec<LangchainDocument>> {
+    let docs = tanvity_local_search(
+      &self.state,
+      workspace_id,
+      query,
+      Some(rag_ids.to_vec()),
+      limit,
+      score_threshold,
+    )
+    .await;
+
+    match docs {
+      None => Ok(vec![]),
+      Some(docs) => Ok(
+        docs
+          .into_iter()
+          .map(|v| LangchainDocument {
+            page_content: v.content,
+            metadata: json!({
+                SOURCE_ID: v.object_id,
+                SOURCE: "appflowy",
+                SOURCE_NAME: "document",
+            })
+            .as_object()
+            .unwrap()
+            .clone()
+            .into_iter()
+            .collect(),
+            score: v.score,
+          })
+          .collect(),
+      ),
+    }
   }
 }

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/domain/date_cell_service.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
-import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
@@ -113,8 +113,9 @@ class DateCellEditorBloc
           clearDate: () async {
             // Remove reminder if neccessary
             if (state.reminderId.isNotEmpty) {
-              _reminderBloc
-                  .add(ReminderEvent.remove(reminderId: state.reminderId));
+              _reminderBloc.add(
+                ReminderEvent.removeReminder(reminderId: state.reminderId),
+              );
             }
 
             await _clearDate();
@@ -218,7 +219,8 @@ class DateCellEditorBloc
     } else {
       if (option == ReminderOption.none) {
         // remove reminder from reminder bloc and cell data
-        _reminderBloc.add(ReminderEvent.remove(reminderId: state.reminderId));
+        _reminderBloc
+            .add(ReminderEvent.removeReminder(reminderId: state.reminderId));
         await _updateCellReminderId("");
       } else {
         // Update reminder

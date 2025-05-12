@@ -466,6 +466,7 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
+    "change": "Change",
     "save": "Save",
     "generate": "Generate",
     "esc": "ESC",
@@ -561,6 +562,9 @@
       "selectHomePage": "Select a page",
       "clearHomePage": "Clear the home page for this namespace",
       "customUrl": "Custom URL",
+      "homePage": {
+        "upgradeToPro": "Upgrade to Pro Plan to set a homepage"
+      },
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
@@ -889,6 +893,7 @@
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "globalLLMModel": "Global Language Model",
+        "readOnlyField": "This field is read-only",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
@@ -2353,9 +2358,12 @@
     "searchOrAskAI": "Search or ask AI",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
+    "searching": "Searching...",
     "noResultForSearching": "No matches found",
     "noResultForSearchingHint": "Try different questions or keywords.\n Some pages may be in the Trash.",
+    "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
+    "seeMore": "See more",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -2801,6 +2809,7 @@
     "aiOverview": "AI overview",
     "aiOverviewSource": "Reference sources",
     "aiOverviewMoreDetails": "More details",
+    "aiAskFollowUp": "Ask follow-up",
     "pagePreview": "Content preview",
     "clickToOpenPage": "Click to open page",
     "recentHistory": "Recent history",
@@ -2810,7 +2819,10 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field"
+    "clearSearchTooltip": "Clear search field",
+    "location": "Location",
+    "created": "Created",
+    "edited": "Edited"
   },
   "space": {
     "delete": "Delete",
@@ -3326,6 +3338,15 @@
       "browsePrompts": "Browse prompts",
       "usePrompt": "Use prompt",
       "featured": "Featured",
+      "custom": "Custom",
+      "customPrompt": "Custom Prompts",
+      "databasePrompts": "Load prompts from your own database",
+      "selectDatabase": "Select database",
+      "promptDatabase": "Prompt database",
+      "loading": "Loading",
+      "invalidDatabase": "Invalid Database",
+      "invalidDatabaseHelp": "Ensure that the database has at least two text properties:\n ◦ One used for the prompt name\n ◦ One used for the prompt content\nYou can also optionally add properties for the prompt example and category.",
+      "noResults": "No prompts found",
       "all": "All",
       "development": "Development",
       "writing": "Writing",

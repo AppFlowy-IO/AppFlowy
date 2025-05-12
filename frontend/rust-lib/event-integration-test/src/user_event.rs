@@ -10,6 +10,8 @@ use tokio::sync::broadcast::{channel, Sender};
 use tracing::error;
 use uuid::Uuid;
 
+use crate::event_builder::EventBuilder;
+use crate::EventIntegrationTest;
 use flowy_folder::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::NotificationSender;
@@ -26,9 +28,6 @@ use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
 use flowy_user_pub::entities::WorkspaceType;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
-
-use crate::event_builder::EventBuilder;
-use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
   pub async fn enable_encryption(&self) -> String {
@@ -438,7 +437,10 @@ pub struct SignUpContext {
   pub user_profile: UserProfilePB,
   pub password: String,
 }
-
+pub async fn use_local_mode() {
+  AuthenticatorType::Local.write_env();
+  AFCloudConfiguration::default().write_env();
+}
 pub async fn use_localhost_af_cloud() {
   AuthenticatorType::AppFlowyCloud.write_env();
   let base_url =

@@ -35,13 +35,16 @@ collab-folder = { workspace = true, optional = true }
 client-api = { workspace = true, optional = true }
 tantivy = { workspace = true, optional = true }
 uuid.workspace = true
-
-[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
-ollama-rs = "0.3.0"
+ollama-rs.workspace = true
 
 
 [features]
-default = ["impl_from_dispatch_error", "impl_from_serde", "impl_from_reqwest", "impl_from_sqlite"]
+default = [
+  "impl_from_dispatch_error",
+  "impl_from_serde",
+  "impl_from_reqwest",
+  "impl_from_sqlite",
+]
 impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = []
 impl_from_reqwest = ["reqwest"]
