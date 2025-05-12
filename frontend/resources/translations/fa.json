@@ -36,7 +36,6 @@
     "loginButtonText": "ورود",
     "loginStartWithAnonymous": "ادامه دادن با یک جلسه ناشناس",
     "continueAnonymousUser": "ادامه دادن به صورت کاربر مهمان",
-    "anonymous": "ناشناس",
     "buttonText": "ورود",
     "signingInText": "در حال ورود...",
     "forgotPassword": "رمز عبور را فراموش کرده اید؟",
@@ -65,6 +64,7 @@
     "alreadyHaveAnAccount": "حساب کاربری دارید؟",
     "logIn": "ورود",
     "generalError": "مشکلی پیش آمد. لطفاً بعداً دوباره امتحان کنید",
+    "anonymous": "ناشناس",
     "loginAsGuestButtonText": "شروع کنید"
   },
   "workspace": {

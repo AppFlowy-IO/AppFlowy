@@ -36,7 +36,6 @@
     "loginButtonText": "로그인",
     "loginStartWithAnonymous": "익명 세션으로 계속",
     "continueAnonymousUser": "익명 세션으로 계속",
-    "anonymous": "익명",
     "buttonText": "로그인",
     "signingInText": "로그인 중...",
     "forgotPassword": "비밀번호를 잊으셨나요?",
@@ -68,7 +67,8 @@
     "logIn": "로그인",
     "generalError": "문제가 발생했습니다. 나중에 다시 시도하세요",
     "limitRateError": "보안상의 이유로, 매 60초마다 한 번씩만 Magic Link를 요청할 수 있습니다",
-    "magicLinkSentDescription": "Magic Link가 이메일로 전송되었습니다. 링크를 클릭하여 로그인을 완료하세요. 링크는 5분 후에 만료됩니다."
+    "magicLinkSentDescription": "Magic Link가 이메일로 전송되었습니다. 링크를 클릭하여 로그인을 완료하세요. 링크는 5분 후에 만료됩니다.",
+    "anonymous": "익명"
   },
   "workspace": {
     "chooseWorkspace": "작업 공간 선택",

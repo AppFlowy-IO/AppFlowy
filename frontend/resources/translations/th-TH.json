@@ -36,7 +36,6 @@
     "loginButtonText": "เข้าสู่ระบบ",
     "loginStartWithAnonymous": "เริ่มต้นด้วยเซสชั่นแบบไม่ระบุตัวตน",
     "continueAnonymousUser": "ดำเนินการต่อด้วยเซสชันแบบไม่ระบุตัวตน",
-    "anonymous": "ไม่ระบุตัวตน",
     "buttonText": "เข้าสู่ระบบ",
     "signingInText": "กำลังลงชื่อเข้าใช้...",
     "forgotPassword": "ลืมรหัสผ่านหรือไม่?",
@@ -69,6 +68,7 @@
     "generalError": "มีบางอย่างผิดพลาด โปรดลองอีกครั้งในภายหลัง",
     "limitRateError": "ด้วยเหตุผลด้านความปลอดภัย คุณสามารถขอ Magic Link ได้ทุกๆ 60 วินาทีเท่านั้น",
     "magicLinkSentDescription": "Magic Link ถูกส่งไปยังอีเมลของคุณแล้ว กรุณาคลิกลิงก์เพื่อเข้าสู่ระบบ ลิงก์จะหมดอายุภายใน 5 นาที",
+    "anonymous": "ไม่ระบุตัวตน",
     "LogInWithGoogle": "เข้าสู่ระบบด้วย Google",
     "LogInWithGithub": "เข้าสู่ระบบด้วย Github",
     "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord"
