@@ -46,8 +46,8 @@ jobs:
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-24.04-arm
-            flutter-profile: development-linux-arm64
-            target: arm64-unknown-linux-gnu
+            flutter-profile: development-linux-aarch64
+            target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -137,8 +137,8 @@ jobs:
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-24.04-arm
-            flutter-profile: development-linux-arm64
-            target: arm64-unknown-linux-gnu
+            flutter-profile: development-linux-aarch64
+            target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -233,8 +233,8 @@ jobs:
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-24.04-arm
-            flutter-profile: development-linux-arm64
-            target: arm64-unknown-linux-gnu
+            flutter-profile: development-linux-aarch64
+            target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
 
     steps:
