@@ -2,6 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -110,7 +113,20 @@ class RecentViewsList extends StatelessWidget {
                                           onSelected: onSelected,
                                         );
                                       },
-                                      separatorBuilder: (_, __) => AFDivider(),
+                                      separatorBuilder: (_, index) {
+                                        final view = recentViews[index];
+                                        final isHovered =
+                                            hoveredView?.id == view.id;
+                                        if (isHovered) return VSpace(1);
+                                        if (index < recentViews.length - 1) {
+                                          final nextView =
+                                              recentViews[index + 1];
+                                          final isNextHovered =
+                                              hoveredView?.id == nextView.id;
+                                          if (isNextHovered) return VSpace(1);
+                                        }
+                                        return const AFDivider();
+                                      },
                                     ),
                                     VSpace(8),
                                   ],
@@ -126,7 +142,19 @@ class RecentViewsList extends StatelessWidget {
                       Flexible(
                         child: Align(
                           alignment: Alignment.topLeft,
-                          child: PagePreview(view: hoveredView),
+                          child: PagePreview(
+                            view: hoveredView,
+                            onViewOpened: () {
+                              getIt<ActionNavigationBloc>().add(
+                                ActionNavigationEvent.performAction(
+                                  action: NavigationAction(
+                                    objectId: hoveredView.id,
+                                  ),
+                                ),
+                              );
+                              onSelected();
+                            },
+                          ),
                         ),
                       ),
                     ],

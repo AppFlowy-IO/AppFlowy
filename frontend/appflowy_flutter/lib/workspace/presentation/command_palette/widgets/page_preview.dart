@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/search/mobile_view_ancestors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/int64_extension.dart';
-import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -16,8 +15,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PagePreview extends StatelessWidget {
-  const PagePreview({super.key, required this.view});
+  const PagePreview({
+    super.key,
+    required this.view,
+    required this.onViewOpened,
+  });
   final ViewPB view;
+  final VoidCallback onViewOpened;
 
   @override
   Widget build(BuildContext context) {
@@ -72,18 +76,29 @@ class PagePreview extends StatelessWidget {
 
   Widget buildTitle(BuildContext context, ViewPB view) {
     final theme = AppFlowyTheme.of(context);
+    final titleStyle = theme.textStyle.heading4
+            .enhanced(color: theme.textColorScheme.primary),
+        titleHoverStyle =
+            titleStyle.copyWith(decoration: TextDecoration.underline);
     return SizedBox(
       height: 28,
       child: Row(
         children: [
           Flexible(
-            child: Text(
-              view.nameOrDefault,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textStyle.heading4.enhanced(
-                color: theme.textColorScheme.primary,
+            child: AFBaseButton(
+              padding: EdgeInsets.zero,
+              builder: (context, isHovering, disabled) =>
+                  SelectionContainer.disabled(
+                child: Text(
+                  view.nameOrDefault,
+                  style: isHovering ? titleHoverStyle : titleStyle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              borderColor: (_, __, ___, ____) => Colors.transparent,
+              borderRadius: 0,
+              onTap: onViewOpened,
             ),
           ),
           HSpace(4),
@@ -92,11 +107,7 @@ class PagePreview extends StatelessWidget {
             child: AFGhostButton.normal(
               size: AFButtonSize.s,
               padding: EdgeInsets.all(theme.spacing.xs),
-              onTap: () {
-                context.read<SearchResultListBloc?>()?.add(
-                      SearchResultListEvent.openPage(pageId: view.id),
-                    );
-              },
+              onTap: onViewOpened,
               builder: (context, isHovering, disabled) => FlowySvg(
                 FlowySvgs.search_arrow_right_m,
                 size: const Size.square(20),
@@ -115,7 +126,8 @@ class PagePreview extends StatelessWidget {
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {
-          if (state.ancestor.ancestors.isEmpty) return const SizedBox.shrink();
+          final isEmpty = state.ancestor.ancestors.isEmpty;
+          if (!state.isLoading && isEmpty) return const SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

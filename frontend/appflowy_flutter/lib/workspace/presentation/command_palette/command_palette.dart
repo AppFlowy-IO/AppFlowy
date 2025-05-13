@@ -44,6 +44,9 @@ class CommandPalette extends InheritedWidget {
     return result!;
   }
 
+  static CommandPalette? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CommandPalette>();
+
   void toggle({
     UserWorkspaceBloc? workspaceBloc,
     SpaceBloc? spaceBloc,
@@ -51,6 +54,16 @@ class CommandPalette extends InheritedWidget {
     final value = notifier.value;
     notifier.value = notifier.value.copyWith(
       isOpen: !value.isOpen,
+      userWorkspaceBloc: workspaceBloc,
+      spaceBloc: spaceBloc,
+    );
+  }
+
+  void updateBlocs({
+    UserWorkspaceBloc? workspaceBloc,
+    SpaceBloc? spaceBloc,
+  }) {
+    notifier.value = notifier.value.copyWith(
       userWorkspaceBloc: workspaceBloc,
       spaceBloc: spaceBloc,
     );

@@ -8,10 +8,12 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -127,14 +129,28 @@ class DesktopHomeScreen extends StatelessWidget {
                   builder: (context, state) => BlocProvider(
                     create: (_) => UserWorkspaceBloc(userProfile: userProfile)
                       ..add(const UserWorkspaceEvent.initial()),
-                    child: HomeHotKeys(
-                      userProfile: userProfile,
-                      child: FlowyContainer(
-                        Theme.of(context).colorScheme.surface,
-                        child: _buildBody(
-                          context,
-                          userProfile,
-                          workspaceLatest,
+                    child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+                      listenWhen: (previous, current) =>
+                          previous.currentWorkspace != current.currentWorkspace,
+                      listener: (context, state) {
+                        if (!context.mounted) return;
+                        final workspaceBloc =
+                            context.read<UserWorkspaceBloc?>();
+                        final spaceBloc = context.read<SpaceBloc?>();
+                        CommandPalette.maybeOf(context)?.updateBlocs(
+                          workspaceBloc: workspaceBloc,
+                          spaceBloc: spaceBloc,
+                        );
+                      },
+                      child: HomeHotKeys(
+                        userProfile: userProfile,
+                        child: FlowyContainer(
+                          Theme.of(context).colorScheme.surface,
+                          child: _buildBody(
+                            context,
+                            userProfile,
+                            workspaceLatest,
+                          ),
                         ),
                       ),
                     ),
