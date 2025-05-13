@@ -698,12 +698,13 @@ impl ChatCloudService for ServerProvider {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
+    prompt_id: Option<String>,
   ) -> Result<ChatMessage, FlowyError> {
     let message = message.to_string();
     self
       .get_server()?
       .chat_service()
-      .create_question(workspace_id, chat_id, &message, message_type)
+      .create_question(workspace_id, chat_id, &message, message_type, prompt_id)
       .await
   }
 

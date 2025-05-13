@@ -98,6 +98,7 @@ impl Chat {
         &self.chat_id,
         &params.message,
         params.message_type.clone(),
+        params.prompt_id.clone(),
       )
       .await
       .map_err(|err| {
