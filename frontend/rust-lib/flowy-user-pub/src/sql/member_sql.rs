@@ -1,9 +1,9 @@
 use crate::entities::{Role, WorkspaceMember};
-use diesel::{insert_into, RunQueryDsl};
+use diesel::{RunQueryDsl, insert_into};
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::workspace_members_table;
 use flowy_sqlite::schema::workspace_members_table::dsl;
-use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods};
+use flowy_sqlite::{DBConnection, ExpressionMethods, prelude::*};
 
 #[derive(Queryable, Insertable, AsChangeset, Debug, Clone)]
 #[diesel(table_name = workspace_members_table)]

@@ -1,4 +1,4 @@
-use include_dir::{include_dir, Dir};
+use include_dir::{Dir, include_dir};
 use r2d2::PooledConnection;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite_migration::Migrations;

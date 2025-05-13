@@ -8,7 +8,7 @@ use std::fmt::Display;
 use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
-use tokio::sync::{watch, RwLock};
+use tokio::sync::{RwLock, watch};
 use tracing::{error, info, instrument, trace, warn};
 
 #[derive(Clone)]

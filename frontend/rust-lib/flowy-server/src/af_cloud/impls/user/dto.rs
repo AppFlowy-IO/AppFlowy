@@ -3,8 +3,8 @@ use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
 use flowy_user_pub::entities::{
-  AuthType, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus, WorkspaceMember,
-  WorkspaceType, USER_METADATA_ICON_URL,
+  AuthType, Role, USER_METADATA_ICON_URL, UpdateUserProfileParams, UserProfile,
+  WorkspaceInvitationStatus, WorkspaceMember, WorkspaceType,
 };
 
 pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUserParams {

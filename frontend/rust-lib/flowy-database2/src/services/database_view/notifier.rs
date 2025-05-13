@@ -4,7 +4,7 @@ use crate::entities::{
   GroupChangesPB, GroupRowsNotificationPB, ReorderAllRowsPB, ReorderSingleRowPB,
   RowsVisibilityChangePB, SortChangesetNotificationPB,
 };
-use crate::notification::{database_notification_builder, DatabaseNotification};
+use crate::notification::{DatabaseNotification, database_notification_builder};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;

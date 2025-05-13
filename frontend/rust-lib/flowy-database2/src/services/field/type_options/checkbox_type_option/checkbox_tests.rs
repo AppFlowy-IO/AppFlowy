@@ -7,8 +7,8 @@ mod tests {
   use crate::entities::CheckboxCellDataPB;
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
-  use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
+  use crate::services::field::type_options::checkbox_type_option::*;
   use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
   use collab_database::template::util::ToCellString;
 

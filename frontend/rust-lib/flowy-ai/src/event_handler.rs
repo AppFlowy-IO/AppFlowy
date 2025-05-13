@@ -3,7 +3,7 @@ use crate::completion::AICompletion;
 use crate::entities::*;
 use flowy_ai_pub::cloud::{AIModel, ChatMessageType};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult, data_result_ok};
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;

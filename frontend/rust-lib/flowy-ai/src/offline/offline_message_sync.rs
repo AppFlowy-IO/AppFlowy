@@ -4,8 +4,8 @@ use flowy_ai_pub::cloud::{
   StreamAnswer, StreamComplete, UpdateChatParams,
 };
 use flowy_ai_pub::persistence::{
-  update_chat_is_sync, update_chat_message_is_sync, upsert_chat, upsert_chat_messages,
-  ChatMessageTable, ChatTable,
+  ChatMessageTable, ChatTable, update_chat_is_sync, update_chat_message_is_sync, upsert_chat,
+  upsert_chat_messages,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::FlowyError;

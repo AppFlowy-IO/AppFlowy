@@ -1,10 +1,10 @@
 use std::{collections::HashMap, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
-use serde_json::{json, to_value, Value};
+use collab_document::document_data::{PARAGRAPH_BLOCK_TYPE, default_document_data};
+use serde_json::{Value, json, to_value};
 
-use crate::document::util::{gen_document_id, gen_id, DocumentTest};
+use crate::document::util::{DocumentTest, gen_document_id, gen_id};
 
 #[tokio::test]
 async fn restore_document() {

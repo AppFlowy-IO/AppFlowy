@@ -9,7 +9,7 @@ use crate::{
 use async_stream::stream;
 use flowy_error::FlowyResult;
 use flowy_folder::entities::ViewPB;
-use flowy_folder::{manager::FolderManager, ViewLayout};
+use flowy_folder::{ViewLayout, manager::FolderManager};
 use flowy_search_pub::cloud::{SearchCloudService, SearchResult};
 use lib_infra::async_trait::async_trait;
 use std::pin::Pin;

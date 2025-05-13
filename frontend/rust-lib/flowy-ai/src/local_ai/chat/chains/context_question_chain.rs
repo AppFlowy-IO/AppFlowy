@@ -1,5 +1,5 @@
-use crate::local_ai::chat::llm::LLMOllama;
 use crate::SqliteVectorStore;
+use crate::local_ai::chat::llm::LLMOllama;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite_vec::entities::EmbeddedContent;
 use langchain_rust::language_models::llm::LLM;

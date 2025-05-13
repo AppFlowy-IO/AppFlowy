@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
+use collab_document::document_data::{PARAGRAPH_BLOCK_TYPE, default_document_data};
 
-use crate::document::util::{gen_document_id, gen_id, DocumentTest};
+use crate::document::util::{DocumentTest, gen_document_id, gen_id};
 
 #[tokio::test]
 async fn undo_redo_test() {

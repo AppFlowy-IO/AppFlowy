@@ -5,20 +5,20 @@ use flowy_ai::local_ai::controller::LocalAIController;
 use flowy_ai_pub::cloud::chat_dto::{ChatAuthor, ChatAuthorType};
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, ChatMessageType, ChatSettings, CompleteTextParams,
-  MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, ResponseFormat, StreamAnswer,
-  StreamComplete, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
+  DEFAULT_AI_MODEL_NAME, MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage,
+  ResponseFormat, StreamAnswer, StreamComplete, UpdateChatParams,
 };
 use flowy_ai_pub::persistence::{
-  deserialize_chat_metadata, deserialize_rag_ids, select_answer_where_match_reply_message_id,
-  select_chat, select_chat_messages, select_message_content, serialize_chat_metadata,
-  serialize_rag_ids, update_chat, upsert_chat, upsert_chat_messages, ChatMessageTable, ChatTable,
-  ChatTableChangeset,
+  ChatMessageTable, ChatTable, ChatTableChangeset, deserialize_chat_metadata, deserialize_rag_ids,
+  select_answer_where_match_reply_message_id, select_chat, select_chat_messages,
+  select_message_content, serialize_chat_metadata, serialize_rag_ids, update_chat, upsert_chat,
+  upsert_chat_messages,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lazy_static::lazy_static;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;

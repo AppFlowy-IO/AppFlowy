@@ -23,7 +23,7 @@ use collab_integrate::collab_builder::{
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use flowy_document_pub::cloud::DocumentCloudService;
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult, internal_error};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
 use lib_infra::util::timestamp;
 use tracing::{event, instrument};

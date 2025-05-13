@@ -2,11 +2,11 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
+use crate::ProtoCache;
+use crate::protobuf_file::ProtoFile;
 use crate::protobuf_file::ast::parse_protobuf_context_from;
 use crate::protobuf_file::proto_info::ProtobufCrateContext;
-use crate::protobuf_file::ProtoFile;
 use crate::util::*;
-use crate::ProtoCache;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;

@@ -17,9 +17,9 @@ use flowy_folder_pub::cloud::{
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 
+use crate::af_cloud::AFServer;
 use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
-use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudFolderCloudServiceImpl<T> {
   pub inner: T,

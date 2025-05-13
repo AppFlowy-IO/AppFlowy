@@ -63,8 +63,7 @@ impl AFRetriever for MultipleSourceRetriever {
   async fn retrieve_documents(&self, query: &str) -> Result<Vec<Document>, Box<dyn Error>> {
     trace!(
       "[VectorStore] filters: {:?}, retrieving documents for query: {}",
-      self.rag_ids,
-      query,
+      self.rag_ids, query,
     );
 
     // Create futures for each vector store search

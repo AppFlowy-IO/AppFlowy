@@ -1,4 +1,4 @@
-use crate::{collect_stream, load_asset_content, setup_log, TestContext};
+use crate::{TestContext, collect_stream, load_asset_content, setup_log};
 use flowy_ai::local_ai::chat::chains::conversation_chain::{
   ANSWER_WITH_SUGGESTED_QUESTION, CAN_NOT_ANSWER_WITH_CONTEXT,
 };
@@ -53,12 +53,26 @@ async fn local_ollama_test_chat_with_multiple_docs_retrieve() {
   let mut chat = context.create_chat(vec![]).await;
   let mut ids = vec![];
 
-  for (doc, id) in  [("Rust is a multiplayer survival game developed by Facepunch Studios, first released in early access in December 2013 and fully launched in February 2018. It has since become one of the most popular games in the survival genre, known for its harsh environment, intricate crafting system, and player-driven dynamics. The game is available on Windows, macOS, and PlayStation, with a community-driven approach to updates and content additions.", uuid::Uuid::new_v4()),
-        ("Rust is a modern, system-level programming language designed with a focus on performance, safety, and concurrency. It was created by Mozilla and first released in 2010, with its 1.0 version launched in 2015. Rust is known for providing the control and performance of languages like C and C++, but with built-in safety features that prevent common programming errors, such as memory leaks, data races, and buffer overflows.", uuid::Uuid::new_v4()),
-        ("Rust as a Natural Process (Oxidation) refers to the chemical reaction that occurs when metals, primarily iron, come into contact with oxygen and moisture (water) over time, leading to the formation of iron oxide, commonly known as rust. This process is a form of oxidation, where a substance reacts with oxygen in the air or water, resulting in the degradation of the metal.", uuid::Uuid::new_v4())] {
-        ids.push(id.to_string());
-        chat.embed_paragraphs(&id.to_string(), vec![doc.to_string()]).await.unwrap();
-    }
+  for (doc, id) in [
+    (
+      "Rust is a multiplayer survival game developed by Facepunch Studios, first released in early access in December 2013 and fully launched in February 2018. It has since become one of the most popular games in the survival genre, known for its harsh environment, intricate crafting system, and player-driven dynamics. The game is available on Windows, macOS, and PlayStation, with a community-driven approach to updates and content additions.",
+      uuid::Uuid::new_v4(),
+    ),
+    (
+      "Rust is a modern, system-level programming language designed with a focus on performance, safety, and concurrency. It was created by Mozilla and first released in 2010, with its 1.0 version launched in 2015. Rust is known for providing the control and performance of languages like C and C++, but with built-in safety features that prevent common programming errors, such as memory leaks, data races, and buffer overflows.",
+      uuid::Uuid::new_v4(),
+    ),
+    (
+      "Rust as a Natural Process (Oxidation) refers to the chemical reaction that occurs when metals, primarily iron, come into contact with oxygen and moisture (water) over time, leading to the formation of iron oxide, commonly known as rust. This process is a form of oxidation, where a substance reacts with oxygen in the air or water, resulting in the degradation of the metal.",
+      uuid::Uuid::new_v4(),
+    ),
+  ] {
+    ids.push(id.to_string());
+    chat
+      .embed_paragraphs(&id.to_string(), vec![doc.to_string()])
+      .await
+      .unwrap();
+  }
   chat.set_rag_ids(ids.clone());
 
   let all_docs = chat.get_all_embedded_documents().await.unwrap();
@@ -95,11 +109,13 @@ async fn local_ollama_test_chat_with_multiple_docs_retrieve() {
   assert!(!result.sources.is_empty());
   assert!(result.sources[0].get(SOURCE_ID).unwrap().as_str().is_some());
   assert!(result.sources[0].get(SOURCE).unwrap().as_str().is_some());
-  assert!(result.sources[0]
-    .get(SOURCE_NAME)
-    .unwrap()
-    .as_str()
-    .is_some());
+  assert!(
+    result.sources[0]
+      .get(SOURCE_NAME)
+      .unwrap()
+      .as_str()
+      .is_some()
+  );
 
   let stream = chat
     .stream_question("Japan ski resort", Default::default())

@@ -8,7 +8,7 @@ use walkdir::WalkDir;
 use flowy_ast::ASTResult;
 
 use crate::ast::EventASTContext;
-use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
+use crate::flowy_toml::{CrateConfig, parse_crate_config_from};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
 
 use super::event_template::*;

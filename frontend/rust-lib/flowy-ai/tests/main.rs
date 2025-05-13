@@ -3,9 +3,9 @@ mod complete_test;
 mod summary_test;
 mod translate_test;
 
-use flowy_ai::local_ai::chat::llm_chat::LLMChat;
-use flowy_ai::local_ai::chat::LLMChatInfo;
 use flowy_ai::SqliteVectorStore;
+use flowy_ai::local_ai::chat::LLMChatInfo;
+use flowy_ai::local_ai::chat::llm_chat::LLMChat;
 use flowy_ai_pub::cloud::{ContextSuggestedQuestion, QuestionStreamValue, StreamAnswer};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use langchain_rust::url::Url;
@@ -14,9 +14,9 @@ use serde_json::Value;
 use std::sync::{Arc, Once};
 use tempfile::tempdir;
 use tokio_stream::StreamExt;
+use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::Subscriber;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::EnvFilter;
 use uuid::Uuid;
 
 pub fn setup_log() {

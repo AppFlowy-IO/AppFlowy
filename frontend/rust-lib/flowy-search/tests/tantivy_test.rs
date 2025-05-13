@@ -1,7 +1,7 @@
 use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
 use tantivy::schema::*;
-use tantivy::{doc, DocAddress, Index, Score};
+use tantivy::{DocAddress, Index, Score, doc};
 
 #[test]
 fn search_folder_test() {

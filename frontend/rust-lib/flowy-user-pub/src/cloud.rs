@@ -1,13 +1,13 @@
+use client_api::entity::GotrueTokenResponse;
 use client_api::entity::billing_dto::RecurringInterval;
 use client_api::entity::billing_dto::SubscriptionPlan;
 use client_api::entity::billing_dto::SubscriptionPlanDetail;
 pub use client_api::entity::billing_dto::SubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
-use client_api::entity::GotrueTokenResponse;
 pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use collab_entity::{CollabObject, CollabType};
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, internal_error};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use serde::{Deserialize, Serialize};
@@ -152,7 +152,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   ) -> Result<GotrueTokenResponse, FlowyError>;
 
   async fn sign_in_with_magic_link(&self, email: &str, redirect_to: &str)
-    -> Result<(), FlowyError>;
+  -> Result<(), FlowyError>;
 
   async fn sign_in_with_passcode(
     &self,
@@ -173,7 +173,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
   async fn get_user_profile(&self, uid: i64, workspace_id: &str)
-    -> Result<UserProfile, FlowyError>;
+  -> Result<UserProfile, FlowyError>;
 
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError>;
 

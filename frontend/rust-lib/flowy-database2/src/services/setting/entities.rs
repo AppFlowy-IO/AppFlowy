@@ -1,5 +1,5 @@
-use collab::preclude::encoding::serde::from_any;
 use collab::preclude::Any;
+use collab::preclude::encoding::serde::from_any;
 use collab_database::views::{LayoutSetting, LayoutSettingBuilder};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;

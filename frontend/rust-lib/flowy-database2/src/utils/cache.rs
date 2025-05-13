@@ -1,6 +1,6 @@
-use dashmap::mapref::one::{MappedRef, MappedRefMut};
 use dashmap::DashMap;
-use std::any::{type_name, Any};
+use dashmap::mapref::one::{MappedRef, MappedRefMut};
+use std::any::{Any, type_name};
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::Arc;

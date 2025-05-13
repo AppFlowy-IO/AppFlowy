@@ -1,10 +1,10 @@
 use crate::entities::{AuthType, UserWorkspace, WorkspaceType};
 use chrono::{TimeZone, Utc};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::DBConnection;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::schema::user_workspace_table::dsl;
-use flowy_sqlite::DBConnection;
-use flowy_sqlite::{prelude::*, ExpressionMethods, RunQueryDsl, SqliteConnection};
+use flowy_sqlite::{ExpressionMethods, RunQueryDsl, SqliteConnection, prelude::*};
 use std::collections::{HashMap, HashSet};
 use tracing::{info, warn};
 

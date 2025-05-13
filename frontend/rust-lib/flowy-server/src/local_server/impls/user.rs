@@ -2,7 +2,7 @@
 
 use crate::af_cloud::define::LoggedUser;
 use crate::local_server::template::create_workspace::{
-  create_workspace_for_user, CreateWorkspaceCollab,
+  CreateWorkspaceCollab, create_workspace_for_user,
 };
 use crate::local_server::uid::IDGenerator;
 use anyhow::Context;
@@ -10,22 +10,22 @@ use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::CollabObject;
-use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::CollabKVDB;
+use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_user::core::UserAwareness;
 use flowy_ai_pub::cloud::billing_dto::WorkspaceUsageAndLimit;
 use flowy_ai_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_user_pub::DEFAULT_USER_NAME;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::sql::{
+  UserTableChangeset, WorkspaceMemberTable, WorkspaceSettingsChangeset, WorkspaceSettingsTable,
   insert_local_workspace, select_all_user_workspace, select_user_profile, select_user_workspace,
   select_workspace_member, select_workspace_setting, update_user_profile, update_workspace_setting,
-  upsert_workspace_member, upsert_workspace_setting, UserTableChangeset, WorkspaceMemberTable,
-  WorkspaceSettingsChangeset, WorkspaceSettingsTable,
+  upsert_workspace_member, upsert_workspace_setting,
 };
-use flowy_user_pub::DEFAULT_USER_NAME;
 use lazy_static::lazy_static;
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;

@@ -4,8 +4,8 @@ use lib_infra::validator_fn::required_not_empty_str;
 use std::ops::Deref;
 use validator::Validate;
 
-use crate::entities::parser::NotEmptyStr;
 use crate::entities::RepeatedFieldIdPB;
+use crate::entities::parser::NotEmptyStr;
 use crate::impl_into_field_visibility;
 use crate::services::field_settings::FieldSettings;
 

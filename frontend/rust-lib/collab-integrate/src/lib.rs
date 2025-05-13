@@ -1,6 +1,6 @@
 pub use collab::preclude::Snapshot;
-pub use collab_plugins::local_storage::CollabPersistenceConfig;
 pub use collab_plugins::CollabKVDB;
+pub use collab_plugins::local_storage::CollabPersistenceConfig;
 
 pub mod collab_builder;
 pub mod config;

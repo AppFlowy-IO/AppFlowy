@@ -10,8 +10,8 @@ use flowy_error::FlowyResult;
 use crate::entities::{RelationCellDataPB, RelationFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform, default_order,
 };
 use crate::services::sort::SortCondition;
 

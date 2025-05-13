@@ -6,11 +6,11 @@ use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
+use collab_integrate::CollabKVDB;
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
   CollabPluginProviderType, WorkspaceCollabIntegrate,
 };
-use collab_integrate::CollabKVDB;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
@@ -21,7 +21,7 @@ use lib_infra::box_any::BoxAny;
 use nanoid::nanoid;
 use tempfile::TempDir;
 use tokio::sync::RwLock;
-use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt::Subscriber, util::SubscriberInitExt};
 use uuid::Uuid;
 
 pub struct DocumentTest {

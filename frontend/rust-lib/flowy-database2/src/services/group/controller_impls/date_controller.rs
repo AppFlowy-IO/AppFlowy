@@ -3,8 +3,8 @@ use chrono::{DateTime, Datelike, Days, Duration, Local};
 use collab_database::database::timestamp;
 use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
-use flowy_error::{internal_error, FlowyResult};
+use collab_database::rows::{Cell, Cells, Row, new_cell_builder};
+use flowy_error::{FlowyResult, internal_error};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -12,13 +12,13 @@ use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::insert_date_cell;
-use crate::services::field::date_filter::DateCellDataParser;
 use crate::services::field::TypeOption;
+use crate::services::field::date_filter::DateCellDataParser;
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  make_no_status_group, move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
+  GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext, make_no_status_group, move_group_row,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -342,9 +342,9 @@ fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
 #[cfg(test)]
 mod tests {
   use crate::services::group::controller_impls::date_controller::{
-    get_date_group_id, GROUP_ID_DATE_FORMAT,
+    GROUP_ID_DATE_FORMAT, get_date_group_id,
   };
-  use chrono::{offset, Days, Duration};
+  use chrono::{Days, Duration, offset};
   use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 
   #[test]

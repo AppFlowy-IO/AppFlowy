@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::flowy_toml::{parse_crate_config_from, CrateConfig, FlowyConfig};
+use crate::flowy_toml::{CrateConfig, FlowyConfig, parse_crate_config_from};
 use crate::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;

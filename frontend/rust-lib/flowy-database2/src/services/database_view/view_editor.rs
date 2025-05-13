@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use super::{notify_did_update_calculation, DatabaseViewChanged};
+use super::{DatabaseViewChanged, notify_did_update_calculation};
 use crate::entities::{
   CalculationChangesetNotificationPB, CalendarEventPB, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
@@ -10,19 +10,19 @@ use crate::entities::{
   RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
-use crate::notification::{database_notification_builder, DatabaseNotification};
+use crate::notification::{DatabaseNotification, database_notification_builder};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
 use crate::services::cell::{CellBuilder, CellCache};
-use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
+use crate::services::database::{DatabaseRowEvent, UpdatedRow, database_view_setting_pb_from_view};
 use crate::services::database_view::view_calculations::make_calculations_controller;
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{get_cell_for_row, new_group_controller};
 use crate::services::database_view::view_operation::DatabaseViewOperation;
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
+  DatabaseLayoutDepsResolver, DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_num_of_groups,
-  notify_did_update_setting, notify_did_update_sort, DatabaseLayoutDepsResolver,
-  DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
+  notify_did_update_setting, notify_did_update_sort,
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
@@ -40,7 +40,7 @@ use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 
 use lib_infra::util::timestamp;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::{RwLock, broadcast};
 use tracing::{error, instrument, trace, warn};
 
 pub struct DatabaseViewEditor {

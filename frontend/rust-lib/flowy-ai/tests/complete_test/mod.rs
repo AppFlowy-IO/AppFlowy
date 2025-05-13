@@ -4,7 +4,7 @@ use flowy_ai::local_ai::completion::chain::CompletionChain;
 use flowy_ai::local_ai::completion::stream_interpreter::stream_interpreter_for_completion;
 use flowy_ai_pub::cloud::{CompletionStreamValue, CompletionType, OutputLayout, ResponseFormat};
 use flowy_error::FlowyError;
-use futures_util::{stream, stream::BoxStream, StreamExt};
+use futures_util::{StreamExt, stream, stream::BoxStream};
 use langchain_rust::language_models::LLMError;
 use langchain_rust::schemas::StreamData;
 use serde_json::json;
@@ -487,7 +487,10 @@ async fn test_tiny_chunks_with_mixed_tag_formats() {
   let (answer, comment) = collect_completion_results(result_stream).await;
 
   assert_eq!(answer, "He starts work every day at **8:00 a.m.**");
-  assert_eq!(comment, "* \"everyday\" should be changed to \"every day\" as it is an adverb and should not be written with the suffix \"-day\".\n* Added colon after the time for correct formatting.\n* Added zeros for clarity in time notation.");
+  assert_eq!(
+    comment,
+    "* \"everyday\" should be changed to \"every day\" as it is an adverb and should not be written with the suffix \"-day\".\n* Added colon after the time for correct formatting.\n* Added zeros for clarity in time notation."
+  );
 }
 
 #[tokio::test]
@@ -619,7 +622,10 @@ async fn test_format_tags_with_grammar_correction() {
 
   // Assert the expected output - updated to match actual behavior
   assert_eq!(answer, "He starts work every day at 8 a.m.");
-  assert_eq!(comment, "* The word \"everyday\" is being replaced with **`every day`**, as the first part should be hyphenated for clarity. However, in this case, it's more idiomatic to use **`every day`** without a space.\n* In British English, it's common to write out the time (e.g., \"eight o'clock\" or \"8 a.m.\"). Since the text already uses \"8 a.m.\", no correction is needed here.");
+  assert_eq!(
+    comment,
+    "* The word \"everyday\" is being replaced with **`every day`**, as the first part should be hyphenated for clarity. However, in this case, it's more idiomatic to use **`every day`** without a space.\n* In British English, it's common to write out the time (e.g., \"eight o'clock\" or \"8 a.m.\"). Since the text already uses \"8 a.m.\", no correction is needed here."
+  );
 }
 
 #[tokio::test]
@@ -716,7 +722,10 @@ async fn test_everyday_correction_stream() {
   let (answer, comment) = collect_completion_results(result_stream).await;
 
   assert_eq!(answer, "He starts work every day at 8 a.m.");
-  assert_eq!(comment, "The error was in \"everyday\". In English, \"everyday\" is an adjective that means happening or done regularly. The correct word to use here is \"every day\", which is a noun phrase indicating a specific time period. I added a space between the two words for clarity and correctness.");
+  assert_eq!(
+    comment,
+    "The error was in \"everyday\". In English, \"everyday\" is an adjective that means happening or done regularly. The correct word to use here is \"every day\", which is a noun phrase indicating a specific time period. I added a space between the two words for clarity and correctness."
+  );
 }
 
 #[tokio::test]
@@ -811,5 +820,8 @@ async fn test_basketball_improvement_stream() {
   let (answer, comment) = collect_completion_results(result_stream).await;
 
   assert_eq!(answer, "We enjoy playing basketball together as friends.");
-  assert_eq!(comment, "* Changed \"like\" to \"enjoy\", which is a more specific and engaging verb that conveys a stronger enthusiasm for the activity.\n* Modified the sentence structure to make it more concise and natural-sounding, using a more active voice (\"We enjoy...\") instead of a passive one (\"I like...\").");
+  assert_eq!(
+    comment,
+    "* Changed \"like\" to \"enjoy\", which is a more specific and engaging verb that conveys a stronger enthusiasm for the activity.\n* Modified the sentence structure to make it more concise and natural-sounding, using a more active voice (\"We enjoy...\") instead of a passive one (\"I like...\")."
+  );
 }

@@ -1,16 +1,16 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  default_order,
 };
 use crate::services::field::{SelectOptionCellChangeset, SelectTypeOptionSharedAction};
 use crate::services::sort::SortCondition;
 
+use collab_database::fields::TypeOptionData;
 use collab_database::fields::select_type_option::{
   SelectOption, SelectOptionIds, SingleSelectTypeOption,
 };
-use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 

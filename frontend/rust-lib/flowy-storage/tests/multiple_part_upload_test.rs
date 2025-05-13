@@ -1,12 +1,12 @@
 use collab_importer::util::FileId;
 use flowy_sqlite::Database;
 use flowy_storage::sqlite_sql::{
-  batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
-  select_latest_upload_part, select_upload_parts, UploadFilePartTable, UploadFileTable,
+  UploadFilePartTable, UploadFileTable, batch_select_upload_file, delete_upload_file,
+  insert_upload_file, insert_upload_part, select_latest_upload_part, select_upload_parts,
 };
 use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 use std::env::temp_dir;
 use std::fs::File;
 use std::io::Write;

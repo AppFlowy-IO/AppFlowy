@@ -8,10 +8,10 @@ use std::pin::Pin;
 use std::sync::Arc;
 use tokio_stream::StreamExt;
 
+use ollama_rs::Ollama;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
 use ollama_rs::generation::parameters::FormatType;
 use ollama_rs::models::ModelOptions;
-use ollama_rs::Ollama;
 
 #[derive(Debug, Clone)]
 pub struct LLMOllama {

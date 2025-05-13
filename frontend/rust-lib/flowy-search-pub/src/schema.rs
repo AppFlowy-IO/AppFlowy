@@ -1,4 +1,4 @@
-use tantivy::schema::{Schema, STORED, STRING, TEXT};
+use tantivy::schema::{STORED, STRING, Schema, TEXT};
 
 pub struct LocalSearchTantivySchema(pub Schema);
 

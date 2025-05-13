@@ -13,7 +13,7 @@ pub trait AFRetriever: Send + Sync + 'static {
   fn set_rag_ids(&mut self, new_rag_ids: Vec<String>);
 
   async fn retrieve_documents(&self, query: &str)
-    -> Result<Vec<LangchainDocument>, Box<dyn Error>>;
+  -> Result<Vec<LangchainDocument>, Box<dyn Error>>;
 }
 
 #[async_trait]

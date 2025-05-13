@@ -1,6 +1,6 @@
 use collab::core::collab_state::SyncState;
 use collab_document::{
-  blocks::{json_str_to_hashmap, Block, BlockAction, DocumentData},
+  blocks::{Block, BlockAction, DocumentData, json_str_to_hashmap},
   document_awareness::{
     DocumentAwarenessPosition, DocumentAwarenessSelection, DocumentAwarenessState,
     DocumentAwarenessUser,

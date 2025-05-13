@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use collab_database::fields::number_type_option::NumberCellFormat;
 use collab_database::fields::Field;
+use collab_database::fields::number_type_option::NumberCellFormat;
 use collab_database::rows::Cell;
 use rust_decimal::Decimal;
 

@@ -1,5 +1,5 @@
 use crate::database::database_editor::DatabaseEditorTest;
-use collab_database::fields::select_type_option::{SelectOptionIds, SELECTION_IDS_SEPARATOR};
+use collab_database::fields::select_type_option::{SELECTION_IDS_SEPARATOR, SelectOptionIds};
 use flowy_database2::entities::{CreateRowPayloadPB, FilterDataPB, InsertFilterPB};
 use flowy_database2::services::cell::stringify_cell;
 use std::ops::{Deref, DerefMut};

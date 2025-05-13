@@ -1,24 +1,24 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB, MoveNestedViewParams,
   RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB,
-  ViewSectionPB, WorkspaceLatestPB, WorkspacePB,
+  ViewSectionPB, WorkspaceLatestPB, WorkspacePB, view_pb_with_child_views,
+  view_pb_without_child_views, view_pb_without_child_views_from_arc,
 };
 use crate::manager_observer::{
-  notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
-  ChildViewChangeReason,
+  ChildViewChangeReason, notify_child_views_changed, notify_did_update_workspace,
+  notify_parent_view_did_change,
 };
-use crate::notification::{folder_notification_builder, FolderNotification};
+use crate::notification::{FolderNotification, folder_notification_builder};
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
-  create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
+  FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData, create_view,
 };
 use arc_swap::ArcSwapOption;
-use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
+use client_api::entity::workspace_dto::PublishInfoView;
 use collab::core::collab::{DataSource, IndexContentReceiver};
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
@@ -28,12 +28,12 @@ use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
   Workspace,
 };
+use collab_integrate::CollabKVDB;
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
-use collab_integrate::CollabKVDB;
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult, internal_error};
+use flowy_folder_pub::cloud::{FolderCloudService, FolderCollabParams, gen_view_id};
 use flowy_folder_pub::entities::{
   PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
   PublishViewInfo, PublishViewMeta, PublishViewMetaData,
@@ -1131,7 +1131,7 @@ impl FolderManager {
         return Err(
           FlowyError::record_not_found()
             .with_context(format!("Can't duplicate the view({})", view_id)),
-        )
+        );
       },
       Some(lock) => lock,
     };
@@ -1367,7 +1367,7 @@ impl FolderManager {
           return Err(
             FlowyError::record_not_found()
               .with_context(format!("Can't find the view with ID: {}", view_id)),
-          )
+          );
         },
         Some(lock) => lock,
       };

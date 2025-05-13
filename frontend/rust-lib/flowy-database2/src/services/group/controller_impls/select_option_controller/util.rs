@@ -7,8 +7,8 @@ use crate::services::cell::{
 use crate::services::field::CHECK;
 use crate::services::group::{Group, GroupData, MoveGroupRowContext};
 use chrono::NaiveDateTime;
-use collab_database::fields::select_type_option::{SelectOption, SelectOptionIds};
 use collab_database::fields::Field;
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionIds};
 use collab_database::rows::{Cell, Row};
 use tracing::debug;
 

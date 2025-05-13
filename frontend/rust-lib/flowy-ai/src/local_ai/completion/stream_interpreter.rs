@@ -1,8 +1,8 @@
 use flowy_ai_pub::cloud::{CompletionStreamValue, CompletionType};
-use futures_util::{stream, stream::BoxStream, Stream, StreamExt};
+use futures_util::{Stream, StreamExt, stream, stream::BoxStream};
 use langchain_rust::language_models::LLMError;
 use langchain_rust::schemas::StreamData;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tracing::{debug, warn};

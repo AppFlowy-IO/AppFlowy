@@ -1,7 +1,7 @@
 use crate::entities::{FileStatePB, QueryFilePB, RegisterStreamPB};
 use crate::manager::StorageManager;
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult, data_result_ok};
 use std::sync::{Arc, Weak};
 
 fn upgrade_storage_manager(

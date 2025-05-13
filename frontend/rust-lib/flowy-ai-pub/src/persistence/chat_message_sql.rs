@@ -1,14 +1,13 @@
-use crate::cloud::chat_dto::ChatAuthorType;
 use crate::cloud::MessageCursor;
+use crate::cloud::chat_dto::ChatAuthorType;
 use client_api::entity::chat_dto::ChatMessage;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
-  diesel, insert_into,
+  DBConnection, ExpressionMethods, Identifiable, Insertable, OptionalExtension, QueryResult,
+  Queryable, diesel, insert_into,
   query_dsl::*,
   schema::{chat_message_table, chat_message_table::dsl},
-  DBConnection, ExpressionMethods, Identifiable, Insertable, OptionalExtension, QueryResult,
-  Queryable,
 };
 
 #[derive(Queryable, Insertable, Identifiable, Debug)]
