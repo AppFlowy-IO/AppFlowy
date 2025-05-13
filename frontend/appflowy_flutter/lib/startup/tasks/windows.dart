@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
@@ -21,8 +19,14 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   Future<void> initialize(LaunchContext context) async {
     await super.initialize(context);
 
-    // Don't initialize on mobile or web.
-    if (!defaultTargetPlatform.isDesktop || context.env.isIntegrationTest) {
+    // Don't initialize in integration tests or on web
+    if (context.env.isIntegrationTest || UniversalPlatform.isWeb) {
+      return;
+    }
+
+    if (UniversalPlatform.isMobile) {
+      final scale = await windowSizeManager.getScaleFactor();
+      ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scale;
       return;
     }
 
