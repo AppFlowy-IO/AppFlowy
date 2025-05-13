@@ -84,6 +84,7 @@ class MockAIRepository extends Mock implements AppFlowyAIService {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    String? promptId,
     List<String> sourceIds = const [],
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,

@@ -37,6 +37,7 @@ class ChatStreamManager {
   StreamChatPayloadPB buildStreamPayload(
     String message,
     PredefinedFormat? format,
+    String? promptId,
   ) {
     final payload = StreamChatPayloadPB(
       chatId: chatId,
@@ -50,6 +51,10 @@ class ChatStreamManager {
       payload.format = format.toPB();
     }
 
+    if (promptId != null) {
+      payload.promptId = promptId;
+    }
+
     return payload;
   }
 
@@ -57,8 +62,9 @@ class ChatStreamManager {
   Future<FlowyResult<ChatMessagePB, FlowyError>> sendStreamRequest(
     String message,
     PredefinedFormat? format,
+    String? promptId,
   ) async {
-    final payload = buildStreamPayload(message, format);
+    final payload = buildStreamPayload(message, format, promptId);
     return AIEventStreamMessage(payload).send();
   }
 
