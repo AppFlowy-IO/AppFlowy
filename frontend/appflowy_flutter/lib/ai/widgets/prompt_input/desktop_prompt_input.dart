@@ -58,7 +58,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   @override
   void initState() {
     super.initState();
-    chatUserCubit.fetchUserProfile();
 
     widget.textController.addListener(handleTextControllerChanged);
     focusNode
