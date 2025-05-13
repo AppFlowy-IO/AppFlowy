@@ -39,7 +39,6 @@ reqwest = { version = "0.11.27", features = ["json"] }
 sha2 = "0.10.7"
 base64 = "0.21.5"
 futures-util = "0.3.30"
-pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
 ollama-rs.workspace = true
 schemars = "0.8.22"
@@ -55,6 +54,7 @@ flowy-sqlite-vec.workspace = true
 notify = "6.1.1"
 lopdf = { version = "0.36.0", optional = true }
 pulldown-cmark = { version = "0.13.0", optional = true }
+rmcp = "0.1.5"
 
 
 [dev-dependencies]
