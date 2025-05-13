@@ -53,7 +53,8 @@ where
   fn should_log(&self, metadata: &Metadata<'_>) -> bool {
     self
       .target_filter
-      .as_ref().is_none_or(|f| f(metadata.target()))
+      .as_ref()
+      .is_none_or(|f| f(metadata.target()))
   }
 
   fn serialize_fields(
