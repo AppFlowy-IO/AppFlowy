@@ -25,7 +25,9 @@ pub fn setup_log() {
     let level = std::env::var("RUST_LOG").unwrap_or("trace".to_string());
     let mut filters = vec![];
     filters.push(format!("flowy_ai={}", level));
-    std::env::set_var("RUST_LOG", filters.join(","));
+    unsafe {
+      std::env::set_var("RUST_LOG", filters.join(","));
+    }
 
     let subscriber = Subscriber::builder()
       .with_ansi(true)

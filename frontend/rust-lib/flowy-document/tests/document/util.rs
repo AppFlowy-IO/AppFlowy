@@ -109,7 +109,9 @@ impl DocumentUserService for FakeUser {
 pub fn setup_log() {
   static START: OnceLock<()> = OnceLock::new();
   START.get_or_init(|| {
-    std::env::set_var("RUST_LOG", "collab_persistence=trace");
+    unsafe {
+      std::env::set_var("RUST_LOG", "collab_persistence=trace");
+    }
     let subscriber = Subscriber::builder()
       .with_env_filter(EnvFilter::from_default_env())
       .with_ansi(true)
