@@ -41,7 +41,9 @@ pub enum AuthenticatorType {
 impl AuthenticatorType {
   pub fn write_env(&self) {
     let s = self.clone() as u8;
-    std::env::set_var(CLOUT_TYPE_STR, s.to_string());
+    unsafe {
+      std::env::set_var(CLOUT_TYPE_STR, s.to_string());
+    }
   }
 
   #[allow(dead_code)]

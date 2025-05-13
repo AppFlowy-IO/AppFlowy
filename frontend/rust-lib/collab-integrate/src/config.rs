@@ -63,8 +63,10 @@ impl AWSDynamoDBConfig {
   }
 
   pub fn write_env(&self) {
-    std::env::set_var(AWS_ACCESS_KEY_ID, &self.access_key_id);
-    std::env::set_var(AWS_SECRET_ACCESS_KEY, &self.secret_access_key);
-    std::env::set_var(AWS_REGION, &self.region);
+    unsafe {
+      std::env::set_var(AWS_ACCESS_KEY_ID, &self.access_key_id);
+      std::env::set_var(AWS_SECRET_ACCESS_KEY, &self.secret_access_key);
+      std::env::set_var(AWS_REGION, &self.region);
+    }
   }
 }

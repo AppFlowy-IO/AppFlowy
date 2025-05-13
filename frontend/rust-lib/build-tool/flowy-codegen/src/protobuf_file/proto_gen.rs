@@ -14,7 +14,7 @@ use std::{fs::OpenOptions, io::Write};
 
 pub struct ProtoGenerator();
 impl ProtoGenerator {
-  pub fn gen(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrateContext> {
+  pub fn r#gen(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrateContext> {
     let crate_contexts = parse_protobuf_context_from(vec![crate_path.to_owned()]);
     write_proto_files(&crate_contexts);
     write_rust_crate_mod_file(&crate_contexts);

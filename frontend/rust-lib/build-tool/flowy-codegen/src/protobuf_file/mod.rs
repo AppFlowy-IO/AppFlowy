@@ -368,7 +368,7 @@ pub fn gen_proto_files(crate_name: &str) -> Vec<ProtobufCrate> {
     .display()
     .to_string();
 
-  let crate_context = ProtoGenerator::gen(crate_name, &crate_path);
+  let crate_context = ProtoGenerator::r#gen(crate_name, &crate_path);
   let proto_crates = crate_context
     .iter()
     .map(|info| info.protobuf_crate.clone())
