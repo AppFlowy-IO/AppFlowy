@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -48,6 +50,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   late int startOffset;
   late String _search = widget.initialSearchText;
   double emojiHeight = 36.0;
+  String lastSearchedQuery = '';
   final configuration = EmojiPickerConfiguration(
     defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
   );
@@ -99,7 +102,9 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       onKeyEvent: onKeyEvent,
       child: Container(
         constraints: const BoxConstraints(maxHeight: 392, maxWidth: 360),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: noEmojis
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6.0),
           color: Theme.of(context).cardColor,
@@ -111,7 +116,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
             ),
           ],
         ),
-        child: noEmojis ? buildLoading() : buildEmojis(),
+        child: loaded ? buildEmojis() : buildLoading(),
       ),
     );
   }
@@ -130,6 +135,16 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   }
 
   Widget buildEmojis() {
+    final noEmojis = searchedEmojis.isEmpty;
+    if (noEmojis) {
+      return SizedBox(
+        width: 400,
+        height: emojiHeight,
+        child: Center(
+          child: FlowyText.regular(LocaleKeys.inlineActions_noResults.tr()),
+        ),
+      );
+    }
     return SizedBox(
       height:
           (searchedEmojis.length / configuration.perLine).ceil() * emojiHeight,
@@ -208,7 +223,14 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       _scrollToItem();
     });
     if (searchedEmojis.isEmpty) {
-      widget.onDismiss.call();
+      if (lastSearchedQuery.isEmpty) {
+        lastSearchedQuery = _search;
+      }
+      if (_search.length - lastSearchedQuery.length >= 5) {
+        widget.onDismiss.call();
+      }
+    } else {
+      lastSearchedQuery = '';
     }
   }
 
@@ -359,7 +381,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   void _scrollToItem() {
     final noEmojis = searchedEmojis.isEmpty;
-    if (noEmojis || !mounted) return;
+    if (noEmojis || !mounted || !scrollController.hasClients) return;
     final currentItem = selectedIndexNotifier.value;
     final exceptHeight = (currentItem ~/ configuration.perLine) * emojiHeight;
     final maxExtent = scrollController.position.maxScrollExtent;
