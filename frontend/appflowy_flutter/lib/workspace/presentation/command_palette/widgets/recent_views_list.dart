@@ -2,6 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -139,7 +142,19 @@ class RecentViewsList extends StatelessWidget {
                       Flexible(
                         child: Align(
                           alignment: Alignment.topLeft,
-                          child: PagePreview(view: hoveredView),
+                          child: PagePreview(
+                            view: hoveredView,
+                            onViewOpened: () {
+                              getIt<ActionNavigationBloc>().add(
+                                ActionNavigationEvent.performAction(
+                                  action: NavigationAction(
+                                    objectId: hoveredView.id,
+                                  ),
+                                ),
+                              );
+                              onSelected();
+                            },
+                          ),
                         ),
                       ),
                     ],

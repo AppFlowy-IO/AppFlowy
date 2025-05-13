@@ -226,7 +226,14 @@ class SearchResultPreview extends StatelessWidget {
         final view = snapshot.data?.toNullable();
         if (view == null) return SomethingWentWrong();
 
-        return PagePreview(view: view);
+        return PagePreview(
+          view: view,
+          onViewOpened: () {
+            context
+                .read<SearchResultListBloc?>()
+                ?.add(SearchResultListEvent.openPage(pageId: view.id));
+          },
+        );
       },
     );
   }
