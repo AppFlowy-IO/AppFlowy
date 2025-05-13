@@ -38,7 +38,7 @@ impl IDGenerator {
     }
 
     self.last_timestamp = timestamp;
-    let id = (timestamp - EPOCH) << TIMESTAMP_SHIFT | self.node_id << NODE_ID_SHIFT | self.sequence;
+    let id = ((timestamp - EPOCH) << TIMESTAMP_SHIFT) | (self.node_id << NODE_ID_SHIFT) | self.sequence;
     id as i64
   }
 

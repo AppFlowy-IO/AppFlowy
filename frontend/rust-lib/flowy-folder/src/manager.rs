@@ -371,8 +371,7 @@ impl FolderManager {
       let result = self
         .cloud_service()?
         .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
-        .await
-        .map_err(FlowyError::from);
+        .await;
 
       match result {
         Ok(folder_doc_state) => {
