@@ -1,5 +1,6 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_user_cubit.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -48,6 +49,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   final layerLink = LayerLink();
   final overlayController = OverlayPortalController();
   final inputControlCubit = ChatInputControlCubit();
+  final chatUserCubit = ChatUserCubit();
   final focusNode = FocusNode();
 
   late SendButtonState sendButtonState;
@@ -56,6 +58,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   @override
   void initState() {
     super.initState();
+    chatUserCubit.fetchUserProfile();
 
     widget.textController.addListener(handleTextControllerChanged);
     focusNode
@@ -90,13 +93,17 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     focusNode.dispose();
     widget.textController.removeListener(handleTextControllerChanged);
     inputControlCubit.close();
+    chatUserCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: inputControlCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: inputControlCubit),
+        BlocProvider.value(value: chatUserCubit),
+      ],
       child: BlocListener<ChatInputControlCubit, ChatInputControlState>(
         listener: (context, state) {
           state.maybeWhen(
@@ -656,7 +663,9 @@ class _PromptBottomActions extends StatelessWidget {
 
               const Spacer(),
 
-              _selectSourcesButton(),
+              if (context.read<ChatUserCubit>().supportSelectSource())
+                _selectSourcesButton(),
+
               if (extraBottomActionButton != null) extraBottomActionButton!,
               // _mentionButton(context),
               if (state.supportChatWithFile) _attachmentButton(context),
