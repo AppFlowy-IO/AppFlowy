@@ -19,8 +19,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   Future<void> initialize(LaunchContext context) async {
     await super.initialize(context);
 
-    // Don't initialize in integration tests or on web
-    if (context.env.isIntegrationTest || UniversalPlatform.isWeb) {
+    // Don't initialize in tests or on web
+    if (context.env.isTest || UniversalPlatform.isWeb) {
       return;
     }
 
