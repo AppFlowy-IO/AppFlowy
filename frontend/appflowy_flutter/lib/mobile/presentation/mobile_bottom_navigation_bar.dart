@@ -20,7 +20,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'home/mobile_home_page.dart';
-import 'notifications/mobile_notifications_page.dart';
 import 'search/mobile_search_page.dart';
 
 enum BottomNavigationBarActionType {
@@ -46,7 +45,7 @@ enum BottomNavigationBarItemType {
     return switch (this) {
       home => MobileHomeScreen.routeName,
       search => MobileSearchScreen.routeName,
-      notification => MobileNotificationsScreen.routeName,
+      notification => MobileNotificationsScreenV2.routeName,
       add => null,
     };
   }
