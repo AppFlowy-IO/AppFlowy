@@ -97,39 +97,44 @@ class _MobileSearchPageState extends State<MobileSearchPage> {
       builder: (context, state) {
         return SafeArea(
           child: Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MobileSearchTextfield(
-                    focusNode: focusNode,
-                    hintText: enableShowAISearch
-                        ? LocaleKeys.search_searchOrAskAI.tr()
-                        : LocaleKeys.search_label.tr(),
-                    query: state.query ?? '',
-                    onChanged: (value) =>
-                        context.read<CommandPaletteBloc>().add(
-                              CommandPaletteEvent.searchChanged(search: value),
-                            ),
-                  ),
-                  if (enableShowAISearch)
-                    MobileSearchAskAiEntrance(query: state.query),
-                  Flexible(
-                    child: NotificationListener(
-                      child: MobileSearchResult(),
-                      onNotification: (t) {
-                        if (t is ScrollUpdateNotification) {
-                          if (focusNode.hasFocus) {
-                            focusNode.unfocus();
-                          }
-                        }
-                        return true;
-                      },
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MobileSearchTextfield(
+                  focusNode: focusNode,
+                  hintText: enableShowAISearch
+                      ? LocaleKeys.search_searchOrAskAI.tr()
+                      : LocaleKeys.search_label.tr(),
+                  query: state.query ?? '',
+                  onChanged: (value) => context.read<CommandPaletteBloc>().add(
+                        CommandPaletteEvent.searchChanged(search: value),
+                      ),
+                ),
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        if (enableShowAISearch)
+                          MobileSearchAskAiEntrance(query: state.query),
+                        Flexible(
+                          child: NotificationListener(
+                            child: MobileSearchResult(),
+                            onNotification: (t) {
+                              if (t is ScrollUpdateNotification) {
+                                if (focusNode.hasFocus) {
+                                  focusNode.unfocus();
+                                }
+                              }
+                              return true;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
