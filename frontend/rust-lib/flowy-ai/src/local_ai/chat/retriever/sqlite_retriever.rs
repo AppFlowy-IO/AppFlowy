@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use flowy_ai_pub::entities::RAG_IDS;
 use langchain_rust::schemas::{Document, Retriever};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::error::Error;
 use tracing::trace;
 
@@ -48,8 +48,7 @@ impl AFRetriever for SqliteVecRetriever {
   async fn retrieve_documents(&self, query: &str) -> Result<Vec<Document>, Box<dyn Error>> {
     trace!(
       "[VectorStore] filters: {:?}, retrieving documents for query: {}",
-      self.options.filters,
-      query,
+      self.options.filters, query,
     );
 
     match self.vector_store.as_ref() {

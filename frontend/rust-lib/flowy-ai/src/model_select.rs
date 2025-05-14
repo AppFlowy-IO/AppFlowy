@@ -364,7 +364,7 @@ impl ModelSource for ServerAiSource {
     let now = timestamp();
     let should_fetch = {
       let cached = self.cached_models.read().await;
-      cached.models.is_empty() || cached.timestamp.map_or(true, |ts| now - ts >= 300)
+      cached.models.is_empty() || cached.timestamp.is_none_or(|ts| now - ts >= 300)
     };
     if !should_fetch {
       return self.cached_models.read().await.models.clone();

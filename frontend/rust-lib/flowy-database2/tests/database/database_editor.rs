@@ -2,23 +2,23 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::gen_database_view_id;
+use collab_database::fields::Field;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionIds, SingleSelectTypeOption,
 };
-use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
-use event_integration_test::folder_event::ViewTest;
 use event_integration_test::EventIntegrationTest;
+use event_integration_test::folder_event::ViewTest;
 use flowy_database2::entities::{DatabasePB, FieldType, FilterPB, RowMetaPB};
 
 use flowy_database2::services::database::DatabaseEditor;
-use flowy_database2::services::field::checklist_filter::ChecklistCellChangeset;
 use flowy_database2::services::field::SelectOptionCellChangeset;
+use flowy_database2::services::field::checklist_filter::ChecklistCellChangeset;
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
 

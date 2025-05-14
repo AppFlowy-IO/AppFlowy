@@ -20,7 +20,7 @@ use crate::parser::parser_entities::{
 };
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult, data_result_ok};
 use lib_infra::sync_trace;
 use tracing::instrument;
 use uuid::Uuid;

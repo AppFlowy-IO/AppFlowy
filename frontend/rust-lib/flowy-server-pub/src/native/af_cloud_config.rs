@@ -73,16 +73,18 @@ impl AFCloudConfiguration {
 
   /// Write the configuration to the environment variables.
   pub fn write_env(&self) {
-    std::env::set_var(APPFLOWY_CLOUD_BASE_URL, &self.base_url);
-    std::env::set_var(APPFLOWY_CLOUD_WS_BASE_URL, &self.ws_base_url);
-    std::env::set_var(APPFLOWY_CLOUD_GOTRUE_URL, &self.gotrue_url);
-    std::env::set_var(
-      APPFLOWY_ENABLE_SYNC_TRACE,
-      if self.enable_sync_trace {
-        "true"
-      } else {
-        "false"
-      },
-    );
+    unsafe {
+      std::env::set_var(APPFLOWY_CLOUD_BASE_URL, &self.base_url);
+      std::env::set_var(APPFLOWY_CLOUD_WS_BASE_URL, &self.ws_base_url);
+      std::env::set_var(APPFLOWY_CLOUD_GOTRUE_URL, &self.gotrue_url);
+      std::env::set_var(
+        APPFLOWY_ENABLE_SYNC_TRACE,
+        if self.enable_sync_trace {
+          "true"
+        } else {
+          "false"
+        },
+      );
+    }
   }
 }

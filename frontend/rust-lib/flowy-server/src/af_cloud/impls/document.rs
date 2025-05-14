@@ -13,9 +13,9 @@ use std::sync::Weak;
 use tracing::instrument;
 use uuid::Uuid;
 
+use crate::af_cloud::AFServer;
 use crate::af_cloud::define::LoggedUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
-use crate::af_cloud::AFServer;
 
 pub(crate) struct AFCloudDocumentCloudServiceImpl<T> {
   pub inner: T,

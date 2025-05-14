@@ -4,7 +4,7 @@ use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
 use crate::notification::{
-  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+  APPFLOWY_AI_NOTIFICATION_KEY, ChatNotification, chat_notification_builder,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use lib_infra::util::get_operating_system;

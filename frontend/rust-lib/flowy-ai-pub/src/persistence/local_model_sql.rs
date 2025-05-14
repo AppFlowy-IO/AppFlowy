@@ -2,10 +2,9 @@ use diesel::sqlite::SqliteConnection;
 use flowy_error::FlowyResult;
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
-  diesel,
+  ExpressionMethods, Identifiable, Insertable, Queryable, diesel,
   query_dsl::*,
   schema::{local_ai_model_table, local_ai_model_table::dsl},
-  ExpressionMethods, Identifiable, Insertable, Queryable,
 };
 
 #[derive(Clone, Default, Queryable, Insertable, Identifiable)]

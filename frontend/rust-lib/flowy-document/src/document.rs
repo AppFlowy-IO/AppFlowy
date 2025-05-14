@@ -1,7 +1,7 @@
 use crate::entities::{
   DocEventPB, DocumentAwarenessStatesPB, DocumentSnapshotStatePB, DocumentSyncStatePB,
 };
-use crate::notification::{document_notification_builder, DocumentNotification};
+use crate::notification::{DocumentNotification, document_notification_builder};
 use collab::preclude::Collab;
 use collab_document::document::Document;
 use futures::StreamExt;

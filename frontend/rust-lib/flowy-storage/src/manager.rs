@@ -1,11 +1,11 @@
 use crate::entities::FileStatePB;
 use crate::file_cache::FileTempStorage;
-use crate::notification::{make_notification, StorageNotification};
+use crate::notification::{StorageNotification, make_notification};
 use crate::sqlite_sql::{
-  batch_select_upload_file, delete_all_upload_parts, delete_upload_file,
-  delete_upload_file_by_file_id, insert_upload_file, insert_upload_part, is_upload_completed,
-  is_upload_exist, select_upload_file, select_upload_parts, update_upload_file_completed,
-  update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
+  UploadFilePartTable, UploadFileTable, batch_select_upload_file, delete_all_upload_parts,
+  delete_upload_file, delete_upload_file_by_file_id, insert_upload_file, insert_upload_part,
+  is_upload_completed, is_upload_exist, select_upload_file, select_upload_parts,
+  update_upload_file_completed, update_upload_file_upload_id,
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use allo_isolate::Isolate;
@@ -14,7 +14,7 @@ use collab_importer::util::FileId;
 use dashmap::DashMap;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
-use flowy_storage_pub::chunked_byte::{calculate_offsets, ChunkedBytes, MIN_CHUNK_SIZE};
+use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE, calculate_offsets};
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::{
   CompletedPartRequest, CreatedUpload, FileProgress, FileProgressReceiver, FileUploadState,
@@ -25,8 +25,8 @@ use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use lib_infra::util::timestamp;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::{broadcast, watch};
 use tracing::{debug, error, info, instrument, trace};
@@ -598,9 +598,7 @@ async fn start_upload(
   // 1. create upload
   trace!(
     "[File] create upload for workspace: {}, parent_dir: {}, file_id: {}",
-    upload_file.workspace_id,
-    upload_file.parent_dir,
-    upload_file.file_id
+    upload_file.workspace_id, upload_file.parent_dir, upload_file.file_id
   );
 
   let workspace_id = Uuid::from_str(&upload_file.workspace_id)?;
@@ -635,8 +633,7 @@ async fn start_upload(
 
   trace!(
     "[File] {} update upload_id: {}",
-    upload_file.file_id,
-    create_upload_resp.upload_id
+    upload_file.file_id, create_upload_resp.upload_id
   );
   upload_file.upload_id = create_upload_resp.upload_id;
 
@@ -675,8 +672,7 @@ async fn start_upload(
           Ok(resp) => {
             trace!(
               "[File] {} part {} uploaded",
-              upload_file.file_id,
-              part_number
+              upload_file.file_id, part_number
             );
             let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
             // The 0.1 is reserved for the complete_upload progress

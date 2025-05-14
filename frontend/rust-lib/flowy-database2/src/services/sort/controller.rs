@@ -18,7 +18,7 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{default_order, TypeOptionCellExt};
+use crate::services::field::{TypeOptionCellExt, default_order};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };

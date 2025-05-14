@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{Cell, Cells, Row, new_cell_builder};
 use flowy_error::{FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 
@@ -14,8 +14,8 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::{
-  make_no_status_group, GeneratedGroups, Group, GroupChangeset, GroupControllerContext,
-  GroupsBuilder, MoveGroupRowContext,
+  GeneratedGroups, Group, GroupChangeset, GroupControllerContext, GroupsBuilder,
+  MoveGroupRowContext, make_no_status_group,
 };
 
 #[derive(Default, Serialize, Deserialize)]

@@ -31,7 +31,7 @@ use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
 };
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult, internal_error};
 
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
@@ -614,8 +614,7 @@ impl DatabaseManager {
     // Call the cloud service to summarize the row.
     trace!(
       "[AI]:summarize row:{}, content:{:?}",
-      row_id,
-      summary_row_content
+      row_id, summary_row_content
     );
     let response = self
       .ai_service
@@ -680,8 +679,7 @@ impl DatabaseManager {
     // Call the cloud service to summarize the row.
     trace!(
       "[AI]:translate to {}, content:{:?}",
-      language,
-      translate_row_content
+      language, translate_row_content
     );
     let response = self
       .ai_service
@@ -841,8 +839,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     {
       trace!(
         "build collab: {}:{} from local encode collab",
-        collab_type,
-        object_id
+        collab_type, object_id
       );
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
@@ -1031,8 +1028,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
           Ok(update_count) => {
             trace!(
               "[Database]: did load collab:{}, update_count:{}",
-              object_id,
-              update_count
+              object_id, update_count
             );
           },
           Err(err) => {
@@ -1175,8 +1171,7 @@ async fn open_database_with_retry(
   for attempt in 1..=max_retries {
     trace!(
       "[Database]: attempt {} to open database:{}",
-      attempt,
-      database_id
+      attempt, database_id
     );
 
     let result = workspace_database_manager

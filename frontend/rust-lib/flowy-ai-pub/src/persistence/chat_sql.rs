@@ -2,10 +2,10 @@ use diesel::sqlite::SqliteConnection;
 use flowy_error::FlowyResult;
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
+  AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
   diesel,
   query_dsl::*,
   schema::{chat_table, chat_table::dsl},
-  AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
 };
 use lib_infra::util::timestamp;
 use serde::{Deserialize, Serialize};

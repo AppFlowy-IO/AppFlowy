@@ -1,8 +1,8 @@
 use crate::embeddings::indexer::EmbeddingModel;
 use flowy_error::FlowyResult;
-use ollama_rs::generation::embeddings::request::GenerateEmbeddingsRequest;
-use ollama_rs::generation::embeddings::GenerateEmbeddingsResponse;
 use ollama_rs::Ollama;
+use ollama_rs::generation::embeddings::GenerateEmbeddingsResponse;
+use ollama_rs::generation::embeddings::request::GenerateEmbeddingsRequest;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]

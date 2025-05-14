@@ -1,6 +1,6 @@
-use anyhow::{anyhow, Result};
-use base64::engine::general_purpose::STANDARD;
+use anyhow::{Result, anyhow};
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD;
 use reqwest::{Client, Response, StatusCode};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
@@ -79,8 +79,7 @@ pub async fn download_model(
     if calculated_sha256.as_slice() != header_sha256.as_slice() {
       trace!(
         "Header Sha256: {:?}, calculated Sha256:{:?}",
-        header_sha256,
-        calculated_sha256
+        header_sha256, calculated_sha256
       );
 
       fs::remove_file(&partial_path).await?;

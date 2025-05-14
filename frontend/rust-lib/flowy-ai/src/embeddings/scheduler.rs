@@ -1,6 +1,6 @@
 use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
 use crate::embeddings::indexer::IndexerProvider;
-use crate::search::summary::{summarize_documents, LLMDocument};
+use crate::search::summary::{LLMDocument, summarize_documents};
 use flowy_ai_pub::cloud::search_dto::{
   SearchContentType, SearchDocumentResponseItem, SearchResult, SearchSummaryResult, Summary,
 };
@@ -8,11 +8,11 @@ use flowy_ai_pub::entities::{EmbeddingRecord, UnindexedCollab, UnindexedData};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::internal::derives::multiconnection::chrono::Utc;
 use flowy_sqlite_vec::db::VectorSqliteDB;
-use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use ollama_rs::Ollama;
+use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use std::sync::{Arc, Weak};
 use tokio::select;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 use tokio::sync::{broadcast, mpsc};
 use tracing::{debug, error, info, trace, warn};
 use uuid::Uuid;

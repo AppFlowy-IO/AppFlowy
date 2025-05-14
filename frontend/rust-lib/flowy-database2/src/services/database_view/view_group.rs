@@ -11,8 +11,8 @@ use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::FilterController;
 use crate::services::group::{
-  make_group_controller, GroupContextDelegate, GroupController, GroupControllerDelegate,
-  GroupSetting,
+  GroupContextDelegate, GroupController, GroupControllerDelegate, GroupSetting,
+  make_group_controller,
 };
 
 pub async fn new_group_controller(

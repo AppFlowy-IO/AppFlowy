@@ -1,4 +1,4 @@
-use crate::{collect_stream, load_asset_content, TestContext};
+use crate::{TestContext, collect_stream, load_asset_content};
 use uuid::Uuid;
 
 #[tokio::test]

@@ -2,7 +2,7 @@ use bytes::Bytes;
 
 use collab_database::fields::url_type_option::URLCellData;
 
-use flowy_error::{internal_error, FlowyResult};
+use flowy_error::{FlowyResult, internal_error};
 
 use crate::entities::URLCellDataPB;
 use crate::services::cell::CellProtobufBlobParser;

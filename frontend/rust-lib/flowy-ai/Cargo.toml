@@ -1,7 +1,7 @@
 [package]
 name = "flowy-ai"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -39,7 +39,6 @@ reqwest = { version = "0.11.27", features = ["json"] }
 sha2 = "0.10.7"
 base64 = "0.21.5"
 futures-util = "0.3.30"
-pin-project = "1.1.5"
 flowy-storage-pub = { workspace = true }
 ollama-rs.workspace = true
 schemars = "0.8.22"

@@ -3,15 +3,15 @@ use crate::entities::{
   RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
-use crate::notification::{chat_notification_builder, ChatNotification};
+use crate::notification::{ChatNotification, chat_notification_builder};
 use crate::stream_message::{AIFollowUpData, StreamMessage};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_ai_pub::persistence::{
-  select_answer_where_match_reply_message_id, select_chat_messages, upsert_chat_messages,
-  ChatMessageTable,
+  ChatMessageTable, select_answer_where_match_reply_message_id, select_chat_messages,
+  upsert_chat_messages,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -19,8 +19,8 @@ use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicI64};
 use tokio::sync::{Mutex, RwLock};
 use tracing::{error, instrument, trace};
 use uuid::Uuid;
@@ -77,10 +77,7 @@ impl Chat {
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, format={:?}",
-      self.chat_id,
-      params.message,
-      params.message_type,
-      params.format,
+      self.chat_id, params.message, params.message_type, params.format,
     );
 
     // clear
@@ -329,9 +326,7 @@ impl Chat {
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
       "[Chat] Loading messages from disk: chat_id={}, limit={}, before_message_id={:?}",
-      self.chat_id,
-      limit,
-      before_message_id
+      self.chat_id, limit, before_message_id
     );
 
     let offset = before_message_id.map_or(MessageCursor::NextBack, MessageCursor::BeforeMessageId);
@@ -377,9 +372,7 @@ impl Chat {
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
       "[Chat] Loading new messages: chat_id={}, limit={}, after_message_id={:?}",
-      self.chat_id,
-      limit,
-      after_message_id,
+      self.chat_id, limit, after_message_id,
     );
     let offset = after_message_id.map_or(MessageCursor::NextBack, MessageCursor::AfterMessageId);
     let messages = self.load_local_chat_messages(limit, offset).await?;
@@ -410,10 +403,7 @@ impl Chat {
   ) -> FlowyResult<()> {
     trace!(
       "[Chat] start loading messages from remote: chat_id={}, limit={}, before_message_id={:?}, after_message_id={:?}",
-      self.chat_id,
-      limit,
-      before_message_id,
-      after_message_id
+      self.chat_id, limit, before_message_id, after_message_id
     );
     let workspace_id = self.user_service.workspace_id()?;
     let chat_id = self.chat_id;
@@ -520,9 +510,7 @@ impl Chat {
 
     trace!(
       "[Chat] related messages: chat_id={}, message_id={}, messages:{:?}",
-      self.chat_id,
-      message_id,
-      resp.items
+      self.chat_id, message_id, resp.items
     );
     Ok(RepeatedRelatedQuestionPB::from(resp))
   }
@@ -531,8 +519,7 @@ impl Chat {
   pub async fn generate_answer(&self, question_message_id: i64) -> FlowyResult<ChatMessagePB> {
     trace!(
       "[Chat] generate answer: chat_id={}, question_message_id={}",
-      self.chat_id,
-      question_message_id
+      self.chat_id, question_message_id
     );
     let workspace_id = self.user_service.workspace_id()?;
     let answer = self
@@ -552,9 +539,7 @@ impl Chat {
   ) -> Result<Vec<ChatMessagePB>, FlowyError> {
     trace!(
       "[Chat] Loading messages from disk: chat_id={}, limit={}, offset={:?}",
-      self.chat_id,
-      limit,
-      offset
+      self.chat_id, limit, offset
     );
     let conn = self.user_service.sqlite_connection(self.uid)?;
     let rows = select_chat_messages(conn, &self.chat_id.to_string(), limit, offset)?.messages;
@@ -590,8 +575,7 @@ impl Chat {
 
     trace!(
       "[Chat] index file: chat_id={}, file_path={:?}",
-      self.chat_id,
-      file_path
+      self.chat_id, file_path
     );
     self
       .chat_service
@@ -605,8 +589,7 @@ impl Chat {
 
     trace!(
       "[Chat] created index file record: chat_id={}, file_path={:?}",
-      self.chat_id,
-      file_path
+      self.chat_id, file_path
     );
 
     Ok(())

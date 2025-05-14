@@ -1,9 +1,9 @@
 use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSyncStatePB,
-  RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
+  ChildViewUpdatePB, FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB,
+  ViewSectionPB, view_pb_with_child_views, view_pb_without_child_views,
 };
-use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
-use crate::notification::{folder_notification_builder, FolderNotification};
+use crate::manager::{FolderUser, get_workspace_private_view_pbs, get_workspace_public_view_pbs};
+use crate::notification::{FolderNotification, folder_notification_builder};
 use collab::core::collab_state::SyncState;
 use collab::lock::RwLock;
 use collab_folder::{
@@ -15,9 +15,9 @@ use lib_infra::sync_trace;
 use std::collections::HashSet;
 use std::str::FromStr;
 use std::sync::Weak;
-use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
-use tracing::{event, trace, Level};
+use tokio_stream::wrappers::WatchStream;
+use tracing::{Level, event, trace};
 use uuid::Uuid;
 
 /// Listen on the [ViewChange] after create/delete/update events happened

@@ -116,8 +116,7 @@ impl GroupController for DefaultGroupController {
     if self.group.contains_row(&row.id) {
       trace!(
         "[RowOrder]: delete row:{} from group: {}",
-        row.id,
-        self.group.id
+        row.id, self.group.id
       );
       self.group.remove_row(&row.id);
       changeset.deleted_rows.push(row.id.clone().into_inner());

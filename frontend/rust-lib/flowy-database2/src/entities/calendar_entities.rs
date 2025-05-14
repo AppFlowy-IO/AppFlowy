@@ -1,8 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
-use crate::entities::parser::NotEmptyStr;
 use crate::entities::RowMetaPB;
+use crate::entities::parser::NotEmptyStr;
 use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
 use super::CellIdPB;

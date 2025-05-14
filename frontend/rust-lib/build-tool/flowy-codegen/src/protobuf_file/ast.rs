@@ -2,8 +2,8 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-use crate::protobuf_file::template::{EnumTemplate, StructTemplate, RUST_TYPE_MAP};
-use crate::protobuf_file::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};
+use crate::protobuf_file::template::{EnumTemplate, RUST_TYPE_MAP, StructTemplate};
+use crate::protobuf_file::{ProtoFile, ProtobufCrateContext, parse_crate_info_from_path};
 use crate::util::*;
 use fancy_regex::Regex;
 use flowy_ast::*;

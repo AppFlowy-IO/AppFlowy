@@ -1,3 +1,5 @@
+use crate::SqliteVectorStore;
+use crate::local_ai::chat::LLMChatInfo;
 use crate::local_ai::chat::chains::conversation_chain::{
   ConversationalRetrieverChain, ConversationalRetrieverChainBuilder,
 };
@@ -7,8 +9,6 @@ use crate::local_ai::chat::retriever::multi_source_retriever::MultipleSourceRetr
 use crate::local_ai::chat::retriever::sqlite_retriever::RetrieverOption;
 use crate::local_ai::chat::retriever::{AFRetriever, MultipleSourceRetrieverStore};
 use crate::local_ai::chat::summary_memory::SummaryMemory;
-use crate::local_ai::chat::LLMChatInfo;
-use crate::SqliteVectorStore;
 use flowy_ai_pub::cloud::{QuestionStreamValue, ResponseFormat, StreamAnswer};
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID, WORKSPACE_ID};
 use flowy_ai_pub::user_service::AIUserService;
@@ -199,8 +199,7 @@ fn create_retriever(
 ) -> Box<dyn AFRetriever> {
   trace!(
     "[VectorStore]: {} create retriever with rag_ids: {:?}",
-    workspace_id,
-    rag_ids,
+    workspace_id, rag_ids,
   );
 
   let mut stores: Vec<Arc<dyn MultipleSourceRetrieverStore>> = vec![];

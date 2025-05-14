@@ -2,6 +2,7 @@ use crate::entities::FieldType;
 use crate::services::field::TypeOptionTransform;
 use async_trait::async_trait;
 use collab_database::database::Database;
+use collab_database::fields::TypeOptionData;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{DateTypeOption, TimeTypeOption};
@@ -14,7 +15,6 @@ use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
-use collab_database::fields::TypeOptionData;
 
 pub async fn transform_type_option(
   view_id: &str,

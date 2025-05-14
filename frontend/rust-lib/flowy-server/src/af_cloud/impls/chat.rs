@@ -105,10 +105,7 @@ where
   ) -> Result<StreamAnswer, FlowyError> {
     trace!(
       "stream_answer: workspace_id={}, chat_id={}, format={:?}, model: {:?}",
-      workspace_id,
-      chat_id,
-      format,
-      ai_model,
+      workspace_id, chat_id, format, ai_model,
     );
     let try_get_client = self.inner.try_get_client();
     let result = try_get_client?

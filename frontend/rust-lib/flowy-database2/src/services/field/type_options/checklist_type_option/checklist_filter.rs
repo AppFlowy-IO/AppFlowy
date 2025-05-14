@@ -2,8 +2,8 @@ use crate::entities::ChecklistCellDataChangesetPB;
 use crate::entities::{ChecklistFilterConditionPB, ChecklistFilterPB};
 use crate::services::filter::PreFillCellsWithFilter;
 
-use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::Field;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::rows::Cell;
 use collab_database::template::check_list_parse::ChecklistCellData;
 

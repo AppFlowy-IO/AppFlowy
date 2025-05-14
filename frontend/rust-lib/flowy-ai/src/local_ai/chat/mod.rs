@@ -5,13 +5,13 @@ pub mod llm_chat;
 pub mod retriever;
 mod summary_memory;
 
+use crate::SqliteVectorStore;
 use crate::local_ai::chat::llm::LLMOllama;
 use crate::local_ai::chat::llm_chat::LLMChat;
 use crate::local_ai::chat::retriever::MultipleSourceRetrieverStore;
 use crate::local_ai::completion::chain::CompletionChain;
 use crate::local_ai::database::summary::DatabaseSummaryChain;
 use crate::local_ai::database::translate::DatabaseTranslateChain;
-use crate::SqliteVectorStore;
 use dashmap::{DashMap, Entry};
 use flowy_ai_pub::cloud::ai_dto::{TranslateRowData, TranslateRowResponse};
 use flowy_ai_pub::cloud::chat_dto::ChatAuthorType;

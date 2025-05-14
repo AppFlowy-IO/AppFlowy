@@ -8,7 +8,7 @@ use collab_folder::{Folder, FolderNotify};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
-use tracing::{event, info, Level};
+use tracing::{Level, event, info};
 use uuid::Uuid;
 
 impl FolderManager {

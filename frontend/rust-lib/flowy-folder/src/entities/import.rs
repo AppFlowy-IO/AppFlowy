@@ -1,5 +1,5 @@
-use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::entities::ViewLayoutPB;
+use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::share::{ImportData, ImportItem, ImportParams, ImportType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;

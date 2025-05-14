@@ -1,7 +1,7 @@
 use crate::entities::LocalAIPB;
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
-  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+  APPFLOWY_AI_NOTIFICATION_KEY, ChatNotification, chat_notification_builder,
 };
 use anyhow::Error;
 use flowy_error::{FlowyError, FlowyResult};
@@ -15,13 +15,13 @@ use crate::stream_message::StreamMessage;
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::AIModel;
 use flowy_ai_pub::persistence::{
-  select_local_ai_model, upsert_local_ai_model, LocalAIModelTable, ModelType,
+  LocalAIModelTable, ModelType, select_local_ai_model, upsert_local_ai_model,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
-use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use ollama_rs::Ollama;
+use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::path::PathBuf;

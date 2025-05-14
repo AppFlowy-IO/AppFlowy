@@ -17,7 +17,7 @@ use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::async_trait::async_trait;
 use std::sync::{Arc, Weak};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{RwLock, mpsc};
 
 pub struct LocalServer {
   logged_user: Arc<dyn LoggedUser>,

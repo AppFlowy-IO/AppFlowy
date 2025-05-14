@@ -1,4 +1,4 @@
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{Options, Parser, html};
 use std::fs;
 
 pub struct MdRead {

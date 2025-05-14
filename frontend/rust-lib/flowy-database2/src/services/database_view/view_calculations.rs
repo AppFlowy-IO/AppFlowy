@@ -9,7 +9,7 @@ use crate::services::calculations::{
 };
 
 use crate::services::database_view::{
-  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
+  DatabaseViewChangedNotifier, DatabaseViewOperation, gen_handler_id,
 };
 
 pub async fn make_calculations_controller(

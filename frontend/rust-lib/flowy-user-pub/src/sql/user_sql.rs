@@ -3,11 +3,11 @@ use crate::entities::{
   AuthType, Role, UpdateUserProfileParams, UserProfile, UserWorkspace, WorkspaceType,
 };
 use crate::sql::{
-  select_user_workspace, upsert_user_workspace, upsert_workspace_member, WorkspaceMemberTable,
+  WorkspaceMemberTable, select_user_workspace, upsert_user_workspace, upsert_workspace_member,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_table;
-use flowy_sqlite::{prelude::*, DBConnection, ExpressionMethods, RunQueryDsl};
+use flowy_sqlite::{DBConnection, ExpressionMethods, RunQueryDsl, prelude::*};
 use tracing::trace;
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.

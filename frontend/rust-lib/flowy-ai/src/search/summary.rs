@@ -1,8 +1,8 @@
 use flowy_error::FlowyError;
+use ollama_rs::Ollama;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
 use ollama_rs::generation::chat::{ChatMessage, MessageRole};
 use ollama_rs::generation::parameters::{FormatType, JsonStructure};
-use ollama_rs::Ollama;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -103,7 +103,7 @@ pub async fn summarize_documents(
 
 #[cfg(test)]
 mod tests {
-  use crate::search::summary::{summarize_documents, LLMDocument};
+  use crate::search::summary::{LLMDocument, summarize_documents};
   use ollama_rs::Ollama;
 
   #[tokio::test]

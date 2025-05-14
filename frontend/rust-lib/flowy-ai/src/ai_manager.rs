@@ -6,7 +6,7 @@ use crate::entities::{
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use flowy_ai_pub::persistence::{
-  select_chat_metadata, select_chat_rag_ids, select_chat_summary, update_chat, ChatTableChangeset,
+  ChatTableChangeset, select_chat_metadata, select_chat_rag_ids, select_chat_summary, update_chat,
 };
 use std::collections::HashMap;
 
@@ -16,12 +16,12 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 
 use crate::model_select::{
-  LocalAiSource, LocalModelStorageImpl, ModelSelectionControl, ServerAiSource,
-  ServerModelStorageImpl, SourceKey, GLOBAL_ACTIVE_MODEL_KEY,
+  GLOBAL_ACTIVE_MODEL_KEY, LocalAiSource, LocalModelStorageImpl, ModelSelectionControl,
+  ServerAiSource, ServerModelStorageImpl, SourceKey,
 };
-use crate::notification::{chat_notification_builder, ChatNotification};
+use crate::notification::{ChatNotification, chat_notification_builder};
 use flowy_ai_pub::persistence::{
-  batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
+  AFCollabMetadata, batch_insert_collab_metadata, batch_select_collab_metadata,
 };
 use flowy_ai_pub::user_service::AIUserService;
 use flowy_sqlite::DBConnection;
@@ -461,8 +461,7 @@ impl AIManager {
 
       trace!(
         "[Model Selection] notify sources: {:?}, model:{}, when disable local ai",
-        notify_source,
-        model.name
+        notify_source, model.name
       );
       for source in notify_source {
         chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)

@@ -3,8 +3,8 @@ use crate::{
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
-      default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellData,
-      TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
+      CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+      TypeOptionCellDataFilter, TypeOptionTransform, default_order,
     },
     sort::SortCondition,
   },

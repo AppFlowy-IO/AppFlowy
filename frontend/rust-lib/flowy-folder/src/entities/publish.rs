@@ -1,5 +1,5 @@
-use client_api::entity::workspace_dto::{FolderViewMinimal, PublishInfoView};
 use client_api::entity::PublishInfo;
+use client_api::entity::workspace_dto::{FolderViewMinimal, PublishInfoView};
 use flowy_derive::ProtoBuf;
 
 use super::{RepeatedViewIdPB, ViewIconPB, ViewLayoutPB};

@@ -7,7 +7,7 @@ use anyhow::{Context, Result};
 use flowy_ai_pub::entities::{EmbeddedChunk, SearchResult};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{params, ToSql};
+use rusqlite::{ToSql, params};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -418,8 +418,7 @@ impl VectorSqliteDB {
   ) -> Result<Vec<SearchResult>> {
     trace!(
       "[VectorStore] Searching workspace:{} score:{}",
-      workspace_id,
-      min_score
+      workspace_id, min_score
     );
     // distance = 1 - score, so we only want distance <= max_distance
     let max_distance = 1.0 - min_score;
@@ -467,9 +466,7 @@ impl VectorSqliteDB {
   ) -> Result<Vec<SearchResult>> {
     trace!(
       "[VectorStore] Searching workspace:{} with object_ids: {:?}, score:{}",
-      workspace_id,
-      object_ids,
-      min_score
+      workspace_id, object_ids, min_score
     );
     // distance = 1 - score, so we only want distance <= max_distance
     let max_distance = 1.0 - min_score;
@@ -536,8 +533,7 @@ impl VectorSqliteDB {
       let score: f32 = row.get(4)?;
       trace!(
         "[VectorStore] Found {} embedding record, score: {}",
-        oid,
-        score
+        oid, score
       );
       results.push(SearchResult {
         oid,

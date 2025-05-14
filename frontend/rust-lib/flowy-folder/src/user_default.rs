@@ -6,7 +6,7 @@ use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
 
-use crate::entities::{view_pb_with_child_views, ViewPB};
+use crate::entities::{ViewPB, view_pb_with_child_views};
 use crate::view_operation::{FolderOperationHandler, FolderOperationHandlers};
 
 pub struct DefaultFolderBuilder();

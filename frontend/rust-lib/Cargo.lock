@@ -2226,7 +2226,6 @@ dependencies = [
  "lopdf",
  "notify",
  "ollama-rs",
- "pin-project",
  "protobuf",
  "pulldown-cmark 0.13.0",
  "reqwest 0.11.27",

@@ -1,10 +1,9 @@
 use diesel::upsert::excluded;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::{
-  diesel, insert_into,
+  DBConnection, ExpressionMethods, Identifiable, Insertable, Queryable, diesel, insert_into,
   query_dsl::*,
   schema::{af_collab_metadata, af_collab_metadata::dsl},
-  DBConnection, ExpressionMethods, Identifiable, Insertable, Queryable,
 };
 use std::collections::HashMap;
 use std::str::FromStr;
