@@ -8,8 +8,24 @@ class MenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final leading = SvgPicture.asset('assets/images/vector.svg');
-    final logo = const FlutterLogo(size: 24);
+    final theme = AppFlowyTheme.of(context);
+    final leading = SvgPicture.asset(
+      'assets/images/vector.svg',
+      colorFilter: ColorFilter.mode(
+        theme.textColorScheme.primary,
+        BlendMode.srcIn,
+      ),
+    );
+    final logo = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(theme.borderRadius.m),
+        border: Border.all(
+          color: theme.borderColorScheme.primary,
+        ),
+      ),
+      padding: EdgeInsets.all(theme.spacing.xs),
+      child: const FlutterLogo(size: 18),
+    );
     final arrowRight = SvgPicture.asset(
       'assets/images/arrow_right.svg',
       width: 20,
@@ -54,7 +70,6 @@ class MenuPage extends StatelessWidget {
                       leading: logo,
                       title: 'Menu Item 4',
                       subtitle: 'Menu Item',
-                      selected: true,
                       trailing: const Icon(
                         Icons.check,
                         size: 18,
