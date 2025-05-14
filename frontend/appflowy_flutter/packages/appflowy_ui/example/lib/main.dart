@@ -1,4 +1,5 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:appflowy_ui_example/src/avatar/avatar_page.dart';
 import 'package:flutter/material.dart';
 
 import 'src/buttons/buttons_page.dart';
@@ -67,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Tab(text: 'Button'),
     Tab(text: 'TextField'),
     Tab(text: 'Modal'),
+    Tab(text: 'Avatar'),
   ];
 
   @override
@@ -100,6 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ButtonsPage(),
             TextFieldPage(),
             ModalPage(),
+            AvatarPage(),
           ],
         ),
         bottomNavigationBar: TabBar(
