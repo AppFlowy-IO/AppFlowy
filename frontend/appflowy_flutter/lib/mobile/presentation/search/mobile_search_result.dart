@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -116,11 +117,15 @@ class MobileSearchResultList extends StatelessWidget {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () async {
-                    final view = await ViewBackendService.getView(item.id)
-                        .fold((s) => s, (s) => null);
+                    final view =
+                        await ViewBackendService.getView(item.id).toNullable();
                     if (view != null && context.mounted) {
                       await _goToView(context, view);
                     } else {
+                      showToastNotification(
+                        message: LocaleKeys.search_somethingWentWrong.tr(),
+                        type: ToastificationType.error,
+                      );
                       Log.error(
                         'tapping search result, view not found: ${item.id}',
                       );
