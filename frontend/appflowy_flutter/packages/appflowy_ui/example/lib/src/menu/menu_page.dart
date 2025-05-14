@@ -1,10 +1,25 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
 
 /// A showcase page for the AFMenu, AFMenuSection, and AFMenuItem components.
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
+
+  @override
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  final popoverController = AFPopoverController();
+
+  @override
+  void dispose() {
+    popoverController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +46,7 @@ class MenuPage extends StatelessWidget {
       width: 20,
       height: 20,
     );
+    final animationDuration = const Duration(milliseconds: 120);
 
     return Center(
       child: SingleChildScrollView(
@@ -51,10 +67,54 @@ class MenuPage extends StatelessWidget {
                       selected: true,
                       onTap: () {},
                     ),
-                    AFMenuItem(
-                      leading: leading,
-                      title: 'Menu Item 2',
-                      onTap: () {},
+                    AFPopover(
+                      controller: popoverController,
+                      shadows: theme.shadow.medium,
+                      anchor: const AFAnchor(
+                        offset: Offset(0, -20),
+                        overlayAlignment: Alignment.centerRight,
+                      ),
+                      effects: [
+                        FadeEffect(duration: animationDuration),
+                        ScaleEffect(
+                          duration: animationDuration,
+                          begin: Offset(.95, .95),
+                          end: Offset(1, 1),
+                        ),
+                        MoveEffect(
+                          duration: animationDuration,
+                          begin: Offset(-10, 0),
+                          end: Offset(0, 0),
+                        ),
+                      ],
+                      popover: (context) {
+                        return AFMenu(
+                          children: [
+                            AFMenuItem(
+                              leading: leading,
+                              title: 'Menu Item 2-1',
+                              onTap: () {},
+                            ),
+                            AFMenuItem(
+                              leading: leading,
+                              title: 'Menu Item 2-2',
+                              onTap: () {},
+                            ),
+                            AFMenuItem(
+                              leading: leading,
+                              title: 'Menu Item 2-3',
+                              onTap: () {},
+                            ),
+                          ],
+                        );
+                      },
+                      child: AFMenuItem(
+                        leading: leading,
+                        title: 'Menu Item 2',
+                        onTap: () {
+                          popoverController.toggle();
+                        },
+                      ),
                     ),
                     AFMenuItem(
                       leading: leading,
