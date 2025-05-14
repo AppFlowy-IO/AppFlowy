@@ -111,26 +111,25 @@ class _MobileSearchPageState extends State<MobileSearchPage> {
                       ),
                 ),
                 Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        if (enableShowAISearch)
-                          MobileSearchAskAiEntrance(query: state.query),
-                        Flexible(
-                          child: NotificationListener(
-                            child: MobileSearchResult(),
-                            onNotification: (t) {
-                              if (t is ScrollUpdateNotification) {
-                                if (focusNode.hasFocus) {
-                                  focusNode.unfocus();
-                                }
-                              }
-                              return true;
-                            },
-                          ),
+                  child: NotificationListener(
+                    onNotification: (t) {
+                      if (t is ScrollUpdateNotification) {
+                        if (focusNode.hasFocus) {
+                          focusNode.unfocus();
+                        }
+                      }
+                      return true;
+                    },
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            if (enableShowAISearch) MobileSearchAskAiEntrance(),
+                            MobileSearchResult(),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

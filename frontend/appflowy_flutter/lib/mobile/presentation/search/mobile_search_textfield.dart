@@ -75,8 +75,11 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                   // close the popup menu
                   closePopupMenu();
                   try {
-                    final label =
+                    BottomNavigationBarItemType label =
                         BottomNavigationBarItemType.values.byName(lastPage);
+                    if (label == BottomNavigationBarItemType.search) {
+                      label = BottomNavigationBarItemType.home;
+                    }
                     if (label == BottomNavigationBarItemType.notification) {
                       getIt<ReminderBloc>().add(const ReminderEvent.refresh());
                     }

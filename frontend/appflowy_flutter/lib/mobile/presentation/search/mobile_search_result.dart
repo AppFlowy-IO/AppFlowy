@@ -49,31 +49,31 @@ class MobileSearchRecentList extends StatelessWidget {
               .map((e) => e.item)
               .where((e) => !trashIdSet.contains(e.id))
               .toList();
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VSpace(16),
-                Text(
-                  LocaleKeys.sideBar_recent.tr(),
-                  style: theme.textStyle.body
-                      .enhanced(color: theme.textColorScheme.secondary),
-                ),
-                const VSpace(4),
-                Column(
-                  children: List.generate(recentViews.length, (index) {
-                    final view = recentViews[index];
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => _goToView(context, view),
-                      child: MobileSearchResultCell(
-                        item: view.toSearchResultItem(),
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const VSpace(16),
+              Text(
+                LocaleKeys.sideBar_recent.tr(),
+                style: theme.textStyle.body
+                    .enhanced(color: theme.textColorScheme.secondary),
+              ),
+              const VSpace(4),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(recentViews.length, (index) {
+                  final view = recentViews[index];
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _goToView(context, view),
+                    child: MobileSearchResultCell(
+                      item: view.toSearchResultItem(),
+                    ),
+                  );
+                }),
+              ),
+            ],
           );
         },
       ),
@@ -81,27 +81,8 @@ class MobileSearchRecentList extends StatelessWidget {
   }
 }
 
-class MobileSearchResultList extends StatefulWidget {
+class MobileSearchResultList extends StatelessWidget {
   const MobileSearchResultList({super.key});
-
-  @override
-  State<MobileSearchResultList> createState() => _MobileSearchResultListState();
-}
-
-class _MobileSearchResultListState extends State<MobileSearchResultList> {
-  late final SearchResultListBloc bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    bloc = SearchResultListBloc();
-  }
-
-  @override
-  void dispose() {
-    bloc.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,50 +94,53 @@ class _MobileSearchResultListState extends State<MobileSearchResultList> {
     if (isSearching && !hasData) {
       return Center(child: CircularProgressIndicator.adaptive());
     } else if (!hasData) {
-      return buildNoResult(state.query ?? '');
+      return buildNoResult(state.query ?? '', theme);
     }
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const VSpace(16),
-          Text(
-            LocaleKeys.commandPalette_bestMatches.tr(),
-            style: theme.textStyle.body
-                .enhanced(color: theme.textColorScheme.secondary),
-          ),
-          const VSpace(4),
-          Column(
-            children: List.generate(items.length, (index) {
-              final item = items[index];
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () async {
-                  final view = await ViewBackendService.getView(item.id)
-                      .fold((s) => s, (s) => null);
-                  if (view != null && context.mounted) {
-                    await _goToView(context, view);
-                  } else {
-                    Log.error(
-                      'tapping search result, view not found: ${item.id}',
-                    );
-                  }
-                },
-                child: MobileSearchResultCell(
-                  item: item,
-                  query: state.query,
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const VSpace(16),
+        Text(
+          LocaleKeys.commandPalette_bestMatches.tr(),
+          style: theme.textStyle.body
+              .enhanced(color: theme.textColorScheme.secondary),
+        ),
+        const VSpace(4),
+        BlocBuilder<SearchResultListBloc, SearchResultListState>(
+          builder: (context, searchResultState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    final view = await ViewBackendService.getView(item.id)
+                        .fold((s) => s, (s) => null);
+                    if (view != null && context.mounted) {
+                      await _goToView(context, view);
+                    } else {
+                      Log.error(
+                        'tapping search result, view not found: ${item.id}',
+                      );
+                    }
+                  },
+                  child: MobileSearchResultCell(
+                    item: item,
+                    query: state.query,
+                  ),
+                );
+              }),
+            );
+          },
+        ),
+      ],
     );
   }
 
-  Widget buildNoResult(String query) {
-    final theme = AppFlowyTheme.of(context),
-        textColor = theme.textColorScheme.secondary;
+  Widget buildNoResult(String query, AppFlowyThemeData theme) {
+    final textColor = theme.textColorScheme.secondary;
     return Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
