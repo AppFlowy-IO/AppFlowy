@@ -1,4 +1,17 @@
 # Release Notes
+## Version 0.9.2 - 14/05/2025
+### Desktop
+#### New Features
+- Supported AI Overview in Search to answer user queries based on their entire workspace 
+- Revamped the Search panel in the desktop app 
+- Enabled loading custom prompts from an AppFlowy database page
+#### Bug Fixes
+- Improved inserting emojis using the colon (:)
+- Supported automatically filling the link name with the URL if the name is left empty
+### Mobile
+#### Bug Fixes
+- Supported automatically filling the link name with the URL if the name is left empty
+
 ## Version 0.9.1 - 01/05/2025
 ### Desktop
 #### New Features
