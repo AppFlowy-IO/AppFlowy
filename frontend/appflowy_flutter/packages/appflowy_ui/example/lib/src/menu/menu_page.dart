@@ -1,5 +1,6 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 /// A showcase page for the AFMenu, AFMenuSection, and AFMenuItem components.
 class MenuPage extends StatelessWidget {
@@ -7,6 +8,14 @@ class MenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final leading = SvgPicture.asset('assets/images/vector.svg');
+    final logo = const FlutterLogo(size: 24);
+    final arrowRight = SvgPicture.asset(
+      'assets/images/arrow_right.svg',
+      width: 20,
+      height: 20,
+    );
+
     return Center(
       child: SingleChildScrollView(
         child: Wrap(
@@ -21,18 +30,18 @@ class MenuPage extends StatelessWidget {
                   title: 'Section 1',
                   children: [
                     AFMenuItem(
-                      leading: const Icon(Icons.image),
+                      leading: leading,
                       title: 'Menu Item 1',
                       selected: true,
                       onTap: () {},
                     ),
                     AFMenuItem(
-                      leading: const Icon(Icons.image),
+                      leading: leading,
                       title: 'Menu Item 2',
                       onTap: () {},
                     ),
                     AFMenuItem(
-                      leading: const Icon(Icons.image),
+                      leading: leading,
                       title: 'Menu Item 3',
                       onTap: () {},
                     ),
@@ -42,21 +51,25 @@ class MenuPage extends StatelessWidget {
                   title: 'Section 2',
                   children: [
                     AFMenuItem(
-                      leading: const FlutterLogo(size: 24),
+                      leading: logo,
                       title: 'Menu Item 4',
                       subtitle: 'Menu Item',
                       selected: true,
-                      trailing: const Icon(Icons.check, size: 18),
+                      trailing: const Icon(
+                        Icons.check,
+                        size: 18,
+                        color: Colors.blueAccent,
+                      ),
                       onTap: () {},
                     ),
                     AFMenuItem(
-                      leading: const FlutterLogo(size: 24),
+                      leading: logo,
                       title: 'Menu Item 5',
                       subtitle: 'Menu Item',
                       onTap: () {},
                     ),
                     AFMenuItem(
-                      leading: const FlutterLogo(size: 24),
+                      leading: logo,
                       title: 'Menu Item 6',
                       subtitle: 'Menu Item',
                       onTap: () {},
@@ -67,15 +80,15 @@ class MenuPage extends StatelessWidget {
                   title: 'Section 3',
                   children: [
                     AFMenuItem(
-                      leading: const Icon(Icons.image),
+                      leading: leading,
                       title: 'Menu Item 7',
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: arrowRight,
                       onTap: () {},
                     ),
                     AFMenuItem(
-                      leading: const Icon(Icons.image),
+                      leading: leading,
                       title: 'Menu Item 8',
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: arrowRight,
                       onTap: () {},
                     ),
                   ],
@@ -87,17 +100,17 @@ class MenuPage extends StatelessWidget {
             AFMenu(
               children: [
                 AFMenuItem(
-                  leading: const Icon(Icons.image),
+                  leading: leading,
                   title: 'Menu Item 1',
                   onTap: () {},
                 ),
                 AFMenuItem(
-                  leading: const Icon(Icons.image),
+                  leading: leading,
                   title: 'Menu Item 2',
                   onTap: () {},
                 ),
                 AFMenuItem(
-                  leading: const Icon(Icons.image),
+                  leading: leading,
                   title: 'Menu Item 3',
                   onTap: () {},
                 ),

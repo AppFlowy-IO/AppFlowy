@@ -28,13 +28,7 @@ class AFMenu extends StatelessWidget {
         border: Border.all(
           color: theme.borderColorScheme.primary,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.12),
-            offset: Offset(0, 2),
-            blurRadius: 16,
-          ),
-        ],
+        boxShadow: theme.shadow.medium,
       ),
       width: width,
       padding: EdgeInsets.all(theme.spacing.m),
