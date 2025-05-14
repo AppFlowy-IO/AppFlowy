@@ -314,7 +314,7 @@ class TextThemeHeadline extends TextThemeType {
       _defaultTextStyle(
         family: family ?? super.fontFamily,
         color: color,
-        weight: weight ?? FontWeight.w600,
+        weight: weight ?? FontWeight.w500,
       );
 
   @override
@@ -374,7 +374,7 @@ class TextThemeTitle extends TextThemeType {
       _defaultTextStyle(
         family: family ?? super.fontFamily,
         color: color,
-        weight: weight ?? FontWeight.w600,
+        weight: weight ?? FontWeight.w500,
       );
 
   @override
@@ -434,7 +434,7 @@ class TextThemeBody extends TextThemeType {
       _defaultTextStyle(
         family: family ?? super.fontFamily,
         color: color,
-        weight: weight ?? FontWeight.w600,
+        weight: weight ?? FontWeight.w500,
       );
 
   @override
@@ -494,7 +494,7 @@ class TextThemeCaption extends TextThemeType {
       _defaultTextStyle(
         family: family ?? super.fontFamily,
         color: color,
-        weight: weight ?? FontWeight.w600,
+        weight: weight ?? FontWeight.w500,
       );
 
   @override

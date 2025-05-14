@@ -85,7 +85,6 @@ class MenuPage extends StatelessWidget {
             const SizedBox(height: 32),
             // Example: Menu with search bar
             AFMenu(
-              showSearch: true,
               children: [
                 AFMenuItem(
                   leading: const Icon(Icons.image),
