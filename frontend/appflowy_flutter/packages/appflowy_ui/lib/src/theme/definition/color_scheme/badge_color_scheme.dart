@@ -2,374 +2,374 @@ import 'package:flutter/material.dart';
 
 class AppFlowyBadgeColorColorScheme {
   AppFlowyBadgeColorColorScheme({
-    required this.badge11Light,
-    required this.badge12Light,
-    required this.badge13Light,
-    required this.badge11Thick,
-    required this.badge12Thick,
-    required this.badge13Thick,
-    required this.badge21Light,
-    required this.badge22Light,
-    required this.badge23Light,
-    required this.badge21Thick,
-    required this.badge22Thick,
-    required this.badge23Thick,
-    required this.badge31Light,
-    required this.badge32Light,
-    required this.badge33Light,
-    required this.badge31Thick,
-    required this.badge32Thick,
-    required this.badge33Thick,
-    required this.badge41Light,
-    required this.badge42Light,
-    required this.badge43Light,
-    required this.badge41Thick,
-    required this.badge42Thick,
-    required this.badge43Thick,
-    required this.badge51Light,
-    required this.badge52Light,
-    required this.badge53Light,
-    required this.badge51Thick,
-    required this.badge52Thick,
-    required this.badge53Thick,
-    required this.badge61Light,
-    required this.badge62Light,
-    required this.badge63Light,
-    required this.badge61Thick,
-    required this.badge62Thick,
-    required this.badge63Thick,
-    required this.badge71Light,
-    required this.badge72Light,
-    required this.badge73Light,
-    required this.badge71Thick,
-    required this.badge72Thick,
-    required this.badge73Thick,
-    required this.badge81Light,
-    required this.badge82Light,
-    required this.badge83Light,
-    required this.badge81Thick,
-    required this.badge82Thick,
-    required this.badge83Thick,
-    required this.badge91Light,
-    required this.badge92Light,
-    required this.badge93Light,
-    required this.badge91Thick,
-    required this.badge92Thick,
-    required this.badge93Thick,
-    required this.badge101Light,
-    required this.badge102Light,
-    required this.badge103Light,
-    required this.badge101Thick,
-    required this.badge102Thick,
-    required this.badge103Thick,
-    required this.badge111Light,
-    required this.badge112Light,
-    required this.badge113Light,
-    required this.badge111Thick,
-    required this.badge112Thick,
-    required this.badge113Thick,
-    required this.badge121Light,
-    required this.badge122Light,
-    required this.badge123Light,
-    required this.badge121Thick,
-    required this.badge122Thick,
-    required this.badge123Thick,
-    required this.badge131Light,
-    required this.badge132Light,
-    required this.badge133Light,
-    required this.badge131Thick,
-    required this.badge132Thick,
-    required this.badge133Thick,
-    required this.badge141Light,
-    required this.badge142Light,
-    required this.badge143Light,
-    required this.badge141Thick,
-    required this.badge142Thick,
-    required this.badge143Thick,
-    required this.badge151Light,
-    required this.badge152Light,
-    required this.badge153Light,
-    required this.badge151Thick,
-    required this.badge152Thick,
-    required this.badge153Thick,
-    required this.badge161Light,
-    required this.badge162Light,
-    required this.badge163Light,
-    required this.badge161Thick,
-    required this.badge162Thick,
-    required this.badge163Thick,
-    required this.badge171Light,
-    required this.badge172Light,
-    required this.badge173Light,
-    required this.badge171Thick,
-    required this.badge172Thick,
-    required this.badge173Thick,
-    required this.badge181Light,
-    required this.badge182Light,
-    required this.badge183Light,
-    required this.badge181Thick,
-    required this.badge182Thick,
-    required this.badge183Thick,
-    required this.badge191Light,
-    required this.badge192Light,
-    required this.badge193Light,
-    required this.badge191Thick,
-    required this.badge192Thick,
-    required this.badge193Thick,
-    required this.badge201Light,
-    required this.badge202Light,
-    required this.badge203Light,
-    required this.badge201Thick,
-    required this.badge202Thick,
-    required this.badge203Thick,
+    required this.color11Light,
+    required this.color12Light,
+    required this.color13Light,
+    required this.color11Thick,
+    required this.color12Thick,
+    required this.color13Thick,
+    required this.color21Light,
+    required this.color22Light,
+    required this.color23Light,
+    required this.color21Thick,
+    required this.color22Thick,
+    required this.color23Thick,
+    required this.color31Light,
+    required this.color32Light,
+    required this.color33Light,
+    required this.color31Thick,
+    required this.color32Thick,
+    required this.color33Thick,
+    required this.color41Light,
+    required this.color42Light,
+    required this.color43Light,
+    required this.color41Thick,
+    required this.color42Thick,
+    required this.color43Thick,
+    required this.color51Light,
+    required this.color52Light,
+    required this.color53Light,
+    required this.color51Thick,
+    required this.color52Thick,
+    required this.color53Thick,
+    required this.color61Light,
+    required this.color62Light,
+    required this.color63Light,
+    required this.color61Thick,
+    required this.color62Thick,
+    required this.color63Thick,
+    required this.color71Light,
+    required this.color72Light,
+    required this.color73Light,
+    required this.color71Thick,
+    required this.color72Thick,
+    required this.color73Thick,
+    required this.color81Light,
+    required this.color82Light,
+    required this.color83Light,
+    required this.color81Thick,
+    required this.color82Thick,
+    required this.color83Thick,
+    required this.color91Light,
+    required this.color92Light,
+    required this.color93Light,
+    required this.color91Thick,
+    required this.color92Thick,
+    required this.color93Thick,
+    required this.color101Light,
+    required this.color102Light,
+    required this.color103Light,
+    required this.color101Thick,
+    required this.color102Thick,
+    required this.color103Thick,
+    required this.color111Light,
+    required this.color112Light,
+    required this.color113Light,
+    required this.color111Thick,
+    required this.color112Thick,
+    required this.color113Thick,
+    required this.color121Light,
+    required this.color122Light,
+    required this.color123Light,
+    required this.color121Thick,
+    required this.color122Thick,
+    required this.color123Thick,
+    required this.color131Light,
+    required this.color132Light,
+    required this.color133Light,
+    required this.color131Thick,
+    required this.color132Thick,
+    required this.color133Thick,
+    required this.color141Light,
+    required this.color142Light,
+    required this.color143Light,
+    required this.color141Thick,
+    required this.color142Thick,
+    required this.color143Thick,
+    required this.color151Light,
+    required this.color152Light,
+    required this.color153Light,
+    required this.color151Thick,
+    required this.color152Thick,
+    required this.color153Thick,
+    required this.color161Light,
+    required this.color162Light,
+    required this.color163Light,
+    required this.color161Thick,
+    required this.color162Thick,
+    required this.color163Thick,
+    required this.color171Light,
+    required this.color172Light,
+    required this.color173Light,
+    required this.color171Thick,
+    required this.color172Thick,
+    required this.color173Thick,
+    required this.color181Light,
+    required this.color182Light,
+    required this.color183Light,
+    required this.color181Thick,
+    required this.color182Thick,
+    required this.color183Thick,
+    required this.color191Light,
+    required this.color192Light,
+    required this.color193Light,
+    required this.color191Thick,
+    required this.color192Thick,
+    required this.color193Thick,
+    required this.color201Light,
+    required this.color202Light,
+    required this.color203Light,
+    required this.color201Thick,
+    required this.color202Thick,
+    required this.color203Thick,
   });
 
-  final Color badge11Light;
-  final Color badge12Light;
-  final Color badge13Light;
-  final Color badge11Thick;
-  final Color badge12Thick;
-  final Color badge13Thick;
-  final Color badge21Light;
-  final Color badge22Light;
-  final Color badge23Light;
-  final Color badge21Thick;
-  final Color badge22Thick;
-  final Color badge23Thick;
-  final Color badge31Light;
-  final Color badge32Light;
-  final Color badge33Light;
-  final Color badge31Thick;
-  final Color badge32Thick;
-  final Color badge33Thick;
-  final Color badge41Light;
-  final Color badge42Light;
-  final Color badge43Light;
-  final Color badge41Thick;
-  final Color badge42Thick;
-  final Color badge43Thick;
-  final Color badge51Light;
-  final Color badge52Light;
-  final Color badge53Light;
-  final Color badge51Thick;
-  final Color badge52Thick;
-  final Color badge53Thick;
-  final Color badge61Light;
-  final Color badge62Light;
-  final Color badge63Light;
-  final Color badge61Thick;
-  final Color badge62Thick;
-  final Color badge63Thick;
-  final Color badge71Light;
-  final Color badge72Light;
-  final Color badge73Light;
-  final Color badge71Thick;
-  final Color badge72Thick;
-  final Color badge73Thick;
-  final Color badge81Light;
-  final Color badge82Light;
-  final Color badge83Light;
-  final Color badge81Thick;
-  final Color badge82Thick;
-  final Color badge83Thick;
-  final Color badge91Light;
-  final Color badge92Light;
-  final Color badge93Light;
-  final Color badge91Thick;
-  final Color badge92Thick;
-  final Color badge93Thick;
-  final Color badge101Light;
-  final Color badge102Light;
-  final Color badge103Light;
-  final Color badge101Thick;
-  final Color badge102Thick;
-  final Color badge103Thick;
-  final Color badge111Light;
-  final Color badge112Light;
-  final Color badge113Light;
-  final Color badge111Thick;
-  final Color badge112Thick;
-  final Color badge113Thick;
-  final Color badge121Light;
-  final Color badge122Light;
-  final Color badge123Light;
-  final Color badge121Thick;
-  final Color badge122Thick;
-  final Color badge123Thick;
-  final Color badge131Light;
-  final Color badge132Light;
-  final Color badge133Light;
-  final Color badge131Thick;
-  final Color badge132Thick;
-  final Color badge133Thick;
-  final Color badge141Light;
-  final Color badge142Light;
-  final Color badge143Light;
-  final Color badge141Thick;
-  final Color badge142Thick;
-  final Color badge143Thick;
-  final Color badge151Light;
-  final Color badge152Light;
-  final Color badge153Light;
-  final Color badge151Thick;
-  final Color badge152Thick;
-  final Color badge153Thick;
-  final Color badge161Light;
-  final Color badge162Light;
-  final Color badge163Light;
-  final Color badge161Thick;
-  final Color badge162Thick;
-  final Color badge163Thick;
-  final Color badge171Light;
-  final Color badge172Light;
-  final Color badge173Light;
-  final Color badge171Thick;
-  final Color badge172Thick;
-  final Color badge173Thick;
-  final Color badge181Light;
-  final Color badge182Light;
-  final Color badge183Light;
-  final Color badge181Thick;
-  final Color badge182Thick;
-  final Color badge183Thick;
-  final Color badge191Light;
-  final Color badge192Light;
-  final Color badge193Light;
-  final Color badge191Thick;
-  final Color badge192Thick;
-  final Color badge193Thick;
-  final Color badge201Light;
-  final Color badge202Light;
-  final Color badge203Light;
-  final Color badge201Thick;
-  final Color badge202Thick;
-  final Color badge203Thick;
+  final Color color11Light;
+  final Color color12Light;
+  final Color color13Light;
+  final Color color11Thick;
+  final Color color12Thick;
+  final Color color13Thick;
+  final Color color21Light;
+  final Color color22Light;
+  final Color color23Light;
+  final Color color21Thick;
+  final Color color22Thick;
+  final Color color23Thick;
+  final Color color31Light;
+  final Color color32Light;
+  final Color color33Light;
+  final Color color31Thick;
+  final Color color32Thick;
+  final Color color33Thick;
+  final Color color41Light;
+  final Color color42Light;
+  final Color color43Light;
+  final Color color41Thick;
+  final Color color42Thick;
+  final Color color43Thick;
+  final Color color51Light;
+  final Color color52Light;
+  final Color color53Light;
+  final Color color51Thick;
+  final Color color52Thick;
+  final Color color53Thick;
+  final Color color61Light;
+  final Color color62Light;
+  final Color color63Light;
+  final Color color61Thick;
+  final Color color62Thick;
+  final Color color63Thick;
+  final Color color71Light;
+  final Color color72Light;
+  final Color color73Light;
+  final Color color71Thick;
+  final Color color72Thick;
+  final Color color73Thick;
+  final Color color81Light;
+  final Color color82Light;
+  final Color color83Light;
+  final Color color81Thick;
+  final Color color82Thick;
+  final Color color83Thick;
+  final Color color91Light;
+  final Color color92Light;
+  final Color color93Light;
+  final Color color91Thick;
+  final Color color92Thick;
+  final Color color93Thick;
+  final Color color101Light;
+  final Color color102Light;
+  final Color color103Light;
+  final Color color101Thick;
+  final Color color102Thick;
+  final Color color103Thick;
+  final Color color111Light;
+  final Color color112Light;
+  final Color color113Light;
+  final Color color111Thick;
+  final Color color112Thick;
+  final Color color113Thick;
+  final Color color121Light;
+  final Color color122Light;
+  final Color color123Light;
+  final Color color121Thick;
+  final Color color122Thick;
+  final Color color123Thick;
+  final Color color131Light;
+  final Color color132Light;
+  final Color color133Light;
+  final Color color131Thick;
+  final Color color132Thick;
+  final Color color133Thick;
+  final Color color141Light;
+  final Color color142Light;
+  final Color color143Light;
+  final Color color141Thick;
+  final Color color142Thick;
+  final Color color143Thick;
+  final Color color151Light;
+  final Color color152Light;
+  final Color color153Light;
+  final Color color151Thick;
+  final Color color152Thick;
+  final Color color153Thick;
+  final Color color161Light;
+  final Color color162Light;
+  final Color color163Light;
+  final Color color161Thick;
+  final Color color162Thick;
+  final Color color163Thick;
+  final Color color171Light;
+  final Color color172Light;
+  final Color color173Light;
+  final Color color171Thick;
+  final Color color172Thick;
+  final Color color173Thick;
+  final Color color181Light;
+  final Color color182Light;
+  final Color color183Light;
+  final Color color181Thick;
+  final Color color182Thick;
+  final Color color183Thick;
+  final Color color191Light;
+  final Color color192Light;
+  final Color color193Light;
+  final Color color191Thick;
+  final Color color192Thick;
+  final Color color193Thick;
+  final Color color201Light;
+  final Color color202Light;
+  final Color color203Light;
+  final Color color201Thick;
+  final Color color202Thick;
+  final Color color203Thick;
 
   AppFlowyBadgeColorColorScheme lerp(
     AppFlowyBadgeColorColorScheme other,
     double t,
   ) {
     return AppFlowyBadgeColorColorScheme(
-      badge11Light: Color.lerp(badge11Light, other.badge11Light, t)!,
-      badge12Light: Color.lerp(badge12Light, other.badge12Light, t)!,
-      badge13Light: Color.lerp(badge13Light, other.badge13Light, t)!,
-      badge11Thick: Color.lerp(badge11Thick, other.badge11Thick, t)!,
-      badge12Thick: Color.lerp(badge12Thick, other.badge12Thick, t)!,
-      badge13Thick: Color.lerp(badge13Thick, other.badge13Thick, t)!,
-      badge21Light: Color.lerp(badge21Light, other.badge21Light, t)!,
-      badge22Light: Color.lerp(badge22Light, other.badge22Light, t)!,
-      badge23Light: Color.lerp(badge23Light, other.badge23Light, t)!,
-      badge21Thick: Color.lerp(badge21Thick, other.badge21Thick, t)!,
-      badge22Thick: Color.lerp(badge22Thick, other.badge22Thick, t)!,
-      badge23Thick: Color.lerp(badge23Thick, other.badge23Thick, t)!,
-      badge31Light: Color.lerp(badge31Light, other.badge31Light, t)!,
-      badge32Light: Color.lerp(badge32Light, other.badge32Light, t)!,
-      badge33Light: Color.lerp(badge33Light, other.badge33Light, t)!,
-      badge31Thick: Color.lerp(badge31Thick, other.badge31Thick, t)!,
-      badge32Thick: Color.lerp(badge32Thick, other.badge32Thick, t)!,
-      badge33Thick: Color.lerp(badge33Thick, other.badge33Thick, t)!,
-      badge41Light: Color.lerp(badge41Light, other.badge41Light, t)!,
-      badge42Light: Color.lerp(badge42Light, other.badge42Light, t)!,
-      badge43Light: Color.lerp(badge43Light, other.badge43Light, t)!,
-      badge41Thick: Color.lerp(badge41Thick, other.badge41Thick, t)!,
-      badge42Thick: Color.lerp(badge42Thick, other.badge42Thick, t)!,
-      badge43Thick: Color.lerp(badge43Thick, other.badge43Thick, t)!,
-      badge51Light: Color.lerp(badge51Light, other.badge51Light, t)!,
-      badge52Light: Color.lerp(badge52Light, other.badge52Light, t)!,
-      badge53Light: Color.lerp(badge53Light, other.badge53Light, t)!,
-      badge51Thick: Color.lerp(badge51Thick, other.badge51Thick, t)!,
-      badge52Thick: Color.lerp(badge52Thick, other.badge52Thick, t)!,
-      badge53Thick: Color.lerp(badge53Thick, other.badge53Thick, t)!,
-      badge61Light: Color.lerp(badge61Light, other.badge61Light, t)!,
-      badge62Light: Color.lerp(badge62Light, other.badge62Light, t)!,
-      badge63Light: Color.lerp(badge63Light, other.badge63Light, t)!,
-      badge61Thick: Color.lerp(badge61Thick, other.badge61Thick, t)!,
-      badge62Thick: Color.lerp(badge62Thick, other.badge62Thick, t)!,
-      badge63Thick: Color.lerp(badge63Thick, other.badge63Thick, t)!,
-      badge71Light: Color.lerp(badge71Light, other.badge71Light, t)!,
-      badge72Light: Color.lerp(badge72Light, other.badge72Light, t)!,
-      badge73Light: Color.lerp(badge73Light, other.badge73Light, t)!,
-      badge71Thick: Color.lerp(badge71Thick, other.badge71Thick, t)!,
-      badge72Thick: Color.lerp(badge72Thick, other.badge72Thick, t)!,
-      badge73Thick: Color.lerp(badge73Thick, other.badge73Thick, t)!,
-      badge81Light: Color.lerp(badge81Light, other.badge81Light, t)!,
-      badge82Light: Color.lerp(badge82Light, other.badge82Light, t)!,
-      badge83Light: Color.lerp(badge83Light, other.badge83Light, t)!,
-      badge81Thick: Color.lerp(badge81Thick, other.badge81Thick, t)!,
-      badge82Thick: Color.lerp(badge82Thick, other.badge82Thick, t)!,
-      badge83Thick: Color.lerp(badge83Thick, other.badge83Thick, t)!,
-      badge91Light: Color.lerp(badge91Light, other.badge91Light, t)!,
-      badge92Light: Color.lerp(badge92Light, other.badge92Light, t)!,
-      badge93Light: Color.lerp(badge93Light, other.badge93Light, t)!,
-      badge91Thick: Color.lerp(badge91Thick, other.badge91Thick, t)!,
-      badge92Thick: Color.lerp(badge92Thick, other.badge92Thick, t)!,
-      badge93Thick: Color.lerp(badge93Thick, other.badge93Thick, t)!,
-      badge101Light: Color.lerp(badge101Light, other.badge101Light, t)!,
-      badge102Light: Color.lerp(badge102Light, other.badge102Light, t)!,
-      badge103Light: Color.lerp(badge103Light, other.badge103Light, t)!,
-      badge101Thick: Color.lerp(badge101Thick, other.badge101Thick, t)!,
-      badge102Thick: Color.lerp(badge102Thick, other.badge102Thick, t)!,
-      badge103Thick: Color.lerp(badge103Thick, other.badge103Thick, t)!,
-      badge111Light: Color.lerp(badge111Light, other.badge111Light, t)!,
-      badge112Light: Color.lerp(badge112Light, other.badge112Light, t)!,
-      badge113Light: Color.lerp(badge113Light, other.badge113Light, t)!,
-      badge111Thick: Color.lerp(badge111Thick, other.badge111Thick, t)!,
-      badge112Thick: Color.lerp(badge112Thick, other.badge112Thick, t)!,
-      badge113Thick: Color.lerp(badge113Thick, other.badge113Thick, t)!,
-      badge121Light: Color.lerp(badge121Light, other.badge121Light, t)!,
-      badge122Light: Color.lerp(badge122Light, other.badge122Light, t)!,
-      badge123Light: Color.lerp(badge123Light, other.badge123Light, t)!,
-      badge121Thick: Color.lerp(badge121Thick, other.badge121Thick, t)!,
-      badge122Thick: Color.lerp(badge122Thick, other.badge122Thick, t)!,
-      badge123Thick: Color.lerp(badge123Thick, other.badge123Thick, t)!,
-      badge131Light: Color.lerp(badge131Light, other.badge131Light, t)!,
-      badge132Light: Color.lerp(badge132Light, other.badge132Light, t)!,
-      badge133Light: Color.lerp(badge133Light, other.badge133Light, t)!,
-      badge131Thick: Color.lerp(badge131Thick, other.badge131Thick, t)!,
-      badge132Thick: Color.lerp(badge132Thick, other.badge132Thick, t)!,
-      badge133Thick: Color.lerp(badge133Thick, other.badge133Thick, t)!,
-      badge141Light: Color.lerp(badge141Light, other.badge141Light, t)!,
-      badge142Light: Color.lerp(badge142Light, other.badge142Light, t)!,
-      badge143Light: Color.lerp(badge143Light, other.badge143Light, t)!,
-      badge141Thick: Color.lerp(badge141Thick, other.badge141Thick, t)!,
-      badge142Thick: Color.lerp(badge142Thick, other.badge142Thick, t)!,
-      badge143Thick: Color.lerp(badge143Thick, other.badge143Thick, t)!,
-      badge151Light: Color.lerp(badge151Light, other.badge151Light, t)!,
-      badge152Light: Color.lerp(badge152Light, other.badge152Light, t)!,
-      badge153Light: Color.lerp(badge153Light, other.badge153Light, t)!,
-      badge151Thick: Color.lerp(badge151Thick, other.badge151Thick, t)!,
-      badge152Thick: Color.lerp(badge152Thick, other.badge152Thick, t)!,
-      badge153Thick: Color.lerp(badge153Thick, other.badge153Thick, t)!,
-      badge161Light: Color.lerp(badge161Light, other.badge161Light, t)!,
-      badge162Light: Color.lerp(badge162Light, other.badge162Light, t)!,
-      badge163Light: Color.lerp(badge163Light, other.badge163Light, t)!,
-      badge161Thick: Color.lerp(badge161Thick, other.badge161Thick, t)!,
-      badge162Thick: Color.lerp(badge162Thick, other.badge162Thick, t)!,
-      badge163Thick: Color.lerp(badge163Thick, other.badge163Thick, t)!,
-      badge171Light: Color.lerp(badge171Light, other.badge171Light, t)!,
-      badge172Light: Color.lerp(badge172Light, other.badge172Light, t)!,
-      badge173Light: Color.lerp(badge173Light, other.badge173Light, t)!,
-      badge171Thick: Color.lerp(badge171Thick, other.badge171Thick, t)!,
-      badge172Thick: Color.lerp(badge172Thick, other.badge172Thick, t)!,
-      badge173Thick: Color.lerp(badge173Thick, other.badge173Thick, t)!,
-      badge181Light: Color.lerp(badge181Light, other.badge181Light, t)!,
-      badge182Light: Color.lerp(badge182Light, other.badge182Light, t)!,
-      badge183Light: Color.lerp(badge183Light, other.badge183Light, t)!,
-      badge181Thick: Color.lerp(badge181Thick, other.badge181Thick, t)!,
-      badge182Thick: Color.lerp(badge182Thick, other.badge182Thick, t)!,
-      badge183Thick: Color.lerp(badge183Thick, other.badge183Thick, t)!,
-      badge191Light: Color.lerp(badge191Light, other.badge191Light, t)!,
-      badge192Light: Color.lerp(badge192Light, other.badge192Light, t)!,
-      badge193Light: Color.lerp(badge193Light, other.badge193Light, t)!,
-      badge191Thick: Color.lerp(badge191Thick, other.badge191Thick, t)!,
-      badge192Thick: Color.lerp(badge192Thick, other.badge192Thick, t)!,
-      badge193Thick: Color.lerp(badge193Thick, other.badge193Thick, t)!,
-      badge201Light: Color.lerp(badge201Light, other.badge201Light, t)!,
-      badge202Light: Color.lerp(badge202Light, other.badge202Light, t)!,
-      badge203Light: Color.lerp(badge203Light, other.badge203Light, t)!,
-      badge201Thick: Color.lerp(badge201Thick, other.badge201Thick, t)!,
-      badge202Thick: Color.lerp(badge202Thick, other.badge202Thick, t)!,
-      badge203Thick: Color.lerp(badge203Thick, other.badge203Thick, t)!,
+      color11Light: Color.lerp(color11Light, other.color11Light, t)!,
+      color12Light: Color.lerp(color12Light, other.color12Light, t)!,
+      color13Light: Color.lerp(color13Light, other.color13Light, t)!,
+      color11Thick: Color.lerp(color11Thick, other.color11Thick, t)!,
+      color12Thick: Color.lerp(color12Thick, other.color12Thick, t)!,
+      color13Thick: Color.lerp(color13Thick, other.color13Thick, t)!,
+      color21Light: Color.lerp(color21Light, other.color21Light, t)!,
+      color22Light: Color.lerp(color22Light, other.color22Light, t)!,
+      color23Light: Color.lerp(color23Light, other.color23Light, t)!,
+      color21Thick: Color.lerp(color21Thick, other.color21Thick, t)!,
+      color22Thick: Color.lerp(color22Thick, other.color22Thick, t)!,
+      color23Thick: Color.lerp(color23Thick, other.color23Thick, t)!,
+      color31Light: Color.lerp(color31Light, other.color31Light, t)!,
+      color32Light: Color.lerp(color32Light, other.color32Light, t)!,
+      color33Light: Color.lerp(color33Light, other.color33Light, t)!,
+      color31Thick: Color.lerp(color31Thick, other.color31Thick, t)!,
+      color32Thick: Color.lerp(color32Thick, other.color32Thick, t)!,
+      color33Thick: Color.lerp(color33Thick, other.color33Thick, t)!,
+      color41Light: Color.lerp(color41Light, other.color41Light, t)!,
+      color42Light: Color.lerp(color42Light, other.color42Light, t)!,
+      color43Light: Color.lerp(color43Light, other.color43Light, t)!,
+      color41Thick: Color.lerp(color41Thick, other.color41Thick, t)!,
+      color42Thick: Color.lerp(color42Thick, other.color42Thick, t)!,
+      color43Thick: Color.lerp(color43Thick, other.color43Thick, t)!,
+      color51Light: Color.lerp(color51Light, other.color51Light, t)!,
+      color52Light: Color.lerp(color52Light, other.color52Light, t)!,
+      color53Light: Color.lerp(color53Light, other.color53Light, t)!,
+      color51Thick: Color.lerp(color51Thick, other.color51Thick, t)!,
+      color52Thick: Color.lerp(color52Thick, other.color52Thick, t)!,
+      color53Thick: Color.lerp(color53Thick, other.color53Thick, t)!,
+      color61Light: Color.lerp(color61Light, other.color61Light, t)!,
+      color62Light: Color.lerp(color62Light, other.color62Light, t)!,
+      color63Light: Color.lerp(color63Light, other.color63Light, t)!,
+      color61Thick: Color.lerp(color61Thick, other.color61Thick, t)!,
+      color62Thick: Color.lerp(color62Thick, other.color62Thick, t)!,
+      color63Thick: Color.lerp(color63Thick, other.color63Thick, t)!,
+      color71Light: Color.lerp(color71Light, other.color71Light, t)!,
+      color72Light: Color.lerp(color72Light, other.color72Light, t)!,
+      color73Light: Color.lerp(color73Light, other.color73Light, t)!,
+      color71Thick: Color.lerp(color71Thick, other.color71Thick, t)!,
+      color72Thick: Color.lerp(color72Thick, other.color72Thick, t)!,
+      color73Thick: Color.lerp(color73Thick, other.color73Thick, t)!,
+      color81Light: Color.lerp(color81Light, other.color81Light, t)!,
+      color82Light: Color.lerp(color82Light, other.color82Light, t)!,
+      color83Light: Color.lerp(color83Light, other.color83Light, t)!,
+      color81Thick: Color.lerp(color81Thick, other.color81Thick, t)!,
+      color82Thick: Color.lerp(color82Thick, other.color82Thick, t)!,
+      color83Thick: Color.lerp(color83Thick, other.color83Thick, t)!,
+      color91Light: Color.lerp(color91Light, other.color91Light, t)!,
+      color92Light: Color.lerp(color92Light, other.color92Light, t)!,
+      color93Light: Color.lerp(color93Light, other.color93Light, t)!,
+      color91Thick: Color.lerp(color91Thick, other.color91Thick, t)!,
+      color92Thick: Color.lerp(color92Thick, other.color92Thick, t)!,
+      color93Thick: Color.lerp(color93Thick, other.color93Thick, t)!,
+      color101Light: Color.lerp(color101Light, other.color101Light, t)!,
+      color102Light: Color.lerp(color102Light, other.color102Light, t)!,
+      color103Light: Color.lerp(color103Light, other.color103Light, t)!,
+      color101Thick: Color.lerp(color101Thick, other.color101Thick, t)!,
+      color102Thick: Color.lerp(color102Thick, other.color102Thick, t)!,
+      color103Thick: Color.lerp(color103Thick, other.color103Thick, t)!,
+      color111Light: Color.lerp(color111Light, other.color111Light, t)!,
+      color112Light: Color.lerp(color112Light, other.color112Light, t)!,
+      color113Light: Color.lerp(color113Light, other.color113Light, t)!,
+      color111Thick: Color.lerp(color111Thick, other.color111Thick, t)!,
+      color112Thick: Color.lerp(color112Thick, other.color112Thick, t)!,
+      color113Thick: Color.lerp(color113Thick, other.color113Thick, t)!,
+      color121Light: Color.lerp(color121Light, other.color121Light, t)!,
+      color122Light: Color.lerp(color122Light, other.color122Light, t)!,
+      color123Light: Color.lerp(color123Light, other.color123Light, t)!,
+      color121Thick: Color.lerp(color121Thick, other.color121Thick, t)!,
+      color122Thick: Color.lerp(color122Thick, other.color122Thick, t)!,
+      color123Thick: Color.lerp(color123Thick, other.color123Thick, t)!,
+      color131Light: Color.lerp(color131Light, other.color131Light, t)!,
+      color132Light: Color.lerp(color132Light, other.color132Light, t)!,
+      color133Light: Color.lerp(color133Light, other.color133Light, t)!,
+      color131Thick: Color.lerp(color131Thick, other.color131Thick, t)!,
+      color132Thick: Color.lerp(color132Thick, other.color132Thick, t)!,
+      color133Thick: Color.lerp(color133Thick, other.color133Thick, t)!,
+      color141Light: Color.lerp(color141Light, other.color141Light, t)!,
+      color142Light: Color.lerp(color142Light, other.color142Light, t)!,
+      color143Light: Color.lerp(color143Light, other.color143Light, t)!,
+      color141Thick: Color.lerp(color141Thick, other.color141Thick, t)!,
+      color142Thick: Color.lerp(color142Thick, other.color142Thick, t)!,
+      color143Thick: Color.lerp(color143Thick, other.color143Thick, t)!,
+      color151Light: Color.lerp(color151Light, other.color151Light, t)!,
+      color152Light: Color.lerp(color152Light, other.color152Light, t)!,
+      color153Light: Color.lerp(color153Light, other.color153Light, t)!,
+      color151Thick: Color.lerp(color151Thick, other.color151Thick, t)!,
+      color152Thick: Color.lerp(color152Thick, other.color152Thick, t)!,
+      color153Thick: Color.lerp(color153Thick, other.color153Thick, t)!,
+      color161Light: Color.lerp(color161Light, other.color161Light, t)!,
+      color162Light: Color.lerp(color162Light, other.color162Light, t)!,
+      color163Light: Color.lerp(color163Light, other.color163Light, t)!,
+      color161Thick: Color.lerp(color161Thick, other.color161Thick, t)!,
+      color162Thick: Color.lerp(color162Thick, other.color162Thick, t)!,
+      color163Thick: Color.lerp(color163Thick, other.color163Thick, t)!,
+      color171Light: Color.lerp(color171Light, other.color171Light, t)!,
+      color172Light: Color.lerp(color172Light, other.color172Light, t)!,
+      color173Light: Color.lerp(color173Light, other.color173Light, t)!,
+      color171Thick: Color.lerp(color171Thick, other.color171Thick, t)!,
+      color172Thick: Color.lerp(color172Thick, other.color172Thick, t)!,
+      color173Thick: Color.lerp(color173Thick, other.color173Thick, t)!,
+      color181Light: Color.lerp(color181Light, other.color181Light, t)!,
+      color182Light: Color.lerp(color182Light, other.color182Light, t)!,
+      color183Light: Color.lerp(color183Light, other.color183Light, t)!,
+      color181Thick: Color.lerp(color181Thick, other.color181Thick, t)!,
+      color182Thick: Color.lerp(color182Thick, other.color182Thick, t)!,
+      color183Thick: Color.lerp(color183Thick, other.color183Thick, t)!,
+      color191Light: Color.lerp(color191Light, other.color191Light, t)!,
+      color192Light: Color.lerp(color192Light, other.color192Light, t)!,
+      color193Light: Color.lerp(color193Light, other.color193Light, t)!,
+      color191Thick: Color.lerp(color191Thick, other.color191Thick, t)!,
+      color192Thick: Color.lerp(color192Thick, other.color192Thick, t)!,
+      color193Thick: Color.lerp(color193Thick, other.color193Thick, t)!,
+      color201Light: Color.lerp(color201Light, other.color201Light, t)!,
+      color202Light: Color.lerp(color202Light, other.color202Light, t)!,
+      color203Light: Color.lerp(color203Light, other.color203Light, t)!,
+      color201Thick: Color.lerp(color201Thick, other.color201Thick, t)!,
+      color202Thick: Color.lerp(color202Thick, other.color202Thick, t)!,
+      color203Thick: Color.lerp(color203Thick, other.color203Thick, t)!,
     );
   }
 }

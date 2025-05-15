@@ -255,7 +255,7 @@ void processSemanticTokenData(
     json.forEach((key, value) {
       if (value is Map<String, dynamic>) {
         final data = int.tryParse(currentTokenName);
-        final begin = data == null ? currentTokenName : 'badge';
+        final begin = data == null ? currentTokenName : 'color';
         processSemanticTokenData(
           buffer,
           value,
