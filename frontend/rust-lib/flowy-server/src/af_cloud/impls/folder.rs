@@ -4,6 +4,9 @@ use client_api::entity::{
 };
 use client_api::entity::{PatchPublishedCollab, PublishInfo};
 use collab_entity::CollabType;
+use flowy_server_pub::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+};
 use serde_json::to_vec;
 use std::path::PathBuf;
 use std::sync::Weak;
@@ -266,5 +269,45 @@ where
     );
     client.upload_import_file(&file_path, &url).await?;
     Ok(())
+  }
+
+  async fn share_page_with_user(
+    &self,
+    workspace_id: &Uuid,
+    params: ShareViewWithGuestRequest,
+  ) -> Result<(), FlowyError> {
+    let try_get_client = self.inner.try_get_client();
+    try_get_client?
+      .share_view_with_guest(workspace_id, &params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
+  async fn revoke_shared_page_access(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+    params: RevokeSharedViewAccessRequest,
+  ) -> Result<(), FlowyError> {
+    let try_get_client = self.inner.try_get_client();
+    try_get_client?
+      .revoke_shared_view_access(workspace_id, view_id, &params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
+  async fn get_shared_page_details(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+  ) -> Result<SharedViewDetails, FlowyError> {
+    let try_get_client = self.inner.try_get_client();
+    let details = try_get_client?
+      .get_shared_view_details(workspace_id, view_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(details)
   }
 }
