@@ -46,20 +46,20 @@ class AFMenuItem extends StatelessWidget {
       ),
       borderRadius: theme.borderRadius.m,
       borderColor: (context, isHovering, disabled, isFocused) {
-        return theme.borderColorScheme.transparent;
+        return Colors.transparent;
       },
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.transparent;
+          return theme.fillColorScheme.content;
         }
         if (selected) {
           return theme.fillColorScheme.themeSelect;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return theme.fillColorScheme.transparent;
+        return theme.fillColorScheme.content;
       },
       builder: (context, isHovering, disabled) {
         return Row(

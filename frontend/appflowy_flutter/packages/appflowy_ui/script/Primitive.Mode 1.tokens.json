@@ -30,7 +30,15 @@
     },
     "800": {
       "$type": "color",
-      "$value": "#3c3f4e"
+      "$value": "#3d404f"
+    },
+    "830": {
+      "$type": "color",
+      "$value": "#363845"
+    },
+    "850": {
+      "$type": "color",
+      "$value": "#32343f"
     },
     "900": {
       "$type": "color",
@@ -56,14 +64,6 @@
       "$type": "color",
       "$value": "#ffffff00"
     },
-    "alpha-white-20": {
-      "$type": "color",
-      "$value": "#ffffff33"
-    },
-    "alpha-white-30": {
-      "$type": "color",
-      "$value": "#ffffff4d"
-    },
     "alpha-grey-100-05": {
       "$type": "color",
       "$value": "#f9fafd0d"
@@ -79,14 +79,6 @@
     "alpha-grey-1000-10": {
       "$type": "color",
       "$value": "#1f23291a"
-    },
-    "alpha-grey-1000-70": {
-      "$type": "color",
-      "$value": "#1f2329b2"
-    },
-    "alpha-grey-1000-80": {
-      "$type": "color",
-      "$value": "#1f2329cc"
     }
   },
   "Blue": {
@@ -133,6 +125,11 @@
     "alpha-blue-500-15": {
       "$type": "color",
       "$value": "#00b5ff26"
+    },
+    "alpha-blue-500-20": {
+      "$type": "color",
+      "$value": "#00b5ff33",
+      "$description": "Text Selected Effect"
     }
   },
   "Green": {
