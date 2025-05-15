@@ -8,14 +8,14 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/util/link_util.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// ignore: implementation_imports
-import 'package:appflowy_editor/src/editor/util/link_util.dart';
 
 class MobileBottomSheetEditLinkWidget extends StatefulWidget {
   const MobileBottomSheetEditLinkWidget({
@@ -410,7 +410,7 @@ class _MobileBottomSheetEditLinkWidgetState
   BoxDecoration buildBorderDecoration() {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(theme.borderRadius.l),
-      border: Border.all(color: theme.borderColorScheme.greyPrimary),
+      border: Border.all(color: theme.borderColorScheme.primary),
     );
   }
 }

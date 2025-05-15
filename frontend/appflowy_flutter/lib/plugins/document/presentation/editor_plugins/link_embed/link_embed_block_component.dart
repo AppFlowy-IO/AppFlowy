@@ -124,7 +124,7 @@ class LinkEmbedBlockComponentState
 
   Widget buildChild(BuildContext context) {
     final theme = AppFlowyTheme.of(context),
-        fillSceme = theme.fillColorScheme,
+        fillScheme = theme.fillColorScheme,
         borderScheme = theme.borderColorScheme;
     Widget child;
     final isIdle = status == LinkLoadingStatus.idle;
@@ -137,9 +137,9 @@ class LinkEmbedBlockComponentState
       height: 450,
       key: widgetKey,
       decoration: BoxDecoration(
-        color: fillSceme.quaternary,
+        color: fillScheme.content,
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        border: Border.all(color: borderScheme.greyTertiary),
+        border: Border.all(color: borderScheme.primary),
       ),
       child: Stack(
         children: [
@@ -260,7 +260,7 @@ class LinkEmbedBlockComponentState
   }
 
   Widget buildErrorLoadingWidget(BuildContext context) {
-    final theme = AppFlowyTheme.of(context), textSceme = theme.textColorScheme;
+    final theme = AppFlowyTheme.of(context), textScheme = theme.textColorScheme;
     final isLoading = status == LinkLoadingStatus.loading;
     return isLoading
         ? Center(
@@ -293,7 +293,7 @@ class LinkEmbedBlockComponentState
                           TextSpan(
                             text: '$url ',
                             style: TextStyle(
-                              color: textSceme.secondary,
+                              color: textScheme.secondary,
                               fontSize: 14,
                               height: 20 / 14,
                               fontWeight: FontWeight.w700,
@@ -304,7 +304,7 @@ class LinkEmbedBlockComponentState
                                 .document_plugins_linkPreview_linkPreviewMenu_unableToDisplay
                                 .tr(),
                             style: TextStyle(
-                              color: textSceme.secondary,
+                              color: textScheme.secondary,
                               fontSize: 14,
                               height: 20 / 14,
                               fontWeight: FontWeight.w400,

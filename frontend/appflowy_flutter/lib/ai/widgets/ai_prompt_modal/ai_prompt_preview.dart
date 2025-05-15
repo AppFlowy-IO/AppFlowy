@@ -106,7 +106,7 @@ class _PromptContent extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.quaternary,
+        color: theme.fillColorScheme.primary,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: Text.rich(
@@ -130,7 +130,7 @@ class _PromptContent extends StatelessWidget {
         spans.add(
           TextSpan(
             text: part,
-            style: TextStyle(color: theme.textColorScheme.purple),
+            style: TextStyle(color: theme.textColorScheme.featured),
           ),
         );
       } else {
@@ -176,7 +176,7 @@ class _PromptExample extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.quaternary,
+        color: theme.fillColorScheme.primary,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: AIMarkdownText(
