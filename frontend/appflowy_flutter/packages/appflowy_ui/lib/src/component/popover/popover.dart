@@ -205,17 +205,17 @@ class _AFPopoverState extends State<AFPopover> {
     Widget popover = ShadMouseArea(
       groupId: widget.areaGroupId,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.surfaceColorScheme.primary,
-          borderRadius: BorderRadius.circular(theme.borderRadius.m),
-        ),
+        decoration: widget.decoration ??
+            BoxDecoration(
+              color: theme.surfaceColorScheme.primary,
+              borderRadius: BorderRadius.circular(theme.borderRadius.m),
+            ),
         child: Padding(
           padding: effectivePadding,
           child: DefaultTextStyle(
             style: TextStyle(
               color: theme.textColorScheme.primary,
             ),
-            textAlign: TextAlign.center,
             child: Builder(
               builder: widget.popover,
             ),
