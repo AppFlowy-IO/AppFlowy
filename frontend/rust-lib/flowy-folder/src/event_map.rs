@@ -226,4 +226,13 @@ pub enum FolderEvent {
 
   #[event(input = "ViewIdPB")]
   UnlockView = 55,
+
+  #[event(input = "SharePageWithUserPayloadPB")]
+  SharePageWithUser = 56,
+
+  #[event(input = "RemoveUserFromSharedPagePayloadPB")]
+  RemoveUserFromSharedPage = 57,
+
+  #[event(input = "GetSharedUsersPayloadPB", output = "RepeatedSharedUserPB")]
+  GetSharedUsers = 58,
 }
