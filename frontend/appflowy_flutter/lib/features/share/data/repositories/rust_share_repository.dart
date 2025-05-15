@@ -1,3 +1,5 @@
+import 'package:appflowy/features/share/data/models/share_role.dart';
+import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -60,8 +62,8 @@ class RustShareRepository extends ShareRepository {
   @override
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required List<String> emails,
     required ShareRole role,
+    required List<String> emails,
   }) async {
     final request = SharePageWithUserPayloadPB(
       viewId: pageId,
@@ -95,7 +97,9 @@ extension on SharedUserPB {
   SharedUser get sharedUser {
     return SharedUser(
       email: email,
+      name: name,
       role: accessLevel.shareRole,
+      avatarUrl: avatarUrl,
     );
   }
 }
