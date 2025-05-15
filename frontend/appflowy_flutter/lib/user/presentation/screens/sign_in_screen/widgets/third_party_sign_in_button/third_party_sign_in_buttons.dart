@@ -104,9 +104,9 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
         padding: EdgeInsets.zero,
         textColor: (context, isHovering, disabled) {
           if (isHovering) {
-            return theme.fillColorScheme.themeThickHover;
+            return theme.textColorScheme.actionHover;
           }
-          return theme.textColorScheme.theme;
+          return theme.textColorScheme.action;
         },
         onTap: () {
           setState(() {
@@ -189,9 +189,9 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
         text: 'More options',
         textColor: (context, isHovering, disabled) {
           if (isHovering) {
-            return theme.fillColorScheme.themeThickHover;
+            return theme.textColorScheme.actionHover;
           }
-          return theme.textColorScheme.theme;
+          return theme.textColorScheme.action;
         },
         onTap: () {
           setState(() {

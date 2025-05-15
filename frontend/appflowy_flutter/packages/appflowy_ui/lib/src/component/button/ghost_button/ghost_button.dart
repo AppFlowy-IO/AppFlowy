@@ -41,12 +41,12 @@ class AFGhostButton extends StatelessWidget {
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.transparent;
+          return theme.fillColorScheme.content;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return theme.fillColorScheme.transparent;
+        return theme.fillColorScheme.content;
       },
     );
   }
@@ -68,7 +68,7 @@ class AFGhostButton extends StatelessWidget {
       borderRadius: borderRadius,
       disabled: true,
       backgroundColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).fillColorScheme.transparent,
+          AppFlowyTheme.of(context).fillColorScheme.content,
     );
   }
 

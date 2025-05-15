@@ -48,7 +48,7 @@ class AFGhostIconTextButton extends StatelessWidget {
           return Colors.transparent;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
         return Colors.transparent;
       },

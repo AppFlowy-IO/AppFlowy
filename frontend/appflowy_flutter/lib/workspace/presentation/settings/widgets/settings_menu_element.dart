@@ -26,14 +26,14 @@ class SettingsMenuElement extends StatelessWidget {
       onTap: () => changeSelectedPage(page),
       padding: EdgeInsets.all(theme.spacing.m),
       borderRadius: theme.borderRadius.m,
-      borderColor: (_, __, ___, ____) => theme.fillColorScheme.transparent,
+      borderColor: (_, __, ___, ____) => Colors.transparent,
       backgroundColor: (_, isHovering, __) {
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         } else if (page == selectedPage) {
           return theme.fillColorScheme.themeSelect;
         }
-        return theme.fillColorScheme.transparent;
+        return Colors.transparent;
       },
       builder: (_, __, ___) {
         return Row(
