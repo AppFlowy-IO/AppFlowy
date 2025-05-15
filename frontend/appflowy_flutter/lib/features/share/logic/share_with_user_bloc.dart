@@ -17,7 +17,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     required this.shareLink,
   }) : super(ShareWithUserState.initial()) {
     on<LoadSharedUsers>(_onLoad);
-    on<InviteUser>(_onInvite);
+    on<ShareWithUser>(_onShare);
     on<RemoveUser>(_onRemove);
     on<UpdateUserRole>(_onUpdateRole);
     on<UpdateGeneralAccess>(_onUpdateGeneralAccess);
@@ -32,42 +32,75 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     LoadSharedUsers event,
     Emitter<ShareWithUserState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        errorMessage: '',
+        initialResult: null,
+      ),
+    );
+
     final result = await repository.getUsersInSharedPage(
       pageId: event.pageId,
     );
+
     result.fold(
       (users) => emit(
         state.copyWith(
           users: users,
           isLoading: false,
+          initialResult: FlowySuccess(null),
         ),
       ),
       (error) => emit(
-        state.copyWith(errorMessage: error.msg, isLoading: false),
+        state.copyWith(
+          errorMessage: error.msg,
+          isLoading: false,
+          initialResult: FlowyFailure(error),
+        ),
       ),
     );
   }
 
-  Future<void> _onInvite(
-    InviteUser event,
+  Future<void> _onShare(
+    ShareWithUser event,
     Emitter<ShareWithUserState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(
+      state.copyWith(
+        errorMessage: '',
+        shareResult: null,
+      ),
+    );
+
     final result = await repository.sharePageWithUser(
       pageId: event.pageId,
       role: event.role,
       emails: event.emails,
     );
+
     result.fold(
-      (_) => add(
-        ShareWithUserEvent.load(
-          pageId: event.pageId,
-        ),
-      ),
-      (error) => emit(
-        state.copyWith(errorMessage: error.msg),
-      ),
+      (_) {
+        emit(
+          state.copyWith(
+            shareResult: FlowySuccess(null),
+          ),
+        );
+
+        add(
+          ShareWithUserEvent.load(
+            pageId: event.pageId,
+          ),
+        );
+      },
+      (error) {
+        emit(
+          state.copyWith(
+            errorMessage: error.msg,
+            shareResult: FlowyFailure(error),
+          ),
+        );
+      },
     );
   }
 
@@ -75,23 +108,39 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     RemoveUser event,
     Emitter<ShareWithUserState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(
+      state.copyWith(
+        removeResult: null,
+      ),
+    );
+
     final result = await repository.removeUserFromPage(
       pageId: event.pageId,
       emails: event.emails,
     );
+
     result.fold(
-      (_) => add(
-        ShareWithUserEvent.load(
-          pageId: event.pageId,
-        ),
-      ),
-      (error) => emit(
-        state.copyWith(
-          errorMessage: error.msg,
-          isLoading: false,
-        ),
-      ),
+      (_) {
+        emit(
+          state.copyWith(
+            removeResult: FlowySuccess(null),
+          ),
+        );
+
+        add(
+          ShareWithUserEvent.load(
+            pageId: event.pageId,
+          ),
+        );
+      },
+      (error) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            removeResult: FlowyFailure(error),
+          ),
+        );
+      },
     );
   }
 
@@ -99,18 +148,32 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     UpdateUserRole event,
     Emitter<ShareWithUserState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(
+      state.copyWith(
+        updateRoleResult: null,
+      ),
+    );
+
     final result = await repository.sharePageWithUser(
       pageId: event.pageId,
       role: event.role,
       emails: [event.email],
     );
+
     result.fold(
-      (_) => add(
-        ShareWithUserEvent.load(
-          pageId: event.pageId,
-        ),
-      ),
+      (_) {
+        emit(
+          state.copyWith(
+            updateRoleResult: FlowySuccess(null),
+          ),
+        );
+
+        add(
+          ShareWithUserEvent.load(
+            pageId: event.pageId,
+          ),
+        );
+      },
       (error) => emit(
         state.copyWith(
           errorMessage: error.msg,
@@ -124,7 +187,11 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     UpdateGeneralAccess event,
     Emitter<ShareWithUserState> emit,
   ) {
-    emit(state.copyWith(generalAccessRole: event.role));
+    emit(
+      state.copyWith(
+        generalAccessRole: event.role,
+      ),
+    );
   }
 
   void _onCopyLink(CopyLink event, Emitter<ShareWithUserState> emit) {
@@ -134,7 +201,11 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
 
-    emit(state.copyWith(linkCopied: true));
+    emit(
+      state.copyWith(
+        linkCopied: true,
+      ),
+    );
   }
 }
 
