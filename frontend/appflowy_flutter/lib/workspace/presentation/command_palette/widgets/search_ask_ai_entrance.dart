@@ -34,20 +34,20 @@ class _AskAIFor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
+    final spaceM = theme.spacing.m, spaceL = theme.spacing.l;
     return Padding(
-      padding: EdgeInsets.fromLTRB(spaceL, sapceM, spaceL, 0),
+      padding: EdgeInsets.fromLTRB(spaceL, spaceM, spaceL, 0),
       child: AFBaseButton(
-        borderRadius: sapceM,
-        padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
+        borderRadius: spaceM,
+        padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: spaceM),
         backgroundColor: (context, isHovering, disable) {
           if (isHovering) {
-            return Theme.of(context).colorScheme.secondary;
+            return theme.fillColorScheme.contentHover;
           }
-          return theme.fillColorScheme.transparent;
+          return Colors.transparent;
         },
         borderColor: (context, isHovering, disable, isFocused) =>
-            theme.fillColorScheme.transparent,
+            Colors.transparent,
         builder: (ctx, isHovering, disable) {
           return Row(
             children: [

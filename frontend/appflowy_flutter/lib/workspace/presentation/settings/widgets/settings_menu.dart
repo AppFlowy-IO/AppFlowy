@@ -33,7 +33,7 @@ class SettingsMenu extends StatelessWidget {
         Expanded(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: theme.backgroundColorScheme.secondary,
+              color: theme.surfaceContainerColorScheme.layer01,
               borderRadius: const BorderRadiusDirectional.only(
                 topStart: Radius.circular(8),
                 bottomStart: Radius.circular(8),

@@ -6,13 +6,12 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-import 'package:flutter/material.dart';
-
-import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchSummaryCell extends StatefulWidget {
@@ -369,10 +368,10 @@ class ReferenceSources extends StatelessWidget {
                 final displayName = source.displayName.isEmpty
                     ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
                     : source.displayName;
-                final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
+                final spaceM = theme.spacing.m, spaceL = theme.spacing.l;
 
                 return AFBaseButton(
-                  borderRadius: sapceM,
+                  borderRadius: spaceM,
                   onTap: () {
                     getIt<ActionNavigationBloc>().add(
                       ActionNavigationEvent.performAction(
@@ -383,16 +382,16 @@ class ReferenceSources extends StatelessWidget {
                   },
                   padding: EdgeInsets.symmetric(
                     vertical: spaceL,
-                    horizontal: sapceM,
+                    horizontal: spaceM,
                   ),
                   backgroundColor: (context, isHovering, disable) {
                     if (isHovering) {
-                      return Theme.of(context).colorScheme.secondary;
+                      return theme.fillColorScheme.contentHover;
                     }
-                    return theme.fillColorScheme.transparent;
+                    return Colors.transparent;
                   },
                   borderColor: (context, isHovering, disabled, isFocused) =>
-                      theme.fillColorScheme.transparent,
+                      Colors.transparent,
                   builder: (context, isHovering, disabled) => Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
