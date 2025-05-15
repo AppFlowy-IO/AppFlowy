@@ -36,6 +36,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
         Expanded(
           child: AFTextField(
             controller: _controller,
+            size: AFTextFieldSize.m,
             hintText: 'Invite by email',
           ),
         ),

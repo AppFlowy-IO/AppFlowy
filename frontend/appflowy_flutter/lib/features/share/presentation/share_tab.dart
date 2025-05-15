@@ -1,4 +1,5 @@
 import 'package:appflowy/features/share/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -9,13 +10,15 @@ class ShareTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final theme = AppFlowyTheme.of(context);
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        VSpace(18),
+        VSpace(theme.spacing.l),
         ShareWithUserWidget(),
-        VSpace(2),
+        VSpace(theme.spacing.l),
       ],
     );
   }
