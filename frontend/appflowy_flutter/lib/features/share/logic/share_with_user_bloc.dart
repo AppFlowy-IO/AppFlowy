@@ -23,7 +23,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     on<GetSharedUsers>(_onGetSharedUsers);
     on<ShareWithUser>(_onShare);
     on<RemoveUser>(_onRemove);
-    on<UpdateUserRole>(_onUpdateRole);
+    on<UpdateAccessLevel>(_onUpdateAccessLevel);
     on<UpdateGeneralAccess>(_onUpdateGeneralAccess);
     on<CopyLink>(_onCopyLink);
     on<SearchAvailableUsers>(_onSearchAvailableUsers);
@@ -113,7 +113,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
 
     final result = await repository.sharePageWithUser(
       pageId: pageId,
-      role: event.role,
+      accessLevel: event.accessLevel,
       emails: event.emails,
     );
 
@@ -178,19 +178,19 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     );
   }
 
-  Future<void> _onUpdateRole(
-    UpdateUserRole event,
+  Future<void> _onUpdateAccessLevel(
+    UpdateAccessLevel event,
     Emitter<ShareWithUserState> emit,
   ) async {
     emit(
       state.copyWith(
-        updateRoleResult: null,
+        updateAccessLevelResult: null,
       ),
     );
 
     final result = await repository.sharePageWithUser(
       pageId: pageId,
-      role: event.role,
+      accessLevel: event.accessLevel,
       emails: [event.email],
     );
 
@@ -198,7 +198,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       (_) {
         emit(
           state.copyWith(
-            updateRoleResult: FlowySuccess(null),
+            updateAccessLevelResult: FlowySuccess(null),
           ),
         );
 
@@ -221,7 +221,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
   ) {
     emit(
       state.copyWith(
-        generalAccessRole: event.role,
+        generalAccessRole: event.accessLevel,
       ),
     );
   }
@@ -287,7 +287,7 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
   /// Invites the users to the page.
   const factory ShareWithUserEvent.share({
     required List<String> emails,
-    required ShareAccessLevel role,
+    required ShareAccessLevel accessLevel,
   }) = ShareWithUser;
 
   /// Removes the users from the page.
@@ -295,15 +295,15 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
     required List<String> emails,
   }) = RemoveUser;
 
-  /// Updates the role of the user.
-  const factory ShareWithUserEvent.updateRole({
+  /// Updates the access level of the user.
+  const factory ShareWithUserEvent.updateAccessLevel({
     required String email,
-    required ShareAccessLevel role,
-  }) = UpdateUserRole;
+    required ShareAccessLevel accessLevel,
+  }) = UpdateAccessLevel;
 
   /// Updates the general access role for all users.
   const factory ShareWithUserEvent.updateGeneralAccess({
-    required ShareAccessLevel role,
+    required ShareAccessLevel accessLevel,
   }) = UpdateGeneralAccess;
 
   /// Copies the link to the clipboard.
@@ -331,7 +331,7 @@ class ShareWithUserState with _$ShareWithUserState {
     @Default(null) FlowyResult<void, FlowyError>? initialResult,
     @Default(null) FlowyResult<void, FlowyError>? shareResult,
     @Default(null) FlowyResult<void, FlowyError>? removeResult,
-    @Default(null) FlowyResult<void, FlowyError>? updateRoleResult,
+    @Default(null) FlowyResult<void, FlowyError>? updateAccessLevelResult,
   }) = _ShareWithUserState;
 
   factory ShareWithUserState.initial() => const ShareWithUserState();

@@ -26,10 +26,10 @@ abstract class ShareRepository {
 
   /// Shares a page with a user, assigning a role.
   ///
-  /// If the user is already in the shared page, the role will be updated.
+  /// If the user is already in the shared page, the access level will be updated.
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareAccessLevel role,
+    required ShareAccessLevel accessLevel,
     required List<String> emails,
   });
 }

@@ -70,7 +70,7 @@ class MockShareRepository extends ShareRepository {
   @override
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareAccessLevel role,
+    required ShareAccessLevel accessLevel,
     required List<String> emails,
   }) async {
     for (final email in emails) {
@@ -78,7 +78,7 @@ class MockShareRepository extends ShareRepository {
         SharedUser(
           email: email,
           name: email,
-          accessLevel: role,
+          accessLevel: accessLevel,
           role: ShareRole.guest,
           avatarUrl:
               'https://avatar.iran.liara.run/public/${email.hashCode % 2 == 0 ? 'boy' : 'girl'}',

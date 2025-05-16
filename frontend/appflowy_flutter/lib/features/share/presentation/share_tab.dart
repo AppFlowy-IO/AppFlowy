@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share/data/models/share_access_level.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/general_access_section.dart';
@@ -34,7 +35,16 @@ class ShareTab extends StatelessWidget {
           children: [
             // share page with user by email
             VSpace(theme.spacing.l),
-            ShareWithUserWidget(),
+            ShareWithUserWidget(
+              onInvite: (emails) {
+                context.read<ShareWithUserBloc>().add(
+                      ShareWithUserEvent.share(
+                        emails: emails,
+                        accessLevel: ShareAccessLevel.readOnly,
+                      ),
+                    );
+              },
+            ),
 
             // shared users
             VSpace(theme.spacing.l),

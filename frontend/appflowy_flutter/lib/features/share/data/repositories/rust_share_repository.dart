@@ -61,19 +61,21 @@ class RustShareRepository extends ShareRepository {
   @override
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareAccessLevel role,
+    required ShareAccessLevel accessLevel,
     required List<String> emails,
   }) async {
     final request = SharePageWithUserPayloadPB(
       viewId: pageId,
       emails: emails,
-      accessLevel: role.accessLevel,
+      accessLevel: accessLevel.accessLevel,
     );
     final result = await FolderEventSharePageWithUser(request).send();
 
     return result.fold(
       (success) {
-        Log.info('share page($pageId) with users($emails) with role($role)');
+        Log.info(
+          'share page($pageId) with users($emails) with access level($accessLevel)',
+        );
 
         return FlowySuccess(success);
       },

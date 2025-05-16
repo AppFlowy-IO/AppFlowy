@@ -1,28 +1,34 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 class ShareWithUserWidget extends StatefulWidget {
-  const ShareWithUserWidget({super.key});
+  const ShareWithUserWidget({
+    super.key,
+    required this.onInvite,
+  });
+
+  final void Function(List<String> emails) onInvite;
 
   @override
   State<ShareWithUserWidget> createState() => _ShareWithUserWidgetState();
 }
 
 class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
-  final TextEditingController _controller = TextEditingController();
-  bool _isButtonEnabled = false;
+  final TextEditingController controller = TextEditingController();
+  bool isButtonEnabled = false;
 
   @override
   void initState() {
     super.initState();
 
-    _controller.addListener(_onTextChanged);
+    controller.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
 
     super.dispose();
   }
@@ -35,27 +41,27 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
       children: [
         Expanded(
           child: AFTextField(
-            controller: _controller,
+            controller: controller,
             size: AFTextFieldSize.m,
             hintText: 'Invite by email',
           ),
         ),
         HSpace(theme.spacing.s),
-        _isButtonEnabled
-            ? AFFilledTextButton.primary(
-                text: 'Invite',
-                onTap: () {},
-              )
-            : AFFilledTextButton.disabled(
-                text: 'Invite',
-              ),
+        AFFilledTextButton.primary(
+          text: 'Invite',
+          disabled: !isButtonEnabled,
+          onTap: () {
+            widget.onInvite(controller.text.trim().split(','));
+          },
+        ),
       ],
     );
   }
 
   void _onTextChanged() {
     setState(() {
-      _isButtonEnabled = _controller.text.trim().isNotEmpty;
+      final texts = controller.text.trim().split(',');
+      isButtonEnabled = texts.isNotEmpty && texts.every(isEmail);
     });
   }
 }
