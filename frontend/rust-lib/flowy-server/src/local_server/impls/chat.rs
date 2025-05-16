@@ -78,6 +78,7 @@ impl ChatCloudService for LocalChatServiceImpl {
     chat_id: &Uuid,
     message: &str,
     message_type: ChatMessageType,
+    _prompt_id: Option<String>,
   ) -> Result<ChatMessage, FlowyError> {
     let message_id = ID_GEN.lock().await.next_id();
     let message = match message_type {

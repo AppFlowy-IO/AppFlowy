@@ -137,6 +137,7 @@ impl CompletionTask {
                 .context
                 .custom_prompt
                 .map(|v| CustomPrompt { system: v }),
+              prompt_id: self.context.prompt_id.clone(),
             }),
             format,
           };
