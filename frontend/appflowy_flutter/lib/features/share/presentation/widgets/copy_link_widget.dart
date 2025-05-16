@@ -1,5 +1,6 @@
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,10 @@ class CopyLinkWidget extends StatelessWidget {
                 context.read<ShareWithUserBloc>().add(
                       ShareWithUserEvent.copyLink(link: state.shareLink),
                     );
+
+                showToastNotification(
+                  message: 'Copied link to clipboard',
+                );
               },
             ),
           ],

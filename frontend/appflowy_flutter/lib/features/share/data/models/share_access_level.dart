@@ -10,5 +10,18 @@ enum ShareAccessLevel {
   readAndWrite,
 
   /// Full access (edit, share, remove, etc.) and can add new users.
-  fullAccess,
+  fullAccess;
+
+  String get i18n {
+    switch (this) {
+      case ShareAccessLevel.readOnly:
+        return 'View';
+      case ShareAccessLevel.readAndComment:
+        return 'Comment';
+      case ShareAccessLevel.readAndWrite:
+        return 'Edit';
+      case ShareAccessLevel.fullAccess:
+        return 'Full access';
+    }
+  }
 }

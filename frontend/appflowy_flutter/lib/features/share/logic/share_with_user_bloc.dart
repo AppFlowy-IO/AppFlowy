@@ -47,14 +47,22 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       viewId: pageId,
     );
 
+    final shareResult = await repository.getUsersInSharedPage(
+      pageId: pageId,
+    );
+
+    final users = shareResult.fold(
+      (users) => users,
+      (error) => <SharedUser>[],
+    );
+
     emit(
       state.copyWith(
         currentUser: currentUser,
         shareLink: shareLink,
+        users: users,
       ),
     );
-
-    add(const ShareWithUserEvent.getSharedUsers());
   }
 
   Future<void> _onGetSharedUsers(

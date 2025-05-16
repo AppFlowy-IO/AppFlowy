@@ -1,3 +1,5 @@
+import 'package:appflowy/features/share/data/repositories/mock_share_repository.dart';
+import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
@@ -45,17 +47,36 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
     final shareBloc = context.read<ShareBloc>();
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
+    final pageId = shareBloc.state.viewId;
+    final workspaceId = userWorkspaceBloc.state.currentWorkspace?.workspaceId;
+    // final animationDuration = const Duration(milliseconds: 120);
+
     return BlocBuilder<ShareBloc, ShareState>(
       builder: (context, state) {
         return AFPopover(
           controller: popoverController,
           anchor: AFAnchorAuto(
-            offset: const Offset(-200, 12),
+            offset: const Offset(-176, 12),
           ),
+          // effects: [
+          //   FadeEffect(duration: animationDuration),
+          //   ScaleEffect(
+          //     duration: animationDuration,
+          //     begin: Offset(0.95, 0.95),
+          //     end: Offset(1, 1),
+          //     alignment: Alignment.topRight,
+          //   ),
+          //   MoveEffect(
+          //     duration: animationDuration,
+          //     begin: Offset(20, -20),
+          //     end: Offset(0, 0),
+          //     curve: Curves.easeOutQuad,
+          //   ),
+          // ],
           popover: (_) {
             return ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 500,
+                maxWidth: 414,
               ),
               child: MultiBlocProvider(
                 providers: [
@@ -65,6 +86,13 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                     ),
                   BlocProvider.value(value: shareBloc),
                   BlocProvider.value(value: userWorkspaceBloc),
+                  BlocProvider(
+                    create: (context) => ShareWithUserBloc(
+                      repository: MockShareRepository(),
+                      pageId: pageId,
+                      workspaceId: workspaceId ?? '',
+                    )..add(const ShareWithUserEvent.init()),
+                  ),
                 ],
                 child: ShareMenu(
                   tabs: widget.tabs,

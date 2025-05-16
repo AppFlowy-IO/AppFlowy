@@ -14,6 +14,9 @@ class AFTextMenuItem extends StatelessWidget {
     this.subtitle,
     this.selected = false,
     this.trailing,
+    this.titleColor,
+    this.subtitleColor,
+    this.showSelectedBackground = true,
   });
 
   /// Widget to display before the title (e.g., an icon or avatar).
@@ -22,11 +25,20 @@ class AFTextMenuItem extends StatelessWidget {
   /// The main text of the menu item.
   final String title;
 
+  /// The color of the title.
+  final Color? titleColor;
+
   /// Optional secondary text displayed below the title.
   final String? subtitle;
 
+  /// The color of the subtitle.
+  final Color? subtitleColor;
+
   /// Whether the menu item is selected.
   final bool selected;
+
+  /// Whether to show the selected background color.
+  final bool showSelectedBackground;
 
   /// Called when the menu item is tapped.
   final VoidCallback onTap;
@@ -41,20 +53,21 @@ class AFTextMenuItem extends StatelessWidget {
       title: Text(
         title,
         style: theme.textStyle.body.standard(
-          color: theme.textColorScheme.primary,
+          color: titleColor ?? theme.textColorScheme.primary,
         ),
       ),
       subtitle: subtitle != null
           ? Text(
               subtitle!,
               style: theme.textStyle.caption.standard(
-                color: theme.textColorScheme.secondary,
+                color: subtitleColor ?? theme.textColorScheme.secondary,
               ),
             )
           : null,
       leading: leading,
       trailing: trailing,
       selected: selected,
+      showSelectedBackground: showSelectedBackground,
       onTap: onTap,
     );
   }

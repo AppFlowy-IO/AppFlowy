@@ -87,26 +87,17 @@ class SharedUserWidget extends StatelessWidget {
   Widget _buildTrailing(
     BuildContext context,
   ) {
+    final theme = AppFlowyTheme.of(context);
     return isCurrentUser
         ? AFGhostTextButton.disabled(
-            text: _roleLabel(),
+            text: user.accessLevel.i18n,
+            textStyle: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
           )
         : EditAccessLevelWidget(
-            title: _roleLabel(),
+            selectedAccessLevel: user.accessLevel,
             onTap: () {},
           );
-  }
-
-  String _roleLabel() {
-    switch (user.accessLevel) {
-      case ShareAccessLevel.readOnly:
-        return 'Read only';
-      case ShareAccessLevel.readAndComment:
-        return 'Read and comment';
-      case ShareAccessLevel.readAndWrite:
-        return 'Read and write';
-      case ShareAccessLevel.fullAccess:
-        return 'Full access';
-    }
   }
 }

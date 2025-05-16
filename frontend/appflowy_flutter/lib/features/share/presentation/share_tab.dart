@@ -1,4 +1,3 @@
-import 'package:appflowy/features/share/data/repositories/mock_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/general_access_section.dart';
@@ -23,49 +22,42 @@ class ShareTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocProvider(
-      create: (context) => ShareWithUserBloc(
-        repository: MockShareRepository(),
-        pageId: pageId,
-        workspaceId: workspaceId,
-      )..add(const ShareWithUserEvent.init()),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // share page with user by email
-          VSpace(theme.spacing.l),
-          ShareWithUserWidget(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // share page with user by email
+        VSpace(theme.spacing.l),
+        ShareWithUserWidget(),
 
-          // shared users
-          VSpace(theme.spacing.l),
-          BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
-            builder: (context, state) {
-              if (state.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state.errorMessage.isNotEmpty) {
-                return Center(child: Text(state.errorMessage));
-              }
-              return PeopleWithAccessSection(
-                currentUserEmail: state.currentUser?.email ?? '',
-                users: state.users,
-              );
-            },
-          ),
+        // shared users
+        VSpace(theme.spacing.l),
+        BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state.errorMessage.isNotEmpty) {
+              return Center(child: Text(state.errorMessage));
+            }
+            return PeopleWithAccessSection(
+              currentUserEmail: state.currentUser?.email ?? '',
+              users: state.users,
+            );
+          },
+        ),
 
-          // general access
-          VSpace(theme.spacing.m),
-          GeneralAccessSection(),
+        // general access
+        VSpace(theme.spacing.m),
+        GeneralAccessSection(),
 
-          // copy link
-          VSpace(theme.spacing.l),
-          const AFDivider(),
-          VSpace(theme.spacing.xl),
-          CopyLinkWidget(),
-          VSpace(theme.spacing.m),
-        ],
-      ),
+        // copy link
+        VSpace(theme.spacing.l),
+        const AFDivider(),
+        VSpace(theme.spacing.xl),
+        CopyLinkWidget(),
+        VSpace(theme.spacing.m),
+      ],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share/data/models/share_access_level.dart';
 import 'package:appflowy/features/share/presentation/widgets/edit_access_level_widget.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -65,7 +66,8 @@ class SharedGroupWidget extends StatelessWidget {
 
   Widget _buildTrailing(BuildContext context) {
     return EditAccessLevelWidget(
-      title: 'Edit',
+      disabled: true,
+      selectedAccessLevel: ShareAccessLevel.fullAccess,
       onTap: () {},
     );
   }
