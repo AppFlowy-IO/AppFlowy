@@ -418,6 +418,8 @@ class ViewSelectorTreeItemInner extends StatelessWidget {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
         ),
         builder: (context, onHover) {
+          final theme = AppFlowyTheme.of(context);
+
           final isSaveButtonVisible =
               showSaveButton && !viewSelectorItem.view.isSpace;
           final isAddButtonVisible = onAdd != null;
@@ -445,11 +447,12 @@ class ViewSelectorTreeItemInner extends StatelessWidget {
               const HSpace(6.0),
               // title
               Expanded(
-                child: FlowyText(
+                child: Text(
                   viewSelectorItem.view.nameOrDefault,
                   overflow: TextOverflow.ellipsis,
-                  fontSize: 14.0,
-                  figmaLineHeight: 18.0,
+                  style: theme.textStyle.body.standard(
+                    color: theme.textColorScheme.primary,
+                  ),
                 ),
               ),
               if (onHover && (isSaveButtonVisible || isAddButtonVisible)) ...[

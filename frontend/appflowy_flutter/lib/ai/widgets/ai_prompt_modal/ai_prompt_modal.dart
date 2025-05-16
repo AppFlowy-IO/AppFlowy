@@ -102,7 +102,7 @@ class AiPromptModal extends StatelessWidget {
                               child: AiPromptCategoryList(),
                             ),
                             if (readyState.isCustomPromptSectionSelected &&
-                                readyState.customPromptDatabaseViewId == null)
+                                readyState.databaseConfig == null)
                               const Expanded(
                                 flex: 5,
                                 child: Center(

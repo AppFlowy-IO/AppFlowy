@@ -70,7 +70,7 @@ class AiPromptPreview extends StatelessWidget {
                 if (prompt.example.isNotEmpty) ...[
                   SelectionContainer.disabled(
                     child: Text(
-                      LocaleKeys.ai_customPrompt_example.tr(),
+                      LocaleKeys.ai_customPrompt_promptExample.tr(),
                       style: theme.textStyle.heading4.standard(
                         color: theme.textColorScheme.primary,
                       ),
@@ -106,7 +106,7 @@ class _PromptContent extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.primary,
+        color: theme.fillColorScheme.contentVisible,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: Text.rich(
@@ -176,7 +176,7 @@ class _PromptExample extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.primary,
+        color: theme.fillColorScheme.contentVisible,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: AIMarkdownText(

@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -234,4 +235,102 @@ class AiPrompt extends Equatable {
   @override
   List<Object?> get props =>
       [id, name, content, category, example, isFeatured, isCustom];
+}
+
+class CustomPromptDatabaseConfig extends Equatable {
+  const CustomPromptDatabaseConfig({
+    required this.view,
+    required this.titleFieldId,
+    required this.contentFieldId,
+    required this.exampleFieldId,
+    required this.categoryFieldId,
+  });
+
+  factory CustomPromptDatabaseConfig.fromAiPB(
+    CustomPromptDatabaseConfigurationPB pb,
+    ViewPB view,
+  ) {
+    final config = CustomPromptDatabaseConfig(
+      view: view,
+      titleFieldId: pb.titleFieldId,
+      contentFieldId: pb.contentFieldId,
+      exampleFieldId: pb.hasExampleFieldId() ? pb.exampleFieldId : null,
+      categoryFieldId: pb.hasCategoryFieldId() ? pb.categoryFieldId : null,
+    );
+
+    return config;
+  }
+
+  factory CustomPromptDatabaseConfig.fromDbPB(
+    CustomPromptDatabaseConfigPB pb,
+    ViewPB view,
+  ) {
+    final config = CustomPromptDatabaseConfig(
+      view: view,
+      titleFieldId: pb.titleFieldId,
+      contentFieldId: pb.contentFieldId,
+      exampleFieldId: pb.hasExampleFieldId() ? pb.exampleFieldId : null,
+      categoryFieldId: pb.hasCategoryFieldId() ? pb.categoryFieldId : null,
+    );
+
+    return config;
+  }
+
+  final ViewPB view;
+  final String titleFieldId;
+  final String contentFieldId;
+  final String? exampleFieldId;
+  final String? categoryFieldId;
+
+  @override
+  List<Object?> get props =>
+      [view.id, titleFieldId, contentFieldId, exampleFieldId, categoryFieldId];
+
+  CustomPromptDatabaseConfig copyWith({
+    ViewPB? view,
+    String? titleFieldId,
+    String? contentFieldId,
+    String? exampleFieldId,
+    String? categoryFieldId,
+  }) {
+    return CustomPromptDatabaseConfig(
+      view: view ?? this.view,
+      titleFieldId: titleFieldId ?? this.titleFieldId,
+      contentFieldId: contentFieldId ?? this.contentFieldId,
+      exampleFieldId: exampleFieldId ?? this.exampleFieldId,
+      categoryFieldId: categoryFieldId ?? this.categoryFieldId,
+    );
+  }
+
+  CustomPromptDatabaseConfigurationPB toAiPB() {
+    final payload = CustomPromptDatabaseConfigurationPB.create()
+      ..viewId = view.id
+      ..titleFieldId = titleFieldId
+      ..contentFieldId = contentFieldId;
+
+    if (exampleFieldId != null) {
+      payload.exampleFieldId = exampleFieldId!;
+    }
+    if (categoryFieldId != null) {
+      payload.categoryFieldId = categoryFieldId!;
+    }
+
+    return payload;
+  }
+
+  CustomPromptDatabaseConfigPB toDbPB() {
+    final payload = CustomPromptDatabaseConfigPB.create()
+      ..viewId = view.id
+      ..titleFieldId = titleFieldId
+      ..contentFieldId = contentFieldId;
+
+    if (exampleFieldId != null) {
+      payload.exampleFieldId = exampleFieldId!;
+    }
+    if (categoryFieldId != null) {
+      payload.categoryFieldId = categoryFieldId!;
+    }
+
+    return payload;
+  }
 }
