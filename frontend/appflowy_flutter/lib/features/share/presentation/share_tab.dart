@@ -22,10 +22,9 @@ class ShareTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocSelector<ShareWithUserBloc, ShareWithUserState, bool>(
-      selector: (state) => state.isLoading,
-      builder: (context, isLoading) {
-        if (isLoading) {
+    return BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
+      builder: (context, state) {
+        if (state.isLoading) {
           return const SizedBox.shrink();
         }
 
@@ -39,20 +38,12 @@ class ShareTab extends StatelessWidget {
 
             // shared users
             VSpace(theme.spacing.l),
-            BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state.errorMessage.isNotEmpty) {
-                  return Center(child: Text(state.errorMessage));
-                }
-                return PeopleWithAccessSection(
-                  currentUserEmail: state.currentUser?.email ?? '',
-                  users: state.users,
-                );
-              },
-            ),
+            state.errorMessage.isNotEmpty
+                ? Center(child: Text(state.errorMessage))
+                : PeopleWithAccessSection(
+                    currentUserEmail: state.currentUser?.email ?? '',
+                    users: state.users,
+                  ),
 
             // general access
             VSpace(theme.spacing.m),
@@ -62,7 +53,7 @@ class ShareTab extends StatelessWidget {
             VSpace(theme.spacing.l),
             const AFDivider(),
             VSpace(theme.spacing.xl),
-            CopyLinkWidget(),
+            CopyLinkWidget(shareLink: state.shareLink),
             VSpace(theme.spacing.m),
           ],
         );

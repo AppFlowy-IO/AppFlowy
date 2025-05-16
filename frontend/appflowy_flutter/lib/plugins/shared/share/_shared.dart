@@ -47,8 +47,6 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
     final shareWithUserBloc = context.read<ShareWithUserBloc>();
-    final pageId = shareBloc.state.viewId;
-    final workspaceId = userWorkspaceBloc.state.currentWorkspace?.workspaceId;
     // final animationDuration = const Duration(milliseconds: 120);
 
     return BlocBuilder<ShareBloc, ShareState>(
