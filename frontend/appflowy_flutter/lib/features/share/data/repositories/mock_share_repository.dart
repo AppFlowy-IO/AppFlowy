@@ -1,5 +1,4 @@
-import 'package:appflowy/features/share/data/models/share_role.dart';
-import 'package:appflowy/features/share/data/models/shared_user.dart';
+import 'package:appflowy/features/share/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
@@ -12,19 +11,22 @@ class MockShareRepository extends ShareRepository {
     SharedUser(
       email: 'lucas.xu@appflowy.io',
       name: 'Lucas Xu',
-      role: ShareRole.readOnly,
+      accessLevel: ShareAccessLevel.readOnly,
+      role: ShareRole.guest,
       avatarUrl: 'https://avatar.iran.liara.run/public',
     ),
     SharedUser(
       email: 'vivian@appflowy.io',
       name: 'Vivian Wang',
-      role: ShareRole.readAndWrite,
-      avatarUrl: 'https://avatar.iran.liara.run/public/boy',
+      accessLevel: ShareAccessLevel.readAndWrite,
+      role: ShareRole.member,
+      avatarUrl: 'https://avatar.iran.liara.run/public/girl',
     ),
     SharedUser(
       email: 'shuheng@appflowy.io',
       name: 'Shuheng',
-      role: ShareRole.fullAccess,
+      accessLevel: ShareAccessLevel.fullAccess,
+      role: ShareRole.owner,
       avatarUrl: 'https://avatar.iran.liara.run/public/boy',
     ),
   ];
@@ -51,7 +53,7 @@ class MockShareRepository extends ShareRepository {
   @override
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareRole role,
+    required ShareAccessLevel role,
     required List<String> emails,
   }) async {
     for (final email in emails) {
@@ -59,7 +61,8 @@ class MockShareRepository extends ShareRepository {
         SharedUser(
           email: email,
           name: email,
-          role: role,
+          accessLevel: role,
+          role: ShareRole.guest,
           avatarUrl:
               'https://avatar.iran.liara.run/public/${email.hashCode % 2 == 0 ? 'boy' : 'girl'}',
         ),

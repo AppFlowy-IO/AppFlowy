@@ -9,7 +9,7 @@ class AFMenuItem extends StatelessWidget {
   const AFMenuItem({
     super.key,
     required this.title,
-    required this.onTap,
+    this.onTap,
     this.leading,
     this.subtitle,
     this.selected = false,
@@ -29,7 +29,7 @@ class AFMenuItem extends StatelessWidget {
   final bool selected;
 
   /// Called when the menu item is tapped.
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   /// Widget to display after the title (e.g., a trailing icon).
   final Widget? trailing;
@@ -56,7 +56,7 @@ class AFMenuItem extends StatelessWidget {
         if (selected) {
           return theme.fillColorScheme.themeSelect;
         }
-        if (isHovering) {
+        if (isHovering && onTap != null) {
           return theme.fillColorScheme.contentHover;
         }
         return theme.fillColorScheme.content;

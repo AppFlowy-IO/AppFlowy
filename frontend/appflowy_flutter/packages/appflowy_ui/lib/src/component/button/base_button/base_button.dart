@@ -82,9 +82,11 @@ class _AFBaseButtonState extends State<AFBaseButton> {
           setState(() => this.isFocused = isFocused);
         },
         child: MouseRegion(
-          cursor: widget.disabled
+          cursor: widget.onTap == null
               ? SystemMouseCursors.basic
-              : SystemMouseCursors.click,
+              : widget.disabled
+                  ? SystemMouseCursors.basic
+                  : SystemMouseCursors.click,
           onEnter: (_) => setState(() => isHovering = true),
           onExit: (_) => setState(() => isHovering = false),
           child: GestureDetector(

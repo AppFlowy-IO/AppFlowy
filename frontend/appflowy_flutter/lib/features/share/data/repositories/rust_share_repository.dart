@@ -1,5 +1,4 @@
-import 'package:appflowy/features/share/data/models/share_role.dart';
-import 'package:appflowy/features/share/data/models/shared_user.dart';
+import 'package:appflowy/features/share/data/models/models.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -62,7 +61,7 @@ class RustShareRepository extends ShareRepository {
   @override
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareRole role,
+    required ShareAccessLevel role,
     required List<String> emails,
   }) async {
     final request = SharePageWithUserPayloadPB(
@@ -98,23 +97,54 @@ extension on SharedUserPB {
     return SharedUser(
       email: email,
       name: name,
-      role: accessLevel.shareRole,
+      accessLevel: accessLevel.shareRole,
+      role: role.shareRole,
       avatarUrl: avatarUrl,
     );
   }
 }
 
 extension on AFAccessLevelPB {
-  ShareRole get shareRole {
+  ShareAccessLevel get shareRole {
     switch (this) {
       case AFAccessLevelPB.ReadOnly:
-        return ShareRole.readOnly;
+        return ShareAccessLevel.readOnly;
       case AFAccessLevelPB.ReadAndComment:
-        return ShareRole.readAndComment;
+        return ShareAccessLevel.readAndComment;
       case AFAccessLevelPB.ReadAndWrite:
-        return ShareRole.readAndWrite;
+        return ShareAccessLevel.readAndWrite;
       case AFAccessLevelPB.FullAccess:
-        return ShareRole.fullAccess;
+        return ShareAccessLevel.fullAccess;
+      default:
+        throw Exception('Unknown share role: $this');
+    }
+  }
+}
+
+extension on ShareAccessLevel {
+  AFAccessLevelPB get accessLevel {
+    switch (this) {
+      case ShareAccessLevel.readOnly:
+        return AFAccessLevelPB.ReadOnly;
+      case ShareAccessLevel.readAndComment:
+        return AFAccessLevelPB.ReadAndComment;
+      case ShareAccessLevel.readAndWrite:
+        return AFAccessLevelPB.ReadAndWrite;
+      case ShareAccessLevel.fullAccess:
+        return AFAccessLevelPB.FullAccess;
+    }
+  }
+}
+
+extension on AFRolePB {
+  ShareRole get shareRole {
+    switch (this) {
+      case AFRolePB.Guest:
+        return ShareRole.guest;
+      case AFRolePB.Member:
+        return ShareRole.member;
+      case AFRolePB.Owner:
+        return ShareRole.owner;
       default:
         throw Exception('Unknown share role: $this');
     }
@@ -122,16 +152,14 @@ extension on AFAccessLevelPB {
 }
 
 extension on ShareRole {
-  AFAccessLevelPB get accessLevel {
+  AFRolePB get role {
     switch (this) {
-      case ShareRole.readOnly:
-        return AFAccessLevelPB.ReadOnly;
-      case ShareRole.readAndComment:
-        return AFAccessLevelPB.ReadAndComment;
-      case ShareRole.readAndWrite:
-        return AFAccessLevelPB.ReadAndWrite;
-      case ShareRole.fullAccess:
-        return AFAccessLevelPB.FullAccess;
+      case ShareRole.guest:
+        return AFRolePB.Guest;
+      case ShareRole.member:
+        return AFRolePB.Member;
+      case ShareRole.owner:
+        return AFRolePB.Owner;
     }
   }
 }

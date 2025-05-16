@@ -1,7 +1,7 @@
-use client_api::entity::AFAccessLevel;
 use client_api::entity::guest_dto::{
   RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser, SharedViewDetails,
 };
+use client_api::entity::{AFAccessLevel, AFRole};
 use collab_folder::{View, ViewIcon, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -714,14 +714,33 @@ impl From<AFAccessLevel> for AFAccessLevelPB {
   }
 }
 
-// #[event(input = "ShareViewWithGuestRequest")]
-// SharePageWithUser = 56,
+#[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
+pub enum AFRolePB {
+  Owner = 0,
+  Member = 1,
+  #[default]
+  Guest = 2,
+}
 
-// #[event(input = "RevokeSharedViewAccessRequest")]
-// RemoveUserFromSharedPage = 57,
+impl From<AFRole> for AFRolePB {
+  fn from(value: AFRole) -> Self {
+    match value {
+      AFRole::Owner => AFRolePB::Owner,
+      AFRole::Member => AFRolePB::Member,
+      AFRole::Guest => AFRolePB::Guest,
+    }
+  }
+}
 
-// #[event(input = "ViewIdPB")]
-// GetSharedUsers = 58,
+impl From<AFRolePB> for AFRole {
+  fn from(value: AFRolePB) -> Self {
+    match value {
+      AFRolePB::Owner => AFRole::Owner,
+      AFRolePB::Member => AFRole::Member,
+      AFRolePB::Guest => AFRole::Guest,
+    }
+  }
+}
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct SharePageWithUserPayloadPB {
@@ -773,9 +792,12 @@ pub struct SharedUserPB {
   pub name: String,
 
   #[pb(index = 3)]
+  pub role: AFRolePB,
+
+  #[pb(index = 4)]
   pub access_level: AFAccessLevelPB,
 
-  #[pb(index = 4, one_of)]
+  #[pb(index = 5, one_of)]
   pub avatar_url: Option<String>,
 }
 
@@ -784,6 +806,7 @@ impl From<SharedUser> for SharedUserPB {
     SharedUserPB {
       email: user.email,
       name: user.name,
+      role: user.role.into(),
       access_level: user.access_level.into(),
       avatar_url: user.avatar_url,
     }

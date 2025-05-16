@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share/data/models/share_role.dart';
+import 'package:appflowy/features/share/data/models/share_access_level.dart';
 import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy/features/share/data/repositories/share_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -243,7 +243,7 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
   /// Invites the users to the page.
   const factory ShareWithUserEvent.share({
     required List<String> emails,
-    required ShareRole role,
+    required ShareAccessLevel role,
   }) = ShareWithUser;
 
   /// Removes the users from the page.
@@ -254,12 +254,12 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
   /// Updates the role of the user.
   const factory ShareWithUserEvent.updateRole({
     required String email,
-    required ShareRole role,
+    required ShareAccessLevel role,
   }) = UpdateUserRole;
 
   /// Updates the general access role for all users.
   const factory ShareWithUserEvent.updateGeneralAccess({
-    required ShareRole role,
+    required ShareAccessLevel role,
   }) = UpdateGeneralAccess;
 
   /// Copies the link to the clipboard.
@@ -276,7 +276,7 @@ class ShareWithUserState with _$ShareWithUserState {
     @Default(false) bool isLoading,
     @Default('') String errorMessage,
     @Default('') String shareLink,
-    ShareRole? generalAccessRole,
+    ShareAccessLevel? generalAccessRole,
     @Default(false) bool linkCopied,
     @Default(null) FlowyResult<void, FlowyError>? initialResult,
     @Default(null) FlowyResult<void, FlowyError>? shareResult,

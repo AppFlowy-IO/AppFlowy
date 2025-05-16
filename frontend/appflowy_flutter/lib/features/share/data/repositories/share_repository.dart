@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share/data/models/share_role.dart';
+import 'package:appflowy/features/share/data/models/share_access_level.dart';
 import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -24,7 +24,7 @@ abstract class ShareRepository {
   /// If the user is already in the shared page, the role will be updated.
   Future<FlowyResult<void, FlowyError>> sharePageWithUser({
     required String pageId,
-    required ShareRole role,
+    required ShareAccessLevel role,
     required List<String> emails,
   });
 }
