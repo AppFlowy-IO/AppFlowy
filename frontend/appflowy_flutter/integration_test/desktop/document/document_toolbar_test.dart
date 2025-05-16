@@ -408,7 +408,8 @@ void main() {
       expect(getNodeText(node), link);
     });
 
-    testWidgets('insert link and clear link name and remove link', (tester) async {
+    testWidgets('insert link and clear link name and remove link',
+        (tester) async {
       const text = 'edit link', link = 'https://test.appflowy.cloud';
       await prepareForToolbar(tester, text);
 

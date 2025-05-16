@@ -207,12 +207,21 @@ class _MobileChatInputState extends State<MobileChatInput> {
     if (!UniversalPlatform.isMobile) return;
     final paletteBloc = context.read<CommandPaletteBloc?>(),
         paletteState = paletteBloc?.state;
-    final isAskingAI = paletteState?.askAI ?? false;
+    if (paletteBloc == null || paletteState == null) return;
+    final isAskingAI = paletteState.askAI;
     if (!isAskingAI) return;
-    final query = paletteState?.query ?? '';
+    paletteBloc.add(CommandPaletteEvent.askedAI());
+    final query = paletteState.query ?? '';
     if (query.isEmpty) return;
-    onSubmitText(query);
-    paletteBloc?.add(CommandPaletteEvent.askedAI());
+    final sources = (paletteState.askAISources ?? []).map((e) => e.id).toList();
+    final metadata =
+        context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
+    final promptState = context.read<AIPromptInputBloc?>()?.state;
+    final predefinedFormat = promptState?.predefinedFormat;
+    if (sources.isNotEmpty) {
+      widget.onUpdateSelectedSources(sources);
+    }
+    widget.onSubmitted.call(query, predefinedFormat, metadata);
   }
 
   void handleTextControllerChanged() {
