@@ -15,6 +15,9 @@ use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderSnapshot, FullSyncCollabParams,
 };
 use flowy_folder_pub::entities::PublishPayload;
+use flowy_server_pub::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+};
 use lib_infra::async_trait::async_trait;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -164,6 +167,31 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
   }
 
   async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn share_page_with_user(
+    &self,
+    workspace_id: &Uuid,
+    params: ShareViewWithGuestRequest,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn revoke_shared_page_access(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+    params: RevokeSharedViewAccessRequest,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_shared_page_details(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+  ) -> Result<SharedViewDetails, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 }

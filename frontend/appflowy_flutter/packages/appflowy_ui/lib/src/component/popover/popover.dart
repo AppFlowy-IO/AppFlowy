@@ -1,4 +1,3 @@
-export 'anchor.dart';
 import 'dart:ui';
 
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -7,6 +6,8 @@ import 'package:appflowy_ui/src/component/popover/shadcn/_portal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+export 'anchor.dart';
 
 /// Notes: The implementation of this page is copied from [flutter_shadcn_ui](https://github.com/nank1ro/flutter-shadcn-ui).
 ///
@@ -196,19 +197,26 @@ class _AFPopoverState extends State<AFPopover> {
     final theme = AppFlowyTheme.of(context);
 
     final effectiveEffects = widget.effects ?? [];
-    final effectivePadding = widget.padding ?? EdgeInsets.zero;
+    final effectivePadding = widget.padding ??
+        EdgeInsets.symmetric(
+          horizontal: theme.spacing.m,
+          vertical: theme.spacing.l,
+        );
 
     final effectiveAnchor = widget.anchor ?? const ShadAnchorAuto();
+    final effectiveDecoration = widget.decoration ??
+        BoxDecoration(
+          color: theme.surfaceColorScheme.layer01,
+          borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+          boxShadow: theme.shadow.medium,
+        );
 
     final effectiveFilter = widget.filter;
 
     Widget popover = ShadMouseArea(
       groupId: widget.areaGroupId,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.surfaceColorScheme.primary,
-          borderRadius: BorderRadius.circular(theme.borderRadius.m),
-        ),
+        decoration: effectiveDecoration,
         child: Padding(
           padding: effectivePadding,
           child: DefaultTextStyle(

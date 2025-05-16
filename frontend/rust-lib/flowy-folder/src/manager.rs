@@ -18,6 +18,9 @@ use crate::view_operation::{
 };
 use arc_swap::ArcSwapOption;
 use client_api::entity::PublishInfo;
+use client_api::entity::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+};
 use client_api::entity::workspace_dto::PublishInfoView;
 use collab::core::collab::{DataSource, IndexContentReceiver};
 use collab::lock::RwLock;
@@ -1348,6 +1351,46 @@ impl FolderManager {
     }
     self.send_update_recent_views_notification().await;
     Ok(())
+  }
+
+  /// Share the page with a user (member or guest).
+  pub async fn share_page_with_user(
+    &self,
+    params: ShareViewWithGuestRequest,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service()?
+      .share_page_with_user(&workspace_id, params)
+      .await?;
+    Ok(())
+  }
+
+  /// Revoke the shared page access of a user (member or guest).
+  pub async fn revoke_shared_page_access(
+    &self,
+    page_id: &Uuid,
+    params: RevokeSharedViewAccessRequest,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service()?
+      .revoke_shared_page_access(&workspace_id, page_id, params)
+      .await?;
+    Ok(())
+  }
+
+  /// Get the shared page details.
+  pub async fn get_shared_page_details(
+    &self,
+    page_id: &Uuid,
+  ) -> Result<SharedViewDetails, FlowyError> {
+    let workspace_id = self.user.workspace_id()?;
+    let result = self
+      .cloud_service()?
+      .get_shared_page_details(&workspace_id, page_id)
+      .await?;
+    Ok(result)
   }
 
   /// Publishes a view identified by the given `view_id`.

@@ -31,6 +31,9 @@ use flowy_folder_pub::cloud::{
 use flowy_folder_pub::entities::PublishPayload;
 use flowy_search_pub::cloud::SearchCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
@@ -402,6 +405,43 @@ impl FolderCloudService for ServerProvider {
       .get_server()?
       .folder_service()
       .import_zip(file_path)
+      .await
+  }
+
+  async fn share_page_with_user(
+    &self,
+    workspace_id: &Uuid,
+    params: ShareViewWithGuestRequest,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .share_page_with_user(workspace_id, params)
+      .await
+  }
+
+  async fn revoke_shared_page_access(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+    params: RevokeSharedViewAccessRequest,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .revoke_shared_page_access(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn get_shared_page_details(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+  ) -> Result<SharedViewDetails, FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .get_shared_page_details(workspace_id, view_id)
       .await
   }
 }

@@ -517,7 +517,7 @@ class TextThemeCaption extends TextThemeType {
   static TextStyle _defaultTextStyle({
     required String family,
     double fontSize = 12,
-    double height = 16 / 12,
+    double height = 18 / 12,
     FontWeight weight = FontWeight.normal,
     TextDecoration decoration = TextDecoration.none,
     Color? color,

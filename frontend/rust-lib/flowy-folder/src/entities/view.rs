@@ -1,3 +1,7 @@
+use client_api::entity::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser, SharedViewDetails,
+};
+use client_api::entity::{AFAccessLevel, AFRole};
 use collab_folder::{View, ViewIcon, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -677,6 +681,160 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
       sync_after_create: self.sync_after_create,
     })
   }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum AFAccessLevelPB {
+  #[default]
+  ReadOnly = 0,
+  ReadAndComment = 1,
+  ReadAndWrite = 2,
+  FullAccess = 3,
+}
+
+impl From<AFAccessLevelPB> for AFAccessLevel {
+  fn from(pb: AFAccessLevelPB) -> Self {
+    match pb {
+      AFAccessLevelPB::ReadOnly => AFAccessLevel::ReadOnly,
+      AFAccessLevelPB::ReadAndComment => AFAccessLevel::ReadAndComment,
+      AFAccessLevelPB::ReadAndWrite => AFAccessLevel::ReadAndWrite,
+      AFAccessLevelPB::FullAccess => AFAccessLevel::FullAccess,
+    }
+  }
+}
+
+impl From<AFAccessLevel> for AFAccessLevelPB {
+  fn from(level: AFAccessLevel) -> Self {
+    match level {
+      AFAccessLevel::ReadOnly => AFAccessLevelPB::ReadOnly,
+      AFAccessLevel::ReadAndComment => AFAccessLevelPB::ReadAndComment,
+      AFAccessLevel::ReadAndWrite => AFAccessLevelPB::ReadAndWrite,
+      AFAccessLevel::FullAccess => AFAccessLevelPB::FullAccess,
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
+pub enum AFRolePB {
+  Owner = 0,
+  Member = 1,
+  #[default]
+  Guest = 2,
+}
+
+impl From<AFRole> for AFRolePB {
+  fn from(value: AFRole) -> Self {
+    match value {
+      AFRole::Owner => AFRolePB::Owner,
+      AFRole::Member => AFRolePB::Member,
+      AFRole::Guest => AFRolePB::Guest,
+    }
+  }
+}
+
+impl From<AFRolePB> for AFRole {
+  fn from(value: AFRolePB) -> Self {
+    match value {
+      AFRolePB::Owner => AFRole::Owner,
+      AFRolePB::Member => AFRole::Member,
+      AFRolePB::Guest => AFRole::Guest,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharePageWithUserPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub emails: Vec<String>,
+
+  #[pb(index = 3)]
+  pub access_level: AFAccessLevelPB,
+}
+
+impl TryInto<ShareViewWithGuestRequest> for SharePageWithUserPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ShareViewWithGuestRequest, Self::Error> {
+    let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
+    Ok(ShareViewWithGuestRequest {
+      view_id,
+      emails: self.emails,
+      access_level: self.access_level.into(),
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RemoveUserFromSharedPagePayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub emails: Vec<String>,
+}
+
+impl From<RemoveUserFromSharedPagePayloadPB> for RevokeSharedViewAccessRequest {
+  fn from(payload: RemoveUserFromSharedPagePayloadPB) -> Self {
+    RevokeSharedViewAccessRequest {
+      emails: payload.emails,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub role: AFRolePB,
+
+  #[pb(index = 4)]
+  pub access_level: AFAccessLevelPB,
+
+  #[pb(index = 5, one_of)]
+  pub avatar_url: Option<String>,
+}
+
+impl From<SharedUser> for SharedUserPB {
+  fn from(user: SharedUser) -> Self {
+    SharedUserPB {
+      email: user.email,
+      name: user.name,
+      role: user.role.into(),
+      access_level: user.access_level.into(),
+      avatar_url: user.avatar_url,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedUserPB {
+  #[pb(index = 1)]
+  pub items: Vec<SharedUserPB>,
+}
+
+impl From<SharedViewDetails> for RepeatedSharedUserPB {
+  fn from(details: SharedViewDetails) -> Self {
+    RepeatedSharedUserPB {
+      items: details
+        .shared_with
+        .into_iter()
+        .map(|user| user.into())
+        .collect(),
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct GetSharedUsersPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

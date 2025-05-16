@@ -1,3 +1,4 @@
+use client_api::entity::guest_dto::RevokeSharedViewAccessRequest;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult, data_result_ok};
 use std::str::FromStr;
@@ -539,5 +540,43 @@ pub(crate) async fn unlock_view_handler(
   let folder = upgrade_folder(folder)?;
   let view_id = data.into_inner().value;
   folder.unlock_view(&view_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn get_shared_users_handler(
+  data: AFPluginData<GetSharedUsersPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedSharedUserPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  let view_id = Uuid::from_str(&params.view_id)?;
+  let shared_users = folder.get_shared_page_details(&view_id).await?;
+  data_result_ok(shared_users.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn share_page_with_user_handler(
+  data: AFPluginData<SharePageWithUserPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner().try_into()?;
+  folder.share_page_with_user(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn remove_user_from_shared_page_handler(
+  data: AFPluginData<RemoveUserFromSharedPagePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  let page_id = Uuid::from_str(&params.view_id)?;
+  let params = RevokeSharedViewAccessRequest {
+    emails: params.emails,
+  };
+  folder.revoke_shared_page_access(&page_id, params).await?;
   Ok(())
 }
