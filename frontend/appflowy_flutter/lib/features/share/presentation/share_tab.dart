@@ -22,42 +22,51 @@ class ShareTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // share page with user by email
-        VSpace(theme.spacing.l),
-        ShareWithUserWidget(),
+    return BlocSelector<ShareWithUserBloc, ShareWithUserState, bool>(
+      selector: (state) => state.isLoading,
+      builder: (context, isLoading) {
+        if (isLoading) {
+          return const SizedBox.shrink();
+        }
 
-        // shared users
-        VSpace(theme.spacing.l),
-        BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state.errorMessage.isNotEmpty) {
-              return Center(child: Text(state.errorMessage));
-            }
-            return PeopleWithAccessSection(
-              currentUserEmail: state.currentUser?.email ?? '',
-              users: state.users,
-            );
-          },
-        ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // share page with user by email
+            VSpace(theme.spacing.l),
+            ShareWithUserWidget(),
 
-        // general access
-        VSpace(theme.spacing.m),
-        GeneralAccessSection(),
+            // shared users
+            VSpace(theme.spacing.l),
+            BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state.errorMessage.isNotEmpty) {
+                  return Center(child: Text(state.errorMessage));
+                }
+                return PeopleWithAccessSection(
+                  currentUserEmail: state.currentUser?.email ?? '',
+                  users: state.users,
+                );
+              },
+            ),
 
-        // copy link
-        VSpace(theme.spacing.l),
-        const AFDivider(),
-        VSpace(theme.spacing.xl),
-        CopyLinkWidget(),
-        VSpace(theme.spacing.m),
-      ],
+            // general access
+            VSpace(theme.spacing.m),
+            GeneralAccessSection(),
+
+            // copy link
+            VSpace(theme.spacing.l),
+            const AFDivider(),
+            VSpace(theme.spacing.xl),
+            CopyLinkWidget(),
+            VSpace(theme.spacing.m),
+          ],
+        );
+      },
     );
   }
 }

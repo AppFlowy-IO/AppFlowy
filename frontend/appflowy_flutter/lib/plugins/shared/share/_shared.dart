@@ -1,4 +1,3 @@
-import 'package:appflowy/features/share/data/repositories/mock_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
@@ -47,6 +46,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
     final shareBloc = context.read<ShareBloc>();
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
+    final shareWithUserBloc = context.read<ShareWithUserBloc>();
     final pageId = shareBloc.state.viewId;
     final workspaceId = userWorkspaceBloc.state.currentWorkspace?.workspaceId;
     // final animationDuration = const Duration(milliseconds: 120);
@@ -58,6 +58,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
           anchor: AFAnchorAuto(
             offset: const Offset(-176, 12),
           ),
+          // Enable animation
           // effects: [
           //   FadeEffect(duration: animationDuration),
           //   ScaleEffect(
@@ -86,13 +87,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                     ),
                   BlocProvider.value(value: shareBloc),
                   BlocProvider.value(value: userWorkspaceBloc),
-                  BlocProvider(
-                    create: (context) => ShareWithUserBloc(
-                      repository: MockShareRepository(),
-                      pageId: pageId,
-                      workspaceId: workspaceId ?? '',
-                    )..add(const ShareWithUserEvent.init()),
-                  ),
+                  BlocProvider.value(value: shareWithUserBloc),
                 ],
                 child: ShareMenu(
                   tabs: widget.tabs,

@@ -129,6 +129,45 @@ class _AFTextFieldState extends AFTextFieldState {
     final errorBorderColor = theme.borderColorScheme.errorThick;
     final defaultBorderColor = theme.borderColorScheme.primary;
 
+    final border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: hasError ? errorBorderColor : defaultBorderColor,
+      ),
+      borderRadius: borderRadius,
+    );
+
+    final enabledBorder = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: hasError ? errorBorderColor : defaultBorderColor,
+      ),
+      borderRadius: borderRadius,
+    );
+
+    final focusedBorder = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: widget.readOnly
+            ? defaultBorderColor
+            : hasError
+                ? errorBorderColor
+                : theme.borderColorScheme.themeThick,
+      ),
+      borderRadius: borderRadius,
+    );
+
+    final errorBorder = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: errorBorderColor,
+      ),
+      borderRadius: borderRadius,
+    );
+
+    final focusedErrorBorder = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: errorBorderColor,
+      ),
+      borderRadius: borderRadius,
+    );
+
     Widget child = TextField(
       groupId: widget.groupId,
       focusNode: widget.focusNode,
@@ -150,40 +189,11 @@ class _AFTextFieldState extends AFTextFieldState {
         isDense: true,
         constraints: BoxConstraints(),
         contentPadding: contentPadding,
-        border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: hasError ? errorBorderColor : defaultBorderColor,
-          ),
-          borderRadius: borderRadius,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: hasError ? errorBorderColor : defaultBorderColor,
-          ),
-          borderRadius: borderRadius,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: widget.readOnly
-                ? defaultBorderColor
-                : hasError
-                    ? errorBorderColor
-                    : theme.borderColorScheme.themeThick,
-          ),
-          borderRadius: borderRadius,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: errorBorderColor,
-          ),
-          borderRadius: borderRadius,
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: errorBorderColor,
-          ),
-          borderRadius: borderRadius,
-        ),
+        border: border,
+        enabledBorder: enabledBorder,
+        focusedBorder: focusedBorder,
+        errorBorder: errorBorder,
+        focusedErrorBorder: focusedErrorBorder,
         hoverColor: theme.borderColorScheme.primaryHover,
         suffixIcon: widget.suffixIconBuilder?.call(context, isObscured),
         suffixIconConstraints: widget.suffixIconConstraints,
