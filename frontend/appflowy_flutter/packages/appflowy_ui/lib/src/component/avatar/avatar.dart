@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:appflowy_ui/src/theme/definition/theme_data.dart';
 import 'package:appflowy_ui/src/theme/appflowy_theme.dart';
+import 'package:appflowy_ui/src/theme/definition/theme_data.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 /// Avatar sizes in pixels
 enum AFAvatarSize {
@@ -111,13 +112,13 @@ class AFAvatar extends StatelessWidget {
       );
     } else if (url != null && url!.isNotEmpty) {
       return ClipOval(
-        child: Image.network(
-          url!,
+        child: CachedNetworkImage(
+          imageUrl: url!,
           width: avatarSize,
           height: avatarSize,
           fit: BoxFit.cover,
           // fallback to initials if the image is not found
-          errorBuilder: (context, error, stackTrace) => _buildInitialsCircle(
+          errorWidget: (context, error, stackTrace) => _buildInitialsCircle(
             avatarSize,
             bgColor,
             textStyle,
