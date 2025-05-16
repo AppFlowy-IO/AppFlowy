@@ -3,7 +3,9 @@ import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy/features/share/data/repositories/share_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -40,13 +42,20 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
 
-    final result = await repository.getUsersInSharedPage(
+    final userResult = await UserBackendService.getCurrentUserProfile();
+    final currentUser = userResult.fold(
+      (user) => user,
+      (error) => null,
+    );
+
+    final sharedUsersResult = await repository.getUsersInSharedPage(
       pageId: event.pageId,
     );
 
-    result.fold(
+    sharedUsersResult.fold(
       (users) => emit(
         state.copyWith(
+          currentUser: currentUser,
           users: users,
           isLoading: false,
           initialResult: FlowySuccess(null),
@@ -54,6 +63,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
       (error) => emit(
         state.copyWith(
+          currentUser: currentUser,
           errorMessage: error.msg,
           isLoading: false,
           initialResult: FlowyFailure(error),
@@ -250,6 +260,7 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
 @freezed
 class ShareWithUserState with _$ShareWithUserState {
   const factory ShareWithUserState({
+    @Default(null) UserProfilePB? currentUser,
     @Default([]) List<SharedUser> users,
     @Default(false) bool isLoading,
     @Default('') String errorMessage,

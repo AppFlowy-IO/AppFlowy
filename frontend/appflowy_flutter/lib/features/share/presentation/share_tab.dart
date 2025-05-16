@@ -1,7 +1,6 @@
 import 'package:appflowy/features/share/data/repositories/rust_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share/presentation/widgets/share_with_user_widget.dart';
-import 'package:appflowy/features/share/presentation/widgets/shared_users_widget.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -39,7 +38,17 @@ class ShareTab extends StatelessWidget {
           VSpace(theme.spacing.l),
           ShareWithUserWidget(),
           VSpace(theme.spacing.l),
-          SharedUserList(),
+          BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state.errorMessage.isNotEmpty) {
+                return Center(child: Text(state.errorMessage));
+              }
+              return 
+            },
+          ),
         ],
       ),
     );
