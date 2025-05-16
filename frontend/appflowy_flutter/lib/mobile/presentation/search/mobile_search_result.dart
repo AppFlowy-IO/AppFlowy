@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
-import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -108,9 +107,7 @@ class MobileSearchResultList extends StatelessWidget {
               .enhanced(color: theme.textColorScheme.secondary),
         ),
         const VSpace(4),
-        BlocBuilder<SearchResultListBloc, SearchResultListState>(
-          builder: (context, searchResultState) {
-            return Column(
+        Column(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(items.length, (index) {
                 final item = items[index];
@@ -137,9 +134,7 @@ class MobileSearchResultList extends StatelessWidget {
                   ),
                 );
               }),
-            );
-          },
-        ),
+            ),
       ],
     );
   }
