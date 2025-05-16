@@ -26,6 +26,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     on<UpdateUserRole>(_onUpdateRole);
     on<UpdateGeneralAccess>(_onUpdateGeneralAccess);
     on<CopyLink>(_onCopyLink);
+    on<SearchAvailableUsers>(_onSearchAvailableUsers);
   }
 
   final ShareRepository repository;
@@ -47,7 +48,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       viewId: pageId,
     );
 
-    final shareResult = await repository.getUsersInSharedPage(
+    final shareResult = await repository.getSharedUsersInPage(
       pageId: pageId,
     );
 
@@ -77,7 +78,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
 
-    final result = await repository.getUsersInSharedPage(
+    final result = await repository.getSharedUsersInPage(
       pageId: pageId,
     );
 
@@ -149,7 +150,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
 
-    final result = await repository.removeUserFromPage(
+    final result = await repository.removeSharedUserFromPage(
       pageId: pageId,
       emails: event.emails,
     );
@@ -238,6 +239,41 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
   }
+
+  Future<void> _onSearchAvailableUsers(
+    SearchAvailableUsers event,
+    Emitter<ShareWithUserState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        errorMessage: '',
+      ),
+    );
+
+    final result = await repository.getAvailableSharedUsers(pageId: pageId);
+
+    result.fold(
+      (users) {
+        // filter by email and name
+        final availableUsers = users.where((user) {
+          final query = event.query.toLowerCase();
+          return user.name.toLowerCase().contains(query) ||
+              user.email.toLowerCase().contains(query);
+        }).toList();
+        emit(
+          state.copyWith(
+            availableUsers: availableUsers,
+          ),
+        );
+      },
+      (error) => emit(
+        state.copyWith(
+          errorMessage: error.msg,
+          availableUsers: [],
+        ),
+      ),
+    );
+  }
 }
 
 @freezed
@@ -274,6 +310,11 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
   const factory ShareWithUserEvent.copyLink({
     required String link,
   }) = CopyLink;
+
+  /// Searches available users by name or email.
+  const factory ShareWithUserEvent.searchAvailableUsers({
+    required String query,
+  }) = SearchAvailableUsers;
 }
 
 @freezed
@@ -281,6 +322,7 @@ class ShareWithUserState with _$ShareWithUserState {
   const factory ShareWithUserState({
     @Default(null) UserProfilePB? currentUser,
     @Default([]) List<SharedUser> users,
+    @Default([]) List<SharedUser> availableUsers,
     @Default(false) bool isLoading,
     @Default('') String errorMessage,
     @Default('') String shareLink,

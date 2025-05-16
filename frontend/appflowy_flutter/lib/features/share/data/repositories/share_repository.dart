@@ -9,12 +9,17 @@ import 'package:appflowy_result/appflowy_result.dart';
 /// for the future.
 abstract class ShareRepository {
   /// Gets the list of users and their roles for a shared page.
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getUsersInSharedPage({
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+    required String pageId,
+  });
+
+  /// Gets the list of users that are available to be shared with.
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   });
 
   /// Removes a user from a shared page.
-  Future<FlowyResult<void, FlowyError>> removeUserFromPage({
+  Future<FlowyResult<void, FlowyError>> removeSharedUserFromPage({
     required String pageId,
     required List<String> emails,
   });

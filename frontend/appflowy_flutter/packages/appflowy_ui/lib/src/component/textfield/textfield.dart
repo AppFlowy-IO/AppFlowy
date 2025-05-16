@@ -164,9 +164,11 @@ class _AFTextFieldState extends AFTextFieldState {
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: hasError
-                ? errorBorderColor
-                : theme.borderColorScheme.themeThick,
+            color: widget.readOnly
+                ? defaultBorderColor
+                : hasError
+                    ? errorBorderColor
+                    : theme.borderColorScheme.themeThick,
           ),
           borderRadius: borderRadius,
         ),

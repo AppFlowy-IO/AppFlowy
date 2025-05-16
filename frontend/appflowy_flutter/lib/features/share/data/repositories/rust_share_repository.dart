@@ -11,7 +11,7 @@ class RustShareRepository extends ShareRepository {
   RustShareRepository();
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getUsersInSharedPage({
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
     required String pageId,
   }) async {
     final request = GetSharedUsersPayloadPB(
@@ -34,7 +34,7 @@ class RustShareRepository extends ShareRepository {
   }
 
   @override
-  Future<FlowyResult<void, FlowyError>> removeUserFromPage({
+  Future<FlowyResult<void, FlowyError>> removeSharedUserFromPage({
     required String pageId,
     required List<String> emails,
   }) async {
@@ -83,6 +83,14 @@ class RustShareRepository extends ShareRepository {
         return FlowyFailure(failure);
       },
     );
+  }
+
+  @override
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+    required String pageId,
+  }) async {
+    // TODO: Implement this
+    return FlowySuccess([]);
   }
 }
 

@@ -31,15 +31,32 @@ class MockShareRepository extends ShareRepository {
     ),
   ];
 
+  final List<SharedUser> _availableSharedUsers = [
+    SharedUser(
+      email: 'guest_email@appflowy.io',
+      name: 'Guest',
+      accessLevel: ShareAccessLevel.readOnly,
+      role: ShareRole.guest,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/28',
+    ),
+    SharedUser(
+      email: 'richard@appflowy.io',
+      name: 'Richard',
+      accessLevel: ShareAccessLevel.readAndWrite,
+      role: ShareRole.member,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/28',
+    ),
+  ];
+
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getUsersInSharedPage({
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
     required String pageId,
   }) async {
     return FlowySuccess(_sharedUsers);
   }
 
   @override
-  Future<FlowyResult<void, FlowyError>> removeUserFromPage({
+  Future<FlowyResult<void, FlowyError>> removeSharedUserFromPage({
     required String pageId,
     required List<String> emails,
   }) async {
@@ -70,5 +87,15 @@ class MockShareRepository extends ShareRepository {
     }
 
     return FlowySuccess(null);
+  }
+
+  @override
+  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+    required String pageId,
+  }) async {
+    return FlowySuccess([
+      ..._sharedUsers,
+      ..._availableSharedUsers,
+    ]);
   }
 }
