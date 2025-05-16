@@ -1,6 +1,7 @@
 import 'package:appflowy/features/share/data/repositories/rust_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/features/share/presentation/widgets/shared_users_widget.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -30,7 +31,7 @@ class ShareTab extends StatelessWidget {
         repository: RustShareRepository(),
         pageId: pageId,
         shareLink: shareLink,
-      ),
+      )..add(LoadSharedUsers(pageId: pageId)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -46,7 +47,10 @@ class ShareTab extends StatelessWidget {
               if (state.errorMessage.isNotEmpty) {
                 return Center(child: Text(state.errorMessage));
               }
-              return 
+              return SharedUserList(
+                currentUserEmail: state.currentUser?.email ?? '',
+                users: state.users,
+              );
             },
           ),
         ],
