@@ -36,14 +36,11 @@ class ShareTab extends StatelessWidget {
             // share page with user by email
             VSpace(theme.spacing.l),
             ShareWithUserWidget(
-              onInvite: (emails) {
-                context.read<ShareWithUserBloc>().add(
-                      ShareWithUserEvent.share(
-                        emails: emails,
-                        accessLevel: ShareAccessLevel.readOnly,
-                      ),
-                    );
-              },
+              onInvite: (emails) => _onSharePageWithUser(
+                context,
+                emails: emails,
+                accessLevel: ShareAccessLevel.readOnly,
+              ),
             ),
 
             // shared users
@@ -53,6 +50,7 @@ class ShareTab extends StatelessWidget {
                 : PeopleWithAccessSection(
                     currentUserEmail: state.currentUser?.email ?? '',
                     users: state.users,
+                    callbacks: _buildPeopleWithAccessSectionCallbacks(context),
                   ),
 
             // general access
@@ -67,6 +65,34 @@ class ShareTab extends StatelessWidget {
             VSpace(theme.spacing.m),
           ],
         );
+      },
+    );
+  }
+
+  void _onSharePageWithUser(
+    BuildContext context, {
+    required List<String> emails,
+    required ShareAccessLevel accessLevel,
+  }) {
+    context.read<ShareWithUserBloc>().add(
+          ShareWithUserEvent.share(emails: emails, accessLevel: accessLevel),
+        );
+  }
+
+  PeopleWithAccessSectionCallbacks _buildPeopleWithAccessSectionCallbacks(
+    BuildContext context,
+  ) {
+    return PeopleWithAccessSectionCallbacks(
+      onSelectAccessLevel: (user, accessLevel) {
+        // do nothing. the event doesn't support in the backend yet
+      },
+      onTurnIntoMember: (user) {
+        // do nothing. the event doesn't support in the backend yet
+      },
+      onRemoveAccess: (user) {
+        context.read<ShareWithUserBloc>().add(
+              ShareWithUserEvent.remove(emails: [user.email]),
+            );
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'package:appflowy/features/share/data/models/share_access_level.dart';
+import 'package:appflowy/features/share/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/edit_access_level_widget.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -58,6 +59,7 @@ class SharedGroupWidget extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     return Text(
       'Anyone in this group with the link can edit', // replace it with group description
+      textAlign: TextAlign.left,
       style: theme.textStyle.caption.standard(
         color: theme.textColorScheme.secondary,
       ),
@@ -68,7 +70,7 @@ class SharedGroupWidget extends StatelessWidget {
     return EditAccessLevelWidget(
       disabled: true,
       selectedAccessLevel: ShareAccessLevel.fullAccess,
-      onTap: () {},
+      callbacks: AccessLevelListCallbacks.none(),
     );
   }
 }

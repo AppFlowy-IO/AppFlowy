@@ -8,13 +8,18 @@ import 'package:flutter/material.dart';
 class EditAccessLevelWidget extends StatefulWidget {
   const EditAccessLevelWidget({
     super.key,
-    required this.onTap,
+    required this.callbacks,
     required this.selectedAccessLevel,
     this.disabled = false,
   });
 
-  final VoidCallback onTap;
+  /// Callbacks
+  final AccessLevelListCallbacks callbacks;
+
+  /// The currently selected access level
   final ShareAccessLevel selectedAccessLevel;
+
+  /// Whether the widget is disabled
   final bool disabled;
 
   @override
@@ -42,11 +47,7 @@ class _EditAccessLevelWidgetState extends State<EditAccessLevelWidget> {
       popover: (_) {
         return AccessLevelListWidget(
           selectedAccessLevel: widget.selectedAccessLevel,
-          onSelect: (accessLevel) {
-            widget.onTap();
-          },
-          onTurnIntoMember: () {},
-          onRemoveAccess: () {},
+          callbacks: widget.callbacks,
         );
       },
       child: AFGhostButton.normal(

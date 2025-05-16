@@ -1,4 +1,5 @@
 import 'package:appflowy/features/share/data/models/models.dart';
+import 'package:appflowy/features/share/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/edit_access_level_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -10,12 +11,12 @@ class SharedUserWidget extends StatelessWidget {
     super.key,
     required this.user,
     this.isCurrentUser = false,
-    this.onEdit,
+    this.callbacks,
   });
 
   final SharedUser user;
   final bool isCurrentUser;
-  final VoidCallback? onEdit;
+  final AccessLevelListCallbacks? callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,7 @@ class SharedUserWidget extends StatelessWidget {
           )
         : EditAccessLevelWidget(
             selectedAccessLevel: user.accessLevel,
-            onTap: () {},
+            callbacks: callbacks ?? AccessLevelListCallbacks.none(),
           );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/features/share/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -76,12 +78,12 @@ class MockShareRepository extends ShareRepository {
     for (final email in emails) {
       _sharedUsers.add(
         SharedUser(
+          name: email.split('@').first,
           email: email,
-          name: email,
           accessLevel: accessLevel,
           role: ShareRole.guest,
           avatarUrl:
-              'https://avatar.iran.liara.run/public/${email.hashCode % 2 == 0 ? 'boy' : 'girl'}',
+              'https://avatar.iran.liara.run/public/${Random().nextInt(100)}',
         ),
       );
     }

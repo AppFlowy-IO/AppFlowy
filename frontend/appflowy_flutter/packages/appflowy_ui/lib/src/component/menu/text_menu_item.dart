@@ -68,7 +68,7 @@ class AFTextMenuItem extends StatelessWidget {
       trailing: trailing,
       selected: selected,
       showSelectedBackground: showSelectedBackground,
-      onTap: onTap,
+      onTap: () => onTap(),
     );
   }
 }
