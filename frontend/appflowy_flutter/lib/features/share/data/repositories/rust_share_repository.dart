@@ -151,15 +151,15 @@ extension on AFRolePB {
   }
 }
 
-extension on ShareRole {
-  AFRolePB get role {
-    switch (this) {
-      case ShareRole.guest:
-        return AFRolePB.Guest;
-      case ShareRole.member:
-        return AFRolePB.Member;
-      case ShareRole.owner:
-        return AFRolePB.Owner;
-    }
-  }
-}
+// extension on ShareRole {
+//   AFRolePB get role {
+//     switch (this) {
+//       case ShareRole.guest:
+//         return AFRolePB.Guest;
+//       case ShareRole.member:
+//         return AFRolePB.Member;
+//       case ShareRole.owner:
+//         return AFRolePB.Owner;
+//     }
+//   }
+// }

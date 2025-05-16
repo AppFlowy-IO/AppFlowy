@@ -64,7 +64,6 @@ class SharedGroupWidget extends StatelessWidget {
   }
 
   Widget _buildTrailing(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return EditAccessLevelWidget(
       title: 'Edit',
       onTap: () {},

@@ -87,7 +87,6 @@ class SharedUserWidget extends StatelessWidget {
   Widget _buildTrailing(
     BuildContext context,
   ) {
-    final theme = AppFlowyTheme.of(context);
     return isCurrentUser
         ? AFGhostTextButton.disabled(
             text: _roleLabel(),
@@ -108,19 +107,6 @@ class SharedUserWidget extends StatelessWidget {
         return 'Read and write';
       case ShareAccessLevel.fullAccess:
         return 'Full access';
-    }
-  }
-
-  Color _roleColor(ShareAccessLevel role, AppFlowyThemeData theme) {
-    switch (role) {
-      case ShareAccessLevel.readOnly:
-        return theme.textColorScheme.warning;
-      case ShareAccessLevel.readAndComment:
-        return theme.textColorScheme.info;
-      case ShareAccessLevel.readAndWrite:
-        return theme.textColorScheme.success;
-      case ShareAccessLevel.fullAccess:
-        return theme.textColorScheme.primary;
     }
   }
 }
