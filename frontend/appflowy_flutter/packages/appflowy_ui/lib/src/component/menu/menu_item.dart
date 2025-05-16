@@ -20,10 +20,10 @@ class AFMenuItem extends StatelessWidget {
   final Widget? leading;
 
   /// The main text of the menu item.
-  final String title;
+  final Widget title;
 
   /// Optional secondary text displayed below the title.
-  final String? subtitle;
+  final Widget? subtitle;
 
   /// Whether the menu item is selected.
   final bool selected;
@@ -75,20 +75,9 @@ class AFMenuItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title text
-                  Text(
-                    title,
-                    style: theme.textStyle.body.standard(
-                      color: theme.textColorScheme.primary,
-                    ),
-                  ),
+                  title,
                   // Subtitle text, if provided
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: theme.textStyle.caption.standard(
-                        color: theme.textColorScheme.secondary,
-                      ),
-                    ),
+                  if (subtitle != null) subtitle!,
                 ],
               ),
             ),

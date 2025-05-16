@@ -12,6 +12,7 @@ class SharedUserWidget extends StatelessWidget {
     this.isCurrentUser = false,
     this.onEdit,
   });
+
   final SharedUser user;
   final bool isCurrentUser;
   final VoidCallback? onEdit;
@@ -19,20 +20,14 @@ class SharedUserWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final roleLabel = _roleLabel(user.role, isCurrentUser);
-    final roleColor = _roleColor(user.role, theme);
-    final name = user.name;
-    final email = user.email;
-    final subtitle = isCurrentUser ? '$email  (You)' : email;
 
     return AFMenuItem(
       leading: AFAvatar(
-        name: name,
+        name: user.name,
         url: user.avatarUrl,
-        size: AFAvatarSize.l,
       ),
-      title: name,
-      subtitle: subtitle,
+      title: _buildTitle(context, user: user),
+      subtitle: _buildSubtitle(context, user: user),
       trailing: isCurrentUser
           ? Text(
               'Full access',
@@ -45,6 +40,66 @@ class SharedUserWidget extends StatelessWidget {
               size: AFButtonSize.s,
             ),
       onTap: isCurrentUser ? () {} : onEdit ?? () {},
+    );
+  }
+
+  Widget _buildTitle(
+    BuildContext context, {
+    required SharedUser user,
+  }) {
+    final theme = AppFlowyTheme.of(context);
+    // Text(
+    //     title,
+    //     style: theme.textStyle.body.standard(
+    //       color: theme.textColorScheme.primary,
+    //     ),
+    //   ),
+    //   subtitle: subtitle != null
+    //       ? Text(
+    //           subtitle!,
+    //           style: theme.textStyle.caption.standard(
+    //             color: theme.textColorScheme.secondary,
+    //           ),
+    //         )
+    // if the user is a guest, adding a guest icon
+    // if the user is the current user, adding a current user icon
+    return Row(
+      children: [
+        Text(
+          user.name,
+          style: theme.textStyle.body.standard(
+            color: theme.textColorScheme.primary,
+          ),
+        ),
+        if (user.role == ShareRole.readOnly)
+          Icon(
+            Icons.person,
+            color: theme.textColorScheme.primary,
+          ),
+        if (user.role == ShareRole.readAndComment)
+          Icon(
+            Icons.comment,
+            color: theme.textColorScheme.primary,
+          ),
+        if (user.role == ShareRole.readAndWrite)
+          Icon(
+            Icons.edit,
+            color: theme.textColorScheme.primary,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSubtitle(
+    BuildContext context, {
+    required SharedUser user,
+  }) {
+    final theme = AppFlowyTheme.of(context);
+    return Text(
+      user.email,
+      style: theme.textStyle.caption.standard(
+        color: theme.textColorScheme.secondary,
+      ),
     );
   }
 

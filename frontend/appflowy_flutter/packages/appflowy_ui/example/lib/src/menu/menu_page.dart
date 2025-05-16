@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
 
-/// A showcase page for the AFMenu, AFMenuSection, and AFMenuItem components.
+/// A showcase page for the AFMenu, AFMenuSection, and AFTextMenuItem components.
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
 
@@ -57,11 +57,12 @@ class _MenuPageState extends State<MenuPage> {
           spacing: 16,
           children: [
             AFMenu(
+              width: 240,
               children: [
                 AFMenuSection(
                   title: 'Section 1',
                   children: [
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: leading,
                       title: 'Menu Item 1',
                       selected: true,
@@ -90,17 +91,17 @@ class _MenuPageState extends State<MenuPage> {
                       popover: (context) {
                         return AFMenu(
                           children: [
-                            AFMenuItem(
+                            AFTextMenuItem(
                               leading: leading,
                               title: 'Menu Item 2-1',
                               onTap: () {},
                             ),
-                            AFMenuItem(
+                            AFTextMenuItem(
                               leading: leading,
                               title: 'Menu Item 2-2',
                               onTap: () {},
                             ),
-                            AFMenuItem(
+                            AFTextMenuItem(
                               leading: leading,
                               title: 'Menu Item 2-3',
                               onTap: () {},
@@ -108,7 +109,7 @@ class _MenuPageState extends State<MenuPage> {
                           ],
                         );
                       },
-                      child: AFMenuItem(
+                      child: AFTextMenuItem(
                         leading: leading,
                         title: 'Menu Item 2',
                         onTap: () {
@@ -116,7 +117,7 @@ class _MenuPageState extends State<MenuPage> {
                         },
                       ),
                     ),
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: leading,
                       title: 'Menu Item 3',
                       onTap: () {},
@@ -126,7 +127,7 @@ class _MenuPageState extends State<MenuPage> {
                 AFMenuSection(
                   title: 'Section 2',
                   children: [
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: logo,
                       title: 'Menu Item 4',
                       subtitle: 'Menu Item',
@@ -137,13 +138,13 @@ class _MenuPageState extends State<MenuPage> {
                       ),
                       onTap: () {},
                     ),
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: logo,
                       title: 'Menu Item 5',
                       subtitle: 'Menu Item',
                       onTap: () {},
                     ),
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: logo,
                       title: 'Menu Item 6',
                       subtitle: 'Menu Item',
@@ -154,13 +155,13 @@ class _MenuPageState extends State<MenuPage> {
                 AFMenuSection(
                   title: 'Section 3',
                   children: [
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: leading,
                       title: 'Menu Item 7',
                       trailing: arrowRight,
                       onTap: () {},
                     ),
-                    AFMenuItem(
+                    AFTextMenuItem(
                       leading: leading,
                       title: 'Menu Item 8',
                       trailing: arrowRight,
@@ -173,18 +174,19 @@ class _MenuPageState extends State<MenuPage> {
             const SizedBox(height: 32),
             // Example: Menu with search bar
             AFMenu(
+              width: 240,
               children: [
-                AFMenuItem(
+                AFTextMenuItem(
                   leading: leading,
                   title: 'Menu Item 1',
                   onTap: () {},
                 ),
-                AFMenuItem(
+                AFTextMenuItem(
                   leading: leading,
                   title: 'Menu Item 2',
                   onTap: () {},
                 ),
-                AFMenuItem(
+                AFTextMenuItem(
                   leading: leading,
                   title: 'Menu Item 3',
                   onTap: () {},

@@ -2,6 +2,7 @@ import 'package:appflowy/features/share/data/models/share_role.dart';
 import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy/features/share/data/repositories/share_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -16,9 +17,10 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
   ShareWithUserBloc({
     required this.repository,
     required this.pageId,
-    required this.shareLink,
+    required this.workspaceId,
   }) : super(ShareWithUserState.initial()) {
-    on<LoadSharedUsers>(_onLoad);
+    on<Initial>(_onInitial);
+    on<GetSharedUsers>(_onGetSharedUsers);
     on<ShareWithUser>(_onShare);
     on<RemoveUser>(_onRemove);
     on<UpdateUserRole>(_onUpdateRole);
@@ -27,11 +29,36 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
   }
 
   final ShareRepository repository;
+  final String workspaceId;
   final String pageId;
-  final String shareLink;
 
-  Future<void> _onLoad(
-    LoadSharedUsers event,
+  Future<void> _onInitial(
+    Initial event,
+    Emitter<ShareWithUserState> emit,
+  ) async {
+    final result = await UserBackendService.getCurrentUserProfile();
+    final currentUser = result.fold(
+      (user) => user,
+      (error) => null,
+    );
+
+    final shareLink = ShareConstants.buildShareUrl(
+      workspaceId: workspaceId,
+      viewId: pageId,
+    );
+
+    emit(
+      state.copyWith(
+        currentUser: currentUser,
+        shareLink: shareLink,
+      ),
+    );
+
+    add(const ShareWithUserEvent.getSharedUsers());
+  }
+
+  Future<void> _onGetSharedUsers(
+    GetSharedUsers event,
     Emitter<ShareWithUserState> emit,
   ) async {
     emit(
@@ -42,20 +69,13 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
 
-    final userResult = await UserBackendService.getCurrentUserProfile();
-    final currentUser = userResult.fold(
-      (user) => user,
-      (error) => null,
+    final result = await repository.getUsersInSharedPage(
+      pageId: pageId,
     );
 
-    final sharedUsersResult = await repository.getUsersInSharedPage(
-      pageId: event.pageId,
-    );
-
-    sharedUsersResult.fold(
+    result.fold(
       (users) => emit(
         state.copyWith(
-          currentUser: currentUser,
           users: users,
           isLoading: false,
           initialResult: FlowySuccess(null),
@@ -63,7 +83,6 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
       (error) => emit(
         state.copyWith(
-          currentUser: currentUser,
           errorMessage: error.msg,
           isLoading: false,
           initialResult: FlowyFailure(error),
@@ -84,7 +103,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     );
 
     final result = await repository.sharePageWithUser(
-      pageId: event.pageId,
+      pageId: pageId,
       role: event.role,
       emails: event.emails,
     );
@@ -98,9 +117,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
         );
 
         add(
-          ShareWithUserEvent.load(
-            pageId: event.pageId,
-          ),
+          const ShareWithUserEvent.getSharedUsers(),
         );
       },
       (error) {
@@ -125,7 +142,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     );
 
     final result = await repository.removeUserFromPage(
-      pageId: event.pageId,
+      pageId: pageId,
       emails: event.emails,
     );
 
@@ -138,9 +155,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
         );
 
         add(
-          ShareWithUserEvent.load(
-            pageId: event.pageId,
-          ),
+          const ShareWithUserEvent.getSharedUsers(),
         );
       },
       (error) {
@@ -165,7 +180,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     );
 
     final result = await repository.sharePageWithUser(
-      pageId: event.pageId,
+      pageId: pageId,
       role: event.role,
       emails: [event.email],
     );
@@ -179,9 +194,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
         );
 
         add(
-          ShareWithUserEvent.load(
-            pageId: event.pageId,
-          ),
+          const ShareWithUserEvent.getSharedUsers(),
         );
       },
       (error) => emit(
@@ -221,27 +234,25 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
 
 @freezed
 class ShareWithUserEvent with _$ShareWithUserEvent {
+  /// Initializes the bloc.
+  const factory ShareWithUserEvent.init() = Initial;
+
   /// Loads the shared users for the page.
-  const factory ShareWithUserEvent.load({
-    required String pageId,
-  }) = LoadSharedUsers;
+  const factory ShareWithUserEvent.getSharedUsers() = GetSharedUsers;
 
   /// Invites the users to the page.
   const factory ShareWithUserEvent.share({
-    required String pageId,
     required List<String> emails,
     required ShareRole role,
   }) = ShareWithUser;
 
   /// Removes the users from the page.
   const factory ShareWithUserEvent.remove({
-    required String pageId,
     required List<String> emails,
   }) = RemoveUser;
 
   /// Updates the role of the user.
   const factory ShareWithUserEvent.updateRole({
-    required String pageId,
     required String email,
     required ShareRole role,
   }) = UpdateUserRole;
