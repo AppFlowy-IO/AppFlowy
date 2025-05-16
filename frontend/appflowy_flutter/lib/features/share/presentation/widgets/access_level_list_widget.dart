@@ -26,6 +26,19 @@ class AccessLevelListCallbacks {
 
   /// Callback when the "Remove access" option is selected
   final VoidCallback onRemoveAccess;
+
+  /// Copy
+  AccessLevelListCallbacks copyWith({
+    VoidCallback? onRemoveAccess,
+    VoidCallback? onTurnIntoMember,
+    void Function(ShareAccessLevel accessLevel)? onSelectAccessLevel,
+  }) {
+    return AccessLevelListCallbacks(
+      onRemoveAccess: onRemoveAccess ?? this.onRemoveAccess,
+      onTurnIntoMember: onTurnIntoMember ?? this.onTurnIntoMember,
+      onSelectAccessLevel: onSelectAccessLevel ?? this.onSelectAccessLevel,
+    );
+  }
 }
 
 /// A widget that displays a list of access levels for sharing.
@@ -91,10 +104,8 @@ class AccessLevelListWidget extends StatelessWidget {
         ),
         AFTextMenuItem(
           title: 'Remove access',
-          onTap: () {
-            callbacks.onRemoveAccess();
-          },
           titleColor: theme.textColorScheme.error,
+          onTap: callbacks.onRemoveAccess,
         ),
       ],
     );

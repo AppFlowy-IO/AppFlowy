@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EditAccessLevelWidget extends StatefulWidget {
   const EditAccessLevelWidget({
@@ -39,15 +40,24 @@ class _EditAccessLevelWidgetState extends State<EditAccessLevelWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
+    final popoverGroupId =
+        context.read<SharePopoverGroupId?>() ?? SharePopoverGroupId();
 
     return AFPopover(
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(), // the access level widget has a border
       controller: popoverController,
+      groupId: popoverGroupId,
       popover: (_) {
         return AccessLevelListWidget(
           selectedAccessLevel: widget.selectedAccessLevel,
-          callbacks: widget.callbacks,
+          callbacks: widget.callbacks.copyWith(
+            onSelectAccessLevel: (accessLevel) {
+              widget.callbacks.onSelectAccessLevel(accessLevel);
+
+              popoverController.hide();
+            },
+          ),
         );
       },
       child: AFGhostButton.normal(

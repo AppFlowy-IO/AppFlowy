@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share/data/models/models.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class ShareMenuButton extends StatefulWidget {
   const ShareMenuButton({
@@ -23,6 +25,7 @@ class ShareMenuButton extends StatefulWidget {
 
 class _ShareMenuButtonState extends State<ShareMenuButton> {
   final popoverController = AFPopoverController();
+  final popoverGroupId = SharePopoverGroupId();
 
   @override
   void initState() {
@@ -53,6 +56,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
       builder: (context, state) {
         return AFPopover(
           controller: popoverController,
+          groupId: popoverGroupId,
           anchor: AFAnchorAuto(
             offset: const Offset(-176, 12),
           ),
@@ -87,9 +91,12 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                   BlocProvider.value(value: userWorkspaceBloc),
                   BlocProvider.value(value: shareWithUserBloc),
                 ],
-                child: ShareMenu(
-                  tabs: widget.tabs,
-                  viewName: state.viewName,
+                child: Provider.value(
+                  value: popoverGroupId,
+                  child: ShareMenu(
+                    tabs: widget.tabs,
+                    viewName: state.viewName,
+                  ),
                 ),
               ),
             );
