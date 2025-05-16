@@ -1,7 +1,8 @@
 import 'package:appflowy/features/share/data/repositories/mock_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share/presentation/widgets/general_access_section.dart';
+import 'package:appflowy/features/share/presentation/widgets/people_with_acess_section.dart';
 import 'package:appflowy/features/share/presentation/widgets/share_with_user_widget.dart';
-import 'package:appflowy/features/share/presentation/widgets/shared_users_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +32,11 @@ class ShareTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // share page with user by email
           VSpace(theme.spacing.l),
           ShareWithUserWidget(),
+
+          // shared users
           VSpace(theme.spacing.l),
           BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
             builder: (context, state) {
@@ -42,12 +46,16 @@ class ShareTab extends StatelessWidget {
               if (state.errorMessage.isNotEmpty) {
                 return Center(child: Text(state.errorMessage));
               }
-              return SharedUserList(
+              return PeopleWithAccessSection(
                 currentUserEmail: state.currentUser?.email ?? '',
                 users: state.users,
               );
             },
           ),
+
+          // general access
+          VSpace(theme.spacing.m),
+          GeneralAccessSection(),
         ],
       ),
     );

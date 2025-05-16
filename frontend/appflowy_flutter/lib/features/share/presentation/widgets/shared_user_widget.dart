@@ -1,4 +1,5 @@
 import 'package:appflowy/features/share/data/models/models.dart';
+import 'package:appflowy/features/share/presentation/widgets/edit_access_level_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,12 @@ class SharedUserWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     return AFMenuItem(
+      padding: EdgeInsets.symmetric(
+        vertical: theme.spacing.s,
+      ),
       leading: AFAvatar(
         name: user.name,
         url: user.avatarUrl,
@@ -83,29 +89,25 @@ class SharedUserWidget extends StatelessWidget {
   ) {
     final theme = AppFlowyTheme.of(context);
     return isCurrentUser
-        ? Text(
-            'Full access',
-            style: theme.textStyle.body
-                .standard(color: theme.textColorScheme.secondary),
+        ? AFGhostTextButton.disabled(
+            text: _roleLabel(),
           )
-        : AFGhostTextButton.primary(
-            text: 'Edit',
-            onTap: onEdit ?? () {},
-            size: AFButtonSize.s,
+        : EditAccessLevelWidget(
+            title: _roleLabel(),
+            onTap: () {},
           );
   }
 
-  String _roleLabel(ShareAccessLevel role, bool isCurrentUser) {
-    if (isCurrentUser) return '';
-    switch (role) {
+  String _roleLabel() {
+    switch (user.accessLevel) {
       case ShareAccessLevel.readOnly:
-        return 'Guest';
+        return 'Read only';
       case ShareAccessLevel.readAndComment:
-        return 'Commenter';
+        return 'Read and comment';
       case ShareAccessLevel.readAndWrite:
-        return 'Editor';
+        return 'Read and write';
       case ShareAccessLevel.fullAccess:
-        return 'Admin';
+        return 'Full access';
     }
   }
 

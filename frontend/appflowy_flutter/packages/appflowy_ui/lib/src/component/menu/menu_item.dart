@@ -14,6 +14,7 @@ class AFMenuItem extends StatelessWidget {
     this.subtitle,
     this.selected = false,
     this.trailing,
+    this.padding,
   });
 
   /// Widget to display before the title (e.g., an icon or avatar).
@@ -34,16 +35,22 @@ class AFMenuItem extends StatelessWidget {
   /// Widget to display after the title (e.g., a trailing icon).
   final Widget? trailing;
 
+  /// Padding of the menu item.
+  final EdgeInsets? padding;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
+    final effectivePadding = padding ??
+        EdgeInsets.symmetric(
+          horizontal: theme.spacing.m,
+          vertical: theme.spacing.s,
+        );
+
     return AFBaseButton(
       onTap: onTap,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.m,
-        vertical: theme.spacing.s,
-      ),
+      padding: effectivePadding,
       borderRadius: theme.borderRadius.m,
       borderColor: (context, isHovering, disabled, isFocused) {
         return Colors.transparent;

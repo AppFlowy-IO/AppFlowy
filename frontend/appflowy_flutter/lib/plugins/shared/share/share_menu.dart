@@ -74,7 +74,6 @@ class _ShareMenuState extends State<ShareMenu>
           padding: EdgeInsets.symmetric(horizontal: theme.spacing.m),
           child: _buildTab(context),
         ),
-        const VSpace(20),
       ],
     );
   }

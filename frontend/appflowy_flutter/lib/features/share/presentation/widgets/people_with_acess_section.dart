@@ -1,9 +1,10 @@
 import 'package:appflowy/features/share/data/models/shared_user.dart';
 import 'package:appflowy/features/share/presentation/widgets/shared_user_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
-class SharedUserList extends StatelessWidget {
-  const SharedUserList({
+class PeopleWithAccessSection extends StatelessWidget {
+  const PeopleWithAccessSection({
     super.key,
     required this.currentUserEmail,
     required this.users,
@@ -14,7 +15,12 @@ class SharedUserList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final theme = AppFlowyTheme.of(context);
+    return AFMenuSection(
+      title: 'People with access',
+      padding: EdgeInsets.symmetric(
+        vertical: theme.spacing.s,
+      ),
       children: users.map((user) {
         final isCurrentUser = user.email == currentUserEmail;
         return SharedUserWidget(
