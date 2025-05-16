@@ -189,7 +189,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         onRemoveLink: (linkinfo) {
           final replaceText =
               linkinfo.name.isEmpty ? linkinfo.link : linkinfo.name;
-          onRemoveAndReplaceLink(editorState, selection, replaceText);
+          editorState.removeAndReplaceLink(selection, replaceText);
         },
       ),
       child: child,
@@ -268,31 +268,6 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         previewType: LinkEmbedKeys.embed,
       );
     }
-  }
-
-  void onRemoveAndReplaceLink(
-    EditorState editorState,
-    Selection selection,
-    String text,
-  ) {
-    final node = editorState.getNodeAtPath(selection.end.path);
-    if (node == null) {
-      return;
-    }
-    final index = selection.normalized.startIndex;
-    final length = selection.length;
-    final transaction = editorState.transaction
-      ..replaceText(
-        node,
-        index,
-        length,
-        text,
-        attributes: {
-          BuiltInAttributeKey.href: null,
-          kIsPageLink: null,
-        },
-      );
-    editorState.apply(transaction);
   }
 }
 
