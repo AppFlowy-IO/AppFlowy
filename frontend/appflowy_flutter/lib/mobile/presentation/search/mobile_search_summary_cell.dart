@@ -225,13 +225,16 @@ class _TextInfo {
               height: 34,
               child: Row(
                 children: [
-                  FlowySvg(
-                    FlowySvgs.arrow_down_s,
-                    size: Size.square(20),
-                    color: theme.iconColorScheme.secondary,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    child: FlowySvg(
+                      FlowySvgs.arrow_down_s,
+                      size: Size.square(20),
+                      color: theme.iconColorScheme.secondary,
+                    ),
                   ),
                   HSpace(8),
-                  Text(LocaleKeys.search_seeMore.tr(), style: more),
+                  Text(LocaleKeys.search_showMore.tr(), style: more),
                 ],
               ),
             ),

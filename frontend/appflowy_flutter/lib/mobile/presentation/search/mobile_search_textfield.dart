@@ -62,6 +62,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     final theme = AppFlowyTheme.of(context);
     return Container(
       height: 42,
+      margin: EdgeInsets.symmetric(vertical: 8),
       padding: EdgeInsets.only(left: 4, right: 16),
       child: ValueListenableBuilder(
         valueListenable: controller,
