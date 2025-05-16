@@ -127,7 +127,10 @@ class _ShareMenuState extends State<ShareMenu>
         return const ExportTab();
       case ShareMenuTab.share:
         // return const ShareTab();
-        return ShareTab();
+        return ShareTab(
+          workspaceId: context.read<ShareBloc>().state.workspaceId,
+          pageId: context.read<ShareBloc>().state.viewId,
+        );
     }
   }
 }
