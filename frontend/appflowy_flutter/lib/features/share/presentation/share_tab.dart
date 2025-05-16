@@ -1,5 +1,6 @@
 import 'package:appflowy/features/share/data/repositories/mock_share_repository.dart';
 import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share/presentation/widgets/people_with_acess_section.dart';
 import 'package:appflowy/features/share/presentation/widgets/share_with_user_widget.dart';
@@ -56,6 +57,13 @@ class ShareTab extends StatelessWidget {
           // general access
           VSpace(theme.spacing.m),
           GeneralAccessSection(),
+
+          // copy link
+          VSpace(theme.spacing.l),
+          const AFDivider(),
+          VSpace(theme.spacing.xl),
+          CopyLinkWidget(),
+          VSpace(theme.spacing.m),
         ],
       ),
     );

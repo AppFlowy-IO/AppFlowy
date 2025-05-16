@@ -31,6 +31,7 @@ class AFTextField extends StatefulWidget {
     this.size = AFTextFieldSize.l,
     this.groupId = EditableText,
     this.focusNode,
+    this.readOnly = false,
   });
 
   /// The hint text to display when the text field is empty.
@@ -77,6 +78,9 @@ class AFTextField extends StatefulWidget {
 
   /// The focus node for the text field.
   final FocusNode? focusNode;
+
+  /// Readonly.
+  final bool readOnly;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
@@ -130,6 +134,7 @@ class _AFTextFieldState extends AFTextFieldState {
       focusNode: widget.focusNode,
       controller: effectiveController,
       keyboardType: widget.keyboardType,
+      readOnly: widget.readOnly,
       style: theme.textStyle.body.standard(
         color: theme.textColorScheme.primary,
       ),
