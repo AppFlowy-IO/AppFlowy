@@ -35,11 +35,11 @@ class LinkEmbedMenu extends StatefulWidget {
 }
 
 class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
-  final turnintoController = PopoverController();
+  final turnIntoController = PopoverController();
   final moreOptionController = PopoverController();
-  int turnintoMenuNum = 0, moreOptionNum = 0, alignMenuNum = 0;
+  int turnIntoMenuNum = 0, moreOptionNum = 0, alignMenuNum = 0;
   final moreOptionButtonKey = GlobalKey();
-  bool get isTurnIntoShowing => turnintoMenuNum > 0;
+  bool get isTurnIntoShowing => turnIntoMenuNum > 0;
   bool get isMoreOptionShowing => moreOptionNum > 0;
   bool get isAlignMenuShowing => alignMenuNum > 0;
 
@@ -51,7 +51,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
   @override
   void dispose() {
     super.dispose();
-    turnintoController.close();
+    turnIntoController.close();
     moreOptionController.close();
     widget.onMenuHided.call();
   }
@@ -64,13 +64,13 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
   Widget buildChild() {
     final theme = AppFlowyTheme.of(context),
         iconScheme = theme.iconColorScheme,
-        fillScheme = theme.fillColorScheme;
+        surfaceColorScheme = theme.surfaceColorScheme;
 
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: fillScheme.primaryAlpha80,
+        color: surfaceColorScheme.inverse,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -94,27 +94,27 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
             preferBelow: false,
             onPressed: () => copyLink(context),
           ),
-          buildconvertBotton(),
-          buildMoreOptionBotton(),
+          buildConvertButton(),
+          buildMoreOptionButton(),
         ],
       ),
     );
   }
 
-  Widget buildconvertBotton() {
+  Widget buildConvertButton() {
     final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorScheme;
     return AppFlowyPopover(
       offset: Offset(0, 6),
       direction: PopoverDirection.bottomWithRightAligned,
       margin: EdgeInsets.zero,
-      controller: turnintoController,
+      controller: turnIntoController,
       onOpen: () {
         keepEditorFocusNotifier.increase();
-        turnintoMenuNum++;
+        turnIntoMenuNum++;
       },
       onClose: () {
         keepEditorFocusNotifier.decrease();
-        turnintoMenuNum--;
+        turnIntoMenuNum--;
         checkToHideMenu();
       },
       popupBuilder: (context) => buildConvertMenu(),
@@ -169,7 +169,7 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
     );
   }
 
-  Widget buildMoreOptionBotton() {
+  Widget buildMoreOptionButton() {
     final theme = AppFlowyTheme.of(context), iconScheme = theme.iconColorScheme;
     return AppFlowyPopover(
       offset: Offset(0, 6),
@@ -227,14 +227,14 @@ class _LinkEmbedMenuState extends State<LinkEmbedMenu> {
 
   void showTurnIntoMenu() {
     keepEditorFocusNotifier.increase();
-    turnintoController.show();
+    turnIntoController.show();
     checkToShowMenu();
-    turnintoMenuNum++;
+    turnIntoMenuNum++;
     if (isMoreOptionShowing) closeMoreOptionMenu();
   }
 
   void closeTurnIntoMenu() {
-    turnintoController.close();
+    turnIntoController.close();
     checkToHideMenu();
   }
 

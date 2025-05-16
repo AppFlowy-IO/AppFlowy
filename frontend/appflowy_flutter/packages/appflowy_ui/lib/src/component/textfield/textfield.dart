@@ -123,7 +123,7 @@ class _AFTextFieldState extends AFTextFieldState {
     final contentPadding = widget.size.contentPadding(theme);
 
     final errorBorderColor = theme.borderColorScheme.errorThick;
-    final defaultBorderColor = theme.borderColorScheme.greyTertiary;
+    final defaultBorderColor = theme.borderColorScheme.primary;
 
     Widget child = TextField(
       groupId: widget.groupId,
@@ -177,7 +177,7 @@ class _AFTextFieldState extends AFTextFieldState {
           ),
           borderRadius: borderRadius,
         ),
-        hoverColor: theme.borderColorScheme.greyTertiaryHover,
+        hoverColor: theme.borderColorScheme.primaryHover,
         suffixIcon: widget.suffixIconBuilder?.call(context, isObscured),
         suffixIconConstraints: widget.suffixIconConstraints,
       ),

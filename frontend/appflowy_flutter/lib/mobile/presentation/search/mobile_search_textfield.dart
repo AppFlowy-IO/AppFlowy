@@ -153,7 +153,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     final showCancelIcon = controller.text.isNotEmpty;
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      borderSide: BorderSide(color: theme.borderColorScheme.greyTertiary),
+      borderSide: BorderSide(color: theme.borderColorScheme.primary),
     );
     final enableBorder = border.copyWith(
       borderSide: BorderSide(color: theme.borderColorScheme.themeThick),

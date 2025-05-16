@@ -142,10 +142,7 @@ class _OrDivider extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          child: Divider(
-            thickness: 1,
-            color: theme.borderColorScheme.greyTertiary,
-          ),
+          child: AFDivider(),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -157,10 +154,7 @@ class _OrDivider extends StatelessWidget {
           ),
         ),
         Flexible(
-          child: Divider(
-            thickness: 1,
-            color: theme.borderColorScheme.greyTertiary,
-          ),
+          child: AFDivider(),
         ),
       ],
     );
