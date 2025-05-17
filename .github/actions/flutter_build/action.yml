@@ -37,11 +37,21 @@ runs:
         override: true
         profile: minimal
 
-    - name: Install flutter
+    - name: Install flutter non-arm
+      if: ${{ flutter-profile != "development-linux-aarch64" }}
       id: flutter
       uses: subosito/flutter-action@v2
       with:
         channel: "stable"
+        flutter-version: ${{ inputs.flutter_version }}
+        cache: true
+
+    - name: Install flutter arm
+      if: ${{ flutter-profile == "development-linux-aarch64" }}
+      id: flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "master"
         flutter-version: ${{ inputs.flutter_version }}
         cache: true
 
