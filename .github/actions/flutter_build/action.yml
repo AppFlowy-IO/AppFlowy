@@ -39,7 +39,7 @@ runs:
 
     - name: Install flutter non-arm
       if: inputs.flutter_profile != 'development-linux-aarch64'
-      id: flutter
+      id: flutter-non-arm
       uses: subosito/flutter-action@v2
       with:
         channel: "stable"
@@ -48,7 +48,7 @@ runs:
 
     - name: Install flutter arm
       if: inputs.flutter_profile == 'development-linux-aarch64'
-      id: flutter
+      id: flutter-arm
       uses: subosito/flutter-action@v2
       with:
         channel: "master"
