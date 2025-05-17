@@ -38,7 +38,7 @@ runs:
         profile: minimal
 
     - name: Install flutter non-arm
-      if: inputs.flutter_profile != "development-linux-aarch64"
+      if: inputs.flutter_profile != 'development-linux-aarch64'
       id: flutter
       uses: subosito/flutter-action@v2
       with:
@@ -47,7 +47,7 @@ runs:
         cache: true
 
     - name: Install flutter arm
-      if: inputs.flutter_profile == "development-linux-aarch64"
+      if: inputs.flutter_profile == 'development-linux-aarch64'
       id: flutter
       uses: subosito/flutter-action@v2
       with:
