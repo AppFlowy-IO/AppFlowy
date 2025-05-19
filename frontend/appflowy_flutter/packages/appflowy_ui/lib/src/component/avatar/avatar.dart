@@ -55,6 +55,7 @@ class AFAvatar extends StatelessWidget {
     this.textColor,
     this.backgroundColor,
     this.child,
+    this.colorHash,
   });
 
   /// The name of the avatar. Used for initials if [child] and [url] are not provided.
@@ -77,22 +78,26 @@ class AFAvatar extends StatelessWidget {
   /// If not provided, a light color from badge color scheme will be used.
   final Color? backgroundColor;
 
+  /// The hash value used to pick the color. If it's not provided, the name hash will be used.
+  final String? colorHash;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final double avatarSize = size.size;
 
     // Pick color index based on name hash (1-20)
-    final int colorIdx = _pickColorIndexFromName(name);
-    final Color bgColor =
-        backgroundColor ?? _getBadgeBackgroundColor(theme, colorIdx);
-    final Color txtColor = textColor ?? _getBadgeTextColor(theme, colorIdx);
+    final int colorIndex = _pickColorIndexFromName(colorHash ?? name);
+    final Color backgroundColor =
+        this.backgroundColor ?? _getBadgeBackgroundColor(theme, colorIndex);
+    final Color textColor =
+        this.textColor ?? _getBadgeTextColor(theme, colorIndex);
 
-    final TextStyle textStyle = size.buildTextStyle(theme, txtColor);
+    final TextStyle textStyle = size.buildTextStyle(theme, textColor);
 
     final Widget avatarContent = _buildAvatarContent(
       avatarSize: avatarSize,
-      bgColor: bgColor,
+      bgColor: backgroundColor,
       textStyle: textStyle,
     );
 

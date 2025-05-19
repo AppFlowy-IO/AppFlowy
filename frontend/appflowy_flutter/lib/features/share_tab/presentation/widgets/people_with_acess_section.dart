@@ -2,6 +2,7 @@ import 'package:appflowy/features/share/data/models/models.dart';
 import 'package:appflowy/features/share/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share/presentation/widgets/shared_user_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class PeopleWithAccessSectionCallbacks {
@@ -45,6 +46,14 @@ class PeopleWithAccessSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
+    final currentUser = users.firstWhereOrNull(
+      (user) => user.email == currentUserEmail,
+    );
+
+    if (currentUser == null) {
+      return const SizedBox.shrink();
+    }
+
     return AFMenuSection(
       title: 'People with access',
       constraints: BoxConstraints(
@@ -54,10 +63,9 @@ class PeopleWithAccessSection extends StatelessWidget {
         vertical: theme.spacing.s,
       ),
       children: users.map((user) {
-        final isCurrentUser = user.email == currentUserEmail;
         return SharedUserWidget(
           user: user,
-          isCurrentUser: isCurrentUser,
+          currentUser: currentUser,
           callbacks: AccessLevelListCallbacks(
             onRemoveAccess: () => callbacks?.onRemoveAccess.call(user),
             onTurnIntoMember: () => callbacks?.onTurnIntoMember.call(user),

@@ -85,10 +85,11 @@ class _ShareMenuState extends State<ShareMenu>
   }
 
   Widget _buildTabBar(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final children = [
       for (final tab in widget.tabs)
         Padding(
-          padding: const EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.only(bottom: theme.spacing.s),
           child: _Segment(
             tab: tab,
             isSelected: selectedTab == tab,

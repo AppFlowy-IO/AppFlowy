@@ -10,12 +10,12 @@ class SharedUserWidget extends StatelessWidget {
   const SharedUserWidget({
     super.key,
     required this.user,
-    this.isCurrentUser = false,
+    required this.currentUser,
     this.callbacks,
   });
 
   final SharedUser user;
-  final bool isCurrentUser;
+  final SharedUser currentUser;
   final AccessLevelListCallbacks? callbacks;
 
   @override
@@ -29,6 +29,7 @@ class SharedUserWidget extends StatelessWidget {
       leading: AFAvatar(
         name: user.name,
         url: user.avatarUrl,
+        colorHash: user.email,
       ),
       title: _buildTitle(context),
       subtitle: _buildSubtitle(context),
@@ -40,6 +41,7 @@ class SharedUserWidget extends StatelessWidget {
     BuildContext context,
   ) {
     final theme = AppFlowyTheme.of(context);
+    final isCurrentUser = user.email == currentUser.email;
 
     return Row(
       children: [
@@ -88,8 +90,10 @@ class SharedUserWidget extends StatelessWidget {
   Widget _buildTrailing(
     BuildContext context,
   ) {
+    final isCurrentUser = user.email == currentUser.email;
     final theme = AppFlowyTheme.of(context);
-    return isCurrentUser
+    // The current guest user can't edit the access level of the other user
+    return isCurrentUser || currentUser.role == ShareRole.guest
         ? AFGhostTextButton.disabled(
             text: user.accessLevel.i18n,
             textStyle: theme.textStyle.body.standard(
