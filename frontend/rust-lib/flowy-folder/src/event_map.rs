@@ -240,6 +240,6 @@ pub enum FolderEvent {
   #[event(input = "GetSharedUsersPayloadPB", output = "RepeatedSharedUserPB")]
   GetSharedUsers = 58,
 
-  #[event(output = "ListSharedViewResponsePB")]
+  #[event(output = "RepeatedSharedViewResponsePB")]
   GetSharedViews = 59,
 }
