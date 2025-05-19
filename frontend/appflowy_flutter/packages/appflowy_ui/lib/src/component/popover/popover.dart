@@ -158,6 +158,15 @@ class AFPopover extends StatefulWidget {
 }
 
 class _AFPopoverState extends State<AFPopover> {
+  static final List<_AFPopoverState> _openPopovers = [];
+  static int? _lastPopoverClosedTimestamp;
+  static void _markPopoverClosedThisFrame() {
+    _lastPopoverClosedTimestamp = DateTime.now().microsecondsSinceEpoch;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _lastPopoverClosedTimestamp = null;
+    });
+  }
+
   AFPopoverController? _controller;
   AFPopoverController get controller => widget.controller ?? _controller!;
   bool animating = false;
@@ -166,11 +175,26 @@ class _AFPopoverState extends State<AFPopover> {
 
   Object get groupId => widget.groupId ?? _popoverKey;
 
+  bool get _isTopMostPopover =>
+      _openPopovers.isNotEmpty && _openPopovers.last == this;
+
   @override
   void initState() {
     super.initState();
     if (widget.controller == null) {
       _controller = AFPopoverController();
+    }
+    controller.addListener(_onControllerChanged);
+    if (controller.isOpen) {
+      _registerPopover();
+    }
+  }
+
+  void _onControllerChanged() {
+    if (controller.isOpen) {
+      _registerPopover();
+    } else {
+      _unregisterPopover();
     }
   }
 
@@ -188,6 +212,8 @@ class _AFPopoverState extends State<AFPopover> {
 
   @override
   void dispose() {
+    controller.removeListener(_onControllerChanged);
+    _unregisterPopover();
     _controller?.dispose();
     super.dispose();
   }
@@ -250,7 +276,15 @@ class _AFPopoverState extends State<AFPopover> {
       popover = TapRegion(
         groupId: groupId,
         behavior: HitTestBehavior.opaque,
-        onTapOutside: (_) => controller.hide(),
+        onTapOutside: (_) {
+          final now = DateTime.now().microsecondsSinceEpoch;
+          if (_isTopMostPopover &&
+              (_lastPopoverClosedTimestamp == null ||
+                  now - _lastPopoverClosedTimestamp! > 1000)) {
+            controller.hide();
+            _markPopoverClosedThisFrame();
+          }
+        },
         child: popover,
       );
     }
@@ -273,6 +307,7 @@ class _AFPopoverState extends State<AFPopover> {
         );
       },
     );
+
     if (widget.useSameGroupIdForChild) {
       child = TapRegion(
         groupId: groupId,
@@ -280,5 +315,15 @@ class _AFPopoverState extends State<AFPopover> {
       );
     }
     return child;
+  }
+
+  void _registerPopover() {
+    if (!_openPopovers.contains(this)) {
+      _openPopovers.add(this);
+    }
+  }
+
+  void _unregisterPopover() {
+    _openPopovers.remove(this);
   }
 }
