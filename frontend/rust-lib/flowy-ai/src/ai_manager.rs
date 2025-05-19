@@ -1,7 +1,8 @@
 use crate::chat::Chat;
 use crate::entities::{
-  AIModelPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB,
-  ModelSelectionPB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
+  AIModelPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
+  CustomPromptDatabaseConfigurationPB, FilePB, ModelSelectionPB, PredefinedFormatPB,
+  RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
@@ -720,21 +721,26 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn get_custom_prompt_database_view_id(&self) -> FlowyResult<Option<String>> {
+  pub async fn get_custom_prompt_database_configuration(
+    &self,
+  ) -> FlowyResult<Option<CustomPromptDatabaseConfigurationPB>> {
     let view_id = self
       .store_preferences
-      .get_object::<String>(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY);
+      .get_object::<CustomPromptDatabaseConfigurationPB>(CUSTOM_PROMPT_DATABASE_CONFIGURATION_KEY);
 
     Ok(view_id)
   }
 
-  pub async fn set_custom_prompt_database_view_id(&self, view_id: String) -> FlowyResult<()> {
+  pub async fn set_custom_prompt_database_configuration(
+    &self,
+    config: CustomPromptDatabaseConfigurationPB,
+  ) -> FlowyResult<()> {
     if let Err(err) = self
       .store_preferences
-      .set_object(CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY, &view_id)
+      .set_object(CUSTOM_PROMPT_DATABASE_CONFIGURATION_KEY, &config)
     {
       error!(
-        "failed to set custom prompt database view id settings: {}",
+        "failed to set custom prompt database configuration settings: {}",
         err
       );
     }
@@ -804,4 +810,4 @@ fn setting_store_key(chat_id: &Uuid) -> String {
   format!("chat_settings_{}", chat_id)
 }
 
-const CUSTOM_PROMPT_DATABASE_VIEW_ID_KEY: &str = "custom_prompt_database_view_id";
+const CUSTOM_PROMPT_DATABASE_CONFIGURATION_KEY: &str = "custom_prompt_database_config";
