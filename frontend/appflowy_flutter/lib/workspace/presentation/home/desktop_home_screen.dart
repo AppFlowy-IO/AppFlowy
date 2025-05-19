@@ -318,7 +318,9 @@ class DesktopHomeScreen extends StatelessWidget {
           ancestors.items.firstWhereOrNull((ancestor) => ancestor.isSpace),
       (error) => null,
     );
-    switchToSpaceNotifier.value = space;
+    if (space?.id != switchToSpaceNotifier.value?.id) {
+      switchToSpaceNotifier.value = space;
+    }
   }
 }
 

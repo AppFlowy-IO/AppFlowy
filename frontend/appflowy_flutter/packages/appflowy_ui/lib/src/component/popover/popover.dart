@@ -233,7 +233,7 @@ class _AFPopoverState extends State<AFPopover> {
     final effectiveDecoration = widget.decoration ??
         BoxDecoration(
           color: theme.surfaceColorScheme.layer01,
-          borderRadius: BorderRadius.circular(theme.borderRadius.xl),
+          borderRadius: BorderRadius.circular(theme.borderRadius.m),
           boxShadow: theme.shadow.medium,
         );
 
@@ -249,7 +249,6 @@ class _AFPopoverState extends State<AFPopover> {
             style: TextStyle(
               color: theme.textColorScheme.primary,
             ),
-            textAlign: TextAlign.center,
             child: Builder(
               builder: widget.popover,
             ),
