@@ -1,6 +1,6 @@
-import 'package:appflowy/features/share/data/models/share_access_level.dart';
-import 'package:appflowy/features/share/data/models/shared_user.dart';
-import 'package:appflowy/features/share/data/repositories/share_repository.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/shared_user.dart';
+import 'package:appflowy/features/share_tab/data/repositories/share_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';

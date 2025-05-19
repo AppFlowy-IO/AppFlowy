@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share/presentation/widgets/shared_group_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/shared_group_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 

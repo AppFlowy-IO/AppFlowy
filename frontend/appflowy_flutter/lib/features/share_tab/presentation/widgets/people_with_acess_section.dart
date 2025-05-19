@@ -1,6 +1,6 @@
-import 'package:appflowy/features/share/data/models/models.dart';
-import 'package:appflowy/features/share/presentation/widgets/access_level_list_widget.dart';
-import 'package:appflowy/features/share/presentation/widgets/shared_user_widget.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/shared_user_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';

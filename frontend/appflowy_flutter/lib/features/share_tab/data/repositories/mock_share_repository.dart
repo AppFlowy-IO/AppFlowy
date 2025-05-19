@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/features/share/data/models/models.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 

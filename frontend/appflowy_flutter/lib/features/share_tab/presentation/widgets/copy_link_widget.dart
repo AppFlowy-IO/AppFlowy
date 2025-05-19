@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';

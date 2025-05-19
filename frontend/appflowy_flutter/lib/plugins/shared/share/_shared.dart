@@ -1,5 +1,5 @@
-import 'package:appflowy/features/share/data/models/models.dart';
-import 'package:appflowy/features/share/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
+import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';

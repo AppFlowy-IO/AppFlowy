@@ -1,5 +1,5 @@
-import 'package:appflowy/features/share/data/models/share_access_level.dart';
-import 'package:appflowy/features/share/data/models/shared_user.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/shared_user.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 

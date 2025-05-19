@@ -1,5 +1,5 @@
-import 'package:appflowy/features/share/data/models/share_access_level.dart';
-import 'package:appflowy/features/share/data/models/share_role.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/share_role.dart';
 
 /// Represents a user with a role on a shared page.
 class SharedUser {

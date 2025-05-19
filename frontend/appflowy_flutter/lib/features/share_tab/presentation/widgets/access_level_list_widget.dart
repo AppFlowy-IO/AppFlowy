@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share/data/models/models.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';

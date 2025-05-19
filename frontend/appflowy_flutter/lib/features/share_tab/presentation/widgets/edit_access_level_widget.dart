@@ -1,5 +1,5 @@
-import 'package:appflowy/features/share/data/models/models.dart';
-import 'package:appflowy/features/share/presentation/widgets/access_level_list_widget.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
