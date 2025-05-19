@@ -20,11 +20,13 @@ class MobileSearchSummaryCell extends StatefulWidget {
     required this.summary,
     required this.maxWidth,
     required this.theme,
+    required this.textStyle,
   });
 
   final SearchSummaryPB summary;
   final double maxWidth;
   final AppFlowyThemeData theme;
+  final TextStyle textStyle;
 
   @override
   State<MobileSearchSummaryCell> createState() =>
@@ -41,8 +43,7 @@ class _MobileSearchSummaryCellState extends State<MobileSearchSummaryCell> {
   double get maxWidth => widget.maxWidth;
   AppFlowyThemeData get theme => widget.theme;
 
-  TextStyle get textStyle =>
-      theme.textStyle.heading4.standard(color: theme.textColorScheme.primary);
+  TextStyle get textStyle => widget.textStyle;
 
   TextStyle get showMoreStyle =>
       theme.textStyle.heading4.standard(color: theme.textColorScheme.secondary);
@@ -264,7 +265,7 @@ class _TextInfo {
               ),
             ),
           ),
-          VSpace(12),
+          VSpace(16),
           SizedBox(
             width: 156,
             height: 42,

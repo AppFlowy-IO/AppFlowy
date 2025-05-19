@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
+import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -49,12 +50,17 @@ class _AskAIFor extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.m_home_ai_chat_icon_m,
-              size: Size.square(24),
-              blendMode: null,
+            SizedBox.square(
+              dimension: 24,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
+                ),
+              ),
             ),
-            HSpace(12),
+            HSpace(8),
             buildText(context),
           ],
         ),
@@ -101,12 +107,11 @@ class _AISearching extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8),
       margin: EdgeInsets.only(top: 8),
       child: SizedBox(
-        height: 22,
+        height: 24,
         child: Row(
           children: [
             FlowySvg(
@@ -117,8 +122,7 @@ class _AISearching extends StatelessWidget {
             HSpace(8),
             Text(
               LocaleKeys.search_searching.tr(),
-              style: theme.textStyle.heading4
-                  .enhanced(color: theme.textColorScheme.secondary),
+              style: context.searchSubtitleStyle,
             ),
           ],
         ),
@@ -153,6 +157,7 @@ class _AIOverview extends StatelessWidget {
                 summary: summary,
                 maxWidth: constrains.maxWidth,
                 theme: AppFlowyTheme.of(context),
+                textStyle: context.searchTitleStyle,
               );
             },
           ),
@@ -162,9 +167,8 @@ class _AIOverview extends StatelessWidget {
   }
 
   Widget buildHeader(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return SizedBox(
-      height: 22,
+      height: 24,
       child: Row(
         children: [
           FlowySvg(
@@ -175,8 +179,7 @@ class _AIOverview extends StatelessWidget {
           HSpace(8),
           Text(
             LocaleKeys.commandPalette_aiOverview.tr(),
-            style: theme.textStyle.heading4
-                .enhanced(color: theme.textColorScheme.primary),
+            style: context.searchSubtitleStyle,
           ),
         ],
       ),

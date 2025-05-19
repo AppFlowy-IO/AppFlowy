@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
@@ -36,7 +37,6 @@ class MobileSearchRecentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
 
     final trashIdSet = commandPaletteState.trash.map((e) => e.id).toSet();
@@ -56,8 +56,7 @@ class MobileSearchRecentList extends StatelessWidget {
               const VSpace(16),
               Text(
                 LocaleKeys.sideBar_recent.tr(),
-                style: theme.textStyle.body
-                    .enhanced(color: theme.textColorScheme.secondary),
+                style: context.searchSubtitleStyle,
               ),
               const VSpace(4),
               Column(
@@ -103,38 +102,37 @@ class MobileSearchResultList extends StatelessWidget {
         const VSpace(16),
         Text(
           LocaleKeys.commandPalette_bestMatches.tr(),
-          style: theme.textStyle.body
-              .enhanced(color: theme.textColorScheme.secondary),
+          style: context.searchSubtitleStyle,
         ),
         const VSpace(4),
         Column(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(items.length, (index) {
-                final item = items[index];
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () async {
-                    final view =
-                        await ViewBackendService.getView(item.id).toNullable();
-                    if (view != null && context.mounted) {
-                      await _goToView(context, view);
-                    } else {
-                      showToastNotification(
-                        message: LocaleKeys.search_somethingWentWrong.tr(),
-                        type: ToastificationType.error,
-                      );
-                      Log.error(
-                        'tapping search result, view not found: ${item.id}',
-                      );
-                    }
-                  },
-                  child: MobileSearchResultCell(
-                    item: item,
-                    query: state.query,
-                  ),
-                );
-              }),
-            ),
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(items.length, (index) {
+            final item = items[index];
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
+                final view =
+                    await ViewBackendService.getView(item.id).toNullable();
+                if (view != null && context.mounted) {
+                  await _goToView(context, view);
+                } else {
+                  showToastNotification(
+                    message: LocaleKeys.search_somethingWentWrong.tr(),
+                    type: ToastificationType.error,
+                  );
+                  Log.error(
+                    'tapping search result, view not found: ${item.id}',
+                  );
+                }
+              },
+              child: MobileSearchResultCell(
+                item: item,
+                query: state.query,
+              ),
+            );
+          }),
+        ),
       ],
     );
   }
