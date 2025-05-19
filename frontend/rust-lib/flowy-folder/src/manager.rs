@@ -2143,17 +2143,18 @@ impl FolderManager {
   }
 
   /// Get the shared views of the workspace.
-  pub async fn get_shared_views(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
+  pub async fn get_shared_pages(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
     let uid = self.user.user_id()?;
     let conn = self.user.sqlite_connection(uid)?;
     let workspace_id = self.user.workspace_id()?;
     let mut local_shared_views = vec![];
 
+    let all_views: Vec<Arc<View>> = self.get_all_views().await?;
+
     // 1. Get the data from the local database first
     if let Ok(shared_views) =
       select_all_workspace_shared_views(conn, &workspace_id.to_string(), uid)
     {
-      let all_views = self.get_all_views().await?;
       local_shared_views = shared_views
         .into_iter()
         .filter_map(|shared_view| {
@@ -2173,10 +2174,6 @@ impl FolderManager {
         })
         .collect();
     }
-
-    let local_result = RepeatedSharedViewResponsePB {
-      shared_views: local_shared_views.clone(),
-    };
 
     // 2. Fetch the data from the cloud service and persist to the local database
     let cloud_workspace_id = workspace_id.clone();
@@ -2198,12 +2195,40 @@ impl FolderManager {
               })
               .collect();
             let _ = upsert_workspace_shared_views(&mut conn, &shared_views);
+
+            let repeated_shared_view_response = RepeatedSharedViewResponsePB {
+              shared_views: resp
+                .shared_views
+                .into_iter()
+                .filter_map(|shared_view| {
+                  let view = all_views
+                    .iter()
+                    .find(|view| view.id == shared_view.view_id.to_string())?;
+                  Some(SharedViewPB {
+                    view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
+                      all_views
+                        .iter()
+                        .filter(|v| v.parent_view_id == *parent_id)
+                        .cloned()
+                        .collect()
+                    }),
+                    access_level: AFAccessLevelPB::from(shared_view.access_level),
+                  })
+                })
+                .collect(),
+            };
+            // Notify UI to refresh the shared views
+            folder_notification_builder(workspace_id, FolderNotification::DidUpdateSharedViews)
+              .payload(repeated_shared_view_response)
+              .send();
           }
-          // Notify UI with fresh data
-          // TODO: Implement notification logic here
         }
       }
     });
+
+    let local_result = RepeatedSharedViewResponsePB {
+      shared_views: local_shared_views.clone(),
+    };
 
     Ok(local_result)
   }
