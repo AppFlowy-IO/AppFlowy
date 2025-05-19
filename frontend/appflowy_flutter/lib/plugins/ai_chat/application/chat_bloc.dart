@@ -106,8 +106,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         receiveMessage: (message) async => _handleReceiveMessage(message),
 
         // Sending messages
-        sendMessage: (message, format, metadata) async =>
-            _handleSendMessage(message, format, metadata, emit),
+        sendMessage: (message, format, metadata, promptId) async =>
+            _handleSendMessage(message, format, metadata, promptId, emit),
         finishSending: () async => emit(
           state.copyWith(
             promptResponseState: PromptResponseState.streamingAnswer,
@@ -204,13 +204,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     String message,
     PredefinedFormat? format,
     Map<String, dynamic>? metadata,
+    String? promptId,
     Emitter<ChatState> emit,
   ) {
     _messageHandler.clearErrorMessages();
     emit(state.copyWith(clearErrorMessages: !state.clearErrorMessages));
 
     _messageHandler.clearRelatedQuestions();
-    _startStreamingMessage(message, format, metadata);
+    _startStreamingMessage(message, format, metadata, promptId);
     lastSentMessage = null;
 
     isFetchingRelatedQuestions = false;
@@ -436,6 +437,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     String message,
     PredefinedFormat? format,
     Map<String, dynamic>? metadata,
+    String? promptId,
   ) async {
     // Prepare streams
     await _streamManager.prepareStreams();
@@ -448,7 +450,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     add(ChatEvent.receiveMessage(questionStreamMessage));
 
     // Send stream request
-    await _streamManager.sendStreamRequest(message, format).fold(
+    await _streamManager.sendStreamRequest(message, format, promptId).fold(
       (question) {
         if (!isClosed) {
           // Create and add answer stream message
@@ -540,6 +542,7 @@ class ChatEvent with _$ChatEvent {
     required String message,
     PredefinedFormat? format,
     Map<String, dynamic>? metadata,
+    String? promptId,
   }) = _SendMessage;
   const factory ChatEvent.finishSending() = _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;

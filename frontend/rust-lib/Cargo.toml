@@ -29,7 +29,8 @@ members = [
   "flowy-search-pub",
   "flowy-ai",
   "flowy-ai-pub",
-  "flowy-storage-pub", "flowy-sqlite-vec",
+  "flowy-storage-pub",
+  "flowy-sqlite-vec",
 ]
 
 resolver = "2"
@@ -109,9 +110,9 @@ flowy-sqlite-vec = { path = "flowy-sqlite-vec" }
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "e75450c" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "e75450c" }
-workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "e75450c" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ae3c4fa" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ae3c4fa" }
+workspace-template = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ae3c4fa" }
 
 [profile.dev]
 opt-level = 0

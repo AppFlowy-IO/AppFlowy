@@ -70,6 +70,9 @@ pub struct StreamChatPayloadPB {
 
   #[pb(index = 6, one_of)]
   pub format: Option<PredefinedFormatPB>,
+
+  #[pb(index = 7, one_of)]
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, Debug)]
@@ -80,6 +83,7 @@ pub struct StreamMessageParams {
   pub answer_stream_port: i64,
   pub question_stream_port: i64,
   pub format: Option<PredefinedFormatPB>,
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -441,6 +445,9 @@ pub struct CompleteTextPB {
 
   #[pb(index = 8, one_of)]
   pub custom_prompt: Option<String>,
+
+  #[pb(index = 9, one_of)]
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

@@ -29,6 +29,7 @@ abstract class AIRepository {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    String? promptId,
     List<String> sourceIds = const [],
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
@@ -56,6 +57,7 @@ class AppFlowyAIService implements AIRepository {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    String? promptId,
     List<String> sourceIds = const [],
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
@@ -82,6 +84,7 @@ class AppFlowyAIService implements AIRepository {
       text: text,
       completionType: completionType,
       format: format?.toPB(),
+      promptId: promptId,
       streamPort: fixnum.Int64(stream.nativePort),
       objectId: objectId ?? '',
       ragIds: [
