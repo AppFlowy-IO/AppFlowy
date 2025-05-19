@@ -104,16 +104,30 @@ class MockShareRepository extends ShareRepository {
     required List<String> emails,
   }) async {
     for (final email in emails) {
-      _sharedUsers.add(
-        SharedUser(
-          name: email.split('@').first,
-          email: email,
+      final index = _sharedUsers.indexWhere((user) => user.email == email);
+      if (index != -1) {
+        // Update access level if user exists
+        final user = _sharedUsers[index];
+        _sharedUsers[index] = SharedUser(
+          name: user.name,
+          email: user.email,
           accessLevel: accessLevel,
-          role: ShareRole.guest,
-          avatarUrl:
-              'https://avatar.iran.liara.run/public/${Random().nextInt(100)}',
-        ),
-      );
+          role: user.role,
+          avatarUrl: user.avatarUrl,
+        );
+      } else {
+        // Add new user
+        _sharedUsers.add(
+          SharedUser(
+            name: email.split('@').first,
+            email: email,
+            accessLevel: accessLevel,
+            role: ShareRole.guest,
+            avatarUrl:
+                'https://avatar.iran.liara.run/public/${Random().nextInt(100)}',
+          ),
+        );
+      }
     }
 
     return FlowySuccess(null);
