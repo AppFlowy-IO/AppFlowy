@@ -1,3 +1,4 @@
+import 'package:appflowy/features/shared_sidebar/presentation/shared_section.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -51,6 +52,8 @@ class SidebarSpace extends StatelessWidget {
             const VSpace(16.0),
             // spaces
             const _Space(),
+            const VSpace(16.0),
+            const SharedSection(),
             const VSpace(200),
           ],
         ),

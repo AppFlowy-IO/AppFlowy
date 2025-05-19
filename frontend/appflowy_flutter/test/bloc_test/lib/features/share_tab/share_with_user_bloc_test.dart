@@ -1,5 +1,5 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/data/repositories/mock_share_repository.dart';
+import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository.dart';
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const pageId = 'test_page_id';
   const workspaceId = 'test_workspace_id';
-  late MockShareRepository repository;
+  late LocalShareWithUserRepository repository;
   late ShareWithUserBloc bloc;
 
   setUp(() {
-    repository = MockShareRepository();
+    repository = LocalShareWithUserRepository();
     bloc = ShareWithUserBloc(
       repository: repository,
       pageId: pageId,

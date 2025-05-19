@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share_tab/data/repositories/mock_share_repository.dart';
+import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository.dart';
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -27,7 +27,7 @@ void main() {
       final mockClipboard = getIt<ClipboardService>() as _MockClipboardService;
       when(() => mockClipboard.setData(any())).thenAnswer((_) async {});
       final bloc = ShareWithUserBloc(
-        repository: MockShareRepository(),
+        repository: LocalShareWithUserRepository(),
         pageId: 'pageId',
         workspaceId: 'workspaceId',
       );

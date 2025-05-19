@@ -5,10 +5,10 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-import 'share_repository.dart';
+import 'share_with_user_repository.dart';
 
-class RustShareRepository extends ShareRepository {
-  RustShareRepository();
+class RustShareWithUserRepository extends ShareWithUserRepository {
+  RustShareWithUserRepository();
 
   @override
   Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
