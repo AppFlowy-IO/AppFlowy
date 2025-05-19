@@ -105,6 +105,11 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
             text: LocaleKeys.shareAction_buttonText.tr(),
             onTap: () {
               popoverController.show();
+
+              /// Fetch the shared users when the popover is shown
+              context
+                  .read<ShareWithUserBloc>()
+                  .add(const ShareWithUserEvent.getSharedUsers());
             },
           ),
         );

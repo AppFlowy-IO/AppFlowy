@@ -8,6 +8,7 @@ class AFMenuSection extends StatelessWidget {
     this.title,
     required this.children,
     this.padding,
+    this.constraints,
   });
 
   /// The title of the section (e.g., 'Section 1').
@@ -18,6 +19,9 @@ class AFMenuSection extends StatelessWidget {
 
   /// Section padding.
   final EdgeInsets? padding;
+
+  /// The height of the section.
+  final BoxConstraints? constraints;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,14 @@ class AFMenuSection extends StatelessWidget {
             ),
           ),
         ],
-        ...children,
+        Container(
+          constraints: constraints,
+          child: SingleChildScrollView(
+            child: Column(
+              children: children,
+            ),
+          ),
+        ),
       ],
     );
   }

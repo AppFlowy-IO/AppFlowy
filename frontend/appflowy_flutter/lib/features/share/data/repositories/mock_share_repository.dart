@@ -31,6 +31,34 @@ class MockShareRepository extends ShareRepository {
       role: ShareRole.owner,
       avatarUrl: 'https://avatar.iran.liara.run/public/boy',
     ),
+    SharedUser(
+      email: 'guest_user_1@appflowy.io',
+      name: 'Guest User 1',
+      accessLevel: ShareAccessLevel.readOnly,
+      role: ShareRole.guest,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/10',
+    ),
+    SharedUser(
+      email: 'guest_user_2@appflowy.io',
+      name: 'Guest User 2',
+      accessLevel: ShareAccessLevel.readOnly,
+      role: ShareRole.owner,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/11',
+    ),
+    SharedUser(
+      email: 'member_user_1@appflowy.io',
+      name: 'Member User 1',
+      accessLevel: ShareAccessLevel.readAndWrite,
+      role: ShareRole.member,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/12',
+    ),
+    SharedUser(
+      email: 'member_user_2@appflowy.io',
+      name: 'Member User 2',
+      accessLevel: ShareAccessLevel.readAndWrite,
+      role: ShareRole.member,
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/13',
+    ),
   ];
 
   final List<SharedUser> _availableSharedUsers = [

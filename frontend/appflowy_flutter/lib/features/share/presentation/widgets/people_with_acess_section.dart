@@ -47,6 +47,9 @@ class PeopleWithAccessSection extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     return AFMenuSection(
       title: 'People with access',
+      constraints: BoxConstraints(
+        maxHeight: 240,
+      ),
       padding: EdgeInsets.symmetric(
         vertical: theme.spacing.s,
       ),

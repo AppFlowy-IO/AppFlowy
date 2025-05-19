@@ -15,11 +15,11 @@ class AvatarPage extends StatelessWidget {
           Wrap(
             spacing: 16,
             children: [
-              AFAvatar(name: 'Nina', size: AFAvatarSize.xs),
-              AFAvatar(name: 'Nina', size: AFAvatarSize.s),
-              AFAvatar(name: 'Nina', size: AFAvatarSize.m),
-              AFAvatar(name: 'Nina', size: AFAvatarSize.l),
-              AFAvatar(name: 'Nina', size: AFAvatarSize.xl),
+              AFAvatar(name: 'Lucas', size: AFAvatarSize.xs),
+              AFAvatar(name: 'Vivian', size: AFAvatarSize.s),
+              AFAvatar(name: 'John', size: AFAvatarSize.m),
+              AFAvatar(name: 'Cindy', size: AFAvatarSize.l),
+              AFAvatar(name: 'Alex', size: AFAvatarSize.xl),
             ],
           ),
           const SizedBox(height: 32),

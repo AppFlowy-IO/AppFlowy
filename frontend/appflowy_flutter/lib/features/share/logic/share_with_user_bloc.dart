@@ -72,7 +72,6 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
   ) async {
     emit(
       state.copyWith(
-        isLoading: true,
         errorMessage: '',
         initialResult: null,
       ),
@@ -86,14 +85,12 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       (users) => emit(
         state.copyWith(
           users: users,
-          isLoading: false,
           initialResult: FlowySuccess(null),
         ),
       ),
       (error) => emit(
         state.copyWith(
           errorMessage: error.msg,
-          isLoading: false,
           initialResult: FlowyFailure(error),
         ),
       ),
