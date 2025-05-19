@@ -740,6 +740,23 @@ impl From<AFAccessLevel> for AFAccessLevelPB {
   }
 }
 
+impl From<i32> for AFAccessLevelPB {
+  // These values are from client-api, so don't change them.
+  // ReadOnly = 10,
+  // ReadAndComment = 20,
+  // ReadAndWrite = 30,
+  // FullAccess = 50,
+  fn from(value: i32) -> Self {
+    match value {
+      10 => AFAccessLevelPB::ReadOnly,
+      20 => AFAccessLevelPB::ReadAndComment,
+      30 => AFAccessLevelPB::ReadAndWrite,
+      50 => AFAccessLevelPB::FullAccess,
+      _ => AFAccessLevelPB::ReadOnly,
+    }
+  }
+}
+
 #[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
 pub enum AFRolePB {
   Owner = 0,

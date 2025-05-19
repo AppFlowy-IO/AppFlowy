@@ -2569,11 +2569,14 @@ name = "flowy-folder-pub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "client-api",
  "collab",
  "collab-entity",
  "collab-folder",
+ "diesel",
  "flowy-error",
+ "flowy-sqlite",
  "lib-infra",
  "serde",
  "serde_json",
