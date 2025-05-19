@@ -48,6 +48,7 @@ class PagePreview extends StatelessWidget {
           final cover = buildCover(state, context);
           return Container(
             height: MediaQuery.of(context).size.height,
+            width: 280,
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(12),

@@ -39,106 +39,115 @@ class RecentViewsList extends StatelessWidget {
           final showAskingAI = workspaceState?.userProfile.workspaceType ==
               WorkspaceTypePB.ServerW;
           final hoveredView = state.hoveredView;
-          return Row(
-            children: [
-              Flexible(
-                flex: 2,
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: ScrollControllerBuilder(
-                    builder: (context, controller) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: FlowyScrollbar(
-                          controller: controller,
-                          child: SingleChildScrollView(
-                            controller: controller,
-                            physics: const ClampingScrollPhysics(),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (showAskingAI) SearchAskAiEntrance(),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: theme.spacing.m,
-                                      vertical: theme.spacing.s,
-                                    ),
-                                    child: Text(
-                                      LocaleKeys.sideBar_recent.tr(),
-                                      style: context.searchPanelTitle1,
-                                    ),
+          return LayoutBuilder(
+            builder: (context, constrains) {
+              final maxWidth = constrains.maxWidth;
+              final hidePreview = maxWidth < 884;
+              return Row(
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: ScrollControllerBuilder(
+                        builder: (context, controller) {
+                          return Padding(
+                            padding:
+                                EdgeInsets.only(right: hidePreview ? 0 : 6),
+                            child: FlowyScrollbar(
+                              controller: controller,
+                              child: SingleChildScrollView(
+                                controller: controller,
+                                physics: const ClampingScrollPhysics(),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    right: hidePreview ? 0 : 6,
                                   ),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: recentViews.length,
-                                    itemBuilder: (_, index) {
-                                      final view = recentViews[index];
-
-                                      final icon = view.icon.value.isNotEmpty
-                                          ? Text(
-                                              view.icon.value,
-                                              strutStyle: StrutStyle(
-                                                fontSize: 16,
-                                                height: 20 / 16,
-                                                forceStrutHeight: true,
-                                                leadingDistribution:
-                                                    TextLeadingDistribution
-                                                        .even,
-                                              ),
-                                            )
-                                          : FlowySvg(
-                                              view.iconData,
-                                              size: const Size.square(18),
-                                              color: theme
-                                                  .iconColorScheme.secondary,
-                                            );
-
-                                      return SearchRecentViewCell(
-                                        icon: SizedBox.square(
-                                          dimension: 20,
-                                          child: Center(child: icon),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (showAskingAI) SearchAskAiEntrance(),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: theme.spacing.m,
+                                          vertical: theme.spacing.s,
                                         ),
-                                        view: view,
-                                        onSelected: onSelected,
-                                      );
-                                    },
+                                        child: Text(
+                                          LocaleKeys.sideBar_recent.tr(),
+                                          style: context.searchPanelTitle1,
+                                        ),
+                                      ),
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: recentViews.length,
+                                        itemBuilder: (_, index) {
+                                          final view = recentViews[index];
+
+                                          final icon = view
+                                                  .icon.value.isNotEmpty
+                                              ? Text(
+                                                  view.icon.value,
+                                                  strutStyle: StrutStyle(
+                                                    fontSize: 16,
+                                                    height: 20 / 16,
+                                                    forceStrutHeight: true,
+                                                    leadingDistribution:
+                                                        TextLeadingDistribution
+                                                            .even,
+                                                  ),
+                                                )
+                                              : FlowySvg(
+                                                  view.iconData,
+                                                  size: const Size.square(18),
+                                                  color: theme.iconColorScheme
+                                                      .secondary,
+                                                );
+
+                                          return SearchRecentViewCell(
+                                            icon: SizedBox.square(
+                                              dimension: 20,
+                                              child: Center(child: icon),
+                                            ),
+                                            view: view,
+                                            onSelected: onSelected,
+                                          );
+                                        },
+                                      ),
+                                      VSpace(8),
+                                    ],
                                   ),
-                                  VSpace(8),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              if (hoveredView != null)
-                Flexible(
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: PagePreview(
-                      key: ValueKey(hoveredView.id),
-                      view: hoveredView,
-                      onViewOpened: () {
-                        getIt<ActionNavigationBloc>().add(
-                          ActionNavigationEvent.performAction(
-                            action: NavigationAction(
-                              objectId: hoveredView.id,
-                            ),
-                          ),
-                        );
-                        onSelected();
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-            ],
+                  if (hoveredView != null && !hidePreview)
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: PagePreview(
+                        key: ValueKey(hoveredView.id),
+                        view: hoveredView,
+                        onViewOpened: () {
+                          getIt<ActionNavigationBloc>().add(
+                            ActionNavigationEvent.performAction(
+                              action: NavigationAction(
+                                objectId: hoveredView.id,
+                              ),
+                            ),
+                          );
+                          onSelected();
+                        },
+                      ),
+                    ),
+                ],
+              );
+            },
           );
         },
       ),

@@ -209,6 +209,7 @@ class CommandPaletteModal extends StatelessWidget {
             constraints: const BoxConstraints(
               maxHeight: 640,
               maxWidth: 960,
+              minWidth: 572,
               minHeight: 640,
             ),
             expandHeight: false,

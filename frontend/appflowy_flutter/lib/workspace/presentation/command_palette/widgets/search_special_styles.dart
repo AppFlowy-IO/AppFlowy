@@ -30,7 +30,7 @@ extension DesktopSearchSpecialStyles on BuildContext {
     );
   }
 
-    TextStyle get searchPanelAIOverview {
+  TextStyle get searchPanelAIOverview {
     return TextStyle(
       fontSize: 16,
       height: 24 / 16,

@@ -66,16 +66,20 @@ class _SearchResultListState extends State<SearchResultList> {
         },
         child: BlocBuilder<SearchResultListBloc, SearchResultListState>(
           builder: (context, state) {
-            final showPreview = state.hoveredResult != null;
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(flex: 2, child: _buildResultsSection(context)),
-                if (showPreview) ...[
-                  AFDivider(axis: Axis.vertical),
-                  Flexible(child: const SearchCellPreview()),
-                ],
-              ],
+            final hasHoverResult = state.hoveredResult != null;
+            return LayoutBuilder(
+              builder: (context, constrains) {
+                final maxWidth = constrains.maxWidth;
+                final hidePreview = maxWidth < 884;
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildResultsSection(context, hidePreview)),
+                    if (!hidePreview && hasHoverResult)
+                      const SearchCellPreview(),
+                  ],
+                );
+              },
             );
           },
         ),
@@ -97,7 +101,7 @@ class _SearchResultListState extends State<SearchResultList> {
     );
   }
 
-  Widget _buildResultsSection(BuildContext context) {
+  Widget _buildResultsSection(BuildContext context, bool hidePreview) {
     final workspaceState = context.read<UserWorkspaceBloc?>()?.state;
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
@@ -110,14 +114,14 @@ class _SearchResultListState extends State<SearchResultList> {
       builder: (context, controller) {
         final hoveredId = bloc.state.hoveredResult?.id;
         return Padding(
-          padding: const EdgeInsets.only(right: 6),
+          padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
           child: FlowyScrollbar(
             controller: controller,
             child: SingleChildScrollView(
               controller: controller,
               physics: ClampingScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
