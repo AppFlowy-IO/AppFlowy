@@ -1,9 +1,11 @@
+// import 'package:appflowy/features/share_tab/presentation/share_tab.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
 import 'package:appflowy/plugins/shared/share/export_tab.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_tab.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -57,25 +59,22 @@ class _ShareMenuState extends State<ShareMenu>
       return const SizedBox.shrink();
     }
 
+    final theme = AppFlowyTheme.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const VSpace(10),
+        VSpace(theme.spacing.xs),
         Container(
           alignment: Alignment.centerLeft,
-          height: 30,
+          height: 28,
           child: _buildTabBar(context),
         ),
-        Divider(
-          color: Theme.of(context).dividerColor,
-          height: 1,
-          thickness: 1,
-        ),
+        const AFDivider(),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          padding: EdgeInsets.symmetric(horizontal: theme.spacing.m),
           child: _buildTab(context),
         ),
-        const VSpace(20),
       ],
     );
   }
@@ -87,10 +86,11 @@ class _ShareMenuState extends State<ShareMenu>
   }
 
   Widget _buildTabBar(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final children = [
       for (final tab in widget.tabs)
         Padding(
-          padding: const EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.only(bottom: theme.spacing.s),
           child: _Segment(
             tab: tab,
             isSelected: selectedTab == tab,
@@ -105,7 +105,7 @@ class _ShareMenuState extends State<ShareMenu>
           color: Theme.of(context).colorScheme.primary,
           width: 3,
         ),
-        insets: const EdgeInsets.only(bottom: -2),
+        insets: const EdgeInsets.only(bottom: -1),
       ),
       isScrollable: true,
       controller: tabController,
@@ -128,6 +128,11 @@ class _ShareMenuState extends State<ShareMenu>
         return const ExportTab();
       case ShareMenuTab.share:
         return const ShareTab();
+      // TODO: enable it when share folder is ready.
+      // return ShareTab(
+      //   workspaceId: context.read<ShareBloc>().state.workspaceId,
+      //   pageId: context.read<ShareBloc>().state.viewId,
+      // );
     }
   }
 }
@@ -150,20 +155,21 @@ class _SegmentState extends State<_Segment> {
 
   @override
   Widget build(BuildContext context) {
-    Color? textColor = Theme.of(context).hintColor;
-    if (isHovered) {
-      textColor = const Color(0xFF00BCF0);
-    } else if (widget.isSelected) {
-      textColor = null;
-    }
+    final theme = AppFlowyTheme.of(context);
+
+    final textColor = widget.isSelected || isHovered
+        ? theme.textColorScheme.primary
+        : theme.textColorScheme.secondary;
 
     Widget child = MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
-      child: FlowyText(
+      child: Text(
         widget.tab.i18n,
         textAlign: TextAlign.center,
-        color: textColor,
+        style: theme.textStyle.body.enhanced(
+          color: textColor,
+        ),
       ),
     );
 

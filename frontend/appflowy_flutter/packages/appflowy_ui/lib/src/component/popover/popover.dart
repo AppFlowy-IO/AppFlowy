@@ -1,4 +1,3 @@
-export 'anchor.dart';
 import 'dart:ui';
 
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -7,6 +6,8 @@ import 'package:appflowy_ui/src/component/popover/shadcn/_portal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+export 'anchor.dart';
 
 /// Notes: The implementation of this page is copied from [flutter_shadcn_ui](https://github.com/nank1ro/flutter-shadcn-ui).
 ///
@@ -157,6 +158,15 @@ class AFPopover extends StatefulWidget {
 }
 
 class _AFPopoverState extends State<AFPopover> {
+  static final List<_AFPopoverState> _openPopovers = [];
+  static int? _lastPopoverClosedTimestamp;
+  static void _markPopoverClosedThisFrame() {
+    _lastPopoverClosedTimestamp = DateTime.now().microsecondsSinceEpoch;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _lastPopoverClosedTimestamp = null;
+    });
+  }
+
   AFPopoverController? _controller;
   AFPopoverController get controller => widget.controller ?? _controller!;
   bool animating = false;
@@ -165,11 +175,26 @@ class _AFPopoverState extends State<AFPopover> {
 
   Object get groupId => widget.groupId ?? _popoverKey;
 
+  bool get _isTopMostPopover =>
+      _openPopovers.isNotEmpty && _openPopovers.last == this;
+
   @override
   void initState() {
     super.initState();
     if (widget.controller == null) {
       _controller = AFPopoverController();
+    }
+    controller.addListener(_onControllerChanged);
+    if (controller.isOpen) {
+      _registerPopover();
+    }
+  }
+
+  void _onControllerChanged() {
+    if (controller.isOpen) {
+      _registerPopover();
+    } else {
+      _unregisterPopover();
     }
   }
 
@@ -187,6 +212,8 @@ class _AFPopoverState extends State<AFPopover> {
 
   @override
   void dispose() {
+    controller.removeListener(_onControllerChanged);
+    _unregisterPopover();
     _controller?.dispose();
     super.dispose();
   }
@@ -196,20 +223,26 @@ class _AFPopoverState extends State<AFPopover> {
     final theme = AppFlowyTheme.of(context);
 
     final effectiveEffects = widget.effects ?? [];
-    final effectivePadding = widget.padding ?? EdgeInsets.zero;
+    final effectivePadding = widget.padding ??
+        EdgeInsets.symmetric(
+          horizontal: theme.spacing.m,
+          vertical: theme.spacing.l,
+        );
 
     final effectiveAnchor = widget.anchor ?? const ShadAnchorAuto();
+    final effectiveDecoration = widget.decoration ??
+        BoxDecoration(
+          color: theme.surfaceColorScheme.layer01,
+          borderRadius: BorderRadius.circular(theme.borderRadius.m),
+          boxShadow: theme.shadow.medium,
+        );
 
     final effectiveFilter = widget.filter;
 
     Widget popover = ShadMouseArea(
       groupId: widget.areaGroupId,
       child: DecoratedBox(
-        decoration: widget.decoration ??
-            BoxDecoration(
-              color: theme.surfaceColorScheme.primary,
-              borderRadius: BorderRadius.circular(theme.borderRadius.m),
-            ),
+        decoration: effectiveDecoration,
         child: Padding(
           padding: effectivePadding,
           child: DefaultTextStyle(
@@ -242,7 +275,15 @@ class _AFPopoverState extends State<AFPopover> {
       popover = TapRegion(
         groupId: groupId,
         behavior: HitTestBehavior.opaque,
-        onTapOutside: (_) => controller.hide(),
+        onTapOutside: (_) {
+          final now = DateTime.now().microsecondsSinceEpoch;
+          if (_isTopMostPopover &&
+              (_lastPopoverClosedTimestamp == null ||
+                  now - _lastPopoverClosedTimestamp! > 1000)) {
+            controller.hide();
+            _markPopoverClosedThisFrame();
+          }
+        },
         child: popover,
       );
     }
@@ -265,6 +306,7 @@ class _AFPopoverState extends State<AFPopover> {
         );
       },
     );
+
     if (widget.useSameGroupIdForChild) {
       child = TapRegion(
         groupId: groupId,
@@ -272,5 +314,15 @@ class _AFPopoverState extends State<AFPopover> {
       );
     }
     return child;
+  }
+
+  void _registerPopover() {
+    if (!_openPopovers.contains(this)) {
+      _openPopovers.add(this);
+    }
+  }
+
+  void _unregisterPopover() {
+    _openPopovers.remove(this);
   }
 }

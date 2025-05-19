@@ -575,7 +575,7 @@ class _FieldSelectorState extends State<FieldSelector> {
                     padding: EdgeInsets.all(theme.spacing.m),
                     itemBuilder: (context, index) {
                       if (widget.isOptional && index == 0) {
-                        return AFMenuItem(
+                        return AFTextMenuItem(
                           title: LocaleKeys.ai_customPrompt_selectField.tr(),
                           onTap: () {
                             widget.onSelect?.call(null);
@@ -591,7 +591,7 @@ class _FieldSelectorState extends State<FieldSelector> {
                         );
                       }
                       final field = fields[index - (widget.isOptional ? 1 : 0)];
-                      return AFMenuItem(
+                      return AFTextMenuItem(
                         title: field.name,
                         trailing: field.id == selectedField?.id
                             ? FlowySvg(

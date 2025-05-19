@@ -39,8 +39,12 @@ class AFFilledTextButton extends AFBaseTextButton {
       disabled: disabled,
       alignment: alignment,
       textStyle: textStyle,
-      textColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).textColorScheme.onFill,
+      textColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).textColorScheme.tertiary;
+        }
+        return AppFlowyTheme.of(context).textColorScheme.onFill;
+      },
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
           return AppFlowyTheme.of(context).fillColorScheme.contentHover;
@@ -75,8 +79,12 @@ class AFFilledTextButton extends AFBaseTextButton {
       disabled: disabled,
       alignment: alignment,
       textStyle: textStyle,
-      textColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).textColorScheme.onFill,
+      textColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).textColorScheme.tertiary;
+        }
+        return AppFlowyTheme.of(context).textColorScheme.onFill;
+      },
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
           return AppFlowyTheme.of(context).fillColorScheme.contentHover;
