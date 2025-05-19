@@ -145,6 +145,17 @@ class FieldBackendService {
     return DatabaseEventUpdateFieldTypeOption(payload).send();
   }
 
+  static Future<FlowyResult<List<FieldPB>, FlowyError>> getFields({
+    required String viewId,
+  }) {
+    final payload = GetFieldPayloadPB.create()..viewId = viewId;
+
+    return DatabaseEventGetFields(payload).send().fold(
+          (repeated) => FlowySuccess(repeated.items),
+          (error) => FlowyFailure(error),
+        );
+  }
+
   /// Returns the primary field of the view.
   static Future<FlowyResult<FieldPB, FlowyError>> getPrimaryField({
     required String viewId,

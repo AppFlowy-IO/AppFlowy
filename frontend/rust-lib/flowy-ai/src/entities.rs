@@ -6,6 +6,7 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 use validator::Validate;
@@ -738,4 +739,22 @@ impl From<PendingResource> for LackOfAIResourcePB {
 pub struct CustomPromptDatabaseViewIdPB {
   #[pb(index = 1)]
   pub id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug, Serialize, Deserialize)]
+pub struct CustomPromptDatabaseConfigurationPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub title_field_id: String,
+
+  #[pb(index = 3)]
+  pub content_field_id: String,
+
+  #[pb(index = 4, one_of)]
+  pub example_field_id: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub category_field_id: Option<String>,
 }
