@@ -34,12 +34,13 @@ class _AskAIFor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final spaceM = theme.spacing.m, spaceL = theme.spacing.l;
+    final spaceM = theme.spacing.m,
+        spaceXL = theme.spacing.xl;
     return Padding(
-      padding: EdgeInsets.fromLTRB(spaceL, spaceM, spaceL, 0),
+      padding: EdgeInsets.only(top: spaceM),
       child: AFBaseButton(
         borderRadius: spaceM,
-        padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: spaceM),
+        padding: EdgeInsets.symmetric(vertical: spaceXL, horizontal: spaceM),
         backgroundColor: (context, isHovering, disable) {
           if (isHovering) {
             return theme.fillColorScheme.contentHover;
@@ -51,12 +52,17 @@ class _AskAIFor extends StatelessWidget {
         builder: (ctx, isHovering, disable) {
           return Row(
             children: [
-              FlowySvg(
-                FlowySvgs.m_home_ai_chat_icon_m,
-                size: Size.square(20),
-                blendMode: null,
+              SizedBox.square(
+                dimension: 24,
+                child: Center(
+                  child: FlowySvg(
+                    FlowySvgs.m_home_ai_chat_icon_m,
+                    size: Size.square(20),
+                    blendMode: null,
+                  ),
+                ),
               ),
-              HSpace(12),
+              HSpace(8),
               buildText(context),
             ],
           );

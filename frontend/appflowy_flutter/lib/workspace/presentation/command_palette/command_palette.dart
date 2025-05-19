@@ -200,6 +200,7 @@ class CommandPaletteModal extends StatelessWidget {
       },
       child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
         builder: (context, state) {
+          final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
           final hasResult = state.combinedResponseItems.isNotEmpty;
           return FlowyDialog(
@@ -207,42 +208,45 @@ class CommandPaletteModal extends StatelessWidget {
             insetPadding: const EdgeInsets.only(top: 100),
             constraints: const BoxConstraints(
               maxHeight: 640,
-              maxWidth: 900,
+              maxWidth: 960,
               minHeight: 640,
             ),
             expandHeight: false,
             child: shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
-              Column(
-                children: [
-                  SearchField(query: state.query, isLoading: state.searching),
-                  if (noQuery)
-                    Flexible(
-                      child: RecentViewsList(
-                        onSelected: () => FlowyOverlay.pop(context),
+              Padding(
+                padding: EdgeInsets.all(theme.spacing.xl),
+                child: Column(
+                  children: [
+                    SearchField(query: state.query, isLoading: state.searching),
+                    if (noQuery)
+                      Flexible(
+                        child: RecentViewsList(
+                          onSelected: () => FlowyOverlay.pop(context),
+                        ),
                       ),
-                    ),
-                  if (hasResult && hasQuery) ...[
-                    AFDivider(),
-                    Flexible(
-                      child: SearchResultList(
-                        trash: state.trash,
-                        resultItems:
-                            state.combinedResponseItems.values.toList(),
-                        resultSummaries: state.resultSummaries,
+                    if (hasResult && hasQuery) ...[
+                      AFDivider(),
+                      Flexible(
+                        child: SearchResultList(
+                          trash: state.trash,
+                          resultItems:
+                              state.combinedResponseItems.values.toList(),
+                          resultSummaries: state.resultSummaries,
+                        ),
                       ),
-                    ),
-                  ]
-                  // When there are no results and the query is not empty and not loading,
-                  // show the no results message, centered in the available space.
-                  else if (hasQuery && !state.searching) ...[
-                    AFDivider(),
-                    if (showAskingAI) SearchAskAiEntrance(),
-                    Expanded(
-                      child: const NoSearchResultsHint(),
-                    ),
+                    ]
+                    // When there are no results and the query is not empty and not loading,
+                    // show the no results message, centered in the available space.
+                    else if (hasQuery && !state.searching) ...[
+                      AFDivider(),
+                      if (showAskingAI) SearchAskAiEntrance(),
+                      Expanded(
+                        child: const NoSearchResultsHint(),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           );

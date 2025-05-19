@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -42,8 +43,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context),
-        textColor = theme.textColorScheme.primary;
+    final theme = AppFlowyTheme.of(context);
     final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
     final bloc = context.read<RecentViewsBloc>(), state = bloc.state;
     final hoveredView = state.hoveredView;
@@ -84,19 +84,17 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.icon,
-                HSpace(12),
+                HSpace(8),
                 Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        view.nameOrDefault,
-                        style: theme.textStyle.body.standard(color: textColor),
-                      ),
-                      buildPath(theme),
-                    ],
+                  flex: 3,
+                  child: Text(
+                    view.nameOrDefault,
+                    maxLines: 1,
+                    style: context.searchPanelTitle2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                Flexible(child: buildPath(theme)),
               ],
             ),
           ),
@@ -109,7 +107,10 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
     return BlocProvider(
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
-        builder: (context, state) => state.buildPath(context),
+        builder: (context, state) {
+          if (state.ancestor.ancestors.isEmpty) return const SizedBox.shrink();
+          return state.buildOnelinePath(context);
+        },
       ),
     );
   }

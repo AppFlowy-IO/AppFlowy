@@ -126,21 +126,10 @@ class _SearchResultListState extends State<SearchResultList> {
                     children: [
                       _buildSectionHeader(context),
                       VSpace(8),
-                      ListView.separated(
+                      ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: resultItems.length,
-                        separatorBuilder: (_, index) {
-                          final item = resultItems[index];
-                          final isHovered = hoveredId == item.id;
-                          if (isHovered) return VSpace(1);
-                          if (index < resultItems.length - 1) {
-                            final nextView = resultItems[index + 1];
-                            final isNextHovered = hoveredId == nextView.id;
-                            if (isNextHovered) return VSpace(1);
-                          }
-                          return const AFDivider();
-                        },
                         itemBuilder: (_, index) {
                           final item = resultItems[index];
                           return SearchResultCell(
