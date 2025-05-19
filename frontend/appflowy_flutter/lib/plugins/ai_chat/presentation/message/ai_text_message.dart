@@ -188,7 +188,7 @@ class _LoadingMessage extends StatelessWidget {
       message: message,
       showActions: false,
       child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
+        padding: EdgeInsetsDirectional.only(start: 4.0, top: 8.0),
         child: AILoadingIndicator(text: loadingText),
       ),
     );
@@ -248,9 +248,12 @@ class _NonEmptyMessage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AIMarkdownText(
-            markdown: state.text,
-            withAnimation: enableAnimation && stream != null,
+          Padding(
+            padding: EdgeInsetsDirectional.only(start: 4.0),
+            child: AIMarkdownText(
+              markdown: state.text,
+              withAnimation: enableAnimation && stream != null,
+            ),
           ),
           if (state.sources.isNotEmpty)
             SelectionContainer.disabled(
