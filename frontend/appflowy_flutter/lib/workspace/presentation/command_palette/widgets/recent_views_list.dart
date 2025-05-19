@@ -1,7 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -49,54 +47,70 @@ class RecentViewsList extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: ScrollControllerBuilder(
                     builder: (context, controller) {
-                      return FlowyScrollbar(
-                        controller: controller,
-                        child: SingleChildScrollView(
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: FlowyScrollbar(
                           controller: controller,
-                          physics: const ClampingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (showAskingAI) SearchAskAiEntrance(),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: theme.spacing.m,
-                                  vertical: theme.spacing.s,
-                                ),
-                                child: Text(
-                                  LocaleKeys.sideBar_recent.tr(),
-                                  style: context.searchPanelTitle1,
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: recentViews.length,
-                                itemBuilder: (_, index) {
-                                  final view = recentViews[index];
+                          child: SingleChildScrollView(
+                            controller: controller,
+                            physics: const ClampingScrollPhysics(),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (showAskingAI) SearchAskAiEntrance(),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: theme.spacing.m,
+                                      vertical: theme.spacing.s,
+                                    ),
+                                    child: Text(
+                                      LocaleKeys.sideBar_recent.tr(),
+                                      style: context.searchPanelTitle1,
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: recentViews.length,
+                                    itemBuilder: (_, index) {
+                                      final view = recentViews[index];
 
-                                  final icon = view.icon.value.isNotEmpty
-                                      ? RawEmojiIconWidget(
-                                          emoji: view.icon.toEmojiIconData(),
-                                          emojiSize: 16.0,
-                                          lineHeight: 20 / 16,
-                                        )
-                                      : FlowySvg(
-                                          view.iconData,
-                                          size: const Size.square(20),
-                                          color:
-                                              theme.iconColorScheme.secondary,
-                                        );
+                                      final icon = view.icon.value.isNotEmpty
+                                          ? Text(
+                                              view.icon.value,
+                                              strutStyle: StrutStyle(
+                                                fontSize: 16,
+                                                height: 20 / 16,
+                                                forceStrutHeight: true,
+                                                leadingDistribution:
+                                                    TextLeadingDistribution
+                                                        .even,
+                                              ),
+                                            )
+                                          : FlowySvg(
+                                              view.iconData,
+                                              size: const Size.square(18),
+                                              color: theme
+                                                  .iconColorScheme.secondary,
+                                            );
 
-                                  return SearchRecentViewCell(
-                                    icon: icon,
-                                    view: view,
-                                    onSelected: onSelected,
-                                  );
-                                },
+                                      return SearchRecentViewCell(
+                                        icon: SizedBox.square(
+                                          dimension: 20,
+                                          child: Center(child: icon),
+                                        ),
+                                        view: view,
+                                        onSelected: onSelected,
+                                      );
+                                    },
+                                  ),
+                                  VSpace(8),
+                                ],
                               ),
-                              VSpace(8),
-                            ],
+                            ),
                           ),
                         ),
                       );
@@ -104,12 +118,12 @@ class RecentViewsList extends StatelessWidget {
                   ),
                 ),
               ),
-              if (hoveredView != null) ...[
-                AFDivider(axis: Axis.vertical),
+              if (hoveredView != null)
                 Flexible(
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: PagePreview(
+                      key: ValueKey(hoveredView.id),
                       view: hoveredView,
                       onViewOpened: () {
                         getIt<ActionNavigationBloc>().add(
@@ -124,7 +138,6 @@ class RecentViewsList extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
             ],
           );
         },

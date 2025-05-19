@@ -239,7 +239,6 @@ class CommandPaletteModal extends StatelessWidget {
                     // When there are no results and the query is not empty and not loading,
                     // show the no results message, centered in the available space.
                     else if (hasQuery && !state.searching) ...[
-                      AFDivider(),
                       if (showAskingAI) SearchAskAiEntrance(),
                       Expanded(
                         child: const NoSearchResultsHint(),

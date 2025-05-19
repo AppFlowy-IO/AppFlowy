@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -61,7 +62,6 @@ class _SearchResultCellState extends State<SearchResultCell> {
     );
 
     final theme = AppFlowyTheme.of(context);
-    final textColor = theme.textColorScheme.primary;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _handleSelection,
@@ -102,39 +102,37 @@ class _SearchResultCellState extends State<SearchResultCell> {
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            child: Row(
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.m,
+              vertical: theme.spacing.xl,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox.square(
-                  dimension: 24,
-                  child: Center(child: buildIcon(theme)),
-                ),
-                HSpace(12),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        text: buildHighLightSpan(
-                          content: title,
-                          normal:
-                              theme.textStyle.body.standard(color: textColor),
-                          highlight: theme.textStyle.body
-                              .standard(color: textColor)
-                              .copyWith(
-                                backgroundColor:
-                                    theme.fillColorScheme.themeSelect,
-                              ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox.square(
+                      dimension: 20,
+                      child: Center(child: buildIcon(theme)),
+                    ),
+                    HSpace(8),
+                    RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: buildHighLightSpan(
+                        content: title,
+                        normal: context.searchPanelTitle2,
+                        highlight: context.searchPanelTitle2.copyWith(
+                          backgroundColor: theme.fillColorScheme.themeSelect,
                         ),
                       ),
-                      buildPath(theme),
-                      ...buildSummary(theme),
-                    ],
-                  ),
+                    ),
+                    Flexible(child: buildPath(theme)),
+                  ],
                 ),
+                ...buildSummary(theme),
               ],
             ),
           ),
@@ -147,18 +145,21 @@ class _SearchResultCellState extends State<SearchResultCell> {
     final icon = item.icon;
     final color = theme.iconColorScheme.secondary;
     if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 20, iconColor: color) ?? SizedBox.shrink();
+      return icon.getIcon(size: 16, lineHeight: 20 / 16, iconColor: color) ??
+          SizedBox.shrink();
     } else {
-      return icon.getIcon(size: 20, iconColor: color) ?? SizedBox.shrink();
+      return icon.getIcon(iconColor: color) ?? SizedBox.shrink();
     }
   }
 
   Widget buildPath(AppFlowyThemeData theme) {
     return BlocProvider(
-      key: ValueKey(viewId),
-      create: (context) => ViewAncestorBloc(viewId),
+      create: (context) => ViewAncestorBloc(item.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
-        builder: (context, state) => state.buildPath(context),
+        builder: (context, state) {
+          if (state.ancestor.ancestors.isEmpty) return const SizedBox.shrink();
+          return state.buildOnelinePath(context);
+        },
       ),
     );
   }
@@ -190,17 +191,14 @@ class _SearchResultCellState extends State<SearchResultCell> {
     return [
       VSpace(4),
       RichText(
-        maxLines: 3,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         text: buildHighLightSpan(
           content: item.content,
-          normal: theme.textStyle.caption
-              .standard(color: theme.textColorScheme.secondary),
-          highlight: theme.textStyle.caption
-              .standard(color: theme.textColorScheme.primary)
-              .copyWith(
-                backgroundColor: theme.fillColorScheme.themeSelect,
-              ),
+          normal: context.searchPanelSummary,
+          highlight: context.searchPanelSummary.copyWith(
+            backgroundColor: theme.fillColorScheme.themeSelect,
+          ),
         ),
       ),
     ];
@@ -228,6 +226,7 @@ class SearchResultPreview extends StatelessWidget {
 
         return PagePreview(
           view: view,
+          key: ValueKey(view.id),
           onViewOpened: () {
             context
                 .read<SearchResultListBloc?>()

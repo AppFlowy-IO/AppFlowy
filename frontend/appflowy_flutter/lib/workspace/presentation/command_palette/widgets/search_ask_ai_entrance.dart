@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -34,8 +35,7 @@ class _AskAIFor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final spaceM = theme.spacing.m,
-        spaceXL = theme.spacing.xl;
+    final spaceM = theme.spacing.m, spaceXL = theme.spacing.xl;
     return Padding(
       padding: EdgeInsets.only(top: spaceM),
       child: AFBaseButton(
@@ -117,9 +117,9 @@ class _AISearching extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 8),
       child: SizedBox(
-        height: 22,
+        height: 24,
         child: Row(
           children: [
             FlowySvg(
@@ -152,12 +152,15 @@ class _AIOverview extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: EdgeInsets.symmetric(
+        vertical: theme.spacing.xxl,
+        horizontal: theme.spacing.m,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           buildHeader(context),
-          VSpace(8),
+          VSpace(12),
           LayoutBuilder(
             builder: (context, constrains) {
               final summary = summaries.first;
@@ -166,10 +169,11 @@ class _AIOverview extends StatelessWidget {
                 summary: summary,
                 maxWidth: constrains.maxWidth,
                 theme: AppFlowyTheme.of(context),
+                textStyle: context.searchPanelTitle3,
               );
             },
           ),
-          VSpace(8),
+          VSpace(12),
           SizedBox(
             width: 143,
             child: AFOutlinedButton.normal(
@@ -183,10 +187,10 @@ class _AIOverview extends StatelessWidget {
                       size: Size.square(20),
                       color: theme.iconColorScheme.primary,
                     ),
-                    HSpace(8),
+                    HSpace(6),
                     Text(
                       LocaleKeys.commandPalette_aiAskFollowUp.tr(),
-                      style: theme.textStyle.body.standard(
+                      style: theme.textStyle.body.enhanced(
                         color: theme.textColorScheme.primary,
                       ),
                     ),
@@ -208,9 +212,8 @@ class _AIOverview extends StatelessWidget {
   }
 
   Widget buildHeader(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
     return SizedBox(
-      height: 22,
+      height: 24,
       child: Row(
         children: [
           FlowySvg(
@@ -221,8 +224,7 @@ class _AIOverview extends StatelessWidget {
           HSpace(8),
           Text(
             LocaleKeys.commandPalette_aiOverview.tr(),
-            style: theme.textStyle.heading4
-                .enhanced(color: theme.textColorScheme.primary),
+            style: context.searchPanelAIOverview,
           ),
         ],
       ),

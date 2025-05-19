@@ -85,14 +85,11 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
               children: [
                 widget.icon,
                 HSpace(8),
-                Flexible(
-                  flex: 3,
-                  child: Text(
-                    view.nameOrDefault,
-                    maxLines: 1,
-                    style: context.searchPanelTitle2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                Text(
+                  view.nameOrDefault,
+                  maxLines: 1,
+                  style: context.searchPanelTitle2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Flexible(child: buildPath(theme)),
               ],
