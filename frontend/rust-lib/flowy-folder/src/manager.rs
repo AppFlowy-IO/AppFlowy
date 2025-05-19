@@ -1,9 +1,10 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB, MoveNestedViewParams,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB,
-  ViewSectionPB, WorkspaceLatestPB, WorkspacePB, view_pb_with_child_views,
-  view_pb_without_child_views, view_pb_without_child_views_from_arc,
+  RepeatedSharedViewResponsePB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, SharedViewPB,
+  UpdateViewParams, ViewLayoutPB, ViewPB, ViewSectionPB, WorkspaceLatestPB, WorkspacePB,
+  view_pb_with_all_child_views, view_pb_with_child_views, view_pb_without_child_views,
+  view_pb_without_child_views_from_arc,
 };
 use crate::manager_observer::{
   ChildViewChangeReason, notify_child_views_changed, notify_did_update_workspace,
@@ -2135,6 +2136,37 @@ impl FolderManager {
       .into_iter()
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
+  }
+
+  /// Get the shared views of the workspace.
+  pub async fn get_shared_views(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
+    let workspace_id = self.user.workspace_id()?;
+    let resp = self
+      .cloud_service()?
+      .get_shared_views(&workspace_id)
+      .await?;
+    let all_views = self.get_all_views().await?;
+    let shared_views = resp
+      .shared_views
+      .into_iter()
+      .map(|shared_view| {
+        let view = all_views
+          .iter()
+          .find(|view| view.id == shared_view.view_id.to_string())
+          .unwrap();
+        SharedViewPB {
+          view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
+            all_views
+              .iter()
+              .filter(|v| v.parent_view_id == *parent_id)
+              .cloned()
+              .collect()
+          }),
+          access_level: shared_view.access_level.into(),
+        }
+      })
+      .collect();
+    Ok(RepeatedSharedViewResponsePB { shared_views })
   }
 }
 

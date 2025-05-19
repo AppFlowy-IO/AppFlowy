@@ -580,3 +580,12 @@ pub(crate) async fn remove_user_from_shared_page_handler(
   folder.revoke_shared_page_access(&page_id, params).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_shared_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedSharedViewResponsePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let resp = folder.get_shared_views().await?;
+  data_result_ok(resp.into())
+}

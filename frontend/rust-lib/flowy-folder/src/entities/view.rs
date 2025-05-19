@@ -144,6 +144,32 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
   }
 }
 
+/// Returns a ViewPB with all descendants recursively included in child_views.
+pub fn view_pb_with_all_child_views<F>(view: Arc<View>, get_children: &F) -> ViewPB
+where
+  F: Fn(&str) -> Vec<Arc<View>>,
+{
+  let child_views = get_children(&view.id)
+    .into_iter()
+    .map(|child| view_pb_with_all_child_views(child, get_children))
+    .collect();
+  ViewPB {
+    id: view.id.clone(),
+    parent_view_id: view.parent_view_id.clone(),
+    name: view.name.clone(),
+    create_time: view.created_at,
+    child_views,
+    layout: view.layout.clone().into(),
+    icon: view.icon.clone().map(|icon| icon.into()),
+    is_favorite: view.is_favorite,
+    extra: view.extra.clone(),
+    created_by: view.created_by,
+    last_edited: view.last_edited_time,
+    last_edited_by: view.last_edited_by,
+    is_locked: view.is_locked,
+  }
+}
+
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ViewLayoutPB {
   #[default]
@@ -835,6 +861,20 @@ impl From<SharedViewDetails> for RepeatedSharedUserPB {
 pub struct GetSharedUsersPayloadPB {
   #[pb(index = 1)]
   pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedViewPB {
+  #[pb(index = 1)]
+  pub view: ViewPB,
+  #[pb(index = 2)]
+  pub access_level: AFAccessLevelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedViewResponsePB {
+  #[pb(index = 1)]
+  pub shared_views: Vec<SharedViewPB>,
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

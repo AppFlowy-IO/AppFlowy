@@ -1,8 +1,8 @@
 use crate::server_layer::ServerProvider;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
+use client_api::entity::PublishInfo;
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::workspace_dto::PublishInfoView;
-use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -32,7 +32,8 @@ use flowy_folder_pub::entities::PublishPayload;
 use flowy_search_pub::cloud::SearchCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::guest_dto::{
-  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+  ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest,
+  SharedViewDetails,
 };
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
@@ -43,8 +44,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 use std::str::FromStr;
-use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 use tokio_stream::wrappers::WatchStream;
 use tracing::log::error;
@@ -442,6 +443,17 @@ impl FolderCloudService for ServerProvider {
       .get_server()?
       .folder_service()
       .get_shared_page_details(workspace_id, view_id)
+      .await
+  }
+
+  async fn get_shared_views(
+    &self,
+    workspace_id: &Uuid,
+  ) -> Result<ListSharedViewResponse, FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .get_shared_views(workspace_id)
       .await
   }
 }

@@ -16,7 +16,8 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_folder_pub::entities::PublishPayload;
 use flowy_server_pub::guest_dto::{
-  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+  ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest,
+  SharedViewDetails,
 };
 use lib_infra::async_trait::async_trait;
 use std::sync::Arc;
@@ -192,6 +193,13 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     workspace_id: &Uuid,
     view_id: &Uuid,
   ) -> Result<SharedViewDetails, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_shared_views(
+    &self,
+    _workspace_id: &Uuid,
+  ) -> Result<ListSharedViewResponse, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 }

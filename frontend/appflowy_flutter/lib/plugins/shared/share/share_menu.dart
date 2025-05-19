@@ -1,4 +1,3 @@
-// import 'package:appflowy/features/share_tab/presentation/share_tab.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
@@ -127,12 +126,11 @@ class _ShareMenuState extends State<ShareMenu>
       case ShareMenuTab.exportAs:
         return const ExportTab();
       case ShareMenuTab.share:
-        return const ShareTab();
-      // TODO: enable it when share folder is ready.
-      // return ShareTab(
-      //   workspaceId: context.read<ShareBloc>().state.workspaceId,
-      //   pageId: context.read<ShareBloc>().state.viewId,
-      // );
+        // return const ShareTab();
+        return ShareTab(
+          workspaceId: context.read<ShareBloc>().state.workspaceId,
+          pageId: context.read<ShareBloc>().state.viewId,
+        );
     }
   }
 }
