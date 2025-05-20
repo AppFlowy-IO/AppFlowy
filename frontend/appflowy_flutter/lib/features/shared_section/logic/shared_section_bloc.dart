@@ -110,7 +110,11 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
     _UpdateSharedPages event,
     Emitter<SharedSectionState> emit,
   ) {
-    emit(state.copyWith(sharedPages: event.sharedPages));
+    emit(
+      state.copyWith(
+        sharedPages: event.sharedPages,
+      ),
+    );
   }
 
   void _initFolderNotificationListener() {

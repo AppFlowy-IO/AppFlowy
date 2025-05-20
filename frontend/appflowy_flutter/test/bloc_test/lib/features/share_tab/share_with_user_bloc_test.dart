@@ -19,6 +19,10 @@ void main() {
     );
   });
 
+  tearDown(() async {
+    await bloc.close();
+  });
+
   const email = 'lucas.xu@appflowy.io';
 
   group('ShareWithUserBloc', () {
