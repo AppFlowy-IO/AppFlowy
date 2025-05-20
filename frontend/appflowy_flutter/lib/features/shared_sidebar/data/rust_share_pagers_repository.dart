@@ -5,6 +5,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy/features/shared_sidebar/util/extensions.dart';
 
 class RustSharePagesRepository implements SharePagesRepository {
   @override
@@ -24,18 +25,5 @@ class RustSharePagesRepository implements SharePagesRepository {
         return FlowyResult.failure(error);
       },
     );
-  }
-}
-
-extension on RepeatedSharedViewResponsePB {
-  SharedPages get sharedPages {
-    return sharedViews
-        .map(
-          (sharedView) => SharedPage(
-            view: sharedView.view,
-            accessLevel: sharedView.accessLevel,
-          ),
-        )
-        .toList();
   }
 }

@@ -8,10 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SharedPagesList extends StatelessWidget {
-  const SharedPagesList({super.key, required this.sharedPages,});
+  const SharedPagesList({
+    super.key,
+    required this.sharedPages,
+  });
 
   final SharedPages sharedPages;
-
 
   @override
   Widget build(BuildContext context) {
