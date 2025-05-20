@@ -2,7 +2,7 @@ import 'package:appflowy/features/share_tab/data/models/share_access_level.dart'
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
-import 'package:appflowy/features/share_tab/presentation/widgets/people_with_acess_section.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

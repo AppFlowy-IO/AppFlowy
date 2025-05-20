@@ -1,5 +1,5 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/presentation/widgets/people_with_acess_section.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../widget_test_wrapper.dart';

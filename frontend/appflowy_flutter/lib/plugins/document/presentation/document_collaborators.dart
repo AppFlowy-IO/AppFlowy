@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_collaborators_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
+import 'package:appflowy/plugins/document/presentation/collaborator_avatar_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';

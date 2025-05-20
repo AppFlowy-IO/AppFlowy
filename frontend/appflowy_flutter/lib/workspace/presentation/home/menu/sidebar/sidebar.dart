@@ -25,7 +25,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgrade_application_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
