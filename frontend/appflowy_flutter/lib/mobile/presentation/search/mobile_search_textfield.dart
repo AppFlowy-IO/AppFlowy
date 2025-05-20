@@ -173,9 +173,9 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       border: border,
       enabledBorder: border,
       focusedBorder: enableBorder,
-      prefixIconConstraints: BoxConstraints.loose(Size(34, 40)),
+      prefixIconConstraints: BoxConstraints.loose(Size(38, 40)),
       prefixIcon: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 10, 4, 10),
+        padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
         child: FlowySvg(
           FlowySvgs.m_home_search_icon_m,
           color: theme.iconColorScheme.secondary,
