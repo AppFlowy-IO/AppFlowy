@@ -2222,6 +2222,7 @@ impl FolderManager {
                 })
                 .collect(),
             };
+
             // Notify UI to refresh the shared views
             folder_notification_builder(workspace_id, FolderNotification::DidUpdateSharedViews)
               .payload(repeated_shared_view_response)
