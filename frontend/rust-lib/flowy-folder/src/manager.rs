@@ -43,7 +43,7 @@ use flowy_folder_pub::entities::{
   PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
 use flowy_folder_pub::sql::workspace_shared_view_sql::{
-  WorkspaceSharedViewTable, select_all_workspace_shared_views, upsert_workspace_shared_views,
+  WorkspaceSharedViewTable, replace_all_workspace_shared_views, select_all_workspace_shared_views,
 };
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -2194,7 +2194,12 @@ impl FolderManager {
                 created_at: None,
               })
               .collect();
-            let _ = upsert_workspace_shared_views(&mut conn, &shared_views);
+            let _ = replace_all_workspace_shared_views(
+              &mut conn,
+              &cloud_workspace_id.to_string(),
+              uid,
+              &shared_views,
+            );
 
             let repeated_shared_view_response = RepeatedSharedViewResponsePB {
               shared_views: resp

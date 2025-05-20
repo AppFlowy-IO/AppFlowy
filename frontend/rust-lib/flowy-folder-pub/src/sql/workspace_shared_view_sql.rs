@@ -64,6 +64,8 @@ pub fn select_all_workspace_shared_views(
 
 pub fn upsert_workspace_shared_views<T: Into<WorkspaceSharedViewTable> + Clone>(
   conn: &mut SqliteConnection,
+  _workspace_id: &str,
+  _uid: i64,
   shared_views: &[T],
 ) -> FlowyResult<()> {
   for shared_view in shared_views.iter().cloned() {
@@ -79,5 +81,25 @@ pub fn upsert_workspace_shared_views<T: Into<WorkspaceSharedViewTable> + Clone>(
       .set(&shared_view)
       .execute(conn)?;
   }
+  Ok(())
+}
+
+/// Removes all workspace_shared_view items for the given workspace_id and uid, then inserts the provided new items.
+pub fn replace_all_workspace_shared_views<T: Into<WorkspaceSharedViewTable> + Clone>(
+  conn: &mut SqliteConnection,
+  workspace_id: &str,
+  uid: i64,
+  new_shared_views: &[T],
+) -> FlowyResult<()> {
+  // Remove all existing items for the workspace_id and uid
+  delete(
+    workspace_shared_view::table
+      .filter(workspace_shared_view::workspace_id.eq(workspace_id))
+      .filter(workspace_shared_view::uid.eq(uid)),
+  )
+  .execute(conn)?;
+
+  upsert_workspace_shared_views(conn, workspace_id, uid, new_shared_views)?;
+
   Ok(())
 }
