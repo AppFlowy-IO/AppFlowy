@@ -11,7 +11,8 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favo
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
+    hide AFRolePB;
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -35,6 +36,14 @@ class SidebarSpace extends StatelessWidget {
     final currentWorkspace =
         context.watch<UserWorkspaceBloc>().state.currentWorkspace;
     final currentWorkspaceId = currentWorkspace?.workspaceId ?? '';
+
+    // only show spaces if the user role is member or owner
+    final currentUserRole = currentWorkspace?.role;
+    final shouldShowSpaces = [
+      AFRolePB.Member,
+      AFRolePB.Owner,
+    ].contains(currentUserRole);
+
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (_, __, ___) => Provider.value(
@@ -54,9 +63,12 @@ class SidebarSpace extends StatelessWidget {
               },
             ),
 
-            const VSpace(16.0),
             // spaces
-            const _Space(),
+            if (shouldShowSpaces) ...[
+              const VSpace(16.0),
+              // spaces
+              const _Space(),
+            ],
 
             // shared
             if (FeatureFlag.sharedSection.isOn) ...[
