@@ -4,10 +4,10 @@ import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-import 'share_repository.dart';
+import 'share_with_user_repository.dart';
 
-class MockShareRepository extends ShareRepository {
-  MockShareRepository();
+class LocalShareWithUserRepository extends ShareWithUserRepository {
+  LocalShareWithUserRepository();
 
   final List<SharedUser> _sharedUsers = [
     SharedUser(

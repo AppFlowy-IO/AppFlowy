@@ -1,3 +1,5 @@
+import 'package:appflowy/features/shared_section/presentation/shared_section.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -30,6 +32,9 @@ class SidebarSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentWorkspace =
+        context.watch<UserWorkspaceBloc>().state.currentWorkspace;
+    final currentWorkspaceId = currentWorkspace?.workspaceId ?? '';
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (_, __, ___) => Provider.value(
@@ -48,9 +53,19 @@ class SidebarSpace extends StatelessWidget {
                 );
               },
             ),
+
             const VSpace(16.0),
             // spaces
             const _Space(),
+
+            // shared
+            if (FeatureFlag.sharedSection.isOn) ...[
+              const VSpace(16.0),
+              SharedSection(
+                workspaceId: currentWorkspaceId,
+              ),
+            ],
+
             const VSpace(200),
           ],
         ),

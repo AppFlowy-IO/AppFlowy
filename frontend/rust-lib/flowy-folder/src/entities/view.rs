@@ -8,6 +8,7 @@ use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
 use lib_infra::validator_fn::required_not_empty_str;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
@@ -142,6 +143,44 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     last_edited_by: view.last_edited_by,
     is_locked: view.is_locked,
   }
+}
+
+/// Returns a ViewPB with all descendants recursively included in child_views.
+pub fn view_pb_with_all_child_views<F>(view: Arc<View>, get_children: &F) -> ViewPB
+where
+  F: Fn(&str) -> Vec<Arc<View>>,
+{
+  fn helper<F>(view: Arc<View>, get_children: &F, visited: &mut HashSet<String>) -> ViewPB
+  where
+    F: Fn(&str) -> Vec<Arc<View>>,
+  {
+    if !visited.insert(view.id.clone()) {
+      // Already visited this view, stop recursion to prevent cycle
+      return view_pb_without_child_views(view.as_ref().clone());
+    }
+    let child_views = get_children(&view.id)
+      .into_iter()
+      .map(|child| helper(child, get_children, visited))
+      .collect();
+    ViewPB {
+      id: view.id.clone(),
+      parent_view_id: view.parent_view_id.clone(),
+      name: view.name.clone(),
+      create_time: view.created_at,
+      child_views,
+      layout: view.layout.clone().into(),
+      icon: view.icon.clone().map(|icon| icon.into()),
+      is_favorite: view.is_favorite,
+      extra: view.extra.clone(),
+      created_by: view.created_by,
+      last_edited: view.last_edited_time,
+      last_edited_by: view.last_edited_by,
+      is_locked: view.is_locked,
+    }
+  }
+
+  let mut visited = HashSet::new();
+  helper(view, get_children, &mut visited)
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
@@ -714,6 +753,23 @@ impl From<AFAccessLevel> for AFAccessLevelPB {
   }
 }
 
+impl From<i32> for AFAccessLevelPB {
+  // These values are from client-api, so don't change them.
+  // ReadOnly = 10,
+  // ReadAndComment = 20,
+  // ReadAndWrite = 30,
+  // FullAccess = 50,
+  fn from(value: i32) -> Self {
+    match value {
+      10 => AFAccessLevelPB::ReadOnly,
+      20 => AFAccessLevelPB::ReadAndComment,
+      30 => AFAccessLevelPB::ReadAndWrite,
+      50 => AFAccessLevelPB::FullAccess,
+      _ => AFAccessLevelPB::ReadOnly,
+    }
+  }
+}
+
 #[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
 pub enum AFRolePB {
   Owner = 0,
@@ -835,6 +891,20 @@ impl From<SharedViewDetails> for RepeatedSharedUserPB {
 pub struct GetSharedUsersPayloadPB {
   #[pb(index = 1)]
   pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedViewPB {
+  #[pb(index = 1)]
+  pub view: ViewPB,
+  #[pb(index = 2)]
+  pub access_level: AFAccessLevelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedViewResponsePB {
+  #[pb(index = 1)]
+  pub shared_views: Vec<SharedViewPB>,
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

@@ -16,6 +16,9 @@ serde = { version = "1.0.202", features = ["derive"] }
 serde_json.workspace = true
 client-api = { workspace = true }
 flowy-error.workspace = true
+flowy-sqlite = { workspace = true }
+diesel = { workspace = true }
+chrono = { workspace = true }
 
 [dev-dependencies]
 tokio.workspace = true

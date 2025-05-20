@@ -2,7 +2,10 @@ use crate::entities::PublishPayload;
 pub use anyhow::Error;
 use client_api::entity::{
   PublishInfo,
-  guest_dto::{RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails},
+  guest_dto::{
+    ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest,
+    SharedViewDetails,
+  },
   workspace_dto::PublishInfoView,
 };
 use collab::entity::EncodedCollab;
@@ -113,6 +116,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
     workspace_id: &Uuid,
     view_id: &Uuid,
   ) -> Result<SharedViewDetails, FlowyError>;
+
+  /// Get the shared views of a workspace
+  async fn get_shared_views(
+    &self,
+    workspace_id: &Uuid,
+  ) -> Result<ListSharedViewResponse, FlowyError>;
 }
 
 #[derive(Debug)]
