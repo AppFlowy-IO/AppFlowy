@@ -74,6 +74,7 @@ class SidebarSpace extends StatelessWidget {
             if (FeatureFlag.sharedSection.isOn) ...[
               const VSpace(16.0),
               SharedSection(
+                key: ValueKey(currentWorkspaceId),
                 workspaceId: currentWorkspaceId,
               ),
             ],

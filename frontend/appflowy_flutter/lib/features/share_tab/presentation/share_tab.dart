@@ -1,9 +1,9 @@
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
-import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,10 @@ class ShareTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocBuilder<ShareWithUserBloc, ShareWithUserState>(
+    return BlocConsumer<ShareWithUserBloc, ShareWithUserState>(
+      listener: (context, state) {
+        _onShareWithUserError(context, state);
+      },
       builder: (context, state) {
         if (state.isLoading) {
           return const SizedBox.shrink();
@@ -44,18 +47,20 @@ class ShareTab extends StatelessWidget {
             ),
 
             // shared users
-            VSpace(theme.spacing.l),
-            state.errorMessage.isNotEmpty
-                ? Center(child: Text(state.errorMessage))
-                : PeopleWithAccessSection(
-                    currentUserEmail: state.currentUser?.email ?? '',
-                    users: state.users,
-                    callbacks: _buildPeopleWithAccessSectionCallbacks(context),
-                  ),
+
+            if (state.users.isNotEmpty) ...[
+              VSpace(theme.spacing.l),
+              PeopleWithAccessSection(
+                currentUserEmail: state.currentUser?.email ?? '',
+                users: state.users,
+                callbacks: _buildPeopleWithAccessSectionCallbacks(context),
+              ),
+            ],
 
             // general access
-            VSpace(theme.spacing.m),
-            GeneralAccessSection(),
+            // enable it when the backend support general access features.
+            // VSpace(theme.spacing.m),
+            // GeneralAccessSection(),
 
             // copy link
             VSpace(theme.spacing.l),
@@ -95,5 +100,21 @@ class ShareTab extends StatelessWidget {
             );
       },
     );
+  }
+
+  void _onShareWithUserError(
+    BuildContext context,
+    ShareWithUserState state,
+  ) {
+    final shareResult = state.shareResult;
+    if (shareResult != null) {
+      shareResult.onFailure((error) {
+        // TODO: handle the limiation error
+        showToastNotification(
+          message: error.msg,
+          type: ToastificationType.error,
+        );
+      });
+    }
   }
 }
