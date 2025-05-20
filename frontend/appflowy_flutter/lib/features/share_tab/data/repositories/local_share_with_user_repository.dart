@@ -142,4 +142,18 @@ class LocalShareWithUserRepository extends ShareWithUserRepository {
       ..._availableSharedUsers,
     ]);
   }
+
+  @override
+  Future<FlowyResult<void, FlowyError>> changeRole({
+    required String pageId,
+    required String email,
+    required ShareRole role,
+  }) async {
+    final index = _sharedUsers.indexWhere((user) => user.email == email);
+    if (index != -1) {
+      _sharedUsers[index] = _sharedUsers[index].copyWith(role: role);
+    }
+
+    return FlowySuccess(null);
+  }
 }

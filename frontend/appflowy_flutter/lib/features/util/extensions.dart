@@ -1,6 +1,8 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart' as folder;
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart'
+    as user;
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 extension RepeatedSharedViewResponsePBExtension
@@ -80,6 +82,30 @@ extension AFRolePBExtension on AFRolePB {
         return ShareRole.owner;
       default:
         throw Exception('Unknown share role: $this');
+    }
+  }
+}
+
+extension ShareRoleExtension on ShareRole {
+  user.AFRolePB get userRole {
+    switch (this) {
+      case ShareRole.guest:
+        return user.AFRolePB.Guest;
+      case ShareRole.member:
+        return user.AFRolePB.Member;
+      case ShareRole.owner:
+        return user.AFRolePB.Owner;
+    }
+  }
+
+  folder.AFRolePB get folderRole {
+    switch (this) {
+      case ShareRole.guest:
+        return folder.AFRolePB.Guest;
+      case ShareRole.member:
+        return folder.AFRolePB.Member;
+      case ShareRole.owner:
+        return folder.AFRolePB.Owner;
     }
   }
 }

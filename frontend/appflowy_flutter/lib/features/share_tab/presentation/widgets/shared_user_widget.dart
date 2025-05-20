@@ -46,10 +46,13 @@ class SharedUserWidget extends StatelessWidget {
 
     return Row(
       children: [
-        Text(
-          user.name,
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
+        Flexible(
+          child: Text(
+            user.name,
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.primary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         // if the user is the current user, show '(You)'

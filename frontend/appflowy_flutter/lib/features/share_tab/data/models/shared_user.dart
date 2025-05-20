@@ -26,4 +26,20 @@ class SharedUser {
   ///
   /// if the avatar is not set, it will be the first letter of the name.
   final String? avatarUrl;
+
+  SharedUser copyWith({
+    String? email,
+    String? name,
+    ShareRole? role,
+    ShareAccessLevel? accessLevel,
+    String? avatarUrl,
+  }) {
+    return SharedUser(
+      email: email ?? this.email,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      accessLevel: accessLevel ?? this.accessLevel,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+    );
+  }
 }

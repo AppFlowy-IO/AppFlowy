@@ -1,5 +1,4 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
-import 'package:appflowy/features/share_tab/data/models/shared_user.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
@@ -31,5 +30,12 @@ abstract class ShareWithUserRepository {
     required String pageId,
     required ShareAccessLevel accessLevel,
     required List<String> emails,
+  });
+
+  /// Change the role of a user in a shared page.
+  Future<FlowyResult<void, FlowyError>> changeRole({
+    required String pageId,
+    required String email,
+    required ShareRole role,
   });
 }
