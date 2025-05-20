@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:appflowy/core/notification/folder_notification.dart';
-import 'package:appflowy/features/shared_sidebar/data/share_pages_repository.dart';
-import 'package:appflowy/features/shared_sidebar/models/shared_page.dart';
-import 'package:appflowy/features/shared_sidebar/util/extensions.dart';
+import 'package:appflowy/features/shared_section/data/share_pages_repository.dart';
+import 'package:appflowy/features/shared_section/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/util/extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:bloc/bloc.dart';

@@ -1,6 +1,6 @@
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
-import 'package:appflowy/features/shared_sidebar/data/share_pages_repository.dart';
-import 'package:appflowy/features/shared_sidebar/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/data/share_pages_repository.dart';
+import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';

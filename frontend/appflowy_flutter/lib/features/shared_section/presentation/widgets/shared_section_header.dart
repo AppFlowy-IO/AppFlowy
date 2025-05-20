@@ -9,7 +9,7 @@ class SharedSectionHeader extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(
-        left: theme.spacing.s,
+        left: theme.spacing.xs,
         bottom: theme.spacing.s,
       ),
       child: Text(

@@ -1,4 +1,5 @@
-import 'package:appflowy/features/shared_sidebar/presentation/shared_section.dart';
+import 'package:appflowy/features/shared_section/presentation/shared_section.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -52,13 +53,19 @@ class SidebarSpace extends StatelessWidget {
                 );
               },
             ),
+
             const VSpace(16.0),
             // spaces
             const _Space(),
-            const VSpace(16.0),
-            SharedSection(
-              workspaceId: currentWorkspaceId,
-            ),
+
+            // shared
+            if (FeatureFlag.sharedSection.isOn) ...[
+              const VSpace(16.0),
+              SharedSection(
+                workspaceId: currentWorkspaceId,
+              ),
+            ],
+
             const VSpace(200),
           ],
         ),

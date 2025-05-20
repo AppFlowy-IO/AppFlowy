@@ -1,19 +1,21 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/shared_sidebar/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 extension RepeatedSharedViewResponsePBExtension
     on RepeatedSharedViewResponsePB {
   SharedPages get sharedPages {
-    return sharedViews
-        .map(
-          (sharedView) => SharedPage(
-            view: sharedView.view,
-            accessLevel: sharedView.accessLevel.shareAccessLevel,
-          ),
-        )
-        .toList();
+    return sharedViews.map((e) => e.sharedPage).toList();
+  }
+}
+
+extension SharedViewPBExtension on SharedViewPB {
+  SharedPage get sharedPage {
+    return SharedPage(
+      view: view,
+      accessLevel: accessLevel.shareAccessLevel,
+    );
   }
 }
 

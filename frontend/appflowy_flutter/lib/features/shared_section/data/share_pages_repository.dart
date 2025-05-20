@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_sidebar/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 

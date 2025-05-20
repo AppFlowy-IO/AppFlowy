@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_sidebar/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';

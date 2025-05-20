@@ -8,6 +8,7 @@ use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
 use lib_infra::validator_fn::required_not_empty_str;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
@@ -149,25 +150,37 @@ pub fn view_pb_with_all_child_views<F>(view: Arc<View>, get_children: &F) -> Vie
 where
   F: Fn(&str) -> Vec<Arc<View>>,
 {
-  let child_views = get_children(&view.id)
-    .into_iter()
-    .map(|child| view_pb_with_all_child_views(child, get_children))
-    .collect();
-  ViewPB {
-    id: view.id.clone(),
-    parent_view_id: view.parent_view_id.clone(),
-    name: view.name.clone(),
-    create_time: view.created_at,
-    child_views,
-    layout: view.layout.clone().into(),
-    icon: view.icon.clone().map(|icon| icon.into()),
-    is_favorite: view.is_favorite,
-    extra: view.extra.clone(),
-    created_by: view.created_by,
-    last_edited: view.last_edited_time,
-    last_edited_by: view.last_edited_by,
-    is_locked: view.is_locked,
+  fn helper<F>(view: Arc<View>, get_children: &F, visited: &mut HashSet<String>) -> ViewPB
+  where
+    F: Fn(&str) -> Vec<Arc<View>>,
+  {
+    if !visited.insert(view.id.clone()) {
+      // Already visited this view, stop recursion to prevent cycle
+      return view_pb_without_child_views(view.as_ref().clone());
+    }
+    let child_views = get_children(&view.id)
+      .into_iter()
+      .map(|child| helper(child, get_children, visited))
+      .collect();
+    ViewPB {
+      id: view.id.clone(),
+      parent_view_id: view.parent_view_id.clone(),
+      name: view.name.clone(),
+      create_time: view.created_at,
+      child_views,
+      layout: view.layout.clone().into(),
+      icon: view.icon.clone().map(|icon| icon.into()),
+      is_favorite: view.is_favorite,
+      extra: view.extra.clone(),
+      created_by: view.created_by,
+      last_edited: view.last_edited_time,
+      last_edited_by: view.last_edited_by,
+      is_locked: view.is_locked,
+    }
   }
+
+  let mut visited = HashSet::new();
+  helper(view, get_children, &mut visited)
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
