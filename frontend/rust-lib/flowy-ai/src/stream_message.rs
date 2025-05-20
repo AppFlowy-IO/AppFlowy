@@ -14,6 +14,11 @@ pub enum StreamMessage {
   StartIndexFile { file_name: String },
   EndIndexFile { file_name: String },
   IndexFileError { file_name: String },
+  AIResponseLimitExceeded,
+  AIImageResponseLimitExceeded,
+  AIMaxRequired(String),
+  LocalAINotReady(String),
+  LocalAIDisabled(String),
 }
 
 #[derive(Debug, Clone, Serialize, Default)]
@@ -47,6 +52,11 @@ impl Display for StreamMessage {
           write!(f, "ai_follow_up:",)
         }
       },
+      StreamMessage::AIResponseLimitExceeded => write!(f, "ai_response_limit:"),
+      StreamMessage::AIImageResponseLimitExceeded => write!(f, "ai_image_response_limit:"),
+      StreamMessage::AIMaxRequired(message) => write!(f, "ai_max_required:{}", message),
+      StreamMessage::LocalAINotReady(message) => write!(f, "local_ai_not_ready:{}", message),
+      StreamMessage::LocalAIDisabled(message) => write!(f, "local_ai_disabled:{}", message),
     }
   }
 }
