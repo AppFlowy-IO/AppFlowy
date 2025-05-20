@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_sidebar/data/local_share_pages_repository.dart';
+import 'package:appflowy/features/shared_sidebar/data/rust_share_pagers_repository.dart';
 import 'package:appflowy/features/shared_sidebar/logic/shared_sidebar_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +11,10 @@ class SharedSidebarMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return BlocProvider(
-      create: (_) => SharedSidebarBloc(repository: LocalSharePagesRepository())
-        ..add(const SharedSidebarEvent.init()),
+      create: (_) => SharedSidebarBloc(
+        // repository: LocalSharePagesRepository(),
+        repository: RustSharePagesRepository(),
+      )..add(const SharedSidebarEvent.init()),
       child: BlocBuilder<SharedSidebarBloc, SharedSidebarState>(
         builder: (context, state) {
           if (state.isLoading) {
