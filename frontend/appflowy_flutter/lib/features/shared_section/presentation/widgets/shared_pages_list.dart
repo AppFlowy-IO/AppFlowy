@@ -27,6 +27,7 @@ class SharedPagesList extends StatelessWidget {
           isFirstChild: view.id == sharedPages.first.view.id,
           view: view,
           level: 0,
+          isDraggable: false, // disable draggable for shared pages
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,
           onSelected: (context, view) {

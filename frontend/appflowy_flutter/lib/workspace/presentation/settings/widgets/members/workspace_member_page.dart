@@ -420,9 +420,7 @@ class _MemberItem extends StatelessWidget {
               UserAvatar(
                 iconUrl: member.avatarUrl,
                 name: member.name,
-                size: 24,
-                fontSize: 12,
-                emojiFontSize: 20,
+                size: AFAvatarSize.s,
               ),
               HSpace(8),
               Flexible(

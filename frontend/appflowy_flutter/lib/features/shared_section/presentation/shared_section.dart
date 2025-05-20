@@ -23,6 +23,7 @@ class SharedSection extends StatelessWidget {
       create: (_) => SharedSectionBloc(
         workspaceId: workspaceId,
         repository: RustSharePagesRepository(),
+        enablePolling: true,
       )..add(const SharedSectionEvent.init()),
       child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
