@@ -10,7 +10,7 @@ use flowy_sqlite::{
   schema::{chat_message_table, chat_message_table::dsl},
 };
 
-#[derive(Queryable, Insertable, Identifiable, Debug)]
+#[derive(Queryable, Insertable, Identifiable, Debug, Clone)]
 #[diesel(table_name = chat_message_table)]
 #[diesel(primary_key(message_id))]
 pub struct ChatMessageTable {
@@ -111,6 +111,11 @@ pub fn select_chat_messages(
     .filter(chat_message_table::chat_id.eq(chat_id_val))
     .into_boxed();
 
+  let total_count = dsl::chat_message_table
+    .filter(chat_message_table::chat_id.eq(chat_id_val))
+    .count()
+    .first::<i64>(&mut *conn)?;
+
   match offset {
     MessageCursor::AfterMessageId(after_message_id) => {
       query = query.filter(chat_message_table::message_id.gt(after_message_id));
@@ -124,32 +129,62 @@ pub fn select_chat_messages(
     MessageCursor::NextBack => {},
   }
 
-  // Get total count before applying limit
-  let total_count = dsl::chat_message_table
-    .filter(chat_message_table::chat_id.eq(chat_id_val))
-    .count()
-    .first::<i64>(&mut *conn)?;
+  // Order by message_id in descending order for all queries
+  query = query.order((
+    chat_message_table::created_at.desc(),
+    chat_message_table::message_id.desc(),
+  ));
 
-  query = query
-    .order((
-      chat_message_table::created_at.desc(),
-      chat_message_table::message_id.desc(),
-    ))
-    .limit(limit_val as i64);
+  if limit_val > 0 {
+    query = query.limit(limit_val as i64);
+  }
 
-  let messages: Vec<ChatMessageTable> = query.load::<ChatMessageTable>(&mut *conn)?;
-
-  // Check if there are more messages
-  let has_more = if let Some(last_message) = messages.last() {
-    let remaining_count = dsl::chat_message_table
-      .filter(chat_message_table::chat_id.eq(chat_id_val))
-      .filter(chat_message_table::message_id.lt(last_message.message_id))
-      .count()
-      .first::<i64>(&mut *conn)?;
-
-    remaining_count > 0
-  } else {
+  let messages = query.load::<ChatMessageTable>(&mut *conn)?;
+  let has_more = if limit_val == 0 {
+    // When limit is 0, there are no more messages to fetch
     false
+  } else {
+    match offset {
+      MessageCursor::BeforeMessageId(before_message_id) => {
+        if messages.is_empty() {
+          false
+        } else {
+          let smallest_id = messages
+            .last()
+            .map(|m| m.message_id)
+            .unwrap_or(before_message_id);
+          let more_messages_count = dsl::chat_message_table
+            .filter(chat_message_table::chat_id.eq(chat_id_val))
+            .filter(chat_message_table::message_id.lt(smallest_id))
+            .count()
+            .first::<i64>(&mut *conn)?;
+          more_messages_count > 0
+        }
+      },
+      MessageCursor::AfterMessageId(after_message_id) => {
+        if messages.is_empty() {
+          false
+        } else {
+          // First since we're ordering descending
+          let largest_id = messages
+            .first()
+            .map(|m| m.message_id)
+            .unwrap_or(after_message_id);
+          let more_messages_count = dsl::chat_message_table
+            .filter(chat_message_table::chat_id.eq(chat_id_val))
+            .filter(chat_message_table::message_id.lt(largest_id))
+            .count()
+            .first::<i64>(&mut *conn)?;
+          more_messages_count > 0
+        }
+      },
+      MessageCursor::Offset(offset_val) => {
+        ((offset_val as i64) + (messages.len() as i64)) < total_count
+      },
+      MessageCursor::NextBack => {
+        ((messages.len() as i64) < total_count) && ((messages.len() as u64) == limit_val)
+      },
+    }
   };
 
   Ok(ChatMessagesResult {
