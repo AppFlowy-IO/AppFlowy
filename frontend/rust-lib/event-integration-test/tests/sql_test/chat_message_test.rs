@@ -556,7 +556,7 @@ async fn chat_message_select_with_large_dataset() {
   };
 
   assert!(
-    result_after.messages.len() > 0,
+    !result_after.messages.is_empty(),
     "Should return at least one message"
   );
   assert!(
@@ -588,7 +588,7 @@ async fn chat_message_select_with_large_dataset() {
   };
 
   assert!(
-    result_before.messages.len() > 0,
+    !result_before.messages.is_empty(),
     "Should return at least one message"
   );
   assert!(
@@ -623,10 +623,6 @@ async fn chat_message_select_with_large_dataset() {
   ) {
     Ok(result) => result,
     Err(e) if e.to_string().contains("NotFound") => {
-      // For our test purposes, we can ignore the NotFound error
-      // and just skip checking messages
-      let total =
-        total_message_count(test.user_manager.db_connection(uid).unwrap(), &chat_id).unwrap();
       // Use Offset(0) with limit 0 to get an empty result with the right structure
       let db_conn = test.user_manager.db_connection(uid).unwrap();
       select_chat_messages(db_conn, &chat_id, 0, MessageCursor::Offset(0)).unwrap()
@@ -875,7 +871,7 @@ async fn chat_message_cursor_order_consistency_test() {
   let second_with_offset =
     select_chat_messages(db_conn, &chat_id, 5, MessageCursor::Offset(5)).unwrap();
   assert!(
-    second_with_offset.messages.len() > 0,
+    !second_with_offset.messages.is_empty(),
     "Second page should have at least one message"
   );
 
@@ -892,7 +888,7 @@ async fn chat_message_cursor_order_consistency_test() {
 
   // The AfterMessageId cursor should return messages with IDs > last_msg_of_first_page.message_id
   assert!(
-    second_with_after.messages.len() > 0,
+    !second_with_after.messages.is_empty(),
     "Second page with AfterMessageId should have at least one message"
   );
 
@@ -921,7 +917,7 @@ async fn chat_message_cursor_order_consistency_test() {
   let third_with_offset =
     select_chat_messages(db_conn, &chat_id, 5, MessageCursor::Offset(10)).unwrap();
   assert!(
-    third_with_offset.messages.len() > 0,
+    !third_with_offset.messages.is_empty(),
     "Third page should have at least one message"
   );
 
@@ -937,7 +933,7 @@ async fn chat_message_cursor_order_consistency_test() {
   .unwrap();
 
   assert!(
-    second_with_before.messages.len() > 0,
+    !second_with_before.messages.is_empty(),
     "Second page with BeforeMessageId should have at least one message"
   );
   println!(

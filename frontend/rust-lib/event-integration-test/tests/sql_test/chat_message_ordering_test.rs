@@ -245,7 +245,7 @@ async fn chat_message_after_message_id_cursor_test() {
   // Due to the implementation of the AfterMessageId cursor, we're using position-based offset
   // So instead of getting all messages with ID > 5000, we get messages after the position where 5000 would be
   assert!(
-    after_5000.messages.len() > 0,
+    !after_5000.messages.is_empty(),
     "Should get at least some messages after ID 5000"
   );
 
@@ -262,7 +262,7 @@ async fn chat_message_after_message_id_cursor_test() {
 
   // Due to the implementation of the AfterMessageId cursor, we don't need to assert a specific count
   assert!(
-    after_15000.messages.len() > 0,
+    !after_15000.messages.is_empty(),
     "Should get at least some messages after ID 15000"
   );
 
@@ -480,7 +480,7 @@ async fn chat_message_cursor_combination_test() {
   // With the new implementation, the number of messages may differ
   // but they should still be in proper order
   assert!(
-    page2_after.messages.len() > 0,
+    !page2_after.messages.is_empty(),
     "Should return some messages"
   );
 
@@ -512,7 +512,7 @@ async fn chat_message_cursor_combination_test() {
   // The BeforeMessageId cursor should still work as expected
   // Verify the length and content
   assert!(
-    page2_before.messages.len() > 0,
+    !page2_before.messages.is_empty(),
     "Should return some messages"
   );
 
