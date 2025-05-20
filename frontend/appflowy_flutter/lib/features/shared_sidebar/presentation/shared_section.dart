@@ -1,5 +1,5 @@
 import 'package:appflowy/features/shared_sidebar/data/rust_share_pagers_repository.dart';
-import 'package:appflowy/features/shared_sidebar/logic/shared_sidebar_bloc.dart';
+import 'package:appflowy/features/shared_sidebar/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_sidebar/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_sidebar/presentation/widgets/shared_pages_list.dart';
 import 'package:appflowy/features/shared_sidebar/presentation/widgets/shared_section_error.dart';
@@ -20,11 +20,11 @@ class SharedSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SharedSidebarBloc(
+      create: (_) => SharedSectionBloc(
         workspaceId: workspaceId,
         repository: RustSharePagesRepository(),
-      )..add(const SharedSidebarEvent.init()),
-      child: BlocBuilder<SharedSidebarBloc, SharedSidebarState>(
+      )..add(const SharedSectionEvent.init()),
+      child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
           if (state.isLoading) {
             return const SharedSectionLoading();
@@ -47,8 +47,8 @@ class SharedSection extends StatelessWidget {
               if (kDebugMode)
                 RefreshSharedSectionButton(
                   onTap: () {
-                    context.read<SharedSidebarBloc>().add(
-                          const SharedSidebarEvent.refresh(),
+                    context.read<SharedSectionBloc>().add(
+                          const SharedSectionEvent.refresh(),
                         );
                   },
                 ),
