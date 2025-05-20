@@ -587,5 +587,5 @@ pub(crate) async fn get_shared_views_handler(
 ) -> DataResult<RepeatedSharedViewResponsePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let resp = folder.get_shared_pages().await?;
-  data_result_ok(resp.into())
+  data_result_ok(resp)
 }

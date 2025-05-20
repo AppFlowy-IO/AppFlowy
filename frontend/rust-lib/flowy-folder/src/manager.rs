@@ -2176,7 +2176,7 @@ impl FolderManager {
     }
 
     // 2. Fetch the data from the cloud service and persist to the local database
-    let cloud_workspace_id = workspace_id.clone();
+    let cloud_workspace_id = workspace_id;
     let user = self.user.clone();
     let cloud_service = self.cloud_service.clone();
     tokio::spawn(async move {
