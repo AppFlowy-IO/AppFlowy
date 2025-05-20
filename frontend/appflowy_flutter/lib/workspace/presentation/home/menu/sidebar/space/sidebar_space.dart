@@ -31,6 +31,9 @@ class SidebarSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentWorkspace =
+        context.watch<UserWorkspaceBloc>().state.currentWorkspace;
+    final currentWorkspaceId = currentWorkspace?.workspaceId ?? '';
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (_, __, ___) => Provider.value(
@@ -53,7 +56,9 @@ class SidebarSpace extends StatelessWidget {
             // spaces
             const _Space(),
             const VSpace(16.0),
-            const SharedSection(),
+            SharedSection(
+              workspaceId: currentWorkspaceId,
+            ),
             const VSpace(200),
           ],
         ),
