@@ -86,7 +86,7 @@ class MobileSearchResultCell extends StatelessWidget {
           return Text(
             displayPath.join(' / '),
             style: theme.textStyle.body
-                .standard(color: theme.textColorScheme.secondary),
+                .standard(color: theme.textColorScheme.tertiary),
           );
         },
       ),

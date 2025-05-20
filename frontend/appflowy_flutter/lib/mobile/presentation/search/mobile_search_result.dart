@@ -105,9 +105,10 @@ class MobileSearchResultList extends StatelessWidget {
           style: context.searchSubtitleStyle,
         ),
         const VSpace(4),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(items.length, (index) {
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
             final item = items[index];
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -131,7 +132,9 @@ class MobileSearchResultList extends StatelessWidget {
                 query: state.query,
               ),
             );
-          }),
+          },
+          separatorBuilder: (context, index) => AFDivider(),
+          itemCount: items.length,
         ),
       ],
     );
