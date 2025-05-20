@@ -1,3 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 /// The access level a user can have on a shared page.
 enum ShareAccessLevel {
   /// Can view the page only.
@@ -15,13 +18,13 @@ enum ShareAccessLevel {
   String get i18n {
     switch (this) {
       case ShareAccessLevel.readOnly:
-        return 'View';
+        return LocaleKeys.shareTab_accessLevel_view.tr();
       case ShareAccessLevel.readAndComment:
-        return 'Comment';
+        return LocaleKeys.shareTab_accessLevel_comment.tr();
       case ShareAccessLevel.readAndWrite:
-        return 'Edit';
+        return LocaleKeys.shareTab_accessLevel_edit.tr();
       case ShareAccessLevel.fullAccess:
-        return 'Full access';
+        return LocaleKeys.shareTab_accessLevel_fullAccess.tr();
     }
   }
 }

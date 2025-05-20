@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
@@ -43,12 +45,12 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
           child: AFTextField(
             controller: controller,
             size: AFTextFieldSize.m,
-            hintText: 'Invite by email',
+            hintText: LocaleKeys.shareTab_inviteByEmail.tr(),
           ),
         ),
         HSpace(theme.spacing.s),
         AFFilledTextButton.primary(
-          text: 'Invite',
+          text: LocaleKeys.shareTab_invite.tr(),
           disabled: !isButtonEnabled,
           onTap: () {
             widget.onInvite(controller.text.trim().split(','));

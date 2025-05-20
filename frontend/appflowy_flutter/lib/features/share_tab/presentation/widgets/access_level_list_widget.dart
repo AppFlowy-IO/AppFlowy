@@ -1,6 +1,8 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class AccessLevelListCallbacks {
@@ -99,11 +101,11 @@ class AccessLevelListWidget extends StatelessWidget {
 
         // Additional user management options
         AFTextMenuItem(
-          title: 'Turn into Member',
+          title: LocaleKeys.shareTab_turnIntoMember.tr(),
           onTap: callbacks.onTurnIntoMember,
         ),
         AFTextMenuItem(
-          title: 'Remove access',
+          title: LocaleKeys.shareTab_removeAccess.tr(),
           titleColor: theme.textColorScheme.error,
           onTap: callbacks.onRemoveAccess,
         ),

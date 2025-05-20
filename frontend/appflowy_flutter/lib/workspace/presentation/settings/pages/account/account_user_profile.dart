@@ -89,13 +89,6 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
             name: widget.name,
             size: AFAvatarSize.l,
           ),
-          // UserAvatar(
-          //   iconUrl: widget.iconUrl,
-          //   name: widget.name,
-          //   size: 48,
-          //   fontSize: 20,
-          //   isHovering: isHovering,
-          // ),
         ),
       ),
     );
