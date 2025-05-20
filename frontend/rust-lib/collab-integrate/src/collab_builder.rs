@@ -311,18 +311,16 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
-    if get_operating_system().is_desktop() {
-      let cloned_object = object.clone();
-      let weak_collab = Arc::downgrade(&collab);
-      let weak_embedding_writer = self.embeddings_writer.clone();
-      tokio::spawn(async move {
-        if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
-          embedding_writer
-            .queue_collab_embed(cloned_object, weak_collab)
-            .await;
-        }
-      });
-    }
+    let cloned_object = object.clone();
+    let weak_collab = Arc::downgrade(&collab);
+    let weak_embedding_writer = self.embeddings_writer.clone();
+    tokio::spawn(async move {
+      if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
+        embedding_writer
+          .queue_collab_embed(cloned_object, weak_collab)
+          .await;
+      }
+    });
 
     let mut write_collab = collab.try_write()?;
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
