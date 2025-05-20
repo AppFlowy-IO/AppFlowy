@@ -17,14 +17,15 @@ class SearchAskAiEntrance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<CommandPaletteBloc?>(), state = bloc?.state;
-    final generatingAIOverview = state?.generatingAIOverview ?? false;
-    final hasAIOverview =
-        _mockSummary?.isNotEmpty ?? state?.resultSummaries.isNotEmpty ?? false;
-    if (generatingAIOverview) {
-      return _AISearching();
-    } else if (hasAIOverview) {
-      return _AIOverview();
-    }
+    if (bloc == null || state == null) return _AskAIFor();
+
+    final generatingAIOverview = state.generatingAIOverview;
+    if (generatingAIOverview) return _AISearching();
+
+    final hasMockSummary = _mockSummary?.isNotEmpty ?? false,
+        hasSummaries = state.resultSummaries.isNotEmpty;
+    if (hasMockSummary || hasSummaries) return _AIOverview();
+
     return _AskAIFor();
   }
 }
