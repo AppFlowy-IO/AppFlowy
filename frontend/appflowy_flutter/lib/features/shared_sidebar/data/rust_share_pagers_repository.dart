@@ -29,12 +29,13 @@ class RustSharePagesRepository implements SharePagesRepository {
 
 extension on RepeatedSharedViewResponsePB {
   SharedPages get sharedPages {
-    return [
-      for (final sharedView in sharedViews)
-        SharedPage(
-          view: sharedView.view,
-          accessLevel: sharedView.accessLevel,
-        ),
-    ];
+    return sharedViews
+        .map(
+          (sharedView) => SharedPage(
+            view: sharedView.view,
+            accessLevel: sharedView.accessLevel,
+          ),
+        )
+        .toList();
   }
 }
