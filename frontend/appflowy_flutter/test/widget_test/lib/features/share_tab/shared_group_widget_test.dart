@@ -1,4 +1,6 @@
 import 'package:appflowy/features/share_tab/presentation/widgets/shared_group_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../widget_test_wrapper.dart';
@@ -12,9 +14,12 @@ void main() {
           child: SharedGroupWidget(),
         ),
       );
-      expect(find.text('Anyone at AppFlowy'), findsOneWidget);
       expect(
-        find.text('Anyone in this group with the link can edit'),
+        find.text(LocaleKeys.shareTab_anyoneAtWorkspace.tr()),
+        findsOneWidget,
+      );
+      expect(
+        find.text(LocaleKeys.shareTab_anyoneInGroupWithLinkCanEdit.tr()),
         findsOneWidget,
       );
       // Trailing widget: EditAccessLevelWidget (disabled)

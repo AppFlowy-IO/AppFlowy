@@ -1,6 +1,8 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../widget_test_wrapper.dart';
@@ -47,12 +49,12 @@ void main() {
       expect(selectedLevel, ShareAccessLevel.readOnly);
 
       // Tap on Turn into Member
-      await tester.tap(find.text('Turn into Member'));
+      await tester.tap(find.text(LocaleKeys.shareTab_turnIntoMember.tr()));
       await tester.pumpAndSettle();
       expect(turnedIntoMember, isTrue);
 
       // Tap on Remove access
-      await tester.tap(find.text('Remove access'));
+      await tester.tap(find.text(LocaleKeys.shareTab_removeAccess.tr()));
       await tester.pumpAndSettle();
       expect(removedAccess, isTrue);
     });
@@ -75,8 +77,11 @@ void main() {
       expect(find.text(ShareAccessLevel.readOnly.i18n), findsNothing);
 
       // Management options should be present
-      expect(find.text('Turn into Member'), findsOneWidget);
-      expect(find.text('Remove access'), findsOneWidget);
+      expect(
+        find.text(LocaleKeys.shareTab_turnIntoMember.tr()),
+        findsOneWidget,
+      );
+      expect(find.text(LocaleKeys.shareTab_removeAccess.tr()), findsOneWidget);
     });
   });
 }
