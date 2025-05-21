@@ -27,7 +27,7 @@ dependencies:
     path: packages/appflowy_result
   appflowy_ui:
     path: packages/appflowy_ui
-  archive: ^3.4.10
+  archive: ^4.0.2
   auto_size_text_field: ^2.2.3
   auto_updater: ^1.0.0
   avatar_stack: ^3.0.0
@@ -108,6 +108,7 @@ dependencies:
   markdown_widget: ^2.3.2+6
   mime: ^2.0.0
   nanoid: ^1.0.0
+  native_splash_screen: ^2.1.0
   numerus: ^2.1.2
 
   # Used to open local files on Mobile
@@ -168,6 +169,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
 
   mocktail: ^1.0.1
+  native_splash_screen_cli: ^2.1.0
 
   plugin_platform_interface: any
   run_with_network_images: ^0.0.1
@@ -176,6 +178,7 @@ dev_dependencies:
 dependency_overrides:
   http: ^1.0.0
   device_info_plus: ^11.2.2
+  path: ^1.9.0
 
   url_protocol:
     git:

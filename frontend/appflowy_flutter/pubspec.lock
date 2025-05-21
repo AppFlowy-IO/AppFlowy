@@ -137,18 +137,18 @@ packages:
     dependency: "direct main"
     description:
       name: archive
-      sha256: cb6a278ef2dbb298455e1a713bda08524a175630ec643a242c399c932a0a1f7d
+      sha256: "2fde1607386ab523f7a36bb3e7edb43bd58e6edaf2ffb29d8a6d578b297fdbbd"
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.1"
+    version: "4.0.7"
   args:
     dependency: transitive
     description:
       name: args
-      sha256: bf9f5caeea8d8fe6721a9c358dd8a5c1947b27f1cfaa18b39c301273594919e6
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.0"
   async:
     dependency: transitive
     description:
@@ -1129,10 +1129,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: f31d52537dc417fdcde36088fdf11d191026fd5e4fae742491ebd40e5a8bea7d
+      sha256: "4e973fcf4caae1a4be2fa0a13157aa38a8f9cb049db6529aa00b4d71abc4d928"
       url: "https://pub.dev"
     source: hosted
-    version: "4.3.0"
+    version: "4.5.4"
   image_picker:
     dependency: "direct main"
     description:
@@ -1346,6 +1346,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.6"
+  logger:
+    dependency: transitive
+    description:
+      name: logger
+      sha256: be4b23575aac7ebf01f225a241eb7f6b5641eeaf43c6a8613510fc2f8cf187d1
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
   logging:
     dependency: transitive
     description:
@@ -1434,6 +1442,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  native_splash_screen:
+    dependency: "direct main"
+    description:
+      name: native_splash_screen
+      sha256: fa79c6efa1650a3038ea28129e9097019f016bc1e385d95ada42900aa8c62ec4
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  native_splash_screen_cli:
+    dependency: "direct dev"
+    description:
+      name: native_splash_screen_cli
+      sha256: f69dfd2bd97a9a199c66f720b6c3f7c5bb228f8e952d45d950a50e1e50c89bf6
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  native_splash_screen_linux:
+    dependency: transitive
+    description:
+      name: native_splash_screen_linux
+      sha256: "0b22aef68df012d3e26d6f5dc22e119578b968d8e5502de6f76758727944a37b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  native_splash_screen_macos:
+    dependency: transitive
+    description:
+      name: native_splash_screen_macos
+      sha256: cb49012650eefa71b59da2c937ea251f99e1fd7113884474dfe66bb0a64487d9
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  native_splash_screen_platform_interface:
+    dependency: transitive
+    description:
+      name: native_splash_screen_platform_interface
+      sha256: "8644f673942ff6247571ce94ede4a63c5d4d9b316805be4296a0a63a4918ad1b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  native_splash_screen_windows:
+    dependency: transitive
+    description:
+      name: native_splash_screen_windows
+      sha256: "16d4a65349dca2e63ebea325bb7ee9c2df2f1f54b89edc057591b09dbd8b72b0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   nested:
     dependency: transitive
     description:
@@ -1690,6 +1746,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  posix:
+    dependency: transitive
+    description:
+      name: posix
+      sha256: f0d7856b6ca1887cfa6d1d394056a296ae33489db914e365e2044fdada449e62
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.2"
   process:
     dependency: transitive
     description:
