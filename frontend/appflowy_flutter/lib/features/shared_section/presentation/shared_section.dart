@@ -35,6 +35,11 @@ class SharedSection extends StatelessWidget {
             return SharedSectionError(errorMessage: state.errorMessage);
           }
 
+          // hide the shared section if there are no shared pages
+          if (state.sharedPages.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

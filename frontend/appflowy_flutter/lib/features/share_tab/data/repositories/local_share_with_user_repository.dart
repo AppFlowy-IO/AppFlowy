@@ -9,7 +9,7 @@ import 'share_with_user_repository.dart';
 class LocalShareWithUserRepository extends ShareWithUserRepository {
   LocalShareWithUserRepository();
 
-  final List<SharedUser> _sharedUsers = [
+  final SharedUsers _sharedUsers = [
     SharedUser(
       email: 'lucas.xu@appflowy.io',
       name: 'Lucas Xu',
@@ -61,7 +61,7 @@ class LocalShareWithUserRepository extends ShareWithUserRepository {
     ),
   ];
 
-  final List<SharedUser> _availableSharedUsers = [
+  final SharedUsers _availableSharedUsers = [
     SharedUser(
       email: 'guest_email@appflowy.io',
       name: 'Guest',
@@ -79,7 +79,7 @@ class LocalShareWithUserRepository extends ShareWithUserRepository {
   ];
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+  Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({
     required String pageId,
   }) async {
     return FlowySuccess(_sharedUsers);
@@ -134,7 +134,7 @@ class LocalShareWithUserRepository extends ShareWithUserRepository {
   }
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+  Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   }) async {
     return FlowySuccess([

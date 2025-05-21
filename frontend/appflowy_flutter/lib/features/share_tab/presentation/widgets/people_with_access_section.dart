@@ -40,7 +40,7 @@ class PeopleWithAccessSection extends StatelessWidget {
   });
 
   final String currentUserEmail;
-  final List<SharedUser> users;
+  final SharedUsers users;
   final PeopleWithAccessSectionCallbacks? callbacks;
 
   @override

@@ -13,7 +13,7 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
   RustShareWithUserRepository();
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+  Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({
     required String pageId,
   }) async {
     final request = GetSharedUsersPayloadPB(
@@ -90,7 +90,7 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
   }
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+  Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   }) async {
     // TODO: Implement this

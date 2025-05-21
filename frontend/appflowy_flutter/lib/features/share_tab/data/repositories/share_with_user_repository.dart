@@ -8,12 +8,12 @@ import 'package:appflowy_result/appflowy_result.dart';
 /// for the future.
 abstract class ShareWithUserRepository {
   /// Gets the list of users and their roles for a shared page.
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+  Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({
     required String pageId,
   });
 
   /// Gets the list of users that are available to be shared with.
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+  Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   });
 
