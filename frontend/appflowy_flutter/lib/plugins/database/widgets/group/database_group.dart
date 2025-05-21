@@ -57,25 +57,28 @@ class DatabaseGroupList extends StatelessWidget {
 
           final children = [
             if (showHideUngroupedToggle) ...[
-              SizedBox(
-                height: GridSize.popoverItemHeight,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FlowyText(
-                          LocaleKeys.board_showUngrouped.tr(),
-                        ),
-                      ),
-                      Toggle(
-                        value: !state.layoutSettings.hideUngroupedColumn,
-                        onChanged: (value) =>
-                            _updateLayoutSettings(state.layoutSettings, !value),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: SizedBox(
+                  height: GridSize.popoverItemHeight,
+                  child: FlowyButton(
+                    resetHoverOnRebuild: false,
+                    text: FlowyText(
+                      LocaleKeys.board_showUngrouped.tr(),
+                      lineHeight: 1.0,
+                    ),
+                    onTap: () {
+                      _updateLayoutSettings(
+                        state.layoutSettings,
+                        !state.layoutSettings.hideUngroupedColumn,
+                      );
+                    },
+                    rightIcon: Toggle(
+                      value: !state.layoutSettings.hideUngroupedColumn,
+                      onChanged: (value) =>
+                          _updateLayoutSettings(state.layoutSettings, !value),
+                      padding: EdgeInsets.zero,
+                    ),
                   ),
                 ),
               ),

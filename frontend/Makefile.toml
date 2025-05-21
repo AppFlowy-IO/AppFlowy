@@ -1,16 +1,16 @@
 #https://github.com/sagiegurari/cargo-make
 
 extend = [
-    { path = "scripts/makefile/desktop.toml" },
-    { path = "scripts/makefile/mobile.toml" },
-    { path = "scripts/makefile/protobuf.toml" },
-    { path = "scripts/makefile/tests.toml" },
-    { path = "scripts/makefile/docker.toml" },
-    { path = "scripts/makefile/env.toml" },
-    { path = "scripts/makefile/flutter.toml" },
-    { path = "scripts/makefile/tool.toml" },
-    { path = "scripts/makefile/tauri.toml" },
-    { path = "scripts/makefile/web.toml" },
+  { path = "scripts/makefile/desktop.toml" },
+  { path = "scripts/makefile/mobile.toml" },
+  { path = "scripts/makefile/protobuf.toml" },
+  { path = "scripts/makefile/tests.toml" },
+  { path = "scripts/makefile/docker.toml" },
+  { path = "scripts/makefile/env.toml" },
+  { path = "scripts/makefile/flutter.toml" },
+  { path = "scripts/makefile/tool.toml" },
+  { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]
@@ -26,7 +26,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-APPFLOWY_VERSION = "0.8.4"
+APPFLOWY_VERSION = "0.9.3"
 FLUTTER_DESKTOP_FEATURES = "dart"
 PRODUCT_NAME = "AppFlowy"
 MACOSX_DEPLOYMENT_TARGET = "11.0"
@@ -228,30 +228,31 @@ script = ['''
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo BUILD_ARCHS: ${BUILD_ARCHS}
     echo BUILD_VERSION: ${BUILD_VERSION}
+    echo RUST_VERSION: "$(rustc --version)"
     ''']
 script_runner = "@shell"
 
 [tasks.setup-crate-type]
 private = true
 script = [
-    """
-        toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-        val = replace ${toml} "staticlib" ${CRATE_TYPE}
-        result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
-        assert ${result}
-        """,
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "staticlib" ${CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
 ]
 script_runner = "@duckscript"
 
 [tasks.restore-crate-type]
 private = true
 script = [
-    """
-        toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-        val = replace ${toml} ${CRATE_TYPE} "staticlib"
-        result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
-        assert ${result}
-        """,
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} ${CRATE_TYPE} "staticlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
 ]
 script_runner = "@duckscript"
 
@@ -279,24 +280,24 @@ TEST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 [tasks.setup-test-crate-type]
 private = true
 script = [
-    """
-        toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-        val = replace ${toml} "staticlib" ${TEST_CRATE_TYPE}
-        result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
-        assert ${result}
-        """,
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "staticlib" ${TEST_CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
 ]
 script_runner = "@duckscript"
 
 [tasks.restore-test-crate-type]
 private = true
 script = [
-    """
-        toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-        val = replace ${toml} ${TEST_CRATE_TYPE} "staticlib"
-        result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
-        assert ${result}
-        """,
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} ${TEST_CRATE_TYPE} "staticlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
 ]
 script_runner = "@duckscript"
 

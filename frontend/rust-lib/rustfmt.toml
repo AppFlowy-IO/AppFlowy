@@ -9,4 +9,4 @@ reorder_imports = true
 reorder_modules = true
 remove_nested_parens = true
 merge_derives = true
-edition = "2021"
+edition = "2024"

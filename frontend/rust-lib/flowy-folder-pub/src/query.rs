@@ -3,6 +3,7 @@ use collab_entity::CollabType;
 use collab_folder::ViewLayout;
 use flowy_error::FlowyResult;
 use lib_infra::async_trait::async_trait;
+use uuid::Uuid;
 
 pub struct QueryCollab {
   pub collab_type: CollabType,
@@ -17,14 +18,14 @@ pub trait FolderQueryService: Send + Sync + 'static {
   /// the provided view layout, given that the parent view is not a space
   async fn get_surrounding_view_ids_with_view_layout(
     &self,
-    parent_view_id: &str,
+    parent_view_id: &Uuid,
     view_layout: ViewLayout,
-  ) -> Vec<String>;
+  ) -> Vec<Uuid>;
 
-  async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab>;
+  async fn get_collab(&self, object_id: &Uuid, collab_type: CollabType) -> Option<QueryCollab>;
 }
 
 #[async_trait]
 pub trait FolderViewEdit: Send + Sync + 'static {
-  async fn set_view_title_if_empty(&self, view_id: &str, title: &str) -> FlowyResult<()>;
+  async fn set_view_title_if_empty(&self, view_id: &Uuid, title: &str) -> FlowyResult<()>;
 }

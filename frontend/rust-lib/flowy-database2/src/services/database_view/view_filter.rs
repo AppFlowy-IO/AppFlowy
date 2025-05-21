@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
-  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
+  DatabaseViewChangedNotifier, DatabaseViewOperation, gen_handler_id,
 };
 use crate::services::filter::{Filter, FilterController, FilterDelegate, FilterTaskHandler};
 use collab_database::fields::Field;

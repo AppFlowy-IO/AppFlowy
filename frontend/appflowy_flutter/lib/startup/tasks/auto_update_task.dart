@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -16,17 +18,20 @@ class AutoUpdateTask extends LaunchTask {
   AutoUpdateTask();
 
   static const _feedUrl =
-      'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
+      'https://github.com/AppFlowy-IO/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
   final _listener = _AppFlowyAutoUpdaterListener();
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     // the auto updater is not supported on mobile
     if (UniversalPlatform.isMobile) {
       return;
     }
 
-    await _setupAutoUpdater();
+    // don't use await here, because the auto updater is not a blocking operation
+    unawaited(_setupAutoUpdater());
 
     ApplicationInfo.isCriticalUpdateNotifier.addListener(
       _showCriticalUpdateDialog,
@@ -35,6 +40,8 @@ class AutoUpdateTask extends LaunchTask {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     autoUpdater.removeListener(_listener);
 
     ApplicationInfo.isCriticalUpdateNotifier.removeListener(

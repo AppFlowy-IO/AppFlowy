@@ -98,7 +98,7 @@ class MobileSpace extends StatelessWidget {
             Navigator.of(sheetContext).pop();
             context.read<SpaceBloc>().add(
                   SpaceEvent.createPage(
-                    name: layout.defaultName,
+                    name: '',
                     layout: layout,
                     index: 0,
                     openAfterCreate: true,

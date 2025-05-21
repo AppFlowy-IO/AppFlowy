@@ -54,7 +54,7 @@ where
     self
       .target_filter
       .as_ref()
-      .map_or(true, |f| f(metadata.target()))
+      .is_none_or(|f| f(metadata.target()))
   }
 
   fn serialize_fields(

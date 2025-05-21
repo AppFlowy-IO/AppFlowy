@@ -1,6 +1,6 @@
 use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
 use crate::notification::{
-  database_notification_builder, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE,
+  DATABASE_OBSERVABLE_SOURCE, DatabaseNotification, database_notification_builder,
 };
 use crate::services::database::{DatabaseEditor, UpdatedRow};
 use crate::services::database_view::DatabaseViewEditor;
@@ -16,6 +16,7 @@ use futures::StreamExt;
 
 use std::sync::Arc;
 use tracing::{error, trace, warn};
+use uuid::Uuid;
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
@@ -51,8 +52,7 @@ pub(crate) async fn observe_rows_change(
       while let Ok(row_change) = row_change.recv().await {
         trace!(
           "[Database Observe]: {} row change:{:?}",
-          database_id,
-          row_change
+          database_id, row_change
         );
         if let Some(database) = weak_database.upgrade() {
           match row_change {
@@ -98,8 +98,7 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
 
         trace!(
           "[Database Observe]: {} field change:{:?}",
-          database_id,
-          field_change
+          database_id, field_change
         );
         match field_change {
           FieldChange::DidUpdateField { .. } => {},
@@ -112,7 +111,7 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
+pub(crate) async fn observe_view_change(database_id: &Uuid, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
   let weak_database_editor = Arc::downgrade(database_editor);
   let view_change = database_editor
@@ -126,8 +125,7 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
       while let Ok(view_change) = view_change.recv().await {
         trace!(
           "[Database View Observe]: {} view change:{:?}",
-          database_id,
-          view_change
+          database_id, view_change
         );
         match weak_database_editor.upgrade() {
           None => break,
@@ -215,9 +213,7 @@ async fn handle_did_update_row_orders(
     {
       trace!(
         "[RowOrder]: insert row:{} at index:{}, is_local:{}",
-        row_order.id,
-        index,
-        is_local_change
+        row_order.id, index, is_local_change
       );
 
       // insert row order in database view cache
@@ -258,10 +254,7 @@ async fn handle_did_update_row_orders(
         if let Some(row) = view_editor.row_by_row_id.get(lazy_row.id.as_str()) {
           trace!(
             "[RowOrder]: delete row:{} at index:{}, is_move_row: {}, is_local:{}",
-            row.id,
-            index,
-            row_change.is_move_row,
-            is_local_change
+            row.id, index, row_change.is_move_row, is_local_change
           );
           view_editor
             .v_did_delete_row(&row, row_change.is_move_row, is_local_change)
@@ -289,7 +282,7 @@ async fn handle_did_update_row_orders(
   }
 }
 
-pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
+pub(crate) async fn observe_block_event(database_id: &Uuid, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
   let mut block_event_rx = database_editor
     .database
@@ -305,8 +298,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
 
       trace!(
         "[Database Observe]: {} block event: {:?}",
-        database_id,
-        event
+        database_id, event
       );
       match event {
         BlockEvent::DidFetchRow(row_details) => {

@@ -66,7 +66,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
 
   Widget _buildPopup(ViewInfoState viewInfoState) {
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.userProfile;
+    final userProfile = userWorkspaceBloc.state.userProfile;
     final workspaceId =
         userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
 
@@ -96,7 +96,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           return BlocBuilder<SpaceBloc, SpaceState>(
             builder: (context, state) {
               if (state.spaces.isEmpty &&
-                  userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
+                  userProfile.workspaceType == WorkspaceTypePB.ServerW) {
                 return const SizedBox.shrink();
               }
 
@@ -142,7 +142,8 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           mutex: popoverMutex,
         ),
       ],
-      if (widget.view.isDocument || widget.view.isDatabase) ...[
+      if (state.workspaceType == WorkspaceTypePB.ServerW &&
+          (widget.view.isDocument || widget.view.isDatabase)) ...[
         LockPageAction(
           view: view,
         ),

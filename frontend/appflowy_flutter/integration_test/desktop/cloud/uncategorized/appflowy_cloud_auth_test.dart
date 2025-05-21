@@ -39,8 +39,8 @@ void main() {
       );
       await tester.tapButton(find.byType(AccountSignInOutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_ok.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
+      tester.expectToSeeText(LocaleKeys.button_yes.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_yes.tr());
 
       // Go to the sign in page again
       await tester.pumpAndSettle(const Duration(seconds: 5));

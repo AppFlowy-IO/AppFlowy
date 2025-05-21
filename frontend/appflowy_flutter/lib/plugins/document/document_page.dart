@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ai_writer_scroll_wrapper.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
@@ -20,6 +22,7 @@ import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -86,9 +89,12 @@ class _DocumentPageState extends State<DocumentPage>
         BlocProvider.value(value: documentBloc),
         BlocProvider.value(
           value: ViewLockStatusBloc(view: widget.view)
-            ..add(
-              ViewLockStatusEvent.initial(),
-            ),
+            ..add(ViewLockStatusEvent.initial()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+          lazy: false,
         ),
       ],
       child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
@@ -122,14 +128,20 @@ class _DocumentPageState extends State<DocumentPage>
                 return const SizedBox.shrink();
               }
 
-              return BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
-                listener: (context, state) {
-                  editorState.editable = !state.isLocked;
-                },
-                child:
-                    BlocListener<ActionNavigationBloc, ActionNavigationState>(
-                  listenWhen: (_, curr) => curr.action != null,
-                  listener: onNotificationAction,
+              return MultiBlocListener(
+                listeners: [
+                  BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
+                    listener: (context, state) =>
+                        editorState.editable = !state.isLocked,
+                  ),
+                  BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                    listenWhen: (_, curr) => curr.action != null,
+                    listener: onNotificationAction,
+                  ),
+                ],
+                child: AiWriterScrollWrapper(
+                  viewId: widget.view.id,
+                  editorState: editorState,
                   child: buildEditorPage(context, state),
                 ),
               );
@@ -188,6 +200,10 @@ class _DocumentPageState extends State<DocumentPage>
           ),
           header: buildCoverAndIcon(context, state),
           initialSelection: initialSelection,
+          placeholderText: (node) =>
+              node.type == ParagraphBlockKeys.type && !node.isInTable
+                  ? LocaleKeys.editor_slashPlaceHolder.tr()
+                  : '',
         ),
       );
     }
@@ -285,11 +301,15 @@ class _DocumentPageState extends State<DocumentPage>
   }
 
   Path? _getPathFromAction(NavigationAction action, EditorState editorState) {
-    Path? path = action.arguments?[ActionArgumentKeys.nodePath];
-    if (path == null || path.isEmpty) {
-      final blockId = action.arguments?[ActionArgumentKeys.blockId];
-      if (blockId != null) {
-        path = _findNodePathByBlockId(editorState, blockId);
+    final path = action.arguments?[ActionArgumentKeys.nodePath];
+    if (path is int) {
+      return [path];
+    } else if (path is List<int>?) {
+      if (path == null || path.isEmpty) {
+        final blockId = action.arguments?[ActionArgumentKeys.blockId];
+        if (blockId != null) {
+          return _findNodePathByBlockId(editorState, blockId);
+        }
       }
     }
     return path;

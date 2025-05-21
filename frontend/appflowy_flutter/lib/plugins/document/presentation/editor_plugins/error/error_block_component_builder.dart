@@ -30,6 +30,10 @@ class ErrorBlockComponentBuilder extends BlockComponentBuilder {
         blockComponentContext,
         state,
       ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -43,6 +47,7 @@ class ErrorBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -81,6 +86,7 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }
@@ -148,7 +154,6 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
 
   void _copyBlockContent() {
     showToastNotification(
-      context,
       message: LocaleKeys.document_errorBlock_blockContentHasBeenCopied.tr(),
     );
 

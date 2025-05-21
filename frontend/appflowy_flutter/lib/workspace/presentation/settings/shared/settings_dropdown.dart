@@ -16,13 +16,17 @@ class SettingsDropdown<T> extends StatefulWidget {
     this.onChanged,
     this.actions,
     this.expandWidth = true,
+    this.selectOptionCompare,
+    this.textStyle,
   });
 
   final T selectedOption;
+  final CompareFunction<T>? selectOptionCompare;
   final List<DropdownMenuEntry<T>> options;
   final void Function(T)? onChanged;
   final List<Widget>? actions;
   final bool expandWidth;
+  final TextStyle? textStyle;
 
   @override
   State<SettingsDropdown<T>> createState() => _SettingsDropdownState<T>();
@@ -52,10 +56,12 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
             expandedInsets: widget.expandWidth ? EdgeInsets.zero : null,
             initialSelection: widget.selectedOption,
             dropdownMenuEntries: widget.options,
-            textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontFamily: fontFamilyUsed,
-                  fontWeight: FontWeight.w400,
-                ),
+            selectOptionCompare: widget.selectOptionCompare,
+            textStyle: widget.textStyle ??
+                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontFamily: fontFamilyUsed,
+                      fontWeight: FontWeight.w400,
+                    ),
             menuStyle: MenuStyle(
               maximumSize:
                   const WidgetStatePropertyAll(Size(double.infinity, 250)),

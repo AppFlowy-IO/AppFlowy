@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -40,7 +41,9 @@ KeyEventResult _enterInTableCellHandler(EditorState editorState) {
         return KeyEventResult.handled;
       }
     }
-    return convertToParagraphCommand.execute(editorState);
+    if (node.type != CalloutBlockKeys.type) {
+      return convertToParagraphCommand.execute(editorState);
+    }
   }
 
   return KeyEventResult.ignored;

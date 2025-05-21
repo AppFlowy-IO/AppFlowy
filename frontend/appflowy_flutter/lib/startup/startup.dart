@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:synchronized/synchronized.dart';
 
 import 'deps_resolver.dart';
 import 'entry_point.dart';
@@ -81,6 +84,9 @@ class FlowyRunner {
       IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
     }
 
+    // Disable the log in test mode
+    Log.shared.disableLog = mode.isTest;
+
     // Clear and dispose tasks from previous AppLaunch
     if (getIt.isRegistered(instance: AppLauncher)) {
       await getIt<AppLauncher>().dispose();
@@ -115,11 +121,10 @@ class FlowyRunner {
         // don't catch errors in test mode
         if (!mode.isUnitTest && !mode.isIntegrationTest)
           const PlatformErrorCatcherTask(),
-        if (!mode.isUnitTest) const InitSentryTask(),
         // this task should be second task, for handling memory leak.
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
-        const DebugTask(),
+        DebugTask(),
         const FeatureFlagTask(),
 
         // localization
@@ -185,6 +190,10 @@ Future<void> initGetIt(
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
   getIt.registerSingleton<ViewExpanderRegistry>(ViewExpanderRegistry());
+  getIt.registerSingleton<LinkHoverTriggers>(LinkHoverTriggers());
+  getIt.registerSingleton<FloatingToolbarController>(
+    FloatingToolbarController(),
+  );
 
   await DependencyResolver.resolve(getIt, mode);
 }
@@ -204,14 +213,20 @@ enum LaunchTaskType {
 
 /// The interface of an app launch task, which will trigger
 /// some nonresident indispensable task in app launching task.
-abstract class LaunchTask {
+class LaunchTask {
   const LaunchTask();
 
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
-  Future<void> initialize(LaunchContext context);
+  @mustCallSuper
+  Future<void> initialize(LaunchContext context) async {
+    Log.info('LaunchTask: $runtimeType initialize');
+  }
 
-  Future<void> dispose();
+  @mustCallSuper
+  Future<void> dispose() async {
+    Log.info('LaunchTask: $runtimeType dispose');
+  }
 }
 
 class AppLauncher {
@@ -221,26 +236,53 @@ class AppLauncher {
 
   final LaunchContext context;
   final List<LaunchTask> tasks = [];
+  final lock = Lock();
 
   void addTask(LaunchTask task) {
-    tasks.add(task);
+    lock.synchronized(() {
+      Log.info('AppLauncher: adding task: $task');
+      tasks.add(task);
+    });
   }
 
   void addTasks(Iterable<LaunchTask> tasks) {
-    this.tasks.addAll(tasks);
+    lock.synchronized(() {
+      Log.info('AppLauncher: adding tasks: ${tasks.map((e) => e.runtimeType)}');
+      this.tasks.addAll(tasks);
+    });
   }
 
   Future<void> launch() async {
-    for (final task in tasks) {
-      await task.initialize(context);
-    }
+    await lock.synchronized(() async {
+      final startTime = Stopwatch()..start();
+      Log.info('AppLauncher: start initializing tasks');
+
+      for (final task in tasks) {
+        final startTaskTime = Stopwatch()..start();
+        await task.initialize(context);
+        final endTaskTime = startTaskTime.elapsed.inMilliseconds;
+        Log.info(
+          'AppLauncher: task ${task.runtimeType} initialized in $endTaskTime ms',
+        );
+      }
+
+      final endTime = startTime.elapsed.inMilliseconds;
+      Log.info('AppLauncher: tasks initialized in $endTime ms');
+    });
   }
 
   Future<void> dispose() async {
-    for (final task in tasks) {
-      await task.dispose();
-    }
-    tasks.clear();
+    await lock.synchronized(() async {
+      Log.info('AppLauncher: start clearing tasks');
+
+      for (final task in tasks) {
+        await task.dispose();
+      }
+
+      tasks.clear();
+
+      Log.info('AppLauncher: tasks cleared');
+    });
   }
 }
 

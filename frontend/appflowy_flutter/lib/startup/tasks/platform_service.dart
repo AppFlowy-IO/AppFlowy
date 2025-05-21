@@ -9,11 +9,15 @@ class InitPlatformServiceTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     return getIt<NetworkListener>().start();
   }
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
+
     await getIt<NetworkListener>().stop();
   }
 }

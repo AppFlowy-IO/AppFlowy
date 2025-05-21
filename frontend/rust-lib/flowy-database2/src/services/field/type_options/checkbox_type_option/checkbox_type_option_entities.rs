@@ -2,13 +2,13 @@ use std::str::FromStr;
 
 use bytes::Bytes;
 use collab::util::AnyMapExt;
-use collab_database::rows::{new_cell_builder, Cell};
+use collab_database::rows::{Cell, new_cell_builder};
 use collab_database::template::util::ToCellString;
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::CellProtobufBlobParser;
-use crate::services::field::{TypeOptionCellData, CELL_DATA};
+use crate::services::field::{CELL_DATA, TypeOptionCellData};
 
 pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";

@@ -113,8 +113,10 @@ extension ViewExtension on ViewPB {
           initialRowId: rowId,
         );
       case ViewLayoutPB.Document:
-        final Selection? initialSelection =
-            arguments[PluginArgumentKeys.selection];
+        final selectionValue = arguments[PluginArgumentKeys.selection];
+        Selection? initialSelection;
+        if (selectionValue is Selection) initialSelection = selectionValue;
+
         final String? initialBlockId = arguments[PluginArgumentKeys.blockId];
 
         return DocumentPlugin(
@@ -296,6 +298,21 @@ extension ViewExtension on ViewPB {
       return PageStyleFontLayout.normal;
     }
   }
+
+  @visibleForTesting
+  set isSpace(bool value) {
+    try {
+      if (extra.isEmpty) {
+        extra = jsonEncode({ViewExtKeys.isSpaceKey: value});
+      } else {
+        final ext = jsonDecode(extra);
+        ext[ViewExtKeys.isSpaceKey] = value;
+        extra = jsonEncode(ext);
+      }
+    } catch (e) {
+      extra = jsonEncode({ViewExtKeys.isSpaceKey: value});
+    }
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
@@ -334,6 +351,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
 
   bool get shrinkWrappable => switch (this) {
         ViewLayoutPB.Grid => true,
+        ViewLayoutPB.Board => true,
         _ => false,
       };
 

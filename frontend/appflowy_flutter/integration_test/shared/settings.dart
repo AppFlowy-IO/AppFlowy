@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -79,14 +78,14 @@ extension AppFlowySettings on WidgetTester {
     // Enable editing username
     final editUsernameFinder = find.descendant(
       of: find.byType(AccountUserProfile),
-      matching: find.byFlowySvg(FlowySvgs.edit_s),
+      matching: find.byFlowySvg(FlowySvgs.toolbar_link_edit_m),
     );
     await tap(editUsernameFinder, warnIfMissed: false);
     await pumpAndSettle();
 
     final userNameFinder = find.descendant(
       of: find.byType(AccountUserProfile),
-      matching: find.byType(FlowyTextField),
+      matching: find.byType(TextField),
     );
     await enterText(userNameFinder, name);
     await pumpAndSettle();

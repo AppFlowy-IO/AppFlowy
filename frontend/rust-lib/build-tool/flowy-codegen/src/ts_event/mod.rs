@@ -1,10 +1,10 @@
 mod event_template;
 
+use crate::Project;
 use crate::ast::EventASTContext;
-use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
+use crate::flowy_toml::{CrateConfig, parse_crate_config_from};
 use crate::ts_event::event_template::{EventRenderContext, EventTemplate};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
-use crate::Project;
 use flowy_ast::ASTResult;
 use std::collections::HashSet;
 use std::fs::File;
@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn gen(dest_folder_name: &str, project: Project) {
+pub fn r#gen(dest_folder_name: &str, project: Project) {
   let root = project.event_root();
   let backend_service_path = project.dst();
 
@@ -153,8 +153,7 @@ pub fn parse_event_crate(event_crate: &TsEventCrate) -> Vec<EventASTContext> {
             attrs
               .iter()
               .filter(|attr| !attr.attrs.event_attrs.ignore)
-              .enumerate()
-              .map(|(_index, variant)| EventASTContext::from(&variant.attrs))
+              .map(|variant| EventASTContext::from(&variant.attrs))
               .collect::<Vec<_>>()
           },
           _ => vec![],

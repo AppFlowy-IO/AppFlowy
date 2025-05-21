@@ -11,7 +11,6 @@ use crate::manager::FolderManager;
 pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
-    .event(FolderEvent::CreateFolderWorkspace, create_workspace_handler)
     .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
     .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
@@ -55,17 +54,20 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RemoveDefaultPublishView, remove_default_publish_view_handler)
     .event(FolderEvent::LockView, lock_view_handler)
     .event(FolderEvent::UnlockView, unlock_view_handler)
+    .event(FolderEvent::SharePageWithUser, share_page_with_user_handler)
+    .event(FolderEvent::RemoveUserFromSharedPage, remove_user_from_shared_page_handler)
+    .event(FolderEvent::GetSharedUsers, get_shared_users_handler)
+    .event(FolderEvent::GetSharedViews, get_shared_views_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum FolderEvent {
-  /// Create a new workspace
-  #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
+  /// Deprecated: Create a new workspace
   CreateFolderWorkspace = 0,
 
   /// Read the current opening workspace. Currently, we only support one workspace
-  #[event(output = "WorkspaceSettingPB")]
+  #[event(output = "WorkspaceLatestPB")]
   GetCurrentWorkspaceSetting = 1,
 
   /// Return a list of workspaces that the current user can access.
@@ -228,4 +230,16 @@ pub enum FolderEvent {
 
   #[event(input = "ViewIdPB")]
   UnlockView = 55,
+
+  #[event(input = "SharePageWithUserPayloadPB")]
+  SharePageWithUser = 56,
+
+  #[event(input = "RemoveUserFromSharedPagePayloadPB")]
+  RemoveUserFromSharedPage = 57,
+
+  #[event(input = "GetSharedUsersPayloadPB", output = "RepeatedSharedUserPB")]
+  GetSharedUsers = 58,
+
+  #[event(output = "RepeatedSharedViewResponsePB")]
+  GetSharedViews = 59,
 }

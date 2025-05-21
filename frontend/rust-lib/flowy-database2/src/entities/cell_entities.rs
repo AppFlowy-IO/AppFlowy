@@ -5,8 +5,8 @@ use flowy_error::ErrorCode;
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
-use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
+use crate::entities::parser::NotEmptyStr;
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateSelectOptionPayloadPB {

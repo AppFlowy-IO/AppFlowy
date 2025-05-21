@@ -3,22 +3,12 @@ use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
 use flowy_user_pub::entities::{
-  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus,
-  WorkspaceMember, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY,
-  USER_METADATA_STABILITY_AI_KEY,
+  AuthType, Role, USER_METADATA_ICON_URL, UpdateUserProfileParams, UserProfile,
+  WorkspaceInvitationStatus, WorkspaceMember, WorkspaceType,
 };
-
-use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 
 pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUserParams {
   let mut user_metadata = UserMetaData::new();
-  if let Some(openai_key) = update.openai_key {
-    user_metadata.insert(USER_METADATA_OPEN_AI_KEY, openai_key);
-  }
-
-  if let Some(stability_ai_key) = update.stability_ai_key {
-    user_metadata.insert(USER_METADATA_STABILITY_AI_KEY, stability_ai_key);
-  }
 
   if let Some(icon_url) = update.icon_url {
     user_metadata.insert(USER_METADATA_ICON_URL, icon_url);
@@ -35,36 +25,27 @@ pub fn af_update_from_update_params(update: UpdateUserProfileParams) -> UpdateUs
 pub fn user_profile_from_af_profile(
   token: String,
   profile: AFUserProfile,
+  auth_type: AuthType,
 ) -> Result<UserProfile, Error> {
-  let encryption_type = encryption_type_from_profile(&profile);
-  let (icon_url, openai_key, stability_ai_key) = {
+  let icon_url = {
     profile
       .metadata
       .map(|m| {
-        (
-          m.get(USER_METADATA_ICON_URL)
-            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
-          m.get(USER_METADATA_OPEN_AI_KEY)
-            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
-          m.get(USER_METADATA_STABILITY_AI_KEY)
-            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
-        )
+        m.get(USER_METADATA_ICON_URL)
+          .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default())
       })
       .unwrap_or_default()
   };
-
+  let workspace_type = WorkspaceType::from(&auth_type);
   Ok(UserProfile {
     email: profile.email.unwrap_or("".to_string()),
     name: profile.name.unwrap_or("".to_string()),
     token,
     icon_url: icon_url.unwrap_or_default(),
-    openai_key: openai_key.unwrap_or_default(),
-    stability_ai_key: stability_ai_key.unwrap_or_default(),
-    authenticator: Authenticator::AppFlowyCloud,
-    encryption_type,
+    auth_type: AuthType::AppFlowyCloud,
     uid: profile.uid,
     updated_at: profile.updated_at,
-    ai_model: "".to_string(),
+    workspace_type,
   })
 }
 
@@ -90,6 +71,7 @@ pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
     role: from_af_role(member.role),
     name: member.name,
     avatar_url: member.avatar_url,
+    joined_at: member.joined_at.map(|dt| dt.timestamp()),
   }
 }
 

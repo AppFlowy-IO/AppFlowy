@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -95,6 +96,17 @@ enum FileUrlType {
         return 2;
     }
   }
+
+  FileUploadTypePB toFileUploadTypePB() {
+    switch (this) {
+      case FileUrlType.local:
+        return FileUploadTypePB.LocalFile;
+      case FileUrlType.network:
+        return FileUploadTypePB.NetworkFile;
+      case FileUrlType.cloud:
+        return FileUploadTypePB.CloudFile;
+    }
+  }
 }
 
 Node fileNode({
@@ -141,8 +153,11 @@ class FileBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
+
+  static const uploadDragKey = 'FileUploadMenu';
 
   @override
   State<FileBlockComponent> createState() => FileBlockComponentState();
@@ -240,20 +255,23 @@ class FileBlockComponentState extends State<FileBlockComponent>
     if (UniversalPlatform.isDesktopOrWeb) {
       if (url == null || url.isEmpty) {
         child = DropTarget(
+          enable: dropManagerState?.isDropEnabled == true ||
+              dropManagerState?.contains(FileBlockKeys.type) == true,
           onDragEntered: (_) {
             if (dropManagerState?.isDropEnabled == true) {
+              dropManagerState?.add(FileBlockKeys.type);
               setState(() => isDragging = true);
             }
           },
           onDragExited: (_) {
-            if (dropManagerState?.isDropEnabled == true) {
+            if (dropManagerState?.contains(FileBlockKeys.type) == true) {
+              dropManagerState?.remove(FileBlockKeys.type);
               setState(() => isDragging = false);
             }
           },
           onDragDone: (details) {
-            if (dropManagerState?.isDropEnabled == true) {
-              insertFileFromLocal(details.files);
-            }
+            dropManagerState?.remove(FileBlockKeys.type);
+            insertFileFromLocal(details.files);
           },
           child: AppFlowyPopover(
             controller: controller,
@@ -264,8 +282,12 @@ class FileBlockComponentState extends State<FileBlockComponent>
               minHeight: 80,
             ),
             clickHandler: PopoverClickHandler.gestureDetector,
-            onOpen: () => dropManagerState?.add(FileBlockKeys.type),
-            onClose: () => dropManagerState?.remove(FileBlockKeys.type),
+            onOpen: () => dropManagerState?.add(
+              FileBlockComponent.uploadDragKey,
+            ),
+            onClose: () => dropManagerState?.remove(
+              FileBlockComponent.uploadDragKey,
+            ),
             popupBuilder: (_) => FileUploadMenu(
               onInsertLocalFile: insertFileFromLocal,
               onInsertNetworkFile: insertNetworkFile,
@@ -303,6 +325,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }
@@ -331,7 +354,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
   void _openMenu() {
     if (UniversalPlatform.isDesktopOrWeb) {
       controller.show();
-      dropManagerState?.add(FileBlockKeys.type);
+      dropManagerState?.add(FileBlockComponent.uploadDragKey);
     } else {
       editorState.updateSelectionWithReason(null, extraInfo: {});
       showUploadFileMobileMenu();
@@ -560,7 +583,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
   Rect getBlockRect({bool shiftWithBaseOffset = false}) {
     final renderBox = fileKey.currentContext?.findRenderObject();
     if (renderBox is RenderBox) {
-      return Offset.zero & renderBox.size;
+      return padding.topLeft & renderBox.size;
     }
     return Rect.zero;
   }

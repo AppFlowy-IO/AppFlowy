@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_bloc.dart';
@@ -16,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
 
@@ -24,6 +23,7 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     ChecklistCellBloc bloc,
     PopoverController popoverController,
   ) {
@@ -200,19 +200,16 @@ class _ChecklistItems extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             proxyDecorator: (child, index, _) => Material(
               color: Colors.transparent,
-              child: Stack(
-                children: [
-                  BlocProvider.value(
+              child: MouseRegion(
+                cursor: UniversalPlatform.isWindows
+                    ? SystemMouseCursors.click
+                    : SystemMouseCursors.grabbing,
+                child: IgnorePointer(
+                  child: BlocProvider.value(
                     value: context.read<ChecklistCellBloc>(),
                     child: child,
                   ),
-                  MouseRegion(
-                    cursor: Platform.isWindows
-                        ? SystemMouseCursors.click
-                        : SystemMouseCursors.grabbing,
-                    child: const SizedBox.expand(),
-                  ),
-                ],
+                ),
               ),
             ),
             buildDefaultDragHandles: false,

@@ -70,7 +70,7 @@ class ExportTab extends StatelessWidget {
         const VSpace(10),
         _ExportButton(
           title: LocaleKeys.shareAction_csv.tr(),
-          svg: FlowySvgs.database_layout_m,
+          svg: FlowySvgs.database_layout_s,
           onTap: () => _exportCSV(context),
         ),
         if (kDebugMode) ...[
@@ -174,11 +174,10 @@ class ExportTab extends StatelessWidget {
           ClipboardServiceData(plainText: markdown),
         );
         showToastNotification(
-          context,
-          message: LocaleKeys.grid_url_copiedNotification.tr(),
+          message: LocaleKeys.message_copy_success.tr(),
         );
       },
-      (error) => showToastNotification(context, message: error.msg),
+      (error) => showToastNotification(message: error.msg),
     );
   }
 }

@@ -82,6 +82,7 @@ class MultiImageBlockComponent extends BlockComponentStatefulWidget {
     this.menuBuilder,
     super.configuration = const BlockComponentConfiguration(),
     super.actionBuilder,
+    super.actionTrailingBuilder,
   });
 
   final bool showMenu;
@@ -190,6 +191,7 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

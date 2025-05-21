@@ -5,20 +5,20 @@
 #include "flutter_window.h"
 #include "utils.h"
 
-#include <bitsdojo_window_windows/bitsdojo_window_plugin.h>
-auto bdw = bitsdojo_window_configure(BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP);
-
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
-                      _In_ wchar_t *command_line, _In_ int show_command) {
+                      _In_ wchar_t *command_line, _In_ int show_command)
+{
   HANDLE hMutexInstance = CreateMutex(NULL, TRUE, L"AppFlowyMutex");
   HWND handle = FindWindowA(NULL, "AppFlowy");
 
-  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+  if (GetLastError() == ERROR_ALREADY_EXISTS)
+  {
     flutter::DartProject project(L"data");
     std::vector<std::string> command_line_arguments = GetCommandLineArguments();
     project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
     FlutterWindow window(project);
-    if (window.SendAppLinkToInstance(L"AppFlowy")) {
+    if (window.SendAppLinkToInstance(L"AppFlowy"))
+    {
       return false;
     }
 
@@ -30,7 +30,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.
-  if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
+  if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent())
+  {
     CreateAndAttachConsole();
   }
 
@@ -48,7 +49,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
 
-  if (!window.Create(L"AppFlowy", origin, size)) {
+  if (!window.Create(L"AppFlowy", origin, size))
+  {
     return EXIT_FAILURE;
   }
 
@@ -56,7 +58,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   window.SetQuitOnClose(true);
 
   ::MSG msg;
-  while (::GetMessage(&msg, nullptr, 0, 0)) {
+  while (::GetMessage(&msg, nullptr, 0, 0))
+  {
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
   }

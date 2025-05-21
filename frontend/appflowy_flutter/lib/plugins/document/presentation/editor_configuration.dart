@@ -6,7 +6,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
@@ -14,6 +15,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import 'editor_plugins/link_preview/custom_link_preview_block_component.dart';
+import 'editor_plugins/page_block/custom_page_block_component.dart';
+
+/// A global configuration for the editor.
+class EditorGlobalConfiguration {
+  /// Whether to enable the drag menu in the editor.
+  ///
+  /// Case 1, resizing the columns block in the desktop, then the drag menu will be disabled.
+  static ValueNotifier<bool> enableDragMenu = ValueNotifier(true);
+}
 
 /// The node types that support slash menu.
 final Set<String> supportSlashMenuNodeTypes = {
@@ -26,11 +38,16 @@ final Set<String> supportSlashMenuNodeTypes = {
   NumberedListBlockKeys.type,
   QuoteBlockKeys.type,
   ToggleListBlockKeys.type,
+  CalloutBlockKeys.type,
 
   // Simple table
   SimpleTableBlockKeys.type,
   SimpleTableRowBlockKeys.type,
   SimpleTableCellBlockKeys.type,
+
+  // Columns
+  SimpleColumnsBlockKeys.type,
+  SimpleColumnBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -51,10 +68,13 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node node)? customPadding,
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
-  final configuration = _buildDefaultConfiguration(context);
+  final configuration = _buildDefaultConfiguration(
+    context,
+    padding: customPadding,
+  );
   final builders = _buildBlockComponentBuilderMap(
     context,
     configuration: configuration,
@@ -80,7 +100,10 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   return builders;
 }
 
-BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
+BlockComponentConfiguration _buildDefaultConfiguration(
+  BuildContext context, {
+  EdgeInsets Function(Node node)? padding,
+}) {
   final configuration = BlockComponentConfiguration(
     padding: (node) {
       if (UniversalPlatform.isMobile) {
@@ -100,17 +123,26 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
             right: EditorStyleCustomizer.nodeHorizontalPadding,
           );
         }
-        return edgeInsets;
+        return padding?.call(node) ?? edgeInsets;
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);
     },
     indentPadding: (node, textDirection) {
       double padding = 26.0;
+
       // only add indent padding for the top level node to align the children
-      if (UniversalPlatform.isMobile && node.path.length == 1) {
-        padding += EditorStyleCustomizer.nodeHorizontalPadding;
+      if (UniversalPlatform.isMobile && node.level == 1) {
+        padding += EditorStyleCustomizer.nodeHorizontalPadding - 4;
       }
+
+      // in the quote block, we reduce the indent padding for the first level block.
+      //  So we have to add more padding for the second level to avoid the drag menu overlay the quote icon.
+      if (node.parent?.type == QuoteBlockKeys.type &&
+          UniversalPlatform.isDesktop) {
+        padding += 22;
+      }
+
       return textDirection == TextDirection.ltr
           ? EdgeInsets.only(left: padding)
           : EdgeInsets.only(right: padding);
@@ -189,6 +221,16 @@ void _customBlockOptionActions(
         ),
       );
 
+      builder.actionTrailingBuilder = (context, state) {
+        if (context.node.parent?.type == QuoteBlockKeys.type) {
+          return const SizedBox(
+            width: 24,
+            height: 24,
+          );
+        }
+        return const SizedBox.shrink();
+      };
+
       builder.actionBuilder = (context, state) {
         double top = builder.configuration.padding(context.node).top;
         final type = context.node.type;
@@ -203,31 +245,43 @@ void _customBlockOptionActions(
         } else {
           top += 2.0;
         }
+        if (overflowTypes.contains(type)) {
+          top = top / 2;
+        }
         return ValueListenableBuilder(
-          valueListenable: editorState.editableNotifier,
-          builder: (_, editable, child) {
-            return Opacity(
-              opacity: editable ? 1.0 : 0.0,
-              child: Padding(
-                padding: EdgeInsets.only(top: top),
-                child: BlockActionList(
-                  blockComponentContext: context,
-                  blockComponentState: state,
-                  editorState: editorState,
-                  blockComponentBuilder: builders,
-                  actions: actions,
-                  showSlashMenu: slashMenuItemsBuilder != null
-                      ? () => customAppFlowySlashCommand(
-                            itemsBuilder: slashMenuItemsBuilder,
-                            shouldInsertSlash: false,
-                            deleteKeywordsByDefault: true,
-                            style: styleCustomizer.selectionMenuStyleBuilder(),
-                            supportSlashMenuNodeTypes:
-                                supportSlashMenuNodeTypes,
-                          ).handler.call(editorState)
-                      : () {},
-                ),
-              ),
+          valueListenable: EditorGlobalConfiguration.enableDragMenu,
+          builder: (_, enableDragMenu, child) {
+            return ValueListenableBuilder(
+              valueListenable: editorState.editableNotifier,
+              builder: (_, editable, child) {
+                return IgnorePointer(
+                  ignoring: !editable,
+                  child: Opacity(
+                    opacity: editable && enableDragMenu ? 1.0 : 0.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: top),
+                      child: BlockActionList(
+                        blockComponentContext: context,
+                        blockComponentState: state,
+                        editorState: editorState,
+                        blockComponentBuilder: builders,
+                        actions: actions,
+                        showSlashMenu: slashMenuItemsBuilder != null
+                            ? () => customAppFlowySlashCommand(
+                                  itemsBuilder: slashMenuItemsBuilder,
+                                  shouldInsertSlash: false,
+                                  deleteKeywordsByDefault: true,
+                                  style: styleCustomizer
+                                      .selectionMenuStyleBuilder(),
+                                  supportSlashMenuNodeTypes:
+                                      supportSlashMenuNodeTypes,
+                                ).handler.call(editorState)
+                            : () {},
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -247,7 +301,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
   final customBlockComponentBuilderMap = {
-    PageBlockKeys.type: PageBlockComponentBuilder(),
+    PageBlockKeys.type: CustomPageBlockComponentBuilder(),
     ParagraphBlockKeys.type: _buildParagraphBlockComponentBuilder(
       context,
       configuration,
@@ -322,11 +376,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
-      context,
-      configuration,
-    ),
-    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
+    AiWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -342,6 +392,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       styleCustomizer,
     ),
     LinkPreviewBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    // Flutter doesn't support the video widget, so we forward the video block to the link preview block
+    VideoBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -371,6 +426,14 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
       alwaysDistributeColumnWidths: alwaysDistributeSimpleTableColumnWidths,
+    ),
+    SimpleColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
+      context,
+      configuration,
     ),
   };
 
@@ -557,6 +620,19 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
+      indentPadding: (node, textDirection) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.indentPadding(node, textDirection);
+        }
+
+        if (node.isInTable) {
+          return textDirection == TextDirection.ltr
+              ? EdgeInsets.only(left: 24)
+              : EdgeInsets.only(right: 24);
+        }
+
+        return EdgeInsets.zero;
+      },
     ),
   );
 }
@@ -670,7 +746,14 @@ TableBlockComponentBuilder _buildTableBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return TableBlockComponentBuilder(
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,
@@ -697,7 +780,14 @@ TableCellBlockComponentBuilder _buildTableCellBlockComponentBuilder(
       }
       return buildEditorCustomizedColor(context, node, colorString);
     },
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,
@@ -749,8 +839,14 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
         configuration: configuration,
         textSpan: textSpan,
       ),
+      indentPadding: (node, _) => EdgeInsets.only(left: 42),
     ),
-    inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
+    inlinePadding: (node) {
+      if (node.children.isEmpty) {
+        return const EdgeInsets.symmetric(vertical: 8.0);
+      }
+      return EdgeInsets.only(top: 8.0, bottom: 2.0);
+    },
     defaultColor: calloutBGColor,
   );
 }
@@ -800,13 +896,6 @@ AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return AIWriterBlockComponentBuilder();
-}
-
-AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
-  BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
@@ -887,11 +976,11 @@ OutlineBlockComponentBuilder _buildOutlineBlockComponentBuilder(
   );
 }
 
-LinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
+CustomLinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return LinkPreviewBlockComponentBuilder(
+  return CustomLinkPreviewBlockComponentBuilder(
     configuration: configuration.copyWith(
       padding: (node) {
         if (UniversalPlatform.isMobile) {
@@ -899,21 +988,6 @@ LinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
         }
         return const EdgeInsets.symmetric(vertical: 10);
       },
-    ),
-    cache: LinkPreviewDataCache(),
-    showMenu: true,
-    menuBuilder: (context, node, state) => Positioned(
-      top: 10,
-      right: 0,
-      child: LinkPreviewMenu(node: node, state: state),
-    ),
-    builder: (_, node, url, title, description, imageUrl) =>
-        CustomLinkPreviewWidget(
-      node: node,
-      url: url,
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
     ),
   );
 }
@@ -946,6 +1020,34 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
   );
 }
 
+SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnsBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+
+        return EdgeInsets.zero;
+      },
+    ),
+  );
+}
+
+SimpleColumnBlockComponentBuilder _buildSimpleColumnBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
+    ),
+  );
+}
+
 TextStyle _buildTextStyleInTableCell(
   BuildContext context, {
   required Node node,
@@ -953,6 +1055,11 @@ TextStyle _buildTextStyleInTableCell(
   required TextSpan? textSpan,
 }) {
   TextStyle textStyle = configuration.textStyle(node, textSpan: textSpan);
+
+  textStyle = textStyle.copyWith(
+    fontFamily: textSpan?.style?.fontFamily,
+    fontSize: textSpan?.style?.fontSize,
+  );
 
   if (node.isInHeaderColumn ||
       node.isInHeaderRow ||

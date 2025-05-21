@@ -67,12 +67,10 @@ extension CommonOperations on WidgetTester {
     } else {
       // cloud version
       final anonymousButton = find.byType(SignInAnonymousButtonV2);
-      await tapButton(anonymousButton);
+      await tapButton(anonymousButton, warnIfMissed: true);
     }
 
-    if (Platform.isWindows) {
-      await pumpAndSettle(const Duration(milliseconds: 200));
-    }
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   Future<void> tapContinousAnotherWay() async {
@@ -617,7 +615,7 @@ extension CommonOperations on WidgetTester {
         );
     final distanceY = getCenter(to).dy - getCenter(from).dx;
     await drag(from, Offset(0, distanceY));
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(seconds: 1));
   }
 
   // tap the button with [FlowySvgData]
@@ -1053,6 +1051,8 @@ extension ViewLayoutPBTest on ViewLayoutPB {
         return LocaleKeys.document_menuName.tr();
       case ViewLayoutPB.Calendar:
         return LocaleKeys.calendar_menuName.tr();
+      case ViewLayoutPB.Chat:
+        return LocaleKeys.chat_newChat.tr();
       default:
         throw UnsupportedError('Unsupported layout: $this');
     }

@@ -36,7 +36,9 @@
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
-    "anonymous": "مجهول",
+    "continueWithLocalModel": "الاستمرار بالنموذج المحلي",
+    "switchToAppFlowyCloud": "AppFlowy السحابي",
+    "anonymousMode": "الوضع المجهول",
     "buttonText": "تسجيل الدخول",
     "signingInText": "جاري تسجيل الدخول...",
     "forgotPassword": "هل نسيت كلمة السر؟",
@@ -46,6 +48,7 @@
     "createAccount": "إنشاء حساب",
     "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
     "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
+    "passwordMustContain": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد ورمز واحد على الأقل.",
     "syncPromptMessage": "قد تستغرق مزامنة البيانات بعض الوقت. من فضلك لا تغلق هذه الصفحة",
     "or": "أو",
     "signInWithGoogle": "استكمال باستخدام Google",
@@ -69,6 +72,43 @@
     "generalError": "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا",
     "limitRateError": "لأسباب أمنية، يمكنك طلب Magic Link  كل 60 ثانية فقط",
     "magicLinkSentDescription": "تم إرسال Magic Link إلى بريدك الإلكتروني. انقر على الرابط لإكمال تسجيل الدخول. ستنتهي صلاحية الرابط بعد 5 دقائق.",
+    "tokenHasExpiredOrInvalid": "الرمز منتهي الصلاحية أو غير صالح. يُرجى المحاولة مرة أخرى.",
+    "signingIn": "جاري تسجيل الدخول...",
+    "checkYourEmail": "تحقق من بريدك الإلكتروني",
+    "temporaryVerificationLinkSent": "تم إرسال رابط التحقق المؤقت.\nيرجى التحقق من صندوق الوارد الخاص بك على",
+    "temporaryVerificationCodeSent": "لقد تم إرسال رمز التحقق المؤقت.\nيرجى التحقق من صندوق الوارد الخاص بك على",
+    "continueToSignIn": "متابعة تسجيل الدخول",
+    "continueWithLoginCode": "متابعة مع رمز تسجيل الدخول",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "enterCode": "أدخل الرمز",
+    "enterCodeManually": "أدخل الرمز يدويًا",
+    "continueWithEmail": "متابعة مع البريد الإلكتروني",
+    "enterPassword": "أدخل كلمة المرور",
+    "loginAs": "تسجيل الدخول باسم",
+    "invalidVerificationCode": "الرجاء إدخال رمز التحقق الصحيح",
+    "tooFrequentVerificationCodeRequest": "لقد قدمت طلبات كثيرة. يُرجى المحاولة لاحقًا.",
+    "invalidLoginCredentials": "كلمة المرور الخاصة بك غير صحيحة، يرجى المحاولة مرة أخرى",
+    "resetPassword": "إعادة ضبط كلمة المرور",
+    "resetPasswordDescription": "أدخل بريدك الإلكتروني لإعادة ضبط كلمة المرور الخاصة بك",
+    "continueToResetPassword": "متابعة إعادة ضبط كلمة المرور",
+    "resetPasswordSuccess": "تم إعادة ضبط كلمة المرور بنجاح",
+    "resetPasswordFailed": "فشل إعادة ضبط كلمة المرور",
+    "resetPasswordLinkSent": "تم إرسال رابط إعادة ضبط كلمة المرور إلى بريدك الإلكتروني. يُرجى مراجعة بريدك الوارد على",
+    "resetPasswordLinkExpired": "انتهت صلاحية رابط إعادة ضبط كلمة المرور. يُرجى طلب رابط جديد.",
+    "resetPasswordLinkInvalid": "رابط إعادة ضبط كلمة المرور غير صالح. يُرجى طلب رابط جديد.",
+    "enterNewPasswordFor": "أدخل كلمة المرور الجديدة لـ ",
+    "newPassword": "كلمة المرور الجديدة",
+    "enterNewPassword": "أدخل كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "confirmNewPassword": "أدخل كلمة المرور الجديدة",
+    "newPasswordCannotBeEmpty": "لا يمكن أن تكون كلمة المرور الجديدة فارغة",
+    "confirmPasswordCannotBeEmpty": "تأكيد كلمة المرور لا يمكن أن يكون فارغا",
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    "verifying": "جاري التحقق...",
+    "continueWithPassword": "متابعة مع كلمة المرور",
+    "youAreInLocalMode": "أنت في الوضع المحلي.",
+    "loginToAppFlowyCloud": "تسجيل الدخول إلى AppFlowy Cloud",
+    "anonymous": "مجهول",
     "LogInWithGoogle": "تسجيل الدخول عبر جوجل",
     "LogInWithGithub": "تسجيل الدخول مع جيثب",
     "LogInWithDiscord": "تسجيل الدخول مع ديسكورد",
@@ -155,7 +195,8 @@
     "charCountLabel": "عدد الأحرف: ",
     "createdAtLabel": "تم إنشاؤه: ",
     "syncedAtLabel": "تم المزامنة: ",
-    "saveAsNewPage": "حفظ الرسائل في الصفحة"
+    "saveAsNewPage": "حفظ الرسائل في الصفحة",
+    "saveAsNewPageDisabled": "لا توجد رسائل متاحة"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -164,6 +205,15 @@
     "notionZip": "ملف Zip المُصدَّر من Notion",
     "csv": "CSV",
     "database": "قاعدة البيانات"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "اسحب وأفلِت ملفًا، وانقر فوقه ",
+      "placeholderUpload": "رفع",
+      "placeholderRight": "أو قم بلصق رابط الصورة.",
+      "dropToUpload": "إفلات ملف لتحميله",
+      "change": "تغير"
+    }
   },
   "disclosureAction": {
     "rename": "إعادة تسمية",
@@ -178,7 +228,8 @@
     "changeIcon": "تغيير الأيقونة",
     "collapseAllPages": "طي جميع الصفحات الفرعية",
     "movePageTo": "تحريك الصفحة إلى",
-    "move": "تحريك"
+    "move": "تحريك",
+    "lockPage": "إلغاء تأمين الصفحة"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
@@ -218,6 +269,7 @@
     "indexingFile": "الفهرسة {}",
     "generatingResponse": "توليد الاستجابة",
     "selectSources": "اختر المصادر",
+    "currentPage": "الصفحة الحالية",
     "sourcesLimitReached": "يمكنك فقط تحديد ما يصل إلى 3 مستندات من المستوى العلوي ومستنداتها الفرعية",
     "sourceUnsupported": "نحن لا ندعم الدردشة مع قواعد البيانات في الوقت الحالي",
     "regenerate": "حاول ثانية",
@@ -244,12 +296,19 @@
       "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
       "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
     },
+    "switchModel": {
+      "label": "تبديل النموذج",
+      "localModel": "النموذج المحلي",
+      "cloudModel": "نموذج السحابة",
+      "autoModel": "آلي"
+    },
     "selectBanner": {
       "saveButton": "أضف إلى...",
       "selectMessages": "حدد الرسائل",
       "nSelected": "{} تم التحديد",
       "allSelected": "جميعها محددة"
-    }
+    },
+    "stopTooltip": "توقف عن التوليد"
   },
   "trash": {
     "text": "المهملات",
@@ -292,14 +351,16 @@
   "questionBubble": {
     "shortcuts": "الاختصارات",
     "whatsNew": "ما هو الجديد؟",
-    "help": "المساعدة والدعم",
+    "helpAndDocumentation": "المساعدة والتوثيق",
+    "getSupport": "احصل على الدعم",
     "markdown": "Markdown",
     "debug": {
       "name": "معلومات التصحيح",
       "success": "تم نسخ معلومات التصحيح إلى الحافظة!",
       "fail": "تعذر نسخ معلومات التصحيح إلى الحافظة"
     },
-    "feedback": "تعليق"
+    "feedback": "تعليق",
+    "help": "المساعدة والدعم"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "إزالة وإعادة تسمية والمزيد...",
@@ -377,7 +438,6 @@
     "storageLimitDialogTitle": "لقد نفدت مساحة التخزين المجانية لديك. قم بالترقية لإلغاء تأمين مساحة تخزين غير محدودة",
     "storageLimitDialogTitleIOS": "لقد نفدت مساحة التخزين المجانية.",
     "aiResponseLimitTitle": "لقد نفدت منك استجابات الذكاء الاصطناعي المجانية. قم بالترقية إلى الخطة الاحترافية أو قم بشراء إضافة الذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
-    "aiResponseLimitTitleIOS": "لقد نفدت استجابات الذكاء الاصطناعي المجانية.",
     "aiResponseLimitDialogTitle": "تم الوصول إلى الحد الأقصى لاستجابات الذكاء الاصطناعي",
     "aiResponseLimit": "لقد نفدت استجابات الذكاء الاصطناعي المجانية.<inlang-LineFeed>\nانتقل إلى الإعدادات -&gt; الخطة -&gt; انقر فوق AI Max أو Pro Plan للحصول على المزيد من استجابات الذكاء الاصطناعي",
     "askOwnerToUpgradeToPro": "مساحة العمل الخاصة بك نفدت من مساحة التخزين المجانية. يرجى مطالبة مالك مساحة العمل الخاصة بك بالترقية إلى الخطة الاحترافية",
@@ -495,6 +555,8 @@
       "settings": "إعدادات",
       "members": "الأعضاء",
       "trash": "سلة المحذوفات",
+      "helpAndDocumentation": "المساعدة والتوثيق",
+      "getSupport": "احصل على الدعم",
       "helpAndSupport": "المساعدة والدعم"
     },
     "sites": {
@@ -508,6 +570,9 @@
       "selectHomePage": "حدد الصفحة",
       "clearHomePage": "مسح الصفحة الرئيسية لهذه المساحة الاسمية",
       "customUrl": "عنوان URL مخصص",
+      "homePage": {
+        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية لتعيين الصفحة الرئيسية"
+      },
       "namespace": {
         "description": "سيتم تطبيق هذا التغيير على جميع الصفحات المنشورة الموجودة على مساحة الاسم هذه بشكل فوري",
         "tooltip": "نحن نحتفظ بالحق في إزالة أي مساحات أسماء غير مناسبة",
@@ -576,7 +641,9 @@
         "title": "تسجيل الدخول إلى الحساب",
         "loginLabel": "تسجيل الدخول",
         "logoutLabel": "تسجيل الخروج"
-      }
+      },
+      "isUpToDate": "تم تحديث @:appName !",
+      "officialVersion": "الإصدار {version} (الإصدار الرسمي)"
     },
     "workspacePage": {
       "menuLabel": "مساحة العمل",
@@ -612,7 +679,8 @@
       "theme": {
         "title": "السمة",
         "description": "حدد السمة المحددة مسبقًا، أو قم برفع موضوعك المخصص.",
-        "uploadCustomThemeTooltip": "رفع السمة المخصصة"
+        "uploadCustomThemeTooltip": "رفع السمة المخصصة",
+        "failedToLoadThemes": "فشل تحميل السمات، يرجى التحقق من إعدادات الأذونات في إعدادات النظام &lt; الخصوصية والأمان &lt;الملفات والمجلدات &lt; @:appName"
       },
       "workspaceFont": {
         "title": "خط مساحة العمل",
@@ -752,6 +820,7 @@
         "alignLeft": "محاذاة النص إلى اليسار",
         "alignCenter": "محاذاة النص إلى الوسط",
         "alignRight": "محاذاة النص إلى اليمين",
+        "insertInlineMathEquation": "إدراج معادلة رياضية مضمنة",
         "undo": "التراجع",
         "redo": "الإعادة",
         "convertToParagraph": "تحويل الكتلة إلى فقرة",
@@ -831,6 +900,7 @@
         "aiSettingsDescription": "اختر النموذج المفضل لديك لتشغيل AppFlowy AI. يتضمن الآن GPT 4-o وClaude 3,5 وLlama 3.1 وMistral 7B",
         "loginToEnableAIFeature": "لا يتم تمكين ميزات الذكاء الاصطناعي إلا بعد تسجيل الدخول باستخدام @:appName Cloud. إذا لم يكن لديك حساب @:appName ، فانتقل إلى \"حسابي\" للتسجيل",
         "llmModel": "نموذج اللغة",
+        "globalLLMModel": "نموذج اللغة العام",
         "llmModelType": "نوع نموذج اللغة",
         "downloadLLMPrompt": "تنزيل {}",
         "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟",
@@ -842,11 +912,18 @@
         "localAIStart": "بدأت الدردشة المحلية بالذكاء الاصطناعي...",
         "localAILoading": "جاري تحميل نموذج الدردشة المحلية للذكاء الاصطناعي...",
         "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
+        "localAIRunning": "الذكاء الاصطناعي المحلي قيد التشغيل",
+        "localAINotReadyRetryLater": "جاري تهيئة الذكاء الاصطناعي المحلي، يرجى المحاولة مرة أخرى لاحقًا",
+        "localAIDisabled": "أنت تستخدم الذكاء الاصطناعي المحلي، ولكنه مُعطّل. يُرجى الانتقال إلى الإعدادات لتفعيله أو تجربة نموذج آخر.",
+        "localAIInitializing": "يتم تهيئة الذكاء الاصطناعي المحلي وقد يستغرق الأمر بضع دقائق، حسب جهازك",
+        "localAINotReadyTextFieldPrompt": "لا يمكنك التحرير أثناء تحميل الذكاء الاصطناعي المحلي",
+        "localAIDisabledTextFieldPrompt": "لا يمكنك التحرير أثناء تعطيل الذكاء الاصطناعي المحلي",
         "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
         "restartLocalAI": "إعادة تشغيل الذكاء الاصطناعي المحلي",
         "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
         "disableLocalAIDescription": "هل تريد تعطيل الذكاء الاصطناعي المحلي؟",
         "localAIToggleTitle": "التبديل لتفعيل أو تعطيل الذكاء الاصطناعي المحلي",
+        "localAIToggleSubTitle": "قم بتشغيل نماذج الذكاء الاصطناعي المحلية الأكثر تقدمًا داخل AppFlowy للحصول على أقصى درجات الخصوصية والأمان",
         "offlineAIInstruction1": "اتبع",
         "offlineAIInstruction2": "تعليمات",
         "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
@@ -855,7 +932,15 @@
         "offlineAIDownload3": "إنه أولا",
         "activeOfflineAI": "نشط",
         "downloadOfflineAI": "التنزيل",
-        "openModelDirectory": "افتح المجلد"
+        "openModelDirectory": "افتح المجلد",
+        "laiNotReady": "لم يتم تثبيت تطبيق الذكاء الاصطناعي المحلي بشكل صحيح.",
+        "ollamaNotReady": "خادم Ollama غير جاهز.",
+        "pleaseFollowThese": "اتبع هؤلاء",
+        "instructions": "التعليمات",
+        "installOllamaLai": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
+        "modelsMissing": "لم يتم العثور على النماذج المطلوبة.",
+        "downloadModel": "لتنزيلها.",
+        "startLocalAI": "قد يستغرق الأمر بضع ثوانٍ لبدء تشغيل الذكاء الاصطناعي المحلي"
       }
     },
     "planPage": {
@@ -997,6 +1082,7 @@
         "itemFour": "التعاون في الزمن الحقيقي",
         "itemFive": "تطبيق الجوال",
         "itemSix": "استجابات الذكاء الاصطناعي",
+        "itemSeven": "صور الذكاء الاصطناعي",
         "itemFileUpload": "رفع الملفات",
         "customNamespace": "مساحة اسم مخصصة",
         "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا",
@@ -1011,6 +1097,7 @@
         "itemFour": "نعم",
         "itemFive": "نعم",
         "itemSix": "10 مدى الحياة",
+        "itemSeven": "2 مدى الحياة",
         "itemFileUpload": "حتى 7 ميجا بايت",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1021,6 +1108,7 @@
         "itemFour": "نعم",
         "itemFive": "نعم",
         "itemSix": "غير محدود",
+        "itemSeven": "10 صور شهريا",
         "itemFileUpload": "غير محدود",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1296,7 +1384,28 @@
         "inviteMemberSuccess": "لقد تم ارسال الدعوة بنجاح",
         "failedToInviteMember": "فشل في دعوة العضو",
         "workspaceMembersError": "عفواً، حدث خطأ ما",
-        "workspaceMembersErrorDescription": "لم نتمكن من تحميل قائمة الأعضاء في هذا الوقت. يرجى المحاولة مرة أخرى لاحقًا"
+        "workspaceMembersErrorDescription": "لم نتمكن من تحميل قائمة الأعضاء في هذا الوقت. يرجى المحاولة مرة أخرى لاحقًا",
+        "inviteLinkToAddMember": "رابط الدعوة لإضافة عضو",
+        "clickToCopyLink": "انقر هنا لنسخ الرابط",
+        "or": "أو",
+        "generateANewLink": "إنشاء رابط جديد",
+        "inviteMemberByEmail": "دعوة الأعضاء عبر البريد الإلكتروني",
+        "inviteMemberHintText": "دعوة عبر البريد الإلكتروني",
+        "resetInviteLink": "إعادة ضبط رابط الدعوة؟",
+        "resetInviteLinkDescription": "ستؤدي إعادة الضبط إلى إلغاء تفعيل الرابط الحالي لجميع أعضاء المساحة وإنشاء رابط جديد. لن يعود الرابط القديم صالحًا.",
+        "adminPanel": "لوحة الإدارة",
+        "reset": "إعادة ضبط",
+        "resetInviteLinkSuccess": "تمت إعادة ضبط رابط الدعوة بنجاح",
+        "resetInviteLinkFailed": "فشل إعادة ضبط رابط الدعوة",
+        "resetInviteLinkFailedDescription": "الرجاء المحاولة مرة أخرى لاحقًا",
+        "memberPageDescription1": "الوصول إلى",
+        "memberPageDescription2": "لإدارة الضيوف والمستخدمين المتقدمين.",
+        "noInviteLink": "لم تقم بإنشاء رابط دعوة بعد.",
+        "copyLink": "انسخ الرابط",
+        "generatedLinkSuccessfully": "تم إنشاء الرابط بنجاح",
+        "generatedLinkFailed": "فشل في إنشاء الرابط",
+        "resetLinkSuccessfully": "تم إعادة ضبط الرابط بنجاح",
+        "resetLinkFailed": "فشل إعادة ضبط الرابط"
       },
       "lightLabel": "فاتح",
       "darkLabel": "غامق"
@@ -1397,6 +1506,7 @@
       "filterBy": "مصنف بواسطة...",
       "typeAValue": "اكتب قيمة ...",
       "layout": "تَخطِيط",
+      "compactMode": "الوضع المضغوط",
       "databaseLayout": "تَخطِيط",
       "viewList": {
         "zero": "0 مشاهدات",
@@ -1633,8 +1743,7 @@
     "url": {
       "launch": "فتح في المتصفح",
       "copy": "إنسخ الرابط",
-      "textFieldHint": "أدخل عنوان URL",
-      "copiedNotification": "تمت نسخها إلى الحافظة!"
+      "textFieldHint": "أدخل عنوان URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "قاعدة البيانات ذات الصلة",
@@ -1705,6 +1814,14 @@
         "selectADocumentToLinkTo": "حدد مستندًا للارتباط به"
       },
       "name": {
+        "textStyle": "نمط النص",
+        "list": "قائمة",
+        "toggle": "تبديل",
+        "fileAndMedia": "الملفات والوسائط",
+        "simpleTable": "جدول بسيط",
+        "visuals": "المرئيات",
+        "document": "وثيقة",
+        "advanced": "متقدم",
         "text": "نص",
         "heading1": "العنوان 1",
         "heading2": "العنوان 2",
@@ -1736,7 +1853,10 @@
         "aiWriter": "كاتب الذكاء الاصطناعي",
         "dateOrReminder": "التاريخ أو التذكير",
         "photoGallery": "معرض الصور",
-        "file": "الملف"
+        "file": "الملف",
+        "twoColumns": "عمودين",
+        "threeColumns": "3 أعمدة",
+        "fourColumns": "4 أعمدة"
       },
       "subPage": {
         "name": "المستند",
@@ -1759,6 +1879,16 @@
       "referencedGrid": "الشبكة المشار إليها",
       "referencedCalendar": "التقويم المشار إليه",
       "referencedDocument": "الوثيقة المشار إليها",
+      "aiWriter": {
+        "userQuestion": "اسأل الذكاء الاصطناعي عن أي شيء",
+        "continueWriting": "استمر في الكتابة",
+        "fixSpelling": "تصحيح الأخطاء الإملائية والنحوية",
+        "improveWriting": "تحسين الكتابة",
+        "summarize": "تلخيص",
+        "explain": "اشرح",
+        "makeShorter": "اجعلها أقصر",
+        "makeLonger": "اجعلها أطول"
+      },
       "autoGeneratorMenuItemName": "كاتب AI",
       "autoGeneratorTitleName": "AI: اطلب من الذكاء الاصطناعي كتابة أي شيء ...",
       "autoGeneratorLearnMore": "يتعلم أكثر",
@@ -1974,6 +2104,27 @@
         }
       },
       "cannotMoveToItsChildren": "لا يمكن الانتقال إلى أطفاله",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "لصق كـ",
+          "mention": "ذِكْر",
+          "URL": "عنوان URL",
+          "bookmark": "إشارة مرجعية",
+          "embed": "تضمين"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "تحويل إلى ذكر",
+          "toUrl": "تحويل إلى عنوان URL",
+          "toEmbed": "تحويل إلى تضمين",
+          "toBookmark": "تحويل إلى إشارة مرجعية",
+          "copyLink": "نسخ الرابط",
+          "replace": "استبدال",
+          "reload": "إعادة التحميل",
+          "removeLink": "إزالة الرابط",
+          "pasteHint": "ألصق في https://...",
+          "unableToDisplay": "غير قادر على العرض"
+        }
+      },
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
     },
     "outlineBlock": {
@@ -2083,7 +2234,28 @@
       "morePages": "المزيد من الصفحات"
     },
     "toolbar": {
-      "resetToDefaultFont": "إعادة تعيين إلى الافتراضي"
+      "resetToDefaultFont": "إعادة تعيين إلى الافتراضي",
+      "textSize": "حجم النص",
+      "textColor": "لون النص",
+      "h1": "العنوان 1",
+      "h2": "العنوان 2",
+      "h3": "العنوان 3",
+      "alignLeft": "محاذاة إلى اليسار",
+      "alignRight": "محاذاة إلى اليمين",
+      "alignCenter": "محاذاة إلى الوسط",
+      "link": "وصلة",
+      "textAlign": "محاذاة النص",
+      "moreOptions": "المزيد من الخيارات",
+      "font": "الخط",
+      "inlineCode": "الكود المضمن",
+      "suggestions": "اقتراحات",
+      "turnInto": "تحول إلى",
+      "equation": "معادلة",
+      "insert": "إدراج",
+      "linkInputHint": "لصق الرابط أو البحث عن الصفحات",
+      "pageOrURL": "الصفحة أو عنوان URL",
+      "linkName": "اسم الرابط",
+      "linkNameHint": "اسم رابط الإدخال"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
@@ -2213,6 +2385,12 @@
   "search": {
     "label": "يبحث",
     "sidebarSearchIcon": "ابحث وانتقل بسرعة إلى الصفحة",
+    "searchOrAskAI": "ابحث أو اسأل الذكاء الاصطناعي",
+    "askAIAnything": "اسأل الذكاء الاصطناعي عن أي شيء",
+    "askAIFor": "اسأل الذكاء الاصطناعي",
+    "noResultForSearching": "لم يتم العثور على أي تطابقات",
+    "noResultForSearchingHint": "حاول استخدام أسئلة أو كلمات رئيسية مختلفة.\nقد تكون بعض الصفحات في سلة المهملات.",
+    "bestMatch": "أفضل تطابق",
     "placeholder": {
       "actions": "إجراءات البحث ..."
     }
@@ -2321,6 +2499,19 @@
   },
   "notificationHub": {
     "title": "إشعارات",
+    "closeNotification": "إغلاق الإشعار",
+    "viewNotifications": "عرض الإشعارات",
+    "noNotifications": "لا يوجد إشعارات حتى الآن",
+    "mentionedYou": "ذكرتك",
+    "archivedTooltip": "أرشفة هذا الإشعار",
+    "unarchiveTooltip": "إلغاء أرشفة هذا الإشعار",
+    "markAsReadTooltip": "قم بتمييز هذا الإشعار كمقروء",
+    "markAsArchivedSucceedToast": "تم الأرشفة بنجاح",
+    "markAllAsArchivedSucceedToast": "تم أرشفة كل شيء بنجاح",
+    "markAsReadSucceedToast": "وضع علامة كمقروءة بنجاح",
+    "markAllAsReadSucceedToast": "تم وضع علامة على كل شيء كمقروء بنجاح",
+    "today": "اليوم",
+    "older": "أقدم",
     "mobile": {
       "title": "تحديثات"
     },
@@ -2450,6 +2641,7 @@
     "copyLink": "انسخ الرابط",
     "removeLink": "إزالة الرابط",
     "editLink": "تعديل الرابط",
+    "convertTo": "تحويل إلى",
     "linkText": "نص",
     "linkTextHint": "الرجاء إدخال النص",
     "linkAddressHint": "الرجاء إدخال الرابط",
@@ -2539,6 +2731,7 @@
       "accountLogin": "تسجيل الدخول إلى الحساب",
       "updateNameError": "فشل في تحديث الاسم",
       "updateIconError": "فشل في تحديث الأيقونة",
+      "aboutAppFlowy": "حول appName",
       "deleteAccount": {
         "title": "حذف الحساب",
         "subtitle": "احذف حسابك وجميع بياناتك بشكل دائم.",
@@ -2547,14 +2740,48 @@
         "dialogTitle": "حذف الحساب",
         "dialogContent1": "هل أنت متأكد أنك تريد حذف حسابك نهائياً؟",
         "dialogContent2": "لا يمكن التراجع عن هذا الإجراء، وسوف يؤدي إلى إزالة الوصول من جميع مساحات العمل، ومسح حسابك بالكامل، بما في ذلك مساحات العمل الخاصة، وإزالتك من جميع مساحات العمل المشتركة.",
-        "confirmHint1": "من فضلك اكتب \"حذف حسابي\" للتأكيد.",
+        "confirmHint1": "من فضلك اكتب \"@:newSettings.myAccount.deleteAccount.confirmHint3\" للتأكيد.",
         "confirmHint2": "أفهم أن هذا الإجراء لا رجعة فيه وسيؤدي إلى حذف حسابي وجميع البيانات المرتبطة به بشكل دائم.",
         "confirmHint3": "حذف حسابي",
         "checkToConfirmError": "يجب عليك تحديد المربع لتأكيد الحذف",
         "failedToGetCurrentUser": "فشل في الحصول على البريد الإلكتروني الحالي للمستخدم",
-        "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"حذف حسابي\"",
+        "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "تم حذف الحساب بنجاح"
-      }
+      },
+      "password": {
+        "title": "كلمة المرور",
+        "confirmPassword": "تأكيد كلمة المرور",
+        "changePassword": "تغيير كلمة المرور",
+        "currentPassword": "كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+        "setupPassword": "إعداد كلمة المرور",
+        "error": {
+          "currentPasswordIsRequired": "كلمة المرور الحالية مطلوبة",
+          "newPasswordIsRequired": "مطلوب كلمة مرور جديدة",
+          "confirmPasswordIsRequired": "تأكيد كلمة المرور مطلوب",
+          "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+          "newPasswordIsSameAsCurrent": "كلمة المرور الجديدة هي نفس كلمة المرور الحالية",
+          "currentPasswordIsIncorrect": "كلمة المرور الحالية غير صحيحة",
+          "passwordShouldBeAtLeast6Characters": "يجب أن تتكون كلمة المرور من {min} مِحْرَف على الأقل",
+          "passwordCannotBeLongerThan72Characters": "لا يمكن أن تكون كلمة المرور أطول من {max} مِحْرَف"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "تم تحديث كلمة المرور بنجاح",
+          "passwordUpdatedFailed": "فشل في تحديث كلمة المرور",
+          "passwordSetupSuccessfully": "تم إعداد كلمة المرور بنجاح",
+          "passwordSetupFailed": "فشل في إعداد كلمة المرور"
+        },
+        "hint": {
+          "enterYourPassword": "أدخل كلمة المرور الخاصة بك",
+          "confirmYourPassword": "تأكيد كلمة المرور الخاصة بك",
+          "enterYourCurrentPassword": "أدخل كلمة المرور الحالية الخاصة بك",
+          "enterYourNewPassword": "أدخل كلمة المرور الجديدة",
+          "confirmYourNewPassword": "تأكيد كلمة المرور الجديدة"
+        }
+      },
+      "myAccount": "حسابي",
+      "myProfile": "ملفي الشخصي"
     },
     "workplace": {
       "name": "مكان العمل",
@@ -2607,6 +2834,11 @@
   "commandPalette": {
     "placeholder": "ابحث أو اطرح سؤالا...",
     "bestMatches": "أفضل المطابقات",
+    "aiOverview": "نظرة عامة على الذكاء الاصطناعي",
+    "aiOverviewSource": "مصادر مرجعية",
+    "aiOverviewMoreDetails": "مزيد من التفاصيل",
+    "pagePreview": "معاينة المحتوى",
+    "clickToOpenPage": "انقر لفتح الصفحة",
     "recentHistory": "التاريخ الحديث",
     "navigateHint": "للتنقل",
     "loadingTooltip": "نحن نبحث عن نتائج...",
@@ -2729,6 +2961,7 @@
     "moreOptions": "المزيد من الخيارات",
     "collapse": "طي",
     "signInAgreement": "بالنقر فوق \"متابعة\" أعلاه، فإنك توافق على شروط استخدام AppFlowy",
+    "signInLocalAgreement": "من خلال النقر على \"البدء\" أعلاه، فإنك توافق على شروط وأحكام AppFlowy",
     "and": "و",
     "termOfUse": "شروط",
     "privacyPolicy": "سياسة الخصوصية",
@@ -3108,6 +3341,81 @@
     }
   },
   "ai": {
-    "contentPolicyViolation": "فشل إنشاء الصورة بسبب محتوى حساس. يرجى إعادة صياغة إدخالك والمحاولة مرة أخرى"
+    "contentPolicyViolation": "فشل إنشاء الصورة بسبب محتوى حساس. يرجى إعادة صياغة إدخالك والمحاولة مرة أخرى",
+    "textLimitReachedDescription": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة عملك. قم بالترقية إلى الخطة الاحترافية أو قم بشراء إضافة للذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
+    "imageLimitReachedDescription": "لقد استنفدت حصتك المجانية من صور الذكاء الاصطناعي. يُرجى الترقية إلى الخطة الاحترافية أو شراء إضافة الذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
+    "limitReachedAction": {
+      "textDescription": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة عملك. للحصول على المزيد من الاستجابات، يرجى",
+      "imageDescription": "لقد استنفدت حصتك المجانية من صور الذكاء الاصطناعي. يرجى",
+      "upgrade": "ترقية",
+      "toThe": "الى",
+      "proPlan": "الخطة الاحترافية",
+      "orPurchaseAn": "أو شراء",
+      "aiAddon": "مَرافِق الذكاء الاصطناعي"
+    },
+    "editing": "تحرير",
+    "analyzing": "تحليل",
+    "continueWritingEmptyDocumentTitle": "استمر في كتابة الخطأ",
+    "continueWritingEmptyDocumentDescription": "نواجه مشكلة في توسيع نطاق المحتوى في مستندك. اكتب مقدمة قصيرة وسنتولى الأمر من هناك!",
+    "more": "أكثر",
+    "customPrompt": {
+      "browsePrompts": "تصفح المطالبات",
+      "usePrompt": "استخدم المطالبة",
+      "featured": "مميز",
+      "all": "الجميع",
+      "development": "التطوير",
+      "writing": "الكتابة",
+      "healthAndFitness": "الصحة واللياقة البدنية",
+      "business": "العمل",
+      "marketing": "التسويق",
+      "travel": "السفر",
+      "others": "آخر",
+      "prompt": "المطالبة",
+      "example": "مثال المطالبة",
+      "sampleOutput": "عينة الإخراج",
+      "contentSeo": "المحتوى/ت.م.ب",
+      "emailMarketing": "التسويق عبر البريد الإلكتروني",
+      "paidAds": "الإعلانات المدفوعة",
+      "prCommunication": "العلاقات العامة/الاتصالات",
+      "recruiting": "التوظيف",
+      "sales": "مبيعات",
+      "socialMedia": "وسائل التواصل الاجتماعي",
+      "strategy": "الاستراتيجية",
+      "caseStudies": "دراسات الحالة",
+      "salesCopy": "النص البيعي",
+      "education": "التعليم",
+      "work": "العمل",
+      "podcastProduction": "إنتاج البودكاست",
+      "copyWriting": "كتابة التسويق",
+      "customerSuccess": "نجاح العملاء"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "التحديث ضروري للمتابعة",
+    "criticalUpdateDescription": "لقد أجرينا تحسينات لتحسين تجربتك! يُرجى التحديث من {currentVersion} إلى {newVersion} لمواصلة استخدام التطبيق.",
+    "criticalUpdateButton": "تحديث",
+    "bannerUpdateTitle": "النسخة الجديدة متاحة!",
+    "bannerUpdateDescription": "احصل على أحدث الميزات والإصلاحات. انقر على \"تحديث\" للتثبيت الآن.",
+    "bannerUpdateButton": "تحديث",
+    "settingsUpdateTitle": "الإصدار الجديد ({newVersion}) متاح!",
+    "settingsUpdateDescription": "الإصدار الحالي: {currentVersion} (الإصدار الرسمي) → {newVersion}",
+    "settingsUpdateButton": "تحديث",
+    "settingsUpdateWhatsNew": "ما الجديد"
+  },
+  "lockPage": {
+    "lockPage": "مقفل",
+    "reLockPage": "إعادة القفل",
+    "lockTooltip": "تم قفل الصفحة لمنع التعديل غير المقصود. انقر لفتح القفل.",
+    "pageLockedToast": "الصفحة مقفلة. التعديل معطل حتى يفتحها أحد.",
+    "lockedOperationTooltip": "تم قفل الصفحة لمنع التعديل غير المقصود."
+  },
+  "suggestion": {
+    "accept": "يقبل",
+    "keep": "يحفظ",
+    "discard": "تجاهل",
+    "close": "يغلق",
+    "tryAgain": "حاول ثانية",
+    "rewrite": "إعادة كتابة",
+    "insertBelow": "أدخل أدناه"
   }
 }

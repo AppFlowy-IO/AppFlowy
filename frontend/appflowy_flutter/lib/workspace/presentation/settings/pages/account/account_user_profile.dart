@@ -3,7 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
-import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -83,12 +83,11 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
         child: FlowyTooltip(
           message:
               LocaleKeys.settings_accountPage_general_changeProfilePicture.tr(),
-          child: UserAvatar(
-            iconUrl: widget.iconUrl,
+          verticalOffset: 28,
+          child: AFAvatar(
+            url: widget.iconUrl,
             name: widget.name,
-            size: 48,
-            fontSize: 20,
-            isHovering: isHovering,
+            size: AFAvatarSize.l,
           ),
         ),
       ),
@@ -96,27 +95,29 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
   }
 
   Widget _buildNameDisplay() {
+    final theme = AppFlowyTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: Text(
               widget.name,
               overflow: TextOverflow.ellipsis,
+              style: theme.textStyle.body.standard(
+                color: theme.textColorScheme.primary,
+              ),
             ),
           ),
           const HSpace(4),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
+          AFGhostButton.normal(
+            size: AFButtonSize.s,
+            padding: EdgeInsets.all(theme.spacing.xs),
             onTap: () => setState(() => isEditing = true),
-            child: const FlowyHover(
-              resetHoverOnRebuild: false,
-              child: Padding(
-                padding: EdgeInsets.all(4),
-                child: FlowySvg(FlowySvgs.edit_s),
-              ),
+            builder: (context, isHovering, disabled) => FlowySvg(
+              FlowySvgs.toolbar_link_edit_m,
+              size: const Size.square(20),
             ),
           ),
         ],

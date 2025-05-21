@@ -182,7 +182,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         ),
         _divider(),
         ..._buildPublishActions(context),
-        _divider(),
+
         MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
@@ -203,7 +203,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     final userProfile = context.read<MobileViewPageBloc>().state.userProfilePB;
     // the publish feature is only available for AppFlowy Cloud
     if (userProfile == null ||
-        userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+        userProfile.workspaceType != WorkspaceTypePB.ServerW) {
       return [];
     }
 
@@ -236,6 +236,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.unpublish,
           ),
         ),
+        _divider(),
       ];
     } else {
       return [
@@ -246,6 +247,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.publish,
           ),
         ),
+        _divider(),
       ];
     }
   }

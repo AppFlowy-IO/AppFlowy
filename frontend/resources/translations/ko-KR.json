@@ -1,62 +1,117 @@
 {
   "appName": "AppFlowy",
-  "defaultUsername": "Me",
-  "welcomeText": "@:appName 에 오신것을 환영합니다",
-  "githubStarText": "Star on GitHub",
+  "defaultUsername": "나",
+  "welcomeText": "@:appName에 오신 것을 환영합니다",
+  "welcomeTo": "환영합니다",
+  "githubStarText": "GitHub에서 별표",
   "subscribeNewsletterText": "뉴스레터 구독",
-  "letsGoButtonText": "Let's Go",
+  "letsGoButtonText": "빠른 시작",
   "title": "제목",
-  "youCanAlso": "당신은 또한 수",
+  "youCanAlso": "또한 할 수 있습니다",
   "and": "그리고",
+  "failedToOpenUrl": "URL을 열지 못했습니다: {}",
   "blockActions": {
     "addBelowTooltip": "아래에 추가하려면 클릭",
     "addAboveCmd": "Alt+클릭",
     "addAboveMacCmd": "Option+클릭",
-    "addAboveTooltip": "위에 추가"
+    "addAboveTooltip": "위에 추가하려면",
+    "dragTooltip": "이동하려면 드래그",
+    "openMenuTooltip": "메뉴를 열려면 클릭"
   },
   "signUp": {
-    "buttonText": "회원가입",
-    "title": "@:appName 에 회원가입",
+    "buttonText": "가입하기",
+    "title": "@:appName에 가입하기",
     "getStartedText": "시작하기",
-    "emptyPasswordError": "비밀번호는 공백일 수 없습니다",
-    "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
-    "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+    "emptyPasswordError": "비밀번호는 비워둘 수 없습니다",
+    "repeatPasswordEmptyError": "비밀번호 확인은 비워둘 수 없습니다",
+    "unmatchedPasswordError": "비밀번호 확인이 비밀번호와 일치하지 않습니다",
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
-    "repeatPasswordHint": "비밀번호 재입력"
+    "repeatPasswordHint": "비밀번호 확인",
+    "signUpWith": "다음으로 가입:"
   },
   "signIn": {
-    "loginTitle": "@:appName 에 로그인",
+    "loginTitle": "@:appName에 로그인",
     "loginButtonText": "로그인",
+    "loginStartWithAnonymous": "익명 세션으로 계속",
+    "continueAnonymousUser": "익명 세션으로 계속",
     "buttonText": "로그인",
+    "signingInText": "로그인 중...",
     "forgotPassword": "비밀번호를 잊으셨나요?",
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
     "dontHaveAnAccount": "계정이 없으신가요?",
-    "createAccount": "계정 생성",
-    "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
-    "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+    "createAccount": "계정 만들기",
+    "repeatPasswordEmptyError": "비밀번호 확인은 비워둘 수 없습니다",
+    "unmatchedPasswordError": "비밀번호 확인이 비밀번호와 일치하지 않습니다",
+    "syncPromptMessage": "데이터 동기화에는 시간이 걸릴 수 있습니다. 이 페이지를 닫지 마세요",
     "or": "또는",
+    "signInWithGoogle": "Google로 계속",
+    "signInWithGithub": "GitHub로 계속",
+    "signInWithDiscord": "Discord로 계속",
+    "signInWithApple": "Apple로 계속",
+    "continueAnotherWay": "다른 방법으로 계속",
+    "signUpWithGoogle": "Google로 가입",
+    "signUpWithGithub": "GitHub로 가입",
+    "signUpWithDiscord": "Discord로 가입",
+    "signInWith": "다음으로 계속:",
+    "signInWithEmail": "이메일로 계속",
     "signInWithMagicLink": "계속",
+    "signUpWithMagicLink": "Magic Link로 가입",
     "pleaseInputYourEmail": "이메일 주소를 입력하세요",
     "settings": "설정",
+    "magicLinkSent": "Magic Link가 전송되었습니다!",
     "invalidEmail": "유효한 이메일 주소를 입력하세요",
-    "alreadyHaveAnAccount": "이미 계정이 있나요?",
+    "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
     "logIn": "로그인",
-    "generalError": "오류가 발생했습니다. 나중에 다시 시도하세요",
-    "loginAsGuestButtonText": "시작하다"
+    "generalError": "문제가 발생했습니다. 나중에 다시 시도하세요",
+    "limitRateError": "보안상의 이유로, 매 60초마다 한 번씩만 Magic Link를 요청할 수 있습니다",
+    "magicLinkSentDescription": "Magic Link가 이메일로 전송되었습니다. 링크를 클릭하여 로그인을 완료하세요. 링크는 5분 후에 만료됩니다.",
+    "anonymous": "익명"
   },
   "workspace": {
-    "defaultName": "내 워크스페이스",
-    "create": "워크스페이스 생성",
-    "hint": "워크스페이스",
-    "notFoundError": "워크스페이스를 찾을 수 없습니다"
+    "chooseWorkspace": "작업 공간 선택",
+    "defaultName": "내 작업 공간",
+    "create": "작업 공간 생성",
+    "new": "새 작업 공간",
+    "importFromNotion": "Notion에서 가져오기",
+    "learnMore": "자세히 알아보기",
+    "reset": "작업 공간 재설정",
+    "renameWorkspace": "작업 공간 이름 변경",
+    "workspaceNameCannotBeEmpty": "작업 공간 이름은 비워둘 수 없습니다",
+    "resetWorkspacePrompt": "작업 공간을 재설정하면 모든 페이지와 데이터가 삭제됩니다. 작업 공간을 재설정하시겠습니까? 또는 지원 팀에 문의하여 작업 공간을 복원할 수 있습니다",
+    "hint": "작업 공간",
+    "notFoundError": "작업 공간을 찾을 수 없습니다",
+    "failedToLoad": "문제가 발생했습니다! 작업 공간을 로드하지 못했습니다. @:appName의 모든 열린 인스턴스를 닫고 다시 시도하세요.",
+    "errorActions": {
+      "reportIssue": "문제 보고",
+      "reportIssueOnGithub": "GitHub에서 문제 보고",
+      "exportLogFiles": "로그 파일 내보내기",
+      "reachOut": "Discord에서 문의"
+    },
+    "menuTitle": "작업 공간",
+    "deleteWorkspaceHintText": "작업 공간을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 게시한 모든 페이지가 게시 취소됩니다.",
+    "createSuccess": "작업 공간이 성공적으로 생성되었습니다",
+    "createFailed": "작업 공간 생성 실패",
+    "createLimitExceeded": "계정에 허용된 최대 작업 공간 수에 도달했습니다. 추가 작업 공간이 필요하면 GitHub에 요청하세요",
+    "deleteSuccess": "작업 공간이 성공적으로 삭제되었습니다",
+    "deleteFailed": "작업 공간 삭제 실패",
+    "openSuccess": "작업 공간이 성공적으로 열렸습니다",
+    "openFailed": "작업 공간 열기 실패",
+    "renameSuccess": "작업 공간 이름이 성공적으로 변경되었습니다",
+    "renameFailed": "작업 공간 이름 변경 실패",
+    "updateIconSuccess": "작업 공간 아이콘이 성공적으로 업데이트되었습니다",
+    "updateIconFailed": "작업 공간 아이콘 업데이트 실패",
+    "cannotDeleteTheOnlyWorkspace": "유일한 작업 공간을 삭제할 수 없습니다",
+    "fetchWorkspacesFailed": "작업 공간을 가져오지 못했습니다",
+    "leaveCurrentWorkspace": "작업 공간 나가기",
+    "leaveCurrentWorkspacePrompt": "현재 작업 공간을 나가시겠습니까?"
   },
   "shareAction": {
     "buttonText": "공유",
-    "workInProgress": "Coming soon",
-    "markdown": "마크다운",
+    "workInProgress": "곧 출시 예정",
+    "markdown": "Markdown",
     "html": "HTML",
     "clipboard": "클립보드에 복사",
     "csv": "CSV",
@@ -66,352 +121,1405 @@
     "publish": "게시",
     "unPublish": "게시 취소",
     "visitSite": "사이트 방문",
-    "exportAsTab": "내보내기",
+    "exportAsTab": "다음으로 내보내기",
     "publishTab": "게시",
     "shareTab": "공유",
     "publishOnAppFlowy": "AppFlowy에 게시",
     "shareTabTitle": "협업 초대",
     "shareTabDescription": "누구와도 쉽게 협업할 수 있습니다",
-    "copyLinkSuccess": "클립보드에 링크 복사",
+    "copyLinkSuccess": "링크가 클립보드에 복사되었습니다",
     "copyShareLink": "공유 링크 복사",
-    "copyLinkFailed": "클립보드에 링크를 복사하는 데 실패했습니다",
-    "copyLinkToBlockSuccess": "블록 링크를 클립보드에 복사했습니다",
-    "copyLinkToBlockFailed": "블록 링크를 클립보드에 복사하는 데 실패했습니다",
+    "copyLinkFailed": "링크를 클립보드에 복사하지 못했습니다",
+    "copyLinkToBlockSuccess": "블록 링크가 클립보드에 복사되었습니다",
+    "copyLinkToBlockFailed": "블록 링크를 클립보드에 복사하지 못했습니다",
     "manageAllSites": "모든 사이트 관리",
     "updatePathName": "경로 이름 업데이트"
   },
   "moreAction": {
-    "small": "작은",
+    "small": "작게",
     "medium": "중간",
-    "large": "크기가 큰",
+    "large": "크게",
     "fontSize": "글꼴 크기",
     "import": "가져오기",
-    "moreOptions": "추가 옵션"
+    "moreOptions": "더 많은 옵션",
+    "wordCount": "단어 수: {}",
+    "charCount": "문자 수: {}",
+    "createdAt": "생성일: {}",
+    "deleteView": "삭제",
+    "duplicateView": "복제",
+    "wordCountLabel": "단어 수: ",
+    "charCountLabel": "문자 수: ",
+    "createdAtLabel": "생성일: ",
+    "syncedAtLabel": "동기화됨: ",
+    "saveAsNewPage": "페이지에 메시지 추가",
+    "saveAsNewPageDisabled": "사용 가능한 메시지가 없습니다"
   },
   "importPanel": {
-    "textAndMarkdown": "텍스트 및 마크다운",
-    "documentFromV010": "v0.1.0의 문서",
-    "databaseFromV010": "v0.1.0의 데이터베이스",
+    "textAndMarkdown": "텍스트 & Markdown",
+    "documentFromV010": "v0.1.0에서 문서 가져오기",
+    "databaseFromV010": "v0.1.0에서 데이터베이스 가져오기",
+    "notionZip": "Notion 내보낸 Zip 파일",
     "csv": "CSV",
-    "database": "데이터 베이스"
+    "database": "데이터베이스"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "파일을 드래그 앤 드롭하거나 클릭하여 ",
+      "placeholderUpload": "업로드",
+      "placeholderRight": "하거나 이미지 링크를 붙여넣으세요.",
+      "dropToUpload": "업로드할 파일을 드롭하세요",
+      "change": "변경"
+    }
   },
   "disclosureAction": {
-    "rename": "이름변경",
+    "rename": "이름 변경",
     "delete": "삭제",
     "duplicate": "복제",
-    "openNewTab": "새 탭에서 열기"
+    "unfavorite": "즐겨찾기에서 제거",
+    "favorite": "즐겨찾기에 추가",
+    "openNewTab": "새 탭에서 열기",
+    "moveTo": "이동",
+    "addToFavorites": "즐겨찾기에 추가",
+    "copyLink": "링크 복사",
+    "changeIcon": "아이콘 변경",
+    "collapseAllPages": "모든 하위 페이지 접기",
+    "movePageTo": "페이지 이동",
+    "move": "이동",
+    "lockPage": "페이지 잠금"
   },
   "blankPageTitle": "빈 페이지",
-  "newPageText": "새로운 페이지",
+  "newPageText": "새 페이지",
+  "newDocumentText": "새 문서",
+  "newGridText": "새 그리드",
+  "newCalendarText": "새 캘린더",
+  "newBoardText": "새 보드",
   "chat": {
-    "newChat": "AI 대화"
+    "newChat": "AI 채팅",
+    "inputMessageHint": "@:appName AI에게 물어보세요",
+    "inputLocalAIMessageHint": "@:appName 로컬 AI에게 물어보세요",
+    "unsupportedCloudPrompt": "이 기능은 @:appName Cloud를 사용할 때만 사용할 수 있습니다",
+    "relatedQuestion": "추천 질문",
+    "serverUnavailable": "연결이 끊어졌습니다. 인터넷을 확인하고",
+    "aiServerUnavailable": "AI 서비스가 일시적으로 사용할 수 없습니다. 나중에 다시 시도하세요.",
+    "retry": "다시 시도",
+    "clickToRetry": "다시 시도하려면 클릭",
+    "regenerateAnswer": "다시 생성",
+    "question1": "Kanban을 사용하여 작업 관리하는 방법",
+    "question2": "GTD 방법 설명",
+    "question3": "Rust를 사용하는 이유",
+    "question4": "내 주방에 있는 재료로 요리법 만들기",
+    "question5": "내 페이지에 대한 일러스트레이션 만들기",
+    "question6": "다가오는 주의 할 일 목록 작성",
+    "aiMistakePrompt": "AI는 실수를 할 수 있습니다. 중요한 정보를 확인하세요.",
+    "chatWithFilePrompt": "파일과 채팅하시겠습니까?",
+    "indexFileSuccess": "파일 색인화 성공",
+    "inputActionNoPages": "페이지 결과 없음",
+    "referenceSource": {
+      "zero": "0개의 출처 발견",
+      "one": "{count}개의 출처 발견",
+      "other": "{count}개의 출처 발견"
+    },
+    "clickToMention": "페이지 언급",
+    "uploadFile": "PDF, 텍스트 또는 마크다운 파일 첨부",
+    "questionDetail": "안녕하세요 {}! 오늘 어떻게 도와드릴까요?",
+    "indexingFile": "{} 색인화 중",
+    "generatingResponse": "응답 생성 중",
+    "selectSources": "출처 선택",
+    "currentPage": "현재 페이지",
+    "sourcesLimitReached": "최대 3개의 최상위 문서와 그 하위 문서만 선택할 수 있습니다",
+    "sourceUnsupported": "현재 데이터베이스와의 채팅을 지원하지 않습니다",
+    "regenerate": "다시 시도",
+    "addToPageButton": "페이지에 메시지 추가",
+    "addToPageTitle": "메시지 추가...",
+    "addToNewPage": "새 페이지 만들기",
+    "addToNewPageName": "\"{}\"에서 추출한 메시지",
+    "addToNewPageSuccessToast": "메시지가 추가되었습니다",
+    "openPagePreviewFailedToast": "페이지를 열지 못했습니다",
+    "changeFormat": {
+      "actionButton": "형식 변경",
+      "confirmButton": "이 형식으로 다시 생성",
+      "textOnly": "텍스트",
+      "imageOnly": "이미지 전용",
+      "textAndImage": "텍스트와 이미지",
+      "text": "단락",
+      "bullet": "글머리 기호 목록",
+      "number": "번호 매기기 목록",
+      "table": "표",
+      "blankDescription": "응답 형식",
+      "defaultDescription": "자동 모드",
+      "textWithImageDescription": "@:chat.changeFormat.text와 이미지",
+      "numberWithImageDescription": "@:chat.changeFormat.number와 이미지",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet와 이미지",
+      "tableWithImageDescription": "@:chat.changeFormat.table와 이미지"
+    },
+    "selectBanner": {
+      "saveButton": "추가 ...",
+      "selectMessages": "메시지 선택",
+      "nSelected": "{}개 선택됨",
+      "allSelected": "모두 선택됨"
+    },
+    "stopTooltip": "생성 중지"
   },
   "trash": {
     "text": "휴지통",
-    "restoreAll": "모두 복구",
+    "restoreAll": "모두 복원",
+    "restore": "복원",
     "deleteAll": "모두 삭제",
     "pageHeader": {
       "fileName": "파일 이름",
-      "lastModified": "수정날짜",
-      "created": "생성날짜"
+      "lastModified": "마지막 수정",
+      "created": "생성됨"
     },
     "confirmDeleteAll": {
-      "title": "휴지통의 모든 페이지를 삭제하시겠습니까?",
-      "caption": "이 작업은 취소할 수 없습니다."
+      "title": "휴지통의 모든 페이지",
+      "caption": "휴지통의 모든 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
     },
     "confirmRestoreAll": {
-      "title": "휴지통의 모든 페이지를 복원하시겠습니까?",
-      "caption": "이 작업은 취소할 수 없습니다."
-    }
+      "title": "휴지통의 모든 페이지 복원",
+      "caption": "이 작업은 되돌릴 수 없습니다."
+    },
+    "restorePage": {
+      "title": "복원: {}",
+      "caption": "이 페이지를 복원하시겠습니까?"
+    },
+    "mobile": {
+      "actions": "휴지통 작업",
+      "empty": "휴지통에 페이지나 공간이 없습니다",
+      "emptyDescription": "필요 없는 항목을 휴지통으로 이동하세요.",
+      "isDeleted": "삭제됨",
+      "isRestored": "복원됨"
+    },
+    "confirmDeleteTitle": "이 페이지를 영구적으로 삭제하시겠습니까?"
   },
   "deletePagePrompt": {
-    "text": "현재 페이지는 휴지통에 있습니다",
-    "restore": "페이지 복구",
-    "deletePermanent": "영구 삭제"
+    "text": "이 페이지는 휴지통에 있습니다",
+    "restore": "페이지 복원",
+    "deletePermanent": "영구적으로 삭제",
+    "deletePermanentDescription": "이 페이지를 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
   },
   "dialogCreatePageNameHint": "페이지 이름",
   "questionBubble": {
-    "shortcuts": "바로 가기",
-    "whatsNew": "새로운 소식",
-    "help": "도움 및 지원",
-    "markdown": "가격 인하",
+    "shortcuts": "단축키",
+    "whatsNew": "새로운 기능",
+    "markdown": "Markdown",
     "debug": {
       "name": "디버그 정보",
-      "success": "디버그 정보를 클립보드로 복사했습니다.",
-      "fail": "디버그 정보를 클립보드로 복사할 수 없습니다."
+      "success": "디버그 정보를 클립보드에 복사했습니다!",
+      "fail": "디버그 정보를 클립보드에 복사할 수 없습니다"
     },
-    "feedback": "피드백"
+    "feedback": "피드백",
+    "help": "도움말 및 지원"
   },
   "menuAppHeader": {
-    "addPageTooltip": "하위에 페이지 추가",
-    "defaultNewPageName": "제목없음",
-    "renameDialog": "이름변경"
+    "moreButtonToolTip": "제거, 이름 변경 등...",
+    "addPageTooltip": "빠르게 페이지 추가",
+    "defaultNewPageName": "제목 없음",
+    "renameDialog": "이름 변경",
+    "pageNameSuffix": "복사본"
   },
+  "noPagesInside": "내부에 페이지가 없습니다",
   "toolbar": {
-    "undo": "실행취소",
-    "redo": "재실행",
+    "undo": "실행 취소",
+    "redo": "다시 실행",
     "bold": "굵게",
     "italic": "기울임꼴",
     "underline": "밑줄",
     "strike": "취소선",
     "numList": "번호 매기기 목록",
     "bulletList": "글머리 기호 목록",
-    "checkList": "작업 목록",
+    "checkList": "체크리스트",
     "inlineCode": "인라인 코드",
-    "quote": "인용구 블록",
+    "quote": "인용 블록",
     "header": "헤더",
-    "highlight": "하이라이트",
+    "highlight": "강조",
     "color": "색상",
-    "addLink": "링크 추가",
-    "link": "링크"
+    "addLink": "링크 추가"
   },
   "tooltip": {
-    "lightMode": "라이트 모드로 변경",
-    "darkMode": "다크 모드로 변경",
+    "lightMode": "라이트 모드로 전환",
+    "darkMode": "다크 모드로 전환",
     "openAsPage": "페이지로 열기",
-    "addNewRow": "열 추가",
-    "openMenu": "메뉴를 여시려면 클릭하세요",
-    "dragRow": "행을 재정렬하려면 길게 누르세요.",
+    "addNewRow": "새 행 추가",
+    "openMenu": "메뉴 열기",
+    "dragRow": "행 순서 변경",
     "viewDataBase": "데이터베이스 보기",
-    "referencePage": "이 {name}은(는) 참조됩니다",
-    "addBlockBelow": "아래에 블록 추가"
+    "referencePage": "이 {name}이 참조됨",
+    "addBlockBelow": "아래에 블록 추가",
+    "aiGenerate": "생성"
   },
   "sideBar": {
     "closeSidebar": "사이드바 닫기",
-    "openSidebar": "사이드바 열기"
+    "openSidebar": "사이드바 열기",
+    "expandSidebar": "전체 페이지로 확장",
+    "personal": "개인",
+    "private": "비공개",
+    "workspace": "작업 공간",
+    "favorites": "즐겨찾기",
+    "clickToHidePrivate": "비공개 공간 숨기기\n여기에서 만든 페이지는 본인만 볼 수 있습니다",
+    "clickToHideWorkspace": "작업 공간 숨기기\n여기에서 만든 페이지는 모든 멤버가 볼 수 있습니다",
+    "clickToHidePersonal": "개인 공간 숨기기",
+    "clickToHideFavorites": "즐겨찾기 공간 숨기기",
+    "addAPage": "새 페이지 추가",
+    "addAPageToPrivate": "비공개 공간에 페이지 추가",
+    "addAPageToWorkspace": "작업 공간에 페이지 추가",
+    "recent": "최근",
+    "today": "오늘",
+    "thisWeek": "이번 주",
+    "others": "이전 즐겨찾기",
+    "earlier": "이전",
+    "justNow": "방금",
+    "minutesAgo": "{count}분 전",
+    "lastViewed": "마지막으로 본",
+    "favoriteAt": "즐겨찾기한",
+    "emptyRecent": "최근 페이지 없음",
+    "emptyRecentDescription": "페이지를 보면 여기에서 쉽게 찾을 수 있습니다.",
+    "emptyFavorite": "즐겨찾기 페이지 없음",
+    "emptyFavoriteDescription": "페이지를 즐겨찾기에 추가하면 여기에서 빠르게 접근할 수 있습니다!",
+    "removePageFromRecent": "최근 항목에서 이 페이지를 제거하시겠습니까?",
+    "removeSuccess": "성공적으로 제거되었습니다",
+    "favoriteSpace": "즐겨찾기",
+    "RecentSpace": "최근",
+    "Spaces": "공간",
+    "upgradeToPro": "Pro로 업그레이드",
+    "upgradeToAIMax": "무제한 AI 잠금 해제",
+    "storageLimitDialogTitle": "무료 저장 공간이 부족합니다. 무제한 저장 공간을 잠금 해제하려면 업그레이드하세요",
+    "storageLimitDialogTitleIOS": "무료 저장 공간이 부족합니다.",
+    "aiResponseLimitTitle": "무료 AI 응답이 부족합니다. Pro 플랜으로 업그레이드하거나 AI 애드온을 구매하여 무제한 응답을 잠금 해제하세요",
+    "aiResponseLimitDialogTitle": "AI 응답 한도에 도달했습니다",
+    "aiResponseLimit": "무료 AI 응답이 부족합니다.\n\n설정 -> 플랜 -> AI Max 또는 Pro 플랜을 클릭하여 더 많은 AI 응답을 받으세요",
+    "askOwnerToUpgradeToPro": "작업 공간의 무료 저장 공간이 부족합니다. 작업 공간 소유자에게 Pro 플랜으로 업그레이드하도록 요청하세요",
+    "askOwnerToUpgradeToProIOS": "작업 공간의 무료 저장 공간이 부족합니다.",
+    "askOwnerToUpgradeToAIMax": "작업 공간의 무료 AI 응답이 부족합니다. 작업 공간 소유자에게 플랜을 업그레이드하거나 AI 애드온을 구매하도록 요청하세요",
+    "askOwnerToUpgradeToAIMaxIOS": "작업 공간의 무료 AI 응답이 부족합니다.",
+    "purchaseAIMax": "작업 공간의 AI 이미지 응답이 부족합니다. 작업 공간 소유자에게 AI Max를 구매하도록 요청하세요",
+    "aiImageResponseLimit": "AI 이미지 응답이 부족합니다.\n\n설정 -> 플랜 -> AI Max를 클릭하여 더 많은 AI 이미지 응답을 받으세요",
+    "purchaseStorageSpace": "저장 공간 구매",
+    "singleFileProPlanLimitationDescription": "무료 플랜에서 허용되는 최대 파일 업로드 크기를 초과했습니다. 더 큰 파일을 업로드하려면 Pro 플랜으로 업그레이드하세요",
+    "purchaseAIResponse": "구매 ",
+    "askOwnerToUpgradeToLocalAI": "작업 공간 소유자에게 AI On-device를 활성화하도록 요청하세요",
+    "upgradeToAILocal": "최고의 프라이버시를 위해 로컬 모델을 장치에서 실행",
+    "upgradeToAILocalDesc": "PDF와 채팅하고, 글쓰기를 개선하고, 로컬 AI를 사용하여 테이블을 자동으로 채우세요"
   },
   "notifications": {
     "export": {
-      "markdown": "마크다운으로 노트를 내보냄",
+      "markdown": "노트를 Markdown으로 내보냈습니다",
       "path": "Documents/flowy"
     }
   },
   "contactsPage": {
     "title": "연락처",
-    "whatsHappening": "이번주에는 무슨 일이 있나요?",
+    "whatsHappening": "이번 주에 무슨 일이 있나요?",
     "addContact": "연락처 추가",
-    "editContact": "연락처 편집"
+    "editContact": "연락처 수정"
   },
   "button": {
     "ok": "확인",
+    "confirm": "확인",
     "done": "완료",
     "cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
     "save": "저장",
-    "generate": "생성하다",
+    "generate": "생성",
     "esc": "ESC",
-    "keep": "유지하다",
-    "tryAgain": "다시 시도하십시오",
-    "discard": "버리다",
-    "replace": "바꾸다",
+    "keep": "유지",
+    "tryAgain": "다시 시도",
+    "discard": "버리기",
+    "replace": "교체",
     "insertBelow": "아래에 삽입",
+    "insertAbove": "위에 삽입",
     "upload": "업로드",
-    "edit": "편집하다",
+    "edit": "편집",
     "delete": "삭제",
-    "duplicate": "복제하다",
-    "putback": "다시 집어 넣어",
-    "share": "공유"
+    "copy": "복사",
+    "duplicate": "복제",
+    "putback": "되돌리기",
+    "update": "업데이트",
+    "share": "공유",
+    "removeFromFavorites": "즐겨찾기에서 제거",
+    "removeFromRecent": "최근 항목에서 제거",
+    "addToFavorites": "즐겨찾기에 추가",
+    "favoriteSuccessfully": "즐겨찾기에 성공적으로 추가되었습니다",
+    "unfavoriteSuccessfully": "즐겨찾기에서 성공적으로 제거되었습니다",
+    "duplicateSuccessfully": "성공적으로 복제되었습니다",
+    "rename": "이름 변경",
+    "helpCenter": "도움말 센터",
+    "add": "추가",
+    "yes": "예",
+    "no": "아니요",
+    "clear": "지우기",
+    "remove": "제거",
+    "dontRemove": "제거하지 않음",
+    "copyLink": "링크 복사",
+    "align": "정렬",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "deleteAccount": "계정 삭제",
+    "back": "뒤로",
+    "signInGoogle": "Google로 계속",
+    "signInGithub": "GitHub로 계속",
+    "signInDiscord": "Discord로 계속",
+    "more": "더 보기",
+    "create": "생성",
+    "close": "닫기",
+    "next": "다음",
+    "previous": "이전",
+    "submit": "제출",
+    "download": "다운로드",
+    "backToHome": "홈으로 돌아가기",
+    "viewing": "보기",
+    "editing": "편집 중",
+    "gotIt": "알겠습니다",
+    "retry": "다시 시도",
+    "uploadFailed": "업로드 실패.",
+    "copyLinkOriginal": "원본 링크 복사"
   },
   "label": {
     "welcome": "환영합니다!",
     "firstName": "이름",
     "middleName": "중간 이름",
     "lastName": "성",
-    "stepX": "{X} 단계"
+    "stepX": "단계 {X}"
   },
   "oAuth": {
     "err": {
-      "failedTitle": "계정에 연결을 할 수 없습니다.",
-      "failedMsg": "브라우저에서 회원가입이 완료되었는지 확인해주세요."
+      "failedTitle": "계정에 연결할 수 없습니다.",
+      "failedMsg": "브라우저에서 로그인 프로세스를 완료했는지 확인하세요."
     },
     "google": {
-      "title": "GOOGLE SIGN-IN",
-      "instruction1": "구글 연락처를 가져오기 위해서 웹브라우저로 앱을 승인 해야 합니다.",
-      "instruction2": "아이콘을 클릭 또는 텍스트를 선택해서 이 코드를 클립보드로 복사하세요:",
-      "instruction3": "웹브라우저로 다음 링크로 가셔서 위 코드를 입력해주세요:",
-      "instruction4": "가입 완료 후 아래 버튼을 눌러주세요:"
+      "title": "GOOGLE 로그인",
+      "instruction1": "Google 연락처를 가져오려면 웹 브라우저를 사용하여 이 애플리케이션을 인증해야 합니다.",
+      "instruction2": "아이콘을 클릭하거나 텍스트를 선택하여 이 코드를 클립보드에 복사하세요:",
+      "instruction3": "웹 브라우저에서 다음 링크로 이동하고 위의 코드를 입력하세요:",
+      "instruction4": "가입을 완료했으면 아래 버튼을 누르세요:"
     }
   },
   "settings": {
     "title": "설정",
-    "accountPage": {
-      "general": {
-        "title": "사용자 이름 & 프로필 사진",
-        "changeProfilePicture": "프로필 사진 변경"
+    "popupMenuItem": {
+      "settings": "설정",
+      "members": "멤버",
+      "trash": "휴지통",
+      "helpAndSupport": "도움말 및 지원"
+    },
+    "sites": {
+      "title": "사이트",
+      "namespaceTitle": "네임스페이스",
+      "namespaceDescription": "네임스페이스 및 홈페이지 관리",
+      "namespaceHeader": "네임스페이스",
+      "homepageHeader": "홈페이지",
+      "updateNamespace": "네임스페이스 업데이트",
+      "removeHomepage": "홈페이지 제거",
+      "selectHomePage": "페이지 선택",
+      "clearHomePage": "이 네임스페이스의 홈페이지를 지웁니다",
+      "customUrl": "맞춤 URL",
+      "namespace": {
+        "description": "이 변경 사항은 이 네임스페이스에 라이브로 게시된 모든 페이지에 적용됩니다",
+        "tooltip": "부적절한 네임스페이스를 제거할 권리를 보유합니다",
+        "updateExistingNamespace": "기존 네임스페이스 업데이트",
+        "upgradeToPro": "Pro 플랜으로 업그레이드하여 홈페이지 설정",
+        "redirectToPayment": "결제 페이지로 리디렉션 중...",
+        "onlyWorkspaceOwnerCanSetHomePage": "작업 공간 소유자만 홈페이지를 설정할 수 있습니다",
+        "pleaseAskOwnerToSetHomePage": "작업 공간 소유자에게 Pro 플랜으로 업그레이드하도록 요청하세요"
+      },
+      "publishedPage": {
+        "title": "모든 게시된 페이지",
+        "description": "게시된 페이지 관리",
+        "page": "페이지",
+        "pathName": "경로 이름",
+        "date": "게시 날짜",
+        "emptyHinText": "이 작업 공간에 게시된 페이지가 없습니다",
+        "noPublishedPages": "게시된 페이지 없음",
+        "settings": "게시 설정",
+        "clickToOpenPageInApp": "앱에서 페이지 열기",
+        "clickToOpenPageInBrowser": "브라우저에서 페이지 열기"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Pro 플랜 결제 링크 생성 실패",
+        "failedToUpdateNamespace": "네임스페이스 업데이트 실패",
+        "proPlanLimitation": "네임스페이스를 업데이트하려면 Pro 플랜으로 업그레이드해야 합니다",
+        "namespaceAlreadyInUse": "네임스페이스가 이미 사용 중입니다. 다른 네임스페이스를 시도하세요",
+        "invalidNamespace": "잘못된 네임스페이스입니다. 다른 네임스페이스를 시도하세요",
+        "namespaceLengthAtLeast2Characters": "네임스페이스는 최소 2자 이상이어야 합니다",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "작업 공간 소유자만 네임스페이스를 업데이트할 수 있습니다",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "작업 공간 소유자만 홈페이지를 제거할 수 있습니다",
+        "setHomepageFailed": "홈페이지 설정 실패",
+        "namespaceTooLong": "네임스페이스가 너무 깁니다. 다른 네임스페이스를 시도하세요",
+        "namespaceTooShort": "네임스페이스가 너무 짧습니다. 다른 네임스페이스를 시도하세요",
+        "namespaceIsReserved": "네임스페이스가 예약되어 있습니다. 다른 네임스페이스를 시도하세요",
+        "updatePathNameFailed": "경로 이름 업데이트 실패",
+        "removeHomePageFailed": "홈페이지 제거 실패",
+        "publishNameContainsInvalidCharacters": "경로 이름에 잘못된 문자가 포함되어 있습니다. 다른 이름을 시도하세요",
+        "publishNameTooShort": "경로 이름이 너무 짧습니다. 다른 이름을 시도하세요",
+        "publishNameTooLong": "경로 이름이 너무 깁니다. 다른 이름을 시도하세요",
+        "publishNameAlreadyInUse": "경로 이름이 이미 사용 중입니다. 다른 이름을 시도하세요",
+        "namespaceContainsInvalidCharacters": "네임스페이스에 잘못된 문자가 포함되어 있습니다. 다른 네임스페이스를 시도하세요",
+        "publishPermissionDenied": "작업 공간 소유자 또는 페이지 게시자만 게시 설정을 관리할 수 있습니다",
+        "publishNameCannotBeEmpty": "경로 이름은 비워둘 수 없습니다. 다른 이름을 시도하세요"
+      },
+      "success": {
+        "namespaceUpdated": "네임스페이스가 성공적으로 업데이트되었습니다",
+        "setHomepageSuccess": "홈페이지가 성공적으로 설정되었습니다",
+        "updatePathNameSuccess": "경로 이름이 성공적으로 업데이트되었습니다",
+        "removeHomePageSuccess": "홈페이지가 성공적으로 제거되었습니다"
       }
     },
+    "accountPage": {
+      "menuLabel": "계정 및 앱",
+      "title": "내 계정",
+      "general": {
+        "title": "계정 이름 및 프로필 이미지",
+        "changeProfilePicture": "프로필 사진 변경"
+      },
+      "email": {
+        "title": "이메일",
+        "actions": {
+          "change": "이메일 변경"
+        }
+      },
+      "login": {
+        "title": "계정 로그인",
+        "loginLabel": "로그인",
+        "logoutLabel": "로그아웃"
+      },
+      "isUpToDate": "@:appName이 최신 상태입니다!",
+      "officialVersion": "버전 {version} (공식 빌드)"
+    },
+    "workspacePage": {
+      "menuLabel": "작업 공간",
+      "title": "작업 공간",
+      "description": "작업 공간의 외관, 테마, 글꼴, 텍스트 레이아웃, 날짜/시간 형식 및 언어를 사용자 정의합니다.",
+      "workspaceName": {
+        "title": "작업 공간 이름"
+      },
+      "workspaceIcon": {
+        "title": "작업 공간 아이콘",
+        "description": "작업 공간에 대한 이미지를 업로드하거나 이모지를 사용하세요. 아이콘은 사이드바와 알림에 표시됩니다."
+      },
+      "appearance": {
+        "title": "외관",
+        "description": "작업 공간의 외관, 테마, 글꼴, 텍스트 레이아웃, 날짜, 시간 및 언어를 사용자 정의합니다.",
+        "options": {
+          "system": "자동",
+          "light": "라이트",
+          "dark": "다크"
+        }
+      },
+      "resetCursorColor": {
+        "title": "문서 커서 색상 재설정",
+        "description": "커서 색상을 재설정하시겠습니까?"
+      },
+      "resetSelectionColor": {
+        "title": "문서 선택 색상 재설정",
+        "description": "선택 색상을 재설정하시겠습니까?"
+      },
+      "resetWidth": {
+        "resetSuccess": "문서 너비가 성공적으로 재설정되었습니다"
+      },
+      "theme": {
+        "title": "테마",
+        "description": "미리 설정된 테마를 선택하거나 사용자 정의 테마를 업로드하세요.",
+        "uploadCustomThemeTooltip": "사용자 정의 테마 업로드"
+      },
+      "workspaceFont": {
+        "title": "작업 공간 글꼴",
+        "noFontHint": "글꼴을 찾을 수 없습니다. 다른 용어를 시도하세요."
+      },
+      "textDirection": {
+        "title": "텍스트 방향",
+        "leftToRight": "왼쪽에서 오른쪽으로",
+        "rightToLeft": "오른쪽에서 왼쪽으로",
+        "auto": "자동",
+        "enableRTLItems": "RTL 도구 모음 항목 활성화"
+      },
+      "layoutDirection": {
+        "title": "레이아웃 방향",
+        "leftToRight": "왼쪽에서 오른쪽으로",
+        "rightToLeft": "오른쪽에서 왼쪽으로"
+      },
+      "dateTime": {
+        "title": "날짜 및 시간",
+        "example": "{}에 {} ({})",
+        "24HourTime": "24시간 형식",
+        "dateFormat": {
+          "label": "날짜 형식",
+          "local": "로컬",
+          "us": "미국",
+          "iso": "ISO",
+          "friendly": "친숙한",
+          "dmy": "일/월/년"
+        }
+      },
+      "language": {
+        "title": "언어"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "작업 공간 삭제",
+        "content": "이 작업 공간을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 게시한 모든 페이지가 게시 취소됩니다."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "작업 공간 나가기",
+        "content": "이 작업 공간을 나가시겠습니까? 모든 페이지와 데이터에 대한 액세스를 잃게 됩니다.",
+        "success": "작업 공간을 성공적으로 나갔습니다.",
+        "fail": "작업 공간 나가기 실패."
+      },
+      "manageWorkspace": {
+        "title": "작업 공간 관리",
+        "leaveWorkspace": "작업 공간 나가기",
+        "deleteWorkspace": "작업 공간 삭제"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "데이터 관리",
+      "title": "데이터 관리",
+      "description": "로컬 저장소 데이터를 관리하거나 기존 데이터를 @:appName에 가져옵니다.",
+      "dataStorage": {
+        "title": "파일 저장 위치",
+        "tooltip": "파일이 저장되는 위치",
+        "actions": {
+          "change": "경로 변경",
+          "open": "폴더 열기",
+          "openTooltip": "현재 데이터 폴더 위치 열기",
+          "copy": "경로 복사",
+          "copiedHint": "경로가 복사되었습니다!",
+          "resetTooltip": "기본 위치로 재설정"
+        },
+        "resetDialog": {
+          "title": "확실합니까?",
+          "description": "경로를 기본 데이터 위치로 재설정해도 데이터가 삭제되지 않습니다. 현재 데이터를 다시 가져오려면 현재 위치의 경로를 먼저 복사해야 합니다."
+        }
+      },
+      "importData": {
+        "title": "데이터 가져오기",
+        "tooltip": "@:appName 백업/데이터 폴더에서 데이터 가져오기",
+        "description": "외부 @:appName 데이터 폴더에서 데이터 복사",
+        "action": "파일 찾아보기"
+      },
+      "encryption": {
+        "title": "암호화",
+        "tooltip": "데이터 저장 및 암호화 방법 관리",
+        "descriptionNoEncryption": "암호화를 켜면 모든 데이터가 암호화됩니다. 이 작업은 되돌릴 수 없습니다.",
+        "descriptionEncrypted": "데이터가 암호화되었습니다.",
+        "action": "데이터 암호화",
+        "dialog": {
+          "title": "모든 데이터를 암호화하시겠습니까?",
+          "description": "모든 데이터를 암호화하면 데이터가 안전하고 보호됩니다. 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?"
+        }
+      },
+      "cache": {
+        "title": "캐시 지우기",
+        "description": "이미지가 로드되지 않거나 공간에 페이지가 누락되거나 글꼴이 로드되지 않는 등의 문제를 해결하는 데 도움이 됩니다. 데이터에는 영향을 미치지 않습니다.",
+        "dialog": {
+          "title": "캐시 지우기",
+          "description": "이미지가 로드되지 않거나 공간에 페이지가 누락되거나 글꼴이 로드되지 않는 등의 문제를 해결하는 데 도움이 됩니다. 데이터에는 영향을 미치지 않습니다.",
+          "successHint": "캐시가 지워졌습니다!"
+        }
+      },
+      "data": {
+        "fixYourData": "데이터 수정",
+        "fixButton": "수정",
+        "fixYourDataDescription": "데이터에 문제가 있는 경우 여기에서 수정할 수 있습니다."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "단축키",
+      "title": "단축키",
+      "editBindingHint": "새 바인딩 입력",
+      "searchHint": "검색",
+      "actions": {
+        "resetDefault": "기본값으로 재설정"
+      },
+      "errorPage": {
+        "message": "단축키를 로드하지 못했습니다: {}",
+        "howToFix": "다시 시도해 보세요. 문제가 계속되면 GitHub에 문의하세요."
+      },
+      "resetDialog": {
+        "title": "단축키 재설정",
+        "description": "모든 키 바인딩을 기본값으로 재설정합니다. 나중에 되돌릴 수 없습니다. 계속하시겠습니까?",
+        "buttonLabel": "재설정"
+      },
+      "conflictDialog": {
+        "title": "{}가 이미 사용 중입니다",
+        "descriptionPrefix": "이 키 바인딩은 현재 ",
+        "descriptionSuffix": "에서 사용 중입니다. 이 키 바인딩을 교체하면 {}에서 제거됩니다.",
+        "confirmLabel": "계속"
+      },
+      "editTooltip": "키 바인딩 편집을 시작하려면 누르세요",
+      "keybindings": {
+        "toggleToDoList": "할 일 목록 전환",
+        "insertNewParagraphInCodeblock": "새 단락 삽입",
+        "pasteInCodeblock": "코드 블록에 붙여넣기",
+        "selectAllCodeblock": "모두 선택",
+        "indentLineCodeblock": "줄 시작에 두 칸 삽입",
+        "outdentLineCodeblock": "줄 시작에서 두 칸 삭제",
+        "twoSpacesCursorCodeblock": "커서 위치에 두 칸 삽입",
+        "copy": "선택 항목 복사",
+        "paste": "내용 붙여넣기",
+        "cut": "선택 항목 잘라내기",
+        "alignLeft": "텍스트 왼쪽 정렬",
+        "alignCenter": "텍스트 가운데 정렬",
+        "alignRight": "텍스트 오른쪽 정렬",
+        "insertInlineMathEquation": "인라인 수학 방정식 삽입",
+        "undo": "실행 취소",
+        "redo": "다시 실행",
+        "convertToParagraph": "블록을 단락으로 변환",
+        "backspace": "삭제",
+        "deleteLeftWord": "왼쪽 단어 삭제",
+        "deleteLeftSentence": "왼쪽 문장 삭제",
+        "delete": "오른쪽 문자 삭제",
+        "deleteMacOS": "왼쪽 문자 삭제",
+        "deleteRightWord": "오른쪽 단어 삭제",
+        "moveCursorLeft": "커서를 왼쪽으로 이동",
+        "moveCursorBeginning": "커서를 시작으로 이동",
+        "moveCursorLeftWord": "커서를 왼쪽 단어로 이동",
+        "moveCursorLeftSelect": "선택하고 커서를 왼쪽으로 이동",
+        "moveCursorBeginSelect": "선택하고 커서를 시작으로 이동",
+        "moveCursorLeftWordSelect": "선택하고 커서를 왼쪽 단어로 이동",
+        "moveCursorRight": "커서를 오른쪽으로 이동",
+        "moveCursorEnd": "커서를 끝으로 이동",
+        "moveCursorRightWord": "커서를 오른쪽 단어로 이동",
+        "moveCursorRightSelect": "선택하고 커서를 오른쪽으로 이동",
+        "moveCursorEndSelect": "선택하고 커서를 끝으로 이동",
+        "moveCursorRightWordSelect": "선택하고 커서를 오른쪽 단어로 이동",
+        "moveCursorUp": "커서를 위로 이동",
+        "moveCursorTopSelect": "선택하고 커서를 위로 이동",
+        "moveCursorTop": "커서를 위로 이동",
+        "moveCursorUpSelect": "선택하고 커서를 위로 이동",
+        "moveCursorBottomSelect": "선택하고 커서를 아래로 이동",
+        "moveCursorBottom": "커서를 아래로 이동",
+        "moveCursorDown": "커서를 아래로 이동",
+        "moveCursorDownSelect": "선택하고 커서를 아래로 이동",
+        "home": "맨 위로 스크롤",
+        "end": "맨 아래로 스크롤",
+        "toggleBold": "굵게 전환",
+        "toggleItalic": "기울임꼴 전환",
+        "toggleUnderline": "밑줄 전환",
+        "toggleStrikethrough": "취소선 전환",
+        "toggleCode": "인라인 코드 전환",
+        "toggleHighlight": "강조 전환",
+        "showLinkMenu": "링크 메뉴 표시",
+        "openInlineLink": "인라인 링크 열기",
+        "openLinks": "선택한 모든 링크 열기",
+        "indent": "들여쓰기",
+        "outdent": "내어쓰기",
+        "exit": "편집 종료",
+        "pageUp": "한 페이지 위로 스크롤",
+        "pageDown": "한 페이지 아래로 스크롤",
+        "selectAll": "모두 선택",
+        "pasteWithoutFormatting": "서식 없이 붙여넣기",
+        "showEmojiPicker": "이모지 선택기 표시",
+        "enterInTableCell": "테이블에 줄 바꿈 추가",
+        "leftInTableCell": "테이블에서 왼쪽 셀로 이동",
+        "rightInTableCell": "테이블에서 오른쪽 셀로 이동",
+        "upInTableCell": "테이블에서 위쪽 셀로 이동",
+        "downInTableCell": "테이블에서 아래쪽 셀로 이동",
+        "tabInTableCell": "테이블에서 다음 사용 가능한 셀로 이동",
+        "shiftTabInTableCell": "테이블에서 이전 사용 가능한 셀로 이동",
+        "backSpaceInTableCell": "셀의 시작 부분에서 멈춤"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "코드 블록 옆에 새 단락 삽입",
+        "codeBlockIndentLines": "코드 블록에서 줄 시작에 두 칸 삽입",
+        "codeBlockOutdentLines": "코드 블록에서 줄 시작에서 두 칸 삭제",
+        "codeBlockAddTwoSpaces": "코드 블록에서 커서 위치에 두 칸 삽입",
+        "codeBlockSelectAll": "코드 블록 내의 모든 내용 선택",
+        "codeBlockPasteText": "코드 블록에 텍스트 붙여넣기",
+        "textAlignLeft": "텍스트를 왼쪽으로 정렬",
+        "textAlignCenter": "텍스트를 가운데로 정렬",
+        "textAlignRight": "텍스트를 오른쪽으로 정렬"
+      },
+      "couldNotLoadErrorMsg": "단축키를 로드할 수 없습니다. 다시 시도하세요",
+      "couldNotSaveErrorMsg": "단축키를 저장할 수 없습니다. 다시 시도하세요"
+    },
     "aiPage": {
+      "title": "AI 설정",
+      "menuLabel": "AI 설정",
       "keys": {
-        "localAILoaded": "로컬 AI 모델이 성공적으로 추가되어 사용할 준비가 되었습니다.",
-        "localAIStart": "로컬 AI 대화 시작중...",
-        "localAILoading": "로컬 AI 대화 모델 로딩중...",
-        "localAIStopped": "로컬 AI가 중단되었습니다",
+        "enableAISearchTitle": "AI 검색",
+        "aiSettingsDescription": "선호하는 모델을 선택하여 AppFlowy AI를 구동하세요. 이제 GPT 4-o, Claude 3,5, Llama 3.1 및 Mistral 7B를 포함합니다",
+        "loginToEnableAIFeature": "AI 기능은 @:appName Cloud에 로그인한 후에만 활성화됩니다. @:appName 계정이 없는 경우 '내 계정'에서 가입하세요",
+        "llmModel": "언어 모델",
+        "llmModelType": "언어 모델 유형",
+        "downloadLLMPrompt": "{} 다운로드",
+        "downloadAppFlowyOfflineAI": "AI 오프라인 패키지를 다운로드하면 AI가 장치에서 실행됩니다. 계속하시겠습니까?",
+        "downloadLLMPromptDetail": "{} 로컬 모델을 다운로드하면 최대 {}의 저장 공간이 필요합니다. 계속하시겠습니까?",
+        "downloadBigFilePrompt": "다운로드 완료까지 약 10분이 소요될 수 있습니다",
+        "downloadAIModelButton": "다운로드",
+        "downloadingModel": "다운로드 중",
+        "localAILoaded": "로컬 AI 모델이 성공적으로 추가되어 사용할 준비가 되었습니다",
+        "localAIStart": "로컬 AI가 시작 중입니다. 느리다면 껐다가 다시 켜보세요",
+        "localAILoading": "로컬 AI 채팅 모델이 로드 중입니다...",
+        "localAIStopped": "로컬 AI가 중지되었습니다",
+        "localAIRunning": "로컬 AI가 실행 중입니다",
+        "localAIInitializing": "로컬 AI가 로드 중이며 장치에 따라 몇 분이 소요될 수 있습니다",
+        "localAINotReadyTextFieldPrompt": "로컬 AI가 로드되는 동안 편집할 수 없습니다",
         "failToLoadLocalAI": "로컬 AI를 시작하지 못했습니다",
-        "restartLocalAI": "로컬 AI 재시작",
-        "disableLocalAIDescription": "로컬 AI를 비활성화하시겠습니까?"
+        "restartLocalAI": "로컬 AI 다시 시작",
+        "disableLocalAITitle": "로컬 AI 비활성화",
+        "disableLocalAIDescription": "로컬 AI를 비활성화하시겠습니까?",
+        "localAIToggleTitle": "로컬 AI를 활성화 또는 비활성화하려면 전환",
+        "offlineAIInstruction1": "다음을 따르세요",
+        "offlineAIInstruction2": "지침",
+        "offlineAIInstruction3": "오프라인 AI를 활성화하려면",
+        "offlineAIDownload1": "AppFlowy AI를 다운로드하지 않은 경우 먼저",
+        "offlineAIDownload2": "다운로드",
+        "offlineAIDownload3": "하세요",
+        "activeOfflineAI": "활성화됨",
+        "downloadOfflineAI": "다운로드",
+        "openModelDirectory": "폴더 열기",
+        "pleaseFollowThese": "지침",
+        "instructions": "이 지침을 따르세요",
+        "installOllamaLai": "Ollama 및 AppFlowy 로컬 AI를 설정합니다. 이미 설정한 경우 건너뛰세요",
+        "startLocalAI": "로컬 AI를 시작하는 데 몇 초가 소요될 수 있습니다"
       }
     },
     "planPage": {
+      "menuLabel": "플랜",
+      "title": "가격 플랜",
       "planUsage": {
-        "aiOnDeviceToggle": "최고의 개인 정보 보호를 위한 로컬 AI"
+        "title": "플랜 사용 요약",
+        "storageLabel": "저장 공간",
+        "storageUsage": "{} / {} GB",
+        "unlimitedStorageLabel": "무제한 저장 공간",
+        "collaboratorsLabel": "멤버",
+        "collaboratorsUsage": "{} / {}",
+        "aiResponseLabel": "AI 응답",
+        "aiResponseUsage": "{} / {}",
+        "unlimitedAILabel": "무제한 응답",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "Mac용 AI On-device",
+        "memberProToggle": "더 많은 멤버 및 무제한 AI",
+        "aiMaxToggle": "무제한 AI 및 고급 모델 액세스",
+        "aiOnDeviceToggle": "최고의 프라이버시를 위한 로컬 AI",
+        "aiCredit": {
+          "title": "@:appName AI 크레딧 추가",
+          "price": "{}",
+          "priceDescription": "1,000 크레딧당",
+          "purchase": "AI 구매",
+          "info": "작업 공간당 1,000개의 AI 크레딧을 추가하여 더 스마트하고 빠른 결과를 위해 AI를 워크플로에 원활하게 통합하세요:",
+          "infoItemOne": "데이터베이스당 최대 10,000개의 응답",
+          "infoItemTwo": "작업 공간당 최대 1,000개의 응답"
+        },
+        "currentPlan": {
+          "bannerLabel": "현재 플랜",
+          "freeTitle": "무료",
+          "proTitle": "Pro",
+          "teamTitle": "팀",
+          "freeInfo": "모든 것을 정리하기 위한 최대 2명의 개인용",
+          "proInfo": "최대 10명의 소규모 팀을 위한 완벽한 솔루션.",
+          "teamInfo": "모든 생산적이고 잘 조직된 팀을 위한 완벽한 솔루션.",
+          "upgrade": "플랜 변경",
+          "canceledInfo": "플랜이 취소되었습니다. {}에 무료 플랜으로 다운그레이드됩니다."
+        },
+        "addons": {
+          "title": "애드온",
+          "addLabel": "추가",
+          "activeLabel": "추가됨",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "무제한 AI 응답 및 고급 AI 모델로 구동되는 50개의 AI 이미지를 매월 제공합니다",
+            "price": "{}",
+            "priceInfo": "연간 청구되는 사용자당 월별"
+          },
+          "aiOnDevice": {
+            "title": "Mac용 AI On-device",
+            "description": "장치에서 Mistral 7B, LLAMA 3 및 기타 로컬 모델 실행",
+            "price": "{}",
+            "priceInfo": "연간 청구되는 사용자당 월별",
+            "recommend": "M1 이상 권장"
+          }
+        },
+        "deal": {
+          "bannerLabel": "새해 할인!",
+          "title": "팀을 성장시키세요!",
+          "info": "Pro 및 팀 플랜을 업그레이드하고 10% 할인 혜택을 받으세요! @:appName AI를 포함한 강력한 새로운 기능으로 작업 공간 생산성을 높이세요.",
+          "viewPlans": "플랜 보기"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "청구",
+      "title": "청구",
+      "plan": {
+        "title": "플랜",
+        "freeLabel": "무료",
+        "proLabel": "Pro",
+        "planButtonLabel": "플랜 변경",
+        "billingPeriod": "청구 기간",
+        "periodButtonLabel": "기간 수정"
+      },
+      "paymentDetails": {
+        "title": "결제 세부 정보",
+        "methodLabel": "결제 방법",
+        "methodButtonLabel": "방법 수정"
+      },
+      "addons": {
+        "title": "애드온",
+        "addLabel": "추가",
+        "removeLabel": "제거",
+        "renewLabel": "갱신",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "무제한 AI 및 고급 모델 잠금 해제",
+          "activeDescription": "다음 청구서가 {}에 만료됩니다",
+          "canceledDescription": "AI Max는 {}까지 사용할 수 있습니다"
+        },
+        "aiOnDevice": {
+          "label": "Mac용 AI On-device",
+          "description": "장치에서 무제한 AI 잠금 해제",
+          "activeDescription": "다음 청구서가 {}에 만료됩니다",
+          "canceledDescription": "Mac용 AI On-device는 {}까지 사용할 수 있습니다"
+        },
+        "removeDialog": {
+          "title": "{} 제거",
+          "description": "{plan}을 제거하시겠습니까? {plan}의 기능과 혜택에 대한 액세스를 즉시 잃게 됩니다."
+        }
+      },
+      "currentPeriodBadge": "현재",
+      "changePeriod": "기간 변경",
+      "planPeriod": "{} 기간",
+      "monthlyInterval": "월별",
+      "monthlyPriceInfo": "월별 청구되는 좌석당",
+      "annualInterval": "연간",
+      "annualPriceInfo": "연간 청구되는 좌석당"
+    },
+    "comparePlanDialog": {
+      "title": "플랜 비교 및 선택",
+      "planFeatures": "플랜\n기능",
+      "current": "현재",
+      "actions": {
+        "upgrade": "업그레이드",
+        "downgrade": "다운그레이드",
+        "current": "현재"
+      },
+      "freePlan": {
+        "title": "무료",
+        "description": "모든 것을 정리하기 위한 최대 2명의 개인용",
+        "price": "{}",
+        "priceInfo": "영원히 무료"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "프로젝트 및 팀 지식을 관리하기 위한 소규모 팀용",
+        "price": "{}",
+        "priceInfo": "연간 청구되는 사용자당 월별\n\n{} 월별 청구"
+      },
+      "planLabels": {
+        "itemOne": "작업 공간",
+        "itemTwo": "멤버",
+        "itemThree": "저장 공간",
+        "itemFour": "실시간 협업",
+        "itemFive": "모바일 앱",
+        "itemSix": "AI 응답",
+        "itemSeven": "AI 이미지",
+        "itemFileUpload": "파일 업로드",
+        "customNamespace": "맞춤 네임스페이스",
+        "tooltipSix": "평생 동안 응답 수는 재설정되지 않습니다",
+        "intelligentSearch": "지능형 검색",
+        "tooltipSeven": "작업 공간의 URL 일부를 사용자 정의할 수 있습니다",
+        "customNamespaceTooltip": "맞춤 게시 사이트 URL"
+      },
+      "freeLabels": {
+        "itemOne": "작업 공간당 청구",
+        "itemTwo": "최대 2명",
+        "itemThree": "5 GB",
+        "itemFour": "예",
+        "itemFive": "예",
+        "itemSix": "평생 10회",
+        "itemSeven": "평생 2회",
+        "itemFileUpload": "최대 7 MB",
+        "intelligentSearch": "지능형 검색"
+      },
+      "proLabels": {
+        "itemOne": "작업 공간당 청구",
+        "itemTwo": "최대 10명",
+        "itemThree": "무제한",
+        "itemFour": "예",
+        "itemFive": "예",
+        "itemSix": "무제한",
+        "itemSeven": "월별 10개 이미지",
+        "itemFileUpload": "무제한",
+        "intelligentSearch": "지능형 검색"
+      },
+      "paymentSuccess": {
+        "title": "이제 {} 플랜을 사용 중입니다!",
+        "description": "결제가 성공적으로 처리되었으며 플랜이 @:appName {}로 업그레이드되었습니다. 플랜 세부 정보를 플랜 페이지에서 확인할 수 있습니다"
+      },
+      "downgradeDialog": {
+        "title": "플랜을 다운그레이드하시겠습니까?",
+        "description": "플랜을 다운그레이드하면 무료 플랜으로 돌아갑니다. 멤버는 이 작업 공간에 대한 액세스를 잃을 수 있으며 저장 공간 제한을 충족하기 위해 공간을 확보해야 할 수 있습니다.",
+        "downgradeLabel": "플랜 다운그레이드"
       }
     },
     "cancelSurveyDialog": {
+      "title": "떠나셔서 아쉽습니다",
+      "description": "@:appName을 개선하는 데 도움이 되도록 피드백을 듣고 싶습니다. 몇 가지 질문에 답변해 주세요.",
+      "commonOther": "기타",
+      "otherHint": "여기에 답변을 작성하세요",
+      "questionOne": {
+        "question": "@:appName Pro 구독을 취소한 이유는 무엇입니까?",
+        "answerOne": "비용이 너무 높음",
+        "answerTwo": "기능이 기대에 미치지 못함",
+        "answerThree": "더 나은 대안을 찾음",
+        "answerFour": "비용을 정당화할 만큼 충분히 사용하지 않음",
+        "answerFive": "서비스 문제 또는 기술적 어려움"
+      },
+      "questionTwo": {
+        "question": "미래에 @:appName Pro를 다시 구독할 가능성은 얼마나 됩니까?",
+        "answerOne": "매우 가능성이 높음",
+        "answerTwo": "어느 정도 가능성이 있음",
+        "answerThree": "잘 모르겠음",
+        "answerFour": "가능성이 낮음",
+        "answerFive": "매우 가능성이 낮음"
+      },
       "questionThree": {
-        "answerFour": "로컬 AI 모델에 대한 액세스"
+        "question": "구독 기간 동안 가장 가치 있게 여긴 Pro 기능은 무엇입니까?",
+        "answerOne": "다중 사용자 협업",
+        "answerTwo": "더 긴 시간 버전 기록",
+        "answerThree": "무제한 AI 응답",
+        "answerFour": "로컬 AI 모델 액세스"
+      },
+      "questionFour": {
+        "question": "@:appName에 대한 전반적인 경험을 어떻게 설명하시겠습니까?",
+        "answerOne": "훌륭함",
+        "answerTwo": "좋음",
+        "answerThree": "보통",
+        "answerFour": "평균 이하",
+        "answerFive": "불만족"
       }
     },
+    "common": {
+      "uploadingFile": "파일 업로드 중입니다. 앱을 종료하지 마세요",
+      "uploadNotionSuccess": "Notion zip 파일이 성공적으로 업로드되었습니다. 가져오기가 완료되면 확인 이메일을 받게 됩니다",
+      "reset": "재설정"
+    },
     "menu": {
-      "appearance": "화면",
+      "appearance": "외관",
       "language": "언어",
       "user": "사용자",
       "files": "파일",
-      "open": "설정 열기"
+      "notifications": "알림",
+      "open": "설정 열기",
+      "logout": "로그아웃",
+      "logoutPrompt": "로그아웃하시겠습니까?",
+      "selfEncryptionLogoutPrompt": "로그아웃하시겠습니까? 암호화 비밀을 복사했는지 확인하세요",
+      "syncSetting": "동기화 설정",
+      "cloudSettings": "클라우드 설정",
+      "enableSync": "동기화 활성화",
+      "enableSyncLog": "동기화 로그 활성화",
+      "enableSyncLogWarning": "동기화 문제를 진단하는 데 도움을 주셔서 감사합니다. 이 작업은 문서 편집 내용을 로컬 파일에 기록합니다. 활성화 후 앱을 종료하고 다시 열어야 합니다",
+      "enableEncrypt": "데이터 암호화",
+      "cloudURL": "기본 URL",
+      "webURL": "웹 URL",
+      "invalidCloudURLScheme": "잘못된 스키마",
+      "cloudServerType": "클라우드 서버",
+      "cloudServerTypeTip": "클라우드 서버를 변경한 후 현재 계정에서 로그아웃될 수 있습니다",
+      "cloudLocal": "로컬",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName Cloud 셀프 호스팅",
+      "appFlowyCloudUrlCanNotBeEmpty": "클라우드 URL은 비워둘 수 없습니다",
+      "clickToCopy": "클립보드에 복사",
+      "selfHostStart": "서버가 없는 경우",
+      "selfHostContent": "문서",
+      "selfHostEnd": "를 참조하여 셀프 호스팅 서버를 설정하는 방법을 확인하세요",
+      "pleaseInputValidURL": "유효한 URL을 입력하세요",
+      "changeUrl": "셀프 호스팅 URL을 {}로 변경",
+      "cloudURLHint": "서버의 기본 URL을 입력하세요",
+      "webURLHint": "웹 서버의 기본 URL을 입력하세요",
+      "cloudWSURL": "웹소켓 URL",
+      "cloudWSURLHint": "서버의 웹소켓 주소를 입력하세요",
+      "restartApp": "재시작",
+      "restartAppTip": "변경 사항을 적용하려면 애플리케이션을 재시작하세요. 현재 계정에서 로그아웃될 수 있습니다.",
+      "changeServerTip": "서버를 변경한 후 변경 사항을 적용하려면 재시작 버튼을 클릭해야 합니다",
+      "enableEncryptPrompt": "이 비밀로 데이터를 보호하려면 암호화를 활성화하세요. 안전하게 보관하세요. 활성화 후에는 비활성화할 수 없습니다. 비밀을 잃어버리면 데이터를 복구할 수 없습니다. 복사하려면 클릭하세요",
+      "inputEncryptPrompt": "암호화 비밀을 입력하세요",
+      "clickToCopySecret": "비밀을 복사하려면 클릭",
+      "configServerSetting": "서버 설정 구성",
+      "configServerGuide": "`빠른 시작`을 선택한 후 `설정`으로 이동하여 \"클라우드 설정\"을 구성하세요.",
+      "inputTextFieldHint": "비밀",
+      "historicalUserList": "사용자 로그인 기록",
+      "historicalUserListTooltip": "이 목록에는 익명 계정이 표시됩니다. 계정을 클릭하여 세부 정보를 확인할 수 있습니다. 익명 계정은 '시작하기' 버튼을 클릭하여 생성됩니다",
+      "openHistoricalUser": "익명 계정을 열려면 클릭",
+      "customPathPrompt": "Google Drive와 같은 클라우드 동기화 폴더에 @:appName 데이터 폴더를 저장하면 위험이 발생할 수 있습니다. 이 폴더 내의 데이터베이스에 여러 위치에서 동시에 액세스하거나 수정하면 동기화 충돌 및 데이터 손상이 발생할 수 있습니다",
+      "importAppFlowyData": "외부 @:appName 폴더에서 데이터 가져오기",
+      "importingAppFlowyDataTip": "데이터 가져오는 중입니다. 앱을 종료하지 마세요",
+      "importAppFlowyDataDescription": "외부 @:appName 데이터 폴더에서 데이터를 복사하여 현재 AppFlowy 데이터 폴더에 가져옵니다",
+      "importSuccess": "성공적으로 @:appName 데이터 폴더를 가져왔습니다",
+      "importFailed": "@:appName 데이터 폴더 가져오기 실패",
+      "importGuide": "자세한 내용은 참조 문서를 확인하세요"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "알림 활성화",
+        "hint": "로컬 알림이 나타나지 않도록 하려면 끄세요."
+      },
+      "showNotificationsIcon": {
+        "label": "알림 아이콘 표시",
+        "hint": "사이드바에서 알림 아이콘을 숨기려면 끄세요."
+      },
+      "archiveNotifications": {
+        "allSuccess": "모든 알림이 성공적으로 보관되었습니다",
+        "success": "알림이 성공적으로 보관되었습니다"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "모두 읽음으로 표시되었습니다",
+        "success": "읽음으로 표시되었습니다"
+      },
+      "action": {
+        "markAsRead": "읽음으로 표시",
+        "multipleChoice": "더 선택",
+        "archive": "보관"
+      },
+      "settings": {
+        "settings": "설정",
+        "markAllAsRead": "모두 읽음으로 표시",
+        "archiveAll": "모두 보관"
+      },
+      "emptyInbox": {
+        "title": "받은 편지함 비어 있음!",
+        "description": "알림을 받으려면 알림을 설정하세요."
+      },
+      "emptyUnread": {
+        "title": "읽지 않은 알림 없음",
+        "description": "모든 알림을 확인했습니다!"
+      },
+      "emptyArchived": {
+        "title": "보관된 항목 없음",
+        "description": "보관된 알림이 여기에 표시됩니다."
+      },
+      "tabs": {
+        "inbox": "받은 편지함",
+        "unread": "읽지 않음",
+        "archived": "보관됨"
+      },
+      "refreshSuccess": "알림이 성공적으로 새로고침되었습니다",
+      "titles": {
+        "notifications": "알림",
+        "reminder": "알림"
+      }
     },
     "appearance": {
+      "resetSetting": "재설정",
       "fontFamily": {
-        "label": "글꼴 패밀리",
-        "search": "검색"
+        "label": "글꼴",
+        "search": "검색",
+        "defaultFont": "시스템"
       },
       "themeMode": {
         "label": "테마 모드",
         "light": "라이트 모드",
         "dark": "다크 모드",
-        "system": "시스템에 적응"
+        "system": "시스템에 맞춤"
+      },
+      "fontScaleFactor": "글꼴 크기 비율",
+      "displaySize": "디스플레이 크기",
+      "documentSettings": {
+        "cursorColor": "문서 커서 색상",
+        "selectionColor": "문서 선택 색상",
+        "width": "문서 너비",
+        "changeWidth": "변경",
+        "pickColor": "색상 선택",
+        "colorShade": "색상 음영",
+        "opacity": "불투명도",
+        "hexEmptyError": "16진수 색상은 비워둘 수 없습니다",
+        "hexLengthError": "16진수 값은 6자리여야 합니다",
+        "hexInvalidError": "잘못된 16진수 값",
+        "opacityEmptyError": "불투명도는 비워둘 수 없습니다",
+        "opacityRangeError": "불투명도는 1에서 100 사이여야 합니다",
+        "app": "앱",
+        "flowy": "Flowy",
+        "apply": "적용"
+      },
+      "layoutDirection": {
+        "label": "레이아웃 방향",
+        "hint": "화면의 콘텐츠 흐름을 왼쪽에서 오른쪽 또는 오른쪽에서 왼쪽으로 제어합니다.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "기본 텍스트 방향",
+        "hint": "텍스트가 기본적으로 왼쪽에서 시작할지 오른쪽에서 시작할지 지정합니다.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "자동",
+        "fallback": "레이아웃 방향과 동일"
       },
       "themeUpload": {
         "button": "업로드",
-        "description": "아래 버튼을 사용하여 나만의 @:appName 테마를 업로드하세요.",
-        "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
-        "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
-        "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
+        "uploadTheme": "테마 업로드",
+        "description": "아래 버튼을 사용하여 사용자 정의 @:appName 테마를 업로드하세요.",
+        "loading": "테마를 검증하고 업로드하는 동안 기다려주세요...",
+        "uploadSuccess": "테마가 성공적으로 업로드되었습니다",
+        "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보세요.",
         "filePickerDialogTitle": ".flowy_plugin 파일 선택",
-        "urlUploadFailure": "URL을 열지 못했습니다: {}",
-        "failure": "업로드된 테마의 형식이 잘못되었습니다."
+        "urlUploadFailure": "URL을 열지 못했습니다: {}"
       },
-      "theme": "주제",
+      "theme": "테마",
       "builtInsLabel": "내장 테마",
       "pluginsLabel": "플러그인",
-      "lightLabel": "라이트 모드",
-      "darkLabel": "다크 모드"
+      "dateFormat": {
+        "label": "날짜 형식",
+        "local": "로컬",
+        "us": "미국",
+        "iso": "ISO",
+        "friendly": "친숙한",
+        "dmy": "일/월/년"
+      },
+      "timeFormat": {
+        "label": "시간 형식",
+        "twelveHour": "12시간 형식",
+        "twentyFourHour": "24시간 형식"
+      },
+      "showNamingDialogWhenCreatingPage": "페이지 생성 시 이름 지정 대화 상자 표시",
+      "enableRTLToolbarItems": "RTL 도구 모음 항목 활성화",
+      "members": {
+        "title": "멤버 설정",
+        "inviteMembers": "멤버 초대",
+        "inviteHint": "이메일로 초대",
+        "sendInvite": "초대 보내기",
+        "copyInviteLink": "초대 링크 복사",
+        "label": "멤버",
+        "user": "사용자",
+        "role": "역할",
+        "removeFromWorkspace": "작업 공간에서 제거",
+        "removeFromWorkspaceSuccess": "작업 공간에서 성공적으로 제거되었습니다",
+        "removeFromWorkspaceFailed": "작업 공간에서 제거 실패",
+        "owner": "소유자",
+        "guest": "게스트",
+        "member": "멤버",
+        "memberHintText": "멤버는 페이지를 읽고 편집할 수 있습니다",
+        "guestHintText": "게스트는 페이지를 읽고, 반응하고, 댓글을 달 수 있으며, 권한이 있는 특정 페이지를 편집할 수 있습니다.",
+        "emailInvalidError": "잘못된 이메일입니다. 확인하고 다시 시도하세요",
+        "emailSent": "이메일이 전송되었습니다. 받은 편지함을 확인하세요",
+        "members": "멤버",
+        "membersCount": {
+          "zero": "{}명의 멤버",
+          "one": "{}명의 멤버",
+          "other": "{}명의 멤버"
+        },
+        "inviteFailedDialogTitle": "초대 전송 실패",
+        "inviteFailedMemberLimit": "멤버 한도에 도달했습니다. 더 많은 멤버를 초대하려면 업그레이드하세요.",
+        "inviteFailedMemberLimitMobile": "작업 공간의 멤버 한도에 도달했습니다.",
+        "memberLimitExceeded": "멤버 한도에 도달했습니다. 더 많은 멤버를 초대하려면 ",
+        "memberLimitExceededUpgrade": "업그레이드",
+        "memberLimitExceededPro": "멤버 한도에 도달했습니다. 더 많은 멤버가 필요하면 ",
+        "memberLimitExceededProContact": "support@appflowy.io에 문의하세요",
+        "failedToAddMember": "멤버 추가 실패",
+        "addMemberSuccess": "멤버가 성공적으로 추가되었습니다",
+        "removeMember": "멤버 제거",
+        "areYouSureToRemoveMember": "이 멤버를 제거하시겠습니까?",
+        "inviteMemberSuccess": "초대가 성공적으로 전송되었습니다",
+        "failedToInviteMember": "멤버 초대 실패",
+        "workspaceMembersError": "문제가 발생했습니다",
+        "workspaceMembersErrorDescription": "현재 멤버 목록을 로드할 수 없습니다. 나중에 다시 시도하세요"
+      }
     },
     "files": {
       "copy": "복사",
       "defaultLocation": "파일 및 데이터 저장 위치 읽기",
       "exportData": "데이터 내보내기",
-      "doubleTapToCopy": "경로를 복사하려면 두 번 탭하세요.",
+      "doubleTapToCopy": "경로를 복사하려면 두 번 탭하세요",
       "restoreLocation": "@:appName 기본 경로로 복원",
       "customizeLocation": "다른 폴더 열기",
-      "restartApp": "변경 사항을 적용하려면 앱을 다시 시작하십시오.",
+      "restartApp": "변경 사항을 적용하려면 앱을 재시작하세요.",
       "exportDatabase": "데이터베이스 내보내기",
-      "selectFiles": "내보낼 파일을 선택하십시오",
+      "selectFiles": "내보낼 파일 선택",
       "selectAll": "모두 선택",
-      "deselectAll": "모두 선택 취소",
+      "deselectAll": "모두 선택 해제",
       "createNewFolder": "새 폴더 만들기",
-      "createNewFolderDesc": "데이터를 저장할 위치를 알려주십시오.",
+      "createNewFolderDesc": "데이터를 저장할 위치를 알려주세요",
       "defineWhereYourDataIsStored": "데이터가 저장되는 위치 정의",
-      "open": "열려 있는",
+      "open": "열기",
       "openFolder": "기존 폴더 열기",
-      "openFolderDesc": "기존 @:appName 폴더에서 읽고 쓰기",
+      "openFolderDesc": "기존 @:appName 폴더를 읽고 쓰기",
       "folderHintText": "폴더 이름",
       "location": "새 폴더 만들기",
-      "locationDesc": "@:appName 데이터 폴더의 이름을 선택하세요",
-      "browser": "검색",
-      "create": "만들다",
-      "set": "세트",
+      "locationDesc": "@:appName 데이터 폴더의 이름을 지정하세요",
+      "browser": "찾아보기",
+      "create": "생성",
+      "set": "설정",
       "folderPath": "폴더를 저장할 경로",
-      "locationCannotBeEmpty": "경로는 비워둘 수 없습니다.",
+      "locationCannotBeEmpty": "경로는 비워둘 수 없습니다",
       "pathCopiedSnackbar": "파일 저장 경로가 클립보드에 복사되었습니다!",
       "changeLocationTooltips": "데이터 디렉토리 변경",
-      "change": "변화",
+      "change": "변경",
       "openLocationTooltips": "다른 데이터 디렉토리 열기",
       "openCurrentDataFolder": "현재 데이터 디렉토리 열기",
-      "recoverLocationTooltips": "@:appName의 기본 데이터 디렉터리로 재설정",
-      "exportFileSuccess": "파일을 성공적으로 내보냈습니다!",
+      "recoverLocationTooltips": "@:appName의 기본 데이터 디렉토리로 재설정",
+      "exportFileSuccess": "파일이 성공적으로 내보내졌습니다!",
       "exportFileFail": "파일 내보내기 실패!",
-      "export": "내보내다"
+      "export": "내보내기",
+      "clearCache": "캐시 지우기",
+      "clearCacheDesc": "이미지가 로드되지 않거나 글꼴이 제대로 표시되지 않는 등의 문제가 발생하면 캐시를 지워보세요. 이 작업은 사용자 데이터에는 영향을 미치지 않습니다.",
+      "areYouSureToClearCache": "캐시를 지우시겠습니까?",
+      "clearCacheSuccess": "캐시가 성공적으로 지워졌습니다!"
     },
     "user": {
       "name": "이름",
-      "selectAnIcon": "아이콘을 선택하세요",
-      "pleaseInputYourOpenAIKey": "AI 키를 입력하십시오"
+      "email": "이메일",
+      "tooltipSelectIcon": "아이콘 선택",
+      "selectAnIcon": "아이콘 선택",
+      "pleaseInputYourOpenAIKey": "AI 키를 입력하세요",
+      "clickToLogout": "현재 사용자 로그아웃"
+    },
+    "mobile": {
+      "personalInfo": "개인 정보",
+      "username": "사용자 이름",
+      "usernameEmptyError": "사용자 이름은 비워둘 수 없습니다",
+      "about": "정보",
+      "pushNotifications": "푸시 알림",
+      "support": "지원",
+      "joinDiscord": "Discord에 참여",
+      "privacyPolicy": "개인정보 보호정책",
+      "userAgreement": "사용자 계약",
+      "termsAndConditions": "이용 약관",
+      "userprofileError": "사용자 프로필을 로드하지 못했습니다",
+      "userprofileErrorDescription": "로그아웃 후 다시 로그인하여 문제가 계속되는지 확인하세요.",
+      "selectLayout": "레이아웃 선택",
+      "selectStartingDay": "시작일 선택",
+      "version": "버전"
     }
   },
   "grid": {
     "deleteView": "이 보기를 삭제하시겠습니까?",
-    "createView": "새로운",
+    "createView": "새로 만들기",
+    "title": {
+      "placeholder": "제목 없음"
+    },
     "settings": {
       "filter": "필터",
-      "sort": "종류",
+      "sort": "정렬",
       "sortBy": "정렬 기준",
       "properties": "속성",
-      "reorderPropertiesTooltip": "드래그하여 속성 재정렬",
+      "reorderPropertiesTooltip": "속성 순서 변경",
       "group": "그룹",
       "addFilter": "필터 추가",
       "deleteFilter": "필터 삭제",
-      "filterBy": "필터링 기준...",
-      "typeAValue": "값을 입력하세요...",
-      "layout": "공들여 나열한 것",
-      "databaseLayout": "공들여 나열한 것",
-      "Properties": "속성"
+      "filterBy": "필터 기준",
+      "typeAValue": "값 입력...",
+      "layout": "레이아웃",
+      "compactMode": "압축 모드",
+      "databaseLayout": "레이아웃",
+      "viewList": {
+        "zero": "0개의 보기",
+        "one": "{count}개의 보기",
+        "other": "{count}개의 보기"
+      },
+      "editView": "보기 편집",
+      "boardSettings": "보드 설정",
+      "calendarSettings": "캘린더 설정",
+      "createView": "새 보기",
+      "duplicateView": "보기 복제",
+      "deleteView": "보기 삭제",
+      "numberOfVisibleFields": "{}개 표시됨"
+    },
+    "filter": {
+      "empty": "활성 필터 없음",
+      "addFilter": "필터 추가",
+      "cannotFindCreatableField": "필터링할 적절한 필드를 찾을 수 없습니다",
+      "conditon": "조건",
+      "where": "조건"
     },
     "textFilter": {
       "contains": "포함",
-      "doesNotContain": "포함되어 있지 않다",
-      "endsWith": "로 끝나다",
+      "doesNotContain": "포함하지 않음",
+      "endsWith": "끝남",
       "startWith": "시작",
-      "is": "~이다",
-      "isNot": "아니다",
-      "isEmpty": "비었다",
+      "is": "일치",
+      "isNot": "일치하지 않음",
+      "isEmpty": "비어 있음",
       "isNotEmpty": "비어 있지 않음",
       "choicechipPrefix": {
-        "isNot": "아니다",
+        "isNot": "일치하지 않음",
         "startWith": "시작",
-        "endWith": "로 끝나다",
-        "isEmpty": "비었다",
-        "isNotEmpty": "비어있지 않다"
+        "endWith": "끝남",
+        "isEmpty": "비어 있음",
+        "isNotEmpty": "비어 있지 않음"
       }
     },
     "checkboxFilter": {
-      "isChecked": "체크",
-      "isUnchecked": "체크 해제",
+      "isChecked": "체크됨",
+      "isUnchecked": "체크되지 않음",
       "choicechipPrefix": {
-        "is": "~이다"
+        "is": "체크됨"
       }
     },
     "checklistFilter": {
-      "isComplete": "완료되었습니다",
-      "isIncomplted": "불완전하다"
+      "isComplete": "완료됨",
+      "isIncomplted": "미완료"
     },
     "selectOptionFilter": {
-      "is": "~이다",
-      "isNot": "아니다",
+      "is": "일치",
+      "isNot": "일치하지 않음",
       "contains": "포함",
-      "doesNotContain": "포함되어 있지 않다",
-      "isEmpty": "비었다",
+      "doesNotContain": "포함하지 않음",
+      "isEmpty": "비어 있음",
+      "isNotEmpty": "비어 있지 않음"
+    },
+    "dateFilter": {
+      "is": "일치",
+      "before": "이전",
+      "after": "이후",
+      "onOrBefore": "이전 또는 일치",
+      "onOrAfter": "이후 또는 일치",
+      "between": "사이",
+      "empty": "비어 있음",
+      "notEmpty": "비어 있지 않음",
+      "startDate": "시작 날짜",
+      "endDate": "종료 날짜",
+      "choicechipPrefix": {
+        "before": "이전",
+        "after": "이후",
+        "between": "사이",
+        "onOrBefore": "이전 또는 일치",
+        "onOrAfter": "이후 또는 일치",
+        "isEmpty": "비어 있음",
+        "isNotEmpty": "비어 있지 않음"
+      }
+    },
+    "numberFilter": {
+      "equal": "일치",
+      "notEqual": "일치하지 않음",
+      "lessThan": "미만",
+      "greaterThan": "초과",
+      "lessThanOrEqualTo": "이하",
+      "greaterThanOrEqualTo": "이상",
+      "isEmpty": "비어 있음",
       "isNotEmpty": "비어 있지 않음"
     },
     "field": {
-      "hide": "숨기기",
-      "insertLeft": "왼쪽 삽입",
-      "insertRight": "오른쪽 삽입",
+      "label": "속성",
+      "hide": "속성 숨기기",
+      "show": "속성 표시",
+      "insertLeft": "왼쪽에 삽입",
+      "insertRight": "오른쪽에 삽입",
       "duplicate": "복제",
       "delete": "삭제",
+      "wrapCellContent": "텍스트 줄 바꿈",
+      "clear": "셀 지우기",
+      "switchPrimaryFieldTooltip": "기본 필드의 필드 유형을 변경할 수 없습니다",
       "textFieldName": "텍스트",
       "checkboxFieldName": "체크박스",
       "dateFieldName": "날짜",
-      "updatedAtFieldName": "마지막 수정 시간",
-      "createdAtFieldName": "만든 시간",
+      "updatedAtFieldName": "마지막 수정",
+      "createdAtFieldName": "생성일",
       "numberFieldName": "숫자",
       "singleSelectFieldName": "선택",
-      "multiSelectFieldName": "다중선택",
-      "urlFieldName": "링크",
+      "multiSelectFieldName": "다중 선택",
+      "urlFieldName": "URL",
       "checklistFieldName": "체크리스트",
+      "relationFieldName": "관계",
+      "summaryFieldName": "AI 요약",
+      "timeFieldName": "시간",
+      "mediaFieldName": "파일 및 미디어",
+      "translateFieldName": "AI 번역",
+      "translateTo": "번역 대상",
       "numberFormat": "숫자 형식",
       "dateFormat": "날짜 형식",
-      "includeTime": "시간 표시",
+      "includeTime": "시간 포함",
+      "isRange": "종료 날짜",
       "dateFormatFriendly": "월 일, 년",
       "dateFormatISO": "년-월-일",
       "dateFormatLocal": "월/일/년",
@@ -419,181 +1527,558 @@
       "dateFormatDayMonthYear": "일/월/년",
       "timeFormat": "시간 형식",
       "invalidTimeFormat": "잘못된 형식",
-      "timeFormatTwelveHour": "12 시간",
-      "timeFormatTwentyFourHour": "24 시간",
+      "timeFormatTwelveHour": "12시간",
+      "timeFormatTwentyFourHour": "24시간",
+      "clearDate": "날짜 지우기",
+      "dateTime": "날짜 시간",
+      "startDateTime": "시작 날짜 시간",
+      "endDateTime": "종료 날짜 시간",
+      "failedToLoadDate": "날짜 값을 로드하지 못했습니다",
+      "selectTime": "시간 선택",
+      "selectDate": "날짜 선택",
+      "visibility": "가시성",
+      "propertyType": "속성 유형",
       "addSelectOption": "옵션 추가",
+      "typeANewOption": "새 옵션 입력",
       "optionTitle": "옵션",
       "addOption": "옵션 추가",
       "editProperty": "속성 편집",
-      "newProperty": "열 추가",
-      "deleteFieldPromptMessage": "해당 속성을 삭제 하시겠습니까?"
+      "newProperty": "새 속성",
+      "openRowDocument": "페이지로 열기",
+      "deleteFieldPromptMessage": "확실합니까? 이 속성과 모든 데이터가 삭제됩니다",
+      "clearFieldPromptMessage": "확실합니까? 이 열의 모든 셀이 비워집니다",
+      "newColumn": "새 열",
+      "format": "형식",
+      "reminderOnDateTooltip": "이 셀에는 예약된 알림이 있습니다",
+      "optionAlreadyExist": "옵션이 이미 존재합니다"
+    },
+    "rowPage": {
+      "newField": "새 필드 추가",
+      "fieldDragElementTooltip": "메뉴 열기",
+      "showHiddenFields": {
+        "one": "숨겨진 {count}개의 필드 표시",
+        "many": "숨겨진 {count}개의 필드 표시",
+        "other": "숨겨진 {count}개의 필드 표시"
+      },
+      "hideHiddenFields": {
+        "one": "숨겨진 {count}개의 필드 숨기기",
+        "many": "숨겨진 {count}개의 필드 숨기기",
+        "other": "숨겨진 {count}개의 필드 숨기기"
+      },
+      "openAsFullPage": "전체 페이지로 열기",
+      "moreRowActions": "더 많은 행 작업"
     },
     "sort": {
       "ascending": "오름차순",
       "descending": "내림차순",
+      "by": "기준",
+      "empty": "활성 정렬 없음",
+      "cannotFindCreatableField": "정렬할 적절한 필드를 찾을 수 없습니다",
+      "deleteAllSorts": "모든 정렬 삭제",
       "addSort": "정렬 추가",
-      "deleteSort": "정렬 삭제"
+      "sortsActive": "정렬 중에는 {intention}할 수 없습니다",
+      "removeSorting": "이 보기의 모든 정렬을 제거하고 계속하시겠습니까?",
+      "fieldInUse": "이미 이 필드로 정렬 중입니다"
     },
     "row": {
+      "label": "행",
       "duplicate": "복제",
       "delete": "삭제",
-      "textPlaceholder": "비어있음",
-      "copyProperty": "속성이 클립보드로 복사됨",
+      "titlePlaceholder": "제목 없음",
+      "textPlaceholder": "비어 있음",
+      "copyProperty": "속성이 클립보드에 복사되었습니다",
       "count": "개수",
-      "newRow": "행 추가",
-      "action": "행동"
+      "newRow": "새 행",
+      "loadMore": "더 로드",
+      "action": "작업",
+      "add": "아래에 추가하려면 클릭",
+      "drag": "이동하려면 드래그",
+      "deleteRowPrompt": "이 행을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "deleteCardPrompt": "이 카드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "dragAndClick": "이동하려면 드래그, 메뉴를 열려면 클릭",
+      "insertRecordAbove": "위에 레코드 삽입",
+      "insertRecordBelow": "아래에 레코드 삽입",
+      "noContent": "내용 없음",
+      "reorderRowDescription": "행 순서 변경",
+      "createRowAboveDescription": "위에 행 생성",
+      "createRowBelowDescription": "아래에 행 삽입"
     },
     "selectOption": {
       "create": "생성",
       "purpleColor": "보라색",
-      "pinkColor": "핑크색",
-      "lightPinkColor": "연한 핑크색",
-      "orangeColor": "오렌지색",
-      "yellowColor": "노랑색",
+      "pinkColor": "분홍색",
+      "lightPinkColor": "연분홍색",
+      "orangeColor": "주황색",
+      "yellowColor": "노란색",
       "limeColor": "라임색",
-      "greenColor": "초록색",
-      "aquaColor": "아쿠아색",
-      "blueColor": "파랑색",
+      "greenColor": "녹색",
+      "aquaColor": "청록색",
+      "blueColor": "파란색",
       "deleteTag": "태그 삭제",
       "colorPanelTitle": "색상",
       "panelTitle": "옵션 선택 또는 생성",
-      "searchOption": "옵션 검색"
+      "searchOption": "옵션 검색",
+      "searchOrCreateOption": "옵션 검색 또는 생성",
+      "createNew": "새로 생성",
+      "orSelectOne": "또는 옵션 선택",
+      "typeANewOption": "새 옵션 입력",
+      "tagName": "태그 이름"
     },
     "checklist": {
-      "addNew": "항목 추가"
+      "taskHint": "작업 설명",
+      "addNew": "새 작업 추가",
+      "submitNewTask": "생성",
+      "hideComplete": "완료된 작업 숨기기",
+      "showComplete": "모든 작업 표시"
+    },
+    "url": {
+      "launch": "브라우저에서 링크 열기",
+      "copy": "링크를 클립보드에 복사",
+      "textFieldHint": "URL 입력"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "관련 데이터베이스",
+      "relatedDatabasePlaceholder": "없음",
+      "inRelatedDatabase": "에",
+      "rowSearchTextFieldPlaceholder": "검색",
+      "noDatabaseSelected": "선택된 데이터베이스가 없습니다. 아래 목록에서 하나를 먼저 선택하세요:",
+      "emptySearchResult": "레코드를 찾을 수 없습니다",
+      "linkedRowListLabel": "{count}개의 연결된 행",
+      "unlinkedRowListLabel": "다른 행 연결"
     },
     "menuName": "그리드",
-    "referencedGridPrefix": "관점"
+    "referencedGridPrefix": "보기",
+    "calculate": "계산",
+    "calculationTypeLabel": {
+      "none": "없음",
+      "average": "평균",
+      "max": "최대",
+      "median": "중앙값",
+      "min": "최소",
+      "sum": "합계",
+      "count": "개수",
+      "countEmpty": "비어 있는 개수",
+      "countEmptyShort": "비어 있음",
+      "countNonEmpty": "비어 있지 않은 개수",
+      "countNonEmptyShort": "채워짐"
+    },
+    "media": {
+      "rename": "이름 변경",
+      "download": "다운로드",
+      "expand": "확장",
+      "delete": "삭제",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "파일 또는 링크 추가",
+      "attachmentsHint": "{}",
+      "addFileMobile": "파일 추가",
+      "extraCount": "+{}",
+      "deleteFileDescription": "이 파일을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "showFileNames": "파일 이름 표시",
+      "downloadSuccess": "파일이 다운로드되었습니다",
+      "downloadFailedToken": "파일을 다운로드하지 못했습니다. 사용자 토큰이 없습니다",
+      "setAsCover": "표지로 설정",
+      "openInBrowser": "브라우저에서 열기",
+      "embedLink": "파일 링크 삽입"
+    }
   },
   "document": {
     "menuName": "문서",
     "date": {
-      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwelveHour": "오후 01:00",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "생성 중...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "연결할 보드 선택",
-        "createANewBoard": "새 보드 만들기"
+        "createANewBoard": "새 보드 생성"
       },
       "grid": {
         "selectAGridToLinkTo": "연결할 그리드 선택",
-        "createANewGrid": "새 그리드 만들기"
+        "createANewGrid": "새 그리드 생성"
       },
       "calendar": {
         "selectACalendarToLinkTo": "연결할 캘린더 선택",
-        "createANewCalendar": "새 캘린더 만들기"
+        "createANewCalendar": "새 캘린더 생성"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "연결할 문서 선택"
+      },
+      "name": {
+        "textStyle": "텍스트 스타일",
+        "list": "목록",
+        "toggle": "토글",
+        "fileAndMedia": "파일 및 미디어",
+        "simpleTable": "간단한 테이블",
+        "visuals": "시각 자료",
+        "document": "문서",
+        "advanced": "고급",
+        "text": "텍스트",
+        "heading1": "헤딩 1",
+        "heading2": "헤딩 2",
+        "heading3": "헤딩 3",
+        "image": "이미지",
+        "bulletedList": "글머리 기호 목록",
+        "numberedList": "번호 매기기 목록",
+        "todoList": "할 일 목록",
+        "doc": "문서",
+        "linkedDoc": "페이지로 연결",
+        "grid": "그리드",
+        "linkedGrid": "연결된 그리드",
+        "kanban": "칸반",
+        "linkedKanban": "연결된 칸반",
+        "calendar": "캘린더",
+        "linkedCalendar": "연결된 캘린더",
+        "quote": "인용",
+        "divider": "구분선",
+        "table": "테이블",
+        "callout": "콜아웃",
+        "outline": "개요",
+        "mathEquation": "수학 방정식",
+        "code": "코드",
+        "toggleList": "토글 목록",
+        "toggleHeading1": "토글 헤딩 1",
+        "toggleHeading2": "토글 헤딩 2",
+        "toggleHeading3": "토글 헤딩 3",
+        "emoji": "이모지",
+        "aiWriter": "AI에게 물어보기",
+        "dateOrReminder": "날짜 또는 알림",
+        "photoGallery": "사진 갤러리",
+        "file": "파일",
+        "twoColumns": "2열",
+        "threeColumns": "3열",
+        "fourColumns": "4열"
+      },
+      "subPage": {
+        "name": "문서",
+        "keyword1": "하위 페이지",
+        "keyword2": "페이지",
+        "keyword3": "자식 페이지",
+        "keyword4": "페이지 삽입",
+        "keyword5": "페이지 포함",
+        "keyword6": "새 페이지",
+        "keyword7": "페이지 생성",
+        "keyword8": "문서"
       }
     },
     "selectionMenu": {
-      "outline": "개요"
+      "outline": "개요",
+      "codeBlock": "코드 블록"
     },
     "plugins": {
-      "referencedBoard": "참조 보드",
+      "referencedBoard": "참조된 보드",
       "referencedGrid": "참조된 그리드",
-      "referencedCalendar": "참조된 달력",
-      "autoGeneratorMenuItemName": "AI 작성자",
-      "autoGeneratorTitleName": "AI: AI에게 무엇이든 쓰라고 요청하세요...",
-      "autoGeneratorLearnMore": "더 알아보기",
-      "autoGeneratorGenerate": "생성하다",
-      "autoGeneratorHintText": "OpenAI에게 물어보세요 ...",
-      "autoGeneratorCantGetOpenAIKey": "AI 키를 가져올 수 없습니다.",
-      "autoGeneratorRewrite": "고쳐 쓰기",
-      "smartEdit": "AI 어시스턴트",
+      "referencedCalendar": "참조된 캘린더",
+      "referencedDocument": "참조된 문서",
+      "aiWriter": {
+        "userQuestion": "AI에게 물어보기",
+        "continueWriting": "계속 작성",
+        "fixSpelling": "맞춤법 및 문법 수정",
+        "improveWriting": "글쓰기 개선",
+        "summarize": "요약",
+        "explain": "설명",
+        "makeShorter": "짧게 만들기",
+        "makeLonger": "길게 만들기"
+      },
+      "autoGeneratorMenuItemName": "AI 작성기",
+      "autoGeneratorTitleName": "AI: AI에게 무엇이든 물어보세요...",
+      "autoGeneratorLearnMore": "자세히 알아보기",
+      "autoGeneratorGenerate": "생성",
+      "autoGeneratorHintText": "AI에게 물어보기 ...",
+      "autoGeneratorCantGetOpenAIKey": "AI 키를 가져올 수 없습니다",
+      "autoGeneratorRewrite": "다시 작성",
+      "smartEdit": "AI에게 물어보기",
       "aI": "AI",
-      "smartEditFixSpelling": "맞춤법 수정",
+      "smartEditFixSpelling": "맞춤법 및 문법 수정",
       "warning": "⚠️ AI 응답은 부정확하거나 오해의 소지가 있을 수 있습니다.",
-      "smartEditSummarize": "요약하다",
-      "smartEditImproveWriting": "쓰기 향상",
-      "smartEditMakeLonger": "더 길게",
-      "smartEditCouldNotFetchResult": "OpenAI에서 결과를 가져올 수 없습니다.",
-      "smartEditCouldNotFetchKey": "AI 키를 가져올 수 없습니다.",
+      "smartEditSummarize": "요약",
+      "smartEditImproveWriting": "글쓰기 개선",
+      "smartEditMakeLonger": "길게 만들기",
+      "smartEditCouldNotFetchResult": "AI에서 결과를 가져올 수 없습니다",
+      "smartEditCouldNotFetchKey": "AI 키를 가져올 수 없습니다",
       "smartEditDisabled": "설정에서 AI 연결",
-      "discardResponse": "AI 응답을 삭제하시겠습니까?",
-      "createInlineMathEquation": "방정식 만들기",
+      "appflowyAIEditDisabled": "AI 기능을 활성화하려면 로그인하세요",
+      "discardResponse": "AI 응답을 버리시겠습니까?",
+      "createInlineMathEquation": "방정식 생성",
+      "fonts": "글꼴",
+      "insertDate": "날짜 삽입",
+      "emoji": "이모지",
       "toggleList": "토글 목록",
+      "emptyToggleHeading": "빈 토글 h{}. 내용을 추가하려면 클릭하세요.",
+      "emptyToggleList": "빈 토글 목록. 내용을 추가하려면 클릭하세요.",
+      "emptyToggleHeadingWeb": "빈 토글 h{level}. 내용을 추가하려면 클릭하세요",
+      "quoteList": "인용 목록",
+      "numberedList": "번호 매기기 목록",
+      "bulletedList": "글머리 기호 목록",
+      "todoList": "할 일 목록",
+      "callout": "콜아웃",
+      "simpleTable": {
+        "moreActions": {
+          "color": "색상",
+          "align": "정렬",
+          "delete": "삭제",
+          "duplicate": "복제",
+          "insertLeft": "왼쪽에 삽입",
+          "insertRight": "오른쪽에 삽입",
+          "insertAbove": "위에 삽입",
+          "insertBelow": "아래에 삽입",
+          "headerColumn": "헤더 열",
+          "headerRow": "헤더 행",
+          "clearContents": "내용 지우기",
+          "setToPageWidth": "페이지 너비로 설정",
+          "distributeColumnsWidth": "열 너비 균등 분배",
+          "duplicateRow": "행 복제",
+          "duplicateColumn": "열 복제",
+          "textColor": "텍스트 색상",
+          "cellBackgroundColor": "셀 배경 색상",
+          "duplicateTable": "테이블 복제"
+        },
+        "clickToAddNewRow": "새 행을 추가하려면 클릭",
+        "clickToAddNewColumn": "새 열을 추가하려면 클릭",
+        "clickToAddNewRowAndColumn": "새 행과 열을 추가하려면 클릭",
+        "headerName": {
+          "table": "테이블",
+          "alignText": "텍스트 정렬"
+        }
+      },
       "cover": {
-        "changeCover": "커버를 바꾸다",
-        "colors": "그림 물감",
+        "changeCover": "표지 변경",
+        "colors": "색상",
         "images": "이미지",
         "clearAll": "모두 지우기",
-        "abstract": "추상적인",
+        "abstract": "추상",
         "addCover": "표지 추가",
         "addLocalImage": "로컬 이미지 추가",
         "invalidImageUrl": "잘못된 이미지 URL",
-        "failedToAddImageToGallery": "갤러리에 이미지를 추가하지 못했습니다.",
+        "failedToAddImageToGallery": "갤러리에 이미지를 추가하지 못했습니다",
         "enterImageUrl": "이미지 URL 입력",
-        "add": "추가하다",
-        "back": "뒤쪽에",
+        "add": "추가",
+        "back": "뒤로",
         "saveToGallery": "갤러리에 저장",
         "removeIcon": "아이콘 제거",
+        "removeCover": "표지 제거",
         "pasteImageUrl": "이미지 URL 붙여넣기",
         "or": "또는",
         "pickFromFiles": "파일에서 선택",
-        "couldNotFetchImage": "이미지를 가져올 수 없습니다.",
+        "couldNotFetchImage": "이미지를 가져올 수 없습니다",
         "imageSavingFailed": "이미지 저장 실패",
         "addIcon": "아이콘 추가",
+        "changeIcon": "아이콘 변경",
         "coverRemoveAlert": "삭제 후 표지에서 제거됩니다.",
-        "alertDialogConfirmation": "너 정말 계속하고 싶니?"
+        "alertDialogConfirmation": "계속하시겠습니까?"
       },
       "mathEquation": {
-        "addMathEquation": "수학 방정식 추가",
+        "name": "수학 방정식",
+        "addMathEquation": "TeX 방정식 추가",
         "editMathEquation": "수학 방정식 편집"
       },
       "optionAction": {
-        "click": "딸깍 하는 소리",
+        "click": "클릭",
         "toOpenMenu": " 메뉴 열기",
+        "drag": "드래그",
+        "toMove": " 이동",
         "delete": "삭제",
-        "duplicate": "복제하다",
-        "turnInto": "로 변하다",
-        "moveUp": "이동",
+        "duplicate": "복제",
+        "turnInto": "변환",
+        "moveUp": "위로 이동",
         "moveDown": "아래로 이동",
         "color": "색상",
-        "align": "맞추다",
+        "align": "정렬",
         "left": "왼쪽",
-        "center": "센터",
+        "center": "가운데",
         "right": "오른쪽",
-        "defaultColor": "기본"
+        "defaultColor": "기본",
+        "depth": "깊이",
+        "copyLinkToBlock": "블록 링크 복사"
       },
       "image": {
-        "copiedToPasteBoard": "이미지 링크가 클립보드에 복사되었습니다."
+        "addAnImage": "이미지 추가",
+        "copiedToPasteBoard": "이미지 링크가 클립보드에 복사되었습니다",
+        "addAnImageDesktop": "이미지 추가",
+        "addAnImageMobile": "하나 이상의 이미지를 추가하려면 클릭",
+        "dropImageToInsert": "이미지를 드롭하여 삽입",
+        "imageUploadFailed": "이미지 업로드 실패",
+        "imageDownloadFailed": "이미지 다운로드 실패, 다시 시도하세요",
+        "imageDownloadFailedToken": "사용자 토큰이 없어 이미지 다운로드 실패, 다시 시도하세요",
+        "errorCode": "오류 코드"
+      },
+      "photoGallery": {
+        "name": "사진 갤러리",
+        "imageKeyword": "이미지",
+        "imageGalleryKeyword": "이미지 갤러리",
+        "photoKeyword": "사진",
+        "photoBrowserKeyword": "사진 브라우저",
+        "galleryKeyword": "갤러리",
+        "addImageTooltip": "이미지 추가",
+        "changeLayoutTooltip": "레이아웃 변경",
+        "browserLayout": "브라우저",
+        "gridLayout": "그리드",
+        "deleteBlockTooltip": "전체 갤러리 삭제"
+      },
+      "math": {
+        "copiedToPasteBoard": "수학 방정식이 클립보드에 복사되었습니다"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "링크가 클립보드에 복사되었습니다",
+        "convertToLink": "링크로 변환"
       },
       "outline": {
-        "addHeadingToCreateOutline": "제목을 추가하여 목차를 만듭니다."
-      }
+        "addHeadingToCreateOutline": "목차를 만들려면 헤딩을 추가하세요.",
+        "noMatchHeadings": "일치하는 헤딩이 없습니다."
+      },
+      "table": {
+        "addAfter": "뒤에 추가",
+        "addBefore": "앞에 추가",
+        "delete": "삭제",
+        "clear": "내용 지우기",
+        "duplicate": "복제",
+        "bgColor": "배경 색상"
+      },
+      "contextMenu": {
+        "copy": "복사",
+        "cut": "잘라내기",
+        "paste": "붙여넣기",
+        "pasteAsPlainText": "서식 없이 붙여넣기"
+      },
+      "action": "작업",
+      "database": {
+        "selectDataSource": "데이터 소스 선택",
+        "noDataSource": "데이터 소스 없음",
+        "selectADataSource": "데이터 소스 선택",
+        "toContinue": "계속하려면",
+        "newDatabase": "새 데이터베이스",
+        "linkToDatabase": "데이터베이스로 연결"
+      },
+      "date": "날짜",
+      "video": {
+        "label": "비디오",
+        "emptyLabel": "비디오 추가",
+        "placeholder": "비디오 링크 붙여넣기",
+        "copiedToPasteBoard": "비디오 링크가 클립보드에 복사되었습니다",
+        "insertVideo": "비디오 추가",
+        "invalidVideoUrl": "지원되지 않는 소스 URL입니다.",
+        "invalidVideoUrlYouTube": "YouTube는 아직 지원되지 않습니다.",
+        "supportedFormats": "지원되는 형식: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "파일",
+        "uploadTab": "업로드",
+        "uploadMobile": "파일 선택",
+        "uploadMobileGallery": "사진 갤러리에서",
+        "networkTab": "링크 삽입",
+        "placeholderText": "파일 업로드 또는 삽입",
+        "placeholderDragging": "업로드할 파일을 드롭하세요",
+        "dropFileToUpload": "업로드할 파일을 드롭하세요",
+        "fileUploadHint": "파일을 드래그 앤 드롭하거나 클릭하여 ",
+        "fileUploadHintSuffix": "찾아보기",
+        "networkHint": "파일 링크 붙여넣기",
+        "networkUrlInvalid": "잘못된 URL입니다. URL을 확인하고 다시 시도하세요.",
+        "networkAction": "삽입",
+        "fileTooBigError": "파일 크기가 너무 큽니다. 10MB 미만의 파일을 업로드하세요",
+        "renameFile": {
+          "title": "파일 이름 변경",
+          "description": "이 파일의 새 이름을 입력하세요",
+          "nameEmptyError": "파일 이름은 비워둘 수 없습니다."
+        },
+        "uploadedAt": "{}에 업로드됨",
+        "linkedAt": "{}에 링크 추가됨",
+        "failedToOpenMsg": "열지 못했습니다. 파일을 찾을 수 없습니다"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (붙여넣기 처리 중)",
+        "errors": {
+          "failedDeletePage": "페이지 삭제 실패",
+          "failedCreatePage": "페이지 생성 실패",
+          "failedMovePage": "이 문서로 페이지 이동 실패",
+          "failedDuplicatePage": "페이지 복제 실패",
+          "failedDuplicateFindView": "페이지 복제 실패 - 원본 보기를 찾을 수 없습니다"
+        }
+      },
+      "cannotMoveToItsChildren": "자식으로 이동할 수 없습니다"
+    },
+    "outlineBlock": {
+      "placeholder": "목차"
     },
     "textBlock": {
-      "placeholder": "명령에 '/' 입력"
+      "placeholder": "명령어를 입력하려면 '/'를 입력하세요"
     },
     "title": {
-      "placeholder": "무제"
+      "placeholder": "제목 없음"
     },
     "imageBlock": {
-      "placeholder": "이미지를 추가하려면 클릭하세요.",
+      "placeholder": "이미지 추가하려면 클릭",
       "upload": {
         "label": "업로드",
-        "placeholder": "이미지를 업로드하려면 클릭하세요."
+        "placeholder": "이미지 업로드하려면 클릭"
       },
       "url": {
         "label": "이미지 URL",
         "placeholder": "이미지 URL 입력"
       },
+      "ai": {
+        "label": "AI로 이미지 생성",
+        "placeholder": "AI가 이미지를 생성할 프롬프트를 입력하세요"
+      },
+      "stability_ai": {
+        "label": "Stability AI로 이미지 생성",
+        "placeholder": "Stability AI가 이미지를 생성할 프롬프트를 입력하세요"
+      },
       "support": "이미지 크기 제한은 5MB입니다. 지원되는 형식: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "잘못된 이미지",
-        "invalidImageSize": "이미지 크기는 5MB 미만이어야 합니다.",
-        "invalidImageFormat": "이미지 형식은 지원되지 않습니다. 지원되는 형식: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "잘못된 이미지 URL"
+        "invalidImageSize": "이미지 크기는 5MB 미만이어야 합니다",
+        "invalidImageFormat": "지원되지 않는 이미지 형식입니다. 지원되는 형식: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "잘못된 이미지 URL",
+        "noImage": "파일 또는 디렉토리가 없습니다",
+        "multipleImagesFailed": "하나 이상의 이미지 업로드 실패, 다시 시도하세요"
+      },
+      "embedLink": {
+        "label": "링크 삽입",
+        "placeholder": "이미지 링크를 붙여넣거나 입력하세요"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "이미지 검색",
+      "pleaseInputYourOpenAIKey": "설정 페이지에서 AI 키를 입력하세요",
+      "saveImageToGallery": "이미지 저장",
+      "failedToAddImageToGallery": "이미지 저장 실패",
+      "successToAddImageToGallery": "이미지가 사진에 저장되었습니다",
+      "unableToLoadImage": "이미지를 로드할 수 없습니다",
+      "maximumImageSize": "최대 지원 업로드 이미지 크기는 10MB입니다",
+      "uploadImageErrorImageSizeTooBig": "이미지 크기는 10MB 미만이어야 합니다",
+      "imageIsUploading": "이미지 업로드 중",
+      "openFullScreen": "전체 화면으로 열기",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "이전 이미지",
+          "nextImageTooltip": "다음 이미지",
+          "zoomOutTooltip": "축소",
+          "zoomInTooltip": "확대",
+          "changeZoomLevelTooltip": "확대/축소 수준 변경",
+          "openLocalImage": "이미지 열기",
+          "downloadImage": "이미지 다운로드",
+          "closeViewer": "인터랙티브 뷰어 닫기",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "이미지 삭제"
+        }
       }
     },
     "codeBlock": {
       "language": {
         "label": "언어",
-        "placeholder": "언어 선택"
-      }
+        "placeholder": "언어 선택",
+        "auto": "자동"
+      },
+      "copyTooltip": "복사",
+      "searchLanguageHint": "언어 검색",
+      "codeCopiedSnackbar": "코드가 클립보드에 복사되었습니다!"
     },
     "inlineLink": {
-      "placeholder": "링크 붙여넣기 또는 입력",
+      "placeholder": "링크를 붙여넣거나 입력하세요",
+      "openInNewTab": "새 탭에서 열기",
+      "copyLink": "링크 복사",
+      "removeLink": "링크 제거",
       "url": {
         "label": "링크 URL",
         "placeholder": "링크 URL 입력"
@@ -602,89 +2087,1101 @@
         "label": "링크 제목",
         "placeholder": "링크 제목 입력"
       }
+    },
+    "mention": {
+      "placeholder": "사람, 페이지 또는 날짜 언급...",
+      "page": {
+        "label": "페이지로 연결",
+        "tooltip": "페이지 열기"
+      },
+      "deleted": "삭제됨",
+      "deletedContent": "이 콘텐츠는 존재하지 않거나 삭제되었습니다",
+      "noAccess": "액세스 불가",
+      "deletedPage": "삭제된 페이지",
+      "trashHint": " - 휴지통에 있음",
+      "morePages": "더 많은 페이지"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "기본값으로 재설정",
+      "textSize": "텍스트 크기",
+      "h1": "헤딩 1",
+      "h2": "헤딩 2",
+      "h3": "헤딩 3",
+      "alignLeft": "왼쪽 정렬",
+      "alignRight": "오른쪽 정렬",
+      "alignCenter": "가운데 정렬",
+      "link": "링크",
+      "textAlign": "텍스트 정렬",
+      "moreOptions": "더 많은 옵션",
+      "font": "글꼴",
+      "suggestions": "제안",
+      "turnInto": "변환"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "블록 콘텐츠를 구문 분석할 수 없습니다",
+      "clickToCopyTheBlockContent": "블록 콘텐츠를 복사하려면 클릭",
+      "blockContentHasBeenCopied": "블록 콘텐츠가 복사되었습니다.",
+      "parseError": "{} 블록을 구문 분석하는 동안 오류가 발생했습니다.",
+      "copyBlockContent": "블록 콘텐츠 복사"
+    },
+    "mobilePageSelector": {
+      "title": "페이지 선택",
+      "failedToLoad": "페이지 목록을 로드하지 못했습니다",
+      "noPagesFound": "페이지를 찾을 수 없습니다"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "사진 선택",
+      "takePicture": "사진 찍기",
+      "chooseFile": "파일 선택"
     }
   },
   "board": {
     "column": {
-      "createNewCard": "추가"
+      "label": "열",
+      "createNewCard": "새로 만들기",
+      "renameGroupTooltip": "그룹 이름 변경",
+      "createNewColumn": "새 그룹 추가",
+      "addToColumnTopTooltip": "맨 위에 새 카드 추가",
+      "addToColumnBottomTooltip": "맨 아래에 새 카드 추가",
+      "renameColumn": "이름 변경",
+      "hideColumn": "숨기기",
+      "newGroup": "새 그룹",
+      "deleteColumn": "삭제",
+      "deleteColumnConfirmation": "이 그룹과 그룹 내 모든 카드를 삭제합니다. 계속하시겠습니까?"
     },
+    "hiddenGroupSection": {
+      "sectionTitle": "숨겨진 그룹",
+      "collapseTooltip": "숨겨진 그룹 숨기기",
+      "expandTooltip": "숨겨진 그룹 보기"
+    },
+    "cardDetail": "카드 세부 정보",
+    "cardActions": "카드 작업",
+    "cardDuplicated": "카드가 복제되었습니다",
+    "cardDeleted": "카드가 삭제되었습니다",
+    "showOnCard": "카드 세부 정보에 표시",
+    "setting": "설정",
+    "propertyName": "속성 이름",
     "menuName": "보드",
-    "referencedBoardPrefix": "관점",
+    "showUngrouped": "그룹화되지 않은 항목 표시",
+    "ungroupedButtonText": "그룹화되지 않음",
+    "ungroupedButtonTooltip": "어떤 그룹에도 속하지 않는 카드가 포함되어 있습니다",
+    "ungroupedItemsTitle": "보드에 추가하려면 클릭",
+    "groupBy": "그룹 기준",
+    "groupCondition": "그룹 조건",
+    "referencedBoardPrefix": "보기",
+    "notesTooltip": "내부에 노트 있음",
     "mobile": {
+      "editURL": "URL 편집",
       "showGroup": "그룹 표시",
       "showGroupContent": "이 그룹을 보드에 표시하시겠습니까?",
-      "failedToLoad": "보드 보기를 로드하지 못했습니다."
+      "failedToLoad": "보드 보기를 로드하지 못했습니다"
+    },
+    "dateCondition": {
+      "weekOf": "{} - {} 주",
+      "today": "오늘",
+      "yesterday": "어제",
+      "tomorrow": "내일",
+      "lastSevenDays": "지난 7일",
+      "nextSevenDays": "다음 7일",
+      "lastThirtyDays": "지난 30일",
+      "nextThirtyDays": "다음 30일"
+    },
+    "noGroup": "그룹화할 속성 없음",
+    "noGroupDesc": "보드 보기를 표시하려면 그룹화할 속성이 필요합니다",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "파일"
     }
   },
   "calendar": {
-    "menuName": "달력",
-    "defaultNewCalendarTitle": "무제",
+    "menuName": "캘린더",
+    "defaultNewCalendarTitle": "제목 없음",
+    "newEventButtonTooltip": "새 이벤트 추가",
     "navigation": {
       "today": "오늘",
       "jumpToday": "오늘로 이동",
-      "previousMonth": "지난달",
-      "nextMonth": "다음 달"
+      "previousMonth": "이전 달",
+      "nextMonth": "다음 달",
+      "views": {
+        "day": "일",
+        "week": "주",
+        "month": "월",
+        "year": "년"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "이벤트 없음",
+      "emptyBody": "이 날에 이벤트를 생성하려면 더하기 버튼을 누르세요."
     },
     "settings": {
       "showWeekNumbers": "주 번호 표시",
-      "showWeekends": "주말 보기",
-      "firstDayOfWeek": "주 시작",
-      "layoutDateField": "레이아웃 캘린더",
+      "showWeekends": "주말 표시",
+      "firstDayOfWeek": "주 시작일",
+      "layoutDateField": "캘린더 레이아웃 기준",
+      "changeLayoutDateField": "레이아웃 필드 변경",
       "noDateTitle": "날짜 없음",
-      "clickToAdd": "캘린더에 추가하려면 클릭하세요.",
-      "name": "달력 레이아웃",
-      "noDateHint": "예약되지 않은 일정이 여기에 표시됩니다."
+      "noDateHint": {
+        "zero": "일정이 없는 이벤트가 여기에 표시됩니다",
+        "one": "{count}개의 일정이 없는 이벤트",
+        "other": "{count}개의 일정이 없는 이벤트"
+      },
+      "unscheduledEventsTitle": "일정이 없는 이벤트",
+      "clickToAdd": "캘린더에 추가하려면 클릭",
+      "name": "캘린더 설정",
+      "clickToOpen": "레코드를 열려면 클릭"
     },
-    "referencedCalendarPrefix": "관점"
+    "referencedCalendarPrefix": "보기",
+    "quickJumpYear": "이동",
+    "duplicateEvent": "이벤트 복제"
   },
   "errorDialog": {
     "title": "@:appName 오류",
-    "howToFixFallback": "불편을 끼쳐드려 죄송합니다! 오류를 설명하는 문제를 GitHub 페이지에 제출하세요.",
+    "howToFixFallback": "불편을 드려 죄송합니다! GitHub 페이지에 오류를 설명하는 문제를 제출하세요.",
+    "howToFixFallbackHint1": "불편을 드려 죄송합니다! ",
+    "howToFixFallbackHint2": " 페이지에 오류를 설명하는 문제를 제출하세요.",
     "github": "GitHub에서 보기"
   },
   "search": {
     "label": "검색",
+    "sidebarSearchIcon": "검색하고 페이지로 빠르게 이동",
     "placeholder": {
-      "actions": "검색 작업..."
+      "actions": "작업 검색..."
     }
   },
   "message": {
     "copy": {
-      "success": "복사했습니다!",
+      "success": "복사됨!",
       "fail": "복사할 수 없음"
     }
   },
-  "unSupportBlock": "현재 버전은 이 블록을 지원하지 않습니다.",
+  "unSupportBlock": "현재 버전에서는 이 블록을 지원하지 않습니다.",
   "views": {
     "deleteContentTitle": "{pageType}을(를) 삭제하시겠습니까?",
     "deleteContentCaption": "이 {pageType}을(를) 삭제하면 휴지통에서 복원할 수 있습니다."
   },
+  "colors": {
+    "custom": "사용자 정의",
+    "default": "기본",
+    "red": "빨간색",
+    "orange": "주황색",
+    "yellow": "노란색",
+    "green": "녹색",
+    "blue": "파란색",
+    "purple": "보라색",
+    "pink": "분홍색",
+    "brown": "갈색",
+    "gray": "회색"
+  },
+  "emoji": {
+    "emojiTab": "이모지",
+    "search": "이모지 검색",
+    "noRecent": "최근 사용한 이모지 없음",
+    "noEmojiFound": "이모지를 찾을 수 없음",
+    "filter": "필터",
+    "random": "무작위",
+    "selectSkinTone": "피부 톤 선택",
+    "remove": "이모지 제거",
+    "categories": {
+      "smileys": "스마일리 및 감정",
+      "people": "사람",
+      "animals": "자연",
+      "food": "음식",
+      "activities": "활동",
+      "places": "장소",
+      "objects": "사물",
+      "symbols": "기호",
+      "flags": "깃발",
+      "nature": "자연",
+      "frequentlyUsed": "자주 사용됨"
+    },
+    "skinTone": {
+      "default": "기본",
+      "light": "밝은",
+      "mediumLight": "중간 밝은",
+      "medium": "중간",
+      "mediumDark": "중간 어두운",
+      "dark": "어두운"
+    },
+    "openSourceIconsFrom": "오픈 소스 아이콘 제공"
+  },
+  "inlineActions": {
+    "noResults": "결과 없음",
+    "recentPages": "최근 페이지",
+    "pageReference": "페이지 참조",
+    "docReference": "문서 참조",
+    "boardReference": "보드 참조",
+    "calReference": "캘린더 참조",
+    "gridReference": "그리드 참조",
+    "date": "날짜",
+    "reminder": {
+      "groupTitle": "알림",
+      "shortKeyword": "알림"
+    },
+    "createPage": "\"{}\" 하위 페이지 생성"
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "설정에서 날짜 및 시간 형식 변경",
+    "dateFormat": "날짜 형식",
+    "includeTime": "시간 포함",
+    "isRange": "종료 날짜",
+    "timeFormat": "시간 형식",
+    "clearDate": "날짜 지우기",
+    "reminderLabel": "알림",
+    "selectReminder": "알림 선택",
+    "reminderOptions": {
+      "none": "없음",
+      "atTimeOfEvent": "이벤트 시간",
+      "fiveMinsBefore": "5분 전",
+      "tenMinsBefore": "10분 전",
+      "fifteenMinsBefore": "15분 전",
+      "thirtyMinsBefore": "30분 전",
+      "oneHourBefore": "1시간 전",
+      "twoHoursBefore": "2시간 전",
+      "onDayOfEvent": "이벤트 당일",
+      "oneDayBefore": "1일 전",
+      "twoDaysBefore": "2일 전",
+      "oneWeekBefore": "1주일 전",
+      "custom": "사용자 정의"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "어제",
+    "today": "오늘",
+    "tomorrow": "내일",
+    "oneWeek": "1주일"
+  },
+  "notificationHub": {
+    "title": "알림",
+    "mobile": {
+      "title": "업데이트"
+    },
+    "emptyTitle": "모두 확인했습니다!",
+    "emptyBody": "대기 중인 알림이나 작업이 없습니다. 평온을 즐기세요.",
+    "tabs": {
+      "inbox": "받은 편지함",
+      "upcoming": "다가오는"
+    },
+    "actions": {
+      "markAllRead": "모두 읽음으로 표시",
+      "showAll": "모두",
+      "showUnreads": "읽지 않음"
+    },
+    "filters": {
+      "ascending": "오름차순",
+      "descending": "내림차순",
+      "groupByDate": "날짜별 그룹",
+      "showUnreadsOnly": "읽지 않은 항목만 표시",
+      "resetToDefault": "기본값으로 재설정"
+    }
+  },
+  "reminderNotification": {
+    "title": "알림",
+    "message": "잊기 전에 확인하세요!",
+    "tooltipDelete": "삭제",
+    "tooltipMarkRead": "읽음으로 표시",
+    "tooltipMarkUnread": "읽지 않음으로 표시"
+  },
+  "findAndReplace": {
+    "find": "찾기",
+    "previousMatch": "이전 일치 항목",
+    "nextMatch": "다음 일치 항목",
+    "close": "닫기",
+    "replace": "교체",
+    "replaceAll": "모두 교체",
+    "noResult": "결과 없음",
+    "caseSensitive": "대소문자 구분",
+    "searchMore": "더 많은 결과를 찾으려면 검색"
+  },
+  "error": {
+    "weAreSorry": "죄송합니다",
+    "loadingViewError": "이 보기를 로드하는 데 문제가 있습니다. 인터넷 연결을 확인하고 앱을 새로 고침하세요. 문제가 계속되면 팀에 문의하세요.",
+    "syncError": "다른 장치에서 데이터가 동기화되지 않음",
+    "syncErrorHint": "마지막으로 편집한 장치에서 이 페이지를 다시 열고 현재 장치에서 다시 열어보세요.",
+    "clickToCopy": "오류 코드를 복사하려면 클릭"
+  },
+  "editor": {
+    "bold": "굵게",
+    "bulletedList": "글머리 기호 목록",
+    "bulletedListShortForm": "글머리 기호",
+    "checkbox": "체크박스",
+    "embedCode": "코드 삽입",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "강조",
+    "color": "색상",
+    "image": "이미지",
+    "date": "날짜",
+    "page": "페이지",
+    "italic": "기울임꼴",
+    "link": "링크",
+    "numberedList": "번호 매기기 목록",
+    "numberedListShortForm": "번호 매기기",
+    "toggleHeading1ShortForm": "토글 h1",
+    "toggleHeading2ShortForm": "토글 h2",
+    "toggleHeading3ShortForm": "토글 h3",
+    "quote": "인용",
+    "strikethrough": "취소선",
+    "text": "텍스트",
+    "underline": "밑줄",
+    "fontColorDefault": "기본",
+    "fontColorGray": "회색",
+    "fontColorBrown": "갈색",
+    "fontColorOrange": "주황색",
+    "fontColorYellow": "노란색",
+    "fontColorGreen": "녹색",
+    "fontColorBlue": "파란색",
+    "fontColorPurple": "보라색",
+    "fontColorPink": "분홍색",
+    "fontColorRed": "빨간색",
+    "backgroundColorDefault": "기본 배경",
+    "backgroundColorGray": "회색 배경",
+    "backgroundColorBrown": "갈색 배경",
+    "backgroundColorOrange": "주황색 배경",
+    "backgroundColorYellow": "노란색 배경",
+    "backgroundColorGreen": "녹색 배경",
+    "backgroundColorBlue": "파란색 배경",
+    "backgroundColorPurple": "보라색 배경",
+    "backgroundColorPink": "분홍색 배경",
+    "backgroundColorRed": "빨간색 배경",
+    "backgroundColorLime": "라임색 배경",
+    "backgroundColorAqua": "청록색 배경",
+    "done": "완료",
+    "cancel": "취소",
+    "tint1": "색조 1",
+    "tint2": "색조 2",
+    "tint3": "색조 3",
+    "tint4": "색조 4",
+    "tint5": "색조 5",
+    "tint6": "색조 6",
+    "tint7": "색조 7",
+    "tint8": "색조 8",
+    "tint9": "색조 9",
+    "lightLightTint1": "보라색",
+    "lightLightTint2": "분홍색",
+    "lightLightTint3": "연분홍색",
+    "lightLightTint4": "주황색",
+    "lightLightTint5": "노란색",
+    "lightLightTint6": "라임색",
+    "lightLightTint7": "녹색",
+    "lightLightTint8": "청록색",
+    "lightLightTint9": "파란색",
+    "urlHint": "URL",
+    "mobileHeading1": "헤딩 1",
+    "mobileHeading2": "헤딩 2",
+    "mobileHeading3": "헤딩 3",
+    "mobileHeading4": "헤딩 4",
+    "mobileHeading5": "헤딩 5",
+    "mobileHeading6": "헤딩 6",
+    "textColor": "텍스트 색상",
+    "backgroundColor": "배경 색상",
+    "addYourLink": "링크 추가",
+    "openLink": "링크 열기",
+    "copyLink": "링크 복사",
+    "removeLink": "링크 제거",
+    "editLink": "링크 편집",
+    "linkText": "텍스트",
+    "linkTextHint": "텍스트를 입력하세요",
+    "linkAddressHint": "URL을 입력하세요",
+    "highlightColor": "강조 색상",
+    "clearHighlightColor": "강조 색상 지우기",
+    "customColor": "사용자 정의 색상",
+    "hexValue": "16진수 값",
+    "opacity": "불투명도",
+    "resetToDefaultColor": "기본 색상으로 재설정",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "자동",
+    "cut": "잘라내기",
+    "copy": "복사",
+    "paste": "붙여넣기",
+    "find": "찾기",
+    "select": "선택",
+    "selectAll": "모두 선택",
+    "previousMatch": "이전 일치 항목",
+    "nextMatch": "다음 일치 항목",
+    "closeFind": "닫기",
+    "replace": "교체",
+    "replaceAll": "모두 교체",
+    "regex": "정규식",
+    "caseSensitive": "대소문자 구분",
+    "uploadImage": "이미지 업로드",
+    "urlImage": "URL 이미지",
+    "incorrectLink": "잘못된 링크",
+    "upload": "업로드",
+    "chooseImage": "이미지 선택",
+    "loading": "로드 중",
+    "imageLoadFailed": "이미지 로드 실패",
+    "divider": "구분선",
+    "table": "테이블",
+    "colAddBefore": "앞에 추가",
+    "rowAddBefore": "앞에 추가",
+    "colAddAfter": "뒤에 추가",
+    "rowAddAfter": "뒤에 추가",
+    "colRemove": "제거",
+    "rowRemove": "제거",
+    "colDuplicate": "복제",
+    "rowDuplicate": "복제",
+    "colClear": "내용 지우기",
+    "rowClear": "내용 지우기",
+    "slashPlaceHolder": "'/'를 입력하여 블록을 삽입하거나 입력 시작",
+    "typeSomething": "무언가 입력...",
+    "toggleListShortForm": "토글",
+    "quoteListShortForm": "인용",
+    "mathEquationShortForm": "수식",
+    "codeBlockShortForm": "코드"
+  },
+  "favorite": {
+    "noFavorite": "즐겨찾기 페이지 없음",
+    "noFavoriteHintText": "페이지를 왼쪽으로 스와이프하여 즐겨찾기에 추가하세요",
+    "removeFromSidebar": "사이드바에서 제거",
+    "addToSidebar": "사이드바에 고정"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "/를 입력하여 블록을 삽입하거나 입력 시작"
+  },
+  "blockPlaceholders": {
+    "todoList": "할 일",
+    "bulletList": "목록",
+    "numberList": "목록",
+    "quote": "인용",
+    "heading": "헤딩 {}"
+  },
+  "titleBar": {
+    "pageIcon": "페이지 아이콘",
+    "language": "언어",
+    "font": "글꼴",
+    "actions": "작업",
+    "date": "날짜",
+    "addField": "필드 추가",
+    "userIcon": "사용자 아이콘"
+  },
+  "noLogFiles": "로그 파일이 없습니다",
   "newSettings": {
     "myAccount": {
+      "title": "내 계정",
+      "subtitle": "프로필을 사용자 정의하고, 계정 보안을 관리하고, AI 키를 열거나 계정에 로그인하세요.",
+      "profileLabel": "계정 이름 및 프로필 이미지",
+      "profileNamePlaceholder": "이름 입력",
+      "accountSecurity": "계정 보안",
+      "2FA": "2단계 인증",
+      "aiKeys": "AI 키",
+      "accountLogin": "계정 로그인",
+      "updateNameError": "이름 업데이트 실패",
+      "updateIconError": "아이콘 업데이트 실패",
+      "aboutAppFlowy": "@:appName 정보",
       "deleteAccount": {
-        "dialogContent2": "이 작업은 실행 취소할 수 없으며 모든 작업 공간에서의 액세스가 제거되고, 개인 작업 공간을 포함한 전체 계정이 삭제되고, 모든 공유 작업 공간에서 제거됩니다."
+        "title": "계정 삭제",
+        "subtitle": "계정과 모든 데이터를 영구적으로 삭제합니다.",
+        "description": "계정을 영구적으로 삭제하고 모든 작업 공간에서 액세스를 제거합니다.",
+        "deleteMyAccount": "내 계정 삭제",
+        "dialogTitle": "계정 삭제",
+        "dialogContent1": "계정을 영구적으로 삭제하시겠습니까?",
+        "dialogContent2": "이 작업은 되돌릴 수 없으며, 모든 작업 공간에서 액세스를 제거하고, 개인 작업 공간을 포함한 전체 계정을 삭제하며, 모든 공유 작업 공간에서 제거됩니다.",
+        "confirmHint1": "\"@:newSettings.myAccount.deleteAccount.confirmHint3\"를 입력하여 확인하세요.",
+        "confirmHint2": "이 작업은 되돌릴 수 없으며, 계정과 모든 관련 데이터를 영구적으로 삭제합니다.",
+        "confirmHint3": "내 계정 삭제",
+        "checkToConfirmError": "삭제를 확인하려면 확인란을 선택해야 합니다",
+        "failedToGetCurrentUser": "현재 사용자 이메일을 가져오지 못했습니다",
+        "confirmTextValidationFailed": "확인 텍스트가 \"@:newSettings.myAccount.deleteAccount.confirmHint3\"와 일치하지 않습니다",
+        "deleteAccountSuccess": "계정이 성공적으로 삭제되었습니다"
       }
+    },
+    "workplace": {
+      "name": "작업 공간",
+      "title": "작업 공간 설정",
+      "subtitle": "작업 공간의 외관, 테마, 글꼴, 텍스트 레이아웃, 날짜, 시간 및 언어를 사용자 정의합니다.",
+      "workplaceName": "작업 공간 이름",
+      "workplaceNamePlaceholder": "작업 공간 이름 입력",
+      "workplaceIcon": "작업 공간 아이콘",
+      "workplaceIconSubtitle": "작업 공간에 대한 이미지를 업로드하거나 이모지를 사용하세요. 아이콘은 사이드바와 알림에 표시됩니다.",
+      "renameError": "작업 공간 이름 변경 실패",
+      "updateIconError": "아이콘 업데이트 실패",
+      "chooseAnIcon": "아이콘 선택",
+      "appearance": {
+        "name": "외관",
+        "themeMode": {
+          "auto": "자동",
+          "light": "라이트",
+          "dark": "다크"
+        },
+        "language": "언어"
+      }
+    },
+    "syncState": {
+      "syncing": "동기화 중",
+      "synced": "동기화됨",
+      "noNetworkConnected": "네트워크에 연결되지 않음"
     }
+  },
+  "pageStyle": {
+    "title": "페이지 스타일",
+    "layout": "레이아웃",
+    "coverImage": "표지 이미지",
+    "pageIcon": "페이지 아이콘",
+    "colors": "색상",
+    "gradient": "그라데이션",
+    "backgroundImage": "배경 이미지",
+    "presets": "프리셋",
+    "photo": "사진",
+    "unsplash": "Unsplash",
+    "pageCover": "페이지 표지",
+    "none": "없음",
+    "openSettings": "설정 열기",
+    "photoPermissionTitle": "@:appName가 사진 라이브러리에 접근하려고 합니다",
+    "photoPermissionDescription": "@:appName가 문서에 이미지를 추가할 수 있도록 사진에 접근해야 합니다",
+    "cameraPermissionTitle": "@:appName가 카메라에 접근하려고 합니다",
+    "cameraPermissionDescription": "카메라에서 문서에 이미지를 추가하려면 @:appName가 카메라에 액세스할 수 있어야 합니다.",
+    "doNotAllow": "허용하지 않음",
+    "image": "이미지"
+  },
+  "commandPalette": {
+    "placeholder": "검색하거나 질문하세요...",
+    "bestMatches": "최고의 일치 항목",
+    "recentHistory": "최근 기록",
+    "navigateHint": "탐색하려면",
+    "loadingTooltip": "결과를 찾고 있습니다...",
+    "betaLabel": "베타",
+    "betaTooltip": "현재 문서의 페이지 및 콘텐츠 검색만 지원합니다",
+    "fromTrashHint": "휴지통에서",
+    "noResultsHint": "찾고 있는 항목을 찾지 못했습니다. 다른 용어로 검색해 보세요.",
+    "clearSearchTooltip": "검색 필드 지우기"
   },
   "space": {
-    "createNewSpace": "새로운 스페이스 생성",
-    "defaultSpaceName": "일반"
+    "delete": "삭제",
+    "deleteConfirmation": "삭제: ",
+    "deleteConfirmationDescription": "이 공간 내의 모든 페이지가 삭제되어 휴지통으로 이동되며, 게시한 모든 페이지가 게시 취소됩니다.",
+    "rename": "공간 이름 변경",
+    "changeIcon": "아이콘 변경",
+    "manage": "공간 관리",
+    "addNewSpace": "새 공간 생성",
+    "collapseAllSubPages": "모든 하위 페이지 접기",
+    "createNewSpace": "새 공간 생성",
+    "createSpaceDescription": "작업을 더 잘 조직하기 위해 여러 공용 및 비공개 공간을 생성하세요.",
+    "spaceName": "공간 이름",
+    "spaceNamePlaceholder": "예: 마케팅, 엔지니어링, 인사",
+    "permission": "공간 권한",
+    "publicPermission": "공용",
+    "publicPermissionDescription": "전체 액세스 권한이 있는 모든 작업 공간 멤버",
+    "privatePermission": "비공개",
+    "privatePermissionDescription": "이 공간에 접근할 수 있는 사람은 본인뿐입니다",
+    "spaceIconBackground": "배경 색상",
+    "spaceIcon": "아이콘",
+    "dangerZone": "위험 구역",
+    "unableToDeleteLastSpace": "마지막 공간을 삭제할 수 없습니다",
+    "unableToDeleteSpaceNotCreatedByYou": "다른 사람이 생성한 공간을 삭제할 수 없습니다",
+    "enableSpacesForYourWorkspace": "작업 공간에 공간을 활성화하세요",
+    "title": "공간",
+    "defaultSpaceName": "일반",
+    "upgradeSpaceTitle": "공간 활성화",
+    "upgradeSpaceDescription": "작업 공간을 더 잘 조직하기 위해 여러 공용 및 비공개 공간을 생성하세요.",
+    "upgrade": "업데이트",
+    "upgradeYourSpace": "여러 공간 생성",
+    "quicklySwitch": "다음 공간으로 빠르게 전환",
+    "duplicate": "공간 복제",
+    "movePageToSpace": "페이지를 공간으로 이동",
+    "cannotMovePageToDatabase": "페이지를 데이터베이스로 이동할 수 없습니다",
+    "switchSpace": "공간 전환",
+    "spaceNameCannotBeEmpty": "공간 이름은 비워둘 수 없습니다",
+    "success": {
+      "deleteSpace": "공간이 성공적으로 삭제되었습니다",
+      "renameSpace": "공간 이름이 성공적으로 변경되었습니다",
+      "duplicateSpace": "공간이 성공적으로 복제되었습니다",
+      "updateSpace": "공간이 성공적으로 업데이트되었습니다"
+    },
+    "error": {
+      "deleteSpace": "공간 삭제 실패",
+      "renameSpace": "공간 이름 변경 실패",
+      "duplicateSpace": "공간 복제 실패",
+      "updateSpace": "공간 업데이트 실패"
+    },
+    "createSpace": "공간 생성",
+    "manageSpace": "공간 관리",
+    "renameSpace": "공간 이름 변경",
+    "mSpaceIconColor": "공간 아이콘 색상",
+    "mSpaceIcon": "공간 아이콘"
   },
   "publish": {
-    "saveThisPage": "이 템플릿으로 시작"
+    "hasNotBeenPublished": "이 페이지는 아직 게시되지 않았습니다",
+    "spaceHasNotBeenPublished": "아직 공간 게시를 지원하지 않습니다",
+    "reportPage": "페이지 신고",
+    "databaseHasNotBeenPublished": "데이터베이스 게시를 아직 지원하지 않습니다.",
+    "createdWith": "제작",
+    "downloadApp": "AppFlowy 다운로드",
+    "copy": {
+      "codeBlock": "코드 블록의 내용이 클립보드에 복사되었습니다",
+      "imageBlock": "이미지 링크가 클립보드에 복사되었습니다",
+      "mathBlock": "수학 방정식이 클립보드에 복사되었습니다",
+      "fileBlock": "파일 링크가 클립보드에 복사되었습니다"
+    },
+    "containsPublishedPage": "이 페이지에는 하나 이상의 게시된 페이지가 포함되어 있습니다. 계속하면 게시가 취소됩니다. 삭제를 진행하시겠습니까?",
+    "publishSuccessfully": "성공적으로 게시되었습니다",
+    "unpublishSuccessfully": "성공적으로 게시 취소되었습니다",
+    "publishFailed": "게시 실패",
+    "unpublishFailed": "게시 취소 실패",
+    "noAccessToVisit": "이 페이지에 접근할 수 없습니다...",
+    "createWithAppFlowy": "AppFlowy로 웹사이트 만들기",
+    "fastWithAI": "AI로 빠르고 쉽게.",
+    "tryItNow": "지금 시도해보세요",
+    "onlyGridViewCanBePublished": "그리드 보기만 게시할 수 있습니다",
+    "database": {
+      "zero": "선택한 {} 보기 게시",
+      "one": "선택한 {} 보기 게시",
+      "many": "선택한 {} 보기 게시",
+      "other": "선택한 {} 보기 게시"
+    },
+    "mustSelectPrimaryDatabase": "기본 보기를 선택해야 합니다",
+    "noDatabaseSelected": "선택된 데이터베이스가 없습니다. 최소 하나의 데이터베이스를 선택하세요.",
+    "unableToDeselectPrimaryDatabase": "기본 보기를 선택 해제할 수 없습니다",
+    "saveThisPage": "이 템플릿으로 시작",
+    "duplicateTitle": "추가할 위치 선택",
+    "selectWorkspace": "작업 공간 선택",
+    "addTo": "추가",
+    "duplicateSuccessfully": "작업 공간에 추가되었습니다",
+    "duplicateSuccessfullyDescription": "AppFlowy가 설치되어 있지 않습니까? '다운로드'를 클릭하면 다운로드가 자동으로 시작됩니다.",
+    "downloadIt": "다운로드",
+    "openApp": "앱에서 열기",
+    "duplicateFailed": "복제 실패",
+    "membersCount": {
+      "zero": "멤버 없음",
+      "one": "1명의 멤버",
+      "many": "{count}명의 멤버",
+      "other": "{count}명의 멤버"
+    },
+    "useThisTemplate": "템플릿 사용"
+  },
+  "web": {
+    "continue": "계속",
+    "or": "또는",
+    "continueWithGoogle": "Google로 계속",
+    "continueWithGithub": "GitHub로 계속",
+    "continueWithDiscord": "Discord로 계속",
+    "continueWithApple": "Apple로 계속",
+    "moreOptions": "더 많은 옵션",
+    "collapse": "접기",
+    "signInAgreement": "\"계속\"을 클릭하면 AppFlowy의",
+    "and": "및",
+    "termOfUse": "이용 약관",
+    "privacyPolicy": "개인정보 보호정책",
+    "signInError": "로그인 오류",
+    "login": "가입 또는 로그인",
+    "fileBlock": {
+      "uploadedAt": "{time}에 업로드됨",
+      "linkedAt": "{time}에 링크 추가됨",
+      "empty": "파일 업로드 또는 삽입",
+      "uploadFailed": "업로드 실패, 다시 시도하세요",
+      "retry": "다시 시도"
+    },
+    "importNotion": "Notion에서 가져오기",
+    "import": "가져오기",
+    "importSuccess": "성공적으로 업로드되었습니다",
+    "importSuccessMessage": "가져오기가 완료되면 알림을 받게 됩니다. 이후 사이드바에서 가져온 페이지를 확인할 수 있습니다.",
+    "importFailed": "가져오기 실패, 파일 형식을 확인하세요",
+    "dropNotionFile": "Notion zip 파일을 여기에 드롭하여 업로드하거나 클릭하여 찾아보기",
+    "error": {
+      "pageNameIsEmpty": "페이지 이름이 비어 있습니다. 다른 이름을 시도하세요"
+    }
+  },
+  "globalComment": {
+    "comments": "댓글",
+    "addComment": "댓글 추가",
+    "reactedBy": "반응한 사람",
+    "addReaction": "반응 추가",
+    "reactedByMore": "및 {count}명",
+    "showSeconds": {
+      "one": "1초 전",
+      "other": "{count}초 전",
+      "zero": "방금",
+      "many": "{count}초 전"
+    },
+    "showMinutes": {
+      "one": "1분 전",
+      "other": "{count}분 전",
+      "many": "{count}분 전"
+    },
+    "showHours": {
+      "one": "1시간 전",
+      "other": "{count}시간 전",
+      "many": "{count}시간 전"
+    },
+    "showDays": {
+      "one": "1일 전",
+      "other": "{count}일 전",
+      "many": "{count}일 전"
+    },
+    "showMonths": {
+      "one": "1개월 전",
+      "other": "{count}개월 전",
+      "many": "{count}개월 전"
+    },
+    "showYears": {
+      "one": "1년 전",
+      "other": "{count}년 전",
+      "many": "{count}년 전"
+    },
+    "reply": "답글",
+    "deleteComment": "댓글 삭제",
+    "youAreNotOwner": "이 댓글의 소유자가 아닙니다",
+    "confirmDeleteDescription": "이 댓글을 삭제하시겠습니까?",
+    "hasBeenDeleted": "삭제됨",
+    "replyingTo": "답글 대상",
+    "noAccessDeleteComment": "이 댓글을 삭제할 수 없습니다",
+    "collapse": "접기",
+    "readMore": "더 읽기",
+    "failedToAddComment": "댓글 추가 실패",
+    "commentAddedSuccessfully": "댓글이 성공적으로 추가되었습니다.",
+    "commentAddedSuccessTip": "댓글을 추가하거나 답글을 달았습니다. 최신 댓글을 보려면 상단으로 이동하시겠습니까?"
   },
   "template": {
-    "deleteFromTemplate": "템플릿 목록에서 제거",
-    "relatedTemplates": "관련된 템플릿 목록",
-    "deleteTemplate": "템플릿 제거",
-    "removeRelatedTemplate": "관련된 템플릿 제거",
-    "label": "템플릿 목록"
+    "asTemplate": "템플릿으로 저장",
+    "name": "템플릿 이름",
+    "description": "템플릿 설명",
+    "about": "템플릿 정보",
+    "deleteFromTemplate": "템플릿에서 삭제",
+    "preview": "템플릿 미리보기",
+    "categories": "템플릿 카테고리",
+    "isNewTemplate": "새 템플릿에 고정",
+    "featured": "추천에 고정",
+    "relatedTemplates": "관련 템플릿",
+    "requiredField": "{field}은(는) 필수 항목입니다",
+    "addCategory": "\"{category}\" 추가",
+    "addNewCategory": "새 카테고리 추가",
+    "addNewCreator": "새 제작자 추가",
+    "deleteCategory": "카테고리 삭제",
+    "editCategory": "카테고리 편집",
+    "editCreator": "제작자 편집",
+    "category": {
+      "name": "카테고리 이름",
+      "icon": "카테고리 아이콘",
+      "bgColor": "카테고리 배경 색상",
+      "priority": "카테고리 우선순위",
+      "desc": "카테고리 설명",
+      "type": "카테고리 유형",
+      "icons": "카테고리 아이콘",
+      "colors": "카테고리 색상",
+      "byUseCase": "사용 사례별",
+      "byFeature": "기능별",
+      "deleteCategory": "카테고리 삭제",
+      "deleteCategoryDescription": "이 카테고리를 삭제하시겠습니까?",
+      "typeToSearch": "카테고리 검색..."
+    },
+    "creator": {
+      "label": "템플릿 제작자",
+      "name": "제작자 이름",
+      "avatar": "제작자 아바타",
+      "accountLinks": "제작자 계정 링크",
+      "uploadAvatar": "아바타 업로드",
+      "deleteCreator": "제작자 삭제",
+      "deleteCreatorDescription": "이 제작자를 삭제하시겠습니까?",
+      "typeToSearch": "제작자 검색..."
+    },
+    "uploadSuccess": "템플릿이 성공적으로 업로드되었습니다",
+    "uploadSuccessDescription": "템플릿이 성공적으로 업로드되었습니다. 이제 템플릿 갤러리에서 확인할 수 있습니다.",
+    "viewTemplate": "템플릿 보기",
+    "deleteTemplate": "템플릿 삭제",
+    "deleteSuccess": "템플릿이 성공적으로 삭제되었습니다",
+    "deleteTemplateDescription": "현재 페이지나 게시 상태에는 영향을 미치지 않습니다. 이 템플릿을 삭제하시겠습니까?",
+    "addRelatedTemplate": "관련 템플릿 추가",
+    "removeRelatedTemplate": "관련 템플릿 제거",
+    "uploadAvatar": "아바타 업로드",
+    "searchInCategory": "{category}에서 검색",
+    "label": "템플릿"
+  },
+  "fileDropzone": {
+    "dropFile": "업로드하려면 파일을 클릭하거나 드래그하세요",
+    "uploading": "업로드 중...",
+    "uploadFailed": "업로드 실패",
+    "uploadSuccess": "업로드 성공",
+    "uploadSuccessDescription": "파일이 성공적으로 업로드되었습니다",
+    "uploadFailedDescription": "파일 업로드 실패",
+    "uploadingDescription": "파일이 업로드 중입니다"
+  },
+  "gallery": {
+    "preview": "전체 화면으로 열기",
+    "copy": "복사",
+    "download": "다운로드",
+    "prev": "이전",
+    "next": "다음",
+    "resetZoom": "확대/축소 재설정",
+    "zoomIn": "확대",
+    "zoomOut": "축소"
+  },
+  "invitation": {
+    "join": "참여",
+    "on": "에",
+    "invitedBy": "초대자",
+    "membersCount": {
+      "zero": "{count}명의 멤버",
+      "one": "{count}명의 멤버",
+      "many": "{count}명의 멤버",
+      "other": "{count}명의 멤버"
+    },
+    "tip": "아래 연락처 정보로 이 작업 공간에 참여하도록 초대되었습니다. 정보가 잘못된 경우 관리자에게 연락하여 초대를 다시 보내달라고 요청하세요.",
+    "joinWorkspace": "작업 공간 참여",
+    "success": "작업 공간에 성공적으로 참여했습니다",
+    "successMessage": "이제 작업 공간 내의 모든 페이지와 작업 공간에 접근할 수 있습니다.",
+    "openWorkspace": "AppFlowy 열기",
+    "alreadyAccepted": "이미 초대를 수락했습니다",
+    "errorModal": {
+      "title": "문제가 발생했습니다",
+      "description": "현재 계정 {email}이(가) 이 작업 공간에 접근할 수 없을 수 있습니다. 올바른 계정으로 로그인하거나 작업 공간 소유자에게 도움을 요청하세요.",
+      "contactOwner": "소유자에게 연락",
+      "close": "홈으로 돌아가기",
+      "changeAccount": "계정 변경"
+    }
+  },
+  "requestAccess": {
+    "title": "이 페이지에 접근할 수 없습니다",
+    "subtitle": "이 페이지의 소유자에게 접근을 요청할 수 있습니다. 승인되면 페이지를 볼 수 있습니다.",
+    "requestAccess": "접근 요청",
+    "backToHome": "홈으로 돌아가기",
+    "tip": "현재 <link/>로 로그인 중입니다.",
+    "mightBe": "다른 계정으로 <login/>해야 할 수 있습니다.",
+    "successful": "요청이 성공적으로 전송되었습니다",
+    "successfulMessage": "소유자가 요청을 승인하면 알림을 받게 됩니다.",
+    "requestError": "접근 요청 실패",
+    "repeatRequestError": "이미 이 페이지에 접근을 요청했습니다"
+  },
+  "approveAccess": {
+    "title": "작업 공간 참여 요청 승인",
+    "requestSummary": "<user/>이(가) <workspace/>에 참여하고 <page/>에 접근하려고 요청합니다",
+    "upgrade": "업그레이드",
+    "downloadApp": "AppFlowy 다운로드",
+    "approveButton": "승인",
+    "approveSuccess": "성공적으로 승인되었습니다",
+    "approveError": "승인 실패, 작업 공간 플랜 한도를 초과하지 않았는지 확인하세요",
+    "getRequestInfoError": "요청 정보를 가져오지 못했습니다",
+    "memberCount": {
+      "zero": "멤버 없음",
+      "one": "1명의 멤버",
+      "many": "{count}명의 멤버",
+      "other": "{count}명의 멤버"
+    },
+    "alreadyProTitle": "작업 공간 플랜 한도에 도달했습니다",
+    "alreadyProMessage": "<email/>에 연락하여 더 많은 멤버를 잠금 해제하도록 요청하세요",
+    "repeatApproveError": "이미 이 요청을 승인했습니다",
+    "ensurePlanLimit": "작업 공간 플랜 한도를 초과하지 않았는지 확인하세요. 한도를 초과한 경우 작업 공간 플랜을 <upgrade/>하거나 <download/>를 고려하세요.",
+    "requestToJoin": "참여 요청",
+    "asMember": "멤버로"
+  },
+  "upgradePlanModal": {
+    "title": "Pro로 업그레이드",
+    "message": "{name}이(가) 무료 멤버 한도에 도달했습니다. 더 많은 멤버를 초대하려면 Pro 플랜으로 업그레이드하세요.",
+    "upgradeSteps": "AppFlowy에서 플랜을 업그레이드하는 방법:",
+    "step1": "1. 설정으로 이동",
+    "step2": "2. '플랜' 클릭",
+    "step3": "3. '플랜 변경' 선택",
+    "appNote": "참고: ",
+    "actionButton": "업그레이드",
+    "downloadLink": "앱 다운로드",
+    "laterButton": "나중에",
+    "refreshNote": "성공적으로 업그레이드한 후 새 기능을 활성화하려면 <refresh/>를 클릭하세요.",
+    "refresh": "여기"
+  },
+  "breadcrumbs": {
+    "label": "탐색 경로"
+  },
+  "time": {
+    "justNow": "방금",
+    "seconds": {
+      "one": "1초",
+      "other": "{count}초"
+    },
+    "minutes": {
+      "one": "1분",
+      "other": "{count}분"
+    },
+    "hours": {
+      "one": "1시간",
+      "other": "{count}시간"
+    },
+    "days": {
+      "one": "1일",
+      "other": "{count}일"
+    },
+    "weeks": {
+      "one": "1주일",
+      "other": "{count}주일"
+    },
+    "months": {
+      "one": "1개월",
+      "other": "{count}개월"
+    },
+    "years": {
+      "one": "1년",
+      "other": "{count}년"
+    },
+    "ago": "전",
+    "yesterday": "어제",
+    "today": "오늘"
+  },
+  "members": {
+    "zero": "멤버 없음",
+    "one": "1명의 멤버",
+    "many": "{count}명의 멤버",
+    "other": "{count}명의 멤버"
+  },
+  "tabMenu": {
+    "close": "닫기",
+    "closeDisabledHint": "고정된 탭은 닫을 수 없습니다. 먼저 고정을 해제하세요",
+    "closeOthers": "다른 탭 닫기",
+    "closeOthersHint": "이 탭을 제외한 모든 고정되지 않은 탭을 닫습니다",
+    "closeOthersDisabledHint": "모든 탭이 고정되어 있어 닫을 탭을 찾을 수 없습니다",
+    "favorite": "즐겨찾기",
+    "unfavorite": "즐겨찾기 해제",
+    "favoriteDisabledHint": "이 보기를 즐겨찾기에 추가할 수 없습니다",
+    "pinTab": "고정",
+    "unpinTab": "고정 해제"
+  },
+  "openFileMessage": {
+    "success": "파일이 성공적으로 열렸습니다",
+    "fileNotFound": "파일을 찾을 수 없습니다",
+    "noAppToOpenFile": "이 파일을 열 수 있는 앱이 없습니다",
+    "permissionDenied": "이 파일을 열 수 있는 권한이 없습니다",
+    "unknownError": "파일 열기 실패"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "작업 공간에 초대",
+    "inviteFailedMemberLimit": "멤버 한도에 도달했습니다. ",
+    "upgrade": "업그레이드",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "초대 보내기",
+    "inviteAlready": "이미 이 이메일을 초대했습니다: {email}",
+    "inviteSuccess": "초대가 성공적으로 전송되었습니다",
+    "description": "아래에 이메일을 쉼표로 구분하여 입력하세요. 멤버 수에 따라 요금이 부과됩니다.",
+    "emails": "이메일"
+  },
+  "quickNote": {
+    "label": "빠른 노트",
+    "quickNotes": "빠른 노트",
+    "search": "빠른 노트 검색",
+    "collapseFullView": "전체 보기 축소",
+    "expandFullView": "전체 보기 확장",
+    "createFailed": "빠른 노트 생성 실패",
+    "quickNotesEmpty": "빠른 노트 없음",
+    "emptyNote": "빈 노트",
+    "deleteNotePrompt": "선택한 노트가 영구적으로 삭제됩니다. 삭제하시겠습니까?",
+    "addNote": "새 노트",
+    "noAdditionalText": "추가 텍스트 없음"
   },
   "subscribe": {
+    "upgradePlanTitle": "플랜 비교 및 선택",
+    "yearly": "연간",
+    "save": "{discount}% 절약",
+    "monthly": "월별",
+    "priceIn": "가격 ",
+    "free": "무료",
+    "pro": "Pro",
+    "freeDescription": "모든 것을 정리하기 위한 최대 2명의 개인용",
+    "proDescription": "프로젝트 및 팀 지식을 관리하기 위한 소규모 팀용",
+    "proDuration": {
+      "monthly": "월별 청구되는 멤버당 월별",
+      "yearly": "연간 청구되는 멤버당 월별"
+    },
+    "cancel": "다운그레이드",
+    "changePlan": "Pro 플랜으로 업그레이드",
+    "everythingInFree": "무료 플랜의 모든 기능 +",
+    "currentPlan": "현재",
+    "freeDuration": "영원히",
+    "freePoints": {
+      "first": "최대 2명의 협업 작업 공간",
+      "second": "무제한 페이지 및 블록",
+      "three": "5 GB 저장 공간",
+      "four": "지능형 검색",
+      "five": "20 AI 응답",
+      "six": "모바일 앱",
+      "seven": "실시간 협업"
+    },
+    "proPoints": {
+      "first": "무제한 저장 공간",
+      "second": "최대 10명의 작업 공간 멤버",
+      "three": "무제한 AI 응답",
+      "four": "무제한 파일 업로드",
+      "five": "맞춤 네임스페이스"
+    },
     "cancelPlan": {
+      "title": "떠나셔서 아쉽습니다",
+      "success": "구독이 성공적으로 취소되었습니다",
+      "description": "@:appName을 개선하는 데 도움이 되도록 피드백을 듣고 싶습니다. 몇 가지 질문에 답변해 주세요.",
+      "commonOther": "기타",
+      "otherHint": "여기에 답변을 작성하세요",
+      "questionOne": {
+        "question": "@:appName Pro 구독을 취소한 이유는 무엇입니까?",
+        "answerOne": "비용이 너무 높음",
+        "answerTwo": "기능이 기대에 미치지 못함",
+        "answerThree": "더 나은 대안을 찾음",
+        "answerFour": "비용을 정당화할 만큼 충분히 사용하지 않음",
+        "answerFive": "서비스 문제 또는 기술적 어려움"
+      },
+      "questionTwo": {
+        "question": "미래에 @:appName Pro를 다시 구독할 가능성은 얼마나 됩니까?",
+        "answerOne": "매우 가능성이 높음",
+        "answerTwo": "어느 정도 가능성이 있음",
+        "answerThree": "잘 모르겠음",
+        "answerFour": "가능성이 낮음",
+        "answerFive": "매우 가능성이 낮음"
+      },
       "questionThree": {
-        "answerFour": "로컬 AI 모델에 대한 액세스"
+        "question": "구독 기간 동안 가장 가치 있게 여긴 Pro 기능은 무엇입니까?",
+        "answerOne": "다중 사용자 협업",
+        "answerTwo": "더 긴 시간 버전 기록",
+        "answerThree": "무제한 AI 응답",
+        "answerFour": "로컬 AI 모델 액세스"
+      },
+      "questionFour": {
+        "question": "@:appName에 대한 전반적인 경험을 어떻게 설명하시겠습니까?",
+        "answerOne": "훌륭함",
+        "answerTwo": "좋음",
+        "answerThree": "보통",
+        "answerFour": "평균 이하",
+        "answerFive": "불만족"
       }
     }
+  },
+  "ai": {
+    "contentPolicyViolation": "민감한 콘텐츠로 인해 이미지 생성에 실패했습니다. 입력을 다시 작성하고 다시 시도하세요",
+    "textLimitReachedDescription": "작업 공간의 무료 AI 응답이 부족합니다. Pro 플랜으로 업그레이드하거나 AI 애드온을 구매하여 무제한 응답을 잠금 해제하세요",
+    "imageLimitReachedDescription": "무료 AI 이미지 할당량을 모두 사용했습니다. Pro 플랜으로 업그레이드하거나 AI 애드온을 구매하여 무제한 응답을 잠금 해제하세요",
+    "limitReachedAction": {
+      "textDescription": "작업 공간의 무료 AI 응답이 부족합니다. 더 많은 응답을 받으려면 ",
+      "imageDescription": "무료 AI 이미지 할당량을 모두 사용했습니다. ",
+      "upgrade": "업그레이드",
+      "toThe": " ",
+      "proPlan": "Pro 플랜",
+      "orPurchaseAn": " 또는 ",
+      "aiAddon": "AI 애드온을 구매하세요"
+    },
+    "editing": "편집 중",
+    "analyzing": "분석 중",
+    "continueWritingEmptyDocumentTitle": "계속 작성 오류",
+    "continueWritingEmptyDocumentDescription": "문서의 내용을 확장하는 데 문제가 있습니다. 간단한 소개를 작성하면 나머지는 우리가 처리할 수 있습니다!"
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "계속하려면 업데이트가 필요합니다",
+    "criticalUpdateDescription": "경험을 향상시키기 위해 개선 사항을 추가했습니다! 앱을 계속 사용하려면 {currentVersion}에서 {newVersion}으로 업데이트하세요.",
+    "criticalUpdateButton": "업데이트",
+    "bannerUpdateTitle": "새 버전 사용 가능!",
+    "bannerUpdateDescription": "최신 기능 및 수정 사항을 받으세요. 지금 설치하려면 \"업데이트\"를 클릭하세요",
+    "bannerUpdateButton": "업데이트",
+    "settingsUpdateTitle": "새 버전 ({newVersion}) 사용 가능!",
+    "settingsUpdateDescription": "현재 버전: {currentVersion} (공식 빌드) → {newVersion}",
+    "settingsUpdateButton": "업데이트",
+    "settingsUpdateWhatsNew": "새로운 기능"
+  },
+  "lockPage": {
+    "lockPage": "잠금",
+    "reLockPage": "다시 잠금",
+    "lockTooltip": "실수로 편집하지 않도록 페이지가 잠겨 있습니다. 잠금 해제하려면 클릭하세요.",
+    "pageLockedToast": "페이지가 잠겼습니다. 누군가 잠금을 해제할 때까지 편집이 비활성화됩니다.",
+    "lockedOperationTooltip": "실수로 편집하지 않도록 페이지가 잠겨 있습니다."
+  },
+  "suggestion": {
+    "accept": "수락",
+    "keep": "유지",
+    "discard": "버리기",
+    "close": "닫기",
+    "tryAgain": "다시 시도",
+    "rewrite": "다시 작성",
+    "insertBelow": "아래에 삽입"
   }
 }

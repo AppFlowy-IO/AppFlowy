@@ -1,7 +1,7 @@
 [package]
 name = "flowy-storage"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 lib-dispatch = { workspace = true }
@@ -17,8 +17,6 @@ tokio = { workspace = true, features = ["sync", "io-util"] }
 tracing.workspace = true
 flowy-sqlite.workspace = true
 mime_guess = "2.0.4"
-fxhash = "0.2.1"
-anyhow = "1.0.86"
 chrono = "0.4.33"
 flowy-notification = { workspace = true }
 flowy-derive.workspace = true
@@ -26,8 +24,8 @@ protobuf = { workspace = true }
 dashmap.workspace = true
 strum_macros = "0.25.2"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
-futures-util = "0.3.30"
 collab-importer = { workspace = true }
+uuid.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
@@ -36,7 +34,6 @@ rand = { version = "0.8", features = ["std_rng"] }
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true

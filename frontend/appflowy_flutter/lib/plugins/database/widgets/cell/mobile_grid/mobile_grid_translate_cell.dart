@@ -12,6 +12,7 @@ class MobileGridTranslateCellSkin extends IEditableTranslateCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TranslateCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

@@ -293,6 +293,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
           );
         }
 
+        final name =
+            widget.fixedTitle ?? view?.nameOrDefault ?? widget.title ?? '';
+
         return Opacity(
           opacity: value,
           child: Row(
@@ -304,11 +307,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 ),
                 const HSpace(4),
               ],
-              FlowyText.medium(
-                widget.fixedTitle ?? view?.name ?? widget.title ?? '',
-                fontSize: 15.0,
-                overflow: TextOverflow.ellipsis,
-                figmaLineHeight: 18.0,
+              Flexible(
+                child: FlowyText.medium(
+                  name,
+                  fontSize: 15.0,
+                  overflow: TextOverflow.ellipsis,
+                  figmaLineHeight: 18.0,
+                ),
               ),
               const HSpace(4.0),
               _buildLockStatusIcon(context, view),
@@ -331,7 +336,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
 
@@ -361,7 +365,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
         }
@@ -382,8 +385,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 bottom: 4.0,
               ),
               child: FlowySvg(
-                FlowySvgs.lock_page_s,
-                color: const Color(0xFFD95A0B),
+                FlowySvgs.lock_page_fill_s,
+                blendMode: null,
               ),
             ),
           );

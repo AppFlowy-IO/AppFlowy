@@ -1,4 +1,5 @@
 use collab_entity::CollabType;
+use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use collab_integrate::{CollabSnapshot, PersistenceError, SnapshotPersistence};
 use diesel::dsl::count_star;
 use diesel::SqliteConnection;
@@ -8,11 +9,10 @@ use flowy_sqlite::{
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
 use flowy_user::services::authenticate_user::AuthenticateUser;
-
-use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use lib_infra::util::timestamp;
 use std::sync::{Arc, Weak};
 use tracing::debug;
+use uuid::Uuid;
 
 pub struct SnapshotDBImpl(pub Weak<AuthenticateUser>);
 
@@ -24,7 +24,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
     collab_type: &CollabType,
     encoded_v1: Vec<u8>,
   ) -> Result<(), PersistenceError> {
-    let collab_type = collab_type.clone();
+    let collab_type = *collab_type;
     let object_id = object_id.to_string();
     let weak_user = self.0.clone();
     tokio::task::spawn_blocking(move || {
@@ -222,12 +222,12 @@ impl WorkspaceCollabIntegrateImpl {
 }
 
 impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
-  fn workspace_id(&self) -> Result<String, anyhow::Error> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     let workspace_id = self.upgrade_user()?.workspace_id()?;
     Ok(workspace_id)
   }
 
-  fn device_id(&self) -> Result<String, anyhow::Error> {
+  fn device_id(&self) -> Result<String, FlowyError> {
     Ok(self.upgrade_user()?.user_config.device_id.clone())
   }
 }

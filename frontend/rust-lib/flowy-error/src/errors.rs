@@ -95,6 +95,14 @@ impl FlowyError {
     self.code == ErrorCode::AIImageResponseLimitExceeded
   }
 
+  pub fn is_local_ai_not_ready(&self) -> bool {
+    self.code == ErrorCode::LocalAINotReady
+  }
+
+  pub fn is_local_ai_disabled(&self) -> bool {
+    self.code == ErrorCode::LocalAIDisabled
+  }
+
   pub fn is_ai_max_required(&self) -> bool {
     self.code == ErrorCode::AIMaxRequired
   }
@@ -131,7 +139,7 @@ impl FlowyError {
   static_flowy_error!(serde, ErrorCode::Serde);
   static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
   static_flowy_error!(payload_none, ErrorCode::UnexpectedEmpty);
-  static_flowy_error!(http, ErrorCode::HttpError);
+  static_flowy_error!(http, ErrorCode::NetworkError);
   static_flowy_error!(
     unexpect_calendar_field_type,
     ErrorCode::UnexpectedCalendarFieldType
@@ -151,6 +159,10 @@ impl FlowyError {
   static_flowy_error!(file_storage_limit, ErrorCode::FileStorageLimitExceeded);
 
   static_flowy_error!(view_is_locked, ErrorCode::ViewIsLocked);
+  static_flowy_error!(local_ai_not_ready, ErrorCode::LocalAINotReady);
+  static_flowy_error!(local_ai_disabled, ErrorCode::LocalAIDisabled);
+  static_flowy_error!(user_not_login, ErrorCode::UserNotLogin);
+  static_flowy_error!(ref_drop, ErrorCode::WeakRefDrop);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -244,5 +256,17 @@ impl From<collab::error::CollabError> for FlowyError {
       CollabError::UpdateFailed(err) => FlowyError::internal().with_context(err),
       CollabError::Internal(err) => FlowyError::internal().with_context(err),
     }
+  }
+}
+
+impl From<uuid::Error> for FlowyError {
+  fn from(value: uuid::Error) -> Self {
+    FlowyError::internal().with_context(value)
+  }
+}
+
+impl From<ollama_rs::error::OllamaError> for FlowyError {
+  fn from(value: ollama_rs::error::OllamaError) -> Self {
+    FlowyError::local_ai().with_context(value)
   }
 }

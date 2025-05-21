@@ -1,8 +1,8 @@
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 use flowy_ai::entities::{
-  ChatMessageListPB, ChatMessageTypePB, CompleteTextPB, CompleteTextTaskPB, CompletionTypePB,
-  LoadNextChatMessagePB, LoadPrevChatMessagePB, SendChatPayloadPB,
+  ChatId, ChatMessageListPB, ChatMessageTypePB, LoadNextChatMessagePB, LoadPrevChatMessagePB,
+  StreamChatPayloadPB, UpdateChatSettingsPB,
 };
 use flowy_ai::event_map::AIEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
@@ -31,16 +31,34 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
+  pub async fn set_chat_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) {
+    let payload = UpdateChatSettingsPB {
+      chat_id: ChatId {
+        value: chat_id.to_string(),
+      },
+      rag_ids,
+    };
+    EventBuilder::new(self.clone())
+      .event(AIEvent::UpdateChatSettings)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
   pub async fn send_message(
     &self,
     chat_id: &str,
     message: impl ToString,
     message_type: ChatMessageTypePB,
   ) {
-    let payload = SendChatPayloadPB {
+    let payload = StreamChatPayloadPB {
       chat_id: chat_id.to_string(),
       message: message.to_string(),
       message_type,
+      answer_stream_port: 0,
+      question_stream_port: 0,
+      format: None,
+      prompt_id: None,
     };
 
     EventBuilder::new(self.clone())
@@ -88,23 +106,10 @@ impl EventIntegrationTest {
       .parse::<ChatMessageListPB>()
   }
 
-  pub async fn complete_text(
-    &self,
-    text: &str,
-    completion_type: CompletionTypePB,
-  ) -> CompleteTextTaskPB {
-    let payload = CompleteTextPB {
-      text: text.to_string(),
-      completion_type,
-      stream_port: 0,
-      object_id: "".to_string(),
-      rag_ids: vec![],
-    };
+  pub async fn toggle_local_ai(&self) {
     EventBuilder::new(self.clone())
-      .event(AIEvent::CompleteText)
-      .payload(payload)
+      .event(AIEvent::ToggleLocalAI)
       .async_send()
-      .await
-      .parse::<CompleteTextTaskPB>()
+      .await;
   }
 }

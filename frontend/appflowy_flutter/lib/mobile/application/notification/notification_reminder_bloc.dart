@@ -30,7 +30,7 @@ class NotificationReminderBloc
           add(const NotificationReminderEvent.reset());
         },
         reset: () async {
-          final createdAt = await _getCreatedAt(
+          final scheduledAt = await _getScheduledAt(
             reminder,
             dateFormat,
             timeFormat,
@@ -40,23 +40,26 @@ class NotificationReminderBloc
           if (view == null) {
             emit(
               NotificationReminderState(
-                createdAt: createdAt,
+                scheduledAt: scheduledAt,
                 pageTitle: '',
                 reminderContent: '',
+                isLocked: false,
                 status: NotificationReminderStatus.error,
               ),
             );
+            return;
           }
 
-          final layout = view!.layout;
+          final layout = view.layout;
 
           if (layout.isDocumentView) {
             final node = await _getContent(reminder);
             if (node != null) {
               emit(
                 NotificationReminderState(
-                  createdAt: createdAt,
+                  scheduledAt: scheduledAt,
                   pageTitle: view.nameOrDefault,
+                  isLocked: view.isLocked,
                   view: view,
                   reminderContent: node.delta?.toPlainText() ?? '',
                   nodes: [node],
@@ -68,8 +71,9 @@ class NotificationReminderBloc
           } else if (layout.isDatabaseView) {
             emit(
               NotificationReminderState(
-                createdAt: createdAt,
+                scheduledAt: scheduledAt,
                 pageTitle: view.nameOrDefault,
+                isLocked: view.isLocked,
                 view: view,
                 reminderContent: reminder.message,
                 status: NotificationReminderStatus.loaded,
@@ -85,20 +89,16 @@ class NotificationReminderBloc
   late final UserDateFormatPB dateFormat;
   late final UserTimeFormatPB timeFormat;
 
-  Future<String> _getCreatedAt(
+  Future<String> _getScheduledAt(
     ReminderPB reminder,
     UserDateFormatPB dateFormat,
     UserTimeFormatPB timeFormat,
   ) async {
-    final rCreatedAt = reminder.createdAt;
-    final createdAt = rCreatedAt != null
-        ? _formatTimestamp(
-            rCreatedAt,
-            timeFormat: timeFormat,
-            dateFormate: dateFormat,
-          )
-        : '';
-    return createdAt;
+    return _formatTimestamp(
+      reminder.scheduledAt.toInt() * 1000,
+      timeFormat: timeFormat,
+      dateFormate: dateFormat,
+    );
   }
 
   Future<ViewPB?> _getView(ReminderPB reminder) async {
@@ -200,9 +200,10 @@ class NotificationReminderState with _$NotificationReminderState {
   const NotificationReminderState._();
 
   const factory NotificationReminderState({
-    required String createdAt,
+    required String scheduledAt,
     required String pageTitle,
     required String reminderContent,
+    required bool isLocked,
     @Default(NotificationReminderStatus.initial)
     NotificationReminderStatus status,
     @Default([]) List<Node> nodes,
@@ -212,8 +213,9 @@ class NotificationReminderState with _$NotificationReminderState {
 
   factory NotificationReminderState.initial() =>
       const NotificationReminderState(
-        createdAt: '',
+        scheduledAt: '',
         pageTitle: '',
         reminderContent: '',
+        isLocked: false,
       );
 }

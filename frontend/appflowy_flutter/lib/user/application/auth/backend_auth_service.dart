@@ -6,9 +6,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/uuid.dart';
 
 import '../../../generated/locale_keys.g.dart';
 import 'device_id.dart';
@@ -16,10 +16,11 @@ import 'device_id.dart';
 class BackendAuthService implements AuthService {
   BackendAuthService(this.authType);
 
-  final AuthenticatorPB authType;
+  final AuthTypePB authType;
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -29,8 +30,7 @@ class BackendAuthService implements AuthService {
       ..password = password
       ..authType = authType
       ..deviceId = await getDeviceId();
-    final response = UserEventSignInWithEmailPassword(request).send();
-    return response.then((value) => value);
+    return UserEventSignInWithEmailPassword(request).send();
   }
 
   @override
@@ -65,15 +65,14 @@ class BackendAuthService implements AuthService {
     Map<String, String> params = const {},
   }) async {
     const password = "Guest!@123456";
-    final uid = uuid();
-    final userEmail = "$uid@appflowy.io";
+    final userEmail = "anon@appflowy.io";
 
     final request = SignUpPayloadPB.create()
       ..name = LocaleKeys.defaultUsername.tr()
       ..email = userEmail
       ..password = password
       // When sign up as guest, the auth type is always local.
-      ..authType = AuthenticatorPB.Local
+      ..authType = AuthTypePB.Local
       ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
           (value) => value,
@@ -84,7 +83,7 @@ class BackendAuthService implements AuthService {
   @override
   Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
-    AuthenticatorPB authType = AuthenticatorPB.Local,
+    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) async {
     return FlowyResult.failure(
@@ -106,5 +105,13 @@ class BackendAuthService implements AuthService {
   }) async {
     // No need to pass the redirect URL.
     return UserBackendService.signInWithMagicLink(email, '');
+  }
+
+  @override
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>> signInWithPasscode({
+    required String email,
+    required String passcode,
+  }) async {
+    return UserBackendService.signInWithPasscode(email, passcode);
   }
 }

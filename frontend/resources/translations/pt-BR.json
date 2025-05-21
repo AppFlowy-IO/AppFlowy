@@ -36,7 +36,6 @@
     "loginButtonText": "Conectar-se",
     "loginStartWithAnonymous": "Iniciar com uma sessão anônima",
     "continueAnonymousUser": "Continuar em uma sessão anônima",
-    "anonymous": "Anônimo",
     "buttonText": "Entre",
     "signingInText": "Entrando...",
     "forgotPassword": "Esqueceu sua senha?",
@@ -69,6 +68,7 @@
     "generalError": "Algo deu errado. Tente novamente mais tarde.",
     "limitRateError": "Por razões de segurança, você só pode solicitar um link mágico a cada 60 segundos",
     "magicLinkSentDescription": "Um Link Mágico foi enviado para seu e-mail. Clique no link para concluir seu login. O link expirará após 5 minutos.",
+    "anonymous": "Anônimo",
     "LogInWithGoogle": "Entrar com o Google",
     "LogInWithGithub": "Entrar com o Github",
     "LogInWithDiscord": "Entrar com o Discord",
@@ -225,14 +225,14 @@
   "questionBubble": {
     "shortcuts": "Atalhos",
     "whatsNew": "O que há de novo?",
-    "help": "Ajuda e Suporte",
     "markdown": "Remarcação",
     "debug": {
       "name": "Informação de depuração",
       "success": "Informação de depuração copiada para a área de transferência!",
       "fail": "Falha ao copiar a informação de depuração para a área de transferência"
     },
-    "feedback": "Opinião"
+    "feedback": "Opinião",
+    "help": "Ajuda e Suporte"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Remover, renomear e muito mais...",

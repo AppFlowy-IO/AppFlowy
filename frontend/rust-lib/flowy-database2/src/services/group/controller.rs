@@ -5,15 +5,15 @@ use std::sync::Arc;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
 use flowy_error::{FlowyError, FlowyResult};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use tracing::trace;
 
 use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
-use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
-use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
+use crate::services::cell::{CellProtobufBlobParser, get_cell_protobuf};
+use crate::services::field::{TypeOption, TypeOptionCellData, default_type_option_data_from_type};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController, GroupCustomize,
 };

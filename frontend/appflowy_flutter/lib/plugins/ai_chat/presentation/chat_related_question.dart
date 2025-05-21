@@ -21,33 +21,35 @@ class RelatedQuestionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: relatedQuestions.length + 1,
-      padding:
-          const EdgeInsets.only(bottom: 8.0) + AIChatUILayout.messageMargin,
-      separatorBuilder: (context, index) => const VSpace(4.0),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 4.0),
-            child: FlowyText(
-              LocaleKeys.chat_relatedQuestion.tr(),
-              color: Theme.of(context).hintColor,
-              fontWeight: FontWeight.w600,
-            ),
-          );
-        } else {
-          return Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: RelatedQuestionItem(
-              question: relatedQuestions[index - 1],
-              onQuestionSelected: onQuestionSelected,
-            ),
-          );
-        }
-      },
+    return SelectionContainer.disabled(
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: relatedQuestions.length + 1,
+        padding:
+            const EdgeInsets.only(bottom: 8.0) + AIChatUILayout.messageMargin,
+        separatorBuilder: (context, index) => const VSpace(4.0),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: FlowyText(
+                LocaleKeys.chat_relatedQuestion.tr(),
+                color: Theme.of(context).hintColor,
+                fontWeight: FontWeight.w600,
+              ),
+            );
+          } else {
+            return Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: RelatedQuestionItem(
+                question: relatedQuestions[index - 1],
+                onQuestionSelected: onQuestionSelected,
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
@@ -70,6 +72,7 @@ class RelatedQuestionItem extends StatelessWidget {
         child: FlowyText(
           question,
           lineHeight: 1.4,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
       ),

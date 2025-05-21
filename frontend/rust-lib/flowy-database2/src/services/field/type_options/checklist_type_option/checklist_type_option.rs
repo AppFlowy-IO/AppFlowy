@@ -1,13 +1,13 @@
 use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::checklist_filter::{checklist_from_options, ChecklistCellChangeset};
+use crate::services::field::checklist_filter::{ChecklistCellChangeset, checklist_from_options};
 use crate::services::field::{
   CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
-use collab_database::fields::select_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
+use collab_database::fields::select_type_option::{SELECTION_IDS_SEPARATOR, SelectOption};
 use collab_database::rows::Cell;
 use collab_database::template::check_list_parse::ChecklistCellData;
 use collab_database::template::util::TypeOptionCellData;

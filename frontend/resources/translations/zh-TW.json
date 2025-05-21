@@ -36,7 +36,6 @@
     "loginButtonText": "登入",
     "loginStartWithAnonymous": "以匿名身份開始",
     "continueAnonymousUser": "以匿名身份繼續",
-    "anonymous": "匿名的",
     "buttonText": "登入",
     "signingInText": "正在登入...",
     "forgotPassword": "忘記密碼？",
@@ -69,6 +68,7 @@
     "generalError": "出了些問題。請稍後再試",
     "limitRateError": "出於安全原因，您只能每60 秒申請一次Magic Link",
     "magicLinkSentDescription": "連結已發送到您的電子信箱。點擊連結即可登入。連結將在 5 分鐘後過期。",
+    "anonymous": "匿名的",
     "LogInWithGoogle": "使用 Google 登入",
     "LogInWithGithub": "使用 Github 登入",
     "LogInWithDiscord": "使用 Discord 登入",
@@ -216,14 +216,14 @@
   "questionBubble": {
     "shortcuts": "快捷鍵",
     "whatsNew": "有什麼新功能？",
-    "help": "幫助 & 支援",
     "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
       "success": "已將除錯資訊複製到剪貼簿！",
       "fail": "無法將除錯資訊複製到剪貼簿"
     },
-    "feedback": "意見回饋"
+    "feedback": "意見回饋",
+    "help": "幫助 & 支援"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "移除、重新命名等等...",
@@ -297,7 +297,6 @@
     "storageLimitDialogTitle": "您的免費儲存空間已用完，升級以解鎖無限儲存空間",
     "storageLimitDialogTitleIOS": "您的免費儲存空間已用完。",
     "aiResponseLimitTitle": "您的免費 AI 回覆已用完，升級到 Pro 或購買 AI 附加方案以解鎖無限回覆",
-    "aiResponseLimitTitleIOS": "您的免費 AI 回覆已用完。",
     "aiResponseLimitDialogTitle": "AI 回覆已達到限制",
     "purchaseStorageSpace": "購買儲存空間",
     "purchaseAIResponse": "購買"
@@ -839,8 +838,7 @@
     "url": {
       "launch": "在瀏覽器中開啟",
       "copy": "複製網址",
-      "textFieldHint": "輸入網址",
-      "copiedNotification": "已複製到剪貼簿"
+      "textFieldHint": "輸入網址"
     },
     "menuName": "網格",
     "referencedGridPrefix": "檢視",

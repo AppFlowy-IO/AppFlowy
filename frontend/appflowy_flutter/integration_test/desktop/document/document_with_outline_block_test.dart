@@ -176,6 +176,7 @@ Future<void> insertOutlineInDocument(WidgetTester tester) async {
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     LocaleKeys.document_slashMenu_name_outline.tr(),
+    offset: 180,
   );
   await tester.pumpAndSettle();
 }

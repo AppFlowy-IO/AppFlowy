@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
-use crate::services::field_settings::{FieldSettings, DEFAULT_WIDTH, VISIBILITY};
+use crate::services::field_settings::{DEFAULT_WIDTH, FieldSettings, VISIBILITY};
 
 /// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {

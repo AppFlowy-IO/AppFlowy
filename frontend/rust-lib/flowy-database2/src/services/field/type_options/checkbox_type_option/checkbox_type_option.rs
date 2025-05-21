@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::Field;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::rows::Cell;
 use collab_database::template::util::ToCellString;
 use flowy_error::FlowyResult;

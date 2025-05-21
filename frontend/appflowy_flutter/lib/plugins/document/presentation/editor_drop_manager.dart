@@ -14,4 +14,8 @@ class EditorDropManagerState extends ChangeNotifier {
   }
 
   bool get isDropEnabled => _draggedTypes.isEmpty;
+
+  bool contains(String type) => _draggedTypes.contains(type);
 }
+
+final enableDocumentDragNotifier = ValueNotifier(true);

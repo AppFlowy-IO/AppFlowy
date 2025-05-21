@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
@@ -17,6 +19,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 part 'appearance_cubit.freezed.dart';
 
@@ -97,7 +100,19 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   Future<void> setTheme(String themeName) async {
     _appearanceSettings.theme = themeName;
     unawaited(_saveAppearanceSettings());
-    emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
+    try {
+      final theme = await AppTheme.fromName(themeName);
+      emit(state.copyWith(appTheme: theme));
+    } catch (e) {
+      Log.error("Error setting theme: $e");
+      if (UniversalPlatform.isMacOS) {
+        showToastNotification(
+          message:
+              LocaleKeys.settings_workspacePage_theme_failedToLoadThemes.tr(),
+          type: ToastificationType.error,
+        );
+      }
+    }
   }
 
   /// Reset the current user selected theme back to the default
@@ -186,7 +201,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void setLocale(BuildContext context, Locale newLocale) {
     if (!context.supportedLocales.contains(newLocale)) {
       // Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
-      newLocale = const Locale('en');
+      newLocale = const Locale('en', 'US');
     }
 
     context.setLocale(newLocale).catchError((e) {

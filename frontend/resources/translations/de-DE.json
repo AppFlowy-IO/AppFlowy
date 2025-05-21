@@ -36,7 +36,6 @@
     "loginButtonText": "Anmelden",
     "loginStartWithAnonymous": "Anonyme Sitzung starten",
     "continueAnonymousUser": "in anonymer Sitzung fortfahren",
-    "anonymous": "Anonym",
     "buttonText": "Anmelden",
     "signingInText": "Anmelden...",
     "forgotPassword": "Passwort vergessen?",
@@ -68,7 +67,8 @@
     "logIn": "Anmeldung",
     "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
     "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
-    "magicLinkSentDescription": "Ein Magic Link wurde an deine E-Mail-Adresse gesendet. Klicke auf den Link, um deine Anmeldung abzuschließen. Der Link läuft nach 5 Minuten ab."
+    "magicLinkSentDescription": "Ein Magic Link wurde an deine E-Mail-Adresse gesendet. Klicke auf den Link, um deine Anmeldung abzuschließen. Der Link läuft nach 5 Minuten ab.",
+    "anonymous": "Anonym"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
@@ -252,14 +252,14 @@
   "questionBubble": {
     "shortcuts": "Tastenkürzel",
     "whatsNew": "Was gibt es Neues?",
-    "help": "Hilfe & Support",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug-Informationen",
       "success": "Debug-Informationen in die Zwischenablage kopiert!",
       "fail": "Debug-Informationen konnten nicht in die Zwischenablage kopiert werden"
     },
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "help": "Hilfe & Support"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Entfernen, umbenennen und mehr...",
@@ -338,7 +338,6 @@
     "storageLimitDialogTitle": "Dein freier Speicherplatz ist aufgebraucht. Upgrade deinen Plan, um unbegrenzten Speicherplatz freizuschalten.",
     "storageLimitDialogTitleIOS": "Ihr freier Speicherplatz ist aufgebraucht.",
     "aiResponseLimitTitle": "Du hast keine kostenlosen KI-Antworten mehr. Upgrade auf den Pro-Plan oder kaufe ein KI-Add-on, um unbegrenzte Antworten freizuschalten",
-    "aiResponseLimitTitleIOS": "Ihre kostenlosen KI-Antworten sind aufgebraucht.",
     "aiResponseLimitDialogTitle": "Limit für KI-Antworten erreicht",
     "aiResponseLimit": "Du hast keine kostenlosen KI-Antworten mehr zur Verfügung.\n\nGehe zu Einstellungen -> Plan -> Klicke auf KI Max oder Pro Plan, um mehr KI-Antworten zu erhalten",
     "askOwnerToUpgradeToPro": "Dein Arbeitsbereich hat nicht mehr genügend freien Speicherplatz. Bitte den Eigentümer deines Arbeitsbereichs, auf den Pro-Plan hochzustufen.",
@@ -1626,8 +1625,7 @@
     "url": {
       "launch": "Im Browser öffnen",
       "copy": "Webadresse kopieren",
-      "textFieldHint": "Gebe eine URL ein",
-      "copiedNotification": "In die Zwischenablage kopiert!"
+      "textFieldHint": "Gebe eine URL ein"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Verwandte Datenbank",
@@ -2518,11 +2516,11 @@
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
         "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst.",
-        "confirmHint1": "Geben Sie zur Bestätigung bitte „MEIN KONTO LÖSCHEN“ ein.",
+        "confirmHint1": "Geben Sie zur Bestätigung bitte „@:newSettings.myAccount.deleteAccount.confirmHint3“ ein.",
         "confirmHint3": "MEIN KONTO LÖSCHEN",
         "checkToConfirmError": "Sie müssen das Kontrollkästchen aktivieren, um das Löschen zu bestätigen",
         "failedToGetCurrentUser": "Aktuelle Benutzer-E-Mail konnte nicht abgerufen werden.",
-        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „MEIN KONTO LÖSCHEN“ überein.",
+        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „@:newSettings.myAccount.deleteAccount.confirmHint3“ überein.",
         "deleteAccountSuccess": "Konto erfolgreich gelöscht"
       }
     },

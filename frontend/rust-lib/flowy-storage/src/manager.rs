@@ -1,11 +1,11 @@
 use crate::entities::FileStatePB;
 use crate::file_cache::FileTempStorage;
-use crate::notification::{make_notification, StorageNotification};
+use crate::notification::{StorageNotification, make_notification};
 use crate::sqlite_sql::{
-  batch_select_upload_file, delete_all_upload_parts, delete_upload_file,
-  delete_upload_file_by_file_id, insert_upload_file, insert_upload_part, is_upload_completed,
-  is_upload_exist, select_upload_file, select_upload_parts, update_upload_file_completed,
-  update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
+  UploadFilePartTable, UploadFileTable, batch_select_upload_file, delete_all_upload_parts,
+  delete_upload_file, delete_upload_file_by_file_id, insert_upload_file, insert_upload_part,
+  is_upload_completed, is_upload_exist, select_upload_file, select_upload_parts,
+  update_upload_file_completed, update_upload_file_upload_id,
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use allo_isolate::Isolate;
@@ -14,7 +14,7 @@ use collab_importer::util::FileId;
 use dashmap::DashMap;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
-use flowy_storage_pub::chunked_byte::{calculate_offsets, ChunkedBytes, MIN_CHUNK_SIZE};
+use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE, calculate_offsets};
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::{
   CompletedPartRequest, CreatedUpload, FileProgress, FileProgressReceiver, FileUploadState,
@@ -24,15 +24,17 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use lib_infra::util::timestamp;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::AtomicBool;
+use std::str::FromStr;
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::{broadcast, watch};
 use tracing::{debug, error, info, instrument, trace};
+use uuid::Uuid;
 
 pub trait StorageUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn workspace_id(&self) -> Result<String, FlowyError>;
+  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn get_application_root_dir(&self) -> &str;
 }
@@ -157,7 +159,8 @@ impl StorageManager {
 
     let uid = self.user_service.user_id().ok()?;
     let mut conn = self.user_service.sqlite_connection(uid).ok()?;
-    let is_finish = is_upload_completed(&mut conn, &workspace_id, &parent_dir, &file_id).ok()?;
+    let is_finish =
+      is_upload_completed(&mut conn, &workspace_id.to_string(), &parent_dir, &file_id).ok()?;
 
     if let Err(err) = self.global_notifier.send(FileProgress::new_progress(
       url.to_string(),
@@ -171,6 +174,14 @@ impl StorageManager {
   }
 
   pub async fn initialize(&self, workspace_id: &str) {
+    self.enable_storage_write_access();
+
+    if let Err(err) = prepare_upload_task(self.uploader.clone(), self.user_service.clone()).await {
+      error!("prepare {} upload task failed: {}", workspace_id, err);
+    }
+  }
+
+  pub async fn initialize_after_open_workspace(&self, workspace_id: &Uuid) {
     self.enable_storage_write_access();
 
     if let Err(err) = prepare_upload_task(self.uploader.clone(), self.user_service.clone()).await {
@@ -229,7 +240,7 @@ async fn prepare_upload_task(
   if let Ok(uid) = user_service.user_id() {
     let workspace_id = user_service.workspace_id()?;
     let conn = user_service.sqlite_connection(uid)?;
-    let upload_files = batch_select_upload_file(conn, &workspace_id, 100, false)?;
+    let upload_files = batch_select_upload_file(conn, &workspace_id.to_string(), 100, false)?;
     let tasks = upload_files
       .into_iter()
       .map(|upload_file| UploadTask::BackgroundTask {
@@ -269,7 +280,7 @@ impl StorageService for StorageServiceImpl {
 
       self
         .task_queue
-        .remove_task(&workspace_id, &parent_dir, &file_id)
+        .remove_task(&workspace_id.to_string(), &parent_dir, &file_id)
         .await;
 
       trace!("[File] delete progress notifier: {}", file_id);
@@ -278,7 +289,7 @@ impl StorageService for StorageServiceImpl {
         self
           .user_service
           .sqlite_connection(self.user_service.user_id()?)?,
-        &workspace_id,
+        &workspace_id.to_string(),
         &parent_dir,
         &file_id,
       ) {
@@ -384,9 +395,10 @@ impl StorageService for StorageServiceImpl {
     let conn = self
       .user_service
       .sqlite_connection(self.user_service.user_id()?)?;
+    let workspace_id = Uuid::from_str(&record.workspace_id)?;
     let url = self
       .cloud_service
-      .get_object_url_v1(&record.workspace_id, &record.parent_dir, &record.file_id)
+      .get_object_url_v1(&workspace_id, &record.parent_dir, &record.file_id)
       .await?;
     let file_id = record.file_id.clone();
     match insert_upload_file(conn, &record) {
@@ -478,7 +490,8 @@ impl StorageService for StorageServiceImpl {
         .user_service
         .sqlite_connection(self.user_service.user_id()?)?;
       let workspace_id = self.user_service.workspace_id()?;
-      is_upload_completed(&mut conn, &workspace_id, parent_idr, file_id).unwrap_or(false)
+      is_upload_completed(&mut conn, &workspace_id.to_string(), parent_idr, file_id)
+        .unwrap_or(false)
     };
 
     if is_completed {
@@ -585,14 +598,13 @@ async fn start_upload(
   // 1. create upload
   trace!(
     "[File] create upload for workspace: {}, parent_dir: {}, file_id: {}",
-    upload_file.workspace_id,
-    upload_file.parent_dir,
-    upload_file.file_id
+    upload_file.workspace_id, upload_file.parent_dir, upload_file.file_id
   );
 
+  let workspace_id = Uuid::from_str(&upload_file.workspace_id)?;
   let create_upload_resp_result = cloud_service
     .create_upload(
-      &upload_file.workspace_id,
+      &workspace_id,
       &upload_file.parent_dir,
       &upload_file.file_id,
       &upload_file.content_type,
@@ -601,11 +613,7 @@ async fn start_upload(
     .await;
 
   let file_url = cloud_service
-    .get_object_url_v1(
-      &upload_file.workspace_id,
-      &upload_file.parent_dir,
-      &upload_file.file_id,
-    )
+    .get_object_url_v1(&workspace_id, &upload_file.parent_dir, &upload_file.file_id)
     .await?;
 
   if let Err(err) = create_upload_resp_result.as_ref() {
@@ -625,8 +633,7 @@ async fn start_upload(
 
   trace!(
     "[File] {} update upload_id: {}",
-    upload_file.file_id,
-    create_upload_resp.upload_id
+    upload_file.file_id, create_upload_resp.upload_id
   );
   upload_file.upload_id = create_upload_resp.upload_id;
 
@@ -653,7 +660,7 @@ async fn start_upload(
         match upload_part(
           cloud_service,
           user_service,
-          &upload_file.workspace_id,
+          &workspace_id,
           &upload_file.parent_dir,
           &upload_file.upload_id,
           &upload_file.file_id,
@@ -665,8 +672,7 @@ async fn start_upload(
           Ok(resp) => {
             trace!(
               "[File] {} part {} uploaded",
-              upload_file.file_id,
-              part_number
+              upload_file.file_id, part_number
             );
             let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
             // The 0.1 is reserved for the complete_upload progress
@@ -782,7 +788,7 @@ async fn resume_upload(
 async fn upload_part(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
-  workspace_id: &str,
+  workspace_id: &Uuid,
   parent_dir: &str,
   upload_id: &str,
   file_id: &str,
@@ -822,12 +828,9 @@ async fn complete_upload(
   parts: Vec<CompletedPartRequest>,
   global_notifier: &GlobalNotifier,
 ) -> Result<(), FlowyError> {
+  let workspace_id = Uuid::from_str(&upload_file.workspace_id)?;
   let file_url = cloud_service
-    .get_object_url_v1(
-      &upload_file.workspace_id,
-      &upload_file.parent_dir,
-      &upload_file.file_id,
-    )
+    .get_object_url_v1(&workspace_id, &upload_file.parent_dir, &upload_file.file_id)
     .await?;
 
   info!(
@@ -838,7 +841,7 @@ async fn complete_upload(
   );
   match cloud_service
     .complete_upload(
-      &upload_file.workspace_id,
+      &workspace_id,
       &upload_file.parent_dir,
       &upload_file.upload_id,
       &upload_file.file_id,

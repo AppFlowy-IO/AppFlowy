@@ -8,13 +8,12 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_w
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const _confirmText = 'DELETE MY ACCOUNT';
 const _acceptableConfirmTexts = [
   'delete my account',
   'deletemyaccount',
@@ -44,67 +43,60 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? const Color(0xFF4F4F4F)
-        : const Color(0xFFB0B0B0);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final theme = AppFlowyTheme.of(context);
+    return Row(
       children: [
-        FlowyText(
-          LocaleKeys.button_deleteAccount.tr(),
-          fontSize: 14.0,
-          fontWeight: FontWeight.w500,
-          figmaLineHeight: 21.0,
-          color: textColor,
-        ),
-        const VSpace(8),
-        Row(
-          children: [
-            Expanded(
-              child: FlowyText.regular(
-                LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
-                fontSize: 12.0,
-                figmaLineHeight: 13.0,
-                maxLines: 2,
-                color: textColor,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                LocaleKeys.button_deleteAccount.tr(),
+                style: theme.textStyle.heading4.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
               ),
-            ),
-            FlowyTextButton(
-              LocaleKeys.button_deleteAccount.tr(),
-              constraints: const BoxConstraints(minHeight: 32),
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
-              fillColor: Colors.transparent,
-              radius: Corners.s8Border,
-              hoverColor:
-                  Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              fontColor: Theme.of(context).colorScheme.error,
-              fontSize: 12,
-              isDangerous: true,
-              onPressed: () {
-                isCheckedNotifier.value = false;
-                textEditingController.clear();
+              const VSpace(4),
+              Text(
+                LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textStyle.caption.standard(
+                  color: theme.textColorScheme.secondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        AFOutlinedTextButton.destructive(
+          text: LocaleKeys.button_deleteAccount.tr(),
+          textStyle: theme.textStyle.body.standard(
+            color: theme.textColorScheme.error,
+            weight: FontWeight.w400,
+          ),
+          onTap: () {
+            isCheckedNotifier.value = false;
+            textEditingController.clear();
 
-                showCancelAndDeleteDialog(
-                  context: context,
-                  title:
-                      LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
-                  description: '',
-                  builder: (_) => _AccountDeletionDialog(
-                    controller: textEditingController,
-                    isChecked: isCheckedNotifier,
-                  ),
-                  onDelete: () => deleteMyAccount(
-                    context,
-                    textEditingController.text.trim(),
-                    isCheckedNotifier.value,
-                    onSuccess: () {
-                      context.popToHome();
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+            showCancelAndDeleteDialog(
+              context: context,
+              title: LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
+              description: '',
+              builder: (_) => _AccountDeletionDialog(
+                controller: textEditingController,
+                isChecked: isCheckedNotifier,
+              ),
+              onDelete: () => deleteMyAccount(
+                context,
+                textEditingController.text.trim(),
+                isCheckedNotifier.value,
+                onSuccess: () {
+                  context.popToHome();
+                },
+              ),
+            );
+          },
         ),
       ],
     );
@@ -135,7 +127,8 @@ class _AccountDeletionDialog extends StatelessWidget {
         ),
         const VSpace(12.0),
         FlowyTextField(
-          hintText: _confirmText,
+          hintText:
+              LocaleKeys.newSettings_myAccount_deleteAccount_confirmHint3.tr(),
           controller: controller,
         ),
         const VSpace(16),
@@ -176,7 +169,8 @@ class _AccountDeletionDialog extends StatelessWidget {
 bool _isConfirmTextValid(String text) {
   // don't convert the text to lower case or upper case,
   //  just check if the text is in the list
-  return _acceptableConfirmTexts.contains(text);
+  return _acceptableConfirmTexts.contains(text) ||
+      text == LocaleKeys.newSettings_myAccount_deleteAccount_confirmHint3.tr();
 }
 
 Future<void> deleteMyAccount(
@@ -192,7 +186,6 @@ Future<void> deleteMyAccount(
 
   if (!isChecked) {
     showToastNotification(
-      context,
       type: ToastificationType.warning,
       bottomPadding: bottomPadding,
       message: LocaleKeys
@@ -207,7 +200,6 @@ Future<void> deleteMyAccount(
 
   if (confirmText.isEmpty || !_isConfirmTextValid(confirmText)) {
     showToastNotification(
-      context,
       type: ToastificationType.warning,
       bottomPadding: bottomPadding,
       message: LocaleKeys
@@ -225,7 +217,6 @@ Future<void> deleteMyAccount(
 
       loading.stop();
       showToastNotification(
-        context,
         message: LocaleKeys
             .newSettings_myAccount_deleteAccount_deleteAccountSuccess
             .tr(),
@@ -244,7 +235,6 @@ Future<void> deleteMyAccount(
 
       loading.stop();
       showToastNotification(
-        context,
         type: ToastificationType.error,
         bottomPadding: bottomPadding,
         message: f.msg,

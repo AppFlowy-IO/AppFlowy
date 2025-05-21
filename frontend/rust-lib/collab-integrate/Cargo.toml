@@ -1,7 +1,7 @@
 [package]
 name = "collab-integrate"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -19,14 +19,15 @@ serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
-async-trait.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 lib-infra = { workspace = true }
-futures = "0.3"
 arc-swap = "1.7"
-flowy-sqlite = { workspace = true }
-diesel.workspace = true
 flowy-error.workspace = true
+uuid.workspace = true
+flowy-ai-pub.workspace = true
+
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
 
 [features]
 default = []

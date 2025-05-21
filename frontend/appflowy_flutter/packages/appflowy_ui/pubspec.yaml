@@ -1,0 +1,19 @@
+name: appflowy_ui
+description: "A Flutter package for AppFlowy UI components and widgets"
+version: 1.0.0
+homepage: https://github.com/appflowy-io/appflowy
+
+environment:
+  sdk: ^3.6.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  cached_network_image: ^3.4.1
+  flutter:
+    sdk: flutter
+  flutter_animate: ^4.5.2
+  flutter_lints: ^5.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

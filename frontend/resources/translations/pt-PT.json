@@ -128,14 +128,14 @@
   "questionBubble": {
     "shortcuts": "Atalhos",
     "whatsNew": "O que há de novo?",
-    "help": "Ajuda & Suporte",
     "markdown": "Remarcação",
     "debug": {
       "name": "Informação de depuração",
       "success": "Copiar informação de depuração para o clipboard!",
       "fail": "Falha em copiar a informação de depuração para o clipboard"
     },
-    "feedback": "Opinião"
+    "feedback": "Opinião",
+    "help": "Ajuda & Suporte"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Remover, renomear e muito mais...",

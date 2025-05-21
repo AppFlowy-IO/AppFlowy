@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 
+use crate::entities::parser::*;
+use crate::entities::AuthTypePB;
+use crate::errors::ErrorCode;
+use client_api::entity::GotrueTokenResponse;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
-
-use crate::entities::parser::*;
-use crate::errors::ErrorCode;
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInPayloadPB {
@@ -19,7 +20,7 @@ pub struct SignInPayloadPB {
   pub name: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -30,11 +31,10 @@ impl TryInto<SignInParams> for SignInPayloadPB {
 
   fn try_into(self) -> Result<SignInParams, Self::Error> {
     let email = UserEmail::parse(self.email)?;
-    let password = UserPassword::parse(self.password)?;
 
     Ok(SignInParams {
       email: email.0,
-      password: password.0,
+      password: self.password,
       name: self.name,
       auth_type: self.auth_type.into(),
     })
@@ -53,7 +53,7 @@ pub struct SignUpPayloadPB {
   pub password: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -64,13 +64,13 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 
   fn try_into(self) -> Result<SignUpParams, Self::Error> {
     let email = UserEmail::parse(self.email)?;
-    let password = UserPassword::parse(self.password)?;
+    let password = self.password;
     let name = UserName::parse(self.name)?;
 
     Ok(SignUpParams {
       email: email.0,
       name: name.0,
-      password: password.0,
+      password,
       auth_type: self.auth_type.into(),
       device_id: self.device_id,
     })
@@ -87,6 +87,53 @@ pub struct MagicLinkSignInPB {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct PasscodeSignInPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub passcode: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct GotrueTokenResponsePB {
+  #[pb(index = 1)]
+  pub access_token: String,
+
+  #[pb(index = 2)]
+  pub token_type: String,
+
+  #[pb(index = 3)]
+  pub expires_in: i64,
+
+  #[pb(index = 4)]
+  pub expires_at: i64,
+
+  #[pb(index = 5)]
+  pub refresh_token: String,
+
+  #[pb(index = 6, one_of)]
+  pub provider_access_token: Option<String>,
+
+  #[pb(index = 7, one_of)]
+  pub provider_refresh_token: Option<String>,
+}
+
+impl From<GotrueTokenResponse> for GotrueTokenResponsePB {
+  fn from(response: GotrueTokenResponse) -> Self {
+    Self {
+      access_token: response.access_token,
+      token_type: response.token_type,
+      expires_in: response.expires_in,
+      expires_at: response.expires_at,
+      refresh_token: response.refresh_token,
+      provider_access_token: response.provider_access_token,
+      provider_refresh_token: response.provider_refresh_token,
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct OauthSignInPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.
@@ -97,7 +144,7 @@ pub struct OauthSignInPB {
   pub map: HashMap<String, String>,
 
   #[pb(index = 2)]
-  pub authenticator: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -106,7 +153,7 @@ pub struct SignInUrlPayloadPB {
   pub email: String,
 
   #[pb(index = 2)]
-  pub authenticator: AuthenticatorPB,
+  pub authenticator: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -181,85 +228,10 @@ pub struct OauthProviderDataPB {
   pub oauth_url: String,
 }
 
-#[repr(u8)]
-#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
-pub enum AuthenticatorPB {
-  Local = 0,
-  AppFlowyCloud = 2,
-}
-
-impl From<Authenticator> for AuthenticatorPB {
-  fn from(auth_type: Authenticator) -> Self {
-    match auth_type {
-      Authenticator::Local => AuthenticatorPB::Local,
-      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
-    }
-  }
-}
-
-impl From<AuthenticatorPB> for Authenticator {
-  fn from(pb: AuthenticatorPB) -> Self {
-    match pb {
-      AuthenticatorPB::Local => Authenticator::Local,
-      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
-    }
-  }
-}
-
-impl Default for AuthenticatorPB {
-  fn default() -> Self {
-    Self::Local
-  }
-}
-
-#[derive(Debug, ProtoBuf, Default)]
-pub struct UserCredentialsPB {
-  #[pb(index = 1, one_of)]
-  pub uid: Option<i64>,
-
-  #[pb(index = 2, one_of)]
-  pub uuid: Option<String>,
-
-  #[pb(index = 3, one_of)]
-  pub token: Option<String>,
-}
-
-impl UserCredentialsPB {
-  pub fn from_uid(uid: i64) -> Self {
-    Self {
-      uid: Some(uid),
-      uuid: None,
-      token: None,
-    }
-  }
-
-  pub fn from_token(token: &str) -> Self {
-    Self {
-      uid: None,
-      uuid: None,
-      token: Some(token.to_owned()),
-    }
-  }
-
-  pub fn from_uuid(uuid: &str) -> Self {
-    Self {
-      uid: None,
-      uuid: Some(uuid.to_owned()),
-      token: None,
-    }
-  }
-}
-
-impl From<UserCredentialsPB> for UserCredentials {
-  fn from(value: UserCredentialsPB) -> Self {
-    Self::new(value.token, value.uid, value.uuid)
-  }
-}
-
 #[derive(Default, ProtoBuf)]
 pub struct UserStatePB {
   #[pb(index = 1)]
-  pub auth_type: AuthenticatorPB,
+  pub auth_type: AuthTypePB,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

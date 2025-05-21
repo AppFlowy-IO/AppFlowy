@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use collab_database::fields::Field;
 use indexmap::IndexMap;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -14,7 +14,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
-  default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
+  GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting, default_group_setting,
 };
 
 #[async_trait]
@@ -24,7 +24,7 @@ pub trait GroupContextDelegate: Send + Sync + 'static {
   async fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Vec<RowSingleCellData>;
 
   async fn save_configuration(&self, view_id: &str, group_setting: GroupSetting)
-    -> FlowyResult<()>;
+  -> FlowyResult<()>;
 }
 
 impl<T> std::fmt::Display for GroupControllerContext<T> {
@@ -463,7 +463,7 @@ impl MergeGroupResult {
 mod tests {
   use crate::services::group::Group;
 
-  use super::{merge_groups, MergeGroupResult};
+  use super::{MergeGroupResult, merge_groups};
 
   #[test]
   fn merge_groups_test() {

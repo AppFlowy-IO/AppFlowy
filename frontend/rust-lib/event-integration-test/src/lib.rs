@@ -1,3 +1,4 @@
+use crate::user_event::TestNotificationSender;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -7,22 +8,21 @@ use collab_entity::CollabType;
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
-use flowy_server::AppFlowyServer;
-use flowy_user::entities::AuthenticatorPB;
+use flowy_user::entities::AuthTypePB;
 use flowy_user::errors::FlowyError;
 use lib_dispatch::runtime::AFPluginRuntime;
 use nanoid::nanoid;
 use semver::Version;
 use std::env::temp_dir;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::select;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
-
-use crate::user_event::TestNotificationSender;
+use uuid::Uuid;
 
 mod chat_event;
 pub mod database_event;
@@ -59,7 +59,7 @@ impl EventIntegrationTest {
     let clean_path = config.storage_path.clone();
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let authenticator = Arc::new(AtomicU8::new(AuthenticatorPB::Local as u8));
+    let authenticator = Arc::new(AtomicU8::new(AuthTypePB::Local as u8));
     register_notification_sender(notification_sender.clone());
 
     // In case of dropping the runtime that runs the core, we need to forget the dispatcher
@@ -100,7 +100,7 @@ impl EventIntegrationTest {
     Self::new_with_config(config).await
   }
 
-  pub fn skip_clean(&mut self) {
+  pub fn skip_auto_remove_temp_dir(&mut self) {
     self.cleaner.should_clean.store(false, Ordering::Release);
   }
 
@@ -112,16 +112,25 @@ impl EventIntegrationTest {
     self.appflowy_core.config.application_path.clone()
   }
 
-  pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
-    self.appflowy_core.server_provider.get_server().unwrap()
-  }
-
   pub async fn wait_ws_connected(&self) {
-    if self.get_server().get_ws_state().is_connected() {
+    if self
+      .appflowy_core
+      .server_provider
+      .get_server()
+      .unwrap()
+      .get_ws_state()
+      .is_connected()
+    {
       return;
     }
 
-    let mut ws_state = self.get_server().subscribe_ws_state().unwrap();
+    let mut ws_state = self
+      .appflowy_core
+      .server_provider
+      .get_server()
+      .unwrap()
+      .subscribe_ws_state()
+      .unwrap();
     loop {
       select! {
         _ = sleep(Duration::from_secs(20)) => {
@@ -143,12 +152,19 @@ impl EventIntegrationTest {
     oid: &str,
     collab_type: CollabType,
   ) -> Result<Vec<u8>, FlowyError> {
-    let server = self.server_provider.get_server().unwrap();
+    let server = self.server_provider.get_server()?;
+
     let workspace_id = self.get_current_workspace().await.id;
+    let oid = Uuid::from_str(oid)?;
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_folder_doc_state(&workspace_id, uid, collab_type, oid)
+      .get_folder_doc_state(
+        &Uuid::from_str(&workspace_id).unwrap(),
+        uid,
+        collab_type,
+        &oid,
+      )
       .await?;
 
     Ok(doc_state)

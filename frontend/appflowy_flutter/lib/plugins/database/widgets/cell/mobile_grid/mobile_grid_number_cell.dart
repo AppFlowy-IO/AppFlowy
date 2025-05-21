@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/number_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/number.dart';
@@ -9,6 +9,7 @@ class MobileGridNumberCellSkin extends IEditableNumberCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     NumberCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_b
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -18,6 +19,7 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 
 ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
 ValueNotifier<int> createNewPageNotifier = ValueNotifier(0);
+ValueNotifier<ViewPB?> switchToSpaceNotifier = ValueNotifier(null);
 
 @visibleForTesting
 final zoomInKeyCodes = [KeyCode.equal, KeyCode.numpadAdd, KeyCode.add];
@@ -75,9 +77,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => context
-          .read<HomeSettingBloc>()
-          .add(const HomeSettingEvent.collapseMenu()),
+      keyDownHandler: (_) => colappsedMenus(context),
     ),
 
     // Collapse sidebar menu (using .)
@@ -87,9 +87,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => context
-          .read<HomeSettingBloc>()
-          .add(const HomeSettingEvent.collapseMenu()),
+      keyDownHandler: (_) => colappsedMenus(context),
     ),
 
     // Toggle theme mode light/dark
@@ -210,7 +208,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Open settings dialog
-    openSettingsHotKey(context, widget.userProfile),
+    openSettingsHotKey(context),
   ];
 
   @override
@@ -262,5 +260,16 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     }
 
     await windowSizeManager.setScaleFactor(scaleFactor);
+  }
+
+  void colappsedMenus(BuildContext context) {
+    final bloc = context.read<HomeSettingBloc>();
+    final isNotificationPanelCollapsed =
+        bloc.state.isNotificationPanelCollapsed;
+    if (!isNotificationPanelCollapsed) {
+      bloc.add(const HomeSettingEvent.collapseNotificationPanel());
+    } else {
+      bloc.collapseMenu();
+    }
   }
 }

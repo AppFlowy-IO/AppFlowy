@@ -4,7 +4,14 @@ String languageFromLocale(Locale locale) {
   switch (locale.languageCode) {
     // Most often used languages
     case "en":
-      return "English";
+      switch (locale.countryCode) {
+        case "GB":
+          return "English (GB)";
+        case "US":
+          return "English (US)";
+        default:
+          return "English (US)";
+      }
     case "zh":
       switch (locale.countryCode) {
         case "CN":
@@ -48,6 +55,8 @@ String languageFromLocale(Locale locale) {
         default:
           return locale.languageCode;
       }
+    case "mr":
+      return "मराठी";
     case "he":
       return "עברית";
     case "hu":

@@ -9,7 +9,7 @@ const _kInlineMathEquationToolbarItemId = 'editor.inline_math_equation';
 
 final ToolbarItem inlineMathEquationItem = ToolbarItem(
   id: _kInlineMathEquationToolbarItemId,
-  group: 2,
+  group: 4,
   isActive: onlyShowInSingleSelectionAndTextType,
   builder: (context, editorState, highlightColor, _, tooltipBuilder) {
     final selection = editorState.selection!;

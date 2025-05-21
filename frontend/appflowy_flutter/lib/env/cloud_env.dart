@@ -100,6 +100,10 @@ bool get isAuthEnabled {
   return false;
 }
 
+bool get isLocalAuthEnabled {
+  return currentCloudType().isLocal;
+}
+
 /// Determines if AppFlowy Cloud is enabled.
 bool get isAppFlowyCloudEnabled {
   return currentCloudType().isAppFlowyCloudEnabled;
@@ -163,8 +167,13 @@ Future<void> useBaseWebDomain(String? url) async {
   );
 }
 
-Future<void> useSelfHostedAppFlowyCloudWithURL(String url) async {
+Future<void> useSelfHostedAppFlowyCloud(String url) async {
   await _setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
+  await _setAppFlowyCloudUrl(url);
+}
+
+Future<void> useAppFlowyCloudDevelop(String url) async {
+  await _setAuthenticatorType(AuthenticatorType.appflowyCloudDevelop);
   await _setAppFlowyCloudUrl(url);
 }
 

@@ -6,8 +6,8 @@ mod proto_gen;
 mod proto_info;
 mod template;
 
-use crate::util::path_string_with_component;
 use crate::Project;
+use crate::util::path_string_with_component;
 use itertools::Itertools;
 use log::info;
 pub use proto_gen::*;
@@ -76,64 +76,64 @@ pub fn dart_gen(crate_name: &str) {
   }
 }
 
-#[allow(unused_variables)]
-pub fn ts_gen(crate_name: &str, dest_folder_name: &str, project: Project) {
-  // 1. generate the proto files to proto_file_dir
-  #[cfg(feature = "proto_gen")]
-  let proto_crates = gen_proto_files(crate_name);
-
-  for proto_crate in proto_crates {
-    let mut proto_file_paths = vec![];
-    let mut file_names = vec![];
-    let proto_file_output_path = proto_crate
-      .proto_output_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-    let protobuf_output_path = proto_crate
-      .protobuf_crate_path()
-      .to_str()
-      .unwrap()
-      .to_string();
-
-    for (path, file_name) in WalkDir::new(&proto_file_output_path)
-      .into_iter()
-      .filter_map(|e| e.ok())
-      .map(|e| {
-        let path = e.path().to_str().unwrap().to_string();
-        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-        (path, file_name)
-      })
-    {
-      if path.ends_with(".proto") {
-        // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-        println!("cargo:rerun-if-changed={}", path);
-        proto_file_paths.push(path);
-        file_names.push(file_name);
-      }
-    }
-    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
-
-    // 2. generate the protobuf files(Dart)
-    #[cfg(feature = "ts")]
-    generate_ts_protobuf_files(
-      dest_folder_name,
-      &proto_file_output_path,
-      &proto_file_paths,
-      &file_names,
-      &protoc_bin_path,
-      &project,
-    );
-
-    // 3. generate the protobuf files(Rust)
-    generate_rust_protobuf_files(
-      &protoc_bin_path,
-      &proto_file_paths,
-      &proto_file_output_path,
-      &protobuf_output_path,
-    );
-  }
-}
+// #[allow(unused_variables)]
+// fn ts_gen(crate_name: &str, dest_folder_name: &str, project: Project) {
+//   // 1. generate the proto files to proto_file_dir
+//   #[cfg(feature = "proto_gen")]
+//   let proto_crates = gen_proto_files(crate_name);
+//
+//   for proto_crate in proto_crates {
+//     let mut proto_file_paths = vec![];
+//     let mut file_names = vec![];
+//     let proto_file_output_path = proto_crate
+//       .proto_output_path()
+//       .to_str()
+//       .unwrap()
+//       .to_string();
+//     let protobuf_output_path = proto_crate
+//       .protobuf_crate_path()
+//       .to_str()
+//       .unwrap()
+//       .to_string();
+//
+//     for (path, file_name) in WalkDir::new(&proto_file_output_path)
+//       .into_iter()
+//       .filter_map(|e| e.ok())
+//       .map(|e| {
+//         let path = e.path().to_str().unwrap().to_string();
+//         let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
+//         (path, file_name)
+//       })
+//     {
+//       if path.ends_with(".proto") {
+//         // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
+//         println!("cargo:rerun-if-changed={}", path);
+//         proto_file_paths.push(path);
+//         file_names.push(file_name);
+//       }
+//     }
+//     let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
+//
+//     // 2. generate the protobuf files(Dart)
+//     #[cfg(feature = "ts")]
+//     generate_ts_protobuf_files(
+//       dest_folder_name,
+//       &proto_file_output_path,
+//       &proto_file_paths,
+//       &file_names,
+//       &protoc_bin_path,
+//       &project,
+//     );
+//
+//     // 3. generate the protobuf files(Rust)
+//     generate_rust_protobuf_files(
+//       &protoc_bin_path,
+//       &proto_file_paths,
+//       &proto_file_output_path,
+//       &protobuf_output_path,
+//     );
+//   }
+// }
 
 fn generate_rust_protobuf_files(
   protoc_bin_path: &Path,
@@ -368,7 +368,7 @@ pub fn gen_proto_files(crate_name: &str) -> Vec<ProtobufCrate> {
     .display()
     .to_string();
 
-  let crate_context = ProtoGenerator::gen(crate_name, &crate_path);
+  let crate_context = ProtoGenerator::r#gen(crate_name, &crate_path);
   let proto_crates = crate_context
     .iter()
     .map(|info| info.protobuf_crate.clone())

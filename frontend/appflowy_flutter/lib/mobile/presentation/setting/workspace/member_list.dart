@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -27,31 +28,34 @@ class MobileMemberList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SlidableAutoCloseBehavior(
-      child: SeparatedColumn(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        separatorBuilder: () => const FlowyDivider(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+    final theme = AppFlowyTheme.of(context);
+    return SingleChildScrollView(
+      child: SlidableAutoCloseBehavior(
+        child: SeparatedColumn(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          separatorBuilder: () => SizedBox.shrink(),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Text(
+                'Joined',
+                style: theme.textStyle.heading4.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
+              ),
+            ),
+            ...members.map(
+              (member) => _MemberItem(
+                member: member,
+                myRole: myRole,
+                userProfile: userProfile,
+              ),
+            ),
+          ],
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: FlowyText.semibold(
-              LocaleKeys.settings_appearance_members_label.tr(),
-              fontSize: 16.0,
-            ),
-          ),
-          ...members.map(
-            (member) => _MemberItem(
-              member: member,
-              myRole: myRole,
-              userProfile: userProfile,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -70,8 +74,8 @@ class _MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final canDelete = myRole.canDelete && member.email != userProfile.email;
-    final textColor = member.role.isOwner ? Theme.of(context).hintColor : null;
 
     Widget child;
 
@@ -79,17 +83,19 @@ class _MemberItem extends StatelessWidget {
       child = Row(
         children: [
           Expanded(
-            child: FlowyText.medium(
+            child: Text(
               member.name,
-              color: textColor,
-              fontSize: 15.0,
+              style: theme.textStyle.heading4.standard(
+                color: theme.textColorScheme.primary,
+              ),
             ),
           ),
           Expanded(
-            child: FlowyText.medium(
+            child: Text(
               member.role.description,
-              color: textColor,
-              fontSize: 15.0,
+              style: theme.textStyle.heading4.standard(
+                color: theme.textColorScheme.secondary,
+              ),
               textAlign: TextAlign.end,
             ),
           ),
@@ -99,18 +105,19 @@ class _MemberItem extends StatelessWidget {
       child = Row(
         children: [
           Expanded(
-            child: FlowyText.medium(
+            child: Text(
               member.name,
-              color: textColor,
-              fontSize: 15.0,
+              style: theme.textStyle.heading4.standard(
+                color: theme.textColorScheme.primary,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const HSpace(36.0),
-          FlowyText.medium(
+          Text(
             member.role.description,
-            color: textColor,
-            fontSize: 15.0,
+            style: theme.textStyle.heading4.standard(
+              color: theme.textColorScheme.secondary,
+            ),
             textAlign: TextAlign.end,
           ),
         ],
@@ -118,8 +125,10 @@ class _MemberItem extends StatelessWidget {
     }
 
     child = Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.xl,
+        vertical: theme.spacing.l,
+      ),
       child: child,
     );
 
@@ -178,7 +187,7 @@ class _MemberItem extends StatelessWidget {
           showBottomBorder: false,
           onTap: () {
             workspaceMemberBloc.add(
-              WorkspaceMemberEvent.removeWorkspaceMember(
+              WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
                 member.email,
               ),
             );

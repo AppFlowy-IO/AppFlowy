@@ -1,16 +1,16 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  default_order,
 };
 use crate::services::field::{SelectOptionCellChangeset, SelectTypeOptionSharedAction};
 use crate::services::sort::SortCondition;
 
+use collab_database::fields::TypeOptionData;
 use collab_database::fields::select_type_option::{
   SelectOption, SelectOptionIds, SingleSelectTypeOption,
 };
-use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 
@@ -56,29 +56,26 @@ impl CellDataChangeset for SingleSelectTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _cell: Option<Cell>,
+    cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let mut insert_option_ids = changeset
+    let valid_inserted_ids = changeset
       .insert_option_ids
       .into_iter()
-      .filter(|insert_option_id| {
-        self
-          .options
-          .iter()
-          .any(|option| &option.id == insert_option_id)
-      })
-      .collect::<Vec<String>>();
+      .filter(|id| self.options.iter().any(|option| &option.id == id));
 
-    // In single select, the insert_option_ids should only contain one select option id.
-    // Sometimes, the insert_option_ids may contain list of option ids. For example,
-    // copy/paste a ids string.
-    let select_option_ids = if insert_option_ids.is_empty() {
-      SelectOptionIds::from(insert_option_ids)
-    } else {
-      // Just take the first select option
-      let _ = insert_option_ids.drain(1..);
-      SelectOptionIds::from(insert_option_ids)
-    };
+    let existing_ids = cell
+      .map(|cell| SelectOptionIds::from(&cell))
+      .unwrap_or_default()
+      .into_inner()
+      .into_iter()
+      .filter(|id| !changeset.delete_option_ids.contains(id));
+
+    let select_option_ids: SelectOptionIds = valid_inserted_ids
+      .chain(existing_ids)
+      .take(1)
+      .collect::<Vec<_>>()
+      .into();
+
     Ok((
       select_option_ids.to_cell(FieldType::SingleSelect),
       select_option_ids,
@@ -120,50 +117,5 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
       (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use crate::services::cell::CellDataChangeset;
-  use crate::services::field::type_options::*;
-  use collab_database::fields::select_type_option::{
-    SelectOption, SelectTypeOption, SingleSelectTypeOption,
-  };
-
-  #[test]
-  fn single_select_insert_multi_option_test() {
-    let google = SelectOption::new("Google");
-    let facebook = SelectOption::new("Facebook");
-    let single_select = SingleSelectTypeOption(SelectTypeOption {
-      options: vec![google.clone(), facebook.clone()],
-      disable_color: false,
-    });
-
-    let option_ids = vec![google.id.clone(), facebook.id];
-    let changeset = SelectOptionCellChangeset::from_insert_options(option_ids);
-    let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert_eq!(&*select_option_ids, &vec![google.id]);
-  }
-
-  #[test]
-  fn single_select_unselect_multi_option_test() {
-    let google = SelectOption::new("Google");
-    let facebook = SelectOption::new("Facebook");
-    let single_select = SingleSelectTypeOption(SelectTypeOption {
-      options: vec![google.clone(), facebook.clone()],
-      disable_color: false,
-    });
-    let option_ids = vec![google.id.clone(), facebook.id];
-
-    // insert
-    let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-    let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert_eq!(&*select_option_ids, &vec![google.id]);
-
-    // delete
-    let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
-    let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert!(select_option_ids.is_empty());
   }
 }

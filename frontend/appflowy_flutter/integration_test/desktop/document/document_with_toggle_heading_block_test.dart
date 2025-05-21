@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -85,16 +86,10 @@ void main() {
         ),
       );
 
-      await tester.tapButton(find.byType(HeadingPopup));
-      await tester.pumpAndSettle();
-
-      expect(
-        find.byType(HeadingButton),
-        findsNWidgets(3),
-      );
+      await tester.tapButton(find.byFlowySvg(FlowySvgs.toolbar_text_format_m));
 
       // tap the H1 button
-      await tester.tapButton(find.byType(HeadingButton).at(0));
+      await tester.tapButton(find.byFlowySvg(FlowySvgs.type_h1_m).at(0));
       await tester.pumpAndSettle();
 
       final editorState = tester.editor.getCurrentEditorState();

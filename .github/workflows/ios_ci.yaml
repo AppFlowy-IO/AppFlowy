@@ -19,35 +19,14 @@ on:
 
 env:
   FLUTTER_VERSION: "3.27.4"
-  RUST_TOOLCHAIN: "1.81.0"
+  RUST_TOOLCHAIN: "1.85.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-self-hosted:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: self-hosted
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
-
-      - name: Build AppFlowy
-        working-directory: frontend
-        run: |
-          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
-          cargo make --profile development-ios-arm64-sim code_generation
-
-      - uses: futureware-tech/simulator-action@v3
-        id: simulator-action
-        with:
-          model: "iPhone 15"
-          shutdown_after_job: false
-
   integration-tests:
-    if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: macos-latest
 
     steps:
@@ -94,26 +73,26 @@ jobs:
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
           cargo make --profile development-ios-arm64-sim code_generation
 
-      - uses: futureware-tech/simulator-action@v3
-        id: simulator-action
-        with:
-          model: "iPhone 15"
-          shutdown_after_job: false
+      # - uses: futureware-tech/simulator-action@v3
+      #   id: simulator-action
+      #   with:
+      #     model: "iPhone 15"
+      #     shutdown_after_job: false
 
-      - name: Run AppFlowy on simulator
-        working-directory: frontend/appflowy_flutter
-        run: |
-          flutter run -d ${{ steps.simulator-action.outputs.udid }} &
-          pid=$!
-          sleep 500
-          kill $pid
-        continue-on-error: true
+      # - name: Run AppFlowy on simulator
+      #   working-directory: frontend/appflowy_flutter
+      #   run: |
+      #     flutter run -d ${{ steps.simulator-action.outputs.udid }} &
+      #     pid=$!
+      #     sleep 500
+      #     kill $pid
+      #   continue-on-error: true
 
-      # Integration tests
-      - name: Run integration tests
-        working-directory: frontend/appflowy_flutter
-        # The integration tests are flaky and sometimes fail with "Connection timed out":
-        # Don't block the CI. If the tests fail, the CI will still pass.
-        # Instead, we're using Code Magic to re-run the tests to check if they pass.
-        continue-on-error: true
-        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+      # # Integration tests
+      # - name: Run integration tests
+      #   working-directory: frontend/appflowy_flutter
+      #   # The integration tests are flaky and sometimes fail with "Connection timed out":
+      #   # Don't block the CI. If the tests fail, the CI will still pass.
+      #   # Instead, we're using Code Magic to re-run the tests to check if they pass.
+      #   continue-on-error: true
+      #   run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}

@@ -123,6 +123,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.createWorkspace(
                     name,
+                    WorkspaceTypePB.ServerW,
                   ),
                 );
           },

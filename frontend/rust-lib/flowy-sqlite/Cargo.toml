@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 diesel.workspace = true
-diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
+diesel_derives = { workspace = true, features = ["sqlite", "r2d2"] }
 diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tracing.workspace = true
 serde.workspace = true
@@ -15,7 +15,7 @@ serde_json.workspace = true
 anyhow.workspace = true
 
 r2d2 = "0.8.10"
-libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }
+libsqlite3-sys = { version = "0.33.0", features = ["bundled"] }
 scheduled-thread-pool = "0.2.6"
 openssl = { version = "0.10.62", optional = true, features = ["vendored"] }
 openssl-sys = { version = "0.9.98", optional = true, features = ["vendored"] }

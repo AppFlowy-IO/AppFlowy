@@ -16,6 +16,7 @@ enum _MobileSettingsPopupMenuItem {
   members,
   trash,
   help,
+  helpAndDocumentation,
 }
 
 class HomePageSettingsPopupMenu extends StatelessWidget {
@@ -47,7 +48,7 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
           text: LocaleKeys.settings_popupMenuItem_settings.tr(),
         ),
         // only show the member items in cloud mode
-        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
+        if (userProfile.workspaceType == WorkspaceTypePB.ServerW) ...[
           const PopupMenuDivider(height: 0.5),
           _buildItem(
             value: _MobileSettingsPopupMenuItem.members,
@@ -63,9 +64,15 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
         ),
         const PopupMenuDivider(height: 0.5),
         _buildItem(
+          value: _MobileSettingsPopupMenuItem.helpAndDocumentation,
+          svg: FlowySvgs.help_and_documentation_s,
+          text: LocaleKeys.settings_popupMenuItem_helpAndDocumentation.tr(),
+        ),
+        const PopupMenuDivider(height: 0.5),
+        _buildItem(
           value: _MobileSettingsPopupMenuItem.help,
           svg: FlowySvgs.message_support_s,
-          text: LocaleKeys.settings_popupMenuItem_helpAndSupport.tr(),
+          text: LocaleKeys.settings_popupMenuItem_getSupport.tr(),
         ),
       ],
       onSelected: (_MobileSettingsPopupMenuItem value) {
@@ -81,6 +88,9 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
             break;
           case _MobileSettingsPopupMenuItem.help:
             _openHelpPage(context);
+            break;
+          case _MobileSettingsPopupMenuItem.helpAndDocumentation:
+            _openHelpAndDocumentationPage(context);
             break;
         }
       },
@@ -122,6 +132,10 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
 
   void _openSettingsPage(BuildContext context) {
     context.push(MobileHomeSettingPage.routeName);
+  }
+
+  void _openHelpAndDocumentationPage(BuildContext context) {
+    afLaunchUrlString('https://appflowy.com/guide');
   }
 }
 

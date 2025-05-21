@@ -13,7 +13,6 @@ void main() {
   hotkeys_test.main();
   emoji_shortcut_test.main();
   hotkeys_test.main();
-  emoji_shortcut_test.main();
   share_markdown_test.main();
   import_files_test.main();
   zoom_in_out_test.main();

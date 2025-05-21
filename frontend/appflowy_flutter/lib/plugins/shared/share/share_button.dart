@@ -1,9 +1,12 @@
+import 'package:appflowy/features/share_tab/data/repositories/rust_share_with_user_repository.dart';
+import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/_shared.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -22,6 +25,9 @@ class ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
+            '';
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -30,9 +36,19 @@ class ShareButton extends StatelessWidget {
         ),
         if (view.layout.isDatabaseView)
           BlocProvider(
-            create: (context) => DatabaseTabBarBloc(view: view)
-              ..add(const DatabaseTabBarEvent.initial()),
+            create: (context) => DatabaseTabBarBloc(
+              view: view,
+              compactModeId: view.id,
+              enableCompactMode: false,
+            )..add(const DatabaseTabBarEvent.initial()),
           ),
+        BlocProvider(
+          create: (context) => ShareWithUserBloc(
+            repository: RustShareWithUserRepository(),
+            pageId: view.id,
+            workspaceId: workspaceId,
+          )..add(const ShareWithUserEvent.init()),
+        ),
       ],
       child: BlocListener<ShareBloc, ShareState>(
         listener: (context, state) {
@@ -67,7 +83,6 @@ class ShareButton extends StatelessWidget {
       case ShareType.html:
       case ShareType.csv:
         showToastNotification(
-          context,
           message: LocaleKeys.settings_files_exportFileSuccess.tr(),
         );
         break;
@@ -78,7 +93,6 @@ class ShareButton extends StatelessWidget {
 
   void _handleExportError(BuildContext context, FlowyError error) {
     showToastNotification(
-      context,
       message:
           '${LocaleKeys.settings_files_exportFileFail.tr()}: ${error.code}',
     );

@@ -6,14 +6,14 @@ use tokio::sync::oneshot;
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult, data_result_ok};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::field::checklist_filter::ChecklistCellChangeset;
 use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb, RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
+  RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt, type_option_data_from_pb,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -865,17 +865,25 @@ pub(crate) async fn delete_group_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub(crate) async fn get_database_meta_handler(
+pub(crate) async fn get_default_database_view_id_handler(
   data: AFPluginData<DatabaseIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<DatabaseMetaPB, FlowyError> {
+) -> DataResult<DatabaseViewIdPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let database_id = data.into_inner().value;
-  let inline_view_id = manager.get_database_inline_view_id(&database_id).await?;
+  let database_view_id = manager
+    .get_database_meta(&database_id)
+    .await?
+    .and_then(|mut d| d.linked_views.pop())
+    .ok_or_else(|| {
+      FlowyError::internal().with_context(format!(
+        "Can't find any database view for given database id: {}",
+        database_id
+      ))
+    })?;
 
-  let data = DatabaseMetaPB {
-    database_id,
-    inline_view_id,
+  let data = DatabaseViewIdPB {
+    value: database_view_id,
   };
   data_result_ok(data)
 }
@@ -892,7 +900,7 @@ pub(crate) async fn get_databases_handler(
     if let Some(link_view) = meta.linked_views.first() {
       items.push(DatabaseMetaPB {
         database_id: meta.database_id,
-        inline_view_id: link_view.clone(),
+        view_id: link_view.clone(),
       })
     }
   }
@@ -1261,7 +1269,7 @@ pub(crate) async fn summarize_row_handler(
   let (tx, rx) = oneshot::channel();
   tokio::spawn(async move {
     let result = manager
-      .summarize_row(data.view_id, row_id, data.field_id)
+      .summarize_row(&data.view_id, row_id, data.field_id)
       .await;
     let _ = tx.send(result);
   });
@@ -1280,7 +1288,7 @@ pub(crate) async fn translate_row_handler(
   let (tx, rx) = oneshot::channel();
   tokio::spawn(async move {
     let result = manager
-      .translate_row(data.view_id, row_id, data.field_id)
+      .translate_row(&data.view_id, row_id, data.field_id)
       .await;
     let _ = tx.send(result);
   });
@@ -1404,4 +1412,39 @@ pub(crate) async fn rename_media_cell_file_handler(
   }
 
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn get_database_custom_prompts_handler(
+  data: AFPluginData<CustomPromptDatabaseConfigPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedCustomPromptPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: CustomPromptDatabaseConfigPB = data.try_into_inner()?;
+  let database_editor = manager
+    .get_database_editor_with_view_id(params.view_id.as_ref())
+    .await?;
+  let custom_prompts = database_editor.get_prompts_from_database(&params).await?;
+
+  data_result_ok(RepeatedCustomPromptPB {
+    items: custom_prompts,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn test_custom_prompt_database_configuration_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<CustomPromptDatabaseConfigPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: DatabaseViewIdPB = data.try_into_inner()?;
+  let database_editor = manager
+    .get_database_editor_with_view_id(params.as_ref())
+    .await?;
+
+  let configuration = database_editor
+    .test_custom_prompt_database_configuration(params.value.as_ref())
+    .await?;
+
+  data_result_ok(configuration)
 }

@@ -18,7 +18,7 @@ flowy-sqlite = { workspace = true }
 flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
-flowy-server = { workspace = true, features = ["enable_supabase"] }
+flowy-server = { workspace = true }
 flowy-server-pub = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true }
@@ -27,18 +27,17 @@ flowy-search-pub = { workspace = true }
 collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
 collab-folder = { workspace = true }
+collab-document = { workspace = true }
 
 collab = { workspace = true }
 #collab = { workspace = true, features = ["verbose_log"] }
 
 diesel.workspace = true
-uuid.workspace = true
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
 client-api.workspace = true
 flowy-ai = { workspace = true }
 flowy-ai-pub = { workspace = true }
-appflowy-local-ai = { version = "0.1.0" }
 
 
 tracing.workspace = true
@@ -51,15 +50,20 @@ anyhow.workspace = true
 dashmap.workspace = true
 arc-swap.workspace = true
 base64 = "0.21.5"
-
+tokio-util.workspace = true
 lib-infra = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
-serde_repr.workspace = true
-futures.workspace = true
-walkdir = "2.4.0"
+uuid.workspace = true
 sysinfo = "0.30.5"
 semver = { version = "1.0.22", features = ["serde"] }
+url = "2.5.0"
+once_cell = "1.19.0"
+
+
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
+flowy-sqlite-vec = { workspace = true }
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
 
 [features]
 profiling = ["console-subscriber", "tokio/tracing"]
@@ -73,14 +77,6 @@ dart = [
   "flowy-database2/dart",
   "flowy-ai/dart",
   "flowy-storage/dart",
-]
-ts = [
-  "flowy-user/tauri_ts",
-  "flowy-folder/tauri_ts",
-  "flowy-search/tauri_ts",
-  "flowy-database2/ts",
-  "flowy-ai/tauri_ts",
-  "flowy-storage/tauri_ts",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 

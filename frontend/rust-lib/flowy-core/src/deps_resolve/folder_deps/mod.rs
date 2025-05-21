@@ -13,10 +13,11 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_folder::entities::UpdateViewParams;
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::ViewLayout;
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::load_collab_by_object_id;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use crate::deps_resolve::folder_deps::folder_deps_chat_impl::ChatFolderOperation;
@@ -25,6 +26,8 @@ use crate::deps_resolve::folder_deps::folder_deps_doc_impl::DocumentFolderOperat
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_folder_pub::query::{FolderQueryService, FolderService, FolderViewEdit, QueryCollab};
 use lib_infra::async_trait::async_trait;
+use tracing::trace;
+use uuid::Uuid;
 
 pub struct FolderDepsResolver();
 #[allow(clippy::too_many_arguments)]
@@ -32,8 +35,7 @@ impl FolderDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    server_provider: Arc<ServerProvider>,
-    folder_indexer: Arc<FolderIndexManagerImpl>,
+    server_provider: Weak<ServerProvider>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
@@ -45,7 +47,6 @@ impl FolderDepsResolver {
         user.clone(),
         collab_builder,
         server_provider.clone(),
-        folder_indexer,
         store_preferences,
       )
       .unwrap(),
@@ -55,9 +56,9 @@ impl FolderDepsResolver {
 
 pub fn register_handlers(
   folder_manager: &Arc<FolderManager>,
-  document_manager: Arc<DocumentManager>,
-  database_manager: Arc<DatabaseManager>,
-  chat_manager: Arc<AIManager>,
+  document_manager: Weak<DocumentManager>,
+  database_manager: Weak<DatabaseManager>,
+  chat_manager: Weak<AIManager>,
 ) {
   let document_folder_operation = Arc::new(DocumentFolderOperation(document_manager));
   folder_manager.register_operation_handler(ViewLayout::Document, document_folder_operation);
@@ -89,7 +90,7 @@ impl FolderUser for FolderUserImpl {
     self.upgrade_user()?.user_id()
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
   }
 
@@ -97,8 +98,14 @@ impl FolderUser for FolderUserImpl {
     self.upgrade_user()?.get_collab_db(uid)
   }
 
-  fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool> {
-    self.upgrade_user()?.is_collab_on_disk(uid, workspace_id)
+  fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &Uuid) -> FlowyResult<bool> {
+    self
+      .upgrade_user()?
+      .is_collab_on_disk(uid, workspace_id.to_string().as_str())
+  }
+
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.upgrade_user()?.get_sqlite_connection(uid)
   }
 }
 
@@ -124,13 +131,13 @@ impl FolderServiceImpl {
 
 #[async_trait]
 impl FolderViewEdit for FolderServiceImpl {
-  async fn set_view_title_if_empty(&self, view_id: &str, title: &str) -> FlowyResult<()> {
+  async fn set_view_title_if_empty(&self, view_id: &Uuid, title: &str) -> FlowyResult<()> {
+    trace!("Set view title: view_id: {}, title: {}", view_id, title);
     if title.is_empty() {
       return Ok(());
     }
-
     if let Some(folder_manager) = self.folder_manager.upgrade() {
-      if let Ok(view) = folder_manager.get_view(view_id).await {
+      if let Ok(view) = folder_manager.get_view(view_id.to_string().as_str()).await {
         if view.name.is_empty() {
           let title = if title.len() > 50 {
             title.chars().take(50).collect()
@@ -160,22 +167,25 @@ impl FolderViewEdit for FolderServiceImpl {
 impl FolderQueryService for FolderServiceImpl {
   async fn get_surrounding_view_ids_with_view_layout(
     &self,
-    parent_view_id: &str,
+    parent_view_id: &Uuid,
     view_layout: ViewLayout,
-  ) -> Vec<String> {
+  ) -> Vec<Uuid> {
     let folder_manager = match self.folder_manager.upgrade() {
       Some(folder_manager) => folder_manager,
       None => return vec![],
     };
 
-    if let Ok(view) = folder_manager.get_view(parent_view_id).await {
+    if let Ok(view) = folder_manager
+      .get_view(parent_view_id.to_string().as_str())
+      .await
+    {
       if view.space_info().is_some() {
         return vec![];
       }
     }
 
     match folder_manager
-      .get_untrashed_views_belong_to(parent_view_id)
+      .get_untrashed_views_belong_to(parent_view_id.to_string().as_str())
       .await
     {
       Ok(views) => {
@@ -183,23 +193,24 @@ impl FolderQueryService for FolderServiceImpl {
           .into_iter()
           .filter_map(|child| {
             if child.layout == view_layout {
-              Some(child.id.clone())
+              Uuid::from_str(&child.id).ok()
             } else {
               None
             }
           })
           .collect::<Vec<_>>();
-        children.push(parent_view_id.to_string());
+        children.push(*parent_view_id);
         children
       },
       _ => vec![],
     }
   }
 
-  async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab> {
-    let encode_collab = get_encoded_collab_v1_from_disk(&self.user, object_id, collab_type.clone())
-      .await
-      .ok();
+  async fn get_collab(&self, object_id: &Uuid, collab_type: CollabType) -> Option<QueryCollab> {
+    let encode_collab =
+      get_encoded_collab_v1_from_disk(&self.user, object_id.to_string().as_str(), collab_type)
+        .await
+        .ok();
 
     encode_collab.map(|encoded_collab| QueryCollab {
       collab_type,
@@ -229,8 +240,8 @@ async fn get_encoded_collab_v1_from_disk(
     )
   })?;
   let collab_read_txn = collab_db.read_txn();
-  let collab =
-    load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, view_id).map_err(|e| {
+  let collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id.to_string(), view_id)
+    .map_err(|e| {
       FlowyError::internal().with_context(format!("load document collab failed: {}", e))
     })?;
 

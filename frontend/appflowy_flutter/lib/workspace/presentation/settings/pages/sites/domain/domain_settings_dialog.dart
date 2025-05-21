@@ -216,7 +216,6 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
     result.fold(
       (s) {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
         );
 
@@ -234,7 +233,6 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         Log.error('Failed to update namespace: $f');
 
         showToastNotification(
-          context,
           message: basicErrorMessage,
           type: ToastificationType.error,
           description: errorMessage,

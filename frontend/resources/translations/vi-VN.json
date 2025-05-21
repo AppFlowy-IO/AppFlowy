@@ -36,7 +36,6 @@
     "loginButtonText": "Đăng nhập",
     "loginStartWithAnonymous": "Bắt đầu với một phiên ẩn danh",
     "continueAnonymousUser": "Tiếp tục với một phiên ẩn danh",
-    "anonymous": "Ẩn danh",
     "buttonText": "Đăng nhập",
     "signingInText": "Đang đăng nhập...",
     "forgotPassword": "Quên mật khẩu?",
@@ -69,6 +68,7 @@
     "generalError": "Có gì đó không ổn. Vui lòng thử lại sau",
     "limitRateError": "Vì lý do bảo mật, bạn chỉ có thể yêu cầu Magic Link sau mỗi 60 giây",
     "magicLinkSentDescription": "Một Magic Link đã được gửi đến email của bạn. Nhấp vào liên kết để hoàn tất đăng nhập. Liên kết sẽ hết hạn sau 5 phút.",
+    "anonymous": "Ẩn danh",
     "LogInWithGoogle": "Đăng nhập bằng Google",
     "LogInWithGithub": "Đăng nhập bằng Github",
     "LogInWithDiscord": "Đăng nhập bằng Discord",
@@ -226,14 +226,14 @@
   "questionBubble": {
     "shortcuts": "Phím tắt",
     "whatsNew": "Có gì mới?",
-    "help": "Trợ giúp &amp; Hỗ trợ",
     "markdown": "Markdown",
     "debug": {
       "name": "Thông tin gỡ lỗi",
       "success": "Đã sao chép thông tin gỡ lỗi vào khay nhớ tạm!",
       "fail": "Không thể sao chép thông tin gỡ lỗi vào khay nhớ tạm"
     },
-    "feedback": "Nhận xét"
+    "feedback": "Nhận xét",
+    "help": "Trợ giúp &amp; Hỗ trợ"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Xóa, đổi tên và hơn thế nữa...",
@@ -308,7 +308,6 @@
     "storageLimitDialogTitle": "Bạn đã hết dung lượng lưu trữ miễn phí. Nâng cấp để mở khóa dung lượng lưu trữ không giới hạn",
     "storageLimitDialogTitleIOS": "Bạn đã hết dung lượng lưu trữ miễn phí.",
     "aiResponseLimitTitle": "Bạn đã hết phản hồi AI miễn phí. Nâng cấp lên Gói Pro hoặc mua tiện ích bổ sung AI để mở khóa phản hồi không giới hạn",
-    "aiResponseLimitTitleIOS": "Bạn đã hết lượt sử dụng AI miễn phí.",
     "aiResponseLimitDialogTitle": "Đã đạt đến giới hạn sử dụng AI",
     "aiResponseLimit": "Bạn đã hết lượt dùng AI miễn phí.\nVào Cài đặt -> Gói đăng ký -> Nhấp vào AI Max hoặc Gói Pro để có thêm lượt dùng AI",
     "askOwnerToUpgradeToPro": "Không gian làm việc của bạn sắp hết dung lượng lưu trữ miễn phí. Vui lòng yêu cầu chủ sở hữu không gian làm việc của bạn nâng cấp lên Gói Pro",
@@ -1440,8 +1439,7 @@
     "url": {
       "launch": "Mở liên kết trong trình duyệt",
       "copy": "Sao chép URL",
-      "textFieldHint": "Nhập một URL",
-      "copiedNotification": "Đã sao chép vào bảng tạm!"
+      "textFieldHint": "Nhập một URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Cơ sở dữ liệu liên quan",
@@ -2271,12 +2269,12 @@
         "dialogTitle": "Xóa tài khoản",
         "dialogContent1": "Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của mình không?",
         "dialogContent2": "Không thể hoàn tác hành động này và sẽ xóa quyền truy cập khỏi mọi không gian làm việc nhóm, xóa toàn bộ tài khoản của bạn, bao gồm cả không gian làm việc riêng tư và xóa bạn khỏi mọi không gian làm việc được chia sẻ.",
-        "confirmHint1": "Vui lòng nhập \"XÓA TÀI KHOẢN CỦA TÔI\" để xác nhận.",
+        "confirmHint1": "Vui lòng nhập \"@:newSettings.myAccount.deleteAccount.confirmHint3\" để xác nhận.",
         "confirmHint2": "Tôi hiểu rằng hành động này là không thể đảo ngược và sẽ xóa vĩnh viễn tài khoản của tôi cùng mọi dữ liệu liên quan.",
         "confirmHint3": "XÓA TÀI KHOẢN CỦA TÔI",
         "checkToConfirmError": "Bạn phải đánh dấu vào ô để xác nhận việc xóa",
         "failedToGetCurrentUser": "Không lấy được email người dùng hiện tại",
-        "confirmTextValidationFailed": "Văn bản xác nhận của bạn không khớp với \"XÓA TÀI KHOẢN CỦA TÔI\"",
+        "confirmTextValidationFailed": "Văn bản xác nhận của bạn không khớp với \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "Tài khoản đã được xóa thành công"
       }
     },

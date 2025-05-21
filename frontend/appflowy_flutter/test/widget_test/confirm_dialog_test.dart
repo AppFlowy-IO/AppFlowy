@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,14 +30,17 @@ void main() {
             showDialog(
               context: context,
               builder: (_) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: ConfirmPopup(
-                    description: "desc",
-                    title: "title",
-                    onConfirm: onConfirm,
+                return AppFlowyTheme(
+                  data: AppFlowyDefaultTheme().light(),
+                  child: Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: ConfirmPopup(
+                      description: "desc",
+                      title: "title",
+                      onConfirm: onConfirm,
+                    ),
                   ),
                 );
               },

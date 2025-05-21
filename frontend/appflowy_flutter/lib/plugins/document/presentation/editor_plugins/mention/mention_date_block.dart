@@ -60,21 +60,31 @@ class MentionDateBlock extends StatefulWidget {
 }
 
 class _MentionDateBlockState extends State<MentionDateBlock> {
-  final PopoverMutex mutex = PopoverMutex();
-
   late bool _includeTime = widget.includeTime;
   late DateTime? parsedDate = DateTime.tryParse(widget.date);
+  late String? _reminderId = widget.reminderId;
+  late ReminderOption _reminderOption = widget.reminderOption;
+
+  ReminderPB? getReminder(BuildContext context) {
+    if (!context.mounted || _reminderId == null) return null;
+    final reminderBloc = context.read<ReminderBloc?>();
+    return reminderBloc?.state.allReminders
+        .firstWhereOrNull((r) => r.id == _reminderId);
+  }
 
   @override
   void didUpdateWidget(covariant oldWidget) {
     parsedDate = DateTime.tryParse(widget.date);
+    if (widget.reminderId != oldWidget.reminderId) {
+      _reminderId = widget.reminderId;
+    }
+    if (widget.includeTime != oldWidget.includeTime) {
+      _includeTime = widget.includeTime;
+    }
+    if (widget.date != oldWidget.date) {
+      parsedDate = DateTime.tryParse(widget.date);
+    }
     super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    mutex.dispose();
-    super.dispose();
   }
 
   @override
@@ -97,27 +107,23 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
       builder: (context, appearance) =>
           BlocBuilder<ReminderBloc, ReminderState>(
         builder: (context, state) {
-          final reminder = state.reminders
-              .firstWhereOrNull((r) => r.id == widget.reminderId);
-
           final formattedDate = appearance.dateFormat
               .formatDate(parsedDate!, _includeTime, appearance.timeFormat);
 
           final options = DatePickerOptions(
             focusedDay: parsedDate,
-            popoverMutex: mutex,
             selectedDay: parsedDate,
             includeTime: _includeTime,
             dateFormat: appearance.dateFormat,
             timeFormat: appearance.timeFormat,
-            selectedReminderOption: widget.reminderOption,
+            selectedReminderOption: _reminderOption,
             onIncludeTimeChanged: (includeTime, dateTime, _) {
               _includeTime = includeTime;
 
-              if (widget.reminderOption != ReminderOption.none) {
+              if (_reminderOption != ReminderOption.none) {
                 _updateReminder(
                   widget.reminderOption,
-                  reminder,
+                  context,
                   includeTime,
                 );
               } else if (dateTime != null) {
@@ -131,21 +137,30 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             onDaySelected: (selectedDay) {
               parsedDate = selectedDay;
 
-              if (widget.reminderOption != ReminderOption.none) {
+              if (_reminderOption != ReminderOption.none) {
                 _updateReminder(
-                  widget.reminderOption,
-                  reminder,
+                  _reminderOption,
+                  context,
                   _includeTime,
                 );
               } else {
+                final rootContext = widget.editorState.document.root.context;
+                if (rootContext != null && _reminderId != null) {
+                  rootContext.read<ReminderBloc?>()?.add(
+                        ReminderEvent.removeReminder(reminderId: _reminderId!),
+                      );
+                }
                 _updateBlock(selectedDay, includeTime: _includeTime);
               }
             },
-            onReminderSelected: (reminderOption) =>
-                _updateReminder(reminderOption, reminder),
+            onReminderSelected: (reminderOption) {
+              _reminderOption = reminderOption;
+              _updateReminder(reminderOption, context, _includeTime);
+            },
           );
 
           Color? color;
+          final reminder = getReminder(context);
           if (reminder != null) {
             if (reminder.type == ReminderType.today) {
               color = Theme.of(context).isLightMode
@@ -167,7 +182,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               _showDatePicker(
                 context: context,
                 offset: details.globalPosition,
-                reminder: reminder,
                 options: options,
               );
             },
@@ -185,7 +199,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   ),
                   const HSpace(4),
                   FlowySvg(
-                    widget.reminderId != null
+                    _reminderId != null
                         ? FlowySvgs.reminder_clock_s
                         : FlowySvgs.date_s,
                     size: Size.square(iconSize),
@@ -207,19 +221,20 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     ReminderOption? reminderOption,
   }) {
     final rId = reminderId ??
-        (reminderOption == ReminderOption.none ? null : widget.reminderId);
+        (reminderOption == ReminderOption.none ? null : _reminderId);
 
     final transaction = widget.editorState.transaction
-      ..formatText(widget.node, widget.index, 1, {
-        MentionBlockKeys.mention: {
-          MentionBlockKeys.type: MentionType.date.name,
-          MentionBlockKeys.date: date.toIso8601String(),
-          MentionBlockKeys.reminderId: rId,
-          MentionBlockKeys.includeTime: includeTime,
-          MentionBlockKeys.reminderOption:
-              reminderOption?.name ?? widget.reminderOption.name,
-        },
-      });
+      ..formatText(
+        widget.node,
+        widget.index,
+        1,
+        MentionBlockKeys.buildMentionDateAttributes(
+          date: date.toIso8601String(),
+          reminderId: rId,
+          includeTime: includeTime,
+          reminderOption: reminderOption?.name ?? widget.reminderOption.name,
+        ),
+      );
 
     widget.editorState.apply(transaction, withUpdateSelection: false);
 
@@ -232,33 +247,33 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
   void _updateReminder(
     ReminderOption reminderOption,
-    ReminderPB? reminder, [
+    BuildContext context, [
     bool includeTime = false,
   ]) {
     final rootContext = widget.editorState.document.root.context;
     if (parsedDate == null || rootContext == null) {
       return;
     }
-
-    if (widget.reminderId != null) {
+    final reminder = getReminder(rootContext);
+    if (reminder != null) {
       _updateBlock(
         parsedDate!,
         includeTime: includeTime,
         reminderOption: reminderOption,
       );
 
-      if (ReminderOption.none == reminderOption && reminder != null) {
+      if (ReminderOption.none == reminderOption) {
         // Delete existing reminder
         return rootContext
             .read<ReminderBloc>()
-            .add(ReminderEvent.remove(reminderId: reminder.id));
+            .add(ReminderEvent.removeReminder(reminderId: reminder.id));
       }
 
       // Update existing reminder
       return rootContext.read<ReminderBloc>().add(
             ReminderEvent.update(
               ReminderUpdate(
-                id: widget.reminderId!,
+                id: reminder.id,
                 scheduledAt:
                     reminderOption.getNotificationDateTime(parsedDate!),
                 date: parsedDate!,
@@ -267,7 +282,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
           );
     }
 
-    final reminderId = nanoid();
+    _reminderId ??= nanoid();
+    final reminderId = _reminderId;
     _updateBlock(
       parsedDate!,
       includeTime: includeTime,
@@ -301,7 +317,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     required BuildContext context,
     required DatePickerOptions options,
     required Offset offset,
-    ReminderPB? reminder,
   }) {
     if (!widget.editorState.editable) {
       return;
@@ -323,10 +338,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             options: options,
             includeTime: _includeTime,
             reminderOption: widget.reminderOption,
-            onReminderSelected: (option) => _updateReminder(
-              option,
-              reminder,
-            ),
+            onReminderSelected: (option) => _updateReminder(option, context),
           ),
         ),
       );

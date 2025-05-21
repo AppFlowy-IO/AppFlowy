@@ -1,4 +1,3 @@
-use appflowy_local_ai::ai_ops::{LocalAITranslateItem, LocalAITranslateRowData};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
@@ -13,6 +12,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::priority_task::TaskDispatcher;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
+use uuid::Uuid;
 
 pub struct DatabaseDepsResolver();
 
@@ -20,7 +20,7 @@ impl DatabaseDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    collab_builder: Arc<AppFlowyCollabBuilder>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
     ai_manager: Arc<AIManager>,
@@ -47,17 +47,24 @@ struct DatabaseAIServiceMiddleware {
 impl DatabaseAIService for DatabaseAIServiceMiddleware {
   async fn summary_database_row(
     &self,
-    workspace_id: &str,
-    object_id: &str,
+    workspace_id: &Uuid,
+    object_id: &Uuid,
     summary_row: SummaryRowContent,
   ) -> Result<String, FlowyError> {
-    if self.ai_manager.local_ai_controller.is_running() {
+    if self
+      .ai_manager
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string())
+    {
+      let model = self
+        .ai_manager
+        .get_active_model(&object_id.to_string())
+        .await;
       self
         .ai_manager
-        .local_ai_controller
-        .summary_database_row(summary_row)
+        .local_ai
+        .summarize_database_row(&model.name, summary_row)
         .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))
     } else {
       self
         .ai_service
@@ -68,30 +75,24 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
 
   async fn translate_database_row(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     translate_row: TranslateRowContent,
     language: &str,
   ) -> Result<TranslateRowResponse, FlowyError> {
-    if self.ai_manager.local_ai_controller.is_running() {
-      let data = LocalAITranslateRowData {
-        cells: translate_row
-          .into_iter()
-          .map(|row| LocalAITranslateItem {
-            title: row.title,
-            content: row.content,
-          })
-          .collect(),
-        language: language.to_string(),
-        include_header: false,
-      };
-      let resp = self
+    if self
+      .ai_manager
+      .local_ai
+      .is_enabled_on_workspace(&workspace_id.to_string())
+    {
+      let model = self
         .ai_manager
-        .local_ai_controller
-        .translate_database_row(data)
+        .get_active_model(&workspace_id.to_string())
+        .await;
+      self
+        .ai_manager
+        .local_ai
+        .translate_database_row(&model.name, translate_row, language)
         .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))?;
-
-      Ok(TranslateRowResponse { items: resp.items })
     } else {
       self
         .ai_service
@@ -121,11 +122,11 @@ impl DatabaseUser for DatabaseUserImpl {
     self.upgrade_user()?.get_collab_db(uid)
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_id()
   }
 
-  fn workspace_database_object_id(&self) -> Result<String, FlowyError> {
+  fn workspace_database_object_id(&self) -> Result<Uuid, FlowyError> {
     self.upgrade_user()?.workspace_database_object_id()
   }
 }

@@ -36,7 +36,6 @@
     "loginButtonText": "ログイン",
     "loginStartWithAnonymous": "匿名で続行",
     "continueAnonymousUser": "匿名で続行",
-    "anonymous": "匿名",
     "buttonText": "サインイン",
     "signingInText": "サインイン中...",
     "forgotPassword": "パスワードを忘れましたか？",
@@ -68,7 +67,8 @@
     "logIn": "ログイン",
     "generalError": "エラーが発生しました。後でもう一度お試しください",
     "limitRateError": "セキュリティのため、Magic Linkは60秒に1回しかリクエストできません",
-    "magicLinkSentDescription": "Magic Linkがあなたのメールアドレスに送信されました。リンクをクリックしてログインを完了してください。リンクは5分後に無効になります。"
+    "magicLinkSentDescription": "Magic Linkがあなたのメールアドレスに送信されました。リンクをクリックしてログインを完了してください。リンクは5分後に無効になります。",
+    "anonymous": "匿名"
   },
   "workspace": {
     "chooseWorkspace": "ワークスペースを選択",
@@ -263,14 +263,14 @@
   "questionBubble": {
     "shortcuts": "ショートカット",
     "whatsNew": "新着情報",
-    "help": "ヘルプ & サポート",
     "markdown": "Markdown",
     "debug": {
       "name": "デバッグ情報",
       "success": "デバッグ情報をクリップボードにコピーしました！",
       "fail": "デバッグ情報をクリップボードにコピーできませんでした"
     },
-    "feedback": "フィードバック"
+    "feedback": "フィードバック",
+    "help": "ヘルプ & サポート"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "削除、名前の変更、その他...",
@@ -346,9 +346,7 @@
     "upgradeToPro": "Proプランにアップグレード",
     "upgradeToAIMax": "無制限のAIを解放",
     "storageLimitDialogTitle": "無料のストレージが不足しています。無制限のストレージを解放するにはアップグレードしてください",
-    "storageLimitDialogTitleIOS": "無料のストレージが不足しています。",
     "aiResponseLimitTitle": "無料のAIレスポンスが不足しています。Proプランにアップグレードするか、AIアドオンを購入して無制限のレスポンスを解放してください",
-    "aiResponseLimitTitleIOS": "無料のAIレスポンスが不足しています。",
     "aiResponseLimitDialogTitle": "AIレスポンスの制限に達しました",
     "aiResponseLimit": "無料のAIレスポンスが不足しています。\n\n設定 -> プラン -> AI MaxまたはProプランをクリックして、さらにAIレスポンスを取得してください",
     "askOwnerToUpgradeToPro": "ワークスペースの無料ストレージが不足しています。ワークスペースのオーナーにProプランへのアップグレードを依頼してください",
@@ -1579,8 +1577,7 @@
     "url": {
       "launch": "リンクをブラウザで開く",
       "copy": "リンクをクリップボードにコピー",
-      "textFieldHint": "URLを入力",
-      "copiedNotification": "クリップボードにコピーされました！"
+      "textFieldHint": "URLを入力"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "関連データベース",

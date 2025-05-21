@@ -29,6 +29,9 @@ class ApplicationInfo {
   // If the latest version is greater than the current version, it means there is an update available
   static bool get isUpdateAvailable {
     try {
+      if (latestVersion.isEmpty) {
+        return false;
+      }
       return Version.parse(latestVersion) > Version.parse(applicationVersion);
     } catch (e) {
       return false;
@@ -54,6 +57,7 @@ class ApplicationInfoTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -117,7 +121,4 @@ class ApplicationInfoTask extends LaunchTask {
     ApplicationInfo.architecture = architecture ?? '';
     ApplicationInfo.os = os ?? '';
   }
-
-  @override
-  Future<void> dispose() async {}
 }

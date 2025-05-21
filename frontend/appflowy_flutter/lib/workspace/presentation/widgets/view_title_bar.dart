@@ -74,7 +74,6 @@ class ViewTitleBar extends StatelessWidget {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
         }
@@ -137,9 +136,11 @@ class ViewTitleBar extends StatelessWidget {
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
-            context
-                .read<ViewTitleBarBloc>()
-                .add(const ViewTitleBarEvent.reload());
+            if (context.mounted) {
+              context
+                  .read<ViewTitleBarBloc>()
+                  .add(const ViewTitleBarEvent.reload());
+            }
           },
         ),
       );
@@ -400,6 +401,7 @@ class LockedPageStatus extends StatelessWidget {
             side: BorderSide(color: color),
             borderRadius: BorderRadius.circular(6),
           ),
+          color: context.lockedPageButtonBackground,
         ),
         child: FlowyButton(
           useIntrinsicWidth: true,
@@ -414,7 +416,10 @@ class LockedPageStatus extends StatelessWidget {
             fontSize: 12.0,
           ),
           hoverColor: color.withValues(alpha: 0.1),
-          leftIcon: FlowySvg(FlowySvgs.lock_page_s, color: color),
+          leftIcon: FlowySvg(
+            FlowySvgs.lock_page_fill_s,
+            blendMode: null,
+          ),
           onTap: () => context.read<ViewLockStatusBloc>().add(
                 const ViewLockStatusEvent.unlock(),
               ),
@@ -436,6 +441,7 @@ class ReLockedPageStatus extends StatelessWidget {
           side: BorderSide(color: iconColor),
           borderRadius: BorderRadius.circular(6),
         ),
+        color: context.lockedPageButtonBackground,
       ),
       child: FlowyButton(
         useIntrinsicWidth: true,
@@ -458,5 +464,14 @@ class ReLockedPageStatus extends StatelessWidget {
             ),
       ),
     );
+  }
+}
+
+extension on BuildContext {
+  Color get lockedPageButtonBackground {
+    if (Theme.of(this).brightness == Brightness.light) {
+      return Colors.white.withValues(alpha: 0.75);
+    }
+    return Color(0xB21B1A22);
   }
 }

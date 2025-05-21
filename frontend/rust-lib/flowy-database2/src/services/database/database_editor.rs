@@ -1,7 +1,8 @@
+use crate::DatabaseUser;
 use crate::entities::*;
-use crate::notification::{database_notification_builder, DatabaseNotification};
+use crate::notification::{DatabaseNotification, database_notification_builder};
 use crate::services::calculations::Calculation;
-use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
+use crate::services::cell::{CellCache, apply_cell_changeset, get_cell_protobuf, stringify_cell};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{
@@ -10,16 +11,15 @@ use crate::services::database_view::{
 use crate::services::field::checklist_filter::ChecklistCellChangeset;
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
-  default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
   SelectOptionCellChangeset, StringCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
 };
-use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
+use crate::services::field_settings::{FieldSettings, default_field_settings_by_layout_map};
 use crate::services::filter::{Filter, FilterChangeset};
-use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting};
+use crate::services::group::{GroupChangeset, GroupSetting, default_group_setting};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
-use crate::DatabaseUser;
 use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use collab::core::collab_plugin::CollabPluginType;
@@ -36,34 +36,36 @@ use collab_database::views::{
 };
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult, internal_error};
 use flowy_notification::DebounceNotificationSender;
 use futures::future::join_all;
-use futures::{pin_mut, StreamExt};
+use futures::{StreamExt, pin_mut};
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::select;
-use tokio::sync::oneshot::Sender;
 use tokio::sync::RwLock as TokioRwLock;
+use tokio::sync::oneshot::Sender;
 use tokio::sync::{broadcast, oneshot};
 use tokio::task::yield_now;
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
+use uuid::Uuid;
 
 type OpenDatabaseResult = oneshot::Sender<FlowyResult<DatabasePB>>;
 
 pub struct DatabaseEditor {
-  database_id: String,
+  database_id: Uuid,
   pub(crate) database: Arc<RwLock<Database>>,
   pub cell_cache: CellCache,
   pub(crate) database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
   user: Arc<dyn DatabaseUser>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  collab_builder: Weak<AppFlowyCollabBuilder>,
   is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   #[allow(dead_code)]
@@ -117,6 +119,7 @@ impl DatabaseEditor {
       .await?,
     );
 
+    let database_id = Uuid::from_str(&database_id)?;
     let collab_object = collab_builder.collab_object(
       &user.workspace_id()?,
       user.user_id()?,
@@ -130,12 +133,12 @@ impl DatabaseEditor {
       database.clone(),
     )?;
     let this = Arc::new(Self {
-      database_id: database_id.clone(),
+      database_id,
       user,
       database,
       cell_cache,
       database_views,
-      collab_builder,
+      collab_builder: Arc::downgrade(&collab_builder),
       is_loading_rows: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
@@ -145,6 +148,13 @@ impl DatabaseEditor {
     observe_block_event(&database_id, &this).await;
     observe_view_change(&database_id, &this).await;
     Ok(this)
+  }
+
+  pub fn collab_builder(&self) -> FlowyResult<Arc<AppFlowyCollabBuilder>> {
+    self
+      .collab_builder
+      .upgrade()
+      .ok_or_else(FlowyError::ref_drop)
   }
 
   pub async fn close_view(&self, view_id: &str) {
@@ -593,9 +603,7 @@ impl DatabaseEditor {
 
     trace!(
       "duplicate row: {:?} at index:{}, new row:{:?}",
-      row_id,
-      index,
-      row_order
+      row_id, index, row_order
     );
 
     Ok(())
@@ -631,9 +639,7 @@ impl DatabaseEditor {
     })?;
     trace!(
       "Move row:{} from group:{} to group:{}",
-      from_row,
-      from_group,
-      to_group
+      from_row, from_group, to_group
     );
 
     // when moving row between groups, the cells of the row should be updated
@@ -792,6 +798,7 @@ impl DatabaseEditor {
     }
 
     debug!("[Database]: Init database row: {}", row_id);
+    let collab_builder = self.collab_builder()?;
     let database_row = self
       .database
       .read()
@@ -806,14 +813,15 @@ impl DatabaseEditor {
     let is_finalized = self.finalized_rows.get(row_id.as_str()).await.is_some();
     if !is_finalized {
       trace!("[Database]: finalize database row: {}", row_id);
-      let collab_object = self.collab_builder.collab_object(
+      let row_id = Uuid::from_str(row_id.as_str())?;
+      let collab_object = collab_builder.collab_object(
         &self.user.workspace_id()?,
         self.user.user_id()?,
-        row_id,
+        &row_id,
         CollabType::DatabaseRow,
       )?;
 
-      if let Err(err) = self.collab_builder.finalize(
+      if let Err(err) = collab_builder.finalize(
         collab_object,
         CollabBuilderConfig::default(),
         database_row.clone(),
@@ -1501,7 +1509,7 @@ impl DatabaseEditor {
       view_editor.set_row_orders(row_orders.clone()).await;
 
       // Collect database details in a single block holding the `read` lock
-      let (database_id, fields, is_linked) = {
+      let (database_id, fields) = {
         let database = self.database.read().await;
         (
           database.get_database_id(),
@@ -1510,7 +1518,6 @@ impl DatabaseEditor {
             .into_iter()
             .map(FieldIdPB::from)
             .collect::<Vec<_>>(),
-          database.is_inline_view(view_id),
         )
       };
 
@@ -1553,7 +1560,6 @@ impl DatabaseEditor {
         fields,
         rows: order_rows,
         layout_type: view_layout.into(),
-        is_linked,
       });
       // Mark that the opening process is complete
       if let Some(tx) = self.is_loading_rows.load_full() {
@@ -1844,6 +1850,127 @@ impl DatabaseEditor {
     }
   }
 
+  pub async fn get_prompts_from_database(
+    &self,
+    config: &CustomPromptDatabaseConfigPB,
+  ) -> Result<Vec<CustomPromptPB>, FlowyError> {
+    let fields = self.get_fields(&config.view_id, None).await;
+
+    let primary_field = fields
+      .iter()
+      .find(|field| field.id == config.title_field_id)
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find primary field"))?;
+    let content_field = fields
+      .iter()
+      .find(|field| {
+        field.id == config.content_field_id && field.field_type == FieldType::RichText.value()
+      })
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find content field"))?;
+    let example_field = config.example_field_id.as_ref().and_then(|id| {
+      fields
+        .iter()
+        .find(|field| field.id == *id && field.field_type == FieldType::RichText.value())
+    });
+    let category_field = config.category_field_id.as_ref().and_then(|id| {
+      fields
+        .iter()
+        .find(|field| field.id == *id && field.field_type == FieldType::RichText.value())
+    });
+
+    fn extract_cell_value(row: &Row, field: &Field) -> Option<String> {
+      row
+        .cells
+        .get(&field.id)
+        .map(|cell| stringify_cell(cell, field))
+    }
+
+    let custom_prompts = self
+      .get_all_rows(&config.view_id)
+      .await?
+      .into_iter()
+      .filter_map(|row| {
+        let id = row.id.to_string();
+
+        let primary_cell = row.cells.get(&primary_field.id);
+        let name = primary_cell
+          .map(|cell| stringify_cell(cell, primary_field))
+          .unwrap_or_default();
+
+        let content_cell = row.cells.get(&content_field.id);
+        let content = content_cell.map(|cell| stringify_cell(cell, content_field))?;
+
+        if content.is_empty() {
+          return None;
+        }
+
+        let example = example_field
+          .and_then(|field| extract_cell_value(&row, field))
+          .unwrap_or_default();
+
+        let category = category_field
+          .and_then(|field| extract_cell_value(&row, field))
+          .unwrap_or_else(|| "other".to_string());
+
+        Some(CustomPromptPB {
+          id,
+          name,
+          content,
+          example,
+          category,
+        })
+      })
+      .collect::<Vec<_>>();
+
+    Ok(custom_prompts)
+  }
+
+  pub async fn test_custom_prompt_database_configuration(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<CustomPromptDatabaseConfigPB> {
+    let mut fields = self.get_fields(view_id, None).await;
+    let view_id = view_id.to_string();
+
+    let title_field_position = fields
+      .iter()
+      .position(|f| f.is_primary)
+      .ok_or(FlowyError::internal().with_context("Cannot find primary field"))?;
+    let title_field_id = fields.remove(title_field_position).id;
+
+    let content_field_position = fields
+      .iter()
+      .position(|f| {
+        f.name.to_lowercase() == "content" && f.field_type == FieldType::RichText.value()
+      })
+      .or_else(|| {
+        fields
+          .iter()
+          .position(|f| f.field_type == FieldType::RichText.value())
+      })
+      .ok_or(FlowyError::internal().with_context("Cannot find content field"))?;
+    let content_field_id = fields.remove(content_field_position).id;
+
+    let example_field_id = fields
+      .iter()
+      .find(|f| f.name.to_lowercase() == "example" && f.field_type == FieldType::RichText.value())
+      .map(|f| f.id.clone());
+
+    let category_field_id = fields
+      .iter()
+      .find(|f| f.name.to_lowercase() == "category")
+      .map(|f| f.id.clone());
+
+    let configuration = CustomPromptDatabaseConfigPB {
+      view_id,
+      title_field_id,
+      content_field_id,
+      example_field_id,
+      category_field_id,
+    };
+
+    Ok(configuration)
+  }
+
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
     self
       .database
@@ -1967,7 +2094,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let mut all_rows = vec![];
     let read_guard = self.database.read().await;
     let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, 10, None)
+      .get_rows_from_row_orders(row_orders, 10, None)
       .await;
     pin_mut!(rows_stream);
 

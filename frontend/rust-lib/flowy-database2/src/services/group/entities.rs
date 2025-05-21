@@ -1,5 +1,5 @@
-use collab::preclude::encoding::serde::{from_any, to_any};
 use collab::preclude::Any;
+use collab::preclude::encoding::serde::{from_any, to_any};
 use collab_database::database::gen_database_group_id;
 use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
@@ -147,11 +147,8 @@ impl GroupData {
   pub fn add_row(&mut self, row: Row) {
     #[cfg(feature = "verbose_log")]
     tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
-    match self.rows.iter().find(|r| r.id == row.id) {
-      None => {
-        self.rows.push(row);
-      },
-      Some(_) => {},
+    if !self.rows.iter().any(|r| r.id == row.id) {
+      self.rows.push(row);
     }
   }
 

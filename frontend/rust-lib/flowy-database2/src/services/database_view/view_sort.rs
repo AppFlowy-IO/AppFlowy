@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
-  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
+  DatabaseViewChangedNotifier, DatabaseViewOperation, gen_handler_id,
 };
 use crate::services::filter::FilterController;
 use crate::services::sort::{Sort, SortController, SortDelegate, SortTaskHandler};

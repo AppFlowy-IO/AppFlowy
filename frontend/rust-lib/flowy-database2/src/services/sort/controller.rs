@@ -18,7 +18,7 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{default_order, TypeOptionCellExt};
+use crate::services::field::{TypeOptionCellExt, default_order};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
@@ -183,7 +183,7 @@ impl SortController {
     self.task_scheduler.write().await.add_task(task);
   }
 
-  pub async fn sort_rows_and_notify(&mut self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn sort_rows_and_notify(&mut self, rows: &mut [Arc<Row>]) {
     self.sort_rows(rows).await;
     let row_orders = rows
       .iter()
@@ -202,7 +202,7 @@ impl SortController {
       ));
   }
 
-  pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn sort_rows(&mut self, rows: &mut [Arc<Row>]) {
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
       rows.par_sort_by(|left, right| cmp_row(left, right, sort, &fields, &self.cell_cache));

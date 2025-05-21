@@ -1,18 +1,18 @@
 use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell};
+use collab_database::fields::text_type_option::RichTextTypeOption;
+use collab_database::rows::{Cell, new_cell_builder};
 use collab_database::template::util::ToCellString;
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
-use crate::services::cell::{stringify_cell, CellDataChangeset, CellDataDecoder};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, stringify_cell};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
+  CELL_DATA, CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 

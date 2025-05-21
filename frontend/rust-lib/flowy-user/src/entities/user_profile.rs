@@ -1,15 +1,13 @@
+use super::{AFRolePB, WorkspaceTypePB};
+use crate::entities::parser::{UserEmail, UserIcon, UserName};
+use crate::entities::AuthTypePB;
+use crate::errors::ErrorCode;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
+use flowy_user_pub::sql::UserWorkspaceTable;
 use lib_infra::validator_fn::required_not_empty_str;
 use std::convert::TryInto;
 use validator::Validate;
-
-use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::AuthenticatorPB;
-use crate::errors::ErrorCode;
-
-use super::parser::UserStabilityAIKey;
-use super::AFRolePB;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -41,22 +39,10 @@ pub struct UserProfilePB {
   pub icon_url: String,
 
   #[pb(index = 6)]
-  pub openai_key: String,
+  pub user_auth_type: AuthTypePB,
 
   #[pb(index = 7)]
-  pub authenticator: AuthenticatorPB,
-
-  #[pb(index = 8)]
-  pub encryption_sign: String,
-
-  #[pb(index = 9)]
-  pub encryption_type: EncryptionTypePB,
-
-  #[pb(index = 10)]
-  pub stability_ai_key: String,
-
-  #[pb(index = 11)]
-  pub ai_model: String,
+  pub workspace_type: WorkspaceTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -73,26 +59,14 @@ impl Default for EncryptionTypePB {
 
 impl From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
-    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
-      EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
-      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
-    };
-    let mut ai_model = user_profile.ai_model;
-    if ai_model.is_empty() {
-      ai_model = "Default".to_string();
-    }
     Self {
       id: user_profile.uid,
       email: user_profile.email,
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
-      openai_key: user_profile.openai_key,
-      authenticator: user_profile.authenticator.into(),
-      encryption_sign,
-      encryption_type: encryption_ty,
-      stability_ai_key: user_profile.stability_ai_key,
-      ai_model,
+      user_auth_type: user_profile.auth_type.into(),
+      workspace_type: user_profile.workspace_type.into(),
     }
   }
 }
@@ -113,12 +87,6 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 5, one_of)]
   pub icon_url: Option<String>,
-
-  #[pb(index = 6, one_of)]
-  pub openai_key: Option<String>,
-
-  #[pb(index = 7, one_of)]
-  pub stability_ai_key: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -148,16 +116,6 @@ impl UpdateUserProfilePayloadPB {
     self.icon_url = Some(icon_url.to_owned());
     self
   }
-
-  pub fn openai_key(mut self, openai_key: &str) -> Self {
-    self.openai_key = Some(openai_key.to_owned());
-    self
-  }
-
-  pub fn stability_ai_key(mut self, stability_ai_key: &str) -> Self {
-    self.stability_ai_key = Some(stability_ai_key.to_owned());
-    self
-  }
 }
 
 impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
@@ -174,24 +132,11 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(email) => Some(UserEmail::parse(email)?.0),
     };
 
-    let password = match self.password {
-      None => None,
-      Some(password) => Some(UserPassword::parse(password)?.0),
-    };
+    let password = self.password;
 
     let icon_url = match self.icon_url {
       None => None,
       Some(icon_url) => Some(UserIcon::parse(icon_url)?.0),
-    };
-
-    let openai_key = match self.openai_key {
-      None => None,
-      Some(openai_key) => Some(UserOpenaiKey::parse(openai_key)?.0),
-    };
-
-    let stability_ai_key = match self.stability_ai_key {
-      None => None,
-      Some(stability_ai_key) => Some(UserStabilityAIKey::parse(stability_ai_key)?.0),
     };
 
     Ok(UpdateUserProfileParams {
@@ -200,11 +145,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       email,
       password,
       icon_url,
-      openai_key,
-      encryption_sign: None,
       token: None,
-      stability_ai_key,
-      ai_model: None,
     })
   }
 }
@@ -243,17 +184,35 @@ pub struct UserWorkspacePB {
 
   #[pb(index = 6, one_of)]
   pub role: Option<AFRolePB>,
+
+  #[pb(index = 7)]
+  pub workspace_type: WorkspaceTypePB,
 }
 
 impl From<UserWorkspace> for UserWorkspacePB {
-  fn from(value: UserWorkspace) -> Self {
+  fn from(workspace: UserWorkspace) -> Self {
+    Self {
+      workspace_id: workspace.id,
+      name: workspace.name,
+      created_at_timestamp: workspace.created_at.timestamp(),
+      icon: workspace.icon,
+      member_count: workspace.member_count,
+      role: workspace.role.map(AFRolePB::from),
+      workspace_type: WorkspaceTypePB::from(workspace.workspace_type),
+    }
+  }
+}
+
+impl From<UserWorkspaceTable> for UserWorkspacePB {
+  fn from(value: UserWorkspaceTable) -> Self {
     Self {
       workspace_id: value.id,
       name: value.name,
-      created_at_timestamp: value.created_at.timestamp(),
+      created_at_timestamp: value.created_at,
       icon: value.icon,
       member_count: value.member_count,
       role: value.role.map(AFRolePB::from),
+      workspace_type: WorkspaceTypePB::from(value.workspace_type),
     }
   }
 }

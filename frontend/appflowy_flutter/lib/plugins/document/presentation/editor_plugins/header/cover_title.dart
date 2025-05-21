@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
-import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -53,6 +52,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   late final titleFocusNode = editorContext.coverTitleFocusNode;
   int lineCount = 1;
 
+  bool updatingViewName = false;
+
   @override
   void initState() {
     super.initState();
@@ -88,12 +89,11 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listenWhen: (previous, current) =>
-          previous.view.name != current.view.name,
+          previous.view.name != current.view.name && !updatingViewName,
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
-          padding: EditorStyleCustomizer.documentPaddingWithOptionMenu,
           constraints: BoxConstraints(maxWidth: width),
           child: Theme(
             data: Theme.of(context).copyWith(
@@ -208,6 +208,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   }
 
   void _onViewNameChanged() {
+    updatingViewName = true;
+
     Debounce.debounce(
       'update view name',
       const Duration(milliseconds: 250),
@@ -224,6 +226,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         context
             .read<ViewInfoBloc?>()
             ?.add(ViewInfoEvent.titleChanged(titleTextController.text));
+
+        updatingViewName = false;
       },
     );
   }
@@ -243,6 +247,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return _moveCursorToNextLine(event.logicalKey);
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       return _exitEditing();
+    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
+      return KeyEventResult.handled;
     }
 
     return KeyEventResult.ignored;

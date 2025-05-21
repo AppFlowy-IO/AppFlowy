@@ -1,7 +1,7 @@
 [package]
 name = "flowy-search-pub"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,4 +11,9 @@ collab = { workspace = true }
 collab-folder = { workspace = true }
 flowy-error = { workspace = true }
 client-api = { workspace = true }
-futures = { workspace = true }
+uuid.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tantivy.workspace = true
+dashmap.workspace = true
+once_cell = "1.18.0"

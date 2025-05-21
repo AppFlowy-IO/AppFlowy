@@ -13,43 +13,52 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TextCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return Padding(
-      padding: GridSize.cellContentInsets,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _IconOrEmoji(),
-          Expanded(
-            child: TextField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: context
-                            .read<TextCellBloc>()
-                            .cellController
-                            .fieldInfo
-                            .isPrimary
-                        ? FontWeight.w500
-                        : null,
+    return ValueListenableBuilder(
+      valueListenable: compactModeNotifier,
+      builder: (context, compactMode, data) {
+        final padding = compactMode
+            ? GridSize.compactCellContentInsets
+            : GridSize.cellContentInsets;
+        return Padding(
+          padding: padding,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _IconOrEmoji(),
+              Expanded(
+                child: TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: context
+                                .read<TextCellBloc>()
+                                .cellController
+                                .fieldInfo
+                                .isPrimary
+                            ? FontWeight.w500
+                            : null,
+                      ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    isDense: true,
+                    isCollapsed: true,
                   ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                isDense: true,
-                isCollapsed: true,
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

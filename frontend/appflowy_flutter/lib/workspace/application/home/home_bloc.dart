@@ -3,15 +3,17 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
-    show WorkspaceSettingPB;
+    show WorkspaceLatestPB;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  HomeBloc(WorkspaceSettingPB workspaceSetting)
-      : _workspaceListener = FolderListener(),
+  HomeBloc(WorkspaceLatestPB workspaceSetting)
+      : _workspaceListener = FolderListener(
+          workspaceId: workspaceSetting.workspaceId,
+        ),
         super(HomeState.initial(workspaceSetting)) {
     _dispatch(workspaceSetting);
   }
@@ -24,7 +26,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     return super.close();
   }
 
-  void _dispatch(WorkspaceSettingPB workspaceSetting) {
+  void _dispatch(WorkspaceLatestPB workspaceSetting) {
     on<HomeEvent>(
       (event, emit) async {
         await event.map(
@@ -36,10 +38,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             });
 
             _workspaceListener.start(
-              onSettingUpdated: (result) {
+              onLatestUpdated: (result) {
                 result.fold(
-                  (setting) =>
-                      add(HomeEvent.didReceiveWorkspaceSetting(setting)),
+                  (latest) => add(HomeEvent.didReceiveWorkspaceSetting(latest)),
                   (r) => Log.error(r),
                 );
               },
@@ -78,7 +79,7 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.initial() = _Initial;
   const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
   const factory HomeEvent.didReceiveWorkspaceSetting(
-    WorkspaceSettingPB setting,
+    WorkspaceLatestPB setting,
   ) = _DidReceiveWorkspaceSetting;
 }
 
@@ -86,11 +87,11 @@ class HomeEvent with _$HomeEvent {
 class HomeState with _$HomeState {
   const factory HomeState({
     required bool isLoading,
-    required WorkspaceSettingPB workspaceSetting,
+    required WorkspaceLatestPB workspaceSetting,
     ViewPB? latestView,
   }) = _HomeState;
 
-  factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
+  factory HomeState.initial(WorkspaceLatestPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
       );

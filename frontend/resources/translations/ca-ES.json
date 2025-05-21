@@ -133,14 +133,14 @@
   "questionBubble": {
     "shortcuts": "Dreceres",
     "whatsNew": "Què hi ha de nou?",
-    "help": "Ajuda i Suport",
     "markdown": "Reducció",
     "debug": {
       "name": "Informació de depuració",
       "success": "S'ha copiat la informació de depuració!",
       "fail": "No es pot copiar la informació de depuració"
     },
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "help": "Ajuda i Suport"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Suprimeix, canvia el nom i més...",

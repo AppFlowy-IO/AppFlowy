@@ -74,9 +74,8 @@ class AnonUserItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
-    final isDisabled =
-        isSelected || user.authenticator != AuthenticatorPB.Local;
-    final desc = "${user.name}\t ${user.authenticator}\t";
+    final isDisabled = isSelected || user.userAuthType != AuthTypePB.Local;
+    final desc = "${user.name}\t ${user.userAuthType}\t";
     final child = SizedBox(
       height: 30,
       child: FlowyButton(

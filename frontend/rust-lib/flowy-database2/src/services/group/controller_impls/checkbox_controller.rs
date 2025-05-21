@@ -1,18 +1,18 @@
 use async_trait::async_trait;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{Cell, Cells, Row, new_cell_builder};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
-use crate::services::field::{CheckboxCellDataParser, TypeOption, CHECK, UNCHECK};
+use crate::services::field::{CHECK, CheckboxCellDataParser, TypeOption, UNCHECK};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
+  GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext, move_group_row,
 };
 
 #[derive(Default, Serialize, Deserialize)]

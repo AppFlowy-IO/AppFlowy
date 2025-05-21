@@ -3,8 +3,8 @@ use flowy_sqlite::result::DatabaseErrorKind;
 use flowy_sqlite::result::Error::DatabaseError;
 use flowy_sqlite::schema::{upload_file_part, upload_file_table};
 use flowy_sqlite::{
-  diesel, AsChangeset, BoolExpressionMethods, DBConnection, ExpressionMethods, Identifiable,
-  Insertable, OptionalExtension, QueryDsl, Queryable, RunQueryDsl, SqliteConnection,
+  AsChangeset, BoolExpressionMethods, DBConnection, ExpressionMethods, Identifiable, Insertable,
+  OptionalExtension, QueryDsl, Queryable, RunQueryDsl, SqliteConnection, diesel,
 };
 use tracing::{trace, warn};
 

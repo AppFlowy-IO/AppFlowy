@@ -36,7 +36,6 @@
     "loginButtonText": "Oturum Aç",
     "loginStartWithAnonymous": "Anonim oturumla başla",
     "continueAnonymousUser": "Anonim oturumla devam et",
-    "anonymous": "Anonim",
     "buttonText": "Oturum Aç",
     "signingInText": "Oturum açılıyor...",
     "forgotPassword": "Parolamı Unuttum?",
@@ -68,7 +67,8 @@
     "logIn": "Oturum Aç",
     "generalError": "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
     "limitRateError": "Güvenlik önlemi olarak, sihirli bağlantı talepleri 60 saniyede bir ile sınırlandırılmıştır.",
-    "magicLinkSentDescription": "E-posta adresinize sihirli bir bağlantı gönderdik. Giriş yapmak için bu bağlantıya tıklayın. Bağlantı 5 dakika içinde geçersiz hale gelecektir."
+    "magicLinkSentDescription": "E-posta adresinize sihirli bir bağlantı gönderdik. Giriş yapmak için bu bağlantıya tıklayın. Bağlantı 5 dakika içinde geçersiz hale gelecektir.",
+    "anonymous": "Anonim"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma alanınızı seçin",
@@ -288,14 +288,14 @@
   "questionBubble": {
     "shortcuts": "Kısayollar",
     "whatsNew": "Yenilikler",
-    "help": "Yardım ve Destek",
     "markdown": "Markdown",
     "debug": {
       "name": "Hata Ayıklama Bilgisi",
       "success": "Hata ayıklama bilgisi panoya kopyalandı!",
       "fail": "Hata ayıklama bilgisi panoya kopyalanamadı"
     },
-    "feedback": "Geri Bildirim"
+    "feedback": "Geri Bildirim",
+    "help": "Yardım ve Destek"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Kaldır, yeniden adlandır ve daha fazlası...",
@@ -373,7 +373,6 @@
     "storageLimitDialogTitle": "Ücretsiz depolama alanınız bitti. Sınırsız depolama için yükseltin",
     "storageLimitDialogTitleIOS": "Ücretsiz depolama alanınız bitti.",
     "aiResponseLimitTitle": "Ücretsiz yapay zeka yanıtlarınız bitti. Sınırsız yanıt için Pro Plana yükseltin veya bir yapay zeka eklentisi satın alın",
-    "aiResponseLimitTitleIOS": "Ücretsiz yapay zeka yanıtlarınız bitti.",
     "aiResponseLimitDialogTitle": "Yapay zeka yanıt limitine ulaşıldı",
     "aiResponseLimit": "Ücretsiz yapay zeka yanıtlarınız bitti.\n\nDaha fazla yapay zeka yanıtı almak için Ayarlar -> Plan -> AI Max veya Pro Plan'a tıklayın",
     "askOwnerToUpgradeToPro": "Çalışma alanınızın ücretsiz depolama alanı bitiyor. Lütfen çalışma alanı sahibinden Pro Plana yükseltmesini isteyin",
@@ -1609,8 +1608,7 @@
     "url": {
       "launch": "Bağlantıyı tarayıcıda aç",
       "copy": "Bağlantıyı panoya kopyala",
-      "textFieldHint": "Bir URL girin",
-      "copiedNotification": "Panoya kopyalandı!"
+      "textFieldHint": "Bir URL girin"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "İlişkili Veritabanı",
@@ -2519,12 +2517,12 @@
         "dialogTitle": "Hesabı sil",
         "dialogContent1": "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
         "dialogContent2": "Bu işlem GERİ ALINAMAZ ve tüm çalışma alanlarından erişiminizi kaldıracak, özel çalışma alanları dahil tüm hesabınızı silecek ve sizi tüm paylaşılan çalışma alanlarından çıkaracaktır.",
-        "confirmHint1": "Onaylamak için lütfen \"HESABIMI SİL\" yazın.",
+        "confirmHint1": "Onaylamak için lütfen \"@:newSettings.myAccount.deleteAccount.confirmHint3\" yazın.",
         "confirmHint2": "Bu işlemin GERİ ALINAMAZ olduğunu ve hesabımı ve ilişkili tüm verileri kalıcı olarak sileceğini anlıyorum.",
         "confirmHint3": "HESABIMI SİL",
         "checkToConfirmError": "Silme işlemini onaylamak için kutuyu işaretlemelisiniz",
         "failedToGetCurrentUser": "Mevcut kullanıcı e-postası alınamadı",
-        "confirmTextValidationFailed": "Onay metniniz \"HESABIMI SİL\" ile eşleşmiyor",
+        "confirmTextValidationFailed": "Onay metniniz \"@:newSettings.myAccount.deleteAccount.confirmHint3\" ile eşleşmiyor",
         "deleteAccountSuccess": "Hesap başarıyla silindi"
       }
     },

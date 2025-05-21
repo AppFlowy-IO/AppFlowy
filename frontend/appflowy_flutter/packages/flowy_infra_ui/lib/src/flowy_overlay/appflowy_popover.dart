@@ -4,6 +4,23 @@ import 'package:flutter/material.dart';
 
 export 'package:appflowy_popover/appflowy_popover.dart';
 
+class ShadowConstants {
+  ShadowConstants._();
+
+  static const List<BoxShadow> lightSmall = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 20, color: Color(0x1A1F2329)),
+  ];
+  static const List<BoxShadow> lightMedium = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x121F2225)),
+  ];
+  static const List<BoxShadow> darkSmall = [
+    BoxShadow(offset: Offset(0, 2), blurRadius: 16, color: Color(0x7A000000)),
+  ];
+  static const List<BoxShadow> darkMedium = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x7A000000)),
+  ];
+}
+
 class AppFlowyPopover extends StatelessWidget {
   const AppFlowyPopover({
     super.key,
@@ -25,6 +42,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.skipTraversal = false,
     this.decorationColor,
     this.borderRadius,
+    this.popoverDecoration,
     this.animationDuration = const Duration(),
     this.slideDistance = 5.0,
     this.beginScaleFactor = 0.9,
@@ -56,6 +74,7 @@ class AppFlowyPopover extends StatelessWidget {
   final double endScaleFactor;
   final double beginOpacity;
   final double endOpacity;
+  final Decoration? popoverDecoration;
 
   /// The widget that will be used to trigger the popover.
   ///
@@ -102,6 +121,7 @@ class AppFlowyPopover extends StatelessWidget {
       popupBuilder: (context) => _PopoverContainer(
         constraints: constraints,
         margin: margin,
+        decoration: popoverDecoration,
         decorationColor: decorationColor,
         borderRadius: borderRadius,
         child: popupBuilder(context),
@@ -116,6 +136,7 @@ class _PopoverContainer extends StatelessWidget {
   const _PopoverContainer({
     this.decorationColor,
     this.borderRadius,
+    this.decoration,
     required this.child,
     required this.margin,
     required this.constraints,
@@ -126,6 +147,7 @@ class _PopoverContainer extends StatelessWidget {
   final EdgeInsets margin;
   final Color? decorationColor;
   final BorderRadius? borderRadius;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +155,11 @@ class _PopoverContainer extends StatelessWidget {
       type: MaterialType.transparency,
       child: Container(
         padding: margin,
-        decoration: context.getPopoverDecoration(
-          color: decorationColor,
-          borderRadius: borderRadius,
-        ),
+        decoration: decoration ??
+            context.getPopoverDecoration(
+              color: decorationColor,
+              borderRadius: borderRadius,
+            ),
         constraints: constraints,
         child: child,
       ),
@@ -144,7 +167,7 @@ class _PopoverContainer extends StatelessWidget {
   }
 }
 
-extension on BuildContext {
+extension PopoverDecoration on BuildContext {
   /// The decoration of the popover.
   ///
   /// Don't customize the entire decoration of the popover,
@@ -156,26 +179,9 @@ extension on BuildContext {
     final borderColor = Theme.of(this).brightness == Brightness.light
         ? ColorSchemeConstants.lightBorderColor
         : ColorSchemeConstants.darkBorderColor;
-    final shadows = [
-      const BoxShadow(
-        color: Color(0x0A1F2329),
-        blurRadius: 24,
-        offset: Offset(0, 8),
-        spreadRadius: 8,
-      ),
-      const BoxShadow(
-        color: Color(0x0A1F2329),
-        blurRadius: 12,
-        offset: Offset(0, 6),
-        spreadRadius: 0,
-      ),
-      const BoxShadow(
-        color: Color(0x0F1F2329),
-        blurRadius: 8,
-        offset: Offset(0, 4),
-        spreadRadius: -8,
-      )
-    ];
+    final shadows = Theme.of(this).brightness == Brightness.light
+        ? ShadowConstants.lightSmall
+        : ShadowConstants.darkSmall;
     return ShapeDecoration(
       color: color ?? Theme.of(this).cardColor,
       shape: RoundedRectangleBorder(

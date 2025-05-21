@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use std::fmt::Display;
 
-use flowy_error::{internal_error, FlowyResult};
+use flowy_error::{FlowyResult, internal_error};
 
 /// The data is encoded by protobuf or utf8. You should choose the corresponding decode struct to parse it.
 ///

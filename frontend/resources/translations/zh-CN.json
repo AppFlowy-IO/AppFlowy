@@ -36,7 +36,6 @@
     "loginButtonText": "登录",
     "loginStartWithAnonymous": "从匿名会话开始",
     "continueAnonymousUser": "继续匿名会话",
-    "anonymous": "匿名",
     "buttonText": "登录",
     "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
@@ -69,6 +68,7 @@
     "generalError": "出现错误，请稍后再试",
     "limitRateError": "出于安全原因，每60秒仅可以发送一次链接",
     "magicLinkSentDescription": "一个验证链接已发送到您的电子邮箱。点击该链接即可完成登录。该链接将在 5 分钟后失效。",
+    "anonymous": "匿名",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
@@ -137,7 +137,8 @@
     "copyLinkFailed": "无法将链接复制到剪贴板",
     "copyLinkToBlockSuccess": "区块链接已复制到剪贴板",
     "copyLinkToBlockFailed": "无法将区块链接复制到剪贴板",
-    "manageAllSites": "管理所有站点"
+    "manageAllSites": "管理所有站点",
+    "updatePathName": "更新路径名称"
   },
   "moreAction": {
     "small": "小",
@@ -152,7 +153,10 @@
     "deleteView": "删除",
     "duplicateView": "复制",
     "wordCountLabel": "词总数:",
-    "charCountLabel": "字符总数:"
+    "charCountLabel": "字符总数:",
+    "createdAtLabel": "已创建的:",
+    "syncedAtLabel": "已同步的:",
+    "saveAsNewPage": "在页面中添加消息"
   },
   "importPanel": {
     "textAndMarkdown": "文本 和 Markdown",
@@ -175,7 +179,8 @@
     "changeIcon": "更改图标",
     "collapseAllPages": "收起全部子页面",
     "movePageTo": "将页面移动至",
-    "move": "移动"
+    "move": "移动",
+    "lockPage": "锁定页面"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -206,10 +211,19 @@
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
     "questionDetail": "{} 你好！我能怎么帮到你？",
     "indexingFile": "正在索引 {}",
+    "generatingResponse": "正在生成相应",
+    "sourceUnsupported": "我们当前不支持基于数据库的交流",
     "regenerate": "请重试",
+    "addToPageTitle": "添加消息至......",
+    "addToNewPage": "创建新的页面",
     "openPagePreviewFailedToast": "打开页面失败",
     "changeFormat": {
-      "actionButton": "变更样式"
+      "actionButton": "变更样式",
+      "confirmButton": "基于该样式重新生成",
+      "imageOnly": "仅图片",
+      "textAndImage": "文本与图片",
+      "text": "段落",
+      "table": "表格"
     },
     "referenceSource": "找到 {} 个来源",
     "referenceSources": "找到 {} 个来源",
@@ -256,14 +270,14 @@
   "questionBubble": {
     "shortcuts": "快捷键",
     "whatsNew": "新功能",
-    "help": "帮助和支持",
     "markdown": "Markdown",
     "debug": {
       "name": "调试信息",
       "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
     },
-    "feedback": "反馈"
+    "feedback": "反馈",
+    "help": "帮助和支持"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "删除、重命名等等...",
@@ -342,13 +356,13 @@
     "storageLimitDialogTitle": "你已用尽免费存储。升级以解锁无限制存储",
     "storageLimitDialogTitleIOS": "你已用尽免费存储。",
     "aiResponseLimitTitle": "你已用尽免费 AI 回应。升级到专业版或者购买 AI 插件来解锁无限制回应",
-    "aiResponseLimitTitleIOS": "你已用尽免费 AI 回应。",
     "aiResponseLimitDialogTitle": "已达到 AI 回应限额",
     "aiResponseLimit": "你已用尽了免费 AI 回应。\n\n转到“设置 -> 计划 -> 点击 AI Max 或 Pro 计划”获取更多 AI 回应",
     "askOwnerToUpgradeToPro": "你的工作区即将用尽免费存储。请联系工作区所有者升级到专业版计划",
     "askOwnerToUpgradeToProIOS": "你的工作区即将用尽免费存储。",
     "askOwnerToUpgradeToAIMax": "你的工作区即将用尽免费 AI 回应。请联系工作区所有者升级计划或购买 AI 插件",
     "askOwnerToUpgradeToAIMaxIOS": "你的工作区即将用尽免费 AI 回应限额。",
+    "aiImageResponseLimit": "你已消耗完你的 AI 图像响应额度。\n转到 设置 -> 方案 -> 点击 AI Max 去获得更多的图像响应额度",
     "purchaseStorageSpace": "购买存储空间",
     "purchaseAIResponse": "购买",
     "askOwnerToUpgradeToLocalAI": "联系工作区所有者启用设备上 AI",
@@ -471,6 +485,7 @@
       "selectHomePage": "选择一个页面",
       "customUrl": "自定义 URL",
       "namespace": {
+        "updateExistingNamespace": "更新现有的名称空间",
         "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
         "redirectToPayment": "正在重定向至付款页面......",
         "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页",
@@ -479,13 +494,39 @@
       "publishedPage": {
         "title": "所有已发布页面",
         "description": "管理您已发布的页面",
+        "date": "已发布的数据",
+        "emptyHinText": "在当前工作空间没有已发布的页面",
         "noPublishedPages": "没有已发布的页面",
         "settings": "发布设置",
         "clickToOpenPageInApp": "在 App 中打开页面",
         "clickToOpenPageInBrowser": "在浏览器中打开页面"
       },
+      "error": {
+        "failedToUpdateNamespace": "更新名称空间失败",
+        "proPlanLimitation": "您需要升级至 Pro 方案以更新名称空间",
+        "namespaceAlreadyInUse": "该名称空间已被占用你，请尝试其他名称空间",
+        "invalidNamespace": "无效的名称空间，请尝试其他的名称空间",
+        "namespaceLengthAtLeast2Characters": "名称空间应不少于 2 个字符长度",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "仅工作空间所有者可更新名称空间",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "仅工作空间所有者可移除主页",
+        "setHomepageFailed": "设置主页失败",
+        "namespaceTooLong": "该名称空间过长，请尝试其他名称空间",
+        "namespaceTooShort": "该名称空间过短，请尝试其他名称空间",
+        "namespaceIsReserved": "该名称空间已被占用，请尝试其他名称空间",
+        "updatePathNameFailed": "更新路径名称失败",
+        "removeHomePageFailed": "移除主页失败",
+        "publishNameContainsInvalidCharacters": "该路径名称包含无效的字符，请尝试其他的路径名称",
+        "publishNameTooShort": "路径名称过短，请尝试其他路径名称",
+        "publishNameTooLong": "路径名称过长，请尝试其他路径名称",
+        "publishNameAlreadyInUse": "该路径名称已被使用，请尝试其他路径名称",
+        "namespaceContainsInvalidCharacters": "该名称空间包含无效的字符，请尝试其他名称空间",
+        "publishPermissionDenied": "仅工作空间所有者或页面发布者可管理发布设置",
+        "publishNameCannotBeEmpty": "该路径名称不能为空，请尝试其他路径名称"
+      },
       "success": {
+        "namespaceUpdated": "更新名称空间成功",
         "setHomepageSuccess": "成功设置主页",
+        "updatePathNameSuccess": "更新路径名称成功",
         "removeHomePageSuccess": "成功删除主页"
       }
     },
@@ -628,6 +669,7 @@
         "descriptionEncrypted": "你的数据已加密。",
         "action": "加密数据",
         "dialog": {
+          "title": "加密您的所有数据？",
           "description": "加密所有数据将保证数据安全。此操作无法撤消。您确定要继续吗？"
         }
       },
@@ -646,8 +688,13 @@
       }
     },
     "shortcutsPage": {
+      "menuLabel": "快捷键",
+      "title": "快捷键",
       "actions": {
         "resetDefault": "重置为默认"
+      },
+      "errorPage": {
+        "howToFix": "请再次尝试，如果该问题依然存在，请在 Github 上联系我们"
       },
       "resetDialog": {
         "title": "重置快捷键",
@@ -657,13 +704,30 @@
         "confirmLabel": "继续"
       },
       "keybindings": {
+        "insertNewParagraphInCodeblock": "插入新的段落",
+        "pasteInCodeblock": "粘贴为代码块",
         "selectAllCodeblock": "全选",
+        "copy": "复制选中的内容",
         "alignLeft": "文本居左对齐",
         "alignCenter": "文本居中对齐",
         "alignRight": "文本居右对齐",
         "undo": "撤销",
         "redo": "重做",
-        "convertToParagraph": "将块转换为段落"
+        "convertToParagraph": "将块转换为段落",
+        "backspace": "删除",
+        "deleteLeftWord": "删除左侧文字",
+        "deleteLeftSentence": "删除左侧句子",
+        "delete": "删除右侧字符",
+        "deleteMacOS": "删除左侧字符",
+        "deleteRightWord": "删除右侧文字",
+        "moveCursorLeft": "将光标移至左侧",
+        "moveCursorBeginning": "将光标移至开头",
+        "moveCursorLeftWord": "将光标移至文字左侧",
+        "moveCursorRight": "将光标移至右侧",
+        "moveCursorEnd": "将光标移至末尾",
+        "moveCursorRightWord": "将光标移至文字右侧",
+        "home": "滚动至顶部",
+        "end": "滚动至底部"
       }
     },
     "aiPage": {
@@ -1206,8 +1270,7 @@
     "url": {
       "launch": "在浏览器中打开链接",
       "copy": "将链接复制到剪贴板",
-      "textFieldHint": "输入 URL",
-      "copiedNotification": "已复制到剪贴板！"
+      "textFieldHint": "输入 URL"
     },
     "relation": {
       "rowSearchTextFieldPlaceholder": "搜索"
@@ -1263,6 +1326,62 @@
       },
       "document": {
         "selectADocumentToLinkTo": "选择要链接到的文档"
+      },
+      "name": {
+        "textStyle": "文本样式",
+        "list": "列表",
+        "toggle": "切换",
+        "fileAndMedia": "文件与媒体",
+        "simpleTable": "简单表格",
+        "visuals": "视觉元素",
+        "document": "文档",
+        "advanced": "高级",
+        "text": "文本",
+        "heading1": "一级标题",
+        "heading2": "二级标题",
+        "heading3": "三级标题",
+        "image": "图片",
+        "bulletedList": "项目符号列表",
+        "numberedList": "编号列表",
+        "todoList": "待办事项列表",
+        "doc": "文档",
+        "linkedDoc": "链接到页面",
+        "grid": "网格",
+        "linkedGrid": "链接网格",
+        "kanban": "看板",
+        "linkedKanban": "链接看板",
+        "calendar": "日历",
+        "linkedCalendar": "链接日历",
+        "quote": "引用",
+        "divider": "分隔符",
+        "table": "表格",
+        "callout": "提示框",
+        "outline": "大纲",
+        "mathEquation": "数学公式",
+        "code": "代码",
+        "toggleList": "切换列表",
+        "toggleHeading1": "切换标题1",
+        "toggleHeading2": "切换标题2",
+        "toggleHeading3": "切换标题3",
+        "emoji": "表情符号",
+        "aiWriter": "向AI提问",
+        "dateOrReminder": "日期或提醒",
+        "photoGallery": "图片库",
+        "file": "文件",
+        "twoColumns": "两列",
+        "threeColumns": "三列",
+        "fourColumns": "四列"
+      },
+      "subPage": {
+        "name": "文档",
+        "keyword1": "子页面",
+        "keyword2": "页面",
+        "keyword3": "子页面",
+        "keyword4": "插入页面",
+        "keyword5": "嵌入页面",
+        "keyword6": "新页面",
+        "keyword7": "创建页面",
+        "keyword8": "文档"
       }
     },
     "selectionMenu": {
@@ -1274,6 +1393,16 @@
       "referencedGrid": "引用的网格",
       "referencedCalendar": "引用的日历",
       "referencedDocument": "参考文档",
+      "aiWriter": {
+        "userQuestion": "向AI提问",
+        "continueWriting": "继续写作",
+        "fixSpelling": "修正拼写和语法",
+        "improveWriting": "优化写作",
+        "summarize": "总结",
+        "explain": "解释",
+        "makeShorter": "缩短",
+        "makeLonger": "扩展"
+      },
       "autoGeneratorMenuItemName": "AI 创作",
       "autoGeneratorTitleName": "AI: 让 AI 写些什么...",
       "autoGeneratorLearnMore": "学习更多",
@@ -1334,7 +1463,7 @@
       },
       "optionAction": {
         "click": "点击",
-        "toOpenMenu": " 来打开菜单",
+        "toOpenMenu": "打开菜单",
         "delete": "删除",
         "duplicate": "复制",
         "turnInto": "变成",
@@ -1344,8 +1473,10 @@
         "align": "对齐",
         "left": "左",
         "center": "中心",
-        "right": "又",
-        "defaultColor": "默认"
+        "right": "右",
+        "defaultColor": "默认",
+        "depth": "深度",
+        "copyLinkToBlock": "粘贴块链接"
       },
       "image": {
         "addAnImage": "添加图像",
@@ -1386,6 +1517,27 @@
         "placeholder": "粘贴视频链接",
         "copiedToPasteBoard": "视频链接已复制到剪贴板",
         "insertVideo": "添加视频"
+      },
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "粘贴为",
+          "mention": "提及",
+          "URL": "URL",
+          "bookmark": "书签",
+          "embed": "嵌入"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "转换为提及",
+          "toUrl": "转换为URL",
+          "toEmbed": "转换为嵌入",
+          "toBookmark": "转换为书签",
+          "copyLink": "复制链接",
+          "replace": "替换",
+          "reload": "重新加载",
+          "removeLink": "移除链接",
+          "pasteHint": "粘贴 https://...",
+          "unableToDisplay": "无法显示"
+        }
       }
     },
     "outlineBlock": {
@@ -1856,7 +2008,14 @@
         "deleteMyAccount": "删除我的账户",
         "dialogTitle": "删除帐户",
         "dialogContent1": "你确定要永久删除您的帐户吗？",
-        "dialogContent2": "此操作无法撤消，并且将删除所有团队空间的访问权限，删除你的整个帐户（包括私人工作区），并将你从所有共享工作区中删除。"
+        "dialogContent2": "此操作无法撤消，并且将删除所有团队空间的访问权限，删除你的整个帐户（包括私人工作区），并将你从所有共享工作区中删除。",
+        "confirmHint1": "请输入 \"@:newSettings.myAccount.deleteAccount.confirmHint3\" 以确认。",
+        "confirmHint2": "我理解此操作是不可逆的，并且将永久删除我的帐户和所有关联数据。",
+        "confirmHint3": "删除我的账户",
+        "checkToConfirmError": "你必须勾选以确认删除。",
+        "failedToGetCurrentUser": "获取当前用户邮箱失败",
+        "confirmTextValidationFailed": "你的确认文本不匹配 \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
+        "deleteAccountSuccess": "账户删除成功"
       }
     },
     "workplace": {

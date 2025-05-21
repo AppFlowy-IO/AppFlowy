@@ -17,17 +17,20 @@ final _keywords = [
 ];
 
 /// Image menu item
-final imageSlashMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_slashMenu_name_image.tr(),
-  keywords: _keywords,
-  handler: (editorState, _, __) async => editorState.insertImageBlock(),
-  nameBuilder: slashMenuItemNameBuilder,
-  icon: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_image_s,
-    isSelected: isSelected,
-    style: style,
-  ),
-);
+final imageSlashMenuItem = buildImageSlashMenuItem();
+
+SelectionMenuItem buildImageSlashMenuItem({FlowySvgData? svg}) =>
+    SelectionMenuItem(
+      getName: () => LocaleKeys.document_slashMenu_name_image.tr(),
+      keywords: _keywords,
+      handler: (editorState, _, __) async => editorState.insertImageBlock(),
+      nameBuilder: slashMenuItemNameBuilder,
+      icon: (editorState, isSelected, style) => SelectableSvgWidget(
+        data: svg ?? FlowySvgs.slash_menu_icon_image_s,
+        isSelected: isSelected,
+        style: style,
+      ),
+    );
 
 extension on EditorState {
   Future<void> insertImageBlock() async {

@@ -221,12 +221,11 @@ class InlinePageReferenceService extends InlineActionsDelegate {
         replace.$1,
         replace.$2,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: view.id,
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page,
+          pageId: view.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction);
@@ -235,12 +234,19 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   InlineActionsMenuItem _fromView(ViewPB view) => InlineActionsMenuItem(
         keywords: [view.nameOrDefault.toLowerCase()],
         label: view.nameOrDefault,
-        icon: (onSelected) => view.icon.value.isNotEmpty
-            ? EmojiIconWidget(
-                emoji: view.icon.toEmojiIconData(),
-                emojiSize: 14,
-              )
-            : view.defaultIcon(),
+        iconBuilder: (onSelected) {
+          final child = view.icon.value.isNotEmpty
+              ? RawEmojiIconWidget(
+                  emoji: view.icon.toEmojiIconData(),
+                  emojiSize: 16.0,
+                  lineHeight: 18.0 / 16.0,
+                )
+              : view.defaultIcon(size: const Size(16, 16));
+          return SizedBox(
+            width: 16,
+            child: child,
+          );
+        },
         onSelected: (context, editorState, menu, replace) => insertPage
             ? _onInsertPageRef(view, context, editorState, replace)
             : _onInsertLinkRef(view, context, editorState, menu, replace),

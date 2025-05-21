@@ -76,13 +76,12 @@ void main() {
         LocaleKeys.document_slashMenu_name_heading1.tr(): HeadingBlockKeys.type,
         LocaleKeys.document_slashMenu_name_heading2.tr(): HeadingBlockKeys.type,
         LocaleKeys.document_slashMenu_name_heading3.tr(): HeadingBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_bulletedList.tr():
+        LocaleKeys.editor_bulletedListShortForm.tr():
             BulletedListBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_numberedList.tr():
+        LocaleKeys.editor_numberedListShortForm.tr():
             NumberedListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_quote.tr(): QuoteBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_todoList.tr():
-            TodoListBlockKeys.type,
+        LocaleKeys.editor_checkbox.tr(): TodoListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_callout.tr(): CalloutBlockKeys.type,
         LocaleKeys.document_slashMenu_name_text.tr(): ParagraphBlockKeys.type,
       };
@@ -117,13 +116,12 @@ void main() {
         LocaleKeys.document_slashMenu_name_heading1.tr(): HeadingBlockKeys.type,
         LocaleKeys.document_slashMenu_name_heading2.tr(): HeadingBlockKeys.type,
         LocaleKeys.document_slashMenu_name_heading3.tr(): HeadingBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_bulletedList.tr():
+        LocaleKeys.editor_bulletedListShortForm.tr():
             BulletedListBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_numberedList.tr():
+        LocaleKeys.editor_numberedListShortForm.tr():
             NumberedListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_quote.tr(): QuoteBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_todoList.tr():
-            TodoListBlockKeys.type,
+        LocaleKeys.editor_checkbox.tr(): TodoListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_callout.tr(): CalloutBlockKeys.type,
         LocaleKeys.document_slashMenu_name_text.tr(): ParagraphBlockKeys.type,
       };

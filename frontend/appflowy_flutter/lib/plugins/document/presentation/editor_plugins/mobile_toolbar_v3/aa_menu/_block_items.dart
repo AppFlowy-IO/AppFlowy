@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_popup_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/link_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide QuoteBlockKeys, quoteNode;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class BlockItems extends StatelessWidget {
   BlockItems({
@@ -151,38 +151,7 @@ class BlockItems extends StatelessWidget {
         ),
       );
       keepEditorFocusNotifier.increase();
-
-      final text = editorState
-          .getTextInSelection(
-            selection,
-          )
-          .join();
-      final href = editorState.getDeltaAttributeValueInSelection<String>(
-        AppFlowyRichTextKeys.href,
-        selection,
-      );
-      await showEditLinkBottomSheet(
-        context,
-        text,
-        href,
-        (context, newText, newHref) {
-          editorState.updateTextAndHref(
-            text,
-            href,
-            newText,
-            newHref,
-            selection: selection,
-          );
-          context.pop(true);
-        },
-      );
-      // re-open the keyboard again
-      unawaited(
-        editorState.updateSelectionWithReason(
-          selection,
-          extraInfo: {},
-        ),
-      );
+      await showEditLinkBottomSheet(context, selection, editorState);
     }
   }
 

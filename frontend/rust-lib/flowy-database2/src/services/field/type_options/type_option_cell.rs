@@ -6,6 +6,7 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 use collab::preclude::Any;
+use collab_database::fields::Field;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{DateTypeOption, TimeTypeOption};
@@ -18,13 +19,12 @@ use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
-use collab_database::fields::Field;
-use collab_database::rows::{get_field_type_from_cell, Cell, RowId};
+use collab_database::rows::{Cell, RowId, get_field_type_from_cell};
 use flowy_error::FlowyResult;
 use lib_infra::box_any::BoxAny;
 use std::cmp::Ordering;
-use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 pub const CELL_DATA: &str = "data";

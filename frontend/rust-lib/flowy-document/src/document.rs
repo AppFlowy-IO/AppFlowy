@@ -1,14 +1,15 @@
 use crate::entities::{
   DocEventPB, DocumentAwarenessStatesPB, DocumentSnapshotStatePB, DocumentSyncStatePB,
 };
-use crate::notification::{document_notification_builder, DocumentNotification};
+use crate::notification::{DocumentNotification, document_notification_builder};
 use collab::preclude::Collab;
 use collab_document::document::Document;
 use futures::StreamExt;
 use lib_infra::sync_trace;
+use uuid::Uuid;
 
-pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
-  let doc_id_clone_for_block_changed = doc_id.to_owned();
+pub fn subscribe_document_changed(doc_id: &Uuid, document: &mut Document) {
+  let doc_id_clone_for_block_changed = doc_id.to_string();
   document.subscribe_block_changed("key", move |events, is_remote| {
     sync_trace!(
       "[Document] block changed in doc_id: {}, is_remote: {}, events: {:?}",
@@ -35,7 +36,7 @@ pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
     );
 
     document_notification_builder(
-      &doc_id_clone_for_awareness_state,
+      &doc_id_clone_for_awareness_state.to_string(),
       DocumentNotification::DidUpdateDocumentAwarenessState,
     )
     .payload::<DocumentAwarenessStatesPB>(events.into())

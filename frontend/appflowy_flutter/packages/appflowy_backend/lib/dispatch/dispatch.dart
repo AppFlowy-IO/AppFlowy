@@ -49,61 +49,74 @@ class DispatchException implements Exception {
 
 class Dispatch {
   static Future<FlowyResult<Uint8List, Uint8List>> asyncRequest(
-      FFIRequest request) {
+    FFIRequest request,
+  ) async {
+    final event = request.event;
+
     // FFIRequest => Rust SDK
     final bytesFuture = _sendToRust(request);
 
+    _infoLog(event, 'sent request');
+
     // Rust SDK => FFIResponse
-    final responseFuture = _extractResponse(bytesFuture);
+    final response = await _extractResponse(bytesFuture);
+
+    _infoLog(event, 'received response');
 
     // FFIResponse's payload is the bytes of the Response object
-    final payloadFuture = _extractPayload(responseFuture);
+    final payload = _extractPayload(response);
 
-    return payloadFuture;
+    _infoLog(event, 'parsed payload');
+
+    return payload;
+  }
+
+  // only enable it when you need to debug the dispatch
+  static void _infoLog(String event, String message) {
+    // Log.info('[dispatch] [$event] $message');
   }
 }
 
-Future<FlowyResult<Uint8List, Uint8List>> _extractPayload(
-    Future<FlowyResult<FFIResponse, FlowyInternalError>> responseFuture) {
-  return responseFuture.then((result) {
-    return result.fold(
-      (response) {
-        switch (response.code) {
-          case FFIStatusCode.Ok:
-            return FlowySuccess(Uint8List.fromList(response.payload));
-          case FFIStatusCode.Err:
-            final errorBytes = Uint8List.fromList(response.payload);
-            GlobalErrorCodeNotifier.receiveErrorBytes(errorBytes);
-            return FlowyFailure(errorBytes);
-          case FFIStatusCode.Internal:
-            final error = utf8.decode(response.payload);
-            Log.error("Dispatch internal error: $error");
-            return FlowyFailure(emptyBytes());
-          default:
-            Log.error("Impossible to here");
-            return FlowyFailure(emptyBytes());
-        }
-      },
-      (error) {
-        Log.error("Response should not be empty $error");
-        return FlowyFailure(emptyBytes());
-      },
-    );
-  });
+FlowyResult<Uint8List, Uint8List> _extractPayload(
+  FlowyResult<FFIResponse, FlowyInternalError> response,
+) {
+  return response.fold(
+    (response) {
+      switch (response.code) {
+        case FFIStatusCode.Ok:
+          return FlowySuccess(Uint8List.fromList(response.payload));
+        case FFIStatusCode.Err:
+          final errorBytes = Uint8List.fromList(response.payload);
+          GlobalErrorCodeNotifier.receiveErrorBytes(errorBytes);
+          return FlowyFailure(errorBytes);
+        case FFIStatusCode.Internal:
+          final error = utf8.decode(response.payload);
+          Log.error("Dispatch internal error: $error");
+          return FlowyFailure(emptyBytes());
+        default:
+          Log.error("Impossible to here");
+          return FlowyFailure(emptyBytes());
+      }
+    },
+    (error) {
+      Log.error("Response should not be empty $error");
+      return FlowyFailure(emptyBytes());
+    },
+  );
 }
 
 Future<FlowyResult<FFIResponse, FlowyInternalError>> _extractResponse(
-    Completer<Uint8List> bytesFuture) {
-  return bytesFuture.future.then((bytes) {
-    try {
-      final response = FFIResponse.fromBuffer(bytes);
-      return FlowySuccess(response);
-    } catch (e, s) {
-      final error = StackTraceError(e, s);
-      Log.error('Deserialize response failed. ${error.toString()}');
-      return FlowyFailure(error.asFlowyError());
-    }
-  });
+  Completer<Uint8List> bytesFuture,
+) async {
+  final bytes = await bytesFuture.future;
+  try {
+    final response = FFIResponse.fromBuffer(bytes);
+    return FlowySuccess(response);
+  } catch (e, s) {
+    final error = StackTraceError(e, s);
+    Log.error('Deserialize response failed. ${error.toString()}');
+    return FlowyFailure(error.asFlowyError());
+  }
 }
 
 Completer<Uint8List> _sendToRust(FFIRequest request) {

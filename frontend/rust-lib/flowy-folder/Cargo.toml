@@ -1,16 +1,14 @@
 [package]
 name = "flowy-folder"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 collab = { workspace = true }
 collab-folder = { workspace = true }
-collab-document = { workspace = true }
 collab-entity = { workspace = true }
-collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
@@ -28,9 +26,6 @@ lib-dispatch = { workspace = true }
 bytes.workspace = true
 lib-infra = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-nanoid = "0.4.0"
-lazy_static = "1.4.0"
-chrono = { workspace = true, default-features = false, features = ["clock"] }
 strum_macros = "0.21"
 protobuf.workspace = true
 uuid.workspace = true
@@ -41,8 +36,9 @@ validator.workspace = true
 async-trait.workspace = true
 client-api = { workspace = true }
 regex = "1.9.5"
-futures = "0.3.30"
+futures = "0.3.31"
 dashmap.workspace = true
+num_enum.workspace = true
 
 
 [build-dependencies]
@@ -50,6 +46,4 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
-web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
 test_helper = []

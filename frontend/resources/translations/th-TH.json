@@ -36,7 +36,6 @@
     "loginButtonText": "เข้าสู่ระบบ",
     "loginStartWithAnonymous": "เริ่มต้นด้วยเซสชั่นแบบไม่ระบุตัวตน",
     "continueAnonymousUser": "ดำเนินการต่อด้วยเซสชันแบบไม่ระบุตัวตน",
-    "anonymous": "ไม่ระบุตัวตน",
     "buttonText": "เข้าสู่ระบบ",
     "signingInText": "กำลังลงชื่อเข้าใช้...",
     "forgotPassword": "ลืมรหัสผ่านหรือไม่?",
@@ -69,6 +68,7 @@
     "generalError": "มีบางอย่างผิดพลาด โปรดลองอีกครั้งในภายหลัง",
     "limitRateError": "ด้วยเหตุผลด้านความปลอดภัย คุณสามารถขอ Magic Link ได้ทุกๆ 60 วินาทีเท่านั้น",
     "magicLinkSentDescription": "Magic Link ถูกส่งไปยังอีเมลของคุณแล้ว กรุณาคลิกลิงก์เพื่อเข้าสู่ระบบ ลิงก์จะหมดอายุภายใน 5 นาที",
+    "anonymous": "ไม่ระบุตัวตน",
     "LogInWithGoogle": "เข้าสู่ระบบด้วย Google",
     "LogInWithGithub": "เข้าสู่ระบบด้วย Github",
     "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord"
@@ -250,14 +250,14 @@
   "questionBubble": {
     "shortcuts": "ทางลัด",
     "whatsNew": "มีอะไรใหม่?",
-    "help": "ช่วยเหลือและสนับสนุน",
     "markdown": "Markdown",
     "debug": {
       "name": "ข้อมูลดีบัก",
       "success": "คัดลอกข้อมูลดีบักไปยังคลิปบอร์ดแล้ว!",
       "fail": "ไม่สามารถคัดลอกข้อมูลดีบักไปยังคลิปบอร์ด"
     },
-    "feedback": "ข้อเสนอแนะ"
+    "feedback": "ข้อเสนอแนะ",
+    "help": "ช่วยเหลือและสนับสนุน"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "ลบ เปลี่ยนชื่อ และอื่นๆ...",
@@ -333,7 +333,6 @@
     "storageLimitDialogTitle": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว กรุณาอัปเกรดเพื่อปลดล็อกพื้นที่จัดเก็บแบบไม่จำกัด",
     "storageLimitDialogTitleIOS": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว",
     "aiResponseLimitTitle": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว กรุณาอัปเกรดเป็นแผน Pro หรือซื้อส่วนเสริม AI เพื่อปลดล็อกการตอบกลับไม่จำกัด",
-    "aiResponseLimitTitleIOS": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว",
     "aiResponseLimitDialogTitle": "ถึงขีดจำกัดการตอบกลับ AI แล้ว",
     "aiResponseLimit": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว\nไปที่ การตั้งค่า -> แผน -> คลิก AI Max หรือแผน Pro เพื่อรับการตอบกลับ AI เพิ่มเติม",
     "askOwnerToUpgradeToPro": "พื้นที่จัดเก็บฟรีในพื้นที่ทำงานของคุณกำลังจะหมด กรุณาขอให้เจ้าของพื้นที่ทำงานของคุณอัปเกรดเป็นแผน Pro",
@@ -1571,8 +1570,7 @@
     "url": {
       "launch": "เปิดในเบราว์เซอร์",
       "copy": "คัดลอก URL",
-      "textFieldHint": "ป้อน URL",
-      "copiedNotification": "คัดลอกไปยังคลิปบอร์ดแล้ว!"
+      "textFieldHint": "ป้อน URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "ฐานข้อมูลที่เกี่ยวข้อง",

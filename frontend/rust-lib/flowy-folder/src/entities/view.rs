@@ -1,12 +1,20 @@
+use client_api::entity::guest_dto::{
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser, SharedViewDetails,
+};
+use client_api::entity::{AFAccessLevel, AFRole};
 use collab_folder::{View, ViewIcon, ViewLayout};
-use std::collections::HashMap;
-use std::convert::TryInto;
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
-
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
+use lib_infra::validator_fn::required_not_empty_str;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::convert::TryInto;
+use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
+use std::sync::Arc;
+use uuid::Uuid;
+use validator::Validate;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
@@ -135,6 +143,44 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     last_edited_by: view.last_edited_by,
     is_locked: view.is_locked,
   }
+}
+
+/// Returns a ViewPB with all descendants recursively included in child_views.
+pub fn view_pb_with_all_child_views<F>(view: Arc<View>, get_children: &F) -> ViewPB
+where
+  F: Fn(&str) -> Vec<Arc<View>>,
+{
+  fn helper<F>(view: Arc<View>, get_children: &F, visited: &mut HashSet<String>) -> ViewPB
+  where
+    F: Fn(&str) -> Vec<Arc<View>>,
+  {
+    if !visited.insert(view.id.clone()) {
+      // Already visited this view, stop recursion to prevent cycle
+      return view_pb_without_child_views(view.as_ref().clone());
+    }
+    let child_views = get_children(&view.id)
+      .into_iter()
+      .map(|child| helper(child, get_children, visited))
+      .collect();
+    ViewPB {
+      id: view.id.clone(),
+      parent_view_id: view.parent_view_id.clone(),
+      name: view.name.clone(),
+      create_time: view.created_at,
+      child_views,
+      layout: view.layout.clone().into(),
+      icon: view.icon.clone().map(|icon| icon.into()),
+      is_favorite: view.is_favorite,
+      extra: view.extra.clone(),
+      created_by: view.created_by,
+      last_edited: view.last_edited_time,
+      last_edited_by: view.last_edited_by,
+      is_locked: view.is_locked,
+    }
+  }
+
+  let mut visited = HashSet::new();
+  helper(view, get_children, &mut visited)
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
@@ -322,10 +368,10 @@ pub struct CreateOrphanViewPayloadPB {
 
 #[derive(Debug, Clone)]
 pub struct CreateViewParams {
-  pub parent_view_id: String,
+  pub parent_view_id: Uuid,
   pub name: String,
   pub layout: ViewLayoutPB,
-  pub view_id: String,
+  pub view_id: Uuid,
   pub initial_data: ViewData,
   pub meta: HashMap<String, String>,
   // Mark the view as current view after creation.
@@ -346,9 +392,13 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
+    let parent_view_id = ViewIdentify::parse(self.parent_view_id)
+      .and_then(|id| Uuid::from_str(&id.0).map_err(|_| ErrorCode::InvalidParams))?;
     // if view_id is not provided, generate a new view_id
-    let view_id = self.view_id.unwrap_or_else(|| gen_view_id().to_string());
+    let view_id = self
+      .view_id
+      .and_then(|v| Uuid::parse_str(&v).ok())
+      .unwrap_or_else(gen_view_id);
 
     Ok(CreateViewParams {
       parent_view_id,
@@ -371,13 +421,13 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let parent_view_id = ViewIdentify::parse(self.view_id.clone())?.0;
+    let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
 
     Ok(CreateViewParams {
-      parent_view_id,
+      parent_view_id: view_id,
       name,
       layout: self.layout,
-      view_id: self.view_id,
+      view_id,
       initial_data: ViewData::Data(self.initial_data.into()),
       meta: Default::default(),
       set_as_current: false,
@@ -389,18 +439,15 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
   }
 }
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
-}
-
-impl std::convert::From<&str> for ViewIdPB {
-  fn from(value: &str) -> Self {
-    ViewIdPB {
-      value: value.to_string(),
-    }
-  }
+  //
+  // #[pb(index = 2)]
+  // #[validate(custom(function = "required_not_empty_str"))]
+  // pub workspace_id: String,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -564,9 +611,9 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
 
 #[derive(Debug)]
 pub struct MoveNestedViewParams {
-  pub view_id: String,
-  pub new_parent_id: String,
-  pub prev_view_id: Option<String>,
+  pub view_id: Uuid,
+  pub new_parent_id: Uuid,
+  pub prev_view_id: Option<Uuid>,
   pub from_section: Option<ViewSectionPB>,
   pub to_section: Option<ViewSectionPB>,
 }
@@ -575,9 +622,20 @@ impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<MoveNestedViewParams, Self::Error> {
-    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    let view_id = Uuid::from_str(&ViewIdentify::parse(self.view_id)?.0)
+      .map_err(|_| ErrorCode::InvalidParams)?;
+
     let new_parent_id = ViewIdentify::parse(self.new_parent_id)?.0;
-    let prev_view_id = self.prev_view_id;
+    let new_parent_id = Uuid::from_str(&new_parent_id).map_err(|_| ErrorCode::InvalidParams)?;
+
+    let prev_view_id = match self.prev_view_id {
+      Some(prev_view_id) => Some(
+        Uuid::from_str(&ViewIdentify::parse(prev_view_id)?.0)
+          .map_err(|_| ErrorCode::InvalidParams)?,
+      ),
+      None => None,
+    };
+
     Ok(MoveNestedViewParams {
       view_id,
       new_parent_id,
@@ -662,6 +720,191 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
       sync_after_create: self.sync_after_create,
     })
   }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum AFAccessLevelPB {
+  #[default]
+  ReadOnly = 0,
+  ReadAndComment = 1,
+  ReadAndWrite = 2,
+  FullAccess = 3,
+}
+
+impl From<AFAccessLevelPB> for AFAccessLevel {
+  fn from(pb: AFAccessLevelPB) -> Self {
+    match pb {
+      AFAccessLevelPB::ReadOnly => AFAccessLevel::ReadOnly,
+      AFAccessLevelPB::ReadAndComment => AFAccessLevel::ReadAndComment,
+      AFAccessLevelPB::ReadAndWrite => AFAccessLevel::ReadAndWrite,
+      AFAccessLevelPB::FullAccess => AFAccessLevel::FullAccess,
+    }
+  }
+}
+
+impl From<AFAccessLevel> for AFAccessLevelPB {
+  fn from(level: AFAccessLevel) -> Self {
+    match level {
+      AFAccessLevel::ReadOnly => AFAccessLevelPB::ReadOnly,
+      AFAccessLevel::ReadAndComment => AFAccessLevelPB::ReadAndComment,
+      AFAccessLevel::ReadAndWrite => AFAccessLevelPB::ReadAndWrite,
+      AFAccessLevel::FullAccess => AFAccessLevelPB::FullAccess,
+    }
+  }
+}
+
+impl From<i32> for AFAccessLevelPB {
+  // These values are from client-api, so don't change them.
+  // ReadOnly = 10,
+  // ReadAndComment = 20,
+  // ReadAndWrite = 30,
+  // FullAccess = 50,
+  fn from(value: i32) -> Self {
+    match value {
+      10 => AFAccessLevelPB::ReadOnly,
+      20 => AFAccessLevelPB::ReadAndComment,
+      30 => AFAccessLevelPB::ReadAndWrite,
+      50 => AFAccessLevelPB::FullAccess,
+      _ => AFAccessLevelPB::ReadOnly,
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf_Enum, Clone, Default, Eq, PartialEq)]
+pub enum AFRolePB {
+  Owner = 0,
+  Member = 1,
+  #[default]
+  Guest = 2,
+}
+
+impl From<AFRole> for AFRolePB {
+  fn from(value: AFRole) -> Self {
+    match value {
+      AFRole::Owner => AFRolePB::Owner,
+      AFRole::Member => AFRolePB::Member,
+      AFRole::Guest => AFRolePB::Guest,
+    }
+  }
+}
+
+impl From<AFRolePB> for AFRole {
+  fn from(value: AFRolePB) -> Self {
+    match value {
+      AFRolePB::Owner => AFRole::Owner,
+      AFRolePB::Member => AFRole::Member,
+      AFRolePB::Guest => AFRole::Guest,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharePageWithUserPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub emails: Vec<String>,
+
+  #[pb(index = 3)]
+  pub access_level: AFAccessLevelPB,
+}
+
+impl TryInto<ShareViewWithGuestRequest> for SharePageWithUserPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ShareViewWithGuestRequest, Self::Error> {
+    let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
+    Ok(ShareViewWithGuestRequest {
+      view_id,
+      emails: self.emails,
+      access_level: self.access_level.into(),
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RemoveUserFromSharedPagePayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub emails: Vec<String>,
+}
+
+impl From<RemoveUserFromSharedPagePayloadPB> for RevokeSharedViewAccessRequest {
+  fn from(payload: RemoveUserFromSharedPagePayloadPB) -> Self {
+    RevokeSharedViewAccessRequest {
+      emails: payload.emails,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub role: AFRolePB,
+
+  #[pb(index = 4)]
+  pub access_level: AFAccessLevelPB,
+
+  #[pb(index = 5, one_of)]
+  pub avatar_url: Option<String>,
+}
+
+impl From<SharedUser> for SharedUserPB {
+  fn from(user: SharedUser) -> Self {
+    SharedUserPB {
+      email: user.email,
+      name: user.name,
+      role: user.role.into(),
+      access_level: user.access_level.into(),
+      avatar_url: user.avatar_url,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedUserPB {
+  #[pb(index = 1)]
+  pub items: Vec<SharedUserPB>,
+}
+
+impl From<SharedViewDetails> for RepeatedSharedUserPB {
+  fn from(details: SharedViewDetails) -> Self {
+    RepeatedSharedUserPB {
+      items: details
+        .shared_with
+        .into_iter()
+        .map(|user| user.into())
+        .collect(),
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct GetSharedUsersPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedViewPB {
+  #[pb(index = 1)]
+  pub view: ViewPB,
+  #[pb(index = 2)]
+  pub access_level: AFAccessLevelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedViewResponsePB {
+  #[pb(index = 1)]
+  pub shared_views: Vec<SharedViewPB>,
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

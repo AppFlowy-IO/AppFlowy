@@ -45,7 +45,6 @@ class _MobileSyncErrorPage extends StatelessWidget {
       onTapUp: () {
         getIt<ClipboardService>().setPlainText(error.toString());
         showToastNotification(
-          context,
           message: LocaleKeys.message_copy_success.tr(),
           bottomPadding: 0,
         );
@@ -101,7 +100,6 @@ class _DesktopSyncErrorPage extends StatelessWidget {
       onTapUp: () {
         getIt<ClipboardService>().setPlainText(error.toString());
         showToastNotification(
-          context,
           message: LocaleKeys.message_copy_success.tr(),
           bottomPadding: 0,
         );

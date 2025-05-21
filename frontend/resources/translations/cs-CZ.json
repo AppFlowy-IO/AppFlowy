@@ -134,14 +134,14 @@
   "questionBubble": {
     "shortcuts": "Klávesové zkratky",
     "whatsNew": "Co je nového?",
-    "help": "Pomoc a podpora",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug informace",
       "success": "Debug informace zkopírovány do schránky!",
       "fail": "Nepodařilo se zkopáí"
     },
-    "feedback": "Zpětná vazba"
+    "feedback": "Zpětná vazba",
+    "help": "Pomoc a podpora"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Smazat, přejmenovat, a další...",

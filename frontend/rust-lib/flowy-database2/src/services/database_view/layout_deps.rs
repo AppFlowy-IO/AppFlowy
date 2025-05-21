@@ -2,10 +2,10 @@ use crate::entities::FieldType;
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 use collab::lock::RwLock;
-use collab_database::database::{gen_field_id, Database};
+use collab_database::database::{Database, gen_field_id};
+use collab_database::fields::Field;
 use collab_database::fields::date_type_option::DateTypeOption;
 use collab_database::fields::select_type_option::SingleSelectTypeOption;
-use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
 };

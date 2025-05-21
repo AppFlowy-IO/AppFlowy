@@ -1,8 +1,8 @@
-import 'package:appflowy/ai/service/ai_client.dart';
 import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/mobile/presentation/search/view_ancestor_cache.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
@@ -15,7 +15,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -62,6 +61,7 @@ Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
   Log.info("cloud setting: $env");
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
+  getIt.registerFactory<AIRepository>(() => AppFlowyAIService());
 
   if (isAppFlowyCloudEnabled) {
     getIt.registerSingleton(
@@ -81,16 +81,6 @@ void _resolveCommonService(
 
   getIt.registerFactory<ApplicationDataStorage>(
     () => mode.isTest ? MockApplicationDataStorage() : ApplicationDataStorage(),
-  );
-
-  getIt.registerFactoryAsync<AIRepository>(
-    () async {
-      final result = await UserBackendService.getCurrentUserProfile();
-      return result.fold(
-        (s) => AppFlowyAIService(),
-        (e) => throw Exception('Failed to get user profile: ${e.msg}'),
-      );
-    },
   );
 
   getIt.registerFactory<ClipboardService>(
@@ -115,7 +105,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
-          AuthenticatorPB.Local,
+          AuthTypePB.Local,
         ),
       );
       break;
@@ -140,6 +130,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
   getIt.registerLazySingleton<CachedRecentService>(() => CachedRecentService());
+  getIt.registerLazySingleton<ViewAncestorCache>(() => ViewAncestorCache());
   getIt.registerLazySingleton<SubscriptionSuccessListenable>(
     () => SubscriptionSuccessListenable(),
   );

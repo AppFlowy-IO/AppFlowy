@@ -1,18 +1,18 @@
 use std::{collections::HashMap, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
-use serde_json::{json, to_value, Value};
+use collab_document::document_data::{PARAGRAPH_BLOCK_TYPE, default_document_data};
+use serde_json::{Value, json, to_value};
 
-use crate::document::util::{gen_document_id, gen_id, DocumentTest};
+use crate::document::util::{DocumentTest, gen_document_id, gen_id};
 
 #[tokio::test]
 async fn restore_document() {
   let test = DocumentTest::new();
 
   // create a document
-  let doc_id: String = gen_document_id();
-  let data = default_document_data(&doc_id);
+  let doc_id = gen_document_id();
+  let data = default_document_data(&doc_id.to_string());
   let uid = test.user_service.user_id().unwrap();
   test
     .create_document(uid, &doc_id, Some(data.clone()))
@@ -55,8 +55,8 @@ async fn restore_document() {
 async fn document_apply_insert_action() {
   let test = DocumentTest::new();
   let uid = test.user_service.user_id().unwrap();
-  let doc_id: String = gen_document_id();
-  let data = default_document_data(&doc_id);
+  let doc_id = gen_document_id();
+  let data = default_document_data(&doc_id.to_string());
 
   // create a document
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
@@ -111,9 +111,9 @@ async fn document_apply_insert_action() {
 #[tokio::test]
 async fn document_apply_update_page_action() {
   let test = DocumentTest::new();
-  let doc_id: String = gen_document_id();
+  let doc_id = gen_document_id();
   let uid = test.user_service.user_id().unwrap();
-  let data = default_document_data(&doc_id);
+  let data = default_document_data(&doc_id.to_string());
 
   // create a document
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
@@ -158,8 +158,8 @@ async fn document_apply_update_page_action() {
 async fn document_apply_update_action() {
   let test = DocumentTest::new();
   let uid = test.user_service.user_id().unwrap();
-  let doc_id: String = gen_document_id();
-  let data = default_document_data(&doc_id);
+  let doc_id = gen_document_id();
+  let data = default_document_data(&doc_id.to_string());
 
   // create a document
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;

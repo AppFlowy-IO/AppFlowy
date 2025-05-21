@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use collab_database::fields::Field;
 use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::select_type_option::SelectOptionIds;
-use collab_database::fields::Field;
-use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
+use collab_database::rows::{Cell, Cells, get_field_type_from_cell};
 use collab_database::template::relation_parse::RelationCellData;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
@@ -243,7 +243,9 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::LastEditedTime | FieldType::CreatedTime => {
-            tracing::warn!("Shouldn't insert cell data to cell whose field type is LastEditedTime or CreatedTime");
+            tracing::warn!(
+              "Shouldn't insert cell data to cell whose field type is LastEditedTime or CreatedTime"
+            );
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
             if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {

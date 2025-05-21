@@ -1,9 +1,8 @@
-import 'dart:convert';
-
+import 'package:appflowy/plugins/ai_chat/application/ai_model_switch_listener.dart';
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -11,65 +10,57 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
-part 'settings_ai_bloc.g.dart';
+
+const String aiModelsGlobalActiveModel = "global_active_model";
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
     this.userProfile,
     this.workspaceId,
-    AFRolePB? currentWorkspaceMemberRole,
   )   : _userListener = UserListener(userProfile: userProfile),
-        _userService = UserBackendService(userId: userProfile.id),
+        _aiModelSwitchListener =
+            AIModelSwitchListener(objectId: aiModelsGlobalActiveModel),
         super(
           SettingsAIState(
-            selectedAIModel: userProfile.aiModel,
             userProfile: userProfile,
-            currentWorkspaceMemberRole: currentWorkspaceMemberRole,
           ),
         ) {
+    _aiModelSwitchListener.start(
+      onUpdateSelectedModel: (model) {
+        if (!isClosed) {
+          _loadModelList();
+        }
+      },
+    );
     _dispatch();
-
-    if (currentWorkspaceMemberRole == null) {
-      _userService.getWorkspaceMember().then((result) {
-        result.fold(
-          (member) {
-            if (!isClosed) {
-              add(SettingsAIEvent.refreshMember(member));
-            }
-          },
-          (err) {
-            Log.error(err);
-          },
-        );
-      });
-    }
   }
 
   final UserListener _userListener;
   final UserProfilePB userProfile;
-  final UserBackendService _userService;
   final String workspaceId;
+  final AIModelSwitchListener _aiModelSwitchListener;
 
   @override
   Future<void> close() async {
     await _userListener.stop();
+    await _aiModelSwitchListener.stop();
     return super.close();
   }
 
   void _dispatch() {
-    on<SettingsAIEvent>((event, emit) {
-      event.when(
+    on<SettingsAIEvent>((event, emit) async {
+      await event.when(
         started: () {
           _userListener.start(
             onProfileUpdated: _onProfileUpdated,
             onUserWorkspaceSettingUpdated: (settings) {
               if (!isClosed) {
-                add(SettingsAIEvent.didLoadAISetting(settings));
+                add(SettingsAIEvent.didLoadWorkspaceSetting(settings));
               }
             },
           );
-          _loadUserWorkspaceSetting();
           _loadModelList();
+          _loadUserWorkspaceSetting();
         },
         didReceiveUserProfile: (userProfile) {
           emit(state.copyWith(userProfile: userProfile));
@@ -83,10 +74,15 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
                 !(state.aiSettings?.disableSearchIndexing ?? false),
           );
         },
-        selectModel: (String model) {
-          _updateUserWorkspaceSetting(model: model);
+        selectModel: (AIModelPB model) async {
+          await AIEventUpdateSelectedModel(
+            UpdateSelectedModelPB(
+              source: aiModelsGlobalActiveModel,
+              selectedModel: model,
+            ),
+          ).send();
         },
-        didLoadAISetting: (UseAISettingPB settings) {
+        didLoadWorkspaceSetting: (WorkspaceSettingsPB settings) {
           emit(
             state.copyWith(
               aiSettings: settings,
@@ -94,45 +90,21 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           );
         },
-        didLoadAvailableModels: (String models) {
-          final dynamic decodedJson = jsonDecode(models);
-          Log.info("Available models: $decodedJson");
-          if (decodedJson is Map<String, dynamic>) {
-            final models = ModelList.fromJson(decodedJson).models;
-            if (models.isEmpty) {
-              // If available models is empty, then we just show the
-              // Default
-              emit(state.copyWith(availableModels: ["Default"]));
-              return;
-            }
-
-            if (!models.contains(state.selectedAIModel)) {
-              // Use first model as default model if current selected model
-              // is not available
-              final selectedModel = models[0];
-              _updateUserWorkspaceSetting(model: selectedModel);
-              emit(
-                state.copyWith(
-                  availableModels: models,
-                  selectedAIModel: selectedModel,
-                ),
-              );
-            } else {
-              emit(state.copyWith(availableModels: models));
-            }
-          }
-        },
-        refreshMember: (member) {
-          emit(state.copyWith(currentWorkspaceMemberRole: member.role));
+        didLoadAvailableModels: (ModelSelectionPB models) {
+          emit(
+            state.copyWith(
+              availableModels: models,
+            ),
+          );
         },
       );
     });
   }
 
-  void _updateUserWorkspaceSetting({
+  Future<FlowyResult<void, FlowyError>> _updateUserWorkspaceSetting({
     bool? disableSearchIndexing,
     String? model,
-  }) {
+  }) async {
     final payload = UpdateUserWorkspaceSettingPB(
       workspaceId: workspaceId,
     );
@@ -142,7 +114,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     if (model != null) {
       payload.aiModel = model;
     }
-    UserEventUpdateWorkspaceSetting(payload).send();
+    final result = await UserEventUpdateWorkspaceSetting(payload).send();
+    result.fold(
+      (ok) => Log.info('Update workspace setting success'),
+      (err) => Log.error('Update workspace setting failed: $err'),
+    );
+    return result;
   }
 
   void _onProfileUpdated(
@@ -153,12 +130,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
         (err) => Log.error(err),
       );
 
-  void _loadUserWorkspaceSetting() {
-    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
-    UserEventGetWorkspaceSetting(payload).send().then((result) {
-      result.fold((settings) {
+  void _loadModelList() {
+    final payload = ModelSourcePB(source: aiModelsGlobalActiveModel);
+    AIEventGetSettingModelSelection(payload).send().then((result) {
+      result.fold((models) {
         if (!isClosed) {
-          add(SettingsAIEvent.didLoadAISetting(settings));
+          add(SettingsAIEvent.didLoadAvailableModels(models));
         }
       }, (err) {
         Log.error(err);
@@ -166,11 +143,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     });
   }
 
-  void _loadModelList() {
-    AIEventGetAvailableModels().send().then((result) {
-      result.fold((config) {
+  void _loadUserWorkspaceSetting() {
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
+    UserEventGetWorkspaceSetting(payload).send().then((result) {
+      result.fold((settings) {
         if (!isClosed) {
-          add(SettingsAIEvent.didLoadAvailableModels(config.models));
+          add(SettingsAIEvent.didLoadWorkspaceSetting(settings));
         }
       }, (err) {
         Log.error(err);
@@ -182,22 +160,20 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
 @freezed
 class SettingsAIEvent with _$SettingsAIEvent {
   const factory SettingsAIEvent.started() = _Started;
-  const factory SettingsAIEvent.didLoadAISetting(
-    UseAISettingPB settings,
+  const factory SettingsAIEvent.didLoadWorkspaceSetting(
+    WorkspaceSettingsPB settings,
   ) = _DidLoadWorkspaceSetting;
 
   const factory SettingsAIEvent.toggleAISearch() = _toggleAISearch;
-  const factory SettingsAIEvent.refreshMember(WorkspaceMemberPB member) =
-      _RefreshMember;
 
-  const factory SettingsAIEvent.selectModel(String model) = _SelectAIModel;
+  const factory SettingsAIEvent.selectModel(AIModelPB model) = _SelectAIModel;
 
   const factory SettingsAIEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
 
   const factory SettingsAIEvent.didLoadAvailableModels(
-    String models,
+    ModelSelectionPB models,
   ) = _DidLoadAvailableModels;
 }
 
@@ -205,24 +181,8 @@ class SettingsAIEvent with _$SettingsAIEvent {
 class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
-    UseAISettingPB? aiSettings,
-    @Default("Default") String selectedAIModel,
-    AFRolePB? currentWorkspaceMemberRole,
-    @Default(["Default"]) List<String> availableModels,
+    WorkspaceSettingsPB? aiSettings,
+    ModelSelectionPB? availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
-}
-
-@JsonSerializable()
-class ModelList {
-  ModelList({
-    required this.models,
-  });
-
-  factory ModelList.fromJson(Map<String, dynamic> json) =>
-      _$ModelListFromJson(json);
-
-  final List<String> models;
-
-  Map<String, dynamic> toJson() => _$ModelListToJson(this);
 }

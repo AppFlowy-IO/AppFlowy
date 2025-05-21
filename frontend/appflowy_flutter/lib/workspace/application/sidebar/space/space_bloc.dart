@@ -15,7 +15,8 @@ import 'package:appflowy/workspace/application/workspace/workspace_sections_list
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
+    hide AFRolePB;
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
@@ -76,12 +77,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
 
-            final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
-              spaces: spaces,
-              publicViews: publicViews,
-              privateViews: privateViews,
-            );
-
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
@@ -89,16 +84,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 spaces: spaces,
                 currentSpace: currentSpace,
                 isExpanded: isExpanded,
-                shouldShowUpgradeDialog: shouldShowUpgradeDialog,
+                shouldShowUpgradeDialog: false,
                 isInitialized: true,
               ),
             );
-
-            if (shouldShowUpgradeDialog && !integrationMode().isTest) {
-              if (!isClosed) {
-                add(const SpaceEvent.migrate());
-              }
-            }
 
             if (openFirstPage) {
               if (currentSpace != null) {
@@ -331,16 +320,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final (spaces, _, _) = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
 
-            Log.info(
-              'receive space update, current space: ${currentSpace?.name}(${currentSpace?.id})',
-            );
-
-            for (var i = 0; i < spaces.length; i++) {
-              Log.info(
-                'receive space update[$i]: ${spaces[i].name}(${spaces[i].id})',
-              );
-            }
-
             emit(
               state.copyWith(
                 spaces: spaces,
@@ -496,8 +475,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
-    Log.info('initial(or reset) space bloc: $workspaceId, ${userProfile.id}');
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    _workspaceService = WorkspaceService(
+      workspaceId: workspaceId,
+      userId: userProfile.id,
+    );
 
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
@@ -507,7 +488,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       workspaceId: workspaceId,
     )..start(
         sectionChanged: (result) async {
-          Log.info('did receive section views changed');
           if (isClosed) {
             return;
           }

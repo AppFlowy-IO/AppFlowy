@@ -1,30 +1,28 @@
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/ai/widgets/prompt_input/mentioned_page_text_span.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
+import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../layout_define.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MobileChatInput extends StatefulWidget {
   const MobileChatInput({
     super.key,
-    required this.chatId,
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
-  final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(String, PredefinedFormat?, Map<String, dynamic>)
       onSubmitted;
   final void Function(List<String>) onUpdateSelectedSources;
@@ -38,22 +36,18 @@ class _MobileChatInputState extends State<MobileChatInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = true;
-  PredefinedFormat predefinedFormat = const PredefinedFormat(
-    imageFormat: ImageFormat.text,
-    textFormat: TextFormat.bulletList,
-  );
   late SendButtonState sendButtonState;
 
   @override
   void initState() {
     super.initState();
 
-    textController.addListener(handleTextControllerChange);
+    textController.addListener(handleTextControllerChanged);
     // focusNode.onKeyEvent = handleKeyEvent;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
+      checkForAskingAI();
     });
 
     updateSendButtonState();
@@ -106,53 +100,62 @@ class _MobileChatInputState extends State<MobileChatInput> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(8.0)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight:
-                        MobileAIPromptSizes.attachedFilesBarPadding.vertical +
+            child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MobileAIPromptSizes
+                                .attachedFilesBarPadding.vertical +
                             MobileAIPromptSizes.attachedFilesPreviewHeight,
-                  ),
-                  child: PromptInputFile(
-                    chatId: widget.chatId,
-                    onDeleted: (file) => context
-                        .read<AIPromptInputBloc>()
-                        .add(AIPromptInputEvent.removeFile(file)),
-                  ),
-                ),
-                if (showPredefinedFormatSection)
-                  TextFieldTapRegion(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ChangeFormatBar(
-                        predefinedFormat: predefinedFormat,
-                        spacing: 8.0,
-                        onSelectPredefinedFormat: (format) {
-                          setState(() => predefinedFormat = format);
-                        },
+                      ),
+                      child: PromptInputFile(
+                        onDeleted: (file) => context
+                            .read<AIPromptInputBloc>()
+                            .add(AIPromptInputEvent.removeFile(file)),
                       ),
                     ),
-                  )
-                else
-                  const VSpace(8.0),
-                inputTextField(context),
-                TextFieldTapRegion(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      children: [
-                        const HSpace(8.0),
-                        leadingButtons(context),
-                        const Spacer(),
-                        sendButton(),
-                        const HSpace(12.0),
-                      ],
+                    if (state.showPredefinedFormats)
+                      TextFieldTapRegion(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ChangeFormatBar(
+                            predefinedFormat: state.predefinedFormat,
+                            spacing: 8.0,
+                            onSelectPredefinedFormat: (format) =>
+                                context.read<AIPromptInputBloc>().add(
+                                      AIPromptInputEvent.updatePredefinedFormat(
+                                        format,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                      )
+                    else
+                      const VSpace(8.0),
+                    inputTextField(context),
+                    TextFieldTapRegion(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            const HSpace(8.0),
+                            leadingButtons(
+                              context,
+                              state.showPredefinedFormats,
+                            ),
+                            const Spacer(),
+                            sendButton(),
+                            const HSpace(12.0),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -182,17 +185,46 @@ class _MobileChatInputState extends State<MobileChatInput> {
       return;
     }
 
+    onSubmitText(trimmedText);
+  }
+
+  void onSubmitText(String text) {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
+    final bloc = context.read<AIPromptInputBloc>();
+    final showPredefinedFormats = bloc.state.showPredefinedFormats;
+    final predefinedFormat = bloc.state.predefinedFormat;
+
     widget.onSubmitted(
-      trimmedText,
-      showPredefinedFormatSection ? predefinedFormat : null,
+      text,
+      showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
   }
 
-  void handleTextControllerChange() {
+  void checkForAskingAI() {
+    if (!UniversalPlatform.isMobile) return;
+    final paletteBloc = context.read<CommandPaletteBloc?>(),
+        paletteState = paletteBloc?.state;
+    if (paletteBloc == null || paletteState == null) return;
+    final isAskingAI = paletteState.askAI;
+    if (!isAskingAI) return;
+    paletteBloc.add(CommandPaletteEvent.askedAI());
+    final query = paletteState.query ?? '';
+    if (query.isEmpty) return;
+    final sources = (paletteState.askAISources ?? []).map((e) => e.id).toList();
+    final metadata =
+        context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
+    final promptState = context.read<AIPromptInputBloc?>()?.state;
+    final predefinedFormat = promptState?.predefinedFormat;
+    if (sources.isNotEmpty) {
+      widget.onUpdateSelectedSources(sources);
+    }
+    widget.onSubmitted.call(query, predefinedFormat, metadata);
+  }
+
+  void handleTextControllerChanged() {
     if (textController.value.isComposingRangeValid) {
       return;
     }
@@ -262,11 +294,8 @@ class _MobileChatInputState extends State<MobileChatInput> {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             contentPadding: MobileAIPromptSizes.textFieldContentPadding,
-            hintText: switch (state.aiType) {
-              AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-              AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
-            },
-            hintStyle: AIChatUILayout.inputHintTextStyle(context),
+            hintText: state.modelState.hintText,
+            hintStyle: inputHintTextStyle(context),
             isCollapsed: true,
             isDense: true,
           ),
@@ -278,10 +307,11 @@ class _MobileChatInputState extends State<MobileChatInput> {
               Theme.of(context).textTheme.bodyMedium?.copyWith(height: 20 / 14),
           specialTextSpanBuilder: PromptInputTextSpanBuilder(
             inputControlCubit: inputControlCubit,
-            specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+            mentionedPageTextStyle:
+                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
           ),
           onTapOutside: (_) => focusNode.unfocus(),
         );
@@ -289,7 +319,15 @@ class _MobileChatInputState extends State<MobileChatInput> {
     );
   }
 
-  Widget leadingButtons(BuildContext context) {
+  TextStyle? inputHintTextStyle(BuildContext context) {
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).isLightMode
+              ? const Color(0xFFBDC2C8)
+              : const Color(0xFF3C3E51),
+        );
+  }
+
+  Widget leadingButtons(BuildContext context, bool showPredefinedFormats) {
     return _LeadingActions(
       // onMention: () {
       //   textController.text += '@';
@@ -300,13 +338,13 @@ class _MobileChatInputState extends State<MobileChatInput> {
       //     mentionPage(context);
       //   });
       // },
-      showPredefinedFormatSection: showPredefinedFormatSection,
-      predefinedFormat: predefinedFormat,
+      showPredefinedFormats: showPredefinedFormats,
       onTogglePredefinedFormatSection: () {
-        setState(() {
-          showPredefinedFormatSection = !showPredefinedFormatSection;
-        });
+        context
+            .read<AIPromptInputBloc>()
+            .add(AIPromptInputEvent.toggleShowPredefinedFormat());
       },
+      selectedSourcesNotifier: widget.selectedSourcesNotifier,
       onUpdateSelectedSources: widget.onUpdateSelectedSources,
     );
   }
@@ -322,15 +360,15 @@ class _MobileChatInputState extends State<MobileChatInput> {
 
 class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
-    required this.showPredefinedFormatSection,
-    required this.predefinedFormat,
+    required this.showPredefinedFormats,
     required this.onTogglePredefinedFormatSection,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
-  final bool showPredefinedFormatSection;
-  final PredefinedFormat predefinedFormat;
+  final bool showPredefinedFormats;
   final void Function() onTogglePredefinedFormatSection;
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -342,10 +380,11 @@ class _LeadingActions extends StatelessWidget {
         separatorBuilder: () => const HSpace(4.0),
         children: [
           PromptInputMobileSelectSourcesButton(
+            selectedSourcesNotifier: selectedSourcesNotifier,
             onUpdateSelectedSources: onUpdateSelectedSources,
           ),
           PromptInputMobileToggleFormatButton(
-            showFormatBar: showPredefinedFormatSection,
+            showFormatBar: showPredefinedFormats,
             onTap: onTogglePredefinedFormatSection,
           ),
         ],

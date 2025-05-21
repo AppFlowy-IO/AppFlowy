@@ -85,11 +85,9 @@ class PublishTab extends StatelessWidget {
     if (state.publishResult != null) {
       state.publishResult!.fold(
         (value) => showToastNotification(
-          context,
           message: LocaleKeys.publish_publishSuccessfully.tr(),
         ),
         (error) => showToastNotification(
-          context,
           message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
           type: ToastificationType.error,
         ),
@@ -97,11 +95,9 @@ class PublishTab extends StatelessWidget {
     } else if (state.unpublishResult != null) {
       state.unpublishResult!.fold(
         (value) => showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishSuccessfully.tr(),
         ),
         (error) => showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           description: error.msg,
           type: ToastificationType.error,
@@ -110,14 +106,12 @@ class PublishTab extends StatelessWidget {
     } else if (state.updatePathNameResult != null) {
       state.updatePathNameResult!.fold(
         (value) => showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
         ),
         (error) {
           Log.error('update path name failed: $error');
 
           showToastNotification(
-            context,
             message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
             type: ToastificationType.error,
             description: error.code.publishErrorMessage,
@@ -182,8 +176,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
             );
 
             showToastNotification(
-              context,
-              message: LocaleKeys.grid_url_copy.tr(),
+              message: LocaleKeys.message_copy_success.tr(),
             );
           },
           onSubmitted: (pathName) {
@@ -292,7 +285,6 @@ class _PublishWidgetState extends State<_PublishWidget> {
               // check if any database is selected
               if (_selectedViews.isEmpty) {
                 showToastNotification(
-                  context,
                   message: LocaleKeys.publish_noDatabaseSelected.tr(),
                 );
                 return;
@@ -611,7 +603,6 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
             // unable to deselect the primary database
             if (isPrimaryDatabase) {
               showToastNotification(
-                context,
                 message:
                     LocaleKeys.publish_unableToDeselectPrimaryDatabase.tr(),
               );

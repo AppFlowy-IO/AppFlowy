@@ -21,8 +21,8 @@ import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -69,8 +69,8 @@ class RowBanner extends StatefulWidget {
 class _RowBannerState extends State<RowBanner> {
   final _isHovering = ValueNotifier(false);
   late final isLocalMode =
-      (widget.userProfile?.authenticator ?? AuthenticatorPB.Local) ==
-          AuthenticatorPB.Local;
+      (widget.userProfile?.workspaceType ?? WorkspaceTypePB.LocalW) ==
+          WorkspaceTypePB.LocalW;
 
   @override
   void dispose() {
@@ -624,6 +624,7 @@ class _TitleSkin extends IEditableTextCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TextCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

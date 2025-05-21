@@ -1,7 +1,7 @@
 use crate::parser::constant::*;
 use crate::parser::parser_entities::{InsertDelta, NestedBlock};
-use scraper::node::Attrs;
 use scraper::ElementRef;
+use scraper::node::Attrs;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;

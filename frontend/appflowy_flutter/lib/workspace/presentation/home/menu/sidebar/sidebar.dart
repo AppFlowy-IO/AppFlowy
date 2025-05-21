@@ -25,7 +25,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgrade_application_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
@@ -60,7 +60,7 @@ class HomeSideBar extends StatelessWidget {
 
   final UserProfilePB userProfile;
 
-  final WorkspaceSettingPB workspaceSetting;
+  final WorkspaceLatestPB workspaceSetting;
 
   @override
   Widget build(BuildContext context) {
@@ -516,7 +516,12 @@ class _SidebarSearchButton extends StatelessWidget {
         onTap: () {
           // exit editing mode when doing search to avoid the toolbar showing up
           EditorNotification.exitEditing().post();
-          CommandPalette.of(context).toggle();
+          final workspaceBloc = context.read<UserWorkspaceBloc?>();
+          final spaceBloc = context.read<SpaceBloc?>();
+          CommandPalette.of(context).toggle(
+            workspaceBloc: workspaceBloc,
+            spaceBloc: spaceBloc,
+          );
         },
         leftIcon: const FlowySvg(FlowySvgs.search_s),
         iconPadding: 12.0,

@@ -9,6 +9,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widget
 import 'package:appflowy/workspace/presentation/settings/pages/account/account_deletion.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +27,12 @@ class UserSessionSettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       children: [
         // third party sign in buttons
         if (showThirdPartyLogin) _buildThirdPartySignInButtons(context),
-        const VSpace(8.0),
+        VSpace(theme.spacing.xxl),
 
         // logout button
         MobileLogoutButton(
@@ -40,14 +42,20 @@ class UserSessionSettingGroup extends StatelessWidget {
 
         // delete account button
         // only show the delete account button in cloud mode
-        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
-          const VSpace(16.0),
-          MobileLogoutButton(
+        if (userProfile.userAuthType == AuthTypePB.Server) ...[
+          VSpace(theme.spacing.xxl),
+          AFOutlinedTextButton.destructive(
+            alignment: Alignment.center,
             text: LocaleKeys.button_deleteAccount.tr(),
-            textColor: Theme.of(context).colorScheme.error,
-            onPressed: () => _showDeleteAccountDialog(context),
+            textStyle: theme.textStyle.body.standard(
+              color: theme.textColorScheme.error,
+            ),
+            onTap: () => _showDeleteAccountDialog(context),
+            size: AFButtonSize.l,
           ),
         ],
+
+        VSpace(theme.spacing.xxl),
       ],
     );
   }
@@ -63,8 +71,15 @@ class UserSessionSettingGroup extends StatelessWidget {
           );
         },
         builder: (context, state) {
-          return const ThirdPartySignInButtons(
-            expanded: true,
+          return Column(
+            children: [
+              const ContinueWithEmailAndPassword(),
+              const VSpace(12.0),
+              const ThirdPartySignInButtons(
+                expanded: true,
+              ),
+              const VSpace(16.0),
+            ],
           );
         },
       ),

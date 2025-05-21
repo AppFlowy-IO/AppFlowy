@@ -2,7 +2,7 @@ use chrono::{Datelike, NaiveDate};
 use date_time_parser::DateParser;
 use fancy_regex::Regex;
 use flowy_error::FlowyError;
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, DataResult};
+use lib_dispatch::prelude::{AFPluginData, DataResult, data_result_ok};
 use std::sync::OnceLock;
 
 use crate::entities::*;

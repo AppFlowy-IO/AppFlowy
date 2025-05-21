@@ -103,14 +103,14 @@
   "questionBubble": {
     "shortcuts": "Parancsikonok",
     "whatsNew": "Újdonságok",
-    "help": "Segítség & Támogatás",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug Információ",
       "success": "Debug információ a vágólapra másolva",
       "fail": "A Debug információ nem másolható a vágólapra"
     },
-    "feedback": "Visszacsatolás"
+    "feedback": "Visszacsatolás",
+    "help": "Segítség & Támogatás"
   },
   "menuAppHeader": {
     "addPageTooltip": "Belső oldal hozzáadása",

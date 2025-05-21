@@ -36,7 +36,6 @@
     "loginButtonText": "Увійти",
     "loginStartWithAnonymous": "Почати анонімну сесію",
     "continueAnonymousUser": "Продовжити анонімну сесію",
-    "anonymous": "Анонім",
     "buttonText": "Увійти",
     "signingInText": "Вхід...",
     "forgotPassword": "Забули пароль?",
@@ -64,11 +63,12 @@
     "settings": "Налаштування",
     "magicLinkSent": "Magic Link надіслано!",
     "invalidEmail": "Будь ласка, введіть дійсну адресу електронної пошти",
-    "alreadyHaveAnAccount": "Вже є аккаунт?",
+    "alreadyHaveAnAccount": "Вже є акаунт?",
     "logIn": "Авторизуватися",
     "generalError": "Щось пішло не так. Будь ласка спробуйте пізніше",
     "limitRateError": "З міркувань безпеки ви можете запитувати чарівне посилання лише кожні 60 секунд",
     "magicLinkSentDescription": "Чарівне посилання надіслано на вашу електронну адресу. Натисніть посилання, щоб завершити вхід. Термін дії посилання закінчиться через 5 хвилин.",
+    "anonymous": "Анонім",
     "LogInWithGoogle": "Увійти за допомогою Google",
     "LogInWithGithub": "Увійти за допомогою Github",
     "LogInWithDiscord": "Увійти за допомогою Discord"
@@ -225,14 +225,14 @@
   "questionBubble": {
     "shortcuts": "Комбінації клавіш",
     "whatsNew": "Що нового?",
-    "help": "Довідка та підтримка",
     "markdown": "Markdown",
     "debug": {
       "name": "Інформація для налагодження",
       "success": "Інформацію для налагодження скопійовано в буфер обміну!",
       "fail": "Не вдалося скопіювати інформацію для налагодження в буфер обміну"
     },
-    "feedback": "Зворотний зв'язок"
+    "feedback": "Зворотний зв'язок",
+    "help": "Довідка та підтримка"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Видалити, перейменувати та інше...",
@@ -362,7 +362,7 @@
     "helpCenter": "Центр допомоги",
     "add": "Додати",
     "yes": "Так",
-    "no": "Немає",
+    "no": "Ні",
     "clear": "Очистити",
     "remove": "Видалити",
     "dontRemove": "Не видаляйте",
@@ -810,7 +810,7 @@
           "description": "Ви впевнені, що хочете видалити {plan}? Ви негайно втратите доступ до функцій і переваг {plan}."
         }
       },
-      "currentPeriodBadge": "ПОТОМ",
+      "currentPeriodBadge": "ПОТОЧНИЙ",
       "changePeriod": "Період зміни",
       "planPeriod": "{} період",
       "monthlyInterval": "Щомісяця",
@@ -1445,8 +1445,7 @@
     "url": {
       "launch": "Відкрити посилання в браузері",
       "copy": "Копіювати посилання в буфер обміну",
-      "textFieldHint": "Введіть URL",
-      "copiedNotification": "Скопійовано в буфер обміну!"
+      "textFieldHint": "Введіть URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Пов'язана база даних",

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/related_row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
@@ -7,8 +8,10 @@ import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
-import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ai_writer_scroll_wrapper.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
@@ -18,8 +21,12 @@ import 'package:appflowy/workspace/application/action_navigation/navigation_acti
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+
+import '../../workspace/application/view/view_bloc.dart';
 
 // This widget is largely copied from `plugins/document/document_page.dart` intentionally instead of opting for an abstraction. We can make an abstraction after the view refactor is done and there's more clarity in that department.
 
@@ -47,18 +54,6 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
   EditorState? editorState;
 
   @override
-  void initState() {
-    super.initState();
-    EditorNotification.addListener(_onEditorNotification);
-  }
-
-  @override
-  void dispose() {
-    EditorNotification.removeListener(_onEditorNotification);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -71,6 +66,10 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
             rowId: widget.rowId,
             documentId: widget.documentId,
           )..add(const DocumentEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
         ),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
@@ -98,7 +97,11 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
           return BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listener: _onNotificationAction,
             listenWhen: (_, curr) => curr.action != null,
-            child: _buildEditorPage(context, state),
+            child: AiWriterScrollWrapper(
+              viewId: widget.view.id,
+              editorState: editorState,
+              child: _buildEditorPage(context, state),
+            ),
           );
         },
       ),
@@ -115,21 +118,34 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
         styleCustomizer: EditorStyleCustomizer(
           context: context,
           padding: EditorStyleCustomizer.documentPadding,
+          editorState: state.editorState!,
         ),
         header: _buildDatabaseDataContent(context, state.editorState!),
         initialSelection: widget.initialSelection,
         useViewInfoBloc: false,
+        placeholderText: (node) =>
+            node.type == ParagraphBlockKeys.type && !node.isInTable
+                ? LocaleKeys.editor_slashPlaceHolder.tr()
+                : '',
       ),
     );
 
-    return EditorTransactionService(
-      viewId: widget.view.id,
-      editorState: state.editorState!,
-      child: Column(
-        children: [
-          if (state.isDeleted) _buildBanner(context),
-          Expanded(child: appflowyEditorPage),
-        ],
+    return Provider(
+      create: (_) {
+        final context = SharedEditorContext();
+        context.isInDatabaseRowPage = true;
+        return context;
+      },
+      dispose: (_, editorContext) => editorContext.dispose(),
+      child: EditorTransactionService(
+        viewId: widget.view.id,
+        editorState: state.editorState!,
+        child: Column(
+          children: [
+            if (state.isDeleted) _buildBanner(context),
+            Expanded(child: appflowyEditorPage),
+          ],
+        ),
       ),
     );
   }
@@ -200,20 +216,6 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
             const DocumentEvent.deletePermanently(),
           ),
     );
-  }
-
-  void _onEditorNotification(EditorNotificationType type) {
-    final editorState = this.editorState;
-    if (editorState == null) {
-      return;
-    }
-    if (type == EditorNotificationType.undo) {
-      undoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.redo) {
-      redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.exitEditing) {
-      editorState.selection = null;
-    }
   }
 
   void _onNotificationAction(

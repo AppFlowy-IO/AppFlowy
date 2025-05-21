@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/ai/widgets/prompt_input/layout_define.dart';
-import 'package:appflowy/ai/widgets/prompt_input/predefined_format_buttons.dart';
-import 'package:appflowy/ai/widgets/prompt_input/select_sources_menu.dart';
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
@@ -18,15 +14,15 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -44,6 +40,7 @@ class AIMessageActionBar extends StatefulWidget {
     required this.showDecoration,
     this.onRegenerate,
     this.onChangeFormat,
+    this.onChangeModel,
     this.onOverrideVisibility,
   });
 
@@ -51,6 +48,7 @@ class AIMessageActionBar extends StatefulWidget {
   final bool showDecoration;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
+  final void Function(AIModelPB)? onChangeModel;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -129,6 +127,12 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
         popoverMutex: popoverMutex,
         onOverrideVisibility: widget.onOverrideVisibility,
       ),
+      ChangeModelButton(
+        isInHoverBar: widget.showDecoration,
+        onRegenerate: widget.onChangeModel,
+        popoverMutex: popoverMutex,
+        onOverrideVisibility: widget.onOverrideVisibility,
+      ),
       SaveToPageButton(
         textMessage: widget.message as TextMessage,
         isInHoverBar: widget.showDecoration,
@@ -178,8 +182,7 @@ class CopyButton extends StatelessWidget {
           );
           if (context.mounted) {
             showToastNotification(
-              context,
-              message: LocaleKeys.grid_url_copiedNotification.tr(),
+              message: LocaleKeys.message_copy_success.tr(),
             );
           }
         },
@@ -220,7 +223,7 @@ class RegenerateButton extends StatelessWidget {
             ? DesktopAIChatSizes.messageHoverActionBarIconRadius
             : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: FlowySvg(
-          FlowySvgs.ai_undo_s,
+          FlowySvgs.ai_try_again_s,
           color: Theme.of(context).hintColor,
           size: const Size.square(16),
         ),
@@ -263,8 +266,11 @@ class _ChangeFormatButtonState extends State<ChangeFormatButton> {
       constraints: const BoxConstraints(),
       onClose: () => widget.onOverrideVisibility?.call(false),
       child: buildButton(context),
-      popupBuilder: (_) => _ChangeFormatPopoverContent(
-        onRegenerate: widget.onRegenerate,
+      popupBuilder: (_) => BlocProvider.value(
+        value: context.read<AIPromptInputBloc>(),
+        child: _ChangeFormatPopoverContent(
+          onRegenerate: widget.onRegenerate,
+        ),
       ),
     );
   }
@@ -362,11 +368,16 @@ class _ChangeFormatPopoverContentState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ChangeFormatBar(
-            spacing: 2.0,
-            predefinedFormat: predefinedFormat,
-            onSelectPredefinedFormat: (format) {
-              setState(() => predefinedFormat = format);
+          BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+            builder: (context, state) {
+              return ChangeFormatBar(
+                spacing: 2.0,
+                showImageFormats: state.modelState.type.isCloud,
+                predefinedFormat: predefinedFormat,
+                onSelectPredefinedFormat: (format) {
+                  setState(() => predefinedFormat = format);
+                },
+              );
             },
           ),
           const HSpace(4.0),
@@ -400,6 +411,85 @@ class _ChangeFormatPopoverContentState
   }
 }
 
+class ChangeModelButton extends StatefulWidget {
+  const ChangeModelButton({
+    super.key,
+    required this.isInHoverBar,
+    this.popoverMutex,
+    this.onRegenerate,
+    this.onOverrideVisibility,
+  });
+
+  final bool isInHoverBar;
+  final PopoverMutex? popoverMutex;
+  final void Function(AIModelPB)? onRegenerate;
+  final void Function(bool)? onOverrideVisibility;
+
+  @override
+  State<ChangeModelButton> createState() => _ChangeModelButtonState();
+}
+
+class _ChangeModelButtonState extends State<ChangeModelButton> {
+  final popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: popoverController,
+      mutex: widget.popoverMutex,
+      triggerActions: PopoverTriggerFlags.none,
+      margin: EdgeInsets.zero,
+      offset: Offset(8, 0),
+      direction: PopoverDirection.rightWithBottomAligned,
+      constraints: BoxConstraints(maxWidth: 250, maxHeight: 600),
+      onClose: () => widget.onOverrideVisibility?.call(false),
+      child: buildButton(context),
+      popupBuilder: (_) {
+        final bloc = context.read<AIPromptInputBloc>();
+        final (models, _) = bloc.aiModelStateNotifier.getModelSelection();
+        return SelectModelPopoverContent(
+          models: models,
+          selectedModel: null,
+          onSelectModel: widget.onRegenerate,
+        );
+      },
+    );
+  }
+
+  Widget buildButton(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.chat_switchModel_label.tr(),
+      child: FlowyIconButton(
+        width: 32.0,
+        height: DesktopAIChatSizes.messageActionBarIconSize,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: widget.isInHoverBar
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
+        icon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.ai_sparks_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(16),
+            ),
+            FlowySvg(
+              FlowySvgs.ai_source_drop_down_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(8),
+            ),
+          ],
+        ),
+        onPressed: () {
+          widget.onOverrideVisibility?.call(true);
+          popoverController.show();
+        },
+      ),
+    );
+  }
+}
+
 class SaveToPageButton extends StatefulWidget {
   const SaveToPageButton({
     super.key,
@@ -423,23 +513,23 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
 
   @override
   Widget build(BuildContext context) {
-    final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final userProfile = userWorkspaceBloc.userProfile;
-    final workspaceId =
-        userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
+    return ViewSelector(
+      viewSelectorCubit: BlocProvider(
+        create: (context) => ViewSelectorCubit(
+          getIgnoreViewType: (item) {
+            final view = item.view;
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => SpaceBloc(
-            userProfile: userProfile,
-            workspaceId: workspaceId,
-          )..add(const SpaceEvent.initial(openFirstPage: false)),
+            if (view.isSpace) {
+              return IgnoreViewType.none;
+            }
+            if (view.layout != ViewLayoutPB.Document) {
+              return IgnoreViewType.hide;
+            }
+
+            return IgnoreViewType.none;
+          },
         ),
-        BlocProvider(
-          create: (context) => ChatSettingsCubit(hideDisabled: true),
-        ),
-      ],
+      ),
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
         selector: (state) => state.currentSpace,
         builder: (context, spaceView) {
@@ -454,7 +544,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             onClose: () {
               if (spaceView != null) {
                 context
-                    .read<ChatSettingsCubit>()
+                    .read<ViewSelectorCubit>()
                     .refreshSources([spaceView], spaceView);
               }
               widget.onOverrideVisibility?.call(false);
@@ -491,9 +581,11 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
-              context
-                  .read<ChatSettingsCubit>()
-                  .refreshSources([spaceView], spaceView);
+              unawaited(
+                context
+                    .read<ViewSelectorCubit>()
+                    .refreshSources([spaceView], spaceView),
+              );
             }
             popoverController.show();
           }
@@ -504,7 +596,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
 
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
-      value: context.read<ChatSettingsCubit>(),
+      value: context.read<ViewSelectorCubit>(),
       child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) {
           addMessageToNewPage(context, parentViewId);
@@ -605,8 +697,10 @@ class SaveToPagePopoverContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+    return BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
       builder: (context, state) {
+        final theme = AppFlowyTheme.of(context);
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -615,22 +709,26 @@ class SaveToPagePopoverContent extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: FlowyText(
+                child: Text(
                   LocaleKeys.chat_addToPageTitle.tr(),
-                  fontSize: 12.0,
-                  color: Theme.of(context).hintColor,
+                  style: theme.textStyle.caption
+                      .standard(color: theme.textColorScheme.secondary),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
-              child: SpaceSearchField(
-                width: 600,
-                onSearch: (context, value) =>
-                    context.read<ChatSettingsCubit>().updateFilter(value),
+              child: AFTextField(
+                controller:
+                    context.read<ViewSelectorCubit>().filterTextController,
+                hintText: LocaleKeys.search_label.tr(),
+                size: AFTextFieldSize.m,
               ),
             ),
-            _buildDivider(),
+            AFDivider(
+              startIndent: theme.spacing.l,
+              endIndent: theme.spacing.l,
+            ),
             Expanded(
               child: ListView(
                 shrinkWrap: true,
@@ -644,44 +742,33 @@ class SaveToPagePopoverContent extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(
-      height: 1.0,
-      thickness: 1.0,
-      indent: 12.0,
-      endIndent: 12.0,
-    );
-  }
-
   Iterable<Widget> _buildVisibleSources(
     BuildContext context,
-    ChatSettingsState state,
+    ViewSelectorState state,
   ) {
-    return state.visibleSources
-        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-        .map(
-          (e) => ChatSourceTreeItem(
-            key: ValueKey(
-              'save_to_page_tree_item_${e.view.id}',
-            ),
-            chatSource: e,
-            level: 0,
-            isDescendentOfSpace: e.view.isSpace,
-            isSelectedSection: false,
-            showCheckbox: false,
-            showSaveButton: true,
-            onSelected: (source) {
-              if (source.view.isSpace) {
-                onAddToNewPage(source.view.id);
-              } else {
-                onAddToExistingPage(source.view.id);
-              }
-            },
-            onAdd: (source) {
-              onAddToNewPage(source.view.id);
-            },
-            height: 30.0,
-          ),
-        );
+    return state.visibleSources.map(
+      (e) => ViewSelectorTreeItem(
+        key: ValueKey(
+          'save_to_page_tree_item_${e.view.id}',
+        ),
+        viewSelectorItem: e,
+        level: 0,
+        isDescendentOfSpace: e.view.isSpace,
+        isSelectedSection: false,
+        showCheckbox: false,
+        showSaveButton: true,
+        onSelected: (source) {
+          if (source.view.isSpace) {
+            onAddToNewPage(source.view.id);
+          } else {
+            onAddToExistingPage(source.view.id);
+          }
+        },
+        onAdd: (source) {
+          onAddToNewPage(source.view.id);
+        },
+        height: 30.0,
+      ),
+    );
   }
 }

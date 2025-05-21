@@ -2,7 +2,6 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -32,7 +31,7 @@ enum SettingsPage {
 class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   SettingsDialogBloc(
-    this.userProfile,
+    UserProfilePB userProfile,
     this.currentWorkspaceMemberRole, {
     SettingsPage? initPage,
   })  : _userListener = UserListener(userProfile: userProfile),
@@ -40,7 +39,6 @@ class SettingsDialogBloc
     _dispatch();
   }
 
-  final UserProfilePB userProfile;
   final AFRolePB? currentWorkspaceMemberRole;
   final UserListener _userListener;
 
@@ -58,7 +56,7 @@ class SettingsDialogBloc
             _userListener.start(onProfileUpdated: _profileUpdated);
 
             final isBillingEnabled = await _isBillingEnabled(
-              userProfile,
+              state.userProfile,
               currentWorkspaceMemberRole,
             );
             if (isBillingEnabled) {
@@ -80,8 +78,11 @@ class SettingsDialogBloc
     FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
   ) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
-          add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) {
+        if (!isClosed) {
+          add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile));
+        }
+      },
       (err) => Log.error(err),
     );
   }
@@ -91,8 +92,8 @@ class SettingsDialogBloc
     AFRolePB? currentWorkspaceMemberRole,
   ]) async {
     if ([
-      AuthenticatorPB.Local,
-    ].contains(userProfile.authenticator)) {
+      WorkspaceTypePB.LocalW,
+    ].contains(userProfile.workspaceType)) {
       return false;
     }
 

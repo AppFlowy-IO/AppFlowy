@@ -102,7 +102,7 @@ class MobileInlineActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasIcon = item.icon != null;
+    final hasIcon = item.iconBuilder != null;
     return Container(
       height: 36,
       decoration: BoxDecoration(
@@ -119,15 +119,17 @@ class MobileInlineActionsWidget extends StatelessWidget {
             child: Row(
               children: [
                 if (hasIcon) ...[
-                  item.icon!.call(isSelected),
+                  item.iconBuilder!.call(isSelected),
                   SizedBox(width: 12),
                 ],
-                FlowyText.regular(
-                  item.label,
-                  figmaLineHeight: 18,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: 16,
-                  color: style.menuItemSelectedTextColor,
+                Flexible(
+                  child: FlowyText.regular(
+                    item.label,
+                    figmaLineHeight: 18,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: 16,
+                    color: style.menuItemSelectedTextColor,
+                  ),
                 ),
               ],
             ),

@@ -8,13 +8,13 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use collab_database::database::Database;
 use collab_database::fields::select_type_option::{
-  MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
-  SELECTION_IDS_SEPARATOR,
+  MultiSelectTypeOption, SELECTION_IDS_SEPARATOR, SelectOption, SelectOptionColor, SelectOptionIds,
+  SingleSelectTypeOption,
 };
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use collab_database::template::util::ToCellString;
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_error::{ErrorCode, FlowyResult, internal_error};
 use std::str::FromStr;
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.

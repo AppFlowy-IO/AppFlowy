@@ -17,6 +17,8 @@ class PluginLoadTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     registerPlugin(builder: BlankPluginBuilder(), config: BlankPluginConfig());
     registerPlugin(builder: TrashPluginBuilder(), config: TrashPluginConfig());
     registerPlugin(builder: DocumentPluginBuilder());
@@ -39,7 +41,4 @@ class PluginLoadTask extends LaunchTask {
       config: AIChatPluginConfig(),
     );
   }
-
-  @override
-  Future<void> dispose() async {}
 }

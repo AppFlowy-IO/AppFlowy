@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -20,12 +20,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import 'editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
+import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
 
 class EditorStyleCustomizer {
   EditorStyleCustomizer({
@@ -57,6 +58,12 @@ class EditorStyleCustomizer {
       documentPadding + EdgeInsets.only(left: optionMenuWidth);
 
   static double get optionMenuWidth => UniversalPlatform.isMobile ? 0 : 44;
+
+  static Color? toolbarHoverColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.secondary
+        : AFThemeExtension.of(context).toolbarHoverColor;
+  }
 
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {
@@ -125,6 +132,7 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       textScaleFactor:
           context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      textSpanOverlayBuilder: _buildTextSpanOverlay,
     );
   }
 
@@ -177,6 +185,7 @@ class EditorStyleCustomizer {
       textScaleFactor: textScaleFactor,
       mobileDragHandleLeftExtend: 12.0,
       mobileDragHandleWidthExtend: 24.0,
+      textSpanOverlayBuilder: _buildTextSpanOverlay,
     );
   }
 
@@ -190,7 +199,11 @@ class EditorStyleCustomizer {
       fontSize = state.fontLayout.fontSize;
       fontSizes = state.fontLayout.headingFontSizes;
     } else {
-      fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+      fontFamily = context
+          .read<DocumentAppearanceCubit>()
+          .state
+          .fontFamily
+          .orDefault(context.read<AppearanceSettingsCubit>().state.font);
       fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
       fontSizes = [
         fontSize + 16,
@@ -280,6 +293,15 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: afThemeExtension.greyHover,
+      selectionMenuUnselectedLabelColor: afThemeExtension.onBackground,
+      selectionMenuDividerColor: afThemeExtension.greyHover,
+      selectionMenuLinkBorderColor: afThemeExtension.greyHover,
+      selectionMenuInvalidLinkColor: afThemeExtension.onBackground,
+      selectionMenuButtonColor: afThemeExtension.greyHover,
+      selectionMenuButtonTextColor: afThemeExtension.onBackground,
+      selectionMenuButtonIconColor: afThemeExtension.onBackground,
+      selectionMenuButtonBorderColor: afThemeExtension.greyHover,
+      selectionMenuTabIndicatorColor: afThemeExtension.greyHover,
     );
   }
 
@@ -295,14 +317,13 @@ class EditorStyleCustomizer {
     );
   }
 
-  FloatingToolbarStyle floatingToolbarStyleBuilder() => FloatingToolbarStyle(
-        backgroundColor: Theme.of(context).colorScheme.onTertiary,
-      );
-
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
-    if (fontFamily == null || fontFamily == defaultFontFamily) {
+    if (fontFamily == null) {
       return TextStyle(fontWeight: fontWeight);
+    } else if (fontFamily == defaultFontFamily) {
+      return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
     }
+
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
@@ -327,6 +348,11 @@ class EditorStyleCustomizer {
       return before;
     }
 
+    final suggestion = attributes[AiWriterBlockKeys.suggestion] as String?;
+    final newStyle = suggestion == null
+        ? after.style
+        : _styleSuggestion(after.style, suggestion);
+
     if (attributes.backgroundColor != null) {
       final color = EditorFontColors.fromBuiltInColors(
         context,
@@ -335,7 +361,7 @@ class EditorStyleCustomizer {
       if (color != null) {
         return TextSpan(
           text: before.text,
-          style: after.style?.merge(
+          style: newStyle?.merge(
             TextStyle(backgroundColor: color),
           ),
         );
@@ -350,7 +376,7 @@ class EditorStyleCustomizer {
         } else {
           return TextSpan(
             text: before.text,
-            style: after.style?.merge(
+            style: newStyle?.merge(
               getGoogleFontSafely(attributes.fontFamily!),
             ),
           );
@@ -367,7 +393,7 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
-        style: after.style,
+        style: newStyle,
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
@@ -379,7 +405,7 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
-          textStyle: after.style,
+          textStyle: newStyle,
         ),
       );
     }
@@ -402,54 +428,25 @@ class EditorStyleCustomizer {
     // customize the link on mobile
     final href = attributes[AppFlowyRichTextKeys.href] as String?;
     if (UniversalPlatform.isMobile && href != null) {
+      return TextSpan(style: before.style, text: text.text);
+    }
+
+    if (suggestion != null) {
       return TextSpan(
-        style: before.style,
-        text: text.text,
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            final editorState = context.read<EditorState>();
-            if (editorState.selection == null) {
-              afLaunchUrlString(href, addingHttpSchemeWhenFailed: true);
-              return;
-            }
-
-            editorState.updateSelectionWithReason(
-              editorState.selection,
-              extraInfo: {selectionExtraInfoDisableMobileToolbarKey: true},
-            );
-
-            showEditLinkBottomSheet(
-              context,
-              text.text,
-              href,
-              (linkContext, newText, newHref) {
-                final selection = Selection.single(
-                  path: node.path,
-                  startOffset: index,
-                  endOffset: index + text.text.length,
-                );
-                editorState.updateTextAndHref(
-                  text.text,
-                  href,
-                  newText,
-                  newHref,
-                  selection: selection,
-                );
-                linkContext.pop();
-              },
-            );
-          },
+        text: before.text,
+        style: newStyle,
       );
     }
 
-    return defaultTextSpanDecoratorForAttribute(
-      context,
-      node,
-      index,
-      text,
-      before,
-      after,
-    );
+    if (href != null) {
+      return TextSpan(
+        style: before.style,
+        text: text.text,
+        mouseCursor: SystemMouseCursors.click,
+      );
+    } else {
+      return before;
+    }
   }
 
   Widget buildToolbarItemTooltip(
@@ -462,7 +459,7 @@ class EditorStyleCustomizer {
     child = FlowyTooltip(
       richMessage: tooltipMessage,
       preferBelow: false,
-      verticalOffset: 20,
+      verticalOffset: 24,
       child: child,
     );
 
@@ -474,7 +471,7 @@ class EditorStyleCustomizer {
 
     if (!toolbarItemsWithoutHover.contains(id)) {
       child = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: FlowyHover(
           style: HoverStyle(
             hoverColor: Colors.grey.withValues(alpha: 0.3),
@@ -494,6 +491,10 @@ class EditorStyleCustomizer {
       'italic': (LocaleKeys.toolbar_italic.tr(), 'I'),
       'strikethrough': (LocaleKeys.toolbar_strike.tr(), 'Shift+S'),
       'code': (LocaleKeys.toolbar_inlineCode.tr(), 'E'),
+      'editor.inline_math_equation': (
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        'Shift+E'
+      ),
     };
 
     final markdownItemIds = markdownItemTooltips.keys.toSet();
@@ -520,14 +521,84 @@ class EditorStyleCustomizer {
           style: context.tooltipTextStyle(),
         ),
         TextSpan(
-          text: (Platform.isMacOS ? '⌘+' : 'Ctrl+\\') + tooltip.$2,
-          style: context
-              .tooltipTextStyle()
-              ?.copyWith(color: Theme.of(context).hintColor),
+          text: (Platform.isMacOS ? '⌘+' : 'Ctrl+') + tooltip.$2,
+          style: context.tooltipTextStyle()?.copyWith(
+                color: Theme.of(context).hintColor,
+              ),
         ),
       ],
     );
 
     return textSpan;
+  }
+
+  TextStyle? _styleSuggestion(TextStyle? style, String suggestion) {
+    if (style == null) {
+      return null;
+    }
+    final isLight = Theme.of(context).isLightMode;
+    final textColor = isLight ? Color(0xFF007296) : Color(0xFF49CFF4);
+    final underlineColor = isLight ? Color(0x33005A7A) : Color(0x3349CFF4);
+    return switch (suggestion) {
+      AiWriterBlockKeys.suggestionOriginal => style.copyWith(
+          color: Theme.of(context).disabledColor,
+          decoration: TextDecoration.lineThrough,
+        ),
+      AiWriterBlockKeys.suggestionReplacement => style.copyWith(
+          color: textColor,
+          decoration: TextDecoration.underline,
+          decorationColor: underlineColor,
+          decorationThickness: 1.0,
+        ),
+      _ => style,
+    };
+  }
+
+  List<Widget> _buildTextSpanOverlay(
+    BuildContext context,
+    Node node,
+    SelectableMixin delegate,
+  ) {
+    final delta = node.delta;
+    if (delta == null) return [];
+    final widgets = <Widget>[];
+    final textInserts = delta.whereType<TextInsert>();
+    int index = 0;
+    final editorState = context.read<EditorState>();
+    for (final textInsert in textInserts) {
+      if (textInsert.attributes?.href != null) {
+        final nodeSelection = Selection(
+          start: Position(path: node.path, offset: index),
+          end: Position(
+            path: node.path,
+            offset: index + textInsert.length,
+          ),
+        );
+        final rectList = delegate.getRectsInSelection(nodeSelection);
+        if (rectList.isNotEmpty) {
+          for (final rect in rectList) {
+            widgets.add(
+              Positioned(
+                left: rect.left,
+                top: rect.top,
+                child: SizedBox(
+                  width: rect.width,
+                  height: rect.height,
+                  child: LinkHoverTrigger(
+                    editorState: editorState,
+                    selection: nodeSelection,
+                    attribute: textInsert.attributes!,
+                    node: node,
+                    size: rect.size,
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+      }
+      index += textInsert.length;
+    }
+    return widgets;
   }
 }
