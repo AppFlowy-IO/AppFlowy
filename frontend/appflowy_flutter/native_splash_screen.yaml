@@ -118,7 +118,7 @@ platforms:
     enabled: true
     fallback: false
   windows:
-    enabled: false
+    enabled: true
     fallback: true
   macos:
     enabled: false

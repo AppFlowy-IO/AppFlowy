@@ -1454,10 +1454,10 @@ packages:
     dependency: "direct dev"
     description:
       name: native_splash_screen_cli
-      sha256: f69dfd2bd97a9a199c66f720b6c3f7c5bb228f8e952d45d950a50e1e50c89bf6
+      sha256: "9f9f4acde49416ecb286b2421afc00a45eee9a4380a3cceaab98ab80f82fa178"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   native_splash_screen_linux:
     dependency: transitive
     description:

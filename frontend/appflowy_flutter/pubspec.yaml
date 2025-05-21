@@ -169,7 +169,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
 
   mocktail: ^1.0.1
-  native_splash_screen_cli: ^2.1.0
+  native_splash_screen_cli: ^2.1.1
 
   plugin_platform_interface: any
   run_with_network_images: ^0.0.1

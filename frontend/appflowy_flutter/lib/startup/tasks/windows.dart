@@ -62,6 +62,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
           appWindow.position = position;
         }
 
+        await nss.close(animation: nss.CloseAnimation.fade);
+
         /// on Windows we maximize the window if it was previously closed
         /// from a maximized state.
         final isMaximized = await windowSizeManager.getWindowMaximized();
