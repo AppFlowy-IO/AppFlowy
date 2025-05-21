@@ -38,17 +38,19 @@ void main() {
       wait: const Duration(milliseconds: 100),
       expect: () => [
         // First state: shareResult is null
-        isA<ShareWithUserState>()
-            .having((s) => s.shareResult, 'shareResult', isNull),
-        // Second state: shareResult is Success
-        isA<ShareWithUserState>()
-            .having((s) => s.shareResult, 'shareResult', isNotNull),
-        // Third state: users updated, shareResult still Success
         isA<ShareWithUserState>().having(
-          (s) => s.users.any((u) => u.email == email),
-          'users contains new user',
-          isTrue,
+          (s) => s.shareResult,
+          'shareResult',
+          isNull,
         ),
+        // Second state: shareResult is Success and users updated
+        isA<ShareWithUserState>()
+            .having((s) => s.shareResult, 'shareResult', isNotNull)
+            .having(
+              (s) => s.users.any((u) => u.email == email),
+              'users contains new user',
+              isTrue,
+            ),
       ],
     );
 
@@ -65,15 +67,14 @@ void main() {
         // First state: removeResult is null
         isA<ShareWithUserState>()
             .having((s) => s.removeResult, 'removeResult', isNull),
-        // Second state: removeResult is Success
+        // Second state: removeResult is Success and users updated
         isA<ShareWithUserState>()
-            .having((s) => s.removeResult, 'removeResult', isNotNull),
-        // Third state: users updated, removeResult still Success
-        isA<ShareWithUserState>().having(
-          (s) => s.users.any((u) => u.email == email),
-          'users contains removed user',
-          isFalse,
-        ),
+            .having((s) => s.removeResult, 'removeResult', isNotNull)
+            .having(
+              (s) => s.users.any((u) => u.email == email),
+              'users contains removed user',
+              isFalse,
+            ),
       ],
     );
 
@@ -94,18 +95,69 @@ void main() {
           'updateAccessLevelResult',
           isNull,
         ),
-        // Second state: updateAccessLevelResult is Success
-        isA<ShareWithUserState>().having(
-          (s) => s.updateAccessLevelResult,
-          'updateAccessLevelResult',
-          isNotNull,
+        // Second state: updateAccessLevelResult is Success and users updated
+        isA<ShareWithUserState>()
+            .having(
+              (s) => s.updateAccessLevelResult,
+              'updateAccessLevelResult',
+              isNotNull,
+            )
+            .having(
+              (s) => s.users.firstWhere((u) => u.email == email).accessLevel,
+              'vivian accessLevel',
+              ShareAccessLevel.fullAccess,
+            ),
+      ],
+    );
+
+    final guestEmail = 'guest@appflowy.io';
+    blocTest<ShareWithUserBloc, ShareWithUserState>(
+      'turns user into member',
+      build: () => bloc,
+      act: (bloc) => bloc
+        ..add(
+          ShareWithUserEvent.share(
+            emails: [guestEmail],
+            accessLevel: ShareAccessLevel.readOnly,
+          ),
+        )
+        ..add(
+          ShareWithUserEvent.turnIntoMember(
+            email: guestEmail,
+          ),
         ),
-        // Third state: users updated, vivian's access level is fullAccess
+      wait: const Duration(milliseconds: 100),
+      expect: () => [
+        // First state: shareResult is null
         isA<ShareWithUserState>().having(
-          (s) => s.users.firstWhere((u) => u.email == email).accessLevel,
-          'vivian accessLevel',
-          ShareAccessLevel.fullAccess,
+          (s) => s.shareResult,
+          'shareResult',
+          isNull,
         ),
+        // Second state: shareResult is Success and users updated
+        isA<ShareWithUserState>()
+            .having(
+              (s) => s.shareResult,
+              'shareResult',
+              isNotNull,
+            )
+            .having(
+              (s) => s.users.any((u) => u.email == guestEmail),
+              'users contains guest@appflowy.io',
+              isTrue,
+            ),
+        // Third state: turnIntoMemberResult is Success and users updated
+        isA<ShareWithUserState>()
+            .having(
+              (s) => s.turnIntoMemberResult,
+              'turnIntoMemberResult',
+              isNotNull,
+            )
+            .having(
+              (s) => s.users.firstWhere((u) => u.email == guestEmail).role,
+              'guest@appflowy.io role',
+              ShareRole.member,
+            ),
       ],
     );
   });
