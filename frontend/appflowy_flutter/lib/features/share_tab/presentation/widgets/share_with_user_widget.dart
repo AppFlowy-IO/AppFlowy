@@ -9,28 +9,33 @@ class ShareWithUserWidget extends StatefulWidget {
   const ShareWithUserWidget({
     super.key,
     required this.onInvite,
+    this.controller,
   });
 
   final void Function(List<String> emails) onInvite;
+  final TextEditingController? controller;
 
   @override
   State<ShareWithUserWidget> createState() => _ShareWithUserWidgetState();
 }
 
 class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
-  final TextEditingController controller = TextEditingController();
+  late final TextEditingController effectiveController;
   bool isButtonEnabled = false;
 
   @override
   void initState() {
     super.initState();
 
-    controller.addListener(_onTextChanged);
+    effectiveController = widget.controller ?? TextEditingController();
+    effectiveController.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    if (widget.controller == null) {
+      effectiveController.dispose();
+    }
 
     super.dispose();
   }
@@ -43,7 +48,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
       children: [
         Expanded(
           child: AFTextField(
-            controller: controller,
+            controller: effectiveController,
             size: AFTextFieldSize.m,
             hintText: LocaleKeys.shareTab_inviteByEmail.tr(),
           ),
@@ -53,7 +58,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
           text: LocaleKeys.shareTab_invite.tr(),
           disabled: !isButtonEnabled,
           onTap: () {
-            widget.onInvite(controller.text.trim().split(','));
+            widget.onInvite(effectiveController.text.trim().split(','));
           },
         ),
       ],
@@ -62,7 +67,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
 
   void _onTextChanged() {
     setState(() {
-      final texts = controller.text.trim().split(',');
+      final texts = effectiveController.text.trim().split(',');
       isButtonEnabled = texts.isNotEmpty && texts.every(isEmail);
     });
   }
