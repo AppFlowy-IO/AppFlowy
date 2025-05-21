@@ -2204,6 +2204,15 @@
       "trashHint": " - in trash",
       "morePages": "more pages"
     },
+    "mentionMenu": {
+      "people": "People",
+      "sendNotification": "Send notification",
+      "pages": "Pages",
+      "moreResults": "{} more results...",
+      "add": "Add{}...",
+      "createSubpage": "Create a sub-page...",
+      "dateAndReminder": "Date & Reminder"
+    },
     "toolbar": {
       "resetToDefaultFont": "Reset to default",
       "textSize": "Text size",
