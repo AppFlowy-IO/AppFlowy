@@ -222,9 +222,15 @@ class MathEquationBlockComponentWidgetState
   }
 
   Widget _buildMathEquation(BuildContext context) {
+	String _safeLatex(String raw) {
+		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
+			return r'\begin{aligned}' + raw + r'\end{aligned}';
+		}
+		return raw;
+	}
     return Center(
       child: Math.tex(
-        formula,
+        _safeLatex(formula),
         textStyle: const TextStyle(fontSize: 20),
       ),
     );
