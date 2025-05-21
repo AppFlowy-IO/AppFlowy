@@ -1,0 +1,206 @@
+# ┌────────────────────────────────────────────────────────────────────────┐
+# │                         Native Splash Screen                           │
+# │                    Configuration File Documentation                    │
+# └────────────────────────────────────────────────────────────────────────┘
+
+# ─── Platform Configuration ──────────────────────────────────────────────
+# Configure splash screen generation for each supported platform.
+#
+# enabled: Whether to enable splash screen generation for the platform.
+#          If false, the CLI will skip that platform entirely.
+#
+# fallback: Whether to fall back to the `release` configuration if no flavor
+#           configuration is defined for the current platform.
+#
+# path: The path to the platform source directory.
+#       If not specified, defaults to:
+#         - "linux/runner" for Linux
+#         - "windows/runner" for Windows
+#         - "macos/Runner" for Macos
+#
+#       If you provide a custom path, it must end with "/runner".
+#       Otherwise, you must manually run:
+#
+#         dart run native_splash_screen_cli setup --no-runner
+#
+#       to complete setup for your custom structure.
+#
+# Example:
+#  platforms:
+#    linux:
+#      enabled: true           # Enable splash screen generation for Linux
+#      fallback: false         # Do not fall back to release config if flavor is missing
+#    windows:
+#      enabled: true           # Enable splash screen generation for Windows
+#      fallback: true          # Fall back to release config if flavor is missing
+#    macos:
+#      enabled: true           # Enable splash screen generation for Macos
+#      fallback: true          # Fall back to release config if flavor is missing
+#      path: macos/Runner      # Optional: custom path (must end with /runner)
+
+# ─── Release Configuration ───────────────────────────────────────────────
+# The default splash screen config. This section is **optional**, unless:
+#   1. No `flavors` section is defined, OR
+#   2. Any platform explicitly enables `fallback: true`
+#
+# Each platform (linux/windows/macos) may contain its own splash configuration.
+# Fields:
+#
+#   - window_width (int):  Width of the splash window in pixels.
+#                          Default to 500. 
+#   - window_height (int): Height of the splash window in pixels.
+#                          Default to 250.
+#   - window_title (string): Title of the splash window.
+#                            Default to "Splash Screen"
+#   - window_class (string, optional): [Windows only] for window class.
+#   - window_color (string): [Linux only] Background color used by the WM/DE
+#                            *only* when compositing is disabled.
+#                            **Ignored if the DE uses full compositing.**
+#
+#   - background_color (string): Background rectangle fill color.
+#   - background_width (int): Width of the background rectangle.
+#   - background_height (int): Height of the background rectangle.
+#   - background_border_radius (double): Radius for background corner rounding.
+#
+#   - image_path (string): Path to the splash image. This field is **required**.
+#                          Must point to an valid image file.
+#   - image_width (int): Width of the image inside the splash window.
+#   - image_height (int): Height of the image inside the splash window.
+#   - image_scaling (bool): Whether to allow scaling of the image to fit.
+#   - image_border_radius (double): Radius for image corners.
+#   - blur_radius (double): Apply blur effect to the image. 0.0 = no blur.
+#                           This may help if your image look so sharp.
+#   - with_animation (bool): Whether to animate the splash screen showing.
+#                            Default to "true".
+
+# ─── Debug / Profile / Custom Flavors ─────────────────────────────────────
+# These optional sections override the default release behavior per flavor.
+# You may define:
+#   - `debug`: Used in `flutter run --debug`
+#   - `profile`: Used in `flutter run --profile`
+#   - `flavors`: Define any number of custom build flavors
+#                (e.g., "meeting", "staging", "internal", etc.)
+#
+# If a flavor is missing for a platform:
+#   - And `fallback: true` for that platform -> `release` is used.
+#   - Otherwise -> the splash screen will not be shown on that platform.
+
+# ─── Supported Color Formats ──────────────────────────────────────────────
+# You may define color values in any of the following formats:
+#
+#   - Hex formats:
+#     - "#RGB"        → Red, Green, Blue
+#     - "#RGBA"       → Red, Green, Blue, Alpha
+#     - "#RRGGBB"     → 8-bit Red, Green, Blue
+#     - "#RRGGBBAA"   → 8-bit Red, Green, Blue, Alpha
+#
+#   - Functional notation:
+#     - "rgb(r, g, b)"       → e.g., "rgb(255, 128, 0)"
+#     - "rgba(r, g, b, a)"   → e.g., "rgba(255, 128, 0, 0.5)"   0 < a < 1
+#     - "argb(a, r, g, b)"   → e.g., "argb(128, 0, 255, 128)"   0 < a < 255
+#
+#   - Comma-separated:
+#     - "r, g, b"            → e.g., "255, 128, 0"
+#     - "r, g, b, a"         → e.g., "255, 128, 0, 128"   0 < a < 255
+#
+#   Alpha may be:
+#     - A float between 0.0 and 1.0
+#     - An integer between 0 and 255
+
+# ─── Example Begins Below ─────────────────────────────────────────────────
+
+# Configuration version for the parser 
+version: v1
+
+# Platform configuration
+platforms:
+  linux:
+    enabled: true
+    fallback: false
+  windows:
+    enabled: false
+    fallback: true
+  macos:
+    enabled: false
+    fallback: true
+
+# Release configuration
+release:
+  linux:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+    
+    blur_radius: 0.0
+    with_animation: true
+
+  windows:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+    
+    blur_radius: 0.0
+    with_animation: true
+
+  macos:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+    
+    blur_radius: 0.0
+    with_animation: true
+
+# Debug configuration
+debug:
+  linux:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Debug)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+  windows:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Debug)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+  macos:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Debug)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+# Profile configuration
+profile:
+  linux:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Profile)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+  windows:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Profile)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+  macos:
+    window_width: 868
+    window_height: 420
+    window_title: "AppFlowy (Profile)"
+
+    image_path: "./assets/images/desktop_splash_image.png"
+
+# Custom flavors
+flavors:

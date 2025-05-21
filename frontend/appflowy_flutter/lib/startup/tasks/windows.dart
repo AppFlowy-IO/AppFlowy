@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:native_splash_screen/native_splash_screen.dart' as nss;
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
   InitAppWindowTask({this.title = 'AppFlowy'});
@@ -72,6 +73,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
+        await nss.close(animation: nss.CloseAnimation.fade);
 
         if (position != null) {
           await windowManager.setPosition(position);
