@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension GetIcon on ResultIconPB {
   Widget? getIcon({
@@ -18,7 +19,9 @@ extension GetIcon on ResultIconPB {
               strutStyle: StrutStyle(
                 fontSize: size,
                 height: lineHeight,
-                forceStrutHeight: true,
+
+                /// currently [forceStrutHeight] set to true seems only work in iOS
+                forceStrutHeight: UniversalPlatform.isIOS,
                 leadingDistribution: TextLeadingDistribution.even,
               ),
             )

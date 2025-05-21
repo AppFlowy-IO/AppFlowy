@@ -1,9 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/mobile_bottom_navigation_bar.dart';
+import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileSearchTextfield extends StatefulWidget {
   const MobileSearchTextfield({
@@ -28,6 +33,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   final ValueNotifier<bool> hasFocusValueNotifier = ValueNotifier(true);
 
   FocusNode get focusNode => widget.focusNode;
+  late String lastPage = bottomNavigationBarItemType.value ?? '';
 
   @override
   void initState() {
@@ -54,14 +60,50 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return SizedBox(
+    return Container(
       height: 42,
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.only(left: 4, right: 16),
       child: ValueListenableBuilder(
         valueListenable: controller,
         builder: (context, _, __) {
           final hasText = controller.text.isNotEmpty;
           return Row(
             children: [
+              GestureDetector(
+                onTap: () {
+                  if (lastPage.isEmpty) return;
+                  // close the popup menu
+                  closePopupMenu();
+                  try {
+                    BottomNavigationBarItemType label =
+                        BottomNavigationBarItemType.values.byName(lastPage);
+                    if (label == BottomNavigationBarItemType.search) {
+                      label = BottomNavigationBarItemType.home;
+                    }
+                    if (label == BottomNavigationBarItemType.notification) {
+                      getIt<ReminderBloc>().add(const ReminderEvent.refresh());
+                    }
+                    bottomNavigationBarItemType.value = label.label;
+                    final routeName = label.routeName;
+                    if (routeName != null) GoRouter.of(context).go(routeName);
+                  } on ArgumentError {
+                    Log.error(
+                      'lastPage: [$lastPage] cannot be converted to BottomNavigationBarItemType',
+                    );
+                  }
+                },
+                child: SizedBox.square(
+                  dimension: 40,
+                  child: Center(
+                    child: FlowySvg(
+                      FlowySvgs.search_page_arrow_left_m,
+                      size: Size.square(20),
+                      color: theme.iconColorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
               Expanded(
                 child: TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -131,9 +173,9 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       border: border,
       enabledBorder: border,
       focusedBorder: enableBorder,
-      prefixIconConstraints: BoxConstraints.loose(Size(34, 40)),
+      prefixIconConstraints: BoxConstraints.loose(Size(38, 40)),
       prefixIcon: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 10, 4, 10),
+        padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
         child: FlowySvg(
           FlowySvgs.m_home_search_icon_m,
           color: theme.iconColorScheme.secondary,
@@ -172,6 +214,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     } else {
       focusNode.unfocus();
       controller.clear();
+      lastPage = label ?? '';
     }
   }
 }
