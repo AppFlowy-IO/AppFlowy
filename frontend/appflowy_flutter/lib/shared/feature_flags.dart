@@ -124,10 +124,10 @@ enum FeatureFlag {
       case FeatureFlag.syncDatabase:
       case FeatureFlag.spaceDesign:
       case FeatureFlag.inlineSubPageMention:
-      case FeatureFlag.sharedSection:
-        return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
+        return true;
+      case FeatureFlag.sharedSection:
       case FeatureFlag.unknown:
         return false;
     }
