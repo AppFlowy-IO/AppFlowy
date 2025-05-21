@@ -35,7 +35,6 @@ use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
 use crate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use flowy_error::FlowyError;
-use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
 use uuid::Uuid;

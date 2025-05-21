@@ -8,7 +8,6 @@ use collab_entity::{CollabObject, CollabType};
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::get_operating_system;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
