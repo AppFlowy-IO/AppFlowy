@@ -70,6 +70,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
         shareResult: null,
         removeResult: null,
         updateAccessLevelResult: null,
+        turnIntoMemberResult: null,
       ),
     );
 
@@ -101,6 +102,9 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       state.copyWith(
         errorMessage: '',
         shareResult: null,
+        turnIntoMemberResult: null,
+        removeResult: null,
+        updateAccessLevelResult: null,
       ),
     );
 
@@ -142,6 +146,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
         removeResult: null,
         shareResult: null,
         updateAccessLevelResult: null,
+        turnIntoMemberResult: null,
       ),
     );
 
