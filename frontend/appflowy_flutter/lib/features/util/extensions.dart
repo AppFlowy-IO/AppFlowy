@@ -1,9 +1,9 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart' as folder;
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart'
     as user;
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 extension RepeatedSharedViewResponsePBExtension
     on RepeatedSharedViewResponsePB {

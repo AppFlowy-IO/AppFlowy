@@ -109,7 +109,6 @@ enum FeatureFlag {
       FeatureFlag.syncDatabase,
       FeatureFlag.syncDocument,
       FeatureFlag.inlineSubPageMention,
-      FeatureFlag.sharedSection,
     ].contains(this)) {
       return true;
     }

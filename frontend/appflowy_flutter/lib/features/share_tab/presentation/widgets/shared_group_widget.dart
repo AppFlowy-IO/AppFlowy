@@ -42,11 +42,13 @@ class SharedGroupWidget extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     return Row(
       children: [
-        Text(
-          LocaleKeys.shareTab_anyoneAtWorkspace
-              .tr(), // replace it with group name
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
+        Flexible(
+          child: Text(
+            LocaleKeys.shareTab_anyoneAtWorkspace.tr(),
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.primary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         HSpace(theme.spacing.xs),
@@ -61,8 +63,7 @@ class SharedGroupWidget extends StatelessWidget {
   Widget _buildSubtitle(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Text(
-      LocaleKeys.shareTab_anyoneInGroupWithLinkCanEdit
-          .tr(), // replace it with group description
+      LocaleKeys.shareTab_anyoneInGroupWithLinkCanEdit.tr(),
       textAlign: TextAlign.left,
       style: theme.textStyle.caption.standard(
         color: theme.textColorScheme.secondary,
