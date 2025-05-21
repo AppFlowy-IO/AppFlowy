@@ -19,12 +19,14 @@ class SearchSummaryCell extends StatefulWidget {
     required this.summary,
     required this.maxWidth,
     required this.theme,
+    required this.textStyle,
     super.key,
   });
 
   final SearchSummaryPB summary;
   final double maxWidth;
   final AppFlowyThemeData theme;
+  final TextStyle textStyle;
 
   @override
   State<SearchSummaryCell> createState() => _SearchSummaryCellState();
@@ -42,9 +44,7 @@ class _SearchSummaryCellState extends State<SearchSummaryCell> {
   double get maxWidth => widget.maxWidth;
   AppFlowyThemeData get theme => widget.theme;
 
-  TextStyle get textStyle => theme.textStyle.body.standard(
-        color: theme.textColorScheme.primary,
-      );
+  TextStyle get textStyle => widget.textStyle;
 
   TextStyle get showMoreStyle => theme.textStyle.body.standard(
         color: theme.textColorScheme.secondary,
@@ -433,7 +433,7 @@ class ReferenceSources extends StatelessWidget {
     if (icon.ty == ResultIconTypePB.Emoji) {
       return icon.getIcon(size: 16, lineHeight: 20 / 16) ?? SizedBox.shrink();
     } else {
-      return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
+      return icon.getIcon(iconColor: theme.iconColorScheme.primary) ??
           SizedBox.shrink();
     }
   }

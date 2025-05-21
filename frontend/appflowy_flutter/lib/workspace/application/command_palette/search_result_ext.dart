@@ -13,10 +13,14 @@ extension GetIcon on ResultIconPB {
     final iconValue = value, iconType = ty;
     if (iconType == ResultIconTypePB.Emoji) {
       return iconValue.isNotEmpty
-          ? RawEmojiIconWidget(
-              emoji: EmojiIconData(iconType.toFlowyIconType(), iconValue),
-              emojiSize: size,
-              lineHeight: lineHeight,
+          ? Text(
+              iconValue,
+              strutStyle: StrutStyle(
+                fontSize: size,
+                height: lineHeight,
+                forceStrutHeight: true,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
             )
           : null;
     } else if (iconType == ResultIconTypePB.Icon ||

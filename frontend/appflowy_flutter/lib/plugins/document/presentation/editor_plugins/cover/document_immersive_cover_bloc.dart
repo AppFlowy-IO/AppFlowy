@@ -21,6 +21,7 @@ class DocumentImmersiveCoverBloc
         await event.when(
           initial: () async {
             final latestView = await ViewBackendService.getView(view.id);
+            if (isClosed) return;
             add(
               DocumentImmersiveCoverEvent.updateCoverAndIcon(
                 latestView.fold(
