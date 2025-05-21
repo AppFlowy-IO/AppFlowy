@@ -8,7 +8,6 @@ use collab_entity::{CollabObject, CollabType};
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
-use lib_infra::util::get_operating_system;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -68,10 +67,6 @@ impl InstantIndexedDataWriter {
   }
 
   pub async fn spawn_instant_indexed_provider(&self, runtime: &Runtime) -> FlowyResult<()> {
-    if !get_operating_system().is_desktop() {
-      return Ok(());
-    }
-
     let weak_collab_by_object = Arc::downgrade(&self.collab_by_object);
     let consumers_weak = Arc::downgrade(&self.consumers);
     let interval_dur = Duration::from_secs(30);
@@ -235,10 +230,6 @@ impl InstantIndexedDataWriter {
     collab_object: CollabObject,
     collab: Weak<dyn CollabIndexedData>,
   ) {
-    if !get_operating_system().is_desktop() {
-      return;
-    }
-
     if !self.support_collab_type(&collab_object.collab_type) {
       return;
     }

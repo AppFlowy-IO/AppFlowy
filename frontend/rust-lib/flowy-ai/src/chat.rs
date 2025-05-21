@@ -98,6 +98,7 @@ impl Chat {
         &self.chat_id,
         &params.message,
         params.message_type.clone(),
+        params.prompt_id.clone(),
       )
       .await
       .map_err(|err| {
@@ -251,22 +252,24 @@ impl Chat {
         Err(err) => {
           error!("[Chat] failed to start streaming: {}", err);
           if err.is_ai_response_limit_exceeded() {
-            let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+            let _ = answer_sink
+              .send(StreamMessage::AIResponseLimitExceeded.to_string())
+              .await;
           } else if err.is_ai_image_response_limit_exceeded() {
             let _ = answer_sink
-              .send("AI_IMAGE_RESPONSE_LIMIT".to_string())
+              .send(StreamMessage::AIImageResponseLimitExceeded.to_string())
               .await;
           } else if err.is_ai_max_required() {
             let _ = answer_sink
-              .send(format!("AI_MAX_REQUIRED:{}", err.msg))
+              .send(StreamMessage::AIMaxRequired(err.msg.clone()).to_string())
               .await;
           } else if err.is_local_ai_not_ready() {
             let _ = answer_sink
-              .send(format!("LOCAL_AI_NOT_READY:{}", err.msg))
+              .send(StreamMessage::LocalAINotReady(err.msg.clone()).to_string())
               .await;
           } else if err.is_local_ai_disabled() {
             let _ = answer_sink
-              .send(format!("LOCAL_AI_DISABLED:{}", err.msg))
+              .send(StreamMessage::LocalAIDisabled(err.msg.clone()).to_string())
               .await;
           } else {
             let _ = answer_sink

@@ -314,7 +314,9 @@ class _OverlayContentState extends State<OverlayContent> {
                     hasSelection: hasSelection,
                     editorState: widget.editorState,
                     onSelectCommand: (command) {
-                      final state = context.read<AIPromptInputBloc>().state;
+                      final bloc = context.read<AIPromptInputBloc>();
+                      final promptId = bloc.promptId;
+                      final state = bloc.state;
                       final showPredefinedFormats = state.showPredefinedFormats;
                       final predefinedFormat = state.predefinedFormat;
                       final text = widget.textController.text;
@@ -323,6 +325,7 @@ class _OverlayContentState extends State<OverlayContent> {
                             command,
                             text,
                             showPredefinedFormats ? predefinedFormat : null,
+                            promptId,
                           );
                     },
                   ),
@@ -497,8 +500,8 @@ class MainContentArea extends StatelessWidget {
               AiWriterCommand.makeShorter,
             ].contains(state.command),
             textController: textController,
-            onSubmitted: (message, format, _) {
-              cubit.runCommand(state.command, message, format);
+            onSubmitted: (message, format, _, promptId) {
+              cubit.runCommand(state.command, message, format, promptId);
             },
             onStopStreaming: () => cubit.stopStream(),
             selectedSourcesNotifier: cubit.selectedSourcesNotifier,

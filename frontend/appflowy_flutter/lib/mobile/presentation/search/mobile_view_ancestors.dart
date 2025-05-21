@@ -1,4 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -100,4 +101,30 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         maxLines: 1,
         textDirection: TextDirection.ltr,
       );
+
+  Widget buildOnelinePath(BuildContext context) {
+    final ancestors = ancestor.ancestors;
+    List<String> displayPath = ancestors.map((e) => e.name).toList();
+    if (ancestors.length > 2) {
+      displayPath = [ancestors.first.name, '...', ancestors.last.name];
+    }
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          WidgetSpan(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Text('-', style: context.searchPanelPath),
+            ),
+          ),
+          TextSpan(
+            text: displayPath.join(' / '),
+            style: context.searchPanelPath,
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -9,41 +9,52 @@ class AFMenuItem extends StatelessWidget {
   const AFMenuItem({
     super.key,
     required this.title,
-    required this.onTap,
+    this.onTap,
     this.leading,
     this.subtitle,
     this.selected = false,
     this.trailing,
+    this.padding,
+    this.showSelectedBackground = true,
   });
 
   /// Widget to display before the title (e.g., an icon or avatar).
   final Widget? leading;
 
   /// The main text of the menu item.
-  final String title;
+  final Widget title;
 
   /// Optional secondary text displayed below the title.
-  final String? subtitle;
+  final Widget? subtitle;
 
   /// Whether the menu item is selected.
   final bool selected;
 
+  /// Whether to show the selected background color.
+  final bool showSelectedBackground;
+
   /// Called when the menu item is tapped.
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   /// Widget to display after the title (e.g., a trailing icon).
   final Widget? trailing;
+
+  /// Padding of the menu item.
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
+    final effectivePadding = padding ??
+        EdgeInsets.symmetric(
+          horizontal: theme.spacing.m,
+          vertical: theme.spacing.s,
+        );
+
     return AFBaseButton(
       onTap: onTap,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.m,
-        vertical: theme.spacing.s,
-      ),
+      padding: effectivePadding,
       borderRadius: theme.borderRadius.m,
       borderColor: (context, isHovering, disabled, isFocused) {
         return Colors.transparent;
@@ -53,10 +64,10 @@ class AFMenuItem extends StatelessWidget {
         if (disabled) {
           return theme.fillColorScheme.content;
         }
-        if (selected) {
+        if (selected && showSelectedBackground) {
           return theme.fillColorScheme.themeSelect;
         }
-        if (isHovering) {
+        if (isHovering && onTap != null) {
           return theme.fillColorScheme.contentHover;
         }
         return theme.fillColorScheme.content;
@@ -75,20 +86,9 @@ class AFMenuItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title text
-                  Text(
-                    title,
-                    style: theme.textStyle.body.standard(
-                      color: theme.textColorScheme.primary,
-                    ),
-                  ),
+                  title,
                   // Subtitle text, if provided
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: theme.textStyle.caption.standard(
-                        color: theme.textColorScheme.secondary,
-                      ),
-                    ),
+                  if (subtitle != null) subtitle!,
                 ],
               ),
             ),

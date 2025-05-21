@@ -1,13 +1,13 @@
 import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_collaborators_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
+import 'package:appflowy/plugins/document/presentation/collaborator_avatar_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class DocumentCollaborators extends StatelessWidget {
   const DocumentCollaborators({
@@ -99,8 +99,7 @@ class _UserAvatar extends StatelessWidget {
         child: UserAvatar(
           iconUrl: user.userAvatar,
           name: user.userName,
-          size: 30.0,
-          fontSize: fontSize ?? (UniversalPlatform.isMobile ? 14 : 12),
+          size: AFAvatarSize.m,
         ),
       ),
     );

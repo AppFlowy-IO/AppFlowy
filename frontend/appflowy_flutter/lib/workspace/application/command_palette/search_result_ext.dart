@@ -19,6 +19,8 @@ extension GetIcon on ResultIconPB {
               strutStyle: StrutStyle(
                 fontSize: size,
                 height: lineHeight,
+
+                /// currently [forceStrutHeight] set to true seems only work in iOS
                 forceStrutHeight: UniversalPlatform.isIOS,
                 leadingDistribution: TextLeadingDistribution.even,
               ),

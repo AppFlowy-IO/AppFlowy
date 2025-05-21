@@ -1,6 +1,13 @@
 use crate::entities::PublishPayload;
 pub use anyhow::Error;
-use client_api::entity::{PublishInfo, workspace_dto::PublishInfoView};
+use client_api::entity::{
+  PublishInfo,
+  guest_dto::{
+    ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest,
+    SharedViewDetails,
+  },
+  workspace_dto::PublishInfoView,
+};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
@@ -87,6 +94,34 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
+
+  /// Share a page with a user (member or guest)
+  async fn share_page_with_user(
+    &self,
+    workspace_id: &Uuid,
+    params: ShareViewWithGuestRequest,
+  ) -> Result<(), FlowyError>;
+
+  /// Revoke access to a page for a user (member or guest)
+  async fn revoke_shared_page_access(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+    params: RevokeSharedViewAccessRequest,
+  ) -> Result<(), FlowyError>;
+
+  /// Get the shared members/guests of a page
+  async fn get_shared_page_details(
+    &self,
+    workspace_id: &Uuid,
+    view_id: &Uuid,
+  ) -> Result<SharedViewDetails, FlowyError>;
+
+  /// Get the shared views of a workspace
+  async fn get_shared_views(
+    &self,
+    workspace_id: &Uuid,
+  ) -> Result<ListSharedViewResponse, FlowyError>;
 }
 
 #[derive(Debug)]

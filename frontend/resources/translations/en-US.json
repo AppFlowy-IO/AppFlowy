@@ -3411,5 +3411,27 @@
     "tryAgain": "Try again",
     "rewrite": "Rewrite",
     "insertBelow": "Insert below"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "View",
+      "comment": "Comment",
+      "edit": "Edit",
+      "fullAccess": "Full access"
+    },
+    "inviteByEmail": "Invite by email",
+    "invite": "Invite",
+    "anyoneAtWorkspace": "Anyone at {workspace}",
+    "anyoneInGroupWithLinkCanEdit": "Anyone in this group with the link can edit",
+    "copyLink": "Copy link",
+    "copiedLinkToClipboard": "Copied link to clipboard",
+    "removeAccess": "Remove access",
+    "turnIntoMember": "Turn into Member",
+    "you": "(You)",
+    "guest": "Guest"
+  },
+  "shareSection": {
+    "shared": "Shared",
+    "refresh": "Refresh"
   }
 }

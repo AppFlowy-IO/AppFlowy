@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_ask_ai_entrance.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
@@ -65,16 +66,20 @@ class _SearchResultListState extends State<SearchResultList> {
         },
         child: BlocBuilder<SearchResultListBloc, SearchResultListState>(
           builder: (context, state) {
-            final showPreview = state.hoveredResult != null;
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(flex: 2, child: _buildResultsSection(context)),
-                if (showPreview) ...[
-                  AFDivider(axis: Axis.vertical),
-                  Flexible(child: const SearchCellPreview()),
-                ],
-              ],
+            final hasHoverResult = state.hoveredResult != null;
+            return LayoutBuilder(
+              builder: (context, constrains) {
+                final maxWidth = constrains.maxWidth;
+                final hidePreview = maxWidth < 884;
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildResultsSection(context, hidePreview)),
+                    if (!hidePreview && hasHoverResult)
+                      const SearchCellPreview(),
+                  ],
+                );
+              },
             );
           },
         ),
@@ -84,19 +89,19 @@ class _SearchResultListState extends State<SearchResultList> {
 
   Widget _buildSectionHeader(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Container(
-      height: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: theme.spacing.s,
+        horizontal: theme.spacing.m,
+      ),
       child: Text(
         LocaleKeys.commandPalette_bestMatches.tr(),
-        style: theme.textStyle.body.enhanced(
-          color: theme.textColorScheme.secondary,
-        ),
+        style: context.searchPanelTitle1,
       ),
     );
   }
 
-  Widget _buildResultsSection(BuildContext context) {
+  Widget _buildResultsSection(BuildContext context, bool hidePreview) {
     final workspaceState = context.read<UserWorkspaceBloc?>()?.state;
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
@@ -108,55 +113,57 @@ class _SearchResultListState extends State<SearchResultList> {
     return ScrollControllerBuilder(
       builder: (context, controller) {
         final hoveredId = bloc.state.hoveredResult?.id;
-        return FlowyScrollbar(
-          controller: controller,
-          child: SingleChildScrollView(
+        return Padding(
+          padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
+          child: FlowyScrollbar(
             controller: controller,
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (showAskingAI) SearchAskAiEntrance(),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildSectionHeader(context),
-                      VSpace(8),
-                      ListView.separated(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: resultItems.length,
-                        separatorBuilder: (_, index) {
-                          final item = resultItems[index];
-                          final isHovered = hoveredId == item.id;
-                          if (isHovered) return VSpace(1);
-                          if (index < resultItems.length - 1) {
-                            final nextView = resultItems[index + 1];
-                            final isNextHovered = hoveredId == nextView.id;
-                            if (isNextHovered) return VSpace(1);
-                          }
-                          return const AFDivider();
-                        },
-                        itemBuilder: (_, index) {
-                          final item = resultItems[index];
-                          return SearchResultCell(
-                            item: item,
-                            isHovered: hoveredId == item.id,
-                            query: context
-                                .read<CommandPaletteBloc?>()
-                                ?.state
-                                .query,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+            child: SingleChildScrollView(
+              controller: controller,
+              physics: ClampingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (showAskingAI) SearchAskAiEntrance(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildSectionHeader(context),
+                        VSpace(8),
+                        ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          separatorBuilder: (_, index) {
+                            final item = resultItems[index];
+                            final isHovered = hoveredId == item.id;
+                            if (isHovered) return VSpace(1);
+                            if (index < resultItems.length - 1) {
+                              final nextView = resultItems[index + 1];
+                              final isNextHovered = hoveredId == nextView.id;
+                              if (isNextHovered) return VSpace(1);
+                            }
+                            return const AFDivider();
+                          },
+                          shrinkWrap: true,
+                          itemCount: resultItems.length,
+                          itemBuilder: (_, index) {
+                            final item = resultItems[index];
+                            return SearchResultCell(
+                              item: item,
+                              isHovered: hoveredId == item.id,
+                              query: context
+                                  .read<CommandPaletteBloc?>()
+                                  ?.state
+                                  .query,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );

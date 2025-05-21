@@ -5,7 +5,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/af_user_profile_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/inivitation/member_http_service.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/invitation/member_http_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';

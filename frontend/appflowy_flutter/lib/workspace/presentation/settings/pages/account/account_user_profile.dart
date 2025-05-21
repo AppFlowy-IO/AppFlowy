@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
-import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -84,12 +83,11 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
         child: FlowyTooltip(
           message:
               LocaleKeys.settings_accountPage_general_changeProfilePicture.tr(),
-          child: UserAvatar(
-            iconUrl: widget.iconUrl,
+          verticalOffset: 28,
+          child: AFAvatar(
+            url: widget.iconUrl,
             name: widget.name,
-            size: 48,
-            fontSize: 20,
-            isHovering: isHovering,
+            size: AFAvatarSize.l,
           ),
         ),
       ),

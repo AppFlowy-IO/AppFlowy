@@ -23,6 +23,8 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 
   final AIModelStateNotifier aiModelStateNotifier;
 
+  String? promptId;
+
   @override
   Future<void> close() async {
     await aiModelStateNotifier.dispose();
@@ -88,7 +90,11 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
               ),
             );
           },
+          updatePromptId: (promptId) {
+            this.promptId = promptId;
+          },
           clearMetadata: () {
+            promptId = null;
             emit(
               state.copyWith(
                 attachedFiles: [],
@@ -151,6 +157,8 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
   const factory AIPromptInputEvent.updateMentionedViews(List<ViewPB> views) =
       _UpdateMentionedViews;
   const factory AIPromptInputEvent.clearMetadata() = _ClearMetadata;
+  const factory AIPromptInputEvent.updatePromptId(String promptId) =
+      _UpdatePromptId;
 }
 
 @freezed
