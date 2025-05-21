@@ -2094,7 +2094,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let mut all_rows = vec![];
     let read_guard = self.database.read().await;
     let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, 10, None)
+      .get_rows_from_row_orders(row_orders, 10, None)
       .await;
     pin_mut!(rows_stream);
 
