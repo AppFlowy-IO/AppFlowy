@@ -1,6 +1,6 @@
 import 'package:appflowy/features/shared_section/data/share_pages_repository.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
-import 'package:appflowy/features/shared_section/util/extensions.dart';
+import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';

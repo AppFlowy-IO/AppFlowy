@@ -1,9 +1,10 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/shared_section/util/extensions.dart';
+import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 import 'share_with_user_repository.dart';
@@ -94,5 +95,32 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
   }) async {
     // TODO: Implement this
     return FlowySuccess([]);
+  }
+
+  @override
+  Future<FlowyResult<void, FlowyError>> changeRole({
+    required String pageId,
+    required String email,
+    required ShareRole role,
+  }) async {
+    final request = UpdateWorkspaceMemberPB(
+      workspaceId: pageId,
+      email: email,
+      role: role.userRole,
+    );
+    final result = await UserEventUpdateWorkspaceMember(request).send();
+    return result.fold(
+      (success) {
+        Log.info('change role($role) for user($email) in page($pageId)');
+        return FlowySuccess(success);
+      },
+      (failure) {
+        Log.error(
+          'failed to change role($role) for user($email) in page($pageId)',
+          failure,
+        );
+        return FlowyFailure(failure);
+      },
+    );
   }
 }

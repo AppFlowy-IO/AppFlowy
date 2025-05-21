@@ -1,4 +1,6 @@
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,10 +19,10 @@ void main() {
         ),
       );
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Invite'), findsOneWidget);
+      expect(find.text(LocaleKeys.shareTab_invite.tr()), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'test@user.com');
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Invite'));
+      await tester.tap(find.text(LocaleKeys.shareTab_invite.tr()));
       await tester.pumpAndSettle();
       expect(invited, isNotNull);
       expect(invited, contains('test@user.com'));
