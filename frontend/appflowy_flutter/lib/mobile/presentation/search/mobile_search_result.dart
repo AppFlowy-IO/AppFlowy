@@ -5,11 +5,9 @@ import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -110,11 +108,10 @@ class MobileSearchResultList extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             final item = items[index];
+            final view = state.cachedViews[item.id];
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () async {
-                final view =
-                    await ViewBackendService.getView(item.id).toNullable();
                 if (view != null && context.mounted) {
                   await _goToView(context, view);
                 } else {
@@ -129,6 +126,7 @@ class MobileSearchResultList extends StatelessWidget {
               },
               child: MobileSearchResultCell(
                 item: item,
+                view: view,
                 query: state.query,
               ),
             );

@@ -3,11 +3,10 @@ import 'package:appflowy/mobile/presentation/search/mobile_search_cell.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_view_ancestors.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
-import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/result.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -23,11 +22,13 @@ class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
     super.key,
     required this.item,
+    this.view,
     this.query,
     this.isHovered = false,
   });
 
   final SearchResultItem item;
+  final ViewPB? view;
   final String? query;
   final bool isHovered;
 
@@ -120,6 +121,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
                     HSpace(8),
                     RichText(
                       maxLines: 1,
+                      textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       text: buildHighLightSpan(
                         content: title,
@@ -142,14 +144,9 @@ class _SearchResultCellState extends State<SearchResultCell> {
   }
 
   Widget buildIcon(AppFlowyThemeData theme) {
-    final icon = item.icon;
-    final color = theme.iconColorScheme.secondary;
-    if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 16, lineHeight: 20 / 16, iconColor: color) ??
-          SizedBox.shrink();
-    } else {
-      return icon.getIcon(iconColor: color) ?? SizedBox.shrink();
-    }
+    final view = widget.view;
+    if (view != null) return view.buildIcon(context);
+    return item.icon.buildIcon(context) ?? const SizedBox.shrink();
   }
 
   Widget buildPath(AppFlowyThemeData theme) {
@@ -208,31 +205,20 @@ class _SearchResultCellState extends State<SearchResultCell> {
 class SearchResultPreview extends StatelessWidget {
   const SearchResultPreview({
     super.key,
-    required this.item,
+    required this.view,
   });
 
-  final SearchResultItem item;
+  final ViewPB view;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: ViewBackendService.getView(item.id),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final view = snapshot.data?.toNullable();
-        if (view == null) return SomethingWentWrong();
-
-        return PagePreview(
-          view: view,
-          key: ValueKey(view.id),
-          onViewOpened: () {
-            context
-                .read<SearchResultListBloc?>()
-                ?.add(SearchResultListEvent.openPage(pageId: view.id));
-          },
-        );
+    return PagePreview(
+      view: view,
+      key: ValueKey(view.id),
+      onViewOpened: () {
+        context
+            .read<SearchResultListBloc?>()
+            ?.add(SearchResultListEvent.openPage(pageId: view.id));
       },
     );
   }

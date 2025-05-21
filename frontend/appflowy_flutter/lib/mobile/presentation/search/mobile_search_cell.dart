@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
-import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -14,8 +14,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'mobile_view_ancestors.dart';
 
 class MobileSearchResultCell extends StatelessWidget {
-  const MobileSearchResultCell({super.key, required this.item, this.query});
+  const MobileSearchResultCell({
+    super.key,
+    required this.item,
+    this.query,
+    this.view,
+  });
   final SearchResultItem item;
+  final ViewPB? view;
   final String? query;
 
   @override
@@ -25,6 +31,7 @@ class MobileSearchResultCell extends StatelessWidget {
     final displayName = item.displayName.isEmpty
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
         : item.displayName;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: Row(
@@ -32,7 +39,10 @@ class MobileSearchResultCell extends StatelessWidget {
         children: [
           SizedBox.square(
             dimension: 24,
-            child: Center(child: buildIcon(theme)),
+            child: Center(
+              child: (view?.toSearchResultItem().icon ?? item.icon)
+                  .buildIcon(context),
+            ),
           ),
           HSpace(12),
           Flexible(
@@ -58,19 +68,6 @@ class MobileSearchResultCell extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget buildIcon(AppFlowyThemeData theme) {
-    final icon = item.icon;
-    if (icon.ty == ResultIconTypePB.Emoji) {
-      return icon.getIcon(size: 20) ?? SizedBox.shrink();
-    } else {
-      return icon.getIcon(
-            size: 20,
-            iconColor: theme.iconColorScheme.secondary,
-          ) ??
-          SizedBox.shrink();
-    }
   }
 
   Widget buildPath(CommandPaletteState state, AppFlowyThemeData theme) {

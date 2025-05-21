@@ -203,6 +203,7 @@ class CommandPaletteModal extends StatelessWidget {
           final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
           final hasResult = state.combinedResponseItems.isNotEmpty;
+          final spaceXl = theme.spacing.xl;
           return FlowyDialog(
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
@@ -216,7 +217,7 @@ class CommandPaletteModal extends StatelessWidget {
             child: shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
               Padding(
-                padding: EdgeInsets.all(theme.spacing.xl),
+                padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
                     SearchField(query: state.query, isLoading: state.searching),
@@ -226,17 +227,15 @@ class CommandPaletteModal extends StatelessWidget {
                           onSelected: () => FlowyOverlay.pop(context),
                         ),
                       ),
-                    if (hasResult && hasQuery) ...[
-                      AFDivider(),
+                    if (hasResult && hasQuery)
                       Flexible(
                         child: SearchResultList(
-                          trash: state.trash,
+                          cachedViews: state.cachedViews,
                           resultItems:
                               state.combinedResponseItems.values.toList(),
                           resultSummaries: state.resultSummaries,
                         ),
-                      ),
-                    ]
+                      )
                     // When there are no results and the query is not empty and not loading,
                     // show the no results message, centered in the available space.
                     else if (hasQuery && !state.searching) ...[

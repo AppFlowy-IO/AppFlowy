@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -39,8 +40,10 @@ class CommandPaletteBloc
     on<_ClearSearch>(_onClearSearch);
     on<_GoingToAskAI>(_onGoingToAskAI);
     on<_AskedAI>(_onAskedAI);
+    on<_RefreshCachedViews>(_onRefreshCachedViews);
 
     _initTrash();
+    _refreshCachedViews();
   }
 
   final Debouncer _searchDebouncer = Debouncer(
@@ -76,6 +79,27 @@ class CommandPaletteBloc
       },
       (error) => debugPrint('Failed to load trash: $error'),
     );
+  }
+
+  Future<void> _refreshCachedViews() async {
+    /// Sometimes non-existent views appear in the search results
+    /// and the icon data for the search results is empty
+    /// Fetching all views can temporarily resolve these issues
+    final repeatedViewPB =
+        (await ViewBackendService.getAllViews()).toNullable();
+    if (repeatedViewPB == null || isClosed) return;
+    add(CommandPaletteEvent.refreshCachedViews(views: repeatedViewPB.items));
+  }
+
+  FutureOr<void> _onRefreshCachedViews(
+    _RefreshCachedViews event,
+    Emitter<CommandPaletteState> emit,
+  ) {
+    final cachedViews = <String, ViewPB>{};
+    for (final view in event.views) {
+      cachedViews[view.id] = view;
+    }
+    emit(state.copyWith(cachedViews: cachedViews));
   }
 
   FutureOr<void> _onSearchChanged(
@@ -273,6 +297,7 @@ class CommandPaletteBloc
         generatingAIOverview: false,
       ),
     );
+    _refreshCachedViews();
   }
 
   FutureOr<void> _onClearSearch(
@@ -329,6 +354,9 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     @Default(null) List<SearchSourcePB>? sources,
   }) = _GoingToAskAI;
   const factory CommandPaletteEvent.askedAI() = _AskedAI;
+  const factory CommandPaletteEvent.refreshCachedViews({
+    required List<ViewPB> views,
+  }) = _RefreshCachedViews;
 }
 
 class SearchResultItem {
@@ -355,6 +383,7 @@ class CommandPaletteState with _$CommandPaletteState {
     @Default([]) List<SearchResponseItemPB> serverResponseItems,
     @Default([]) List<LocalSearchResponseItemPB> localResponseItems,
     @Default({}) Map<String, SearchResultItem> combinedResponseItems,
+    @Default({}) Map<String, ViewPB> cachedViews,
     @Default([]) List<SearchSummaryPB> resultSummaries,
     @Default(null) SearchResponseStream? searchResponseStream,
     required bool searching,

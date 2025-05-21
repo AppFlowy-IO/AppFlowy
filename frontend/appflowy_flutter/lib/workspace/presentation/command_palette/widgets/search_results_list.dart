@@ -6,12 +6,12 @@ import 'package:appflowy/workspace/application/command_palette/search_result_lis
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_ask_ai_entrance.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -20,13 +20,13 @@ import 'search_result_cell.dart';
 
 class SearchResultList extends StatefulWidget {
   const SearchResultList({
-    required this.trash,
+    required this.cachedViews,
     required this.resultItems,
     required this.resultSummaries,
     super.key,
   });
 
-  final List<TrashPB> trash;
+  final Map<String, ViewPB> cachedViews;
   final List<SearchResultItem> resultItems;
   final List<SearchSummaryPB> resultSummaries;
 
@@ -106,9 +106,8 @@ class _SearchResultListState extends State<SearchResultList> {
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
     if (widget.resultItems.isEmpty) return const SizedBox.shrink();
-    final trashIds = widget.trash.map((e) => e.id).toSet();
     final resultItems = widget.resultItems
-        .where((item) => !trashIds.contains(item.id))
+        .where((item) => widget.cachedViews[item.id] != null)
         .toList();
     return ScrollControllerBuilder(
       builder: (context, controller) {
@@ -151,6 +150,7 @@ class _SearchResultListState extends State<SearchResultList> {
                             final item = resultItems[index];
                             return SearchResultCell(
                               item: item,
+                              view: widget.cachedViews[item.id],
                               isHovered: hoveredId == item.id,
                               query: context
                                   .read<CommandPaletteBloc?>()
@@ -179,8 +179,11 @@ class SearchCellPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchResultListBloc, SearchResultListState>(
       builder: (context, state) {
-        if (state.hoveredResult != null) {
-          return SearchResultPreview(item: state.hoveredResult!);
+        final hoverdId = state.hoveredResult?.id ?? '';
+        final commandPaletteState = context.read<CommandPaletteBloc>().state;
+        final view = commandPaletteState.cachedViews[hoverdId];
+        if (view != null) {
+          return SearchResultPreview(view: view);
         }
         return const SizedBox.shrink();
       },
