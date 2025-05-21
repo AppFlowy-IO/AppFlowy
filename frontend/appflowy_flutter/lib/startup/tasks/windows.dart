@@ -75,7 +75,9 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
-        await nss.close(animation: nss.CloseAnimation.fade);
+        if (UniversalPlatform.isLinux || UniversalPlatform.isMacOS) {
+          await nss.close(animation: nss.CloseAnimation.fade);
+        }
 
         if (position != null) {
           await windowManager.setPosition(position);

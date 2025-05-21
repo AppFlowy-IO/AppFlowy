@@ -121,7 +121,7 @@ platforms:
     enabled: true
     fallback: true
   macos:
-    enabled: false
+    enabled: true
     fallback: true
 
 # Release configuration

@@ -21,6 +21,10 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		22FE2BB32DDE92E900047C3C /* NativeSplashScreen_Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FE2BAF2DDE92E900047C3C /* NativeSplashScreen_Profile.swift */; };
+		22FE2BB42DDE92E900047C3C /* NativeSplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FE2BB02DDE92E900047C3C /* NativeSplashScreen.swift */; };
+		22FE2BB52DDE92E900047C3C /* NativeSplashScreen_Release.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FE2BB12DDE92E900047C3C /* NativeSplashScreen_Release.swift */; };
+		22FE2BB62DDE92E900047C3C /* NativeSplashScreen_Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FE2BB22DDE92E900047C3C /* NativeSplashScreen_Debug.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
 		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
@@ -58,6 +62,10 @@
 /* Begin PBXFileReference section */
 		1823EB6E74189944EAA69652 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		1CD81A6C7244B2318E0BA2E8 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		22FE2BAF2DDE92E900047C3C /* NativeSplashScreen_Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeSplashScreen_Profile.swift; path = Runner/NativeSplashScreen_Profile.swift; sourceTree = "<group>"; };
+		22FE2BB02DDE92E900047C3C /* NativeSplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeSplashScreen.swift; path = Runner/NativeSplashScreen.swift; sourceTree = "<group>"; };
+		22FE2BB12DDE92E900047C3C /* NativeSplashScreen_Release.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeSplashScreen_Release.swift; path = Runner/NativeSplashScreen_Release.swift; sourceTree = "<group>"; };
+		22FE2BB22DDE92E900047C3C /* NativeSplashScreen_Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeSplashScreen_Debug.swift; path = Runner/NativeSplashScreen_Debug.swift; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratedPluginRegistrant.swift; sourceTree = "<group>"; };
 		33CC10ED2044A3C60003C045 /* AppFlowy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppFlowy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -110,6 +118,10 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				22FE2BB22DDE92E900047C3C /* NativeSplashScreen_Debug.swift */,
+				22FE2BAF2DDE92E900047C3C /* NativeSplashScreen_Profile.swift */,
+				22FE2BB12DDE92E900047C3C /* NativeSplashScreen_Release.swift */,
+				22FE2BB02DDE92E900047C3C /* NativeSplashScreen.swift */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				33CC10EE2044A3C60003C045 /* Products */,
@@ -349,6 +361,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22FE2BB32DDE92E900047C3C /* NativeSplashScreen_Profile.swift in Sources */,
+				22FE2BB42DDE92E900047C3C /* NativeSplashScreen.swift in Sources */,
+				22FE2BB52DDE92E900047C3C /* NativeSplashScreen_Release.swift in Sources */,
+				22FE2BB62DDE92E900047C3C /* NativeSplashScreen_Debug.swift in Sources */,
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
@@ -427,9 +443,9 @@
 		};
 		338D0CEA231458BD00FA5F75 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
+			baseConfigurationReference = 1823EB6E74189944EAA69652 /* Pods-Runner.profile.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
@@ -444,11 +460,12 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = false;
 				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = PROFILE;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Profile;
@@ -564,9 +581,9 @@
 		};
 		33CC10FC2044A3C60003C045 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
+			baseConfigurationReference = 6DEEC7DEFA746DDF1338FF4D /* Pods-Runner.debug.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
@@ -581,6 +598,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				ONLY_ACTIVE_ARCH = false;
 				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -592,9 +610,9 @@
 		};
 		33CC10FD2044A3C60003C045 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
+			baseConfigurationReference = 7D41C30A3910C3A40B6085E3 /* Pods-Runner.release.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
@@ -609,7 +627,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = false;
 				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
