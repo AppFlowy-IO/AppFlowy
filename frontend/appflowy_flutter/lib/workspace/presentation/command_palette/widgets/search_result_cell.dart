@@ -115,35 +115,40 @@ class _SearchResultCellState extends State<SearchResultCell> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox.square(
-                      dimension: 20,
-                      child: Center(child: buildIcon(theme)),
-                    ),
-                    HSpace(8),
-                    Container(
-                      constraints: BoxConstraints(
-                        maxWidth: (!widget.isNarrowWindow && hasHovered)
-                            ? 480.0
-                            : 680.0,
+                SizedBox(
+                  height: 20,
+                  child: Row(
+                    children: [
+                      SizedBox.square(
+                        dimension: 20,
+                        child: Center(child: buildIcon(theme)),
                       ),
-                      child: RichText(
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        text: buildHighLightSpan(
-                          content: title,
-                          normal: context.searchPanelTitle2,
-                          highlight: context.searchPanelTitle2.copyWith(
-                            backgroundColor: theme.fillColorScheme.themeSelect,
+                      HSpace(8),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: (!widget.isNarrowWindow && hasHovered)
+                              ? 480.0
+                              : 680.0,
+                        ),
+                        child: RichText(
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          text: buildHighLightSpan(
+                            content: title,
+                            normal:
+                                context.searchPanelTitle2.copyWith(height: 1),
+                            highlight: context.searchPanelTitle2.copyWith(
+                              backgroundColor:
+                                  theme.fillColorScheme.themeSelect,
+                              height: 1,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Flexible(child: buildPath(theme)),
-                  ],
+                      Flexible(child: buildPath(theme)),
+                    ],
+                  ),
                 ),
                 ...buildSummary(theme),
               ],

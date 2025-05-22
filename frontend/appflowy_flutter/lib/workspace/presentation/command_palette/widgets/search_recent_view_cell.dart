@@ -82,25 +82,28 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
           isSelected: () => hovering,
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.icon,
-                HSpace(8),
-                Container(
-                  constraints: BoxConstraints(
-                    maxWidth:
-                        (!widget.isNarrowWindow && hasHovered) ? 480.0 : 680.0,
+            child: SizedBox(
+              height: 20,
+              child: Row(
+                children: [
+                  widget.icon,
+                  HSpace(8),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth: (!widget.isNarrowWindow && hasHovered)
+                          ? 480.0
+                          : 680.0,
+                    ),
+                    child: Text(
+                      view.nameOrDefault,
+                      maxLines: 1,
+                      style: context.searchPanelTitle2.copyWith(height: 1),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  child: Text(
-                    view.nameOrDefault,
-                    maxLines: 1,
-                    style: context.searchPanelTitle2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Flexible(child: buildPath(theme)),
-              ],
+                  Flexible(child: buildPath(theme)),
+                ],
+              ),
             ),
           ),
         ),

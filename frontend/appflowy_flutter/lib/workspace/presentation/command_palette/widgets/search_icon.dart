@@ -17,10 +17,7 @@ extension SearchIconExtension on ViewPB {
             child: RawEmojiIconWidget(
               emoji: icon.toEmojiIconData(),
               emojiSize: 16,
-
-              /// there is an align issue with emoji in text [https://github.com/flutter/flutter/issues/119623]
-              /// sets the line height as 21 / 16 to fix it
-              lineHeight: 21 / 16,
+              lineHeight: 20 / 16,
             ),
           )
         : FlowySvg(
@@ -39,9 +36,7 @@ extension SearchIconItemExtension on ResultIconPB {
     if (ty == ResultIconTypePB.Emoji) {
       return SizedBox(
         width: 16,
-        /// there is an align issue with emoji in text [https://github.com/flutter/flutter/issues/119623]
-        /// sets the line height as 21 / 16 to fix it
-        child: getIcon(size: 16, lineHeight: 21 / 16, iconColor: color) ??
+        child: getIcon(size: 16, lineHeight: 20 / 16, iconColor: color) ??
             SizedBox.shrink(),
       );
     } else {
