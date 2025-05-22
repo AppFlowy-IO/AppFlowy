@@ -203,6 +203,7 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
             showWhenUnlinked: false,
             link: layerLink,
             targetAnchor: Alignment.bottomLeft,
+            offset: const Offset(4.0, 0.0),
             child: Align(
               alignment: Alignment.topLeft,
               child: MouseRegion(
