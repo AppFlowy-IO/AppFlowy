@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -19,8 +20,7 @@ class MobileSearchResultCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context),
-        textColor = theme.textColorScheme.primary;
+    final theme = AppFlowyTheme.of(context);
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
     final displayName = item.displayName.isEmpty
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
@@ -44,12 +44,10 @@ class MobileSearchResultCell extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   text: buildHighLightSpan(
                     content: displayName,
-                    normal: theme.textStyle.heading4.standard(color: textColor),
-                    highlight: theme.textStyle.heading4
-                        .standard(color: textColor)
-                        .copyWith(
-                          backgroundColor: theme.fillColorScheme.themeSelect,
-                        ),
+                    normal: context.searchTitleStyle,
+                    highlight: context.searchTitleStyle.copyWith(
+                      backgroundColor: theme.fillColorScheme.themeSelect,
+                    ),
                   ),
                 ),
                 buildPath(commandPaletteState, theme),
@@ -67,7 +65,10 @@ class MobileSearchResultCell extends StatelessWidget {
     if (icon.ty == ResultIconTypePB.Emoji) {
       return icon.getIcon(size: 20) ?? SizedBox.shrink();
     } else {
-      return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
+      return icon.getIcon(
+            size: 20,
+            iconColor: theme.iconColorScheme.secondary,
+          ) ??
           SizedBox.shrink();
     }
   }
@@ -85,7 +86,7 @@ class MobileSearchResultCell extends StatelessWidget {
           return Text(
             displayPath.join(' / '),
             style: theme.textStyle.body
-                .standard(color: theme.textColorScheme.secondary),
+                .standard(color: theme.textColorScheme.tertiary),
           );
         },
       ),

@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension GetIcon on ResultIconPB {
   Widget? getIcon({
@@ -13,10 +14,16 @@ extension GetIcon on ResultIconPB {
     final iconValue = value, iconType = ty;
     if (iconType == ResultIconTypePB.Emoji) {
       return iconValue.isNotEmpty
-          ? RawEmojiIconWidget(
-              emoji: EmojiIconData(iconType.toFlowyIconType(), iconValue),
-              emojiSize: size,
-              lineHeight: lineHeight,
+          ? Text(
+              iconValue,
+              strutStyle: StrutStyle(
+                fontSize: size,
+                height: lineHeight,
+
+                /// currently [forceStrutHeight] set to true seems only work in iOS
+                forceStrutHeight: UniversalPlatform.isIOS,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
             )
           : null;
     } else if (iconType == ResultIconTypePB.Icon ||

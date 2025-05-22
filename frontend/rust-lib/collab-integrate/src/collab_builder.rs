@@ -35,7 +35,6 @@ use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
 use crate::instant_indexed_data_provider::InstantIndexedDataWriter;
 use flowy_error::FlowyError;
-use lib_infra::util::get_operating_system;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
 use uuid::Uuid;
@@ -311,18 +310,16 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
-    if get_operating_system().is_desktop() {
-      let cloned_object = object.clone();
-      let weak_collab = Arc::downgrade(&collab);
-      let weak_embedding_writer = self.embeddings_writer.clone();
-      tokio::spawn(async move {
-        if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
-          embedding_writer
-            .queue_collab_embed(cloned_object, weak_collab)
-            .await;
-        }
-      });
-    }
+    let cloned_object = object.clone();
+    let weak_collab = Arc::downgrade(&collab);
+    let weak_embedding_writer = self.embeddings_writer.clone();
+    tokio::spawn(async move {
+      if let Some(embedding_writer) = weak_embedding_writer.and_then(|w| w.upgrade()) {
+        embedding_writer
+          .queue_collab_embed(cloned_object, weak_collab)
+          .await;
+      }
+    });
 
     let mut write_collab = collab.try_write()?;
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();

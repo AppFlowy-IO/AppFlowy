@@ -1039,9 +1039,11 @@ impl DatabaseEditor {
     let old_row = self.get_row(view_id, &row_id).await;
     self
       .update_row(row_id.clone(), |row_update| {
-        row_update.update_cells(|cell_update| {
-          cell_update.clear(field_id);
-        });
+        row_update
+          .set_last_modified(timestamp())
+          .update_cells(|cell_update| {
+            cell_update.clear(field_id);
+          });
       })
       .await?;
 
@@ -2094,7 +2096,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let mut all_rows = vec![];
     let read_guard = self.database.read().await;
     let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, 10, None)
+      .get_rows_from_row_orders(row_orders, 10, None)
       .await;
     pin_mut!(rows_stream);
 
