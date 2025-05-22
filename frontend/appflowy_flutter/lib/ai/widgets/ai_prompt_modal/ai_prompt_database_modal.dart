@@ -239,6 +239,7 @@ class _HeaderState extends State<_Header> {
                       ),
                       boxShadow: theme.shadow.medium,
                     ),
+                    padding: EdgeInsets.zero,
                     anchor: AFAnchor(
                       childAlignment: Alignment.topCenter,
                       overlayAlignment: Alignment.bottomCenter,
@@ -561,6 +562,7 @@ class _FieldSelectorState extends State<FieldSelector> {
                 ),
                 boxShadow: theme.shadow.medium,
               ),
+              padding: EdgeInsets.zero,
               anchor: AFAnchor(
                 childAlignment: Alignment.topRight,
                 overlayAlignment: Alignment.bottomRight,
