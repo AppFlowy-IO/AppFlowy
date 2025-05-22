@@ -139,7 +139,7 @@ class MathEquationBlockComponentWidgetState
     );
   }
   
-  String _safeLatex(String raw) {
+  String safeLatex(String raw) {
 		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
 			return r'\begin{aligned}' + raw + r'\end{aligned}';
 		}
@@ -232,7 +232,7 @@ class MathEquationBlockComponentWidgetState
 	
     return Center(
       child: Math.tex(
-        _safeLatex(formula),
+        safeLatex(formula),
         textStyle: const TextStyle(fontSize: 20),
       ),
     );
