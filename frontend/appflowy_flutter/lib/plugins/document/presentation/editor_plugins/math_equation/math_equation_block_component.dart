@@ -138,6 +138,13 @@ class MathEquationBlockComponentWidgetState
       child: _build(context),
     );
   }
+  
+  String _safeLatex(String raw) {
+		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
+			return r'\begin{aligned}' + raw + r'\end{aligned}';
+		}
+		return raw;
+	}
 
   Widget _build(BuildContext context) {
     Widget child = Container(
@@ -222,12 +229,7 @@ class MathEquationBlockComponentWidgetState
   }
 
   Widget _buildMathEquation(BuildContext context) {
-	String _safeLatex(String raw) {
-		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
-			return r'\begin{aligned}' + raw + r'\end{aligned}';
-		}
-		return raw;
-	}
+	
     return Center(
       child: Math.tex(
         _safeLatex(formula),
