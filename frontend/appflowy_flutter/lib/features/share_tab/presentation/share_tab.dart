@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
@@ -46,20 +46,29 @@ class _ShareTabState extends State<ShareTab> {
           return const SizedBox.shrink();
         }
 
+        final currentUserRole = state.users
+            .firstWhere(
+              (user) => user.email == state.currentUser?.email,
+            )
+            .role;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            VSpace(theme.spacing.l),
-            ShareWithUserWidget(
-              controller: controller,
-              onInvite: (emails) => _onSharePageWithUser(
-                context,
-                emails: emails,
-                accessLevel: ShareAccessLevel.readOnly,
+            // hide this when the user is guest
+            if (currentUserRole != ShareRole.guest) ...[
+              VSpace(theme.spacing.l),
+              ShareWithUserWidget(
+                controller: controller,
+                onInvite: (emails) => _onSharePageWithUser(
+                  context,
+                  emails: emails,
+                  accessLevel: ShareAccessLevel.readOnly,
+                ),
               ),
-            ),
+            ],
 
             // shared users
 
