@@ -142,9 +142,20 @@ class _ShareTabState extends State<ShareTab> {
           message: 'Invitation sent',
         );
       }, (error) {
-        // TODO: handle the limiation error
+        // TODO: replace the error code if the backend is ready.
+        String message;
+        switch (error.code.value) {
+          case 1069:
+            message = 'The email is already in the list';
+            break;
+          case 1070:
+            message = 'You have reached the maximum number of guests';
+            break;
+          default:
+            message = error.msg;
+        }
         showToastNotification(
-          message: error.msg,
+          message: message,
           type: ToastificationType.error,
         );
       });
