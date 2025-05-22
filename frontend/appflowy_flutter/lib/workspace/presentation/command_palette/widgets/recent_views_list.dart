@@ -104,7 +104,11 @@ class RecentViewsList extends StatelessWidget {
     );
   }
 
-  Widget buildViewList(RecentViewsState state, BuildContext context, bool hidePreview) {
+  Widget buildViewList(
+    RecentViewsState state,
+    BuildContext context,
+    bool hidePreview,
+  ) {
     final recentViews = state.views.map((e) => e.item).toSet().toList();
 
     if (recentViews.isEmpty) {
@@ -118,6 +122,7 @@ class RecentViewsList extends StatelessWidget {
         final view = recentViews[index];
 
         return SearchRecentViewCell(
+          key: ValueKey(view.id),
           icon: SizedBox.square(
             dimension: 20,
             child: Center(child: view.buildIcon(context)),

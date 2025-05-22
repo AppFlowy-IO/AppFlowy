@@ -149,6 +149,7 @@ class _SearchResultListState extends State<SearchResultList> {
                           itemBuilder: (_, index) {
                             final item = resultItems[index];
                             return SearchResultCell(
+                              key: ValueKey(item.id),
                               item: item,
                               isNarrowWindow: hidePreview,
                               view: widget.cachedViews[item.id],
