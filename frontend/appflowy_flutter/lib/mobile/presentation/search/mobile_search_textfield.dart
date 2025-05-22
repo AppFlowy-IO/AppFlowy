@@ -193,7 +193,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                 padding: const EdgeInsets.fromLTRB(4, 10, 8, 10),
                 child: FlowySvg(
                   FlowySvgs.search_clear_m,
-                  color: theme.iconColorScheme.secondary,
+                  color: theme.iconColorScheme.tertiary,
                   size: const Size.square(20),
                 ),
               ),

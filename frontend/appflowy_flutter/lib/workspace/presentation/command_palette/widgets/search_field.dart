@@ -71,7 +71,7 @@ class _SearchFieldState extends State<SearchField> {
               child: Center(
                 child: FlowySvg(
                   FlowySvgs.search_clear_m,
-                  color: AppFlowyTheme.of(context).iconColorScheme.secondary,
+                  color: AppFlowyTheme.of(context).iconColorScheme.tertiary,
                   size: const Size.square(20),
                 ),
               ),

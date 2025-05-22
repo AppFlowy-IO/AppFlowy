@@ -207,6 +207,7 @@ class CommandPaletteModal extends StatelessWidget {
           final hasResult = state.combinedResponseItems.isNotEmpty;
           final spaceXl = theme.spacing.xl;
           return FlowyDialog(
+            backgroundColor: theme.surfaceColorScheme.layer01,
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
             constraints: const BoxConstraints(

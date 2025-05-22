@@ -36,6 +36,9 @@ class _AskAIFor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context),
+        spaceM = theme.spacing.m,
+        spaceL = theme.spacing.l;
     return GestureDetector(
       onTap: () {
         context
@@ -46,9 +49,11 @@ class _AskAIFor extends StatelessWidget {
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 48,
-        margin: EdgeInsets.only(top: 16),
-        padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
+        margin: EdgeInsets.only(top: spaceM),
+        padding: EdgeInsets.symmetric(
+          horizontal: spaceM,
+          vertical: spaceL,
+        ),
         child: Row(
           children: [
             SizedBox.square(
@@ -108,9 +113,12 @@ class _AISearching extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context),
+        spaceM = theme.spacing.m,
+        spaceL = theme.spacing.l;
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      margin: EdgeInsets.only(top: 8),
+      padding: EdgeInsets.fromLTRB(0, spaceM, 0, spaceL),
+      margin: EdgeInsets.only(top: spaceM),
       child: SizedBox(
         height: 24,
         child: Row(
@@ -142,14 +150,17 @@ class _AIOverview extends StatelessWidget {
     if (summaries.isEmpty) {
       return const SizedBox.shrink();
     }
+    final theme = AppFlowyTheme.of(context),
+        spaceM = theme.spacing.m,
+        spaceL = theme.spacing.l;
     return Container(
-      margin: EdgeInsets.only(top: 8),
+      margin: EdgeInsets.only(top: spaceM),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VSpace(8),
+          VSpace(spaceM),
           buildHeader(context),
-          VSpace(12),
+          VSpace(spaceL),
           LayoutBuilder(
             builder: (context, constrains) {
               final summary = summaries.first;
