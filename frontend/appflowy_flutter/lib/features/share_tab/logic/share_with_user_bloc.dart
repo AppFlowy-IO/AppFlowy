@@ -39,6 +39,13 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     Emitter<ShareWithUserState> emit,
   ) async {
     if (!FeatureFlag.sharedSection.isOn) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Sharing is currently disabled.',
+          users: [],
+          isLoading: false,
+        ),
+      );
       return;
     }
 
