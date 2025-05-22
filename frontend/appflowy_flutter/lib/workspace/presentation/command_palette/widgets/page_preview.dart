@@ -36,8 +36,9 @@ class PagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final backgroundColor =
-        Theme.of(context).isLightMode ? Color(0xffF8FAFF) : Color(0xff32343F);
+    final backgroundColor = Theme.of(context).isLightMode
+        ? Color(0xffF8FAFF)
+        : theme.surfaceColorScheme.layer02;
 
     return BlocProvider(
       create: (context) => DocumentImmersiveCoverBloc(view: view)

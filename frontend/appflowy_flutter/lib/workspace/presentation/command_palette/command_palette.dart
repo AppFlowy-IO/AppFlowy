@@ -123,14 +123,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
       final spaceBloc = _toggleNotifier.value.spaceBloc;
+      final commandBloc = context.read<CommandPaletteBloc>();
       Log.info(
         'CommandPalette onToggle: workspaceType ${workspaceBloc?.state.userProfile.workspaceType}',
       );
+      commandBloc.add(CommandPaletteEvent.refreshCachedViews());
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<CommandPaletteBloc>()),
+            BlocProvider.value(value: commandBloc),
             if (workspaceBloc != null) BlocProvider.value(value: workspaceBloc),
             if (spaceBloc != null) BlocProvider.value(value: spaceBloc),
           ],
@@ -203,7 +205,9 @@ class CommandPaletteModal extends StatelessWidget {
           final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
           final hasResult = state.combinedResponseItems.isNotEmpty;
+          final spaceXl = theme.spacing.xl;
           return FlowyDialog(
+            backgroundColor: theme.surfaceColorScheme.layer01,
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
             constraints: const BoxConstraints(
@@ -216,7 +220,7 @@ class CommandPaletteModal extends StatelessWidget {
             child: shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
               Padding(
-                padding: EdgeInsets.all(theme.spacing.xl),
+                padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
                     SearchField(query: state.query, isLoading: state.searching),
@@ -226,17 +230,15 @@ class CommandPaletteModal extends StatelessWidget {
                           onSelected: () => FlowyOverlay.pop(context),
                         ),
                       ),
-                    if (hasResult && hasQuery) ...[
-                      AFDivider(),
+                    if (hasResult && hasQuery)
                       Flexible(
                         child: SearchResultList(
-                          trash: state.trash,
+                          cachedViews: state.cachedViews,
                           resultItems:
                               state.combinedResponseItems.values.toList(),
                           resultSummaries: state.resultSummaries,
                         ),
-                      ),
-                    ]
+                      )
                     // When there are no results and the query is not empty and not loading,
                     // show the no results message, centered in the available space.
                     else if (hasQuery && !state.searching) ...[

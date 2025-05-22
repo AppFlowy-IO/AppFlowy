@@ -108,20 +108,21 @@ extension ViewAncestorTextExtension on ViewAncestorState {
     if (ancestors.length > 2) {
       displayPath = [ancestors.first.name, '...', ancestors.last.name];
     }
-    return RichText(
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
+    return SizedBox(
+      height: 18,
+      child: Row(
         children: [
-          WidgetSpan(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('-', style: context.searchPanelPath),
-            ),
+          HSpace(8),
+          Text(
+            '-',
+            style: context.searchPanelPath.copyWith(height: 1),
           ),
-          TextSpan(
-            text: displayPath.join(' / '),
-            style: context.searchPanelPath,
+          HSpace(8),
+          Text(
+            displayPath.join(' / '),
+            style: context.searchPanelPath.copyWith(height: 1),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
