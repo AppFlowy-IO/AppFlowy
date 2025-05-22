@@ -9,7 +9,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ShareTab extends StatelessWidget {
+class ShareTab extends StatefulWidget {
   const ShareTab({
     super.key,
     required this.workspaceId,
@@ -20,12 +20,26 @@ class ShareTab extends StatelessWidget {
   final String pageId;
 
   @override
+  State<ShareTab> createState() => _ShareTabState();
+}
+
+class _ShareTabState extends State<ShareTab> {
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
     return BlocConsumer<ShareWithUserBloc, ShareWithUserState>(
       listener: (context, state) {
-        _onShareWithUserError(context, state);
+        _onListenShareWithUserState(context, state);
       },
       builder: (context, state) {
         if (state.isLoading) {
@@ -39,6 +53,7 @@ class ShareTab extends StatelessWidget {
             // share page with user by email
             VSpace(theme.spacing.l),
             ShareWithUserWidget(
+              controller: controller,
               onInvite: (emails) => _onSharePageWithUser(
                 context,
                 emails: emails,
@@ -92,7 +107,9 @@ class ShareTab extends StatelessWidget {
         // do nothing. the event doesn't support in the backend yet
       },
       onTurnIntoMember: (user) {
-        // do nothing. the event doesn't support in the backend yet
+        context.read<ShareWithUserBloc>().add(
+              ShareWithUserEvent.turnIntoMember(email: user.email),
+            );
       },
       onRemoveAccess: (user) {
         context.read<ShareWithUserBloc>().add(
@@ -102,14 +119,49 @@ class ShareTab extends StatelessWidget {
     );
   }
 
-  void _onShareWithUserError(
+  void _onListenShareWithUserState(
     BuildContext context,
     ShareWithUserState state,
   ) {
     final shareResult = state.shareResult;
     if (shareResult != null) {
-      shareResult.onFailure((error) {
+      shareResult.fold((success) {
+        // clear the controller to avoid showing the previous emails
+        controller.clear();
+
+        showToastNotification(
+          message: 'Invitation sent',
+        );
+      }, (error) {
         // TODO: handle the limiation error
+        showToastNotification(
+          message: error.msg,
+          type: ToastificationType.error,
+        );
+      });
+    }
+
+    final removeResult = state.removeResult;
+    if (removeResult != null) {
+      removeResult.fold((success) {
+        showToastNotification(
+          message: 'Removed guest successfully',
+        );
+      }, (error) {
+        showToastNotification(
+          message: error.msg,
+          type: ToastificationType.error,
+        );
+      });
+    }
+
+    final updateAccessLevelResult = state.updateAccessLevelResult;
+    if (updateAccessLevelResult != null) {
+      updateAccessLevelResult.fold((success) {
+        showToastNotification(
+          message: 'Updated access level successfully',
+        );
+      }, (error) {
         showToastNotification(
           message: error.msg,
           type: ToastificationType.error,

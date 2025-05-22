@@ -22,7 +22,7 @@ extension SharedViewPBExtension on SharedViewPB {
 }
 
 extension RepeatedSharedUserPBExtension on RepeatedSharedUserPB {
-  List<SharedUser> get sharedUsers {
+  SharedUsers get sharedUsers {
     return items.map((e) => e.sharedUser).toList();
   }
 }
