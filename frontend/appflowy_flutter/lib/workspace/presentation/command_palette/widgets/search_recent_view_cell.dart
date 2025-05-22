@@ -20,11 +20,13 @@ class SearchRecentViewCell extends StatefulWidget {
     required this.icon,
     required this.view,
     required this.onSelected,
+    required this.isNarrowWindow,
   });
 
   final Widget icon;
   final ViewPB view;
   final VoidCallback onSelected;
+  final bool isNarrowWindow;
 
   @override
   State<SearchRecentViewCell> createState() => _SearchRecentViewCellState();
@@ -46,7 +48,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
     final theme = AppFlowyTheme.of(context);
     final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
     final bloc = context.read<RecentViewsBloc>(), state = bloc.state;
-    final hoveredView = state.hoveredView;
+    final hoveredView = state.hoveredView, hasHovered = hoveredView != null;
     final hovering = hoveredView == view;
 
     return GestureDetector(
@@ -74,7 +76,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
           },
           style: HoverStyle(
             borderRadius: BorderRadius.circular(8),
-            hoverColor: Theme.of(context).colorScheme.secondary,
+            hoverColor: theme.fillColorScheme.contentHover,
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           isSelected: () => hovering,
@@ -85,11 +87,17 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
               children: [
                 widget.icon,
                 HSpace(8),
-                Text(
-                  view.nameOrDefault,
-                  maxLines: 1,
-                  style: context.searchPanelTitle2,
-                  overflow: TextOverflow.ellipsis,
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        (!widget.isNarrowWindow && hasHovered) ? 480.0 : 680.0,
+                  ),
+                  child: Text(
+                    view.nameOrDefault,
+                    maxLines: 1,
+                    style: context.searchPanelTitle2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Flexible(child: buildPath(theme)),
               ],

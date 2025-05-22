@@ -150,6 +150,7 @@ class _SearchResultListState extends State<SearchResultList> {
                             final item = resultItems[index];
                             return SearchResultCell(
                               item: item,
+                              isNarrowWindow: hidePreview,
                               view: widget.cachedViews[item.id],
                               isHovered: hoveredId == item.id,
                               query: context

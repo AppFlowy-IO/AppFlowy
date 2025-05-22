@@ -75,7 +75,7 @@ class RecentViewsList extends StatelessWidget {
                       children: [
                         if (showAskingAI) SearchAskAiEntrance(),
                         buildTitle(context),
-                        buildViewList(state, context),
+                        buildViewList(state, context, hidePreview),
                         VSpace(8),
                       ],
                     ),
@@ -104,7 +104,7 @@ class RecentViewsList extends StatelessWidget {
     );
   }
 
-  Widget buildViewList(RecentViewsState state, BuildContext context) {
+  Widget buildViewList(RecentViewsState state, BuildContext context, bool hidePreview) {
     final recentViews = state.views.map((e) => e.item).toSet().toList();
 
     if (recentViews.isEmpty) {
@@ -124,6 +124,7 @@ class RecentViewsList extends StatelessWidget {
           ),
           view: view,
           onSelected: onSelected,
+          isNarrowWindow: hidePreview,
         );
       },
     );

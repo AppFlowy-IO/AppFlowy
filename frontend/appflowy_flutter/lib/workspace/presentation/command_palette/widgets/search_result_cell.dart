@@ -22,6 +22,7 @@ class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
     super.key,
     required this.item,
+    required this.isNarrowWindow,
     this.view,
     this.query,
     this.isHovered = false,
@@ -31,6 +32,7 @@ class SearchResultCell extends StatefulWidget {
   final ViewPB? view;
   final String? query;
   final bool isHovered;
+  final bool isNarrowWindow;
 
   @override
   State<SearchResultCell> createState() => _SearchResultCellState();
@@ -61,6 +63,8 @@ class _SearchResultCellState extends State<SearchResultCell> {
     final title = item.displayName.orDefault(
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
     );
+    final searchResultBloc = context.read<SearchResultListBloc>();
+    final hasHovered = searchResultBloc.state.hoveredResult != null;
 
     final theme = AppFlowyTheme.of(context);
     return GestureDetector(
@@ -78,12 +82,12 @@ class _SearchResultCellState extends State<SearchResultCell> {
         },
         onFocusChange: (hasFocus) {
           setState(() {
-            context.read<SearchResultListBloc>().add(
-                  SearchResultListEvent.onHoverResult(
-                    item: item,
-                    userHovered: true,
-                  ),
-                );
+            searchResultBloc.add(
+              SearchResultListEvent.onHoverResult(
+                item: item,
+                userHovered: true,
+              ),
+            );
             _hasFocus = hasFocus;
           });
         },
@@ -99,7 +103,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
           isSelected: () => _hasFocus || widget.isHovered,
           style: HoverStyle(
             borderRadius: BorderRadius.circular(8),
-            hoverColor: Theme.of(context).colorScheme.secondary,
+            hoverColor: theme.fillColorScheme.contentHover,
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           child: Padding(
@@ -119,15 +123,22 @@ class _SearchResultCellState extends State<SearchResultCell> {
                       child: Center(child: buildIcon(theme)),
                     ),
                     HSpace(8),
-                    RichText(
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      text: buildHighLightSpan(
-                        content: title,
-                        normal: context.searchPanelTitle2,
-                        highlight: context.searchPanelTitle2.copyWith(
-                          backgroundColor: theme.fillColorScheme.themeSelect,
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: (!widget.isNarrowWindow && hasHovered)
+                            ? 480.0
+                            : 680.0,
+                      ),
+                      child: RichText(
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        text: buildHighLightSpan(
+                          content: title,
+                          normal: context.searchPanelTitle2,
+                          highlight: context.searchPanelTitle2.copyWith(
+                            backgroundColor: theme.fillColorScheme.themeSelect,
+                          ),
                         ),
                       ),
                     ),
