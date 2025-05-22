@@ -80,6 +80,11 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
               );
             }
           }
+        } else {
+          final view = await getDatabaseView(configuration.view.id);
+          if (view != null) {
+            configuration = configuration.copyWith(view: view);
+          }
         }
 
         if (configuration == null) {
