@@ -168,6 +168,38 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('clear cells under field', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      await tester.scrollToRight(find.byType(GridPage));
+
+      // edit the data
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: 'Hello',
+      );
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: 'World',
+      );
+
+      expect(find.text('Hello'), findsOneWidget);
+      expect(find.text('World'), findsOneWidget);
+
+      // clear the cells
+      await tester.tapGridFieldWithName('Name');
+      await tester.tapClearCellsButton();
+      await tester.tapButtonWithName(LocaleKeys.button_confirm.tr());
+
+      expect(find.text('Hello'), findsNothing);
+      expect(find.text('World'), findsNothing);
+    });
+
     testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
