@@ -297,7 +297,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     );
 
     final result = await repository.changeRole(
-      pageId: pageId,
+      workspaceId: workspaceId,
       email: event.email,
       role: ShareRole.member,
     );

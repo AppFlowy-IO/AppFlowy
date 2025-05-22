@@ -34,7 +34,7 @@ abstract class ShareWithUserRepository {
 
   /// Change the role of a user in a shared page.
   Future<FlowyResult<void, FlowyError>> changeRole({
-    required String pageId,
+    required String workspaceId,
     required String email,
     required ShareRole role,
   });
