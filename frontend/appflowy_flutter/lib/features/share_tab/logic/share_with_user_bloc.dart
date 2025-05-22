@@ -2,6 +2,7 @@ import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/data/repositories/share_with_user_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -37,6 +38,10 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     Initial event,
     Emitter<ShareWithUserState> emit,
   ) async {
+    if (!FeatureFlag.sharedSection.isOn) {
+      return;
+    }
+
     final result = await UserBackendService.getCurrentUserProfile();
     final currentUser = result.fold(
       (user) => user,
@@ -63,6 +68,10 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     GetSharedUsers event,
     Emitter<ShareWithUserState> emit,
   ) async {
+    if (!FeatureFlag.sharedSection.isOn) {
+      return;
+    }
+
     emit(
       state.copyWith(
         errorMessage: '',
