@@ -41,6 +41,7 @@ class CommandPaletteBloc
     on<_GoingToAskAI>(_onGoingToAskAI);
     on<_AskedAI>(_onAskedAI);
     on<_RefreshCachedViews>(_onRefreshCachedViews);
+    on<_UpdateCachedViews>(_onUpdateCachedViews);
 
     _initTrash();
     _refreshCachedViews();
@@ -88,11 +89,18 @@ class CommandPaletteBloc
     final repeatedViewPB =
         (await ViewBackendService.getAllViews()).toNullable();
     if (repeatedViewPB == null || isClosed) return;
-    add(CommandPaletteEvent.refreshCachedViews(views: repeatedViewPB.items));
+    add(CommandPaletteEvent.updateCachedViews(views: repeatedViewPB.items));
   }
 
   FutureOr<void> _onRefreshCachedViews(
     _RefreshCachedViews event,
+    Emitter<CommandPaletteState> emit,
+  ) {
+    _refreshCachedViews();
+  }
+
+  FutureOr<void> _onUpdateCachedViews(
+    _UpdateCachedViews event,
     Emitter<CommandPaletteState> emit,
   ) {
     final cachedViews = <String, ViewPB>{};
@@ -354,9 +362,10 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     @Default(null) List<SearchSourcePB>? sources,
   }) = _GoingToAskAI;
   const factory CommandPaletteEvent.askedAI() = _AskedAI;
-  const factory CommandPaletteEvent.refreshCachedViews({
+  const factory CommandPaletteEvent.refreshCachedViews() = _RefreshCachedViews;
+  const factory CommandPaletteEvent.updateCachedViews({
     required List<ViewPB> views,
-  }) = _RefreshCachedViews;
+  }) = _UpdateCachedViews;
 }
 
 class SearchResultItem {

@@ -123,14 +123,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
       final spaceBloc = _toggleNotifier.value.spaceBloc;
+      final commandBloc = context.read<CommandPaletteBloc>();
       Log.info(
         'CommandPalette onToggle: workspaceType ${workspaceBloc?.state.userProfile.workspaceType}',
       );
+      commandBloc.add(CommandPaletteEvent.refreshCachedViews());
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<CommandPaletteBloc>()),
+            BlocProvider.value(value: commandBloc),
             if (workspaceBloc != null) BlocProvider.value(value: workspaceBloc),
             if (spaceBloc != null) BlocProvider.value(value: spaceBloc),
           ],
