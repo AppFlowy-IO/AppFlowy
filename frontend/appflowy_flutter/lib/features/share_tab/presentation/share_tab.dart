@@ -4,6 +4,7 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -142,13 +143,15 @@ class _ShareTabState extends State<ShareTab> {
           message: 'Invitation sent',
         );
       }, (error) {
-        // TODO: replace the error code if the backend is ready.
         String message;
-        switch (error.code.value) {
-          case 1069:
+        switch (error.code) {
+          case ErrorCode.InvalidGuest:
             message = 'The email is already in the list';
             break;
-          case 1070:
+          case ErrorCode.FreePlanGuestLimitExceeded:
+            message = 'Please upgrade to a Pro plan to invite more guests';
+            break;
+          case ErrorCode.PaidPlanGuestLimitExceeded:
             message = 'You have reached the maximum number of guests';
             break;
           default:
