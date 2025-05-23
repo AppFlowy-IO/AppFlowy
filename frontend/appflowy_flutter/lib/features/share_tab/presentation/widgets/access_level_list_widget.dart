@@ -50,7 +50,7 @@ class AccessLevelListCallbacks {
 class AccessLevelListWidget extends StatelessWidget {
   const AccessLevelListWidget({
     super.key,
-    this.enableAccessLevelSelection = false,
+    this.enableAccessLevelSelection = true,
     required this.selectedAccessLevel,
     required this.callbacks,
   });

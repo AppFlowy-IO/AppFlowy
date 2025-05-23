@@ -151,7 +151,7 @@ class _SharedPageViewMoreActionPopoverState
         targetAnchor: Alignment.centerLeft,
       ),
       popover: (context) => AFMenu(
-        width: 260,
+        width: 240,
         children: _buildMenuItems(context),
       ),
       child: widget.buildChild(controller),

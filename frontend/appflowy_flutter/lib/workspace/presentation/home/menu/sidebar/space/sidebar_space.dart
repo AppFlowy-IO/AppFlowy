@@ -63,13 +63,6 @@ class SidebarSpace extends StatelessWidget {
               },
             ),
 
-            // spaces
-            if (shouldShowSpaces) ...[
-              const VSpace(16.0),
-              // spaces
-              const _Space(),
-            ],
-
             // shared
             if (FeatureFlag.sharedSection.isOn) ...[
               const VSpace(16.0),
@@ -77,6 +70,13 @@ class SidebarSpace extends StatelessWidget {
                 key: ValueKey(currentWorkspaceId),
                 workspaceId: currentWorkspaceId,
               ),
+            ],
+
+            // spaces
+            if (shouldShowSpaces) ...[
+              const VSpace(16.0),
+              // spaces
+              const _Space(),
             ],
 
             const VSpace(200),
