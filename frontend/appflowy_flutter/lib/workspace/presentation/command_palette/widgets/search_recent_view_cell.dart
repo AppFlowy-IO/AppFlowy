@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -82,28 +81,26 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
           isSelected: () => hovering,
           child: Padding(
             padding: EdgeInsets.all(spaceL),
-            child: SizedBox(
-              height: 20,
-              child: Row(
-                children: [
-                  widget.icon,
-                  HSpace(8),
-                  Container(
-                    constraints: BoxConstraints(
-                      maxWidth: (!widget.isNarrowWindow && hasHovered)
-                          ? 480.0
-                          : 680.0,
-                    ),
-                    child: Text(
-                      view.nameOrDefault,
-                      maxLines: 1,
-                      style: context.searchPanelTitle2.copyWith(height: 1),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            child: Row(
+              children: [
+                widget.icon,
+                HSpace(8),
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        (!widget.isNarrowWindow && hasHovered) ? 480.0 : 680.0,
                   ),
-                  Flexible(child: buildPath(theme)),
-                ],
-              ),
+                  child: Text(
+                    view.nameOrDefault,
+                    maxLines: 1,
+                    style: theme.textStyle.body
+                        .enhanced(color: theme.textColorScheme.primary)
+                        .copyWith(height: 22 / 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Flexible(child: buildPath(theme)),
+              ],
             ),
           ),
         ),

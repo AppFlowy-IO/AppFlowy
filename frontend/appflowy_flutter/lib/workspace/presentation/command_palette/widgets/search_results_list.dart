@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_ask_ai_entrance.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -97,7 +96,12 @@ class _SearchResultListState extends State<SearchResultList> {
       ),
       child: Text(
         LocaleKeys.commandPalette_bestMatches.tr(),
-        style: context.searchPanelTitle1,
+        style: theme.textStyle.heading4
+            .enhanced(color: theme.textColorScheme.secondary)
+            .copyWith(
+              letterSpacing: 0.2,
+              height: 24 / 16,
+            ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -81,8 +80,9 @@ class _AskAIFor extends StatelessWidget {
     if (queryText.isEmpty) {
       return Text(
         LocaleKeys.search_askAIAnything.tr(),
-        style:
-            theme.textStyle.body.standard(color: theme.textColorScheme.primary),
+        style: theme.textStyle.body
+            .enhanced(color: theme.textColorScheme.primary)
+            .copyWith(height: 22 / 14),
       );
     }
     return Flexible(
@@ -116,29 +116,26 @@ class _AISearching extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     return Padding(
       padding: EdgeInsets.all(theme.spacing.l),
-      child: SizedBox(
-        height: 22,
-        child: Row(
-          children: [
-            SizedBox.square(
-              dimension: 20,
-              child: Center(
-                child: FlowySvg(
-                  FlowySvgs.m_home_ai_chat_icon_m,
-                  size: Size.square(20),
-                  blendMode: null,
-                ),
+      child: Row(
+        children: [
+          SizedBox.square(
+            dimension: 20,
+            child: Center(
+              child: FlowySvg(
+                FlowySvgs.m_home_ai_chat_icon_m,
+                size: Size.square(20),
+                blendMode: null,
               ),
             ),
-            HSpace(8),
-            Text(
-              LocaleKeys.search_searching.tr(),
-              style: theme.textStyle.body
-                  .standard(color: theme.textColorScheme.secondary)
-                  .copyWith(height: 1),
-            ),
-          ],
-        ),
+          ),
+          HSpace(8),
+          Text(
+            LocaleKeys.search_searching.tr(),
+            style: theme.textStyle.body
+                .standard(color: theme.textColorScheme.secondary)
+                .copyWith(height: 22 / 14),
+          ),
+        ],
       ),
     );
   }
@@ -164,7 +161,7 @@ class _AIOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           buildHeader(context),
-          VSpace(12),
+          VSpace(theme.spacing.l),
           LayoutBuilder(
             builder: (context, constrains) {
               final summary = summaries.first;
@@ -173,7 +170,9 @@ class _AIOverview extends StatelessWidget {
                 summary: summary,
                 maxWidth: constrains.maxWidth,
                 theme: AppFlowyTheme.of(context),
-                textStyle: context.searchPanelTitle3,
+                textStyle: theme.textStyle.body
+                    .standard(color: theme.textColorScheme.primary)
+                    .copyWith(height: 22 / 14),
               );
             },
           ),
@@ -216,22 +215,23 @@ class _AIOverview extends StatelessWidget {
   }
 
   Widget buildHeader(BuildContext context) {
-    return SizedBox(
-      height: 24,
-      child: Row(
-        children: [
-          FlowySvg(
-            FlowySvgs.ai_searching_icon_m,
-            size: Size.square(20),
-            blendMode: null,
-          ),
-          HSpace(8),
-          Text(
-            LocaleKeys.commandPalette_aiOverview.tr(),
-            style: context.searchPanelAIOverview,
-          ),
-        ],
-      ),
+    final theme = AppFlowyTheme.of(context);
+
+    return Row(
+      children: [
+        FlowySvg(
+          FlowySvgs.ai_searching_icon_m,
+          size: Size.square(20),
+          blendMode: null,
+        ),
+        HSpace(theme.spacing.l),
+        Text(
+          LocaleKeys.commandPalette_aiOverview.tr(),
+          style: theme.textStyle.heading4
+              .enhanced(color: theme.textColorScheme.secondary)
+              .copyWith(height: 22 / 16, letterSpacing: 0.2),
+        ),
+      ],
     );
   }
 }

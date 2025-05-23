@@ -82,6 +82,8 @@ class MobileSearchResultCell extends StatelessWidget {
           }
           return Text(
             displayPath.join(' / '),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textStyle.body
                 .standard(color: theme.textColorScheme.tertiary),
           );
@@ -99,9 +101,9 @@ class MobileSearchResultCell extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         text: buildHighLightSpan(
           content: item.content,
-          normal: theme.textStyle.heading4
+          normal: theme.textStyle.body
               .standard(color: theme.textColorScheme.secondary),
-          highlight: theme.textStyle.heading4
+          highlight: theme.textStyle.body
               .standard(color: theme.textColorScheme.primary)
               .copyWith(
                 backgroundColor: theme.fillColorScheme.themeSelect,

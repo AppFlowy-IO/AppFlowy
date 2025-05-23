@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -99,7 +98,12 @@ class RecentViewsList extends StatelessWidget {
       ),
       child: Text(
         LocaleKeys.sideBar_recent.tr(),
-        style: context.searchPanelTitle1,
+        style: theme.textStyle.heading4
+            .enhanced(color: theme.textColorScheme.secondary)
+            .copyWith(
+              letterSpacing: 0.2,
+              height: 24 / 16,
+            ),
       ),
     );
   }

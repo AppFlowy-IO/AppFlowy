@@ -409,19 +409,13 @@ class ReferenceSources extends StatelessWidget {
                       ),
                       HSpace(8),
                       Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              displayName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textStyle.body.standard(
-                                color: theme.textColorScheme.primary,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
                         ),
                       ),
                     ],
