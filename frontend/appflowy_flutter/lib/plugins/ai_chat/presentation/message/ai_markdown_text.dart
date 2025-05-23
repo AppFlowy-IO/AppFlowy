@@ -162,6 +162,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown>
       // the editor is not editable in the chat
       editable: false,
       alwaysDistributeSimpleTableColumnWidths: UniversalPlatform.isDesktop,
+      customPadding: (node) => EdgeInsets.zero,
     );
     return IntrinsicHeight(
       child: AppFlowyEditor(

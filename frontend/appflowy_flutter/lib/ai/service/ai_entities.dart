@@ -1,8 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/easy_localiation_service.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -113,75 +116,55 @@ enum TextFormat {
 }
 
 enum AiPromptCategory {
-  @JsonValue("other")
   other,
-  @JsonValue("development")
   development,
-  @JsonValue("writing")
   writing,
-  @JsonValue("healthAndFitness")
   healthAndFitness,
-  @JsonValue("business")
   business,
-  @JsonValue("marketing")
   marketing,
-  @JsonValue("travel")
   travel,
-  @JsonValue("contentSeo")
   contentSeo,
-  @JsonValue("emailMarketing")
   emailMarketing,
-  @JsonValue("paidAds")
   paidAds,
-  @JsonValue("prCommunication")
   prCommunication,
-  @JsonValue("recruiting")
   recruiting,
-  @JsonValue("sales")
   sales,
-  @JsonValue("socialMedia")
   socialMedia,
-  @JsonValue("strategy")
   strategy,
-  @JsonValue("caseStudies")
   caseStudies,
-  @JsonValue("salesCopy")
   salesCopy,
-  @JsonValue("education")
   education,
-  @JsonValue("work")
   work,
-  @JsonValue("podcastProduction")
   podcastProduction,
-  @JsonValue("copyWriting")
   copyWriting,
-  @JsonValue("customerSuccess")
   customerSuccess;
 
-  String get i18n {
+  String get i18n => token.tr();
+
+  String get token {
     return switch (this) {
-      other => LocaleKeys.ai_customPrompt_others.tr(),
-      development => LocaleKeys.ai_customPrompt_development.tr(),
-      writing => LocaleKeys.ai_customPrompt_writing.tr(),
-      healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness.tr(),
-      business => LocaleKeys.ai_customPrompt_business.tr(),
-      marketing => LocaleKeys.ai_customPrompt_marketing.tr(),
-      travel => LocaleKeys.ai_customPrompt_travel.tr(),
-      contentSeo => LocaleKeys.ai_customPrompt_contentSeo.tr(),
-      emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing.tr(),
-      paidAds => LocaleKeys.ai_customPrompt_paidAds.tr(),
-      prCommunication => LocaleKeys.ai_customPrompt_prCommunication.tr(),
-      recruiting => LocaleKeys.ai_customPrompt_recruiting.tr(),
-      sales => LocaleKeys.ai_customPrompt_sales.tr(),
-      socialMedia => LocaleKeys.ai_customPrompt_socialMedia.tr(),
-      strategy => LocaleKeys.ai_customPrompt_strategy.tr(),
-      caseStudies => LocaleKeys.ai_customPrompt_caseStudies.tr(),
-      salesCopy => LocaleKeys.ai_customPrompt_salesCopy.tr(),
-      education => LocaleKeys.ai_customPrompt_education.tr(),
-      work => LocaleKeys.ai_customPrompt_work.tr(),
-      podcastProduction => LocaleKeys.ai_customPrompt_podcastProduction.tr(),
-      copyWriting => LocaleKeys.ai_customPrompt_copyWriting.tr(),
-      customerSuccess => LocaleKeys.ai_customPrompt_customerSuccess.tr(),
+      other => LocaleKeys.ai_customPrompt_others,
+      development => LocaleKeys.ai_customPrompt_development,
+      writing => LocaleKeys.ai_customPrompt_writing,
+      healthAndFitness => LocaleKeys.ai_customPrompt_healthAndFitness,
+      business => LocaleKeys.ai_customPrompt_business,
+      marketing => LocaleKeys.ai_customPrompt_marketing,
+      travel => LocaleKeys.ai_customPrompt_travel,
+      contentSeo => LocaleKeys.ai_customPrompt_contentSeo,
+      emailMarketing => LocaleKeys.ai_customPrompt_emailMarketing,
+      paidAds => LocaleKeys.ai_customPrompt_paidAds,
+      prCommunication => LocaleKeys.ai_customPrompt_prCommunication,
+      recruiting => LocaleKeys.ai_customPrompt_recruiting,
+      sales => LocaleKeys.ai_customPrompt_sales,
+      socialMedia => LocaleKeys.ai_customPrompt_socialMedia,
+      strategy => LocaleKeys.ai_customPrompt_strategy,
+      caseStudies => LocaleKeys.ai_customPrompt_caseStudies,
+      salesCopy => LocaleKeys.ai_customPrompt_salesCopy,
+      education => LocaleKeys.ai_customPrompt_education,
+      work => LocaleKeys.ai_customPrompt_work,
+      podcastProduction => LocaleKeys.ai_customPrompt_podcastProduction,
+      copyWriting => LocaleKeys.ai_customPrompt_copyWriting,
+      customerSuccess => LocaleKeys.ai_customPrompt_customerSuccess,
     };
   }
 }
@@ -199,13 +182,28 @@ class AiPrompt extends Equatable {
   });
 
   factory AiPrompt.fromPB(CustomPromptPB pb) {
+    final map = _buildCategoryNameMap();
+    final categories = pb.category
+        .split(',')
+        .map((categoryName) => categoryName.trim())
+        .map(
+          (categoryName) {
+            final entry = map.entries.firstWhereOrNull(
+              (entry) =>
+                  entry.value.$1 == categoryName ||
+                  entry.value.$2 == categoryName,
+            );
+            return entry?.key ?? AiPromptCategory.other;
+          },
+        )
+        .toSet()
+        .toList();
+
     return AiPrompt(
       id: pb.id,
       name: pb.name,
       content: pb.content,
-      category: AiPromptCategory.values.firstWhere(
-        (e) => e.name == pb.category,
-      ),
+      category: categories,
       example: pb.example,
       isFeatured: false,
       isCustom: true,
@@ -220,11 +218,8 @@ class AiPrompt extends Equatable {
   final String id;
   final String name;
   final String content;
-  @JsonKey(
-    unknownEnumValue: AiPromptCategory.other,
-    defaultValue: AiPromptCategory.other,
-  )
-  final AiPromptCategory category;
+  @JsonKey(fromJson: _categoryFromJson)
+  final List<AiPromptCategory> category;
   @JsonKey(defaultValue: "")
   final String example;
   @JsonKey(defaultValue: false)
@@ -235,7 +230,62 @@ class AiPrompt extends Equatable {
   @override
   List<Object?> get props =>
       [id, name, content, category, example, isFeatured, isCustom];
+
+  static Map<AiPromptCategory, (String, String)> _buildCategoryNameMap() {
+    final service = getIt<EasyLocalizationService>();
+    return {
+      for (final category in AiPromptCategory.values)
+        category: (
+          service.getFallbackTranslation(category.token),
+          service.getFallbackTranslation(category.token),
+        ),
+    };
+  }
+
+  static List<AiPromptCategory> _categoryFromJson(dynamic json) {
+    if (json is String) {
+      return json
+          .split(',')
+          .map((categoryName) => categoryName.trim())
+          .map(
+            (categoryName) => $enumDecode(
+              _aiPromptCategoryEnumMap,
+              categoryName,
+              unknownValue: AiPromptCategory.other,
+            ),
+          )
+          .toSet()
+          .toList();
+    }
+
+    return [AiPromptCategory.other];
+  }
 }
+
+const _aiPromptCategoryEnumMap = {
+  AiPromptCategory.other: 'other',
+  AiPromptCategory.development: 'development',
+  AiPromptCategory.writing: 'writing',
+  AiPromptCategory.healthAndFitness: 'healthAndFitness',
+  AiPromptCategory.business: 'business',
+  AiPromptCategory.marketing: 'marketing',
+  AiPromptCategory.travel: 'travel',
+  AiPromptCategory.contentSeo: 'contentSeo',
+  AiPromptCategory.emailMarketing: 'emailMarketing',
+  AiPromptCategory.paidAds: 'paidAds',
+  AiPromptCategory.prCommunication: 'prCommunication',
+  AiPromptCategory.recruiting: 'recruiting',
+  AiPromptCategory.sales: 'sales',
+  AiPromptCategory.socialMedia: 'socialMedia',
+  AiPromptCategory.strategy: 'strategy',
+  AiPromptCategory.caseStudies: 'caseStudies',
+  AiPromptCategory.salesCopy: 'salesCopy',
+  AiPromptCategory.education: 'education',
+  AiPromptCategory.work: 'work',
+  AiPromptCategory.podcastProduction: 'podcastProduction',
+  AiPromptCategory.copyWriting: 'copyWriting',
+  AiPromptCategory.customerSuccess: 'customerSuccess',
+};
 
 class CustomPromptDatabaseConfig extends Equatable {
   const CustomPromptDatabaseConfig({

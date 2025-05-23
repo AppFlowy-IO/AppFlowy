@@ -211,10 +211,13 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                         .read<AiPromptSelectorCubit>()
                         .filterTextController
                         .clear(),
-                    child: FlowySvg(
-                      FlowySvgs.toast_close_s,
-                      color: theme.textColorScheme.secondary,
-                      size: const Size.square(20),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: FlowySvg(
+                        FlowySvgs.search_clear_m,
+                        color: theme.iconColorScheme.tertiary,
+                        size: const Size.square(20),
+                      ),
                     ),
                   ),
                 ),

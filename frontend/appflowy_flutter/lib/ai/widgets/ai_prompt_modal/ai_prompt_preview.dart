@@ -106,7 +106,7 @@ class _PromptContent extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.contentVisible,
+        color: theme.surfaceContainerColorScheme.layer01,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: Text.rich(
@@ -176,7 +176,7 @@ class _PromptExample extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(theme.spacing.l),
       decoration: BoxDecoration(
-        color: theme.fillColorScheme.contentVisible,
+        color: theme.surfaceContainerColorScheme.layer01,
         borderRadius: BorderRadius.circular(theme.borderRadius.m),
       ),
       child: AIMarkdownText(

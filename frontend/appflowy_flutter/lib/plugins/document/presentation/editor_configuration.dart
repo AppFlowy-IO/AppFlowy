@@ -84,6 +84,7 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
     placeholderText: placeholderText,
     alwaysDistributeSimpleTableColumnWidths:
         alwaysDistributeSimpleTableColumnWidths,
+    customHeadingPadding: customPadding,
   );
 
   // customize the action builder. actually, we can customize them in their own builder. Put them here just for convenience.
@@ -297,7 +298,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   required EditorStyleCustomizer styleCustomizer,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node)? customHeadingPadding,
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
   final customBlockComponentBuilderMap = {
@@ -641,7 +642,7 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
   EditorStyleCustomizer styleCustomizer,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node)? customHeadingPadding,
 ) {
   return HeadingBlockComponentBuilder(
     configuration: configuration.copyWith(
@@ -653,7 +654,7 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
       ),
       padding: (node) {
         if (customHeadingPadding != null) {
-          return customHeadingPadding;
+          return customHeadingPadding.call(node);
         }
 
         if (UniversalPlatform.isMobile) {
@@ -902,13 +903,13 @@ ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
   EditorStyleCustomizer styleCustomizer,
-  EdgeInsets? customHeadingPadding,
+  EdgeInsets Function(Node)? customHeadingPadding,
 ) {
   return ToggleListBlockComponentBuilder(
     configuration: configuration.copyWith(
       padding: (node) {
         if (customHeadingPadding != null) {
-          return customHeadingPadding;
+          return customHeadingPadding(node);
         }
 
         if (UniversalPlatform.isMobile) {

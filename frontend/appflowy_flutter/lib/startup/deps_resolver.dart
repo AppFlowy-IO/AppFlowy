@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
+import 'package:appflowy/shared/easy_localiation_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
@@ -98,6 +99,8 @@ void _resolveCommonService(
       ..registerCache(CustomImageCacheManager())
       ..registerCache(FeatureFlagCache()),
   );
+
+  getIt.registerSingleton<EasyLocalizationService>(EasyLocalizationService());
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {

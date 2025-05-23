@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,8 @@ class _PromptInputMobileSelectSourcesButtonState
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
       builder: (context, state) {
         final userProfile = context.read<UserWorkspaceBloc>().state.userProfile;
@@ -112,7 +115,7 @@ class _PromptInputMobileSelectSourcesButtonState
 
                   await showMobileBottomSheet<void>(
                     context,
-                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    backgroundColor: theme.surfaceColorScheme.primary,
                     maxChildSize: 0.98,
                     enableDraggableScrollable: true,
                     scrollableWidgetBuilder: (_, scrollController) {
@@ -163,7 +166,7 @@ class _MobileSelectSourcesSheetBody extends StatelessWidget {
           pinned: true,
           delegate: _Header(
             child: ColoredBox(
-              color: Theme.of(context).cardColor,
+              color: AppFlowyTheme.of(context).surfaceColorScheme.primary,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
