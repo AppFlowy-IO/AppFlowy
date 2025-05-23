@@ -16,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'page_preview.dart';
 import 'search_result_cell.dart';
 
 class SearchResultList extends StatefulWidget {
@@ -106,9 +107,13 @@ class _SearchResultListState extends State<SearchResultList> {
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
     if (widget.resultItems.isEmpty) return const SizedBox.shrink();
-    final resultItems = widget.resultItems
-        .where((item) => widget.cachedViews[item.id] != null)
-        .toList();
+    List<SearchResultItem> resultItems = widget.resultItems;
+    final hasCachedViews = widget.cachedViews.isNotEmpty;
+    if (hasCachedViews) {
+      resultItems = widget.resultItems
+          .where((item) => widget.cachedViews[item.id] != null)
+          .toList();
+    }
     return ScrollControllerBuilder(
       builder: (context, controller) {
         final hoveredId = bloc.state.hoveredResult?.id;
@@ -120,7 +125,9 @@ class _SearchResultListState extends State<SearchResultList> {
               controller: controller,
               physics: ClampingScrollPhysics(),
               child: Padding(
-                padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
+                padding: EdgeInsets.only(
+                  right: hidePreview ? 0 : 6,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -130,20 +137,8 @@ class _SearchResultListState extends State<SearchResultList> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildSectionHeader(context),
-                        VSpace(8),
-                        ListView.separated(
+                        ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
-                          separatorBuilder: (_, index) {
-                            final item = resultItems[index];
-                            final isHovered = hoveredId == item.id;
-                            if (isHovered) return VSpace(1);
-                            if (index < resultItems.length - 1) {
-                              final nextView = resultItems[index + 1];
-                              final isNextHovered = hoveredId == nextView.id;
-                              if (isNextHovered) return VSpace(1);
-                            }
-                            return const AFDivider();
-                          },
                           shrinkWrap: true,
                           itemCount: resultItems.length,
                           itemBuilder: (_, index) {
@@ -187,7 +182,7 @@ class SearchCellPreview extends StatelessWidget {
         if (view != null) {
           return SearchResultPreview(view: view);
         }
-        return const SizedBox.shrink();
+        return SomethingWentWrong();
       },
     );
   }

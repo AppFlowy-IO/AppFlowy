@@ -138,7 +138,7 @@ class RecentViewsList extends StatelessWidget {
   Widget buildPreview(RecentViewsState state) {
     final hoveredView = state.hoveredView;
     if (hoveredView == null) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
     return Align(
       alignment: Alignment.topLeft,

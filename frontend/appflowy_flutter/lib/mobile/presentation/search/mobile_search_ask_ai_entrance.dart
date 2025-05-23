@@ -50,10 +50,7 @@ class _AskAIFor extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: EdgeInsets.only(top: spaceM),
-        padding: EdgeInsets.symmetric(
-          horizontal: spaceM,
-          vertical: spaceL,
-        ),
+        padding: EdgeInsets.all(spaceL),
         child: Row(
           children: [
             SizedBox.square(
@@ -117,21 +114,27 @@ class _AISearching extends StatelessWidget {
         spaceM = theme.spacing.m,
         spaceL = theme.spacing.l;
     return Container(
-      padding: EdgeInsets.fromLTRB(0, spaceM, 0, spaceL),
       margin: EdgeInsets.only(top: spaceM),
+      padding: EdgeInsets.all(spaceL),
       child: SizedBox(
         height: 24,
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.ai_searching_icon_m,
-              size: Size.square(20),
-              blendMode: null,
+            SizedBox.square(
+              dimension: 24,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
+                ),
+              ),
             ),
             HSpace(8),
             Text(
               LocaleKeys.search_searching.tr(),
-              style: context.searchSubtitleStyle,
+              style: theme.textStyle.heading4
+                  .standard(color: theme.textColorScheme.secondary),
             ),
           ],
         ),

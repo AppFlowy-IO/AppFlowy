@@ -46,7 +46,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
+    final spaceL = theme.spacing.l;
     final bloc = context.read<RecentViewsBloc>(), state = bloc.state;
     final hoveredView = state.hoveredView, hasHovered = hoveredView != null;
     final hovering = hoveredView == view;
@@ -81,7 +81,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
           ),
           isSelected: () => hovering,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
+            padding: EdgeInsets.all(spaceL),
             child: SizedBox(
               height: 20,
               child: Row(

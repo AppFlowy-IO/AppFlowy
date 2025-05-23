@@ -36,44 +36,41 @@ class _AskAIFor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final spaceM = theme.spacing.m, spaceXL = theme.spacing.xl;
-    return Padding(
-      padding: EdgeInsets.only(top: spaceM),
-      child: AFBaseButton(
-        borderRadius: spaceM,
-        padding: EdgeInsets.symmetric(vertical: spaceXL, horizontal: spaceM),
-        backgroundColor: (context, isHovering, disable) {
-          if (isHovering) {
-            return theme.fillColorScheme.contentHover;
-          }
-          return Colors.transparent;
-        },
-        borderColor: (context, isHovering, disable, isFocused) =>
-            Colors.transparent,
-        builder: (ctx, isHovering, disable) {
-          return Row(
-            children: [
-              SizedBox.square(
-                dimension: 24,
-                child: Center(
-                  child: FlowySvg(
-                    FlowySvgs.m_home_ai_chat_icon_m,
-                    size: Size.square(20),
-                    blendMode: null,
-                  ),
+    final spaceM = theme.spacing.m, spaceL = theme.spacing.l;
+    return AFBaseButton(
+      borderRadius: spaceM,
+      padding: EdgeInsets.all(spaceL),
+      backgroundColor: (context, isHovering, disable) {
+        if (isHovering) {
+          return theme.fillColorScheme.contentHover;
+        }
+        return Colors.transparent;
+      },
+      borderColor: (context, isHovering, disable, isFocused) =>
+          Colors.transparent,
+      builder: (ctx, isHovering, disable) {
+        return Row(
+          children: [
+            SizedBox.square(
+              dimension: 20,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
                 ),
               ),
-              HSpace(8),
-              buildText(context),
-            ],
-          );
-        },
-        onTap: () {
-          context
-              .read<CommandPaletteBloc?>()
-              ?.add(CommandPaletteEvent.goingToAskAI());
-        },
-      ),
+            ),
+            HSpace(8),
+            buildText(context),
+          ],
+        );
+      },
+      onTap: () {
+        context
+            .read<CommandPaletteBloc?>()
+            ?.add(CommandPaletteEvent.goingToAskAI());
+      },
     );
   }
 
@@ -118,21 +115,27 @@ class _AISearching extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      padding: EdgeInsets.all(theme.spacing.l),
       child: SizedBox(
-        height: 24,
+        height: 22,
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.ai_searching_icon_m,
-              size: Size.square(20),
-              blendMode: null,
+            SizedBox.square(
+              dimension: 20,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
+                ),
+              ),
             ),
             HSpace(8),
             Text(
               LocaleKeys.search_searching.tr(),
-              style: theme.textStyle.heading4
-                  .enhanced(color: theme.textColorScheme.secondary),
+              style: theme.textStyle.body
+                  .standard(color: theme.textColorScheme.secondary)
+                  .copyWith(height: 1),
             ),
           ],
         ),
@@ -154,7 +157,7 @@ class _AIOverview extends StatelessWidget {
     }
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: theme.spacing.xxl,
+        vertical: theme.spacing.l,
         horizontal: theme.spacing.m,
       ),
       child: Column(

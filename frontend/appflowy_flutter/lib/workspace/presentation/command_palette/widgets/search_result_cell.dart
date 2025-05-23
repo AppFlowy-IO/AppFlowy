@@ -107,10 +107,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.m,
-              vertical: theme.spacing.xl,
-            ),
+            padding: EdgeInsets.all(theme.spacing.l),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,14 +200,17 @@ class _SearchResultCellState extends State<SearchResultCell> {
     if (item.content.isEmpty) return [];
     return [
       VSpace(4),
-      RichText(
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        text: buildHighLightSpan(
-          content: item.content,
-          normal: context.searchPanelSummary,
-          highlight: context.searchPanelSummary.copyWith(
-            backgroundColor: theme.fillColorScheme.themeSelect,
+      Padding(
+        padding: const EdgeInsets.only(left: 28),
+        child: RichText(
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          text: buildHighLightSpan(
+            content: item.content,
+            normal: context.searchPanelSummary,
+            highlight: context.searchPanelSummary.copyWith(
+              backgroundColor: theme.fillColorScheme.themeSelect,
+            ),
           ),
         ),
       ),

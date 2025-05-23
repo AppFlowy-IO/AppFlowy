@@ -85,9 +85,15 @@ class MobileSearchResultList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<CommandPaletteBloc>().state,
         theme = AppFlowyTheme.of(context);
-    final isSearching = state.searching,
-        items = state.combinedResponseItems.values.toList(),
-        hasData = items.isNotEmpty;
+    final isSearching = state.searching, cachedViews = state.cachedViews;
+    List<SearchResultItem> displayItems =
+        state.combinedResponseItems.values.toList();
+    if (cachedViews.isNotEmpty) {
+      displayItems =
+          displayItems.where((item) => cachedViews[item.id] != null).toList();
+    }
+    final hasData = displayItems.isNotEmpty;
+
     if (isSearching && !hasData) {
       return Center(child: CircularProgressIndicator.adaptive());
     } else if (!hasData) {
@@ -107,7 +113,7 @@ class MobileSearchResultList extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            final item = items[index];
+            final item = displayItems[index];
             final view = state.cachedViews[item.id];
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -132,7 +138,7 @@ class MobileSearchResultList extends StatelessWidget {
             );
           },
           separatorBuilder: (context, index) => AFDivider(),
-          itemCount: items.length,
+          itemCount: displayItems.length,
         ),
       ],
     );

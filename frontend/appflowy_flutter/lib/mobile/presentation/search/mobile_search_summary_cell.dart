@@ -93,7 +93,7 @@ class _MobileSearchSummaryCellState extends State<MobileSearchSummaryCell> {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => showPageReferences(context),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
+                  padding: const EdgeInsets.fromLTRB(4, 4, 15, 4),
                   child: Container(
                     width: 21,
                     height: 15,
@@ -197,50 +197,52 @@ class _TextInfo {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: showMore,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                SelectionArea(
-                  child: Text.rich(
-                    _buildHighLightSpan(
-                      content: text,
-                      normal: normal,
-                      query: query,
-                      highlight: normal.copyWith(
-                        backgroundColor: theme.fillColorScheme.themeSelect,
+        child: IgnorePointer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SelectionArea(
+                    child: Text.rich(
+                      _buildHighLightSpan(
+                        content: text,
+                        normal: normal,
+                        query: query,
+                        highlight: normal.copyWith(
+                          backgroundColor: theme.fillColorScheme.themeSelect,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (overflowFadeCover != null)
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: overflowFadeCover,
-                  ),
-              ],
-            ),
-            SizedBox(
-              height: 34,
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: FlowySvg(
-                      FlowySvgs.arrow_down_s,
-                      size: Size.square(20),
-                      color: theme.iconColorScheme.secondary,
+                  if (overflowFadeCover != null)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: overflowFadeCover,
                     ),
-                  ),
-                  HSpace(8),
-                  Text(LocaleKeys.search_showMore.tr(), style: more),
                 ],
               ),
-            ),
-            VSpace(16),
-          ],
+              SizedBox(
+                height: 34,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      child: FlowySvg(
+                        FlowySvgs.arrow_down_s,
+                        size: Size.square(20),
+                        color: theme.iconColorScheme.secondary,
+                      ),
+                    ),
+                    HSpace(8),
+                    Text(LocaleKeys.search_showMore.tr(), style: more),
+                  ],
+                ),
+              ),
+              VSpace(16),
+            ],
+          ),
         ),
       );
     } else {
