@@ -141,7 +141,15 @@ class MathEquationBlockComponentWidgetState
   
   String safeLatex(String raw) {
 		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
-			return r'\begin{aligned}' + raw + r'\end{aligned}';
+			final lines = raw.split(r'\\');
+			final processedLines = lines.map((line) {
+			final trimmed = line.trim();
+		return trimmed.isEmpty ? '' : '& $trimmed'; 
+		}).toList();
+
+		return r'\begin{aligned}' + 
+           processedLines.join(r' \\') + 
+           r'\end{aligned}';
 		}
 		return raw;
 	}
