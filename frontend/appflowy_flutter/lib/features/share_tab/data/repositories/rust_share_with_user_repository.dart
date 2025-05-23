@@ -23,7 +23,7 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
 
     return result.fold(
       (success) {
-        Log.info('get shared users: $success');
+        Log.debug('get shared users: $success');
 
         return FlowySuccess(success.sharedUsers);
       },
