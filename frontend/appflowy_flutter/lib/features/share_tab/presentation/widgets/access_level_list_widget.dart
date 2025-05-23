@@ -50,13 +50,10 @@ class AccessLevelListCallbacks {
 class AccessLevelListWidget extends StatelessWidget {
   const AccessLevelListWidget({
     super.key,
-    this.enableAccessLevelSelection = true,
     required this.selectedAccessLevel,
     required this.callbacks,
+    required this.supportedAccessLevels,
   });
-
-  /// Enable access level selection
-  final bool enableAccessLevelSelection;
 
   /// The currently selected access level
   final ShareAccessLevel selectedAccessLevel;
@@ -64,37 +61,23 @@ class AccessLevelListWidget extends StatelessWidget {
   /// Callbacks
   final AccessLevelListCallbacks callbacks;
 
+  /// Supported access levels
+  final List<ShareAccessLevel> supportedAccessLevels;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return AFMenu(
-      width: enableAccessLevelSelection ? 240 : 160,
+      width: supportedAccessLevels.isNotEmpty ? 240 : 160,
       children: [
         // Display all available access level options
-        if (enableAccessLevelSelection) ...[
-          _buildAccessLevelItem(
-            context,
-            accessLevel: ShareAccessLevel.fullAccess,
-            onTap: () =>
-                callbacks.onSelectAccessLevel(ShareAccessLevel.fullAccess),
-          ),
-          _buildAccessLevelItem(
-            context,
-            accessLevel: ShareAccessLevel.readAndWrite,
-            onTap: () =>
-                callbacks.onSelectAccessLevel(ShareAccessLevel.readAndWrite),
-          ),
-          _buildAccessLevelItem(
-            context,
-            accessLevel: ShareAccessLevel.readAndComment,
-            onTap: () =>
-                callbacks.onSelectAccessLevel(ShareAccessLevel.readAndComment),
-          ),
-          _buildAccessLevelItem(
-            context,
-            accessLevel: ShareAccessLevel.readOnly,
-            onTap: () =>
-                callbacks.onSelectAccessLevel(ShareAccessLevel.readOnly),
+        if (supportedAccessLevels.isNotEmpty) ...[
+          ...supportedAccessLevels.map(
+            (accessLevel) => _buildAccessLevelItem(
+              context,
+              accessLevel: accessLevel,
+              onTap: () => callbacks.onSelectAccessLevel(accessLevel),
+            ),
           ),
           AFDivider(spacing: theme.spacing.m),
         ],

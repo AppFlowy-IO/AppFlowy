@@ -10,6 +10,7 @@ class EditAccessLevelWidget extends StatefulWidget {
     super.key,
     required this.callbacks,
     required this.selectedAccessLevel,
+    required this.supportedAccessLevels,
     this.disabled = false,
   });
 
@@ -21,6 +22,9 @@ class EditAccessLevelWidget extends StatefulWidget {
 
   /// Whether the widget is disabled
   final bool disabled;
+
+  /// Supported access levels
+  final List<ShareAccessLevel> supportedAccessLevels;
 
   @override
   State<EditAccessLevelWidget> createState() => _EditAccessLevelWidgetState();
@@ -47,6 +51,7 @@ class _EditAccessLevelWidgetState extends State<EditAccessLevelWidget> {
       popover: (_) {
         return AccessLevelListWidget(
           selectedAccessLevel: widget.selectedAccessLevel,
+          supportedAccessLevels: widget.supportedAccessLevels,
           callbacks: widget.callbacks.copyWith(
             onSelectAccessLevel: (accessLevel) {
               widget.callbacks.onSelectAccessLevel(accessLevel);

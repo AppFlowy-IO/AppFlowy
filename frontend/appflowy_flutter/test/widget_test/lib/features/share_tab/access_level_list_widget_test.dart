@@ -19,8 +19,8 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: AccessLevelListWidget(
-            enableAccessLevelSelection: true,
             selectedAccessLevel: ShareAccessLevel.readAndWrite,
+            supportedAccessLevels: ShareAccessLevel.values,
             callbacks: AccessLevelListCallbacks(
               onSelectAccessLevel: (level) => selectedLevel = level,
               onTurnIntoMember: () => turnedIntoMember = true,
@@ -65,6 +65,7 @@ void main() {
         WidgetTestWrapper(
           child: AccessLevelListWidget(
             selectedAccessLevel: ShareAccessLevel.readOnly,
+            supportedAccessLevels: ShareAccessLevel.values,
             callbacks: AccessLevelListCallbacks.none(),
           ),
         ),

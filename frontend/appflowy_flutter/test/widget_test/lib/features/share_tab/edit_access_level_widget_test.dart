@@ -13,6 +13,7 @@ void main() {
         WidgetTestWrapper(
           child: EditAccessLevelWidget(
             selectedAccessLevel: ShareAccessLevel.readOnly,
+            supportedAccessLevels: ShareAccessLevel.values,
             callbacks: AccessLevelListCallbacks(
               onSelectAccessLevel: (level) {},
               onTurnIntoMember: () {},

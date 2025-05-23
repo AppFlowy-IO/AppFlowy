@@ -114,7 +114,12 @@ class _ShareTabState extends State<ShareTab> {
   ) {
     return PeopleWithAccessSectionCallbacks(
       onSelectAccessLevel: (user, accessLevel) {
-        // do nothing. the event doesn't support in the backend yet
+        context.read<ShareWithUserBloc>().add(
+              ShareWithUserEvent.updateAccessLevel(
+                email: user.email,
+                accessLevel: accessLevel,
+              ),
+            );
       },
       onTurnIntoMember: (user) {
         context.read<ShareWithUserBloc>().add(
