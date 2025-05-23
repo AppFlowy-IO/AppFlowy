@@ -401,6 +401,12 @@ pub enum ErrorCode {
 
   #[error("New password is too short")]
   NewPasswordTooShort = 137,
+
+  #[error("Guest limit exceeded")]
+  GuestLimitExceeded = 138,
+
+  #[error("Invalid guest")]
+  InvalidGuest = 139,
 }
 
 impl ErrorCode {

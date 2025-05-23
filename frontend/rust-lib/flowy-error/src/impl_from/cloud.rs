@@ -40,6 +40,8 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
       AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
       AppErrorCode::AIServiceUnavailable => ErrorCode::AIServiceUnavailable,
+      AppErrorCode::GuestLimitExceeded => ErrorCode::GuestLimitExceeded,
+      AppErrorCode::InvalidGuest => ErrorCode::InvalidGuest,
       _ => ErrorCode::Internal,
     };
 
