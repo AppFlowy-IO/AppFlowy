@@ -239,10 +239,14 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
   Future<void> _scaleWithStep(double step) async {
     final currentScaleFactor = await windowSizeManager.getScaleFactor();
-    final textScale = (currentScaleFactor + step).clamp(
+
+    double textScale = (currentScaleFactor + step).clamp(
       WindowSizeManager.minScaleFactor,
       WindowSizeManager.maxScaleFactor,
     );
+
+    // only keep 2 decimal places
+    textScale = double.parse(textScale.toStringAsFixed(2));
 
     Log.info('scale the app from $currentScaleFactor to $textScale');
 

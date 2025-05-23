@@ -96,8 +96,22 @@ class SharedUserWidget extends StatelessWidget {
   ) {
     final isCurrentUser = user.email == currentUser.email;
     final theme = AppFlowyTheme.of(context);
+    // Guest: read and write, read only
+    // Member: full access <- only have full access until the backend supports more access levels
+    // Owner: all access levels
+    final supportedAccessLevels = switch (user.role) {
+      ShareRole.guest => [
+          ShareAccessLevel.readAndWrite,
+          ShareAccessLevel.readOnly,
+        ],
+      ShareRole.member => [ShareAccessLevel.fullAccess],
+      ShareRole.owner => [ShareAccessLevel.fullAccess],
+    };
     // The current guest user can't edit the access level of the other user
-    return isCurrentUser || currentUser.role == ShareRole.guest
+    return isCurrentUser ||
+            currentUser.role == ShareRole.guest ||
+            user.role == ShareRole.member ||
+            user.role == ShareRole.owner
         ? AFGhostTextButton.disabled(
             text: user.accessLevel.i18n,
             textStyle: theme.textStyle.body.standard(
@@ -106,6 +120,7 @@ class SharedUserWidget extends StatelessWidget {
           )
         : EditAccessLevelWidget(
             selectedAccessLevel: user.accessLevel,
+            supportedAccessLevels: supportedAccessLevels,
             callbacks: callbacks ?? AccessLevelListCallbacks.none(),
           );
   }
