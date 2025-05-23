@@ -160,6 +160,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   Widget buildPath(AppFlowyThemeData theme) {
     return BlocProvider(
+      key: ValueKey(item.id),
       create: (context) => ViewAncestorBloc(item.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {

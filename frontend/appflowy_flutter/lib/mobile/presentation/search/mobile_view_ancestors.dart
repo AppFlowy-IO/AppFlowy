@@ -31,7 +31,9 @@ class ViewAncestorBloc extends Bloc<ViewAncestorEvent, ViewAncestorState> {
                 }
               },
             );
-            emit(state.copyWith(ancestor: ancester, isLoading: false));
+            if(ancester != null) {
+              emit(state.copyWith(ancestor: ancester, isLoading: false));
+            }
           },
         );
       },

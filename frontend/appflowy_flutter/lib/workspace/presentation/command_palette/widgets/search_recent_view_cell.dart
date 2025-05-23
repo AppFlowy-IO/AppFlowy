@@ -110,6 +110,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
 
   Widget buildPath(AppFlowyThemeData theme) {
     return BlocProvider(
+      key: ValueKey(view.id),
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {
