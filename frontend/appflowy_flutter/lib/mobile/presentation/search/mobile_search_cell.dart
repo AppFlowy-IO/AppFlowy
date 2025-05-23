@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
@@ -31,7 +30,9 @@ class MobileSearchResultCell extends StatelessWidget {
     final displayName = item.displayName.isEmpty
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
         : item.displayName;
-
+    final titleStyle = theme.textStyle.heading4
+        .standard(color: theme.textColorScheme.primary)
+        .copyWith(height: 24 / 16);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: Row(
@@ -54,8 +55,8 @@ class MobileSearchResultCell extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   text: buildHighLightSpan(
                     content: displayName,
-                    normal: context.searchTitleStyle,
-                    highlight: context.searchTitleStyle.copyWith(
+                    normal: titleStyle,
+                    highlight: titleStyle.copyWith(
                       backgroundColor: theme.fillColorScheme.themeSelect,
                     ),
                   ),

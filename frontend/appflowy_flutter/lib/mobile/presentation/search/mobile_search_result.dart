@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
@@ -36,7 +35,7 @@ class MobileSearchRecentList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
-
+    final theme = AppFlowyTheme.of(context);
     final trashIdSet = commandPaletteState.trash.map((e) => e.id).toSet();
     return BlocProvider(
       create: (context) =>
@@ -54,7 +53,12 @@ class MobileSearchRecentList extends StatelessWidget {
               const VSpace(16),
               Text(
                 LocaleKeys.sideBar_recent.tr(),
-                style: context.searchSubtitleStyle,
+                style: theme.textStyle.heading4
+                    .enhanced(color: theme.textColorScheme.secondary)
+                    .copyWith(
+                      letterSpacing: 0.2,
+                      height: 24 / 16,
+                    ),
               ),
               const VSpace(4),
               Column(
@@ -106,7 +110,12 @@ class MobileSearchResultList extends StatelessWidget {
         const VSpace(16),
         Text(
           LocaleKeys.commandPalette_bestMatches.tr(),
-          style: context.searchSubtitleStyle,
+          style: theme.textStyle.heading4
+              .enhanced(color: theme.textColorScheme.secondary)
+              .copyWith(
+                letterSpacing: 0.2,
+                height: 24 / 16,
+              ),
         ),
         const VSpace(4),
         ListView.separated(
