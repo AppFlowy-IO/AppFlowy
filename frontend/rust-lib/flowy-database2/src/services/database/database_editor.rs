@@ -1874,9 +1874,13 @@ impl DatabaseEditor {
         .find(|field| field.id == *id && field.field_type == FieldType::RichText.value())
     });
     let category_field = config.category_field_id.as_ref().and_then(|id| {
-      fields
-        .iter()
-        .find(|field| field.id == *id && field.field_type == FieldType::RichText.value())
+      fields.iter().find(|field| {
+        field.id == *id
+          && matches!(
+            FieldType::from(field.field_type),
+            FieldType::RichText | FieldType::SingleSelect | FieldType::MultiSelect
+          )
+      })
     });
 
     fn extract_cell_value(row: &Row, field: &Field) -> Option<String> {
@@ -1911,7 +1915,7 @@ impl DatabaseEditor {
 
         let category = category_field
           .and_then(|field| extract_cell_value(&row, field))
-          .unwrap_or_else(|| "other".to_string());
+          .unwrap_or_default();
 
         Some(CustomPromptPB {
           id,
@@ -1959,7 +1963,13 @@ impl DatabaseEditor {
 
     let category_field_id = fields
       .iter()
-      .find(|f| f.name.to_lowercase() == "category")
+      .find(|f| {
+        f.name.to_lowercase() == "category"
+          && matches!(
+            FieldType::from(f.field_type),
+            FieldType::RichText | FieldType::SingleSelect | FieldType::MultiSelect
+          )
+      })
       .map(|f| f.id.clone());
 
     let configuration = CustomPromptDatabaseConfigPB {

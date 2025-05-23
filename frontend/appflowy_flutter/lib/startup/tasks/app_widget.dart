@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
+import 'package:appflowy/shared/easy_localiation_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -110,7 +111,12 @@ class InitAppWidgetTask extends LaunchTask {
         path: 'assets/translations',
         fallbackLocale: const Locale('en', 'US'),
         useFallbackTranslations: true,
-        child: app,
+        child: Builder(
+          builder: (context) {
+            getIt.get<EasyLocalizationService>().init(context);
+            return app;
+          },
+        ),
       ),
     );
 
