@@ -1,9 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
@@ -150,13 +148,7 @@ class RecentViewsList extends StatelessWidget {
         key: ValueKey(hoveredView.id),
         view: hoveredView,
         onViewOpened: () {
-          getIt<ActionNavigationBloc>().add(
-            ActionNavigationEvent.performAction(
-              action: NavigationAction(
-                objectId: hoveredView.id,
-              ),
-            ),
-          );
+          hoveredView.id.navigateTo();
           onSelected();
         },
       ),

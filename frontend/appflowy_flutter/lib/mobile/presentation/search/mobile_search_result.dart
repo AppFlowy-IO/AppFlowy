@@ -131,7 +131,7 @@ class MobileSearchResultList extends StatelessWidget {
                   await _goToView(context, view);
                 } else {
                   showToastNotification(
-                    message: LocaleKeys.search_somethingWentWrong.tr(),
+                    message: LocaleKeys.search_pageNotExist.tr(),
                     type: ToastificationType.error,
                   );
                   Log.error(

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/search/view_ancestor_cache.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -22,6 +23,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
@@ -33,6 +35,8 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -232,6 +236,8 @@ class HomeSideBar extends StatelessWidget {
           );
         }
 
+        checkForSpace(context.read<SpaceBloc>(), view);
+
         final blockId = action.arguments?[ActionArgumentKeys.blockId];
         if (blockId != null) {
           arguments[PluginArgumentKeys.blockId] = blockId;
@@ -243,6 +249,24 @@ class HomeSideBar extends StatelessWidget {
         }
 
         context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+      }
+    }
+  }
+
+  Future<void> checkForSpace(SpaceBloc spaceBloc, ViewPB view) async {
+    /// open space
+    final acestorCache = getIt<ViewAncestorCache>();
+    final ancestor = await acestorCache.getAncestor(view.id);
+    if (ancestor?.ancestors.isEmpty ?? true) return;
+    final firstAncestor = ancestor!.ancestors.first;
+    if (firstAncestor.id != spaceBloc.state.currentSpace?.id) {
+      final space =
+          (await ViewBackendService.getView(firstAncestor.id)).toNullable();
+      if (space != null) {
+        Log.info(
+          'Switching space from (${firstAncestor.name}-${firstAncestor.id}) to (${space.name}-${space.id})',
+        );
+        spaceBloc.add(SpaceEvent.open(space));
       }
     }
   }

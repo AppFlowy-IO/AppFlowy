@@ -1,9 +1,7 @@
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_ask_ai_entrance.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
@@ -55,13 +53,10 @@ class _SearchResultListState extends State<SearchResultList> {
       value: bloc,
       child: BlocListener<SearchResultListBloc, SearchResultListState>(
         listener: (context, state) {
-          if (state.openPageId != null) {
+          final pageId = state.openPageId;
+          if (pageId != null && pageId.isNotEmpty) {
             FlowyOverlay.pop(context);
-            getIt<ActionNavigationBloc>().add(
-              ActionNavigationEvent.performAction(
-                action: NavigationAction(objectId: state.openPageId!),
-              ),
-            );
+            pageId.navigateTo();
           }
         },
         child: BlocBuilder<SearchResultListBloc, SearchResultListState>(

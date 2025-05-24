@@ -2366,6 +2366,7 @@
     "seeMore": "See more",
     "showMore": "Show more",
     "somethingWentWrong": "Something went wrong",
+    "pageNotExist": "This page doesn’t exist",
     "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
