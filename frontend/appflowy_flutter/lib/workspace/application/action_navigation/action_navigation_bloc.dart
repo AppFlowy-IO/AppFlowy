@@ -1,6 +1,10 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:bloc/bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'action_navigation_bloc.freezed.dart';
@@ -10,7 +14,7 @@ class ActionNavigationBloc
   ActionNavigationBloc() : super(const ActionNavigationState.initial()) {
     on<ActionNavigationEvent>((event, emit) async {
       await event.when(
-        performAction: (action, nextActions) async {
+        performAction: (action, showErrorToast, nextActions) async {
           NavigationAction currentAction = action;
           if (currentAction.arguments?[ActionArgumentKeys.view] == null &&
               action.type == ActionType.openView) {
@@ -20,8 +24,16 @@ class ActionNavigationBloc
               if (currentAction.arguments == null) {
                 currentAction = currentAction.copyWith(arguments: {});
               }
-
               currentAction.arguments?.addAll({ActionArgumentKeys.view: view});
+
+            } else {
+              Log.error('Open view failed: ${action.objectId}');
+              if (showErrorToast) {
+                showToastNotification(
+                  message: LocaleKeys.search_pageNotExist.tr(),
+                  type: ToastificationType.error,
+                );
+              }
             }
           }
 
@@ -50,6 +62,7 @@ class ActionNavigationBloc
 class ActionNavigationEvent with _$ActionNavigationEvent {
   const factory ActionNavigationEvent.performAction({
     required NavigationAction action,
+    @Default(false) bool showErrorToast,
     @Default([]) List<NavigationAction> nextActions,
   }) = _PerformAction;
 }

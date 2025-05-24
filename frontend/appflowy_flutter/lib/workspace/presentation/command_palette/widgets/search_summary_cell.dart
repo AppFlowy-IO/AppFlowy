@@ -1,11 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_search_cell.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -378,11 +376,7 @@ class ReferenceSources extends StatelessWidget {
                 return AFBaseButton(
                   borderRadius: spaceM,
                   onTap: () {
-                    getIt<ActionNavigationBloc>().add(
-                      ActionNavigationEvent.performAction(
-                        action: NavigationAction(objectId: source.id),
-                      ),
-                    );
+                    source.id.navigateTo();
                     onClose?.call();
                   },
                   padding: EdgeInsets.symmetric(
@@ -409,19 +403,13 @@ class ReferenceSources extends StatelessWidget {
                       ),
                       HSpace(8),
                       Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              displayName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textStyle.body.standard(
-                                color: theme.textColorScheme.primary,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
                         ),
                       ),
                     ],

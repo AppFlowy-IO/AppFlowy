@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -50,10 +49,7 @@ class _AskAIFor extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: EdgeInsets.only(top: spaceM),
-        padding: EdgeInsets.symmetric(
-          horizontal: spaceM,
-          vertical: spaceL,
-        ),
+        padding: EdgeInsets.all(spaceL),
         child: Row(
           children: [
             SizedBox.square(
@@ -117,21 +113,27 @@ class _AISearching extends StatelessWidget {
         spaceM = theme.spacing.m,
         spaceL = theme.spacing.l;
     return Container(
-      padding: EdgeInsets.fromLTRB(0, spaceM, 0, spaceL),
       margin: EdgeInsets.only(top: spaceM),
+      padding: EdgeInsets.all(spaceL),
       child: SizedBox(
         height: 24,
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.ai_searching_icon_m,
-              size: Size.square(20),
-              blendMode: null,
+            SizedBox.square(
+              dimension: 24,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
+                ),
+              ),
             ),
             HSpace(8),
             Text(
               LocaleKeys.search_searching.tr(),
-              style: context.searchSubtitleStyle,
+              style: theme.textStyle.heading4
+                  .standard(color: theme.textColorScheme.secondary),
             ),
           ],
         ),
@@ -169,7 +171,9 @@ class _AIOverview extends StatelessWidget {
                 summary: summary,
                 maxWidth: constrains.maxWidth,
                 theme: AppFlowyTheme.of(context),
-                textStyle: context.searchTitleStyle,
+                textStyle: theme.textStyle.heading4
+                    .standard(color: theme.textColorScheme.primary)
+                    .copyWith(height: 22 / 16),
               );
             },
           ),
@@ -179,22 +183,21 @@ class _AIOverview extends StatelessWidget {
   }
 
   Widget buildHeader(BuildContext context) {
-    return SizedBox(
-      height: 24,
-      child: Row(
-        children: [
-          FlowySvg(
-            FlowySvgs.ai_searching_icon_m,
-            size: Size.square(20),
-            blendMode: null,
-          ),
-          HSpace(8),
-          Text(
-            LocaleKeys.commandPalette_aiOverview.tr(),
-            style: context.searchSubtitleStyle,
-          ),
-        ],
-      ),
+    final theme = AppFlowyTheme.of(context);
+    return Row(
+      children: [
+        FlowySvg(
+          FlowySvgs.ai_searching_icon_m,
+          size: Size.square(20),
+          blendMode: null,
+        ),
+        HSpace(8),
+        Text(
+          LocaleKeys.commandPalette_aiOverview.tr(),
+          style: theme.textStyle.heading4
+              .enhanced(color: theme.textColorScheme.primary),
+        ),
+      ],
     );
   }
 }

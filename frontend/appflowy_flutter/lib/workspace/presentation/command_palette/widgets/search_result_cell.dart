@@ -5,7 +5,6 @@ import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_list_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -67,6 +66,9 @@ class _SearchResultCellState extends State<SearchResultCell> {
     final hasHovered = searchResultBloc.state.hoveredResult != null;
 
     final theme = AppFlowyTheme.of(context);
+    final titleStyle = theme.textStyle.body
+        .enhanced(color: theme.textColorScheme.primary)
+        .copyWith(height: 22 / 14);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _handleSelection,
@@ -107,48 +109,39 @@ class _SearchResultCellState extends State<SearchResultCell> {
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.m,
-              vertical: theme.spacing.xl,
-            ),
+            padding: EdgeInsets.all(theme.spacing.l),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 20,
-                  child: Row(
-                    children: [
-                      SizedBox.square(
-                        dimension: 20,
-                        child: Center(child: buildIcon(theme)),
+                Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 20,
+                      child: Center(child: buildIcon(theme)),
+                    ),
+                    HSpace(8),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: (!widget.isNarrowWindow && hasHovered)
+                            ? 480.0
+                            : 680.0,
                       ),
-                      HSpace(8),
-                      Container(
-                        constraints: BoxConstraints(
-                          maxWidth: (!widget.isNarrowWindow && hasHovered)
-                              ? 480.0
-                              : 680.0,
-                        ),
-                        child: RichText(
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          text: buildHighLightSpan(
-                            content: title,
-                            normal:
-                                context.searchPanelTitle2.copyWith(height: 1),
-                            highlight: context.searchPanelTitle2.copyWith(
-                              backgroundColor:
-                                  theme.fillColorScheme.themeSelect,
-                              height: 1,
-                            ),
+                      child: RichText(
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        text: buildHighLightSpan(
+                          content: title,
+                          normal: titleStyle,
+                          highlight: titleStyle.copyWith(
+                            backgroundColor: theme.fillColorScheme.themeSelect,
                           ),
                         ),
                       ),
-                      Flexible(child: buildPath(theme)),
-                    ],
-                  ),
+                    ),
+                    Flexible(child: buildPath(theme)),
+                  ],
                 ),
                 ...buildSummary(theme),
               ],
@@ -167,6 +160,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   Widget buildPath(AppFlowyThemeData theme) {
     return BlocProvider(
+      key: ValueKey(item.id),
       create: (context) => ViewAncestorBloc(item.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {
@@ -201,16 +195,23 @@ class _SearchResultCellState extends State<SearchResultCell> {
 
   List<Widget> buildSummary(AppFlowyThemeData theme) {
     if (item.content.isEmpty) return [];
+    final style = theme.textStyle.caption
+        .standard(color: theme.textColorScheme.secondary)
+        .copyWith(letterSpacing: 0.1);
     return [
       VSpace(4),
-      RichText(
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        text: buildHighLightSpan(
-          content: item.content,
-          normal: context.searchPanelSummary,
-          highlight: context.searchPanelSummary.copyWith(
-            backgroundColor: theme.fillColorScheme.themeSelect,
+      Padding(
+        padding: const EdgeInsets.only(left: 28),
+        child: RichText(
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          text: buildHighLightSpan(
+            content: item.content,
+            normal: style,
+            highlight: style.copyWith(
+              backgroundColor: theme.fillColorScheme.themeSelect,
+              color: theme.textColorScheme.primary,
+            ),
           ),
         ),
       ),

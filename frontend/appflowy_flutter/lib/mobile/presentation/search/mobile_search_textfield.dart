@@ -1,12 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/mobile_bottom_navigation_bar.dart';
 import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,6 +32,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
 
   FocusNode get focusNode => widget.focusNode;
   late String lastPage = bottomNavigationBarItemType.value ?? '';
+  String lastText = '';
 
   @override
   void initState() {
@@ -42,7 +41,10 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     focusNode.addListener(onFocusChanged);
     controller.addListener(() {
       if (!mounted) return;
-      widget.onChanged?.call(controller.text);
+      if (lastText != controller.text) {
+        widget.onChanged?.call(controller.text);
+        lastText = controller.text;
+      }
     });
     bottomNavigationBarItemType.addListener(onBackOrLeave);
     focusNode.requestFocus();
@@ -67,7 +69,6 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       child: ValueListenableBuilder(
         valueListenable: controller,
         builder: (context, _, __) {
-          final hasText = controller.text.isNotEmpty;
           return Row(
             children: [
               GestureDetector(
@@ -119,28 +120,6 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
                   ),
                   decoration: buildInputDecoration(context),
                 ),
-              ),
-              ValueListenableBuilder(
-                valueListenable: hasFocusValueNotifier,
-                builder: (context, hasFocus, __) {
-                  if (!hasFocus || !hasText) return SizedBox.shrink();
-                  return GestureDetector(
-                    onTap: () => focusNode.unfocus(),
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      height: 42,
-                      padding: EdgeInsets.only(left: 8),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          LocaleKeys.button_cancel.tr(),
-                          style: theme.textStyle.body
-                              .standard(color: theme.textColorScheme.action),
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
             ],
           );

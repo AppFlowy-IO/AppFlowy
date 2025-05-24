@@ -18,7 +18,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +54,10 @@ class PagePreview extends StatelessWidget {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            margin: EdgeInsets.symmetric(vertical: 16),
+            margin: EdgeInsets.only(
+              top: theme.spacing.m,
+              bottom: theme.spacing.xl,
+            ),
             child: Stack(
               children: [
                 SingleChildScrollView(
@@ -197,43 +200,60 @@ class PagePreview extends StatelessWidget {
             .enhanced(color: theme.textColorScheme.primary),
         titleHoverStyle =
             titleStyle.copyWith(decoration: TextDecoration.underline);
-    return SizedBox(
-      height: 28,
-      child: Row(
-        children: [
-          Flexible(
-            child: AFBaseButton(
-              padding: EdgeInsets.zero,
-              builder: (context, isHovering, disabled) =>
-                  SelectionContainer.disabled(
-                child: Text(
-                  view.nameOrDefault,
-                  style: isHovering ? titleHoverStyle : titleStyle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+    return LayoutBuilder(
+      builder: (context, constrains) {
+        final maxWidth = constrains.maxWidth;
+        String displayText = view.nameOrDefault;
+        final painter = TextPainter(
+          text: TextSpan(text: displayText, style: titleStyle),
+          maxLines: 3,
+          textDirection: TextDirection.ltr,
+          ellipsis: '...     ',
+        );
+        painter.layout(maxWidth: maxWidth);
+        if (painter.didExceedMaxLines) {
+          final lines = painter.computeLineMetrics();
+          final lastLine = lines.last;
+          final offset = Offset(
+            lastLine.left + lastLine.width,
+            lines.map((e) => e.height).reduce((a, b) => a + b),
+          );
+          final range = painter.getPositionForOffset(offset);
+          displayText = '${displayText.substring(0, range.offset)}...';
+        }
+        return AFBaseButton(
+          borderColor: (_, __, ___, ____) => Colors.transparent,
+          borderRadius: 0,
+          onTap: onViewOpened,
+          padding: EdgeInsets.zero,
+          builder: (context, isHovering, disabled) {
+            return RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: displayText,
+                    style: isHovering ? titleHoverStyle : titleStyle,
+                  ),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: FlowyTooltip(
+                        message: LocaleKeys.settings_files_open.tr(),
+                        child: FlowySvg(
+                          FlowySvgs.search_open_tab_m,
+                          color: theme.iconColorScheme.secondary,
+                          size: const Size.square(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              borderColor: (_, __, ___, ____) => Colors.transparent,
-              borderRadius: 0,
-              onTap: onViewOpened,
-            ),
-          ),
-          HSpace(4),
-          FlowyTooltip(
-            message: LocaleKeys.settings_files_open.tr(),
-            child: AFGhostButton.normal(
-              size: AFButtonSize.s,
-              padding: EdgeInsets.all(theme.spacing.xs),
-              onTap: onViewOpened,
-              builder: (context, isHovering, disabled) => FlowySvg(
-                FlowySvgs.search_open_tab_m,
-                color: theme.iconColorScheme.secondary,
-                size: const Size.square(20),
-              ),
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -295,30 +315,43 @@ class SomethingWentWrong extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    return SizedBox(
+      width: 300,
+      child: Row(
         children: [
-          FlowySvg(
-            FlowySvgs.something_wrong_warning_m,
-            color: theme.iconColorScheme.secondary,
-            size: Size.square(24),
-          ),
-          const VSpace(8),
-          Text(
-            LocaleKeys.search_somethingWentWrong.tr(),
-            style: theme.textStyle.body
-                .enhanced(color: theme.textColorScheme.secondary),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const VSpace(4),
-          Text(
-            LocaleKeys.search_tryAgainOrLater.tr(),
-            style: theme.textStyle.caption
-                .standard(color: theme.textColorScheme.secondary),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          AFDivider(axis: Axis.vertical),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 100),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowySvg(
+                      FlowySvgs.something_wrong_warning_m,
+                      color: theme.iconColorScheme.secondary,
+                      size: Size.square(24),
+                    ),
+                    const VSpace(8),
+                    Text(
+                      LocaleKeys.search_somethingWentWrong.tr(),
+                      style: theme.textStyle.body
+                          .enhanced(color: theme.textColorScheme.secondary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const VSpace(4),
+                    Text(
+                      LocaleKeys.search_tryAgainOrLater.tr(),
+                      style: theme.textStyle.caption
+                          .standard(color: theme.textColorScheme.secondary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

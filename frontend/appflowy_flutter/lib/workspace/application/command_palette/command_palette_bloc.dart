@@ -127,7 +127,7 @@ class CommandPaletteBloc
     _PerformSearch event,
     Emitter<CommandPaletteState> emit,
   ) async {
-    if (event.search.isEmpty && event.search != state.query) {
+    if (event.search.isEmpty) {
       emit(
         state.copyWith(
           query: null,

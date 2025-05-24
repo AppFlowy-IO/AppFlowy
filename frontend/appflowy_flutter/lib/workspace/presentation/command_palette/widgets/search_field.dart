@@ -57,8 +57,9 @@ class _SearchFieldState extends State<SearchField> {
   }
 
   Widget _buildSuffixIcon(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 12),
+      padding: EdgeInsets.only(left: theme.spacing.m, right: theme.spacing.l),
       child: FlowyTooltip(
         message: LocaleKeys.commandPalette_clearSearchTooltip.tr(),
         child: MouseRegion(
@@ -87,14 +88,16 @@ class _SearchFieldState extends State<SearchField> {
     final theme = AppFlowyTheme.of(context);
     final radius = BorderRadius.circular(theme.spacing.l);
 
-    return SizedBox(
+    return Container(
       height: 44,
+      margin: EdgeInsets.only(bottom: theme.spacing.m),
       child: ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
         builder: (context, value, _) {
           final hasText = value.text.trim().isNotEmpty;
           return FlowyTextField(
             focusNode: focusNode,
+            cursorHeight: 22,
             controller: controller,
             textStyle: theme.textStyle.heading4
                 .standard(color: theme.textColorScheme.primary),
