@@ -1,7 +1,6 @@
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -15,13 +14,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef SharedPageViewMoreActionCallback = void Function(
+  ViewMoreActionType type,
+  dynamic data,
+);
+
 class SharedPagesList extends StatelessWidget {
   const SharedPagesList({
     super.key,
     required this.sharedPages,
+    required this.onAction,
+    required this.onSelected,
+    required this.onTertiarySelected,
   });
 
   final SharedPages sharedPages;
+  final SharedPageViewMoreActionCallback onAction;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnTertiarySelected onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +49,16 @@ class SharedPagesList extends StatelessWidget {
           isDraggable: false, // disable draggable for shared pages
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,
-          onSelected: (context, view) {
-            if (HardwareKeyboard.instance.isControlPressed) {
-              context.read<TabsBloc>().openTab(view);
-            }
-            context.read<TabsBloc>().openPlugin(view);
-          },
-          onTertiarySelected: (context, view) =>
-              context.read<TabsBloc>().openTab(view),
+          onSelected: onSelected,
+          // (context, view) {
+          //   if (HardwareKeyboard.instance.isControlPressed) {
+          //     context.read<TabsBloc>().openTab(view);
+          //   }
+          //   context.read<TabsBloc>().openPlugin(view);
+          // },
+          onTertiarySelected: onTertiarySelected,
+          // (context, view) =>
+          //     context.read<TabsBloc>().openTab(view),
           rightIconsBuilder: (context, view) => [
             IntrinsicWidth(
               child: _buildSharedPageMoreActionButton(
@@ -70,20 +82,7 @@ class SharedPagesList extends StatelessWidget {
     return SharedPageViewMoreActionPopover(
       view: view,
       accessLevel: accessLevel,
-      onAction: (action, data) async {
-        switch (action) {
-          case ViewMoreActionType.favorite:
-          case ViewMoreActionType.unFavorite:
-            context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-            break;
-          case ViewMoreActionType.openInNewTab:
-            context.read<TabsBloc>().openTab(view);
-            break;
-          default:
-            // Other actions are not allowed for read-only access
-            break;
-        }
-      },
+      onAction: onAction,
       buildChild: (controller) => FlowyIconButton(
         width: 24,
         icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
@@ -146,7 +145,7 @@ class _SharedPageViewMoreActionPopoverState
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(), // the AFMenu has a border
       anchor: const AFAnchorAuto(
-        offset: Offset(0, 62),
+        offset: Offset(-8, 116),
         followerAnchor: Alignment.centerRight,
         targetAnchor: Alignment.centerLeft,
       ),
@@ -204,9 +203,6 @@ class _SharedPageViewMoreActionPopoverState
           : ViewMoreActionType.favorite,
     );
 
-    actionTypes.add(ViewMoreActionType.divider);
-    actionTypes.add(ViewMoreActionType.openInNewTab);
-
     // Only show editable actions if access level allows it
     if (widget.accessLevel != ShareAccessLevel.readOnly) {
       actionTypes.addAll([
@@ -229,6 +225,9 @@ class _SharedPageViewMoreActionPopoverState
         ]);
       }
     }
+
+    actionTypes.add(ViewMoreActionType.divider);
+    actionTypes.add(ViewMoreActionType.openInNewTab);
 
     return actionTypes;
   }
