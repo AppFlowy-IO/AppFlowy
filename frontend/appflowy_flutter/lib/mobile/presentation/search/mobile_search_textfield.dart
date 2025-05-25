@@ -2,11 +2,14 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/mobile_bottom_navigation_bar.dart';
 import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/af_navigator_observer.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import 'mobile_search_page.dart';
 
 class MobileSearchTextfield extends StatefulWidget {
   const MobileSearchTextfield({
@@ -26,9 +29,9 @@ class MobileSearchTextfield extends StatefulWidget {
   State<MobileSearchTextfield> createState() => _MobileSearchTextfieldState();
 }
 
-class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
+class _MobileSearchTextfieldState extends State<MobileSearchTextfield>
+    with RouteAware {
   late final TextEditingController controller;
-  final ValueNotifier<bool> hasFocusValueNotifier = ValueNotifier(true);
 
   FocusNode get focusNode => widget.focusNode;
   late String lastPage = bottomNavigationBarItemType.value ?? '';
@@ -38,7 +41,6 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.query);
-    focusNode.addListener(onFocusChanged);
     controller.addListener(() {
       if (!mounted) return;
       if (lastText != controller.text) {
@@ -47,15 +49,16 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       }
     });
     bottomNavigationBarItemType.addListener(onBackOrLeave);
-    focusNode.requestFocus();
+    makeSureHasFocus();
+    getIt<AFNavigatorObserver>().addListener(onRoute);
   }
 
   @override
   void dispose() {
     controller.dispose();
-    focusNode.removeListener(onFocusChanged);
-    hasFocusValueNotifier.dispose();
     bottomNavigationBarItemType.removeListener(onBackOrLeave);
+    getIt<AFNavigatorObserver>().removeListener(onRoute);
+
     super.dispose();
   }
 
@@ -108,7 +111,6 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
               Expanded(
                 child: TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: true,
                   focusNode: focusNode,
                   textAlign: TextAlign.left,
                   controller: controller,
@@ -181,9 +183,12 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
     );
   }
 
-  void onFocusChanged() {
-    if (!mounted) return;
-    hasFocusValueNotifier.value = focusNode.hasFocus;
+  Future<void> makeSureHasFocus() async {
+    if (!mounted || focusNode.hasFocus) return;
+    focusNode.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      makeSureHasFocus();
+    });
   }
 
   void onBackOrLeave() {
@@ -194,6 +199,14 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield> {
       focusNode.unfocus();
       controller.clear();
       lastPage = label ?? '';
+    }
+  }
+
+  void onRoute(RouteInfo routeInfo) {
+    final oldName = routeInfo.oldRoute?.settings.name;
+    if (oldName != MobileSearchScreen.routeName) return;
+    if (routeInfo is PushRouterInfo) {
+      focusNode.unfocus();
     }
   }
 }

@@ -99,9 +99,12 @@ class MobileSearchResultList extends StatelessWidget {
     final hasData = displayItems.isNotEmpty;
 
     if (isSearching && !hasData) {
-      return Center(child: CircularProgressIndicator.adaptive());
+      return SizedBox(
+        height: 400,
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      );
     } else if (!hasData) {
-      return buildNoResult(state.query ?? '', theme);
+      return _NoResult();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,8 +155,14 @@ class MobileSearchResultList extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget buildNoResult(String query, AppFlowyThemeData theme) {
+class _NoResult extends StatelessWidget {
+  const _NoResult();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final textColor = theme.textColorScheme.secondary;
     return Align(
       alignment: Alignment.topCenter,
