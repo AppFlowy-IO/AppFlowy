@@ -74,6 +74,7 @@ class SharedGroupWidget extends StatelessWidget {
   Widget _buildTrailing(BuildContext context) {
     return EditAccessLevelWidget(
       disabled: true,
+      supportedAccessLevels: ShareAccessLevel.values,
       selectedAccessLevel: ShareAccessLevel.fullAccess,
       callbacks: AccessLevelListCallbacks.none(),
     );
