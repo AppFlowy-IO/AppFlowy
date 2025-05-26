@@ -11,7 +11,7 @@ class ViewAncestorCache {
 
   final Map<String, ViewAncestor> _ancestors = {};
 
-  Future<ViewAncestor> getAncestor(
+  Future<ViewAncestor?> getAncestor(
     String viewId, {
     ValueChanged<ViewAncestor>? onRefresh,
   }) async {
@@ -23,23 +23,26 @@ class ViewAncestorCache {
     return _getAncestor(viewId);
   }
 
-  Future<ViewAncestor> _getAncestor(
+  Future<ViewAncestor?> _getAncestor(
     String viewId, {
     ValueChanged<ViewAncestor>? onRefresh,
   }) async {
-    final List<ViewPB> ancestors =
+    final List<ViewPB>? ancestors =
         await ViewBackendService.getViewAncestors(viewId).fold(
       (s) => s.items
           .where((e) => e.parentViewId.isNotEmpty && e.id != viewId)
           .toList(),
-      (f) => [],
+      (f) => null,
     );
-    final newAncestors = ViewAncestor(
-      ancestors: ancestors.map((e) => ViewParent.fromViewPB(e)).toList(),
-    );
-    _ancestors[viewId] = newAncestors;
-    onRefresh?.call(newAncestors);
-    return newAncestors;
+    if (ancestors != null) {
+      final newAncestors = ViewAncestor(
+        ancestors: ancestors.map((e) => ViewParent.fromViewPB(e)).toList(),
+      );
+      _ancestors[viewId] = newAncestors;
+      onRefresh?.call(newAncestors);
+      return newAncestors;
+    }
+    return null;
   }
 }
 

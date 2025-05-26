@@ -94,12 +94,16 @@ class _GridFieldCellState extends State<GridFieldCell> {
                 onFieldInserted: widget.onFieldInsertedOnEitherSide,
               );
             },
-            child: SizedBox(
-              height: GridSize.headerHeight,
-              child: FieldCellButton(
-                field: widget.fieldInfo.field,
-                onTap: widget.onTap,
-                margin: const EdgeInsetsDirectional.fromSTEB(12, 9, 10, 9),
+            child: FlowyTooltip(
+              message: widget.fieldInfo.name,
+              preferBelow: false,
+              child: SizedBox(
+                height: GridSize.headerHeight,
+                child: FieldCellButton(
+                  field: widget.fieldInfo.field,
+                  onTap: widget.onTap,
+                  margin: const EdgeInsetsDirectional.fromSTEB(12, 9, 10, 9),
+                ),
               ),
             ),
           );

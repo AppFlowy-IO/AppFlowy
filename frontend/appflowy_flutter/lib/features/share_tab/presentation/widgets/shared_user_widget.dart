@@ -1,7 +1,9 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/edit_access_level_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +31,6 @@ class SharedUserWidget extends StatelessWidget {
       leading: AFAvatar(
         name: user.name,
         url: user.avatarUrl,
-        colorHash: user.email,
       ),
       title: _buildTitle(context),
       subtitle: _buildSubtitle(context),
@@ -45,17 +46,20 @@ class SharedUserWidget extends StatelessWidget {
 
     return Row(
       children: [
-        Text(
-          user.name,
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
+        Flexible(
+          child: Text(
+            user.name,
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.primary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         // if the user is the current user, show '(You)'
         if (isCurrentUser) ...[
           HSpace(theme.spacing.xs),
           Text(
-            '(You)',
+            LocaleKeys.shareTab_you.tr(),
             style: theme.textStyle.body.standard(
               color: theme.textColorScheme.secondary,
             ),
@@ -65,7 +69,7 @@ class SharedUserWidget extends StatelessWidget {
         if (user.role == ShareRole.guest) ...[
           HSpace(theme.spacing.xs),
           Text(
-            'Guest',
+            LocaleKeys.shareTab_guest.tr(),
             style: theme.textStyle.body.standard(
               color: theme.textColorScheme.warning,
             ),

@@ -178,6 +178,8 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         contentPadding: EdgeInsets.zero,
       ),
       scrollController: scrollController,
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.next,
       style: TextStyle(
         fontSize: 28.0,
         fontWeight: FontWeight.w700,

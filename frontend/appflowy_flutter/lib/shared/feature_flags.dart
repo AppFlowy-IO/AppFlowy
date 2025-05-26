@@ -41,6 +41,9 @@ enum FeatureFlag {
   // used for the inline sub-page mention
   inlineSubPageMention,
 
+  // used for the shared section
+  sharedSection,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -121,9 +124,10 @@ enum FeatureFlag {
       case FeatureFlag.syncDatabase:
       case FeatureFlag.spaceDesign:
       case FeatureFlag.inlineSubPageMention:
-        return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
+        return true;
+      case FeatureFlag.sharedSection:
       case FeatureFlag.unknown:
         return false;
     }
@@ -147,6 +151,8 @@ enum FeatureFlag {
         return 'if it\'s on, the space design feature will be available';
       case FeatureFlag.inlineSubPageMention:
         return 'if it\'s on, the inline sub-page mention feature will be available';
+      case FeatureFlag.sharedSection:
+        return 'if it\'s on, the shared section will be available';
       case FeatureFlag.unknown:
         return '';
     }

@@ -1,8 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
-  CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB, MoveNestedViewParams,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB,
-  ViewSectionPB, WorkspaceLatestPB, WorkspacePB, view_pb_with_child_views,
+  AFAccessLevelPB, CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
+  MoveNestedViewParams, RepeatedSharedViewResponsePB, RepeatedTrashPB, RepeatedViewIdPB,
+  RepeatedViewPB, SharedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB, ViewSectionPB,
+  WorkspaceLatestPB, WorkspacePB, view_pb_with_all_child_views, view_pb_with_child_views,
   view_pb_without_child_views, view_pb_without_child_views_from_arc,
 };
 use crate::manager_observer::{
@@ -41,6 +42,10 @@ use flowy_folder_pub::entities::{
   PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
   PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
+use flowy_folder_pub::sql::workspace_shared_view_sql::{
+  WorkspaceSharedViewTable, replace_all_workspace_shared_views, select_all_workspace_shared_views,
+};
+use flowy_sqlite::DBConnection;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
 use std::collections::HashMap;
@@ -55,7 +60,7 @@ pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<Uuid, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
-
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &Uuid) -> FlowyResult<bool>;
 }
 
@@ -2135,6 +2140,103 @@ impl FolderManager {
       .into_iter()
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
+  }
+
+  /// Get the shared views of the workspace.
+  pub async fn get_shared_pages(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
+    let uid = self.user.user_id()?;
+    let conn = self.user.sqlite_connection(uid)?;
+    let workspace_id = self.user.workspace_id()?;
+    let mut local_shared_views = vec![];
+
+    let all_views: Vec<Arc<View>> = self.get_all_views().await?;
+
+    // 1. Get the data from the local database first
+    if let Ok(shared_views) =
+      select_all_workspace_shared_views(conn, &workspace_id.to_string(), uid)
+    {
+      local_shared_views = shared_views
+        .into_iter()
+        .filter_map(|shared_view| {
+          let view = all_views
+            .iter()
+            .find(|view| view.id == shared_view.view_id)?;
+          Some(SharedViewPB {
+            view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
+              all_views
+                .iter()
+                .filter(|v| v.parent_view_id == *parent_id)
+                .cloned()
+                .collect()
+            }),
+            access_level: AFAccessLevelPB::from(shared_view.permission_id),
+          })
+        })
+        .collect();
+    }
+
+    // 2. Fetch the data from the cloud service and persist to the local database
+    let cloud_workspace_id = workspace_id;
+    let user = self.user.clone();
+    let cloud_service = self.cloud_service.clone();
+    tokio::spawn(async move {
+      if let Some(cloud_service) = cloud_service.upgrade() {
+        if let Ok(resp) = cloud_service.get_shared_views(&cloud_workspace_id).await {
+          if let Ok(mut conn) = user.sqlite_connection(uid) {
+            let shared_views: Vec<WorkspaceSharedViewTable> = resp
+              .shared_views
+              .iter()
+              .map(|shared_view| WorkspaceSharedViewTable {
+                uid,
+                workspace_id: workspace_id.to_string(),
+                view_id: shared_view.view_id.to_string(),
+                permission_id: shared_view.access_level as i32,
+                created_at: None,
+              })
+              .collect();
+            let _ = replace_all_workspace_shared_views(
+              &mut conn,
+              &cloud_workspace_id.to_string(),
+              uid,
+              &shared_views,
+            );
+
+            let repeated_shared_view_response = RepeatedSharedViewResponsePB {
+              shared_views: resp
+                .shared_views
+                .into_iter()
+                .filter_map(|shared_view| {
+                  let view = all_views
+                    .iter()
+                    .find(|view| view.id == shared_view.view_id.to_string())?;
+                  Some(SharedViewPB {
+                    view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
+                      all_views
+                        .iter()
+                        .filter(|v| v.parent_view_id == *parent_id)
+                        .cloned()
+                        .collect()
+                    }),
+                    access_level: AFAccessLevelPB::from(shared_view.access_level),
+                  })
+                })
+                .collect(),
+            };
+
+            // Notify UI to refresh the shared views
+            folder_notification_builder(workspace_id, FolderNotification::DidUpdateSharedViews)
+              .payload(repeated_shared_view_response)
+              .send();
+          }
+        }
+      }
+    });
+
+    let local_result = RepeatedSharedViewResponsePB {
+      shared_views: local_shared_views.clone(),
+    };
+
+    Ok(local_result)
   }
 }
 

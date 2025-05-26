@@ -1,20 +1,19 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
-import 'package:appflowy/features/share_tab/data/models/shared_user.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-/// Abstract repository for sharing pages with users.
+/// Abstract repository for sharing with users.
 ///
 /// For example, we're using rust events now, but we can still use the http api
 /// for the future.
-abstract class ShareRepository {
+abstract class ShareWithUserRepository {
   /// Gets the list of users and their roles for a shared page.
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+  Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({
     required String pageId,
   });
 
   /// Gets the list of users that are available to be shared with.
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+  Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   });
 
@@ -31,5 +30,12 @@ abstract class ShareRepository {
     required String pageId,
     required ShareAccessLevel accessLevel,
     required List<String> emails,
+  });
+
+  /// Change the role of a user in a shared page.
+  Future<FlowyResult<void, FlowyError>> changeRole({
+    required String pageId,
+    required String email,
+    required ShareRole role,
   });
 }

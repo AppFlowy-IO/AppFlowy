@@ -40,7 +40,7 @@ class PeopleWithAccessSection extends StatelessWidget {
   });
 
   final String currentUserEmail;
-  final List<SharedUser> users;
+  final SharedUsers users;
   final PeopleWithAccessSectionCallbacks? callbacks;
 
   @override
@@ -50,19 +50,19 @@ class PeopleWithAccessSection extends StatelessWidget {
       (user) => user.email == currentUserEmail,
     );
 
-    if (currentUser == null) {
-      return const SizedBox.shrink();
-    }
-
     return AFMenuSection(
       title: 'People with access',
       constraints: BoxConstraints(
         maxHeight: 240,
       ),
       padding: EdgeInsets.symmetric(
-        vertical: theme.spacing.s,
+        vertical: theme.spacing.xs,
       ),
       children: users.map((user) {
+        if (currentUser == null) {
+          return const SizedBox.shrink();
+        }
+
         return SharedUserWidget(
           user: user,
           currentUser: currentUser,

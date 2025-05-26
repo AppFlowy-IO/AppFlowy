@@ -39,6 +39,8 @@ pub enum FolderNotification {
 
   /// Trigger when the ROOT views (the first level) in section are updated
   DidUpdateSectionViews = 39,
+
+  DidUpdateSharedViews = 40,
 }
 
 #[tracing::instrument(level = "trace", skip_all)]

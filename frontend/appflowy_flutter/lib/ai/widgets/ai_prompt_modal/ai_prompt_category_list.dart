@@ -68,7 +68,10 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
 
   static Iterable<AiPromptCategory> get sortedCategories {
     final categories = [...AiPromptCategory.values];
-    categories.sort((a, b) => a.i18n.compareTo(b.i18n));
+    categories
+      ..sort((a, b) => a.i18n.compareTo(b.i18n))
+      ..remove(AiPromptCategory.other)
+      ..add(AiPromptCategory.other);
 
     return categories;
   }

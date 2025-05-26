@@ -1,9 +1,7 @@
 import 'package:appflowy/mobile/presentation/search/mobile_view_ancestors.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -19,11 +17,13 @@ class SearchRecentViewCell extends StatefulWidget {
     required this.icon,
     required this.view,
     required this.onSelected,
+    required this.isNarrowWindow,
   });
 
   final Widget icon;
   final ViewPB view;
   final VoidCallback onSelected;
+  final bool isNarrowWindow;
 
   @override
   State<SearchRecentViewCell> createState() => _SearchRecentViewCellState();
@@ -42,11 +42,10 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context),
-        textColor = theme.textColorScheme.primary;
-    final sapceM = theme.spacing.m, spaceL = theme.spacing.l;
+    final theme = AppFlowyTheme.of(context);
+    final spaceL = theme.spacing.l;
     final bloc = context.read<RecentViewsBloc>(), state = bloc.state;
-    final hoveredView = state.hoveredView;
+    final hoveredView = state.hoveredView, hasHovered = hoveredView != null;
     final hovering = hoveredView == view;
 
     return GestureDetector(
@@ -74,29 +73,31 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
           },
           style: HoverStyle(
             borderRadius: BorderRadius.circular(8),
-            hoverColor: Theme.of(context).colorScheme.secondary,
+            hoverColor: theme.fillColorScheme.contentHover,
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
           ),
           isSelected: () => hovering,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: spaceL, horizontal: sapceM),
+            padding: EdgeInsets.all(spaceL),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.icon,
-                HSpace(12),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        view.nameOrDefault,
-                        style: theme.textStyle.body.standard(color: textColor),
-                      ),
-                      buildPath(theme),
-                    ],
+                HSpace(8),
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        (!widget.isNarrowWindow && hasHovered) ? 480.0 : 680.0,
+                  ),
+                  child: Text(
+                    view.nameOrDefault,
+                    maxLines: 1,
+                    style: theme.textStyle.body
+                        .enhanced(color: theme.textColorScheme.primary)
+                        .copyWith(height: 22 / 14),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                Flexible(child: buildPath(theme)),
               ],
             ),
           ),
@@ -107,9 +108,13 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
 
   Widget buildPath(AppFlowyThemeData theme) {
     return BlocProvider(
+      key: ValueKey(view.id),
       create: (context) => ViewAncestorBloc(view.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
-        builder: (context, state) => state.buildPath(context),
+        builder: (context, state) {
+          if (state.ancestor.ancestors.isEmpty) return const SizedBox.shrink();
+          return state.buildOnelinePath(context);
+        },
       ),
     );
   }
@@ -117,10 +122,6 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
   /// Helper to handle the selection action.
   void _handleSelection(String id) {
     widget.onSelected();
-    getIt<ActionNavigationBloc>().add(
-      ActionNavigationEvent.performAction(
-        action: NavigationAction(objectId: id),
-      ),
-    );
+    id.navigateTo();
   }
 }

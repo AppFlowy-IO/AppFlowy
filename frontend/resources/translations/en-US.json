@@ -2373,7 +2373,9 @@
     "noResultForSearchingHintWithoutTrash": "Try different questions or keywords\n Some pages may be in the ",
     "bestMatch": "Best match",
     "seeMore": "See more",
+    "showMore": "Show more",
     "somethingWentWrong": "Something went wrong",
+    "pageNotExist": "This page doesn’t exist",
     "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
@@ -2830,7 +2832,7 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field",
+    "clearSearchTooltip": "Clear input",
     "location": "Location",
     "created": "Created",
     "edited": "Edited"
@@ -3419,5 +3421,27 @@
     "tryAgain": "Try again",
     "rewrite": "Rewrite",
     "insertBelow": "Insert below"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "View",
+      "comment": "Comment",
+      "edit": "Edit",
+      "fullAccess": "Full access"
+    },
+    "inviteByEmail": "Invite by email",
+    "invite": "Invite",
+    "anyoneAtWorkspace": "Anyone at {workspace}",
+    "anyoneInGroupWithLinkCanEdit": "Anyone in this group with the link can edit",
+    "copyLink": "Copy link",
+    "copiedLinkToClipboard": "Copied link to clipboard",
+    "removeAccess": "Remove access",
+    "turnIntoMember": "Turn into Member",
+    "you": "(You)",
+    "guest": "Guest"
+  },
+  "shareSection": {
+    "shared": "Shared",
+    "refresh": "Refresh"
   }
 }

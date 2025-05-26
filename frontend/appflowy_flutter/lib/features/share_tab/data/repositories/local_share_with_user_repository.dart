@@ -4,12 +4,12 @@ import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-import 'share_repository.dart';
+import 'share_with_user_repository.dart';
 
-class MockShareRepository extends ShareRepository {
-  MockShareRepository();
+class LocalShareWithUserRepository extends ShareWithUserRepository {
+  LocalShareWithUserRepository();
 
-  final List<SharedUser> _sharedUsers = [
+  final SharedUsers _sharedUsers = [
     SharedUser(
       email: 'lucas.xu@appflowy.io',
       name: 'Lucas Xu',
@@ -61,7 +61,7 @@ class MockShareRepository extends ShareRepository {
     ),
   ];
 
-  final List<SharedUser> _availableSharedUsers = [
+  final SharedUsers _availableSharedUsers = [
     SharedUser(
       email: 'guest_email@appflowy.io',
       name: 'Guest',
@@ -79,7 +79,7 @@ class MockShareRepository extends ShareRepository {
   ];
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getSharedUsersInPage({
+  Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({
     required String pageId,
   }) async {
     return FlowySuccess(_sharedUsers);
@@ -134,12 +134,26 @@ class MockShareRepository extends ShareRepository {
   }
 
   @override
-  Future<FlowyResult<List<SharedUser>, FlowyError>> getAvailableSharedUsers({
+  Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   }) async {
     return FlowySuccess([
       ..._sharedUsers,
       ..._availableSharedUsers,
     ]);
+  }
+
+  @override
+  Future<FlowyResult<void, FlowyError>> changeRole({
+    required String pageId,
+    required String email,
+    required ShareRole role,
+  }) async {
+    final index = _sharedUsers.indexWhere((user) => user.email == email);
+    if (index != -1) {
+      _sharedUsers[index] = _sharedUsers[index].copyWith(role: role);
+    }
+
+    return FlowySuccess(null);
   }
 }

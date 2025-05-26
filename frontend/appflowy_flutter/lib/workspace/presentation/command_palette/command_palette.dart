@@ -123,14 +123,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
       final spaceBloc = _toggleNotifier.value.spaceBloc;
+      final commandBloc = context.read<CommandPaletteBloc>();
       Log.info(
         'CommandPalette onToggle: workspaceType ${workspaceBloc?.state.userProfile.workspaceType}',
       );
+      commandBloc.add(CommandPaletteEvent.refreshCachedViews());
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<CommandPaletteBloc>()),
+            BlocProvider.value(value: commandBloc),
             if (workspaceBloc != null) BlocProvider.value(value: workspaceBloc),
             if (spaceBloc != null) BlocProvider.value(value: spaceBloc),
           ],
@@ -200,49 +202,62 @@ class CommandPaletteModal extends StatelessWidget {
       },
       child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
         builder: (context, state) {
+          final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
-          final hasResult = state.combinedResponseItems.isNotEmpty;
+          final hasResult = state.combinedResponseItems.isNotEmpty,
+              searching = state.searching;
+          final spaceXl = theme.spacing.xl;
           return FlowyDialog(
+            backgroundColor: theme.surfaceColorScheme.layer01,
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
             constraints: const BoxConstraints(
               maxHeight: 640,
-              maxWidth: 900,
+              maxWidth: 960,
+              minWidth: 572,
               minHeight: 640,
             ),
             expandHeight: false,
             child: shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
-              Column(
-                children: [
-                  SearchField(query: state.query, isLoading: state.searching),
-                  if (noQuery)
-                    Flexible(
-                      child: RecentViewsList(
-                        onSelected: () => FlowyOverlay.pop(context),
+              Padding(
+                padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
+                child: Column(
+                  children: [
+                    SearchField(query: state.query, isLoading: searching),
+                    if (noQuery)
+                      Flexible(
+                        child: RecentViewsList(
+                          onSelected: () => FlowyOverlay.pop(context),
+                        ),
                       ),
-                    ),
-                  if (hasResult && hasQuery) ...[
-                    AFDivider(),
-                    Flexible(
-                      child: SearchResultList(
-                        trash: state.trash,
-                        resultItems:
-                            state.combinedResponseItems.values.toList(),
-                        resultSummaries: state.resultSummaries,
+                    if (hasResult && hasQuery)
+                      Flexible(
+                        child: SearchResultList(
+                          cachedViews: state.cachedViews,
+                          resultItems:
+                              state.combinedResponseItems.values.toList(),
+                          resultSummaries: state.resultSummaries,
+                        ),
+                      )
+                    // When there are no results and the query is not empty and not loading,
+                    // show the no results message, centered in the available space.
+                    else if (hasQuery && !searching) ...[
+                      if (showAskingAI) SearchAskAiEntrance(),
+                      Expanded(
+                        child: const NoSearchResultsHint(),
                       ),
-                    ),
-                  ]
-                  // When there are no results and the query is not empty and not loading,
-                  // show the no results message, centered in the available space.
-                  else if (hasQuery && !state.searching) ...[
-                    AFDivider(),
-                    if (showAskingAI) SearchAskAiEntrance(),
-                    Expanded(
-                      child: const NoSearchResultsHint(),
-                    ),
+                    ],
+                    if (hasQuery && searching && !hasResult)
+                      // Show a loading indicator when searching
+                      Expanded(
+                        child: Center(
+                          child:
+                              Center(child: CircularProgressIndicator.adaptive()),
+                        ),
+                      ),
                   ],
-                ],
+                ),
               ),
             ),
           );

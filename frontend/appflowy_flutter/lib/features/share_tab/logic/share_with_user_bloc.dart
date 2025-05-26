@@ -1,6 +1,5 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
-import 'package:appflowy/features/share_tab/data/models/shared_user.dart';
-import 'package:appflowy/features/share_tab/data/repositories/share_repository.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
+import 'package:appflowy/features/share_tab/data/repositories/share_with_user_repository.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -27,9 +26,10 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
     on<UpdateGeneralAccess>(_onUpdateGeneralAccess);
     on<CopyLink>(_onCopyLink);
     on<SearchAvailableUsers>(_onSearchAvailableUsers);
+    on<TurnIntoMember>(_onTurnIntoMember);
   }
 
-  final ShareRepository repository;
+  final ShareWithUserRepository repository;
   final String workspaceId;
   final String pageId;
 
@@ -48,14 +48,7 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       viewId: pageId,
     );
 
-    final shareResult = await repository.getSharedUsersInPage(
-      pageId: pageId,
-    );
-
-    final users = shareResult.fold(
-      (users) => users,
-      (error) => <SharedUser>[],
-    );
+    final users = await _getLatestSharedUsersOrCurrentUsers();
 
     emit(
       state.copyWith(
@@ -74,6 +67,10 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       state.copyWith(
         errorMessage: '',
         initialResult: null,
+        shareResult: null,
+        removeResult: null,
+        updateAccessLevelResult: null,
+        turnIntoMemberResult: null,
       ),
     );
 
@@ -105,6 +102,9 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       state.copyWith(
         errorMessage: '',
         shareResult: null,
+        turnIntoMemberResult: null,
+        removeResult: null,
+        updateAccessLevelResult: null,
       ),
     );
 
@@ -114,19 +114,18 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       emails: event.emails,
     );
 
-    result.fold(
-      (_) {
+    await result.fold(
+      (_) async {
+        final users = await _getLatestSharedUsersOrCurrentUsers();
+
         emit(
           state.copyWith(
             shareResult: FlowySuccess(null),
+            users: users,
           ),
         );
-
-        add(
-          const ShareWithUserEvent.getSharedUsers(),
-        );
       },
-      (error) {
+      (error) async {
         emit(
           state.copyWith(
             errorMessage: error.msg,
@@ -143,7 +142,11 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
   ) async {
     emit(
       state.copyWith(
+        errorMessage: '',
         removeResult: null,
+        shareResult: null,
+        updateAccessLevelResult: null,
+        turnIntoMemberResult: null,
       ),
     );
 
@@ -152,19 +155,17 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       emails: event.emails,
     );
 
-    result.fold(
-      (_) {
+    await result.fold(
+      (_) async {
+        final users = await _getLatestSharedUsersOrCurrentUsers();
         emit(
           state.copyWith(
             removeResult: FlowySuccess(null),
+            users: users,
           ),
         );
-
-        add(
-          const ShareWithUserEvent.getSharedUsers(),
-        );
       },
-      (error) {
+      (error) async {
         emit(
           state.copyWith(
             isLoading: false,
@@ -191,24 +192,24 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       emails: [event.email],
     );
 
-    result.fold(
-      (_) {
+    await result.fold(
+      (_) async {
+        final users = await _getLatestSharedUsersOrCurrentUsers();
         emit(
           state.copyWith(
             updateAccessLevelResult: FlowySuccess(null),
+            users: users,
           ),
         );
-
-        add(
-          const ShareWithUserEvent.getSharedUsers(),
+      },
+      (error) async {
+        emit(
+          state.copyWith(
+            errorMessage: error.msg,
+            isLoading: false,
+          ),
         );
       },
-      (error) => emit(
-        state.copyWith(
-          errorMessage: error.msg,
-          isLoading: false,
-        ),
-      ),
     );
   }
 
@@ -271,6 +272,57 @@ class ShareWithUserBloc extends Bloc<ShareWithUserEvent, ShareWithUserState> {
       ),
     );
   }
+
+  Future<void> _onTurnIntoMember(
+    TurnIntoMember event,
+    Emitter<ShareWithUserState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        turnIntoMemberResult: null,
+        errorMessage: '',
+        removeResult: null,
+        shareResult: null,
+        updateAccessLevelResult: null,
+      ),
+    );
+
+    final result = await repository.changeRole(
+      pageId: pageId,
+      email: event.email,
+      role: ShareRole.member,
+    );
+
+    await result.fold(
+      (_) async {
+        final users = await _getLatestSharedUsersOrCurrentUsers();
+        emit(
+          state.copyWith(
+            turnIntoMemberResult: FlowySuccess(null),
+            users: users,
+          ),
+        );
+      },
+      (error) async {
+        emit(
+          state.copyWith(
+            errorMessage: error.msg,
+            turnIntoMemberResult: FlowyFailure(error),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<SharedUsers> _getLatestSharedUsersOrCurrentUsers() async {
+    final shareResult = await repository.getSharedUsersInPage(
+      pageId: pageId,
+    );
+    return shareResult.fold(
+      (users) => users,
+      (error) => state.users,
+    );
+  }
 }
 
 @freezed
@@ -312,14 +364,19 @@ class ShareWithUserEvent with _$ShareWithUserEvent {
   const factory ShareWithUserEvent.searchAvailableUsers({
     required String query,
   }) = SearchAvailableUsers;
+
+  /// Turns the user into a member.
+  const factory ShareWithUserEvent.turnIntoMember({
+    required String email,
+  }) = TurnIntoMember;
 }
 
 @freezed
 class ShareWithUserState with _$ShareWithUserState {
   const factory ShareWithUserState({
     @Default(null) UserProfilePB? currentUser,
-    @Default([]) List<SharedUser> users,
-    @Default([]) List<SharedUser> availableUsers,
+    @Default([]) SharedUsers users,
+    @Default([]) SharedUsers availableUsers,
     @Default(false) bool isLoading,
     @Default('') String errorMessage,
     @Default('') String shareLink,
@@ -329,6 +386,7 @@ class ShareWithUserState with _$ShareWithUserState {
     @Default(null) FlowyResult<void, FlowyError>? shareResult,
     @Default(null) FlowyResult<void, FlowyError>? removeResult,
     @Default(null) FlowyResult<void, FlowyError>? updateAccessLevelResult,
+    @Default(null) FlowyResult<void, FlowyError>? turnIntoMemberResult,
   }) = _ShareWithUserState;
 
   factory ShareWithUserState.initial() => const ShareWithUserState();

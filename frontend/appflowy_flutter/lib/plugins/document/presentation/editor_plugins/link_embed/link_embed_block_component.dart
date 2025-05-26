@@ -188,6 +188,7 @@ class LinkEmbedBlockComponentState
 
   Widget buildContent(BuildContext context) {
     final theme = AppFlowyTheme.of(context), textScheme = theme.textColorScheme;
+    final hasSiteName = linkInfo.siteName?.isNotEmpty ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -231,15 +232,17 @@ class LinkEmbedBlockComponentState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FlowyText(
-                          linkInfo.siteName ?? '',
-                          color: textScheme.primary,
-                          fontSize: 14,
-                          figmaLineHeight: 20,
-                          fontWeight: FontWeight.w600,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        VSpace(4),
+                        if (hasSiteName) ...[
+                          FlowyText(
+                            linkInfo.siteName ?? '',
+                            color: textScheme.primary,
+                            fontSize: 14,
+                            figmaLineHeight: 20,
+                            fontWeight: FontWeight.w600,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          VSpace(4),
+                        ],
                         FlowyText.regular(
                           url,
                           color: textScheme.secondary,

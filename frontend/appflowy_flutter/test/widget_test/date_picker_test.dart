@@ -721,7 +721,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
 
-      final bday = DateTime(2024, 11, 30, 1);
+      final day = DateTime(2024, 11, 30, 1);
 
       expect(
         find.descendant(
@@ -737,7 +737,7 @@ void main() {
         find.descendant(
           of: find.byKey(const ValueKey('end_date_time_text_field')),
           matching: find.text(
-            DateFormat(DateFormatPB.Friendly.pattern).format(bday),
+            DateFormat(DateFormatPB.Friendly.pattern).format(day),
           ),
         ),
         findsOneWidget,
@@ -745,7 +745,7 @@ void main() {
 
       final mockState = getMockState(tester);
       expect(mockState.data.dateTime, fourteenth);
-      expect(mockState.data.endDateTime, bday);
+      expect(mockState.data.endDateTime, day);
     });
 
     testWidgets(
