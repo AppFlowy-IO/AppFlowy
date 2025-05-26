@@ -28,7 +28,7 @@ async fn get_database_id_event_test() {
     })
     .async_send()
     .await
-    .parse::<flowy_database2::entities::DatabaseIdPB>()
+    .parse_or_panic::<flowy_database2::entities::DatabaseIdPB>()
     .value;
 
   assert_ne!(database_id, grid_view.id);

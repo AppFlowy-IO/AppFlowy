@@ -35,7 +35,7 @@ impl EventIntegrationTest {
       .event(UserEvent::GetCloudConfig)
       .async_send()
       .await
-      .parse::<CloudSettingPB>();
+      .parse_or_panic::<CloudSettingPB>();
     let update = UpdateCloudConfigPB {
       enable_sync: None,
       enable_encrypt: Some(true),
@@ -203,7 +203,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<UserWorkspacePB>()
+      .parse_or_panic::<UserWorkspacePB>()
   }
 
   pub async fn rename_workspace(
@@ -253,7 +253,7 @@ impl EventIntegrationTest {
       .event(FolderEvent::ReadCurrentWorkspace)
       .async_send()
       .await
-      .parse()
+      .parse_or_panic()
   }
 
   pub async fn folder_read_current_workspace_views(&self) -> RepeatedViewPB {
@@ -261,7 +261,7 @@ impl EventIntegrationTest {
       .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
-      .parse()
+      .parse_or_panic()
   }
 
   pub async fn get_all_workspaces(&self) -> RepeatedUserWorkspacePB {
@@ -269,7 +269,7 @@ impl EventIntegrationTest {
       .event(UserEvent::GetAllWorkspace)
       .async_send()
       .await
-      .parse::<RepeatedUserWorkspacePB>()
+      .parse_or_panic::<RepeatedUserWorkspacePB>()
   }
 
   pub async fn delete_workspace(&self, workspace_id: &str) {

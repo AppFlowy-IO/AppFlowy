@@ -235,7 +235,7 @@ pub async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str
     .payload(request)
     .async_send()
     .await
-    .parse::<WorkspacePB>()
+    .parse_or_panic::<WorkspacePB>()
 }
 
 pub async fn read_workspace(sdk: &EventIntegrationTest, workspace_id: String) -> WorkspacePB {
@@ -247,7 +247,7 @@ pub async fn read_workspace(sdk: &EventIntegrationTest, workspace_id: String) ->
     .payload(request.clone())
     .async_send()
     .await
-    .parse::<WorkspacePB>()
+    .parse_or_panic::<WorkspacePB>()
 }
 
 pub async fn create_view(
@@ -275,7 +275,7 @@ pub async fn create_view(
     .payload(request)
     .async_send()
     .await
-    .parse::<ViewPB>()
+    .parse_or_panic::<ViewPB>()
 }
 
 pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
@@ -287,7 +287,7 @@ pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
     .payload(view_id)
     .async_send()
     .await
-    .parse::<ViewPB>()
+    .parse_or_panic::<ViewPB>()
 }
 
 pub async fn move_view(
@@ -360,7 +360,7 @@ pub async fn read_trash(sdk: &EventIntegrationTest) -> RepeatedTrashPB {
     .event(ListTrashItems)
     .async_send()
     .await
-    .parse::<RepeatedTrashPB>()
+    .parse_or_panic::<RepeatedTrashPB>()
 }
 
 pub async fn restore_app_from_trash(sdk: &EventIntegrationTest, app_id: &str) {
@@ -406,5 +406,5 @@ pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedFavoriteViewP
     .event(ReadFavorites)
     .async_send()
     .await
-    .parse::<RepeatedFavoriteViewPB>()
+    .parse_or_panic::<RepeatedFavoriteViewPB>()
 }
