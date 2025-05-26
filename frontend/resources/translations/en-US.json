@@ -2356,6 +2356,7 @@
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
     "searchOrAskAI": "Search or ask AI",
+    "searchFieldHint": "Search or ask a question in {}...",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
     "searching": "Searching...",
