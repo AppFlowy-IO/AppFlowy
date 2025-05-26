@@ -135,7 +135,7 @@ async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
   let csv_string = std::fs::read_to_string(file_path).unwrap();
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name.to_string(), csv_string, workspace_id);
-  let views = test.import_data(import_data).await;
+  let views = test.import_data(import_data).await.unwrap().items;
   views[0].clone()
 }
 
