@@ -36,40 +36,43 @@ class _AskAIFor extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final spaceM = theme.spacing.m, spaceL = theme.spacing.l;
-    return AFBaseButton(
-      borderRadius: spaceM,
-      padding: EdgeInsets.all(spaceL),
-      backgroundColor: (context, isHovering, disable) {
-        if (isHovering) {
-          return theme.fillColorScheme.contentHover;
-        }
-        return Colors.transparent;
-      },
-      borderColor: (context, isHovering, disable, isFocused) =>
-          Colors.transparent,
-      builder: (ctx, isHovering, disable) {
-        return Row(
-          children: [
-            SizedBox.square(
-              dimension: 20,
-              child: Center(
-                child: FlowySvg(
-                  FlowySvgs.m_home_ai_chat_icon_m,
-                  size: Size.square(20),
-                  blendMode: null,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: theme.spacing.xs),
+      child: AFBaseButton(
+        borderRadius: spaceM,
+        padding: EdgeInsets.all(spaceL),
+        backgroundColor: (context, isHovering, disable) {
+          if (isHovering) {
+            return theme.fillColorScheme.contentHover;
+          }
+          return Colors.transparent;
+        },
+        borderColor: (context, isHovering, disable, isFocused) =>
+            Colors.transparent,
+        builder: (ctx, isHovering, disable) {
+          return Row(
+            children: [
+              SizedBox.square(
+                dimension: 20,
+                child: Center(
+                  child: FlowySvg(
+                    FlowySvgs.m_home_ai_chat_icon_m,
+                    size: Size.square(20),
+                    blendMode: null,
+                  ),
                 ),
               ),
-            ),
-            HSpace(8),
-            buildText(context),
-          ],
-        );
-      },
-      onTap: () {
-        context
-            .read<CommandPaletteBloc?>()
-            ?.add(CommandPaletteEvent.goingToAskAI());
-      },
+              HSpace(8),
+              buildText(context),
+            ],
+          );
+        },
+        onTap: () {
+          context
+              .read<CommandPaletteBloc?>()
+              ?.add(CommandPaletteEvent.goingToAskAI());
+        },
+      ),
     );
   }
 
@@ -116,27 +119,30 @@ class _AISearching extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.spacing.l),
-      child: Row(
-        children: [
-          SizedBox.square(
-            dimension: 20,
-            child: Center(
-              child: FlowySvg(
-                FlowySvgs.m_home_ai_chat_icon_m,
-                size: Size.square(20),
-                blendMode: null,
+      padding: EdgeInsets.symmetric(vertical: theme.spacing.xs),
+      child: Padding(
+        padding: EdgeInsets.all(theme.spacing.l),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: 20,
+              child: Center(
+                child: FlowySvg(
+                  FlowySvgs.m_home_ai_chat_icon_m,
+                  size: Size.square(20),
+                  blendMode: null,
+                ),
               ),
             ),
-          ),
-          HSpace(8),
-          Text(
-            LocaleKeys.search_searching.tr(),
-            style: theme.textStyle.body
-                .standard(color: theme.textColorScheme.secondary)
-                .copyWith(height: 22 / 14),
-          ),
-        ],
+            HSpace(8),
+            Text(
+              LocaleKeys.search_searching.tr(),
+              style: theme.textStyle.body
+                  .standard(color: theme.textColorScheme.secondary)
+                  .copyWith(height: 22 / 14),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,11 +159,9 @@ class _AIOverview extends StatelessWidget {
     if (summaries.isEmpty) {
       return const SizedBox.shrink();
     }
+    final xl = theme.spacing.xl, m = theme.spacing.m, l = theme.spacing.l;
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: theme.spacing.l,
-        horizontal: theme.spacing.m,
-      ),
+      padding: EdgeInsets.fromLTRB(m, l, m, xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -228,7 +232,7 @@ class _AIOverview extends StatelessWidget {
         HSpace(theme.spacing.l),
         Text(
           LocaleKeys.commandPalette_aiOverview.tr(),
-          style: theme.textStyle.heading4
+          style: theme.textStyle.body
               .enhanced(color: theme.textColorScheme.secondary)
               .copyWith(height: 22 / 16, letterSpacing: 0.2),
         ),

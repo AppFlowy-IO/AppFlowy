@@ -114,10 +114,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield>
                   focusNode: focusNode,
                   textAlign: TextAlign.left,
                   controller: controller,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 20 / 14,
-                    fontWeight: FontWeight.w400,
+                  style: theme.textStyle.heading4.standard(
                     color: theme.textColorScheme.primary,
                   ),
                   decoration: buildInputDecoration(context),
@@ -140,10 +137,7 @@ class _MobileSearchTextfieldState extends State<MobileSearchTextfield>
     final enableBorder = border.copyWith(
       borderSide: BorderSide(color: theme.borderColorScheme.themeThick),
     );
-    final hintStyle = TextStyle(
-      fontSize: 14,
-      height: 20 / 14,
-      fontWeight: FontWeight.w400,
+    final hintStyle = theme.textStyle.heading4.standard(
       color: theme.textColorScheme.tertiary,
     );
     return InputDecoration(
