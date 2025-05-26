@@ -6,6 +6,7 @@ import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,10 +49,10 @@ class _ShareTabState extends State<ShareTab> {
         }
 
         final currentUserRole = state.users
-            .firstWhere(
+            .firstWhereOrNull(
               (user) => user.email == state.currentUser?.email,
             )
-            .role;
+            ?.role;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

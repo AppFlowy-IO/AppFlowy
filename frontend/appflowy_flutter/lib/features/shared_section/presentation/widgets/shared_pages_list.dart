@@ -2,7 +2,6 @@ import 'package:appflowy/features/share_tab/data/models/share_access_level.dart'
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -10,12 +9,16 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef SharedPageViewMoreActionCallback = void Function(
   ViewMoreActionType type,
   ViewPB view,
   dynamic data,
+);
+
+typedef SharedPageSetEditingCallback = void Function(
+  BuildContext context,
+  bool value,
 );
 
 class SharedPagesList extends StatelessWidget {
@@ -25,12 +28,14 @@ class SharedPagesList extends StatelessWidget {
     required this.onAction,
     required this.onSelected,
     required this.onTertiarySelected,
+    required this.onSetEditing,
   });
 
   final SharedPages sharedPages;
   final SharedPageViewMoreActionCallback onAction;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected onTertiarySelected;
+  final SharedPageSetEditingCallback onSetEditing;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,6 @@ class SharedPagesList extends StatelessWidget {
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,
           onSelected: onSelected,
-
           onTertiarySelected: onTertiarySelected,
           rightIconsBuilder: (context, view) => [
             IntrinsicWidth(
@@ -74,14 +78,13 @@ class SharedPagesList extends StatelessWidget {
     return SharedPageViewMoreActionPopover(
       view: view,
       accessLevel: accessLevel,
-      onAction: (action, data) {
-        onAction(action, view, data);
-      },
+      onAction: onAction,
+      onSetEditing: onSetEditing,
       buildChild: (controller) => FlowyIconButton(
         width: 24,
         icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
         onPressed: () {
-          context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
+          onSetEditing(context, true);
           controller.show();
         },
       ),
@@ -96,13 +99,15 @@ class SharedPageViewMoreActionPopover extends StatefulWidget {
     required this.accessLevel,
     required this.onAction,
     required this.buildChild,
+    required this.onSetEditing,
     this.showAtCursor = false,
   });
 
   final ViewPB view;
   final ShareAccessLevel accessLevel;
-  final void Function(ViewMoreActionType type, dynamic data) onAction;
+  final SharedPageViewMoreActionCallback onAction;
   final Widget Function(AFPopoverController) buildChild;
+  final SharedPageSetEditingCallback onSetEditing;
   final bool showAtCursor;
 
   @override
@@ -120,7 +125,7 @@ class _SharedPageViewMoreActionPopoverState
 
     controller.addListener(() {
       if (!controller.isOpen) {
-        context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
+        widget.onSetEditing(context, false);
       }
     });
   }
@@ -176,7 +181,7 @@ class _SharedPageViewMoreActionPopoverState
                 : null,
             trailing: actionType.rightIcon,
             onTap: () {
-              widget.onAction(actionType, null);
+              widget.onAction(actionType, widget.view, null);
               controller.hide();
             },
           ),
