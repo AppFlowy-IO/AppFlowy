@@ -4,3 +4,11 @@ rustflags = ["-C", "link-arg=-mmacosx-version-min=11.0"]
 
 [target.aarch64-apple-darwin]
 rustflags = ["-C", "link-arg=-mmacosx-version-min=11.0"]
+
+[env]
+IPHONEOS_DEPLOYMENT_TARGET = "10.0"
+CFLAGS = "-miphoneos-version-min=10.0"
+LDFLAGS = "-miphoneos-version-min=10.0"
+
+[target.aarch64-apple-ios]
+rustflags = ["-C", "link-arg=-miphoneos-version-min=10.0"]
