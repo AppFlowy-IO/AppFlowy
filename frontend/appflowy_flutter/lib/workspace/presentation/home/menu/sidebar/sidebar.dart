@@ -236,24 +236,21 @@ class HomeSideBar extends StatelessWidget {
           );
         }
 
-        checkForSpace(context.read<SpaceBloc>(), view);
-
-        final blockId = action.arguments?[ActionArgumentKeys.blockId];
-        if (blockId != null) {
-          arguments[PluginArgumentKeys.blockId] = blockId;
-        }
-
-        final rowId = action.arguments?[ActionArgumentKeys.rowId];
-        if (rowId != null) {
-          arguments[PluginArgumentKeys.rowId] = rowId;
-        }
-
-        context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+        checkForSpace(
+          context.read<SpaceBloc>(),
+          view,
+          () => openView(action, context, view, arguments),
+        );
+        openView(action, context, view, arguments);
       }
     }
   }
 
-  Future<void> checkForSpace(SpaceBloc spaceBloc, ViewPB view) async {
+  Future<void> checkForSpace(
+    SpaceBloc spaceBloc,
+    ViewPB view,
+    VoidCallback afterOpen,
+  ) async {
     /// open space
     final acestorCache = getIt<ViewAncestorCache>();
     final ancestor = await acestorCache.getAncestor(view.id);
@@ -266,9 +263,32 @@ class HomeSideBar extends StatelessWidget {
         Log.info(
           'Switching space from (${firstAncestor.name}-${firstAncestor.id}) to (${space.name}-${space.id})',
         );
-        spaceBloc.add(SpaceEvent.open(space));
+        spaceBloc.add(SpaceEvent.open(space: space, afterOpen: afterOpen));
       }
     }
+  }
+
+  void openView(
+    NavigationAction action,
+    BuildContext context,
+    ViewPB view,
+    Map<String, dynamic> arguments,
+  ) {
+    final blockId = action.arguments?[ActionArgumentKeys.blockId];
+    if (blockId != null) {
+      arguments[PluginArgumentKeys.blockId] = blockId;
+    }
+
+    final rowId = action.arguments?[ActionArgumentKeys.rowId];
+    if (rowId != null) {
+      arguments[PluginArgumentKeys.rowId] = rowId;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+      }
+    });
   }
 }
 
