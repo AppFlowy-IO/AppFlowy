@@ -60,7 +60,9 @@ final addAttachmentItem = AppFlowyMobileToolbarItem(
           );
 
           if (didAddAttachment != true) {
-            unawaited(editorState.updateSelectionWithReason(selection));
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              editorState.updateSelectionWithReason(selection);
+            });
           }
         });
       },
@@ -185,6 +187,11 @@ class _AddAttachmentMenu extends StatelessWidget {
 
     if (image != null && context.mounted) {
       await insertImage(context, image);
+    } else {
+      // refocus the editor
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        editorState.updateSelectionWithReason(selection);
+      });
     }
 
     if (context.mounted) {
