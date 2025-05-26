@@ -52,6 +52,7 @@ void main() {
               onAction: (action, view, data) {},
               onSelected: (context, view) {},
               onTertiarySelected: (context, view) {},
+              onSetEditing: (context, value) {},
             ),
           ),
         ),
