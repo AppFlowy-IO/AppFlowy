@@ -9,6 +9,6 @@ class MathEquationNodeParser extends NodeParser {
 
   @override
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
-    return '\$\$${node.attributes[id]}\$\$';
+    return '\$\$${node.attributes[MathEquationBlockKeys.formula]}\$\$';
   }
 }
