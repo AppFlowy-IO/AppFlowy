@@ -89,7 +89,8 @@ class MobileSearchResultList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<CommandPaletteBloc>().state,
         theme = AppFlowyTheme.of(context);
-    final isSearching = state.searching, cachedViews = state.cachedViews;
+    final isSearching = state.searching || state.generatingAIOverview,
+        cachedViews = state.cachedViews;
     List<SearchResultItem> displayItems =
         state.combinedResponseItems.values.toList();
     if (cachedViews.isNotEmpty) {

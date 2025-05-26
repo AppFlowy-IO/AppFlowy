@@ -99,7 +99,8 @@ class _AskAIFor extends StatelessWidget {
             TextSpan(
               text: ' "$queryText"',
               style: theme.textStyle.body
-                  .enhanced(color: theme.textColorScheme.primary),
+                  .enhanced(color: theme.textColorScheme.primary)
+                  .copyWith(height: 22 / 14),
             ),
           ],
         ),

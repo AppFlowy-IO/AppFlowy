@@ -47,6 +47,8 @@ class SearchSourceReferenceBottomSheet extends StatelessWidget {
               viewLayout: view.layout,
               title: view.nameOrDefault,
               tabs: PickerTabType.values,
+              bodyPaddingTop:
+                  AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
             ),
           ),
         );

@@ -73,6 +73,7 @@ class MobileSearchResultCell extends StatelessWidget {
 
   Widget buildPath(CommandPaletteState state, AppFlowyThemeData theme) {
     return BlocProvider(
+      key: ValueKey(item.id),
       create: (context) => ViewAncestorBloc(item.id),
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {

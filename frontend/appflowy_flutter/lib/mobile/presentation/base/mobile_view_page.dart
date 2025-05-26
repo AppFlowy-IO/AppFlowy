@@ -40,6 +40,7 @@ class MobileViewPage extends StatefulWidget {
     this.fixedTitle,
     this.showMoreButton = true,
     this.blockId,
+    this.bodyPaddingTop = 0.0,
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
@@ -50,6 +51,7 @@ class MobileViewPage extends StatefulWidget {
   final Map<String, dynamic>? arguments;
   final bool showMoreButton;
   final String? blockId;
+  final double bodyPaddingTop;
   final List<PickerTabType> tabs;
 
   // only used in row page
@@ -176,7 +178,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return Scaffold(
       extendBodyBehindAppBar: isDocument,
       appBar: appBar,
-      body: body,
+      body: Padding(
+        padding: EdgeInsets.only(top: widget.bodyPaddingTop),
+        child: body,
+      ),
     );
   }
 
@@ -433,7 +438,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
       final ScrollMetrics metrics = notification.metrics;
-      double height = MediaQuery.of(context).padding.top;
+      double height =
+          MediaQuery.of(context).padding.top + widget.bodyPaddingTop;
       if (defaultTargetPlatform == TargetPlatform.android) {
         height += AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight;
       }
