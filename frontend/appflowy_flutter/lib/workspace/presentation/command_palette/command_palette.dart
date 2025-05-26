@@ -204,7 +204,8 @@ class CommandPaletteModal extends StatelessWidget {
         builder: (context, state) {
           final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
-          final hasResult = state.combinedResponseItems.isNotEmpty;
+          final hasResult = state.combinedResponseItems.isNotEmpty,
+              searching = state.searching;
           final spaceXl = theme.spacing.xl;
           return FlowyDialog(
             backgroundColor: theme.surfaceColorScheme.layer01,
@@ -223,7 +224,7 @@ class CommandPaletteModal extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
-                    SearchField(query: state.query, isLoading: state.searching),
+                    SearchField(query: state.query, isLoading: searching),
                     if (noQuery)
                       Flexible(
                         child: RecentViewsList(
@@ -241,12 +242,20 @@ class CommandPaletteModal extends StatelessWidget {
                       )
                     // When there are no results and the query is not empty and not loading,
                     // show the no results message, centered in the available space.
-                    else if (hasQuery && !state.searching) ...[
+                    else if (hasQuery && !searching) ...[
                       if (showAskingAI) SearchAskAiEntrance(),
                       Expanded(
                         child: const NoSearchResultsHint(),
                       ),
                     ],
+                    if (hasQuery && searching && !hasResult)
+                      // Show a loading indicator when searching
+                      Expanded(
+                        child: Center(
+                          child:
+                              Center(child: CircularProgressIndicator.adaptive()),
+                        ),
+                      ),
                   ],
                 ),
               ),

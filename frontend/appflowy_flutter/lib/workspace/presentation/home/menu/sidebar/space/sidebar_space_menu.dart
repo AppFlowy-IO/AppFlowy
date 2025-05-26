@@ -98,7 +98,7 @@ class SidebarSpaceMenuItem extends StatelessWidget {
             )
           : null,
       onTap: () {
-        context.read<SpaceBloc>().add(SpaceEvent.open(space));
+        context.read<SpaceBloc>().add(SpaceEvent.open(space: space));
         PopoverContainer.of(context).close();
       },
     );

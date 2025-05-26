@@ -47,6 +47,8 @@ class SearchSourceReferenceBottomSheet extends StatelessWidget {
               viewLayout: view.layout,
               title: view.nameOrDefault,
               tabs: PickerTabType.values,
+              bodyPaddingTop:
+                  AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
             ),
           ),
         );
@@ -81,7 +83,7 @@ class PageReferenceList extends StatelessWidget {
             ),
           ),
         ),
-        const VSpace(4),
+        const VSpace(6),
         ListView.builder(
           shrinkWrap: true,
           padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -101,8 +103,8 @@ class PageReferenceList extends StatelessWidget {
                   if (index != 0) AFDivider(),
                   Padding(
                     padding: EdgeInsets.symmetric(
-                      vertical: sapceM,
-                      horizontal: spaceL,
+                      vertical: spaceL,
+                      horizontal: sapceM,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

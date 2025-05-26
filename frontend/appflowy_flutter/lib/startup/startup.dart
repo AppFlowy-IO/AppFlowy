@@ -18,6 +18,7 @@ import 'deps_resolver.dart';
 import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
+import 'tasks/af_navigator_observer.dart';
 import 'tasks/file_storage_task.dart';
 import 'tasks/prelude.dart';
 
@@ -191,6 +192,7 @@ Future<void> initGetIt(
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
   getIt.registerSingleton<ViewExpanderRegistry>(ViewExpanderRegistry());
   getIt.registerSingleton<LinkHoverTriggers>(LinkHoverTriggers());
+  getIt.registerSingleton<AFNavigatorObserver>(AFNavigatorObserver());
   getIt.registerSingleton<FloatingToolbarController>(
     FloatingToolbarController(),
   );
