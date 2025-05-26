@@ -2,7 +2,6 @@ import 'package:appflowy/features/share_tab/data/models/share_access_level.dart'
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -11,11 +10,11 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef SharedPageViewMoreActionCallback = void Function(
   ViewMoreActionType type,
+  ViewPB view,
   dynamic data,
 );
 
@@ -31,7 +30,7 @@ class SharedPagesList extends StatelessWidget {
   final SharedPages sharedPages;
   final SharedPageViewMoreActionCallback onAction;
   final ViewItemOnSelected onSelected;
-  final ViewItemOnTertiarySelected onTertiarySelected;
+  final ViewItemOnSelected onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -50,15 +49,8 @@ class SharedPagesList extends StatelessWidget {
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,
           onSelected: onSelected,
-          // (context, view) {
-          //   if (HardwareKeyboard.instance.isControlPressed) {
-          //     context.read<TabsBloc>().openTab(view);
-          //   }
-          //   context.read<TabsBloc>().openPlugin(view);
-          // },
+
           onTertiarySelected: onTertiarySelected,
-          // (context, view) =>
-          //     context.read<TabsBloc>().openTab(view),
           rightIconsBuilder: (context, view) => [
             IntrinsicWidth(
               child: _buildSharedPageMoreActionButton(
@@ -82,7 +74,9 @@ class SharedPagesList extends StatelessWidget {
     return SharedPageViewMoreActionPopover(
       view: view,
       accessLevel: accessLevel,
-      onAction: onAction,
+      onAction: (action, data) {
+        onAction(action, view, data);
+      },
       buildChild: (controller) => FlowyIconButton(
         width: 24,
         icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),

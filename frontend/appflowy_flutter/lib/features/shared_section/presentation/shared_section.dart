@@ -5,8 +5,12 @@ import 'package:appflowy/features/shared_section/presentation/widgets/shared_pag
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_error.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_header.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SharedSection extends StatelessWidget {
@@ -47,7 +51,34 @@ class SharedSection extends StatelessWidget {
               const SharedSectionHeader(),
 
               // Shared pages list
-              SharedPagesList(sharedPages: state.sharedPages),
+              SharedPagesList(
+                sharedPages: state.sharedPages,
+                onAction: (action, view, data) async {
+                  switch (action) {
+                    case ViewMoreActionType.favorite:
+                    case ViewMoreActionType.unFavorite:
+                      context
+                          .read<FavoriteBloc>()
+                          .add(FavoriteEvent.toggle(view));
+                      break;
+                    case ViewMoreActionType.openInNewTab:
+                      context.read<TabsBloc>().openTab(view);
+                      break;
+                    default:
+                      // Other actions are not allowed for read-only access
+                      break;
+                  }
+                },
+                onSelected: (context, view) {
+                  if (HardwareKeyboard.instance.isControlPressed) {
+                    context.read<TabsBloc>().openTab(view);
+                  }
+                  context.read<TabsBloc>().openPlugin(view);
+                },
+                onTertiarySelected: (context, view) {
+                  context.read<TabsBloc>().openTab(view);
+                },
+              ),
 
               // Refresh button, for debugging only
               if (kDebugMode)
