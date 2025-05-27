@@ -39,9 +39,9 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   Widget build(BuildContext context) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final horizontalPadding =
-        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
-            0.0;
+    final databaseSize = context.read<DatabasePluginWidgetBuilderSize?>();
+    final horizontalPadding = databaseSize?.horizontalPadding ?? 0.0;
+    final paddingLeft = databaseSize?.paddingLeftWithMaxDocumentWidth ?? 0.0;
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
@@ -54,7 +54,12 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
         controller: widget.anchorScrollController,
         child: Padding(
           padding: widget.shrinkWrap
-              ? EdgeInsets.symmetric(horizontal: horizontalPadding)
+              ? EdgeInsets.fromLTRB(
+                  horizontalPadding + paddingLeft,
+                  0,
+                  horizontalPadding,
+                  0,
+                )
               : EdgeInsets.zero,
           child: _GridHeader(
             viewId: widget.viewId,

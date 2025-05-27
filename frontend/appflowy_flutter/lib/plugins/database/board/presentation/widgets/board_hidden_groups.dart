@@ -46,7 +46,10 @@ class HiddenGroupsColumn extends StatelessWidget {
         }
         final isCollapsed = layoutSettings.collapseHiddenGroups;
         final leftPadding = margin.left +
-            context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
+            context.read<DatabasePluginWidgetBuilderSize>().paddingLeft;
+        final leftPaddingWithMaxDocWidth = context
+            .read<DatabasePluginWidgetBuilderSize>()
+            .paddingLeftWithMaxDocumentWidth;
         return AnimatedSize(
           alignment: AlignmentDirectional.topStart,
           curve: Curves.easeOut,
@@ -55,14 +58,17 @@ class HiddenGroupsColumn extends StatelessWidget {
               ? SizedBox(
                   height: 50,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 80, right: 8),
+                    padding: EdgeInsets.only(
+                      left: 80 + leftPaddingWithMaxDocWidth,
+                      right: 8,
+                    ),
                     child: Center(
                       child: _collapseExpandIcon(context, isCollapsed),
                     ),
                   ),
                 )
               : Container(
-                  width: 274,
+                  width: 274 + leftPaddingWithMaxDocWidth,
                   padding: EdgeInsets.only(
                     left: leftPadding,
                     right: margin.right + 4,

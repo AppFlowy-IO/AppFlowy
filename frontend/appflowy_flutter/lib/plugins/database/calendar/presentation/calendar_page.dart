@@ -221,6 +221,8 @@ class _CalendarPageState extends State<CalendarPage> {
     return LayoutBuilder(
       // must specify MonthView width for useAvailableVerticalSpace to work properly
       builder: (context, constraints) {
+        final paddingLeft =
+            context.read<DatabasePluginWidgetBuilderSize>().paddingLeft;
         EdgeInsets padding = UniversalPlatform.isMobile
             ? CalendarSize.contentInsetsMobile
             : CalendarSize.contentInsets +
@@ -230,6 +232,7 @@ class _CalendarPageState extends State<CalendarPage> {
         if (horizontalPadding == 0) {
           padding = padding.copyWith(left: 0, right: 0);
         }
+        padding = padding.copyWith(left: paddingLeft + padding.left);
         return Padding(
           padding: padding,
           child: ScrollConfiguration(
