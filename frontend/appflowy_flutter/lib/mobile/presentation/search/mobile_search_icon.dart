@@ -3,7 +3,6 @@ import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
-
 extension MobileSearchIconItemExtension on ResultIconPB {
   Widget? buildIcon(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
