@@ -5,13 +5,15 @@ import 'dart:async';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/src/scroll_to_bottom.dart';
 import 'package:flutter_chat_ui/src/utils/message_list_diff.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
+import '../application/chat_message_height_manager.dart';
+import 'widgets/message_height_calculator.dart';
 
 class ChatAnimatedList extends StatefulWidget {
   const ChatAnimatedList({
@@ -38,21 +40,21 @@ class ChatAnimatedList extends StatefulWidget {
   final double scrollBottomPadding;
 
   @override
-  ChatAnimatedListState createState() => ChatAnimatedListState();
+  State<ChatAnimatedList> createState() => _ChatAnimatedListState();
 }
 
-class ChatAnimatedListState extends State<ChatAnimatedList>
+class _ChatAnimatedListState extends State<ChatAnimatedList>
     with SingleTickerProviderStateMixin {
-  late final ChatController _chatController = Provider.of<ChatController>(
+  late final ChatController chatController = Provider.of<ChatController>(
     context,
     listen: false,
   );
-  late List<Message> _oldList;
-  late StreamSubscription<ChatOperation> _operationsSubscription;
+  late List<Message> oldList;
+  late StreamSubscription<ChatOperation> operationsSubscription;
 
-  late final AnimationController _scrollToBottomController;
-  late final Animation<double> _scrollToBottomAnimation;
-  Timer? _scrollToBottomShowTimer;
+  late final AnimationController scrollToBottomController;
+  late final Animation<double> scrollToBottomAnimation;
+  Timer? scrollToBottomShowTimer;
 
   final ScrollOffsetController scrollOffsetController =
       ScrollOffsetController();
@@ -65,10 +67,10 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
-  int _lastUserMessageIndex = 0;
-  bool _isScrollingToBottom = false;
+  int lastUserMessageIndex = 0;
+  bool isScrollingToBottom = false;
 
-  final _loadPreviousMessagesDebounce = Debounce(
+  final loadPreviousMessagesDebounce = Debounce(
     duration: const Duration(milliseconds: 200),
   );
 
@@ -76,15 +78,17 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   double initialAlignment = 1.0;
   List<Message> messages = [];
 
+  final ChatMessageHeightManager heightManager = ChatMessageHeightManager();
+
   @override
   void initState() {
     super.initState();
 
     // TODO: Add assert for messages having same id
-    _oldList = List.from(_chatController.messages);
-    _operationsSubscription = _chatController.operationsStream.listen((event) {
+    oldList = List.from(chatController.messages);
+    operationsSubscription = chatController.operationsStream.listen((event) {
       setState(() {
-        messages = _chatController.messages;
+        messages = chatController.messages;
       });
       switch (event.type) {
         case ChatOperationType.insert:
@@ -98,7 +102,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           );
 
           _onInserted(event.index!, event.message!);
-          _oldList = List.from(_chatController.messages);
+          oldList = List.from(chatController.messages);
           break;
         case ChatOperationType.remove:
           assert(
@@ -111,14 +115,14 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
           );
 
           _onRemoved(event.index!, event.message!);
-          _oldList = List.from(_chatController.messages);
+          oldList = List.from(chatController.messages);
           break;
         case ChatOperationType.set:
-          final newList = _chatController.messages;
+          final newList = chatController.messages;
 
           final updates = diffutil
               .calculateDiff<Message>(
-                MessageListDiff(_oldList, newList),
+                MessageListDiff(oldList, newList),
               )
               .getUpdatesWithData();
 
@@ -126,22 +130,22 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             _onDiffUpdate(updates.elementAt(i));
           }
 
-          _oldList = List.from(newList);
+          oldList = List.from(newList);
           break;
         default:
           break;
       }
     });
 
-    messages = _chatController.messages;
+    messages = chatController.messages;
 
-    _scrollToBottomController = AnimationController(
+    scrollToBottomController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
-    _scrollToBottomAnimation = CurvedAnimation(
-      parent: _scrollToBottomController,
+    scrollToBottomAnimation = CurvedAnimation(
+      parent: scrollToBottomController,
       curve: Curves.easeInOut,
     );
 
@@ -152,15 +156,15 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     itemPositionsListener.itemPositions.addListener(() {
       _handleLoadPreviousMessages();
     });
-
-    // A trick to avoid the first message being scrolled to the top
   }
 
   @override
   void dispose() {
-    _scrollToBottomShowTimer?.cancel();
-    _scrollToBottomController.dispose();
-    _operationsSubscription.cancel();
+    scrollToBottomShowTimer?.cancel();
+    scrollToBottomController.dispose();
+    operationsSubscription.cancel();
+
+    _clearMessageHeightCache();
 
     super.dispose();
   }
@@ -168,9 +172,8 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
   @override
   Widget build(BuildContext context) {
     final builders = context.watch<Builders>();
-    final height = MediaQuery.of(context).size.height;
-    // A trick to avoid the first message being scrolled to the top
 
+    // A trick to avoid the first message being scrolled to the top
     initialScrollIndex = messages.length;
     initialAlignment = 1.0;
     if (messages.length <= 2) {
@@ -198,29 +201,33 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
             }
 
             if (index == messages.length) {
-              return VSpace(height - 400);
+              return const SizedBox.shrink();
             }
 
             final message = messages[index];
-            return widget.itemBuilder(
-              context,
-              Tween<double>(begin: 1, end: 1).animate(
-                CurvedAnimation(
-                  parent: _scrollToBottomController,
-                  curve: Curves.easeInOut,
+            return MessageHeightCalculator(
+              messageId: message.id,
+              onHeightMeasured: _cacheMessageHeight,
+              child: widget.itemBuilder(
+                context,
+                Tween<double>(begin: 1, end: 1).animate(
+                  CurvedAnimation(
+                    parent: scrollToBottomController,
+                    curve: Curves.easeInOut,
+                  ),
                 ),
+                message,
               ),
-              message,
             );
           },
         ),
         builders.scrollToBottomBuilder?.call(
               context,
-              _scrollToBottomAnimation,
+              scrollToBottomAnimation,
               _handleScrollToBottom,
             ) ??
             ScrollToBottom(
-              animation: _scrollToBottomAnimation,
+              animation: scrollToBottomAnimation,
               onPressed: _handleScrollToBottom,
             ),
       ],
@@ -239,7 +246,7 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       return;
     }
 
-    if (_lastUserMessageIndex != lastUserMessageIndex) {
+    if (this.lastUserMessageIndex != lastUserMessageIndex) {
       // scroll the current message to the top
       await itemScrollController.scrollTo(
         index: lastUserMessageIndex,
@@ -248,15 +255,15 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       );
     }
 
-    _lastUserMessageIndex = lastUserMessageIndex;
+    this.lastUserMessageIndex = lastUserMessageIndex;
   }
 
   Future<void> _handleScrollToBottom() async {
-    _isScrollingToBottom = true;
+    isScrollingToBottom = true;
 
-    _scrollToBottomShowTimer?.cancel();
+    scrollToBottomShowTimer?.cancel();
 
-    await _scrollToBottomController.reverse();
+    await scrollToBottomController.reverse();
 
     await itemScrollController.scrollTo(
       index: messages.length + 1,
@@ -265,11 +272,11 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       curve: Curves.easeInOut,
     );
 
-    _isScrollingToBottom = false;
+    isScrollingToBottom = false;
   }
 
   void _handleToggleScrollToBottom() {
-    if (_isScrollingToBottom) {
+    if (isScrollingToBottom) {
       return;
     }
 
@@ -285,15 +292,15 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
     if (maxItem.index > messages.length - 1 ||
         (maxItem.index == messages.length - 1 &&
             maxItem.itemTrailingEdge <= 1.01)) {
-      _scrollToBottomShowTimer?.cancel();
-      _scrollToBottomController.reverse();
+      scrollToBottomShowTimer?.cancel();
+      scrollToBottomController.reverse();
       return;
     }
 
-    _scrollToBottomShowTimer?.cancel();
-    _scrollToBottomShowTimer = Timer(widget.scrollToBottomAppearanceDelay, () {
+    scrollToBottomShowTimer?.cancel();
+    scrollToBottomShowTimer = Timer(widget.scrollToBottomAppearanceDelay, () {
       if (mounted) {
-        _scrollToBottomController.forward();
+        scrollToBottomController.forward();
       }
     });
   }
@@ -307,21 +314,34 @@ class ChatAnimatedListState extends State<ChatAnimatedList>
       return;
     }
 
-    _loadPreviousMessagesDebounce.call(
+    loadPreviousMessagesDebounce.call(
       () {
         widget.onLoadPreviousMessages?.call();
       },
     );
   }
 
+  void _cacheMessageHeight(String messageId, double height) {
+    heightManager.cacheHeight(messageId: messageId, height: height);
+  }
+
+  void _clearMessageHeightCache() {
+    heightManager.clearCache();
+  }
+
   Future<void> _onInserted(final int position, final Message data) async {
     // scroll the last user message to the top if it's the last message
-    if (position == _oldList.length) {
+    if (position == oldList.length) {
       await _scrollLastUserMessageToTop();
     }
   }
 
-  void _onRemoved(final int position, final Message data) {}
+  void _onRemoved(final int position, final Message data) {
+    // Clean up cached height for removed message
+    heightManager.removeFromCache(messageId: data.id);
+  }
 
-  void _onDiffUpdate(diffutil.DataDiffUpdate<Message> update) {}
+  void _onDiffUpdate(diffutil.DataDiffUpdate<Message> update) {
+    // do nothing
+  }
 }

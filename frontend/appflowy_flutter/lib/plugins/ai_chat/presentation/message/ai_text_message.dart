@@ -3,7 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_height_manager.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -79,7 +81,22 @@ class ChatAIMessageWidget extends StatelessWidget {
           final loadingText = blocState.progress?.step ??
               LocaleKeys.chat_generatingResponse.tr();
 
-          return Padding(
+          // Calculate minimum height only for the last AI answer message
+          double minHeight = 0;
+          if (isLastMessage) {
+            final screenHeight = MediaQuery.of(context).size.height;
+            minHeight = ChatMessageHeightManager().calculateMinHeight(
+              messageId: message.id,
+              screenHeight: screenHeight,
+            );
+
+            Log.debug('[AI Animation] messageId: ${message.id} minHeight: $minHeight');
+          }
+
+          return Container(
+            constraints: BoxConstraints(
+              minHeight: minHeight,
+            ),
             padding: AIChatUILayout.messageMargin,
             child: blocState.messageState.when(
               loading: () => ChatAIMessageBubble(
