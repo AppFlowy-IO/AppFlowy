@@ -15,7 +15,7 @@ void main() {
             {
                 "type":"math_equation",
                 "data":{
-                    "math_equation":"E = MC^2"
+                    "formula":"E = MC^2"
                 }
             }
         ]
