@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_height_manager.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/widgets/message_height_calculator.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -44,6 +45,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.isStreaming = false,
     this.isSelectingMessages = false,
     this.enableAnimation = true,
+    this.hasRelatedQuestions = false,
   });
 
   final User user;
@@ -63,6 +65,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final bool isLastMessage;
   final bool isSelectingMessages;
   final bool enableAnimation;
+  final bool hasRelatedQuestions;
 
   @override
   Widget build(BuildContext context) {
@@ -83,87 +86,108 @@ class ChatAIMessageWidget extends StatelessWidget {
 
           // Calculate minimum height only for the last AI answer message
           double minHeight = 0;
-          if (isLastMessage) {
+          if (isLastMessage && !hasRelatedQuestions) {
             final screenHeight = MediaQuery.of(context).size.height;
             minHeight = ChatMessageHeightManager().calculateMinHeight(
               messageId: message.id,
               screenHeight: screenHeight,
             );
 
-            Log.debug('[AI Animation] messageId: ${message.id} minHeight: $minHeight');
+            Log.debug(
+              '[AI Animation] messageId: ${message.id} minHeight: $minHeight',
+            );
           }
 
+          Log.debug(
+            '[AI Animation] rebuild messageId: ${message.id} minHeight: $minHeight, content: $message',
+          );
+
           return Container(
+            alignment: Alignment.topLeft,
             constraints: BoxConstraints(
               minHeight: minHeight,
             ),
             padding: AIChatUILayout.messageMargin,
-            child: blocState.messageState.when(
-              loading: () => ChatAIMessageBubble(
-                message: message,
-                showActions: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: AILoadingIndicator(text: loadingText),
+            child: MessageHeightCalculator(
+              color: Colors.blue.withOpacity(0.5),
+              messageId: message.id,
+              onHeightMeasured: (messageId, height) {
+                Log.debug(
+                  '[AI Animation] messageId: $messageId, height: $height, message: $message',
+                );
+                ChatMessageHeightManager().cacheWithoutMinHeight(
+                  messageId: messageId,
+                  height: height,
+                );
+              },
+              child: blocState.messageState.when(
+                loading: () => ChatAIMessageBubble(
+                  message: message,
+                  showActions: false,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: AILoadingIndicator(text: loadingText),
+                  ),
                 ),
-              ),
-              ready: () {
-                return blocState.text.isEmpty
-                    ? _LoadingMessage(
-                        message: message,
-                        loadingText: loadingText,
-                      )
-                    : _NonEmptyMessage(
-                        user: user,
-                        messageUserId: messageUserId,
-                        message: message,
-                        stream: stream,
-                        questionId: questionId,
-                        chatId: chatId,
-                        refSourceJsonString: refSourceJsonString,
-                        onStopStream: onStopStream,
-                        onSelectedMetadata: onSelectedMetadata,
-                        onRegenerate: onRegenerate,
-                        onChangeFormat: onChangeFormat,
-                        onChangeModel: onChangeModel,
-                        isLastMessage: isLastMessage,
-                        isStreaming: isStreaming,
-                        isSelectingMessages: isSelectingMessages,
-                        enableAnimation: enableAnimation,
-                      );
-              },
-              onError: (error) {
-                return ChatErrorMessageWidget(
-                  errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                );
-              },
-              onAIResponseLimit: () {
-                return ChatErrorMessageWidget(
-                  errorMessage:
-                      LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                );
-              },
-              onAIImageResponseLimit: () {
-                return ChatErrorMessageWidget(
-                  errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
-                );
-              },
-              onAIMaxRequired: (message) {
-                return ChatErrorMessageWidget(
-                  errorMessage: message,
-                );
-              },
-              onInitializingLocalAI: () {
-                onStopStream();
+                ready: () {
+                  return blocState.text.isEmpty
+                      ? _LoadingMessage(
+                          message: message,
+                          loadingText: loadingText,
+                        )
+                      : _NonEmptyMessage(
+                          user: user,
+                          messageUserId: messageUserId,
+                          message: message,
+                          stream: stream,
+                          questionId: questionId,
+                          chatId: chatId,
+                          refSourceJsonString: refSourceJsonString,
+                          onStopStream: onStopStream,
+                          onSelectedMetadata: onSelectedMetadata,
+                          onRegenerate: onRegenerate,
+                          onChangeFormat: onChangeFormat,
+                          onChangeModel: onChangeModel,
+                          isLastMessage: isLastMessage,
+                          isStreaming: isStreaming,
+                          isSelectingMessages: isSelectingMessages,
+                          enableAnimation: enableAnimation,
+                        );
+                },
+                onError: (error) {
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
+                  );
+                },
+                onAIResponseLimit: () {
+                  return ChatErrorMessageWidget(
+                    errorMessage:
+                        LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                  );
+                },
+                onAIImageResponseLimit: () {
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
+                  );
+                },
+                onAIMaxRequired: (message) {
+                  return ChatErrorMessageWidget(
+                    errorMessage: message,
+                  );
+                },
+                onInitializingLocalAI: () {
+                  onStopStream();
 
-                return ChatErrorMessageWidget(
-                  errorMessage:
-                      LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
-                );
-              },
-              aiFollowUp: (followUpData) {
-                return const SizedBox.shrink();
-              },
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys
+                        .settings_aiPage_keys_localAIInitializing
+                        .tr(),
+                  );
+                },
+                aiFollowUp: (followUpData) {
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           );
         },

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'application/chat_bloc.dart';
-import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
 
 class AIChatPage extends StatelessWidget {
@@ -69,8 +68,7 @@ class AIChatPage extends StatelessWidget {
                     event.logicalKey == LogicalKeyboardKey.keyC &&
                         HardwareKeyboard.instance.isControlPressed) {
                   final chatBloc = context.read<ChatBloc>();
-                  if (chatBloc.state.promptResponseState !=
-                      PromptResponseState.ready) {
+                  if (!chatBloc.state.promptResponseState.isReady) {
                     chatBloc.add(ChatEvent.stopStream());
                     return KeyEventResult.handled;
                   }

@@ -14,6 +14,7 @@ class MessageHeightCalculator extends StatefulWidget {
     this.onHeightMeasured,
     this.enableCaching = true,
     this.debounceMs = 16, // One frame at 60fps
+    this.color = Colors.red,
   });
 
   final String messageId;
@@ -21,6 +22,7 @@ class MessageHeightCalculator extends StatefulWidget {
   final HeightMeasuredCallback? onHeightMeasured;
   final bool enableCaching;
   final int debounceMs;
+  final Color color;
 
   @override
   State<MessageHeightCalculator> createState() =>
@@ -68,8 +70,9 @@ class _MessageHeightCalculatorState extends State<MessageHeightCalculator>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       key: _measureKey,
+      color: widget.color,
       child: widget.child,
     );
   }
@@ -119,6 +122,10 @@ class _MessageHeightCalculatorState extends State<MessageHeightCalculator>
       if (_lastMeasuredHeight == null ||
           (height - (_lastMeasuredHeight ?? 0)).abs() > 1.0) {
         _lastMeasuredHeight = height;
+
+        Log.debug(
+          '[MessageHeightCalculator] messageId: ${widget.messageId}, height: $height',
+        );
 
         widget.onHeightMeasured?.call(widget.messageId, height);
       }

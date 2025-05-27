@@ -58,6 +58,9 @@ enum PromptResponseState {
   ready,
   sendingQuestion,
   streamingAnswer,
+  relatedQuestionsReady;
+
+  bool get isReady => this == ready || this == relatedQuestionsReady;
 }
 
 class ChatFile extends Equatable {

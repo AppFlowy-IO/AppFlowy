@@ -3,12 +3,14 @@ import 'dart:math';
 class MessageHeightConstants {
   static const String answerSuffix = '_ans';
 
+  static const String withoutMinHeightSuffix = '_without_min_height';
+
   // This offset comes from the chat input box height + navigation bar height
   // It's used to calculate the minimum height for answer messages
   //
   //  navigation bar height + last user message height
   //    + last AI message height + chat input box height = screen height
-  static const double defaultScreenOffset = 240.0;
+  static const double defaultScreenOffset = 220.0;
 }
 
 class ChatMessageHeightManager {
@@ -34,12 +36,34 @@ class ChatMessageHeightManager {
     _heightCache[messageId] = height;
   }
 
+  void cacheWithoutMinHeight({
+    required String messageId,
+    required double height,
+  }) {
+    if (messageId.isEmpty || height <= 0) {
+      assert(false, 'messageId or height is invalid');
+      return;
+    }
+
+    _heightCache[messageId + MessageHeightConstants.withoutMinHeightSuffix] =
+        height;
+  }
+
   double? getCachedHeight({
     required String messageId,
   }) {
     if (messageId.isEmpty) return null;
 
     final height = _heightCache[messageId];
+    return height;
+  }
+
+  double? getCachedWithoutMinHeight({
+    required String messageId,
+  }) {
+    if (messageId.isEmpty) return null;
+    final height =
+        _heightCache[messageId + MessageHeightConstants.withoutMinHeightSuffix];
     return height;
   }
 

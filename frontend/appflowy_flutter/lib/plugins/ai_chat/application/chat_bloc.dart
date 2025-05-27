@@ -124,12 +124,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         // Streaming completion
         didFinishAnswerStream: () async => emit(
-          state.copyWith(promptResponseState: PromptResponseState.ready),
+          state.copyWith(
+            promptResponseState: PromptResponseState.ready,
+          ),
         ),
 
         // Related questions
         didReceiveRelatedQuestions: (questions) async =>
-            _handleRelatedQuestions(questions),
+            _handleRelatedQuestions(
+          questions,
+          emit,
+        ),
 
         // Message management
         deleteMessage: (message) async => chatController.remove(message),
@@ -277,8 +282,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Related questions handler
-  void _handleRelatedQuestions(List<String> questions) {
+  void _handleRelatedQuestions(
+    List<String> questions,
+    Emitter<ChatState> emit,
+  ) {
+    questions = [
+      'How to use the app?',
+      'How to use the app?',
+    ];
     if (questions.isEmpty) {
+      emit(
+        state.copyWith(
+          promptResponseState: PromptResponseState.ready,
+        ),
+      );
       return;
     }
 
@@ -297,6 +314,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     chatController.insert(message);
+
+    emit(
+      state.copyWith(
+        promptResponseState: PromptResponseState.relatedQuestionsReady,
+      ),
+    );
   }
 
   void _startListening() {

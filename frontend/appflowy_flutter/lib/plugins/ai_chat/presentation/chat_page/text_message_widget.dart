@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_height_manager.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_text_message.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/error_text_message.dart';
@@ -45,20 +47,43 @@ class TextMessageWidget extends StatelessWidget {
     }
 
     if (messageType == OnetimeShotType.relatedQuestion) {
-      return RelatedQuestionList(
-        relatedQuestions: message.metadata!['questions'],
-        onQuestionSelected: (question) {
-          final bloc = context.read<AIPromptInputBloc>();
-          final showPredefinedFormats = bloc.state.showPredefinedFormats;
-          final predefinedFormat = bloc.state.predefinedFormat;
+      final messages = context.read<ChatBloc>().chatController.messages;
+      final lastAIMessage = messages.lastWhere(
+        (e) =>
+            onetimeMessageTypeFromMeta(e.metadata) == null &&
+            (e.author.id == aiResponseUserId || e.author.id == systemUserId),
+      );
+      final cacheHeight = ChatMessageHeightManager()
+          .getCachedHeight(messageId: lastAIMessage.id);
+      final cacheHeightWithoutMinHeight = ChatMessageHeightManager()
+          .getCachedWithoutMinHeight(messageId: lastAIMessage.id);
+      double minHeight = 0;
+      if (cacheHeight != null && cacheHeightWithoutMinHeight != null) {
+        minHeight = cacheHeight - cacheHeightWithoutMinHeight - 72;
+      }
+      minHeight = max(minHeight, 0);
+      Log.debug(
+        '[AI Animation] minHeight: $minHeight, cacheHeight: $cacheHeight, cacheHeightWithoutMinHeight: $cacheHeightWithoutMinHeight',
+      );
+      return Container(
+        constraints: BoxConstraints(
+          minHeight: minHeight,
+        ),
+        child: RelatedQuestionList(
+          relatedQuestions: message.metadata!['questions'],
+          onQuestionSelected: (question) {
+            final bloc = context.read<AIPromptInputBloc>();
+            final showPredefinedFormats = bloc.state.showPredefinedFormats;
+            final predefinedFormat = bloc.state.predefinedFormat;
 
-          context.read<ChatBloc>().add(
-                ChatEvent.sendMessage(
-                  message: question,
-                  format: showPredefinedFormats ? predefinedFormat : null,
-                ),
-              );
-        },
+            context.read<ChatBloc>().add(
+                  ChatEvent.sendMessage(
+                    message: question,
+                    format: showPredefinedFormats ? predefinedFormat : null,
+                  ),
+                );
+          },
+        ),
       );
     }
 
@@ -87,6 +112,8 @@ class TextMessageWidget extends StatelessWidget {
                 .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
             final isLastMessage =
                 messages.isEmpty ? false : messages.last.id == message.id;
+            final hasRelatedQuestions = state.promptResponseState ==
+                PromptResponseState.relatedQuestionsReady;
             return ChatAIMessageWidget(
               user: message.author,
               messageUserId: message.id,
@@ -95,9 +122,9 @@ class TextMessageWidget extends StatelessWidget {
               questionId: questionId,
               chatId: view.id,
               refSourceJsonString: refSourceJsonString,
-              isStreaming:
-                  state.promptResponseState != PromptResponseState.ready,
+              isStreaming: !state.promptResponseState.isReady,
               isLastMessage: isLastMessage,
+              hasRelatedQuestions: hasRelatedQuestions,
               isSelectingMessages: isSelectingMessages,
               enableAnimation: enableAnimation,
               onSelectedMetadata: (metadata) =>

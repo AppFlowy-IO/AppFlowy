@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
@@ -206,17 +207,23 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
 
             final message = messages[index];
             return MessageHeightCalculator(
+              color: Colors.green.withOpacity(0.5),
               messageId: message.id,
               onHeightMeasured: _cacheMessageHeight,
-              child: widget.itemBuilder(
-                context,
-                Tween<double>(begin: 1, end: 1).animate(
-                  CurvedAnimation(
-                    parent: scrollToBottomController,
-                    curve: Curves.easeInOut,
+              child: ColoredBox(
+                color: message.author.id == aiResponseUserId
+                    ? Colors.red.withOpacity(0.5)
+                    : Colors.yellow.withOpacity(0.5),
+                child: widget.itemBuilder(
+                  context,
+                  Tween<double>(begin: 1, end: 1).animate(
+                    CurvedAnimation(
+                      parent: scrollToBottomController,
+                      curve: Curves.easeInOut,
+                    ),
                   ),
+                  message,
                 ),
-                message,
               ),
             );
           },
@@ -242,11 +249,20 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
       (message) => message.author.id == user.id,
     );
 
-    if (lastUserMessageIndex == -1) {
+    // waiting for the ai answer message to be inserted
+    if (lastUserMessageIndex == -1 ||
+        lastUserMessageIndex + 1 >= messages.length) {
       return;
     }
 
+    Log.debug(
+      '[AI Animation] this.lastUserMessageIndex: ${this.lastUserMessageIndex}, lastUserMessageIndex: $lastUserMessageIndex',
+    );
+
     if (this.lastUserMessageIndex != lastUserMessageIndex) {
+      Log.debug(
+        '[AI Animation] current message length: ${messages.length}, lastUserMessageIndex: $lastUserMessageIndex',
+      );
       // scroll the current message to the top
       await itemScrollController.scrollTo(
         index: lastUserMessageIndex,
