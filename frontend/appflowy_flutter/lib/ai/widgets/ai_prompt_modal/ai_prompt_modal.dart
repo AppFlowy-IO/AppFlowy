@@ -46,6 +46,7 @@ class AiPromptModal extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
 
     return AFModal(
+      backgroundColor: theme.backgroundColorScheme.primary,
       constraints: const BoxConstraints(
         maxWidth: 1200,
         maxHeight: 800,
