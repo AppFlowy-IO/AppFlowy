@@ -285,9 +285,14 @@ class _ImageLoadFailedWidget extends StatelessWidget {
               maxLines: 2,
             ),
           const VSpace(12),
-          OutlinedRoundedButton(
-            text: LocaleKeys.chat_retry.tr(),
-            onTap: onRetry,
+          Listener(
+            onPointerDown: (event) {
+              onRetry();
+            },
+            child: OutlinedRoundedButton(
+              text: LocaleKeys.chat_retry.tr(),
+              onTap: () {},
+            ),
           ),
         ],
       ),
