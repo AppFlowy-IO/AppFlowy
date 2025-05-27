@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_height_manager.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/widgets/message_height_calculator.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -92,15 +91,7 @@ class ChatAIMessageWidget extends StatelessWidget {
               messageId: message.id,
               screenHeight: screenHeight,
             );
-
-            Log.debug(
-              '[AI Animation] messageId: ${message.id} minHeight: $minHeight',
-            );
           }
-
-          Log.debug(
-            '[AI Animation] rebuild messageId: ${message.id} minHeight: $minHeight, content: $message',
-          );
 
           return Container(
             alignment: Alignment.topLeft,
@@ -109,12 +100,8 @@ class ChatAIMessageWidget extends StatelessWidget {
             ),
             padding: AIChatUILayout.messageMargin,
             child: MessageHeightCalculator(
-              color: Colors.blue.withOpacity(0.5),
               messageId: message.id,
               onHeightMeasured: (messageId, height) {
-                Log.debug(
-                  '[AI Animation] messageId: $messageId, height: $height, message: $message',
-                );
                 ChatMessageHeightManager().cacheWithoutMinHeight(
                   messageId: messageId,
                   height: height,

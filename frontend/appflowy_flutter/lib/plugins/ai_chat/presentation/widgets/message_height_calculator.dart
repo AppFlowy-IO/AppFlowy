@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -12,17 +11,11 @@ class MessageHeightCalculator extends StatefulWidget {
     required this.messageId,
     required this.child,
     this.onHeightMeasured,
-    this.enableCaching = true,
-    this.debounceMs = 16, // One frame at 60fps
-    this.color = Colors.red,
   });
 
   final String messageId;
   final Widget child;
   final HeightMeasuredCallback? onHeightMeasured;
-  final bool enableCaching;
-  final int debounceMs;
-  final Color color;
 
   @override
   State<MessageHeightCalculator> createState() =>
@@ -31,12 +24,12 @@ class MessageHeightCalculator extends StatefulWidget {
 
 class _MessageHeightCalculatorState extends State<MessageHeightCalculator>
     with WidgetsBindingObserver {
-  final GlobalKey _measureKey = GlobalKey();
+  final GlobalKey measureKey = GlobalKey();
 
-  double? _lastMeasuredHeight;
-  bool _isMeasuring = false;
-  int _measurementAttempts = 0;
-  static const int _maxMeasurementAttempts = 3;
+  double? lastMeasuredHeight;
+  bool isMeasuring = false;
+  int measurementAttempts = 0;
+  static const int maxMeasurementAttempts = 3;
 
   @override
   void initState() {
@@ -70,23 +63,22 @@ class _MessageHeightCalculatorState extends State<MessageHeightCalculator>
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      key: _measureKey,
-      color: widget.color,
+    return KeyedSubtree(
+      key: measureKey,
       child: widget.child,
     );
   }
 
   void _resetMeasurement() {
-    _lastMeasuredHeight = null;
-    _isMeasuring = false;
-    _measurementAttempts = 0;
+    lastMeasuredHeight = null;
+    isMeasuring = false;
+    measurementAttempts = 0;
   }
 
   void _scheduleMeasurement() {
-    if (_isMeasuring || !mounted) return;
+    if (isMeasuring || !mounted) return;
 
-    _isMeasuring = true;
+    isMeasuring = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _measureHeight();
@@ -94,46 +86,41 @@ class _MessageHeightCalculatorState extends State<MessageHeightCalculator>
   }
 
   void _measureHeight() {
-    if (!mounted || _measurementAttempts >= _maxMeasurementAttempts) {
-      _isMeasuring = false;
+    if (!mounted || measurementAttempts >= maxMeasurementAttempts) {
+      isMeasuring = false;
       return;
     }
 
-    _measurementAttempts++;
+    measurementAttempts++;
 
     try {
       final renderBox =
-          _measureKey.currentContext?.findRenderObject() as RenderBox?;
+          measureKey.currentContext?.findRenderObject() as RenderBox?;
 
       if (renderBox == null || !renderBox.hasSize) {
         // Retry measurement in next frame if render box is not ready
-        if (_measurementAttempts < _maxMeasurementAttempts) {
+        if (measurementAttempts < maxMeasurementAttempts) {
           SchedulerBinding.instance.addPostFrameCallback((_) {
             if (mounted) _measureHeight();
           });
         } else {
-          _isMeasuring = false;
+          isMeasuring = false;
         }
         return;
       }
 
       final height = renderBox.size.height;
 
-      if (_lastMeasuredHeight == null ||
-          (height - (_lastMeasuredHeight ?? 0)).abs() > 1.0) {
-        _lastMeasuredHeight = height;
-
-        Log.debug(
-          '[MessageHeightCalculator] messageId: ${widget.messageId}, height: $height',
-        );
+      if (lastMeasuredHeight == null ||
+          (height - (lastMeasuredHeight ?? 0)).abs() > 1.0) {
+        lastMeasuredHeight = height;
 
         widget.onHeightMeasured?.call(widget.messageId, height);
       }
 
-      _isMeasuring = false;
+      isMeasuring = false;
     } catch (e) {
-      Log.error('[MessageHeightCalculator] Error measuring height', e);
-      _isMeasuring = false;
+      isMeasuring = false;
     }
   }
 }
