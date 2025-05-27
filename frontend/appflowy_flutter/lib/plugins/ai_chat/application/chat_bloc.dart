@@ -286,10 +286,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     List<String> questions,
     Emitter<ChatState> emit,
   ) {
-    questions = [
-      'How to use the app?',
-      'How to use the app?',
-    ];
     if (questions.isEmpty) {
       emit(
         state.copyWith(

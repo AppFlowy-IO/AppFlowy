@@ -11,6 +11,8 @@ class MessageHeightConstants {
   //  navigation bar height + last user message height
   //    + last AI message height + chat input box height = screen height
   static const double defaultScreenOffset = 220.0;
+
+  static const double relatedQuestionOffset = 72.0;
 }
 
 class ChatMessageHeightManager {
@@ -91,6 +93,28 @@ class ChatMessageHeightManager {
         cachedHeight -
         MessageHeightConstants.defaultScreenOffset;
     return max(calculatedHeight, 0.0);
+  }
+
+  /// Calculate minimum height for related question messages
+  ///
+  /// For the user message, we don't need to calculate the minimum height
+  double calculateRelatedQuestionMinHeight({
+    required String messageId,
+  }) {
+    final cacheHeight = getCachedHeight(
+      messageId: messageId,
+    );
+    final cacheHeightWithoutMinHeight = getCachedWithoutMinHeight(
+      messageId: messageId,
+    );
+    double minHeight = 0;
+    if (cacheHeight != null && cacheHeightWithoutMinHeight != null) {
+      minHeight = cacheHeight -
+          cacheHeightWithoutMinHeight -
+          MessageHeightConstants.relatedQuestionOffset;
+    }
+    minHeight = max(minHeight, 0);
+    return minHeight;
   }
 
   bool isAnswerMessage(String messageId) {

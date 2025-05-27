@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_chat_prelude.dart';
@@ -53,17 +52,9 @@ class TextMessageWidget extends StatelessWidget {
             onetimeMessageTypeFromMeta(e.metadata) == null &&
             (e.author.id == aiResponseUserId || e.author.id == systemUserId),
       );
-      final cacheHeight = ChatMessageHeightManager()
-          .getCachedHeight(messageId: lastAIMessage.id);
-      final cacheHeightWithoutMinHeight = ChatMessageHeightManager()
-          .getCachedWithoutMinHeight(messageId: lastAIMessage.id);
-      double minHeight = 0;
-      if (cacheHeight != null && cacheHeightWithoutMinHeight != null) {
-        minHeight = cacheHeight - cacheHeightWithoutMinHeight - 72;
-      }
-      minHeight = max(minHeight, 0);
-      Log.debug(
-        '[AI Animation] minHeight: $minHeight, cacheHeight: $cacheHeight, cacheHeightWithoutMinHeight: $cacheHeightWithoutMinHeight',
+      final minHeight =
+          ChatMessageHeightManager().calculateRelatedQuestionMinHeight(
+        messageId: lastAIMessage.id,
       );
       return Container(
         constraints: BoxConstraints(
