@@ -31,7 +31,7 @@ class ViewAncestorBloc extends Bloc<ViewAncestorEvent, ViewAncestorState> {
                 }
               },
             );
-            if(ancester != null) {
+            if (ancester != null) {
               emit(state.copyWith(ancestor: ancester, isLoading: false));
             }
           },
@@ -90,7 +90,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         return Text(
           displayPath.join(' / '),
           style: textStyle,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         );
       },
@@ -114,6 +114,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         .standard(color: theme.textColorScheme.tertiary)
         .copyWith(letterSpacing: 0.1);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         HSpace(8),
         Text(
@@ -123,11 +124,13 @@ extension ViewAncestorTextExtension on ViewAncestorState {
           ),
         ),
         HSpace(8),
-        Text(
-          displayPath.join(' / '),
-          style: style,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        Flexible(
+          child: Text(
+            displayPath.join(' / '),
+            style: style,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
