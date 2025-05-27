@@ -58,9 +58,9 @@ class _AFDropDownMenuState<T extends AFDropDownMenuMixin>
   @override
   void dispose() {
     if (widget.controller == null) {
-      controller.removeListener(popoverListener);
-    } else {
       controller.dispose();
+    } else {
+      controller.removeListener(popoverListener);
     }
     super.dispose();
   }
@@ -94,7 +94,7 @@ class _AFDropDownMenuState<T extends AFDropDownMenuMixin>
                 items: widget.items,
                 onSelected: (item) {
                   widget.onSelected?.call(item);
-                  if (widget.closeOnSelect == null && !widget.isMultiselect ||
+                  if ((widget.closeOnSelect == null && !widget.isMultiselect) ||
                       widget.closeOnSelect == true) {
                     controller.hide();
                   }
