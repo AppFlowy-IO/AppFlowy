@@ -22,6 +22,12 @@ pub(crate) async fn stream_search_handler(
   let query = data.into_inner();
   let manager = upgrade_manager(manager)?;
   let search_id = query.search_id.parse::<i64>().unwrap_or(timestamp());
+
+  if query.search.is_empty() {
+    tracing::trace!("Received empty search query, skipping search");
+    return Ok(());
+  }
+
   manager
     .perform_search(query.search, query.stream_port, search_id)
     .await;

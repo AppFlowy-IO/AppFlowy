@@ -6,7 +6,7 @@ use collab_folder::{View, ViewLayout};
 use collab_integrate::instant_indexed_data_provider::unindexed_data_form_collab;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata, UnindexedData};
+use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata};
 use flowy_ai_pub::persistence::{
   batch_upsert_index_collab, select_indexed_collab_ids, IndexCollabRecordTable,
 };
@@ -122,8 +122,7 @@ impl FullIndexedDataWriter {
       return Ok(());
     }
 
-    // chunk the unindex_ids into smaller chunks
-    let chunk_size = 20;
+    let chunk_size = 50;
     info!(
       "[Indexing] {} consumers start indexing {} unindexed documents",
       self.consumers.read().await.len(),
@@ -145,23 +144,37 @@ impl FullIndexedDataWriter {
             info!("[Indexing] cancelled");
             break;
           }
+          info!(
+            "[Indexing] {} unindexed documents found in chunk",
+            unindexed.len()
+          );
 
-          for consumer in self.consumers.read().await.iter() {
-            for data in &unindexed {
-              trace!(
-                "[Indexing] {} consume {} unindexed data",
-                consumer.consumer_id(),
-                data.object_id
-              );
-              if let Err(err) = consumer.consume_indexed_data(uid, data).await {
-                error!(
-                  "[Indexing] Failed to consume unindexed data: {}: {:?}",
-                  consumer.consumer_id(),
-                  err
-                );
-              }
-            }
+          let consumers = self.consumers.read().await;
+          for consumer in consumers.iter() {
+            let consumer_tasks: Vec<_> = unindexed
+              .iter()
+              .map(|data| {
+                let consumer_id = consumer.consumer_id();
+                let object_id = data.object_id;
+                async move {
+                  trace!(
+                    "[Indexing] {} consume {} unindexed data",
+                    consumer_id,
+                    object_id
+                  );
+                  if let Err(err) = consumer.consume_indexed_data(uid, data).await {
+                    error!(
+                      "[Indexing] Failed to consume unindexed data: {}: {:?}",
+                      consumer_id, err
+                    );
+                  }
+                }
+              })
+              .collect();
+
+            futures::future::join_all(consumer_tasks).await;
           }
+
           if let Some(mut db) = self
             .logged_user
             .upgrade()
@@ -172,7 +185,7 @@ impl FullIndexedDataWriter {
               .map(|v| IndexCollabRecordTable {
                 oid: v.object_id.to_string(),
                 workspace_id: v.workspace_id.to_string(),
-                content_hash: v.data.content_hash(),
+                content_hash: v.data.map(|v| v.content_hash()).unwrap_or_default(),
               })
               .collect::<Vec<_>>();
 
@@ -269,15 +282,22 @@ impl FullIndexedDataWriter {
             };
 
             if load_success {
-              if let Some(data) = unindexed_data_form_collab(&collab, &collab_type) {
-                results.push(UnindexedCollab {
-                  workspace_id,
-                  object_id,
-                  collab_type,
-                  data,
-                  metadata,
-                });
-              }
+              let data = unindexed_data_form_collab(&collab, &collab_type);
+              results.push(UnindexedCollab {
+                workspace_id,
+                object_id,
+                collab_type,
+                data,
+                metadata,
+              });
+            } else {
+              results.push(UnindexedCollab {
+                workspace_id,
+                object_id,
+                collab_type,
+                data: None,
+                metadata,
+              });
             }
           },
           CollabType::Database => {
@@ -285,7 +305,7 @@ impl FullIndexedDataWriter {
               workspace_id,
               object_id,
               collab_type: CollabType::Database,
-              data: UnindexedData::Text(String::new()),
+              data: None,
               metadata,
             });
           },

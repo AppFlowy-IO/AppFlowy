@@ -42,6 +42,7 @@ flowy-ai-pub = { workspace = true }
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }
+futures = "0.3"
 bytes.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tokio-stream = { workspace = true, features = ["sync"] }
@@ -84,5 +85,5 @@ openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 verbose_log = [
   "flowy-document/verbose_log",
   "flowy-database2/verbose_log",
-  "client-api/sync_verbose_log"
+  "client-api/sync_verbose_log",
 ]

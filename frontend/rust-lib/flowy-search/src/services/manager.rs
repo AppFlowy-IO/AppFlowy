@@ -5,6 +5,7 @@ use arc_swap::ArcSwapOption;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_search_pub::tantivy_state::DocumentTantivyState;
+use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use std::pin::Pin;
@@ -111,7 +112,15 @@ impl SearchManager {
   }
 
   pub async fn perform_search(&self, query: String, stream_port: i64, search_id: i64) {
-    // Check workspace_id before acquiring lock
+    let sink = IsolateSink::new(Isolate::new(stream_port));
+    self.perform_search_with_sink(query, sink, search_id).await;
+  }
+
+  pub async fn perform_search_with_sink<S>(&self, query: String, mut sink: S, search_id: i64)
+  where
+    S: Sink<Vec<u8>> + Clone + Send + Unpin + 'static,
+    S::Error: std::fmt::Display,
+  {
     let workspace_id = match self.workspace_id.load_full() {
       Some(id) => id,
       None => {
@@ -130,8 +139,20 @@ impl SearchManager {
     }
 
     info!("[Search] perform search: {}", query);
+    if query.is_empty() {
+      let resp = SearchStatePB {
+        response: None,
+        search_id: search_id.to_string(),
+      };
+      if let Ok::<Vec<u8>, _>(data) = resp.try_into() {
+        if let Err(err) = sink.send(data).await {
+          error!("Failed to send empty search result: {}", err);
+        }
+      }
+      return;
+    }
+
     let handlers = self.handlers.clone();
-    let sink = IsolateSink::new(Isolate::new(stream_port));
     let current_search = self.current_search.clone();
     let mut join_handles = vec![];
 
