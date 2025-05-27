@@ -167,30 +167,27 @@ class _NoResult extends StatelessWidget {
     final textColor = theme.textColorScheme.secondary;
     return Align(
       alignment: Alignment.topCenter,
-      child: SizedBox(
-        height: 140,
-        child: Column(
-          children: [
-            const VSpace(48),
-            FlowySvg(
-              FlowySvgs.m_home_search_icon_m,
-              color: theme.iconColorScheme.secondary,
-              size: Size.square(24),
-            ),
-            const VSpace(12),
-            Text(
-              LocaleKeys.search_noResultForSearching.tr(),
-              style: theme.textStyle.body.enhanced(color: textColor),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              textAlign: TextAlign.center,
-              LocaleKeys.search_noResultForSearchingHint.tr(),
-              style: theme.textStyle.caption.standard(color: textColor),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          const VSpace(48),
+          FlowySvg(
+            FlowySvgs.m_home_search_icon_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(24),
+          ),
+          const VSpace(12),
+          Text(
+            LocaleKeys.search_noResultForSearching.tr(),
+            style: theme.textStyle.heading4.enhanced(color: textColor),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            textAlign: TextAlign.center,
+            LocaleKeys.search_noResultForSearchingHint.tr(),
+            style: theme.textStyle.body.standard(color: textColor),
+          ),
+        ],
       ),
     );
   }

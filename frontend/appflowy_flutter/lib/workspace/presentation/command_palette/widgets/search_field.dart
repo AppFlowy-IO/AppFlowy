@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,6 +88,8 @@ class _SearchFieldState extends State<SearchField> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final radius = BorderRadius.circular(theme.spacing.l);
+    final workspace =
+        context.read<UserWorkspaceBloc?>()?.state.currentWorkspace;
 
     return Container(
       height: 44,
@@ -109,9 +112,11 @@ class _SearchFieldState extends State<SearchField> {
                 borderRadius: radius,
               ),
               isDense: false,
-              hintText: LocaleKeys.search_searchOrAskAI.tr(),
+              hintText: LocaleKeys.search_searchFieldHint
+                  .tr(args: ['${workspace?.name}']),
               hintStyle: theme.textStyle.heading4
                   .standard(color: theme.textColorScheme.tertiary),
+              hintMaxLines: 1,
               counterText: "",
               focusedBorder: OutlineInputBorder(
                 borderRadius: radius,

@@ -74,7 +74,7 @@ class RecentViewsList extends StatelessWidget {
                         if (showAskingAI) SearchAskAiEntrance(),
                         buildTitle(context),
                         buildViewList(state, context, hidePreview),
-                        VSpace(8),
+                        VSpace(16),
                       ],
                     ),
                   ),
@@ -97,11 +97,11 @@ class RecentViewsList extends StatelessWidget {
       ),
       child: Text(
         LocaleKeys.sideBar_recent.tr(),
-        style: theme.textStyle.heading4
+        style: theme.textStyle.body
             .enhanced(color: theme.textColorScheme.secondary)
             .copyWith(
               letterSpacing: 0.2,
-              height: 24 / 16,
+              height: 22 / 16,
             ),
       ),
     );

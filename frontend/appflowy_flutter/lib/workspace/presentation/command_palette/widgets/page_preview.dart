@@ -55,7 +55,7 @@ class PagePreview extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             margin: EdgeInsets.only(
-              top: theme.spacing.m,
+              top: theme.spacing.xs,
               bottom: theme.spacing.xl,
             ),
             child: Stack(
