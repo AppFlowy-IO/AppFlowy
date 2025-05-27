@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:universal_platform/universal_platform.dart';
+
 class MessageHeightConstants {
   static const String answerSuffix = '_ans';
 
@@ -10,7 +12,8 @@ class MessageHeightConstants {
   //
   //  navigation bar height + last user message height
   //    + last AI message height + chat input box height = screen height
-  static const double defaultScreenOffset = 220.0;
+  static const double defaultDesktopScreenOffset = 220.0;
+  static const double defaultMobileScreenOffset = 304.0;
 
   static const double relatedQuestionOffset = 72.0;
 }
@@ -24,6 +27,13 @@ class ChatMessageHeightManager {
       ChatMessageHeightManager._();
 
   final Map<String, double> _heightCache = <String, double>{};
+
+  double get defaultScreenOffset {
+    if (UniversalPlatform.isMobile) {
+      return MessageHeightConstants.defaultMobileScreenOffset;
+    }
+    return MessageHeightConstants.defaultDesktopScreenOffset;
+  }
 
   /// Cache a message height
   void cacheHeight({
@@ -89,9 +99,7 @@ class ChatMessageHeightManager {
       return 0.0;
     }
 
-    final calculatedHeight = screenHeight -
-        cachedHeight -
-        MessageHeightConstants.defaultScreenOffset;
+    final calculatedHeight = screenHeight - cachedHeight - defaultScreenOffset;
     return max(calculatedHeight, 0.0);
   }
 

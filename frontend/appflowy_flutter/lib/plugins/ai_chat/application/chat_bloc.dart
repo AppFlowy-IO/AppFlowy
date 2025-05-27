@@ -287,11 +287,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Emitter<ChatState> emit,
   ) {
     if (questions.isEmpty) {
-      emit(
-        state.copyWith(
-          promptResponseState: PromptResponseState.ready,
-        ),
-      );
       return;
     }
 

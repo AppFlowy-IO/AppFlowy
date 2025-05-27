@@ -187,9 +187,12 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown>
           }
 
           if (!_animations.containsKey(node.id)) {
+            final duration = UniversalPlatform.isMobile
+                ? const Duration(milliseconds: 800)
+                : const Duration(milliseconds: 1600);
             final controller = AnimationController(
               vsync: this,
-              duration: const Duration(milliseconds: 1600),
+              duration: duration,
             );
             final fade = Tween<double>(
               begin: 0,
