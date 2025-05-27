@@ -91,11 +91,11 @@ class _SearchResultListState extends State<SearchResultList> {
       ),
       child: Text(
         LocaleKeys.commandPalette_bestMatches.tr(),
-        style: theme.textStyle.heading4
+        style: theme.textStyle.body
             .enhanced(color: theme.textColorScheme.secondary)
             .copyWith(
               letterSpacing: 0.2,
-              height: 24 / 16,
+              height: 22 / 16,
             ),
       ),
     );
@@ -156,6 +156,7 @@ class _SearchResultListState extends State<SearchResultList> {
                             );
                           },
                         ),
+                        VSpace(16),
                       ],
                     ),
                   ],
