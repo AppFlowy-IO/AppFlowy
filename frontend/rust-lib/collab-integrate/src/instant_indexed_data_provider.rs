@@ -100,53 +100,51 @@ impl InstantIndexedDataWriter {
           match guard.get(&id) {
             Some(wo) => {
               if let Some(collab_rc) = wo.collab.upgrade() {
-                if let Some(data) = collab_rc
+                let data = collab_rc
                   .get_unindexed_data(&wo.collab_object.collab_type)
-                  .await
-                {
-                  // Snapshot consumers
-                  let consumers_guard = consumers.read().await;
-                  for consumer in consumers_guard.iter() {
-                    let workspace_id = match Uuid::parse_str(&wo.collab_object.workspace_id) {
-                      Ok(id) => id,
-                      Err(err) => {
-                        error!(
-                          "Invalid workspace_id {}: {}",
-                          wo.collab_object.workspace_id, err
-                        );
-                        continue;
-                      },
-                    };
-                    let object_id = match Uuid::parse_str(&wo.collab_object.object_id) {
-                      Ok(id) => id,
-                      Err(err) => {
-                        error!("Invalid object_id {}: {}", wo.collab_object.object_id, err);
-                        continue;
-                      },
-                    };
-                    match consumer
-                      .consume_collab(
-                        &workspace_id,
-                        data.clone(),
-                        &object_id,
-                        wo.collab_object.collab_type,
-                      )
-                      .await
-                    {
-                      Ok(is_indexed) => {
-                        if is_indexed {
-                          trace!("[Indexing] {} consumed {}", consumer.consumer_id(), id);
-                        }
-                      },
-                      Err(err) => {
-                        error!(
-                          "Consumer {} failed on {}: {}",
-                          consumer.consumer_id(),
-                          id,
-                          err
-                        );
-                      },
-                    }
+                  .await;
+
+                let consumers_guard = consumers.read().await;
+                for consumer in consumers_guard.iter() {
+                  let workspace_id = match Uuid::parse_str(&wo.collab_object.workspace_id) {
+                    Ok(id) => id,
+                    Err(err) => {
+                      error!(
+                        "Invalid workspace_id {}: {}",
+                        wo.collab_object.workspace_id, err
+                      );
+                      continue;
+                    },
+                  };
+                  let object_id = match Uuid::parse_str(&wo.collab_object.object_id) {
+                    Ok(id) => id,
+                    Err(err) => {
+                      error!("Invalid object_id {}: {}", wo.collab_object.object_id, err);
+                      continue;
+                    },
+                  };
+                  match consumer
+                    .consume_collab(
+                      &workspace_id,
+                      data.clone(),
+                      &object_id,
+                      wo.collab_object.collab_type,
+                    )
+                    .await
+                  {
+                    Ok(is_indexed) => {
+                      if is_indexed {
+                        trace!("[Indexing] {} consumed {}", consumer.consumer_id(), id);
+                      }
+                    },
+                    Err(err) => {
+                      error!(
+                        "Consumer {} failed on {}: {}",
+                        consumer.consumer_id(),
+                        id,
+                        err
+                      );
+                    },
                   }
                 }
               } else {
@@ -281,7 +279,7 @@ pub fn unindexed_collab_from_encoded_collab(
         workspace_id,
         object_id,
         collab_type,
-        data,
+        data: Some(data),
         metadata: UnindexedCollabMetadata::default(), // default means do not update metadata
       })
     },
@@ -313,7 +311,7 @@ pub trait InstantIndexedDataConsumer: Send + Sync + 'static {
   async fn consume_collab(
     &self,
     workspace_id: &Uuid,
-    data: UnindexedData,
+    data: Option<UnindexedData>,
     object_id: &Uuid,
     collab_type: CollabType,
   ) -> Result<bool, FlowyError>;

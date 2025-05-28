@@ -24,7 +24,7 @@ pub struct UnindexedCollab {
   pub workspace_id: Uuid,
   pub object_id: Uuid,
   pub collab_type: CollabType,
-  pub data: UnindexedData,
+  pub data: Option<UnindexedData>,
   pub metadata: UnindexedCollabMetadata,
 }
 
