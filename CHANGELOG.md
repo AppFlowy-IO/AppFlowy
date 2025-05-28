@@ -1,4 +1,25 @@
 # Release Notes
+## Version 0.9.3 - 28/05/2025
+### Desktop
+#### New Features
+- Meet AppFlowy Workspace AI Search: Quickly find pages by searching titles, keywords, or asking natural-language questions
+- AI Overviews: Ask natural questions and receive instant AI-generated summaries with source links, inspired by Google's AI Overviews
+- Revamped Search Panel: A cleaner, smarter interface to help you search faster and more effectively
+- Custom Prompts: Load a database page as the source for your own custom AI prompts
+#### Bug Fixes
+- Fixed misalignment in database view after setting maxDocumentWidth
+- Centered embedded link when the site name is empty
+- Fixed issue where row observer was not clearing as expected
+- Fixed issue where workspace name reverted after being updated
+- Aligned checkbox icon with the first line of text
+### Mobile
+#### New Features
+- Meet AppFlowy Workspace AI Search: Quickly find pages by searching titles, keywords, or asking natural-language questions
+- AI Overviews: Ask natural questions and receive instant AI-generated summaries with source links, inspired by Google's AI Overviews
+- Revamped Search Tab: A redesigned interface that helps you find what you need more efficiently
+#### Bug Fixes
+- Fixed issue where font size reset after restarting the app
+
 ## Version 0.9.2 - 14/05/2025
 ### Desktop
 #### New Features
