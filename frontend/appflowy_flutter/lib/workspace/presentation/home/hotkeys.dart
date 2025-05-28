@@ -258,7 +258,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       // The integration test will fail if we check the scale factor in the test.
       // #0      ScaledWidgetsFlutterBinding.Eval ()
       // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
-      appflowyScaleFactor = scaleFactor;
+      appflowyScaleFactor = double.parse(scaleFactor.toStringAsFixed(2));
     } else {
       ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scaleFactor;
     }

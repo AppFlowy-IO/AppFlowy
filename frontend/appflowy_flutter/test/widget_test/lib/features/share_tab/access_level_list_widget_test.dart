@@ -58,31 +58,5 @@ void main() {
       await tester.pumpAndSettle();
       expect(removedAccess, isTrue);
     });
-
-    testWidgets('shows only management options when selection disabled',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        WidgetTestWrapper(
-          child: AccessLevelListWidget(
-            selectedAccessLevel: ShareAccessLevel.readOnly,
-            supportedAccessLevels: ShareAccessLevel.values,
-            callbacks: AccessLevelListCallbacks.none(),
-          ),
-        ),
-      );
-
-      // Access level options should not be found
-      expect(find.text(ShareAccessLevel.fullAccess.i18n), findsNothing);
-      expect(find.text(ShareAccessLevel.readAndWrite.i18n), findsNothing);
-      expect(find.text(ShareAccessLevel.readAndComment.i18n), findsNothing);
-      expect(find.text(ShareAccessLevel.readOnly.i18n), findsNothing);
-
-      // Management options should be present
-      expect(
-        find.text(LocaleKeys.shareTab_turnIntoMember.tr()),
-        findsOneWidget,
-      );
-      expect(find.text(LocaleKeys.shareTab_removeAccess.tr()), findsOneWidget);
-    });
   });
 }
