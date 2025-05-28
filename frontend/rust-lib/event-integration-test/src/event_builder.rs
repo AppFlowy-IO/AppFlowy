@@ -1,5 +1,5 @@
 use crate::EventIntegrationTest;
-use flowy_user::errors::{internal_error, FlowyError};
+use flowy_user::errors::{internal_error, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
@@ -62,7 +62,7 @@ impl EventBuilder {
     self
   }
 
-  pub fn parse<R>(self) -> R
+  pub fn parse_or_panic<R>(self) -> R
   where
     R: AFPluginFromBytes,
   {
@@ -72,6 +72,20 @@ impl EventBuilder {
       Ok(Err(e)) => {
         panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
       },
+      Err(e) => {
+        panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
+      },
+    }
+  }
+
+  pub fn parse<R>(self) -> FlowyResult<R>
+  where
+    R: AFPluginFromBytes,
+  {
+    let response = self.get_response();
+    match response.clone().parse::<R, FlowyError>() {
+      Ok(Ok(data)) => Ok(data),
+      Ok(Err(e)) => Err(e),
       Err(e) => {
         panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
       },

@@ -8,13 +8,13 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_previ
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:appflowy_ui/appflowy_ui.dart';
 
 import 'custom_link_parser.dart';
 
@@ -60,8 +60,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           color: isHovering || isInDarkCallout
-              ? borderScheme.greyTertiaryHover
-              : borderScheme.greyTertiary,
+              ? borderScheme.primaryHover
+              : borderScheme.primary,
         ),
         borderRadius: BorderRadius.circular(16.0),
       ),

@@ -15,7 +15,7 @@ async fn calculation_integration_test1() {
 
   let workspace_id = test.get_current_workspace().await.id;
   let payload = gen_csv_import_data("project.csv", &workspace_id);
-  let view = test.import_data(payload).await.pop().unwrap();
+  let view = test.import_data(payload).await.unwrap().pop().unwrap();
   let database = test.open_database(&view.id).await;
 
   average_calculation(test, database, &view.id).await;

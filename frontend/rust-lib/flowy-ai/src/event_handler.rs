@@ -33,6 +33,7 @@ pub(crate) async fn stream_chat_message_handler(
     answer_stream_port,
     question_stream_port,
     format,
+    prompt_id,
   } = data;
 
   let message_type = match message_type {
@@ -48,6 +49,7 @@ pub(crate) async fn stream_chat_message_handler(
     answer_stream_port,
     question_stream_port,
     format,
+    prompt_id,
   };
 
   let ai_manager = upgrade_ai_manager(ai_manager)?;
@@ -364,33 +366,33 @@ pub(crate) async fn update_local_ai_setting_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_custom_prompt_database_view_id_handler(
+pub(crate) async fn get_custom_prompt_database_configuration_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<CustomPromptDatabaseViewIdPB, FlowyError> {
+) -> DataResult<CustomPromptDatabaseConfigurationPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let id = ai_manager
-    .get_custom_prompt_database_view_id()
+  let configuration = ai_manager
+    .get_custom_prompt_database_configuration()
     .await?
     .ok_or_else(|| {
       FlowyError::new(
         ErrorCode::RecordNotFound,
-        "Custom prompt database view id not found",
+        "Custom prompt configuration not found",
       )
     })?;
 
-  data_result_ok(CustomPromptDatabaseViewIdPB { id })
+  data_result_ok(configuration)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn set_custom_prompt_database_view_id_handler(
-  data: AFPluginData<CustomPromptDatabaseViewIdPB>,
+pub(crate) async fn set_custom_prompt_database_configuration_handler(
+  data: AFPluginData<CustomPromptDatabaseConfigurationPB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let view_id = data.into_inner().id;
+  let config = data.into_inner();
 
   ai_manager
-    .set_custom_prompt_database_view_id(view_id)
+    .set_custom_prompt_database_configuration(config)
     .await?;
 
   Ok(())

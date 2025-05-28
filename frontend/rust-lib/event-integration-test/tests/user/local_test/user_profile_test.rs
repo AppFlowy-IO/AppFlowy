@@ -22,7 +22,7 @@ async fn anon_user_profile_get() {
     .event(GetUserProfile)
     .async_send()
     .await
-    .parse::<UserProfilePB>();
+    .parse_or_panic::<UserProfilePB>();
   assert_eq!(user_profile.id, user.id);
   assert_eq!(user_profile.user_auth_type, AuthTypePB::Local);
 }
@@ -43,7 +43,7 @@ async fn user_update_with_name() {
     .event(GetUserProfile)
     .async_send()
     .await
-    .parse::<UserProfilePB>();
+    .parse_or_panic::<UserProfilePB>();
 
   assert_eq!(user_profile.name, new_name,);
 }
@@ -63,7 +63,7 @@ async fn anon_user_update_with_email() {
     .event(GetUserProfile)
     .async_send()
     .await
-    .parse::<UserProfilePB>();
+    .parse_or_panic::<UserProfilePB>();
 
   // When the user is anonymous, the email is empty no matter what you set
   assert!(user_profile.email.is_empty());

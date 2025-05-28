@@ -1,0 +1,626 @@
+import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/ai/service/ai_prompt_database_selector_cubit.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:equatable/equatable.dart';
+import 'package:expandable/expandable.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+Future<CustomPromptDatabaseConfig?> changeCustomPromptDatabaseConfig(
+  BuildContext context, {
+  CustomPromptDatabaseConfig? config,
+}) async {
+  return showDialog<CustomPromptDatabaseConfig?>(
+    context: context,
+    builder: (_) {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider.value(
+            value: context.read<UserWorkspaceBloc>(),
+          ),
+          BlocProvider(
+            create: (context) => AiPromptDatabaseSelectorCubit(
+              configuration: config,
+            ),
+          ),
+        ],
+        child: const AiPromptDatabaseModal(),
+      );
+    },
+  );
+}
+
+class AiPromptDatabaseModal extends StatefulWidget {
+  const AiPromptDatabaseModal({
+    super.key,
+  });
+
+  @override
+  State<AiPromptDatabaseModal> createState() => _AiPromptDatabaseModalState();
+}
+
+class _AiPromptDatabaseModalState extends State<AiPromptDatabaseModal> {
+  final expandableController = ExpandableController(initialExpanded: false);
+
+  @override
+  void dispose() {
+    expandableController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    return BlocListener<AiPromptDatabaseSelectorCubit,
+        AiPromptDatabaseSelectorState>(
+      listener: (context, state) {
+        state.maybeMap(
+          invalidDatabase: (_) {
+            showSimpleAFDialog(
+              context: context,
+              title: LocaleKeys.ai_customPrompt_invalidDatabase.tr(),
+              content: LocaleKeys.ai_customPrompt_invalidDatabaseHelp.tr(),
+              primaryAction: (
+                LocaleKeys.button_ok.tr(),
+                (context) {},
+              ),
+            );
+          },
+          empty: (_) => expandableController.expanded = false,
+          selected: (_) => expandableController.expanded = true,
+          orElse: () {},
+        );
+      },
+      child: AFModal(
+        constraints: const BoxConstraints(
+          maxWidth: 450,
+          maxHeight: 400,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AFModalHeader(
+              leading: Text(
+                LocaleKeys.ai_customPrompt_configureDatabase.tr(),
+                style: theme.textStyle.heading4.prominent(
+                  color: theme.textColorScheme.primary,
+                ),
+              ),
+              trailing: [
+                AFGhostButton.normal(
+                  onTap: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.all(theme.spacing.xs),
+                  builder: (context, isHovering, disabled) {
+                    return Center(
+                      child: FlowySvg(
+                        FlowySvgs.toast_close_s,
+                        size: Size.square(20),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            Flexible(
+              child: AFModalBody(
+                child: ExpandablePanel(
+                  controller: expandableController,
+                  theme: ExpandableThemeData(
+                    tapBodyToCollapse: false,
+                    hasIcon: false,
+                    tapBodyToExpand: false,
+                    tapHeaderToExpand: false,
+                  ),
+                  header: const _Header(),
+                  collapsed: const SizedBox.shrink(),
+                  expanded: const _Expanded(),
+                ),
+              ),
+            ),
+            AFModalFooter(
+              trailing: [
+                AFOutlinedButton.normal(
+                  onTap: () => Navigator.of(context).pop(),
+                  builder: (context, isHovering, disabled) {
+                    return Text(
+                      LocaleKeys.button_cancel.tr(),
+                      style: theme.textStyle.body.standard(
+                        color: theme.textColorScheme.primary,
+                      ),
+                    );
+                  },
+                ),
+                AFFilledButton.primary(
+                  onTap: () {
+                    final config = context
+                        .read<AiPromptDatabaseSelectorCubit>()
+                        .state
+                        .maybeMap(
+                          selected: (state) => state.config,
+                          orElse: () => null,
+                        );
+                    Navigator.of(context).pop(config);
+                  },
+                  builder: (context, isHovering, disabled) {
+                    return Text(
+                      LocaleKeys.button_done.tr(),
+                      style: theme.textStyle.body.enhanced(
+                        color: theme.textColorScheme.onFill,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Header extends StatefulWidget {
+  const _Header();
+
+  @override
+  State<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<_Header> {
+  final popoverController = AFPopoverController();
+
+  @override
+  void dispose() {
+    popoverController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    return BlocBuilder<AiPromptDatabaseSelectorCubit,
+        AiPromptDatabaseSelectorState>(
+      builder: (context, state) {
+        bool showNothing = false;
+        String? viewName;
+        state.maybeMap(
+          empty: (_) {
+            showNothing = false;
+            viewName = null;
+          },
+          selected: (selectedState) {
+            showNothing = false;
+            viewName = selectedState.config.view.nameOrDefault;
+          },
+          orElse: () {
+            showNothing = true;
+            viewName = null;
+          },
+        );
+
+        if (showNothing) {
+          return SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.spacing.m,
+            vertical: theme.spacing.xl,
+          ),
+          child: Row(
+            spacing: theme.spacing.s,
+            children: [
+              Expanded(
+                child: Text(
+                  LocaleKeys.ai_customPrompt_selectDatabase.tr(),
+                  style: theme.textStyle.body.standard(
+                    color: theme.textColorScheme.secondary,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: ViewSelector(
+                    viewSelectorCubit: BlocProvider(
+                      create: (context) => ViewSelectorCubit(
+                        getIgnoreViewType: getIgnoreViewType,
+                      ),
+                    ),
+                    child: BlocSelector<SpaceBloc, SpaceState,
+                        (List<ViewPB>, ViewPB?)>(
+                      selector: (state) => (state.spaces, state.currentSpace),
+                      builder: (context, state) {
+                        return AFPopover(
+                          controller: popoverController,
+                          decoration: BoxDecoration(
+                            color: theme.surfaceColorScheme.primary,
+                            borderRadius:
+                                BorderRadius.circular(theme.borderRadius.l),
+                            border: Border.all(
+                              color: theme.borderColorScheme.primary,
+                            ),
+                            boxShadow: theme.shadow.medium,
+                          ),
+                          padding: EdgeInsets.zero,
+                          anchor: AFAnchor(
+                            childAlignment: Alignment.topCenter,
+                            overlayAlignment: Alignment.bottomCenter,
+                            offset: Offset(0, theme.spacing.xs),
+                          ),
+                          popover: (context) {
+                            return _PopoverContent(
+                              onSelectViewItem: (item) {
+                                context
+                                    .read<AiPromptDatabaseSelectorCubit>()
+                                    .selectDatabaseView(item.view.id);
+                                popoverController.hide();
+                              },
+                            );
+                          },
+                          child: AFOutlinedButton.normal(
+                            onTap: () {
+                              context
+                                  .read<ViewSelectorCubit>()
+                                  .refreshSources(state.$1, state.$2);
+                              popoverController.toggle();
+                            },
+                            builder: (context, isHovering, disabled) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: theme.spacing.s,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      viewName ??
+                                          LocaleKeys
+                                              .ai_customPrompt_selectDatabase
+                                              .tr(),
+                                      style: theme.textStyle.body.enhanced(
+                                        color: theme.textColorScheme.primary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  FlowySvg(
+                                    FlowySvgs.toolbar_arrow_down_m,
+                                    color: theme.iconColorScheme.primary,
+                                    size: Size(12, 20),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  IgnoreViewType getIgnoreViewType(ViewSelectorItem item) {
+    final layout = item.view.layout;
+
+    if (layout.isDatabaseView) {
+      return IgnoreViewType.none;
+    }
+    if (layout.isDocumentView) {
+      return hasDatabaseDescendent(item)
+          ? IgnoreViewType.none
+          : IgnoreViewType.hide;
+    }
+    return IgnoreViewType.hide;
+  }
+
+  bool hasDatabaseDescendent(ViewSelectorItem viewSelectorItem) {
+    final layout = viewSelectorItem.view.layout;
+
+    if (layout == ViewLayoutPB.Chat) {
+      return false;
+    }
+
+    if (layout.isDatabaseView) {
+      return true;
+    }
+
+    // document may have children
+    return viewSelectorItem.children.any(
+      (child) => hasDatabaseDescendent(child),
+    );
+  }
+}
+
+class _Expanded extends StatelessWidget {
+  const _Expanded();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    return BlocBuilder<AiPromptDatabaseSelectorCubit,
+        AiPromptDatabaseSelectorState>(
+      builder: (context, state) {
+        return state.maybeMap(
+          orElse: () => SizedBox.shrink(),
+          selected: (selectedState) {
+            return Padding(
+              padding: EdgeInsets.all(theme.spacing.m),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: theme.spacing.m,
+                children: [
+                  FieldSelector(
+                    title: LocaleKeys.ai_customPrompt_title.tr(),
+                    currentFieldId: selectedState.config.titleFieldId,
+                    isDisabled: true,
+                    fields: selectedState.fields,
+                    onSelect: (id) {},
+                  ),
+                  FieldSelector(
+                    title: LocaleKeys.ai_customPrompt_content.tr(),
+                    currentFieldId: selectedState.config.contentFieldId,
+                    fields: selectedState.fields
+                        .where((f) => f.fieldType == FieldType.RichText)
+                        .toList(),
+                    onSelect: (id) {
+                      if (id != null) {
+                        context
+                            .read<AiPromptDatabaseSelectorCubit>()
+                            .selectContentField(id);
+                      }
+                    },
+                  ),
+                  FieldSelector(
+                    title: LocaleKeys.ai_customPrompt_example.tr(),
+                    currentFieldId: selectedState.config.exampleFieldId,
+                    isOptional: true,
+                    fields: selectedState.fields
+                        .where((f) => f.fieldType == FieldType.RichText)
+                        .toList(),
+                    onSelect: (id) {
+                      context
+                          .read<AiPromptDatabaseSelectorCubit>()
+                          .selectExampleField(id);
+                    },
+                  ),
+                  FieldSelector(
+                    title: LocaleKeys.ai_customPrompt_category.tr(),
+                    currentFieldId: selectedState.config.categoryFieldId,
+                    isOptional: true,
+                    fields: selectedState.fields
+                        .where(
+                          (f) =>
+                              f.fieldType == FieldType.RichText ||
+                              f.fieldType == FieldType.SingleSelect ||
+                              f.fieldType == FieldType.MultiSelect,
+                        )
+                        .toList(),
+                    onSelect: (id) {
+                      context
+                          .read<AiPromptDatabaseSelectorCubit>()
+                          .selectCategoryField(id);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _PopoverContent extends StatefulWidget {
+  const _PopoverContent({
+    required this.onSelectViewItem,
+  });
+
+  final void Function(ViewSelectorItem item) onSelectViewItem;
+
+  @override
+  State<_PopoverContent> createState() => _PopoverContentState();
+}
+
+class _PopoverContentState extends State<_PopoverContent> {
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints.tightFor(
+        width: 300,
+        height: 400,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VSpace(
+            theme.spacing.m,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.m,
+            ),
+            child: AFTextField(
+              focusNode: focusNode,
+              size: AFTextFieldSize.m,
+              hintText: LocaleKeys.search_label.tr(),
+              controller:
+                  context.read<ViewSelectorCubit>().filterTextController,
+            ),
+          ),
+          VSpace(
+            theme.spacing.m,
+          ),
+          AFDivider(),
+          Expanded(
+            child: BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
+              builder: (context, state) {
+                return ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+                  children: _buildVisibleSources(context, state).toList(),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Iterable<Widget> _buildVisibleSources(
+    BuildContext context,
+    ViewSelectorState state,
+  ) {
+    return state.visibleSources.map(
+      (e) => ViewSelectorTreeItem(
+        key: ValueKey(
+          'custom_prompt_database_tree_item_${e.view.id}',
+        ),
+        viewSelectorItem: e,
+        level: 0,
+        isDescendentOfSpace: e.view.isSpace,
+        isSelectedSection: false,
+        showCheckbox: false,
+        onSelected: (item) {
+          if (item.view.isDocument || item.view.isSpace) {
+            context.read<ViewSelectorCubit>().toggleIsExpanded(item, false);
+            return;
+          }
+          widget.onSelectViewItem(item);
+        },
+        height: 30.0,
+      ),
+    );
+  }
+}
+
+class _FieldPBWrapper extends Equatable with AFDropDownMenuMixin {
+  const _FieldPBWrapper(this.field);
+
+  final FieldPB field;
+
+  @override
+  String get label => field.name;
+
+  @override
+  List<Object?> get props => [field.id];
+}
+
+class FieldSelector extends StatelessWidget {
+  const FieldSelector({
+    super.key,
+    required this.title,
+    required this.currentFieldId,
+    this.isDisabled = false,
+    this.isOptional = false,
+    this.fields = const [],
+    required this.onSelect,
+  });
+
+  final String title;
+  final String? currentFieldId;
+  final bool isDisabled;
+  final bool isOptional;
+  final List<FieldPB> fields;
+  final void Function(String? id)? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
+    final selectedField = fields.firstWhereOrNull(
+      (field) => field.id == currentFieldId,
+    );
+
+    return Row(
+      spacing: theme.spacing.s,
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: AFDropDownMenu<_FieldPBWrapper>(
+            isDisabled: isDisabled,
+            items: fields.map((field) => _FieldPBWrapper(field)).toList(),
+            selectedItems: [
+              if (selectedField != null) _FieldPBWrapper(selectedField),
+            ],
+            clearIcon: selectedField == null ||
+                    !fields.contains(selectedField) ||
+                    !isOptional
+                ? null
+                : MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        onSelect?.call(null);
+                      },
+                      child: FlowySvg(
+                        FlowySvgs.search_clear_m,
+                        size: Size.square(16),
+                        color: theme.iconColorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+            onSelected: (value) {
+              if (value == null) {
+                return;
+              }
+              onSelect?.call(value.field.id);
+            },
+            dropdownIcon: FlowySvg(
+              FlowySvgs.toolbar_arrow_down_m,
+              color: theme.iconColorScheme.primary,
+              size: Size(12, 20),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -38,6 +38,7 @@ class FlowyTextField extends StatefulWidget {
   final bool isDense;
   final bool readOnly;
   final Color? enableBorderColor;
+  final double? cursorHeight;
   final BorderRadius? borderRadius;
   final void Function()? onTap;
   final Function(PointerDownEvent)? onTapOutside;
@@ -80,6 +81,7 @@ class FlowyTextField extends StatefulWidget {
     this.borderRadius,
     this.onTap,
     this.onTapOutside,
+    this.cursorHeight,
   });
 
   @override
@@ -153,6 +155,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      cursorHeight: widget.cursorHeight,
       readOnly: widget.readOnly,
       controller: controller,
       focusNode: focusNode,

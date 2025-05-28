@@ -19,6 +19,8 @@ class AppFlowyThemeData {
     required this.spacing,
     required this.shadow,
     required this.brandColorScheme,
+    required this.surfaceContainerColorScheme,
+    required this.badgeColorScheme,
     required this.otherColorsColorScheme,
   });
 
@@ -44,6 +46,10 @@ class AppFlowyThemeData {
 
   final AppFlowyBrandColorScheme brandColorScheme;
 
+  final AppFlowySurfaceContainerColorScheme surfaceContainerColorScheme;
+
+  final AppFlowyBadgeColorScheme badgeColorScheme;
+
   final AppFlowyOtherColorsColorScheme otherColorsColorScheme;
 
   static AppFlowyThemeData lerp(
@@ -52,21 +58,50 @@ class AppFlowyThemeData {
     double t,
   ) {
     return AppFlowyThemeData(
-      textColorScheme: begin.textColorScheme.lerp(end.textColorScheme, t),
+      textColorScheme: begin.textColorScheme.lerp(
+        end.textColorScheme,
+        t,
+      ),
       textStyle: end.textStyle,
-      iconColorScheme: begin.iconColorScheme.lerp(end.iconColorScheme, t),
-      borderColorScheme: begin.borderColorScheme.lerp(end.borderColorScheme, t),
-      backgroundColorScheme:
-          begin.backgroundColorScheme.lerp(end.backgroundColorScheme, t),
-      fillColorScheme: begin.fillColorScheme.lerp(end.fillColorScheme, t),
-      surfaceColorScheme:
-          begin.surfaceColorScheme.lerp(end.surfaceColorScheme, t),
+      iconColorScheme: begin.iconColorScheme.lerp(
+        end.iconColorScheme,
+        t,
+      ),
+      borderColorScheme: begin.borderColorScheme.lerp(
+        end.borderColorScheme,
+        t,
+      ),
+      backgroundColorScheme: begin.backgroundColorScheme.lerp(
+        end.backgroundColorScheme,
+        t,
+      ),
+      fillColorScheme: begin.fillColorScheme.lerp(
+        end.fillColorScheme,
+        t,
+      ),
+      surfaceColorScheme: begin.surfaceColorScheme.lerp(
+        end.surfaceColorScheme,
+        t,
+      ),
       borderRadius: end.borderRadius,
       spacing: end.spacing,
       shadow: end.shadow,
-      brandColorScheme: begin.brandColorScheme.lerp(end.brandColorScheme, t),
-      otherColorsColorScheme:
-          begin.otherColorsColorScheme.lerp(end.otherColorsColorScheme, t),
+      brandColorScheme: begin.brandColorScheme.lerp(
+        end.brandColorScheme,
+        t,
+      ),
+      otherColorsColorScheme: begin.otherColorsColorScheme.lerp(
+        end.otherColorsColorScheme,
+        t,
+      ),
+      surfaceContainerColorScheme: begin.surfaceContainerColorScheme.lerp(
+        end.surfaceContainerColorScheme,
+        t,
+      ),
+      badgeColorScheme: begin.badgeColorScheme.lerp(
+        end.badgeColorScheme,
+        t,
+      ),
     );
   }
 }

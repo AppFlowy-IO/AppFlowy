@@ -15,6 +15,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'browse_prompts_button.dart';
 
+typedef OnPromptInputSubmitted = void Function(
+  String input,
+  PredefinedFormat? predefinedFormat,
+  Map<String, dynamic> metadata,
+  String? promptId,
+);
+
 class DesktopPromptInput extends StatefulWidget {
   const DesktopPromptInput({
     super.key,
@@ -32,8 +39,7 @@ class DesktopPromptInput extends StatefulWidget {
   final bool isStreaming;
   final AiPromptInputTextEditingController textController;
   final void Function() onStopStreaming;
-  final void Function(String, PredefinedFormat?, Map<String, dynamic>)
-      onSubmitted;
+  final OnPromptInputSubmitted onSubmitted;
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
   final bool hideDecoration;
@@ -241,12 +247,14 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     final sources = (paletteState.askAISources ?? []).map((e) => e.id).toList();
     final metadata =
         context.read<AIPromptInputBloc?>()?.consumeMetadata() ?? {};
-    final promptState = context.read<AIPromptInputBloc?>()?.state;
+    final promptBloc = context.read<AIPromptInputBloc?>();
+    final promptId = promptBloc?.promptId;
+    final promptState = promptBloc?.state;
     final predefinedFormat = promptState?.predefinedFormat;
     if (sources.isNotEmpty) {
       widget.onUpdateSelectedSources(sources);
     }
-    widget.onSubmitted.call(query, predefinedFormat, metadata);
+    widget.onSubmitted.call(query, predefinedFormat, metadata, promptId ?? '');
   }
 
   void startMentionPageFromButton() {
@@ -308,6 +316,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       userInput,
       showPredefinedFormats ? predefinedFormat : null,
       metadata,
+      bloc.promptId,
     );
   }
 
@@ -526,9 +535,9 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
 
   void handleOnSelectPrompt(AiPrompt prompt) {
     final bloc = context.read<AIPromptInputBloc>();
-    bloc.add(
-      AIPromptInputEvent.updateMentionedViews([]),
-    );
+    bloc
+      ..add(AIPromptInputEvent.updateMentionedViews([]))
+      ..add(AIPromptInputEvent.updatePromptId(prompt.id));
 
     final content = AiPromptInputTextEditingController.replace(prompt.content);
 

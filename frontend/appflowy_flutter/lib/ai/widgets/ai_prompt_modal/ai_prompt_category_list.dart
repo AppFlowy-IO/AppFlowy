@@ -68,7 +68,10 @@ class _AiPromptCategoryListState extends State<AiPromptCategoryList> {
 
   static Iterable<AiPromptCategory> get sortedCategories {
     final categories = [...AiPromptCategory.values];
-    categories.sort((a, b) => a.i18n.compareTo(b.i18n));
+    categories
+      ..sort((a, b) => a.i18n.compareTo(b.i18n))
+      ..remove(AiPromptCategory.other)
+      ..add(AiPromptCategory.other);
 
     return categories;
   }
@@ -126,7 +129,7 @@ class AiPromptFeaturedSection extends StatelessWidget {
           return theme.fillColorScheme.themeSelect;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
         return Colors.transparent;
       },
@@ -176,7 +179,7 @@ class AiPromptCustomPromptSection extends StatelessWidget {
                   return theme.fillColorScheme.themeSelect;
                 }
                 if (isHovering) {
-                  return theme.fillColorScheme.primaryAlpha5;
+                  return theme.fillColorScheme.contentHover;
                 }
                 return Colors.transparent;
               },
@@ -236,7 +239,7 @@ class AiPromptCategoryItem extends StatelessWidget {
               return theme.fillColorScheme.themeSelect;
             }
             if (isHovering) {
-              return theme.fillColorScheme.primaryAlpha5;
+              return theme.fillColorScheme.contentHover;
             }
             return Colors.transparent;
           },

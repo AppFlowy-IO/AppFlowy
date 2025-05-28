@@ -46,7 +46,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>();
+      .parse_or_panic::<ViewPB>();
 
     let payload = OpenDocumentPayloadPB {
       document_id: view.id.clone(),
@@ -57,7 +57,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<DocumentDataPB>();
+      .parse_or_panic::<DocumentDataPB>();
 
     view
   }
@@ -71,7 +71,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<DocumentDataPB>();
+      .parse_or_panic::<DocumentDataPB>();
     OpenDocumentData { id: doc_id, data }
   }
   pub async fn insert_document_text(&self, document_id: &str, text: &str, index: usize) {
@@ -89,7 +89,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<DocumentDataPB>();
+      .parse_or_panic::<DocumentDataPB>();
 
     DocumentData::from(pb)
   }

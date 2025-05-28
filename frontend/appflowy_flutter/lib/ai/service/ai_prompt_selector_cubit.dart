@@ -1,12 +1,16 @@
+import 'dart:async';
+
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../plugins/trash/application/trash_service.dart';
 import 'ai_entities.dart';
 import 'appflowy_ai_service.dart';
 
@@ -44,7 +48,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
         isCustomPromptSectionSelected: false,
         isFeaturedSectionSelected: true,
         selectedPromptId: visiblePrompts.firstOrNull?.id,
-        customPromptDatabaseViewId: null,
+        databaseConfig: null,
         isLoadingCustomPrompts: true,
         selectedCategory: null,
         favoritePrompts: [],
@@ -61,14 +65,29 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
           readyState.copyWith(isLoadingCustomPrompts: true),
         );
 
-        String? databaseViewId = readyState.customPromptDatabaseViewId;
-        if (databaseViewId == null) {
-          final result =
-              await AIEventGetCustomPromptDatabaseViewId().send().toNullable();
-          databaseViewId = result?.id;
+        CustomPromptDatabaseConfig? configuration = readyState.databaseConfig;
+        if (configuration == null) {
+          final configResult =
+              await AIEventGetCustomPromptDatabaseConfiguration()
+                  .send()
+                  .toNullable();
+          if (configResult != null) {
+            final view = await getDatabaseView(configResult.viewId);
+            if (view != null) {
+              configuration = CustomPromptDatabaseConfig.fromAiPB(
+                configResult,
+                view,
+              );
+            }
+          }
+        } else {
+          final view = await getDatabaseView(configuration.view.id);
+          if (view != null) {
+            configuration = configuration.copyWith(view: view);
+          }
         }
 
-        if (databaseViewId == null) {
+        if (configuration == null) {
           emit(
             readyState.copyWith(isLoadingCustomPrompts: false),
           );
@@ -78,7 +97,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
         availablePrompts.removeWhere((prompt) => prompt.isCustom);
 
         final customPrompts =
-            await _aiService.getDatabasePrompts(databaseViewId);
+            await _aiService.getDatabasePrompts(configuration.toDbPB());
 
         if (customPrompts == null) {
           final prompts = availablePrompts.where((prompt) => prompt.isFeatured);
@@ -92,7 +111,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
             readyState.copyWith(
               visiblePrompts: visiblePrompts.toList(),
               selectedPromptId: selectedPromptId,
-              customPromptDatabaseViewId: databaseViewId,
+              databaseConfig: configuration,
               isLoadingCustomPrompts: false,
               isFeaturedSectionSelected: true,
               isCustomPromptSectionSelected: false,
@@ -112,7 +131,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
           emit(
             readyState.copyWith(
               visiblePrompts: visiblePrompts.toList(),
-              customPromptDatabaseViewId: databaseViewId,
+              databaseConfig: configuration,
               isLoadingCustomPrompts: false,
               selectedPromptId: selectedPromptId,
             ),
@@ -168,7 +187,8 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
       ready: (readyState) {
         final prompts = category == null
             ? availablePrompts
-            : availablePrompts.where((prompt) => prompt.category == category);
+            : availablePrompts
+                .where((prompt) => prompt.category.contains(category));
         final visiblePrompts = _getFilteredPrompts(prompts);
 
         final selectedPromptId = _getVisibleSelectedPrompt(
@@ -240,58 +260,48 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
     );
   }
 
-  void updateCustomPromptDatabaseViewId(String viewId) async {
-    final stateCopy = state;
-    final newState = state.maybeMap(
-      ready: (readyState) {
-        return readyState.customPromptDatabaseViewId == viewId
-            ? null
-            : readyState.copyWith(isLoadingCustomPrompts: true);
-      },
-      orElse: () => null,
-    );
+  void updateCustomPromptDatabaseConfiguration(
+    CustomPromptDatabaseConfig configuration,
+  ) async {
+    state.maybeMap(
+      ready: (readyState) async {
+        emit(
+          readyState.copyWith(isLoadingCustomPrompts: true),
+        );
 
-    if (newState == null) {
-      return;
-    }
-    emit(newState);
+        final customPrompts =
+            await _aiService.getDatabasePrompts(configuration.toDbPB());
 
-    await Future.delayed(const Duration(seconds: 1));
+        if (customPrompts == null) {
+          emit(AiPromptSelectorState.invalidDatabase());
+          emit(readyState);
+          return;
+        }
 
-    final customPrompts = await _aiService.getDatabasePrompts(viewId);
-    if (customPrompts == null) {
-      emit(AiPromptSelectorState.invalidDatabase());
-      emit(stateCopy);
+        availablePrompts
+          ..removeWhere((prompt) => prompt.isCustom)
+          ..addAll(customPrompts);
 
-      return;
-    }
+        await AIEventSetCustomPromptDatabaseConfiguration(
+          configuration.toAiPB(),
+        ).send().onFailure(Log.error);
 
-    availablePrompts
-      ..removeWhere((prompt) => prompt.isCustom)
-      ..addAll(customPrompts);
-
-    await AIEventSetCustomPromptDatabaseViewId(
-      CustomPromptDatabaseViewIdPB()..id = viewId,
-    ).send().onFailure(Log.error);
-
-    emit(
-      state.maybeMap(
-        ready: (readyState) {
-          final prompts = _getPromptsByCategory(readyState);
-          final visiblePrompts = _getFilteredPrompts(prompts);
-          final selectedPromptId = _getVisibleSelectedPrompt(
-            visiblePrompts,
-            readyState.selectedPromptId,
-          );
-          return readyState.copyWith(
+        final prompts = _getPromptsByCategory(readyState);
+        final visiblePrompts = _getFilteredPrompts(prompts);
+        final selectedPromptId = _getVisibleSelectedPrompt(
+          visiblePrompts,
+          readyState.selectedPromptId,
+        );
+        emit(
+          readyState.copyWith(
             visiblePrompts: visiblePrompts.toList(),
             selectedPromptId: selectedPromptId,
-            customPromptDatabaseViewId: viewId,
+            databaseConfig: configuration,
             isLoadingCustomPrompts: false,
-          );
-        },
-        orElse: () => state,
-      ),
+          ),
+        );
+      },
+      orElse: () => {},
     );
   }
 
@@ -329,7 +339,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
   Iterable<AiPrompt> _getPromptsByCategory(_AiPromptSelectorReadyState state) {
     return availablePrompts.where((prompt) {
       if (state.selectedCategory != null) {
-        return prompt.category == state.selectedCategory;
+        return prompt.category.contains(state.selectedCategory);
       }
       if (state.isFeaturedSectionSelected) {
         return prompt.isFeatured;
@@ -352,6 +362,26 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
 
     return visiblePrompts.firstOrNull?.id;
   }
+
+  static Future<ViewPB?> getDatabaseView(String viewId) async {
+    final view = await ViewBackendService.getView(viewId).toNullable();
+
+    if (view != null) {
+      return view;
+    }
+
+    final trashViews = await TrashService().readTrash().toNullable();
+    final trashedItem =
+        trashViews?.items.firstWhereOrNull((element) => element.id == viewId);
+
+    if (trashedItem == null) {
+      return null;
+    }
+
+    return ViewPB()
+      ..id = trashedItem.id
+      ..name = trashedItem.name;
+  }
 }
 
 @freezed
@@ -371,7 +401,7 @@ class AiPromptSelectorState with _$AiPromptSelectorState {
     required AiPromptCategory? selectedCategory,
     required String? selectedPromptId,
     required bool isLoadingCustomPrompts,
-    required String? customPromptDatabaseViewId,
+    required CustomPromptDatabaseConfig? databaseConfig,
   }) = _AiPromptSelectorReadyState;
 
   bool get isLoading => this is _AiPromptSelectorLoadingState;

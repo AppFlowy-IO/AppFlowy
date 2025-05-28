@@ -1039,9 +1039,11 @@ impl DatabaseEditor {
     let old_row = self.get_row(view_id, &row_id).await;
     self
       .update_row(row_id.clone(), |row_update| {
-        row_update.update_cells(|cell_update| {
-          cell_update.clear(field_id);
-        });
+        row_update
+          .set_last_modified(timestamp())
+          .update_cells(|cell_update| {
+            cell_update.clear(field_id);
+          });
       })
       .await?;
 
@@ -1852,24 +1854,34 @@ impl DatabaseEditor {
 
   pub async fn get_prompts_from_database(
     &self,
-    view_id: &str,
+    config: &CustomPromptDatabaseConfigPB,
   ) -> Result<Vec<CustomPromptPB>, FlowyError> {
-    let fields = self.get_fields(view_id, None).await;
+    let fields = self.get_fields(&config.view_id, None).await;
+
     let primary_field = fields
       .iter()
-      .find(|f| f.is_primary)
-      .ok_or(FlowyError::internal().with_context("Cannot find primary field"))?;
+      .find(|field| field.id == config.title_field_id)
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find primary field"))?;
     let content_field = fields
       .iter()
-      .find(|f| f.name.to_lowercase() == "content" && f.field_type == FieldType::RichText.value())
-      .or_else(|| {
-        fields
-          .iter()
-          .find(|f| !f.is_primary && f.field_type == FieldType::RichText.value())
+      .find(|field| {
+        field.id == config.content_field_id && field.field_type == FieldType::RichText.value()
       })
-      .ok_or(FlowyError::internal().with_context("Cannot find content field"))?;
-    let example_field = fields.iter().find(|f| f.name.to_lowercase() == "example");
-    let category_field = fields.iter().find(|f| f.name.to_lowercase() == "category");
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find content field"))?;
+    let example_field = config.example_field_id.as_ref().and_then(|id| {
+      fields
+        .iter()
+        .find(|field| field.id == *id && field.field_type == FieldType::RichText.value())
+    });
+    let category_field = config.category_field_id.as_ref().and_then(|id| {
+      fields.iter().find(|field| {
+        field.id == *id
+          && matches!(
+            FieldType::from(field.field_type),
+            FieldType::RichText | FieldType::SingleSelect | FieldType::MultiSelect
+          )
+      })
+    });
 
     fn extract_cell_value(row: &Row, field: &Field) -> Option<String> {
       row
@@ -1879,7 +1891,7 @@ impl DatabaseEditor {
     }
 
     let custom_prompts = self
-      .get_all_rows(view_id)
+      .get_all_rows(&config.view_id)
       .await?
       .into_iter()
       .filter_map(|row| {
@@ -1903,7 +1915,7 @@ impl DatabaseEditor {
 
         let category = category_field
           .and_then(|field| extract_cell_value(&row, field))
-          .unwrap_or_else(|| "other".to_string());
+          .unwrap_or_default();
 
         Some(CustomPromptPB {
           id,
@@ -1916,6 +1928,59 @@ impl DatabaseEditor {
       .collect::<Vec<_>>();
 
     Ok(custom_prompts)
+  }
+
+  pub async fn test_custom_prompt_database_configuration(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<CustomPromptDatabaseConfigPB> {
+    let mut fields = self.get_fields(view_id, None).await;
+    let view_id = view_id.to_string();
+
+    let title_field_position = fields
+      .iter()
+      .position(|f| f.is_primary)
+      .ok_or(FlowyError::internal().with_context("Cannot find primary field"))?;
+    let title_field_id = fields.remove(title_field_position).id;
+
+    let content_field_position = fields
+      .iter()
+      .position(|f| {
+        f.name.to_lowercase() == "content" && f.field_type == FieldType::RichText.value()
+      })
+      .or_else(|| {
+        fields
+          .iter()
+          .position(|f| f.field_type == FieldType::RichText.value())
+      })
+      .ok_or(FlowyError::internal().with_context("Cannot find content field"))?;
+    let content_field_id = fields.remove(content_field_position).id;
+
+    let example_field_id = fields
+      .iter()
+      .find(|f| f.name.to_lowercase() == "example" && f.field_type == FieldType::RichText.value())
+      .map(|f| f.id.clone());
+
+    let category_field_id = fields
+      .iter()
+      .find(|f| {
+        f.name.to_lowercase() == "category"
+          && matches!(
+            FieldType::from(f.field_type),
+            FieldType::RichText | FieldType::SingleSelect | FieldType::MultiSelect
+          )
+      })
+      .map(|f| f.id.clone());
+
+    let configuration = CustomPromptDatabaseConfigPB {
+      view_id,
+      title_field_id,
+      content_field_id,
+      example_field_id,
+      category_field_id,
+    };
+
+    Ok(configuration)
   }
 
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
@@ -2041,7 +2106,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let mut all_rows = vec![];
     let read_guard = self.database.read().await;
     let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, 10, None)
+      .get_rows_from_row_orders(row_orders, 10, None)
       .await;
     pin_mut!(rows_stream);
 

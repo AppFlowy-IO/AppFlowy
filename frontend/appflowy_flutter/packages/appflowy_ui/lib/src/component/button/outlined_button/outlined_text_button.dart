@@ -43,22 +43,22 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.borderColorScheme.greyTertiary;
+          return theme.borderColorScheme.primary;
         }
         if (isHovering) {
-          return theme.borderColorScheme.greyTertiaryHover;
+          return theme.borderColorScheme.primaryHover;
         }
-        return theme.borderColorScheme.greyTertiary;
+        return theme.borderColorScheme.primary;
       },
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.transparent;
+          return theme.fillColorScheme.content;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return theme.fillColorScheme.transparent;
+        return theme.fillColorScheme.content;
       },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
@@ -113,7 +113,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
         if (isHovering) {
           return theme.fillColorScheme.errorSelect;
         }
-        return theme.fillColorScheme.transparent;
+        return theme.fillColorScheme.content;
       },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
@@ -153,22 +153,22 @@ class AFOutlinedTextButton extends AFBaseTextButton {
       borderColor: (context, isHovering, disabled, isFocused) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.borderColorScheme.greyTertiary;
+          return theme.borderColorScheme.primary;
         }
         if (isHovering) {
-          return theme.borderColorScheme.greyTertiaryHover;
+          return theme.borderColorScheme.primaryHover;
         }
-        return theme.borderColorScheme.greyTertiary;
+        return theme.borderColorScheme.primary;
       },
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
-          return theme.fillColorScheme.transparent;
+          return theme.fillColorScheme.content;
         }
         if (isHovering) {
-          return theme.fillColorScheme.primaryAlpha5;
+          return theme.fillColorScheme.contentHover;
         }
-        return theme.fillColorScheme.transparent;
+        return theme.fillColorScheme.content;
       },
     );
   }

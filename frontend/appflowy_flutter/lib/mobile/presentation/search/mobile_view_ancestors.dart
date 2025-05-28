@@ -31,7 +31,9 @@ class ViewAncestorBloc extends Bloc<ViewAncestorEvent, ViewAncestorState> {
                 }
               },
             );
-            emit(state.copyWith(ancestor: ancester, isLoading: false));
+            if (ancester != null) {
+              emit(state.copyWith(ancestor: ancester, isLoading: false));
+            }
           },
         );
       },
@@ -88,7 +90,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         return Text(
           displayPath.join(' / '),
           style: textStyle,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         );
       },
@@ -100,4 +102,37 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         maxLines: 1,
         textDirection: TextDirection.ltr,
       );
+
+  Widget buildOnelinePath(BuildContext context) {
+    final ancestors = ancestor.ancestors;
+    List<String> displayPath = ancestors.map((e) => e.name).toList();
+    if (ancestors.length > 2) {
+      displayPath = [ancestors.first.name, '...', ancestors.last.name];
+    }
+    final theme = AppFlowyTheme.of(context);
+    final style = theme.textStyle.caption
+        .standard(color: theme.textColorScheme.tertiary)
+        .copyWith(letterSpacing: 0.1);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        HSpace(8),
+        Text(
+          '-',
+          style: style.copyWith(
+            color: theme.borderColorScheme.primaryHover,
+          ),
+        ),
+        HSpace(8),
+        Flexible(
+          child: Text(
+            displayPath.join(' / '),
+            style: style,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
 }

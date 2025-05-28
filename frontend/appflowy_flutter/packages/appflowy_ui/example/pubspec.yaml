@@ -14,6 +14,8 @@ dependencies:
   appflowy_ui:
     path: ../
   cupertino_icons: ^1.0.6
+  flutter_svg: ^2.1.0
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:
@@ -22,3 +24,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/vector.svg
+    - assets/images/arrow_right.svg

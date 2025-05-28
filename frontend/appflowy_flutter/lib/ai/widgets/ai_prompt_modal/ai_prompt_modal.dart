@@ -46,6 +46,7 @@ class AiPromptModal extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
 
     return AFModal(
+      backgroundColor: theme.backgroundColorScheme.primary,
       constraints: const BoxConstraints(
         maxWidth: 1200,
         maxHeight: 800,
@@ -102,7 +103,7 @@ class AiPromptModal extends StatelessWidget {
                               child: AiPromptCategoryList(),
                             ),
                             if (readyState.isCustomPromptSectionSelected &&
-                                readyState.customPromptDatabaseViewId == null)
+                                readyState.databaseConfig == null)
                               const Expanded(
                                 flex: 5,
                                 child: Center(

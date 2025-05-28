@@ -26,6 +26,22 @@ private = true
 script = [
   """
     cd rust-lib/
+    
+    # Set environment variables for iOS simulator builds to fix bindgen issues
+    # This prevents the "stdbool.h file not found" error when building for iOS simulator
+    # Fix the issue:
+    # error: version 'sim' in target triple 'arm64-apple-ios-sim' is invalid
+    # rocksdb/include/rocksdb/c.h:65:10: fatal error: 'stdbool.h' file not found
+    #
+
+    if [[ "${RUST_COMPILE_TARGET}" == *"ios-sim"* ]]; then
+      echo "🔧 Setting up environment for iOS Simulator build..."
+      export SDKROOT="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+      export BINDGEN_EXTRA_CLANG_ARGS="-target arm64-apple-ios14.0-simulator -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path)"
+      echo "📱 SDKROOT: $SDKROOT"
+      echo "🛠️  BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+    fi
+    
     if [ "${BUILD_FLAG}" = "debug" ]; then
       echo "🚀 🚀 🚀  Building iOS SDK for debug"
       cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi

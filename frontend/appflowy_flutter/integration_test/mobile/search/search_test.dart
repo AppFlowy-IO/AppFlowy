@@ -1,6 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/home/home.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_search_ask_ai_entrance.dart';
+import 'package:appflowy/mobile/presentation/search/mobile_search_page.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_search_result.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_search_textfield.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -55,5 +58,36 @@ void main() {
       await tester.tapButton(cancelButton);
       expect(cancelButton, findsNothing);
     });
+  });
+
+  testWidgets('tap to search page and back to home', (tester) async {
+    await tester.launchInAnonymousMode();
+
+    /// go to search page
+    final searchButton = find.byFlowySvg(FlowySvgs.m_home_search_icon_m);
+    expect(find.byType(MobileSearchScreen), findsNothing);
+    await tester.tapButton(searchButton);
+    expect(find.byType(MobileSearchScreen), findsOneWidget);
+
+    /// back to home page
+    final backButton = find.byFlowySvg(FlowySvgs.search_page_arrow_left_m);
+    expect(backButton, findsOneWidget);
+    expect(find.byType(MobileHomeScreen), findsNothing);
+    await tester.tapButton(backButton);
+    expect(find.byType(MobileHomeScreen), findsOneWidget);
+
+    /// go to notification page
+    final notificationButton = find.byFlowySvg(FlowySvgs.m_home_notification_m);
+    expect(find.byType(MobileNotificationsScreenV2), findsNothing);
+    await tester.tapButton(notificationButton);
+    expect(find.byType(MobileNotificationsScreenV2), findsOneWidget);
+
+    /// go to search page
+    await tester.tapButton(searchButton);
+    expect(find.byType(MobileNotificationsScreenV2), findsNothing);
+    expect(find.byType(MobileSearchScreen), findsOneWidget);
+    await tester.tapButton(backButton);
+    expect(find.byType(MobileNotificationsScreenV2), findsOneWidget);
+    expect(find.byType(MobileSearchScreen), findsNothing);
   });
 }

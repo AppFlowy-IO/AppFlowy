@@ -836,6 +836,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  Future<void> tapClearCellsButton() async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.clearData,
+    );
+    await tapButton(field);
+  }
+
   Future<void> tapRowDetailPageRowActionButton() async =>
       tapButton(find.byType(RowActionButton));
 

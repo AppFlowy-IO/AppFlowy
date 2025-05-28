@@ -8,7 +8,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operati
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart'
+    hide CustomPromptDatabaseConfigurationPB;
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,6 +29,7 @@ abstract class AIRepository {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    String? promptId,
     List<String> sourceIds = const [],
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
@@ -42,7 +44,9 @@ abstract class AIRepository {
 
   Future<List<AiPrompt>> getBuiltInPrompts();
 
-  Future<List<AiPrompt>?> getDatabasePrompts(String databaseViewId);
+  Future<List<AiPrompt>?> getDatabasePrompts(
+    CustomPromptDatabaseConfigPB config,
+  );
 
   void updateFavoritePrompts(List<String> promptIds);
 }
@@ -53,6 +57,7 @@ class AppFlowyAIService implements AIRepository {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    String? promptId,
     List<String> sourceIds = const [],
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
@@ -79,6 +84,7 @@ class AppFlowyAIService implements AIRepository {
       text: text,
       completionType: completionType,
       format: format?.toPB(),
+      promptId: promptId,
       streamPort: fixnum.Int64(stream.nativePort),
       objectId: objectId ?? '',
       ragIds: [
@@ -122,14 +128,11 @@ class AppFlowyAIService implements AIRepository {
 
   @override
   Future<List<AiPrompt>?> getDatabasePrompts(
-    String databaseViewId,
+    CustomPromptDatabaseConfigPB config,
   ) async {
-    return DatabaseEventGetDatabaseCustomPrompts(
-      DatabaseViewIdPB(value: databaseViewId),
-    ).send().fold(
-      (databasePromptsPB) {
-        return databasePromptsPB.items.map(AiPrompt.fromPB).toList();
-      },
+    return DatabaseEventGetDatabaseCustomPrompts(config).send().fold(
+      (databasePromptsPB) =>
+          databasePromptsPB.items.map(AiPrompt.fromPB).toList(),
       (err) {
         Log.error(err);
         return null;

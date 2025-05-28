@@ -4,6 +4,7 @@ import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,7 +12,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'ai_prompt_database_selector.dart';
+import 'ai_prompt_database_modal.dart';
 
 const Duration _listItemAnimationDuration = Duration(milliseconds: 150);
 
@@ -57,89 +58,147 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocListener<AiPromptSelectorCubit, AiPromptSelectorState>(
-      listener: (context, state) {
-        state.maybeMap(
-          ready: (state) {
-            handleVisiblePromptListChanged(state.visiblePrompts);
+    return Column(
+      children: [
+        BlocConsumer<AiPromptSelectorCubit, AiPromptSelectorState>(
+          listener: (context, state) {
+            state.maybeMap(
+              ready: (state) {
+                handleVisiblePromptListChanged(state.visiblePrompts);
+              },
+              orElse: () {},
+            );
           },
-          orElse: () {},
-        );
-      },
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: theme.spacing.l),
-            child: buildSearchField(context),
-          ),
-          VSpace(
-            theme.spacing.s,
-          ),
-          BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
-            buildWhen: (p, c) {
-              return p.maybeMap(
-                ready: (pr) => c.maybeMap(
-                  ready: (cr) =>
-                      pr.customPromptDatabaseViewId !=
-                          cr.customPromptDatabaseViewId ||
-                      pr.isLoadingCustomPrompts != cr.isLoadingCustomPrompts ||
-                      pr.isCustomPromptSectionSelected !=
-                          cr.isCustomPromptSectionSelected,
-                  orElse: () => false,
-                ),
-                orElse: () => true,
-              );
-            },
-            builder: (context, state) {
-              return state.maybeMap(
-                ready: (readyState) {
-                  if (!readyState.isCustomPromptSectionSelected) {
-                    return const SizedBox.shrink();
-                  }
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      left: theme.spacing.l,
-                      top: theme.spacing.s,
-                      right: theme.spacing.l,
-                    ),
-                    child: CustomPromptDatabaseSelector(
-                      databaseViewId: readyState.customPromptDatabaseViewId,
-                      isLoading: readyState.isLoadingCustomPrompts,
-                      popoverDirection: PopoverDirection.bottomWithRightAligned,
-                      childBuilder: (onTap) {
-                        return AiPromptDatabaseSelectorButton(
-                          selectedViewId: readyState.customPromptDatabaseViewId,
-                          isLoading: readyState.isLoadingCustomPrompts,
-                          onTap: onTap,
-                        );
-                      },
-                    ),
-                  );
-                },
-                orElse: () => const SizedBox.shrink(),
-              );
-            },
-          ),
-          Expanded(
-            child: TextFieldTapRegion(
-              groupId: "ai_prompt_category_list",
-              child: BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
-                builder: (context, state) {
-                  return state.maybeMap(
-                    ready: (readyState) {
-                      if (readyState.visiblePrompts.isEmpty) {
-                        return buildEmptyPrompts();
-                      }
-                      return buildPromptList();
-                    },
-                    orElse: () => const SizedBox.shrink(),
-                  );
-                },
+          buildWhen: (p, c) {
+            return p.maybeMap(
+              ready: (pr) => c.maybeMap(
+                ready: (cr) =>
+                    pr.databaseConfig?.view.id != cr.databaseConfig?.view.id ||
+                    pr.isLoadingCustomPrompts != cr.isLoadingCustomPrompts ||
+                    pr.isCustomPromptSectionSelected !=
+                        cr.isCustomPromptSectionSelected,
+                orElse: () => false,
               ),
+              orElse: () => true,
+            );
+          },
+          builder: (context, state) {
+            return state.maybeMap(
+              ready: (readyState) {
+                if (!readyState.isCustomPromptSectionSelected) {
+                  return const SizedBox.shrink();
+                }
+                return Container(
+                  margin: EdgeInsets.only(
+                    left: theme.spacing.l,
+                    right: theme.spacing.l,
+                    bottom: theme.spacing.l,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.m),
+                    color: theme.surfaceContainerColorScheme.layer01,
+                  ),
+                  padding: EdgeInsets.all(theme.spacing.m),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text:
+                                    "${LocaleKeys.ai_customPrompt_promptDatabase.tr()}: ",
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                              TextSpan(
+                                text: readyState
+                                        .databaseConfig?.view.nameOrDefault ??
+                                    "",
+                              ),
+                            ],
+                          ),
+                          style: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 150,
+                        ),
+                        child: AFOutlinedButton.normal(
+                          builder: (context, isHovering, disabled) {
+                            return Row(
+                              spacing: theme.spacing.s,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (readyState.isLoadingCustomPrompts)
+                                  buildLoadingIndicator(theme),
+                                Flexible(
+                                  child: Text(
+                                    readyState.isLoadingCustomPrompts
+                                        ? LocaleKeys.ai_customPrompt_loading
+                                            .tr()
+                                        : LocaleKeys.button_change.tr(),
+                                    maxLines: 1,
+                                    style: theme.textStyle.body.enhanced(
+                                      color: theme.textColorScheme.primary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                          onTap: () async {
+                            final newConfig =
+                                await changeCustomPromptDatabaseConfig(
+                              context,
+                              config: readyState.databaseConfig,
+                            );
+                            if (newConfig != null && context.mounted) {
+                              context
+                                  .read<AiPromptSelectorCubit>()
+                                  .updateCustomPromptDatabaseConfiguration(
+                                    newConfig,
+                                  );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            );
+          },
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.spacing.l),
+          child: buildSearchField(context),
+        ),
+        Expanded(
+          child: TextFieldTapRegion(
+            groupId: "ai_prompt_category_list",
+            child: BlocBuilder<AiPromptSelectorCubit, AiPromptSelectorState>(
+              builder: (context, state) {
+                return state.maybeMap(
+                  ready: (readyState) {
+                    if (readyState.visiblePrompts.isEmpty) {
+                      return buildEmptyPrompts();
+                    }
+                    return buildPromptList();
+                  },
+                  orElse: () => const SizedBox.shrink(),
+                );
+              },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -167,10 +226,13 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                         .read<AiPromptSelectorCubit>()
                         .filterTextController
                         .clear(),
-                    child: FlowySvg(
-                      FlowySvgs.toast_close_s,
-                      color: theme.textColorScheme.secondary,
-                      size: const Size.square(20),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: FlowySvg(
+                        FlowySvgs.search_clear_m,
+                        color: theme.iconColorScheme.tertiary,
+                        size: const Size.square(20),
+                      ),
                     ),
                   ),
                 ),
@@ -237,6 +299,19 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
           },
         );
       },
+    );
+  }
+
+  Widget buildLoadingIndicator(AppFlowyThemeData theme) {
+    return SizedBox.square(
+      dimension: 20,
+      child: Padding(
+        padding: EdgeInsets.all(2.5),
+        child: CircularProgressIndicator(
+          color: theme.iconColorScheme.tertiary,
+          strokeWidth: 2.0,
+        ),
+      ),
     );
   }
 
@@ -364,8 +439,8 @@ class _AiPromptListItemState extends State<_AiPromptListItem> {
                               ? theme.borderColorScheme.themeThickHover
                               : theme.borderColorScheme.themeThick
                           : isHovering
-                              ? theme.borderColorScheme.greyTertiaryHover
-                              : theme.borderColorScheme.greyTertiary,
+                              ? theme.borderColorScheme.primaryHover
+                              : theme.borderColorScheme.primary,
                     ),
                   ),
                   child: Column(

@@ -89,6 +89,24 @@ impl DocumentTantivyState {
   pub fn add_document(
     &mut self,
     id: &str,
+    content: Option<String>,
+    name: Option<String>,
+    icon: Option<ViewIcon>,
+  ) -> FlowyResult<()> {
+    match content {
+      None => {
+        self.add_document_metadata(id, name, icon)?;
+      },
+      Some(content) => {
+        self.add_document_content(id, content, name, icon)?;
+      },
+    }
+    Ok(())
+  }
+
+  fn add_document_content(
+    &mut self,
+    id: &str,
     content: String,
     name: Option<String>,
     icon: Option<ViewIcon>,

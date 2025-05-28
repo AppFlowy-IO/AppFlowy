@@ -6,6 +6,7 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 use validator::Validate;
@@ -69,6 +70,9 @@ pub struct StreamChatPayloadPB {
 
   #[pb(index = 6, one_of)]
   pub format: Option<PredefinedFormatPB>,
+
+  #[pb(index = 7, one_of)]
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, Debug)]
@@ -79,6 +83,7 @@ pub struct StreamMessageParams {
   pub answer_stream_port: i64,
   pub question_stream_port: i64,
   pub format: Option<PredefinedFormatPB>,
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -440,6 +445,9 @@ pub struct CompleteTextPB {
 
   #[pb(index = 8, one_of)]
   pub custom_prompt: Option<String>,
+
+  #[pb(index = 9, one_of)]
+  pub prompt_id: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -738,4 +746,22 @@ impl From<PendingResource> for LackOfAIResourcePB {
 pub struct CustomPromptDatabaseViewIdPB {
   #[pb(index = 1)]
   pub id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug, Serialize, Deserialize)]
+pub struct CustomPromptDatabaseConfigurationPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub title_field_id: String,
+
+  #[pb(index = 3)]
+  pub content_field_id: String,
+
+  #[pb(index = 4, one_of)]
+  pub example_field_id: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub category_field_id: Option<String>,
 }

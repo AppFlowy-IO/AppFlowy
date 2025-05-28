@@ -39,11 +39,15 @@ class AFFilledTextButton extends AFBaseTextButton {
       disabled: disabled,
       alignment: alignment,
       textStyle: textStyle,
-      textColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).textColorScheme.onFill,
+      textColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).textColorScheme.tertiary;
+        }
+        return AppFlowyTheme.of(context).textColorScheme.onFill;
+      },
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
-          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+          return AppFlowyTheme.of(context).fillColorScheme.contentHover;
         }
         if (isHovering) {
           return AppFlowyTheme.of(context).fillColorScheme.themeThickHover;
@@ -75,11 +79,15 @@ class AFFilledTextButton extends AFBaseTextButton {
       disabled: disabled,
       alignment: alignment,
       textStyle: textStyle,
-      textColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).textColorScheme.onFill,
+      textColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).textColorScheme.tertiary;
+        }
+        return AppFlowyTheme.of(context).textColorScheme.onFill;
+      },
       backgroundColor: (context, isHovering, disabled) {
         if (disabled) {
-          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+          return AppFlowyTheme.of(context).fillColorScheme.contentHover;
         }
         if (isHovering) {
           return AppFlowyTheme.of(context).fillColorScheme.errorThickHover;
@@ -112,7 +120,7 @@ class AFFilledTextButton extends AFBaseTextButton {
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.tertiary,
       backgroundColor: (context, isHovering, disabled) =>
-          AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
+          AppFlowyTheme.of(context).fillColorScheme.contentHover,
     );
   }
 

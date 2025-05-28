@@ -198,7 +198,7 @@ class _ToggleListBlockComponentWidgetState
             left: cachedLeft,
             top: padding.top,
             child: Container(
-              width: double.infinity,
+              width: UniversalPlatform.isDesktop ? double.infinity : null,
               color: backgroundColor,
             ),
           ),
