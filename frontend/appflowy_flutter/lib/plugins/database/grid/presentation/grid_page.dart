@@ -409,6 +409,10 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   Widget build(BuildContext context) {
+    final paddingLeft = context
+            .read<DatabasePluginWidgetBuilderSize?>()
+            ?.paddingLeftWithMaxDocumentWidth ??
+        0.0;
     Widget child;
     if (widget.shrinkWrap) {
       child = Scrollbar(
@@ -420,9 +424,10 @@ class _GridRowsState extends State<_GridRows> {
             constraints: BoxConstraints(
               maxWidth: GridLayout.headerWidth(
                 context
-                        .read<DatabasePluginWidgetBuilderSize>()
-                        .horizontalPadding *
-                    3,
+                            .read<DatabasePluginWidgetBuilderSize>()
+                            .horizontalPadding *
+                        3 +
+                    paddingLeft,
                 context.read<GridBloc>().state.fields,
               ),
             ),
@@ -459,13 +464,16 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _shrinkWrapRenderList(BuildContext context) {
     final state = context.read<GridBloc>().state;
-    final horizontalPadding =
-        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
-            0.0;
+    final databaseSize = context.read<DatabasePluginWidgetBuilderSize?>();
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: EdgeInsets.fromLTRB(
+        databaseSize?.paddingLeft ?? 0.0,
+        0,
+        databaseSize?.horizontalPadding ?? 0.0,
+        0,
+      ),
       children: [
         widget.shrinkWrap
             ? _reorderableListView(state)
