@@ -59,7 +59,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<EncodedCollabPB>()
+      .parse_or_panic::<EncodedCollabPB>()
   }
 
   pub async fn create_document(&self) -> ViewPB {
@@ -85,7 +85,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse_or_panic::<ViewPB>()
   }
 
   pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
@@ -145,7 +145,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ConvertDocumentResponsePB>()
+      .parse_or_panic::<ConvertDocumentResponsePB>()
   }
 
   // convert data to json for document event test
@@ -159,7 +159,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ConvertDataToJsonResponsePB>()
+      .parse_or_panic::<ConvertDataToJsonResponsePB>()
   }
 
   pub async fn create_text(&self, payload: TextDeltaPayloadPB) {
@@ -190,7 +190,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<DocumentRedoUndoResponsePB>()
+      .parse_or_panic::<DocumentRedoUndoResponsePB>()
   }
 
   pub async fn redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
@@ -203,7 +203,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<DocumentRedoUndoResponsePB>()
+      .parse_or_panic::<DocumentRedoUndoResponsePB>()
   }
 
   pub async fn can_undo_redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
@@ -216,7 +216,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<DocumentRedoUndoResponsePB>()
+      .parse_or_panic::<DocumentRedoUndoResponsePB>()
   }
 
   pub async fn apply_delta_for_block(&self, document_id: &str, block_id: &str, delta: String) {
@@ -242,7 +242,7 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<RepeatedDocumentSnapshotMetaPB>()
+      .parse_or_panic::<RepeatedDocumentSnapshotMetaPB>()
       .items
   }
 
@@ -256,7 +256,7 @@ impl DocumentEventTest {
       .payload(snapshot_meta)
       .async_send()
       .await
-      .parse::<DocumentSnapshotPB>()
+      .parse_or_panic::<DocumentSnapshotPB>()
   }
 
   /// Insert a new text block at the index of parent's children.

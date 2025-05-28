@@ -2356,6 +2356,7 @@
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
     "searchOrAskAI": "Search or ask AI",
+    "searchFieldHint": "Search or ask a question in {}...",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
     "searching": "Searching...",
@@ -2366,6 +2367,7 @@
     "seeMore": "See more",
     "showMore": "Show more",
     "somethingWentWrong": "Something went wrong",
+    "pageNotExist": "This page doesn’t exist",
     "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
@@ -2822,7 +2824,7 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field",
+    "clearSearchTooltip": "Clear input",
     "location": "Location",
     "created": "Created",
     "edited": "Edited"

@@ -59,6 +59,7 @@ Future<T?> showMobileBottomSheet<T>(
   double initialChildSize = 0.51,
   double bottomSheetPadding = 0,
   bool enablePadding = true,
+  WidgetBuilder? dragHandleBuilder,
 }) async {
   assert(
     showHeader ||
@@ -102,7 +103,7 @@ Future<T?> showMobileBottomSheet<T>(
       // ----- header area -----
       if (showDragHandle) {
         children.add(
-          const DragHandle(),
+          dragHandleBuilder?.call(context) ?? const DragHandle(),
         );
       }
 

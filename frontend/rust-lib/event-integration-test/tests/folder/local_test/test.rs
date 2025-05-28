@@ -179,7 +179,7 @@ async fn delete_view_permanently_event_test() {
     .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder::entities::RepeatedTrashPB>()
+    .parse_or_panic::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert_eq!(trash.len(), 1);
   assert_eq!(trash[0].id, view.id);
@@ -201,7 +201,7 @@ async fn delete_view_permanently_event_test() {
     .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder::entities::RepeatedTrashPB>()
+    .parse_or_panic::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert!(trash.is_empty());
 }
@@ -230,7 +230,7 @@ async fn delete_all_trash_test() {
     .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder::entities::RepeatedTrashPB>()
+    .parse_or_panic::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert_eq!(trash.len(), 3);
 
@@ -245,7 +245,7 @@ async fn delete_all_trash_test() {
     .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder::entities::RepeatedTrashPB>()
+    .parse_or_panic::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert!(trash.is_empty());
 }
@@ -310,7 +310,7 @@ async fn multiple_hierarchy_view_test() {
         .payload(payload)
         .async_send()
         .await
-        .parse::<flowy_folder::entities::ViewPB>();
+        .parse_or_panic::<flowy_folder::entities::ViewPB>();
       assert_eq!(child.name, format!("My {}-{} view", i + 1, j + 1));
       assert_eq!(child.child_views.len(), 1);
       // By default only the first level of child views will be loaded

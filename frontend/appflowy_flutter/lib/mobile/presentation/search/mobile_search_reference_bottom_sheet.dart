@@ -36,10 +36,11 @@ class SearchSourceReferenceBottomSheet extends StatelessWidget {
           showDragHandle: true,
           showDivider: false,
           enableDraggableScrollable: true,
-          maxChildSize: 1.0,
-          minChildSize: 1.0,
-          initialChildSize: 1.0,
+          maxChildSize: 0.95,
+          minChildSize: 0.95,
+          initialChildSize: 0.95,
           backgroundColor: theme.surfaceColorScheme.primary,
+          dragHandleBuilder: (_) => const _DragHandler(),
           builder: (_) => SizedBox(
             height: MediaQuery.of(context).size.height,
             child: MobileViewPage(
@@ -47,6 +48,8 @@ class SearchSourceReferenceBottomSheet extends StatelessWidget {
               viewLayout: view.layout,
               title: view.nameOrDefault,
               tabs: PickerTabType.values,
+              bodyPaddingTop:
+                  AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
             ),
           ),
         );
@@ -81,7 +84,7 @@ class PageReferenceList extends StatelessWidget {
             ),
           ),
         ),
-        const VSpace(4),
+        const VSpace(6),
         ListView.builder(
           shrinkWrap: true,
           padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -101,8 +104,8 @@ class PageReferenceList extends StatelessWidget {
                   if (index != 0) AFDivider(),
                   Padding(
                     padding: EdgeInsets.symmetric(
-                      vertical: sapceM,
-                      horizontal: spaceL,
+                      vertical: spaceL,
+                      horizontal: sapceM,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,5 +151,22 @@ class PageReferenceList extends StatelessWidget {
       return icon.getIcon(size: 20, iconColor: theme.iconColorScheme.primary) ??
           SizedBox.shrink();
     }
+  }
+}
+
+class _DragHandler extends StatelessWidget {
+  const _DragHandler();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 4,
+      width: 40,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade400,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
   }
 }

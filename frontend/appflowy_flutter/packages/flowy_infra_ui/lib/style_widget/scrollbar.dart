@@ -4,11 +4,13 @@ class FlowyScrollbar extends StatefulWidget {
   const FlowyScrollbar({
     super.key,
     this.controller,
+    this.thumbVisibility = true,
     required this.child,
   });
 
   final ScrollController? controller;
   final Widget child;
+  final bool thumbVisibility;
 
   @override
   State<FlowyScrollbar> createState() => _FlowyScrollbarState();
@@ -33,7 +35,7 @@ class _FlowyScrollbarState extends State<FlowyScrollbar> {
         valueListenable: isHovered,
         builder: (context, isHovered, child) {
           return Scrollbar(
-            thumbVisibility: isHovered,
+            thumbVisibility: isHovered && widget.thumbVisibility,
             // the radius should be fixed to 12
             radius: const Radius.circular(12),
             controller: widget.controller,

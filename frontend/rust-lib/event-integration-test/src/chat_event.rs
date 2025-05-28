@@ -28,7 +28,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse_or_panic::<ViewPB>()
   }
 
   pub async fn set_chat_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) {
@@ -84,7 +84,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ChatMessageListPB>()
+      .parse_or_panic::<ChatMessageListPB>()
   }
 
   pub async fn load_next_message(
@@ -103,7 +103,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ChatMessageListPB>()
+      .parse_or_panic::<ChatMessageListPB>()
   }
 
   pub async fn toggle_local_ai(&self) {

@@ -26,8 +26,8 @@ class RelatedQuestionList extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: relatedQuestions.length + 1,
-        padding:
-            const EdgeInsets.only(bottom: 8.0) + AIChatUILayout.messageMargin,
+        padding: const EdgeInsets.only(left: 4.0, bottom: 8.0) +
+            AIChatUILayout.messageMargin,
         separatorBuilder: (context, index) => const VSpace(4.0),
         itemBuilder: (context, index) {
           if (index == 0) {

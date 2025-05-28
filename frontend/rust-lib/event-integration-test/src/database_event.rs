@@ -53,7 +53,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse_or_panic::<ViewPB>()
   }
 
   pub async fn open_database(&self, view_id: &str) -> DatabasePB {
@@ -64,7 +64,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<DatabasePB>()
+      .parse_or_panic::<DatabasePB>()
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
@@ -86,7 +86,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse_or_panic::<ViewPB>()
   }
 
   pub async fn create_calendar(
@@ -113,7 +113,7 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse_or_panic::<ViewPB>()
   }
 
   pub async fn get_database(&self, view_id: &str) -> DatabasePB {
@@ -124,7 +124,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<DatabasePB>()
+      .parse_or_panic::<DatabasePB>()
   }
 
   pub async fn get_all_database_fields(&self, view_id: &str) -> RepeatedFieldPB {
@@ -136,7 +136,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RepeatedFieldPB>()
+      .parse_or_panic::<RepeatedFieldPB>()
   }
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
@@ -149,7 +149,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<FieldPB>()
+      .parse_or_panic::<FieldPB>()
   }
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {
@@ -192,7 +192,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RepeatedCalculationsPB>()
+      .parse_or_panic::<RepeatedCalculationsPB>()
   }
 
   pub async fn update_calculation(
@@ -246,7 +246,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<FieldPB>()
+      .parse_or_panic::<FieldPB>()
   }
   pub async fn summary_row(&self, data: SummaryRowPB) {
     EventBuilder::new(self.clone())
@@ -280,7 +280,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RowMetaPB>()
+      .parse_or_panic::<RowMetaPB>()
   }
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
@@ -305,7 +305,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<OptionalRowPB>()
+      .parse_or_panic::<OptionalRowPB>()
   }
 
   pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
@@ -318,7 +318,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RowMetaPB>()
+      .parse_or_panic::<RowMetaPB>()
   }
 
   pub async fn update_row_meta(&self, changeset: UpdateRowMetaChangesetPB) -> Option<FlowyError> {
@@ -384,7 +384,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<CellPB>()
+      .parse_or_panic::<CellPB>()
   }
 
   pub async fn get_text_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> String {
@@ -445,7 +445,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<SelectOptionPB>();
+      .parse_or_panic::<SelectOptionPB>();
 
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::InsertOrUpdateSelectOption)
@@ -468,7 +468,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RepeatedGroupPB>()
+      .parse_or_panic::<RepeatedGroupPB>()
       .items
   }
 
@@ -552,7 +552,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RepeatedCalendarEventPB>()
+      .parse_or_panic::<RepeatedCalendarEventPB>()
       .items
   }
 
@@ -581,7 +581,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse::<RepeatedRelatedRowDataPB>()
+      .parse_or_panic::<RepeatedRelatedRowDataPB>()
       .rows
   }
 }

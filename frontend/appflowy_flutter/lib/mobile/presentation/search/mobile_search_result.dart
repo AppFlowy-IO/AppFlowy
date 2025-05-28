@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_special_styles.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
@@ -36,7 +35,7 @@ class MobileSearchRecentList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commandPaletteState = context.read<CommandPaletteBloc>().state;
-
+    final theme = AppFlowyTheme.of(context);
     final trashIdSet = commandPaletteState.trash.map((e) => e.id).toSet();
     return BlocProvider(
       create: (context) =>
@@ -54,7 +53,12 @@ class MobileSearchRecentList extends StatelessWidget {
               const VSpace(16),
               Text(
                 LocaleKeys.sideBar_recent.tr(),
-                style: context.searchSubtitleStyle,
+                style: theme.textStyle.heading4
+                    .enhanced(color: theme.textColorScheme.secondary)
+                    .copyWith(
+                      letterSpacing: 0.2,
+                      height: 24 / 16,
+                    ),
               ),
               const VSpace(4),
               Column(
@@ -85,13 +89,23 @@ class MobileSearchResultList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<CommandPaletteBloc>().state,
         theme = AppFlowyTheme.of(context);
-    final isSearching = state.searching,
-        items = state.combinedResponseItems.values.toList(),
-        hasData = items.isNotEmpty;
+    final isSearching = state.searching || state.generatingAIOverview,
+        cachedViews = state.cachedViews;
+    List<SearchResultItem> displayItems =
+        state.combinedResponseItems.values.toList();
+    if (cachedViews.isNotEmpty) {
+      displayItems =
+          displayItems.where((item) => cachedViews[item.id] != null).toList();
+    }
+    final hasData = displayItems.isNotEmpty;
+
     if (isSearching && !hasData) {
-      return Center(child: CircularProgressIndicator.adaptive());
+      return SizedBox(
+        height: 400,
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      );
     } else if (!hasData) {
-      return buildNoResult(state.query ?? '', theme);
+      return _NoResult();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,14 +114,19 @@ class MobileSearchResultList extends StatelessWidget {
         const VSpace(16),
         Text(
           LocaleKeys.commandPalette_bestMatches.tr(),
-          style: context.searchSubtitleStyle,
+          style: theme.textStyle.heading4
+              .enhanced(color: theme.textColorScheme.secondary)
+              .copyWith(
+                letterSpacing: 0.2,
+                height: 24 / 16,
+              ),
         ),
         const VSpace(4),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            final item = items[index];
+            final item = displayItems[index];
             final view = state.cachedViews[item.id];
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -116,7 +135,7 @@ class MobileSearchResultList extends StatelessWidget {
                   await _goToView(context, view);
                 } else {
                   showToastNotification(
-                    message: LocaleKeys.search_somethingWentWrong.tr(),
+                    message: LocaleKeys.search_pageNotExist.tr(),
                     type: ToastificationType.error,
                   );
                   Log.error(
@@ -132,40 +151,43 @@ class MobileSearchResultList extends StatelessWidget {
             );
           },
           separatorBuilder: (context, index) => AFDivider(),
-          itemCount: items.length,
+          itemCount: displayItems.length,
         ),
       ],
     );
   }
+}
 
-  Widget buildNoResult(String query, AppFlowyThemeData theme) {
+class _NoResult extends StatelessWidget {
+  const _NoResult();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final textColor = theme.textColorScheme.secondary;
     return Align(
       alignment: Alignment.topCenter,
-      child: SizedBox(
-        height: 140,
-        child: Column(
-          children: [
-            const VSpace(48),
-            FlowySvg(
-              FlowySvgs.m_home_search_icon_m,
-              color: theme.iconColorScheme.secondary,
-              size: Size.square(24),
-            ),
-            const VSpace(12),
-            Text(
-              LocaleKeys.search_noResultForSearching.tr(),
-              style: theme.textStyle.body.enhanced(color: textColor),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              textAlign: TextAlign.center,
-              LocaleKeys.search_noResultForSearchingHint.tr(),
-              style: theme.textStyle.caption.standard(color: textColor),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          const VSpace(48),
+          FlowySvg(
+            FlowySvgs.m_home_search_icon_m,
+            color: theme.iconColorScheme.secondary,
+            size: Size.square(24),
+          ),
+          const VSpace(12),
+          Text(
+            LocaleKeys.search_noResultForSearching.tr(),
+            style: theme.textStyle.heading4.enhanced(color: textColor),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            textAlign: TextAlign.center,
+            LocaleKeys.search_noResultForSearchingHint.tr(),
+            style: theme.textStyle.body.standard(color: textColor),
+          ),
+        ],
       ),
     );
   }

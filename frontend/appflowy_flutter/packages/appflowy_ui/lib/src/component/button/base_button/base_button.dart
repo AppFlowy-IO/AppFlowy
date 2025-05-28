@@ -25,6 +25,8 @@ class AFBaseButton extends StatefulWidget {
     this.backgroundColor,
     this.ringColor,
     this.disabled = false,
+    this.autofocus = false,
+    this.showFocusRing = true,
   });
 
   final VoidCallback? onTap;
@@ -36,6 +38,8 @@ class AFBaseButton extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final double borderRadius;
   final bool disabled;
+  final bool autofocus;
+  final bool showFocusRing;
 
   final Widget Function(
     BuildContext context,
@@ -81,6 +85,7 @@ class _AFBaseButtonState extends State<AFBaseButton> {
         onFocusChange: (isFocused) {
           setState(() => this.isFocused = isFocused);
         },
+        autofocus: widget.autofocus,
         child: MouseRegion(
           cursor: widget.onTap == null
               ? SystemMouseCursors.basic
@@ -94,7 +99,7 @@ class _AFBaseButtonState extends State<AFBaseButton> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
-                border: isFocused
+                border: isFocused && widget.showFocusRing
                     ? Border.all(
                         color: ringColor,
                         width: 2,

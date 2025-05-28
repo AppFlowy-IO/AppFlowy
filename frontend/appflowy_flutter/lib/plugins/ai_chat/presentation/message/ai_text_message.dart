@@ -3,7 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_height_manager.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/widgets/message_height_calculator.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -42,6 +44,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.isStreaming = false,
     this.isSelectingMessages = false,
     this.enableAnimation = true,
+    this.hasRelatedQuestions = false,
   });
 
   final User user;
@@ -61,6 +64,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final bool isLastMessage;
   final bool isSelectingMessages;
   final bool enableAnimation;
+  final bool hasRelatedQuestions;
 
   @override
   Widget build(BuildContext context) {
@@ -79,74 +83,98 @@ class ChatAIMessageWidget extends StatelessWidget {
           final loadingText = blocState.progress?.step ??
               LocaleKeys.chat_generatingResponse.tr();
 
-          return Padding(
-            padding: AIChatUILayout.messageMargin,
-            child: blocState.messageState.when(
-              loading: () => ChatAIMessageBubble(
-                message: message,
-                showActions: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: AILoadingIndicator(text: loadingText),
-                ),
-              ),
-              ready: () {
-                return blocState.text.isEmpty
-                    ? _LoadingMessage(
-                        message: message,
-                        loadingText: loadingText,
-                      )
-                    : _NonEmptyMessage(
-                        user: user,
-                        messageUserId: messageUserId,
-                        message: message,
-                        stream: stream,
-                        questionId: questionId,
-                        chatId: chatId,
-                        refSourceJsonString: refSourceJsonString,
-                        onStopStream: onStopStream,
-                        onSelectedMetadata: onSelectedMetadata,
-                        onRegenerate: onRegenerate,
-                        onChangeFormat: onChangeFormat,
-                        onChangeModel: onChangeModel,
-                        isLastMessage: isLastMessage,
-                        isStreaming: isStreaming,
-                        isSelectingMessages: isSelectingMessages,
-                        enableAnimation: enableAnimation,
-                      );
-              },
-              onError: (error) {
-                return ChatErrorMessageWidget(
-                  errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                );
-              },
-              onAIResponseLimit: () {
-                return ChatErrorMessageWidget(
-                  errorMessage:
-                      LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                );
-              },
-              onAIImageResponseLimit: () {
-                return ChatErrorMessageWidget(
-                  errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
-                );
-              },
-              onAIMaxRequired: (message) {
-                return ChatErrorMessageWidget(
-                  errorMessage: message,
-                );
-              },
-              onInitializingLocalAI: () {
-                onStopStream();
+          // Calculate minimum height only for the last AI answer message
+          double minHeight = 0;
+          if (isLastMessage && !hasRelatedQuestions) {
+            final screenHeight = MediaQuery.of(context).size.height;
+            minHeight = ChatMessageHeightManager().calculateMinHeight(
+              messageId: message.id,
+              screenHeight: screenHeight,
+            );
+          }
 
-                return ChatErrorMessageWidget(
-                  errorMessage:
-                      LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+          return Container(
+            alignment: Alignment.topLeft,
+            constraints: BoxConstraints(
+              minHeight: minHeight,
+            ),
+            padding: AIChatUILayout.messageMargin,
+            child: MessageHeightCalculator(
+              messageId: message.id,
+              onHeightMeasured: (messageId, height) {
+                ChatMessageHeightManager().cacheWithoutMinHeight(
+                  messageId: messageId,
+                  height: height,
                 );
               },
-              aiFollowUp: (followUpData) {
-                return const SizedBox.shrink();
-              },
+              child: blocState.messageState.when(
+                loading: () => ChatAIMessageBubble(
+                  message: message,
+                  showActions: false,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: AILoadingIndicator(text: loadingText),
+                  ),
+                ),
+                ready: () {
+                  return blocState.text.isEmpty
+                      ? _LoadingMessage(
+                          message: message,
+                          loadingText: loadingText,
+                        )
+                      : _NonEmptyMessage(
+                          user: user,
+                          messageUserId: messageUserId,
+                          message: message,
+                          stream: stream,
+                          questionId: questionId,
+                          chatId: chatId,
+                          refSourceJsonString: refSourceJsonString,
+                          onStopStream: onStopStream,
+                          onSelectedMetadata: onSelectedMetadata,
+                          onRegenerate: onRegenerate,
+                          onChangeFormat: onChangeFormat,
+                          onChangeModel: onChangeModel,
+                          isLastMessage: isLastMessage,
+                          isStreaming: isStreaming,
+                          isSelectingMessages: isSelectingMessages,
+                          enableAnimation: enableAnimation,
+                        );
+                },
+                onError: (error) {
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
+                  );
+                },
+                onAIResponseLimit: () {
+                  return ChatErrorMessageWidget(
+                    errorMessage:
+                        LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                  );
+                },
+                onAIImageResponseLimit: () {
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
+                  );
+                },
+                onAIMaxRequired: (message) {
+                  return ChatErrorMessageWidget(
+                    errorMessage: message,
+                  );
+                },
+                onInitializingLocalAI: () {
+                  onStopStream();
+
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys
+                        .settings_aiPage_keys_localAIInitializing
+                        .tr(),
+                  );
+                },
+                aiFollowUp: (followUpData) {
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           );
         },
@@ -188,7 +216,7 @@ class _LoadingMessage extends StatelessWidget {
       message: message,
       showActions: false,
       child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
+        padding: EdgeInsetsDirectional.only(start: 4.0, top: 8.0),
         child: AILoadingIndicator(text: loadingText),
       ),
     );
@@ -248,9 +276,12 @@ class _NonEmptyMessage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AIMarkdownText(
-            markdown: state.text,
-            withAnimation: enableAnimation && stream != null,
+          Padding(
+            padding: EdgeInsetsDirectional.only(start: 4.0),
+            child: AIMarkdownText(
+              markdown: state.text,
+              withAnimation: enableAnimation && stream != null,
+            ),
           ),
           if (state.sources.isNotEmpty)
             SelectionContainer.disabled(

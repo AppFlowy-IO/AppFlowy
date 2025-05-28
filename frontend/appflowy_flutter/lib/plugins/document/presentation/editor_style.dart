@@ -99,7 +99,9 @@ class EditorStyleCustomizer {
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         lineHeight: 1.4,
-        applyHeightToFirstAscent: true,
+        // on Windows, if applyHeightToFirstAscent is true, the first line will be too high.
+        // it will cause the first line not aligned with the prefix icon.
+        applyHeightToFirstAscent: UniversalPlatform.isWindows ? false : true,
         applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
