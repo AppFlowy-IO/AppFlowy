@@ -65,7 +65,7 @@ class SharedUserWidget extends StatelessWidget {
           HSpace(theme.spacing.xs),
           Text(
             LocaleKeys.shareTab_you.tr(),
-            style: theme.textStyle.body.standard(
+            style: theme.textStyle.caption.standard(
               color: theme.textColorScheme.secondary,
             ),
           ),

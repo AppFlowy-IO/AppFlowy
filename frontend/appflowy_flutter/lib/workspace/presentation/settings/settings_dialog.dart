@@ -62,10 +62,12 @@ class SettingsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.6;
     final theme = AppFlowyTheme.of(context);
+    final currentWorkspaceMemberRole =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role;
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
-        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role,
+        currentWorkspaceMemberRole,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
@@ -87,6 +89,7 @@ class SettingsDialog extends StatelessWidget {
                           .add(SettingsDialogEvent.setSelectedPage(index)),
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
+                      currentUserRole: currentWorkspaceMemberRole,
                       isBillingEnabled: state.isBillingEnabled,
                     ),
                   ),

@@ -17,12 +17,14 @@ class SettingsMenu extends StatelessWidget {
     required this.currentPage,
     required this.userProfile,
     required this.isBillingEnabled,
+    required this.currentUserRole,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
   final bool isBillingEnabled;
+  final AFRolePB? currentUserRole;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,9 @@ class SettingsMenu extends StatelessWidget {
               changeSelectedPage: changeSelectedPage,
             ),
             if (FeatureFlag.membersSettings.isOn &&
-                userProfile.workspaceType == WorkspaceTypePB.ServerW)
+                userProfile.workspaceType == WorkspaceTypePB.ServerW &&
+                currentUserRole != null &&
+                currentUserRole != AFRolePB.Guest)
               SettingsMenuElement(
                 page: SettingsPage.member,
                 selectedPage: currentPage,
