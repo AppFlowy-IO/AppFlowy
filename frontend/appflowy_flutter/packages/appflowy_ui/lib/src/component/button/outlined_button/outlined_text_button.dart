@@ -29,6 +29,7 @@ class AFOutlinedTextButton extends AFBaseTextButton {
     bool disabled = false,
     Alignment? alignment,
     TextStyle? textStyle,
+    AFBaseButtonColorBuilder? backgroundColor,
   }) {
     return AFOutlinedTextButton._(
       key: key,
@@ -50,16 +51,17 @@ class AFOutlinedTextButton extends AFBaseTextButton {
         }
         return theme.borderColorScheme.primary;
       },
-      backgroundColor: (context, isHovering, disabled) {
-        final theme = AppFlowyTheme.of(context);
-        if (disabled) {
-          return theme.fillColorScheme.content;
-        }
-        if (isHovering) {
-          return theme.fillColorScheme.contentHover;
-        }
-        return theme.fillColorScheme.content;
-      },
+      backgroundColor: backgroundColor ??
+          (context, isHovering, disabled) {
+            final theme = AppFlowyTheme.of(context);
+            if (disabled) {
+              return theme.fillColorScheme.content;
+            }
+            if (isHovering) {
+              return theme.fillColorScheme.contentHover;
+            }
+            return theme.fillColorScheme.content;
+          },
       textColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
