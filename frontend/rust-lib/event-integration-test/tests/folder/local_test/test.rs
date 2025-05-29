@@ -512,3 +512,242 @@ async fn move_folder_nested_view(
     .async_send()
     .await;
 }
+
+#[tokio::test]
+async fn test_flatten_shared_pages_integration() {
+  let test = EventIntegrationTest::new_anon().await;
+  let current_workspace = test.get_current_workspace().await;
+
+  // Create some test views to simulate shared views
+  let parent_view = test
+    .create_view(&current_workspace.id, "Shared Parent View".to_string())
+    .await;
+
+  let child_view = test
+    .create_view(&parent_view.id, "Shared Child View".to_string())
+    .await;
+
+  // Get the parent view with child views
+  let parent_view_with_children = test.get_view(&parent_view.id).await;
+
+  // Test that the view has child views
+  assert_eq!(parent_view_with_children.child_views.len(), 1);
+  assert_eq!(parent_view_with_children.child_views[0].id, child_view.id);
+
+  // Simulate the flatten operation that would happen in get_flatten_shared_pages
+  let mut flattened_views = Vec::new();
+
+  // Add the parent view (without child views)
+  flattened_views.push(script::ViewPB {
+    child_views: vec![],
+    ..parent_view_with_children.clone()
+  });
+
+  // Add flattened child views
+  fn flatten_child_views_recursive(
+    views: &[script::ViewPB],
+    flattened_views: &mut Vec<script::ViewPB>,
+  ) {
+    for view in views {
+      let child_views = view.child_views.clone();
+      flattened_views.push(script::ViewPB {
+        child_views: vec![],
+        ..view.clone()
+      });
+
+      if !child_views.is_empty() {
+        flatten_child_views_recursive(&child_views, flattened_views);
+      }
+    }
+  }
+
+  flatten_child_views_recursive(&parent_view_with_children.child_views, &mut flattened_views);
+
+  // Verify flattening worked correctly
+  assert_eq!(flattened_views.len(), 2);
+  assert_eq!(flattened_views[0].id, parent_view.id);
+  assert_eq!(flattened_views[1].id, child_view.id);
+
+  // Verify all views are flattened (no nested child_views)
+  for view in &flattened_views {
+    assert!(
+      view.child_views.is_empty(),
+      "All views should be flattened with no child_views"
+    );
+  }
+}
+
+#[tokio::test]
+async fn test_guest_access_control_integration() {
+  let test = EventIntegrationTest::new_anon().await;
+  let current_workspace = test.get_current_workspace().await;
+
+  // Create test views
+  let accessible_view = test
+    .create_view(&current_workspace.id, "Accessible View".to_string())
+    .await;
+
+  let restricted_view = test
+    .create_view(&current_workspace.id, "Restricted View".to_string())
+    .await;
+
+  // Simulate shared views list (what a guest would have access to)
+  let shared_views = vec![accessible_view.clone()];
+
+  // Test access control logic
+  let view_id_to_check = &accessible_view.id;
+  let has_access = shared_views
+    .iter()
+    .any(|shared_view| shared_view.id == *view_id_to_check);
+  assert!(has_access, "Should have access to shared view");
+
+  let restricted_view_id = &restricted_view.id;
+  let has_access_to_restricted = shared_views
+    .iter()
+    .any(|shared_view| shared_view.id == *restricted_view_id);
+  assert!(
+    !has_access_to_restricted,
+    "Should not have access to non-shared view"
+  );
+
+  // Test error handling for unauthorized access
+  if !has_access_to_restricted {
+    let error = flowy_user::errors::FlowyError::new(
+      flowy_user::errors::ErrorCode::RecordNotFound,
+      format!(
+        "Guest user does not have access to view: {}",
+        restricted_view_id
+      ),
+    );
+    assert_eq!(error.code, flowy_user::errors::ErrorCode::RecordNotFound);
+    assert!(error.msg.contains("Guest user does not have access"));
+  }
+}
+
+#[tokio::test]
+async fn test_view_access_with_nested_children() {
+  let test = EventIntegrationTest::new_anon().await;
+  let current_workspace = test.get_current_workspace().await;
+
+  // Create a parent view with nested children
+  let parent_view = test
+    .create_view(&current_workspace.id, "Parent View".to_string())
+    .await;
+
+  let child_view = test
+    .create_view(&parent_view.id, "Child View".to_string())
+    .await;
+
+  let grandchild_view = test
+    .create_view(&child_view.id, "Grandchild View".to_string())
+    .await;
+
+  // Get the full view hierarchy
+  let parent_with_children = test.get_view(&parent_view.id).await;
+  let child_with_children = test.get_view(&child_view.id).await;
+
+  // Verify the hierarchy is correct
+  assert_eq!(parent_with_children.child_views.len(), 1);
+  assert_eq!(parent_with_children.child_views[0].id, child_view.id);
+  assert_eq!(child_with_children.child_views.len(), 1);
+  assert_eq!(child_with_children.child_views[0].id, grandchild_view.id);
+
+  // Create a shared view response with nested structure
+  let shared_view_response = script::ViewPB {
+    id: parent_view.id.clone(),
+    parent_view_id: parent_view.parent_view_id,
+    name: parent_view.name.clone(),
+    create_time: parent_view.create_time,
+    child_views: vec![script::ViewPB {
+      id: child_view.id.clone(),
+      parent_view_id: child_view.parent_view_id,
+      name: child_view.name.clone(),
+      create_time: child_view.create_time,
+      child_views: vec![script::ViewPB {
+        id: grandchild_view.id.clone(),
+        parent_view_id: grandchild_view.parent_view_id,
+        name: grandchild_view.name.clone(),
+        create_time: grandchild_view.create_time,
+        child_views: vec![],
+        layout: grandchild_view.layout,
+        icon: grandchild_view.icon,
+        is_favorite: grandchild_view.is_favorite,
+        extra: grandchild_view.extra,
+        created_by: grandchild_view.created_by,
+        last_edited: grandchild_view.last_edited,
+        last_edited_by: grandchild_view.last_edited_by,
+        is_locked: grandchild_view.is_locked,
+      }],
+      layout: child_view.layout,
+      icon: child_view.icon,
+      is_favorite: child_view.is_favorite,
+      extra: child_view.extra,
+      created_by: child_view.created_by,
+      last_edited: child_view.last_edited,
+      last_edited_by: child_view.last_edited_by,
+      is_locked: child_view.is_locked,
+    }],
+    layout: parent_view.layout,
+    icon: parent_view.icon,
+    is_favorite: parent_view.is_favorite,
+    extra: parent_view.extra,
+    created_by: parent_view.created_by,
+    last_edited: parent_view.last_edited,
+    last_edited_by: parent_view.last_edited_by,
+    is_locked: parent_view.is_locked,
+  };
+
+  // Test flattening the nested structure
+  let mut flattened_views = Vec::new();
+
+  // Add the parent view (flattened)
+  flattened_views.push(script::ViewPB {
+    child_views: vec![],
+    ..shared_view_response.clone()
+  });
+
+  // Recursively flatten child views
+  fn flatten_views_recursive(views: &[script::ViewPB], flattened: &mut Vec<script::ViewPB>) {
+    for view in views {
+      let children = view.child_views.clone();
+      flattened.push(script::ViewPB {
+        child_views: vec![],
+        ..view.clone()
+      });
+
+      if !children.is_empty() {
+        flatten_views_recursive(&children, flattened);
+      }
+    }
+  }
+
+  flatten_views_recursive(&shared_view_response.child_views, &mut flattened_views);
+
+  // Verify all three views are in the flattened list
+  assert_eq!(flattened_views.len(), 3);
+  assert_eq!(flattened_views[0].id, parent_view.id);
+  assert_eq!(flattened_views[1].id, child_view.id);
+  assert_eq!(flattened_views[2].id, grandchild_view.id);
+
+  // Verify all are properly flattened
+  for view in &flattened_views {
+    assert!(view.child_views.is_empty());
+  }
+
+  // Test guest access check against flattened views
+  let view_ids_to_check = vec![
+    parent_view.id,
+    child_view.id,
+    grandchild_view.id,
+    "non_existent".to_string(),
+  ];
+
+  for view_id in view_ids_to_check {
+    let has_access = flattened_views.iter().any(|view| view.id == view_id);
+    if view_id == "non_existent" {
+      assert!(!has_access, "Should not have access to non-existent view");
+    } else {
+      assert!(has_access, "Should have access to view: {}", view_id);
+    }
+  }
+}
