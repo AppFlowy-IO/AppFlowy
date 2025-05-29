@@ -347,7 +347,10 @@ class LanguageDropdown extends StatelessWidget {
 }
 
 class _WorkspaceIconSetting extends StatelessWidget {
-  const _WorkspaceIconSetting({required this.enableEdit, this.workspace});
+  const _WorkspaceIconSetting({
+    required this.enableEdit,
+    this.workspace,
+  });
 
   final bool enableEdit;
   final UserWorkspacePB? workspace;
@@ -362,7 +365,7 @@ class _WorkspaceIconSetting extends StatelessWidget {
       );
     }
 
-    return SizedBox(
+    Widget child = SizedBox(
       height: 64,
       width: 64,
       child: Padding(
@@ -381,6 +384,14 @@ class _WorkspaceIconSetting extends StatelessWidget {
         ),
       ),
     );
+
+    if (!enableEdit) {
+      child = IgnorePointer(
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 
