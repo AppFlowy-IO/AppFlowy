@@ -39,27 +39,34 @@ class ViewTitleBar extends StatelessWidget {
             ..add(const PageAccessLevelEvent.initial()),
         ),
       ],
-      child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
-        builder: (context, state) {
-          final ancestors = state.ancestors;
-          if (ancestors.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              height: 24,
-              child: Row(
-                children: [
-                  ..._buildViewTitles(
-                    context,
-                    ancestors,
-                    state.isDeleted,
+      child: BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+        buildWhen: (previous, current) =>
+            previous.isLoadingLockStatus != current.isLoadingLockStatus,
+        builder: (context, pageAccessLevelState) {
+          return BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
+            builder: (context, state) {
+              final ancestors = state.ancestors;
+              if (ancestors.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  height: 24,
+                  child: Row(
+                    children: [
+                      ..._buildViewTitles(
+                        context,
+                        ancestors,
+                        state.isDeleted,
+                        pageAccessLevelState.isEditable,
+                      ),
+                      _buildLockPageStatus(context),
+                    ],
                   ),
-                  _buildLockPageStatus(context),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -93,6 +100,7 @@ class ViewTitleBar extends StatelessWidget {
     BuildContext context,
     List<ViewPB> views,
     bool isDeleted,
+    bool isEditable,
   ) {
     if (isDeleted) {
       return _buildDeletedTitle(context, views.last);
@@ -132,7 +140,7 @@ class ViewTitleBar extends StatelessWidget {
         message: view.name,
         child: ViewTitle(
           view: view,
-          behavior: i == views.length - 1 && !view.isLocked
+          behavior: i == views.length - 1 && !view.isLocked && isEditable
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {

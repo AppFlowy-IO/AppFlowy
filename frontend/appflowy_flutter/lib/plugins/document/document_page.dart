@@ -135,8 +135,9 @@ class _DocumentPageState extends State<DocumentPage>
               return MultiBlocListener(
                 listeners: [
                   BlocListener<PageAccessLevelBloc, PageAccessLevelState>(
-                    listener: (context, state) =>
-                        editorState.editable = state.isEditable,
+                    listener: (context, state) {
+                      editorState.editable = state.isEditable;
+                    },
                   ),
                   BlocListener<ActionNavigationBloc, ActionNavigationState>(
                     listenWhen: (_, curr) => curr.action != null,
