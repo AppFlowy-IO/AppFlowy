@@ -47,7 +47,13 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SingleChildScrollView(
-            child: SharedPagesList(sharedPages: sharedPages),
+            child: SharedPagesList(
+              sharedPages: sharedPages,
+              onAction: (action, view, data) {},
+              onSelected: (context, view) {},
+              onTertiarySelected: (context, view) {},
+              onSetEditing: (context, value) {},
+            ),
           ),
         ),
       );

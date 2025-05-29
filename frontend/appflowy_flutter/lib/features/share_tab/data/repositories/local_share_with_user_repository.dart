@@ -145,7 +145,7 @@ class LocalShareWithUserRepository extends ShareWithUserRepository {
 
   @override
   Future<FlowyResult<void, FlowyError>> changeRole({
-    required String pageId,
+    required String workspaceId,
     required String email,
     required ShareRole role,
   }) async {

@@ -56,6 +56,9 @@ void main() {
           await tester.pumpAndSettle();
 
           currentScaleFactor += 0.1;
+          currentScaleFactor = double.parse(
+            currentScaleFactor.toStringAsFixed(2),
+          );
 
           final scaleFactor = await windowSizeManager.getScaleFactor();
           expect(currentScaleFactor, appflowyScaleFactor);

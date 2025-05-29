@@ -1,10 +1,12 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,20 +48,29 @@ class _ShareTabState extends State<ShareTab> {
           return const SizedBox.shrink();
         }
 
+        final currentUserRole = state.users
+            .firstWhereOrNull(
+              (user) => user.email == state.currentUser?.email,
+            )
+            ?.role;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            VSpace(theme.spacing.l),
-            ShareWithUserWidget(
-              controller: controller,
-              onInvite: (emails) => _onSharePageWithUser(
-                context,
-                emails: emails,
-                accessLevel: ShareAccessLevel.readOnly,
+            // hide this when the user is guest
+            if (currentUserRole != ShareRole.guest) ...[
+              VSpace(theme.spacing.l),
+              ShareWithUserWidget(
+                controller: controller,
+                onInvite: (emails) => _onSharePageWithUser(
+                  context,
+                  emails: emails,
+                  accessLevel: ShareAccessLevel.readOnly,
+                ),
               ),
-            ),
+            ],
 
             // shared users
 
@@ -104,7 +115,12 @@ class _ShareTabState extends State<ShareTab> {
   ) {
     return PeopleWithAccessSectionCallbacks(
       onSelectAccessLevel: (user, accessLevel) {
-        // do nothing. the event doesn't support in the backend yet
+        context.read<ShareWithUserBloc>().add(
+              ShareWithUserEvent.updateAccessLevel(
+                email: user.email,
+                accessLevel: accessLevel,
+              ),
+            );
       },
       onTurnIntoMember: (user) {
         context.read<ShareWithUserBloc>().add(
@@ -133,9 +149,22 @@ class _ShareTabState extends State<ShareTab> {
           message: 'Invitation sent',
         );
       }, (error) {
-        // TODO: handle the limiation error
+        String message;
+        switch (error.code) {
+          case ErrorCode.InvalidGuest:
+            message = 'The email is already in the list';
+            break;
+          case ErrorCode.FreePlanGuestLimitExceeded:
+            message = 'Please upgrade to a Pro plan to invite more guests';
+            break;
+          case ErrorCode.PaidPlanGuestLimitExceeded:
+            message = 'You have reached the maximum number of guests';
+            break;
+          default:
+            message = error.msg;
+        }
         showToastNotification(
-          message: error.msg,
+          message: message,
           type: ToastificationType.error,
         );
       });
