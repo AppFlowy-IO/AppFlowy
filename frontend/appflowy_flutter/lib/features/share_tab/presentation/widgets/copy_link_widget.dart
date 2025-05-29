@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -40,8 +40,8 @@ class CopyLinkWidget extends StatelessWidget {
             FlowySvgs.toolbar_link_m,
           ),
           onTap: () {
-            context.read<ShareWithUserBloc>().add(
-                  ShareWithUserEvent.copyLink(link: shareLink),
+            context.read<ShareTabBloc>().add(
+                  ShareTabEvent.copyShareLink(link: shareLink),
                 );
 
             showToastNotification(

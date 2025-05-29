@@ -1,5 +1,5 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
@@ -39,7 +39,7 @@ class _ShareTabState extends State<ShareTab> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocConsumer<ShareWithUserBloc, ShareWithUserState>(
+    return BlocConsumer<ShareTabBloc, ShareTabState>(
       listener: (context, state) {
         _onListenShareWithUserState(context, state);
       },
@@ -105,8 +105,8 @@ class _ShareTabState extends State<ShareTab> {
     required List<String> emails,
     required ShareAccessLevel accessLevel,
   }) {
-    context.read<ShareWithUserBloc>().add(
-          ShareWithUserEvent.share(emails: emails, accessLevel: accessLevel),
+    context.read<ShareTabBloc>().add(
+          ShareTabEvent.inviteUsers(emails: emails, accessLevel: accessLevel),
         );
   }
 
@@ -115,21 +115,21 @@ class _ShareTabState extends State<ShareTab> {
   ) {
     return PeopleWithAccessSectionCallbacks(
       onSelectAccessLevel: (user, accessLevel) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.updateAccessLevel(
+        context.read<ShareTabBloc>().add(
+              ShareTabEvent.updateUserAccessLevel(
                 email: user.email,
                 accessLevel: accessLevel,
               ),
             );
       },
       onTurnIntoMember: (user) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.turnIntoMember(email: user.email),
+        context.read<ShareTabBloc>().add(
+              ShareTabEvent.convertToMember(email: user.email),
             );
       },
       onRemoveAccess: (user) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.remove(emails: [user.email]),
+        context.read<ShareTabBloc>().add(
+              ShareTabEvent.removeUsers(emails: [user.email]),
             );
       },
     );
@@ -137,7 +137,7 @@ class _ShareTabState extends State<ShareTab> {
 
   void _onListenShareWithUserState(
     BuildContext context,
-    ShareWithUserState state,
+    ShareTabState state,
   ) {
     final shareResult = state.shareResult;
     if (shareResult != null) {

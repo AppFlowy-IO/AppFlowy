@@ -1,5 +1,5 @@
-import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository_impl.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -28,15 +28,15 @@ void main() {
         (WidgetTester tester) async {
       final mockClipboard = getIt<ClipboardService>() as _MockClipboardService;
       when(() => mockClipboard.setData(any())).thenAnswer((_) async {});
-      final bloc = ShareWithUserBloc(
-        repository: LocalShareWithUserRepository(),
+      final bloc = ShareTabBloc(
+        repository: LocalShareWithUserRepositoryImpl(),
         pageId: 'pageId',
         workspaceId: 'workspaceId',
       );
       const testLink = 'https://test.link';
       await tester.pumpWidget(
         WidgetTestWrapper(
-          child: BlocProvider<ShareWithUserBloc>.value(
+          child: BlocProvider<ShareTabBloc>.value(
             value: bloc,
             child: CopyLinkWidget(shareLink: testLink),
           ),
