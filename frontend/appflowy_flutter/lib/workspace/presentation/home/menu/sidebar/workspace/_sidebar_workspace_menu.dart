@@ -19,6 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '_sidebar_import_notion.dart';
+import 'create_workspace_dialog.dart';
 
 @visibleForTesting
 const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
@@ -319,26 +320,6 @@ class _WorkspaceInfo extends StatelessWidget {
   }
 }
 
-class CreateWorkspaceDialog extends StatelessWidget {
-  const CreateWorkspaceDialog({
-    super.key,
-    required this.onConfirm,
-  });
-
-  final void Function(String name) onConfirm;
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigatorTextFieldDialog(
-      title: LocaleKeys.workspace_create.tr(),
-      value: '',
-      hintText: '',
-      autoSelectAllText: true,
-      onConfirm: (name, _) => onConfirm(name),
-    );
-  }
-}
-
 class _CreateWorkspaceButton extends StatelessWidget {
   const _CreateWorkspaceButton();
 
@@ -348,9 +329,24 @@ class _CreateWorkspaceButton extends StatelessWidget {
       height: 40,
       child: FlowyButton(
         key: createWorkspaceButtonKey,
-        onTap: () {
-          _showCreateWorkspaceDialog(context);
+        onTap: () async {
+          final bloc = context.read<UserWorkspaceBloc>();
+
           PopoverContainer.of(context).closeAll();
+
+          final result = await showCreateWorkspaceDialog(
+            context,
+            userName: bloc.state.userProfile.name,
+          );
+
+          if (result != null && !bloc.isClosed) {
+            bloc.add(
+              UserWorkspaceEvent.createWorkspace(
+                result.name,
+                WorkspaceTypePB.ServerW,
+              ),
+            );
+          }
         },
         margin: const EdgeInsets.symmetric(horizontal: 4.0),
         text: Row(
@@ -380,22 +376,6 @@ class _CreateWorkspaceButton extends StatelessWidget {
       ),
       child: const FlowySvg(FlowySvgs.add_workspace_s),
     );
-  }
-
-  Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
-    if (context.mounted) {
-      final workspaceBloc = context.read<UserWorkspaceBloc>();
-      await CreateWorkspaceDialog(
-        onConfirm: (name) {
-          workspaceBloc.add(
-            UserWorkspaceEvent.createWorkspace(
-              name,
-              WorkspaceTypePB.ServerW,
-            ),
-          );
-        },
-      ).show(context);
-    }
   }
 }
 
