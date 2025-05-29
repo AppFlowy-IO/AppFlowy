@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -35,8 +35,8 @@ class ViewTitleBar extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
         BlocProvider(
-          create: (_) => ViewLockStatusBloc(view: view)
-            ..add(const ViewLockStatusEvent.initial()),
+          create: (_) => PageAccessLevelBloc(view: view)
+            ..add(const PageAccessLevelEvent.initial()),
         ),
       ],
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
@@ -67,7 +67,7 @@ class ViewTitleBar extends StatelessWidget {
   }
 
   Widget _buildLockPageStatus(BuildContext context) {
-    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
@@ -420,8 +420,8 @@ class LockedPageStatus extends StatelessWidget {
             FlowySvgs.lock_page_fill_s,
             blendMode: null,
           ),
-          onTap: () => context.read<ViewLockStatusBloc>().add(
-                const ViewLockStatusEvent.unlock(),
+          onTap: () => context.read<PageAccessLevelBloc>().add(
+                const PageAccessLevelEvent.unlock(),
               ),
         ),
       ),
@@ -459,8 +459,8 @@ class ReLockedPageStatus extends StatelessWidget {
           color: iconColor,
           blendMode: null,
         ),
-        onTap: () => context.read<ViewLockStatusBloc>().add(
-              const ViewLockStatusEvent.lock(),
+        onTap: () => context.read<PageAccessLevelBloc>().add(
+              const PageAccessLevelEvent.lock(),
             ),
       ),
     );

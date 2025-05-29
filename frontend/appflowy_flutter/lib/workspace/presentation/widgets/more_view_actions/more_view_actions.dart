@@ -1,3 +1,5 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -5,7 +7,6 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
@@ -79,8 +80,8 @@ class _MoreViewActionsState extends State<MoreViewActions> {
             ),
         ),
         BlocProvider(
-          create: (_) => ViewLockStatusBloc(view: widget.view)
-            ..add(ViewLockStatusEvent.initial()),
+          create: (_) => PageAccessLevelBloc(view: widget.view)
+            ..add(PageAccessLevelEvent.initial()),
         ),
         BlocProvider(
           create: (context) => SpaceBloc(
@@ -120,17 +121,23 @@ class _MoreViewActionsState extends State<MoreViewActions> {
   }
 
   List<Widget> _buildActions(BuildContext context, ViewInfoState state) {
-    final view = context.watch<ViewLockStatusBloc>().state.view;
+    final pageAccessLevelBloc = context.watch<PageAccessLevelBloc>();
+    final pageAccessLevelState = pageAccessLevelBloc.state;
+    final view = pageAccessLevelState.view;
     final appearanceSettings = context.watch<AppearanceSettingsCubit>().state;
     final dateFormat = appearanceSettings.dateFormat;
     final timeFormat = appearanceSettings.timeFormat;
 
-    final viewMoreActionTypes = [
-      if (widget.view.layout != ViewLayoutPB.Chat) ViewMoreActionType.duplicate,
-      ViewMoreActionType.moveTo,
-      ViewMoreActionType.delete,
-      ViewMoreActionType.divider,
-    ];
+    final viewMoreActionTypes = switch (pageAccessLevelState.accessLevel) {
+      ShareAccessLevel.readOnly => [],
+      _ => [
+          if (widget.view.layout != ViewLayoutPB.Chat)
+            ViewMoreActionType.duplicate,
+          ViewMoreActionType.moveTo,
+          ViewMoreActionType.delete,
+          ViewMoreActionType.divider,
+        ],
+    };
 
     final actions = [
       ...widget.customActions,
@@ -143,7 +150,8 @@ class _MoreViewActionsState extends State<MoreViewActions> {
         ),
       ],
       if (state.workspaceType == WorkspaceTypePB.ServerW &&
-          (widget.view.isDocument || widget.view.isDatabase)) ...[
+          (widget.view.isDocument || widget.view.isDatabase) &&
+          !pageAccessLevelState.isReadOnly) ...[
         LockPageAction(
           view: view,
         ),

@@ -67,9 +67,7 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(), // the AFMenu has a border
       anchor: const AFAnchorAuto(
-        offset: Offset(-8, 116),
-        followerAnchor: Alignment.centerRight,
-        targetAnchor: Alignment.centerLeft,
+        offset: Offset(98, 8),
       ),
       popover: (context) => AFMenu(
         width: 240,

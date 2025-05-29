@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -11,7 +12,6 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -128,9 +128,9 @@ class _CalendarPageState extends State<CalendarPage> {
             value: _calendarBloc,
           ),
           BlocProvider(
-            create: (context) => ViewLockStatusBloc(view: widget.view)
+            create: (context) => PageAccessLevelBloc(view: widget.view)
               ..add(
-                ViewLockStatusEvent.initial(),
+                PageAccessLevelEvent.initial(),
               ),
           ),
         ],
@@ -382,11 +382,10 @@ class _CalendarPageState extends State<CalendarPage> {
     // is implemnted in the develop branch(WIP). Will be replaced with that.
     final events = calenderEvents.map((value) => value.event!).toList()
       ..sort((a, b) => a.event.timestamp.compareTo(b.event.timestamp));
-    final isLocked =
-        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
-
+    final isEditable =
+        context.watch<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     return IgnorePointer(
-      ignoring: isLocked,
+      ignoring: !isEditable,
       child: CalendarDayCard(
         viewId: widget.view.id,
         isToday: isToday,
