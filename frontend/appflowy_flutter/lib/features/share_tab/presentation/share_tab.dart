@@ -89,8 +89,6 @@ class _ShareTabState extends State<ShareTab> {
             // GeneralAccessSection(),
 
             // copy link
-            VSpace(theme.spacing.l),
-            const AFDivider(),
             VSpace(theme.spacing.xl),
             CopyLinkWidget(shareLink: state.shareLink),
             VSpace(theme.spacing.m),

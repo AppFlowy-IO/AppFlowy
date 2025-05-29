@@ -1,6 +1,7 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/edit_access_level_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/guest_tag.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,6 +28,7 @@ class SharedUserWidget extends StatelessWidget {
     return AFMenuItem(
       padding: EdgeInsets.symmetric(
         vertical: theme.spacing.s,
+        horizontal: theme.spacing.m,
       ),
       leading: AFAvatar(
         name: user.name,
@@ -35,6 +37,9 @@ class SharedUserWidget extends StatelessWidget {
       title: _buildTitle(context),
       subtitle: _buildSubtitle(context),
       trailing: _buildTrailing(context),
+      onTap: () {
+        // callbacks?.onSelectAccessLevel.call(user, user.accessLevel);
+      },
     );
   }
 
@@ -67,13 +72,8 @@ class SharedUserWidget extends StatelessWidget {
         ],
         // if the user is a guest, show 'Guest'
         if (user.role == ShareRole.guest) ...[
-          HSpace(theme.spacing.xs),
-          Text(
-            LocaleKeys.shareTab_guest.tr(),
-            style: theme.textStyle.body.standard(
-              color: theme.textColorScheme.warning,
-            ),
-          ),
+          HSpace(theme.spacing.m),
+          const GuestTag(),
         ],
       ],
     );
