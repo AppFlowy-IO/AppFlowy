@@ -26,9 +26,9 @@ class SharedSectionHeader extends StatelessWidget {
         vertical: 6,
       ),
       borderRadius: theme.borderRadius.s,
-      iconBuilder: (context, isHover, disabled) => const FlowySvg(
+      iconBuilder: (context, isHover, disabled) => FlowySvg(
         FlowySvgs.shared_with_me_m,
-        blendMode: null,
+        color: theme.badgeColorScheme.color13Thick2,
       ),
     );
   }

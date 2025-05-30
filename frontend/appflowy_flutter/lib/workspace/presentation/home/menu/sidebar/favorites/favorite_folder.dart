@@ -169,7 +169,7 @@ class FavoriteHeader extends StatelessWidget {
       text: LocaleKeys.sideBar_favorites.tr(),
       mainAxisAlignment: MainAxisAlignment.start,
       size: AFButtonSize.l,
-      onTap: () {},
+      onTap: onPressed,
       // todo: ask the designer to provide the token.
       padding: EdgeInsets.symmetric(
         horizontal: 4,
@@ -179,7 +179,7 @@ class FavoriteHeader extends StatelessWidget {
       iconBuilder: (context, isHover, disabled) => const FlowySvg(
         FlowySvgs.favorite_header_icon_m,
         blendMode: null,
-        size: Size.square(22.0),
+        size: Size.square(20.0),
       ),
     );
   }

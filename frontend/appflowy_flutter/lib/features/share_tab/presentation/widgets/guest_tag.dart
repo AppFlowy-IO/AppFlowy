@@ -10,8 +10,10 @@ class GuestTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.m,
+      padding: EdgeInsets.only(
+        left: theme.spacing.m,
+        right: theme.spacing.m,
+        bottom: 2,
       ),
       decoration: BoxDecoration(
         color: theme.fillColorScheme.warningLight,
@@ -19,9 +21,13 @@ class GuestTag extends StatelessWidget {
       ),
       child: Text(
         LocaleKeys.shareTab_guest.tr(),
-        style: theme.textStyle.caption.standard(
-          color: theme.textColorScheme.warning,
-        ),
+        style: theme.textStyle.caption
+            .standard(
+              color: theme.textColorScheme.warning,
+            )
+            .copyWith(
+              height: 16.0 / 12.0,
+            ),
       ),
     );
   }
