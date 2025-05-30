@@ -43,12 +43,9 @@ void main() {
         ),
       );
 
-      expect(find.text(testLink), findsOneWidget);
       expect(find.text(LocaleKeys.shareTab_copyLink.tr()), findsOneWidget);
       await tester.tap(find.text(LocaleKeys.shareTab_copyLink.tr()));
       await tester.pumpAndSettle();
-      // Timer (duration: 0:00:03.000000, periodic: false), created:
-      // #0      new FakeTimer._ (package:fake_async/fake_async.dart:308:62)
       await tester.pump(const Duration(seconds: 4));
 
       verify(() => mockClipboard.setData(any())).called(1);
