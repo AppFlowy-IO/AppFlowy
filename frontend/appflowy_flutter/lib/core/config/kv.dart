@@ -2,7 +2,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class KeyValueStorage {
   Future<void> set(String key, String value);
+  Future<void> setBool(String key, bool value);
   Future<String?> get(String key);
+  Future<bool?> getBool(String key);
   Future<T?> getWithFormat<T>(
     String key,
     T Function(String value) formatter,
@@ -53,6 +55,12 @@ class DartKeyValue implements KeyValueStorage {
   }
 
   @override
+  Future<void> setBool(String key, bool value) async {
+    await _initSharedPreferencesIfNeeded();
+    await sharedPreferences.setBool(key, value);
+  }
+
+  @override
   Future<void> clear() async {
     await _initSharedPreferencesIfNeeded();
 
@@ -61,5 +69,12 @@ class DartKeyValue implements KeyValueStorage {
 
   Future<void> _initSharedPreferencesIfNeeded() async {
     _sharedPreferences ??= await SharedPreferences.getInstance();
+  }
+
+  @override
+  Future<bool?> getBool(String key) async {
+    await _initSharedPreferencesIfNeeded();
+    final value = sharedPreferences.getBool(key);
+    return value;
   }
 }

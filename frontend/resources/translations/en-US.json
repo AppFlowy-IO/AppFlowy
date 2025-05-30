@@ -2211,7 +2211,12 @@
       "moreResults": "{} more results...",
       "add": "Add{}...",
       "createSubpage": "Create a sub-page...",
-      "dateAndReminder": "Date & Reminder"
+      "dateAndReminder": "Date & Reminder",
+      "dateToday": "Today",
+      "dateTomorrow": "Tomorrow",
+      "dateYesterday": "Yesterday",
+      "reminderTomorrow9Am": "Remind tomorrow 9am",
+      "reminder1Week": "Remind 1 week"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default",

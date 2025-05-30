@@ -120,4 +120,9 @@ class KVKeys {
   ///
   /// The value is a json list of id
   static const String compactModeIds = 'compactModeIds';
+
+  /// The key for saving "send notification" toggle value for @ menu
+  ///
+  /// The value is bool value
+  static const String atMenuSendNotification = 'atMenuSendNotification';
 }
