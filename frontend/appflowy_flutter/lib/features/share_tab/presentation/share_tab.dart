@@ -1,6 +1,8 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
+import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -16,10 +18,16 @@ class ShareTab extends StatefulWidget {
     super.key,
     required this.workspaceId,
     required this.pageId,
+    required this.workspaceName,
+    required this.workspaceIcon,
   });
 
   final String workspaceId;
   final String pageId;
+
+  // these 2 values should be provided by the share tab bloc
+  final String workspaceName;
+  final String workspaceIcon;
 
   @override
   State<ShareTab> createState() => _ShareTabState();
@@ -93,9 +101,14 @@ class _ShareTabState extends State<ShareTab> {
             ],
 
             // general access
-            // enable it when the backend support general access features.
-            // VSpace(theme.spacing.m),
-            // GeneralAccessSection(),
+            VSpace(theme.spacing.m),
+            GeneralAccessSection(
+              group: SharedGroup(
+                id: widget.workspaceId,
+                name: widget.workspaceName,
+                icon: widget.workspaceIcon,
+              ),
+            ),
 
             // copy link
             VSpace(theme.spacing.xl),

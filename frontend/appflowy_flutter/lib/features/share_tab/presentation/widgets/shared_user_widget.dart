@@ -108,8 +108,18 @@ class SharedUserWidget extends StatelessWidget {
       ShareRole.owner => [ShareAccessLevel.fullAccess],
     };
     // The current guest user can't edit the access level of the other user
-    return isCurrentUser ||
-            currentUser.role == ShareRole.guest ||
+    if (isCurrentUser) {
+      return EditAccessLevelWidget(
+        selectedAccessLevel: user.accessLevel,
+        supportedAccessLevels: [],
+        additionalUserManagementOptions: [
+          AdditionalUserManagementOptions.removeAccess,
+        ],
+        callbacks: callbacks ?? AccessLevelListCallbacks.none(),
+      );
+    }
+
+    return currentUser.role == ShareRole.guest ||
             user.role == ShareRole.member ||
             user.role == ShareRole.owner
         ? AFGhostTextButton.disabled(
@@ -121,6 +131,10 @@ class SharedUserWidget extends StatelessWidget {
         : EditAccessLevelWidget(
             selectedAccessLevel: user.accessLevel,
             supportedAccessLevels: supportedAccessLevels,
+            additionalUserManagementOptions: [
+              AdditionalUserManagementOptions.turnIntoMember,
+              AdditionalUserManagementOptions.removeAccess,
+            ],
             callbacks: callbacks ?? AccessLevelListCallbacks.none(),
           );
   }

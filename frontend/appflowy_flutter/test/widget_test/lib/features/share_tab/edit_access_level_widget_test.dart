@@ -14,6 +14,8 @@ void main() {
           child: EditAccessLevelWidget(
             selectedAccessLevel: ShareAccessLevel.readOnly,
             supportedAccessLevels: ShareAccessLevel.values,
+            additionalUserManagementOptions:
+                AdditionalUserManagementOptions.values,
             callbacks: AccessLevelListCallbacks(
               onSelectAccessLevel: (level) {},
               onTurnIntoMember: () {},

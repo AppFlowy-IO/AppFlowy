@@ -79,7 +79,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
           popover: (_) {
             return ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 414,
+                maxWidth: 460,
               ),
               child: MultiBlocProvider(
                 providers: [
