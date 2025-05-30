@@ -1,4 +1,5 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/guest_tag.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -271,29 +272,42 @@ class _WorkspaceInfo extends StatelessWidget {
       leftIconSize: const Size.square(32),
       leftIcon: const SizedBox.square(dimension: 32),
       rightIcon: const HSpace(32.0),
-      text: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      text: Row(
         children: [
-          // workspace name
-          FlowyText.medium(
-            workspace.name,
-            fontSize: 14.0,
-            figmaLineHeight: 17.0,
-            overflow: TextOverflow.ellipsis,
-            withTooltip: true,
-          ),
-          // workspace members count
-          FlowyText.regular(
-            memberCount == 0
-                ? ''
-                : LocaleKeys.settings_appearance_members_membersCount.plural(
-                    memberCount,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // workspace name
+                FlowyText.medium(
+                  workspace.name,
+                  fontSize: 14.0,
+                  figmaLineHeight: 17.0,
+                  overflow: TextOverflow.ellipsis,
+                  withTooltip: true,
+                ),
+                if (workspace.role != AFRolePB.Guest) ...[
+                  // workspace members count
+                  FlowyText.regular(
+                    memberCount == 0
+                        ? ''
+                        : LocaleKeys.settings_appearance_members_membersCount
+                            .plural(
+                            memberCount,
+                          ),
+                    fontSize: 10.0,
+                    figmaLineHeight: 12.0,
+                    color: Theme.of(context).hintColor,
                   ),
-            fontSize: 10.0,
-            figmaLineHeight: 12.0,
-            color: Theme.of(context).hintColor,
+                ],
+              ],
+            ),
           ),
+          if (workspace.role == AFRolePB.Guest) ...[
+            const HSpace(6.0),
+            GuestTag(),
+          ],
         ],
       ),
     );
