@@ -71,7 +71,8 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       ),
       popover: (context) => AFMenu(
         width: 240,
-        backgroundColor: Theme.of(context).cardColor, // to compatible with the old design
+        backgroundColor:
+            Theme.of(context).cardColor, // to compatible with the old design
         children: _buildMenuItems(context),
       ),
       child: widget.buildChild(controller),
@@ -122,6 +123,10 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       widget.view.isFavorite
           ? ViewMoreActionType.unFavorite
           : ViewMoreActionType.favorite,
+    );
+
+    actionTypes.add(
+      ViewMoreActionType.leaveSharedPage,
     );
 
     // Only show editable actions if access level allows it

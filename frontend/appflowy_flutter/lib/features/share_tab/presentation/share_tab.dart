@@ -5,6 +5,7 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -148,9 +149,27 @@ class _ShareTabState extends State<ShareTab> {
             );
       },
       onRemoveAccess: (user) {
-        context.read<ShareTabBloc>().add(
-              ShareTabEvent.removeUsers(emails: [user.email]),
-            );
+        // show a dialog to confirm the action when removing self access
+        final removingSelf =
+            user.email == context.read<ShareTabBloc>().state.currentUser?.email;
+        if (removingSelf) {
+          showConfirmDialog(
+            context: context,
+            title: 'Remove your own access',
+            description: '',
+            style: ConfirmPopupStyle.cancelAndOk,
+            confirmLabel: 'Remove',
+            onConfirm: () {
+              context.read<ShareTabBloc>().add(
+                    ShareTabEvent.removeUsers(emails: [user.email]),
+                  );
+            },
+          );
+        } else {
+          context.read<ShareTabBloc>().add(
+                ShareTabEvent.removeUsers(emails: [user.email]),
+              );
+        }
       },
     );
   }
