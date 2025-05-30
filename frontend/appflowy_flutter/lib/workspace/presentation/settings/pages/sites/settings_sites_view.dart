@@ -1,5 +1,6 @@
+import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_item.dart';
@@ -37,8 +38,12 @@ class SettingsSitesPage extends StatelessWidget {
           )..add(const SettingsSitesEvent.initial()),
         ),
         BlocProvider<UserWorkspaceBloc>(
-          create: (context) => UserWorkspaceBloc(userProfile: user)
-            ..add(const UserWorkspaceEvent.initial()),
+          create: (context) => UserWorkspaceBloc(
+            userProfile: user,
+            repository: RustWorkspaceRepositoryImpl(
+              userId: user.id,
+            ),
+          )..add(UserWorkspaceEvent.initialize()),
         ),
       ],
       child: const _SettingsSitesPageView(),

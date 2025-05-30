@@ -17,7 +17,7 @@ import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';

@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
@@ -9,7 +10,6 @@ import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -116,7 +116,7 @@ class _MobileWorkspace extends StatelessWidget {
           alignment: Alignment.centerLeft,
           onTapUp: () {
             context.read<UserWorkspaceBloc>().add(
-                  const UserWorkspaceEvent.fetchWorkspaces(),
+                  UserWorkspaceEvent.fetchWorkspaces(),
                 );
             _showSwitchWorkspacesBottomSheet(context);
           },
@@ -134,8 +134,8 @@ class _MobileWorkspace extends StatelessWidget {
                 showBorder: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
-                        currentWorkspace.workspaceId,
-                        result.emoji,
+                        workspaceId: currentWorkspace.workspaceId,
+                        icon: result.emoji,
                       ),
                     ),
               ),
@@ -193,8 +193,8 @@ class _MobileWorkspace extends StatelessWidget {
 
                   context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.openWorkspace(
-                          workspace.workspaceId,
-                          workspace.workspaceType,
+                          workspaceId: workspace.workspaceId,
+                          workspaceType: workspace.workspaceType,
                         ),
                       );
                 },

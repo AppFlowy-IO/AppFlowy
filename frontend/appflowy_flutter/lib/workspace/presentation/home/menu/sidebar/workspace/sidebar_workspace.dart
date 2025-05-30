@@ -1,8 +1,8 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
@@ -136,7 +136,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     });
 
     // show a confirmation dialog if the action is create and the result is LimitExceeded failure
-    if (actionType == UserWorkspaceActionType.create &&
+    if (actionType == WorkspaceActionType.create &&
         result.isFailure &&
         result.getFailure().code == ErrorCode.WorkspaceLimitExceeded) {
       showDialog(
@@ -150,41 +150,42 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
 
     final String? message;
     switch (actionType) {
-      case UserWorkspaceActionType.create:
+      case WorkspaceActionType.create:
         message = result.fold(
           (s) => LocaleKeys.workspace_createSuccess.tr(),
           (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
         );
         break;
-      case UserWorkspaceActionType.delete:
+      case WorkspaceActionType.delete:
         message = result.fold(
           (s) => LocaleKeys.workspace_deleteSuccess.tr(),
           (e) => '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}',
         );
         break;
-      case UserWorkspaceActionType.open:
+      case WorkspaceActionType.open:
         message = result.fold(
           (s) => LocaleKeys.workspace_openSuccess.tr(),
           (e) => '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}',
         );
 
         break;
-      case UserWorkspaceActionType.updateIcon:
+      case WorkspaceActionType.updateIcon:
         message = result.fold(
           (s) => LocaleKeys.workspace_updateIconSuccess.tr(),
           (e) => '${LocaleKeys.workspace_updateIconFailed.tr()}: ${e.msg}',
         );
         break;
-      case UserWorkspaceActionType.rename:
+      case WorkspaceActionType.rename:
         message = result.fold(
           (s) => LocaleKeys.workspace_renameSuccess.tr(),
           (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
         );
         break;
 
-      case UserWorkspaceActionType.fetchWorkspaces:
-      case UserWorkspaceActionType.none:
-      case UserWorkspaceActionType.leave:
+      case WorkspaceActionType.fetchWorkspaces:
+      case WorkspaceActionType.none:
+      case WorkspaceActionType.leave:
+      case WorkspaceActionType.fetchSubscriptionInfo:
         message = null;
         break;
     }
@@ -264,8 +265,8 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
 
     context.read<UserWorkspaceBloc>().add(
           UserWorkspaceEvent.openWorkspace(
-            workspaceId,
-            openWorkspace.workspaceType,
+            workspaceId: workspaceId,
+            workspaceType: openWorkspace.workspaceType,
           ),
         );
 
@@ -309,7 +310,7 @@ class _SidebarSwitchWorkspaceButtonState
       onOpen: () {
         context
             .read<UserWorkspaceBloc>()
-            .add(const UserWorkspaceEvent.fetchWorkspaces());
+            .add(UserWorkspaceEvent.fetchWorkspaces());
       },
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
@@ -357,7 +358,7 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           context.read<UserWorkspaceBloc>().add(
-                const UserWorkspaceEvent.fetchWorkspaces(),
+                UserWorkspaceEvent.fetchWorkspaces(),
               );
           popoverController.show();
         },
@@ -378,8 +379,8 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
                 showBorder: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
-                        currentWorkspace.workspaceId,
-                        result.emoji,
+                        workspaceId: currentWorkspace.workspaceId,
+                        icon: result.emoji,
                       ),
                     ),
               ),

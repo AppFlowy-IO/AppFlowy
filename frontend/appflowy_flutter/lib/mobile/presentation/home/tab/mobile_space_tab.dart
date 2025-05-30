@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/favorite_space.dart';
 import 'package:appflowy/mobile/presentation/home/home_space/home_space.dart';
@@ -10,7 +11,6 @@ import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -216,6 +216,6 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     }
     context
         .read<UserWorkspaceBloc>()
-        .add(UserWorkspaceEvent.leaveWorkspace(workspaceId));
+        .add(UserWorkspaceEvent.leaveWorkspace(workspaceId: workspaceId));
   }
 }
