@@ -1,9 +1,10 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:appflowy_ui_example/src/avatar/avatar_page.dart';
-import 'package:appflowy_ui_example/src/menu/menu_page.dart';
 import 'package:flutter/material.dart';
 
+import 'src/avatar/avatar_page.dart';
 import 'src/buttons/buttons_page.dart';
+import 'src/dropdown_menu/dropdown_menu_page.dart';
+import 'src/menu/menu_page.dart';
 import 'src/modal/modal_page.dart';
 import 'src/textfield/textfield_page.dart';
 
@@ -71,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Tab(text: 'Modal'),
     Tab(text: 'Avatar'),
     Tab(text: 'Menu'),
+    Tab(text: 'Dropdown Menu'),
   ];
 
   @override
@@ -106,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ModalPage(),
             AvatarPage(),
             MenuPage(),
+            DropdownMenuPage(),
           ],
         ),
         bottomNavigationBar: TabBar(

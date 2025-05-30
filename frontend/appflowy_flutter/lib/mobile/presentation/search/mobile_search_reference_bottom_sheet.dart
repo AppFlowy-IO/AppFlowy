@@ -12,7 +12,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class SearchSourceReferenceBottomSheet extends StatelessWidget {
   const SearchSourceReferenceBottomSheet(this.sources, {super.key});
@@ -37,12 +36,11 @@ class SearchSourceReferenceBottomSheet extends StatelessWidget {
           showDragHandle: true,
           showDivider: false,
           enableDraggableScrollable: true,
-          maxChildSize: 1.0,
-          minChildSize: 1.0,
-          initialChildSize: 1.0,
+          maxChildSize: 0.95,
+          minChildSize: 0.95,
+          initialChildSize: 0.95,
           backgroundColor: theme.surfaceColorScheme.primary,
-          dragHandleBuilder:
-              UniversalPlatform.isAndroid ? (_) => const _DragHandler() : null,
+          dragHandleBuilder: (_) => const _DragHandler(),
           builder: (_) => SizedBox(
             height: MediaQuery.of(context).size.height,
             child: MobileViewPage(

@@ -79,10 +79,17 @@ impl SearchHandler for DocumentCloudSearchHandler {
       // Prepare input for search summary generation.
       let summary_input: Vec<SearchResult> = result_items
         .iter()
-        .map(|v| SearchResult {
-          object_id: v.object_id,
-          content: v.content.clone(),
-        })
+        .flat_map(|v| {
+          if v.content.is_empty() {
+            warn!("Search result item with empty content: {:?}", v);
+            None
+          } else {
+            Some(SearchResult {
+              object_id: v.object_id,
+              content: v.content.clone(),
+            })
+          }
+      })
         .collect();
 
       // Build search response items.

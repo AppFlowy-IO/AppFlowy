@@ -251,7 +251,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                           .orDefault(defaultFontFamily)
                           .fontFamilyName;
 
-                      return AppFlowyTheme(
+                      return AnimatedAppFlowyTheme(
                         data: brightness == Brightness.light
                             ? themeBuilder.light(fontFamily: fontFamily)
                             : themeBuilder.dark(fontFamily: fontFamily),

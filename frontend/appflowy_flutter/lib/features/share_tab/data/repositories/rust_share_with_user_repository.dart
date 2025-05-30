@@ -23,7 +23,7 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
 
     return result.fold(
       (success) {
-        Log.info('get shared users: $success');
+        Log.debug('get shared users: $success');
 
         return FlowySuccess(success.sharedUsers);
       },
@@ -93,30 +93,31 @@ class RustShareWithUserRepository extends ShareWithUserRepository {
   Future<FlowyResult<SharedUsers, FlowyError>> getAvailableSharedUsers({
     required String pageId,
   }) async {
-    // TODO: Implement this
     return FlowySuccess([]);
   }
 
   @override
   Future<FlowyResult<void, FlowyError>> changeRole({
-    required String pageId,
+    required String workspaceId,
     required String email,
     required ShareRole role,
   }) async {
     final request = UpdateWorkspaceMemberPB(
-      workspaceId: pageId,
+      workspaceId: workspaceId,
       email: email,
       role: role.userRole,
     );
     final result = await UserEventUpdateWorkspaceMember(request).send();
     return result.fold(
       (success) {
-        Log.info('change role($role) for user($email) in page($pageId)');
+        Log.info(
+          'change role($role) for user($email) in workspaceId($workspaceId)',
+        );
         return FlowySuccess(success);
       },
       (failure) {
         Log.error(
-          'failed to change role($role) for user($email) in page($pageId)',
+          'failed to change role($role) for user($email) in workspaceId($workspaceId)',
           failure,
         );
         return FlowyFailure(failure);

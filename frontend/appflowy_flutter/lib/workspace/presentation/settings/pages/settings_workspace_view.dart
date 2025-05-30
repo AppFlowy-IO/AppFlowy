@@ -241,7 +241,9 @@ class _WorkspaceNameSetting extends StatefulWidget {
 class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   final TextEditingController workspaceNameController = TextEditingController();
   final focusNode = FocusNode();
-  Timer? _debounce;
+
+  Timer? debounce;
+  bool isSaving = false;
 
   @override
   void dispose() {
@@ -254,6 +256,10 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
       listener: (_, state) {
+        if (isSaving) {
+          return;
+        }
+
         final newName = state.workspace?.name;
         if (newName != null && newName != workspaceNameController.text) {
           workspaceNameController.text = newName;
@@ -287,10 +293,15 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   }
 
   void _debounceSaveName(String name) {
-    _debounce?.cancel();
-    _debounce = Timer(
+    isSaving = true;
+
+    debounce?.cancel();
+    debounce = Timer(
       const Duration(milliseconds: 300),
-      () => _saveWorkspaceName(name: name),
+      () {
+        _saveWorkspaceName(name: name);
+        isSaving = false;
+      },
     );
   }
 
