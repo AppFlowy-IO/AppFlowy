@@ -365,24 +365,18 @@ class _WorkspaceIconSetting extends StatelessWidget {
       );
     }
 
-    Widget child = SizedBox(
-      height: 64,
-      width: 64,
-      child: Padding(
-        padding: const EdgeInsets.all(1),
-        child: WorkspaceIcon(
-          workspace: workspace!,
-          iconSize: 36,
-          emojiSize: 24.0,
-          fontSize: 24.0,
-          figmaLineHeight: 26.0,
-          borderRadius: 18.0,
-          enableEdit: true,
-          onSelected: (r) => context
-              .read<WorkspaceSettingsBloc>()
-              .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
-        ),
-      ),
+    Widget child = WorkspaceIcon(
+      workspaceIcon: workspace!.icon,
+      workspaceName: workspace!.name,
+      iconSize: 64.0,
+      emojiSize: 24.0,
+      fontSize: 24.0,
+      figmaLineHeight: 26.0,
+      borderRadius: 18.0,
+      isEditable: true,
+      onSelected: (r) => context
+          .read<WorkspaceSettingsBloc>()
+          .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
     );
 
     if (!enableEdit) {

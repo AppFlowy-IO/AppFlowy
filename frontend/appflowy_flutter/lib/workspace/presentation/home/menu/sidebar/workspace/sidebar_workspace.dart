@@ -369,14 +369,15 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
             children: [
               const HSpace(4.0),
               WorkspaceIcon(
-                workspace: currentWorkspace,
+                workspaceIcon: currentWorkspace.icon,
+                workspaceName: currentWorkspace.name,
                 iconSize: 26,
                 fontSize: 16,
                 emojiSize: 20,
-                enableEdit: false,
+                isEditable: false,
+                showBorder: false,
                 borderRadius: 8.0,
                 figmaLineHeight: 18.0,
-                showBorder: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         workspaceId: currentWorkspace.workspaceId,

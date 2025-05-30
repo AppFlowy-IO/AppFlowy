@@ -199,13 +199,14 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
     return FlowyTooltip(
       message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
       child: WorkspaceIcon(
-        workspace: widget.workspace,
+        workspaceName: widget.workspace.name,
+        workspaceIcon: widget.workspace.icon,
         iconSize: 36,
         emojiSize: 24.0,
         fontSize: 18.0,
         figmaLineHeight: 26.0,
         borderRadius: 12.0,
-        enableEdit: true,
+        isEditable: true,
         onSelected: (result) => context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.updateWorkspaceIcon(
                 workspaceId: widget.workspace.workspaceId,
