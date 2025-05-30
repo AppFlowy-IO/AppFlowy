@@ -8,6 +8,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 
@@ -61,12 +62,12 @@ class RustPageAccessLevelRepositoryImpl implements PageAccessLevelRepository {
   Future<FlowyResult<ShareAccessLevel, FlowyError>> getAccessLevel(
     String pageId,
   ) async {
-    final user = await UserBackendService.getCurrentUserProfile();
-    final email = user.fold(
-      (s) => s.email,
-      (f) => null,
+    final userResult = await UserBackendService.getCurrentUserProfile();
+    final user = userResult.fold(
+      (s) => s,
+      (_) => null,
     );
-    if (email == null) {
+    if (user == null) {
       return FlowyResult.failure(
         FlowyError(
           code: ErrorCode.Internal,
@@ -75,23 +76,39 @@ class RustPageAccessLevelRepositoryImpl implements PageAccessLevelRepository {
       );
     }
 
+    if (user.userAuthType == AuthTypePB.Local) {
+      // Local user can always have full access.
+      return FlowyResult.success(ShareAccessLevel.fullAccess);
+    }
+
+    if (user.workspaceType == WorkspaceTypePB.LocalW) {
+      // Local workspace can always have full access.
+      return FlowyResult.success(ShareAccessLevel.fullAccess);
+    }
+
+    final email = user.email;
+
     final request = GetSharedUsersPayloadPB(
       viewId: pageId,
     );
     final result = await FolderEventGetSharedUsers(request).send();
     return result.fold(
       (success) {
-        Log.debug('get shared users: $success');
         final accessLevel = success.items
-            .firstWhereOrNull(
-              (item) => item.email == email,
-            )
-            ?.accessLevel
-            .shareAccessLevel;
-        return FlowyResult.success(accessLevel ?? ShareAccessLevel.readOnly);
+                .firstWhereOrNull(
+                  (item) => item.email == email,
+                )
+                ?.accessLevel
+                .shareAccessLevel ??
+            ShareAccessLevel.readOnly;
+
+        Log.debug('current user access level: $accessLevel');
+
+        return FlowyResult.success(accessLevel);
       },
       (failure) {
-        Log.error('getUsersInSharedPage: $failure');
+        Log.error('failed to get user access level: $failure');
+
         return FlowyResult.failure(failure);
       },
     );
