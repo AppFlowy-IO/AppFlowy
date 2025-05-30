@@ -275,13 +275,14 @@ class _WorkspaceMenuItemIcon extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: WorkspaceIcon(
-        enableEdit: false,
+        workspaceName: workspace.name,
+        workspaceIcon: workspace.icon,
+        isEditable: false,
         iconSize: 36,
         emojiSize: 24.0,
         fontSize: 18.0,
         figmaLineHeight: 26.0,
         borderRadius: 12.0,
-        workspace: workspace,
         onSelected: (result) => context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.updateWorkspaceIcon(
                 workspace.workspaceId,
