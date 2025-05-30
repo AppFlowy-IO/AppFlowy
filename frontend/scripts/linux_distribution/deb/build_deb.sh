@@ -3,6 +3,16 @@
 LINUX_RELEASE_PRODUCTION=$1
 VERSION=$2
 PACKAGE_NAME=$3
+ARCHITECTURE=$4
+
+if [ -z "$ARCHITECTURE" ] || [ "$ARCHITECTURE" = "amd64" ]; then
+    ARCHITECTURE=amd64
+elif [ "$ARCHITECTURE" != "arm64" ]; then
+    echo "Supported architectures are only amd64 and arm64."
+    exit 1
+fi
+
+
 
 # Define package folders
 PACKAGE=$LINUX_RELEASE_PRODUCTION/package
@@ -24,6 +34,7 @@ cp -R ./scripts/linux_distribution/deb/DEBIAN $PACKAGE
 chmod 0755 $DEBIAN/postinst
 chmod 0755 $DEBIAN/postrm
 grep -rl "\[CHANGE_THIS\]" $DEBIAN/control | xargs sed -i "s/\[CHANGE_THIS\]/$VERSION/"
+grep -rl "\[ARCHITECTURE\]" $DEBIAN/control | xargs sed -i "s/\[ARCHITECTURE\]/$ARCHITECTURE/"
 
 cp -fR $LINUX_RELEASE_PRODUCTION/AppFlowy $LIB
 cp ./scripts/linux_distribution/deb/AppFlowy.desktop $APPLICATIONS
