@@ -28,6 +28,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     on<ShareTabEventCopyShareLink>(_onCopyLink);
     on<ShareTabEventSearchAvailableUsers>(_onSearchAvailableUsers);
     on<ShareTabEventConvertToMember>(_onTurnIntoMember);
+    on<ShareTabEventClearState>(_onClearState);
   }
 
   final ShareWithUserRepository repository;
@@ -321,6 +322,17 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     return shareResult.fold(
       (users) => users,
       (error) => state.users,
+    );
+  }
+
+  void _onClearState(
+    ShareTabEventClearState event,
+    Emitter<ShareTabState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        errorMessage: '',
+      ),
     );
   }
 }

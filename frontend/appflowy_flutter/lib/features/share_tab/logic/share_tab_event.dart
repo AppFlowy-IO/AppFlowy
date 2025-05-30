@@ -48,6 +48,8 @@ sealed class ShareTabEvent {
     required String email,
   }) =>
       ShareTabEventConvertToMember(email: email);
+
+  factory ShareTabEvent.clearState() => const ShareTabEventClearState();
 }
 
 /// Initializes the share tab bloc.
@@ -125,4 +127,8 @@ class ShareTabEventConvertToMember extends ShareTabEvent {
   });
 
   final String email;
+}
+
+class ShareTabEventClearState extends ShareTabEvent {
+  const ShareTabEventClearState();
 }

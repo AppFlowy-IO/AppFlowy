@@ -60,12 +60,11 @@ class ShareTabState {
       shareLink: shareLink ?? this.shareLink,
       generalAccessRole: generalAccessRole ?? this.generalAccessRole,
       linkCopied: linkCopied ?? this.linkCopied,
-      initialResult: initialResult ?? this.initialResult,
-      shareResult: shareResult ?? this.shareResult,
-      removeResult: removeResult ?? this.removeResult,
-      updateAccessLevelResult:
-          updateAccessLevelResult ?? this.updateAccessLevelResult,
-      turnIntoMemberResult: turnIntoMemberResult ?? this.turnIntoMemberResult,
+      initialResult: initialResult,
+      shareResult: shareResult,
+      removeResult: removeResult,
+      updateAccessLevelResult: updateAccessLevelResult,
+      turnIntoMemberResult: turnIntoMemberResult,
     );
   }
 

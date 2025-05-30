@@ -27,10 +27,19 @@ class ShareTab extends StatefulWidget {
 
 class _ShareTabState extends State<ShareTab> {
   final TextEditingController controller = TextEditingController();
+  late final ShareTabBloc shareTabBloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    shareTabBloc = context.read<ShareTabBloc>();
+  }
 
   @override
   void dispose() {
     controller.dispose();
+    shareTabBloc.add(ShareTabEvent.clearState());
 
     super.dispose();
   }
