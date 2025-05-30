@@ -6,7 +6,8 @@ class PageAccessLevelState {
         view: view,
         isLocked: false,
         lockCounter: 0,
-        accessLevel: ShareAccessLevel.readOnly,
+        accessLevel: ShareAccessLevel
+            .readAndWrite, // replace it with readOnly if we support offline.
       );
 
   const PageAccessLevelState({
