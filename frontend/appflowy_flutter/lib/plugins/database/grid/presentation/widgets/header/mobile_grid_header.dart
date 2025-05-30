@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_sheets.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_header_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -40,8 +40,8 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
   Widget build(BuildContext context) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.read<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
@@ -80,7 +80,7 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
             },
           ),
           IgnorePointer(
-            ignoring: isLocked,
+            ignoring: !isEditable,
             child: SizedBox(
               height: _kGridHeaderHeight,
               child: _GridHeader(

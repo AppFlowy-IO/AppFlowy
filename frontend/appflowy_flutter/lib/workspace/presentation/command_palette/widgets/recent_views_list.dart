@@ -1,6 +1,6 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';

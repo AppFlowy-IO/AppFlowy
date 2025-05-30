@@ -43,6 +43,11 @@ class AccessLevelListCallbacks {
   }
 }
 
+enum AdditionalUserManagementOptions {
+  turnIntoMember,
+  removeAccess,
+}
+
 /// A widget that displays a list of access levels for sharing.
 ///
 /// This widget is used in a popover to allow users to select different access levels
@@ -53,6 +58,7 @@ class AccessLevelListWidget extends StatelessWidget {
     required this.selectedAccessLevel,
     required this.callbacks,
     required this.supportedAccessLevels,
+    required this.additionalUserManagementOptions,
   });
 
   /// The currently selected access level
@@ -63,6 +69,9 @@ class AccessLevelListWidget extends StatelessWidget {
 
   /// Supported access levels
   final List<ShareAccessLevel> supportedAccessLevels;
+
+  /// Additional user management options
+  final List<AdditionalUserManagementOptions> additionalUserManagementOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -83,25 +92,23 @@ class AccessLevelListWidget extends StatelessWidget {
         ],
 
         // Additional user management options
-        AFTextMenuItem(
-          title: LocaleKeys.shareTab_turnIntoMember.tr(),
-          onTap: callbacks.onTurnIntoMember,
-        ),
-        AFTextMenuItem(
-          title: LocaleKeys.shareTab_removeAccess.tr(),
-          titleColor: theme.textColorScheme.error,
-          onTap: callbacks.onRemoveAccess,
-        ),
+        if (additionalUserManagementOptions
+            .contains(AdditionalUserManagementOptions.turnIntoMember))
+          AFTextMenuItem(
+            title: LocaleKeys.shareTab_turnIntoMember.tr(),
+            onTap: callbacks.onTurnIntoMember,
+          ),
+        if (additionalUserManagementOptions
+            .contains(AdditionalUserManagementOptions.removeAccess))
+          AFTextMenuItem(
+            title: LocaleKeys.shareTab_removeAccess.tr(),
+            titleColor: theme.textColorScheme.error,
+            onTap: callbacks.onRemoveAccess,
+          ),
       ],
     );
   }
 
-  /// Builds an individual access level menu item
-  ///
-  /// @param context The build context
-  /// @param accessLevel The access level to display
-  /// @param onTap Callback when this item is tapped
-  /// @return A menu item widget for the specified access level
   Widget _buildAccessLevelItem(
     BuildContext context, {
     required ShareAccessLevel accessLevel,

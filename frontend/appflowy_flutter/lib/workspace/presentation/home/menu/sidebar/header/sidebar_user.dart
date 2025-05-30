@@ -1,6 +1,6 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';

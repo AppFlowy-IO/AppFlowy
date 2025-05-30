@@ -100,11 +100,15 @@ void main() {
       await tester.tap(find.text('Actions'));
       await tester.pumpAndSettle();
 
-      // For read-only access, should only show favorite and open in new tab
-      expect(find.byType(AFTextMenuItem), findsNWidgets(2));
+      // For read-only access, should only show favorite, leave shared page and open in new tab
+      expect(find.byType(AFTextMenuItem), findsNWidgets(3));
 
       // Should find favorite action (since view is not favorited)
       expect(find.text(ViewMoreActionType.favorite.name), findsOneWidget);
+      expect(
+        find.text(ViewMoreActionType.leaveSharedPage.name),
+        findsOneWidget,
+      );
 
       // Should find open in new tab action
       expect(find.text(ViewMoreActionType.openInNewTab.name), findsOneWidget);

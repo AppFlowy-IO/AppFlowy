@@ -1,5 +1,5 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_folders.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';

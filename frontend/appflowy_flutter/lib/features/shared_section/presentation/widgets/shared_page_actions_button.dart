@@ -67,12 +67,12 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(), // the AFMenu has a border
       anchor: const AFAnchorAuto(
-        offset: Offset(-8, 116),
-        followerAnchor: Alignment.centerRight,
-        targetAnchor: Alignment.centerLeft,
+        offset: Offset(98, 8),
       ),
       popover: (context) => AFMenu(
         width: 240,
+        backgroundColor:
+            Theme.of(context).cardColor, // to compatible with the old design
         children: _buildMenuItems(context),
       ),
       child: widget.buildChild(controller),
@@ -123,6 +123,10 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       widget.view.isFavorite
           ? ViewMoreActionType.unFavorite
           : ViewMoreActionType.favorite,
+    );
+
+    actionTypes.add(
+      ViewMoreActionType.leaveSharedPage,
     );
 
     // Only show editable actions if access level allows it

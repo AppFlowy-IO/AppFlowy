@@ -6,7 +6,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 ///
 /// For example, we're using rust events now, but we can still use the http api
 /// for the future.
-abstract class SharePagesRepository {
+abstract class SharedPagesRepository {
   /// Gets the list of users and their roles for a shared page.
   Future<FlowyResult<SharedPages, FlowyError>> getSharedPages();
 }

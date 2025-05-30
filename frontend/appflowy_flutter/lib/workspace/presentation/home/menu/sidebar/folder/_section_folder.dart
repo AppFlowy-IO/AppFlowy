@@ -1,7 +1,7 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';

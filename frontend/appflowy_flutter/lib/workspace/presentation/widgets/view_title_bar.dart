@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -35,31 +35,38 @@ class ViewTitleBar extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
         BlocProvider(
-          create: (_) => ViewLockStatusBloc(view: view)
-            ..add(const ViewLockStatusEvent.initial()),
+          create: (_) => PageAccessLevelBloc(view: view)
+            ..add(const PageAccessLevelEvent.initial()),
         ),
       ],
-      child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
-        builder: (context, state) {
-          final ancestors = state.ancestors;
-          if (ancestors.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              height: 24,
-              child: Row(
-                children: [
-                  ..._buildViewTitles(
-                    context,
-                    ancestors,
-                    state.isDeleted,
+      child: BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+        buildWhen: (previous, current) =>
+            previous.isLoadingLockStatus != current.isLoadingLockStatus,
+        builder: (context, pageAccessLevelState) {
+          return BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
+            builder: (context, state) {
+              final ancestors = state.ancestors;
+              if (ancestors.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  height: 24,
+                  child: Row(
+                    children: [
+                      ..._buildViewTitles(
+                        context,
+                        ancestors,
+                        state.isDeleted,
+                        pageAccessLevelState.isEditable,
+                      ),
+                      _buildLockPageStatus(context),
+                    ],
                   ),
-                  _buildLockPageStatus(context),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -67,7 +74,7 @@ class ViewTitleBar extends StatelessWidget {
   }
 
   Widget _buildLockPageStatus(BuildContext context) {
-    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
@@ -93,6 +100,7 @@ class ViewTitleBar extends StatelessWidget {
     BuildContext context,
     List<ViewPB> views,
     bool isDeleted,
+    bool isEditable,
   ) {
     if (isDeleted) {
       return _buildDeletedTitle(context, views.last);
@@ -132,7 +140,7 @@ class ViewTitleBar extends StatelessWidget {
         message: view.name,
         child: ViewTitle(
           view: view,
-          behavior: i == views.length - 1 && !view.isLocked
+          behavior: i == views.length - 1 && !view.isLocked && isEditable
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
@@ -420,8 +428,8 @@ class LockedPageStatus extends StatelessWidget {
             FlowySvgs.lock_page_fill_s,
             blendMode: null,
           ),
-          onTap: () => context.read<ViewLockStatusBloc>().add(
-                const ViewLockStatusEvent.unlock(),
+          onTap: () => context.read<PageAccessLevelBloc>().add(
+                const PageAccessLevelEvent.unlock(),
               ),
         ),
       ),
@@ -459,8 +467,8 @@ class ReLockedPageStatus extends StatelessWidget {
           color: iconColor,
           blendMode: null,
         ),
-        onTap: () => context.read<ViewLockStatusBloc>().add(
-              const ViewLockStatusEvent.lock(),
+        onTap: () => context.read<PageAccessLevelBloc>().add(
+              const PageAccessLevelEvent.lock(),
             ),
       ),
     );

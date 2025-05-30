@@ -1,3 +1,6 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
@@ -17,10 +20,8 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -120,9 +121,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
               ),
               if (state.userProfilePB != null)
                 BlocProvider(
-                  create: (_) =>
-                      UserWorkspaceBloc(userProfile: state.userProfilePB!)
-                        ..add(const UserWorkspaceEvent.initial()),
+                  create: (_) => UserWorkspaceBloc(
+                    userProfile: state.userProfilePB!,
+                    repository: RustWorkspaceRepositoryImpl(
+                      userId: state.userProfilePB!.id,
+                    ),
+                  )..add(UserWorkspaceEvent.initialize()),
                 ),
               if (view.layout.isDocumentView)
                 BlocProvider(
@@ -131,8 +135,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 ),
               if (view.layout.isDocumentView || view.layout.isDatabaseView)
                 BlocProvider(
-                  create: (_) => ViewLockStatusBloc(view: view)
-                    ..add(const ViewLockStatusEvent.initial()),
+                  create: (_) => PageAccessLevelBloc(view: view)
+                    ..add(const PageAccessLevelEvent.initial()),
                 ),
             ],
             child: Builder(
@@ -239,7 +243,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
     final isImmersiveMode =
         context.read<MobileViewPageBloc>().state.isImmersiveMode;
     final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+        context.read<PageAccessLevelBloc?>()?.state.isLocked ?? false;
     final actions = <Widget>[];
 
     if (FeatureFlag.syncDocument.isOn) {
@@ -334,7 +338,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
       return const SizedBox.shrink();
     }
 
-    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
@@ -363,7 +367,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
       return const SizedBox.shrink();
     }
 
-    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
@@ -379,8 +383,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              context.read<ViewLockStatusBloc>().add(
-                    const ViewLockStatusEvent.unlock(),
+              context.read<PageAccessLevelBloc>().add(
+                    const PageAccessLevelEvent.unlock(),
                   );
             },
             child: Padding(
@@ -399,8 +403,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              context.read<ViewLockStatusBloc>().add(
-                    const ViewLockStatusEvent.lock(),
+              context.read<PageAccessLevelBloc>().add(
+                    const PageAccessLevelEvent.lock(),
                   );
             },
             child: Padding(

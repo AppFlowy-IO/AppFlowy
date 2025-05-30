@@ -155,46 +155,49 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final offset = _calculateIconLeft(context, constraints);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: _calculateOverallHeight(),
-                  child: DocumentHeaderToolbar(
-                    onIconOrCoverChanged: _saveIconOrCover,
-                    node: widget.node,
-                    editorState: widget.editorState,
-                    hasCover: hasCover,
-                    hasIcon: hasIcon,
-                    offset: offset,
-                    isCoverTitleHovered: isCoverTitleHovered,
-                    documentId: view.id,
-                    tabs: widget.tabs,
+    return IgnorePointer(
+      ignoring: !widget.editorState.editable,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final offset = _calculateIconLeft(context, constraints);
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    height: _calculateOverallHeight(),
+                    child: DocumentHeaderToolbar(
+                      onIconOrCoverChanged: _saveIconOrCover,
+                      node: widget.node,
+                      editorState: widget.editorState,
+                      hasCover: hasCover,
+                      hasIcon: hasIcon,
+                      offset: offset,
+                      isCoverTitleHovered: isCoverTitleHovered,
+                      documentId: view.id,
+                      tabs: widget.tabs,
+                    ),
                   ),
-                ),
-                if (hasCover)
-                  DocumentCover(
-                    view: view,
-                    editorState: widget.editorState,
-                    node: widget.node,
-                    coverType: coverType,
-                    coverDetails: coverDetails,
-                    onChangeCover: (type, details) =>
-                        _saveIconOrCover(cover: (type, details)),
-                  ),
-                _buildAlignedCoverIcon(context),
-              ],
-            ),
-            _buildAlignedTitle(context),
-          ],
-        );
-      },
+                  if (hasCover)
+                    DocumentCover(
+                      view: view,
+                      editorState: widget.editorState,
+                      node: widget.node,
+                      coverType: coverType,
+                      coverDetails: coverDetails,
+                      onChangeCover: (type, details) =>
+                          _saveIconOrCover(cover: (type, details)),
+                    ),
+                  _buildAlignedCoverIcon(context),
+                ],
+              ),
+              _buildAlignedTitle(context),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -301,6 +304,10 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     (CoverType, String?)? cover,
     EmojiIconData? icon,
   }) async {
+    if (!widget.editorState.editable) {
+      return;
+    }
+
     final transaction = widget.editorState.transaction;
     final coverType = widget.node.attributes[DocumentHeaderBlockKeys.coverType];
     final coverDetails =

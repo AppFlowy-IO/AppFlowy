@@ -11,6 +11,7 @@ class AFMenu extends StatelessWidget {
     super.key,
     required this.children,
     this.width,
+    this.backgroundColor,
   });
 
   /// The list of widgets to display in the menu (sections or menu items).
@@ -19,12 +20,14 @@ class AFMenu extends StatelessWidget {
   /// The width of the menu.
   final double? width;
 
+  final Color? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: theme.surfaceColorScheme.primary,
+        color: backgroundColor ?? theme.surfaceColorScheme.primary,
         borderRadius: BorderRadius.circular(theme.borderRadius.l),
         border: Border.all(
           color: theme.borderColorScheme.primary,

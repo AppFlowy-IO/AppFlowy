@@ -1,7 +1,7 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
@@ -29,7 +29,7 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
     super.initState();
 
     // update the current workspace to ensure the owner check is correct
-    context.read<UserWorkspaceBloc>().add(const UserWorkspaceEvent.initial());
+    context.read<UserWorkspaceBloc>().add(UserWorkspaceEvent.initialize());
   }
 
   @override

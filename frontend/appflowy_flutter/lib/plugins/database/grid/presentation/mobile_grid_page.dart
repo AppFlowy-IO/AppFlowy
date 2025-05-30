@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
@@ -9,7 +10,6 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -183,8 +183,8 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.read<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     return BlocListener<GridBloc, GridState>(
       listenWhen: (previous, current) =>
           previous.createdRow != current.createdRow,
@@ -218,7 +218,7 @@ class _GridPageContentState extends State<GridPageContent> {
               ),
             ],
           ),
-          if (!widget.shrinkWrap && !isLocked)
+          if (!widget.shrinkWrap && isEditable)
             Positioned(
               bottom: 16,
               right: 16,
@@ -382,9 +382,9 @@ class _GridRows extends StatelessWidget {
       );
     }
 
-    final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
-    if (isLocked) {
+    final isEditable =
+        context.read<PageAccessLevelBloc?>()?.state.isEditable ?? false;
+    if (!isEditable) {
       child = IgnorePointer(
         child: child,
       );

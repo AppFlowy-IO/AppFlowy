@@ -11,6 +11,7 @@ class EditAccessLevelWidget extends StatefulWidget {
     required this.callbacks,
     required this.selectedAccessLevel,
     required this.supportedAccessLevels,
+    required this.additionalUserManagementOptions,
     this.disabled = false,
   });
 
@@ -25,6 +26,9 @@ class EditAccessLevelWidget extends StatefulWidget {
 
   /// Supported access levels
   final List<ShareAccessLevel> supportedAccessLevels;
+
+  /// Additional user management options
+  final List<AdditionalUserManagementOptions> additionalUserManagementOptions;
 
   @override
   State<EditAccessLevelWidget> createState() => _EditAccessLevelWidgetState();
@@ -52,6 +56,8 @@ class _EditAccessLevelWidgetState extends State<EditAccessLevelWidget> {
         return AccessLevelListWidget(
           selectedAccessLevel: widget.selectedAccessLevel,
           supportedAccessLevels: widget.supportedAccessLevels,
+          additionalUserManagementOptions:
+              widget.additionalUserManagementOptions,
           callbacks: widget.callbacks.copyWith(
             onSelectAccessLevel: (accessLevel) {
               widget.callbacks.onSelectAccessLevel(accessLevel);

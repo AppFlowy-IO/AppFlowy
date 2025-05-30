@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/board.dart';
@@ -11,7 +12,6 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobi
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -143,8 +143,9 @@ class _BoardContentState extends State<_BoardContent> {
         return state.maybeMap(
           orElse: () => const SizedBox.shrink(),
           ready: (state) {
-            final isLocked =
-                context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+            final isEditable =
+                context.watch<PageAccessLevelBloc?>()?.state.isEditable ??
+                    false;
             final showCreateGroupButton = context
                     .read<BoardBloc>()
                     .groupingFieldType
@@ -162,15 +163,12 @@ class _BoardContentState extends State<_BoardContent> {
                       padding: config.groupHeaderPadding,
                     )
                   : const HSpace(16),
-              trailing: showCreateGroupButton && !isLocked
+              trailing: showCreateGroupButton && isEditable
                   ? const MobileBoardTrailing()
                   : const HSpace(16),
               headerBuilder: (_, groupData) {
-                final isLocked =
-                    context.read<ViewLockStatusBloc?>()?.state.isLocked ??
-                        false;
                 return IgnorePointer(
-                  ignoring: isLocked,
+                  ignoring: !isEditable,
                   child: GroupCardHeader(
                     groupData: groupData,
                   ),
@@ -191,15 +189,15 @@ class _BoardContentState extends State<_BoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.read<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     final style = Theme.of(context);
 
     return SizedBox(
       height: 42,
       width: double.infinity,
       child: IgnorePointer(
-        ignoring: isLocked,
+        ignoring: !isEditable,
         child: TextButton.icon(
           style: TextButton.styleFrom(
             padding: const EdgeInsets.only(left: 8),
@@ -244,7 +242,7 @@ class _BoardContentState extends State<_BoardContent> {
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
     final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+        context.read<PageAccessLevelBloc?>()?.state.isLocked ?? false;
 
     return Container(
       key: ValueKey(groupItemId),

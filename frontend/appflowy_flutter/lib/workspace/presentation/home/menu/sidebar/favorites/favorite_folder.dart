@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favo
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -163,21 +164,21 @@ class FavoriteHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: HomeSizes.newPageSectionHeight,
-      child: FlowyButton(
-        onTap: onPressed,
-        margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 3.0),
-        leftIcon: const FlowySvg(
-          FlowySvgs.favorite_header_icon_m,
-          blendMode: null,
-        ),
-        leftIconSize: const Size.square(24.0),
-        iconPadding: 8.0,
-        text: FlowyText.regular(
-          LocaleKeys.sideBar_favorites.tr(),
-          lineHeight: 1.15,
-        ),
+    final theme = AppFlowyTheme.of(context);
+    return AFGhostIconTextButton.primary(
+      text: LocaleKeys.sideBar_favorites.tr(),
+      mainAxisAlignment: MainAxisAlignment.start,
+      size: AFButtonSize.l,
+      onTap: onPressed,
+      // todo: ask the designer to provide the token.
+      padding: EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 6,
+      ),
+      borderRadius: theme.borderRadius.s,
+      iconBuilder: (context, isHover, disabled) => const FlowySvg(
+        FlowySvgs.favorite_header_m,
+        blendMode: null,
       ),
     );
   }

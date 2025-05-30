@@ -9,8 +9,8 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 import 'share_with_user_repository.dart';
 
-class RustShareWithUserRepository extends ShareWithUserRepository {
-  RustShareWithUserRepository();
+class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
+  RustShareWithUserRepositoryImpl();
 
   @override
   Future<FlowyResult<SharedUsers, FlowyError>> getSharedUsersInPage({

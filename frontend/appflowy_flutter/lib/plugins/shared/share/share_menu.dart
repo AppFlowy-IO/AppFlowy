@@ -1,5 +1,6 @@
 import 'package:appflowy/features/share_tab/presentation/share_tab.dart'
     as share_section;
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
@@ -130,9 +131,16 @@ class _ShareMenuState extends State<ShareMenu>
         return const ExportTab();
       case ShareMenuTab.share:
         if (FeatureFlag.sharedSection.isOn) {
+          final workspace =
+              context.read<UserWorkspaceBloc>().state.currentWorkspace;
+          final workspaceId = workspace?.workspaceId ??
+              context.read<ShareBloc>().state.workspaceId;
+          final pageId = context.read<ShareBloc>().state.viewId;
           return share_section.ShareTab(
-            workspaceId: context.read<ShareBloc>().state.workspaceId,
-            pageId: context.read<ShareBloc>().state.viewId,
+            workspaceId: workspaceId,
+            pageId: pageId,
+            workspaceName: workspace?.name ?? '',
+            workspaceIcon: workspace?.icon ?? '',
           );
         }
 

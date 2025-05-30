@@ -1,10 +1,10 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/colors.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';

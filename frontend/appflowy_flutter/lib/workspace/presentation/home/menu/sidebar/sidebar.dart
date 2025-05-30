@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/search/view_ancestor_cache.dart';
@@ -21,7 +22,6 @@ import 'package:appflowy/workspace/application/recent/cached_recent_service.dart
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
@@ -183,9 +183,9 @@ class HomeSideBar extends StatelessWidget {
                   listener: (context, state) {
                     final actionType = state.actionResult?.actionType;
 
-                    if (actionType == UserWorkspaceActionType.create ||
-                        actionType == UserWorkspaceActionType.delete ||
-                        actionType == UserWorkspaceActionType.open) {
+                    if (actionType == WorkspaceActionType.create ||
+                        actionType == WorkspaceActionType.delete ||
+                        actionType == WorkspaceActionType.open) {
                       if (context.read<SpaceBloc>().state.spaces.isEmpty) {
                         context.read<SidebarSectionsBloc>().add(
                               SidebarSectionsEvent.reload(

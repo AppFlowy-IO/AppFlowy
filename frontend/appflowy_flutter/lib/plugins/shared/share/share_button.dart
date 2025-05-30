@@ -1,12 +1,12 @@
-import 'package:appflowy/features/share_tab/data/repositories/rust_share_with_user_repository.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/data/repositories/rust_share_with_user_repository_impl.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/_shared.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -43,11 +43,11 @@ class ShareButton extends StatelessWidget {
             )..add(const DatabaseTabBarEvent.initial()),
           ),
         BlocProvider(
-          create: (context) => ShareWithUserBloc(
-            repository: RustShareWithUserRepository(),
+          create: (context) => ShareTabBloc(
+            repository: RustShareWithUserRepositoryImpl(),
             pageId: view.id,
             workspaceId: workspaceId,
-          )..add(const ShareWithUserEvent.init()),
+          )..add(ShareTabEvent.initialize()),
         ),
       ],
       child: BlocListener<ShareBloc, ShareState>(

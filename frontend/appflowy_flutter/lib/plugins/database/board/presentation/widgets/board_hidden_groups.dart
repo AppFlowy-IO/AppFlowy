@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';

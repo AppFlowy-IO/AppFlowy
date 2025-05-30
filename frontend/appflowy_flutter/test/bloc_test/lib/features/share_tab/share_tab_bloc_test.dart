@@ -1,18 +1,18 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository_impl.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const pageId = 'test_page_id';
   const workspaceId = 'test_workspace_id';
-  late LocalShareWithUserRepository repository;
-  late ShareWithUserBloc bloc;
+  late LocalShareWithUserRepositoryImpl repository;
+  late ShareTabBloc bloc;
 
   setUp(() {
-    repository = LocalShareWithUserRepository();
-    bloc = ShareWithUserBloc(
+    repository = LocalShareWithUserRepositoryImpl();
+    bloc = ShareTabBloc(
       repository: repository,
       pageId: pageId,
       workspaceId: workspaceId,
@@ -25,12 +25,12 @@ void main() {
 
   const email = 'lucas.xu@appflowy.io';
 
-  group('ShareWithUserBloc', () {
-    blocTest<ShareWithUserBloc, ShareWithUserState>(
+  group('ShareTabBloc', () {
+    blocTest<ShareTabBloc, ShareTabState>(
       'shares page with user',
       build: () => bloc,
       act: (bloc) => bloc.add(
-        const ShareWithUserEvent.share(
+        ShareTabEvent.inviteUsers(
           emails: [email],
           accessLevel: ShareAccessLevel.readOnly,
         ),
@@ -38,13 +38,13 @@ void main() {
       wait: const Duration(milliseconds: 100),
       expect: () => [
         // First state: shareResult is null
-        isA<ShareWithUserState>().having(
+        isA<ShareTabState>().having(
           (s) => s.shareResult,
           'shareResult',
           isNull,
         ),
         // Second state: shareResult is Success and users updated
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having((s) => s.shareResult, 'shareResult', isNotNull)
             .having(
               (s) => s.users.any((u) => u.email == email),
@@ -54,21 +54,21 @@ void main() {
       ],
     );
 
-    blocTest<ShareWithUserBloc, ShareWithUserState>(
+    blocTest<ShareTabBloc, ShareTabState>(
       'removes user from page',
       build: () => bloc,
       act: (bloc) => bloc.add(
-        const ShareWithUserEvent.remove(
+        ShareTabEvent.removeUsers(
           emails: [email],
         ),
       ),
       wait: const Duration(milliseconds: 100),
       expect: () => [
         // First state: removeResult is null
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having((s) => s.removeResult, 'removeResult', isNull),
         // Second state: removeResult is Success and users updated
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having((s) => s.removeResult, 'removeResult', isNotNull)
             .having(
               (s) => s.users.any((u) => u.email == email),
@@ -78,11 +78,11 @@ void main() {
       ],
     );
 
-    blocTest<ShareWithUserBloc, ShareWithUserState>(
+    blocTest<ShareTabBloc, ShareTabState>(
       'updates access level for user',
       build: () => bloc,
       act: (bloc) => bloc.add(
-        const ShareWithUserEvent.updateAccessLevel(
+        ShareTabEvent.updateUserAccessLevel(
           email: email,
           accessLevel: ShareAccessLevel.fullAccess,
         ),
@@ -90,13 +90,13 @@ void main() {
       wait: const Duration(milliseconds: 100),
       expect: () => [
         // First state: updateAccessLevelResult is null
-        isA<ShareWithUserState>().having(
+        isA<ShareTabState>().having(
           (s) => s.updateAccessLevelResult,
           'updateAccessLevelResult',
           isNull,
         ),
         // Second state: updateAccessLevelResult is Success and users updated
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having(
               (s) => s.updateAccessLevelResult,
               'updateAccessLevelResult',
@@ -111,31 +111,31 @@ void main() {
     );
 
     final guestEmail = 'guest@appflowy.io';
-    blocTest<ShareWithUserBloc, ShareWithUserState>(
+    blocTest<ShareTabBloc, ShareTabState>(
       'turns user into member',
       build: () => bloc,
       act: (bloc) => bloc
         ..add(
-          ShareWithUserEvent.share(
+          ShareTabEvent.inviteUsers(
             emails: [guestEmail],
             accessLevel: ShareAccessLevel.readOnly,
           ),
         )
         ..add(
-          ShareWithUserEvent.turnIntoMember(
+          ShareTabEvent.convertToMember(
             email: guestEmail,
           ),
         ),
       wait: const Duration(milliseconds: 100),
       expect: () => [
         // First state: shareResult is null
-        isA<ShareWithUserState>().having(
+        isA<ShareTabState>().having(
           (s) => s.shareResult,
           'shareResult',
           isNull,
         ),
         // Second state: shareResult is Success and users updated
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having(
               (s) => s.shareResult,
               'shareResult',
@@ -147,7 +147,7 @@ void main() {
               isTrue,
             ),
         // Third state: turnIntoMemberResult is Success and users updated
-        isA<ShareWithUserState>()
+        isA<ShareTabState>()
             .having(
               (s) => s.turnIntoMemberResult,
               'turnIntoMemberResult',

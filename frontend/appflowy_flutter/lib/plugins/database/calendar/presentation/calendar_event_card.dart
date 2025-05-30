@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -7,7 +8,6 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/calendar_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
