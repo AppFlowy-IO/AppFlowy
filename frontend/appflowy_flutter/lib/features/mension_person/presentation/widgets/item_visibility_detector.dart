@@ -1,4 +1,5 @@
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
+import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -15,19 +16,26 @@ class MentionMenuItenVisibilityDetector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mentionBloc = context.read<MentionBloc>();
-    return VisibilityDetector(
-      key: ValueKey(id),
-      child: child,
-      onVisibilityChanged: (info) {
-        final isVisible = info.visibleFraction == 1.0;
-        if (!context.mounted || mentionBloc.isClosed) return;
-        if (isVisible) {
-          mentionBloc.add(MentionEvent.addVisibleItem(id));
-        } else {
-          mentionBloc.add(MentionEvent.removeVisibleItem(id));
-        }
-      },
+    final renderBox = context.findRenderObject();
+    final menuServiceInfo = context.read<MentionMenuServiceInfo>();
+    if (renderBox is RenderBox) {
+      menuServiceInfo.addItemHeight(
+        id,
+        () => renderBox.localToGlobal(Offset.zero).dy,
+      );
+    }
+    final bloc = context.read<MentionBloc>();
+    return MouseRegion(
+      onEnter: (e) => bloc.add(MentionEvent.selectItem(id)),
+      child: VisibilityDetector(
+        key: ValueKey(id),
+        child: child,
+        onVisibilityChanged: (info) {
+          if (info.visibleFraction == 0.0) {
+            menuServiceInfo.removeItemHeight(id);
+          }
+        },
+      ),
     );
   }
 }

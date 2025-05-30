@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MentionMenuItem {
-  MentionMenuItem({
-    required this.onExecute,
-    required this.id,
-  });
+  MentionMenuItem({required this.onExecute, required this.id});
 
   final String id;
   final VoidCallback onExecute;

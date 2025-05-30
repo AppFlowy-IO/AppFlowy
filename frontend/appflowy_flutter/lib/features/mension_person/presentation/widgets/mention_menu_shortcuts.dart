@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:appflowy/features/mension_person/data/models/menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -174,63 +173,38 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
     }
     final item = items[newIndex];
     menuBloc.add(MentionEvent.selectItem(item.id));
-    final isVisible = menuState.visibleItems.contains(item.id);
-    if (isVisible) return;
     _scrollToItem(index, newIndex, context);
   }
 
-  Future<void> _scrollToItem(
+  void _scrollToItem(
     int from,
     int to,
-    BuildContext context, {
-    int triedTimes = 0,
-  }) async {
+    BuildContext context,
+  ) {
     if (!context.mounted) return;
     final items = itemMap.items;
 
     /// scroll to the end
-    if (from == 0 && to == items.length - 1) {
-      await scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-      );
+    if (to == items.length - 1) {
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      return;
+    } else if (to == 0) {
+      /// scroll to the start
+      scrollController.jumpTo(0);
       return;
     }
 
-    /// scroll to the start
-    if (from == items.length - 1 && to == 0) {
-      await scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-      );
-      return;
-    }
-
-    if (triedTimes >= 5) {
-      Log.error('MentionMenu Failed to scroll to item after 5 attempts');
-      return;
-    }
+    final menuInfo = context.read<MentionMenuServiceInfo>();
+    final toId = items[to].id, isTopArea = menuInfo.isTopArea(toId);
 
     final currentPosition = scrollController.position.pixels;
-    if (from < to) {
-      await scrollController.animateTo(
-        currentPosition + 50,
-        duration: const Duration(milliseconds: 50),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      await scrollController.animateTo(
-        max(0, currentPosition - 50),
-        duration: const Duration(milliseconds: 50),
-        curve: Curves.easeInOut,
+    if (isTopArea && from > to) {
+      scrollController.jumpTo(max(0, currentPosition - 50));
+    } else if (!isTopArea && from < to) {
+      scrollController.jumpTo(
+        min(currentPosition + 50, scrollController.position.maxScrollExtent),
       );
     }
-    if (!context.mounted) return;
-    final menuState = context.read<MentionBloc>().state;
-    if (menuState.visibleItems.contains(items[to].id)) return;
-    await _scrollToItem(from, to, context, triedTimes: triedTimes + 1);
   }
 
   void _insertCharacter(String character, BuildContext context) {

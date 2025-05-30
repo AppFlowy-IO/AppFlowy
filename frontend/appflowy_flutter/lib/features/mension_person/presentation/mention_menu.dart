@@ -14,7 +14,6 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'widgets/item_visibility_detector.dart';
 import 'widgets/mention_menu_scroller.dart';
 import 'widgets/mention_menu_shortcuts.dart';
@@ -110,6 +109,7 @@ class MentionMenu extends StatelessWidget {
               selected: state.selectedId == member.id,
               title: member.name,
               subtitle: member.email,
+              backgroundColor: backgroundColor,
               onTap: () {},
             ),
           );
@@ -182,6 +182,7 @@ class MentionMenu extends StatelessWidget {
                       child: Center(child: view.buildIcon(context)),
                     ),
                     title: view.nameOrDefault,
+                    backgroundColor: backgroundColor,
                     onTap: () {},
                   ),
                 );
@@ -220,6 +221,7 @@ class MentionMenu extends StatelessWidget {
           title: title,
           onTap: onTap,
           selected: mentionState.selectedId == title,
+          backgroundColor: backgroundColor,
         ),
       );
     }
@@ -270,6 +272,7 @@ class MentionMenu extends StatelessWidget {
           FlowySvgs.mention_create_page_m,
           color: theme.iconColorScheme.primary,
         ),
+        backgroundColor: backgroundColor,
         onTap: onTap,
       ),
     );
@@ -291,6 +294,7 @@ class MentionMenu extends StatelessWidget {
         title: LocaleKeys.document_mentionMenu_moreResults.tr(args: ['$num']),
         titleColor: theme.textColorScheme.tertiary,
         onTap: onTap,
+        backgroundColor: backgroundColor,
       ),
     );
   }
@@ -317,18 +321,32 @@ class MentionMenu extends StatelessWidget {
       children: [
         Text(
           LocaleKeys.document_mentionMenu_sendNotification.tr(),
-          style: theme.textStyle.caption.standard(
-            color: theme.textColorScheme.secondary,
-          ),
+          style: theme.textStyle.caption
+              .standard(color: theme.textColorScheme.secondary)
+              .copyWith(letterSpacing: 0.1),
         ),
         SizedBox(width: 4),
         Toggle(
           value: state.sendNotification,
+          style: ToggleStyle(width: 34, height: 18, thumbRadius: 17),
+          padding: EdgeInsets.zero,
+          inactiveBackgroundColor: theme.fillColorScheme.secondary,
           onChanged: (v) {
             bloc.add(MentionEvent.toggleSendNotification());
           },
         ),
       ],
     );
+  }
+
+  Color backgroundColor(
+    BuildContext context,
+    bool isHovering,
+    bool selected,
+    bool disabled,
+  ) {
+    return isHovering || selected
+        ? AppFlowyTheme.of(context).fillColorScheme.contentHover
+        : AppFlowyTheme.of(context).fillColorScheme.content;
   }
 }

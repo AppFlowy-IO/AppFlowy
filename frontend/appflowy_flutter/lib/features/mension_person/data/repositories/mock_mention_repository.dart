@@ -10,6 +10,7 @@ class MockMentionRepository extends MentionRepository {
       name: 'Andrew Christian',
       type: MemberType.member,
       email: 'andrewchristian@appflowy.io',
+      avatarUrl: 'https://avatar.iran.liara.run/public',
     ),
     Member(
       id: '2',
@@ -30,6 +31,7 @@ class MockMentionRepository extends MentionRepository {
       name: 'Michael Brown',
       type: MemberType.member,
       email: 'michaelbrown@appflowy.io',
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/13',
     ),
   ];
 

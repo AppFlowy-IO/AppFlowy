@@ -99,7 +99,9 @@ class MentionMenuService extends InlineActionsMenuService {
                         onDismiss: dismiss,
                         startCharAmount: startCharAmount,
                         editorState: editorState,
+                        showAboveMenu: top != null,
                       ),
+                      dispose: (context, value) => value._dispose(),
                       child: MentionMenu(),
                     ),
                   ),
@@ -210,9 +212,30 @@ class MentionMenuServiceInfo {
     required this.onDismiss,
     required this.startCharAmount,
     required this.editorState,
+    required this.showAboveMenu,
   });
 
   final VoidCallback onDismiss;
   final int startCharAmount;
   final EditorState editorState;
+  final bool showAboveMenu;
+  final Map<String, ValueGetter<double>> _itemYMap = {};
+
+  void addItemHeight(String id, ValueGetter<double> yGetter) {
+    _itemYMap[id] = yGetter;
+  }
+
+  void removeItemHeight(String id) => _itemYMap.remove(id);
+
+  void _dispose() {
+    _itemYMap.clear();
+  }
+
+  double? getItemPositionY(String id) => _itemYMap[id]?.call();
+
+  bool isTopArea(String id) {
+    final itemY = getItemPositionY(id);
+    if (itemY == null) return false;
+    return itemY <= 200;
+  }
 }
