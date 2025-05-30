@@ -177,9 +177,8 @@ class FavoriteHeader extends StatelessWidget {
       ),
       borderRadius: theme.borderRadius.s,
       iconBuilder: (context, isHover, disabled) => const FlowySvg(
-        FlowySvgs.favorite_header_icon_m,
+        FlowySvgs.favorite_header_m,
         blendMode: null,
-        size: Size.square(20.0),
       ),
     );
   }

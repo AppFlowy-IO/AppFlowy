@@ -71,6 +71,7 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
       ),
       popover: (context) => AFMenu(
         width: 240,
+        backgroundColor: Theme.of(context).cardColor, // to compatible with the old design
         children: _buildMenuItems(context),
       ),
       child: widget.buildChild(controller),
