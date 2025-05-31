@@ -33,6 +33,13 @@ class MockMentionRepository extends MentionRepository {
       email: 'michaelbrown@appflowy.io',
       avatarUrl: 'https://avatar.iran.liara.run/public/boy/13',
     ),
+    Member(
+      id: '5',
+      name: 'Nathan Brooks',
+      type: MemberType.member,
+      email: 'nathanbrooks@appflowy.io',
+      avatarUrl: 'https://avatar.iran.liara.run/public/boy/10',
+    ),
   ];
 
   @override

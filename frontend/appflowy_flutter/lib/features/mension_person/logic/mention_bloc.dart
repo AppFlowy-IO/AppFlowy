@@ -50,7 +50,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     Query event,
     Emitter<MentionState> emit,
   ) async {
-    emit(state.copyWith(query: event.text));
+    emit(state.copyWith(query: event.text, selectedId: ''));
 
     /// TODO: get members should be called with [query]
   }
@@ -63,7 +63,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
         (await repository.getMembers(workspaceId: event.workspaceId))
             .toNullable();
     if (members != null && members.isNotEmpty) {
-      emit(state.copyWith(members: members, selectedId: members.first.id));
+      emit(state.copyWith(members: members));
     }
   }
 

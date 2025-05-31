@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/features/mension_person/data/models/menu_item.dart';
+import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -162,14 +162,20 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
     final items = itemMap.items;
     final index = items.indexWhere((e) => e.id == menuState.selectedId);
     int newIndex = index;
-    if (index < 0) return;
-    if (key == LogicalKeyboardKey.arrowUp ||
+    final isUp = key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
-            HardwareKeyboard.instance.isShiftPressed)) {
-      newIndex = index == 0 ? items.length - 1 : index - 1;
-    } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab]
-        .contains(key)) {
-      newIndex = index == items.length - 1 ? 0 : index + 1;
+            HardwareKeyboard.instance.isShiftPressed);
+    final isDown =
+        [LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab].contains(key);
+    if (!isUp && !isDown) return;
+    if (index < 0) {
+      newIndex = isUp ? items.length - 1 : 0;
+    } else {
+      if (isUp) {
+        newIndex = index == 0 ? items.length - 1 : index - 1;
+      } else if (isDown) {
+        newIndex = index == items.length - 1 ? 0 : index + 1;
+      }
     }
     final item = items[newIndex];
     menuBloc.add(MentionEvent.selectItem(item.id));
@@ -234,8 +240,7 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
           ),
         )
         .join();
-
-    menuBloc.add(MentionEvent.query(query));
+    onQuery(context, query);
   }
 
   bool _canDeleteLastCharacter(BuildContext context) {
@@ -273,6 +278,9 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
           startOffset,
           startOffset - 1 + oldText.length,
         );
-    menuBloc.add(MentionEvent.query(query));
+    onQuery(context, query);
   }
+
+  void onQuery(BuildContext context, String text) =>
+      context.read<MentionBloc>().add(MentionEvent.query(text));
 }

@@ -1,5 +1,5 @@
 import 'package:appflowy/features/mension_person/data/models/member.dart';
-import 'package:appflowy/features/mension_person/data/models/menu_item.dart';
+import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -36,27 +36,35 @@ class MentionMenu extends StatelessWidget {
           final dateReminder = dateAndReminder(context, itemMap);
           return MentionMenuScroller(
             builder: (_, controller) {
-              return MentionMenuShortcuts(
-                scrollController: controller,
-                itemMap: itemMap,
-                child: SizedBox(
-                  height: 400,
-                  child: AFMenu(
-                    width: 400,
-                    builder: (context, children) {
-                      return SingleChildScrollView(
-                        controller: controller,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: children,
-                        ),
-                      );
-                    },
-                    children: [
-                      personList,
-                      pageList,
-                      dateReminder,
-                    ],
+              return BlocListener<MentionBloc, MentionState>(
+                listener: (context, state) {
+                  if (!controller.hasClients || !context.mounted) return;
+                  controller.jumpTo(0);
+                },
+                listenWhen: (previous, current) =>
+                    previous.query != current.query,
+                child: MentionMenuShortcuts(
+                  scrollController: controller,
+                  itemMap: itemMap,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: 400),
+                    child: AFMenu(
+                      width: 400,
+                      builder: (context, children) {
+                        return SingleChildScrollView(
+                          controller: controller,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: children,
+                          ),
+                        );
+                      },
+                      children: [
+                        personList,
+                        pageList,
+                        dateReminder,
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -89,7 +97,7 @@ class MentionMenu extends StatelessWidget {
     void onShowMore() {
       context
           .read<MentionBloc>()
-          .add(MentionEvent.showMoreMembers(displayMembers.last.id));
+          .add(MentionEvent.showMoreMembers(members[4].id));
     }
 
     if (showMoreResult) {
@@ -127,7 +135,7 @@ class MentionMenu extends StatelessWidget {
 
   Widget pages(BuildContext context, MentionItemMap itemMap) {
     final mentionState = context.read<MentionBloc>().state;
-    final showMorePage = mentionState.showMorePage;
+    final showMorePage = mentionState.showMorePage, query = mentionState.query;
 
     return BlocProvider(
       create: (context) =>
@@ -135,8 +143,18 @@ class MentionMenu extends StatelessWidget {
       child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
         builder: (context, state) {
           final recentViews = state.views.map((e) => e.item).toSet().toList();
-          final hasMorePage = recentViews.length > 4;
-          List<ViewPB> displayedViews = List.of(recentViews);
+          List<ViewPB> filterViews = List.of(recentViews);
+          if (query.isNotEmpty) {
+            filterViews = filterViews
+                .where(
+                  (view) => view.nameOrDefault
+                      .toLowerCase()
+                      .contains(query.toLowerCase()),
+                )
+                .toList();
+          }
+          final hasMorePage = filterViews.length > 4;
+          List<ViewPB> displayedViews = List.of(filterViews);
           final showMoreResult = hasMorePage && !showMorePage;
 
           if (showMoreResult) {
@@ -159,7 +177,7 @@ class MentionMenu extends StatelessWidget {
           void onShowMore() {
             context
                 .read<MentionBloc>()
-                .add(MentionEvent.showMorePages(displayedViews.last.id));
+                .add(MentionEvent.showMorePages(displayedViews[4].id));
           }
 
           if (showMoreResult) {
@@ -207,47 +225,52 @@ class MentionMenu extends StatelessWidget {
   }
 
   Widget dateAndReminder(BuildContext context, MentionItemMap itemMap) {
-    Widget buildSectionItem({
-      required String title,
-      required VoidCallback onTap,
-    }) {
-      final mentionState = context.read<MentionBloc>().state;
+    final items = [
+      MentionMenuItem(
+        id: LocaleKeys.document_mentionMenu_dateToday.tr(),
+        onExecute: () {},
+      ),
+      MentionMenuItem(
+        id: LocaleKeys.document_mentionMenu_dateTomorrow.tr(),
+        onExecute: () {},
+      ),
+      MentionMenuItem(
+        id: LocaleKeys.document_mentionMenu_dateYesterday.tr(),
+        onExecute: () {},
+      ),
+      MentionMenuItem(
+        id: LocaleKeys.document_mentionMenu_reminderTomorrow9Am.tr(),
+        onExecute: () {},
+      ),
+      MentionMenuItem(
+        id: LocaleKeys.document_mentionMenu_reminder1Week.tr(),
+        onExecute: () {},
+      ),
+    ];
 
-      itemMap
-          .addToDateAndReminder(MentionMenuItem(id: title, onExecute: onTap));
+    final mentionState = context.read<MentionBloc>().state,
+        query = mentionState.query;
+    List<MentionMenuItem> filterItems = List.of(items);
+    if (query.isNotEmpty) {
+      filterItems = filterItems
+          .where((item) => item.id.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+
+    if (filterItems.isEmpty) return const SizedBox.shrink();
+    final children = List.generate(filterItems.length, (index) {
+      final item = filterItems[index];
+      itemMap.addToDateAndReminder(item);
       return MentionMenuItenVisibilityDetector(
-        id: title,
+        id: item.id,
         child: AFTextMenuItem(
-          title: title,
-          onTap: onTap,
-          selected: mentionState.selectedId == title,
+          title: item.id,
+          selected: context.read<MentionBloc>().state.selectedId == item.id,
+          onTap: item.onExecute,
           backgroundColor: backgroundColor,
         ),
       );
-    }
-
-    final children = [
-      buildSectionItem(
-        title: LocaleKeys.document_mentionMenu_dateToday.tr(),
-        onTap: () {},
-      ),
-      buildSectionItem(
-        title: LocaleKeys.document_mentionMenu_dateTomorrow.tr(),
-        onTap: () {},
-      ),
-      buildSectionItem(
-        title: LocaleKeys.document_mentionMenu_dateYesterday.tr(),
-        onTap: () {},
-      ),
-      buildSectionItem(
-        title: LocaleKeys.document_mentionMenu_reminderTomorrow9Am.tr(),
-        onTap: () {},
-      ),
-      buildSectionItem(
-        title: LocaleKeys.document_mentionMenu_reminder1Week.tr(),
-        onTap: () {},
-      ),
-    ];
+    });
 
     return AFMenuSection(
       title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
@@ -261,13 +284,15 @@ class MentionMenu extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = AppFlowyTheme.of(context);
-    final state = context.read<MentionBloc>().state;
+    final state = context.read<MentionBloc>().state, query = state.query;
 
     return MentionMenuItenVisibilityDetector(
       id: id,
       child: AFTextMenuItem(
         selected: state.selectedId == id,
-        title: LocaleKeys.inlineActions_createPage.tr(args: [state.query]),
+        title: query.isNotEmpty
+            ? LocaleKeys.inlineActions_createPage.tr(args: [query])
+            : LocaleKeys.document_mentionMenu_createSubpage.tr(),
         leading: FlowySvg(
           FlowySvgs.mention_create_page_m,
           color: theme.iconColorScheme.primary,
