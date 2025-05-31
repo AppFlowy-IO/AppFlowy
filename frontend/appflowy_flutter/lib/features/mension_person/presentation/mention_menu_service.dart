@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/widgets.dart';
@@ -14,12 +16,16 @@ class MentionMenuService extends InlineActionsMenuService {
     required this.context,
     required this.editorState,
     required this.workspaceBloc,
+    required this.documentBloc,
+    required this.reminderBloc,
     this.startCharAmount = 1,
   });
 
   final BuildContext context;
   final EditorState editorState;
   final UserWorkspaceBloc workspaceBloc;
+  final DocumentBloc documentBloc;
+  final ReminderBloc reminderBloc;
   final int startCharAmount;
 
   OverlayEntry? _menuEntry;
@@ -91,13 +97,18 @@ class MentionMenuService extends InlineActionsMenuService {
                 bottom: bottom,
                 left: left,
                 right: right,
-                child: BlocProvider.value(
-                  value: workspaceBloc,
+                child: MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(value: workspaceBloc),
+                    BlocProvider.value(value: documentBloc),
+                    BlocProvider.value(value: reminderBloc),
+                  ],
                   child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
                     builder: (_, __) => Provider(
                       create: (_) => MentionMenuServiceInfo(
                         onDismiss: dismiss,
                         startCharAmount: startCharAmount,
+                        startOffset: editorState.selection?.endIndex ?? 0,
                         editorState: editorState,
                         showAboveMenu: top != null,
                       ),
@@ -211,12 +222,14 @@ class MentionMenuServiceInfo {
   MentionMenuServiceInfo({
     required this.onDismiss,
     required this.startCharAmount,
+    required this.startOffset,
     required this.editorState,
     required this.showAboveMenu,
   });
 
   final VoidCallback onDismiss;
   final int startCharAmount;
+  final int startOffset;
   final EditorState editorState;
   final bool showAboveMenu;
   final Map<String, ValueGetter<double>> _itemYMap = {};
@@ -238,4 +251,9 @@ class MentionMenuServiceInfo {
     if (itemY == null) return false;
     return itemY <= 200;
   }
+
+  TextRange textRange(String queryText) => TextRange(
+        start: startOffset - startCharAmount,
+        end: queryText.length + startCharAmount,
+      );
 }

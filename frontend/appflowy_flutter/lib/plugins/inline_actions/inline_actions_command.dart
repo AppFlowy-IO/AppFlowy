@@ -1,8 +1,10 @@
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/mobile/presentation/inline_actions/mobile_inline_actions_menu.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,8 +58,14 @@ Future<bool> inlineActionsCommandHandler(
 
   final context = service.context;
   final workspaceBloc = context?.read<UserWorkspaceBloc?>();
+  final documentBloc = context?.read<DocumentBloc?>();
+  final reminderBloc = context?.read<ReminderBloc?>();
 
-  if (context != null && context.mounted && workspaceBloc != null) {
+  if (context != null &&
+      context.mounted &&
+      workspaceBloc != null &&
+      documentBloc != null &&
+      reminderBloc != null) {
     keepEditorFocusNotifier.increase();
     selectionMenuService?.dismiss();
     selectionMenuService = UniversalPlatform.isMobile
@@ -72,6 +80,8 @@ Future<bool> inlineActionsCommandHandler(
             context: context,
             editorState: editorState,
             workspaceBloc: workspaceBloc,
+            documentBloc: documentBloc,
+            reminderBloc: reminderBloc,
           );
 
     // disable the keyboard service

@@ -1,7 +1,10 @@
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
+import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -20,23 +23,40 @@ class DateReminderList extends StatelessWidget {
     final items = [
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_dateToday.tr(),
-        onExecute: () {},
+        onExecute: () => onDateInsert(context, DateTime.now()),
       ),
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_dateTomorrow.tr(),
-        onExecute: () {},
+        onExecute: () => onDateInsert(
+          context,
+          DateTime.now().add(const Duration(days: 1)),
+        ),
       ),
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_dateYesterday.tr(),
-        onExecute: () {},
+        onExecute: () => onDateInsert(
+          context,
+          DateTime.now().subtract(const Duration(days: 1)),
+        ),
       ),
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_reminderTomorrow9Am.tr(),
-        onExecute: () {},
+        onExecute: () {
+          final now = DateTime.now();
+          onReminderInsert(
+            context,
+            DateTime(now.year, now.month, now.day + 1, 9),
+            true,
+          );
+        },
       ),
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_reminder1Week.tr(),
-        onExecute: () {},
+        onExecute: () => onReminderInsert(
+          context,
+          DateTime.now().add(const Duration(days: 7)),
+          false,
+        ),
       ),
     ];
     List<MentionMenuItem> filterItems = List.of(items);
@@ -64,6 +84,52 @@ class DateReminderList extends StatelessWidget {
     return AFMenuSection(
       title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
       children: children,
+    );
+  }
+
+  Future<void> onDateInsert(
+    BuildContext context,
+    DateTime date,
+  ) async {
+    final mentionInfo = context.read<MentionMenuServiceInfo>(),
+        editorState = mentionInfo.editorState,
+        query = context.read<MentionBloc>().state.query;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+    final range = mentionInfo.textRange(query);
+
+    mentionInfo.onDismiss.call();
+    await editorState.insertDateReference(date, range.start, range.end);
+  }
+
+  Future<void> onReminderInsert(
+    BuildContext context,
+    DateTime date,
+    bool includeTime,
+  ) async {
+    final mentionInfo = context.read<MentionMenuServiceInfo>(),
+        editorState = mentionInfo.editorState,
+        query = context.read<MentionBloc>().state.query;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+    final range = mentionInfo.textRange(query);
+    mentionInfo.onDismiss.call();
+    await editorState.insertReminderReference(
+      context,
+      date,
+      range.start,
+      range.end,
+      includeTime: includeTime,
     );
   }
 }

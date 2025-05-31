@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -69,7 +68,7 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
     }
     final menuBloc = context.read<MentionBloc>(),
         menuState = menuBloc.state,
-        searchText = menuState.query;
+        queryText = menuState.query;
     final mentionMenuServiceInfo = context.read<MentionMenuServiceInfo>();
     final editorState = mentionMenuServiceInfo.editorState,
         onDismiss = mentionMenuServiceInfo.onDismiss;
@@ -93,7 +92,7 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
       editorState.updateSelectionWithReason(editorState.selection);
       onDismiss();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      if (searchText.isEmpty) {
+      if (queryText.isEmpty) {
         if (_canDeleteLastCharacter(context)) {
           editorState.deleteBackward();
         } else {
@@ -141,7 +140,7 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
       final selection = editorState.selection;
       if (selection != null &&
           (selection.endIndex < startOffset ||
-              selection.endIndex > (startOffset + searchText.length))) {
+              selection.endIndex > (startOffset + queryText.length))) {
         onDismiss();
       }
 
