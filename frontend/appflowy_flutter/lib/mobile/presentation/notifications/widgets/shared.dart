@@ -3,9 +3,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/color.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -324,6 +327,28 @@ class NotificationDocumentContent extends StatelessWidget {
       editable: false,
       customPadding: (node) => EdgeInsets.zero,
     );
+
+    final headingBuilder = blockBuilders[HeadingBlockKeys.type];
+    if (headingBuilder != null &&
+        headingBuilder is HeadingBlockComponentBuilder) {
+      final newHeadingBuilder = HeadingBlockComponentBuilder(
+        configuration: headingBuilder.configuration,
+        textStyleBuilder: (v) {
+          final fontFamily = context
+              .read<DocumentAppearanceCubit>()
+              .state
+              .fontFamily
+              .orDefault(
+                context.read<AppearanceSettingsCubit>().state.font,
+              );
+          return styleCustomizer.baseTextStyle(
+            fontFamily,
+            fontWeight: FontWeight.w600,
+          );
+        },
+      );
+      blockBuilders[HeadingBlockKeys.type] = newHeadingBuilder;
+    }
 
     return IgnorePointer(
       child: Opacity(
