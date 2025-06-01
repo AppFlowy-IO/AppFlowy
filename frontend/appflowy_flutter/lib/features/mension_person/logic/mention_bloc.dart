@@ -8,22 +8,22 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'mention_bloc.freezed.dart';
 
-bool _showMorePages = false, _showMoreMembers = false;
+bool _showMorePages = false, _showMorePersons = false;
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
   MentionBloc(this.repository, this.workspaceId)
       : super(MentionState.initial()) {
     on<Initial>(_onInitial);
     on<Query>(_onQuery);
-    on<GetMembers>(_onGetMembers);
-    on<ShowMoreMembers>(_onShowMoreMembers);
+    on<GetPersons>(_onGetPersons);
+    on<ShowMorePersons>(_onShowMorePersons);
     on<ShowMorePages>(_onShowMorePages);
     on<ToggleSendNotification>(_onToggleSendNotification);
     on<AddVisibleItem>(_onAddVisibleItem);
     on<RemoveVisibleItem>(_onRemoveVisibleItem);
     on<SelectItem>(_onSelectItem);
     add(MentionEvent.init());
-    add(MentionEvent.getMembers(workspaceId: workspaceId));
+    add(MentionEvent.getPersons(workspaceId: workspaceId));
   }
   final MentionRepository repository;
   final String workspaceId;
@@ -39,7 +39,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
       emit(
         state.copyWith(
           sendNotification: sendNotification,
-          showMoreMember: _showMoreMembers,
+          showMorePersons: _showMorePersons,
           showMorePage: _showMorePages,
         ),
       );
@@ -52,27 +52,27 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
   ) async {
     emit(state.copyWith(query: event.text, selectedId: ''));
 
-    /// TODO: get members should be called with [query]
+    /// TODO: get persons should be called with [query]
   }
 
-  Future<void> _onGetMembers(
-    GetMembers event,
+  Future<void> _onGetPersons(
+    GetPersons event,
     Emitter<MentionState> emit,
   ) async {
-    final members =
-        (await repository.getMembers(workspaceId: event.workspaceId))
+    final persons =
+        (await repository.getPersons(workspaceId: event.workspaceId))
             .toNullable();
-    if (members != null && members.isNotEmpty) {
-      emit(state.copyWith(members: members));
+    if (persons != null && persons.isNotEmpty) {
+      emit(state.copyWith(persons: persons));
     }
   }
 
-  Future<void> _onShowMoreMembers(
-    ShowMoreMembers event,
+  Future<void> _onShowMorePersons(
+    ShowMorePersons event,
     Emitter<MentionState> emit,
   ) async {
-    emit(state.copyWith(showMoreMember: true, selectedId: event.lastId));
-    _showMoreMembers = true;
+    emit(state.copyWith(showMorePersons: true, selectedId: event.lastId));
+    _showMorePersons = true;
   }
 
   Future<void> _onShowMorePages(
@@ -122,10 +122,10 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
 @freezed
 class MentionEvent with _$MentionEvent {
   const factory MentionEvent.init() = Initial;
-  const factory MentionEvent.getMembers({required String workspaceId}) =
-      GetMembers;
+  const factory MentionEvent.getPersons({required String workspaceId}) =
+      GetPersons;
   const factory MentionEvent.query(String text) = Query;
-  const factory MentionEvent.showMoreMembers(String lastId) = ShowMoreMembers;
+  const factory MentionEvent.showMorePersons(String lastId) = ShowMorePersons;
   const factory MentionEvent.showMorePages(String lastId) = ShowMorePages;
   const factory MentionEvent.toggleSendNotification() = ToggleSendNotification;
   const factory MentionEvent.addVisibleItem(String id) = AddVisibleItem;
@@ -136,12 +136,12 @@ class MentionEvent with _$MentionEvent {
 @freezed
 class MentionState with _$MentionState {
   const factory MentionState({
-    @Default([]) List<Member> members,
+    @Default([]) List<Person> persons,
     @Default(false) bool sendNotification,
     @Default(null) String? focusId,
     @Default('') String query,
     @Default('') String selectedId,
-    @Default(false) bool showMoreMember,
+    @Default(false) bool showMorePersons,
     @Default(false) bool showMorePage,
     @Default({}) Set<String> visibleItems,
   }) = _MentionState;

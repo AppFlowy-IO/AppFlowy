@@ -1,6 +1,10 @@
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
+import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/features/mension_person/data/models/member.dart';
+import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -19,16 +23,21 @@ class PersonList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<MentionBloc>().state,
         itemMap = context.read<MentionItemMap>();
-    final members = state.members, showMoreMember = state.showMoreMember;
-    final hasMoreMember = members.length > 4;
-    final showMoreResult = !showMoreMember && hasMoreMember;
-    List<Member> displayMembers = List.of(members);
+    final persons = state.persons, showMorePersons = state.showMorePersons;
+    final hasMorePersons = persons.length > 4;
+    final showMoreResult = !showMorePersons && hasMorePersons;
+    List<Person> displayPersons = List.of(persons);
     if (showMoreResult) {
-      displayMembers = members.sublist(0, 4);
+      displayPersons = persons.sublist(0, 4);
     }
 
-    for (final member in displayMembers) {
-      itemMap.addToPerson(MentionMenuItem(id: member.id, onExecute: () {}));
+    for (final person in displayPersons) {
+      itemMap.addToPerson(
+        MentionMenuItem(
+          id: person.id,
+          onExecute: () => onPersonSelected(person, context),
+        ),
+      );
     }
 
     final id = LocaleKeys.document_mentionMenu_moreResults
@@ -37,7 +46,7 @@ class PersonList extends StatelessWidget {
       if (!showMoreResult) return;
       context
           .read<MentionBloc>()
-          .add(MentionEvent.showMoreMembers(members[4].id));
+          .add(MentionEvent.showMorePersons(persons[4].id));
     }
 
     if (showMoreResult) {
@@ -48,26 +57,22 @@ class PersonList extends StatelessWidget {
       title: LocaleKeys.document_mentionMenu_people.tr(),
       titleTrailing: sendNotificationSwitch(context),
       children: [
-        ...List.generate(displayMembers.length, (index) {
-          final member = displayMembers[index];
+        ...List.generate(displayPersons.length, (index) {
+          final person = displayPersons[index];
           return MentionMenuItenVisibilityDetector(
-            id: member.id,
+            id: person.id,
             child: AFTextMenuItem(
-              leading: AFAvatar(url: member.avatarUrl, size: AFAvatarSize.s),
-              selected: state.selectedId == member.id,
-              title: member.name,
-              subtitle: member.email,
+              leading: AFAvatar(url: person.avatarUrl, size: AFAvatarSize.s),
+              selected: state.selectedId == person.id,
+              title: person.name,
+              subtitle: person.email,
               backgroundColor: context.mentionItemBGColor,
-              onTap: () {},
+              onTap: () => onPersonSelected(person, context),
             ),
           );
         }),
         if (showMoreResult)
-          MoreResultsItem(
-            num: members.length - 4,
-            onTap: onShowMore,
-            id: id,
-          ),
+          MoreResultsItem(num: persons.length - 4, onTap: onShowMore, id: id),
       ],
     );
   }
@@ -96,5 +101,62 @@ class PersonList extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> onPersonSelected(
+    Person person,
+    BuildContext context,
+  ) async {
+    final mentionInfo = context.read<MentionMenuServiceInfo>(),
+        editorState = mentionInfo.editorState,
+        mentionBloc = context.read<MentionBloc>(),
+        documentBloc = context.read<DocumentBloc>(),
+        mentionState = mentionBloc.state,
+        query = mentionState.query;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final range = mentionInfo.textRange(query);
+    mentionInfo.onDismiss.call();
+    await editorState.insertPerson(
+      person,
+      documentBloc.documentId,
+      range,
+      mentionState.sendNotification,
+    );
+  }
+}
+
+extension PersonListEditorStateExtension on EditorState {
+  Future<void> insertPerson(
+    Person person,
+    String pageId,
+    TextRange range,
+    bool sendNotification,
+  ) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = getNodeAtPath(selection.start.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final transaction = this.transaction
+      ..replaceText(
+        node,
+        range.start,
+        range.end,
+        MentionBlockKeys.mentionChar,
+        attributes: MentionBlockKeys.buildMentionPersonAttributes(
+          personId: person.id,
+          pageId: pageId,
+        ),
+      );
+
+    await apply(transaction);
   }
 }
