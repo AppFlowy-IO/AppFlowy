@@ -25,7 +25,6 @@ class ActionNavigationBloc
                 currentAction = currentAction.copyWith(arguments: {});
               }
               currentAction.arguments?.addAll({ActionArgumentKeys.view: view});
-
             } else {
               Log.error('Open view failed: ${action.objectId}');
               if (showErrorToast) {

@@ -252,8 +252,9 @@ class CommandPaletteModal extends StatelessWidget {
                       // Show a loading indicator when searching
                       Expanded(
                         child: Center(
-                          child:
-                              Center(child: CircularProgressIndicator.adaptive()),
+                          child: Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          ),
                         ),
                       ),
                   ],

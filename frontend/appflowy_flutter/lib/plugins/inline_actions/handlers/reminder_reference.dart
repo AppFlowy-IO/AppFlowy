@@ -217,9 +217,9 @@ extension ReminderEditorStateExtension on EditorState {
     BuildContext context,
     DateTime date,
     int start,
-    int end,
-    {bool includeTime = false,}
-  ) async {
+    int end, {
+    bool includeTime = false,
+  }) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) return;
 

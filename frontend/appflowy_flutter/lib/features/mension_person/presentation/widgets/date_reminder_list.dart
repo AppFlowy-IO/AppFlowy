@@ -119,9 +119,8 @@ class DateReminderList extends StatelessWidget {
 
     final node = editorState.getNodeAtPath(selection.end.path);
     final delta = node?.delta;
-    if (node == null || delta == null) {
-      return;
-    }
+    if (node == null || delta == null) return;
+
     final range = mentionInfo.textRange(query);
     mentionInfo.onDismiss.call();
     await editorState.insertReminderReference(

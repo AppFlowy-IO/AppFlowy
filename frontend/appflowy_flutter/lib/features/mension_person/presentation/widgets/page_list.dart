@@ -1,4 +1,8 @@
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
+import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
@@ -49,15 +53,25 @@ class PageList extends StatelessWidget {
           }
 
           for (final view in displayedViews) {
-            itemMap.addToPage(MentionMenuItem(id: view.id, onExecute: () {}));
+            itemMap.addToPage(
+              MentionMenuItem(
+                id: view.id,
+                onExecute: () => onPageSelected(view, context),
+              ),
+            );
           }
 
           final createPageId =
               LocaleKeys.inlineActions_createPage.tr(args: ['addPage']);
-          void onPageCreated() {}
-          itemMap.addToPage(
-            MentionMenuItem(id: createPageId, onExecute: onPageCreated),
-          );
+
+          if (query.isNotEmpty) {
+            itemMap.addToPage(
+              MentionMenuItem(
+                id: createPageId,
+                onExecute: () => onPageCreate(context),
+              ),
+            );
+          }
 
           final showMoreId = LocaleKeys.document_mentionMenu_moreResults
               .tr(args: ['show more page']);
@@ -89,14 +103,14 @@ class PageList extends StatelessWidget {
                     ),
                     title: view.nameOrDefault,
                     backgroundColor: context.mentionItemBGColor,
-                    onTap: () {},
+                    onTap: () => onPageSelected(view, context),
                   ),
                 );
               }),
               createPage(
                 context: context,
                 id: createPageId,
-                onTap: onPageCreated,
+                onTap: () => onPageCreate(context),
               ),
               if (showMoreResult)
                 MoreResultsItem(
@@ -118,14 +132,13 @@ class PageList extends StatelessWidget {
   }) {
     final theme = AppFlowyTheme.of(context);
     final state = context.read<MentionBloc>().state, query = state.query;
+    if (query.isEmpty) return const SizedBox.shrink();
 
     return MentionMenuItenVisibilityDetector(
       id: id,
       child: AFTextMenuItem(
         selected: state.selectedId == id,
-        title: query.isNotEmpty
-            ? LocaleKeys.inlineActions_createPage.tr(args: [query])
-            : LocaleKeys.document_mentionMenu_createSubpage.tr(),
+        title: LocaleKeys.inlineActions_createPage.tr(args: [query]),
         leading: SizedBox.square(
           dimension: 24,
           child: Center(
@@ -139,6 +152,45 @@ class PageList extends StatelessWidget {
         backgroundColor: context.mentionItemBGColor,
         onTap: onTap,
       ),
+    );
+  }
+
+  Future<void> onPageSelected(ViewPB view, BuildContext context) async {
+    final mentionInfo = context.read<MentionMenuServiceInfo>(),
+        editorState = mentionInfo.editorState,
+        query = context.read<MentionBloc>().state.query;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final range = mentionInfo.textRange(query);
+    mentionInfo.onDismiss.call();
+    await editorState.insertPageLinkRef(view, (range.start, range.end));
+  }
+
+  Future<void> onPageCreate(BuildContext context) async {
+    final mentionInfo = context.read<MentionMenuServiceInfo>(),
+        editorState = mentionInfo.editorState,
+        query = context.read<MentionBloc>().state.query,
+        documentBloc = context.read<DocumentBloc?>();
+
+    if (query.isEmpty || documentBloc == null) return;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final range = mentionInfo.textRange(query);
+    mentionInfo.onDismiss.call();
+    await editorState.insertChildPage(
+      documentBloc.documentId,
+      (range.start, range.end),
+      query,
     );
   }
 }
