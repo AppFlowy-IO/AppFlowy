@@ -109,3 +109,18 @@ extension ShareRoleExtension on ShareRole {
     }
   }
 }
+
+extension SharedSectionTypeExtension on folder.SharedViewSectionPB {
+  SharedSectionType get sharedSectionType {
+    switch (this) {
+      case folder.SharedViewSectionPB.PublicSection:
+        return SharedSectionType.public;
+      case folder.SharedViewSectionPB.PrivateSection:
+        return SharedSectionType.private;
+      case folder.SharedViewSectionPB.SharedSection:
+        return SharedSectionType.shared;
+      default:
+        throw Exception('Unknown shared section type: $this');
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/share_section_type.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ic
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +62,7 @@ class ViewTitleBar extends StatelessWidget {
                         ancestors,
                         state.isDeleted,
                         pageAccessLevelState.isEditable,
+                        pageAccessLevelState,
                       ),
                       _buildLockPageStatus(context),
                     ],
@@ -101,6 +104,7 @@ class ViewTitleBar extends StatelessWidget {
     List<ViewPB> views,
     bool isDeleted,
     bool isEditable,
+    PageAccessLevelState pageAccessLevelState,
   ) {
     if (isDeleted) {
       return _buildDeletedTitle(context, views.last);
@@ -160,6 +164,13 @@ class ViewTitleBar extends StatelessWidget {
         children.add(const FlowySvg(FlowySvgs.title_bar_divider_s));
       }
     }
+
+    // add the section icon in the breadcrumb
+    children.addAll([
+      const HSpace(8.0),
+      _buildSectionIcon(context, pageAccessLevelState),
+    ]);
+
     return children;
   }
 
@@ -178,6 +189,40 @@ class ViewTitleBar extends StatelessWidget {
         ),
       ),
     ];
+  }
+
+  Widget _buildSectionIcon(
+    BuildContext context,
+    PageAccessLevelState pageAccessLevelState,
+  ) {
+    final theme = AppFlowyTheme.of(context);
+
+    final icon = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public =>
+        const FlowySvg(FlowySvgs.public_section_icon_m),
+      SharedSectionType.private =>
+        const FlowySvg(FlowySvgs.private_section_icon_m),
+      SharedSectionType.shared =>
+        const FlowySvg(FlowySvgs.shared_section_icon_m),
+    };
+
+    final text = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public => 'Team space',
+      SharedSectionType.private => 'Private',
+      SharedSectionType.shared => 'Shared',
+    };
+
+    return Row(
+      children: [
+        icon,
+        const HSpace(4.0),
+        Text(
+          text,
+          style: theme.textStyle.caption
+              .enhanced(color: theme.textColorScheme.secondary),
+        ),
+      ],
+    );
   }
 }
 

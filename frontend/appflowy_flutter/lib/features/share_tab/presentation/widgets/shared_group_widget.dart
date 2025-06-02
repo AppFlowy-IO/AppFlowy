@@ -43,7 +43,7 @@ class SharedGroupWidget extends StatelessWidget {
           workspaceName: group.name,
           iconSize: 32.0,
           emojiSize: 24.0,
-          fontSize: 24.0,
+          fontSize: 16.0,
           onSelected: (r) {},
           borderRadius: 8.0,
           showBorder: false,

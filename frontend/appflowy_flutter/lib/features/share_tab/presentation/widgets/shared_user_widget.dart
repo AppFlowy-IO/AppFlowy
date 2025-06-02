@@ -107,8 +107,9 @@ class SharedUserWidget extends StatelessWidget {
       ShareRole.member => [ShareAccessLevel.fullAccess],
       ShareRole.owner => [ShareAccessLevel.fullAccess],
     };
+
     // The current guest user can't edit the access level of the other user
-    if (isCurrentUser) {
+    if (isCurrentUser && currentUser.role == ShareRole.guest) {
       return EditAccessLevelWidget(
         selectedAccessLevel: user.accessLevel,
         supportedAccessLevels: [],

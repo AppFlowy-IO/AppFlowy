@@ -1,5 +1,5 @@
 import 'package:appflowy/features/page_access_level/data/repositories/page_access_level_repository.dart';
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -102,15 +102,39 @@ class RustPageAccessLevelRepositoryImpl implements PageAccessLevelRepository {
                 .shareAccessLevel ??
             ShareAccessLevel.readAndWrite;
 
-        Log.debug('current user access level: $accessLevel');
+        Log.debug('current user access level: $accessLevel, in page: $pageId');
 
         return FlowyResult.success(accessLevel);
       },
       (failure) {
-        Log.error('failed to get user access level: $failure');
+        Log.error(
+          'failed to get user access level: $failure, in page: $pageId',
+        );
 
         // return the read and write access level if the user is not found
         return FlowyResult.success(ShareAccessLevel.readAndWrite);
+      },
+    );
+  }
+
+  @override
+  Future<FlowyResult<SharedSectionType, FlowyError>> getSectionType(
+    String pageId,
+  ) async {
+    final request = ViewIdPB(value: pageId);
+    final result = await FolderEventGetSharedViewSection(request).send();
+    return result.fold(
+      (success) {
+        final sectionType = success.section.sharedSectionType;
+        Log.debug('shared section type: $sectionType, in page: $pageId');
+        return FlowyResult.success(sectionType);
+      },
+      (failure) {
+        Log.error(
+          'failed to get shared section type: $failure, in page: $pageId',
+        );
+
+        return FlowyResult.failure(failure);
       },
     );
   }

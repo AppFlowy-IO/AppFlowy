@@ -589,3 +589,14 @@ pub(crate) async fn get_shared_views_handler(
   let resp = folder.get_shared_pages().await?;
   data_result_ok(resp)
 }
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn get_shared_view_section_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<GetSharedViewSectionResponsePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id = data.into_inner().value;
+  let section = folder.get_shared_view_section(&view_id).await?;
+  data_result_ok(GetSharedViewSectionResponsePB { section })
+}
