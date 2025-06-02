@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +37,11 @@ class ViewTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
+        BlocProvider(
+          create: (_) => ViewTitleBarBloc(
+            view: view,
+          ),
+        ),
         BlocProvider(
           create: (_) => PageAccessLevelBloc(view: view)
             ..add(const PageAccessLevelEvent.initial()),
@@ -45,7 +51,27 @@ class ViewTitleBar extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.isLoadingLockStatus != current.isLoadingLockStatus,
         builder: (context, pageAccessLevelState) {
-          return BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
+          return BlocConsumer<ViewTitleBarBloc, ViewTitleBarState>(
+            listener: (context, state) {
+              // update the page section type when the space permission is changed
+              final spacePermission = state.ancestors
+                  .firstWhereOrNull(
+                    (ancestor) => ancestor.isSpace,
+                  )
+                  ?.spacePermission;
+              if (spacePermission == null) {
+                return;
+              }
+              final sectionType = switch (spacePermission) {
+                SpacePermission.publicToAll => SharedSectionType.public,
+                SpacePermission.private => SharedSectionType.private,
+              };
+              if (!context.read<PageAccessLevelBloc>().state.isShared) {
+                context.read<PageAccessLevelBloc>().add(
+                      PageAccessLevelEvent.updateSectionType(sectionType),
+                    );
+              }
+            },
             builder: (context, state) {
               final ancestors = state.ancestors;
               if (ancestors.isEmpty) {
@@ -168,7 +194,13 @@ class ViewTitleBar extends StatelessWidget {
     // add the section icon in the breadcrumb
     children.addAll([
       const HSpace(8.0),
-      _buildSectionIcon(context, pageAccessLevelState),
+      BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+        buildWhen: (previous, current) =>
+            previous.sectionType != current.sectionType,
+        builder: (context, state) {
+          return _buildSectionIcon(context, state);
+        },
+      ),
     ]);
 
     return children;
@@ -206,6 +238,7 @@ class ViewTitleBar extends StatelessWidget {
     final icon = FlowySvg(
       iconName,
       color: theme.iconColorScheme.tertiary,
+      size: Size.square(20),
     );
 
     final text = switch (pageAccessLevelState.sectionType) {
@@ -215,8 +248,8 @@ class ViewTitleBar extends StatelessWidget {
     };
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+      textBaseline: TextBaseline.alphabetic,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
       children: [
         icon,
         const HSpace(4.0),

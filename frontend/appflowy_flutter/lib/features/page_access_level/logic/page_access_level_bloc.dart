@@ -27,6 +27,7 @@ class PageAccessLevelBloc
     on<PageAccessLevelLockEvent>(_onLock);
     on<PageAccessLevelUnlockEvent>(_onUnlock);
     on<PageAccessLevelUpdateLockStatusEvent>(_onUpdateLockStatus);
+    on<PageAccessLevelUpdateSectionTypeEvent>(_onUpdateSectionType);
   }
 
   final ViewPB view;
@@ -145,6 +146,17 @@ class PageAccessLevelBloc
         view: updatedView,
         isLocked: event.isLocked,
         lockCounter: event.lockCounter ?? state.lockCounter,
+      ),
+    );
+  }
+
+  void _onUpdateSectionType(
+    PageAccessLevelUpdateSectionTypeEvent event,
+    Emitter<PageAccessLevelState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        sectionType: event.sectionType,
       ),
     );
   }
