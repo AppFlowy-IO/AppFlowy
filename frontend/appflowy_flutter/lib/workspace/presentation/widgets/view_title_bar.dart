@@ -197,14 +197,16 @@ class ViewTitleBar extends StatelessWidget {
   ) {
     final theme = AppFlowyTheme.of(context);
 
-    final icon = switch (pageAccessLevelState.sectionType) {
-      SharedSectionType.public =>
-        const FlowySvg(FlowySvgs.public_section_icon_m),
-      SharedSectionType.private =>
-        const FlowySvg(FlowySvgs.private_section_icon_m),
-      SharedSectionType.shared =>
-        const FlowySvg(FlowySvgs.shared_section_icon_m),
+    final iconName = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public => FlowySvgs.public_section_icon_m,
+      SharedSectionType.private => FlowySvgs.private_section_icon_m,
+      SharedSectionType.shared => FlowySvgs.shared_section_icon_m,
     };
+
+    final icon = FlowySvg(
+      iconName,
+      color: theme.iconColorScheme.tertiary,
+    );
 
     final text = switch (pageAccessLevelState.sectionType) {
       SharedSectionType.public => 'Team space',
@@ -213,13 +215,15 @@ class ViewTitleBar extends StatelessWidget {
     };
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         icon,
         const HSpace(4.0),
         Text(
           text,
           style: theme.textStyle.caption
-              .enhanced(color: theme.textColorScheme.secondary),
+              .enhanced(color: theme.textColorScheme.tertiary),
         ),
       ],
     );
