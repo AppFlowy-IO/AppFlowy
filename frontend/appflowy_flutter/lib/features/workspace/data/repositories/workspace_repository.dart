@@ -53,4 +53,7 @@ abstract class WorkspaceRepository {
       getWorkspaceSubscriptionInfo({
     required String workspaceId,
   });
+
+  /// Is billing enabled.
+  Future<bool> isBillingEnabled();
 }

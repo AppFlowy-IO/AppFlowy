@@ -8,7 +8,6 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -454,7 +453,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     WorkspaceEventFetchWorkspaceSubscriptionInfo event,
     Emitter<UserWorkspaceState> emit,
   ) async {
-    final enabled = await isBillingEnabled();
+    final enabled = await _repository.isBillingEnabled();
     // If billing is not enabled, we don't need to fetch the workspace subscription info
     if (!enabled) {
       return;
