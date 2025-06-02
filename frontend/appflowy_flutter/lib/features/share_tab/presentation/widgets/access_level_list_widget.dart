@@ -77,7 +77,7 @@ class AccessLevelListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return AFMenu(
-      width: supportedAccessLevels.isNotEmpty ? 240 : 160,
+      width: supportedAccessLevels.isNotEmpty ? 260 : 160,
       children: [
         // Display all available access level options
         if (supportedAccessLevels.isNotEmpty) ...[
@@ -115,9 +115,15 @@ class AccessLevelListWidget extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return AFTextMenuItem(
-      title: accessLevel.i18n,
+      title: accessLevel.title,
+      subtitle: accessLevel.subtitle,
+
       showSelectedBackground: false,
       selected: selectedAccessLevel == accessLevel,
+      leading: FlowySvg(
+        accessLevel.icon,
+        blendMode: null,
+      ),
       // Show a checkmark icon for the currently selected access level
       trailing: selectedAccessLevel == accessLevel
           ? FlowySvg(

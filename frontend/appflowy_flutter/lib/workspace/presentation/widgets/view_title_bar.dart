@@ -73,6 +73,7 @@ class ViewTitleBar extends StatelessWidget {
               }
             },
             builder: (context, state) {
+              final theme = AppFlowyTheme.of(context);
               final ancestors = state.ancestors;
               if (ancestors.isEmpty) {
                 return const SizedBox.shrink();
@@ -90,6 +91,7 @@ class ViewTitleBar extends StatelessWidget {
                         pageAccessLevelState.isEditable,
                         pageAccessLevelState,
                       ),
+                      HSpace(theme.spacing.m),
                       _buildLockPageStatus(context),
                     ],
                   ),
@@ -132,6 +134,8 @@ class ViewTitleBar extends StatelessWidget {
     bool isEditable,
     PageAccessLevelState pageAccessLevelState,
   ) {
+    final theme = AppFlowyTheme.of(context);
+
     if (isDeleted) {
       return _buildDeletedTitle(context, views.last);
     }
@@ -193,7 +197,7 @@ class ViewTitleBar extends StatelessWidget {
 
     // add the section icon in the breadcrumb
     children.addAll([
-      const HSpace(8.0),
+      HSpace(theme.spacing.xs),
       BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
         buildWhen: (previous, current) =>
             previous.sectionType != current.sectionType,
@@ -251,13 +255,15 @@ class ViewTitleBar extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       crossAxisAlignment: CrossAxisAlignment.baseline,
       children: [
+        HSpace(theme.spacing.xs),
         icon,
-        const HSpace(4.0),
+        const HSpace(4.0), // ask designer to provide the spacing
         Text(
           text,
           style: theme.textStyle.caption
               .enhanced(color: theme.textColorScheme.tertiary),
         ),
+        HSpace(theme.spacing.xs),
       ],
     );
   }
