@@ -6,8 +6,9 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 import 'share_with_user_repository.dart';
 
-class LocalShareWithUserRepository extends ShareWithUserRepository {
-  LocalShareWithUserRepository();
+// Move this file to test folder
+class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
+  LocalShareWithUserRepositoryImpl();
 
   final SharedUsers _sharedUsers = [
     SharedUser(

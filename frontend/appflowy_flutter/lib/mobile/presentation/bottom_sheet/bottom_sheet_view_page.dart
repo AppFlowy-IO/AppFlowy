@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -112,8 +112,8 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFavorite = view.isFavorite;
-    final isLocked =
-        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.watch<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -121,7 +121,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           text: LocaleKeys.button_rename.tr(),
           icon: FlowySvgs.view_item_rename_s,
           iconSize: const Size.square(18),
-          enable: !isLocked,
+          enable: isEditable,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.rename,
           ),
@@ -150,12 +150,12 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             ),
             onTap: () {
               final isLocked =
-                  context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+                  context.read<PageAccessLevelBloc?>()?.state.isLocked ?? false;
               onAction(
                 MobileViewBottomSheetBodyAction.lockPage,
                 arguments: {
                   MobileViewBottomSheetBodyActionArguments.isLockedKey:
-                      !isLocked,
+                      isLocked,
                 },
               );
             },
@@ -189,7 +189,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           icon: FlowySvgs.trash_s,
           iconColor: Theme.of(context).colorScheme.error,
           iconSize: const Size.square(18),
-          enable: !isLocked,
+          enable: isEditable,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.delete,
           ),
@@ -264,15 +264,15 @@ class _LockPageRightIconBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked =
-        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.watch<PageAccessLevelBloc?>()?.state.isEditable ?? false;
     return SizedBox(
       width: 46,
       height: 30,
       child: FittedBox(
         fit: BoxFit.fill,
         child: CupertinoSwitch(
-          value: isLocked,
+          value: isEditable,
           activeTrackColor: Theme.of(context).colorScheme.primary,
           onChanged: (value) {
             onAction(

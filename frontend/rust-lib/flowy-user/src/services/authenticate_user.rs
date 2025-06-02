@@ -176,4 +176,11 @@ impl AuthenticateUser {
       },
     }
   }
+
+  pub fn get_active_user_workspace(&self) -> FlowyResult<UserWorkspace> {
+    let session = self.get_session()?;
+    let mut conn = self.get_sqlite_connection(session.user_id)?;
+    let workspace = select_user_workspace(&session.workspace_id, &mut conn)?;
+    Ok(workspace.into())
+  }
 }

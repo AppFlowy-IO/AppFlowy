@@ -57,6 +57,7 @@ class PeopleWithAccessSection extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(
         vertical: theme.spacing.xs,
+        horizontal: theme.spacing.m,
       ),
       children: users.map((user) {
         if (currentUser == null) {

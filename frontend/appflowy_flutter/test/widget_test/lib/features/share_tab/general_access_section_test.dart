@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -9,7 +10,13 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         WidgetTestWrapper(
-          child: GeneralAccessSection(),
+          child: GeneralAccessSection(
+            group: SharedGroup(
+              id: '1',
+              name: 'Group 1',
+              icon: '👥',
+            ),
+          ),
         ),
       );
       expect(find.text('General access'), findsOneWidget);

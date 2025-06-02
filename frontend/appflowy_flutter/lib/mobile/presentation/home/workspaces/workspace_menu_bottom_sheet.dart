@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy_backend/log.dart';
@@ -122,8 +122,8 @@ class _CreateWorkspaceButton extends StatelessWidget {
 
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.createWorkspace(
-                    name,
-                    WorkspaceTypePB.ServerW,
+                    name: name,
+                    workspaceType: WorkspaceTypePB.ServerW,
                   ),
                 );
           },
@@ -285,8 +285,8 @@ class _WorkspaceMenuItemIcon extends StatelessWidget {
         borderRadius: 12.0,
         onSelected: (result) => context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.updateWorkspaceIcon(
-                workspace.workspaceId,
-                result.emoji,
+                workspaceId: workspace.workspaceId,
+                icon: result.emoji,
               ),
             ),
       ),
@@ -407,8 +407,8 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
 
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.renameWorkspace(
-                    workspace.workspaceId,
-                    name,
+                    workspaceId: workspace.workspaceId,
+                    name: name,
                   ),
                 );
           },
@@ -428,7 +428,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
       (_) async {
         context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.deleteWorkspace(
-                workspace.workspaceId,
+                workspaceId: workspace.workspaceId,
               ),
             );
         context.popToHome();
@@ -447,7 +447,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
       (_) async {
         context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.leaveWorkspace(
-                workspace.workspaceId,
+                workspaceId: workspace.workspaceId,
               ),
             );
         context.popToHome();

@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -8,7 +9,6 @@ import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -132,8 +132,8 @@ enum MobilePaneActionType {
                       BlocProvider.value(value: recentViewsBloc),
                     BlocProvider(
                       create: (_) =>
-                          ViewLockStatusBloc(view: viewBloc.state.view)
-                            ..add(const ViewLockStatusEvent.initial()),
+                          PageAccessLevelBloc(view: viewBloc.state.view)
+                            ..add(const PageAccessLevelEvent.initial()),
                     ),
                   ],
                   child: BlocBuilder<ViewBloc, ViewState>(

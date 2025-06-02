@@ -47,6 +47,7 @@ use flowy_folder_pub::sql::workspace_shared_view_sql::{
 };
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_user_pub::entities::{Role, UserWorkspace};
 use futures::future;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
@@ -62,6 +63,7 @@ pub trait FolderUser: Send + Sync {
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &Uuid) -> FlowyResult<bool>;
+  fn get_active_user_workspace(&self) -> FlowyResult<UserWorkspace>;
 }
 
 pub struct FolderManager {
@@ -662,6 +664,24 @@ impl FolderManager {
   /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
+    let workspace = self.user.get_active_user_workspace()?;
+    let role = workspace.role;
+
+    // If the user is a Guest, check if they have access to this view through shared views
+    if let Some(Role::Guest) = role {
+      let flatten_shared_views = self.get_flatten_shared_pages().await?;
+      let has_access = flatten_shared_views
+        .iter()
+        .any(|shared_view| shared_view.id == view_id);
+
+      if !has_access {
+        return Err(FlowyError::new(
+          ErrorCode::RecordNotFound,
+          format!("Guest user does not have access to view: {}", view_id),
+        ));
+      }
+    }
+
     let view_id = view_id.to_string();
 
     let lock = self
@@ -2143,6 +2163,9 @@ impl FolderManager {
   }
 
   /// Get the shared views of the workspace.
+  ///
+  /// This function will return the first level of the shared views. If the shared view has child
+  /// views, this function will not return the child views.
   pub async fn get_shared_pages(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
     let uid = self.user.user_id()?;
     let conn = self.user.sqlite_connection(uid)?;
@@ -2150,6 +2173,17 @@ impl FolderManager {
     let mut local_shared_views = vec![];
 
     let all_views: Vec<Arc<View>> = self.get_all_views().await?;
+    let lock = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(folder_not_init_error)?;
+    let folder = lock.read().await;
+    // filter the views that are in the trash
+    let trash_ids = Self::get_all_trash_ids(&folder);
+    let all_views = all_views
+      .into_iter()
+      .filter(|view| !trash_ids.contains(&view.id))
+      .collect::<Vec<Arc<View>>>();
 
     // 1. Get the data from the local database first
     if let Ok(shared_views) =
@@ -2237,6 +2271,43 @@ impl FolderManager {
     };
 
     Ok(local_result)
+  }
+
+  /// Get all the shared views of the workspace.
+  ///
+  /// This function will return all the shared views of the workspace, including the child views of the shared views.
+  pub async fn get_flatten_shared_pages(&self) -> FlowyResult<Vec<ViewPB>> {
+    let shared_pages = self.get_shared_pages().await?;
+    let mut flattened_views = Vec::new();
+
+    for shared_view in shared_pages.shared_views {
+      // Add the parent view
+      let parent_view = shared_view.view;
+      let child_views = parent_view.child_views.clone();
+      flattened_views.push(ViewPB {
+        child_views: vec![], // Remove child views to flatten the structure
+        ..parent_view
+      });
+
+      // Recursively add all child views
+      Self::flatten_child_views(&child_views, &mut flattened_views);
+    }
+
+    Ok(flattened_views)
+  }
+
+  fn flatten_child_views(views: &[ViewPB], flattened_views: &mut Vec<ViewPB>) {
+    for view in views {
+      let child_views = view.child_views.clone();
+      flattened_views.push(ViewPB {
+        child_views: vec![],
+        ..view.clone()
+      });
+
+      if !child_views.is_empty() {
+        Self::flatten_child_views(&child_views, flattened_views);
+      }
+    }
   }
 }
 

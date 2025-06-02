@@ -1,6 +1,7 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/access_level_list_widget.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/edit_access_level_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/guest_tag.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,6 +28,7 @@ class SharedUserWidget extends StatelessWidget {
     return AFMenuItem(
       padding: EdgeInsets.symmetric(
         vertical: theme.spacing.s,
+        horizontal: theme.spacing.m,
       ),
       leading: AFAvatar(
         name: user.name,
@@ -35,6 +37,9 @@ class SharedUserWidget extends StatelessWidget {
       title: _buildTitle(context),
       subtitle: _buildSubtitle(context),
       trailing: _buildTrailing(context),
+      onTap: () {
+        // callbacks?.onSelectAccessLevel.call(user, user.accessLevel);
+      },
     );
   }
 
@@ -60,20 +65,15 @@ class SharedUserWidget extends StatelessWidget {
           HSpace(theme.spacing.xs),
           Text(
             LocaleKeys.shareTab_you.tr(),
-            style: theme.textStyle.body.standard(
+            style: theme.textStyle.caption.standard(
               color: theme.textColorScheme.secondary,
             ),
           ),
         ],
         // if the user is a guest, show 'Guest'
         if (user.role == ShareRole.guest) ...[
-          HSpace(theme.spacing.xs),
-          Text(
-            LocaleKeys.shareTab_guest.tr(),
-            style: theme.textStyle.body.standard(
-              color: theme.textColorScheme.warning,
-            ),
-          ),
+          HSpace(theme.spacing.m),
+          const GuestTag(),
         ],
       ],
     );
@@ -108,8 +108,18 @@ class SharedUserWidget extends StatelessWidget {
       ShareRole.owner => [ShareAccessLevel.fullAccess],
     };
     // The current guest user can't edit the access level of the other user
-    return isCurrentUser ||
-            currentUser.role == ShareRole.guest ||
+    if (isCurrentUser) {
+      return EditAccessLevelWidget(
+        selectedAccessLevel: user.accessLevel,
+        supportedAccessLevels: [],
+        additionalUserManagementOptions: [
+          AdditionalUserManagementOptions.removeAccess,
+        ],
+        callbacks: callbacks ?? AccessLevelListCallbacks.none(),
+      );
+    }
+
+    return currentUser.role == ShareRole.guest ||
             user.role == ShareRole.member ||
             user.role == ShareRole.owner
         ? AFGhostTextButton.disabled(
@@ -121,6 +131,10 @@ class SharedUserWidget extends StatelessWidget {
         : EditAccessLevelWidget(
             selectedAccessLevel: user.accessLevel,
             supportedAccessLevels: supportedAccessLevels,
+            additionalUserManagementOptions: [
+              AdditionalUserManagementOptions.turnIntoMember,
+              AdditionalUserManagementOptions.removeAccess,
+            ],
             callbacks: callbacks ?? AccessLevelListCallbacks.none(),
           );
   }

@@ -1,8 +1,11 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -16,10 +19,16 @@ class ShareTab extends StatefulWidget {
     super.key,
     required this.workspaceId,
     required this.pageId,
+    required this.workspaceName,
+    required this.workspaceIcon,
   });
 
   final String workspaceId;
   final String pageId;
+
+  // these 2 values should be provided by the share tab bloc
+  final String workspaceName;
+  final String workspaceIcon;
 
   @override
   State<ShareTab> createState() => _ShareTabState();
@@ -27,10 +36,19 @@ class ShareTab extends StatefulWidget {
 
 class _ShareTabState extends State<ShareTab> {
   final TextEditingController controller = TextEditingController();
+  late final ShareTabBloc shareTabBloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    shareTabBloc = context.read<ShareTabBloc>();
+  }
 
   @override
   void dispose() {
     controller.dispose();
+    shareTabBloc.add(ShareTabEvent.clearState());
 
     super.dispose();
   }
@@ -39,7 +57,7 @@ class _ShareTabState extends State<ShareTab> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocConsumer<ShareWithUserBloc, ShareWithUserState>(
+    return BlocConsumer<ShareTabBloc, ShareTabState>(
       listener: (context, state) {
         _onListenShareWithUserState(context, state);
       },
@@ -84,13 +102,16 @@ class _ShareTabState extends State<ShareTab> {
             ],
 
             // general access
-            // enable it when the backend support general access features.
-            // VSpace(theme.spacing.m),
-            // GeneralAccessSection(),
+            VSpace(theme.spacing.m),
+            GeneralAccessSection(
+              group: SharedGroup(
+                id: widget.workspaceId,
+                name: widget.workspaceName,
+                icon: widget.workspaceIcon,
+              ),
+            ),
 
             // copy link
-            VSpace(theme.spacing.l),
-            const AFDivider(),
             VSpace(theme.spacing.xl),
             CopyLinkWidget(shareLink: state.shareLink),
             VSpace(theme.spacing.m),
@@ -105,8 +126,8 @@ class _ShareTabState extends State<ShareTab> {
     required List<String> emails,
     required ShareAccessLevel accessLevel,
   }) {
-    context.read<ShareWithUserBloc>().add(
-          ShareWithUserEvent.share(emails: emails, accessLevel: accessLevel),
+    context.read<ShareTabBloc>().add(
+          ShareTabEvent.inviteUsers(emails: emails, accessLevel: accessLevel),
         );
   }
 
@@ -115,29 +136,47 @@ class _ShareTabState extends State<ShareTab> {
   ) {
     return PeopleWithAccessSectionCallbacks(
       onSelectAccessLevel: (user, accessLevel) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.updateAccessLevel(
+        context.read<ShareTabBloc>().add(
+              ShareTabEvent.updateUserAccessLevel(
                 email: user.email,
                 accessLevel: accessLevel,
               ),
             );
       },
       onTurnIntoMember: (user) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.turnIntoMember(email: user.email),
+        context.read<ShareTabBloc>().add(
+              ShareTabEvent.convertToMember(email: user.email),
             );
       },
       onRemoveAccess: (user) {
-        context.read<ShareWithUserBloc>().add(
-              ShareWithUserEvent.remove(emails: [user.email]),
-            );
+        // show a dialog to confirm the action when removing self access
+        final removingSelf =
+            user.email == context.read<ShareTabBloc>().state.currentUser?.email;
+        if (removingSelf) {
+          showConfirmDialog(
+            context: context,
+            title: 'Remove your own access',
+            description: '',
+            style: ConfirmPopupStyle.cancelAndOk,
+            confirmLabel: 'Remove',
+            onConfirm: () {
+              context.read<ShareTabBloc>().add(
+                    ShareTabEvent.removeUsers(emails: [user.email]),
+                  );
+            },
+          );
+        } else {
+          context.read<ShareTabBloc>().add(
+                ShareTabEvent.removeUsers(emails: [user.email]),
+              );
+        }
       },
     );
   }
 
   void _onListenShareWithUserState(
     BuildContext context,
-    ShareWithUserState state,
+    ShareTabState state,
   ) {
     final shareResult = state.shareResult;
     if (shareResult != null) {
