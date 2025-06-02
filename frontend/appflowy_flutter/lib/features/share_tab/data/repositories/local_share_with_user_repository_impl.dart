@@ -13,9 +13,9 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
   final SharedUsers _sharedUsers = [
     SharedUser(
       email: 'lucas.xu@appflowy.io',
-      name: 'Lucas Xu',
+      name: 'Lucas Xu - Long long long long long name',
       accessLevel: ShareAccessLevel.fullAccess,
-      role: ShareRole.owner,
+      role: ShareRole.guest,
       avatarUrl: 'https://avatar.iran.liara.run/public',
     ),
     SharedUser(
@@ -34,7 +34,7 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
     ),
     SharedUser(
       email: 'guest_user_1@appflowy.io',
-      name: 'Guest User 1',
+      name: 'Guest User 1 - Long long long long long name',
       accessLevel: ShareAccessLevel.readOnly,
       role: ShareRole.guest,
       avatarUrl: 'https://avatar.iran.liara.run/public/boy/10',

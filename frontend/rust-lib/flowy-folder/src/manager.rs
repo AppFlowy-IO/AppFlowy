@@ -2338,7 +2338,6 @@ impl FolderManager {
         return Ok(SharedViewSectionPB::PublicSection);
       }
 
-      // Move to parent view for next iteration
       current_view_id = parent_view_id;
     }
   }

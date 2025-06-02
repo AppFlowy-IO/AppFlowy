@@ -51,6 +51,7 @@ class SharedUserWidget extends StatelessWidget {
     final isCurrentUser = user.email == currentUser.email;
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
           child: Text(
@@ -64,10 +65,13 @@ class SharedUserWidget extends StatelessWidget {
         // if the user is the current user, show '(You)'
         if (isCurrentUser) ...[
           HSpace(theme.spacing.xs),
-          Text(
-            LocaleKeys.shareTab_you.tr(),
-            style: theme.textStyle.caption.standard(
-              color: theme.textColorScheme.secondary,
+          Flexible(
+            child: Text(
+              LocaleKeys.shareTab_you.tr(),
+              style: theme.textStyle.caption.standard(
+                color: theme.textColorScheme.secondary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/shared_user_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../widget_test_wrapper.dart';
@@ -39,9 +40,11 @@ void main() {
       );
       await tester.pumpWidget(
         WidgetTestWrapper(
-          child: SharedUserWidget(
-            user: user,
-            currentUser: user,
+          child: IntrinsicWidth(
+            child: SharedUserWidget(
+              user: user,
+              currentUser: user,
+            ),
           ),
         ),
       );
