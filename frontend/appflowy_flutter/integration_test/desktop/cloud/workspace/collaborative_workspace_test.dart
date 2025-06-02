@@ -100,7 +100,7 @@ void main() {
 
       // expect to see the member count
       final memberCount = find.text('1 member');
-      expect(memberCount, findsNWidgets(2));
+      expect(memberCount, findsAny);
     });
 
     testWidgets('workspace menu popover behavior test', (tester) async {

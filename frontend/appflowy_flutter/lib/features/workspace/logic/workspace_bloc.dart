@@ -54,6 +54,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     on<WorkspaceEventFetchWorkspaceSubscriptionInfo>(
       _onFetchWorkspaceSubscriptionInfo,
     );
+    on<WorkspaceEventUpdateWorkspaceSubscriptionInfo>(
+      _onUpdateWorkspaceSubscriptionInfo,
+    );
   }
 
   final String? initialWorkspaceId;
@@ -476,14 +479,24 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             'fetch workspace subscription info: ${event.workspaceId}, $workspaceSubscriptionInfo',
           );
 
-          emit(
-            state.copyWith(
-              workspaceSubscriptionInfo: workspaceSubscriptionInfo,
+          add(
+            UserWorkspaceEvent.updateWorkspaceSubscriptionInfo(
+              workspaceId: event.workspaceId,
+              subscriptionInfo: workspaceSubscriptionInfo,
             ),
           );
         },
         (e) => Log.error('fetch workspace subscription info error: $e'),
       ),
+    );
+  }
+
+  Future<void> _onUpdateWorkspaceSubscriptionInfo(
+    WorkspaceEventUpdateWorkspaceSubscriptionInfo event,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    emit(
+      state.copyWith(workspaceSubscriptionInfo: event.subscriptionInfo),
     );
   }
 

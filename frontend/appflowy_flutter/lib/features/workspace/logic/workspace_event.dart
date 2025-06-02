@@ -55,6 +55,15 @@ sealed class UserWorkspaceEvent {
     required String workspaceId,
   }) =>
       WorkspaceEventFetchWorkspaceSubscriptionInfo(workspaceId: workspaceId);
+
+  factory UserWorkspaceEvent.updateWorkspaceSubscriptionInfo({
+    required String workspaceId,
+    required WorkspaceSubscriptionInfoPB subscriptionInfo,
+  }) =>
+      WorkspaceEventUpdateWorkspaceSubscriptionInfo(
+        workspaceId: workspaceId,
+        subscriptionInfo: subscriptionInfo,
+      );
 }
 
 /// Initializes the workspace bloc.
@@ -140,4 +149,15 @@ class WorkspaceEventFetchWorkspaceSubscriptionInfo extends UserWorkspaceEvent {
   });
 
   final String workspaceId;
+}
+
+/// Updates workspace subscription info.
+class WorkspaceEventUpdateWorkspaceSubscriptionInfo extends UserWorkspaceEvent {
+  WorkspaceEventUpdateWorkspaceSubscriptionInfo({
+    required this.workspaceId,
+    required this.subscriptionInfo,
+  });
+
+  final String workspaceId;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 }

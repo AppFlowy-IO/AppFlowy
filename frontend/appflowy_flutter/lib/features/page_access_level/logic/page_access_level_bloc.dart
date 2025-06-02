@@ -5,6 +5,7 @@ import 'package:appflowy/features/page_access_level/data/repositories/rust_page_
 import 'package:appflowy/features/page_access_level/logic/page_access_level_event.dart';
 import 'package:appflowy/features/page_access_level/logic/page_access_level_state.dart';
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:bloc/bloc.dart';
@@ -51,6 +52,18 @@ class PageAccessLevelBloc
         add(PageAccessLevelEvent.updateLockStatus(view.isLocked));
       },
     );
+
+    if (!FeatureFlag.sharedSection.isOn) {
+      emit(
+        state.copyWith(
+          view: view,
+          isLocked: view.isLocked,
+          isLoadingLockStatus: false,
+          accessLevel: ShareAccessLevel.fullAccess,
+        ),
+      );
+      return;
+    }
 
     final result = await repository.getView(view.id);
     final accessLevel = await repository.getAccessLevel(view.id);
