@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/shared_group_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,7 +12,13 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         WidgetTestWrapper(
-          child: SharedGroupWidget(),
+          child: SharedGroupWidget(
+            group: SharedGroup(
+              id: '1',
+              name: 'Group 1',
+              icon: '👥',
+            ),
+          ),
         ),
       );
       expect(

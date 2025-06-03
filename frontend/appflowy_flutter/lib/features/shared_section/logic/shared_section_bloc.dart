@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:appflowy/core/notification/folder_notification.dart';
-import 'package:appflowy/features/shared_section/data/share_pages_repository.dart';
-import 'package:appflowy/features/shared_section/models/shared_page.dart';
+import 'package:appflowy/features/shared_section/data/repositories/shared_pages_repository.dart';
+import 'package:appflowy/features/shared_section/logic/shared_section_event.dart';
+import 'package:appflowy/features/shared_section/logic/shared_section_state.dart';
 import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:bloc/bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'shared_section_bloc.freezed.dart';
+export 'shared_section_event.dart';
+export 'shared_section_state.dart';
 
 class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
   SharedSectionBloc({
@@ -18,16 +19,17 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
     this.enablePolling = false,
     this.pollingIntervalSeconds = 30,
   }) : super(SharedSectionState.initial()) {
-    on<_Init>(_onInit);
-    on<_Refresh>(_onRefresh);
-    on<_UpdateSharedPages>(_onUpdateSharedPages);
+    on<SharedSectionInitEvent>(_onInit);
+    on<SharedSectionRefreshEvent>(_onRefresh);
+    on<SharedSectionUpdateSharedPagesEvent>(_onUpdateSharedPages);
+    on<SharedSectionToggleExpandedEvent>(_onToggleExpanded);
   }
 
   final String workspaceId;
 
   // The repository to fetch the shared views.
   // If you need to test this bloc, you can add your own repository implementation.
-  final SharePagesRepository repository;
+  final SharedPagesRepository repository;
 
   // Used to listen for shared view updates.
   late final FolderNotificationListener _folderNotificationListener;
@@ -49,7 +51,7 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
   }
 
   Future<void> _onInit(
-    _Init event,
+    SharedSectionInitEvent event,
     Emitter<SharedSectionState> emit,
   ) async {
     _initFolderNotificationListener();
@@ -83,7 +85,7 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
   }
 
   Future<void> _onRefresh(
-    _Refresh event,
+    SharedSectionRefreshEvent event,
     Emitter<SharedSectionState> emit,
   ) async {
     final result = await repository.getSharedPages();
@@ -107,12 +109,23 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
   }
 
   void _onUpdateSharedPages(
-    _UpdateSharedPages event,
+    SharedSectionUpdateSharedPagesEvent event,
     Emitter<SharedSectionState> emit,
   ) {
     emit(
       state.copyWith(
         sharedPages: event.sharedPages,
+      ),
+    );
+  }
+
+  void _onToggleExpanded(
+    SharedSectionToggleExpandedEvent event,
+    Emitter<SharedSectionState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        isExpanded: !state.isExpanded,
       ),
     );
   }
@@ -155,32 +168,4 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
       );
     }
   }
-}
-
-@freezed
-class SharedSectionEvent with _$SharedSectionEvent {
-  /// Initialize, it will create a folder notification listener to listen for shared view updates.
-  /// Also, it will fetch the shared pages from the repository.
-  const factory SharedSectionEvent.init() = _Init;
-
-  /// Refresh, it will re-fetch the shared pages from the repository.
-  const factory SharedSectionEvent.refresh() = _Refresh;
-
-  /// Update the shared pages in the state.
-  const factory SharedSectionEvent.updateSharedPages({
-    required SharedPages sharedPages,
-  }) = _UpdateSharedPages;
-}
-
-@freezed
-class SharedSectionState with _$SharedSectionState {
-  const factory SharedSectionState({
-    @Default([]) SharedPages sharedPages,
-    @Default(false) bool isLoading,
-    @Default('') String errorMessage,
-  }) = _SharedSectionState;
-
-  const SharedSectionState._();
-
-  factory SharedSectionState.initial() => const SharedSectionState();
 }

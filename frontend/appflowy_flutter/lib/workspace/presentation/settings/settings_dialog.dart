@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
@@ -7,7 +8,6 @@ import 'package:appflowy/util/share_log_files.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/settings_ai_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
@@ -62,10 +62,12 @@ class SettingsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.6;
     final theme = AppFlowyTheme.of(context);
+    final currentWorkspaceMemberRole =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role;
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
-        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role,
+        currentWorkspaceMemberRole,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
@@ -87,6 +89,7 @@ class SettingsDialog extends StatelessWidget {
                           .add(SettingsDialogEvent.setSelectedPage(index)),
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
+                      currentUserRole: currentWorkspaceMemberRole,
                       isBillingEnabled: state.isBillingEnabled,
                     ),
                   ),

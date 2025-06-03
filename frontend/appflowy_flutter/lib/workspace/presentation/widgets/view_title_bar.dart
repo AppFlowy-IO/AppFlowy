@@ -1,11 +1,13 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/share_section_type.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -13,6 +15,8 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ic
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -33,33 +37,67 @@ class ViewTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
         BlocProvider(
-          create: (_) => ViewLockStatusBloc(view: view)
-            ..add(const ViewLockStatusEvent.initial()),
+          create: (_) => ViewTitleBarBloc(
+            view: view,
+          ),
+        ),
+        BlocProvider(
+          create: (_) => PageAccessLevelBloc(view: view)
+            ..add(const PageAccessLevelEvent.initial()),
         ),
       ],
-      child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
-        builder: (context, state) {
-          final ancestors = state.ancestors;
-          if (ancestors.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              height: 24,
-              child: Row(
-                children: [
-                  ..._buildViewTitles(
-                    context,
-                    ancestors,
-                    state.isDeleted,
+      child: BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+        buildWhen: (previous, current) =>
+            previous.isLoadingLockStatus != current.isLoadingLockStatus,
+        builder: (context, pageAccessLevelState) {
+          return BlocConsumer<ViewTitleBarBloc, ViewTitleBarState>(
+            listener: (context, state) {
+              // update the page section type when the space permission is changed
+              final spacePermission = state.ancestors
+                  .firstWhereOrNull(
+                    (ancestor) => ancestor.isSpace,
+                  )
+                  ?.spacePermission;
+              if (spacePermission == null) {
+                return;
+              }
+              final sectionType = switch (spacePermission) {
+                SpacePermission.publicToAll => SharedSectionType.public,
+                SpacePermission.private => SharedSectionType.private,
+              };
+              if (!context.read<PageAccessLevelBloc>().state.isShared) {
+                context.read<PageAccessLevelBloc>().add(
+                      PageAccessLevelEvent.updateSectionType(sectionType),
+                    );
+              }
+            },
+            builder: (context, state) {
+              final theme = AppFlowyTheme.of(context);
+              final ancestors = state.ancestors;
+              if (ancestors.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  height: 24,
+                  child: Row(
+                    children: [
+                      ..._buildViewTitles(
+                        context,
+                        ancestors,
+                        state.isDeleted,
+                        pageAccessLevelState.isEditable,
+                        pageAccessLevelState,
+                      ),
+                      HSpace(theme.spacing.m),
+                      _buildLockPageStatus(context),
+                    ],
                   ),
-                  _buildLockPageStatus(context),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -67,7 +105,7 @@ class ViewTitleBar extends StatelessWidget {
   }
 
   Widget _buildLockPageStatus(BuildContext context) {
-    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
@@ -93,7 +131,11 @@ class ViewTitleBar extends StatelessWidget {
     BuildContext context,
     List<ViewPB> views,
     bool isDeleted,
+    bool isEditable,
+    PageAccessLevelState pageAccessLevelState,
   ) {
+    final theme = AppFlowyTheme.of(context);
+
     if (isDeleted) {
       return _buildDeletedTitle(context, views.last);
     }
@@ -132,7 +174,7 @@ class ViewTitleBar extends StatelessWidget {
         message: view.name,
         child: ViewTitle(
           view: view,
-          behavior: i == views.length - 1 && !view.isLocked
+          behavior: i == views.length - 1 && !view.isLocked && isEditable
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
@@ -152,6 +194,19 @@ class ViewTitleBar extends StatelessWidget {
         children.add(const FlowySvg(FlowySvgs.title_bar_divider_s));
       }
     }
+
+    // add the section icon in the breadcrumb
+    children.addAll([
+      HSpace(theme.spacing.xs),
+      BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+        buildWhen: (previous, current) =>
+            previous.sectionType != current.sectionType,
+        builder: (context, state) {
+          return _buildSectionIcon(context, state);
+        },
+      ),
+    ]);
+
     return children;
   }
 
@@ -170,6 +225,47 @@ class ViewTitleBar extends StatelessWidget {
         ),
       ),
     ];
+  }
+
+  Widget _buildSectionIcon(
+    BuildContext context,
+    PageAccessLevelState pageAccessLevelState,
+  ) {
+    final theme = AppFlowyTheme.of(context);
+
+    final iconName = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public => FlowySvgs.public_section_icon_m,
+      SharedSectionType.private => FlowySvgs.private_section_icon_m,
+      SharedSectionType.shared => FlowySvgs.shared_section_icon_m,
+    };
+
+    final icon = FlowySvg(
+      iconName,
+      color: theme.iconColorScheme.tertiary,
+      size: Size.square(20),
+    );
+
+    final text = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public => 'Team space',
+      SharedSectionType.private => 'Private',
+      SharedSectionType.shared => 'Shared',
+    };
+
+    return Row(
+      textBaseline: TextBaseline.alphabetic,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      children: [
+        HSpace(theme.spacing.xs),
+        icon,
+        const HSpace(4.0), // ask designer to provide the spacing
+        Text(
+          text,
+          style: theme.textStyle.caption
+              .enhanced(color: theme.textColorScheme.tertiary),
+        ),
+        HSpace(theme.spacing.xs),
+      ],
+    );
   }
 }
 
@@ -420,8 +516,8 @@ class LockedPageStatus extends StatelessWidget {
             FlowySvgs.lock_page_fill_s,
             blendMode: null,
           ),
-          onTap: () => context.read<ViewLockStatusBloc>().add(
-                const ViewLockStatusEvent.unlock(),
+          onTap: () => context.read<PageAccessLevelBloc>().add(
+                const PageAccessLevelEvent.unlock(),
               ),
         ),
       ),
@@ -459,8 +555,8 @@ class ReLockedPageStatus extends StatelessWidget {
           color: iconColor,
           blendMode: null,
         ),
-        onTap: () => context.read<ViewLockStatusBloc>().add(
-              const ViewLockStatusEvent.lock(),
+        onTap: () => context.read<PageAccessLevelBloc>().add(
+              const PageAccessLevelEvent.lock(),
             ),
       ),
     );

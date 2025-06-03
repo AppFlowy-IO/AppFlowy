@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
@@ -16,8 +18,6 @@ import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -397,14 +397,17 @@ class _BoardContentState extends State<_BoardContent> {
                         value: cardContext.read<BoardActionsCubit>(),
                       ),
                       BlocProvider(
-                        create: (_) => ViewLockStatusBloc(view: widget.view)
-                          ..add(ViewLockStatusEvent.initial()),
+                        create: (_) => PageAccessLevelBloc(
+                          view: widget.view,
+                          ignorePageAccessLevel: true,
+                        )..add(PageAccessLevelEvent.initial()),
                       ),
                     ],
-                    child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
+                    child:
+                        BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
                       builder: (lockStatusContext, state) {
                         return IgnorePointer(
-                          ignoring: state.isLocked,
+                          ignoring: !state.isEditable,
                           child: _BoardCard(
                             afGroupData: column,
                             groupItem: columnItem as GroupItem,

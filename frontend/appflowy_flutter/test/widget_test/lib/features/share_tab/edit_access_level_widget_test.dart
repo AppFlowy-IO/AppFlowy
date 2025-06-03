@@ -14,6 +14,8 @@ void main() {
           child: EditAccessLevelWidget(
             selectedAccessLevel: ShareAccessLevel.readOnly,
             supportedAccessLevels: ShareAccessLevel.values,
+            additionalUserManagementOptions:
+                AdditionalUserManagementOptions.values,
             callbacks: AccessLevelListCallbacks(
               onSelectAccessLevel: (level) {},
               onTurnIntoMember: () {},
@@ -23,9 +25,9 @@ void main() {
         ),
       );
       // Check selected access level is shown
-      expect(find.text(ShareAccessLevel.readOnly.i18n), findsOneWidget);
+      expect(find.text(ShareAccessLevel.readOnly.title), findsOneWidget);
       // Tap to open popover
-      await tester.tap(find.text(ShareAccessLevel.readOnly.i18n));
+      await tester.tap(find.text(ShareAccessLevel.readOnly.title));
       await tester.pumpAndSettle();
     });
   });

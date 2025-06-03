@@ -1,5 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
@@ -7,6 +9,7 @@ import 'package:appflowy/mobile/presentation/setting/ai/ai_settings_group.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/cloud_setting_group.dart';
 import 'package:appflowy/mobile/presentation/setting/user_session_setting_group.dart';
 import 'package:appflowy/mobile/presentation/setting/workspace/workspace_setting_group.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -72,8 +75,12 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
 
   Widget _buildSettingsWidget(UserProfilePB userProfile) {
     return BlocProvider(
-      create: (context) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(const UserWorkspaceEvent.initial()),
+      create: (context) => UserWorkspaceBloc(
+        userProfile: userProfile,
+        repository: RustWorkspaceRepositoryImpl(
+          userId: userProfile.id,
+        ),
+      )..add(UserWorkspaceEvent.initialize()),
       child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
         builder: (context, state) {
           final currentWorkspaceId = state.currentWorkspace?.workspaceId ?? '';

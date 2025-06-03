@@ -10,7 +10,9 @@ void main() {
     testWidgets('shows header title', (WidgetTester tester) async {
       await tester.pumpWidget(
         WidgetTestWrapper(
-          child: const SharedSectionHeader(),
+          child: SharedSectionHeader(
+            onTap: () {},
+          ),
         ),
       );
       expect(find.text(LocaleKeys.shareSection_shared.tr()), findsOneWidget);

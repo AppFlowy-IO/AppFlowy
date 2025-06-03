@@ -1,10 +1,11 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/guest_tag.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
@@ -198,17 +199,18 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
     return FlowyTooltip(
       message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
       child: WorkspaceIcon(
-        workspace: widget.workspace,
+        workspaceName: widget.workspace.name,
+        workspaceIcon: widget.workspace.icon,
         iconSize: 36,
         emojiSize: 24.0,
         fontSize: 18.0,
         figmaLineHeight: 26.0,
         borderRadius: 12.0,
-        enableEdit: true,
+        isEditable: true,
         onSelected: (result) => context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.updateWorkspaceIcon(
-                widget.workspace.workspaceId,
-                result.emoji,
+                workspaceId: widget.workspace.workspaceId,
+                icon: result.emoji,
               ),
             ),
       ),
@@ -271,29 +273,42 @@ class _WorkspaceInfo extends StatelessWidget {
       leftIconSize: const Size.square(32),
       leftIcon: const SizedBox.square(dimension: 32),
       rightIcon: const HSpace(32.0),
-      text: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      text: Row(
         children: [
-          // workspace name
-          FlowyText.medium(
-            workspace.name,
-            fontSize: 14.0,
-            figmaLineHeight: 17.0,
-            overflow: TextOverflow.ellipsis,
-            withTooltip: true,
-          ),
-          // workspace members count
-          FlowyText.regular(
-            memberCount == 0
-                ? ''
-                : LocaleKeys.settings_appearance_members_membersCount.plural(
-                    memberCount,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // workspace name
+                FlowyText.medium(
+                  workspace.name,
+                  fontSize: 14.0,
+                  figmaLineHeight: 17.0,
+                  overflow: TextOverflow.ellipsis,
+                  withTooltip: true,
+                ),
+                if (workspace.role != AFRolePB.Guest) ...[
+                  // workspace members count
+                  FlowyText.regular(
+                    memberCount == 0
+                        ? ''
+                        : LocaleKeys.settings_appearance_members_membersCount
+                            .plural(
+                            memberCount,
+                          ),
+                    fontSize: 10.0,
+                    figmaLineHeight: 12.0,
+                    color: Theme.of(context).hintColor,
                   ),
-            fontSize: 10.0,
-            figmaLineHeight: 12.0,
-            color: Theme.of(context).hintColor,
+                ],
+              ],
+            ),
           ),
+          if (workspace.role == AFRolePB.Guest) ...[
+            const HSpace(6.0),
+            GuestTag(),
+          ],
         ],
       ),
     );
@@ -308,8 +323,8 @@ class _WorkspaceInfo extends StatelessWidget {
 
       context.read<UserWorkspaceBloc>().add(
             UserWorkspaceEvent.openWorkspace(
-              workspace.workspaceId,
-              workspace.workspaceType,
+              workspaceId: workspace.workspaceId,
+              workspaceType: workspace.workspaceType,
             ),
           );
 
@@ -388,8 +403,8 @@ class _CreateWorkspaceButton extends StatelessWidget {
         onConfirm: (name) {
           workspaceBloc.add(
             UserWorkspaceEvent.createWorkspace(
-              name,
-              WorkspaceTypePB.ServerW,
+              name: name,
+              workspaceType: WorkspaceTypePB.ServerW,
             ),
           );
         },

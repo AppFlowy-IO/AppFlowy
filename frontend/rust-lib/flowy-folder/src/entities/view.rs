@@ -907,6 +907,20 @@ pub struct RepeatedSharedViewResponsePB {
   pub shared_views: Vec<SharedViewPB>,
 }
 
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum SharedViewSectionPB {
+  #[default]
+  PrivateSection = 0,
+  PublicSection = 1,
+  SharedSection = 2,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct GetSharedViewSectionResponsePB {
+  #[pb(index = 1)]
+  pub section: SharedViewSectionPB,
+}
+
 // impl<'de> Deserialize<'de> for ViewDataType {
 //     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
 //     where

@@ -21,6 +21,8 @@ void main() {
           child: AccessLevelListWidget(
             selectedAccessLevel: ShareAccessLevel.readAndWrite,
             supportedAccessLevels: ShareAccessLevel.values,
+            additionalUserManagementOptions:
+                AdditionalUserManagementOptions.values,
             callbacks: AccessLevelListCallbacks(
               onSelectAccessLevel: (level) => selectedLevel = level,
               onTurnIntoMember: () => turnedIntoMember = true,
@@ -31,20 +33,20 @@ void main() {
       );
 
       // Check all access level options are present
-      expect(find.text(ShareAccessLevel.fullAccess.i18n), findsOneWidget);
-      expect(find.text(ShareAccessLevel.readAndWrite.i18n), findsOneWidget);
-      expect(find.text(ShareAccessLevel.readAndComment.i18n), findsOneWidget);
-      expect(find.text(ShareAccessLevel.readOnly.i18n), findsOneWidget);
+      expect(find.text(ShareAccessLevel.fullAccess.title), findsOneWidget);
+      expect(find.text(ShareAccessLevel.readAndWrite.title), findsOneWidget);
+      expect(find.text(ShareAccessLevel.readAndComment.title), findsOneWidget);
+      expect(find.text(ShareAccessLevel.readOnly.title), findsOneWidget);
 
       // Check that the selected access level is visually marked
       final selectedTile = tester
           .widgetList<AFTextMenuItem>(find.byType(AFTextMenuItem))
           .where((item) => item.selected);
       expect(selectedTile.length, 1);
-      expect(selectedTile.first.title, ShareAccessLevel.readAndWrite.i18n);
+      expect(selectedTile.first.title, ShareAccessLevel.readAndWrite.title);
 
       // Tap on another access level
-      await tester.tap(find.text(ShareAccessLevel.readOnly.i18n));
+      await tester.tap(find.text(ShareAccessLevel.readOnly.title));
       await tester.pumpAndSettle();
       expect(selectedLevel, ShareAccessLevel.readOnly);
 
