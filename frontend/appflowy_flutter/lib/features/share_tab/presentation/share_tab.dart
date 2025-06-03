@@ -5,11 +5,13 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -195,19 +197,19 @@ class _ShareTabState extends State<ShareTab> {
         controller.clear();
 
         showToastNotification(
-          message: 'Invitation sent',
+          message: LocaleKeys.shareTab_invitationSent.tr(),
         );
       }, (error) {
         String message;
         switch (error.code) {
           case ErrorCode.InvalidGuest:
-            message = 'The email is already in the list';
+            message = LocaleKeys.shareTab_emailAlreadyInList.tr();
             break;
           case ErrorCode.FreePlanGuestLimitExceeded:
-            message = 'Please upgrade to a Pro plan to invite more guests';
+            message = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
             break;
           case ErrorCode.PaidPlanGuestLimitExceeded:
-            message = 'You have reached the maximum number of guests';
+            message = LocaleKeys.shareTab_maxGuestsReached.tr();
             break;
           default:
             message = error.msg;
@@ -223,7 +225,7 @@ class _ShareTabState extends State<ShareTab> {
     if (removeResult != null) {
       removeResult.fold((success) {
         showToastNotification(
-          message: 'Removed guest successfully',
+          message: LocaleKeys.shareTab_removedGuestSuccessfully.tr(),
         );
       }, (error) {
         showToastNotification(
@@ -237,7 +239,7 @@ class _ShareTabState extends State<ShareTab> {
     if (updateAccessLevelResult != null) {
       updateAccessLevelResult.fold((success) {
         showToastNotification(
-          message: 'Updated access level successfully',
+          message: LocaleKeys.shareTab_updatedAccessLevelSuccessfully.tr(),
         );
       }, (error) {
         showToastNotification(
@@ -251,7 +253,7 @@ class _ShareTabState extends State<ShareTab> {
     if (turnIntoMemberResult != null) {
       turnIntoMemberResult.fold((success) {
         showToastNotification(
-          message: 'Turned into member successfully',
+          message: LocaleKeys.shareTab_turnedIntoMemberSuccessfully.tr(),
         );
       }, (error) {
         showToastNotification(
