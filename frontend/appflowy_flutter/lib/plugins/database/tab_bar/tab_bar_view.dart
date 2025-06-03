@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -345,6 +346,7 @@ class DatabaseTabBarViewPlugin extends Plugin {
 
   final PluginType _pluginType;
   late final ViewInfoBloc _viewInfoBloc;
+  late final PageAccessLevelBloc _pageAccessLevelBloc;
 
   /// Used to open a Row on plugin load
   ///
@@ -353,6 +355,7 @@ class DatabaseTabBarViewPlugin extends Plugin {
   @override
   PluginWidgetBuilder get widgetBuilder => DatabasePluginWidgetBuilder(
         bloc: _viewInfoBloc,
+        pageAccessLevelBloc: _pageAccessLevelBloc,
         notifier: notifier,
         initialRowId: initialRowId,
       );
@@ -367,11 +370,14 @@ class DatabaseTabBarViewPlugin extends Plugin {
   void init() {
     _viewInfoBloc = ViewInfoBloc(view: notifier.view)
       ..add(const ViewInfoEvent.started());
+    _pageAccessLevelBloc = PageAccessLevelBloc(view: notifier.view)
+      ..add(const PageAccessLevelEvent.initial());
   }
 
   @override
   void dispose() {
     _viewInfoBloc.close();
+    _pageAccessLevelBloc.close();
     notifier.dispose();
   }
 }
@@ -398,11 +404,13 @@ class DatabasePluginWidgetBuilderSize {
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   DatabasePluginWidgetBuilder({
     required this.bloc,
+    required this.pageAccessLevelBloc,
     required this.notifier,
     this.initialRowId,
   });
 
   final ViewInfoBloc bloc;
+  final PageAccessLevelBloc pageAccessLevelBloc;
   final ViewPluginNotifier notifier;
 
   /// Used to open a Row on plugin load
@@ -413,8 +421,12 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   String? get viewName => notifier.view.nameOrDefault;
 
   @override
-  Widget get leftBarItem =>
-      ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view);
+  Widget get leftBarItem {
+    return BlocProvider.value(
+      value: pageAccessLevelBloc,
+      child: ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view),
+    );
+  }
 
   @override
   Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
@@ -464,8 +476,15 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   @override
   Widget? get rightBarItem {
     final view = notifier.view;
-    return BlocProvider<ViewInfoBloc>.value(
-      value: bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ViewInfoBloc>.value(
+          value: bloc,
+        ),
+        BlocProvider<PageAccessLevelBloc>.value(
+          value: pageAccessLevelBloc,
+        ),
+      ],
       child: Row(
         children: [
           ShareButton(key: ValueKey(view.id), view: view),

@@ -25,6 +25,7 @@ class DebugTask extends LaunchTask {
       Bloc.observer = TalkerBlocObserver(
         talker: talker,
         settings: TalkerBlocLoggerSettings(
+          enabled: false,
           printEventFullData: false,
           printStateFullData: false,
           printChanges: true,
@@ -34,9 +35,6 @@ class DebugTask extends LaunchTask {
             // By default, observe all transitions
             // You can add your own filter here if needed
             //  when you want to observer a specific bloc
-            return true;
-          },
-          eventFilter: (bloc, event) {
             return true;
           },
         ),
