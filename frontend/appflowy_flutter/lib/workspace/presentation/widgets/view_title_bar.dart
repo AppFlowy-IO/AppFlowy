@@ -3,9 +3,11 @@ import 'package:appflowy/features/share_tab/data/models/share_section_type.dart'
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -348,8 +350,10 @@ class _ViewTitleState extends State<ViewTitle> {
     final isEditable = widget.behavior == ViewTitleBehavior.editable;
 
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBloc(view: widget.view)..add(const ViewTitleEvent.initial()),
+      create: (_) => ViewTitleBloc(view: widget.view)
+        ..add(
+          const ViewTitleEvent.initial(),
+        ),
       child: BlocConsumer<ViewTitleBloc, ViewTitleState>(
         listenWhen: (previous, current) {
           if (previous.view == null || current.view == null) {
@@ -446,19 +450,23 @@ class _ViewTitleState extends State<ViewTitle> {
     ViewTitleState state,
     bool isEditable,
   ) {
-    final spaceIcon = state.view?.buildSpaceIconSvg(context);
+    final view = state.view ?? widget.view;
+    final spaceIcon = view.buildSpaceIconSvg(context);
+    final icon =
+        state.icon.isNotEmpty ? state.icon : view.icon.toEmojiIconData();
+    final name = state.name.isEmpty ? widget.view.name : state.name;
     return SingleChildScrollView(
       child: Row(
         children: [
-          if (state.icon.isNotEmpty) ...[
-            RawEmojiIconWidget(emoji: state.icon, emojiSize: 14.0),
+          if (icon.isNotEmpty) ...[
+            RawEmojiIconWidget(emoji: icon, emojiSize: 14.0),
             const HSpace(4.0),
           ],
-          if (state.view?.isSpace == true && spaceIcon != null) ...[
+          if (view.isSpace && spaceIcon != null) ...[
             SpaceIcon(
               dimension: 14,
               svgSize: 8.5,
-              space: state.view!,
+              space: view,
               cornerRadius: 4,
             ),
             const HSpace(6.0),
@@ -466,9 +474,7 @@ class _ViewTitleState extends State<ViewTitle> {
           Opacity(
             opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
-              state.name.isEmpty
-                  ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-                  : state.name,
+              name.orDefault(LocaleKeys.menuAppHeader_defaultNewPageName.tr()),
               fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
               figmaLineHeight: 18.0,
