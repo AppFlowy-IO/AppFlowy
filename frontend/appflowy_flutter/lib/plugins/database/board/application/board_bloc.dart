@@ -243,14 +243,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             await RowBackendService.deleteRows(viewId, rowIds);
           },
           moveGroupToAdjacentGroup: (groupedRowIds, toPrevious) async {
-            final rowIds =
-                groupedRowIds.map((element) => element.rowId).toList();
-            final fromRows = databaseController.rowCache
-                .getRows(rowIds)
-                .map((element) => element.rowMeta)
-                .toList();
-
-            final currentGroupIndexs = groupedRowIds
+            final checkedGroupIndexs = groupedRowIds
                 .map(
                   (element) =>
                       boardController.groupIds.indexOf(element.groupId),
@@ -259,26 +252,35 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
             late final int currentGroupIndex;
             late final int toGroupIndex;
-            if (currentGroupIndexs.length == 1) {
-              currentGroupIndex = currentGroupIndexs.first;
+            if (checkedGroupIndexs.length == 1) {
+              currentGroupIndex = checkedGroupIndexs.first;
               toGroupIndex =
                   toPrevious ? currentGroupIndex - 1 : currentGroupIndex + 1;
             } else {
               final sortedGroupIndex =
-                  currentGroupIndexs.sorted((a, b) => a - b);
+                  checkedGroupIndexs.sorted((a, b) => a - b);
               currentGroupIndex =
                   toPrevious ? sortedGroupIndex.last : sortedGroupIndex.first;
               toGroupIndex =
                   toPrevious ? sortedGroupIndex.first : sortedGroupIndex.last;
             }
 
+            final toGroupId = boardController.groupDatas[toGroupIndex].id;
+            final rowIds = groupedRowIds
+                .where((element) => element.groupId != toGroupId)
+                .map((element) => element.rowId)
+                .toList();
+
+            final fromRows = databaseController.rowCache
+                .getRows(rowIds)
+                .map((element) => element.rowMeta)
+                .toList();
+
             if (fromRows.isNotEmpty &&
                 toGroupIndex > -1 &&
                 toGroupIndex < boardController.groupIds.length) {
               final fromGroupId =
                   boardController.groupDatas[currentGroupIndex].id;
-
-              final toGroupId = boardController.groupDatas[toGroupIndex].id;
 
               final result = await databaseController.moveGroupRow(
                 fromRow: fromRows,
