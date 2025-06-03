@@ -13,8 +13,10 @@ part 'settings_location_cubit.freezed.dart';
 @freezed
 class SettingsLocationState with _$SettingsLocationState {
   const factory SettingsLocationState.initial() = _Initial;
-  const factory SettingsLocationState.didReceivedPath(String path) =
-      _DidReceivedPath;
+  const factory SettingsLocationState.didReceivedPath(
+    String path,
+    bool isCustom,
+  ) = _DidReceivedPath;
 }
 
 class SettingsLocationCubit extends Cubit<SettingsLocationState> {
@@ -22,25 +24,30 @@ class SettingsLocationCubit extends Cubit<SettingsLocationState> {
     _init();
   }
 
-  Future<void> resetDataStoragePathToApplicationDefault() async {
-    final directory = await appFlowyApplicationDataDirectory();
-    await getIt<ApplicationDataStorage>().setPath(directory.path);
-    emit(SettingsLocationState.didReceivedPath(directory.path));
-  }
-
-  Future<void> setCustomPath(String path) async {
-    await getIt<ApplicationDataStorage>().setCustomPath(path);
-    emit(SettingsLocationState.didReceivedPath(path));
-  }
-
-  Future<void> _init() async {
+  void _init() async {
     // The backend might change the real path that storge the data. So it needs
     // to get the path from the backend instead of the KeyValueStorage
+    final directory = await appFlowyApplicationDataDirectory();
+
     await UserEventGetUserSetting().send().then((result) {
       result.fold(
-        (l) => emit(SettingsLocationState.didReceivedPath(l.userFolder)),
+        (l) {
+          final isDefault = l.userFolder.contains(directory.path);
+          emit(SettingsLocationState.didReceivedPath(l.userFolder, !isDefault));
+        },
         (r) => Log.error(r),
       );
     });
   }
+
+  Future<void> resetDataStoragePathToApplicationDefault() async {
+    final directory = await appFlowyApplicationDataDirectory();
+    await getIt<ApplicationDataStorage>().setPath(directory.path);
+    emit(SettingsLocationState.didReceivedPath(directory.path, false));
+  }
+
+  // Future<void> setCustomPath(String path) async {
+  //   await getIt<ApplicationDataStorage>().setCustomPath(path);
+  //   emit(SettingsLocationState.didReceivedPath(path));
+  // }
 }

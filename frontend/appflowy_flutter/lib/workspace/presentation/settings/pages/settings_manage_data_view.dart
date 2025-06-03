@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_body.da
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_export_file_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -27,6 +28,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../shared/setting_action.dart';
+
 class SettingsManageDataView extends StatelessWidget {
   const SettingsManageDataView({super.key, required this.userProfile});
 
@@ -38,6 +41,10 @@ class SettingsManageDataView extends StatelessWidget {
       create: (_) => SettingsLocationCubit(),
       child: BlocBuilder<SettingsLocationCubit, SettingsLocationState>(
         builder: (context, state) {
+          final isCustom = state.maybeMap(
+            didReceivedPath: (e) => e.isCustom,
+            orElse: () => false,
+          );
           return SettingsBody(
             title: LocaleKeys.settings_manageDataPage_title.tr(),
             description: LocaleKeys.settings_manageDataPage_description.tr(),
@@ -48,42 +55,41 @@ class SettingsManageDataView extends StatelessWidget {
                 tooltip:
                     LocaleKeys.settings_manageDataPage_dataStorage_tooltip.tr(),
                 actions: [
-                  // if (state.mapOrNull(didReceivedPath: (_) => true) == true)
-                  //   SettingAction(
-                  //     tooltip: LocaleKeys
-                  //         .settings_manageDataPage_dataStorage_actions_resetTooltip
-                  //         .tr(),
-                  //     icon: const FlowySvg(
-                  //       FlowySvgs.restore_s,
-                  //       size: Size.square(20),
-                  //     ),
-                  //     label: LocaleKeys.settings_common_reset.tr(),
-                  //     onPressed: () => showConfirmDialog(
-                  //       context: context,
-                  //       confirmLabel: LocaleKeys.button_confirm.tr(),
-                  //       title: LocaleKeys
-                  //           .settings_manageDataPage_dataStorage_resetDialog_title
-                  //           .tr(),
-                  //       description: LocaleKeys
-                  //           .settings_manageDataPage_dataStorage_resetDialog_description
-                  //           .tr(),
-                  //       onConfirm: () async {
-                  //         final directory =
-                  //             await appFlowyApplicationDataDirectory();
-                  //         final path = directory.path;
-                  //         if (!context.mounted ||
-                  //             state.mapOrNull(didReceivedPath: (e) => e.path) ==
-                  //                 path) {
-                  //           return;
-                  //         }
-
-                  //         await context
-                  //             .read<SettingsLocationCubit>()
-                  //             .resetDataStoragePathToApplicationDefault();
-                  //         await runAppFlowy(isAnon: true);
-                  //       },
-                  //     ),
-                  //   ),
+                  if (isCustom)
+                    SettingAction(
+                      tooltip: LocaleKeys
+                          .settings_manageDataPage_dataStorage_actions_resetTooltip
+                          .tr(),
+                      icon: const FlowySvg(
+                        FlowySvgs.restore_s,
+                        size: Size.square(20),
+                      ),
+                      label: LocaleKeys.settings_common_reset.tr(),
+                      onPressed: () {
+                        showSimpleAFDialog(
+                          context: context,
+                          title: LocaleKeys
+                              .settings_manageDataPage_dataStorage_resetDialog_title
+                              .tr(),
+                          content: LocaleKeys
+                              .settings_manageDataPage_dataStorage_resetDialog_description
+                              .tr(),
+                          primaryAction: (
+                            LocaleKeys.button_confirm.tr(),
+                            (_) async {
+                              await context
+                                  .read<SettingsLocationCubit>()
+                                  .resetDataStoragePathToApplicationDefault();
+                              await runAppFlowy(isAnon: true);
+                            }
+                          ),
+                          secondaryAction: (
+                            LocaleKeys.button_cancel.tr(),
+                            (_) {},
+                          ),
+                        );
+                      },
+                    ),
                 ],
                 children: state
                     .map(
