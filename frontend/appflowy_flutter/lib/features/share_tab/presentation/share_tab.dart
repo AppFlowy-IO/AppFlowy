@@ -66,29 +66,31 @@ class _ShareTabState extends State<ShareTab> {
           return const SizedBox.shrink();
         }
 
-        final currentUserRole = state.users
+        final currentUser = state.currentUser;
+        final accessLevel = state.users
             .firstWhereOrNull(
-              (user) => user.email == state.currentUser?.email,
+              (user) => user.email == currentUser?.email,
             )
-            ?.role;
+            ?.accessLevel;
+        final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            // hide this when the user is guest
-            if (currentUserRole != ShareRole.guest) ...[
-              VSpace(theme.spacing.l),
-              ShareWithUserWidget(
-                controller: controller,
-                onInvite: (emails) => _onSharePageWithUser(
-                  context,
-                  emails: emails,
-                  accessLevel: ShareAccessLevel.readOnly,
-                ),
+            // only user with full access can invite others
+
+            VSpace(theme.spacing.l),
+            ShareWithUserWidget(
+              controller: controller,
+              disabled: !isFullAccess,
+              onInvite: (emails) => _onSharePageWithUser(
+                context,
+                emails: emails,
+                accessLevel: ShareAccessLevel.readOnly,
               ),
-            ],
+            ),
 
             // shared users
 

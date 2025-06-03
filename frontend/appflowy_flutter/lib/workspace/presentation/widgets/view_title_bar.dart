@@ -259,20 +259,30 @@ class ViewTitleBar extends StatelessWidget {
       SharedSectionType.shared => 'Shared',
     };
 
-    return Row(
-      textBaseline: TextBaseline.alphabetic,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      children: [
-        HSpace(theme.spacing.xs),
-        icon,
-        const HSpace(4.0), // ask designer to provide the spacing
-        Text(
-          text,
-          style: theme.textStyle.caption
-              .enhanced(color: theme.textColorScheme.tertiary),
-        ),
-        HSpace(theme.spacing.xs),
-      ],
+    final workspaceName = context.read<UserWorkspaceBloc>().state.currentWorkspace?.name;
+    final tooltipText = switch (pageAccessLevelState.sectionType) {
+      SharedSectionType.public => 'Everyone at $workspaceName has access',
+      SharedSectionType.private => 'Only you have access',
+      SharedSectionType.shared => '',
+    };
+
+    return FlowyTooltip(
+      message: tooltipText,
+      child: Row(
+        textBaseline: TextBaseline.alphabetic,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        children: [
+          HSpace(theme.spacing.xs),
+          icon,
+          const HSpace(4.0), // ask designer to provide the spacing
+          Text(
+            text,
+            style: theme.textStyle.caption
+                .enhanced(color: theme.textColorScheme.tertiary),
+          ),
+          HSpace(theme.spacing.xs),
+        ],
+      ),
     );
   }
 }

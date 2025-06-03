@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
@@ -10,10 +11,14 @@ class ShareWithUserWidget extends StatefulWidget {
     super.key,
     required this.onInvite,
     this.controller,
+    this.disabled = false,
+    this.tooltip,
   });
 
-  final void Function(List<String> emails) onInvite;
   final TextEditingController? controller;
+  final void Function(List<String> emails) onInvite;
+  final bool disabled;
+  final String? tooltip;
 
   @override
   State<ShareWithUserWidget> createState() => _ShareWithUserWidgetState();
@@ -44,7 +49,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return Row(
+    final Widget child = Row(
       children: [
         Expanded(
           child: AFTextField(
@@ -63,6 +68,18 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
         ),
       ],
     );
+
+    if (widget.disabled) {
+      return FlowyTooltip(
+        message:
+            widget.tooltip ?? 'Only user with full access can invite others',
+        child: IgnorePointer(
+          child: child,
+        ),
+      );
+    }
+
+    return child;
   }
 
   void _onTextChanged() {
