@@ -23,6 +23,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SharedUserWidget(
+            isInPublicPage: true,
             user: user,
             currentUser: user,
           ),
@@ -45,6 +46,7 @@ void main() {
         WidgetTestWrapper(
           child: IntrinsicWidth(
             child: SharedUserWidget(
+              isInPublicPage: true,
               user: user,
               currentUser: user,
             ),
@@ -65,6 +67,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SharedUserWidget(
+            isInPublicPage: true,
             user: user,
             currentUser: user.copyWith(accessLevel: ShareAccessLevel.readOnly),
           ),
@@ -91,6 +94,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SharedUserWidget(
+            isInPublicPage: true,
             user: user,
             currentUser:
                 user.copyWith(accessLevel: ShareAccessLevel.readAndWrite),
@@ -124,6 +128,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SharedUserWidget(
+            isInPublicPage: true,
             user: user,
             currentUser: currentUser,
           ),
@@ -157,6 +162,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SharedUserWidget(
+            isInPublicPage: true,
             user: guestUser,
             currentUser: currentUser,
             callbacks: AccessLevelListCallbacks(

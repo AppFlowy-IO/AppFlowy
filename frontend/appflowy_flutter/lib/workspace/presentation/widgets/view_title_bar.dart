@@ -245,6 +245,8 @@ class ViewTitleBar extends StatelessWidget {
       SharedSectionType.public => FlowySvgs.public_section_icon_m,
       SharedSectionType.private => FlowySvgs.private_section_icon_m,
       SharedSectionType.shared => FlowySvgs.shared_section_icon_m,
+      SharedSectionType.unknown =>
+        throw UnsupportedError('Unknown section type'),
     };
 
     final icon = FlowySvg(
@@ -257,13 +259,18 @@ class ViewTitleBar extends StatelessWidget {
       SharedSectionType.public => 'Team space',
       SharedSectionType.private => 'Private',
       SharedSectionType.shared => 'Shared',
+      SharedSectionType.unknown =>
+        throw UnsupportedError('Unknown section type'),
     };
 
-    final workspaceName = context.read<UserWorkspaceBloc>().state.currentWorkspace?.name;
+    final workspaceName =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.name;
     final tooltipText = switch (pageAccessLevelState.sectionType) {
       SharedSectionType.public => 'Everyone at $workspaceName has access',
       SharedSectionType.private => 'Only you have access',
       SharedSectionType.shared => '',
+      SharedSectionType.unknown =>
+        throw UnsupportedError('Unknown section type'),
     };
 
     return FlowyTooltip(

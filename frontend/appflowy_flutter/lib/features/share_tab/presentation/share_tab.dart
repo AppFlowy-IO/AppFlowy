@@ -105,14 +105,16 @@ class _ShareTabState extends State<ShareTab> {
             ],
 
             // general access
-            VSpace(theme.spacing.m),
-            GeneralAccessSection(
-              group: SharedGroup(
-                id: widget.workspaceId,
-                name: widget.workspaceName,
-                icon: widget.workspaceIcon,
+            if (state.sectionType == SharedSectionType.public) ...[
+              VSpace(theme.spacing.m),
+              GeneralAccessSection(
+                group: SharedGroup(
+                  id: widget.workspaceId,
+                  name: widget.workspaceName,
+                  icon: widget.workspaceIcon,
+                ),
               ),
-            ),
+            ],
 
             // copy link
             VSpace(theme.spacing.xl),

@@ -179,6 +179,6 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
   Future<FlowyResult<SharedSectionType, FlowyError>> getCurrentPageSectionType({
     required String pageId,
   }) async {
-    return FlowySuccess(SharedSectionType.public);
+    return FlowySuccess(SharedSectionType.private);
   }
 }

@@ -111,8 +111,14 @@ class SharedUserWidget extends StatelessWidget {
           ShareAccessLevel.readOnly,
           ShareAccessLevel.readAndWrite,
         ],
-      ShareRole.member => [ShareAccessLevel.fullAccess],
-      ShareRole.owner => [ShareAccessLevel.fullAccess],
+      ShareRole.member => [
+          ShareAccessLevel.readOnly,
+          ShareAccessLevel.readAndWrite,
+        ],
+      ShareRole.owner => [
+          ShareAccessLevel.readOnly,
+          ShareAccessLevel.readAndWrite,
+        ],
     };
 
     Widget editAccessWidget;
@@ -132,9 +138,7 @@ class SharedUserWidget extends StatelessWidget {
           color: theme.textColorScheme.secondary,
         ),
       );
-    }
-
-    if (currentAccessLevel == ShareAccessLevel.readOnly ||
+    } else if (currentAccessLevel == ShareAccessLevel.readOnly ||
         currentAccessLevel == ShareAccessLevel.readAndWrite) {
       editAccessWidget = EditAccessLevelWidget(
         selectedAccessLevel: user.accessLevel,
@@ -143,6 +147,14 @@ class SharedUserWidget extends StatelessWidget {
           AdditionalUserManagementOptions.removeAccess,
         ],
         callbacks: callbacks ?? AccessLevelListCallbacks.none(),
+      );
+    } else if (currentAccessLevel == ShareAccessLevel.fullAccess &&
+        isCurrentUser) {
+      editAccessWidget = AFGhostTextButton.disabled(
+        text: user.accessLevel.title,
+        textStyle: theme.textStyle.body.standard(
+          color: theme.textColorScheme.secondary,
+        ),
       );
     } else {
       editAccessWidget = EditAccessLevelWidget(
