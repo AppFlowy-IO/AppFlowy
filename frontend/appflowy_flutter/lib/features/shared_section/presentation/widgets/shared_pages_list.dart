@@ -2,9 +2,10 @@ import 'package:appflowy/features/share_tab/data/models/share_access_level.dart'
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_actions_button.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+// import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class SharedPagesList extends StatelessWidget {
       children: sharedPages.map((sharedPage) {
         final view = sharedPage.view;
         final accessLevel = sharedPage.accessLevel;
-        return ViewItem(
+        return MobileViewItem(
           key: ValueKey(view.id),
           spaceType: FolderSpaceType.public,
           isFirstChild: view.id == sharedPages.first.view.id,
@@ -42,17 +43,17 @@ class SharedPagesList extends StatelessWidget {
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,
           onSelected: onSelected,
-          onTertiarySelected: onTertiarySelected,
-          rightIconsBuilder: (context, view) => [
-            IntrinsicWidth(
-              child: _buildSharedPageMoreActionButton(
-                context,
-                view,
-                accessLevel,
-              ),
-            ),
-            const SizedBox(width: 4.0),
-          ],
+          // onTertiarySelected: onTertiarySelected,
+          // rightIconsBuilder: (context, view) => [
+          //   IntrinsicWidth(
+          //     child: _buildSharedPageMoreActionButton(
+          //       context,
+          //       view,
+          //       accessLevel,
+          //     ),
+          //   ),
+          //   const SizedBox(width: 4.0),
+          // ],
         );
       }).toList(),
     );

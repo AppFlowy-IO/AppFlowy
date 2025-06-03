@@ -1,5 +1,4 @@
 import 'package:appflowy/features/shared_section/data/repositories/local_shared_pages_repository_impl.dart';
-import 'package:appflowy/features/shared_section/data/repositories/rust_shared_pages_repository_impl.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_pages_list.dart';
@@ -19,7 +18,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -124,14 +122,14 @@ class SharedSection extends StatelessWidget {
                         break;
                     }
                   },
-                  onSelected: (context, view) {
-                    if (HardwareKeyboard.instance.isControlPressed) {
-                      context.read<TabsBloc>().openTab(view);
-                    }
-                    context.read<TabsBloc>().openPlugin(view);
+                  onSelected: (view) {
+                    // if (HardwareKeyboard.instance.isControlPressed) {
+                    //   context.read<TabsBloc>().openTab(view);
+                    // }
+                    // context.read<TabsBloc>().openPlugin(view);
                   },
-                  onTertiarySelected: (context, view) {
-                    context.read<TabsBloc>().openTab(view);
+                  onTertiarySelected: (context) {
+                    // context.read<TabsBloc>().openTab(view);
                   },
                 ),
 
