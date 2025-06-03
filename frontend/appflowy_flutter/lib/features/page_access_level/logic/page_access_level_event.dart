@@ -1,3 +1,5 @@
+import 'package:appflowy/features/share_tab/data/models/models.dart';
+
 /// Base class for all PageAccessLevel events
 sealed class PageAccessLevelEvent {
   const PageAccessLevelEvent();
@@ -17,6 +19,11 @@ sealed class PageAccessLevelEvent {
     bool isLocked, {
     int? lockCounter,
   }) = PageAccessLevelUpdateLockStatusEvent;
+
+  /// Update the section type in the state.
+  const factory PageAccessLevelEvent.updateSectionType(
+    SharedSectionType sectionType,
+  ) = PageAccessLevelUpdateSectionTypeEvent;
 }
 
 class PageAccessLevelInitialEvent extends PageAccessLevelEvent {
@@ -39,4 +46,10 @@ class PageAccessLevelUpdateLockStatusEvent extends PageAccessLevelEvent {
 
   final bool isLocked;
   final int? lockCounter;
+}
+
+class PageAccessLevelUpdateSectionTypeEvent extends PageAccessLevelEvent {
+  const PageAccessLevelUpdateSectionTypeEvent(this.sectionType);
+
+  final SharedSectionType sectionType;
 }

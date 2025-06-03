@@ -4,7 +4,7 @@ import 'package:appflowy/features/page_access_level/data/repositories/page_acces
 import 'package:appflowy/features/page_access_level/data/repositories/rust_page_access_level_repository_impl.dart';
 import 'package:appflowy/features/page_access_level/logic/page_access_level_event.dart';
 import 'package:appflowy/features/page_access_level/logic/page_access_level_state.dart';
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -18,6 +18,7 @@ class PageAccessLevelBloc
     extends Bloc<PageAccessLevelEvent, PageAccessLevelState> {
   PageAccessLevelBloc({
     required this.view,
+    this.ignorePageAccessLevel = false,
     PageAccessLevelRepository? repository,
   })  : repository = repository ?? RustPageAccessLevelRepositoryImpl(),
         listener = ViewListener(viewId: view.id),
@@ -26,6 +27,7 @@ class PageAccessLevelBloc
     on<PageAccessLevelLockEvent>(_onLock);
     on<PageAccessLevelUnlockEvent>(_onUnlock);
     on<PageAccessLevelUpdateLockStatusEvent>(_onUpdateLockStatus);
+    on<PageAccessLevelUpdateSectionTypeEvent>(_onUpdateSectionType);
   }
 
   final ViewPB view;
@@ -37,6 +39,10 @@ class PageAccessLevelBloc
   // Used to listen for view updates.
   late final ViewListener listener;
 
+  // should ignore the page access level
+  // in the row details page, we don't need to check the page access level
+  final bool ignorePageAccessLevel;
+
   @override
   Future<void> close() async {
     await listener.stop();
@@ -47,19 +53,28 @@ class PageAccessLevelBloc
     PageAccessLevelInitialEvent event,
     Emitter<PageAccessLevelState> emit,
   ) async {
+    // lock status
     listener.start(
       onViewUpdated: (view) async {
         add(PageAccessLevelEvent.updateLockStatus(view.isLocked));
       },
     );
 
-    if (!FeatureFlag.sharedSection.isOn) {
+    // section type
+    final sectionTypeResult = await repository.getSectionType(view.id);
+    final sectionType = sectionTypeResult.fold(
+      (sectionType) => sectionType,
+      (_) => SharedSectionType.public,
+    );
+
+    if (!FeatureFlag.sharedSection.isOn || ignorePageAccessLevel) {
       emit(
         state.copyWith(
           view: view,
           isLocked: view.isLocked,
           isLoadingLockStatus: false,
           accessLevel: ShareAccessLevel.fullAccess,
+          sectionType: sectionType,
         ),
       );
       return;
@@ -80,6 +95,7 @@ class PageAccessLevelBloc
           (accessLevel) => accessLevel,
           (_) => ShareAccessLevel.readOnly,
         ),
+        sectionType: sectionType,
       ),
     );
   }
@@ -130,6 +146,17 @@ class PageAccessLevelBloc
         view: updatedView,
         isLocked: event.isLocked,
         lockCounter: event.lockCounter ?? state.lockCounter,
+      ),
+    );
+  }
+
+  void _onUpdateSectionType(
+    PageAccessLevelUpdateSectionTypeEvent event,
+    Emitter<PageAccessLevelState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        sectionType: event.sectionType,
       ),
     );
   }

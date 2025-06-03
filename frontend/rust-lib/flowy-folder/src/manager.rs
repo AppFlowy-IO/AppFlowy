@@ -2,9 +2,9 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   AFAccessLevelPB, CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
   MoveNestedViewParams, RepeatedSharedViewResponsePB, RepeatedTrashPB, RepeatedViewIdPB,
-  RepeatedViewPB, SharedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB, ViewSectionPB,
-  WorkspaceLatestPB, WorkspacePB, view_pb_with_all_child_views, view_pb_with_child_views,
-  view_pb_without_child_views, view_pb_without_child_views_from_arc,
+  RepeatedViewPB, SharedViewPB, SharedViewSectionPB, UpdateViewParams, ViewLayoutPB, ViewPB,
+  ViewSectionPB, WorkspaceLatestPB, WorkspacePB, view_pb_with_all_child_views,
+  view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
 };
 use crate::manager_observer::{
   ChildViewChangeReason, notify_child_views_changed, notify_did_update_workspace,
@@ -29,8 +29,8 @@ use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::folder_diff::FolderViewChange;
 use collab_folder::hierarchy_builder::{ParentChildViews, ViewExtraBuilder};
 use collab_folder::{
-  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
-  Workspace,
+  Folder, FolderData, FolderNotify, Section, SectionItem, SpacePermission, TrashInfo, View,
+  ViewLayout, ViewUpdate, Workspace,
 };
 use collab_integrate::CollabKVDB;
 use collab_integrate::collab_builder::{
@@ -2294,6 +2294,52 @@ impl FolderManager {
     }
 
     Ok(flattened_views)
+  }
+
+  pub async fn get_shared_view_section(&self, view_id: &str) -> FlowyResult<SharedViewSectionPB> {
+    const MAX_LOOP_COUNT: usize = 20;
+    let mut loop_count = 0;
+    let mut current_view_id = view_id.to_string();
+
+    let lock = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(folder_not_init_error)?;
+    let folder = lock.read().await;
+
+    let flattened_shared_views = self.get_flatten_shared_pages().await?;
+
+    // if the view is in the flattened_shared_views, return the section
+    if flattened_shared_views.iter().any(|view| view.id == view_id) {
+      return Ok(SharedViewSectionPB::SharedSection);
+    }
+
+    loop {
+      if loop_count >= MAX_LOOP_COUNT {
+        return Ok(SharedViewSectionPB::PublicSection);
+      }
+      loop_count += 1;
+
+      let view = folder
+        .get_view(&current_view_id)
+        .ok_or_else(|| FlowyError::record_not_found().with_context("View not found"))?;
+
+      if let Some(space_info) = view.space_info() {
+        return match space_info.space_permission {
+          SpacePermission::PublicToAll => Ok(SharedViewSectionPB::PublicSection),
+          _ => Ok(SharedViewSectionPB::PrivateSection),
+        };
+      }
+
+      let parent_view_id = view.parent_view_id.clone();
+
+      // If parent_view_id is the same as current view id, return public to avoid infinite loop
+      if parent_view_id == current_view_id {
+        return Ok(SharedViewSectionPB::PublicSection);
+      }
+
+      current_view_id = parent_view_id;
+    }
   }
 
   fn flatten_child_views(views: &[ViewPB], flattened_views: &mut Vec<ViewPB>) {

@@ -150,8 +150,9 @@ class _ShareTabState extends State<ShareTab> {
       },
       onRemoveAccess: (user) {
         // show a dialog to confirm the action when removing self access
+        final shareTabBloc = context.read<ShareTabBloc>();
         final removingSelf =
-            user.email == context.read<ShareTabBloc>().state.currentUser?.email;
+            user.email == shareTabBloc.state.currentUser?.email;
         if (removingSelf) {
           showConfirmDialog(
             context: context,
@@ -160,15 +161,15 @@ class _ShareTabState extends State<ShareTab> {
             style: ConfirmPopupStyle.cancelAndOk,
             confirmLabel: 'Remove',
             onConfirm: () {
-              context.read<ShareTabBloc>().add(
-                    ShareTabEvent.removeUsers(emails: [user.email]),
-                  );
+              shareTabBloc.add(
+                ShareTabEvent.removeUsers(emails: [user.email]),
+              );
             },
           );
         } else {
-          context.read<ShareTabBloc>().add(
-                ShareTabEvent.removeUsers(emails: [user.email]),
-              );
+          shareTabBloc.add(
+            ShareTabEvent.removeUsers(emails: [user.email]),
+          );
         }
       },
     );

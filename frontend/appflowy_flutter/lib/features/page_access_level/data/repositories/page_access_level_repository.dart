@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -19,6 +19,11 @@ abstract class PageAccessLevelRepository {
 
   /// Gets the access level of the current user.
   Future<FlowyResult<ShareAccessLevel, FlowyError>> getAccessLevel(
+    String pageId,
+  );
+
+  /// Gets the section type of the shared section.
+  Future<FlowyResult<SharedSectionType, FlowyError>> getSectionType(
     String pageId,
   );
 }

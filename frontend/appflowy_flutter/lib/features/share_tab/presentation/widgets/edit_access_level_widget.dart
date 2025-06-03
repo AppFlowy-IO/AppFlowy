@@ -85,7 +85,7 @@ class _EditAccessLevelWidgetState extends State<EditAccessLevelWidget> {
           return Row(
             children: [
               Text(
-                widget.selectedAccessLevel.i18n,
+                widget.selectedAccessLevel.title,
                 style: theme.textStyle.body.standard(
                   color: disabled
                       ? theme.textColorScheme.secondary
