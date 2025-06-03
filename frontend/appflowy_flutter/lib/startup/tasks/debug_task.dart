@@ -34,11 +34,10 @@ class DebugTask extends LaunchTask {
             // By default, observe all transitions
             // You can add your own filter here if needed
             //  when you want to observer a specific bloc
-            // return true;
-            return bloc.runtimeType.toString() == 'PageAccessLevelBloc';
+            return true;
           },
           eventFilter: (bloc, event) {
-            return bloc.runtimeType.toString() == 'PageAccessLevelBloc';
+            return true;
           },
         ),
       );
