@@ -16,8 +16,8 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
     SharedUser(
       email: 'lucas.xu@appflowy.io',
       name: 'Lucas Xu - Long long long long long name',
-      accessLevel: ShareAccessLevel.fullAccess,
-      role: ShareRole.owner,
+      accessLevel: ShareAccessLevel.readOnly,
+      role: ShareRole.guest,
       avatarUrl: 'https://avatar.iran.liara.run/public',
     ),
     // member user has read and write access
