@@ -1,5 +1,6 @@
 import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/features/share_tab/data/models/share_section_type.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
@@ -14,7 +15,9 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
+    hide AFRolePB;
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -41,10 +44,6 @@ class ViewTitleBar extends StatelessWidget {
           create: (_) => ViewTitleBarBloc(
             view: view,
           ),
-        ),
-        BlocProvider(
-          create: (_) => PageAccessLevelBloc(view: view)
-            ..add(const PageAccessLevelEvent.initial()),
         ),
       ],
       child: BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
@@ -151,6 +150,13 @@ class ViewTitleBar extends StatelessWidget {
 
     if (views.length <= 1) {
       return [];
+    }
+
+    // remove the space from views if the current user role is a guest
+    final myRole =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role;
+    if (myRole == AFRolePB.Guest) {
+      views = views.where((view) => !view.isSpace).toList();
     }
 
     // ignore the workspace name, use section name instead in the future
