@@ -26,16 +26,10 @@ class LockPageAction extends StatefulWidget {
 class _LockPageActionState extends State<LockPageAction> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PageAccessLevelBloc(view: widget.view)
-        ..add(
-          PageAccessLevelEvent.initial(),
-        ),
-      child: BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
-        builder: (context, state) {
-          return _buildTextButton(context);
-        },
-      ),
+    return BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+      builder: (context, state) {
+        return _buildTextButton(context);
+      },
     );
   }
 

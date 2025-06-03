@@ -122,7 +122,6 @@ class AccessLevelListWidget extends StatelessWidget {
       selected: selectedAccessLevel == accessLevel,
       leading: FlowySvg(
         accessLevel.icon,
-        blendMode: null,
       ),
       // Show a checkmark icon for the currently selected access level
       trailing: selectedAccessLevel == accessLevel

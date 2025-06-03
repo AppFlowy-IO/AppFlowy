@@ -147,7 +147,7 @@ dependencies:
   xml: ^6.5.0
   window_manager: ^0.4.3
   saver_gallery: ^4.0.1
-  talker_bloc_logger: ^4.7.1
+  talker_bloc_logger: ^4.8.1
   talker: ^4.7.1
 
   analyzer: 6.11.0

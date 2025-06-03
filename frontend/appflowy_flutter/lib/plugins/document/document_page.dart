@@ -87,10 +87,6 @@ class _DocumentPageState extends State<DocumentPage>
       providers: [
         BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider.value(value: documentBloc),
-        BlocProvider.value(
-          value: PageAccessLevelBloc(view: widget.view)
-            ..add(PageAccessLevelEvent.initial()),
-        ),
         BlocProvider(
           create: (context) =>
               ViewBloc(view: widget.view)..add(const ViewEvent.initial()),

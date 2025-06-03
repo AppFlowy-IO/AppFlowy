@@ -34,22 +34,17 @@ class SharedGroupWidget extends StatelessWidget {
   }
 
   Widget _buildLeading(BuildContext context) {
-    return AFAvatar(
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: WorkspaceIcon(
-          isEditable: false,
-          workspaceIcon: group.icon,
-          workspaceName: group.name,
-          iconSize: 32.0,
-          emojiSize: 24.0,
-          fontSize: 16.0,
-          onSelected: (r) {},
-          borderRadius: 8.0,
-          showBorder: false,
-          figmaLineHeight: 24.0,
-        ),
-      ),
+    return WorkspaceIcon(
+      isEditable: false,
+      workspaceIcon: group.icon,
+      workspaceName: group.name,
+      iconSize: 32.0,
+      emojiSize: 24.0,
+      fontSize: 16.0,
+      onSelected: (r) {},
+      borderRadius: 8.0,
+      showBorder: false,
+      figmaLineHeight: 24.0,
     );
   }
 

@@ -15,12 +15,14 @@ class SharedUserWidget extends StatelessWidget {
     super.key,
     required this.user,
     required this.currentUser,
+    required this.isInPublicPage,
     this.callbacks,
   });
 
   final SharedUser user;
   final SharedUser currentUser;
   final AccessLevelListCallbacks? callbacks;
+  final bool isInPublicPage;
 
   @override
   Widget build(BuildContext context) {
@@ -96,68 +98,74 @@ class SharedUserWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTrailing(
-    BuildContext context,
-  ) {
+  Widget _buildTrailing(BuildContext context) {
     final isCurrentUser = user.email == currentUser.email;
     final theme = AppFlowyTheme.of(context);
-    // Guest: read and write, read only
-    // Member: full access <- only have full access until the backend supports more access levels
-    // Owner: all access levels
-    final supportedAccessLevels = switch (user.role) {
-      ShareRole.guest => [
-          ShareAccessLevel.readOnly,
-          ShareAccessLevel.readAndWrite,
-        ],
-      ShareRole.member => [ShareAccessLevel.fullAccess],
-      ShareRole.owner => [ShareAccessLevel.fullAccess],
-    };
+    final currentAccessLevel = currentUser.accessLevel;
 
-    Widget editAccessWidget;
+    Widget disabledAccessButton() => AFGhostTextButton.disabled(
+          text: user.accessLevel.title,
+          textStyle: theme.textStyle.body.standard(
+            color: theme.textColorScheme.secondary,
+          ),
+        );
 
-    // The current guest user can't edit the access level of the other user
-    if (isCurrentUser && currentUser.role == ShareRole.guest) {
-      editAccessWidget = EditAccessLevelWidget(
-        selectedAccessLevel: user.accessLevel,
-        supportedAccessLevels: [],
-        additionalUserManagementOptions: [
-          AdditionalUserManagementOptions.removeAccess,
-        ],
-        callbacks: callbacks ?? AccessLevelListCallbacks.none(),
-      );
-    } else if (currentUser.role == ShareRole.guest ||
-        user.role == ShareRole.member ||
-        user.role == ShareRole.owner) {
-      editAccessWidget = AFGhostTextButton.disabled(
-        text: user.accessLevel.title,
-        textStyle: theme.textStyle.body.standard(
-          color: theme.textColorScheme.secondary,
-        ),
-      );
-    } else {
-      editAccessWidget = EditAccessLevelWidget(
-        selectedAccessLevel: user.accessLevel,
-        supportedAccessLevels: supportedAccessLevels,
-        additionalUserManagementOptions: [
-          AdditionalUserManagementOptions.removeAccess,
-        ],
-        callbacks: callbacks ?? AccessLevelListCallbacks.none(),
-      );
+    Widget editAccessWidget(List<ShareAccessLevel> supported) =>
+        EditAccessLevelWidget(
+          selectedAccessLevel: user.accessLevel,
+          supportedAccessLevels: supported,
+          additionalUserManagementOptions: [
+            AdditionalUserManagementOptions.removeAccess,
+          ],
+          callbacks: callbacks ?? AccessLevelListCallbacks.none(),
+        );
+
+    // In public page, member/owner permissions are fixed
+    if (isInPublicPage &&
+        (user.role == ShareRole.member || user.role == ShareRole.owner)) {
+      return disabledAccessButton();
     }
 
-    if (user.role == ShareRole.guest) {
+    // Full access user can turn a guest into a member
+    if (user.role == ShareRole.guest &&
+        currentAccessLevel == ShareAccessLevel.fullAccess) {
       return Row(
         children: [
           TurnIntoMemberWidget(
-            onTap: () {
-              callbacks?.onTurnIntoMember.call();
-            },
+            onTap: () => callbacks?.onTurnIntoMember.call(),
           ),
-          editAccessWidget,
+          editAccessWidget([
+            ShareAccessLevel.readOnly,
+            ShareAccessLevel.readAndWrite,
+          ]),
         ],
       );
     }
 
-    return editAccessWidget;
+    // Self-management
+    if (isCurrentUser) {
+      if (currentAccessLevel == ShareAccessLevel.readOnly ||
+          currentAccessLevel == ShareAccessLevel.readAndWrite) {
+        // Can only remove self
+        return editAccessWidget([]);
+      } else if (currentAccessLevel == ShareAccessLevel.fullAccess) {
+        // Full access user cannot change own access
+        return disabledAccessButton();
+      }
+    }
+
+    // Managing others
+    if (currentAccessLevel == ShareAccessLevel.readOnly ||
+        currentAccessLevel == ShareAccessLevel.readAndWrite) {
+      // Cannot change others' access
+      return disabledAccessButton();
+    } else {
+      // Full access user can manage others
+      final supportedAccessLevels = [
+        ShareAccessLevel.readOnly,
+        ShareAccessLevel.readAndWrite,
+      ];
+      return editAccessWidget(supportedAccessLevels);
+    }
   }
 }

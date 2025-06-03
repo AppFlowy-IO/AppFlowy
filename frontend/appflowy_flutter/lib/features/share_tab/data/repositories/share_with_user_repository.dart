@@ -1,5 +1,6 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 /// Abstract repository for sharing with users.
@@ -37,5 +38,13 @@ abstract class ShareWithUserRepository {
     required String workspaceId,
     required String email,
     required ShareRole role,
+  });
+
+  /// Get current user profile.
+  Future<FlowyResult<UserProfilePB, FlowyError>> getCurrentUserProfile();
+
+  /// Get current page is in public section or private section.
+  Future<FlowyResult<SharedSectionType, FlowyError>> getCurrentPageSectionType({
+    required String pageId,
   });
 }

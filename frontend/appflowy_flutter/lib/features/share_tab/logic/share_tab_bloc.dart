@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 
@@ -50,10 +49,18 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       return;
     }
 
-    final result = await UserBackendService.getCurrentUserProfile();
+    final result = await repository.getCurrentUserProfile();
     final currentUser = result.fold(
       (user) => user,
       (error) => null,
+    );
+
+    final sectionTypeResult = await repository.getCurrentPageSectionType(
+      pageId: pageId,
+    );
+    final sectionType = sectionTypeResult.fold(
+      (type) => type,
+      (error) => SharedSectionType.unknown,
     );
 
     final shareLink = ShareConstants.buildShareUrl(
@@ -61,13 +68,14 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       viewId: pageId,
     );
 
-    final users = await _getLatestSharedUsersOrCurrentUsers();
+    final users = await _getSharedUsers();
 
     emit(
       state.copyWith(
         currentUser: currentUser,
         shareLink: shareLink,
         users: users,
+        sectionType: sectionType,
       ),
     );
   }
@@ -124,7 +132,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     await result.fold(
       (_) async {
-        final users = await _getLatestSharedUsersOrCurrentUsers();
+        final users = await _getSharedUsers();
 
         emit(
           state.copyWith(
@@ -161,7 +169,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     await result.fold(
       (_) async {
-        final users = await _getLatestSharedUsersOrCurrentUsers();
+        final users = await _getSharedUsers();
         emit(
           state.copyWith(
             removeResult: FlowySuccess(null),
@@ -196,7 +204,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     await result.fold(
       (_) async {
-        final users = await _getLatestSharedUsersOrCurrentUsers();
+        final users = await _getSharedUsers();
         emit(
           state.copyWith(
             updateAccessLevelResult: FlowySuccess(null),
@@ -296,7 +304,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     await result.fold(
       (_) async {
-        final users = await _getLatestSharedUsersOrCurrentUsers();
+        final users = await _getSharedUsers();
         emit(
           state.copyWith(
             turnIntoMemberResult: FlowySuccess(null),
@@ -315,7 +323,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     );
   }
 
-  Future<SharedUsers> _getLatestSharedUsersOrCurrentUsers() async {
+  Future<SharedUsers> _getSharedUsers() async {
     final shareResult = await repository.getSharedUsersInPage(
       pageId: pageId,
     );
