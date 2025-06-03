@@ -1,11 +1,15 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/util/extensions.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 
 import 'share_with_user_repository.dart';
 
@@ -126,5 +130,35 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
         return FlowyFailure(failure);
       },
     );
+  }
+
+  @override
+  Future<FlowyResult<UserProfilePB, FlowyError>> getCurrentUserProfile() async {
+    final result = await UserEventGetUserProfile().send();
+    return result;
+  }
+
+  @override
+  Future<FlowyResult<SharedSectionType, FlowyError>> getCurrentPageSectionType({
+    required String pageId,
+  }) async {
+    final request = ViewIdPB.create()..value = pageId;
+    final result = await FolderEventGetViewAncestors(request).send();
+    final ancestors = result.fold(
+      (s) => s.items,
+      (f) => <ViewPB>[],
+    );
+    final space = ancestors.firstWhereOrNull((e) => e.isSpace);
+
+    if (space == null) {
+      return FlowySuccess(SharedSectionType.unknown);
+    }
+
+    final sectionType = switch (space.spacePermission) {
+      SpacePermission.publicToAll => SharedSectionType.public,
+      SpacePermission.private => SharedSectionType.private,
+    };
+
+    return FlowySuccess(sectionType);
   }
 }

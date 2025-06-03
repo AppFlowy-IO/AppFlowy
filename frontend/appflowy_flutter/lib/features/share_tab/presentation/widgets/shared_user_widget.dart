@@ -15,12 +15,14 @@ class SharedUserWidget extends StatelessWidget {
     super.key,
     required this.user,
     required this.currentUser,
+    required this.isInPublicPage,
     this.callbacks,
   });
 
   final SharedUser user;
   final SharedUser currentUser;
   final AccessLevelListCallbacks? callbacks;
+  final bool isInPublicPage;
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +117,25 @@ class SharedUserWidget extends StatelessWidget {
 
     Widget editAccessWidget;
 
-    // The current guest user can't edit the access level of the other user
-    if (isCurrentUser && currentUser.role == ShareRole.guest) {
+    // Access level control:
+    // 1. view: readonly, remove self, copy link
+    // 2. edit: read, write, copy link, remove self
+    // 3. full access: read, write, copy link, page operations, share with another user
+    final currentAccessLevel = currentUser.accessLevel;
+
+    // if in the public page, all the members and owner have the full access, no one can change this permission.
+    if (isInPublicPage &&
+        (user.role == ShareRole.member || user.role == ShareRole.owner)) {
+      editAccessWidget = AFGhostTextButton.disabled(
+        text: user.accessLevel.title,
+        textStyle: theme.textStyle.body.standard(
+          color: theme.textColorScheme.secondary,
+        ),
+      );
+    }
+
+    if (currentAccessLevel == ShareAccessLevel.readOnly ||
+        currentAccessLevel == ShareAccessLevel.readAndWrite) {
       editAccessWidget = EditAccessLevelWidget(
         selectedAccessLevel: user.accessLevel,
         supportedAccessLevels: [],
@@ -124,15 +143,6 @@ class SharedUserWidget extends StatelessWidget {
           AdditionalUserManagementOptions.removeAccess,
         ],
         callbacks: callbacks ?? AccessLevelListCallbacks.none(),
-      );
-    } else if (currentUser.role == ShareRole.guest ||
-        user.role == ShareRole.member ||
-        user.role == ShareRole.owner) {
-      editAccessWidget = AFGhostTextButton.disabled(
-        text: user.accessLevel.title,
-        textStyle: theme.textStyle.body.standard(
-          color: theme.textColorScheme.secondary,
-        ),
       );
     } else {
       editAccessWidget = EditAccessLevelWidget(
@@ -145,7 +155,9 @@ class SharedUserWidget extends StatelessWidget {
       );
     }
 
-    if (user.role == ShareRole.guest) {
+    // full access user can turn a guest into a member
+    if (user.role == ShareRole.guest &&
+        currentAccessLevel == ShareAccessLevel.fullAccess) {
       return Row(
         children: [
           TurnIntoMemberWidget(

@@ -97,6 +97,7 @@ class _ShareTabState extends State<ShareTab> {
             if (state.users.isNotEmpty) ...[
               VSpace(theme.spacing.l),
               PeopleWithAccessSection(
+                isInPublicPage: state.sectionType == SharedSectionType.public,
                 currentUserEmail: state.currentUser?.email ?? '',
                 users: state.users,
                 callbacks: _buildPeopleWithAccessSectionCallbacks(context),
@@ -152,6 +153,7 @@ class _ShareTabState extends State<ShareTab> {
       },
       onRemoveAccess: (user) {
         // show a dialog to confirm the action when removing self access
+        final theme = AppFlowyTheme.of(context);
         final shareTabBloc = context.read<ShareTabBloc>();
         final removingSelf =
             user.email == shareTabBloc.state.currentUser?.email;
@@ -159,6 +161,9 @@ class _ShareTabState extends State<ShareTab> {
           showConfirmDialog(
             context: context,
             title: 'Remove your own access',
+            titleStyle: theme.textStyle.body.standard(
+              color: theme.textColorScheme.primary,
+            ),
             description: '',
             style: ConfirmPopupStyle.cancelAndOk,
             confirmLabel: 'Remove',

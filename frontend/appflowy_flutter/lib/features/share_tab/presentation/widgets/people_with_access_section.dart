@@ -36,11 +36,13 @@ class PeopleWithAccessSection extends StatelessWidget {
     super.key,
     required this.currentUserEmail,
     required this.users,
+    required this.isInPublicPage,
     this.callbacks,
   });
 
   final String currentUserEmail;
   final SharedUsers users;
+  final bool isInPublicPage;
   final PeopleWithAccessSectionCallbacks? callbacks;
 
   @override
@@ -67,6 +69,7 @@ class PeopleWithAccessSection extends StatelessWidget {
         return SharedUserWidget(
           user: user,
           currentUser: currentUser,
+          isInPublicPage: isInPublicPage,
           callbacks: AccessLevelListCallbacks(
             onRemoveAccess: () => callbacks?.onRemoveAccess.call(user),
             onTurnIntoMember: () => callbacks?.onTurnIntoMember.call(user),
