@@ -53,7 +53,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select result
-      await tester.editor.tapAtMenuItemWithName(name);
+      await tapMenuItemWithName(name, tester);
       await tester.pumpAndSettle();
 
       final mentionBlock = find.byType(MentionPageBlock);
@@ -73,7 +73,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select result
-      await tester.editor.tapAtMenuItemWithName(name);
+      await tapMenuItemWithName(name, tester);
       await tester.pumpAndSettle();
 
       final mentionBlock = find.byType(MentionPageBlock);
@@ -133,4 +133,12 @@ Future<void> enterDocumentText(WidgetTester tester) async {
     withKeyUp: true,
   );
   await tester.pumpAndSettle();
+}
+
+Future<void> tapMenuItemWithName(String name, WidgetTester tester) async {
+  final menuItem = find.descendant(
+    of: find.byType(InlineActionsHandler),
+    matching: find.text(name, findRichText: true),
+  );
+  await tester.tapButton(menuItem);
 }
