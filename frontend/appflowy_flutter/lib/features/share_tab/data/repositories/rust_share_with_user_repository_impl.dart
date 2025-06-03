@@ -70,6 +70,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
       viewId: pageId,
       emails: emails,
       accessLevel: accessLevel.accessLevel,
+      autoConfirm: true, // TODO: remove this after the backend is ready
     );
     final result = await FolderEventSharePageWithUser(request).send();
 
@@ -82,7 +83,9 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
         return FlowySuccess(success);
       },
       (failure) {
-        Log.error('sharePageWithUser: $failure');
+        Log.error(
+          'share page($pageId) with users($emails) with access level($accessLevel): $failure',
+        );
 
         return FlowyFailure(failure);
       },

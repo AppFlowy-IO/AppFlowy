@@ -808,6 +808,9 @@ pub struct SharePageWithUserPayloadPB {
 
   #[pb(index = 3)]
   pub access_level: AFAccessLevelPB,
+
+  #[pb(index = 4)]
+  pub auto_confirm: bool,
 }
 
 impl TryInto<ShareViewWithGuestRequest> for SharePageWithUserPayloadPB {

@@ -237,5 +237,19 @@ class _ShareTabState extends State<ShareTab> {
         );
       });
     }
+
+    final turnIntoMemberResult = state.turnIntoMemberResult;
+    if (turnIntoMemberResult != null) {
+      turnIntoMemberResult.fold((success) {
+        showToastNotification(
+          message: 'Turned into member successfully',
+        );
+      }, (error) {
+        showToastNotification(
+          message: error.msg,
+          type: ToastificationType.error,
+        );
+      });
+    }
   }
 }

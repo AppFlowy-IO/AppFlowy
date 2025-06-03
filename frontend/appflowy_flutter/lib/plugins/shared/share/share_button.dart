@@ -1,3 +1,4 @@
+import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository_impl.dart';
 import 'package:appflowy/features/share_tab/data/repositories/rust_share_with_user_repository_impl.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
@@ -45,6 +46,7 @@ class ShareButton extends StatelessWidget {
         BlocProvider(
           create: (context) => ShareTabBloc(
             repository: RustShareWithUserRepositoryImpl(),
+            // repository: LocalShareWithUserRepositoryImpl(),
             pageId: view.id,
             workspaceId: workspaceId,
           )..add(ShareTabEvent.initialize()),
