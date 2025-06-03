@@ -72,7 +72,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
             if (fromRow != null) {
               databaseController.moveGroupRow(
-                fromRow: fromRow,
+                fromRow: [fromRow],
                 toRow: toRow,
                 fromGroupId: groupId,
                 toGroupId: groupId,
@@ -85,7 +85,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
             if (fromRow != null) {
               databaseController.moveGroupRow(
-                fromRow: fromRow,
+                fromRow: [fromRow],
                 toRow: toRow,
                 fromGroupId: fromGroupId,
                 toGroupId: toGroupId,
@@ -242,20 +242,47 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final rowIds = groupedRowIds.map((e) => e.rowId).toList();
             await RowBackendService.deleteRows(viewId, rowIds);
           },
-          moveGroupToAdjacentGroup: (groupedRowId, toPrevious) async {
-            final fromRow =
-                databaseController.rowCache.getRow(groupedRowId.rowId)?.rowMeta;
-            final currentGroupIndex =
-                boardController.groupIds.indexOf(groupedRowId.groupId);
-            final toGroupIndex =
-                toPrevious ? currentGroupIndex - 1 : currentGroupIndex + 1;
-            if (fromRow != null &&
+          moveGroupToAdjacentGroup: (groupedRowIds, toPrevious) async {
+            final rowIds =
+                groupedRowIds.map((element) => element.rowId).toList();
+            final fromRows = databaseController.rowCache
+                .getRows(rowIds)
+                .map((element) => element.rowMeta)
+                .toList();
+
+            final currentGroupIndexs = groupedRowIds
+                .map(
+                  (element) =>
+                      boardController.groupIds.indexOf(element.groupId),
+                )
+                .toSet();
+
+            late final int currentGroupIndex;
+            late final int toGroupIndex;
+            if (currentGroupIndexs.length == 1) {
+              currentGroupIndex = currentGroupIndexs.first;
+              toGroupIndex =
+                  toPrevious ? currentGroupIndex - 1 : currentGroupIndex + 1;
+            } else {
+              final sortedGroupIndex =
+                  currentGroupIndexs.sorted((a, b) => a - b);
+              currentGroupIndex =
+                  toPrevious ? sortedGroupIndex.last : sortedGroupIndex.first;
+              toGroupIndex =
+                  toPrevious ? sortedGroupIndex.first : sortedGroupIndex.last;
+            }
+
+            if (fromRows.isNotEmpty &&
                 toGroupIndex > -1 &&
                 toGroupIndex < boardController.groupIds.length) {
+              final fromGroupId =
+                  boardController.groupDatas[currentGroupIndex].id;
+
               final toGroupId = boardController.groupDatas[toGroupIndex].id;
+
               final result = await databaseController.moveGroupRow(
-                fromRow: fromRow,
-                fromGroupId: groupedRowId.groupId,
+                fromRow: fromRows,
+                fromGroupId: fromGroupId,
                 toGroupId: toGroupId,
               );
               result.fold(
@@ -264,9 +291,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                   emit(
                     BoardState.setFocus(
                       groupedRowIds: [
-                        GroupedRowId(
-                          groupId: toGroupId,
-                          rowId: groupedRowId.rowId,
+                        ...rowIds.map(
+                          (element) => GroupedRowId(
+                            groupId: toGroupId,
+                            rowId: element,
+                          ),
                         ),
                       ],
                     ),
@@ -608,7 +637,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.deleteCards(List<GroupedRowId> groupedRowIds) =
       _DeleteCards;
   const factory BoardEvent.moveGroupToAdjacentGroup(
-    GroupedRowId groupedRowId,
+    List<GroupedRowId> groupedRowIds,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
   const factory BoardEvent.openRowDetail(RowMetaPB rowMeta) = _OpenRowDetail;

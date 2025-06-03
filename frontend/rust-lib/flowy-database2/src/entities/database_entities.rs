@@ -160,7 +160,7 @@ pub struct MoveGroupRowPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub from_row_id: String,
+  pub from_row_ids: Vec<String>,
 
   #[pb(index = 3)]
   pub to_group_id: String,
@@ -174,7 +174,7 @@ pub struct MoveGroupRowPayloadPB {
 
 pub struct MoveGroupRowParams {
   pub view_id: String,
-  pub from_row_id: RowId,
+  pub from_row_ids: Vec<RowId>,
   pub from_group_id: String,
   pub to_group_id: String,
   pub to_row_id: Option<RowId>,
@@ -189,12 +189,12 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
       NotEmptyStr::parse(self.from_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let to_group_id =
       NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
-
+    let from_row_ids = self.from_row_ids.iter().map(|e| RowId::from(e.clone())).collect();
     Ok(MoveGroupRowParams {
       view_id: view_id.0,
       to_group_id: to_group_id.0,
       from_group_id: from_group_id.0,
-      from_row_id: RowId::from(self.from_row_id),
+      from_row_ids: from_row_ids,
       to_row_id: self.to_row_id.map(RowId::from),
     })
   }
