@@ -9,23 +9,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../get_it_set_up.dart';
 import '../../../widget_test_wrapper.dart';
 
 void main() {
   setUp(() {
-    final mockStorage = MockKeyValueStorage();
-    // Stub methods to return appropriate Future values
-    when(() => mockStorage.get(any())).thenAnswer((_) => Future.value());
-    when(() => mockStorage.set(any(), any())).thenAnswer((_) => Future.value());
-    when(() => mockStorage.remove(any())).thenAnswer((_) => Future.value());
-    when(() => mockStorage.clear()).thenAnswer((_) => Future.value());
-
-    GetIt.I.registerSingleton<KeyValueStorage>(mockStorage);
+    setUpGetIt();
     GetIt.I.registerSingleton<MenuSharedState>(MenuSharedState());
   });
 
   tearDown(() {
-    GetIt.I.reset();
+    tearDownGetIt();
   });
 
   group('shared_pages_list.dart: ', () {
