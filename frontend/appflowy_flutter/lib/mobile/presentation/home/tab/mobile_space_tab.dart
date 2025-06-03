@@ -1,3 +1,4 @@
+import 'package:appflowy/features/shared_section/presentation/shared_section.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/favorite_space.dart';
@@ -178,6 +179,18 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
           );
         case MobileSpaceTabType.favorites:
           return MobileFavoriteSpace(userProfile: widget.userProfile);
+        case MobileSpaceTabType.shared:
+          final workspaceId = context
+              .read<UserWorkspaceBloc>()
+              .state
+              .currentWorkspace
+              ?.workspaceId;
+          if (workspaceId == null) {
+            return const SizedBox.shrink();
+          }
+          return SharedSection(
+            workspaceId: workspaceId,
+          );
       }
     }).toList();
   }
