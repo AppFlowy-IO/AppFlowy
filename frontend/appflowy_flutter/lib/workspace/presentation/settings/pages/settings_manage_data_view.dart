@@ -347,24 +347,29 @@ class _CurrentPathState extends State<_CurrentPath> {
         Row(
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap: () => {
-                  afLaunchUri(Uri.file(widget.path)),
-                },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  onEnter: (_) => setState(() => isHovering = true),
-                  onExit: (_) => setState(() => isHovering = false),
-                  child: Text(
-                    widget.path,
-                    maxLines: 2,
-                    style: theme.textStyle.body
-                        .standard(color: theme.textColorScheme.action)
-                        .copyWith(
-                          decoration:
-                              isHovering ? TextDecoration.underline : null,
-                        ),
-                    overflow: TextOverflow.ellipsis,
+              child: FlowyTooltip(
+                message: LocaleKeys
+                    .settings_manageDataPage_dataStorage_actions_openTooltip
+                    .tr(),
+                child: GestureDetector(
+                  onTap: () => {
+                    afLaunchUri(Uri.file(widget.path)),
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    onEnter: (_) => setState(() => isHovering = true),
+                    onExit: (_) => setState(() => isHovering = false),
+                    child: Text(
+                      widget.path,
+                      maxLines: 2,
+                      style: theme.textStyle.body
+                          .standard(color: theme.textColorScheme.action)
+                          .copyWith(
+                            decoration:
+                                isHovering ? TextDecoration.underline : null,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
