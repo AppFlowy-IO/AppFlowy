@@ -280,6 +280,8 @@ class ConfirmPopup extends StatefulWidget {
     required this.onConfirm,
     this.onCancel,
     this.confirmLabel,
+    this.titleStyle,
+    this.descriptionStyle,
     this.confirmButtonColor,
     this.confirmButtonBuilder,
     this.child,
@@ -289,7 +291,9 @@ class ConfirmPopup extends StatefulWidget {
   });
 
   final String title;
+  final TextStyle? titleStyle;
   final String description;
+  final TextStyle? descriptionStyle;
   final VoidCallback onConfirm;
   final VoidCallback? onCancel;
   final Color? confirmButtonColor;
@@ -392,9 +396,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         Expanded(
           child: Text(
             widget.title,
-            style: theme.textStyle.heading4.prominent(
-              color: ConfirmPopupColor.titleColor(context),
-            ),
+            style: widget.titleStyle ??
+                theme.textStyle.heading4.prominent(
+                  color: ConfirmPopupColor.titleColor(context),
+                ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -423,9 +428,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
 
     return Text(
       widget.description,
-      style: theme.textStyle.body.standard(
-        color: ConfirmPopupColor.descriptionColor(context),
-      ),
+      style: widget.descriptionStyle ??
+          theme.textStyle.body.standard(
+            color: ConfirmPopupColor.descriptionColor(context),
+          ),
       maxLines: 5,
     );
   }

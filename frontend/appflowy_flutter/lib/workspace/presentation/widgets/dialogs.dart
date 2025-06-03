@@ -602,6 +602,8 @@ Future<void> showConfirmDialog({
   required BuildContext context,
   required String title,
   required String description,
+  TextStyle? titleStyle,
+  TextStyle? descriptionStyle,
   VoidCallback? onConfirm,
   VoidCallback? onCancel,
   String? confirmLabel,
@@ -620,6 +622,8 @@ Future<void> showConfirmDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
+            titleStyle: titleStyle,
+            descriptionStyle: descriptionStyle,
             confirmButtonBuilder: confirmButtonBuilder,
             onConfirm: () => onConfirm?.call(),
             onCancel: () => onCancel?.call(),
