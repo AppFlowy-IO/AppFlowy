@@ -72,7 +72,7 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
     if (widget.disabled) {
       return FlowyTooltip(
         message:
-            widget.tooltip ?? 'Only user with full access can invite others',
+            widget.tooltip ?? LocaleKeys.shareTab_onlyFullAccessCanInvite.tr(),
         child: IgnorePointer(
           child: child,
         ),

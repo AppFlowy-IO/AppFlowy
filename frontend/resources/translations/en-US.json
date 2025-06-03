@@ -2367,7 +2367,7 @@
     "seeMore": "See more",
     "showMore": "Show more",
     "somethingWentWrong": "Something went wrong",
-    "pageNotExist": "This page doesn’t exist",
+    "pageNotExist": "This page doesn't exist",
     "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
@@ -3099,7 +3099,7 @@
       "many": "{count} members",
       "other": "{count} members"
     },
-    "tip": "You’ve been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
+    "tip": "You've been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
     "joinWorkspace": "Join workspace",
     "success": "You've successfully joined the workspace",
     "successMessage": "You can now access all the pages and workspaces within it.",
@@ -3430,7 +3430,21 @@
     "removeAccess": "Remove access",
     "turnIntoMember": "Turn into Member",
     "you": "(You)",
-    "guest": "Guest"
+    "guest": "Guest",
+    "onlyFullAccessCanInvite": "Only user with full access can invite others",
+    "invitationSent": "Invitation sent",
+    "emailAlreadyInList": "The email is already in the list",
+    "upgradeToProToInviteGuests": "Please upgrade to a Pro plan to invite more guests",
+    "maxGuestsReached": "You have reached the maximum number of guests",
+    "removedGuestSuccessfully": "Removed guest successfully",
+    "updatedAccessLevelSuccessfully": "Updated access level successfully",
+    "turnedIntoMemberSuccessfully": "Turned into member successfully",
+    "peopleAboveCanAccessWithLink": "People above can access with the link",
+    "cantMakeChanges": "Can't make changes",
+    "canMakeAnyChanges": "Can make any changes",
+    "generalAccess": "General access",
+    "peopleWithAccess": "People with access",
+    "peopleAboveCanAccessWithTheLink": "People above can access with the link"
   },
   "shareSection": {
     "shared": "Shared with me",
