@@ -112,7 +112,7 @@ class RustPageAccessLevelRepositoryImpl implements PageAccessLevelRepository {
           'failed to get user access level: $failure, in page: $pageId',
         );
 
-        // return the read and write access level if the user is not found
+        // return the read access level if the user is not found
         return FlowyResult.success(ShareAccessLevel.readOnly);
       },
     );

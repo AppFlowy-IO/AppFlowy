@@ -52,7 +52,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
 
     return result.fold(
       (success) {
-        Log.info('remove users($emails) from shared page($pageId)');
+        Log.debug('remove users($emails) from shared page($pageId)');
 
         return FlowySuccess(success);
       },
@@ -80,7 +80,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
 
     return result.fold(
       (success) {
-        Log.info(
+        Log.debug(
           'share page($pageId) with users($emails) with access level($accessLevel)',
         );
 
@@ -117,7 +117,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
     final result = await UserEventUpdateWorkspaceMember(request).send();
     return result.fold(
       (success) {
-        Log.info(
+        Log.debug(
           'change role($role) for user($email) in workspaceId($workspaceId)',
         );
         return FlowySuccess(success);
