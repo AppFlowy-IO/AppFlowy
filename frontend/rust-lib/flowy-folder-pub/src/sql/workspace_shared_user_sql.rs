@@ -18,6 +18,7 @@ pub struct WorkspaceSharedUserTable {
   pub order: i32,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl WorkspaceSharedUserTable {
   pub fn new(
     workspace_id: String,

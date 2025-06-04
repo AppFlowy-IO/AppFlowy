@@ -1420,7 +1420,7 @@ impl FolderManager {
                     user.name.clone(),
                     user.avatar_url.clone().unwrap_or_default(),
                     user.role.clone() as i32,
-                    user.access_level.clone() as i32,
+                    user.access_level as i32,
                     order as i32,
                   )
                 })
@@ -1435,7 +1435,7 @@ impl FolderManager {
 
               // Notify UI to refresh the shared page details
               folder_notification_builder(
-                &cloud_page_id.to_string(),
+                cloud_page_id.to_string(),
                 FolderNotification::DidUpdateSharedUsers,
               )
               .payload(RepeatedSharedUserPB {
@@ -1493,7 +1493,7 @@ impl FolderManager {
 
       // Notify UI to refresh the shared page details
       folder_notification_builder(
-        &page_id.to_string(),
+        page_id.to_string(),
         FolderNotification::DidUpdateSharedUsers,
       )
       .payload(RepeatedSharedUserPB {
@@ -1565,7 +1565,7 @@ impl FolderManager {
                   user.name.clone(),
                   user.avatar_url.clone().unwrap_or_default(),
                   user.role.clone() as i32,
-                  user.access_level.clone() as i32,
+                  user.access_level as i32,
                   order as i32,
                 )
               })
@@ -1580,7 +1580,7 @@ impl FolderManager {
 
             // Notify UI to refresh the shared page details
             folder_notification_builder(
-              &cloud_page_id.to_string(),
+              cloud_page_id.to_string(),
               FolderNotification::DidUpdateSharedUsers,
             )
             .payload(RepeatedSharedUserPB {

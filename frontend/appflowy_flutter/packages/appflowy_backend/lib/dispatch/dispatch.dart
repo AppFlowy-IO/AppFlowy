@@ -54,7 +54,6 @@ class Dispatch {
     FFIRequest request,
   ) async {
     Future<FlowyResult<Uint8List, Uint8List>> _asyncRequest() async {
-      final event = request.event;
       final bytesFuture = _sendToRust(request);
       final response = await _extractResponse(bytesFuture);
       final payload = _extractPayload(response);
