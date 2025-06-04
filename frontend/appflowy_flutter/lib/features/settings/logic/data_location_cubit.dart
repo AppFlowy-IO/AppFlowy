@@ -1,28 +1,32 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../startup/tasks/prelude.dart';
+import '../data/models/user_data_location.dart';
+import '../data/repositories/settings_repository.dart';
 
 class DataLocationCubit extends Cubit<DataLocationState> {
-  DataLocationCubit() : super(const DataLocationLoading()) {
+  DataLocationCubit({
+    required SettingsRepository repository,
+  })  : _repository = repository,
+        super(DataLocationState.initial()) {
     _init();
   }
 
+  final SettingsRepository _repository;
+
   void _init() async {
-    // The backend might change the real path that storge the data. So it needs
-    // to get the path from the backend instead of the KeyValueStorage
-    final defaultDirectory = (await appFlowyApplicationDataDirectory()).path;
+    final result = await _repository.getUserDataLocation();
+    final userDataLocation = result.fold(
+      (userDataLocation) => userDataLocation,
+      (error) => null,
+    );
 
-    final result = await UserSettingsBackendService().getUserSetting();
-    final userDirectory = result.toNullable()?.userFolder;
-
-    if (userDirectory != null) {
+    if (userDataLocation != null) {
       emit(
-        DataLocationReady(
-          path: userDirectory,
-          isCustom: userDirectory.contains(defaultDirectory),
+        DataLocationState(
+          userDataLocation: userDataLocation,
         ),
       );
     }
@@ -32,9 +36,11 @@ class DataLocationCubit extends Cubit<DataLocationState> {
     final directory = await appFlowyApplicationDataDirectory();
     await getIt<ApplicationDataStorage>().setPath(directory.path);
     emit(
-      DataLocationReady(
-        path: directory.path,
-        isCustom: false,
+      DataLocationState(
+        userDataLocation: UserDataLocation(
+          path: directory.path,
+          isCustom: false,
+        ),
       ),
     );
   }
@@ -45,20 +51,13 @@ class DataLocationCubit extends Cubit<DataLocationState> {
   // }
 }
 
-sealed class DataLocationState {
-  const DataLocationState();
-}
-
-class DataLocationLoading extends DataLocationState {
-  const DataLocationLoading();
-}
-
-class DataLocationReady extends DataLocationState {
-  const DataLocationReady({
-    required this.path,
-    required this.isCustom,
+class DataLocationState {
+  const DataLocationState({
+    required this.userDataLocation,
   });
 
-  final String path;
-  final bool isCustom;
+  factory DataLocationState.initial() =>
+      const DataLocationState(userDataLocation: null);
+
+  final UserDataLocation? userDataLocation;
 }

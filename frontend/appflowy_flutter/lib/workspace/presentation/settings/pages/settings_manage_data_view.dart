@@ -38,13 +38,12 @@ class SettingsManageDataView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DataLocationCubit>(
-      create: (_) => DataLocationCubit(),
+      create: (_) => DataLocationCubit(
+        repository: const RustSettingsRepositoryImpl(),
+      ),
       child: BlocBuilder<DataLocationCubit, DataLocationState>(
         builder: (context, state) {
-          final isCustom = switch (state) {
-            DataLocationReady(isCustom: final isCustom) => isCustom,
-            _ => false,
-          };
+          final isCustom = state.userDataLocation?.isCustom ?? false;
 
           return SettingsBody(
             title: LocaleKeys.settings_manageDataPage_title.tr(),
@@ -92,15 +91,14 @@ class SettingsManageDataView extends StatelessWidget {
                       },
                     ),
                 ],
-                children: switch (state) {
-                  DataLocationLoading() => [
-                      const CircularProgressIndicator(),
-                    ],
-                  DataLocationReady(path: final path) => [
-                      _CurrentPath(path: path),
-                      // _DataPathActions(currentPath: path),
-                    ]
-                },
+                children: state.userDataLocation == null
+                    ? [
+                        const CircularProgressIndicator(),
+                      ]
+                    : [
+                        _CurrentPath(path: state.userDataLocation!.path),
+                        // _DataPathActions(currentPath: state.userDataLocation!.path),
+                      ],
               ),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_importData_title.tr(),
