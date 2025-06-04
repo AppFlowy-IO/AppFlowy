@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_section/data/repositories/local_shared_pages_repository_impl.dart';
+import 'package:appflowy/features/shared_section/data/repositories/rust_shared_pages_repository_impl.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_list.dart';
@@ -30,8 +30,7 @@ class SharedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final repository = RustSharePagesRepositoryImpl();
-    final repository = LocalSharedPagesRepositoryImpl();
+    final repository = RustSharePagesRepositoryImpl();
 
     return BlocProvider(
       create: (_) => SharedSectionBloc(
