@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_section/presentation/shared_section.dart';
+import 'package:appflowy/features/shared_section/presentation/m_shared_section.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/favorite_space.dart';
@@ -24,8 +24,8 @@ import 'ai_bubble_button.dart';
 
 final ValueNotifier<int> mobileCreateNewAIChatNotifier = ValueNotifier(0);
 
-class MobileSpaceTab extends StatefulWidget {
-  const MobileSpaceTab({
+class MobileHomePageTab extends StatefulWidget {
+  const MobileHomePageTab({
     super.key,
     required this.userProfile,
   });
@@ -33,10 +33,10 @@ class MobileSpaceTab extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<MobileSpaceTab> createState() => _MobileSpaceTabState();
+  State<MobileHomePageTab> createState() => _MobileHomePageTabState();
 }
 
-class _MobileSpaceTabState extends State<MobileSpaceTab>
+class _MobileHomePageTabState extends State<MobileHomePageTab>
     with SingleTickerProviderStateMixin {
   TabController? tabController;
 
@@ -188,7 +188,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
           if (workspaceId == null) {
             return const SizedBox.shrink();
           }
-          return SharedSection(
+          return MSharedSection(
             workspaceId: workspaceId,
           );
       }
