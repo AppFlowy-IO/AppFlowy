@@ -41,11 +41,11 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
   final String pageId;
 
   // Used to listen for shared view updates.
-  late final FolderNotificationListener _folderNotificationListener;
+  FolderNotificationListener? _folderNotificationListener;
 
   @override
   Future<void> close() async {
-    await _folderNotificationListener.stop();
+      await _folderNotificationListener?.stop();
     await super.close();
   }
 
