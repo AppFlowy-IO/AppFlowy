@@ -239,7 +239,7 @@ class _HomePageState extends State<_HomePage> {
                       ),
                   ),
                 ],
-                child: MobileSpaceTab(
+                child: MobileHomePageTab(
                   userProfile: widget.userProfile,
                 ),
               ),

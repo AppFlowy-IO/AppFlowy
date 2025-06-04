@@ -9,8 +9,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class SharedPagesList extends StatelessWidget {
-  const SharedPagesList({
+/// Shared pages on desktop
+class SharedPageList extends StatelessWidget {
+  const SharedPageList({
     super.key,
     required this.sharedPages,
     required this.onAction,

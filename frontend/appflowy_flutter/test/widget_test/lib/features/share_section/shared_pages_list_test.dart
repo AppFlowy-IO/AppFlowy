@@ -1,7 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
-import 'package:appflowy/features/shared_section/presentation/widgets/shared_pages_list.dart';
+import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_list.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: SingleChildScrollView(
-            child: SharedPagesList(
+            child: SharedPageList(
               sharedPages: sharedPages,
               onAction: (action, view, data) {},
               onSelected: (context, view) {},
@@ -59,7 +59,7 @@ void main() {
       );
       expect(find.text('Page 1'), findsOneWidget);
       expect(find.text('Page 2'), findsOneWidget);
-      expect(find.byType(SharedPagesList), findsOneWidget);
+      expect(find.byType(SharedPageList), findsOneWidget);
     });
   });
 }
