@@ -43,4 +43,19 @@ class RustSettingsRepositoryImpl implements SettingsRepository {
       ),
     );
   }
+
+  @override
+  Future<FlowyResult<UserDataLocation, FlowyError>> setCustomLocation(
+    String path,
+  ) async {
+    final defaultDirectory = (await appFlowyApplicationDataDirectory()).path;
+    await getIt<ApplicationDataStorage>().setCustomPath(path);
+
+    return FlowyResult.success(
+      UserDataLocation(
+        path: path,
+        isCustom: path.contains(defaultDirectory),
+      ),
+    );
+  }
 }

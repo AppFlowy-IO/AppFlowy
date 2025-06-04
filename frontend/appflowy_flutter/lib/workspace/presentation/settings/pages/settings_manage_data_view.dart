@@ -31,8 +31,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../shared/setting_action.dart';
 
 class SettingsManageDataView extends StatelessWidget {
-  const SettingsManageDataView({super.key, required this.userProfile});
+  const SettingsManageDataView({
+    super.key,
+    required this.workspace,
+    required this.userProfile,
+  });
 
+  final UserWorkspacePB workspace;
   final UserProfilePB userProfile;
 
   @override
@@ -44,16 +49,17 @@ class SettingsManageDataView extends StatelessWidget {
       child: BlocConsumer<DataLocationBloc, DataLocationState>(
         listenWhen: (previous, current) =>
             previous.didResetToDefault != current.didResetToDefault,
-        listener: (context, state) async {
+        listener: (context, state) {
           if (state.didResetToDefault) {
-            context
-                .read<DataLocationBloc>()
-                .add(DataLocationEvent.clearState());
-            await runAppFlowy(isAnon: true);
+            Navigator.of(context).pop();
+            runAppFlowy(isAnon: true);
           }
         },
         builder: (context, state) {
-          final isCustom = state.userDataLocation?.isCustom ?? false;
+          // final _ = state.userDataLocation?.isCustom ?? false;
+          final isCloudWorkspace =
+              workspace.workspaceType == WorkspaceTypePB.ServerW;
+          final path = state.userDataLocation?.path;
 
           return SettingsBody(
             title: LocaleKeys.settings_manageDataPage_title.tr(),
@@ -65,7 +71,7 @@ class SettingsManageDataView extends StatelessWidget {
                 tooltip:
                     LocaleKeys.settings_manageDataPage_dataStorage_tooltip.tr(),
                 actions: [
-                  if (isCustom)
+                  if (isCloudWorkspace)
                     SettingAction(
                       tooltip: LocaleKeys
                           .settings_manageDataPage_dataStorage_actions_resetTooltip
@@ -100,13 +106,13 @@ class SettingsManageDataView extends StatelessWidget {
                       },
                     ),
                 ],
-                children: state.userDataLocation == null
+                children: path == null
                     ? [
                         const CircularProgressIndicator(),
                       ]
                     : [
-                        _CurrentPath(path: state.userDataLocation!.path),
-                        // _DataPathActions(currentPath: state.userDataLocation!.path),
+                        _CurrentPath(path: path),
+                        if (isCloudWorkspace) _DataPathActions(path: path),
                       ],
               ),
               SettingsCategory(
@@ -447,47 +453,25 @@ class _CurrentPathState extends State<_CurrentPath> {
   }
 }
 
-// class _DataPathActions extends StatelessWidget {
-//   const _DataPathActions({required this.currentPath});
+class _DataPathActions extends StatelessWidget {
+  const _DataPathActions({required this.path});
 
-//   final String currentPath;
+  final String path;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       children: [
-//         SizedBox(
-//           height: 42,
-//           child: PrimaryRoundedButton(
-//             text: LocaleKeys.settings_manageDataPage_dataStorage_actions_change
-//                 .tr(),
-//             margin: const EdgeInsets.symmetric(horizontal: 24),
-//             fontWeight: FontWeight.w600,
-//             radius: 12.0,
-//             onTap: () async {
-//               final path = await getIt<FilePickerService>().getDirectoryPath();
-//               if (!context.mounted || path == null || currentPath == path) {
-//                 return;
-//               }
+  @override
+  Widget build(BuildContext context) {
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.settings_manageDataPage_dataStorage_actions_change.tr(),
+      onTap: () async {
+        final path = await getIt<FilePickerService>().getDirectoryPath();
+        if (!context.mounted || path == null || path == path) {
+          return;
+        }
 
-//               await context.read<SettingsLocationCubit>().setCustomPath(path);
-//               await runAppFlowy(isAnon: true);
-
-//               if (context.mounted) Navigator.of(context).pop();
-//             },
-//           ),
-//         ),
-//         const HSpace(16),
-//         SettingAction(
-//           tooltip: LocaleKeys
-//               .settings_manageDataPage_dataStorage_actions_openTooltip
-//               .tr(),
-//           label:
-//               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
-//           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-//           onPressed: () => afLaunchUri(Uri.file(currentPath)),
-//         ),
-//       ],
-//     );
-//   }
-// }
+        context
+            .read<DataLocationBloc>()
+            .add(DataLocationEvent.setCustomPath(path));
+      },
+    );
+  }
+}

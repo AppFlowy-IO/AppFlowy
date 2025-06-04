@@ -12,6 +12,7 @@ class DataLocationBloc extends Bloc<DataLocationEvent, DataLocationState> {
         super(DataLocationState.initial()) {
     on<DataLocationInitial>(_onStarted);
     on<DataLocationResetToDefault>(_onResetToDefault);
+    on<DataLocationSetCustomPath>(_onSetCustomPath);
     on<DataLocationClearState>(_onClearState);
   }
 
@@ -53,6 +54,21 @@ class DataLocationBloc extends Bloc<DataLocationEvent, DataLocationState> {
   ) async {
     emit(
       state.copyWith(
+        didResetToDefault: false,
+      ),
+    );
+  }
+
+  Future<void> _onSetCustomPath(
+    DataLocationSetCustomPath event,
+    Emitter<DataLocationState> emit,
+  ) async {
+    final userDataLocation =
+        await _repository.setCustomLocation(event.path).toNullable();
+
+    emit(
+      state.copyWith(
+        userDataLocation: userDataLocation,
         didResetToDefault: false,
       ),
     );

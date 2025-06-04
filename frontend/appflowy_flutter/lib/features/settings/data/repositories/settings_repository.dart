@@ -7,4 +7,8 @@ abstract class SettingsRepository {
   Future<FlowyResult<UserDataLocation, FlowyError>> getUserDataLocation();
 
   Future<FlowyResult<UserDataLocation, FlowyError>> resetUserDataLocation();
+
+  Future<FlowyResult<UserDataLocation, FlowyError>> setCustomLocation(
+    String path,
+  );
 }
