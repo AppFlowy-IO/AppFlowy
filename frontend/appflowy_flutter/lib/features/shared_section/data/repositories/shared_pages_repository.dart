@@ -9,4 +9,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 abstract class SharedPagesRepository {
   /// Gets the list of users and their roles for a shared page.
   Future<FlowyResult<SharedPages, FlowyError>> getSharedPages();
+
+  /// Removes a shared page from the repository.
+  Future<FlowyResult<void, FlowyError>> leaveSharedPage(String pageId);
 }

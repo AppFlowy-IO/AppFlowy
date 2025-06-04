@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class SharedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     final repository = RustSharePagesRepositoryImpl();
 
     return BlocProvider(
@@ -104,11 +106,18 @@ class SharedSection extends StatelessWidget {
                         await showConfirmDialog(
                           context: context,
                           title: 'Remove your own access',
+                          titleStyle: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
                           description: '',
                           style: ConfirmPopupStyle.cancelAndOk,
                           confirmLabel: 'Remove',
                           onConfirm: () {
-                            // todo: remove the access
+                            context.read<SharedSectionBloc>().add(
+                                  SharedSectionEvent.leaveSharedPage(
+                                    pageId: view.id,
+                                  ),
+                                );
                           },
                         );
                         break;
