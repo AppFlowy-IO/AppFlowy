@@ -148,6 +148,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    workspace_shared_user (workspace_id, view_id, email) {
+        workspace_id -> Text,
+        view_id -> Text,
+        email -> Text,
+        name -> Text,
+        avatar_url -> Text,
+        role -> Integer,
+        access_level -> Integer,
+    }
+}
+
+diesel::table! {
     workspace_shared_view (uid, workspace_id, view_id) {
         uid -> BigInt,
         workspace_id -> Text,
@@ -172,5 +184,6 @@ diesel::allow_tables_to_appear_in_same_query!(
   user_workspace_table,
   workspace_members_table,
   workspace_setting_table,
+  workspace_shared_user,
   workspace_shared_view,
 );
