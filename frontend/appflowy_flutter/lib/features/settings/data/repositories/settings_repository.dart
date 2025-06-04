@@ -5,4 +5,6 @@ import '../models/user_data_location.dart';
 
 abstract class SettingsRepository {
   Future<FlowyResult<UserDataLocation, FlowyError>> getUserDataLocation();
+
+  Future<FlowyResult<UserDataLocation, FlowyError>> resetUserDataLocation();
 }

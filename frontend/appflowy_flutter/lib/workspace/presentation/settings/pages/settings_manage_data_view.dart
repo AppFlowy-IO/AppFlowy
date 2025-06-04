@@ -37,11 +37,12 @@ class SettingsManageDataView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<DataLocationCubit>(
-      create: (_) => DataLocationCubit(
+    return BlocProvider<DataLocationBloc>(
+      create: (_) => DataLocationBloc(
         repository: const RustSettingsRepositoryImpl(),
-      ),
-      child: BlocBuilder<DataLocationCubit, DataLocationState>(
+      )..add(DataLocationEvent.initial()),
+      child: BlocConsumer<DataLocationBloc, DataLocationState>(
+        listener: (context, state) {},
         builder: (context, state) {
           final isCustom = state.userDataLocation?.isCustom ?? false;
 
@@ -77,9 +78,9 @@ class SettingsManageDataView extends StatelessWidget {
                           primaryAction: (
                             LocaleKeys.button_confirm.tr(),
                             (_) async {
-                              await context
-                                  .read<DataLocationCubit>()
-                                  .resetDataStoragePathToApplicationDefault();
+                              context
+                                  .read<DataLocationBloc>()
+                                  .add(DataLocationResetToDefault());
                               await runAppFlowy(isAnon: true);
                             }
                           ),

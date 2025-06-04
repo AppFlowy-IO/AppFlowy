@@ -1,5 +1,7 @@
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
@@ -25,6 +27,20 @@ class RustSettingsRepositoryImpl implements SettingsRepository {
           isCustom: userDirectory.contains(defaultDirectory),
         );
       },
+    );
+  }
+
+  @override
+  Future<FlowyResult<UserDataLocation, FlowyError>>
+      resetUserDataLocation() async {
+    final directory = await appFlowyApplicationDataDirectory();
+    await getIt<ApplicationDataStorage>().setPath(directory.path);
+
+    return FlowyResult.success(
+      UserDataLocation(
+        path: directory.path,
+        isCustom: false,
+      ),
     );
   }
 }
