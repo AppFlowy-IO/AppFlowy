@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/settings/settings.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/share_log_files.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
@@ -37,14 +37,15 @@ class SettingsManageDataView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<SettingsLocationCubit>(
-      create: (_) => SettingsLocationCubit(),
-      child: BlocBuilder<SettingsLocationCubit, SettingsLocationState>(
+    return BlocProvider<DataLocationCubit>(
+      create: (_) => DataLocationCubit(),
+      child: BlocBuilder<DataLocationCubit, DataLocationState>(
         builder: (context, state) {
-          final isCustom = state.maybeMap(
-            didReceivedPath: (e) => e.isCustom,
-            orElse: () => false,
-          );
+          final isCustom = switch (state) {
+            DataLocationReady(isCustom: final isCustom) => isCustom,
+            _ => false,
+          };
+
           return SettingsBody(
             title: LocaleKeys.settings_manageDataPage_title.tr(),
             description: LocaleKeys.settings_manageDataPage_description.tr(),
@@ -78,7 +79,7 @@ class SettingsManageDataView extends StatelessWidget {
                             LocaleKeys.button_confirm.tr(),
                             (_) async {
                               await context
-                                  .read<SettingsLocationCubit>()
+                                  .read<DataLocationCubit>()
                                   .resetDataStoragePathToApplicationDefault();
                               await runAppFlowy(isAnon: true);
                             }
@@ -91,15 +92,15 @@ class SettingsManageDataView extends StatelessWidget {
                       },
                     ),
                 ],
-                children: state
-                    .map(
-                      initial: (_) => [const CircularProgressIndicator()],
-                      didReceivedPath: (event) => [
-                        _CurrentPath(path: event.path),
-                        // _DataPathActions(currentPath: event.path),
-                      ],
-                    )
-                    .toList(),
+                children: switch (state) {
+                  DataLocationLoading() => [
+                      const CircularProgressIndicator(),
+                    ],
+                  DataLocationReady(path: final path) => [
+                      _CurrentPath(path: path),
+                      // _DataPathActions(currentPath: path),
+                    ]
+                },
               ),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_importData_title.tr(),
