@@ -1,4 +1,6 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
@@ -262,6 +264,34 @@ class _PublishWidgetState extends State<_PublishWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final accessLevel = context.read<PageAccessLevelBloc>().state.accessLevel;
+
+    Widget publishButton = PublishButton(
+      onPublish: () {
+        if (context.read<ShareBloc>().view.layout.isDatabaseView) {
+          // check if any database is selected
+          if (_selectedViews.isEmpty) {
+            showToastNotification(
+              message: LocaleKeys.publish_noDatabaseSelected.tr(),
+            );
+            return;
+          }
+        }
+
+        widget.onPublish(_selectedViews);
+      },
+    );
+
+    if (accessLevel == ShareAccessLevel.readOnly) {
+      // readonly user can't publish a page.
+      publishButton = FlowyTooltip(
+        message: 'You are a readonly user, you can\'t publish a page.',
+        child: AbsorbPointer(
+          child: publishButton,
+        ),
+      );
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,21 +309,7 @@ class _PublishWidgetState extends State<_PublishWidget> {
           ),
           const VSpace(16),
         ],
-        PublishButton(
-          onPublish: () {
-            if (context.read<ShareBloc>().view.layout.isDatabaseView) {
-              // check if any database is selected
-              if (_selectedViews.isEmpty) {
-                showToastNotification(
-                  message: LocaleKeys.publish_noDatabaseSelected.tr(),
-                );
-                return;
-              }
-            }
-
-            widget.onPublish(_selectedViews);
-          },
-        ),
+        publishButton,
       ],
     );
   }

@@ -57,15 +57,18 @@ class SidebarSpace extends StatelessWidget {
                 if (state.views.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return FavoriteFolder(
-                  views: state.views.map((e) => e.item).toList(),
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: FavoriteFolder(
+                    views: state.views.map((e) => e.item).toList(),
+                  ),
                 );
               },
             ),
 
             // shared
             if (FeatureFlag.sharedSection.isOn) ...[
-              const VSpace(16.0),
               SharedSection(
                 key: ValueKey(currentWorkspaceId),
                 workspaceId: currentWorkspaceId,
@@ -74,7 +77,6 @@ class SidebarSpace extends StatelessWidget {
 
             // spaces
             if (shouldShowSpaces) ...[
-              const VSpace(16.0),
               // spaces
               const _Space(),
             ],
