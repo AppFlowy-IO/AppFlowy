@@ -113,7 +113,7 @@ class SharedSection extends StatelessWidget {
                           description: '',
                           style: ConfirmPopupStyle.cancelAndOk,
                           confirmLabel: 'Remove',
-                          onConfirm: () {
+                          onConfirm: (_) {
                             context.read<SharedSectionBloc>().add(
                                   SharedSectionEvent.leaveSharedPage(
                                     pageId: view.id,

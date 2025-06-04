@@ -590,7 +590,7 @@ Future<void> showConfirmDeletionDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
-            onConfirm: onConfirm,
+            onConfirm: (_) => onConfirm(),
           ),
         ),
       );
@@ -604,15 +604,16 @@ Future<void> showConfirmDialog({
   required String description,
   TextStyle? titleStyle,
   TextStyle? descriptionStyle,
-  VoidCallback? onConfirm,
+  void Function(BuildContext context)? onConfirm,
   VoidCallback? onCancel,
   String? confirmLabel,
   ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
   WidgetBuilder? confirmButtonBuilder,
+  Color? confirmButtonColor,
 }) {
   return showDialog(
     context: context,
-    builder: (_) {
+    builder: (context) {
       return Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
@@ -625,10 +626,11 @@ Future<void> showConfirmDialog({
             titleStyle: titleStyle,
             descriptionStyle: descriptionStyle,
             confirmButtonBuilder: confirmButtonBuilder,
-            onConfirm: () => onConfirm?.call(),
+            onConfirm: (_) => onConfirm?.call(context),
             onCancel: () => onCancel?.call(),
             confirmLabel: confirmLabel,
             style: style,
+            confirmButtonColor: confirmButtonColor,
           ),
         ),
       );
@@ -640,7 +642,7 @@ Future<void> showCancelAndConfirmDialog({
   required BuildContext context,
   required String title,
   required String description,
-  VoidCallback? onConfirm,
+  void Function(BuildContext context)? onConfirm,
   VoidCallback? onCancel,
   String? confirmLabel,
 }) {
@@ -656,7 +658,7 @@ Future<void> showCancelAndConfirmDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
-            onConfirm: () => onConfirm?.call(),
+            onConfirm: (context) => onConfirm?.call(context),
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
             onCancel: () => onCancel?.call(),
@@ -694,7 +696,7 @@ Future<void> showCustomConfirmDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
-            onConfirm: () => onConfirm?.call(),
+            onConfirm: (_) => onConfirm?.call(),
             onCancel: onCancel,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
@@ -731,7 +733,7 @@ Future<void> showCancelAndDeleteDialog({
           child: ConfirmPopup(
             title: title,
             description: description,
-            onConfirm: () => onDelete?.call(),
+            onConfirm: (_) => onDelete?.call(),
             closeOnAction: closeOnAction,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.error,

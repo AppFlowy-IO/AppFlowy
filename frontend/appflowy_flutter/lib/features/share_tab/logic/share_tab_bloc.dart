@@ -33,6 +33,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     on<ShareTabEventConvertToMember>(_onTurnIntoMember);
     on<ShareTabEventClearState>(_onClearState);
     on<ShareTabEventUpdateSharedUsers>(_onUpdateSharedUsers);
+    on<ShareTabEventUpgradeToProClicked>(_onUpgradeToProClicked);
   }
 
   final ShareWithUserRepository repository;
@@ -86,12 +87,18 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     final users = await _getSharedUsers();
 
+    final hasClickedUpgradeToPro =
+        await repository.getUpgradeToProButtonClicked(
+      workspaceId: workspaceId,
+    );
+
     emit(
       state.copyWith(
         currentUser: currentUser,
         shareLink: shareLink,
         users: users,
         sectionType: sectionType,
+        hasClickedUpgradeToPro: hasClickedUpgradeToPro,
       ),
     );
   }
@@ -367,6 +374,20 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     emit(
       state.copyWith(
         users: event.users,
+      ),
+    );
+  }
+
+  Future<void> _onUpgradeToProClicked(
+    ShareTabEventUpgradeToProClicked event,
+    Emitter<ShareTabState> emit,
+  ) async {
+    await repository.setUpgradeToProButtonClicked(
+      workspaceId: workspaceId,
+    );
+    emit(
+      state.copyWith(
+        hasClickedUpgradeToPro: true,
       ),
     );
   }

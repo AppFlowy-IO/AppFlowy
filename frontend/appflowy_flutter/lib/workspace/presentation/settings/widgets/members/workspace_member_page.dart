@@ -255,7 +255,7 @@ class WorkspaceMembersPage extends StatelessWidget {
             confirmLabel: LocaleKeys
                 .settings_appearance_members_memberLimitExceededUpgrade
                 .tr(),
-            onConfirm: () => context
+            onConfirm: (_) => context
                 .read<WorkspaceMemberBloc>()
                 .add(const WorkspaceMemberEvent.upgradePlan()),
           );
@@ -531,7 +531,7 @@ class _MemberMoreActionList extends StatelessWidget {
                   .settings_appearance_members_areYouSureToRemoveMember
                   .tr(),
               confirmLabel: LocaleKeys.button_yes.tr(),
-              onConfirm: () => context.read<WorkspaceMemberBloc>().add(
+              onConfirm: (_) => context.read<WorkspaceMemberBloc>().add(
                     WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
                       action.member.email,
                     ),

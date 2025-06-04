@@ -47,4 +47,14 @@ abstract class ShareWithUserRepository {
   Future<FlowyResult<SharedSectionType, FlowyError>> getCurrentPageSectionType({
     required String pageId,
   });
+
+  /// Get the upgrade to pro button has been clicked.
+  Future<bool> getUpgradeToProButtonClicked({
+    required String workspaceId,
+  });
+
+  /// Set the upgrade to pro button has been clicked.
+  Future<void> setUpgradeToProButtonClicked({
+    required String workspaceId,
+  });
 }

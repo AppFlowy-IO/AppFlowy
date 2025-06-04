@@ -64,7 +64,7 @@ class SidebarToast extends StatelessWidget {
         description: LocaleKeys.sideBar_storageLimitDialogTitle.tr(),
         confirmLabel:
             LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
           );
@@ -78,7 +78,7 @@ class SidebarToast extends StatelessWidget {
             LocaleKeys.sideBar_singleFileProPlanLimitationDescription.tr(),
         confirmLabel:
             LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
           );

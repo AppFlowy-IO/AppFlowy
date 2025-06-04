@@ -951,7 +951,7 @@
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "AI On-device for Mac",
-        "memberProToggle": "More members & unlimited AI",
+        "memberProToggle": "More members & unlimited AI & guest access",
         "aiMaxToggle": "Unlimited AI and access to advanced models",
         "aiOnDeviceToggle": "Local AI for ultimate privacy",
         "aiCredit": {
@@ -1072,11 +1072,12 @@
         "itemTwo": "Members",
         "itemThree": "Storage",
         "itemFour": "Real-time collaboration",
-        "itemFive": "Mobile app",
+        "itemFive": "Guest editors",
         "itemSix": "AI Responses",
         "itemSeven": "AI Images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace",
@@ -1098,9 +1099,9 @@
         "itemTwo": "Up to 10",
         "itemThree": "Unlimited",
         "itemFour": "yes",
-        "itemFive": "yes",
+        "itemFive": "Up to 100",
         "itemSix": "Unlimited",
-        "itemSeven": "10 images per month",
+        "itemSeven": "50 images per month",
         "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
@@ -3444,10 +3445,23 @@
     "canMakeAnyChanges": "Can make any changes",
     "generalAccess": "General access",
     "peopleWithAccess": "People with access",
-    "peopleAboveCanAccessWithTheLink": "People above can access with the link"
+    "peopleAboveCanAccessWithTheLink": "People above can access with the link",
+    "upgrade": "Upgrade",
+    "toProPlanToInviteGuests": " to the Pro plan to invite guests to this page",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "Upgrade to invite guest",
+        "member": "Upgrade to invite guest",
+        "guest": "Upgrade to invite guest"
+      },
+      "description": {
+        "owner": "Your workspace is currently on the Free plan. Upgrade to the Pro plan to allow external users to access this page as guests.",
+        "member": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan.",
+        "guest": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan."
+      }
+    }
   },
   "shareSection": {
-    "shared": "Shared with me",
-    "refresh": "Refresh"
+    "shared": "Shared with me"
   }
 }

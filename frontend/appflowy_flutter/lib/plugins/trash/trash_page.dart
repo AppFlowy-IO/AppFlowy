@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/src/sizes.dart';
@@ -14,6 +12,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -112,7 +111,7 @@ class _TrashPageState extends State<TrashPage> {
                 confirmLabel: LocaleKeys.trash_restore.tr(),
                 title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
                 description: LocaleKeys.trash_confirmRestoreAll_caption.tr(),
-                onConfirm: () => context
+                onConfirm: (_) => context
                     .read<TrashBloc>()
                     .add(const TrashEvent.restoreAll()),
               ),
@@ -163,7 +162,7 @@ class _TrashPageState extends State<TrashPage> {
                     LocaleKeys.trash_restorePage_title.tr(args: [object.name]),
                 description: LocaleKeys.trash_restorePage_caption.tr(),
                 confirmLabel: LocaleKeys.trash_restore.tr(),
-                onConfirm: () => context
+                onConfirm: (_) => context
                     .read<TrashBloc>()
                     .add(TrashEvent.putback(object.id)),
               ),

@@ -322,7 +322,7 @@ class _AITileState extends State<_AITile> {
                     .settings_billingPage_addons_removeDialog_description
                     .tr(namedArgs: {"plan": widget.plan.label.tr()}),
                 confirmLabel: LocaleKeys.button_confirm.tr(),
-                onConfirm: () => context
+                onConfirm: (_) => context
                     .read<SettingsBillingBloc>()
                     .add(SettingsBillingEvent.cancelSubscription(widget.plan)),
               );

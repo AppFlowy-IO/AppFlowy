@@ -55,6 +55,9 @@ sealed class ShareTabEvent {
     required SharedUsers users,
   }) =>
       ShareTabEventUpdateSharedUsers(users: users);
+
+  factory ShareTabEvent.upgradeToProClicked() =>
+      const ShareTabEventUpgradeToProClicked();
 }
 
 /// Initializes the share tab bloc.
@@ -144,4 +147,8 @@ class ShareTabEventUpdateSharedUsers extends ShareTabEvent {
   });
 
   final SharedUsers users;
+}
+
+class ShareTabEventUpgradeToProClicked extends ShareTabEvent {
+  const ShareTabEventUpgradeToProClicked();
 }

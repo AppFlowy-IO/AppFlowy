@@ -5,6 +5,7 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/upgrade_to_pro_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -23,6 +24,8 @@ class ShareTab extends StatefulWidget {
     required this.pageId,
     required this.workspaceName,
     required this.workspaceIcon,
+    required this.isInProPlan,
+    required this.onUpgradeToPro,
   });
 
   final String workspaceId;
@@ -31,6 +34,9 @@ class ShareTab extends StatefulWidget {
   // these 2 values should be provided by the share tab bloc
   final String workspaceName;
   final String workspaceIcon;
+
+  final bool isInProPlan;
+  final VoidCallback onUpgradeToPro;
 
   @override
   State<ShareTab> createState() => _ShareTabState();
@@ -94,8 +100,18 @@ class _ShareTabState extends State<ShareTab> {
               ),
             ),
 
-            // shared users
+            if (!widget.isInProPlan && !state.hasClickedUpgradeToPro) ...[
+              UpgradeToProWidget(
+                onClose: () {
+                  context.read<ShareTabBloc>().add(
+                        ShareTabEvent.upgradeToProClicked(),
+                      );
+                },
+                onUpgrade: widget.onUpgradeToPro,
+              ),
+            ],
 
+            // shared users
             if (state.users.isNotEmpty) ...[
               VSpace(theme.spacing.l),
               PeopleWithAccessSection(
@@ -171,7 +187,7 @@ class _ShareTabState extends State<ShareTab> {
             description: '',
             style: ConfirmPopupStyle.cancelAndOk,
             confirmLabel: 'Remove',
-            onConfirm: () {
+            onConfirm: (_) {
               shareTabBloc.add(
                 ShareTabEvent.removeUsers(emails: [user.email]),
               );

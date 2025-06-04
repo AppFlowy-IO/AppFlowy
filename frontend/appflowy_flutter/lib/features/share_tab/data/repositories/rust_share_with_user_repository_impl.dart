@@ -1,5 +1,8 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/util/extensions.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -160,5 +163,29 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
     };
 
     return FlowySuccess(sectionType);
+  }
+
+  @override
+  Future<bool> getUpgradeToProButtonClicked({
+    required String workspaceId,
+  }) async {
+    final result = await getIt<KeyValueStorage>().getWithFormat(
+      '${KVKeys.hasClickedUpgradeToProButton}_$workspaceId',
+      (value) => bool.parse(value),
+    );
+    if (result == null) {
+      return false;
+    }
+    return result;
+  }
+
+  @override
+  Future<void> setUpgradeToProButtonClicked({
+    required String workspaceId,
+  }) async {
+    await getIt<KeyValueStorage>().set(
+      '${KVKeys.hasClickedUpgradeToProButton}_$workspaceId',
+      'true',
+    );
   }
 }

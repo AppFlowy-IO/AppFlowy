@@ -45,7 +45,6 @@ class ShareButton extends StatelessWidget {
         BlocProvider(
           create: (context) => ShareTabBloc(
             repository: RustShareWithUserRepositoryImpl(),
-            // repository: LocalShareWithUserRepositoryImpl(),
             pageId: view.id,
             workspaceId: workspaceId,
           )..add(ShareTabEvent.initialize()),

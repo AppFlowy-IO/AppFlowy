@@ -70,7 +70,7 @@ class SettingsManageDataView extends StatelessWidget {
                         description: LocaleKeys
                             .settings_manageDataPage_dataStorage_resetDialog_description
                             .tr(),
-                        onConfirm: () async {
+                        onConfirm: (_) async {
                           final directory =
                               await appFlowyApplicationDataDirectory();
                           final path = directory.path;
@@ -146,7 +146,7 @@ class SettingsManageDataView extends StatelessWidget {
                             .settings_manageDataPage_cache_dialog_description
                             .tr(),
                         confirmLabel: LocaleKeys.button_ok.tr(),
-                        onConfirm: () async {
+                        onConfirm: (_) async {
                           // clear all cache
                           await getIt<FlowyCacheManager>().clearAllCache();
 

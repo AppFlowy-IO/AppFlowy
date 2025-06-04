@@ -181,4 +181,18 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
   }) async {
     return FlowySuccess(SharedSectionType.private);
   }
+
+  @override
+  Future<bool> getUpgradeToProButtonClicked({
+    required String workspaceId,
+  }) async {
+    return false;
+  }
+
+  @override
+  Future<void> setUpgradeToProButtonClicked({
+    required String workspaceId,
+  }) async {
+    return;
+  }
 }
