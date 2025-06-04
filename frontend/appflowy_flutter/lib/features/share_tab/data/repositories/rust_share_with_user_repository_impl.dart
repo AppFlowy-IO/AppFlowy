@@ -57,7 +57,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
         return FlowySuccess(success);
       },
       (failure) {
-        Log.error('removeUserFromPage: $failure');
+        Log.error('remove users($emails) from shared page($pageId): $failure');
 
         return FlowyFailure(failure);
       },
@@ -74,7 +74,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
       viewId: pageId,
       emails: emails,
       accessLevel: accessLevel.accessLevel,
-      autoConfirm: true, // TODO: remove this after the backend is ready
+      autoConfirm: true,
     );
     final result = await FolderEventSharePageWithUser(request).send();
 

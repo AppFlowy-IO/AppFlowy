@@ -48,32 +48,28 @@ class DispatchException implements Exception {
 }
 
 class Dispatch {
+  static bool enableTracing = false;
+
   static Future<FlowyResult<Uint8List, Uint8List>> asyncRequest(
     FFIRequest request,
   ) async {
-    final event = request.event;
+    Future<FlowyResult<Uint8List, Uint8List>> _asyncRequest() async {
+      final event = request.event;
+      final bytesFuture = _sendToRust(request);
+      final response = await _extractResponse(bytesFuture);
+      final payload = _extractPayload(response);
+      return payload;
+    }
 
-    // FFIRequest => Rust SDK
-    final bytesFuture = _sendToRust(request);
+    if (enableTracing) {
+      final start = DateTime.now();
+      final result = await _asyncRequest();
+      final duration = DateTime.now().difference(start);
+      Log.debug('Dispatch ${request.event} took ${duration.inMilliseconds}ms');
+      return result;
+    }
 
-    _infoLog(event, 'sent request');
-
-    // Rust SDK => FFIResponse
-    final response = await _extractResponse(bytesFuture);
-
-    _infoLog(event, 'received response');
-
-    // FFIResponse's payload is the bytes of the Response object
-    final payload = _extractPayload(response);
-
-    _infoLog(event, 'parsed payload');
-
-    return payload;
-  }
-
-  // only enable it when you need to debug the dispatch
-  static void _infoLog(String event, String message) {
-    // Log.info('[dispatch] [$event] $message');
+    return _asyncRequest();
   }
 }
 

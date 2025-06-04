@@ -8,6 +8,7 @@ import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 export 'shared_section_event.dart';
 export 'shared_section_state.dart';
