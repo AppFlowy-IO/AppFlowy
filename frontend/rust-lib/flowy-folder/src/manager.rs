@@ -1,10 +1,11 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
-  AFAccessLevelPB, CreateViewParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
-  MoveNestedViewParams, RepeatedSharedViewResponsePB, RepeatedTrashPB, RepeatedViewIdPB,
-  RepeatedViewPB, SharedViewPB, SharedViewSectionPB, UpdateViewParams, ViewLayoutPB, ViewPB,
-  ViewSectionPB, WorkspaceLatestPB, WorkspacePB, view_pb_with_all_child_views,
-  view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
+  AFAccessLevelPB, AFRolePB, CreateViewParams, DeletedViewPB, DuplicateViewParams,
+  FolderSnapshotPB, MoveNestedViewParams, RepeatedSharedUserPB, RepeatedSharedViewResponsePB,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, SharedUserPB, SharedViewPB,
+  SharedViewSectionPB, UpdateViewParams, ViewLayoutPB, ViewPB, ViewSectionPB, WorkspaceLatestPB,
+  WorkspacePB, view_pb_with_all_child_views, view_pb_with_child_views, view_pb_without_child_views,
+  view_pb_without_child_views_from_arc,
 };
 use crate::manager_observer::{
   ChildViewChangeReason, notify_child_views_changed, notify_did_update_workspace,
@@ -18,11 +19,11 @@ use crate::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData, create_view,
 };
 use arc_swap::ArcSwapOption;
-use client_api::entity::PublishInfo;
 use client_api::entity::guest_dto::{
-  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser, SharedViewDetails,
 };
 use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::{AFAccessLevel, AFRole, PublishInfo};
 use collab::core::collab::{DataSource, IndexContentReceiver};
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
@@ -41,6 +42,10 @@ use flowy_folder_pub::cloud::{FolderCloudService, FolderCollabParams, gen_view_i
 use flowy_folder_pub::entities::{
   PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
   PublishViewInfo, PublishViewMeta, PublishViewMetaData,
+};
+use flowy_folder_pub::sql::workspace_shared_user_sql::{
+  WorkspaceSharedUserTable, delete_workspace_shared_user, replace_all_workspace_shared_users,
+  select_all_workspace_shared_users,
 };
 use flowy_folder_pub::sql::workspace_shared_view_sql::{
   WorkspaceSharedViewTable, replace_all_workspace_shared_views, select_all_workspace_shared_views,
@@ -1384,10 +1389,68 @@ impl FolderManager {
     params: ShareViewWithGuestRequest,
   ) -> Result<(), FlowyError> {
     let workspace_id = self.user.workspace_id()?;
+    let view_id = params.view_id;
+
     self
       .cloud_service()?
       .share_page_with_user(&workspace_id, params)
       .await?;
+
+    // If successful, refresh the shared page details from cloud and update local database
+    let cloud_workspace_id = workspace_id;
+    let cloud_page_id = view_id;
+    let user = self.user.clone();
+    let cloud_service = self.cloud_service.clone();
+    tokio::spawn(async move {
+      if let Some(cloud_service) = cloud_service.upgrade() {
+        if let Ok(details) = cloud_service
+          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id)
+          .await
+        {
+          if let Ok(uid) = user.user_id() {
+            if let Ok(mut conn) = user.sqlite_connection(uid) {
+              let shared_users = details
+                .shared_with
+                .iter()
+                .map(|user| {
+                  WorkspaceSharedUserTable::new(
+                    cloud_workspace_id.to_string(),
+                    cloud_page_id.to_string(),
+                    user.email.clone(),
+                    user.name.clone(),
+                    user.avatar_url.clone().unwrap_or_default(),
+                    user.role.clone() as i32,
+                    user.access_level.clone() as i32,
+                  )
+                })
+                .collect::<Vec<_>>();
+
+              let _ = replace_all_workspace_shared_users(
+                &mut conn,
+                &cloud_workspace_id.to_string(),
+                &cloud_page_id.to_string(),
+                &shared_users,
+              );
+
+              // Notify UI to refresh the shared page details
+              folder_notification_builder(
+                &cloud_page_id.to_string(),
+                FolderNotification::DidUpdateSharedUsers,
+              )
+              .payload(RepeatedSharedUserPB {
+                items: details
+                  .shared_with
+                  .into_iter()
+                  .map(|user| user.into())
+                  .collect(),
+              })
+              .send();
+            }
+          }
+        }
+      }
+    });
+
     Ok(())
   }
 
@@ -1398,10 +1461,46 @@ impl FolderManager {
     params: RevokeSharedViewAccessRequest,
   ) -> Result<(), FlowyError> {
     let workspace_id = self.user.workspace_id()?;
+    let emails_to_revoke = params.emails.clone();
+
     self
       .cloud_service()?
       .revoke_shared_page_access(&workspace_id, page_id, params)
       .await?;
+
+    let uid = self.user.user_id()?;
+    let mut conn = self.user.sqlite_connection(uid)?;
+
+    for email in emails_to_revoke {
+      let _ = delete_workspace_shared_user(
+        &mut conn,
+        &workspace_id.to_string(),
+        &page_id.to_string(),
+        &email,
+      );
+    }
+
+    if let Ok(updated_shared_users) = select_all_workspace_shared_users(
+      self.user.sqlite_connection(uid)?,
+      &workspace_id.to_string(),
+      &page_id.to_string(),
+    ) {
+      let updated_users_pb: Vec<SharedUserPB> = updated_shared_users
+        .into_iter()
+        .map(|user| user.into())
+        .collect();
+
+      // Notify UI to refresh the shared page details
+      folder_notification_builder(
+        &page_id.to_string(),
+        FolderNotification::DidUpdateSharedUsers,
+      )
+      .payload(RepeatedSharedUserPB {
+        items: updated_users_pb,
+      })
+      .send();
+    }
+
     Ok(())
   }
 
@@ -1411,11 +1510,97 @@ impl FolderManager {
     page_id: &Uuid,
   ) -> Result<SharedViewDetails, FlowyError> {
     let workspace_id = self.user.workspace_id()?;
-    let result = self
-      .cloud_service()?
-      .get_shared_page_details(&workspace_id, page_id)
-      .await?;
-    Ok(result)
+    let uid = self.user.user_id()?;
+    let conn = self.user.sqlite_connection(uid)?;
+
+    let mut local_shared_details = None;
+
+    // 1. Get the data from the local database first
+    if let Ok(shared_details) =
+      select_all_workspace_shared_users(conn, &workspace_id.to_string(), &page_id.to_string())
+    {
+      let shared_with = shared_details
+        .into_iter()
+        .map(|user| SharedUser {
+          email: user.email,
+          name: user.name,
+          access_level: AFAccessLevel::from(AFAccessLevelPB::from(user.access_level)),
+          role: AFRole::from(AFRolePB::from(user.role)),
+          avatar_url: if user.avatar_url.is_empty() {
+            None
+          } else {
+            Some(user.avatar_url)
+          },
+        })
+        .collect();
+
+      local_shared_details = Some(SharedViewDetails {
+        view_id: *page_id,
+        shared_with,
+      });
+    }
+
+    // 2. Fetch the data from the cloud service and persist to the local database
+    let cloud_workspace_id = workspace_id;
+    let cloud_page_id = *page_id;
+    let user = self.user.clone();
+    let cloud_service = self.cloud_service.clone();
+    tokio::spawn(async move {
+      if let Some(cloud_service) = cloud_service.upgrade() {
+        if let Ok(details) = cloud_service
+          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id)
+          .await
+        {
+          if let Ok(mut conn) = user.sqlite_connection(uid) {
+            let shared_users = details
+              .shared_with
+              .iter()
+              .map(|user| {
+                WorkspaceSharedUserTable::new(
+                  cloud_workspace_id.to_string(),
+                  cloud_page_id.to_string(),
+                  user.email.clone(),
+                  user.name.clone(),
+                  user.avatar_url.clone().unwrap_or_default(),
+                  user.role.clone() as i32,
+                  user.access_level.clone() as i32,
+                )
+              })
+              .collect::<Vec<_>>();
+
+            let _ = replace_all_workspace_shared_users(
+              &mut conn,
+              &cloud_workspace_id.to_string(),
+              &cloud_page_id.to_string(),
+              &shared_users,
+            );
+
+            // Notify UI to refresh the shared page details
+            folder_notification_builder(
+              &cloud_page_id.to_string(),
+              FolderNotification::DidUpdateSharedUsers,
+            )
+            .payload(RepeatedSharedUserPB {
+              items: details
+                .shared_with
+                .into_iter()
+                .map(|user| user.into())
+                .collect(),
+            })
+            .send();
+          }
+        }
+      }
+    });
+
+    if let Some(local_shared_details) = local_shared_details {
+      Ok(local_shared_details)
+    } else {
+      Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Failed to get shared page details".to_string(),
+      ))
+    }
   }
 
   /// Publishes a view identified by the given `view_id`.
