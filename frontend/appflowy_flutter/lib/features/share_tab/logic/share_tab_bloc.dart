@@ -388,7 +388,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
           if (response != null) {
             add(
               ShareTabEvent.updateSharedUsers(
-                users: response.sharedUsers,
+                users: response.sharedUsers.reversed.toList(),
               ),
             );
           }
