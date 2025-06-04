@@ -1411,7 +1411,8 @@ impl FolderManager {
               let shared_users = details
                 .shared_with
                 .iter()
-                .map(|user| {
+                .enumerate()
+                .map(|(order, user)| {
                   WorkspaceSharedUserTable::new(
                     cloud_workspace_id.to_string(),
                     cloud_page_id.to_string(),
@@ -1420,6 +1421,7 @@ impl FolderManager {
                     user.avatar_url.clone().unwrap_or_default(),
                     user.role.clone() as i32,
                     user.access_level.clone() as i32,
+                    order as i32,
                   )
                 })
                 .collect::<Vec<_>>();
@@ -1554,7 +1556,8 @@ impl FolderManager {
             let shared_users = details
               .shared_with
               .iter()
-              .map(|user| {
+              .enumerate()
+              .map(|(order, user)| {
                 WorkspaceSharedUserTable::new(
                   cloud_workspace_id.to_string(),
                   cloud_page_id.to_string(),
@@ -1563,6 +1566,7 @@ impl FolderManager {
                   user.avatar_url.clone().unwrap_or_default(),
                   user.role.clone() as i32,
                   user.access_level.clone() as i32,
+                  order as i32,
                 )
               })
               .collect::<Vec<_>>();

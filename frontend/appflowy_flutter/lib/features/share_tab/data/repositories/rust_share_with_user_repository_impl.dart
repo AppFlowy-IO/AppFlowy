@@ -29,7 +29,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
       (success) {
         Log.debug('get shared users success: $success');
 
-        return FlowySuccess(success.sharedUsers.reversed.toList());
+        return FlowySuccess(success.sharedUsers);
       },
       (failure) {
         Log.error('get shared users failed: $failure');

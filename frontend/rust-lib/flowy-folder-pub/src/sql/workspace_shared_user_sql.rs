@@ -15,6 +15,7 @@ pub struct WorkspaceSharedUserTable {
   pub avatar_url: String,
   pub role: i32,
   pub access_level: i32,
+  pub order: i32,
 }
 
 impl WorkspaceSharedUserTable {
@@ -26,6 +27,7 @@ impl WorkspaceSharedUserTable {
     avatar_url: String,
     role: i32,
     access_level: i32,
+    order: i32,
   ) -> Self {
     Self {
       workspace_id,
@@ -35,6 +37,7 @@ impl WorkspaceSharedUserTable {
       avatar_url,
       role,
       access_level,
+      order,
     }
   }
 }
@@ -82,6 +85,7 @@ pub fn select_all_workspace_shared_users(
   let shared_users = dsl::workspace_shared_user
     .filter(workspace_shared_user::workspace_id.eq(workspace_id))
     .filter(workspace_shared_user::view_id.eq(view_id))
+    .order(workspace_shared_user::order.desc())
     .load::<WorkspaceSharedUserTable>(&mut conn)?;
   Ok(shared_users)
 }
@@ -92,6 +96,7 @@ pub fn select_all_workspace_shared_users_by_workspace(
 ) -> FlowyResult<Vec<WorkspaceSharedUserTable>> {
   let shared_users = dsl::workspace_shared_user
     .filter(workspace_shared_user::workspace_id.eq(workspace_id))
+    .order(workspace_shared_user::order.desc())
     .load::<WorkspaceSharedUserTable>(&mut conn)?;
   Ok(shared_users)
 }
