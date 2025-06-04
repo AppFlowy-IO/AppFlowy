@@ -50,6 +50,11 @@ sealed class ShareTabEvent {
       ShareTabEventConvertToMember(email: email);
 
   factory ShareTabEvent.clearState() => const ShareTabEventClearState();
+
+  factory ShareTabEvent.updateSharedUsers({
+    required SharedUsers users,
+  }) =>
+      ShareTabEventUpdateSharedUsers(users: users);
 }
 
 /// Initializes the share tab bloc.
@@ -131,4 +136,12 @@ class ShareTabEventConvertToMember extends ShareTabEvent {
 
 class ShareTabEventClearState extends ShareTabEvent {
   const ShareTabEventClearState();
+}
+
+class ShareTabEventUpdateSharedUsers extends ShareTabEvent {
+  const ShareTabEventUpdateSharedUsers({
+    required this.users,
+  });
+
+  final SharedUsers users;
 }

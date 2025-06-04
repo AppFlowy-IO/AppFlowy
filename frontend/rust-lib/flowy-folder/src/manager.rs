@@ -1396,7 +1396,6 @@ impl FolderManager {
       .share_page_with_user(&workspace_id, params)
       .await?;
 
-    // If successful, refresh the shared page details from cloud and update local database
     let cloud_workspace_id = workspace_id;
     let cloud_page_id = view_id;
     let user = self.user.clone();
