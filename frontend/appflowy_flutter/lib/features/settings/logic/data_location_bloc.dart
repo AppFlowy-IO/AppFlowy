@@ -12,6 +12,7 @@ class DataLocationBloc extends Bloc<DataLocationEvent, DataLocationState> {
         super(DataLocationState.initial()) {
     on<DataLocationInitial>(_onStarted);
     on<DataLocationResetToDefault>(_onResetToDefault);
+    on<DataLocationClearState>(_onClearState);
   }
 
   final SettingsRepository _repository;
@@ -26,6 +27,7 @@ class DataLocationBloc extends Bloc<DataLocationEvent, DataLocationState> {
     emit(
       DataLocationState(
         userDataLocation: userDataLocation,
+        didResetToDefault: false,
       ),
     );
   }
@@ -40,6 +42,18 @@ class DataLocationBloc extends Bloc<DataLocationEvent, DataLocationState> {
     emit(
       DataLocationState(
         userDataLocation: defaultLocation,
+        didResetToDefault: true,
+      ),
+    );
+  }
+
+  Future<void> _onClearState(
+    DataLocationClearState event,
+    Emitter<DataLocationState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        didResetToDefault: false,
       ),
     );
   }

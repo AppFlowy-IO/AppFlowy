@@ -42,7 +42,16 @@ class SettingsManageDataView extends StatelessWidget {
         repository: const RustSettingsRepositoryImpl(),
       )..add(DataLocationEvent.initial()),
       child: BlocConsumer<DataLocationBloc, DataLocationState>(
-        listener: (context, state) {},
+        listenWhen: (previous, current) =>
+            previous.didResetToDefault != current.didResetToDefault,
+        listener: (context, state) async {
+          if (state.didResetToDefault) {
+            context
+                .read<DataLocationBloc>()
+                .add(DataLocationEvent.clearState());
+            await runAppFlowy(isAnon: true);
+          }
+        },
         builder: (context, state) {
           final isCustom = state.userDataLocation?.isCustom ?? false;
 
@@ -77,11 +86,10 @@ class SettingsManageDataView extends StatelessWidget {
                               .tr(),
                           primaryAction: (
                             LocaleKeys.button_confirm.tr(),
-                            (_) async {
+                            (_) {
                               context
                                   .read<DataLocationBloc>()
                                   .add(DataLocationResetToDefault());
-                              await runAppFlowy(isAnon: true);
                             }
                           ),
                           secondaryAction: (
