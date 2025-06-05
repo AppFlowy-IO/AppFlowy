@@ -2,7 +2,6 @@ import 'package:appflowy/features/shared_section/data/repositories/rust_shared_p
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/m_shared_page_list.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/m_shared_section_header.dart';
-import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_empty.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_error.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
@@ -10,7 +9,6 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,6 +29,8 @@ class MSharedSection extends StatelessWidget {
         workspaceId: workspaceId,
         repository: repository,
         enablePolling: true,
+        pollingIntervalSeconds:
+            15, // remove this after the websocket is implemented
       )..add(const SharedSectionInitEvent()),
       child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
@@ -75,14 +75,14 @@ class MSharedSection extends StatelessWidget {
               ),
 
               // Refresh button, for debugging only
-              if (kDebugMode)
-                RefreshSharedSectionButton(
-                  onTap: () {
-                    context.read<SharedSectionBloc>().add(
-                          const SharedSectionEvent.refresh(),
-                        );
-                  },
-                ),
+              // if (kDebugMode)
+              //   RefreshSharedSectionButton(
+              //     onTap: () {
+              //       context.read<SharedSectionBloc>().add(
+              //             const SharedSectionEvent.refresh(),
+              //           );
+              //     },
+              //   ),
             ],
           );
         },

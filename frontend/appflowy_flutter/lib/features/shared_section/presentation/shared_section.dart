@@ -1,6 +1,5 @@
 import 'package:appflowy/features/shared_section/data/repositories/rust_shared_pages_repository_impl.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
-import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_list.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_error.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_header.dart';
@@ -17,7 +16,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,6 +38,8 @@ class SharedSection extends StatelessWidget {
         workspaceId: workspaceId,
         repository: repository,
         enablePolling: true,
+        pollingIntervalSeconds:
+            15, // remove this after the websocket is implemented
       )..add(const SharedSectionInitEvent()),
       child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
@@ -139,14 +139,14 @@ class SharedSection extends StatelessWidget {
                 ),
 
               // Refresh button, for debugging only
-              if (kDebugMode)
-                RefreshSharedSectionButton(
-                  onTap: () {
-                    context.read<SharedSectionBloc>().add(
-                          const SharedSectionEvent.refresh(),
-                        );
-                  },
-                ),
+              // if (kDebugMode)
+              //   RefreshSharedSectionButton(
+              //     onTap: () {
+              //       context.read<SharedSectionBloc>().add(
+              //             const SharedSectionEvent.refresh(),
+              //           );
+              //     },
+              //   ),
 
               const VSpace(16.0),
             ],
