@@ -1,46 +1,66 @@
 import 'dart:async';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/settings/settings.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/util/share_log_files.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_export_file_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class SettingsManageDataView extends StatelessWidget {
-  const SettingsManageDataView({super.key, required this.userProfile});
+import '../shared/setting_action.dart';
 
+class SettingsManageDataView extends StatelessWidget {
+  const SettingsManageDataView({
+    super.key,
+    required this.workspace,
+    required this.userProfile,
+  });
+
+  final UserWorkspacePB workspace;
   final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<SettingsLocationCubit>(
-      create: (_) => SettingsLocationCubit(),
-      child: BlocBuilder<SettingsLocationCubit, SettingsLocationState>(
+    return BlocProvider<DataLocationBloc>(
+      create: (_) => DataLocationBloc(
+        repository: const RustSettingsRepositoryImpl(),
+      )..add(DataLocationEvent.initial()),
+      child: BlocConsumer<DataLocationBloc, DataLocationState>(
+        listenWhen: (previous, current) =>
+            previous.didResetToDefault != current.didResetToDefault,
+        listener: (context, state) {
+          if (state.didResetToDefault) {
+            Navigator.of(context).pop();
+            runAppFlowy(isAnon: true);
+          }
+        },
         builder: (context, state) {
+          // final _ = state.userDataLocation?.isCustom ?? false;
+          final isCloudWorkspace =
+              workspace.workspaceType == WorkspaceTypePB.ServerW;
+          final path = state.userDataLocation?.path;
+
           return SettingsBody(
             title: LocaleKeys.settings_manageDataPage_title.tr(),
             description: LocaleKeys.settings_manageDataPage_description.tr(),
@@ -51,7 +71,7 @@ class SettingsManageDataView extends StatelessWidget {
                 tooltip:
                     LocaleKeys.settings_manageDataPage_dataStorage_tooltip.tr(),
                 actions: [
-                  if (state.mapOrNull(didReceivedPath: (_) => true) == true)
+                  if (isCloudWorkspace)
                     SettingAction(
                       tooltip: LocaleKeys
                           .settings_manageDataPage_dataStorage_actions_resetTooltip
@@ -61,42 +81,39 @@ class SettingsManageDataView extends StatelessWidget {
                         size: Size.square(20),
                       ),
                       label: LocaleKeys.settings_common_reset.tr(),
-                      onPressed: () => showConfirmDialog(
-                        context: context,
-                        confirmLabel: LocaleKeys.button_confirm.tr(),
-                        title: LocaleKeys
-                            .settings_manageDataPage_dataStorage_resetDialog_title
-                            .tr(),
-                        description: LocaleKeys
-                            .settings_manageDataPage_dataStorage_resetDialog_description
-                            .tr(),
-                        onConfirm: (_) async {
-                          final directory =
-                              await appFlowyApplicationDataDirectory();
-                          final path = directory.path;
-                          if (!context.mounted ||
-                              state.mapOrNull(didReceivedPath: (e) => e.path) ==
-                                  path) {
-                            return;
-                          }
-
-                          await context
-                              .read<SettingsLocationCubit>()
-                              .resetDataStoragePathToApplicationDefault();
-                          await runAppFlowy(isAnon: true);
-                        },
-                      ),
+                      onPressed: () {
+                        showSimpleAFDialog(
+                          context: context,
+                          title: LocaleKeys
+                              .settings_manageDataPage_dataStorage_resetDialog_title
+                              .tr(),
+                          content: LocaleKeys
+                              .settings_manageDataPage_dataStorage_resetDialog_description
+                              .tr(),
+                          primaryAction: (
+                            LocaleKeys.button_confirm.tr(),
+                            (_) {
+                              context
+                                  .read<DataLocationBloc>()
+                                  .add(DataLocationResetToDefault());
+                            }
+                          ),
+                          secondaryAction: (
+                            LocaleKeys.button_cancel.tr(),
+                            (_) {},
+                          ),
+                        );
+                      },
                     ),
                 ],
-                children: state
-                    .map(
-                      initial: (_) => [const CircularProgressIndicator()],
-                      didReceivedPath: (event) => [
-                        _CurrentPath(path: event.path),
-                        _DataPathActions(currentPath: event.path),
+                children: path == null
+                    ? [
+                        const CircularProgressIndicator(),
+                      ]
+                    : [
+                        _CurrentPath(path: path),
+                        if (isCloudWorkspace) _DataPathActions(path: path),
                       ],
-                    )
-                    .toList(),
               ),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_importData_title.tr(),
@@ -327,6 +344,7 @@ class _CurrentPath extends StatefulWidget {
 class _CurrentPathState extends State<_CurrentPath> {
   Timer? linkCopiedTimer;
   bool showCopyMessage = false;
+  bool isHovering = false;
 
   @override
   void dispose() {
@@ -336,63 +354,84 @@ class _CurrentPathState extends State<_CurrentPath> {
 
   @override
   Widget build(BuildContext context) {
-    final isLM = Theme.of(context).isLightMode;
+    final theme = AppFlowyTheme.of(context);
 
     return Column(
       children: [
         Row(
           children: [
             Expanded(
-              child: Listener(
-                behavior: HitTestBehavior.opaque,
-                onPointerDown: (_) => _copyLink(widget.path),
-                child: FlowyHover(
-                  style: const HoverStyle.transparent(),
-                  resetHoverOnRebuild: false,
-                  builder: (_, isHovering) => FlowyText.regular(
-                    widget.path,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    lineHeight: 1.5,
-                    decoration: isHovering ? TextDecoration.underline : null,
-                    color: isLM
-                        ? const Color(0xFF005483)
-                        : Theme.of(context).colorScheme.primary,
+              child: FlowyTooltip(
+                message: LocaleKeys
+                    .settings_manageDataPage_dataStorage_actions_openTooltip
+                    .tr(),
+                child: GestureDetector(
+                  onTap: () => {
+                    afLaunchUri(Uri.file(widget.path)),
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    onEnter: (_) => setState(() => isHovering = true),
+                    onExit: (_) => setState(() => isHovering = false),
+                    child: Text(
+                      widget.path,
+                      maxLines: 2,
+                      style: theme.textStyle.body
+                          .standard(color: theme.textColorScheme.action)
+                          .copyWith(
+                            decoration:
+                                isHovering ? TextDecoration.underline : null,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
             ),
-            const HSpace(8),
-            showCopyMessage
-                ? SizedBox(
-                    height: 36,
-                    child: FlowyTextButton(
-                      LocaleKeys
-                          .settings_manageDataPage_dataStorage_actions_copiedHint
-                          .tr(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      fontWeight: FontWeight.w500,
-                      radius: BorderRadius.circular(12),
-                      fillColor: AFThemeExtension.of(context).tint7,
-                      hoverColor: AFThemeExtension.of(context).tint7,
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 100),
-                    child: SettingAction(
-                      tooltip: LocaleKeys
-                          .settings_manageDataPage_dataStorage_actions_copy
-                          .tr(),
-                      icon: const FlowySvg(
-                        FlowySvgs.copy_s,
-                        size: Size.square(24),
-                      ),
-                      onPressed: () => _copyLink(widget.path),
-                    ),
+            HSpace(
+              theme.spacing.m,
+            ),
+            IndexedStack(
+              alignment: Alignment.centerRight,
+              index: showCopyMessage ? 0 : 1,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: AFThemeExtension.of(context).tint7,
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: theme.spacing.l,
+                    vertical: theme.spacing.m,
+                  ),
+                  child: Text(
+                    LocaleKeys
+                        .settings_manageDataPage_dataStorage_actions_copiedHint
+                        .tr(),
+                    style: theme.textStyle.body.standard(
+                      color: theme.textColorScheme.primary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                FlowyTooltip(
+                  message: LocaleKeys
+                      .settings_manageDataPage_dataStorage_actions_copy
+                      .tr(),
+                  child: AFGhostButton.normal(
+                    builder: (context, _, __) {
+                      return FlowySvg(
+                        FlowySvgs.copy_s,
+                        size: Size.square(20),
+                        color: theme.textColorScheme.primary,
+                      );
+                    },
+                    padding: EdgeInsets.all(theme.spacing.m),
+                    onTap: () => _copyLink(widget.path),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -405,52 +444,34 @@ class _CurrentPathState extends State<_CurrentPath> {
     linkCopiedTimer?.cancel();
     linkCopiedTimer = Timer(
       const Duration(milliseconds: 300),
-      () => mounted ? setState(() => showCopyMessage = false) : null,
+      () {
+        if (mounted) {
+          setState(() => showCopyMessage = false);
+        }
+      },
     );
   }
 }
 
 class _DataPathActions extends StatelessWidget {
-  const _DataPathActions({required this.currentPath});
+  const _DataPathActions({required this.path});
 
-  final String currentPath;
+  final String path;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          height: 42,
-          child: PrimaryRoundedButton(
-            text: LocaleKeys.settings_manageDataPage_dataStorage_actions_change
-                .tr(),
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            fontWeight: FontWeight.w600,
-            radius: 12.0,
-            onTap: () async {
-              final path = await getIt<FilePickerService>().getDirectoryPath();
-              if (!context.mounted || path == null || currentPath == path) {
-                return;
-              }
+    return AFFilledTextButton.primary(
+      text: LocaleKeys.settings_manageDataPage_dataStorage_actions_change.tr(),
+      onTap: () async {
+        final path = await getIt<FilePickerService>().getDirectoryPath();
+        if (!context.mounted || path == null || path == path) {
+          return;
+        }
 
-              await context.read<SettingsLocationCubit>().setCustomPath(path);
-              await runAppFlowy(isAnon: true);
-
-              if (context.mounted) Navigator.of(context).pop();
-            },
-          ),
-        ),
-        const HSpace(16),
-        SettingAction(
-          tooltip: LocaleKeys
-              .settings_manageDataPage_dataStorage_actions_openTooltip
-              .tr(),
-          label:
-              LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
-          icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUri(Uri.file(currentPath)),
-        ),
-      ],
+        context
+            .read<DataLocationBloc>()
+            .add(DataLocationEvent.setCustomPath(path));
+      },
     );
   }
 }

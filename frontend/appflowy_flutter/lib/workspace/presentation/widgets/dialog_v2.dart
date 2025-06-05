@@ -70,13 +70,11 @@ Future<void> showSimpleAFDialog({
             AFModalFooter(
               trailing: [
                 if (secondaryAction != null)
-                  AFOutlinedButton.normal(
+                  AFOutlinedTextButton.normal(
+                    text: secondaryAction.$1,
                     onTap: () {
                       secondaryAction.$2?.call(context);
                       Navigator.of(context).pop();
-                    },
-                    builder: (context, isHovering, disabled) {
-                      return Text(secondaryAction.$1);
                     },
                   ),
                 isDestructive
