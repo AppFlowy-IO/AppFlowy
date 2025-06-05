@@ -1552,58 +1552,65 @@ impl FolderManager {
     let cloud_page_id = *page_id;
     let user = self.user.clone();
     let cloud_service = self.cloud_service.clone();
-    let parent_view_ids = self
+    let parent_view_ids_backup = self
       .get_view_ancestors_pb(&page_id.to_string())
       .await?
       .into_iter()
       .map(|view| Uuid::from_str(&view.id).unwrap_or_default())
       .collect::<Vec<_>>();
+    println!("parent_view_ids: {:?}", parent_view_ids_backup);
+    let parent_view_ids = vec![];
     tokio::spawn(async move {
       if let Some(cloud_service) = cloud_service.upgrade() {
-        if let Ok(details) = cloud_service
+        let result = cloud_service
           .get_shared_page_details(&cloud_workspace_id, &cloud_page_id, parent_view_ids)
-          .await
-        {
-          if let Ok(mut conn) = user.sqlite_connection(uid) {
-            let shared_users = details
-              .shared_with
-              .iter()
-              .enumerate()
-              .map(|(order, user)| {
-                WorkspaceSharedUserTable::new(
-                  cloud_workspace_id.to_string(),
-                  cloud_page_id.to_string(),
-                  user.email.clone(),
-                  user.name.clone(),
-                  user.avatar_url.clone().unwrap_or_default(),
-                  user.role.clone() as i32,
-                  user.access_level as i32,
-                  order as i32,
-                )
-              })
-              .collect::<Vec<_>>();
-
-            let _ = replace_all_workspace_shared_users(
-              &mut conn,
-              &cloud_workspace_id.to_string(),
-              &cloud_page_id.to_string(),
-              &shared_users,
-            );
-
-            // Notify UI to refresh the shared page details
-            folder_notification_builder(
-              cloud_page_id.to_string(),
-              FolderNotification::DidUpdateSharedUsers,
-            )
-            .payload(RepeatedSharedUserPB {
-              items: details
+          .await;
+        match result {
+          Ok(details) => {
+            if let Ok(mut conn) = user.sqlite_connection(uid) {
+              let shared_users = details
                 .shared_with
-                .into_iter()
-                .map(|user| user.into())
-                .collect(),
-            })
-            .send();
-          }
+                .iter()
+                .enumerate()
+                .map(|(order, user)| {
+                  WorkspaceSharedUserTable::new(
+                    cloud_workspace_id.to_string(),
+                    cloud_page_id.to_string(),
+                    user.email.clone(),
+                    user.name.clone(),
+                    user.avatar_url.clone().unwrap_or_default(),
+                    user.role.clone() as i32,
+                    user.access_level as i32,
+                    order as i32,
+                  )
+                })
+                .collect::<Vec<_>>();
+
+              let _ = replace_all_workspace_shared_users(
+                &mut conn,
+                &cloud_workspace_id.to_string(),
+                &cloud_page_id.to_string(),
+                &shared_users,
+              );
+
+              // Notify UI to refresh the shared page details
+              folder_notification_builder(
+                cloud_page_id.to_string(),
+                FolderNotification::DidUpdateSharedUsers,
+              )
+              .payload(RepeatedSharedUserPB {
+                items: details
+                  .shared_with
+                  .into_iter()
+                  .map(|user| user.into())
+                  .collect(),
+              })
+              .send();
+            }
+          },
+          Err(e) => {
+            error!("Failed to get shared page details: {:?}", e);
+          },
         }
       }
     });
@@ -2366,7 +2373,10 @@ impl FolderManager {
   ///
   /// This function will return the first level of the shared views. If the shared view has child
   /// views, this function will not return the child views.
-  pub async fn get_shared_pages(&self) -> FlowyResult<RepeatedSharedViewResponsePB> {
+  pub async fn get_shared_pages(
+    &self,
+    is_fetch_from_cloud: bool,
+  ) -> FlowyResult<RepeatedSharedViewResponsePB> {
     let uid = self.user.user_id()?;
     let conn = self.user.sqlite_connection(uid)?;
     let workspace_id = self.user.workspace_id()?;
@@ -2413,58 +2423,60 @@ impl FolderManager {
     let cloud_workspace_id = workspace_id;
     let user = self.user.clone();
     let cloud_service = self.cloud_service.clone();
-    tokio::spawn(async move {
-      if let Some(cloud_service) = cloud_service.upgrade() {
-        if let Ok(resp) = cloud_service.get_shared_views(&cloud_workspace_id).await {
-          if let Ok(mut conn) = user.sqlite_connection(uid) {
-            let shared_views: Vec<WorkspaceSharedViewTable> = resp
-              .shared_views
-              .iter()
-              .map(|shared_view| WorkspaceSharedViewTable {
-                uid,
-                workspace_id: workspace_id.to_string(),
-                view_id: shared_view.view_id.to_string(),
-                permission_id: shared_view.access_level as i32,
-                created_at: None,
-              })
-              .collect();
-            let _ = replace_all_workspace_shared_views(
-              &mut conn,
-              &cloud_workspace_id.to_string(),
-              uid,
-              &shared_views,
-            );
-
-            let repeated_shared_view_response = RepeatedSharedViewResponsePB {
-              shared_views: resp
+    if is_fetch_from_cloud {
+      tokio::spawn(async move {
+        if let Some(cloud_service) = cloud_service.upgrade() {
+          if let Ok(resp) = cloud_service.get_shared_views(&cloud_workspace_id).await {
+            if let Ok(mut conn) = user.sqlite_connection(uid) {
+              let shared_views: Vec<WorkspaceSharedViewTable> = resp
                 .shared_views
-                .into_iter()
-                .filter_map(|shared_view| {
-                  let view = all_views
-                    .iter()
-                    .find(|view| view.id == shared_view.view_id.to_string())?;
-                  Some(SharedViewPB {
-                    view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
-                      all_views
-                        .iter()
-                        .filter(|v| v.parent_view_id == *parent_id)
-                        .cloned()
-                        .collect()
-                    }),
-                    access_level: AFAccessLevelPB::from(shared_view.access_level),
-                  })
+                .iter()
+                .map(|shared_view| WorkspaceSharedViewTable {
+                  uid,
+                  workspace_id: workspace_id.to_string(),
+                  view_id: shared_view.view_id.to_string(),
+                  permission_id: shared_view.access_level as i32,
+                  created_at: None,
                 })
-                .collect(),
-            };
+                .collect();
+              let _ = replace_all_workspace_shared_views(
+                &mut conn,
+                &cloud_workspace_id.to_string(),
+                uid,
+                &shared_views,
+              );
 
-            // Notify UI to refresh the shared views
-            folder_notification_builder(workspace_id, FolderNotification::DidUpdateSharedViews)
-              .payload(repeated_shared_view_response)
-              .send();
+              let repeated_shared_view_response = RepeatedSharedViewResponsePB {
+                shared_views: resp
+                  .shared_views
+                  .into_iter()
+                  .filter_map(|shared_view| {
+                    let view = all_views
+                      .iter()
+                      .find(|view| view.id == shared_view.view_id.to_string())?;
+                    Some(SharedViewPB {
+                      view: view_pb_with_all_child_views(view.clone(), &|parent_id| {
+                        all_views
+                          .iter()
+                          .filter(|v| v.parent_view_id == *parent_id)
+                          .cloned()
+                          .collect()
+                      }),
+                      access_level: AFAccessLevelPB::from(shared_view.access_level),
+                    })
+                  })
+                  .collect(),
+              };
+
+              // Notify UI to refresh the shared views
+              folder_notification_builder(workspace_id, FolderNotification::DidUpdateSharedViews)
+                .payload(repeated_shared_view_response)
+                .send();
+            }
           }
         }
-      }
-    });
+      });
+    }
 
     let local_result = RepeatedSharedViewResponsePB {
       shared_views: local_shared_views.clone(),
@@ -2477,7 +2489,7 @@ impl FolderManager {
   ///
   /// This function will return all the shared views of the workspace, including the child views of the shared views.
   pub async fn get_flatten_shared_pages(&self) -> FlowyResult<Vec<ViewPB>> {
-    let shared_pages = self.get_shared_pages().await?;
+    let shared_pages = self.get_shared_pages(false).await?;
     let mut flattened_views = Vec::new();
 
     for shared_view in shared_pages.shared_views {

@@ -110,7 +110,7 @@ enum FeatureFlag {
       FeatureFlag.syncDocument,
       FeatureFlag.inlineSubPageMention,
       // release this feature in version 0.9.4
-      // FeatureFlag.sharedSection,
+      FeatureFlag.sharedSection,
     ].contains(this)) {
       return true;
     }

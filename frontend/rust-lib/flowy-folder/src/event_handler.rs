@@ -586,7 +586,7 @@ pub(crate) async fn get_shared_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedSharedViewResponsePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let resp = folder.get_shared_pages().await?;
+  let resp = folder.get_shared_pages(true).await?;
   data_result_ok(resp)
 }
 
