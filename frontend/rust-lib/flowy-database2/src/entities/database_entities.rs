@@ -189,12 +189,16 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
       NotEmptyStr::parse(self.from_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let to_group_id =
       NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
-    let from_row_ids = self.from_row_ids.iter().map(|e| RowId::from(e.clone())).collect();
+    let from_row_ids = self
+      .from_row_ids
+      .iter()
+      .map(|e| RowId::from(e.clone()))
+      .collect();
     Ok(MoveGroupRowParams {
       view_id: view_id.0,
       to_group_id: to_group_id.0,
       from_group_id: from_group_id.0,
-      from_row_ids: from_row_ids,
+      from_row_ids,
       to_row_id: self.to_row_id.map(RowId::from),
     })
   }
