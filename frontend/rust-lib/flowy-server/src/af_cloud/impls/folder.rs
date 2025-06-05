@@ -303,6 +303,7 @@ where
     &self,
     workspace_id: &Uuid,
     view_id: &Uuid,
+    parent_view_ids: Vec<Uuid>,
   ) -> Result<SharedViewDetails, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let details = try_get_client?

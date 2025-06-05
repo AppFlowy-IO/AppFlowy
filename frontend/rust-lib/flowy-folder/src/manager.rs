@@ -1400,10 +1400,16 @@ impl FolderManager {
     let cloud_page_id = view_id;
     let user = self.user.clone();
     let cloud_service = self.cloud_service.clone();
+    let parent_view_ids = self
+      .get_view_ancestors_pb(&view_id.to_string())
+      .await?
+      .into_iter()
+      .map(|view| Uuid::from_str(&view.id).unwrap_or_default())
+      .collect::<Vec<_>>();
     tokio::spawn(async move {
       if let Some(cloud_service) = cloud_service.upgrade() {
         if let Ok(details) = cloud_service
-          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id)
+          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id, parent_view_ids)
           .await
         {
           if let Ok(uid) = user.user_id() {
@@ -1546,10 +1552,16 @@ impl FolderManager {
     let cloud_page_id = *page_id;
     let user = self.user.clone();
     let cloud_service = self.cloud_service.clone();
+    let parent_view_ids = self
+      .get_view_ancestors_pb(&page_id.to_string())
+      .await?
+      .into_iter()
+      .map(|view| Uuid::from_str(&view.id).unwrap_or_default())
+      .collect::<Vec<_>>();
     tokio::spawn(async move {
       if let Some(cloud_service) = cloud_service.upgrade() {
         if let Ok(details) = cloud_service
-          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id)
+          .get_shared_page_details(&cloud_workspace_id, &cloud_page_id, parent_view_ids)
           .await
         {
           if let Ok(mut conn) = user.sqlite_connection(uid) {

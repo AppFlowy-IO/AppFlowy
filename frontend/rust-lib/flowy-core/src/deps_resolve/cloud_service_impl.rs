@@ -438,11 +438,12 @@ impl FolderCloudService for ServerProvider {
     &self,
     workspace_id: &Uuid,
     view_id: &Uuid,
+    parent_view_ids: Vec<Uuid>,
   ) -> Result<SharedViewDetails, FlowyError> {
     self
       .get_server()?
       .folder_service()
-      .get_shared_page_details(workspace_id, view_id)
+      .get_shared_page_details(workspace_id, view_id, parent_view_ids)
       .await
   }
 
