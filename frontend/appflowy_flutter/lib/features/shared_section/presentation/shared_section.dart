@@ -39,7 +39,7 @@ class SharedSection extends StatelessWidget {
         repository: repository,
         enablePolling: true,
         pollingIntervalSeconds:
-            15, // remove this after the websocket is implemented
+            60, // remove this after the websocket is implemented
       )..add(const SharedSectionInitEvent()),
       child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
