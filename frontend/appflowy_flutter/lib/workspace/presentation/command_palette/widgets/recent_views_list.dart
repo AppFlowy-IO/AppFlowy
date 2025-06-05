@@ -44,6 +44,10 @@ class RecentViewsList extends StatelessWidget {
                     onSelect: (index) {
                       bloc.add(RecentViewsEvent.hoverView(recentViews[index]));
                     },
+                    onConfirm: (index) {
+                      recentViews[index].id.navigateTo();
+                      onSelected();
+                    },
                     idGetter: (item) => item.id,
                     list: recentViews,
                     controller: controller,

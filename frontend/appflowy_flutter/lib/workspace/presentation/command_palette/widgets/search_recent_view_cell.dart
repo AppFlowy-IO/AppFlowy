@@ -8,7 +8,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'keyboard_scroller.dart';
@@ -69,14 +68,6 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
       onTap: () => _handleSelection(view.id),
       child: Focus(
         focusNode: focusNode,
-        onKeyEvent: (node, event) {
-          if (event is! KeyDownEvent) return KeyEventResult.ignored;
-          if (event.logicalKey == LogicalKeyboardKey.enter) {
-            _handleSelection(view.id);
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
         child: FlowyHover(
           onHover: (value) {
             if (hoveredView == view) return;

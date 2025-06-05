@@ -9,6 +9,7 @@ class KeyboardScroller<T> extends StatefulWidget {
     required this.controller,
     required this.list,
     required this.onSelect,
+    required this.onConfirm,
     required this.idGetter,
     required this.selectedIndexGetter,
     required this.builder,
@@ -18,6 +19,7 @@ class KeyboardScroller<T> extends StatefulWidget {
   final List<T> list;
   final ValueGetter<int> selectedIndexGetter;
   final ValueChanged<int> onSelect;
+  final ValueChanged<int> onConfirm;
   final IdGetter<T> idGetter;
   final KeyboardScrollerBuilder builder;
 
@@ -41,16 +43,18 @@ class _KeyboardScrollerState<T> extends State<KeyboardScroller<T>> {
     return Shortcuts(
       shortcuts: {
         SingleActivator(LogicalKeyboardKey.arrowUp):
-            VoidCallbackIntent(() => _moveSelection(AxisDirection.up, context)),
+            VoidCallbackIntent(() => onArrowKey(AxisDirection.up, context)),
         SingleActivator(LogicalKeyboardKey.arrowDown): VoidCallbackIntent(
-          () => _moveSelection(AxisDirection.down, context),
+          () => onArrowKey(AxisDirection.down, context),
         ),
+        SingleActivator(LogicalKeyboardKey.enter):
+            VoidCallbackIntent(() => onConfirm()),
       },
       child: widget.builder.call(context, areaDetector),
     );
   }
 
-  bool _moveSelection(AxisDirection direction, BuildContext context) {
+  bool onArrowKey(AxisDirection direction, BuildContext context) {
     if (length == 0) return false;
     final index = widget.selectedIndexGetter.call();
     int newIndex = index;
@@ -65,11 +69,11 @@ class _KeyboardScrollerState<T> extends State<KeyboardScroller<T>> {
       }
     }
     widget.onSelect(newIndex);
-    _scrollToItem(index, newIndex, context);
+    scrollToItem(index, newIndex, context);
     return true;
   }
 
-  void _scrollToItem(
+  void scrollToItem(
     int from,
     int to,
     BuildContext context,
@@ -98,6 +102,12 @@ class _KeyboardScrollerState<T> extends State<KeyboardScroller<T>> {
       );
     }
   }
+
+  void onConfirm() {
+    if (length == 0) return;
+    final index = widget.selectedIndexGetter.call();
+    widget.onConfirm(index);
+  }
 }
 
 typedef KeyboardScrollerBuilder = Widget Function(
@@ -110,10 +120,11 @@ typedef IdGetter<T> = String Function(T t);
 enum AreaType { top, bottom }
 
 extension AreaTypeSearchPanelExtension on GlobalKey {
-    AreaType? getAreaType(BuildContext context) {
+  AreaType? getAreaTypeInSearchPanel(BuildContext context) {
     final renderObject = currentContext?.findRenderObject();
     if (renderObject is RenderBox) {
-      final searchPanelHeight = min(MediaQuery.of(context).size.height - 100, 640);
+      final searchPanelHeight =
+          min(MediaQuery.of(context).size.height - 100, 640);
       final position = renderObject.localToGlobal(Offset.zero);
       if (position.dy < searchPanelHeight / 2) {
         return AreaType.top;

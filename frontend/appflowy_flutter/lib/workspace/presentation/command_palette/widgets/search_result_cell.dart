@@ -12,7 +12,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'keyboard_scroller.dart';
@@ -82,14 +81,6 @@ class _SearchResultCellState extends State<SearchResultCell> {
       key: itemKey,
       child: Focus(
         focusNode: focusNode,
-        onKeyEvent: (node, event) {
-          if (event is! KeyDownEvent) return KeyEventResult.ignored;
-          if (event.logicalKey == LogicalKeyboardKey.enter) {
-            _handleSelection();
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
         child: FlowyHover(
           onHover: (value) {
             bloc.add(

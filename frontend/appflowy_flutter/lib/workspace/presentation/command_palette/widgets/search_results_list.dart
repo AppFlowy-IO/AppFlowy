@@ -91,6 +91,13 @@ class _SearchResultListState extends State<SearchResultList> {
                           ),
                         );
                       },
+                      onConfirm: (index) {
+                        bloc.add(
+                          SearchResultListEvent.openPage(
+                            pageId: resultItems[index].id,
+                          ),
+                        );
+                      },
                       idGetter: (item) => item.id,
                       list: resultItems,
                       controller: controller,

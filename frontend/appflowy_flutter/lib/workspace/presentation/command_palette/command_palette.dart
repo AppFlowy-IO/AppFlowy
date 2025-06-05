@@ -207,7 +207,7 @@ class CommandPaletteModal extends StatelessWidget {
           final hasResult = state.combinedResponseItems.isNotEmpty,
               searching = state.searching;
           final spaceXl = theme.spacing.xl;
-          final showRencentList = noQuery,
+          final showRecentList = noQuery,
               showResultList = hasResult && hasQuery;
           return FlowyDialog(
             backgroundColor: theme.surfaceColorScheme.layer01,
@@ -226,9 +226,9 @@ class CommandPaletteModal extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
-                    if (!showRencentList && !showResultList)
+                    if (!showRecentList && !showResultList)
                       SearchField(query: state.query, isLoading: searching),
-                    if (showRencentList)
+                    if (showRecentList)
                       Flexible(
                         child: RecentViewsList(
                           onSelected: () => FlowyOverlay.pop(context),
