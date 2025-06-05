@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import '../data/models/user_data_location.dart';
 
-class DataLocationState {
+class DataLocationState extends Equatable {
   const DataLocationState({
     required this.userDataLocation,
     required this.didResetToDefault,
@@ -11,6 +13,9 @@ class DataLocationState {
 
   final UserDataLocation? userDataLocation;
   final bool didResetToDefault;
+
+  @override
+  List<Object?> get props => [userDataLocation, didResetToDefault];
 
   DataLocationState copyWith({
     UserDataLocation? userDataLocation,
