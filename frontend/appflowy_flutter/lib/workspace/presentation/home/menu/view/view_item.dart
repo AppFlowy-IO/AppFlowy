@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -145,12 +147,21 @@ class ViewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ViewBloc(
-        view: view,
-        shouldLoadChildViews: shouldLoadChildViews,
-        engagedInExpanding: engagedInExpanding,
-      )..add(const ViewEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ViewBloc(
+            view: view,
+            shouldLoadChildViews: shouldLoadChildViews,
+            engagedInExpanding: engagedInExpanding,
+          )..add(const ViewEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) => PageAccessLevelBloc(
+            view: view,
+          )..add(const PageAccessLevelEvent.initial()),
+        ),
+      ],
       child: BlocConsumer<ViewBloc, ViewState>(
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&
@@ -639,6 +650,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             lineHeight: 18.0 / 16.0,
           )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
+
+    final accessLevel = context.read<PageAccessLevelBloc>().state.accessLevel;
+    if (accessLevel == ShareAccessLevel.readOnly) {
+      return icon;
+    }
 
     final Widget child = AppFlowyPopover(
       offset: const Offset(20, 0),
