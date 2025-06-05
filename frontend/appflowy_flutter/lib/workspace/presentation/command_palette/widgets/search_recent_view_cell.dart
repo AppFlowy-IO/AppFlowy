@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'keyboard_scroller.dart';
+
 class SearchRecentViewCell extends StatefulWidget {
   const SearchRecentViewCell({
     super.key,
@@ -18,12 +20,14 @@ class SearchRecentViewCell extends StatefulWidget {
     required this.view,
     required this.onSelected,
     required this.isNarrowWindow,
+    required this.detectors,
   });
 
   final Widget icon;
   final ViewPB view;
   final VoidCallback onSelected;
   final bool isNarrowWindow;
+  final AreaDetectors detectors;
 
   @override
   State<SearchRecentViewCell> createState() => _SearchRecentViewCellState();
@@ -31,12 +35,23 @@ class SearchRecentViewCell extends StatefulWidget {
 
 class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
   final focusNode = FocusNode();
+  final itemKey = GlobalKey();
 
   ViewPB get view => widget.view;
+
+  AreaDetectors get detectors => widget.detectors;
+
+  @override
+  void initState() {
+    super.initState();
+    detectors.addDetector(view.id, getAreaType);
+  }
 
   @override
   void dispose() {
     focusNode.dispose();
+    detectors.removeDetector(view.id, getAreaType);
+
     super.dispose();
   }
 
@@ -49,6 +64,7 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
     final hovering = hoveredView == view;
 
     return GestureDetector(
+      key: itemKey,
       behavior: HitTestBehavior.opaque,
       onTap: () => _handleSelection(view.id),
       child: Focus(
@@ -60,11 +76,6 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
             return KeyEventResult.handled;
           }
           return KeyEventResult.ignored;
-        },
-        onFocusChange: (hasFocus) {
-          if (hasFocus && !hovering) {
-            bloc.add(RecentViewsEvent.hoverView(view));
-          }
         },
         child: FlowyHover(
           onHover: (value) {
@@ -124,4 +135,6 @@ class _SearchRecentViewCellState extends State<SearchRecentViewCell> {
     widget.onSelected();
     id.navigateTo();
   }
+
+  AreaType? getAreaType() => itemKey.getAreaTypeInSearchPanel(context);
 }

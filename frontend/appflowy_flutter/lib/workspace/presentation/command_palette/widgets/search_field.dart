@@ -7,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchField extends StatefulWidget {
@@ -28,7 +27,7 @@ class _SearchFieldState extends State<SearchField> {
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.query);
-    focusNode = FocusNode(onKeyEvent: _handleKeyEvent);
+    focusNode = FocusNode();
     focusNode.requestFocus();
     // Update the text selection after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -37,16 +36,6 @@ class _SearchFieldState extends State<SearchField> {
         extentOffset: controller.text.length,
       );
     });
-  }
-
-  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (node.hasFocus &&
-        event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.arrowDown) {
-      node.nextFocus();
-      return KeyEventResult.handled;
-    }
-    return KeyEventResult.ignored;
   }
 
   @override

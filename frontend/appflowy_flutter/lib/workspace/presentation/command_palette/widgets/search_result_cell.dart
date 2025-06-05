@@ -15,11 +15,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'keyboard_scroller.dart';
 import 'page_preview.dart';
 
 class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
     super.key,
+    required this.bloc,
+    required this.detectors,
     required this.item,
     required this.isNarrowWindow,
     this.view,
@@ -28,6 +31,8 @@ class SearchResultCell extends StatefulWidget {
   });
 
   final SearchResultItem item;
+  final SearchResultListBloc bloc;
+  final AreaDetectors detectors;
   final ViewPB? view;
   final String? query;
   final bool isHovered;
@@ -38,23 +43,26 @@ class SearchResultCell extends StatefulWidget {
 }
 
 class _SearchResultCellState extends State<SearchResultCell> {
-  bool _hasFocus = false;
   final focusNode = FocusNode();
+  final itemKey = GlobalKey();
 
   String get viewId => item.id;
   SearchResultItem get item => widget.item;
+  SearchResultListBloc get bloc => widget.bloc;
+
+  AreaDetectors get detectors => widget.detectors;
+
+  @override
+  void initState() {
+    super.initState();
+    detectors.addDetector(viewId, getAreaType);
+  }
 
   @override
   void dispose() {
     focusNode.dispose();
+    detectors.removeDetector(viewId, getAreaType);
     super.dispose();
-  }
-
-  /// Helper to handle the selection action.
-  void _handleSelection() {
-    context.read<SearchResultListBloc>().add(
-          SearchResultListEvent.openPage(pageId: viewId),
-        );
   }
 
   @override
@@ -62,8 +70,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
     final title = item.displayName.orDefault(
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
     );
-    final searchResultBloc = context.read<SearchResultListBloc>();
-    final hasHovered = searchResultBloc.state.hoveredResult != null;
+    final hasHovered = bloc.state.hoveredResult != null;
 
     final theme = AppFlowyTheme.of(context);
     final titleStyle = theme.textStyle.body
@@ -72,6 +79,7 @@ class _SearchResultCellState extends State<SearchResultCell> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _handleSelection,
+      key: itemKey,
       child: Focus(
         focusNode: focusNode,
         onKeyEvent: (node, event) {
@@ -82,27 +90,16 @@ class _SearchResultCellState extends State<SearchResultCell> {
           }
           return KeyEventResult.ignored;
         },
-        onFocusChange: (hasFocus) {
-          setState(() {
-            searchResultBloc.add(
+        child: FlowyHover(
+          onHover: (value) {
+            bloc.add(
               SearchResultListEvent.onHoverResult(
                 item: item,
                 userHovered: true,
               ),
             );
-            _hasFocus = hasFocus;
-          });
-        },
-        child: FlowyHover(
-          onHover: (value) {
-            context.read<SearchResultListBloc>().add(
-                  SearchResultListEvent.onHoverResult(
-                    item: item,
-                    userHovered: true,
-                  ),
-                );
           },
-          isSelected: () => _hasFocus || widget.isHovered,
+          isSelected: () => widget.isHovered,
           style: HoverStyle(
             borderRadius: BorderRadius.circular(8),
             hoverColor: theme.fillColorScheme.contentHover,
@@ -217,6 +214,12 @@ class _SearchResultCellState extends State<SearchResultCell> {
       ),
     ];
   }
+
+  /// Helper to handle the selection action.
+  void _handleSelection() =>
+      bloc.add(SearchResultListEvent.openPage(pageId: viewId));
+
+  AreaType? getAreaType() => itemKey.getAreaTypeInSearchPanel(context);
 }
 
 class SearchResultPreview extends StatelessWidget {
