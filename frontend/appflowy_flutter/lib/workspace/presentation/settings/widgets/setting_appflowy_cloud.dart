@@ -407,7 +407,7 @@ class AppFlowyCloudSyncLogEnabled extends StatelessWidget {
                     description:
                         LocaleKeys.settings_menu_enableSyncLogWarning.tr(),
                     confirmLabel: LocaleKeys.button_confirm.tr(),
-                    onConfirm: () {
+                    onConfirm: (_) {
                       context
                           .read<AppFlowyCloudSettingBloc>()
                           .add(AppFlowyCloudSettingEvent.enableSyncLog(value));

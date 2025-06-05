@@ -39,6 +39,9 @@ class DebugTask extends LaunchTask {
           },
         ),
       );
+
+      // enable rust request tracing
+      // Dispatch.enableTracing = true;
     }
   }
 }

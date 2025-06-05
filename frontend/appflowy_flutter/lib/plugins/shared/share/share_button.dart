@@ -1,4 +1,4 @@
-import 'package:appflowy/features/share_tab/data/repositories/local_share_with_user_repository_impl.dart';
+import 'package:appflowy/features/share_tab/data/repositories/rust_share_with_user_repository_impl.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,9 +26,10 @@ class ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final workspaceId =
-        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
-            '';
+    final workspaceBloc = context.read<UserWorkspaceBloc>();
+    final workspaceId = workspaceBloc.state.currentWorkspace?.workspaceId ?? '';
+    final workspaceType = workspaceBloc.state.currentWorkspace?.workspaceType;
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -43,12 +45,19 @@ class ShareButton extends StatelessWidget {
             )..add(const DatabaseTabBarEvent.initial()),
           ),
         BlocProvider(
-          create: (context) => ShareTabBloc(
-            // repository: RustShareWithUserRepositoryImpl(),
-            repository: LocalShareWithUserRepositoryImpl(),
-            pageId: view.id,
-            workspaceId: workspaceId,
-          )..add(ShareTabEvent.initialize()),
+          create: (context) {
+            final bloc = ShareTabBloc(
+              repository: RustShareWithUserRepositoryImpl(),
+              pageId: view.id,
+              workspaceId: workspaceId,
+            );
+
+            if (workspaceType != WorkspaceTypePB.LocalW) {
+              bloc.add(ShareTabEvent.initialize());
+            }
+
+            return bloc;
+          },
         ),
       ],
       child: BlocListener<ShareBloc, ShareState>(

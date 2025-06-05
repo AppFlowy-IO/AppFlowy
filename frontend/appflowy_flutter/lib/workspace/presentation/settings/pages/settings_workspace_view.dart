@@ -203,7 +203,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                             .settings_workspacePage_leaveWorkspacePrompt_content
                             .tr(),
                     style: ConfirmPopupStyle.cancelAndOk,
-                    onConfirm: () => context.read<WorkspaceSettingsBloc>().add(
+                    onConfirm: (_) => context.read<WorkspaceSettingsBloc>().add(
                           currentWorkspaceMemberRole?.isOwner ?? false
                               ? const WorkspaceSettingsEvent.deleteWorkspace()
                               : const WorkspaceSettingsEvent.leaveWorkspace(),
@@ -1172,7 +1172,7 @@ class _DocumentCursorColorSetting extends StatelessWidget {
                   .tr(),
               style: ConfirmPopupStyle.cancelAndOk,
               confirmLabel: LocaleKeys.settings_common_reset.tr(),
-              onConfirm: () => context
+              onConfirm: (_) => context
                 ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
                 ..read<DocumentAppearanceCubit>().syncCursorColor(null),
             );
@@ -1242,7 +1242,7 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
                   .tr(),
               style: ConfirmPopupStyle.cancelAndOk,
               confirmLabel: LocaleKeys.settings_common_reset.tr(),
-              onConfirm: () => context
+              onConfirm: (_) => context
                 ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
                 ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
             );

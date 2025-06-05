@@ -3,6 +3,7 @@ import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart'
 import 'package:appflowy/features/shared_section/presentation/widgets/m_shared_page_list.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/m_shared_section_header.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
+import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_empty.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_error.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
@@ -43,7 +44,7 @@ class MSharedSection extends StatelessWidget {
 
           // hide the shared section if there are no shared pages
           if (state.sharedPages.isEmpty) {
-            return const SizedBox.shrink();
+            return const SharedSectionEmpty();
           }
 
           return Column(

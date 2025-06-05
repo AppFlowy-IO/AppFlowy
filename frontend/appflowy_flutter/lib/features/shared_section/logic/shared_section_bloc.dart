@@ -8,6 +8,7 @@ import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 export 'shared_section_event.dart';
 export 'shared_section_state.dart';
@@ -23,6 +24,7 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
     on<SharedSectionRefreshEvent>(_onRefresh);
     on<SharedSectionUpdateSharedPagesEvent>(_onUpdateSharedPages);
     on<SharedSectionToggleExpandedEvent>(_onToggleExpanded);
+    on<SharedSectionLeaveSharedPageEvent>(_onLeaveSharedPage);
   }
 
   final String workspaceId;
@@ -151,6 +153,28 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
             );
           }
         }
+      },
+    );
+  }
+
+  void _onLeaveSharedPage(
+    SharedSectionLeaveSharedPageEvent event,
+    Emitter<SharedSectionState> emit,
+  ) async {
+    final result = await repository.leaveSharedPage(event.pageId);
+    result.fold(
+      (success) {
+        add(
+          SharedSectionEvent.updateSharedPages(
+            sharedPages: state.sharedPages
+              ..removeWhere(
+                (page) => page.view.id == event.pageId,
+              ),
+          ),
+        );
+      },
+      (error) {
+        emit(state.copyWith(errorMessage: error.msg));
       },
     );
   }

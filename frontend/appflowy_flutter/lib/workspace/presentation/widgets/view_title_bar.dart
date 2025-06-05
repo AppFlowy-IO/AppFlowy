@@ -241,6 +241,11 @@ class ViewTitleBar extends StatelessWidget {
     PageAccessLevelState pageAccessLevelState,
   ) {
     final theme = AppFlowyTheme.of(context);
+    final state = context.read<UserWorkspaceBloc>().state;
+
+    if (state.currentWorkspace?.workspaceType == WorkspaceTypePB.LocalW) {
+      return const SizedBox.shrink();
+    }
 
     final iconName = switch (pageAccessLevelState.sectionType) {
       SharedSectionType.public => FlowySvgs.public_section_icon_m,
@@ -264,8 +269,7 @@ class ViewTitleBar extends StatelessWidget {
         throw UnsupportedError('Unknown section type'),
     };
 
-    final workspaceName =
-        context.read<UserWorkspaceBloc>().state.currentWorkspace?.name;
+    final workspaceName = state.currentWorkspace?.name;
     final tooltipText = switch (pageAccessLevelState.sectionType) {
       SharedSectionType.public => 'Everyone at $workspaceName has access',
       SharedSectionType.private => 'Only you have access',

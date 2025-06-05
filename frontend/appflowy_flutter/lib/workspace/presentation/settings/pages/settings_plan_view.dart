@@ -385,7 +385,7 @@ class _PlanUsageSummary extends StatelessWidget {
                 value: false,
                 label: LocaleKeys.settings_planPage_planUsage_aiMaxToggle.tr(),
                 badgeLabel:
-                    LocaleKeys.settings_planPage_planUsage_aiMaxBadge.tr(),
+                    LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
                 onTap: () async {
                   context.read<SettingsPlanBloc>().add(
                         const SettingsPlanEvent.addSubscription(

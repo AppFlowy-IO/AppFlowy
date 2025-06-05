@@ -176,7 +176,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
               description:
                   LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
               confirmLabel: LocaleKeys.button_yes.tr(),
-              onConfirm: () {
+              onConfirm: (_) {
                 workspaceBloc.add(
                   UserWorkspaceEvent.leaveWorkspace(
                     workspaceId: workspace.workspaceId,

@@ -1,4 +1,4 @@
-import 'package:appflowy/features/shared_section/data/repositories/local_shared_pages_repository_impl.dart';
+import 'package:appflowy/features/shared_section/data/repositories/rust_shared_pages_repository_impl.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/refresh_button.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_list.dart';
@@ -14,7 +14,9 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,8 +32,8 @@ class SharedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final repository = RustSharePagesRepositoryImpl();
-    final repository = LocalSharedPagesRepositoryImpl();
+    final theme = AppFlowyTheme.of(context);
+    final repository = RustSharePagesRepositoryImpl();
 
     return BlocProvider(
       create: (_) => SharedSectionBloc(
@@ -105,11 +107,18 @@ class SharedSection extends StatelessWidget {
                         await showConfirmDialog(
                           context: context,
                           title: 'Remove your own access',
+                          titleStyle: theme.textStyle.body.standard(
+                            color: theme.textColorScheme.primary,
+                          ),
                           description: '',
                           style: ConfirmPopupStyle.cancelAndOk,
                           confirmLabel: 'Remove',
-                          onConfirm: () {
-                            // todo: remove the access
+                          onConfirm: (_) {
+                            context.read<SharedSectionBloc>().add(
+                                  SharedSectionEvent.leaveSharedPage(
+                                    pageId: view.id,
+                                  ),
+                                );
                           },
                         );
                         break;
@@ -138,6 +147,8 @@ class SharedSection extends StatelessWidget {
                         );
                   },
                 ),
+
+              const VSpace(16.0),
             ],
           );
         },

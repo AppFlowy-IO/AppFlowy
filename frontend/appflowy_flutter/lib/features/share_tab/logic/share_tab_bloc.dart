@@ -1,11 +1,15 @@
+import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/data/repositories/share_with_user_repository.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_event.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_state.dart';
+import 'package:appflowy/features/util/extensions.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 
@@ -28,11 +32,22 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
     on<ShareTabEventSearchAvailableUsers>(_onSearchAvailableUsers);
     on<ShareTabEventConvertToMember>(_onTurnIntoMember);
     on<ShareTabEventClearState>(_onClearState);
+    on<ShareTabEventUpdateSharedUsers>(_onUpdateSharedUsers);
+    on<ShareTabEventUpgradeToProClicked>(_onUpgradeToProClicked);
   }
 
   final ShareWithUserRepository repository;
   final String workspaceId;
   final String pageId;
+
+  // Used to listen for shared view updates.
+  FolderNotificationListener? _folderNotificationListener;
+
+  @override
+  Future<void> close() async {
+      await _folderNotificationListener?.stop();
+    await super.close();
+  }
 
   Future<void> _onInitial(
     ShareTabEventInitialize event,
@@ -48,6 +63,8 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       );
       return;
     }
+
+    _initFolderNotificationListener();
 
     final result = await repository.getCurrentUserProfile();
     final currentUser = result.fold(
@@ -70,12 +87,18 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
     final users = await _getSharedUsers();
 
+    final hasClickedUpgradeToPro =
+        await repository.getUpgradeToProButtonClicked(
+      workspaceId: workspaceId,
+    );
+
     emit(
       state.copyWith(
         currentUser: currentUser,
         shareLink: shareLink,
         users: users,
         sectionType: sectionType,
+        hasClickedUpgradeToPro: hasClickedUpgradeToPro,
       ),
     );
   }
@@ -341,6 +364,57 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       state.copyWith(
         errorMessage: '',
       ),
+    );
+  }
+
+  void _onUpdateSharedUsers(
+    ShareTabEventUpdateSharedUsers event,
+    Emitter<ShareTabState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        users: event.users,
+      ),
+    );
+  }
+
+  Future<void> _onUpgradeToProClicked(
+    ShareTabEventUpgradeToProClicked event,
+    Emitter<ShareTabState> emit,
+  ) async {
+    await repository.setUpgradeToProButtonClicked(
+      workspaceId: workspaceId,
+    );
+    emit(
+      state.copyWith(
+        hasClickedUpgradeToPro: true,
+      ),
+    );
+  }
+
+  void _initFolderNotificationListener() {
+    _folderNotificationListener = FolderNotificationListener(
+      objectId: pageId,
+      handler: (notification, result) {
+        if (notification == FolderNotification.DidUpdateSharedUsers) {
+          final response = result.fold(
+            (payload) {
+              final repeatedSharedUsers =
+                  RepeatedSharedUserPB.fromBuffer(payload);
+              return repeatedSharedUsers;
+            },
+            (error) => null,
+          );
+          Log.debug('update shared users: $response');
+          if (response != null) {
+            add(
+              ShareTabEvent.updateSharedUsers(
+                users: response.sharedUsers.reversed.toList(),
+              ),
+            );
+          }
+        }
+      },
     );
   }
 }

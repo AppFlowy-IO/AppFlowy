@@ -1,4 +1,5 @@
 import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -244,6 +245,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         context.read<MobileViewPageBloc>().state.isImmersiveMode;
     final isLocked =
         context.read<PageAccessLevelBloc?>()?.state.isLocked ?? false;
+    final accessLevel = context.read<PageAccessLevelBloc>().state.accessLevel;
     final actions = <Widget>[];
 
     if (FeatureFlag.syncDocument.isOn) {
@@ -273,7 +275,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
       ]);
     }
 
-    if (widget.showMoreButton) {
+    if (widget.showMoreButton && accessLevel != ShareAccessLevel.readOnly) {
       actions.addAll([
         MobileViewPageMoreButton(
           view: view,

@@ -294,7 +294,7 @@ class ConfirmPopup extends StatefulWidget {
   final TextStyle? titleStyle;
   final String description;
   final TextStyle? descriptionStyle;
-  final VoidCallback onConfirm;
+  final void Function(BuildContext context) onConfirm;
   final VoidCallback? onCancel;
   final Color? confirmButtonColor;
   final ConfirmPopupStyle style;
@@ -352,7 +352,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             Navigator.of(context).pop();
           } else if (event is KeyUpEvent &&
               event.logicalKey == LogicalKeyboardKey.enter) {
-            widget.onConfirm();
+            widget.onConfirm(context);
             if (widget.closeOnAction) {
               Navigator.of(context).pop();
             }
@@ -445,7 +445,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
 
         return SpaceOkButton(
           onConfirm: () {
-            widget.onConfirm();
+            widget.onConfirm(context);
             if (widget.closeOnAction) {
               Navigator.of(context).pop();
             }
@@ -461,7 +461,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             Navigator.of(context).pop();
           },
           onConfirm: () {
-            widget.onConfirm();
+            widget.onConfirm(context);
             if (widget.closeOnAction) {
               Navigator.of(context).pop();
             }
