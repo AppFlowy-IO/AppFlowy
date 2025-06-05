@@ -5,6 +5,7 @@ import 'package:appflowy/features/shared_section/presentation/widgets/shared_sec
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_header.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -120,6 +121,15 @@ class SharedSection extends StatelessWidget {
                                   ),
                                 );
                           },
+                        );
+                        break;
+                      case ViewMoreActionType.changeIcon:
+                        if (data is! SelectedEmojiIconResult) {
+                          return;
+                        }
+                        await ViewBackendService.updateViewIcon(
+                          view: view,
+                          viewIcon: data.data,
                         );
                         break;
                       default:

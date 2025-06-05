@@ -88,7 +88,6 @@ class _ShareTabState extends State<ShareTab> {
           children: [
             // share page with user by email
             // only user with full access can invite others
-
             VSpace(theme.spacing.l),
             ShareWithUserWidget(
               controller: controller,
