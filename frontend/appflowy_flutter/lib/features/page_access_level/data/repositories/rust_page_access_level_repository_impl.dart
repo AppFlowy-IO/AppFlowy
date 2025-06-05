@@ -168,7 +168,6 @@ class RustPageAccessLevelRepositoryImpl implements PageAccessLevelRepository {
     return result.fold(
       (success) {
         final sectionType = success.section.sharedSectionType;
-        Log.debug('shared section type: $sectionType, in page: $pageId');
         return FlowyResult.success(sectionType);
       },
       (failure) {
