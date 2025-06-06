@@ -31,8 +31,7 @@ class MentionPersonBlock extends StatefulWidget {
   State<MentionPersonBlock> createState() => _MentionPersonBlockState();
 }
 
-class _MentionPersonBlockState extends State<MentionPersonBlock>
-    with WidgetsBindingObserver {
+class _MentionPersonBlockState extends State<MentionPersonBlock> {
   final key = GlobalKey();
   Size triggerSize = Size.zero;
   double positionY = 0;
@@ -62,7 +61,6 @@ class _MentionPersonBlockState extends State<MentionPersonBlock>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      key: ValueKey(widget.personId),
       create: (context) => PersonBloc(
         documentId: widget.pageId,
         personId: widget.personId,

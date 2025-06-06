@@ -178,8 +178,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
   }
 
   void calculateSelectionMenuOffset(Rect rect) {
-    const menuHeight = 320.0, menuWidth = 360.0;
-    const menuOffset = Offset(0, 0);
+    const menuHeight = kInlineMenuHeight, menuWidth = kInlineMenuWidth;
+    const menuOffset = Offset(0, 10);
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorHeight = editorState.renderBox!.size.height;

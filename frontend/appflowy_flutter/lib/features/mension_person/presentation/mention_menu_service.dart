@@ -110,7 +110,7 @@ class MentionMenuService extends InlineActionsMenuService {
                         startCharAmount: startCharAmount,
                         startOffset: editorState.selection?.endIndex ?? 0,
                         editorState: editorState,
-                        showAboveMenu: top != null,
+                        top: top ?? (editorHeight - (bottom ?? 0.0) - 400),
                       ),
                       dispose: (context, value) => value._dispose(),
                       child: MentionMenu(),
@@ -224,21 +224,21 @@ class MentionMenuServiceInfo {
     required this.startCharAmount,
     required this.startOffset,
     required this.editorState,
-    required this.showAboveMenu,
+    required this.top,
   });
 
   final VoidCallback onDismiss;
   final int startCharAmount;
   final int startOffset;
   final EditorState editorState;
-  final bool showAboveMenu;
+  final double top;
   final Map<String, ValueGetter<double>> _itemYMap = {};
 
-  void addItemHeight(String id, ValueGetter<double> yGetter) {
+  void addItemHeightGetter(String id, ValueGetter<double> yGetter) {
     _itemYMap[id] = yGetter;
   }
 
-  void removeItemHeight(String id) => _itemYMap.remove(id);
+  void removeItemHeightGetter(String id) => _itemYMap.remove(id);
 
   void _dispose() {
     _itemYMap.clear();
@@ -249,7 +249,7 @@ class MentionMenuServiceInfo {
   bool isTopArea(String id) {
     final itemY = getItemPositionY(id);
     if (itemY == null) return false;
-    return itemY <= 200;
+    return itemY <= top + 200;
   }
 
   TextRange textRange(String queryText) => TextRange(

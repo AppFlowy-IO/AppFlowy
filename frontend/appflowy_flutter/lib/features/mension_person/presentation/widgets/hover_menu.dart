@@ -33,6 +33,13 @@ class _HoverMenuState extends State<HoverMenu> {
   Size get triggerSize => widget.triggerSize;
 
   @override
+  void dispose() {
+    controller.close();
+    isHoverMenuShowing = false;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return buildHoverMouseRegion(
       buildPopover(),
@@ -97,13 +104,15 @@ class _HoverMenuState extends State<HoverMenu> {
     }
     keepEditorFocusNotifier.increase();
     controller.show();
+    isHoverMenuShowing = true;
   }
 
   void tryToDismissenu() {
     Future.delayed(widget.delayToHide, () {
       if (isHovering) return;
-      keepEditorFocusNotifier.increase();
+      keepEditorFocusNotifier.decrease();
       controller.close();
+      isHoverMenuShowing = false;
     });
   }
 }

@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PersonCardProfile extends StatelessWidget {
-  const PersonCardProfile({super.key, required this.triggerSize});
+  const PersonCardProfile({
+    super.key,
+    required this.triggerSize,
+  });
 
   final Size triggerSize;
-
   @override
   Widget build(BuildContext context) {
     return Column(

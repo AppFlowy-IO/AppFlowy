@@ -19,7 +19,7 @@ class MentionMenuItenVisibilityDetector extends StatelessWidget {
     final renderBox = context.findRenderObject();
     final menuServiceInfo = context.read<MentionMenuServiceInfo>();
     if (renderBox is RenderBox) {
-      menuServiceInfo.addItemHeight(
+      menuServiceInfo.addItemHeightGetter(
         id,
         () => renderBox.localToGlobal(Offset.zero).dy,
       );
@@ -32,7 +32,7 @@ class MentionMenuItenVisibilityDetector extends StatelessWidget {
         child: child,
         onVisibilityChanged: (info) {
           if (info.visibleFraction == 0.0) {
-            menuServiceInfo.removeItemHeight(id);
+            menuServiceInfo.removeItemHeightGetter(id);
           }
         },
       ),
