@@ -190,6 +190,8 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       emails: event.emails,
     );
 
+    await repository.refreshSharedPages();
+
     await result.fold(
       (_) async {
         final users = await _getSharedUsers();
