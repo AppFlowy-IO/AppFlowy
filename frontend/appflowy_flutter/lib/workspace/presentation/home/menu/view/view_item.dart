@@ -653,7 +653,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
     final accessLevel = context.read<PageAccessLevelBloc>().state.accessLevel;
     if (accessLevel == ShareAccessLevel.readOnly) {
-      return icon;
+      return SizedBox(width: 16.0, child: icon);
     }
 
     final Widget child = AppFlowyPopover(

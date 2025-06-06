@@ -99,13 +99,13 @@ class SharedSection extends StatelessWidget {
                         // show a dialog to confirm the action
                         await showConfirmDialog(
                           context: context,
-                          title: 'Remove your own access',
+                          title: LocaleKeys.shareTab_removeYourOwnAccess.tr(),
                           titleStyle: theme.textStyle.body.standard(
                             color: theme.textColorScheme.primary,
                           ),
                           description: '',
                           style: ConfirmPopupStyle.cancelAndOk,
-                          confirmLabel: 'Remove',
+                          confirmLabel: LocaleKeys.button_remove.tr(),
                           onConfirm: (_) {
                             context.read<SharedSectionBloc>().add(
                                   SharedSectionEvent.leaveSharedPage(
