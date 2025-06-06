@@ -56,6 +56,9 @@ class _ShareWithUserWidgetState extends State<ShareWithUserWidget> {
             controller: effectiveController,
             size: AFTextFieldSize.m,
             hintText: LocaleKeys.shareTab_inviteByEmail.tr(),
+            onSubmitted: (value) {
+              widget.onInvite(effectiveController.text.trim().split(','));
+            },
           ),
         ),
         HSpace(theme.spacing.s),

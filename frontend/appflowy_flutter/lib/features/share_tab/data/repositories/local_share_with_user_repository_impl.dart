@@ -195,4 +195,9 @@ class LocalShareWithUserRepositoryImpl extends ShareWithUserRepository {
   }) async {
     return;
   }
+
+  @override
+  Future<void> refreshSharedPages() async {
+    return;
+  }
 }

@@ -57,4 +57,7 @@ abstract class ShareWithUserRepository {
   Future<void> setUpgradeToProButtonClicked({
     required String workspaceId,
   });
+
+  /// Refresh the shared pages.
+  Future<void> refreshSharedPages();
 }

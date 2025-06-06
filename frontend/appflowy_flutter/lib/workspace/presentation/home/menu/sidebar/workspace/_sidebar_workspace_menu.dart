@@ -308,6 +308,7 @@ class _WorkspaceInfo extends StatelessWidget {
           if (workspace.role == AFRolePB.Guest) ...[
             const HSpace(6.0),
             GuestTag(),
+            const HSpace(24.0),
           ],
         ],
       ),

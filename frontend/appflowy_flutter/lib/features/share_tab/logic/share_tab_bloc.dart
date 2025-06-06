@@ -45,7 +45,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
   @override
   Future<void> close() async {
-      await _folderNotificationListener?.stop();
+    await _folderNotificationListener?.stop();
     await super.close();
   }
 
@@ -189,6 +189,8 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
       pageId: pageId,
       emails: event.emails,
     );
+
+    await repository.refreshSharedPages();
 
     await result.fold(
       (_) async {

@@ -1,5 +1,7 @@
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -41,6 +43,7 @@ class SharedPageActionsButton extends StatefulWidget {
 
 class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
   AFPopoverController controller = AFPopoverController();
+  AFPopoverController changeIconController = AFPopoverController();
 
   @override
   void initState() {
@@ -56,6 +59,7 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
   @override
   void dispose() {
     controller.dispose();
+    changeIconController.dispose();
 
     super.dispose();
   }
@@ -88,6 +92,54 @@ class _SharedPageActionsButtonState extends State<SharedPageActionsButton> {
         if (menuItems.isNotEmpty) {
           menuItems.add(const AFDivider(spacing: 4));
         }
+      } else if (actionType == ViewMoreActionType.changeIcon) {
+        menuItems.add(
+          AFPopover(
+            controller: changeIconController,
+            anchor: AFAnchorAuto(
+              followerAnchor: Alignment.centerRight,
+              targetAnchor: Alignment.centerRight,
+              offset: const Offset(8, 24),
+            ),
+            padding: EdgeInsets.zero,
+            popover: (context) => Container(
+              constraints: BoxConstraints.loose(const Size(364, 356)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: FlowyIconEmojiPicker(
+                tabs: const [
+                  PickerTabType.emoji,
+                  PickerTabType.icon,
+                  PickerTabType.custom,
+                ],
+                documentId: widget.view.id,
+                initialType:
+                    widget.view.icon.toEmojiIconData().type.toPickerTabType(),
+                onSelectedEmoji: (result) => widget.onAction(
+                  actionType,
+                  widget.view,
+                  result,
+                ),
+              ),
+            ),
+            child: AFTextMenuItem(
+              leading: FlowySvg(
+                actionType.leftIconSvg,
+                size: const Size.square(16),
+              ),
+              title: actionType.name,
+              titleColor: actionType == ViewMoreActionType.delete
+                  ? Theme.of(context).colorScheme.error
+                  : null,
+              trailing: actionType.rightIcon,
+              onTap: () {
+                changeIconController.show();
+              },
+            ),
+          ),
+        );
       } else {
         menuItems.add(
           AFTextMenuItem(

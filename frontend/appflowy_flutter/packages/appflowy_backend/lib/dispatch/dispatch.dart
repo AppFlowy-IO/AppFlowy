@@ -64,7 +64,14 @@ class Dispatch {
       final start = DateTime.now();
       final result = await _asyncRequest();
       final duration = DateTime.now().difference(start);
-      Log.debug('Dispatch ${request.event} took ${duration.inMilliseconds}ms');
+      result.fold(
+        (s) => Log.debug(
+          '✅ Dispatch ${request.event} took ${duration.inMilliseconds}ms',
+        ),
+        (f) => Log.error(
+          '⚠️ Dispatch ${request.event} took ${duration.inMilliseconds}ms',
+        ),
+      );
       return result;
     }
 

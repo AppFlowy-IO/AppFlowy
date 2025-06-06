@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
@@ -75,24 +76,33 @@ class _ShareTabState extends State<ShareTab> {
         }
 
         final currentUser = state.currentUser;
-        final accessLevel = state.users
-            .firstWhereOrNull(
-              (user) => user.email == currentUser?.email,
-            )
-            ?.accessLevel;
+        final accessLevel = context
+                .read<PageAccessLevelBloc?>()
+                ?.state
+                .accessLevel ??
+            state.users
+                .firstWhereOrNull((user) => user.email == currentUser?.email)
+                ?.accessLevel;
         final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
+        String tooltip = '';
+        if (!widget.isInProPlan) {
+          tooltip = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
+        } else if (!isFullAccess) {
+          tooltip = LocaleKeys.shareTab_onlyFullAccessCanInvite.tr();
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            // only user with full access can invite others
-
+            // 1. user with full access can invite others
+            // 2. user in pro plan can invite others
             VSpace(theme.spacing.l),
             ShareWithUserWidget(
               controller: controller,
-              disabled: !isFullAccess,
+              disabled: !isFullAccess || !widget.isInProPlan,
+              tooltip: tooltip,
               onInvite: (emails) => _onSharePageWithUser(
                 context,
                 emails: emails,
@@ -222,7 +232,7 @@ class _ShareTabState extends State<ShareTab> {
             message = LocaleKeys.shareTab_emailAlreadyInList.tr();
             break;
           case ErrorCode.FreePlanGuestLimitExceeded:
-            message = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
+            message = LocaleKeys.shareTab_upgradeToProToInviteMoreGuests.tr();
             break;
           case ErrorCode.PaidPlanGuestLimitExceeded:
             message = LocaleKeys.shareTab_maxGuestsReached.tr();

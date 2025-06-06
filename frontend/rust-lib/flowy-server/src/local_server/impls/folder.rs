@@ -192,6 +192,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     &self,
     workspace_id: &Uuid,
     view_id: &Uuid,
+    parent_view_ids: Vec<Uuid>,
   ) -> Result<SharedViewDetails, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
