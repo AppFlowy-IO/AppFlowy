@@ -32,13 +32,13 @@ enum ShareAccessLevel {
   String get subtitle {
     switch (this) {
       case ShareAccessLevel.readOnly:
-        return 'Can\'t make changes';
+        return LocaleKeys.shareTab_cantMakeChanges.tr();
       case ShareAccessLevel.readAndComment:
-        return 'Can make any changes';
+        return LocaleKeys.shareTab_canMakeAnyChanges.tr();
       case ShareAccessLevel.readAndWrite:
-        return 'Can make any changes';
+        return LocaleKeys.shareTab_canMakeAnyChanges.tr();
       case ShareAccessLevel.fullAccess:
-        return 'Can make any changes';
+        return LocaleKeys.shareTab_canMakeAnyChanges.tr();
     }
   }
 

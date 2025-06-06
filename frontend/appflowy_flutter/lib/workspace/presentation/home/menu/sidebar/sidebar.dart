@@ -369,9 +369,18 @@ class _SidebarState extends State<_Sidebar> {
                 child: const _SidebarSearchButton(),
               ),
             ],
-            const VSpace(6.0),
-            // new page button
-            const SidebarNewPageButton(),
+
+            if (context
+                    .read<UserWorkspaceBloc>()
+                    .state
+                    .currentWorkspace
+                    ?.role !=
+                AFRolePB.Guest) ...[
+              const VSpace(6.0),
+              // new page button
+              const SidebarNewPageButton(),
+            ],
+
             // scrollable document list
             const VSpace(12.0),
             Padding(

@@ -241,10 +241,12 @@ class IncludeTimeButton extends StatelessWidget {
     super.key,
     required this.onChanged,
     required this.includeTime,
+    this.showIcon = true,
   });
 
   final Function(bool value) onChanged;
   final bool includeTime;
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -254,11 +256,13 @@ class IncludeTimeButton extends StatelessWidget {
         padding: GridSize.typeOptionContentInsets,
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.clock_alarm_s,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            const HSpace(6),
+            if (showIcon) ...[
+              FlowySvg(
+                FlowySvgs.clock_alarm_s,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const HSpace(6),
+            ],
             FlowyText(LocaleKeys.grid_field_includeTime.tr()),
             const Spacer(),
             Toggle(

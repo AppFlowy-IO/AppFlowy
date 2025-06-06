@@ -19,6 +19,11 @@ sealed class SharedSectionEvent {
   /// Toggle the expanded status of the shared section.
   const factory SharedSectionEvent.toggleExpanded() =
       SharedSectionToggleExpandedEvent;
+
+  /// Leave shared page.
+  const factory SharedSectionEvent.leaveSharedPage({
+    required String pageId,
+  }) = SharedSectionLeaveSharedPageEvent;
 }
 
 class SharedSectionInitEvent extends SharedSectionEvent {
@@ -39,4 +44,12 @@ class SharedSectionUpdateSharedPagesEvent extends SharedSectionEvent {
 
 class SharedSectionToggleExpandedEvent extends SharedSectionEvent {
   const SharedSectionToggleExpandedEvent();
+}
+
+class SharedSectionLeaveSharedPageEvent extends SharedSectionEvent {
+  const SharedSectionLeaveSharedPageEvent({
+    required this.pageId,
+  });
+
+  final String pageId;
 }

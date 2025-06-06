@@ -44,10 +44,16 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         },
         child: ViewPageBottomSheet(
           view: view,
-          onAction: (action, {arguments}) async =>
-              _onAction(context, action, arguments),
+          onAction: (action, {arguments}) async => _onAction(
+            context,
+            action,
+            arguments,
+          ),
           onRename: (name) {
-            _onRename(context, name);
+            _onRename(
+              context,
+              name,
+            );
             context.pop();
           },
         ),

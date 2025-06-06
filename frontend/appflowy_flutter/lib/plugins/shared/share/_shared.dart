@@ -96,6 +96,9 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                   child: ShareMenu(
                     tabs: widget.tabs,
                     viewName: state.viewName,
+                    onClose: () {
+                      popoverController.hide();
+                    },
                   ),
                 ),
               ),

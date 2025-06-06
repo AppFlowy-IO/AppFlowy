@@ -15,11 +15,13 @@ class ShareTabState {
     this.shareLink = '',
     this.generalAccessRole,
     this.linkCopied = false,
+    this.sectionType = SharedSectionType.private,
     this.initialResult,
     this.shareResult,
     this.removeResult,
     this.updateAccessLevelResult,
     this.turnIntoMemberResult,
+    this.hasClickedUpgradeToPro = false,
   });
 
   final UserProfilePB? currentUser;
@@ -30,11 +32,13 @@ class ShareTabState {
   final String shareLink;
   final ShareAccessLevel? generalAccessRole;
   final bool linkCopied;
+  final SharedSectionType sectionType;
   final FlowyResult<void, FlowyError>? initialResult;
   final FlowyResult<void, FlowyError>? shareResult;
   final FlowyResult<void, FlowyError>? removeResult;
   final FlowyResult<void, FlowyError>? updateAccessLevelResult;
   final FlowyResult<void, FlowyError>? turnIntoMemberResult;
+  final bool hasClickedUpgradeToPro;
 
   ShareTabState copyWith({
     UserProfilePB? currentUser,
@@ -45,11 +49,13 @@ class ShareTabState {
     String? shareLink,
     ShareAccessLevel? generalAccessRole,
     bool? linkCopied,
+    SharedSectionType? sectionType,
     FlowyResult<void, FlowyError>? initialResult,
     FlowyResult<void, FlowyError>? shareResult,
     FlowyResult<void, FlowyError>? removeResult,
     FlowyResult<void, FlowyError>? updateAccessLevelResult,
     FlowyResult<void, FlowyError>? turnIntoMemberResult,
+    bool? hasClickedUpgradeToPro,
   }) {
     return ShareTabState(
       currentUser: currentUser ?? this.currentUser,
@@ -60,11 +66,14 @@ class ShareTabState {
       shareLink: shareLink ?? this.shareLink,
       generalAccessRole: generalAccessRole ?? this.generalAccessRole,
       linkCopied: linkCopied ?? this.linkCopied,
+      sectionType: sectionType ?? this.sectionType,
       initialResult: initialResult,
       shareResult: shareResult,
       removeResult: removeResult,
       updateAccessLevelResult: updateAccessLevelResult,
       turnIntoMemberResult: turnIntoMemberResult,
+      hasClickedUpgradeToPro:
+          hasClickedUpgradeToPro ?? this.hasClickedUpgradeToPro,
     );
   }
 
@@ -80,11 +89,13 @@ class ShareTabState {
         other.shareLink == shareLink &&
         other.generalAccessRole == generalAccessRole &&
         other.linkCopied == linkCopied &&
+        other.sectionType == sectionType &&
         other.initialResult == initialResult &&
         other.shareResult == shareResult &&
         other.removeResult == removeResult &&
         other.updateAccessLevelResult == updateAccessLevelResult &&
-        other.turnIntoMemberResult == turnIntoMemberResult;
+        other.turnIntoMemberResult == turnIntoMemberResult &&
+        other.hasClickedUpgradeToPro == hasClickedUpgradeToPro;
   }
 
   @override
@@ -98,16 +109,18 @@ class ShareTabState {
       shareLink,
       generalAccessRole,
       linkCopied,
+      sectionType,
       initialResult,
       shareResult,
       removeResult,
       updateAccessLevelResult,
       turnIntoMemberResult,
+      hasClickedUpgradeToPro,
     );
   }
 
   @override
   String toString() {
-    return 'ShareTabState(currentUser: $currentUser, users: $users, availableUsers: $availableUsers, isLoading: $isLoading, errorMessage: $errorMessage, shareLink: $shareLink, generalAccessRole: $generalAccessRole, linkCopied: $linkCopied, initialResult: $initialResult, shareResult: $shareResult, removeResult: $removeResult, updateAccessLevelResult: $updateAccessLevelResult, turnIntoMemberResult: $turnIntoMemberResult)';
+    return 'ShareTabState(currentUser: $currentUser, users: $users, availableUsers: $availableUsers, isLoading: $isLoading, errorMessage: $errorMessage, shareLink: $shareLink, generalAccessRole: $generalAccessRole, shareSectionType: $SharedSectionType, linkCopied: $linkCopied, initialResult: $initialResult, shareResult: $shareResult, removeResult: $removeResult, updateAccessLevelResult: $updateAccessLevelResult, turnIntoMemberResult: $turnIntoMemberResult, hasClickedUpgradeToPro: $hasClickedUpgradeToPro)';
   }
 }

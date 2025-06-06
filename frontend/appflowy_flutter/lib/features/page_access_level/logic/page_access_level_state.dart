@@ -8,8 +8,7 @@ class PageAccessLevelState {
         isLocked: false,
         lockCounter: 0,
         sectionType: SharedSectionType.public,
-        accessLevel: ShareAccessLevel
-            .readAndWrite, // replace it with readOnly if we support offline.
+        accessLevel: ShareAccessLevel.readOnly,
       );
 
   const PageAccessLevelState({

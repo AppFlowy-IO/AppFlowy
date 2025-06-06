@@ -1,10 +1,10 @@
 import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -80,16 +80,15 @@ class _MoreViewActionsState extends State<MoreViewActions> {
             ),
         ),
         BlocProvider(
-          create: (_) => PageAccessLevelBloc(view: widget.view)
-            ..add(PageAccessLevelEvent.initial()),
-        ),
-        BlocProvider(
           create: (context) => SpaceBloc(
             userProfile: userProfile,
             workspaceId: workspaceId,
           )..add(
               const SpaceEvent.initial(openFirstPage: false),
             ),
+        ),
+        BlocProvider.value(
+          value: context.read<PageAccessLevelBloc>(),
         ),
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
@@ -124,6 +123,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
     final pageAccessLevelBloc = context.watch<PageAccessLevelBloc>();
     final pageAccessLevelState = pageAccessLevelBloc.state;
     final view = pageAccessLevelState.view;
+
     final appearanceSettings = context.watch<AppearanceSettingsCubit>().state;
     final dateFormat = appearanceSettings.dateFormat;
     final timeFormat = appearanceSettings.timeFormat;

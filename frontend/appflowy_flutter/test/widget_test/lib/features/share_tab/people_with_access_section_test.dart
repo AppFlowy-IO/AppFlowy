@@ -18,6 +18,7 @@ void main() {
       await tester.pumpWidget(
         WidgetTestWrapper(
           child: PeopleWithAccessSection(
+            isInPublicPage: true,
             currentUserEmail: user.email,
             users: [user],
             callbacks: PeopleWithAccessSectionCallbacks(

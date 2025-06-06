@@ -15,7 +15,8 @@ enum MobileSpaceTabType {
   // DO NOT CHANGE THE ORDER
   spaces,
   recent,
-  favorites;
+  favorites,
+  shared;
 
   String get tr {
     switch (this) {
@@ -25,6 +26,8 @@ enum MobileSpaceTabType {
         return LocaleKeys.sideBar_Spaces.tr();
       case MobileSpaceTabType.favorites:
         return LocaleKeys.sideBar_favoriteSpace.tr();
+      case MobileSpaceTabType.shared:
+        return 'Shared';
     }
   }
 }
@@ -88,6 +91,9 @@ class SpaceOrderBloc extends Bloc<SpaceOrderEvent, SpaceOrderState> {
             final order = jsonDecode(value).cast<int>();
             if (order.isEmpty) {
               return MobileSpaceTabType.values;
+            }
+            if (!order.contains(MobileSpaceTabType.shared.index)) {
+              order.add(MobileSpaceTabType.shared.index);
             }
             return order
                 .map((e) => MobileSpaceTabType.values[e])

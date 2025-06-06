@@ -5,11 +5,14 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
+import 'package:appflowy/features/share_tab/presentation/widgets/upgrade_to_pro_widget.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +24,8 @@ class ShareTab extends StatefulWidget {
     required this.pageId,
     required this.workspaceName,
     required this.workspaceIcon,
+    required this.isInProPlan,
+    required this.onUpgradeToPro,
   });
 
   final String workspaceId;
@@ -29,6 +34,9 @@ class ShareTab extends StatefulWidget {
   // these 2 values should be provided by the share tab bloc
   final String workspaceName;
   final String workspaceIcon;
+
+  final bool isInProPlan;
+  final VoidCallback onUpgradeToPro;
 
   @override
   State<ShareTab> createState() => _ShareTabState();
@@ -66,35 +74,48 @@ class _ShareTabState extends State<ShareTab> {
           return const SizedBox.shrink();
         }
 
-        final currentUserRole = state.users
+        final currentUser = state.currentUser;
+        final accessLevel = state.users
             .firstWhereOrNull(
-              (user) => user.email == state.currentUser?.email,
+              (user) => user.email == currentUser?.email,
             )
-            ?.role;
+            ?.accessLevel;
+        final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            // hide this when the user is guest
-            if (currentUserRole != ShareRole.guest) ...[
-              VSpace(theme.spacing.l),
-              ShareWithUserWidget(
-                controller: controller,
-                onInvite: (emails) => _onSharePageWithUser(
-                  context,
-                  emails: emails,
-                  accessLevel: ShareAccessLevel.readOnly,
-                ),
+            // only user with full access can invite others
+
+            VSpace(theme.spacing.l),
+            ShareWithUserWidget(
+              controller: controller,
+              disabled: !isFullAccess,
+              onInvite: (emails) => _onSharePageWithUser(
+                context,
+                emails: emails,
+                accessLevel: ShareAccessLevel.readOnly,
+              ),
+            ),
+
+            if (!widget.isInProPlan && !state.hasClickedUpgradeToPro) ...[
+              UpgradeToProWidget(
+                onClose: () {
+                  context.read<ShareTabBloc>().add(
+                        ShareTabEvent.upgradeToProClicked(),
+                      );
+                },
+                onUpgrade: widget.onUpgradeToPro,
               ),
             ],
 
             // shared users
-
             if (state.users.isNotEmpty) ...[
               VSpace(theme.spacing.l),
               PeopleWithAccessSection(
+                isInPublicPage: state.sectionType == SharedSectionType.public,
                 currentUserEmail: state.currentUser?.email ?? '',
                 users: state.users,
                 callbacks: _buildPeopleWithAccessSectionCallbacks(context),
@@ -102,14 +123,16 @@ class _ShareTabState extends State<ShareTab> {
             ],
 
             // general access
-            VSpace(theme.spacing.m),
-            GeneralAccessSection(
-              group: SharedGroup(
-                id: widget.workspaceId,
-                name: widget.workspaceName,
-                icon: widget.workspaceIcon,
+            if (state.sectionType == SharedSectionType.public) ...[
+              VSpace(theme.spacing.m),
+              GeneralAccessSection(
+                group: SharedGroup(
+                  id: widget.workspaceId,
+                  name: widget.workspaceName,
+                  icon: widget.workspaceIcon,
+                ),
               ),
-            ),
+            ],
 
             // copy link
             VSpace(theme.spacing.xl),
@@ -150,6 +173,7 @@ class _ShareTabState extends State<ShareTab> {
       },
       onRemoveAccess: (user) {
         // show a dialog to confirm the action when removing self access
+        final theme = AppFlowyTheme.of(context);
         final shareTabBloc = context.read<ShareTabBloc>();
         final removingSelf =
             user.email == shareTabBloc.state.currentUser?.email;
@@ -157,10 +181,13 @@ class _ShareTabState extends State<ShareTab> {
           showConfirmDialog(
             context: context,
             title: 'Remove your own access',
+            titleStyle: theme.textStyle.body.standard(
+              color: theme.textColorScheme.primary,
+            ),
             description: '',
             style: ConfirmPopupStyle.cancelAndOk,
             confirmLabel: 'Remove',
-            onConfirm: () {
+            onConfirm: (_) {
               shareTabBloc.add(
                 ShareTabEvent.removeUsers(emails: [user.email]),
               );
@@ -186,19 +213,19 @@ class _ShareTabState extends State<ShareTab> {
         controller.clear();
 
         showToastNotification(
-          message: 'Invitation sent',
+          message: LocaleKeys.shareTab_invitationSent.tr(),
         );
       }, (error) {
         String message;
         switch (error.code) {
           case ErrorCode.InvalidGuest:
-            message = 'The email is already in the list';
+            message = LocaleKeys.shareTab_emailAlreadyInList.tr();
             break;
           case ErrorCode.FreePlanGuestLimitExceeded:
-            message = 'Please upgrade to a Pro plan to invite more guests';
+            message = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
             break;
           case ErrorCode.PaidPlanGuestLimitExceeded:
-            message = 'You have reached the maximum number of guests';
+            message = LocaleKeys.shareTab_maxGuestsReached.tr();
             break;
           default:
             message = error.msg;
@@ -214,7 +241,7 @@ class _ShareTabState extends State<ShareTab> {
     if (removeResult != null) {
       removeResult.fold((success) {
         showToastNotification(
-          message: 'Removed guest successfully',
+          message: LocaleKeys.shareTab_removedGuestSuccessfully.tr(),
         );
       }, (error) {
         showToastNotification(
@@ -228,7 +255,21 @@ class _ShareTabState extends State<ShareTab> {
     if (updateAccessLevelResult != null) {
       updateAccessLevelResult.fold((success) {
         showToastNotification(
-          message: 'Updated access level successfully',
+          message: LocaleKeys.shareTab_updatedAccessLevelSuccessfully.tr(),
+        );
+      }, (error) {
+        showToastNotification(
+          message: error.msg,
+          type: ToastificationType.error,
+        );
+      });
+    }
+
+    final turnIntoMemberResult = state.turnIntoMemberResult;
+    if (turnIntoMemberResult != null) {
+      turnIntoMemberResult.fold((success) {
+        showToastNotification(
+          message: LocaleKeys.shareTab_turnedIntoMemberSuccessfully.tr(),
         );
       }, (error) {
         showToastNotification(

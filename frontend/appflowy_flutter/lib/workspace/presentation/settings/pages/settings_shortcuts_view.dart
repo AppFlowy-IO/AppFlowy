@@ -69,7 +69,7 @@ class _SettingsShortcutsViewState extends State<SettingsShortcutsView> {
                       confirmLabel: LocaleKeys
                           .settings_shortcutsPage_resetDialog_buttonLabel
                           .tr(),
-                      onConfirm: () {
+                      onConfirm: (_) {
                         context.read<ShortcutsCubit>().resetToDefault();
                         Navigator.of(context).pop();
                       },

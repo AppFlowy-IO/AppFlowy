@@ -31,4 +31,9 @@ class LocalSharedPagesRepositoryImpl implements SharedPagesRepository {
     ];
     return FlowyResult.success(pages);
   }
+
+  @override
+  Future<FlowyResult<void, FlowyError>> leaveSharedPage(String pageId) async {
+    return FlowyResult.success(null);
+  }
 }

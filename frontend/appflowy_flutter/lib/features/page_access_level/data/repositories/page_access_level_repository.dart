@@ -1,6 +1,7 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 /// Abstract repository for managing view lock status.
@@ -26,4 +27,7 @@ abstract class PageAccessLevelRepository {
   Future<FlowyResult<SharedSectionType, FlowyError>> getSectionType(
     String pageId,
   );
+
+  /// Get current workspace
+  Future<FlowyResult<UserWorkspacePB, FlowyError>> getCurrentWorkspace();
 }

@@ -6,6 +6,7 @@ use collab_folder::{View, ViewIcon, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
+use flowy_folder_pub::sql::workspace_shared_user_sql::WorkspaceSharedUserTable;
 use lib_infra::validator_fn::required_not_empty_str;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -798,6 +799,17 @@ impl From<AFRolePB> for AFRole {
   }
 }
 
+impl From<i32> for AFRolePB {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => AFRolePB::Owner,
+      1 => AFRolePB::Member,
+      2 => AFRolePB::Guest,
+      _ => AFRolePB::Guest,
+    }
+  }
+}
+
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct SharePageWithUserPayloadPB {
   #[pb(index = 1)]
@@ -808,6 +820,9 @@ pub struct SharePageWithUserPayloadPB {
 
   #[pb(index = 3)]
   pub access_level: AFAccessLevelPB,
+
+  #[pb(index = 4)]
+  pub auto_confirm: bool,
 }
 
 impl TryInto<ShareViewWithGuestRequest> for SharePageWithUserPayloadPB {
@@ -865,6 +880,22 @@ impl From<SharedUser> for SharedUserPB {
       role: user.role.into(),
       access_level: user.access_level.into(),
       avatar_url: user.avatar_url,
+    }
+  }
+}
+
+impl From<WorkspaceSharedUserTable> for SharedUserPB {
+  fn from(table: WorkspaceSharedUserTable) -> Self {
+    SharedUserPB {
+      email: table.email,
+      name: table.name,
+      role: AFRolePB::from(table.role),
+      access_level: AFAccessLevelPB::from(table.access_level),
+      avatar_url: if table.avatar_url.is_empty() {
+        None
+      } else {
+        Some(table.avatar_url)
+      },
     }
   }
 }

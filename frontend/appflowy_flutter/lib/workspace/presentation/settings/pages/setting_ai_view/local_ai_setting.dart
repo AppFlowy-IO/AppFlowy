@@ -108,7 +108,7 @@ class LocalAiSettingHeader extends StatelessWidget {
         description:
             LocaleKeys.settings_aiPage_keys_disableLocalAIDescription.tr(),
         confirmLabel: LocaleKeys.button_confirm.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           context
               .read<LocalAiPluginBloc>()
               .add(const LocalAiPluginEvent.toggle());

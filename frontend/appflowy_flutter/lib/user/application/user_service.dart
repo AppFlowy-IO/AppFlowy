@@ -121,6 +121,21 @@ class UserBackendService implements IUserBackendService {
     });
   }
 
+  static Future<FlowyResult<UserWorkspacePB, FlowyError>> getWorkspaceById(
+    String workspaceId,
+  ) async {
+    final result = await UserEventGetAllWorkspace().send();
+    return result.fold(
+      (workspaces) {
+        final workspace = workspaces.items.firstWhere(
+          (workspace) => workspace.workspaceId == workspaceId,
+        );
+        return FlowyResult.success(workspace);
+      },
+      (error) => FlowyResult.failure(error),
+    );
+  }
+
   Future<FlowyResult<void, FlowyError>> openWorkspace(
     String workspaceId,
     WorkspaceTypePB workspaceType,

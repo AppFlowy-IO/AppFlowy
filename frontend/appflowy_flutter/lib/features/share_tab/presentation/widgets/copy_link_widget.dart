@@ -39,7 +39,7 @@ class CopyLinkWidget extends StatelessWidget {
           HSpace(theme.spacing.m),
           Expanded(
             child: Text(
-              'People above can access with the link',
+              LocaleKeys.shareTab_peopleAboveCanAccessWithTheLink.tr(),
               style: theme.textStyle.caption.standard(
                 color: theme.textColorScheme.primary,
               ),

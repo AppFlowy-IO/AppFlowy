@@ -39,7 +39,7 @@ void main() {
                     child: ConfirmPopup(
                       description: "desc",
                       title: "title",
-                      onConfirm: onConfirm,
+                      onConfirm: (_) => onConfirm(),
                     ),
                   ),
                 );

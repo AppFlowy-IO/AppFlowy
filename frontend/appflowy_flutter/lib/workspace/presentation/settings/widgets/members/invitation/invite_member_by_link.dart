@@ -102,7 +102,7 @@ class _Description extends StatelessWidget {
         description:
             LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
         confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
-        onConfirm: () => context
+        onConfirm: (_) => context
             .read<WorkspaceMemberBloc>()
             .add(const WorkspaceMemberEvent.upgradePlan()),
       );
@@ -119,7 +119,7 @@ class _Description extends StatelessWidget {
             .settings_appearance_members_resetInviteLinkDescription
             .tr(),
         confirmLabel: LocaleKeys.settings_appearance_members_reset.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           context.read<WorkspaceMemberBloc>().add(
                 const WorkspaceMemberEvent.generateInviteLink(),
               );
@@ -181,7 +181,7 @@ class _CopyLinkButtonState extends State<_CopyLinkButton> {
                 .settings_appearance_members_inviteFailedMemberLimit
                 .tr(),
             confirmLabel: LocaleKeys.upgradePlanModal_actionButton.tr(),
-            onConfirm: () => context
+            onConfirm: (_) => context
                 .read<WorkspaceMemberBloc>()
                 .add(const WorkspaceMemberEvent.upgradePlan()),
           );
