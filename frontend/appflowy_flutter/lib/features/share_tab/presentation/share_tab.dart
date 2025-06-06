@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/data/models/shared_group.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
@@ -75,11 +76,13 @@ class _ShareTabState extends State<ShareTab> {
         }
 
         final currentUser = state.currentUser;
-        final accessLevel = state.users
-            .firstWhereOrNull(
-              (user) => user.email == currentUser?.email,
-            )
-            ?.accessLevel;
+        final accessLevel = context
+                .read<PageAccessLevelBloc?>()
+                ?.state
+                .accessLevel ??
+            state.users
+                .firstWhereOrNull((user) => user.email == currentUser?.email)
+                ?.accessLevel;
         final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
         String tooltip = '';
         if (!widget.isInProPlan) {

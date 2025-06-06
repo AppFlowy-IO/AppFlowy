@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/features/share_tab/data/models/models.dart';
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
@@ -50,6 +51,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
     final shareWithUserBloc = context.read<ShareTabBloc>();
+    final pageAccessLevelBloc = context.read<PageAccessLevelBloc>();
     // final animationDuration = const Duration(milliseconds: 120);
 
     return BlocBuilder<ShareBloc, ShareState>(
@@ -90,6 +92,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                   BlocProvider.value(value: shareBloc),
                   BlocProvider.value(value: userWorkspaceBloc),
                   BlocProvider.value(value: shareWithUserBloc),
+                  BlocProvider.value(value: pageAccessLevelBloc),
                 ],
                 child: Provider.value(
                   value: popoverGroupId,
