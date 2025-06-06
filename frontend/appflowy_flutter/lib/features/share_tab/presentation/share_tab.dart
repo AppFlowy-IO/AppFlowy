@@ -86,7 +86,7 @@ class _ShareTabState extends State<ShareTab> {
         final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
         String tooltip = '';
         if (!widget.isInProPlan) {
-          tooltip = 'Please upgrade to Pro plan to invite guests';
+          tooltip = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
         } else if (!isFullAccess) {
           tooltip = LocaleKeys.shareTab_onlyFullAccessCanInvite.tr();
         }
@@ -232,7 +232,7 @@ class _ShareTabState extends State<ShareTab> {
             message = LocaleKeys.shareTab_emailAlreadyInList.tr();
             break;
           case ErrorCode.FreePlanGuestLimitExceeded:
-            message = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
+            message = LocaleKeys.shareTab_upgradeToProToInviteMoreGuests.tr();
             break;
           case ErrorCode.PaidPlanGuestLimitExceeded:
             message = LocaleKeys.shareTab_maxGuestsReached.tr();

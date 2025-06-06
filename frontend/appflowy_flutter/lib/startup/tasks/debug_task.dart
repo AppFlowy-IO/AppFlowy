@@ -1,5 +1,4 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +41,7 @@ class DebugTask extends LaunchTask {
       );
 
       // enable rust request tracing
-      Dispatch.enableTracing = true;
+      // Dispatch.enableTracing = true;
     }
   }
 }

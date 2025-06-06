@@ -3435,7 +3435,7 @@
     "onlyFullAccessCanInvite": "Only user with full access can invite others",
     "invitationSent": "Invitation sent",
     "emailAlreadyInList": "The email is already in the list",
-    "upgradeToProToInviteGuests": "Please upgrade to a Pro plan to invite more guests",
+    "upgradeToProToInviteMoreGuests": "Please upgrade to a Pro plan to invite more guests",
     "maxGuestsReached": "You have reached the maximum number of guests",
     "removedGuestSuccessfully": "Removed guest successfully",
     "updatedAccessLevelSuccessfully": "Updated access level successfully",
@@ -3459,7 +3459,11 @@
         "member": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan.",
         "guest": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan."
       }
-    }
+    },
+    "upgradeToProToInviteGuests": "Please upgrade to Pro plan to invite guests",
+    "removeYourOwnAccess": "Remove your own access",
+    "nothingSharedWithYou": "Nothing shared with you",
+    "pagesSharedWithYouWillShowHere": "Pages shared with you will show here"
   },
   "shareSection": {
     "shared": "Shared with me"
