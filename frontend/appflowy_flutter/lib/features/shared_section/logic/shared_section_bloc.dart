@@ -164,14 +164,7 @@ class SharedSectionBloc extends Bloc<SharedSectionEvent, SharedSectionState> {
     final result = await repository.leaveSharedPage(event.pageId);
     result.fold(
       (success) {
-        add(
-          SharedSectionEvent.updateSharedPages(
-            sharedPages: state.sharedPages
-              ..removeWhere(
-                (page) => page.view.id == event.pageId,
-              ),
-          ),
-        );
+        add(const SharedSectionEvent.refresh());
       },
       (error) {
         emit(state.copyWith(errorMessage: error.msg));

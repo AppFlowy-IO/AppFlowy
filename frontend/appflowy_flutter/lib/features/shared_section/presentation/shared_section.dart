@@ -1,9 +1,7 @@
 import 'package:appflowy/features/shared_section/data/repositories/rust_shared_pages_repository_impl.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_page_list.dart';
-import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_error.dart';
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_header.dart';
-import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -39,17 +37,11 @@ class SharedSection extends StatelessWidget {
         workspaceId: workspaceId,
         repository: repository,
         enablePolling: true,
-        pollingIntervalSeconds:
-            60, // remove this after the websocket is implemented
       )..add(const SharedSectionInitEvent()),
       child: BlocBuilder<SharedSectionBloc, SharedSectionState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const SharedSectionLoading();
-          }
-
-          if (state.errorMessage.isNotEmpty) {
-            return SharedSectionError(errorMessage: state.errorMessage);
+            return const SizedBox.shrink();
           }
 
           // hide the shared section if there are no shared pages

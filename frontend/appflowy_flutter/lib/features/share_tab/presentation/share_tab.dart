@@ -81,17 +81,25 @@ class _ShareTabState extends State<ShareTab> {
             )
             ?.accessLevel;
         final isFullAccess = accessLevel == ShareAccessLevel.fullAccess;
+        String tooltip = '';
+        if (!widget.isInProPlan) {
+          tooltip = 'Please upgrade to Pro plan to invite guests';
+        } else if (!isFullAccess) {
+          tooltip = LocaleKeys.shareTab_onlyFullAccessCanInvite.tr();
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // share page with user by email
-            // only user with full access can invite others
+            // 1. user with full access can invite others
+            // 2. user in pro plan can invite others
             VSpace(theme.spacing.l),
             ShareWithUserWidget(
               controller: controller,
-              disabled: !isFullAccess,
+              disabled: !isFullAccess || !widget.isInProPlan,
+              tooltip: tooltip,
               onInvite: (emails) => _onSharePageWithUser(
                 context,
                 emails: emails,
