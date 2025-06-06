@@ -192,7 +192,7 @@ class RustShareWithUserRepositoryImpl extends ShareWithUserRepository {
   @override
   Future<void> refreshSharedPages() async {
     final result = await FolderEventGetSharedViews().send();
-    return result.fold(
+    result.fold(
       (success) {
         final sharedPages = success.sharedPages;
 
