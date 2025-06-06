@@ -37,6 +37,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
   final int startCharAmount;
 
   OverlayEntry? _menuEntry;
+  Offset _offset = Offset.zero;
+  Alignment _alignment = Alignment.topLeft;
   bool selectionChangedByMenu = false;
 
   @override
@@ -80,49 +82,15 @@ class InlineActionsMenu extends InlineActionsMenuService {
       return;
     }
 
-    const double menuHeight = 300.0;
-    const double menuWidth = 200.0;
-    const Offset menuOffset = Offset(0, 10);
-    final Offset editorOffset =
-        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
-    final Size editorSize = editorState.renderBox!.size;
+    calculateSelectionMenuOffset(selectionRects.first);
+    final (left, top, right, bottom) = _getPosition(_alignment, _offset);
 
-    // Default to opening the overlay below
-    Alignment alignment = Alignment.topLeft;
-
-    final firstRect = selectionRects.first;
-    Offset offset = firstRect.bottomRight + menuOffset;
-
-    // Show above
-    if (offset.dy + menuHeight >= editorOffset.dy + editorSize.height) {
-      offset = firstRect.topRight - menuOffset;
-      alignment = Alignment.bottomLeft;
-
-      offset = Offset(
-        offset.dx,
-        MediaQuery.of(context).size.height - offset.dy,
-      );
-    }
-
-    // Show on the left
-    final windowWidth = MediaQuery.of(context).size.width;
-    if (offset.dx > (windowWidth - menuWidth)) {
-      alignment = alignment == Alignment.topLeft
-          ? Alignment.topRight
-          : Alignment.bottomRight;
-
-      offset = Offset(
-        windowWidth - offset.dx,
-        offset.dy,
-      );
-    }
-
-    final (left, top, right, bottom) = _getPosition(alignment, offset);
-
+    final editorHeight = editorState.renderBox!.size.height;
+    final editorWidth = editorState.renderBox!.size.width;
     _menuEntry = OverlayEntry(
       builder: (context) => SizedBox(
-        height: editorSize.height,
-        width: editorSize.width,
+        height: editorHeight,
+        width: editorWidth,
 
         // GestureDetector handles clicks outside of the context menu,
         // to dismiss the context menu.
@@ -207,6 +175,54 @@ class InlineActionsMenu extends InlineActionsMenuService {
     }
 
     return (left, top, right, bottom);
+  }
+
+  void calculateSelectionMenuOffset(Rect rect) {
+    const menuHeight = 320.0, menuWidth = 360.0;
+    const menuOffset = Offset(0, 0);
+    final editorOffset =
+        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final editorHeight = editorState.renderBox!.size.height;
+    final editorWidth = editorState.renderBox!.size.width;
+
+    // show below default
+    _alignment = Alignment.topLeft;
+    final bottomRight = rect.bottomRight;
+    final topRight = rect.topRight;
+    var offset = bottomRight + menuOffset;
+    _offset = Offset(
+      offset.dx,
+      offset.dy,
+    );
+
+    // show above
+    if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
+      offset = topRight - menuOffset;
+      _alignment = Alignment.bottomLeft;
+
+      _offset = Offset(
+        offset.dx,
+        editorHeight + editorOffset.dy - offset.dy,
+      );
+    }
+
+    // show on right
+    if (_offset.dx + menuWidth < editorOffset.dx + editorWidth) {
+      _offset = Offset(
+        _offset.dx,
+        _offset.dy,
+      );
+    } else if (offset.dx - editorOffset.dx > menuWidth) {
+      // show on left
+      _alignment = _alignment == Alignment.topLeft
+          ? Alignment.topRight
+          : Alignment.bottomRight;
+
+      _offset = Offset(
+        editorWidth - _offset.dx + editorOffset.dx,
+        _offset.dy,
+      );
+    }
   }
 }
 

@@ -17,8 +17,8 @@ const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
 const double _groupBottomSpacing = 6;
 const double _itemHeight = 30; // 26 height + 4 vertical spacing (2*2)
 
-const double kInlineMenuHeight = 300;
-const double kInlineMenuWidth = 400;
+const double kInlineMenuHeight = 320;
+const double kInlineMenuWidth = 360;
 const double _contentHeight = 260;
 
 extension _StartWithsSort on List<InlineActionsResult> {
@@ -154,10 +154,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       focusNode: _focusNode,
       onKeyEvent: onKeyEvent,
       child: Container(
-        constraints: const BoxConstraints(
-          maxHeight: kInlineMenuHeight,
-          minWidth: kInlineMenuWidth,
-        ),
+        width: kInlineMenuWidth,
+        height: kInlineMenuHeight,
         decoration: BoxDecoration(
           color: widget.style.backgroundColor,
           borderRadius: BorderRadius.circular(6.0),

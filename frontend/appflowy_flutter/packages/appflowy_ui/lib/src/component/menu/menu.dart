@@ -11,6 +11,7 @@ class AFMenu extends StatelessWidget {
     super.key,
     required this.children,
     this.width,
+    this.builder,
     this.backgroundColor,
   });
 
@@ -20,6 +21,8 @@ class AFMenu extends StatelessWidget {
   /// The width of the menu.
   final double? width;
 
+  /// An optional builder to customize the children of the menu
+  final AFMenuChildrenBuilder? builder;
   final Color? backgroundColor;
 
   @override
@@ -36,10 +39,16 @@ class AFMenu extends StatelessWidget {
       ),
       width: width,
       padding: EdgeInsets.all(theme.spacing.m),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
+      child: builder?.call(context, children) ??
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          ),
     );
   }
 }
+
+typedef AFMenuChildrenBuilder = Widget Function(
+  BuildContext context,
+  List<Widget> children,
+);
