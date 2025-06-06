@@ -189,33 +189,25 @@ class LinkEmbedBlockComponentState
   Widget buildContent(BuildContext context) {
     final theme = AppFlowyTheme.of(context), textScheme = theme.textColorScheme;
     final hasSiteName = linkInfo.siteName?.isNotEmpty ?? false;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: !UniversalPlatform.isMobile
-                ? null
-                : () =>
-                    afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: FlowyNetworkImage(
-                url: linkInfo.imageUrl ?? '',
-                width: MediaQuery.of(context).size.width,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: FlowyNetworkImage(
+                  url: linkInfo.imageUrl ?? '',
+                  width: MediaQuery.of(context).size.width,
+                ),
               ),
             ),
-          ),
-        ),
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () =>
-                afLaunchUrlString(url, addingHttpSchemeWhenFailed: true),
-            child: Container(
+            Container(
               height: 64,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               child: Row(
@@ -256,9 +248,9 @@ class LinkEmbedBlockComponentState
                 ],
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
