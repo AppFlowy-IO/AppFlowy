@@ -1,7 +1,9 @@
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/features/mension_person/data/models/person.dart';
@@ -13,8 +15,9 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'item_visibility_detector.dart';
-import 'more_results_item.dart';
+import '../invite/person_list_invite_item.dart';
+import '../item_visibility_detector.dart';
+import '../more_results_item.dart';
 
 class PersonList extends StatelessWidget {
   const PersonList({super.key});
@@ -23,6 +26,12 @@ class PersonList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<MentionBloc>().state,
         itemMap = context.read<MentionItemMap>();
+    final workspaceType = context
+        .read<UserWorkspaceBloc?>()
+        ?.state
+        .currentWorkspace
+        ?.workspaceType;
+    if (workspaceType == WorkspaceTypePB.LocalW) return const SizedBox.shrink();
     final persons = state.persons, showMorePersons = state.showMorePersons;
     final hasMorePersons = persons.length > 4;
     final showMoreResult = !showMorePersons && hasMorePersons;
@@ -73,6 +82,7 @@ class PersonList extends StatelessWidget {
         }),
         if (showMoreResult)
           MoreResultsItem(num: persons.length - 4, onTap: onShowMore, id: id),
+        PersonListInviteItem(),
       ],
     );
   }

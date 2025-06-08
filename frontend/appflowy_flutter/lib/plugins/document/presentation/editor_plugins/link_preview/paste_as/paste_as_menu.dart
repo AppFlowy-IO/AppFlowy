@@ -40,8 +40,7 @@ class PasteAsMenuService {
     final Size editorSize = editorState.renderBox?.size ?? Size.zero;
     if (editorSize == Size.zero) return;
     final menuPosition = editorState.calculateMenuOffset(
-      menuWidth: _menuWidth,
-      menuHeight: _menuHeighgt,
+      menuSize: Size(_menuWidth, _menuHeighgt),
     );
     if (menuPosition == null) return;
     final ltrb = menuPosition.ltrb;

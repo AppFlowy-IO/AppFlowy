@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -29,8 +30,6 @@ class MentionMenuService extends InlineActionsMenuService {
   final int startCharAmount;
 
   OverlayEntry? _menuEntry;
-  Offset _offset = Offset.zero;
-  Alignment _alignment = Alignment.topLeft;
   bool selectionChangedByMenu = false;
 
   @override
@@ -57,7 +56,12 @@ class MentionMenuService extends InlineActionsMenuService {
   Future<void> show() async {
     final completer = Completer<void>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _show();
+      _show(
+        MentionMenuBuilderInfo(
+          builder: (service, ltrb) => _buildMentionMenu(ltrb),
+          menuSize: Size.square(400),
+        ),
+      );
       completer.complete();
     });
     return completer.future;
@@ -66,7 +70,7 @@ class MentionMenuService extends InlineActionsMenuService {
   @override
   InlineActionsMenuStyle get style => throw UnimplementedError();
 
-  void _show() {
+  void _show(MentionMenuBuilderInfo builderInfo) {
     dismiss();
 
     final selectionService = editorState.service.selectionService;
@@ -75,50 +79,32 @@ class MentionMenuService extends InlineActionsMenuService {
       return;
     }
 
-    calculateSelectionMenuOffset(selectionRects.first);
-    final (left, top, right, bottom) = _getPosition(_alignment, _offset);
+    final menuPosition = editorState.calculateMenuOffset(
+      menuSize: builderInfo.menuSize,
+      menuOffset: Offset.zero,
+    );
+    if (menuPosition == null) return;
+    final ltrb = menuPosition.ltrb;
 
-    final editorHeight = editorState.renderBox!.size.height;
-    final editorWidth = editorState.renderBox!.size.width;
+    final editorSize = editorState.renderBox!.size;
     _menuEntry = OverlayEntry(
-      builder: (context) => SizedBox(
-        height: editorHeight,
-        width: editorWidth,
-
-        // GestureDetector handles clicks outside of the context menu,
-        // to dismiss the context menu.
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: dismiss,
-          child: Stack(
-            children: [
-              Positioned(
-                top: top,
-                bottom: bottom,
-                left: left,
-                right: right,
-                child: MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(value: workspaceBloc),
-                    BlocProvider.value(value: documentBloc),
-                    BlocProvider.value(value: reminderBloc),
-                  ],
-                  child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-                    builder: (_, __) => Provider(
-                      create: (_) => MentionMenuServiceInfo(
-                        onDismiss: dismiss,
-                        startCharAmount: startCharAmount,
-                        startOffset: editorState.selection?.endIndex ?? 0,
-                        editorState: editorState,
-                        top: top ?? (editorHeight - (bottom ?? 0.0) - 400),
-                      ),
-                      dispose: (context, value) => value._dispose(),
-                      child: MentionMenu(),
-                    ),
-                  ),
+      builder: (context) => Material(
+        color: Colors.transparent,
+        child: SizedBox(
+          height: editorSize.height,
+          width: editorSize.width,
+          // GestureDetector handles clicks outside of the context menu,
+          // to dismiss the context menu.
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: dismiss,
+            child: Stack(
+              children: [
+                ltrb.buildPositioned(
+                  child: builderInfo.builder.call(this, ltrb),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -131,72 +117,35 @@ class MentionMenuService extends InlineActionsMenuService {
     selectionService.currentSelection.addListener(_onSelectionChange);
   }
 
-  void calculateSelectionMenuOffset(Rect rect) {
-    const menuHeight = 400.0, menuWidth = 400.0;
-    const menuOffset = Offset(0, 0);
-    final editorOffset =
-        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+  Widget _buildMentionMenu(LTRB ltrb) {
     final editorHeight = editorState.renderBox!.size.height;
-    final editorWidth = editorState.renderBox!.size.width;
-
-    // show below default
-    _alignment = Alignment.topLeft;
-    final bottomRight = rect.bottomRight, topRight = rect.topRight;
-    var offset = bottomRight + menuOffset;
-    _offset = Offset(offset.dx, offset.dy);
-
-    // show above
-    if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
-      offset = topRight - menuOffset;
-      _alignment = Alignment.bottomLeft;
-
-      _offset = Offset(
-        offset.dx,
-        editorHeight + editorOffset.dy - offset.dy,
-      );
-    }
-
-    // show on right
-    if (_offset.dx + menuWidth < editorOffset.dx + editorWidth) {
-      _offset = Offset(_offset.dx, _offset.dy);
-    } else if (offset.dx - editorOffset.dx > menuWidth) {
-      // show on left
-      _alignment = _alignment == Alignment.topLeft
-          ? Alignment.topRight
-          : Alignment.bottomRight;
-
-      _offset = Offset(
-        editorWidth - _offset.dx + editorOffset.dx,
-        _offset.dy,
-      );
-    }
+    return buildMultiBlocProvider(
+      (_) => Provider(
+        create: (_) => MentionMenuServiceInfo(
+          onDismiss: dismiss,
+          startCharAmount: startCharAmount,
+          startOffset: editorState.selection?.endIndex ?? 0,
+          editorState: editorState,
+          top: ltrb.top ?? (editorHeight - (ltrb.bottom ?? 0.0) - 400),
+          onMenuReplace: (info) => _show(info),
+        ),
+        dispose: (context, value) => value._dispose(),
+        child: MentionMenu(),
+      ),
+    );
   }
 
-  (double? left, double? top, double? right, double? bottom) _getPosition(
-    Alignment alignment,
-    Offset offset,
-  ) {
-    double? left, top, right, bottom;
-    switch (alignment) {
-      case Alignment.topLeft:
-        left = offset.dx;
-        top = offset.dy;
-        break;
-      case Alignment.bottomLeft:
-        left = offset.dx;
-        bottom = offset.dy;
-        break;
-      case Alignment.topRight:
-        right = offset.dx;
-        top = offset.dy;
-        break;
-      case Alignment.bottomRight:
-        right = offset.dx;
-        bottom = offset.dy;
-        break;
-    }
-
-    return (left, top, right, bottom);
+  MultiBlocProvider buildMultiBlocProvider(WidgetBuilder builder) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: workspaceBloc),
+        BlocProvider.value(value: documentBloc),
+        BlocProvider.value(value: reminderBloc),
+      ],
+      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        builder: (context, __) => builder.call(context),
+      ),
+    );
   }
 
   void _onSelectionChange() {
@@ -218,6 +167,21 @@ class MentionMenuService extends InlineActionsMenuService {
   }
 }
 
+typedef MentionMenuBuilder = Widget Function(
+  MentionMenuService service,
+  LTRB ltrb,
+);
+
+class MentionMenuBuilderInfo {
+  MentionMenuBuilderInfo({
+    required this.builder,
+    required this.menuSize,
+  });
+
+  final MentionMenuBuilder builder;
+  final Size menuSize;
+}
+
 class MentionMenuServiceInfo {
   MentionMenuServiceInfo({
     required this.onDismiss,
@@ -225,6 +189,7 @@ class MentionMenuServiceInfo {
     required this.startOffset,
     required this.editorState,
     required this.top,
+    required this.onMenuReplace,
   });
 
   final VoidCallback onDismiss;
@@ -233,6 +198,7 @@ class MentionMenuServiceInfo {
   final EditorState editorState;
   final double top;
   final Map<String, ValueGetter<double>> _itemYMap = {};
+  final ValueChanged<MentionMenuBuilderInfo> onMenuReplace;
 
   void addItemHeightGetter(String id, ValueGetter<double> yGetter) {
     _itemYMap[id] = yGetter;

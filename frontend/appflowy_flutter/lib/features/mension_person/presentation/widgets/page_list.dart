@@ -107,7 +107,7 @@ class PageList extends StatelessWidget {
                   ),
                 );
               }),
-              createPage(
+              createPageItem(
                 context: context,
                 id: createPageId,
                 onTap: () => onPageCreate(context),
@@ -125,7 +125,7 @@ class PageList extends StatelessWidget {
     );
   }
 
-  Widget createPage({
+  Widget createPageItem({
     required BuildContext context,
     required String id,
     required VoidCallback onTap,

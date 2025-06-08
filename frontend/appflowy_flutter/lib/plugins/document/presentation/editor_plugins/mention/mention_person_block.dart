@@ -1,7 +1,7 @@
 import 'package:appflowy/features/mension_person/data/repositories/mock_person_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
-import 'package:appflowy/features/mension_person/presentation/widgets/person_card_profile.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/person_card_profile.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';

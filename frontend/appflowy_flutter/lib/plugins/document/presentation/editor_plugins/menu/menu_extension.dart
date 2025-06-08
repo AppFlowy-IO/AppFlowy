@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 extension MenuExtension on EditorState {
   MenuPosition? calculateMenuOffset({
     Rect? rect,
-    required double menuWidth,
-    required double menuHeight,
+    required Size menuSize,
     Offset menuOffset = const Offset(0, 10),
   }) {
+    final menuHeight = menuSize.height, menuWidth = menuSize.width;
     final selectionService = service.selectionService;
     final selectionRects = selectionService.selectionRects;
     late Rect startRect;

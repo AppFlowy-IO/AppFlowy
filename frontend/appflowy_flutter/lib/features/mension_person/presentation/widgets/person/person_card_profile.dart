@@ -1,6 +1,6 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
-import 'package:appflowy/features/mension_person/presentation/widgets/person_role_badge.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/person_role_badge.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:cached_network_image/cached_network_image.dart';
