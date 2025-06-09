@@ -341,10 +341,7 @@ class NotificationDocumentContent extends StatelessWidget {
               .orDefault(
                 context.read<AppearanceSettingsCubit>().state.font,
               );
-          return styleCustomizer.baseTextStyle(
-            fontFamily,
-            fontWeight: FontWeight.w600,
-          );
+          return styleCustomizer.baseTextStyle(fontFamily);
         },
       );
       blockBuilders[HeadingBlockKeys.type] = newHeadingBuilder;
