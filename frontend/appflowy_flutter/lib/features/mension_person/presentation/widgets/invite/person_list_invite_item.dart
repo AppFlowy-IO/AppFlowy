@@ -1,9 +1,11 @@
-import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
+import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/person_list.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -47,15 +49,42 @@ class PersonListInviteItem extends StatelessWidget {
 
   void invitePerson(BuildContext context) {
     final serviceInfo = context.read<MentionMenuServiceInfo>();
-    final state = context.read<MentionBloc>().state, query = state.query;
+    final bloc = context.read<MentionBloc>(),
+        state = bloc.state,
+        query = state.query;
+    final documentBloc = context.read<DocumentBloc?>();
+
     serviceInfo.onMenuReplace.call(
       MentionMenuBuilderInfo(
         builder: (service, lrbt) => service.buildMultiBlocProvider(
           (_) => Provider.value(
             value: serviceInfo,
             child: InviteMenu(
-              info: InviteMenuInfo(email: query),
-              onInfoChanged: (v) {},
+              info: InviteInfo(email: query),
+              onInfoChanged: (v) async {
+                final editorState = serviceInfo.editorState;
+                final selection = editorState.selection;
+                if (selection == null ||
+                    !selection.isCollapsed ||
+                    documentBloc == null) {
+                  return;
+                }
+                final node = editorState.getNodeAtPath(selection.end.path);
+                final delta = node?.delta;
+                if (node == null || delta == null) return;
+                final range = serviceInfo.textRange(query);
+                final person = (await bloc.repository
+                        .invitePerson(workspaceId: bloc.workspaceId, info: v))
+                    .toNullable();
+                if (person == null) return;
+                serviceInfo.onDismiss.call();
+                await editorState.insertPerson(
+                  person,
+                  documentBloc.documentId,
+                  range,
+                  state.sendNotification,
+                );
+              },
             ),
           ),
         ),

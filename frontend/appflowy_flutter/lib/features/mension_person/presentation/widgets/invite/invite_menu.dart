@@ -1,4 +1,4 @@
-import 'package:appflowy/features/mension_person/data/models/person.dart';
+import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -6,36 +6,11 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
 import 'contact_detail_menu.dart';
-
-class InviteMenuInfo {
-  InviteMenuInfo({
-    required this.email,
-    this.role = PersonRole.member,
-    this.contactDetail,
-  });
-
-  final String email;
-  final PersonRole role;
-  final ContactDetail? contactDetail;
-
-  InviteMenuInfo copyWith({
-    String? email,
-    PersonRole? role,
-    ValueGetter<ContactDetail?>? contactDetail,
-  }) {
-    return InviteMenuInfo(
-      email: email ?? this.email,
-      role: role ?? this.role,
-      contactDetail:
-          contactDetail != null ? contactDetail() : this.contactDetail,
-    );
-  }
-}
 
 class PersonRoleDownMenuItem with AFDropDownMenuMixin {
   const PersonRoleDownMenuItem({
@@ -55,20 +30,21 @@ class InviteMenu extends StatefulWidget {
     required this.onInfoChanged,
   });
 
-  final InviteMenuInfo info;
-  final ValueChanged<InviteMenuInfo> onInfoChanged;
+  final InviteInfo info;
+  final ValueChanged<InviteInfo> onInfoChanged;
 
   @override
   State<InviteMenu> createState() => _InviteMenuState();
 }
 
 class _InviteMenuState extends State<InviteMenu> {
-  late FocusNode emailFocusNode = FocusNode();
-  late FocusNode menuFocusNode = FocusNode();
+  late FocusNode emailFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late FocusScopeNode menuFocusNode =
+      FocusScopeNode(onKeyEvent: onFocusKeyEvent);
   late TextEditingController emailController =
       TextEditingController(text: info.email);
 
-  late InviteMenuInfo info = widget.info;
+  late InviteInfo info = widget.info;
 
   @override
   void initState() {
@@ -89,47 +65,52 @@ class _InviteMenuState extends State<InviteMenu> {
     final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
     return GestureDetector(
       onTap: () {},
-      child: ConstrainedBox(
-        constraints:
-            BoxConstraints(maxHeight: 400, maxWidth: 400, minWidth: 400),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.surfaceColorScheme.layer02,
-            borderRadius: BorderRadius.circular(spacing.xl),
-            boxShadow: theme.shadow.medium,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: spacing.xl,
-              horizontal: spacing.xxl,
+      child: FocusScope(
+        node: menuFocusNode,
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxHeight: 400, maxWidth: 400, minWidth: 400),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.surfaceColorScheme.layer02,
+              borderRadius: BorderRadius.circular(spacing.xl),
+              boxShadow: theme.shadow.medium,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildTitle(context),
-                VSpace(spacing.l),
-                buildSubtitle(
-                  context,
-                  LocaleKeys.document_mentionMenu_email.tr(),
-                ),
-                VSpace(spacing.xs),
-                buildEmailField(),
-                VSpace(spacing.l),
-                buildSubtitle(
-                    context, LocaleKeys.document_mentionMenu_type.tr()),
-                VSpace(spacing.xs),
-                buildRoleSelector(),
-                VSpace(spacing.xxl),
-                Row(
-                  children: [
-                    Spacer(),
-                    buildBackButton(),
-                    HSpace(spacing.l),
-                    buildAddButton(),
-                  ],
-                ),
-              ],
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: spacing.xl,
+                horizontal: spacing.xxl,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildTitle(context),
+                  VSpace(spacing.l),
+                  buildSubtitle(
+                    context,
+                    LocaleKeys.document_mentionMenu_email.tr(),
+                  ),
+                  VSpace(spacing.xs),
+                  buildEmailField(),
+                  VSpace(spacing.l),
+                  buildSubtitle(
+                    context,
+                    LocaleKeys.document_mentionMenu_type.tr(),
+                  ),
+                  VSpace(spacing.xs),
+                  buildRoleSelector(),
+                  VSpace(spacing.xxl),
+                  Row(
+                    children: [
+                      Spacer(),
+                      buildBackButton(),
+                      HSpace(spacing.l),
+                      buildAddButton(),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -234,10 +215,7 @@ class _InviteMenuState extends State<InviteMenu> {
   Widget buildBackButton() {
     return AFOutlinedTextButton.normal(
       text: LocaleKeys.document_mentionMenu_back.tr(),
-      onTap: () {
-        final mentionInfo = context.read<MentionMenuServiceInfo?>();
-        mentionInfo?.onDismiss.call();
-      },
+      onTap: onDismiss,
     );
   }
 
@@ -247,44 +225,7 @@ class _InviteMenuState extends State<InviteMenu> {
       text: isContact
           ? LocaleKeys.button_add.tr()
           : LocaleKeys.document_mentionMenu_invite.tr(),
-      onTap: () {
-        if (info.email.isEmpty) {
-          showToastNotification(
-            /// TODO: replace with formal text
-            message: 'Email can not be empty',
-            type: ToastificationType.error,
-          );
-          return;
-        }
-        if (!isEmail(info.email)) {
-          showToastNotification(
-            /// TODO: replace with formal text
-            message: 'Email is invalid',
-            type: ToastificationType.error,
-          );
-          return;
-        }
-        if (isContact) {
-          final serviceInfo = context.read<MentionMenuServiceInfo?>();
-          if (serviceInfo == null) return;
-          serviceInfo.onMenuReplace.call(
-            MentionMenuBuilderInfo(
-              builder: (service, lrbt) => service.buildMultiBlocProvider(
-                (_) => Provider.value(
-                  value: serviceInfo,
-                  child: ContactDetailMenu(
-                    info: info,
-                    onInfoChanged: (v) {},
-                  ),
-                ),
-              ),
-              menuSize: Size(400, 300),
-            ),
-          );
-        } else {
-          widget.onInfoChanged.call(info);
-        }
-      },
+      onTap: onApply,
     );
   }
 
@@ -300,12 +241,72 @@ class _InviteMenuState extends State<InviteMenu> {
     });
   }
 
-  void updateInfo(InviteMenuInfo newInfo) {
+  void updateInfo(InviteInfo newInfo) {
     if (mounted) {
       setState(() {
         info = newInfo;
       });
     }
+  }
+
+  void onApply() {
+    final isContact = info.role == PersonRole.contact;
+
+    if (info.email.isEmpty) {
+      showToastNotification(
+        /// TODO: replace with formal text
+        message: 'Email can not be empty',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+    if (!isEmail(info.email)) {
+      showToastNotification(
+        /// TODO: replace with formal text
+        message: 'Email is invalid',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+    if (isContact) {
+      final serviceInfo = context.read<MentionMenuServiceInfo?>();
+      if (serviceInfo == null) return;
+      serviceInfo.onMenuReplace.call(
+        MentionMenuBuilderInfo(
+          builder: (service, lrbt) => service.buildMultiBlocProvider(
+            (_) => Provider.value(
+              value: serviceInfo,
+              child: ContactDetailMenu(
+                info: info,
+                onInfoChanged: widget.onInfoChanged,
+              ),
+            ),
+          ),
+          menuSize: Size(400, 300),
+        ),
+      );
+    } else {
+      widget.onInfoChanged.call(info);
+    }
+  }
+
+  void onDismiss() {
+    emailFocusNode.unfocus();
+    menuFocusNode.unfocus();
+    final mentionInfo = context.read<MentionMenuServiceInfo?>();
+    mentionInfo?.onDismiss.call();
+  }
+
+  KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
+    if (key is! KeyDownEvent) return KeyEventResult.ignored;
+    if (key.logicalKey == LogicalKeyboardKey.enter) {
+      onApply();
+      return KeyEventResult.handled;
+    } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+      onDismiss();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 }
 

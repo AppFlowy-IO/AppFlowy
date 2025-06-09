@@ -102,7 +102,7 @@ class DateReminderList extends StatelessWidget {
     if (node == null || delta == null) return;
     final range = mentionInfo.textRange(query);
 
-    mentionInfo.onDismiss.call();
+    onDismiss(mentionInfo);
     await editorState.insertDateReference(date, range.start, range.end);
   }
 
@@ -122,7 +122,7 @@ class DateReminderList extends StatelessWidget {
     if (node == null || delta == null) return;
 
     final range = mentionInfo.textRange(query);
-    mentionInfo.onDismiss.call();
+    onDismiss(mentionInfo);
     await editorState.insertReminderReference(
       context,
       date,
@@ -130,5 +130,9 @@ class DateReminderList extends StatelessWidget {
       range.end,
       includeTime: includeTime,
     );
+  }
+
+  void onDismiss(MentionMenuServiceInfo info) {
+    info.onDismiss.call();
   }
 }

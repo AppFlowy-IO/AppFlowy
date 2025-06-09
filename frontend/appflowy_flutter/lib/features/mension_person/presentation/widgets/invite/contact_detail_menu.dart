@@ -1,31 +1,13 @@
+import 'package:appflowy/features/mension_person/data/models/models.dart';
+import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-
-import 'invite_menu.dart';
-
-class ContactDetail {
-  ContactDetail({
-    this.name = '',
-    this.description = '',
-  });
-
-  final String name;
-  final String description;
-
-  ContactDetail copyWith({
-    String? name,
-    String? description,
-  }) {
-    return ContactDetail(
-      name: name ?? this.name,
-      description: description ?? this.description,
-    );
-  }
-}
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ContactDetailMenu extends StatefulWidget {
   const ContactDetailMenu({
@@ -34,22 +16,23 @@ class ContactDetailMenu extends StatefulWidget {
     required this.onInfoChanged,
   });
 
-  final InviteMenuInfo info;
-  final ValueChanged<InviteMenuInfo> onInfoChanged;
+  final InviteInfo info;
+  final ValueChanged<InviteInfo> onInfoChanged;
 
   @override
   State<ContactDetailMenu> createState() => _ContactDetailMenuState();
 }
 
 class _ContactDetailMenuState extends State<ContactDetailMenu> {
-  late FocusNode nameFocusNode = FocusNode();
-  late FocusNode menuFocusNode = FocusNode();
+  late FocusNode nameFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late FocusScopeNode menuFocusNode =
+      FocusScopeNode(onKeyEvent: onFocusKeyEvent);
   late TextEditingController nameController =
       TextEditingController(text: info.email);
   late TextEditingController descriptionController =
       TextEditingController(text: detail.description);
 
-  late InviteMenuInfo info = widget.info;
+  late InviteInfo info = widget.info;
 
   late ContactDetail detail = info.contactDetail ?? ContactDetail();
 
@@ -71,43 +54,46 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
-    return GestureDetector(
-      onTap: () {},
-      child: SizedBox(
-        width: 400,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.surfaceColorScheme.layer02,
-            borderRadius: BorderRadius.circular(spacing.xl),
-            boxShadow: theme.shadow.medium,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: spacing.xl,
-              horizontal: spacing.xxl,
+    return FocusScope(
+      node: menuFocusNode,
+      child: GestureDetector(
+        onTap: () {},
+        child: SizedBox(
+          width: 400,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.surfaceColorScheme.layer02,
+              borderRadius: BorderRadius.circular(spacing.xl),
+              boxShadow: theme.shadow.medium,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildTitle(context),
-                VSpace(spacing.l),
-                buildSubtitle(
-                  context,
-                  LocaleKeys.document_mentionMenu_name.tr(),
-                ),
-                VSpace(spacing.xs),
-                buildNameField(),
-                VSpace(spacing.xxl),
-                buildSubtitle(
-                  context,
-                  LocaleKeys.document_mentionMenu_aboutContact.tr(),
-                ),
-                VSpace(spacing.xs),
-                buildDescriptionField(),
-                VSpace(spacing.xxl),
-                buildApplyButton(),
-              ],
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: spacing.xl,
+                horizontal: spacing.xxl,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildTitle(context),
+                  VSpace(spacing.l),
+                  buildSubtitle(
+                    context,
+                    LocaleKeys.document_mentionMenu_name.tr(),
+                  ),
+                  VSpace(spacing.xs),
+                  buildNameField(),
+                  VSpace(spacing.xxl),
+                  buildSubtitle(
+                    context,
+                    LocaleKeys.document_mentionMenu_aboutContact.tr(),
+                  ),
+                  VSpace(spacing.xs),
+                  buildDescriptionField(),
+                  VSpace(spacing.xxl),
+                  buildApplyButton(),
+                ],
+              ),
             ),
           ),
         ),
@@ -175,30 +161,37 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
       alignment: Alignment.centerRight,
       child: AFFilledTextButton.primary(
         text: LocaleKeys.settings_appearance_documentSettings_apply.tr(),
-        onTap: () {
-          if (detail.name.isEmpty) {
-            showToastNotification(
-              /// TODO: replace with formal text
-              message: 'Name can not be empty',
-              type: ToastificationType.error,
-            );
-            return;
-          }
-          if (detail.description.isEmpty) {
-            showToastNotification(
-              /// TODO: replace with formal text
-              message: 'Description can not be empty',
-              type: ToastificationType.error,
-            );
-            return;
-          }
-          widget.onInfoChanged.call(info);
-        },
+        onTap: onApply,
       ),
     );
   }
 
-  void updateInfo(InviteMenuInfo newInfo) {
+  void onApply() {
+    if (detail.name.isEmpty) {
+      showToastNotification(
+        /// TODO: replace with formal text
+        message: 'Name can not be empty',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+    if (detail.description.isEmpty) {
+      showToastNotification(
+        /// TODO: replace with formal text
+        message: 'Description can not be empty',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+    widget.onInfoChanged.call(info);
+  }
+
+  void onDismiss() {
+    final mentionInfo = context.read<MentionMenuServiceInfo?>();
+    mentionInfo?.onDismiss.call();
+  }
+
+  void updateInfo(InviteInfo newInfo) {
     if (mounted) {
       setState(() {
         info = newInfo;
@@ -213,5 +206,17 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       makeSureHasFocus();
     });
+  }
+
+  KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
+    if (key is! KeyDownEvent) return KeyEventResult.ignored;
+    if (key.logicalKey == LogicalKeyboardKey.enter) {
+      onApply();
+      return KeyEventResult.handled;
+    } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+      onDismiss();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 }

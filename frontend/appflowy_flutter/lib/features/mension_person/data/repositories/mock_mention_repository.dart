@@ -1,3 +1,4 @@
+import 'package:appflowy/features/mension_person/data/models/invite.dart';
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -47,5 +48,21 @@ class MockMentionRepository extends MentionRepository {
     required String workspaceId,
   }) async {
     return FlowySuccess(_mockMembers);
+  }
+
+  @override
+  Future<FlowyResult<Person, FlowyError>> invitePerson({
+    required String workspaceId,
+    required InviteInfo info,
+  }) async {
+    return FlowySuccess(
+      Person(
+        id: '4',
+        name: info.contactDetail?.name ?? info.email,
+        role: info.role,
+        email: info.email,
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy/13',
+      ),
+    );
   }
 }

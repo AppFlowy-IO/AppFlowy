@@ -30,7 +30,6 @@ class MentionMenuService extends InlineActionsMenuService {
   final int startCharAmount;
 
   OverlayEntry? _menuEntry;
-  bool selectionChangedByMenu = false;
 
   @override
   void dismiss() {
@@ -42,14 +41,6 @@ class MentionMenuService extends InlineActionsMenuService {
 
     _menuEntry?.remove();
     _menuEntry = null;
-
-    // workaround: SelectionService has been released after hot reload.
-    final isSelectionDisposed =
-        editorState.service.selectionServiceKey.currentState == null;
-    if (!isSelectionDisposed) {
-      final selectionService = editorState.service.selectionService;
-      selectionService.currentSelection.removeListener(_onSelectionChange);
-    }
   }
 
   @override
@@ -72,12 +63,6 @@ class MentionMenuService extends InlineActionsMenuService {
 
   void _show(MentionMenuBuilderInfo builderInfo) {
     dismiss();
-
-    final selectionService = editorState.service.selectionService;
-    final selectionRects = selectionService.selectionRects;
-    if (selectionRects.isEmpty) {
-      return;
-    }
 
     final menuPosition = editorState.calculateMenuOffset(
       menuSize: builderInfo.menuSize,
@@ -112,9 +97,10 @@ class MentionMenuService extends InlineActionsMenuService {
 
     Overlay.of(context).insert(_menuEntry!);
 
-    editorState.service.keyboardService?.disable(showCursor: true);
-    editorState.service.scrollService?.disable();
-    selectionService.currentSelection.addListener(_onSelectionChange);
+    final editorService = editorState.service;
+
+    editorService.keyboardService?.disable(showCursor: true);
+    editorService.scrollService?.disable();
   }
 
   Widget _buildMentionMenu(LTRB ltrb) {
@@ -127,7 +113,10 @@ class MentionMenuService extends InlineActionsMenuService {
           startOffset: editorState.selection?.endIndex ?? 0,
           editorState: editorState,
           top: ltrb.top ?? (editorHeight - (ltrb.bottom ?? 0.0) - 400),
-          onMenuReplace: (info) => _show(info),
+          onMenuReplace: (info) {
+            keepEditorFocusNotifier.increase();
+            _show(info);
+          },
         ),
         dispose: (context, value) => value._dispose(),
         child: MentionMenu(),
@@ -146,24 +135,6 @@ class MentionMenuService extends InlineActionsMenuService {
         builder: (context, __) => builder.call(context),
       ),
     );
-  }
-
-  void _onSelectionChange() {
-    // workaround: SelectionService has been released after hot reload.
-    final isSelectionDisposed =
-        editorState.service.selectionServiceKey.currentState == null;
-    if (!isSelectionDisposed) {
-      final selectionService = editorState.service.selectionService;
-      if (selectionService.currentSelection.value == null) {
-        return;
-      }
-    }
-
-    if (!selectionChangedByMenu) {
-      return dismiss();
-    }
-
-    selectionChangedByMenu = false;
   }
 }
 
