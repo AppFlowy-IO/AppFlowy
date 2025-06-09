@@ -34,7 +34,8 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
 
   late InviteInfo info = widget.info;
 
-  late ContactDetail detail = info.contactDetail ?? ContactDetail();
+  late ContactDetail detail =
+      info.contactDetail ?? ContactDetail(name: info.email);
 
   @override
   void initState() {

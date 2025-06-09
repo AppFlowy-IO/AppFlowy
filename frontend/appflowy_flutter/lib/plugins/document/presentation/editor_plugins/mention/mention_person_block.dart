@@ -1,7 +1,8 @@
-import 'package:appflowy/features/mension_person/data/repositories/mock_person_repository.dart';
+import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_card_profile.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
@@ -60,11 +61,18 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
 
   @override
   Widget build(BuildContext context) {
+    final workspaceId = context
+            .read<UserWorkspaceBloc?>()
+            ?.state
+            .currentWorkspace
+            ?.workspaceId ??
+        '';
     return BlocProvider(
       create: (context) => PersonBloc(
         documentId: widget.pageId,
         personId: widget.personId,
-        repository: MockPersonRepository(),
+        workspaceId: workspaceId,
+        repository: MockMentionRepository(),
       )..add(PersonEvent.initial()),
       child: BlocBuilder<PersonBloc, PersonState>(
         key: key,

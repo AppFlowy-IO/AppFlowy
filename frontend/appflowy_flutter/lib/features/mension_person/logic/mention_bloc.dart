@@ -1,5 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/features/mension_person/data/cache/person_list_cache.dart';
 import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mention_repository.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -13,9 +14,11 @@ bool _showMorePages = false, _showMorePersons = false;
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
   MentionBloc(this.repository, this.workspaceId)
       : super(MentionState.initial()) {
+    _personListCache = getIt<PersonListCache>();
     on<Initial>(_onInitial);
     on<Query>(_onQuery);
     on<GetPersons>(_onGetPersons);
+    on<UpdatePersonList>(_onUpdatePersonList);
     on<ShowMorePersons>(_onShowMorePersons);
     on<ShowMorePages>(_onShowMorePages);
     on<ToggleSendNotification>(_onToggleSendNotification);
@@ -27,6 +30,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
   }
   final MentionRepository repository;
   final String workspaceId;
+  late final PersonListCache _personListCache;
 
   Future<void> _onInitial(
     Initial event,
@@ -59,12 +63,24 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     GetPersons event,
     Emitter<MentionState> emit,
   ) async {
+    final localList = _personListCache.getPersons(workspaceId) ?? [];
+    if (localList.isNotEmpty) {
+      emit(state.copyWith(persons: localList));
+    }
     final persons =
         (await repository.getPersons(workspaceId: event.workspaceId))
             .toNullable();
     if (persons != null && persons.isNotEmpty) {
-      emit(state.copyWith(persons: persons));
+      add(MentionEvent.updatePersonList(persons));
+      _personListCache.updatePersonList(workspaceId, persons);
     }
+  }
+
+  Future<void> _onUpdatePersonList(
+    UpdatePersonList event,
+    Emitter<MentionState> emit,
+  ) async {
+    emit(state.copyWith(persons: event.persons));
   }
 
   Future<void> _onShowMorePersons(
@@ -124,6 +140,8 @@ class MentionEvent with _$MentionEvent {
   const factory MentionEvent.init() = Initial;
   const factory MentionEvent.getPersons({required String workspaceId}) =
       GetPersons;
+  const factory MentionEvent.updatePersonList(List<Person> persons) =
+      UpdatePersonList;
   const factory MentionEvent.query(String text) = Query;
   const factory MentionEvent.showMorePersons(String lastId) = ShowMorePersons;
   const factory MentionEvent.showMorePages(String lastId) = ShowMorePages;

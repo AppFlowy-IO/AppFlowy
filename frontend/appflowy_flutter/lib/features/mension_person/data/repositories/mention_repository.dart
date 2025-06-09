@@ -8,6 +8,12 @@ abstract class MentionRepository {
     required String workspaceId,
   });
 
+   Future<FlowyResult<PersonWithAccess, FlowyError>> getPerson({
+    required String workspaceId,
+    required String documentId,
+    required String personId,
+  });
+
   /// Gets the list of persons
   Future<FlowyResult<Person, FlowyError>> invitePerson({
     required String workspaceId,
