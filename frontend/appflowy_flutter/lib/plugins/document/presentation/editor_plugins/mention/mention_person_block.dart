@@ -1,7 +1,7 @@
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
-import 'package:appflowy/features/mension_person/presentation/widgets/person/person_card_profile.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/person_profile_card.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -96,7 +96,7 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
             menuBuilder: (context) => BlocProvider.value(
               value: bloc,
               child: BlocBuilder<PersonBloc, PersonState>(
-                builder: (context, state) => PersonCardProfile(
+                builder: (context, state) => PersonProfileCard(
                   triggerSize: triggerSize,
                   showAtBottom: showAtBottom,
                 ),

@@ -49,11 +49,11 @@ class PersonListInviteItem extends StatelessWidget {
   }
 
   void invitePerson(BuildContext context) {
-    final serviceInfo = context.read<MentionMenuServiceInfo>();
-    final bloc = context.read<MentionBloc>(),
-        state = bloc.state,
-        query = state.query;
-    final documentBloc = context.read<DocumentBloc?>();
+    final serviceInfo = context.read<MentionMenuServiceInfo>(),
+        documentBloc = context.read<DocumentBloc?>();
+    final mentionBloc = context.read<MentionBloc>(),
+        mentionState = mentionBloc.state,
+        query = mentionState.query;
 
     serviceInfo.onMenuReplace.call(
       MentionMenuBuilderInfo(
@@ -74,16 +74,30 @@ class PersonListInviteItem extends StatelessWidget {
                 final delta = node?.delta;
                 if (node == null || delta == null) return;
                 final range = serviceInfo.textRange(query);
-                await (await bloc.repository
-                        .invitePerson(workspaceId: bloc.workspaceId, info: v))
+                await (await mentionBloc.repository.invitePerson(
+                  workspaceId: mentionBloc.workspaceId,
+                  info: v,
+                ))
                     .fold((person) async {
                   serviceInfo.onDismiss.call();
                   await editorState.insertPerson(
                     person,
                     documentBloc.documentId,
                     range,
-                    state.sendNotification,
+                    mentionState.sendNotification,
                   );
+                  final isContact = person.role == PersonRole.contact;
+                  if (isContact) {
+                    showToastNotification(
+                      message: LocaleKeys.document_mentionMenu_addContactToast
+                          .tr(args: [person.name]),
+                    );
+                  } else {
+                    showToastNotification(
+                      message:
+                          LocaleKeys.document_mentionMenu_inviteEmailSent.tr(),
+                    );
+                  }
                 }, (error) {
                   showToastNotification(
                     message: error.msg,

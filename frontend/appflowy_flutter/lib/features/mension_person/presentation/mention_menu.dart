@@ -3,6 +3,7 @@ import 'package:appflowy/features/mension_person/data/repositories/mock_mention_
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -51,11 +52,14 @@ class MentionMenu extends StatelessWidget {
                         width: width,
                         padding: EdgeInsets.zero,
                         builder: (context, children) {
-                          return SingleChildScrollView(
+                          return FlowyScrollbar(
                             controller: controller,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: children,
+                            child: SingleChildScrollView(
+                              controller: controller,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: children,
+                              ),
                             ),
                           );
                         },

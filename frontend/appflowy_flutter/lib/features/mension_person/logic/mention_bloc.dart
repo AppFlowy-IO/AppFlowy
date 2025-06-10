@@ -9,7 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'mention_bloc.freezed.dart';
 
-bool _showMorePages = false, _showMorePersons = false;
+// bool _showMorePages = false, _showMorePersons = false;
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
   MentionBloc(this.repository, this.workspaceId)
@@ -43,8 +43,8 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
       emit(
         state.copyWith(
           sendNotification: sendNotification,
-          showMorePersons: _showMorePersons,
-          showMorePage: _showMorePages,
+          showMorePersons: false,
+          showMorePage: false,
         ),
       );
     }
@@ -90,7 +90,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     Emitter<MentionState> emit,
   ) async {
     emit(state.copyWith(showMorePersons: true, selectedId: event.lastId));
-    _showMorePersons = true;
+    // _showMorePersons = true;
   }
 
   Future<void> _onShowMorePages(
@@ -98,7 +98,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     Emitter<MentionState> emit,
   ) async {
     emit(state.copyWith(showMorePage: true, selectedId: event.lastId));
-    _showMorePages = true;
+    // _showMorePages = true;
   }
 
   Future<void> _onToggleSendNotification(

@@ -101,7 +101,7 @@ class PageList extends StatelessWidget {
                     child: AFTextMenuItem(
                       selected: mentionState.selectedId == view.id,
                       leading: SizedBox(
-                        width: 20,
+                        width: 24,
                         child: Center(child: view.buildIcon(context)),
                       ),
                       title: view.nameOrDefault,

@@ -1,13 +1,14 @@
 import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+
+import 'invite_menu.dart';
 
 class ContactDetailMenu extends StatefulWidget {
   const ContactDetailMenu({
@@ -36,6 +37,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
 
   late ContactDetail detail =
       info.contactDetail ?? ContactDetail(name: info.email);
+  final nameKey = GlobalKey<AFTextFieldState>();
 
   @override
   void initState() {
@@ -92,7 +94,14 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
                   VSpace(spacing.xs),
                   buildDescriptionField(),
                   VSpace(spacing.xxl),
-                  buildApplyButton(),
+                  Row(
+                    children: [
+                      Spacer(),
+                      buildBackButton(),
+                      HSpace(spacing.l),
+                      buildApplyButton(),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -126,6 +135,8 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     return SizedBox(
       width: 360,
       child: AFTextField(
+        key: nameKey,
+        hintText: LocaleKeys.document_mentionMenu_contactInputHint.tr(),
         size: AFTextFieldSize.m,
         focusNode: nameFocusNode,
         controller: nameController,
@@ -157,6 +168,13 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     );
   }
 
+  Widget buildBackButton() {
+    return AFOutlinedTextButton.normal(
+      text: LocaleKeys.document_mentionMenu_back.tr(),
+      onTap: onBack,
+    );
+  }
+
   Widget buildApplyButton() {
     return Align(
       alignment: Alignment.centerRight,
@@ -167,23 +185,33 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     );
   }
 
+  void onBack() {
+    final serviceInfo = context.read<MentionMenuServiceInfo?>();
+    if (serviceInfo == null) return;
+    serviceInfo.onMenuReplace.call(
+      MentionMenuBuilderInfo(
+        builder: (service, lrbt) => service.buildMultiBlocProvider(
+          (context) => Provider.value(
+            value: serviceInfo,
+            child: InviteMenu(
+              info: widget.info,
+              onInfoChanged: (v) => widget.onInfoChanged(v),
+            ),
+          ),
+        ),
+        menuSize: Size.square(400),
+      ),
+    );
+  }
+
   void onApply() {
     if (detail.name.isEmpty) {
-      showToastNotification(
-        /// TODO: replace with formal text
-        message: 'Name can not be empty',
-        type: ToastificationType.error,
+      nameKey.currentState?.syncError(
+        errorText: LocaleKeys.document_mentionMenu_contactInputError.tr(),
       );
       return;
     }
-    if (detail.description.isEmpty) {
-      showToastNotification(
-        /// TODO: replace with formal text
-        message: 'Description can not be empty',
-        type: ToastificationType.error,
-      );
-      return;
-    }
+    nameKey.currentState?.clearError();
     widget.onInfoChanged.call(info);
   }
 
@@ -211,10 +239,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
 
   KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
     if (key is! KeyDownEvent) return KeyEventResult.ignored;
-    if (key.logicalKey == LogicalKeyboardKey.enter) {
-      onApply();
-      return KeyEventResult.handled;
-    } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+    if (key.logicalKey == LogicalKeyboardKey.escape) {
       onDismiss();
       return KeyEventResult.handled;
     }

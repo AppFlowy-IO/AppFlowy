@@ -8,8 +8,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PersonCardProfile extends StatelessWidget {
-  const PersonCardProfile({
+class PersonProfileCard extends StatelessWidget {
+  const PersonProfileCard({
     super.key,
     required this.triggerSize,
     required this.showAtBottom,

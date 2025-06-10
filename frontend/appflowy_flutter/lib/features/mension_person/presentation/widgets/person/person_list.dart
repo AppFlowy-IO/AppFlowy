@@ -91,7 +91,10 @@ class PersonList extends StatelessWidget {
               }),
               if (showMoreResult)
                 MoreResultsItem(
-                    num: persons.length - 4, onTap: onShowMore, id: id),
+                  num: persons.length - 4,
+                  onTap: onShowMore,
+                  id: id,
+                ),
               PersonListInviteItem(),
             ],
           ),
