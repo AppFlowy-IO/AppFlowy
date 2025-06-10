@@ -1649,6 +1649,7 @@
         "other": "Hide {count} hidden fields"
       },
       "openAsFullPage": "Open as full page",
+      "viewDatabase": "View the original Database",
       "moreRowActions": "More row actions"
     },
     "sort": {
