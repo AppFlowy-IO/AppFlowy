@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HoverMenu extends StatefulWidget {
   const HoverMenu({
@@ -11,6 +12,10 @@ class HoverMenu extends StatefulWidget {
     required this.menuBuilder,
     this.delayToShow = const Duration(milliseconds: 50),
     this.delayToHide = const Duration(milliseconds: 300),
+    this.direction = PopoverDirection.topWithLeftAligned,
+    this.offset = Offset.zero,
+    this.onEnter,
+    this.onExit,
   });
 
   final BoxConstraints menuConstraints;
@@ -19,6 +24,10 @@ class HoverMenu extends StatefulWidget {
   final WidgetBuilder menuBuilder;
   final Duration delayToShow;
   final Duration delayToHide;
+  final PopoverDirection direction;
+  final Offset offset;
+  final PointerEnterEventListener? onEnter;
+  final PointerExitEventListener? onExit;
 
   @override
   State<HoverMenu> createState() => _HoverMenuState();
@@ -50,8 +59,8 @@ class _HoverMenuState extends State<HoverMenu> {
   Widget buildPopover() {
     return AppFlowyPopover(
       controller: controller,
-      direction: PopoverDirection.topWithLeftAligned,
-      offset: Offset(0, triggerSize.height),
+      direction: widget.direction,
+      offset: widget.offset,
       onOpen: () {
         keepEditorFocusNotifier.increase();
         isHoverMenuShowing = true;
@@ -78,13 +87,14 @@ class _HoverMenuState extends State<HoverMenu> {
   }) {
     return MouseRegion(
       cursor: cursor,
-      onEnter: (e) => onEnter(),
-      onExit: (e) => onExit(),
+      onEnter: onEnter,
+      onExit: onExit,
       child: child,
     );
   }
 
-  void onEnter() {
+  void onEnter(PointerEnterEvent e) {
+    widget.onEnter?.call(e);
     isHovering = true;
     Future.delayed(widget.delayToShow, () {
       if (isHovering && !isHoverMenuShowing) {
@@ -93,7 +103,8 @@ class _HoverMenuState extends State<HoverMenu> {
     });
   }
 
-  void onExit() {
+  void onExit(PointerExitEvent e) {
+    widget.onExit?.call(e);
     isHovering = false;
     tryToDismissenu();
   }

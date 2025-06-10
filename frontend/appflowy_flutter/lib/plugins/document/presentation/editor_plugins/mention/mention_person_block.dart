@@ -5,6 +5,7 @@ import 'package:appflowy/features/mension_person/presentation/widgets/person/per
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,27 +37,13 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
   final key = GlobalKey();
   Size triggerSize = Size.zero;
   double positionY = 0;
+  bool showAtBottom = false;
+  RenderBox? get box => key.currentContext?.findRenderObject() as RenderBox?;
 
   @override
   void initState() {
     super.initState();
     checkForPositionAndSize();
-  }
-
-  void checkForPositionAndSize() {
-    if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final renderBox = key.currentContext?.findRenderObject();
-      if (renderBox is RenderBox) {
-        final position = renderBox.localToGlobal(Offset.zero);
-        setState(() {
-          triggerSize = renderBox.size;
-          positionY = position.dy;
-        });
-      }
-      checkForPositionAndSize();
-    });
   }
 
   @override
@@ -90,18 +77,29 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
               ) ??
               theme.textStyle.body.standard(color: color);
           return HoverMenu(
-            key: ValueKey(positionY.hashCode & triggerSize.hashCode),
+            key: ValueKey(
+              showAtBottom.hashCode & positionY.hashCode & triggerSize.hashCode,
+            ),
             menuConstraints: BoxConstraints(
               maxHeight: 372,
               maxWidth: 280,
               minWidth: 280,
             ),
             triggerSize: triggerSize,
+            direction: showAtBottom
+                ? PopoverDirection.bottomWithLeftAligned
+                : PopoverDirection.topWithLeftAligned,
+            offset: Offset(
+              0,
+              showAtBottom ? -triggerSize.height : triggerSize.height,
+            ),
             menuBuilder: (context) => BlocProvider.value(
               value: bloc,
               child: BlocBuilder<PersonBloc, PersonState>(
-                builder: (context, state) =>
-                    PersonCardProfile(triggerSize: triggerSize),
+                builder: (context, state) => PersonCardProfile(
+                  triggerSize: triggerSize,
+                  showAtBottom: showAtBottom,
+                ),
               ),
             ),
             child: RichText(
@@ -121,5 +119,37 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
         },
       ),
     );
+  }
+
+  void checkForPositionAndSize() {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final renderBox = box;
+      if (renderBox is RenderBox) {
+        final position = renderBox.localToGlobal(Offset.zero);
+        if (mounted) {
+          setState(() {
+            triggerSize = renderBox.size;
+            positionY = position.dy;
+          });
+        }
+        if (positionY < 300) {
+          changeDirection(true);
+        } else {
+          changeDirection(false);
+        }
+      }
+      checkForPositionAndSize();
+    });
+  }
+
+  void changeDirection(bool bottom) {
+    if (showAtBottom == bottom) return;
+    if (mounted) {
+      setState(() {
+        showAtBottom = bottom;
+      });
+    }
   }
 }

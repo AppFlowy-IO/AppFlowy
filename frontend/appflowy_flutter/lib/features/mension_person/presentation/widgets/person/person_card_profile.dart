@@ -12,25 +12,28 @@ class PersonCardProfile extends StatelessWidget {
   const PersonCardProfile({
     super.key,
     required this.triggerSize,
+    required this.showAtBottom,
   });
 
   final Size triggerSize;
+  final bool showAtBottom;
+
   @override
   Widget build(BuildContext context) {
+    final mouseRegionPlaceHolder = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Container(
+        width: triggerSize.width,
+        height: triggerSize.height,
+        color: Colors.black.withAlpha(1),
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
-      children: [
-        buildCard(context),
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Container(
-            width: triggerSize.width,
-            height: triggerSize.height,
-            color: Colors.black.withAlpha(1),
-          ),
-        ),
-      ],
+      children: showAtBottom
+          ? [mouseRegionPlaceHolder, buildCard(context)]
+          : [buildCard(context), mouseRegionPlaceHolder],
     );
   }
 
