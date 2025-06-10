@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/dr
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleColumnBlockWidthResizer extends StatefulWidget {
   const SimpleColumnBlockWidthResizer({
@@ -55,6 +56,10 @@ class _SimpleColumnBlockWidthResizerState
         child: ValueListenableBuilder<bool>(
           valueListenable: isHovering,
           builder: (context, isHovering, child) {
+            if (UniversalPlatform.isMobile) {
+              return const SizedBox.shrink();
+            }
+
             final hide = isDraggingAppFlowyEditorBlock.value || !isHovering;
             return MouseRegion(
               cursor: SystemMouseCursors.resizeLeftRight,
