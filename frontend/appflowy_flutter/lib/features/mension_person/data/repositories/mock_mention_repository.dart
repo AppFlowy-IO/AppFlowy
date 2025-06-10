@@ -11,8 +11,21 @@ class MockMentionRepository extends MentionRepository {
   @override
   Future<FlowyResult<List<Person>, FlowyError>> getPersons({
     required String workspaceId,
+    required String query,
   }) async {
-    return FlowySuccess(_MockState.getInstance().persons);
+    final persons = _MockState.getInstance().persons;
+    if (query.trim().isNotEmpty) {
+      final formatedQuery = query.trim().toLowerCase();
+      final filteredPersons = persons
+          .where(
+            (p) =>
+                p.name.toLowerCase().contains(formatedQuery) ||
+                p.email.toLowerCase().contains(formatedQuery),
+          )
+          .toList();
+      return FlowySuccess(filteredPersons);
+    }
+    return FlowySuccess(persons);
   }
 
   @override

@@ -27,6 +27,7 @@ class PageList extends StatelessWidget {
     final mentionState = context.read<MentionBloc>().state,
         itemMap = context.read<MentionItemMap>();
     final showMorePage = mentionState.showMorePage, query = mentionState.query;
+    final theme = AppFlowyTheme.of(context);
 
     return BlocProvider(
       create: (context) =>
@@ -88,37 +89,40 @@ class PageList extends StatelessWidget {
             );
           }
 
-          return AFMenuSection(
-            title: LocaleKeys.document_mentionMenu_pages.tr(),
-            children: [
-              ...List.generate(displayedViews.length, (index) {
-                final view = displayedViews[index];
-                return MentionMenuItenVisibilityDetector(
-                  id: view.id,
-                  child: AFTextMenuItem(
-                    selected: mentionState.selectedId == view.id,
-                    leading: SizedBox(
-                      width: 20,
-                      child: Center(child: view.buildIcon(context)),
+          return Padding(
+            padding: EdgeInsets.all(theme.spacing.m),
+            child: AFMenuSection(
+              title: LocaleKeys.document_mentionMenu_pages.tr(),
+              children: [
+                ...List.generate(displayedViews.length, (index) {
+                  final view = displayedViews[index];
+                  return MentionMenuItenVisibilityDetector(
+                    id: view.id,
+                    child: AFTextMenuItem(
+                      selected: mentionState.selectedId == view.id,
+                      leading: SizedBox(
+                        width: 20,
+                        child: Center(child: view.buildIcon(context)),
+                      ),
+                      title: view.nameOrDefault,
+                      backgroundColor: context.mentionItemBGColor,
+                      onTap: () => onPageSelected(view, context),
                     ),
-                    title: view.nameOrDefault,
-                    backgroundColor: context.mentionItemBGColor,
-                    onTap: () => onPageSelected(view, context),
-                  ),
-                );
-              }),
-              createPageItem(
-                context: context,
-                id: createPageId,
-                onTap: () => onPageCreate(context),
-              ),
-              if (showMoreResult)
-                MoreResultsItem(
-                  num: recentViews.length - 4,
-                  onTap: onShowMore,
-                  id: showMoreId,
+                  );
+                }),
+                createPageItem(
+                  context: context,
+                  id: createPageId,
+                  onTap: () => onPageCreate(context),
                 ),
-            ],
+                if (showMoreResult)
+                  MoreResultsItem(
+                    num: recentViews.length - 4,
+                    onTap: onShowMore,
+                    id: showMoreId,
+                  ),
+              ],
+            ),
           );
         },
       ),

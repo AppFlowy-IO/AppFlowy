@@ -25,7 +25,9 @@ class PersonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<MentionBloc>().state,
-        itemMap = context.read<MentionItemMap>();
+        itemMap = context.read<MentionItemMap>(),
+        theme = AppFlowyTheme.of(context),
+        spacing = theme.spacing;
     final workspaceType = context
         .read<UserWorkspaceBloc?>()
         ?.state
@@ -62,27 +64,39 @@ class PersonList extends StatelessWidget {
       itemMap.addToPerson(MentionMenuItem(id: id, onExecute: onShowMore));
     }
 
-    return AFMenuSection(
-      title: LocaleKeys.document_mentionMenu_people.tr(),
-      titleTrailing: sendNotificationSwitch(context),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        ...List.generate(displayPersons.length, (index) {
-          final person = displayPersons[index];
-          return MentionMenuItenVisibilityDetector(
-            id: person.id,
-            child: AFTextMenuItem(
-              leading: AFAvatar(url: person.avatarUrl, size: AFAvatarSize.s),
-              selected: state.selectedId == person.id,
-              title: person.name,
-              subtitle: person.email,
-              backgroundColor: context.mentionItemBGColor,
-              onTap: () => onPersonSelected(person, context),
-            ),
-          );
-        }),
-        if (showMoreResult)
-          MoreResultsItem(num: persons.length - 4, onTap: onShowMore, id: id),
-        PersonListInviteItem(),
+        Padding(
+          padding: EdgeInsets.all(spacing.m),
+          child: AFMenuSection(
+            title: LocaleKeys.document_mentionMenu_people.tr(),
+            titleTrailing: sendNotificationSwitch(context),
+            children: [
+              ...List.generate(displayPersons.length, (index) {
+                final person = displayPersons[index];
+                return MentionMenuItenVisibilityDetector(
+                  id: person.id,
+                  child: AFTextMenuItem(
+                    leading:
+                        AFAvatar(url: person.avatarUrl, size: AFAvatarSize.s),
+                    selected: state.selectedId == person.id,
+                    title: person.name,
+                    subtitle: person.email,
+                    backgroundColor: context.mentionItemBGColor,
+                    onTap: () => onPersonSelected(person, context),
+                  ),
+                );
+              }),
+              if (showMoreResult)
+                MoreResultsItem(
+                    num: persons.length - 4, onTap: onShowMore, id: id),
+              PersonListInviteItem(),
+            ],
+          ),
+        ),
+        AFDivider(),
       ],
     );
   }

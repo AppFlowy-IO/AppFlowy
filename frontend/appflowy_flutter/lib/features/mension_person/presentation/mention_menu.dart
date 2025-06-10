@@ -13,7 +13,13 @@ import 'widgets/page_list.dart';
 import 'widgets/person/person_list.dart';
 
 class MentionMenu extends StatelessWidget {
-  const MentionMenu({super.key});
+  const MentionMenu({
+    super.key,
+    this.width = 400,
+    this.maxHeight = 400,
+  });
+  final double width;
+  final double maxHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +46,10 @@ class MentionMenu extends StatelessWidget {
                     scrollController: controller,
                     itemMap: itemMap,
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: 400),
+                      constraints: BoxConstraints(maxHeight: maxHeight),
                       child: AFMenu(
-                        width: 400,
+                        width: width,
+                        padding: EdgeInsets.zero,
                         builder: (context, children) {
                           return SingleChildScrollView(
                             controller: controller,

@@ -55,8 +55,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     Emitter<MentionState> emit,
   ) async {
     emit(state.copyWith(query: event.text, selectedId: ''));
-
-    /// TODO: get persons should be called with [query]
+    add(MentionEvent.getPersons(workspaceId: workspaceId));
   }
 
   Future<void> _onGetPersons(
@@ -64,14 +63,17 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     Emitter<MentionState> emit,
   ) async {
     final localList = _personListCache.getPersons(workspaceId) ?? [];
-    if (localList.isNotEmpty) {
+    if (localList.isNotEmpty && state.query.isEmpty) {
       emit(state.copyWith(persons: localList));
     }
-    final persons =
-        (await repository.getPersons(workspaceId: event.workspaceId))
-            .toNullable();
-    if (persons != null && persons.isNotEmpty) {
-      add(MentionEvent.updatePersonList(persons));
+    final persons = (await repository.getPersons(
+      workspaceId: event.workspaceId,
+      query: state.query,
+    ))
+        .toNullable();
+    if (persons == null) return;
+    add(MentionEvent.updatePersonList(persons));
+    if (persons.isNotEmpty && state.query.isEmpty) {
       _personListCache.updatePersonList(workspaceId, persons);
     }
   }

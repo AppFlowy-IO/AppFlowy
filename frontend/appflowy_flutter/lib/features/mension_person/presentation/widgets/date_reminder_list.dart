@@ -17,6 +17,7 @@ class DateReminderList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
     final mentionState = context.read<MentionBloc>().state,
         query = mentionState.query,
         itemMap = context.read<MentionItemMap>();
@@ -81,9 +82,19 @@ class DateReminderList extends StatelessWidget {
       );
     });
 
-    return AFMenuSection(
-      title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
-      children: children,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AFDivider(),
+        Padding(
+          padding: EdgeInsets.all(spacing.m),
+          child: AFMenuSection(
+            title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
+            children: children,
+          ),
+        ),
+      ],
     );
   }
 

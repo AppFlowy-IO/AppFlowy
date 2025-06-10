@@ -1,5 +1,5 @@
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
-import 'package:appflowy/mobile/presentation/inline_actions/mobile_inline_actions_menu.dart';
+import 'package:appflowy/features/mension_person/presentation/mobile_mention_menu_service.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -69,14 +69,14 @@ Future<bool> inlineActionsCommandHandler(
     keepEditorFocusNotifier.increase();
     selectionMenuService?.dismiss();
     selectionMenuService = UniversalPlatform.isMobile
-        ? MobileInlineActionsMenu(
+        ? MobileMentionMenuService(
             context: context,
             editorState: editorState,
-            service: service,
-            initialResults: initialResults,
-            style: style,
+            workspaceBloc: workspaceBloc,
+            documentBloc: documentBloc,
+            reminderBloc: reminderBloc,
           )
-        : MentionMenuService(
+        : DesktopMentionMenuService(
             context: context,
             editorState: editorState,
             workspaceBloc: workspaceBloc,

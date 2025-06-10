@@ -11,13 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'mention_menu.dart';
+import 'mention_menu_service.dart';
 
-abstract class MentionMenuService implements InlineActionsMenuService {
-  MultiBlocProvider buildMultiBlocProvider(WidgetBuilder builder);
-}
-
-class DesktopMentionMenuService extends MentionMenuService {
-  DesktopMentionMenuService({
+class MobileMentionMenuService extends MentionMenuService {
+  MobileMentionMenuService({
     required this.context,
     required this.editorState,
     required this.workspaceBloc,
@@ -51,10 +48,11 @@ class DesktopMentionMenuService extends MentionMenuService {
   Future<void> show() async {
     final completer = Completer<void>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final screenSize = MediaQuery.of(context).size;
       _show(
         MentionMenuBuilderInfo(
           builder: (service, ltrb) => _buildMentionMenu(ltrb),
-          menuSize: Size.square(400),
+          menuSize: Size(screenSize.width - 40, 240),
         ),
       );
       completer.complete();
@@ -77,26 +75,32 @@ class DesktopMentionMenuService extends MentionMenuService {
 
     final editorSize = editorState.renderBox!.size;
     _menuEntry = OverlayEntry(
-      builder: (context) => Material(
-        color: Colors.transparent,
-        child: SizedBox(
-          height: editorSize.height,
-          width: editorSize.width,
-          // GestureDetector handles clicks outside of the context menu,
-          // to dismiss the context menu.
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: dismiss,
-            child: Stack(
-              children: [
-                ltrb.buildPositioned(
-                  child: builderInfo.builder.call(this, ltrb),
-                ),
-              ],
+      builder: (context) {
+        return Material(
+          color: Colors.transparent,
+          child: SizedBox(
+            height: editorSize.height,
+            width: editorSize.width,
+            // GestureDetector handles clicks outside of the context menu,
+            // to dismiss the context menu.
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: dismiss,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    top: ltrb.top,
+                    bottom: ltrb.bottom,
+                    child: builderInfo.builder.call(this, ltrb),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
 
     Overlay.of(context).insert(_menuEntry!);
@@ -110,21 +114,27 @@ class DesktopMentionMenuService extends MentionMenuService {
   Widget _buildMentionMenu(LTRB ltrb) {
     final editorHeight = editorState.renderBox!.size.height;
     return buildMultiBlocProvider(
-      (_) => Provider(
-        create: (_) => MentionMenuServiceInfo(
-          onDismiss: dismiss,
-          startCharAmount: startCharAmount,
-          startOffset: editorState.selection?.endIndex ?? 0,
-          editorState: editorState,
-          top: ltrb.top ?? (editorHeight - (ltrb.bottom ?? 0.0) - 400),
-          onMenuReplace: (info) {
-            keepEditorFocusNotifier.increase();
-            _show(info);
-          },
-        ),
-        dispose: (context, value) => value.dispose(),
-        child: MentionMenu(),
-      ),
+      (context) {
+        final screenSize = MediaQuery.of(context).size;
+        return Provider(
+          create: (_) => MentionMenuServiceInfo(
+            onDismiss: dismiss,
+            startCharAmount: startCharAmount,
+            startOffset: editorState.selection?.endIndex ?? 0,
+            editorState: editorState,
+            top: ltrb.top ?? (editorHeight - (ltrb.bottom ?? 0.0) - 400),
+            onMenuReplace: (info) {
+              keepEditorFocusNotifier.increase();
+              _show(info);
+            },
+          ),
+          dispose: (context, value) => value.dispose(),
+          child: MentionMenu(
+            width: screenSize.width - 40,
+            maxHeight: 240,
+          ),
+        );
+      },
     );
   }
 
@@ -141,61 +151,4 @@ class DesktopMentionMenuService extends MentionMenuService {
       ),
     );
   }
-}
-
-typedef MentionMenuBuilder = Widget Function(
-  MentionMenuService service,
-  LTRB ltrb,
-);
-
-class MentionMenuBuilderInfo {
-  MentionMenuBuilderInfo({
-    required this.builder,
-    required this.menuSize,
-  });
-
-  final MentionMenuBuilder builder;
-  final Size menuSize;
-}
-
-class MentionMenuServiceInfo {
-  MentionMenuServiceInfo({
-    required this.onDismiss,
-    required this.startCharAmount,
-    required this.startOffset,
-    required this.editorState,
-    required this.top,
-    required this.onMenuReplace,
-  });
-
-  final VoidCallback onDismiss;
-  final int startCharAmount;
-  final int startOffset;
-  final EditorState editorState;
-  final double top;
-  final Map<String, ValueGetter<double>> _itemYMap = {};
-  final ValueChanged<MentionMenuBuilderInfo> onMenuReplace;
-
-  void addItemHeightGetter(String id, ValueGetter<double> yGetter) {
-    _itemYMap[id] = yGetter;
-  }
-
-  void removeItemHeightGetter(String id) => _itemYMap.remove(id);
-
-  void dispose() {
-    _itemYMap.clear();
-  }
-
-  double? getItemPositionY(String id) => _itemYMap[id]?.call();
-
-  bool isTopArea(String id) {
-    final itemY = getItemPositionY(id);
-    if (itemY == null) return false;
-    return itemY <= top + 200;
-  }
-
-  TextRange textRange(String queryText) => TextRange(
-        start: startOffset - startCharAmount,
-        end: queryText.length + startCharAmount,
-      );
 }

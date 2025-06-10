@@ -6,6 +6,7 @@ abstract class MentionRepository {
   /// Gets the list of persons
   Future<FlowyResult<List<Person>, FlowyError>> getPersons({
     required String workspaceId,
+    required String query,
   });
 
    Future<FlowyResult<PersonWithAccess, FlowyError>> getPerson({
