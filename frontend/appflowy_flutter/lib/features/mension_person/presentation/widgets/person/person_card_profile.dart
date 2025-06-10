@@ -101,6 +101,7 @@ class PersonCardProfile extends StatelessWidget {
       dimension: 90,
       child: AFAvatar(
         url: url,
+        radius: 41,
         name: person?.name,
         backgroundColor: Colors.transparent,
       ),
