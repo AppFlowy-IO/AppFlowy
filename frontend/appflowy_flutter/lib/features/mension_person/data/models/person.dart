@@ -7,6 +7,7 @@ class Person {
     this.avatarUrl,
     this.coverImageUrl,
     this.description,
+    this.invited,
   });
 
   final String id;
@@ -16,6 +17,7 @@ class Person {
   final String? avatarUrl;
   final String? coverImageUrl;
   final String? description;
+  final bool? invited;
 }
 
 enum PersonRole {

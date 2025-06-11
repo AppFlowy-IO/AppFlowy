@@ -3,6 +3,12 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+typedef HoverMenuBuilder = Widget Function(
+  BuildContext context,
+  PointerEnterEventListener onEnter,
+  PointerExitEventListener onExit,
+);
+
 class HoverMenu extends StatefulWidget {
   const HoverMenu({
     super.key,
@@ -22,7 +28,7 @@ class HoverMenu extends StatefulWidget {
   final BoxConstraints menuConstraints;
   final Size triggerSize;
   final Widget child;
-  final WidgetBuilder menuBuilder;
+  final HoverMenuBuilder menuBuilder;
   final Duration delayToShow;
   final Duration delayToHide;
   final PopoverDirection direction;
@@ -79,8 +85,9 @@ class _HoverMenuState extends State<HoverMenu> {
       ),
       decorationColor: Colors.transparent,
       popoverDecoration: BoxDecoration(),
-      popupBuilder: (context) =>
-          buildHoverMouseRegion(widget.menuBuilder.call(context)),
+      popupBuilder: (context) => buildHoverMouseRegion(
+        widget.menuBuilder.call(context, onEnter, onExit),
+      ),
       child: widget.child,
     );
   }

@@ -1,11 +1,13 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_role_badge.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/profile_card_more_button.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PersonProfileCard extends StatelessWidget {
@@ -13,10 +15,14 @@ class PersonProfileCard extends StatelessWidget {
     super.key,
     required this.triggerSize,
     required this.showAtBottom,
+    this.onEnter,
+    this.onExit,
   });
 
   final Size triggerSize;
   final bool showAtBottom;
+  final PointerEnterEventListener? onEnter;
+  final PointerExitEventListener? onExit;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +202,10 @@ class PersonProfileCard extends StatelessWidget {
         Spacer(),
         buildNotificationButton(context),
         HSpace(theme.spacing.m),
-        buildMoreButton(context),
+        ProfileCardMoreButton(
+          onEnter: onEnter,
+          onExit: onExit,
+        ),
       ],
     );
   }
@@ -213,23 +222,6 @@ class PersonProfileCard extends StatelessWidget {
           isContact
               ? FlowySvgs.mention_send_email_m
               : FlowySvgs.mention_send_notification_m,
-          size: Size.square(20),
-          color: theme.iconColorScheme.primary,
-        );
-      },
-      onTap: () {},
-    );
-  }
-
-  Widget buildMoreButton(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-    final person = context.read<PersonBloc>().state.person;
-    if (person == null) return const SizedBox.shrink();
-    return AFOutlinedButton.normal(
-      padding: EdgeInsets.all(theme.spacing.s),
-      builder: (context, hovering, disabled) {
-        return FlowySvg(
-          FlowySvgs.mention_more_results_m,
           size: Size.square(20),
           color: theme.iconColorScheme.primary,
         );

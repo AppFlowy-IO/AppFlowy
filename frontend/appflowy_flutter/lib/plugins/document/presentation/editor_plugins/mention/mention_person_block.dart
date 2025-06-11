@@ -90,12 +90,14 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
               0,
               showAtBottom ? -triggerSize.height : triggerSize.height,
             ),
-            menuBuilder: (context) => BlocProvider.value(
+            menuBuilder: (context, onEnter, onExit) => BlocProvider.value(
               value: bloc,
               child: BlocBuilder<PersonBloc, PersonState>(
                 builder: (context, state) => PersonProfileCard(
                   triggerSize: triggerSize,
                   showAtBottom: showAtBottom,
+                  onEnter: onEnter,
+                  onExit: onExit,
                 ),
               ),
             ),
