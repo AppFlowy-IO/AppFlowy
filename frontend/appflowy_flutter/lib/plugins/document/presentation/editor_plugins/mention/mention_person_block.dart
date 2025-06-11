@@ -1,13 +1,19 @@
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/mobile_person_profile_card.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_profile_card.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MentionPersonBlock extends StatefulWidget {
   const MentionPersonBlock({
@@ -64,22 +70,13 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
       child: BlocBuilder<PersonBloc, PersonState>(
         key: key,
         builder: (context, state) {
+          if (state.person == null) return const SizedBox.shrink();
           final bloc = context.read<PersonBloc>();
-          final person = state.person;
-          if (person == null) return const SizedBox.shrink();
-          final theme = AppFlowyTheme.of(context);
-          final color = state.access
-              ? theme.textColorScheme.secondary
-              : theme.textColorScheme.tertiary;
-          final style = widget.textStyle?.copyWith(
-                color: color,
-                leadingDistribution: TextLeadingDistribution.even,
-              ) ??
-              theme.textStyle.body.standard(color: color);
           return HoverMenu(
             key: ValueKey(
               showAtBottom.hashCode & positionY.hashCode & triggerSize.hashCode,
             ),
+            enable: UniversalPlatform.isDesktop,
             menuConstraints: BoxConstraints(
               maxHeight: 372,
               maxWidth: 280,
@@ -102,23 +99,60 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
                 ),
               ),
             ),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '@',
-                    style: style.copyWith(
-                      color: theme.textColorScheme.tertiary,
-                    ),
-                  ),
-                  TextSpan(text: person.name, style: style),
-                ],
-              ),
-            ),
+            child: buildPerson(context),
           );
         },
       ),
     );
+  }
+
+  Widget buildPerson(BuildContext context) {
+    final bloc = context.read<PersonBloc>(), state = bloc.state;
+    final person = state.person;
+    if (person == null) return const SizedBox.shrink();
+    final theme = AppFlowyTheme.of(context);
+    final color = state.access
+        ? theme.textColorScheme.secondary
+        : theme.textColorScheme.tertiary;
+    final style = widget.textStyle?.copyWith(
+          color: color,
+          leadingDistribution: TextLeadingDistribution.even,
+        ) ??
+        theme.textStyle.body.standard(color: color);
+    final richText = RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '@',
+            style: style.copyWith(
+              color: theme.textColorScheme.tertiary,
+            ),
+          ),
+          TextSpan(text: person.name, style: style),
+        ],
+      ),
+    );
+    return UniversalPlatform.isMobile
+        ? GestureDetector(
+            onTap: () {
+              showMobileBottomSheet(
+                context,
+                dragHandleBuilder: (_) => const DragHandleV2(),
+                showDragHandle: true,
+                showDivider: false,
+                showHeader: true,
+                showCloseButton: true,
+                title: LocaleKeys.document_mentionMenu_profileCard.tr(),
+                backgroundColor: theme.surfaceColorScheme.primary,
+                builder: (_) => BlocProvider.value(
+                  value: bloc,
+                  child: MobilePersonProfileCard(),
+                ),
+              );
+            },
+            child: richText,
+          )
+        : richText;
   }
 
   void checkForPositionAndSize() {

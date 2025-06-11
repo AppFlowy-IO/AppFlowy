@@ -2221,6 +2221,7 @@
       "inviteEmailSent": "The invitation emails have been sent.",
       "type": "Type",
       "member": "Member",
+      "profileCard": "Profile Card",
       "memberDescription": "In organization & workspace.",
       "guest": "Guest",
       "guestDescription": "In organization & workspace, with limited access.",

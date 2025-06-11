@@ -78,6 +78,7 @@ class _MockState {
       name: 'Andrew Christian',
       role: PersonRole.member,
       email: 'andrewchristian@appflowy.io',
+      coverImageUrl: _coverImageUrl,
       avatarUrl: 'https://avatar.iran.liara.run/public',
     ),
     Person(
@@ -85,6 +86,8 @@ class _MockState {
       name: 'Andrew Tate',
       role: PersonRole.member,
       email: 'andrewtate@appflowy.io',
+            description: 'A famous internet personality ',
+      coverImageUrl: _coverImageUrl,
       avatarUrl: 'https://avatar.iran.liara.run/public/boy',
     ),
     Person(
@@ -122,9 +125,7 @@ class _MockState {
       email: info.email,
       description: info.contactDetail?.description ?? '',
       avatarUrl: randomAvatarUrl,
-      coverImageUrl: Random().nextBool()
-          ? null
-          : 'https://images.unsplash.com/photo-1748882145961-536cc88fd117?q=80&w=2624&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      coverImageUrl: Random().nextBool() ? null : _coverImageUrl,
     );
     persons.add(person);
     return person;
@@ -133,3 +134,6 @@ class _MockState {
   String get randomAvatarUrl =>
       'https://avatar.iran.liara.run/public/${Random().nextBool() ? 'boy' : 'girl'}/${Random().nextInt(100)}';
 }
+
+const String _coverImageUrl =
+    'https://images.unsplash.com/photo-1748882145961-536cc88fd117?q=80&w=2624&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';

@@ -14,6 +14,7 @@ class HoverMenu extends StatefulWidget {
     this.delayToHide = const Duration(milliseconds: 300),
     this.direction = PopoverDirection.topWithLeftAligned,
     this.offset = Offset.zero,
+    this.enable = true,
     this.onEnter,
     this.onExit,
   });
@@ -28,6 +29,7 @@ class HoverMenu extends StatefulWidget {
   final Offset offset;
   final PointerEnterEventListener? onEnter;
   final PointerExitEventListener? onExit;
+  final bool enable;
 
   @override
   State<HoverMenu> createState() => _HoverMenuState();
@@ -50,10 +52,12 @@ class _HoverMenuState extends State<HoverMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return buildHoverMouseRegion(
-      buildPopover(),
-      cursor: SystemMouseCursors.click,
-    );
+    return widget.enable
+        ? buildHoverMouseRegion(
+            buildPopover(),
+            cursor: SystemMouseCursors.click,
+          )
+        : widget.child;
   }
 
   Widget buildPopover() {
