@@ -40,6 +40,7 @@ class _AskAIFor extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: theme.spacing.xs),
       child: AFBaseButton(
         borderRadius: spaceM,
+        showFocusRing: false,
         padding: EdgeInsets.all(spaceL),
         backgroundColor: (context, isHovering, disable) {
           if (isHovering) {
