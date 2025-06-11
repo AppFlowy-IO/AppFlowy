@@ -261,8 +261,9 @@ class IncludeTimeButton extends StatelessWidget {
                 FlowySvgs.clock_alarm_s,
                 color: Theme.of(context).iconTheme.color,
               ),
-              const HSpace(6),
+              const HSpace(4),
             ],
+            const HSpace(2),
             FlowyText(LocaleKeys.grid_field_includeTime.tr()),
             const Spacer(),
             Toggle(
