@@ -55,6 +55,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     on<WorkspaceEventUpdateWorkspaceSubscriptionInfo>(
       _onUpdateWorkspaceSubscriptionInfo,
     );
+    on<WorkspaceEventEmitWorkspaces>(_onEmitWorkspaces);
+    on<WorkspaceEventEmitUserProfile>(_onEmitUserProfile);
+    on<WorkspaceEventEmitCurrentWorkspace>(_onEmitCurrentWorkspace);
   }
 
   final String? initialWorkspaceId;
@@ -72,7 +75,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     WorkspaceEventInitialize event,
     Emitter<UserWorkspaceState> emit,
   ) async {
-    await _setupListeners(emit);
+    await _setupListeners();
     await _initializeWorkspaces(emit);
   }
 
@@ -499,34 +502,60 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     );
   }
 
-  Future<void> _setupListeners(Emitter<UserWorkspaceState> emit) async {
+  Future<void> _onEmitWorkspaces(
+    WorkspaceEventEmitWorkspaces event,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        workspaces: _sortWorkspaces(event.workspaces),
+      ),
+    );
+  }
+
+  Future<void> _onEmitUserProfile(
+    WorkspaceEventEmitUserProfile event,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    emit(
+      state.copyWith(userProfile: event.userProfile),
+    );
+  }
+
+  Future<void> _onEmitCurrentWorkspace(
+    WorkspaceEventEmitCurrentWorkspace event,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    emit(
+      state.copyWith(currentWorkspace: event.workspace),
+    );
+  }
+
+  Future<void> _setupListeners() async {
     _listener.start(
       onProfileUpdated: (result) {
-        if (!isClosed && !emit.isDone) {
+        if (!isClosed) {
           result.fold(
-            (newProfile) => emit(
-              state.copyWith(userProfile: newProfile),
+            (newProfile) => add(
+              UserWorkspaceEvent.emitUserProfile(userProfile: newProfile),
             ),
             (error) => Log.error("Failed to get user profile: $error"),
           );
         }
       },
       onUserWorkspaceListUpdated: (workspaces) {
-        if (!isClosed && !emit.isDone) {
-          emit(
-            state.copyWith(
+        if (!isClosed) {
+          add(
+            UserWorkspaceEvent.emitWorkspaces(
               workspaces: _sortWorkspaces(workspaces.items),
             ),
           );
         }
       },
       onUserWorkspaceUpdated: (workspace) {
-        if (!isClosed && !emit.isDone) {
-          final currentWorkspace = state.currentWorkspace;
-          if (currentWorkspace?.workspaceId == workspace.workspaceId) {
-            emit(
-              state.copyWith(currentWorkspace: workspace),
-            );
+        if (!isClosed) {
+          if (state.currentWorkspace?.workspaceId == workspace.workspaceId) {
+            add(UserWorkspaceEvent.emitCurrentWorkspace(workspace: workspace));
           }
         }
       },
