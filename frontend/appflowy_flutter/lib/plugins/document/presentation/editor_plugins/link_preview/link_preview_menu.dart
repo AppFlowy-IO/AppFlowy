@@ -74,6 +74,8 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
   }
 
   Widget buildMenu() {
+    final editorState = context.read<EditorState>(),
+        editable = editorState.editable;
     return MouseRegion(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -83,15 +85,18 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
           children:
               List.generate(LinkPreviewMenuCommand.values.length, (index) {
             final command = LinkPreviewMenuCommand.values[index];
+            final isCopyCommand = command == LinkPreviewMenuCommand.copyLink;
+            final enableButton = editable || (!editable && isCopyCommand);
             return SizedBox(
               height: 36,
               child: FlowyButton(
+                hoverColor: enableButton ? null : Colors.transparent,
                 text: FlowyText(
                   command.title,
                   fontWeight: FontWeight.w400,
                   figmaLineHeight: 20,
                 ),
-                onTap: () => onTap(command),
+                onTap: enableButton ? () => onTap(command) : null,
               ),
             );
           }),

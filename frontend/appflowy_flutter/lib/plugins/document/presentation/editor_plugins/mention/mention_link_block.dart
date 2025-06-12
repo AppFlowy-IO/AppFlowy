@@ -56,6 +56,8 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
 
   EditorState get editorState => widget.editorState;
 
+  bool get editable => editorState.editable;
+
   Node get node => widget.node;
 
   int get index => widget.index;
@@ -119,6 +121,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       popupBuilder: (context) => readyForPreview
           ? MentionLinkPreview(
               linkInfo: linkInfo,
+              editable: editable,
               showAtBottom: showAtBottom,
               triggerSize: getSizeFromKey(),
               onEnter: (e) {
@@ -135,6 +138,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
             )
           : MentionLinkErrorPreview(
               url: url,
+              editable: editable,
               triggerSize: getSizeFromKey(),
               onEnter: (e) {
                 isPreviewHovering = true;
