@@ -7,6 +7,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -99,6 +100,26 @@ class _PromptInputMobileSelectSourcesButtonState
                       color: Theme.of(context).iconTheme.color,
                       size: const Size.square(20.0),
                     ),
+                    const HSpace(2.0),
+                    ValueListenableBuilder(
+                      valueListenable: widget.selectedSourcesNotifier,
+                      builder: (context, selectedSourceIds, _) {
+                        final documentId =
+                            context.read<DocumentBloc?>()?.documentId;
+                        final label = documentId != null &&
+                                selectedSourceIds.length == 1 &&
+                                selectedSourceIds[0] == documentId
+                            ? LocaleKeys.chat_currentPage.tr()
+                            : selectedSourceIds.length.toString();
+                        return FlowyText(
+                          label,
+                          fontSize: 14,
+                          figmaLineHeight: 20,
+                          color: Theme.of(context).hintColor,
+                        );
+                      },
+                    ),
+                    const HSpace(2.0),
                     FlowySvg(
                       FlowySvgs.ai_source_drop_down_s,
                       color: Theme.of(context).hintColor,
@@ -199,6 +220,48 @@ class _MobileSelectSourcesSheetBody extends StatelessWidget {
               ),
             ),
           ),
+        ),
+        BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
+          builder: (context, state) {
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                childCount: state.selectedSources.length,
+                (context, index) {
+                  final source = state.selectedSources.elementAt(index);
+                  return ViewSelectorTreeItem(
+                    key: ValueKey(
+                      'selected_select_sources_tree_item_${source.view.id}',
+                    ),
+                    viewSelectorItem: source,
+                    level: 0,
+                    isDescendentOfSpace: source.view.isSpace,
+                    isSelectedSection: true,
+                    onSelected: (item) {
+                      context
+                          .read<ViewSelectorCubit>()
+                          .toggleSelectedStatus(item, true);
+                    },
+                    height: 40.0,
+                  );
+                },
+              ),
+            );
+          },
+        ),
+        BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
+          builder: (context, state) {
+            if (state.selectedSources.isNotEmpty &&
+                state.visibleSources.isNotEmpty) {
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: AFDivider(),
+                ),
+              );
+            }
+
+            return const SliverToBoxAdapter();
+          },
         ),
         BlocBuilder<ViewSelectorCubit, ViewSelectorState>(
           builder: (context, state) {
