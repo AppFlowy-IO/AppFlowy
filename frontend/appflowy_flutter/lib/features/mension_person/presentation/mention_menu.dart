@@ -13,14 +13,21 @@ import 'widgets/mention_menu_shortcuts.dart';
 import 'widgets/page_list.dart';
 import 'widgets/person/person_list.dart';
 
+typedef MentionChildBuilder = Widget Function(
+  BuildContext context,
+  Widget child,
+);
+
 class MentionMenu extends StatelessWidget {
   const MentionMenu({
     super.key,
     this.width = 400,
     this.maxHeight = 400,
+    this.builder,
   });
   final double width;
   final double maxHeight;
+  final MentionChildBuilder? builder;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +39,7 @@ class MentionMenu extends StatelessWidget {
       child: BlocBuilder<MentionBloc, MentionState>(
         builder: (context, state) {
           final itemMap = MentionItemMap();
-          return Provider<MentionItemMap>.value(
+          final child = Provider<MentionItemMap>.value(
             value: itemMap,
             child: MentionMenuScroller(
               builder: (_, controller) {
@@ -75,6 +82,7 @@ class MentionMenu extends StatelessWidget {
               },
             ),
           );
+          return builder?.call(context, child) ?? child;
         },
       ),
     );

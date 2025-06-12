@@ -154,6 +154,7 @@ class PersonList extends StatelessWidget {
       documentBloc.documentId,
       range,
       mentionState.sendNotification,
+      selection,
     );
   }
 }
@@ -164,11 +165,12 @@ extension PersonListEditorStateExtension on EditorState {
     String pageId,
     TextRange range,
     bool sendNotification,
+    Selection? selection,
   ) async {
-    final selection = this.selection;
-    if (selection == null || !selection.isCollapsed) return;
+    final mSelection = selection ?? this.selection;
+    if (mSelection == null || !mSelection.isCollapsed) return;
 
-    final node = getNodeAtPath(selection.start.path);
+    final node = getNodeAtPath(mSelection.start.path);
     final delta = node?.delta;
     if (node == null || delta == null) return;
 

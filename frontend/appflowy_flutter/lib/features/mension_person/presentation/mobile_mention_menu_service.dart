@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
@@ -12,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import 'mention_menu.dart';
 import 'mention_menu_service.dart';
+import 'widgets/mobile/mobile_input_widget.dart';
 
 class MobileMentionMenuService extends MentionMenuService {
   MobileMentionMenuService({
@@ -76,6 +78,8 @@ class MobileMentionMenuService extends MentionMenuService {
     final editorSize = editorState.renderBox!.size;
     _menuEntry = OverlayEntry(
       builder: (context) {
+        final screenHeight = MediaQuery.of(context).size.height;
+        final diffHeight = screenHeight - editorSize.height;
         return Material(
           color: Colors.transparent,
           child: SizedBox(
@@ -92,7 +96,9 @@ class MobileMentionMenuService extends MentionMenuService {
                     left: 20,
                     right: 20,
                     top: ltrb.top,
-                    bottom: ltrb.bottom,
+                    bottom: ltrb.bottom == null
+                        ? null
+                        : (diffHeight + ltrb.bottom!),
                     child: builderInfo.builder.call(this, ltrb),
                   ),
                 ],
@@ -113,6 +119,7 @@ class MobileMentionMenuService extends MentionMenuService {
 
   Widget _buildMentionMenu(LTRB ltrb) {
     final editorHeight = editorState.renderBox!.size.height;
+    final startOffset = editorState.selection?.endIndex ?? 0;
     return buildMultiBlocProvider(
       (context) {
         final screenSize = MediaQuery.of(context).size;
@@ -120,7 +127,7 @@ class MobileMentionMenuService extends MentionMenuService {
           create: (_) => MentionMenuServiceInfo(
             onDismiss: dismiss,
             startCharAmount: startCharAmount,
-            startOffset: editorState.selection?.endIndex ?? 0,
+            startOffset: startOffset,
             editorState: editorState,
             top: ltrb.top ?? (editorHeight - (ltrb.bottom ?? 0.0) - 400),
             onMenuReplace: (info) {
@@ -132,6 +139,18 @@ class MobileMentionMenuService extends MentionMenuService {
           child: MentionMenu(
             width: screenSize.width - 40,
             maxHeight: 240,
+            builder: (context, child) {
+              final mentionBloc = context.read<MentionBloc>();
+              return MobileInputWidget(
+                onDismiss: dismiss,
+                editorState: editorState,
+                onQuery: (v) {
+                  mentionBloc.add(MentionEvent.query(v));
+                },
+                startOffset: startOffset,
+                child: child,
+              );
+            },
           ),
         );
       },

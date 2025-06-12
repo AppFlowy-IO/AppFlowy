@@ -1,7 +1,7 @@
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
-import 'package:appflowy/features/mension_person/presentation/widgets/person/mobile_person_profile_card.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/mobile/mobile_person_profile_card.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_profile_card.dart';
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';

@@ -1,6 +1,7 @@
 import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/features/mension_person/presentation/menu_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -50,7 +51,7 @@ class _InviteMenuState extends State<InviteMenu> {
   @override
   void initState() {
     super.initState();
-    makeSureHasFocus();
+    emailFocusNode.makeSureHasFocus(() => !mounted);
   }
 
   @override
@@ -88,17 +89,11 @@ class _InviteMenuState extends State<InviteMenu> {
                 children: [
                   buildTitle(context),
                   VSpace(spacing.l),
-                  buildSubtitle(
-                    context,
-                    LocaleKeys.document_mentionMenu_email.tr(),
-                  ),
+                  buildSubtitle(LocaleKeys.document_mentionMenu_email.tr()),
                   VSpace(spacing.xs),
                   buildEmailField(),
                   VSpace(spacing.l),
-                  buildSubtitle(
-                    context,
-                    LocaleKeys.document_mentionMenu_type.tr(),
-                  ),
+                  buildSubtitle(LocaleKeys.document_mentionMenu_type.tr()),
                   VSpace(spacing.xs),
                   buildRoleSelector(),
                   VSpace(spacing.xxl),
@@ -129,7 +124,7 @@ class _InviteMenuState extends State<InviteMenu> {
     );
   }
 
-  Widget buildSubtitle(BuildContext context, String title) {
+  Widget buildSubtitle(String title) {
     final theme = AppFlowyTheme.of(context);
     return Text(
       title,
@@ -249,15 +244,6 @@ class _InviteMenuState extends State<InviteMenu> {
         menuSize: Size.square(400),
       ),
     );
-  }
-
-  Future<void> makeSureHasFocus() async {
-    final focusNode = emailFocusNode;
-    if (!mounted || focusNode.hasFocus) return;
-    focusNode.requestFocus();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      makeSureHasFocus();
-    });
   }
 
   void updateInfo(InviteInfo newInfo) {

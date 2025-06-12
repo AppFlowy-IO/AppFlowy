@@ -2,18 +2,21 @@ import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/item_visibility_detector.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_list.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
-import '../item_visibility_detector.dart';
 import 'invite_menu.dart';
+import '../mobile/mobile_invite_menu.dart';
 
 class PersonListInviteItem extends StatelessWidget {
   const PersonListInviteItem({super.key});
@@ -43,7 +46,9 @@ class PersonListInviteItem extends StatelessWidget {
         ),
         title: LocaleKeys.document_mentionMenu_add.tr(args: [displayQuery]),
         backgroundColor: context.mentionItemBGColor,
-        onTap: () => invitePerson(context),
+        onTap: () => UniversalPlatform.isMobile
+            ? showMobileInviteMenu(context)
+            : invitePerson(context),
       ),
     );
   }
@@ -62,54 +67,67 @@ class PersonListInviteItem extends StatelessWidget {
             value: serviceInfo,
             child: InviteMenu(
               info: InviteInfo(email: query),
-              onInfoChanged: (v) async {
-                final editorState = serviceInfo.editorState;
-                final selection = editorState.selection;
-                if (selection == null ||
-                    !selection.isCollapsed ||
-                    documentBloc == null) {
-                  return;
-                }
-                final node = editorState.getNodeAtPath(selection.end.path);
-                final delta = node?.delta;
-                if (node == null || delta == null) return;
-                final range = serviceInfo.textRange(query);
-                await (await mentionBloc.repository.invitePerson(
-                  workspaceId: mentionBloc.workspaceId,
-                  info: v,
-                ))
-                    .fold((person) async {
-                  serviceInfo.onDismiss.call();
-                  await editorState.insertPerson(
-                    person,
-                    documentBloc.documentId,
-                    range,
-                    mentionState.sendNotification,
-                  );
-                  final isContact = person.role == PersonRole.contact;
-                  if (isContact) {
-                    showToastNotification(
-                      message: LocaleKeys.document_mentionMenu_addContactToast
-                          .tr(args: [person.name]),
-                    );
-                  } else {
-                    showToastNotification(
-                      message:
-                          LocaleKeys.document_mentionMenu_inviteEmailSent.tr(),
-                    );
-                  }
-                }, (error) {
-                  showToastNotification(
-                    message: error.msg,
-                    type: ToastificationType.error,
-                  );
-                });
-              },
+              onInfoChanged: (v) => serviceInfo.editorState.onInviteInfoApply(
+                inviteInfo: v,
+                serviceInfo: serviceInfo,
+                documentBloc: documentBloc,
+                mentionBloc: mentionBloc,
+              ),
             ),
           ),
         ),
         menuSize: Size(400, 400),
       ),
     );
+  }
+}
+
+extension PersonInviteEditorStateExtension on EditorState {
+  Future<void> onInviteInfoApply({
+    required InviteInfo inviteInfo,
+    required MentionMenuServiceInfo serviceInfo,
+    DocumentBloc? documentBloc,
+    Selection? selection,
+    required MentionBloc mentionBloc,
+  }) async {
+    final mSelection = selection ?? this.selection;
+    if (mSelection == null || !mSelection.isCollapsed || documentBloc == null) {
+      return;
+    }
+    final mentionState = mentionBloc.state, query = mentionState.query;
+    final node = getNodeAtPath(mSelection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+    final range = serviceInfo.textRange(query);
+    await (await mentionBloc.repository.invitePerson(
+      workspaceId: mentionBloc.workspaceId,
+      info: inviteInfo,
+    ))
+        .fold((person) async {
+      serviceInfo.onDismiss.call();
+      await insertPerson(
+        person,
+        documentBloc.documentId,
+        range,
+        mentionState.sendNotification,
+        mSelection,
+      );
+      final isContact = person.role == PersonRole.contact;
+      if (isContact) {
+        showToastNotification(
+          message: LocaleKeys.document_mentionMenu_addContactToast
+              .tr(args: [person.name]),
+        );
+      } else {
+        showToastNotification(
+          message: LocaleKeys.document_mentionMenu_inviteEmailSent.tr(),
+        );
+      }
+    }, (error) {
+      showToastNotification(
+        message: error.msg,
+        type: ToastificationType.error,
+      );
+    });
   }
 }

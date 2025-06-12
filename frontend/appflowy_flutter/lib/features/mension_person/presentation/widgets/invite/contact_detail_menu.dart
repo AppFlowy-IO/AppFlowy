@@ -1,5 +1,6 @@
 import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
+import 'package:appflowy/features/mension_person/presentation/menu_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -42,7 +43,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   @override
   void initState() {
     super.initState();
-    makeSureHasFocus();
+    nameFocusNode.makeSureHasFocus(() => !mounted);
   }
 
   @override
@@ -80,15 +81,11 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
                 children: [
                   buildTitle(context),
                   VSpace(spacing.l),
-                  buildSubtitle(
-                    context,
-                    LocaleKeys.document_mentionMenu_name.tr(),
-                  ),
+                  buildSubtitle(LocaleKeys.document_mentionMenu_name.tr()),
                   VSpace(spacing.xs),
                   buildNameField(),
                   VSpace(spacing.xxl),
                   buildSubtitle(
-                    context,
                     LocaleKeys.document_mentionMenu_aboutContact.tr(),
                   ),
                   VSpace(spacing.xs),
@@ -121,7 +118,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     );
   }
 
-  Widget buildSubtitle(BuildContext context, String title) {
+  Widget buildSubtitle(String title) {
     final theme = AppFlowyTheme.of(context);
     return Text(
       title,
@@ -226,15 +223,6 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
         info = newInfo;
       });
     }
-  }
-
-  Future<void> makeSureHasFocus() async {
-    final focusNode = nameFocusNode;
-    if (!mounted || focusNode.hasFocus) return;
-    focusNode.requestFocus();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      makeSureHasFocus();
-    });
   }
 
   KeyEventResult onFocusKeyEvent(FocusNode node, KeyEvent key) {
