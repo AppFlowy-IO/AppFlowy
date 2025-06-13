@@ -162,7 +162,6 @@ class _MobileInviteMenuState extends State<MobileInviteMenu> {
       width: MediaQuery.of(context).size.width,
       child: AFTextField(
         key: emailKey,
-        size: AFTextFieldSize.m,
         focusNode: emailFocusNode,
         controller: emailController,
         hintText: LocaleKeys.document_mentionMenu_emailInputHint.tr(),
@@ -250,42 +249,45 @@ class _RoleItem extends StatelessWidget {
                 : theme.borderColorScheme.primary,
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: spacing.l,
-            horizontal: spacing.xl,
-          ),
-          child: Row(
-            children: [
-              selected
-                  ? FlowySvg(
-                      FlowySvgs.radio_button_selected_m,
-                      blendMode: null,
-                      size: Size.square(20),
-                    )
-                  : FlowySvg(
-                      FlowySvgs.radio_button_unselected_m,
-                      color: theme.borderColorScheme.primary,
-                      size: Size.square(20),
+        child: SizedBox(
+          height: 80,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: spacing.l,
+              horizontal: spacing.xl,
+            ),
+            child: Row(
+              children: [
+                selected
+                    ? FlowySvg(
+                        FlowySvgs.radio_button_selected_m,
+                        blendMode: null,
+                        size: Size.square(20),
+                      )
+                    : FlowySvg(
+                        FlowySvgs.radio_button_unselected_m,
+                        color: theme.borderColorScheme.primary,
+                        size: Size.square(20),
+                      ),
+                HSpace(spacing.l),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      role.displayName,
+                      style: theme.textStyle.body
+                          .enhanced(color: theme.textColorScheme.primary),
                     ),
-              HSpace(spacing.l),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    role.displayName,
-                    style: theme.textStyle.body
-                        .enhanced(color: theme.textColorScheme.primary),
-                  ),
-                  Text(
-                    role.description,
-                    style: theme.textStyle.caption
-                        .standard(color: theme.textColorScheme.secondary),
-                  ),
-                ],
-              ),
-            ],
+                    Text(
+                      role.description,
+                      style: theme.textStyle.caption
+                          .standard(color: theme.textColorScheme.secondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -89,7 +89,7 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
               buildSubtitle(LocaleKeys.document_mentionMenu_aboutContact.tr()),
               VSpace(spacing.m),
               buildDescriptionField(),
-              VSpace(80),
+              VSpace(124),
             ],
           ),
         ),
@@ -137,7 +137,6 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
       child: AFTextField(
         key: nameKey,
         hintText: LocaleKeys.document_mentionMenu_contactInputHint.tr(),
-        size: AFTextFieldSize.m,
         focusNode: nameFocusNode,
         controller: nameController,
         onChanged: (text) {
@@ -156,7 +155,6 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
         maxLines: null,
         expands: true,
         textAlignVertical: TextAlignVertical.top,
-        size: AFTextFieldSize.m,
         keyboardType: TextInputType.multiline,
         controller: descriptionController,
         hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
