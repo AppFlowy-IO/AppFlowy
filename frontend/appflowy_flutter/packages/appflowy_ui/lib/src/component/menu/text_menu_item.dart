@@ -16,6 +16,7 @@ class AFTextMenuItem extends StatelessWidget {
     this.trailing,
     this.titleColor,
     this.subtitleColor,
+    this.backgroundColor,
     this.showSelectedBackground = true,
   });
 
@@ -46,6 +47,9 @@ class AFTextMenuItem extends StatelessWidget {
   /// Widget to display after the title (e.g., a trailing icon).
   final Widget? trailing;
 
+  /// background color of the menu item.
+  final AFMenuItemColorBuilder? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
@@ -69,6 +73,7 @@ class AFTextMenuItem extends StatelessWidget {
       selected: selected,
       showSelectedBackground: showSelectedBackground,
       onTap: onTap,
+      backgroundColor: backgroundColor,
     );
   }
 }

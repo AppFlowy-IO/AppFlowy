@@ -26,11 +26,14 @@ class AFTextField extends StatefulWidget {
     this.onSubmitted,
     this.autoFocus,
     this.obscureText = false,
+    this.expands = false,
     this.suffixIconBuilder,
     this.suffixIconConstraints,
     this.size = AFTextFieldSize.l,
     this.groupId = EditableText,
     this.focusNode,
+    this.textAlignVertical,
+    this.maxLines = 1,
     this.readOnly = false,
   });
 
@@ -81,6 +84,15 @@ class AFTextField extends StatefulWidget {
 
   /// Readonly.
   final bool readOnly;
+
+  /// Whether the text field expands to fill the available space.
+  final bool expands;
+
+  /// The maximum number of lines for the text field.
+  final int? maxLines;
+
+  /// The vertical alignment of the text within the text field.
+  final TextAlignVertical? textAlignVertical;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
@@ -170,6 +182,8 @@ class _AFTextFieldState extends AFTextFieldState {
 
     Widget child = TextField(
       groupId: widget.groupId,
+      expands: widget.expands,
+      maxLines: widget.maxLines,
       focusNode: widget.focusNode,
       controller: effectiveController,
       keyboardType: widget.keyboardType,
@@ -177,6 +191,7 @@ class _AFTextFieldState extends AFTextFieldState {
       style: theme.textStyle.body.standard(
         color: theme.textColorScheme.primary,
       ),
+      textAlignVertical: widget.textAlignVertical,
       obscureText: isObscured,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,

@@ -5,6 +5,14 @@ mixin AFDropDownMenuMixin {
   String get label;
 }
 
+typedef DropDownMenuItemBuilder<T extends AFDropDownMenuMixin> = Widget
+    Function(
+  BuildContext context,
+  T item,
+  bool isSelected,
+  ValueChanged<T>? onSelected,
+);
+
 class AFDropDownMenu<T extends AFDropDownMenuMixin> extends StatefulWidget {
   const AFDropDownMenu({
     super.key,
@@ -21,6 +29,7 @@ class AFDropDownMenu<T extends AFDropDownMenuMixin> extends StatefulWidget {
     this.clearIcon,
     this.dropdownIcon,
     this.selectedIcon,
+    this.itemBuilder,
   });
 
   final List<T> items;
@@ -37,6 +46,7 @@ class AFDropDownMenu<T extends AFDropDownMenuMixin> extends StatefulWidget {
   final Widget? clearIcon;
   final Widget? dropdownIcon;
   final Widget? selectedIcon;
+  final DropDownMenuItemBuilder<T>? itemBuilder;
 
   @override
   State<AFDropDownMenu<T>> createState() => _AFDropDownMenuState<T>();
@@ -102,6 +112,7 @@ class _AFDropDownMenuState<T extends AFDropDownMenuMixin>
                 selectedItems: widget.selectedItems,
                 selectedIcon: widget.selectedIcon,
                 isMultiselect: widget.isMultiselect,
+                itemBuilder: widget.itemBuilder,
               ),
             );
           },
@@ -283,13 +294,15 @@ class _DropdownPopoverContents<T extends AFDropDownMenuMixin>
     this.onSelected,
     this.isMultiselect = false,
     this.selectedIcon,
+    this.itemBuilder,
   });
 
   final List<T> items;
   final List<T> selectedItems;
-  final void Function(T? value)? onSelected;
+  final ValueChanged<T>? onSelected;
   final bool isMultiselect;
   final Widget? selectedIcon;
+  final DropDownMenuItemBuilder<T>? itemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -302,12 +315,19 @@ class _DropdownPopoverContents<T extends AFDropDownMenuMixin>
         physics: const ClampingScrollPhysics(),
         padding: EdgeInsets.all(theme.spacing.m),
         shrinkWrap: true,
-        itemBuilder: itemBuilder,
+        itemBuilder: (context, index) =>
+            itemBuilder?.call(
+              context,
+              items[index],
+              selectedItems.contains(items[index]),
+              onSelected,
+            ) ??
+            _itemBuilder(context, index),
       ),
     );
   }
 
-  Widget itemBuilder(BuildContext context, int index) {
+  Widget _itemBuilder(BuildContext context, int index) {
     final theme = AppFlowyTheme.of(context);
     final item = items[index];
 
