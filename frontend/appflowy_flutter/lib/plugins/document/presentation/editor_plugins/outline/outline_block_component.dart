@@ -287,9 +287,6 @@ class OutlineItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editorState = context.read<EditorState>();
-    final textStyle = editorState.editorStyle.textStyleConfiguration;
-    final style = textStyle.href.combine(textStyle.text);
     return FlowyButton(
       onTap: () => scrollToBlock(context),
       text: Row(
@@ -297,12 +294,7 @@ class OutlineItemWidget extends StatelessWidget {
         children: [
           HSpace(node.leftIndent),
           Flexible(
-            child: Text(
-              node.outlineItemText,
-              textDirection: textDirection,
-              style: style,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: buildOutlineItemWidget(context),
           ),
         ],
       ),
@@ -318,6 +310,60 @@ class OutlineItemWidget extends StatelessWidget {
     );
     editorState.selection = Selection.collapsed(
       Position(path: node.path, offset: node.delta?.length ?? 0),
+    );
+  }
+
+  Widget buildOutlineItemWidget(BuildContext context) {
+    final editorState = context.read<EditorState>();
+    final textStyle = editorState.editorStyle.textStyleConfiguration;
+    final style = textStyle.href.combine(textStyle.text);
+
+    final textInserted = node.delta?.whereType<TextInsert>();
+    if (textInserted == null) {
+      return const SizedBox.shrink();
+    }
+
+    final children = <InlineSpan>[];
+
+    var i = 0;
+    for (final e in textInserted) {
+      final mentionAttribute = e.attributes?[MentionBlockKeys.mention];
+      final mention =
+          mentionAttribute is Map<String, dynamic> ? mentionAttribute : null;
+      final text = e.text;
+      if (mention != null) {
+        final type = mention[MentionBlockKeys.type];
+        children.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: MentionBlock(
+              key: ValueKey(type),
+              node: node,
+              index: i,
+              mention: mention,
+              textStyle: style,
+            ),
+          ),
+        );
+    } else {
+        children.add(
+          TextSpan(
+            text: text,
+            style: style,
+          ),
+        );
+      }
+
+      i += text.length;
+    }
+
+    return IgnorePointer(
+      child: Text.rich(
+        TextSpan(
+          children: children,
+          style: style,
+        ),
+      ),
     );
   }
 }
@@ -338,9 +384,5 @@ extension on Node {
     }
 
     return 0.0;
-  }
-
-  String get outlineItemText {
-    return delta?.toPlainText() ?? '';
   }
 }

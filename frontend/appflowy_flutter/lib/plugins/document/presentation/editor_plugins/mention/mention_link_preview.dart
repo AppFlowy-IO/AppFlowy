@@ -24,6 +24,7 @@ class MentionLinkPreview extends StatefulWidget {
     required this.onOpenLink,
     required this.triggerSize,
     required this.showAtBottom,
+    required this.editable,
   });
 
   final LinkInfo linkInfo;
@@ -35,6 +36,7 @@ class MentionLinkPreview extends StatefulWidget {
   final ValueChanged<PasteMenuType> onConvertTo;
   final Size triggerSize;
   final bool showAtBottom;
+  final bool editable;
 
   @override
   State<MentionLinkPreview> createState() => _MentionLinkPreviewState();
@@ -45,6 +47,8 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
   bool isSelected = false;
 
   LinkInfo get linkInfo => widget.linkInfo;
+
+  bool get editable => widget.editable;
 
   @override
   void dispose() {
@@ -197,15 +201,18 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
           children:
               List.generate(MentionLinktMenuCommand.values.length, (index) {
             final command = MentionLinktMenuCommand.values[index];
+            final isCopyCommand = command == MentionLinktMenuCommand.copyLink;
+            final enableButton = editable || (!editable && isCopyCommand);
             return SizedBox(
               height: 36,
               child: FlowyButton(
+                hoverColor: enableButton ? null : Colors.transparent,
                 text: FlowyText(
                   command.title,
                   fontWeight: FontWeight.w400,
                   figmaLineHeight: 20,
                 ),
-                onTap: () => onTap(command),
+                onTap: enableButton ? () => onTap(command) : null,
               ),
             );
           }),

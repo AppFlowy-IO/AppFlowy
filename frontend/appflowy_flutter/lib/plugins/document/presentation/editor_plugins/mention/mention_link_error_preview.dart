@@ -22,6 +22,7 @@ class MentionLinkErrorPreview extends StatefulWidget {
     required this.onConvertTo,
     required this.onOpenLink,
     required this.triggerSize,
+    required this.editable,
   });
 
   final String url;
@@ -32,6 +33,7 @@ class MentionLinkErrorPreview extends StatefulWidget {
   final VoidCallback onOpenLink;
   final ValueChanged<PasteMenuType> onConvertTo;
   final Size triggerSize;
+  final bool editable;
 
   @override
   State<MentionLinkErrorPreview> createState() =>

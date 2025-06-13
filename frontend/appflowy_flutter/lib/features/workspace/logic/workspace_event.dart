@@ -64,6 +64,21 @@ sealed class UserWorkspaceEvent {
         workspaceId: workspaceId,
         subscriptionInfo: subscriptionInfo,
       );
+
+  factory UserWorkspaceEvent.emitWorkspaces({
+    required List<UserWorkspacePB> workspaces,
+  }) =>
+      WorkspaceEventEmitWorkspaces(workspaces: workspaces);
+
+  factory UserWorkspaceEvent.emitUserProfile({
+    required UserProfilePB userProfile,
+  }) =>
+      WorkspaceEventEmitUserProfile(userProfile: userProfile);
+
+  factory UserWorkspaceEvent.emitCurrentWorkspace({
+    required UserWorkspacePB workspace,
+  }) =>
+      WorkspaceEventEmitCurrentWorkspace(workspace: workspace);
 }
 
 /// Initializes the workspace bloc.
@@ -160,4 +175,28 @@ class WorkspaceEventUpdateWorkspaceSubscriptionInfo extends UserWorkspaceEvent {
 
   final String workspaceId;
   final WorkspaceSubscriptionInfoPB subscriptionInfo;
+}
+
+class WorkspaceEventEmitWorkspaces extends UserWorkspaceEvent {
+  WorkspaceEventEmitWorkspaces({
+    required this.workspaces,
+  });
+
+  final List<UserWorkspacePB> workspaces;
+}
+
+class WorkspaceEventEmitUserProfile extends UserWorkspaceEvent {
+  WorkspaceEventEmitUserProfile({
+    required this.userProfile,
+  });
+
+  final UserProfilePB userProfile;
+}
+
+class WorkspaceEventEmitCurrentWorkspace extends UserWorkspaceEvent {
+  WorkspaceEventEmitCurrentWorkspace({
+    required this.workspace,
+  });
+
+  final UserWorkspacePB workspace;
 }
