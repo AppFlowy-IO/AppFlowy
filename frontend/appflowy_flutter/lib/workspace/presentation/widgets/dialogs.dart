@@ -260,6 +260,7 @@ class OkCancelButton extends StatelessWidget {
 }
 
 ToastificationItem showToastNotification({
+  BuildContext? context,
   String? message,
   TextSpan? richMessage,
   String? description,
@@ -273,6 +274,7 @@ ToastificationItem showToastNotification({
     "Exactly one of message or richMessage must be non-null.",
   );
   return toastification.showCustom(
+    context: context,
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(milliseconds: 3000),
     callbacks: callbacks ?? const ToastificationCallbacks(),
