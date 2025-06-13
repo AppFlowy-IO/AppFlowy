@@ -38,6 +38,7 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
@@ -756,7 +757,7 @@ extension CommonOperations on WidgetTester {
     await pump(const Duration(seconds: 5));
 
     // see the create workspace dialog
-    final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
+    final createWorkspaceDialog = find.byType(AFTextFieldDialog);
     expect(createWorkspaceDialog, findsOneWidget);
 
     // input the workspace name
