@@ -1,5 +1,6 @@
 import 'package:appflowy_ui/src/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 typedef AFTextFieldValidator = (bool result, String errorText) Function(
   TextEditingController controller,
@@ -32,6 +33,7 @@ class AFTextField extends StatefulWidget {
     this.groupId = EditableText,
     this.focusNode,
     this.readOnly = false,
+    this.maxLength,
   });
 
   /// The hint text to display when the text field is empty.
@@ -81,6 +83,9 @@ class AFTextField extends StatefulWidget {
 
   /// Readonly.
   final bool readOnly;
+
+  /// The maximum length of the text field.
+  final int? maxLength;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
@@ -181,6 +186,8 @@ class _AFTextFieldState extends AFTextFieldState {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       autofocus: widget.autoFocus ?? false,
+      maxLength: widget.maxLength,
+      maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: theme.textStyle.body.standard(

@@ -7,7 +7,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('create and delete the document', () {
+  group('create and delete the document:', () {
     testWidgets('create a new document when launching app in first time',
         (tester) async {
       await tester.initializeAppFlowy();

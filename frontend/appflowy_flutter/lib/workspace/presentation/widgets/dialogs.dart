@@ -1,12 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -68,107 +66,6 @@ class _NavigatorCustomDialog extends State<NavigatorCustomDialog> {
                     },
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class NavigatorTextFieldDialog extends StatefulWidget {
-  const NavigatorTextFieldDialog({
-    super.key,
-    required this.title,
-    this.autoSelectAllText = false,
-    required this.value,
-    required this.onConfirm,
-    this.onCancel,
-    this.maxLength,
-    this.hintText,
-  });
-
-  final String value;
-  final String title;
-  final VoidCallback? onCancel;
-  final void Function(String, BuildContext) onConfirm;
-  final bool autoSelectAllText;
-  final int? maxLength;
-  final String? hintText;
-
-  @override
-  State<NavigatorTextFieldDialog> createState() =>
-      _NavigatorTextFieldDialogState();
-}
-
-class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
-  String newValue = "";
-  final controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    newValue = widget.value;
-    controller.text = newValue;
-    if (widget.autoSelectAllText) {
-      controller.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: newValue.length,
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StyledDialog(
-      child: Column(
-        children: <Widget>[
-          FlowyText.medium(
-            widget.title,
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: FontSizes.s16,
-          ),
-          VSpace(Insets.m),
-          FlowyFormTextInput(
-            hintText:
-                widget.hintText ?? LocaleKeys.dialogCreatePageNameHint.tr(),
-            controller: controller,
-            textStyle: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontSize: FontSizes.s16),
-            maxLength: widget.maxLength,
-            showCounter: false,
-            autoFocus: true,
-            onChanged: (text) {
-              newValue = text;
-            },
-            onEditingComplete: () {
-              widget.onConfirm(newValue, context);
-              AppGlobals.nav.pop();
-            },
-          ),
-          VSpace(Insets.xl),
-          OkCancelButton(
-            onOkPressed: () {
-              if (newValue.isEmpty) {
-                showToastNotification(
-                  message: LocaleKeys.space_spaceNameCannotBeEmpty.tr(),
-                );
-                return;
-              }
-              widget.onConfirm(newValue, context);
-              Navigator.of(context).pop();
-            },
-            onCancelPressed: () {
-              widget.onCancel?.call();
-              Navigator.of(context).pop();
-            },
-          ),
         ],
       ),
     );

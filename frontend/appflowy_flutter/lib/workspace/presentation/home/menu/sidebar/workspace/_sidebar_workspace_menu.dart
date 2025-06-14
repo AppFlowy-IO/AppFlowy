@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -333,26 +334,6 @@ class _WorkspaceInfo extends StatelessWidget {
   }
 }
 
-class CreateWorkspaceDialog extends StatelessWidget {
-  const CreateWorkspaceDialog({
-    super.key,
-    required this.onConfirm,
-  });
-
-  final void Function(String name) onConfirm;
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigatorTextFieldDialog(
-      title: LocaleKeys.workspace_create.tr(),
-      value: '',
-      hintText: '',
-      autoSelectAllText: true,
-      onConfirm: (name, _) => onConfirm(name),
-    );
-  }
-}
-
 class _CreateWorkspaceButton extends StatelessWidget {
   const _CreateWorkspaceButton();
 
@@ -399,7 +380,10 @@ class _CreateWorkspaceButton extends StatelessWidget {
   Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
     if (context.mounted) {
       final workspaceBloc = context.read<UserWorkspaceBloc>();
-      await CreateWorkspaceDialog(
+      await showAFTextFieldDialog(
+        context: context,
+        title: LocaleKeys.workspace_create.tr(),
+        initialValue: '',
         onConfirm: (name) {
           workspaceBloc.add(
             UserWorkspaceEvent.createWorkspace(
@@ -408,7 +392,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
             ),
           );
         },
-      ).show(context);
+      );
     }
   }
 }

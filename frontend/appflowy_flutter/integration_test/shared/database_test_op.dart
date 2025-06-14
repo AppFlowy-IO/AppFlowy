@@ -76,15 +76,16 @@ import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -1646,18 +1647,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     await enterText(
       find.descendant(
-        of: find.byType(FlowyFormTextInput),
-        matching: find.byType(TextFormField),
+        of: find.byType(AFTextFieldDialog),
+        matching: find.byType(AFTextField),
       ),
       name,
     );
 
-    final field = find.byWidgetPredicate(
-      (widget) =>
-          widget is PrimaryTextButton &&
-          widget.label == LocaleKeys.button_ok.tr(),
-    );
-    await tapButton(field);
+    await tapButton(find.text(LocaleKeys.button_confirm.tr()));
   }
 
   Future<void> deleteDatebaseView(Finder linkedView) async {
