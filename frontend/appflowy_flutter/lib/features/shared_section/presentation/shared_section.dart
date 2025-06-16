@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -88,19 +89,19 @@ class SharedSection extends StatelessWidget {
                         context.read<TabsBloc>().openTab(view);
                         break;
                       case ViewMoreActionType.rename:
-                        await NavigatorTextFieldDialog(
+                        await showAFTextFieldDialog(
+                          context: context,
                           title: LocaleKeys.disclosureAction_rename.tr(),
-                          autoSelectAllText: true,
-                          value: view.nameOrDefault,
+                          initialValue: view.nameOrDefault,
                           maxLength: 256,
-                          onConfirm: (newValue, _) {
+                          onConfirm: (newValue) {
                             // can not use bloc here because it has been disposed.
                             ViewBackendService.updateView(
                               viewId: view.id,
                               name: newValue,
                             );
                           },
-                        ).show(context);
+                        );
                         break;
                       case ViewMoreActionType.leaveSharedPage:
                         // show a dialog to confirm the action

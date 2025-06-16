@@ -48,7 +48,7 @@ void main() {
       find.byType(WorkspaceIcon),
     );
     expect(workspaceIcon.workspaceIcon, icon);
-    expect(find.findTextInFlowyText(name), findsOneWidget);
+    expect(workspaceIcon.workspaceName, name);
   });
 
   testWidgets('verify the result again after relaunching', (tester) async {

@@ -38,11 +38,13 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/foundation.dart';
@@ -264,8 +266,8 @@ extension CommonOperations on WidgetTester {
   /// Rename the page.
   Future<void> renamePage(String name) async {
     await tapRenamePageButton();
-    await enterText(find.byType(TextFormField), name);
-    await tapOKButton();
+    await enterText(find.byType(AFTextField), name);
+    await tapButton(find.text(LocaleKeys.button_confirm.tr()));
   }
 
   Future<void> tapTrashButton() async {
@@ -359,7 +361,7 @@ extension CommonOperations on WidgetTester {
     );
     final showRenameDialog = settingsOrFailure ?? false;
     if (showRenameDialog) {
-      await tapOKButton();
+      await tapButton(find.text(LocaleKeys.button_confirm.tr()));
     }
     await pumpAndSettle();
 
@@ -736,8 +738,7 @@ extension CommonOperations on WidgetTester {
     final workspace = find.byType(SidebarWorkspace);
     expect(workspace, findsOneWidget);
 
-    await tapButton(workspace, pumpAndSettle: false);
-    await pump(const Duration(seconds: 5));
+    await tapButton(workspace, milliseconds: 5000);
   }
 
   Future<void> createCollaborativeWorkspace(String name) async {
@@ -752,22 +753,20 @@ extension CommonOperations on WidgetTester {
     // click the create button
     final createButton = find.byKey(createWorkspaceButtonKey);
     expect(createButton, findsOneWidget);
-    await tapButton(createButton, pumpAndSettle: false);
-    await pump(const Duration(seconds: 5));
-
-    // see the create workspace dialog
-    final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
-    expect(createWorkspaceDialog, findsOneWidget);
+    await tapButton(createButton);
 
     // input the workspace name
     final workspaceNameInput = find.descendant(
-      of: createWorkspaceDialog,
+      of: find.byType(AFTextFieldDialog),
       matching: find.byType(TextField),
     );
     await enterText(workspaceNameInput, name);
+    await pumpAndSettle();
 
-    await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
-    await pump(const Duration(seconds: 5));
+    await tapButton(
+      find.text(LocaleKeys.button_confirm.tr()),
+      milliseconds: 2000,
+    );
   }
 
   // For mobile platform to launch the app in anonymous mode
