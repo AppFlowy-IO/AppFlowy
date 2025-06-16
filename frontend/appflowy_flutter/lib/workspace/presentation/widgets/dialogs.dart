@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -260,11 +260,13 @@ class OkCancelButton extends StatelessWidget {
 }
 
 ToastificationItem showToastNotification({
+  BuildContext? context,
   String? message,
   TextSpan? richMessage,
   String? description,
   ToastificationType type = ToastificationType.success,
   ToastificationCallbacks? callbacks,
+  bool showCloseButton = false,
   double bottomPadding = 100,
 }) {
   assert(
@@ -272,6 +274,7 @@ ToastificationItem showToastNotification({
     "Exactly one of message or richMessage must be non-null.",
   );
   return toastification.showCustom(
+    context: context,
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(milliseconds: 3000),
     callbacks: callbacks ?? const ToastificationCallbacks(),
@@ -288,6 +291,7 @@ ToastificationItem showToastNotification({
               richMessage: richMessage,
               type: type,
               onDismiss: () => toastification.dismiss(item),
+              showCloseButton: showCloseButton,
             );
     },
   );
@@ -390,25 +394,31 @@ class DesktopToast extends StatelessWidget {
     this.richMessage,
     required this.type,
     this.onDismiss,
+    this.showCloseButton = false,
   });
 
   final String? message;
   final TextSpan? richMessage;
   final ToastificationType type;
   final void Function()? onDismiss;
+  final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 360.0),
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.xl,
+          vertical: theme.spacing.l,
+        ),
         margin: const EdgeInsets.only(bottom: 32.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).isLightMode
-              ? const Color(0xFF333333)
-              : const Color(0xFF363D49),
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+          color: theme.surfaceColorScheme.inverse,
+          borderRadius: BorderRadius.circular(theme.borderRadius.l),
+          boxShadow: theme.shadow.small,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -425,16 +435,19 @@ class DesktopToast extends StatelessWidget {
               size: const Size.square(20.0),
               blendMode: null,
             ),
-            const HSpace(8.0),
+            HSpace(
+              theme.spacing.m,
+            ),
             // text
             Flexible(
               child: message != null
-                  ? FlowyText(
+                  ? Text(
                       message!,
                       maxLines: 2,
-                      figmaLineHeight: 20.0,
                       overflow: TextOverflow.ellipsis,
-                      color: const Color(0xFFFFFFFF),
+                      style: theme.textStyle.body.standard(
+                        color: theme.textColorScheme.onFill,
+                      ),
                     )
                   : RichText(
                       text: richMessage!,
@@ -442,25 +455,29 @@ class DesktopToast extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
             ),
-            const HSpace(16.0),
-            // close
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onDismiss,
-                child: const SizedBox.square(
-                  dimension: 24.0,
-                  child: Center(
-                    child: FlowySvg(
-                      FlowySvgs.toast_close_s,
-                      size: Size.square(16.0),
-                      color: Color(0xFFBDBDBD),
+            if (showCloseButton) ...[
+              HSpace(
+                theme.spacing.xl,
+              ),
+              // close
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onDismiss,
+                  child: const SizedBox.square(
+                    dimension: 24.0,
+                    child: Center(
+                      child: FlowySvg(
+                        FlowySvgs.toast_close_s,
+                        size: Size.square(20.0),
+                        color: Color(0xFFBDBDBD),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

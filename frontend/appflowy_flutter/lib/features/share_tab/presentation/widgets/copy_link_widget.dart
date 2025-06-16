@@ -1,6 +1,7 @@
 import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -67,6 +68,10 @@ class CopyLinkWidget extends StatelessWidget {
               context.read<ShareTabBloc>().add(
                     ShareTabEvent.copyShareLink(link: shareLink),
                   );
+
+              if (FlowyRunner.currentMode.isUnitTest) {
+                return;
+              }
 
               showToastNotification(
                 message: LocaleKeys.shareTab_copiedLinkToClipboard.tr(),
