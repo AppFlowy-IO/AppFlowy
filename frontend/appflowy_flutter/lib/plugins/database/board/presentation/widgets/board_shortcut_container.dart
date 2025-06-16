@@ -162,12 +162,9 @@ class BoardShortcutContainer extends StatelessWidget {
   }
 
   bool _moveGroupToAdjacentGroup(BuildContext context, bool toPrevious) {
-    if (focusScope.value.length != 1) {
-      return false;
-    }
     context.read<BoardBloc>().add(
           BoardEvent.moveGroupToAdjacentGroup(
-            focusScope.value.first,
+            focusScope.value,
             toPrevious,
           ),
         );
