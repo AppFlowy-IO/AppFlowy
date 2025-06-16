@@ -1,3 +1,4 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_role_badge.dart';
@@ -200,7 +201,9 @@ class MobilePersonProfileCard extends StatelessWidget {
           color: theme.iconColorScheme.primary,
         );
       },
-      onTap: () {},
+      onTap: () {
+        if (isContact) openEmailApp(person);
+      },
     );
   }
 
@@ -219,5 +222,9 @@ class MobilePersonProfileCard extends StatelessWidget {
       color: theme.fillColorScheme.contentVisible,
       borderRadius: BorderRadius.circular(theme.spacing.m),
     );
+  }
+
+  void openEmailApp(Person person) {
+    afLaunchUrlString('mailto:${person.email}');
   }
 }
