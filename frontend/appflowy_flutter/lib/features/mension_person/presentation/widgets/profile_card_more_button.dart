@@ -26,11 +26,13 @@ class _ProfileCardMoreButtonState extends State<ProfileCardMoreButton> {
   PointerExitEventListener? get onExit => widget.onExit;
 
   final popoverController = PopoverController();
+  final menuShowingNotifier = ValueNotifier<bool>(false);
 
   @override
   void dispose() {
-    super.dispose();
+    menuShowingNotifier.dispose();
     hide();
+    super.dispose();
   }
 
   @override
@@ -60,21 +62,34 @@ class _ProfileCardMoreButtonState extends State<ProfileCardMoreButton> {
           ),
         ),
       ),
-      child: AFOutlinedButton.normal(
-        padding: EdgeInsets.all(theme.spacing.s),
-        builder: (context, hovering, disabled) {
-          return FlowySvg(
-            FlowySvgs.mention_more_results_m,
-            size: Size.square(20),
-            color: theme.iconColorScheme.primary,
+      child: ValueListenableBuilder(
+        valueListenable: menuShowingNotifier,
+        builder: (context, showing, child) {
+          return AFOutlinedButton.normal(
+            backgroundColor: (context, isHovering, disabled) {
+              final theme = AppFlowyTheme.of(context);
+              if (isHovering || showing) {
+                return theme.fillColorScheme.contentHover;
+              }
+              return theme.fillColorScheme.content;
+            },
+            padding: EdgeInsets.all(theme.spacing.s),
+            builder: (context, hovering, disabled) {
+              return FlowySvg(
+                FlowySvgs.mention_more_results_m,
+                size: Size.square(20),
+                color: theme.iconColorScheme.primary,
+              );
+            },
+            onTap: show,
           );
         },
-        onTap: show,
       ),
     );
   }
 
   void show() {
+    menuShowingNotifier.value = true;
     popoverController.show();
   }
 

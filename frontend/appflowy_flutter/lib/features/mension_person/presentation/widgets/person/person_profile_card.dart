@@ -147,12 +147,20 @@ class PersonProfileCard extends StatelessWidget {
   Widget buildName(BuildContext context) {
     final personState = context.read<PersonBloc>().state;
     final theme = AppFlowyTheme.of(context);
-    return Text(
-      personState.person?.name ?? '',
-      style:
-          theme.textStyle.title.prominent(color: theme.textColorScheme.primary),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    final suffixIcon = context.buildSuffixIcon();
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            personState.person?.name ?? '',
+            style: theme.textStyle.title
+                .prominent(color: theme.textColorScheme.primary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (suffixIcon != null) suffixIcon,
+      ],
     );
   }
 
@@ -252,5 +260,30 @@ class PersonProfileCard extends StatelessWidget {
 
   void openEmailApp(Person person) {
     afLaunchUrlString('mailto:${person.email}');
+  }
+}
+
+extension PersonProfileCardWidgetExtension on BuildContext {
+  Widget? buildSuffixIcon() {
+    final personState = read<PersonBloc>().state,
+        person = personState.person,
+        access = personState.access,
+        theme = AppFlowyTheme.of(this);
+    if (person == null) return null;
+    if (!access) {
+      return FlowySvg(
+        FlowySvgs.no_access_suffix_icon_m,
+        color: theme.iconColorScheme.tertiary,
+        blendMode: null,
+      );
+    }
+    if (person.role == PersonRole.contact) {
+      return FlowySvg(
+        FlowySvgs.contact_suffix_icon_m,
+        color: theme.iconColorScheme.tertiary,
+        blendMode: null,
+      );
+    }
+    return null;
   }
 }

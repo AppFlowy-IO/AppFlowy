@@ -1,6 +1,7 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/person/person_profile_card.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_role_badge.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/profile_card_more_button.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -124,12 +125,20 @@ class MobilePersonProfileCard extends StatelessWidget {
   Widget buildName(BuildContext context) {
     final personState = context.read<PersonBloc>().state;
     final theme = AppFlowyTheme.of(context);
-    return Text(
-      personState.person?.name ?? '',
-      style:
-          theme.textStyle.title.prominent(color: theme.textColorScheme.primary),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    final suffixIcon = context.buildSuffixIcon();
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            personState.person?.name ?? '',
+            style: theme.textStyle.title
+                .prominent(color: theme.textColorScheme.primary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (suffixIcon != null) suffixIcon,
+      ],
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -54,12 +55,17 @@ class PersonRoleBadge extends StatelessWidget {
   }
 
   Color color(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
+    final theme = AppFlowyTheme.of(context),
+        isLight = Theme.of(context).isLightMode;
     switch (role) {
       case PersonRole.member:
-        return theme.badgeColorScheme.color15Thick2;
+        return isLight
+            ? theme.badgeColorScheme.color15Thick2
+            : theme.badgeColorScheme.color15Thick1;
       case PersonRole.guest:
-        return theme.badgeColorScheme.color3Thick2;
+        return isLight
+            ? theme.badgeColorScheme.color3Thick2
+            : theme.badgeColorScheme.color3Thick1;
       case PersonRole.contact:
         return theme.textColorScheme.tertiary;
     }

@@ -57,7 +57,7 @@ class MockMentionRepository extends MentionRepository {
       );
     }
     return FlowySuccess(
-      PersonWithAccess(person: person, access: true),
+      PersonWithAccess(person: person, access: Random().nextBool()),
     );
   }
 }
@@ -86,7 +86,7 @@ class _MockState {
       name: 'Andrew Tate',
       role: PersonRole.member,
       email: 'andrewtate@appflowy.io',
-            description: 'A famous internet personality ',
+      description: 'A famous internet personality ',
       coverImageUrl: _coverImageUrl,
       avatarUrl: 'https://avatar.iran.liara.run/public/boy',
     ),

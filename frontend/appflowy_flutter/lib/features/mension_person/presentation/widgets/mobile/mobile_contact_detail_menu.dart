@@ -19,6 +19,11 @@ void showMobileContactDetailMenu({
     dragHandleBuilder: (_) => const DragHandleV2(),
     showDragHandle: true,
     showDivider: false,
+    isDragEnabled: false,
+    enableDraggableScrollable: true,
+    initialChildSize: 0.9,
+    minChildSize: 0.9,
+    maxChildSize: 0.9,
     backgroundColor: theme.surfaceColorScheme.primary,
     builder: (_) => MobileContactDetailMenu(
       info: info,
