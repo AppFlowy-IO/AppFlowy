@@ -34,7 +34,7 @@ Future<String> customDocumentToMarkdown(
   /// create root Archive and directory
   final id = document.root.id,
       archive = Archive(),
-      resourceDir = ArchiveFile('$id/', 0, null)..isFile = false,
+      resourceDir = ArchiveFile('$id/', 0, [])..isFile = false,
       fileName = p.basenameWithoutExtension(path),
       dirName = resourceDir.name;
 
@@ -78,7 +78,7 @@ Future<String> customDocumentToMarkdown(
     if (onArchive == null) {
       final zipEncoder = ZipEncoder();
       final zip = zipEncoder.encode(archive);
-      if (zip != null) {
+      if (zip.isNotEmpty) {
         final zipFile = await File(path).writeAsBytes(zip);
         if (Platform.isIOS) {
           await Share.shareUri(zipFile.uri);
