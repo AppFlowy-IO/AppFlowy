@@ -18,23 +18,29 @@ class ProfileInviteButton extends StatelessWidget {
     final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
     return AFOutlinedButton.normal(
       onTap: onTap,
-      builder: (context, isHovering, disabled) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FlowySvg(
-            FlowySvgs.mention_invite_user_m,
-            size: Size.square(20),
-            color: theme.iconColorScheme.primary,
-            blendMode: null,
-          ),
-          HSpace(spacing.s),
-          Text(
-            LocaleKeys.document_mentionMenu_invite.tr(),
-            style: TextStyle(
-              color: AppFlowyTheme.of(context).textColorScheme.primary,
+      padding: EdgeInsets.zero,
+      builder: (context, isHovering, disabled) => Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: spacing.l,
+          vertical: spacing.s,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.mention_invite_user_m,
+              size: Size.square(20),
+              color: theme.iconColorScheme.primary,
+              blendMode: null,
             ),
-          ),
-        ],
+            HSpace(spacing.s),
+            Text(
+              LocaleKeys.document_mentionMenu_invite.tr(),
+              style: theme.textStyle.body
+                  .enhanced(color: theme.textColorScheme.primary),
+            ),
+          ],
+        ),
       ),
     );
   }
