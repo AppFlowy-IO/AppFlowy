@@ -3,6 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -155,12 +156,12 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
               },
             );
           case WorkspaceMoreAction.rename:
-            await NavigatorTextFieldDialog(
+            await showAFTextFieldDialog(
+              context: context,
               title: LocaleKeys.workspace_renameWorkspace.tr(),
-              value: workspace.name,
+              initialValue: workspace.name,
               hintText: '',
-              autoSelectAllText: true,
-              onConfirm: (name, context) async {
+              onConfirm: (name) async {
                 workspaceBloc.add(
                   UserWorkspaceEvent.renameWorkspace(
                     workspaceId: workspace.workspaceId,
@@ -168,7 +169,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
                   ),
                 );
               },
-            ).show(context);
+            );
           case WorkspaceMoreAction.leave:
             await showConfirmDialog(
               context: context,

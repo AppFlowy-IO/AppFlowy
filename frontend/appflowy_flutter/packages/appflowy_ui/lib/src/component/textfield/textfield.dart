@@ -1,5 +1,6 @@
 import 'package:appflowy_ui/src/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 typedef AFTextFieldValidator = (bool result, String errorText) Function(
   TextEditingController controller,
@@ -35,6 +36,7 @@ class AFTextField extends StatefulWidget {
     this.textAlignVertical,
     this.maxLines = 1,
     this.readOnly = false,
+    this.maxLength,
   });
 
   /// The hint text to display when the text field is empty.
@@ -93,6 +95,9 @@ class AFTextField extends StatefulWidget {
 
   /// The vertical alignment of the text within the text field.
   final TextAlignVertical? textAlignVertical;
+  
+  /// The maximum length of the text field.
+  final int? maxLength;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
@@ -196,6 +201,8 @@ class _AFTextFieldState extends AFTextFieldState {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       autofocus: widget.autoFocus ?? false,
+      maxLength: widget.maxLength,
+      maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: theme.textStyle.body.standard(
