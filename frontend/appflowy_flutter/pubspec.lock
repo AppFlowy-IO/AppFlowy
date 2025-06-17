@@ -2436,7 +2436,7 @@ packages:
     source: hosted
     version: "3.0.2"
   visibility_detector:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: visibility_detector
       sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420

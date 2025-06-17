@@ -6,6 +6,7 @@ class AFMenuSection extends StatelessWidget {
   const AFMenuSection({
     super.key,
     this.title,
+    this.titleTrailing,
     required this.children,
     this.padding,
     this.constraints,
@@ -13,6 +14,9 @@ class AFMenuSection extends StatelessWidget {
 
   /// The title of the section (e.g., 'Section 1').
   final String? title;
+
+  /// Widget to display after the title, only works when [title] is not null.
+  final Widget? titleTrailing;
 
   /// The widgets to display in this section (typically AFMenuItem widgets).
   final List<Widget> children;
@@ -39,11 +43,19 @@ class AFMenuSection extends StatelessWidget {
         if (title != null) ...[
           Padding(
             padding: effectivePadding,
-            child: Text(
-              title!,
-              style: theme.textStyle.caption.enhanced(
-                color: theme.textColorScheme.tertiary,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title!,
+                    style: theme.textStyle.caption.enhanced(
+                      color: theme.textColorScheme.tertiary,
+                    ),
+                  ),
+                ),
+                // Title Trailing widget (e.g., icon), if provided
+                if (titleTrailing != null) titleTrailing!,
+              ],
             ),
           ),
         ],

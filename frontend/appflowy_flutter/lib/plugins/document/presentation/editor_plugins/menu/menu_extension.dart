@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 extension MenuExtension on EditorState {
   MenuPosition? calculateMenuOffset({
     Rect? rect,
-    required double menuWidth,
-    required double menuHeight,
+    required Size menuSize,
     Offset menuOffset = const Offset(0, 10),
   }) {
-    final selectionService = service.selectionService;
-    final selectionRects = selectionService.selectionRects;
+    final menuHeight = menuSize.height, menuWidth = menuSize.width;
+    final rects = selectionRects();
     late Rect startRect;
     if (rect != null) {
       startRect = rect;
     } else {
-      if (selectionRects.isEmpty) return null;
-      startRect = selectionRects.first;
+      if (rects.isEmpty) return null;
+      startRect = rects.first;
     }
 
     final editorOffset = renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;

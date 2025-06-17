@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'mention_link_block.dart';
+import 'mention_person_block.dart';
 
 enum MentionType {
   page,
   date,
   externalLink,
-  childPage;
+  childPage,
+  person;
 
   static MentionType fromString(String value) => switch (value) {
         'page' => page,
@@ -21,6 +23,7 @@ enum MentionType {
         'childPage' => childPage,
         // Backwards compatibility
         'reminder' => date,
+        'person' => person,
         _ => throw UnimplementedError(),
       };
 }
@@ -58,6 +61,7 @@ class MentionBlockKeys {
   static const includeTime = 'include_time';
   static const reminderId = 'reminder_id'; // ReminderID
   static const reminderOption = 'reminder_option';
+  static const personId = 'person_id';
 
   static const mentionChar = '\$';
 
@@ -89,6 +93,19 @@ class MentionBlockKeys {
         if (reminderId != null) MentionBlockKeys.reminderId: reminderId,
         if (reminderOption != null)
           MentionBlockKeys.reminderOption: reminderOption,
+      },
+    };
+  }
+
+  static Map<String, dynamic> buildMentionPersonAttributes({
+    required String personId,
+    required String pageId,
+  }) {
+    return {
+      MentionBlockKeys.mention: {
+        MentionBlockKeys.type: MentionType.person.name,
+        MentionBlockKeys.personId: personId,
+        MentionBlockKeys.pageId: pageId,
       },
     };
   }
@@ -171,6 +188,20 @@ class MentionBlock extends StatelessWidget {
           url: url,
           editorState: editorState,
           node: node,
+          index: index,
+        );
+      case MentionType.person:
+        final String? personId = mention[MentionBlockKeys.personId] as String?;
+        final String? pageId = mention[MentionBlockKeys.pageId] as String?;
+
+        if (personId == null || pageId == null) return const SizedBox.shrink();
+        return MentionPersonBlock(
+          key: ValueKey(personId),
+          editorState: editorState,
+          personId: personId,
+          pageId: pageId,
+          node: node,
+          textStyle: textStyle,
           index: index,
         );
     }

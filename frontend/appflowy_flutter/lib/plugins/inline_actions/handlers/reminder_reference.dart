@@ -122,47 +122,6 @@ class ReminderReferenceService extends InlineActionsDelegate {
     );
   }
 
-  Future<void> _insertReminderReference(
-    EditorState editorState,
-    DateTime date,
-    int start,
-    int end,
-  ) async {
-    final selection = editorState.selection;
-    if (selection == null || !selection.isCollapsed) {
-      return;
-    }
-
-    final node = editorState.getNodeAtPath(selection.end.path);
-    final delta = node?.delta;
-    if (node == null || delta == null) {
-      return;
-    }
-
-    final viewId = context.read<DocumentBloc>().documentId;
-    final reminder = _reminderFromDate(date, viewId, node);
-
-    final transaction = editorState.transaction
-      ..replaceText(
-        node,
-        start,
-        end,
-        MentionBlockKeys.mentionChar,
-        attributes: MentionBlockKeys.buildMentionDateAttributes(
-          date: date.toIso8601String(),
-          reminderId: reminder.id,
-          reminderOption: ReminderOption.atTimeOfEvent.name,
-          includeTime: false,
-        ),
-      );
-
-    await editorState.apply(transaction);
-
-    if (context.mounted) {
-      context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
-    }
-  }
-
   void _setOptions() {
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));
@@ -228,12 +187,14 @@ class ReminderReferenceService extends InlineActionsDelegate {
     return InlineActionsMenuItem(
       label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
-      onSelected: (context, editorState, menuService, replace) =>
-          _insertReminderReference(editorState, date, replace.$1, replace.$2),
+      onSelected: (context, editorState, menuService, replace) => editorState
+          .insertReminderReference(context, date, replace.$1, replace.$2),
     );
   }
+}
 
-  ReminderPB _reminderFromDate(DateTime date, String viewId, Node node) {
+extension ReminderPBDateTimeExtension on DateTime {
+  ReminderPB buildReminder(String viewId, Node node) {
     return ReminderPB(
       id: nanoid(),
       objectId: viewId,
@@ -245,8 +206,48 @@ class ReminderReferenceService extends InlineActionsDelegate {
         ReminderMetaKeys.createdAt:
             DateTime.now().millisecondsSinceEpoch.toString(),
       },
-      scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
-      isAck: date.isBefore(DateTime.now()),
+      scheduledAt: Int64(millisecondsSinceEpoch ~/ 1000),
+      isAck: isBefore(DateTime.now()),
     );
+  }
+}
+
+extension ReminderEditorStateExtension on EditorState {
+  Future<void> insertReminderReference(
+    BuildContext context,
+    DateTime date,
+    int start,
+    int end, {
+    bool includeTime = false,
+  }) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final viewId = context.read<DocumentBloc>().documentId;
+    final reminder = date.buildReminder(viewId, node);
+
+    final transaction = this.transaction
+      ..replaceText(
+        node,
+        start,
+        end,
+        MentionBlockKeys.mentionChar,
+        attributes: MentionBlockKeys.buildMentionDateAttributes(
+          date: date.toIso8601String(),
+          reminderId: reminder.id,
+          reminderOption: ReminderOption.atTimeOfEvent.name,
+          includeTime: includeTime,
+        ),
+      );
+
+    await apply(transaction);
+
+    if (context.mounted) {
+      context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+    }
   }
 }
