@@ -9,7 +9,7 @@ abstract class MentionRepository {
     required String query,
   });
 
-   Future<FlowyResult<PersonWithAccess, FlowyError>> getPerson({
+  Future<FlowyResult<PersonWithAccess, FlowyError>> getPerson({
     required String workspaceId,
     required String documentId,
     required String personId,

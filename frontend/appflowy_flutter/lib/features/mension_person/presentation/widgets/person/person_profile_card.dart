@@ -3,6 +3,7 @@ import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/person/person_role_badge.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/profile_card_more_button.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/profile_invite_button.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -209,35 +210,13 @@ class PersonProfileCard extends StatelessWidget {
       children: [
         PersonRoleBadge(role: person.role),
         Spacer(),
-        buildNotificationButton(context),
+        context.buildNotificationButton(),
         HSpace(theme.spacing.m),
         ProfileCardMoreButton(
           onEnter: onEnter,
           onExit: onExit,
         ),
       ],
-    );
-  }
-
-  Widget buildNotificationButton(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-    final person = context.read<PersonBloc>().state.person;
-    if (person == null) return const SizedBox.shrink();
-    final isContact = person.role == PersonRole.contact;
-    return AFOutlinedButton.normal(
-      padding: EdgeInsets.all(theme.spacing.s),
-      builder: (context, hovering, disabled) {
-        return FlowySvg(
-          isContact
-              ? FlowySvgs.mention_send_email_m
-              : FlowySvgs.mention_send_notification_m,
-          size: Size.square(20),
-          color: theme.iconColorScheme.primary,
-        );
-      },
-      onTap: () {
-        if (isContact) openEmailApp(person);
-      },
     );
   }
 
@@ -285,5 +264,44 @@ extension PersonProfileCardWidgetExtension on BuildContext {
       );
     }
     return null;
+  }
+
+  Widget buildNotificationButton() {
+    final theme = AppFlowyTheme.of(this);
+    final personBloc = read<PersonBloc>(),
+        personState = personBloc.state,
+        person = personState.person;
+    if (person == null) return const SizedBox.shrink();
+    final hasAccess = personState.access,
+        isContact = person.role == PersonRole.contact;
+    if (isContact) {
+      return AFOutlinedButton.normal(
+        padding: EdgeInsets.all(theme.spacing.s),
+        builder: (context, hovering, disabled) {
+          return FlowySvg(
+            FlowySvgs.mention_send_email_m,
+            size: Size.square(20),
+            color: theme.iconColorScheme.primary,
+          );
+        },
+        onTap: () => afLaunchUrlString('mailto:${person.email}'),
+      );
+    }
+    if (!hasAccess) {
+      return ProfileInviteButton(
+        onTap: () {},
+      );
+    }
+    return AFOutlinedButton.normal(
+      padding: EdgeInsets.all(theme.spacing.s),
+      builder: (context, hovering, disabled) {
+        return FlowySvg(
+          FlowySvgs.mention_send_notification_m,
+          size: Size.square(20),
+          color: theme.iconColorScheme.primary,
+        );
+      },
+      onTap: () {},
+    );
   }
 }

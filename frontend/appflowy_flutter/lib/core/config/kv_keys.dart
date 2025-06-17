@@ -125,7 +125,7 @@ class KVKeys {
   ///
   /// The value is bool value
   static const String atMenuSendNotification = 'atMenuSendNotification';
-  
+
   /// v0.9.4: has the user clicked the upgrade to pro button
   /// The value is a boolean string
   static const String hasClickedUpgradeToProButton =
