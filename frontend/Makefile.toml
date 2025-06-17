@@ -190,6 +190,9 @@ FLUTTER_OUTPUT_DIR = "Debug"
 RUST_COMPILE_TARGET = "aarch64-apple-ios"
 BUILD_ARCHS = "arm64"
 CRATE_TYPE = "staticlib"
+IPHONEOS_DEPLOYMENT_TARGET = "10.0"
+CFLAGS = "-miphoneos-version-min=10.0"
+LDFLAGS = "-miphoneos-version-min=10.0"
 
 [env.production-ios-arm64]
 BUILD_FLAG = "release"
@@ -198,6 +201,9 @@ FLUTTER_OUTPUT_DIR = "Release"
 RUST_COMPILE_TARGET = "aarch64-apple-ios"
 BUILD_ARCHS = "arm64"
 CRATE_TYPE = "staticlib"
+IPHONEOS_DEPLOYMENT_TARGET = "10.0"
+CFLAGS = "-miphoneos-version-min=10.0"
+LDFLAGS = "-miphoneos-version-min=10.0"
 
 [env.development-android]
 BUILD_FLAG = "debug"
