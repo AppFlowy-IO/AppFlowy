@@ -35,8 +35,9 @@ class PersonListInviteItem extends StatelessWidget {
       id: id,
       child: AFTextMenuItem(
         selected: state.selectedId == id,
-        leading: SizedBox.square(
-          dimension: 24,
+        leading: SizedBox(
+          width: 24,
+          height: 20,
           child: Center(
             child: FlowySvg(
               FlowySvgs.mention_invite_user_m,

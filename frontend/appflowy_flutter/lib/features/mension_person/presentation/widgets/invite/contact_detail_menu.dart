@@ -167,6 +167,16 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   Widget buildBackButton() {
     return AFOutlinedTextButton.normal(
       text: LocaleKeys.document_mentionMenu_back.tr(),
+      backgroundFocusColor: (context, isHovering, isFocused, disabled) {
+        final theme = AppFlowyTheme.of(context);
+        if (disabled) {
+          return theme.fillColorScheme.content;
+        }
+        if (isHovering || isFocused) {
+          return theme.fillColorScheme.contentHover;
+        }
+        return theme.fillColorScheme.content;
+      },
       onTap: onBack,
     );
   }

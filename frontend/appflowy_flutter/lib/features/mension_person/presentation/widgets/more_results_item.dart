@@ -33,8 +33,9 @@ class MoreResultsItem extends StatelessWidget {
         title: LocaleKeys.document_mentionMenu_moreResults.tr(args: ['$num']),
         titleColor: theme.textColorScheme.tertiary,
         onTap: onTap,
-        leading: SizedBox.square(
-          dimension: 24,
+        leading: SizedBox(
+          width: 24,
+          height: 20,
           child: Center(
             child: FlowySvg(
               FlowySvgs.mention_more_results_m,

@@ -340,7 +340,6 @@ class _DropdownPopoverContents<T extends AFDropDownMenuMixin>
       borderColor: (context, isHovering, disabled, isFocused) {
         return Colors.transparent;
       },
-      showFocusRing: false,
       builder: (context, _, __) {
         return Row(
           spacing: theme.spacing.m,

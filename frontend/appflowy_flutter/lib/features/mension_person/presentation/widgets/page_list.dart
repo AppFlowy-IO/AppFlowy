@@ -15,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'item_visibility_detector.dart';
 import 'more_results_item.dart';
@@ -78,9 +79,11 @@ class PageList extends StatelessWidget {
               .tr(args: ['show more page']);
           void onShowMore() {
             if (!showMoreResult) return;
-            context
-                .read<MentionBloc>()
-                .add(MentionEvent.showMorePages(filterViews[4].id));
+            context.read<MentionBloc>().add(
+                  MentionEvent.showMorePages(
+                    UniversalPlatform.isMobile ? '' : filterViews[4].id,
+                  ),
+                );
           }
 
           if (showMoreResult) {

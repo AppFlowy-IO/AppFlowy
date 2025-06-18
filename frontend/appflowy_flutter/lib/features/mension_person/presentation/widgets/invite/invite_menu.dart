@@ -213,6 +213,16 @@ class _InviteMenuState extends State<InviteMenu> {
   Widget buildBackButton() {
     return AFOutlinedTextButton.normal(
       text: LocaleKeys.document_mentionMenu_back.tr(),
+      backgroundFocusColor: (context, isHovering, isFocused, disabled) {
+        final theme = AppFlowyTheme.of(context);
+        if (disabled) {
+          return theme.fillColorScheme.content;
+        }
+        if (isHovering || isFocused) {
+          return theme.fillColorScheme.contentHover;
+        }
+        return theme.fillColorScheme.content;
+      },
       onTap: onBack,
     );
   }
@@ -223,6 +233,7 @@ class _InviteMenuState extends State<InviteMenu> {
       text: isContact
           ? LocaleKeys.button_add.tr()
           : LocaleKeys.document_mentionMenu_invite.tr(),
+          
       onTap: onApply,
     );
   }

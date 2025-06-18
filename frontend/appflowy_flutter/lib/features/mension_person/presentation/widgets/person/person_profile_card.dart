@@ -150,6 +150,7 @@ class PersonProfileCard extends StatelessWidget {
     final theme = AppFlowyTheme.of(context);
     final suffixIcon = context.buildSuffixIcon();
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
           child: Text(
@@ -254,6 +255,7 @@ extension PersonProfileCardWidgetExtension on BuildContext {
         FlowySvgs.no_access_suffix_icon_m,
         color: theme.iconColorScheme.tertiary,
         blendMode: null,
+        size: Size.square(20),
       );
     }
     if (person.role == PersonRole.contact) {
@@ -261,6 +263,7 @@ extension PersonProfileCardWidgetExtension on BuildContext {
         FlowySvgs.contact_suffix_icon_m,
         color: theme.iconColorScheme.tertiary,
         blendMode: null,
+        size: Size.square(20),
       );
     }
     return null;

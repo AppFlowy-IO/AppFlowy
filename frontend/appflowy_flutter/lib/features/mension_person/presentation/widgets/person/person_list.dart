@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../invite/person_list_invite_item.dart';
 import '../item_visibility_detector.dart';
@@ -55,9 +56,11 @@ class PersonList extends StatelessWidget {
         .tr(args: ['show more person']);
     void onShowMore() {
       if (!showMoreResult) return;
-      context
-          .read<MentionBloc>()
-          .add(MentionEvent.showMorePersons(persons[4].id));
+      context.read<MentionBloc>().add(
+            MentionEvent.showMorePersons(
+              UniversalPlatform.isMobile ? '' : persons[4].id,
+            ),
+          );
     }
 
     if (showMoreResult) {
@@ -121,6 +124,7 @@ class PersonList extends StatelessWidget {
           value: state.sendNotification,
           style: ToggleStyle(width: 34, height: 18, thumbRadius: 17),
           padding: EdgeInsets.zero,
+          duration: Duration.zero,
           inactiveBackgroundColor: theme.fillColorScheme.secondary,
           onChanged: (v) {
             bloc.add(MentionEvent.toggleSendNotification());

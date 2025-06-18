@@ -2,7 +2,6 @@ import 'package:appflowy/features/mension_person/data/models/invite.dart';
 import 'package:appflowy/features/mension_person/presentation/menu_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
-import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -16,7 +15,7 @@ void showMobileContactDetailMenu({
   final theme = AppFlowyTheme.of(context);
   showMobileBottomSheet(
     context,
-    dragHandleBuilder: (_) => const DragHandleV2(),
+    dragHandleBuilder: (_) => VSpace(20),
     showDragHandle: true,
     showDivider: false,
     isDragEnabled: false,
@@ -117,7 +116,7 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
           child: Padding(
             padding: EdgeInsets.only(right: theme.spacing.xl),
             child: Text(
-              LocaleKeys.document_mentionMenu_invite.tr(),
+              LocaleKeys.button_add.tr(),
               style: theme.textStyle.body
                   .standard(color: theme.textColorScheme.action),
             ),

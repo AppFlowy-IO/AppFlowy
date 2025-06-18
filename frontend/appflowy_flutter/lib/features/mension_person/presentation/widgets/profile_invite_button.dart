@@ -31,7 +31,6 @@ class ProfileInviteButton extends StatelessWidget {
               FlowySvgs.mention_invite_user_m,
               size: Size.square(20),
               color: theme.iconColorScheme.primary,
-              blendMode: null,
             ),
             HSpace(spacing.s),
             Text(
