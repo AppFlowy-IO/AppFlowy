@@ -75,8 +75,8 @@ class MobileInviteMenu extends StatefulWidget {
 }
 
 class _MobileInviteMenuState extends State<MobileInviteMenu> {
-  late FocusNode emailFocusNode = FocusNode();
-  late TextEditingController emailController =
+  late final FocusNode emailFocusNode = FocusNode();
+  late final TextEditingController emailController =
       TextEditingController(text: info.email);
 
   late InviteInfo info = widget.info;

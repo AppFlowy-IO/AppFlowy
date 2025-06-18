@@ -26,16 +26,15 @@ class ContactDetailMenu extends StatefulWidget {
 }
 
 class _ContactDetailMenuState extends State<ContactDetailMenu> {
-  late FocusNode nameFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
-  late FocusScopeNode menuFocusNode =
+  late final FocusNode nameFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late final FocusScopeNode menuFocusNode =
       FocusScopeNode(onKeyEvent: onFocusKeyEvent);
-  late TextEditingController nameController =
+  late final TextEditingController nameController =
       TextEditingController(text: info.email);
-  late TextEditingController descriptionController =
+  late final TextEditingController descriptionController =
       TextEditingController(text: detail.description);
 
   late InviteInfo info = widget.info;
-
   late ContactDetail detail =
       info.contactDetail ?? ContactDetail(name: info.email);
   final nameKey = GlobalKey<AFTextFieldState>();

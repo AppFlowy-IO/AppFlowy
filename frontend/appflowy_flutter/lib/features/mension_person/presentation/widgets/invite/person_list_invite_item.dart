@@ -99,11 +99,11 @@ extension PersonInviteEditorStateExtension on EditorState {
     final delta = node?.delta;
     if (node == null || delta == null) return;
     final range = serviceInfo.textRange(query);
-    await (await mentionBloc.repository.invitePerson(
+    final result = await mentionBloc.repository.invitePerson(
       workspaceId: mentionBloc.workspaceId,
       info: inviteInfo,
-    ))
-        .fold((person) async {
+    );
+    await result.fold((person) async {
       serviceInfo.onDismiss.call();
       await insertPerson(
         person,

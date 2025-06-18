@@ -1,3 +1,4 @@
+import 'package:appflowy/features/mension_person/data/cache/person_list_cache.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
 import 'package:appflowy/features/mension_person/presentation/widgets/hover_menu.dart';
@@ -7,6 +8,8 @@ import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -66,44 +69,59 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
         personId: widget.personId,
         workspaceId: workspaceId,
         repository: MockMentionRepository(),
+        personListCache: getIt<PersonListCache>(),
       )..add(PersonEvent.initial()),
-      child: BlocBuilder<PersonBloc, PersonState>(
-        key: key,
-        builder: (context, state) {
-          if (state.person == null) return const SizedBox.shrink();
-          final bloc = context.read<PersonBloc>();
-          return HoverMenu(
-            key: ValueKey(
-              showAtBottom.hashCode & positionY.hashCode & triggerSize.hashCode,
-            ),
-            enable: UniversalPlatform.isDesktop,
-            menuConstraints: BoxConstraints(
-              maxHeight: 372,
-              maxWidth: 280,
-              minWidth: 280,
-            ),
-            triggerSize: triggerSize,
-            direction: showAtBottom
-                ? PopoverDirection.bottomWithLeftAligned
-                : PopoverDirection.topWithLeftAligned,
-            offset: Offset(
-              0,
-              showAtBottom ? -triggerSize.height : triggerSize.height,
-            ),
-            menuBuilder: (context, onEnter, onExit) => BlocProvider.value(
-              value: bloc,
-              child: BlocBuilder<PersonBloc, PersonState>(
-                builder: (context, state) => PersonProfileCard(
-                  triggerSize: triggerSize,
-                  showAtBottom: showAtBottom,
-                  onEnter: onEnter,
-                  onExit: onExit,
+      child: BlocListener<PersonBloc, PersonState>(
+        listenWhen: (previous, current) =>
+            previous.getPersonFailedMesssage != current.getPersonFailedMesssage,
+        listener: (context, state) {
+          if (state.getPersonFailedMesssage.isNotEmpty) {
+            showToastNotification(
+              message: state.getPersonFailedMesssage,
+              type: ToastificationType.error,
+            );
+          }
+        },
+        child: BlocBuilder<PersonBloc, PersonState>(
+          key: key,
+          builder: (context, state) {
+            if (state.person == null) return const SizedBox.shrink();
+            final bloc = context.read<PersonBloc>();
+            return HoverMenu(
+              key: ValueKey(
+                showAtBottom.hashCode &
+                    positionY.hashCode &
+                    triggerSize.hashCode,
+              ),
+              enable: UniversalPlatform.isDesktop,
+              menuConstraints: BoxConstraints(
+                maxHeight: 372,
+                maxWidth: 280,
+                minWidth: 280,
+              ),
+              triggerSize: triggerSize,
+              direction: showAtBottom
+                  ? PopoverDirection.bottomWithLeftAligned
+                  : PopoverDirection.topWithLeftAligned,
+              offset: Offset(
+                0,
+                showAtBottom ? -triggerSize.height : triggerSize.height,
+              ),
+              menuBuilder: (context, onEnter, onExit) => BlocProvider.value(
+                value: bloc,
+                child: BlocBuilder<PersonBloc, PersonState>(
+                  builder: (context, state) => PersonProfileCard(
+                    triggerSize: triggerSize,
+                    showAtBottom: showAtBottom,
+                    onEnter: onEnter,
+                    onExit: onExit,
+                  ),
                 ),
               ),
-            ),
-            child: buildPerson(context),
-          );
-        },
+              child: buildPerson(context),
+            );
+          },
+        ),
       ),
     );
   }

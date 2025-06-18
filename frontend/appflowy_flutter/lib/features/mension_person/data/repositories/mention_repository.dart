@@ -15,7 +15,7 @@ abstract class MentionRepository {
     required String personId,
   });
 
-  /// Gets the list of persons
+  /// Invite a person
   Future<FlowyResult<Person, FlowyError>> invitePerson({
     required String workspaceId,
     required InviteInfo info,

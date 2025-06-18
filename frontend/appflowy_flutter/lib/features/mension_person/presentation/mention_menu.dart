@@ -1,6 +1,10 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/features/mension_person/data/cache/person_list_cache.dart';
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -34,56 +38,78 @@ class MentionMenu extends StatelessWidget {
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
-    return BlocProvider(
-      create: (_) => MentionBloc(MockMentionRepository(), workspaceId),
-      child: BlocBuilder<MentionBloc, MentionState>(
-        builder: (context, state) {
-          final itemMap = MentionItemMap();
-          final child = Provider<MentionItemMap>.value(
-            value: itemMap,
-            child: MentionMenuScroller(
-              builder: (_, controller) {
-                return BlocListener<MentionBloc, MentionState>(
-                  listener: (context, state) {
-                    if (!controller.hasClients || !context.mounted) return;
-                    controller.jumpTo(0);
-                  },
-                  listenWhen: (previous, current) =>
-                      previous.query != current.query,
-                  child: MentionMenuShortcuts(
-                    scrollController: controller,
-                    itemMap: itemMap,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: maxHeight),
-                      child: AFMenu(
-                        width: width,
-                        padding: EdgeInsets.zero,
-                        builder: (context, children) {
-                          return FlowyScrollbar(
-                            controller: controller,
-                            child: SingleChildScrollView(
-                              controller: controller,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: children,
-                              ),
-                            ),
-                          );
-                        },
-                        children: [
-                          PersonList(),
-                          PageList(),
-                          DateReminderList(),
-                        ],
+    return FutureBuilder(
+      future: getIt<KeyValueStorage>().getBool(KVKeys.atMenuSendNotification),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final sendNotification = snapshot.data ?? false;
+        return BlocProvider(
+          create: (_) => MentionBloc(
+            MockMentionRepository(),
+            workspaceId,
+            sendNotification,
+            getIt<PersonListCache>(),
+          )..add(MentionEvent.init()),
+          child: BlocBuilder<MentionBloc, MentionState>(
+            builder: (context, state) {
+              final itemMap = MentionItemMap();
+              final child = Provider<MentionItemMap>.value(
+                value: itemMap,
+                child: MentionMenuScroller(
+                  builder: (_, controller) {
+                    return BlocListener<MentionBloc, MentionState>(
+                      listener: (context, state) {
+                        if (!controller.hasClients || !context.mounted) return;
+                        controller.jumpTo(0);
+                      },
+                      listenWhen: (previous, current) =>
+                          previous.query != current.query,
+                      child: MentionMenuShortcuts(
+                        scrollController: controller,
+                        itemMap: itemMap,
+                        child: buildMenu(context, controller),
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              );
+              return builder?.call(context, child) ?? child;
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildMenu(BuildContext context, ScrollController controller) {
+    final theme = AppFlowyTheme.of(context);
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.surfaceColorScheme.primary,
+          borderRadius: BorderRadius.circular(theme.borderRadius.l),
+          border: Border.all(
+            color: theme.borderColorScheme.primary,
+          ),
+          boxShadow: theme.shadow.medium,
+        ),
+        width: width,
+        padding: EdgeInsets.zero,
+        child: FlowyScrollbar(
+          controller: controller,
+          child: SingleChildScrollView(
+            controller: controller,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PersonList(),
+                PageList(),
+                DateReminderList(),
+              ],
             ),
-          );
-          return builder?.call(context, child) ?? child;
-        },
+          ),
+        ),
       ),
     );
   }

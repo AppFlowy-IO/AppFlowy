@@ -17,10 +17,45 @@ class DateReminderList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
+    final theme = AppFlowyTheme.of(context),
+        spacing = theme.spacing,
+        itemMap = context.read<MentionItemMap>(),
+        filterItems = buildItems(context);
+
+    if (filterItems.isEmpty) return const SizedBox.shrink();
+    final children = List.generate(filterItems.length, (index) {
+      final item = filterItems[index];
+      itemMap.addToDateAndReminder(item);
+      return MentionMenuItenVisibilityDetector(
+        id: item.id,
+        child: AFTextMenuItem(
+          title: item.id,
+          selected: context.read<MentionBloc>().state.selectedId == item.id,
+          onTap: item.onExecute,
+          backgroundColor: context.mentionItemBGColor,
+        ),
+      );
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AFDivider(),
+        Padding(
+          padding: EdgeInsets.all(spacing.m),
+          child: AFMenuSection(
+            title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
+            children: children,
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<MentionMenuItem> buildItems(BuildContext context) {
     final mentionState = context.read<MentionBloc>().state,
-        query = mentionState.query,
-        itemMap = context.read<MentionItemMap>();
+        query = mentionState.query;
     final items = [
       MentionMenuItem(
         id: LocaleKeys.document_mentionMenu_dateToday.tr(),
@@ -66,36 +101,7 @@ class DateReminderList extends StatelessWidget {
           .where((item) => item.id.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
-
-    if (filterItems.isEmpty) return const SizedBox.shrink();
-    final children = List.generate(filterItems.length, (index) {
-      final item = filterItems[index];
-      itemMap.addToDateAndReminder(item);
-      return MentionMenuItenVisibilityDetector(
-        id: item.id,
-        child: AFTextMenuItem(
-          title: item.id,
-          selected: context.read<MentionBloc>().state.selectedId == item.id,
-          onTap: item.onExecute,
-          backgroundColor: context.mentionItemBGColor,
-        ),
-      );
-    });
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AFDivider(),
-        Padding(
-          padding: EdgeInsets.all(spacing.m),
-          child: AFMenuSection(
-            title: LocaleKeys.document_mentionMenu_dateAndReminder.tr(),
-            children: children,
-          ),
-        ),
-      ],
-    );
+    return filterItems;
   }
 
   Future<void> onDateInsert(

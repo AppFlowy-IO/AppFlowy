@@ -1,20 +1,25 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/features/mension_person/data/cache/person_list_cache.dart';
-import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mention_repository.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'mention_bloc.freezed.dart';
+import 'mention_event.dart';
+export 'mention_event.dart';
+import 'mention_state.dart';
+export 'mention_state.dart';
+
 
 // bool _showMorePages = false, _showMorePersons = false;
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
-  MentionBloc(this.repository, this.workspaceId)
-      : super(MentionState.initial()) {
-    _personListCache = getIt<PersonListCache>();
+  MentionBloc(
+    this.repository,
+    this.workspaceId,
+    this.sendNotification,
+    this.personListCache,
+  ) : super(MentionState()) {
     on<Initial>(_onInitial);
     on<Query>(_onQuery);
     on<GetPersons>(_onGetPersons);
@@ -25,20 +30,16 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     on<AddVisibleItem>(_onAddVisibleItem);
     on<RemoveVisibleItem>(_onRemoveVisibleItem);
     on<SelectItem>(_onSelectItem);
-    add(MentionEvent.init());
-    add(MentionEvent.getPersons(workspaceId: workspaceId));
   }
   final MentionRepository repository;
   final String workspaceId;
-  late final PersonListCache _personListCache;
+  final bool sendNotification;
+  final PersonListCache personListCache;
 
   Future<void> _onInitial(
     Initial event,
     Emitter<MentionState> emit,
   ) async {
-    final sendNotification =
-        await getIt<KeyValueStorage>().getBool(KVKeys.atMenuSendNotification) ??
-            false;
     if (!isClosed) {
       emit(
         state.copyWith(
@@ -48,6 +49,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
         ),
       );
     }
+    add(MentionEvent.getPersons(workspaceId: workspaceId));
   }
 
   Future<void> _onQuery(
@@ -62,7 +64,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     GetPersons event,
     Emitter<MentionState> emit,
   ) async {
-    final localList = _personListCache.getPersons(workspaceId) ?? [];
+    final localList = personListCache.getPersons(workspaceId) ?? [];
     if (localList.isNotEmpty && state.query.isEmpty) {
       emit(state.copyWith(persons: localList));
     }
@@ -74,7 +76,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     if (persons == null) return;
     add(MentionEvent.updatePersonList(persons));
     if (persons.isNotEmpty && state.query.isEmpty) {
-      _personListCache.updatePersonList(workspaceId, persons);
+      personListCache.updatePersonList(workspaceId, persons);
     }
   }
 
@@ -135,36 +137,4 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
   ) async {
     emit(state.copyWith(selectedId: event.id));
   }
-}
-
-@freezed
-class MentionEvent with _$MentionEvent {
-  const factory MentionEvent.init() = Initial;
-  const factory MentionEvent.getPersons({required String workspaceId}) =
-      GetPersons;
-  const factory MentionEvent.updatePersonList(List<Person> persons) =
-      UpdatePersonList;
-  const factory MentionEvent.query(String text) = Query;
-  const factory MentionEvent.showMorePersons(String lastId) = ShowMorePersons;
-  const factory MentionEvent.showMorePages(String lastId) = ShowMorePages;
-  const factory MentionEvent.toggleSendNotification() = ToggleSendNotification;
-  const factory MentionEvent.addVisibleItem(String id) = AddVisibleItem;
-  const factory MentionEvent.removeVisibleItem(String id) = RemoveVisibleItem;
-  const factory MentionEvent.selectItem(String id) = SelectItem;
-}
-
-@freezed
-class MentionState with _$MentionState {
-  const factory MentionState({
-    @Default([]) List<Person> persons,
-    @Default(false) bool sendNotification,
-    @Default(null) String? focusId,
-    @Default('') String query,
-    @Default('') String selectedId,
-    @Default(false) bool showMorePersons,
-    @Default(false) bool showMorePage,
-    @Default({}) Set<String> visibleItems,
-  }) = _MentionState;
-
-  factory MentionState.initial() => const MentionState();
 }

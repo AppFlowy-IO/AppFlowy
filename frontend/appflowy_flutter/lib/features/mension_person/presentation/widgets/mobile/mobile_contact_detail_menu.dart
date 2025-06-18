@@ -53,10 +53,10 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
   late ContactDetail detail =
       info.contactDetail ?? ContactDetail(name: info.email);
   final nameKey = GlobalKey<AFTextFieldState>();
-  late FocusNode nameFocusNode = FocusNode();
-  late TextEditingController nameController =
+  late final FocusNode nameFocusNode = FocusNode();
+  late final TextEditingController nameController =
       TextEditingController(text: info.email);
-  late TextEditingController descriptionController =
+  late final TextEditingController descriptionController =
       TextEditingController(text: detail.description);
 
   @override

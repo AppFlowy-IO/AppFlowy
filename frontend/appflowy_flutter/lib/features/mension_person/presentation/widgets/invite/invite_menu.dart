@@ -13,8 +13,8 @@ import 'package:string_validator/string_validator.dart';
 
 import 'contact_detail_menu.dart';
 
-class PersonRoleDownMenuItem with AFDropDownMenuMixin {
-  const PersonRoleDownMenuItem({
+class PersonRoleDropDownMenuItem with AFDropDownMenuMixin {
+  const PersonRoleDropDownMenuItem({
     required this.role,
   });
 
@@ -39,10 +39,10 @@ class InviteMenu extends StatefulWidget {
 }
 
 class _InviteMenuState extends State<InviteMenu> {
-  late FocusNode emailFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
-  late FocusScopeNode menuFocusNode =
+  late final FocusNode emailFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
+  late final FocusScopeNode menuFocusNode =
       FocusScopeNode(onKeyEvent: onFocusKeyEvent);
-  late TextEditingController emailController =
+  late final TextEditingController emailController =
       TextEditingController(text: info.email);
 
   late InviteInfo info = widget.info;
@@ -153,7 +153,7 @@ class _InviteMenuState extends State<InviteMenu> {
   Widget buildRoleSelector() {
     return SizedBox(
       width: 360,
-      child: AFDropDownMenu<PersonRoleDownMenuItem>(
+      child: AFDropDownMenu<PersonRoleDropDownMenuItem>(
         items: roleItems(),
         selectedItems: [info.role.buildItem()],
         itemBuilder: (context, item, isSelected, onSelected) =>
@@ -167,8 +167,8 @@ class _InviteMenuState extends State<InviteMenu> {
 
   Widget buildRoleItem(
     BuildContext context,
-    PersonRoleDownMenuItem item,
-    ValueChanged<PersonRoleDownMenuItem>? onSelected,
+    PersonRoleDropDownMenuItem item,
+    ValueChanged<PersonRoleDropDownMenuItem>? onSelected,
   ) {
     final theme = AppFlowyTheme.of(context);
     final isSelected = info.role == item.role;
@@ -227,7 +227,7 @@ class _InviteMenuState extends State<InviteMenu> {
     );
   }
 
-  List<PersonRoleDownMenuItem> roleItems() =>
+  List<PersonRoleDropDownMenuItem> roleItems() =>
       PersonRole.values.map((role) => role.buildItem()).toList();
 
   void onBack() {
@@ -305,8 +305,8 @@ class _InviteMenuState extends State<InviteMenu> {
 }
 
 extension PersonRoleExtension on PersonRole {
-  PersonRoleDownMenuItem buildItem() {
-    return PersonRoleDownMenuItem(role: this);
+  PersonRoleDropDownMenuItem buildItem() {
+    return PersonRoleDropDownMenuItem(role: this);
   }
 
   String get displayName {

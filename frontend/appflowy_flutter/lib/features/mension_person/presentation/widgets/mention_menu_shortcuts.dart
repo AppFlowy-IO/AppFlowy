@@ -160,25 +160,38 @@ class _MentionMenuShortcutsState extends State<MentionMenuShortcuts> {
     final menuBloc = context.read<MentionBloc>(), menuState = menuBloc.state;
     final items = itemMap.items;
     final index = items.indexWhere((e) => e.id == menuState.selectedId);
-    int newIndex = index;
+    final direction = _getDirection(key);
+    if (direction == null) return;
+    final newIndex = _caculateIndex(index, direction);
+    final item = items[newIndex];
+    menuBloc.add(MentionEvent.selectItem(item.id));
+    _scrollToItem(index, newIndex, context);
+  }
+
+  VerticalDirection? _getDirection(LogicalKeyboardKey key) {
     final isUp = key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
             HardwareKeyboard.instance.isShiftPressed);
     final isDown =
         [LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab].contains(key);
-    if (!isUp && !isDown) return;
+    if (isUp) return VerticalDirection.up;
+    if (isDown) return VerticalDirection.down;
+    return null;
+  }
+
+  int _caculateIndex(int index, VerticalDirection direction) {
+    final items = itemMap.items;
+    int newIndex = index;
     if (index < 0) {
-      newIndex = isUp ? items.length - 1 : 0;
+      newIndex = direction == VerticalDirection.up ? items.length - 1 : 0;
     } else {
-      if (isUp) {
+      if (direction == VerticalDirection.up) {
         newIndex = index == 0 ? items.length - 1 : index - 1;
-      } else if (isDown) {
+      } else {
         newIndex = index == items.length - 1 ? 0 : index + 1;
       }
     }
-    final item = items[newIndex];
-    menuBloc.add(MentionEvent.selectItem(item.id));
-    _scrollToItem(index, newIndex, context);
+    return newIndex;
   }
 
   void _scrollToItem(

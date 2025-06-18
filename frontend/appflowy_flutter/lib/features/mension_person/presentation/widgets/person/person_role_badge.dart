@@ -1,6 +1,8 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class PersonRoleBadge extends StatelessWidget {
@@ -24,7 +26,7 @@ class PersonRoleBadge extends StatelessWidget {
           children: [
             buildDot(context),
             Text(
-              role.name.capitalize(),
+              role.displayName(),
               style: theme.textStyle.body.standard(
                 color: color(context),
               ),
@@ -72,8 +74,15 @@ class PersonRoleBadge extends StatelessWidget {
   }
 }
 
-extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+extension PersonRoleBadgeStringExtension on PersonRole {
+  String displayName() {
+    switch (this) {
+      case PersonRole.member:
+        return LocaleKeys.document_mentionMenu_member.tr();
+      case PersonRole.guest:
+        return LocaleKeys.document_mentionMenu_guest.tr();
+      case PersonRole.contact:
+        return LocaleKeys.document_mentionMenu_contact.tr();
+    }
   }
 }

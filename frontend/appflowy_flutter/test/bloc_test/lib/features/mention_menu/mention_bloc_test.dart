@@ -2,6 +2,7 @@ import 'package:appflowy/features/mension_person/data/cache/person_list_cache.da
 import 'package:appflowy/features/mension_person/data/repositories/mention_repository.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,7 +18,8 @@ void main() {
     setUpGetIt();
     GetIt.I.registerSingleton<PersonListCache>(PersonListCache());
     repository = MockMentionRepository();
-    bloc = MentionBloc(repository, workspaceId);
+    bloc = MentionBloc(repository, workspaceId, false, getIt<PersonListCache>())
+      ..add(MentionEvent.init());
   });
 
   tearDown(() async {
