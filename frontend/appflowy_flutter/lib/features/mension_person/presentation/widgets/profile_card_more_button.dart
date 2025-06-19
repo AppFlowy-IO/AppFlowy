@@ -1,5 +1,6 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 import 'package:appflowy/features/mension_person/logic/person_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -27,7 +28,7 @@ class ProfileCardMoreButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final personBloc = context.read<PersonBloc>(),
         person = personBloc.state.person;
-    if (person == null) return const SizedBox.shrink();
+    if (person.isEmpty) return const SizedBox.shrink();
     final theme = AppFlowyTheme.of(context);
 
     return AppFlowyPopover(
@@ -58,7 +59,8 @@ class ProfileCardMoreButton extends StatelessWidget {
           }
           return theme.fillColorScheme.content;
         },
-        padding: EdgeInsets.all(theme.spacing.s),
+        padding:
+            EdgeInsets.all(UniversalPlatform.isMobile ? 10 : theme.spacing.s),
         builder: (context, hovering, disabled) {
           return FlowySvg(
             FlowySvgs.mention_more_results_m,
@@ -87,7 +89,7 @@ class _Menu extends StatelessWidget {
   Widget build(BuildContext context) {
     final personBloc = context.read<PersonBloc>(),
         person = personBloc.state.person;
-    if (person == null) return const SizedBox.shrink();
+    if (person.isEmpty) return const SizedBox.shrink();
     final theme = AppFlowyTheme.of(context);
     final role = person.role;
     List<Widget> children = [];
@@ -117,6 +119,8 @@ class _Menu extends StatelessWidget {
   }
 
   List<Widget> buildMemberItems(Person person, BuildContext context) {
+    final userProfile = context.read<UserWorkspaceBloc?>()?.state.userProfile;
+    final isMyself = userProfile?.email == person.email;
     return [
       AFMenuItem(
         title:
@@ -127,20 +131,24 @@ class _Menu extends StatelessWidget {
         title: context._title(LocaleKeys.document_mentionMenu_sendEmail.tr()),
         onTap: () {},
       ),
-      AFMenuItem(
-        title:
-            context._title(LocaleKeys.document_mentionMenu_editInfomation.tr()),
-        onTap: () {},
-      ),
-      AFMenuItem(
-        title: context
-            ._title(LocaleKeys.document_mentionMenu_changeCoverImage.tr()),
-        onTap: () {},
-      ),
+      if (isMyself)
+        AFMenuItem(
+          title: context
+              ._title(LocaleKeys.document_mentionMenu_editInfomation.tr()),
+          onTap: () {},
+        ),
+      if (isMyself)
+        AFMenuItem(
+          title: context
+              ._title(LocaleKeys.document_mentionMenu_changeCoverImage.tr()),
+          onTap: () {},
+        ),
     ];
   }
 
   List<Widget> buildGuestItems(Person person, BuildContext context) {
+    final userProfile = context.read<UserWorkspaceBloc?>()?.state.userProfile;
+    final isMyself = userProfile?.email == person.email;
     return [
       AFMenuItem(
         title:
@@ -156,16 +164,18 @@ class _Menu extends StatelessWidget {
             ._title(LocaleKeys.document_mentionMenu_convertToAMenber.tr()),
         onTap: () {},
       ),
-      AFMenuItem(
-        title:
-            context._title(LocaleKeys.document_mentionMenu_editInfomation.tr()),
-        onTap: () {},
-      ),
-      AFMenuItem(
-        title: context
-            ._title(LocaleKeys.document_mentionMenu_changeCoverImage.tr()),
-        onTap: () {},
-      ),
+      if (isMyself)
+        AFMenuItem(
+          title: context
+              ._title(LocaleKeys.document_mentionMenu_editInfomation.tr()),
+          onTap: () {},
+        ),
+      if (isMyself)
+        AFMenuItem(
+          title: context
+              ._title(LocaleKeys.document_mentionMenu_changeCoverImage.tr()),
+          onTap: () {},
+        ),
     ];
   }
 

@@ -14,12 +14,12 @@ class MobilePersonProfileCard extends StatefulWidget {
   const MobilePersonProfileCard({super.key});
 
   @override
-  State<MobilePersonProfileCard> createState() => _MobilePersonProfileCardState();
+  State<MobilePersonProfileCard> createState() =>
+      _MobilePersonProfileCardState();
 }
 
 class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
-
-  final  popoverController = PopoverController();
+  final popoverController = PopoverController();
 
   @override
   void dispose() {
@@ -39,7 +39,7 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
 
     final personState = context.read<PersonBloc>().state,
         person = personState.person;
-    if (person == null) {
+    if (person.isEmpty) {
       return Center(
         child: CircularProgressIndicator.adaptive(),
       );
@@ -66,7 +66,7 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
         Positioned(
           left: hasCover ? xl : 0,
           top: hasCover ? 38 : 0,
-          child: buildAvatar(context),
+          child: context.buildAvatar(),
         ),
       ],
     );
@@ -74,7 +74,7 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
 
   Widget buildCover(BuildContext context) {
     final personState = context.read<PersonBloc>().state;
-    final person = personState.person, url = person?.coverImageUrl ?? '';
+    final person = personState.person, url = person.coverImageUrl ?? '';
     if (url.isEmpty) return VSpace(100);
     final theme = AppFlowyTheme.of(context), xl = theme.spacing.xl;
     final sizeWidth = MediaQuery.of(context).size.width;
@@ -89,36 +89,6 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
     );
   }
 
-  Widget buildAvatar(BuildContext context) {
-    final personState = context.read<PersonBloc>().state;
-    final person = personState.person, url = person?.avatarUrl ?? '';
-    if (url.isEmpty) return const SizedBox.shrink();
-    final hasCover = person?.coverImageUrl?.isNotEmpty ?? false;
-
-    final theme = AppFlowyTheme.of(context);
-    final avatar = SizedBox.square(
-      dimension: 90,
-      child: AFAvatar(
-        url: url,
-        radius: 41,
-        name: person?.name,
-        backgroundColor: Colors.transparent,
-      ),
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.surfaceColorScheme.layer01,
-        shape: BoxShape.circle,
-      ),
-      child: hasCover
-          ? SizedBox.square(
-              dimension: 100,
-              child: Center(child: avatar),
-            )
-          : avatar,
-    );
-  }
-
   Widget buildPersonInfo(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
@@ -126,31 +96,11 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        buildName(context),
-        buildEmail(context),
-        buildDescription(context),
+        context.buildPersonName(),
+        context.buildPersonEmail(),
+        context.buildPersonDescription(),
         VSpace(theme.spacing.xxl),
         buildActions(context),
-      ],
-    );
-  }
-
-  Widget buildName(BuildContext context) {
-    final personState = context.read<PersonBloc>().state;
-    final theme = AppFlowyTheme.of(context);
-    final suffixIcon = context.buildSuffixIcon();
-    return Row(
-      children: [
-        Flexible(
-          child: Text(
-            personState.person?.name ?? '',
-            style: theme.textStyle.title
-                .prominent(color: theme.textColorScheme.primary),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (suffixIcon != null) suffixIcon,
       ],
     );
   }
@@ -159,7 +109,7 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
     final person = context.read<PersonBloc>().state.person;
     final theme = AppFlowyTheme.of(context);
     return Text(
-      person?.email ?? '',
+      person.email,
       style:
           theme.textStyle.body.standard(color: theme.textColorScheme.secondary),
       maxLines: 1,
@@ -167,38 +117,17 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
     );
   }
 
-  Widget buildDescription(BuildContext context) {
-    final person = context.read<PersonBloc>().state.person,
-        description = person?.description;
-    if (description?.isEmpty ?? true) return const SizedBox.shrink();
-    final theme = AppFlowyTheme.of(context);
-    return Container(
-      margin: EdgeInsets.only(top: theme.spacing.m),
-      width: double.infinity,
-      child: DecoratedBox(
-        decoration: buildDescriptionDecoration(context),
-        child: Padding(
-          padding: EdgeInsets.all(theme.spacing.l),
-          child: Text(
-            description!,
-            style: theme.textStyle.caption
-                .standard(color: theme.textColorScheme.primary),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget buildActions(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    final person = context.read<PersonBloc>().state.person;
-    if (person == null) return const SizedBox.shrink();
+    final state = context.read<PersonBloc>().state;
+    if (state.person.isEmpty) return const SizedBox.shrink();
 
     return Row(
       children: [
-        PersonRoleBadge(role: person.role),
+        PersonRoleBadge(
+          person: state.person,
+          access: state.access,
+        ),
         Spacer(),
         context.buildNotificationButton(),
         HSpace(theme.spacing.m),
@@ -213,14 +142,6 @@ class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
       color: theme.surfaceColorScheme.layer01,
       borderRadius: BorderRadius.circular(theme.spacing.l),
       boxShadow: theme.shadow.small,
-    );
-  }
-
-  Decoration buildDescriptionDecoration(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-    return BoxDecoration(
-      color: theme.fillColorScheme.contentVisible,
-      borderRadius: BorderRadius.circular(theme.spacing.m),
     );
   }
 

@@ -80,6 +80,7 @@ class _MockState {
       email: 'andrewchristian@appflowy.io',
       coverImageUrl: _coverImageUrl,
       avatarUrl: 'https://avatar.iran.liara.run/public',
+      deleted: true,
     ),
     Person(
       id: '2',
@@ -96,6 +97,7 @@ class _MockState {
       role: PersonRole.member,
       email: 'emmajohnson@appflowy.io',
       avatarUrl: 'https://avatar.iran.liara.run/public/girl',
+      deleted: true,
     ),
     Person(
       id: '4',
@@ -110,6 +112,7 @@ class _MockState {
       role: PersonRole.member,
       email: 'nathanbrooks@appflowy.io',
       avatarUrl: 'https://avatar.iran.liara.run/public/boy/10',
+      deleted: true,
     ),
   ];
 

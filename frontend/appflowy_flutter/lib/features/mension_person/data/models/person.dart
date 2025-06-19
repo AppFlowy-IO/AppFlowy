@@ -7,8 +7,20 @@ class Person {
     this.avatarUrl,
     this.coverImageUrl,
     this.description,
-    this.invited,
+    this.invited = false,
+    this.deleted = false,
   });
+
+  Person.empty()
+      : id = '',
+        name = '',
+        email = '',
+        role = PersonRole.member,
+        avatarUrl = null,
+        coverImageUrl = null,
+        description = null,
+        invited = false,
+        deleted = false;
 
   final String id;
   final String name;
@@ -17,7 +29,10 @@ class Person {
   final String? avatarUrl;
   final String? coverImageUrl;
   final String? description;
-  final bool? invited;
+  final bool invited;
+  final bool deleted;
+
+  bool get isEmpty => id.isEmpty || email.isEmpty;
 }
 
 enum PersonRole {

@@ -1,16 +1,16 @@
 import 'package:appflowy/features/mension_person/data/models/person.dart';
 
 class PersonState {
-  factory PersonState.initial() => PersonState(access: false);
+  factory PersonState.initial() => PersonState(person: Person.empty());
 
   const PersonState({
-    this.person,
+    required this.person,
     this.documentId,
-    required this.access,
+    this.access = false,
     this.getPersonFailedMesssage = '',
   });
 
-  final Person? person;
+  final Person person;
   final String? documentId;
   final bool access;
   final String getPersonFailedMesssage;

@@ -85,7 +85,7 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
         child: BlocBuilder<PersonBloc, PersonState>(
           key: key,
           builder: (context, state) {
-            if (state.person == null) return const SizedBox.shrink();
+            if (state.person.isEmpty) return const SizedBox.shrink();
             final bloc = context.read<PersonBloc>();
             return HoverMenu(
               key: ValueKey(
@@ -129,7 +129,7 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
   Widget buildPerson(BuildContext context) {
     final bloc = context.read<PersonBloc>(), state = bloc.state;
     final person = state.person;
-    if (person == null) return const SizedBox.shrink();
+    if (person.isEmpty) return const SizedBox.shrink();
     final theme = AppFlowyTheme.of(context);
     final color = state.access
         ? theme.textColorScheme.secondary
