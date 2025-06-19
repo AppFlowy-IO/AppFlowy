@@ -11,29 +11,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class ProfileCardMoreButton extends StatefulWidget {
-  const ProfileCardMoreButton({super.key, this.onEnter, this.onExit});
+class ProfileCardMoreButton extends StatelessWidget {
+  const ProfileCardMoreButton({
+    super.key,
+    this.onEnter,
+    this.onExit,
+    required this.popoverController,
+  });
 
   final PointerEnterEventListener? onEnter;
   final PointerExitEventListener? onExit;
-
-  @override
-  State<ProfileCardMoreButton> createState() => _ProfileCardMoreButtonState();
-}
-
-class _ProfileCardMoreButtonState extends State<ProfileCardMoreButton> {
-  PointerEnterEventListener? get onEnter => widget.onEnter;
-  PointerExitEventListener? get onExit => widget.onExit;
-
-  final popoverController = PopoverController();
-  final menuShowingNotifier = ValueNotifier<bool>(false);
-
-  @override
-  void dispose() {
-    menuShowingNotifier.dispose();
-    hide();
-    super.dispose();
-  }
+  final PopoverController popoverController;
 
   @override
   Widget build(BuildContext context) {
@@ -62,34 +50,28 @@ class _ProfileCardMoreButtonState extends State<ProfileCardMoreButton> {
           ),
         ),
       ),
-      child: ValueListenableBuilder(
-        valueListenable: menuShowingNotifier,
-        builder: (context, showing, child) {
-          return AFOutlinedButton.normal(
-            backgroundColor: (context, isHovering, disabled) {
-              final theme = AppFlowyTheme.of(context);
-              if (isHovering || showing) {
-                return theme.fillColorScheme.contentHover;
-              }
-              return theme.fillColorScheme.content;
-            },
-            padding: EdgeInsets.all(theme.spacing.s),
-            builder: (context, hovering, disabled) {
-              return FlowySvg(
-                FlowySvgs.mention_more_results_m,
-                size: Size.square(20),
-                color: theme.iconColorScheme.primary,
-              );
-            },
-            onTap: show,
+      child: AFOutlinedButton.normal(
+        backgroundColor: (context, isHovering, disabled) {
+          final theme = AppFlowyTheme.of(context);
+          if (isHovering) {
+            return theme.fillColorScheme.contentHover;
+          }
+          return theme.fillColorScheme.content;
+        },
+        padding: EdgeInsets.all(theme.spacing.s),
+        builder: (context, hovering, disabled) {
+          return FlowySvg(
+            FlowySvgs.mention_more_results_m,
+            size: Size.square(20),
+            color: theme.iconColorScheme.primary,
           );
         },
+        onTap: show,
       ),
     );
   }
 
   void show() {
-    menuShowingNotifier.value = true;
     popoverController.show();
   }
 

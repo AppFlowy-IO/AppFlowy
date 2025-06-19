@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PersonProfileCard extends StatelessWidget {
+class PersonProfileCard extends StatefulWidget {
   const PersonProfileCard({
     super.key,
     required this.triggerSize,
@@ -27,21 +27,38 @@ class PersonProfileCard extends StatelessWidget {
   final PointerExitEventListener? onExit;
 
   @override
+  State<PersonProfileCard> createState() => _PersonProfileCardState();
+}
+
+class _PersonProfileCardState extends State<PersonProfileCard> {
+  final popoverController = PopoverController();
+
+  @override
+  void dispose() {
+    hidePopover();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final mouseRegionPlaceHolder = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: Container(
-        width: triggerSize.width,
-        height: triggerSize.height,
+        width: widget.triggerSize.width,
+        height: widget.triggerSize.height,
         color: Colors.black.withAlpha(1),
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: showAtBottom
-          ? [mouseRegionPlaceHolder, buildDecoratedCard(context)]
-          : [buildDecoratedCard(context), mouseRegionPlaceHolder],
+    return GestureDetector(
+      onTap: hidePopover,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: widget.showAtBottom
+            ? [mouseRegionPlaceHolder, buildDecoratedCard(context)]
+            : [buildDecoratedCard(context), mouseRegionPlaceHolder],
+      ),
     );
   }
 
@@ -214,8 +231,9 @@ class PersonProfileCard extends StatelessWidget {
         context.buildNotificationButton(),
         HSpace(theme.spacing.m),
         ProfileCardMoreButton(
-          onEnter: onEnter,
-          onExit: onExit,
+          onEnter: widget.onEnter,
+          onExit: widget.onExit,
+          popoverController: popoverController,
         ),
       ],
     );
@@ -240,6 +258,10 @@ class PersonProfileCard extends StatelessWidget {
 
   void openEmailApp(Person person) {
     afLaunchUrlString('mailto:${person.email}');
+  }
+
+  void hidePopover() {
+    popoverController.close();
   }
 }
 

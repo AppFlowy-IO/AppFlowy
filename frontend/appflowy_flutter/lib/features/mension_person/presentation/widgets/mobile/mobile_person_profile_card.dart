@@ -10,8 +10,22 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobilePersonProfileCard extends StatelessWidget {
+class MobilePersonProfileCard extends StatefulWidget {
   const MobilePersonProfileCard({super.key});
+
+  @override
+  State<MobilePersonProfileCard> createState() => _MobilePersonProfileCardState();
+}
+
+class _MobilePersonProfileCardState extends State<MobilePersonProfileCard> {
+
+  final  popoverController = PopoverController();
+
+  @override
+  void dispose() {
+    hidePopover();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +202,7 @@ class MobilePersonProfileCard extends StatelessWidget {
         Spacer(),
         context.buildNotificationButton(),
         HSpace(theme.spacing.m),
-        ProfileCardMoreButton(),
+        ProfileCardMoreButton(popoverController: popoverController),
       ],
     );
   }
@@ -212,5 +226,9 @@ class MobilePersonProfileCard extends StatelessWidget {
 
   void openEmailApp(Person person) {
     afLaunchUrlString('mailto:${person.email}');
+  }
+
+  void hidePopover() {
+    popoverController.close();
   }
 }
