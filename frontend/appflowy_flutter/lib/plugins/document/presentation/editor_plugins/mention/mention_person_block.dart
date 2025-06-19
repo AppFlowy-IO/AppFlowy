@@ -139,21 +139,25 @@ class _MentionPersonBlockState extends State<MentionPersonBlock> {
           leadingDistribution: TextLeadingDistribution.even,
         ) ??
         theme.textStyle.body.standard(color: color);
-    final richText = RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '@',
-            style: style.copyWith(
-              color: theme.textColorScheme.tertiary,
+    final richText = Padding(
+      padding: EdgeInsets.symmetric(horizontal: theme.spacing.xs),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '@',
+              style: style.copyWith(
+                color: theme.textColorScheme.tertiary,
+              ),
             ),
-          ),
-          TextSpan(text: person.name, style: style),
-        ],
+            TextSpan(text: person.name, style: style),
+          ],
+        ),
       ),
     );
     return UniversalPlatform.isMobile
         ? GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               showMobileBottomSheet(
                 context,
