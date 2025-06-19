@@ -137,7 +137,10 @@ class _MobileInviteMenuState extends State<MobileInviteMenu> {
           behavior: HitTestBehavior.opaque,
           onTap: onApply,
           child: Padding(
-            padding: EdgeInsets.only(right: theme.spacing.xl),
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.xl,
+              vertical: theme.spacing.xs,
+            ),
             child: Text(
               isContact
                   ? LocaleKeys.button_add.tr()

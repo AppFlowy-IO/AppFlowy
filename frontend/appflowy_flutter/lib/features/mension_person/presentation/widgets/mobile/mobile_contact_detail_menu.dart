@@ -114,7 +114,10 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
           behavior: HitTestBehavior.opaque,
           onTap: onApply,
           child: Padding(
-            padding: EdgeInsets.only(right: theme.spacing.xl),
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.xl,
+              vertical: theme.spacing.xs,
+            ),
             child: Text(
               LocaleKeys.button_add.tr(),
               style: theme.textStyle.body
