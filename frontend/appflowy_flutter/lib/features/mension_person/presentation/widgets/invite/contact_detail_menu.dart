@@ -151,6 +151,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
       child: AFTextField(
         maxLines: null,
         expands: true,
+        maxLength: 190,
         textAlignVertical: TextAlignVertical.top,
         size: AFTextFieldSize.m,
         keyboardType: TextInputType.multiline,

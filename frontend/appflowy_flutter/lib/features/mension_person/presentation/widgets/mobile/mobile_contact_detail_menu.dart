@@ -165,6 +165,7 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
         keyboardType: TextInputType.multiline,
         controller: descriptionController,
         hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
+        maxLength: 190,
         onChanged: (text) {
           detail = detail.copyWith(description: text);
           updateInfo(info.copyWith(contactDetail: () => detail));
