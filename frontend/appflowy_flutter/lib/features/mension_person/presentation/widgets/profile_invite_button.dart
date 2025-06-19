@@ -16,29 +16,33 @@ class ProfileInviteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
-    return AFOutlinedButton.normal(
-      onTap: onTap,
-      padding: EdgeInsets.zero,
-      builder: (context, isHovering, disabled) => Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: spacing.l,
-          vertical: spacing.s,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FlowySvg(
-              FlowySvgs.mention_invite_user_m,
-              size: Size.square(20),
-              color: theme.iconColorScheme.primary,
-            ),
-            HSpace(spacing.s),
-            Text(
-              LocaleKeys.document_mentionMenu_invite.tr(),
-              style: theme.textStyle.body
-                  .enhanced(color: theme.textColorScheme.primary),
-            ),
-          ],
+    return FlowyTooltip(
+      preferBelow: false,
+      message: LocaleKeys.document_mentionMenu_inviteButtonTooltip.tr(),
+      child: AFOutlinedButton.normal(
+        onTap: onTap,
+        padding: EdgeInsets.zero,
+        builder: (context, isHovering, disabled) => Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.l,
+            vertical: spacing.s,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FlowySvg(
+                FlowySvgs.mention_invite_user_m,
+                size: Size.square(20),
+                color: theme.iconColorScheme.primary,
+              ),
+              HSpace(spacing.s),
+              Text(
+                LocaleKeys.document_mentionMenu_invite.tr(),
+                style: theme.textStyle.body
+                    .enhanced(color: theme.textColorScheme.primary),
+              ),
+            ],
+          ),
         ),
       ),
     );

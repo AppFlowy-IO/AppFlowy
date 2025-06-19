@@ -2248,7 +2248,10 @@
       "dateTomorrow": "Tomorrow",
       "dateYesterday": "Yesterday",
       "reminderTomorrow9Am": "Remind tomorrow 9am",
-      "reminder1Week": "Remind 1 week"
+      "reminder1Week": "Remind 1 week",
+      "notificationButtonTooltip": "Notify them about this mention",
+      "inviteButtonTooltip": "Grant view access and notify them about this mention",
+      "roleBadgeNoAccessTooltip": "The user has no access to read this document."
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default",
