@@ -19,6 +19,7 @@ import 'package:universal_platform/universal_platform.dart';
 import '../invite/person_list_invite_item.dart';
 import '../item_visibility_detector.dart';
 import '../more_results_item.dart';
+import 'person_tooltip.dart';
 
 class PersonList extends StatelessWidget {
   const PersonList({super.key});
@@ -27,13 +28,15 @@ class PersonList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<MentionBloc>().state,
         itemMap = context.read<MentionItemMap>(),
+        userWorkspaceBloc = context.read<UserWorkspaceBloc?>(),
         theme = AppFlowyTheme.of(context),
         spacing = theme.spacing;
-    final workspaceType = context
-        .read<UserWorkspaceBloc?>()
-        ?.state
-        .currentWorkspace
-        ?.workspaceType;
+        
+    if (userWorkspaceBloc == null) return const SizedBox.shrink();
+    final workspaceType =
+            userWorkspaceBloc.state.currentWorkspace?.workspaceType,
+        userState = userWorkspaceBloc.userProfile;
+
     if (workspaceType == WorkspaceTypePB.LocalW) return const SizedBox.shrink();
     final persons = state.persons, showMorePersons = state.showMorePersons;
     final hasMorePersons = persons.length > 4;
@@ -66,7 +69,6 @@ class PersonList extends StatelessWidget {
     if (showMoreResult) {
       itemMap.addToPerson(MentionMenuItem(id: id, onExecute: onShowMore));
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -79,16 +81,21 @@ class PersonList extends StatelessWidget {
             children: [
               ...List.generate(displayPersons.length, (index) {
                 final person = displayPersons[index];
+                final isCurrentUser = person.email == userState.email;
                 return MentionMenuItenVisibilityDetector(
                   id: person.id,
-                  child: AFTextMenuItem(
-                    leading:
-                        AFAvatar(url: person.avatarUrl, size: AFAvatarSize.s),
-                    selected: state.selectedId == person.id,
-                    title: person.name,
-                    subtitle: person.email,
-                    backgroundColor: context.mentionItemBGColor,
-                    onTap: () => onPersonSelected(person, context),
+                  child: PersonToolTip(
+                    isMyself: isCurrentUser,
+                    person: person,
+                    child: AFTextMenuItem(
+                      leading:
+                          AFAvatar(url: person.avatarUrl, size: AFAvatarSize.s),
+                      selected: state.selectedId == person.id,
+                      title: person.name,
+                      subtitle: person.email,
+                      backgroundColor: context.mentionItemBGColor,
+                      onTap: () => onPersonSelected(person, context),
+                    ),
                   ),
                 );
               }),

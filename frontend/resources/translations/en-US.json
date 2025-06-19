@@ -2220,6 +2220,8 @@
       "emailInputHint": "Add email address to invite",
       "emailInputError": "Please enter a valid email address.",
       "inviteEmailSent": "The invitation emails have been sent.",
+      "you": "You",
+      "personItemTooltip": "{} will be notified after enabling notifications.",
       "type": "Type",
       "member": "Member",
       "profileCard": "Profile Card",
