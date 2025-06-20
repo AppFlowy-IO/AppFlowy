@@ -481,7 +481,7 @@ final quoteSuggestionItem = SuggestionItem(
 final pateItem = SuggestionItem(
   type: SuggestionType.page,
   title: LocaleKeys.editor_page.tr(),
-  svg: FlowySvgs.icon_document_s,
+  svg: FlowySvgs.toolbar_turninto_page_icon_m,
   onTap: (state, keepSelection) => _turnInto(
     state,
     SubPageBlockKeys.type,

@@ -269,7 +269,6 @@ extension ContactDetailMenuStateWidgetExtension on ContactDetailMenuState {
       size: AFTextFieldSize.m,
       keyboardType: TextInputType.multiline,
       controller: descriptionController,
-    
       hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
       onChanged: onChanged,
     );

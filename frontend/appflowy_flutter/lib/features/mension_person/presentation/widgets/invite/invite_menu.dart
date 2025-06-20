@@ -144,6 +144,13 @@ class _InviteMenuState extends State<InviteMenu> {
         size: AFTextFieldSize.m,
         focusNode: emailFocusNode,
         controller: emailController,
+        validator: (controller) {
+          final text = controller.text.trim();
+          if (text.isNotEmpty && !isEmail(text)) {
+            return (true, LocaleKeys.document_mentionMenu_emailInputError.tr());
+          }
+          return (false, '');
+        },
         hintText: LocaleKeys.document_mentionMenu_emailInputHint.tr(),
         onChanged: (text) {
           updateInfo(info.copyWith(email: text));
@@ -292,7 +299,7 @@ class _InviteMenuState extends State<InviteMenu> {
               ),
             ),
           ),
-          menuSize: Size(400, 300),
+          menuSize: Size(400, 360),
         ),
       );
     } else {

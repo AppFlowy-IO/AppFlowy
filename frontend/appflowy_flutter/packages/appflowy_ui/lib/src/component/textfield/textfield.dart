@@ -110,6 +110,7 @@ class _AFTextFieldState extends AFTextFieldState {
   String errorText = '';
 
   bool isObscured = false;
+  final key = GlobalKey();
 
   @override
   void initState() {
@@ -186,6 +187,7 @@ class _AFTextFieldState extends AFTextFieldState {
     );
 
     Widget child = TextField(
+      key: key,
       groupId: widget.groupId,
       expands: widget.expands,
       maxLines: widget.maxLines,
