@@ -10,7 +10,6 @@ export 'mention_event.dart';
 import 'mention_state.dart';
 export 'mention_state.dart';
 
-
 // bool _showMorePages = false, _showMorePersons = false;
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {

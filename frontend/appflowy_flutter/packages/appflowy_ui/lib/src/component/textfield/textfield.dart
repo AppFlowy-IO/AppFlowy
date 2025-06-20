@@ -95,7 +95,7 @@ class AFTextField extends StatefulWidget {
 
   /// The vertical alignment of the text within the text field.
   final TextAlignVertical? textAlignVertical;
-  
+
   /// The maximum length of the text field.
   final int? maxLength;
 
@@ -208,6 +208,7 @@ class _AFTextFieldState extends AFTextFieldState {
         hintStyle: theme.textStyle.body.standard(
           color: theme.textColorScheme.tertiary,
         ),
+        counterText: '',
         isDense: true,
         constraints: BoxConstraints(),
         contentPadding: contentPadding,

@@ -292,7 +292,8 @@ extension PersonProfileCardWidgetExtension on BuildContext {
         isContact = person.role == PersonRole.contact;
     if (isContact) {
       return AFOutlinedButton.normal(
-        padding: EdgeInsets.all(UniversalPlatform.isMobile ? 10 : theme.spacing.s),
+        padding:
+            EdgeInsets.all(UniversalPlatform.isMobile ? 10 : theme.spacing.s),
         builder: (context, hovering, disabled) {
           return FlowySvg(
             FlowySvgs.mention_send_email_m,
@@ -312,7 +313,8 @@ extension PersonProfileCardWidgetExtension on BuildContext {
       message: LocaleKeys.document_mentionMenu_notificationButtonTooltip.tr(),
       preferBelow: false,
       child: AFOutlinedButton.normal(
-        padding: EdgeInsets.all(UniversalPlatform.isMobile ? 10 : theme.spacing.s),
+        padding:
+            EdgeInsets.all(UniversalPlatform.isMobile ? 10 : theme.spacing.s),
         builder: (context, hovering, disabled) {
           return FlowySvg(
             FlowySvgs.mention_send_notification_m,

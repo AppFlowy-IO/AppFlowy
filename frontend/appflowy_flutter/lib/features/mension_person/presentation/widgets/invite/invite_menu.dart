@@ -233,7 +233,6 @@ class _InviteMenuState extends State<InviteMenu> {
       text: isContact
           ? LocaleKeys.button_add.tr()
           : LocaleKeys.document_mentionMenu_invite.tr(),
-          
       onTap: onApply,
     );
   }

@@ -30,7 +30,7 @@ class PersonList extends StatelessWidget {
         userWorkspaceBloc = context.read<UserWorkspaceBloc?>(),
         theme = AppFlowyTheme.of(context),
         spacing = theme.spacing;
-        
+
     if (userWorkspaceBloc == null) return const SizedBox.shrink();
     final workspaceType =
             userWorkspaceBloc.state.currentWorkspace?.workspaceType,

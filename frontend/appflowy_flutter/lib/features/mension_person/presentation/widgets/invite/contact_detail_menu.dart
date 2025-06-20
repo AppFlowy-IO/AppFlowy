@@ -26,31 +26,30 @@ class ContactDetailMenu extends StatefulWidget {
 }
 
 class _ContactDetailMenuState extends State<ContactDetailMenu> {
-  late final FocusNode nameFocusNode = FocusNode(onKeyEvent: onFocusKeyEvent);
-  late final FocusScopeNode menuFocusNode =
-      FocusScopeNode(onKeyEvent: onFocusKeyEvent);
-  late final TextEditingController nameController =
-      TextEditingController(text: info.email);
-  late final TextEditingController descriptionController =
-      TextEditingController(text: detail.description);
+  late final ContactDetailMenuState menuState = ContactDetailMenuState(
+    nameFocusNode: FocusNode(onKeyEvent: onFocusKeyEvent),
+    emailFocusNode: FocusNode(onKeyEvent: onFocusKeyEvent),
+    menuFocusNode: FocusScopeNode(onKeyEvent: onFocusKeyEvent),
+    nameController: TextEditingController(),
+    emailController: TextEditingController(text: widget.info.email),
+    descriptionController: TextEditingController(
+      text: widget.info.contactDetail?.description ?? '',
+    ),
+    info: widget.info,
+    detail: widget.info.contactDetail ?? ContactDetail(),
+  );
 
-  late InviteInfo info = widget.info;
-  late ContactDetail detail =
-      info.contactDetail ?? ContactDetail(name: info.email);
-  final nameKey = GlobalKey<AFTextFieldState>();
+  InviteInfo get info => menuState.info;
 
   @override
   void initState() {
     super.initState();
-    nameFocusNode.makeSureHasFocus(() => !mounted);
+    menuState.nameFocusNode.makeSureHasFocus(() => !mounted);
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    descriptionController.dispose();
-    nameFocusNode.dispose();
-    menuFocusNode.dispose();
+    menuState.dispose();
     super.dispose();
   }
 
@@ -58,7 +57,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context), spacing = theme.spacing;
     return FocusScope(
-      node: menuFocusNode,
+      node: menuState.menuFocusNode,
       child: GestureDetector(
         onTap: () {},
         child: SizedBox(
@@ -78,8 +77,11 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  buildTitle(context),
+                  buildTitle(),
                   VSpace(spacing.l),
+                  buildSubtitle(LocaleKeys.document_mentionMenu_email.tr()),
+                  VSpace(spacing.xs),
+                  buildEmailField(),
                   buildSubtitle(LocaleKeys.document_mentionMenu_name.tr()),
                   VSpace(spacing.xs),
                   buildNameField(),
@@ -107,13 +109,12 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     );
   }
 
-  Widget buildTitle(BuildContext context) {
+  Widget buildTitle() {
     final theme = AppFlowyTheme.of(context);
     return Text(
       LocaleKeys.document_mentionMenu_contactDetail.tr(),
-      style: theme.textStyle.heading4.prominent(
-        color: theme.textColorScheme.primary,
-      ),
+      style: theme.textStyle.heading4
+          .prominent(color: theme.textColorScheme.primary),
     );
   }
 
@@ -121,8 +122,16 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     final theme = AppFlowyTheme.of(context);
     return Text(
       title,
-      style: theme.textStyle.caption.enhanced(
-        color: theme.textColorScheme.secondary,
+      style: theme.textStyle.caption
+          .enhanced(color: theme.textColorScheme.secondary),
+    );
+  }
+
+  Widget buildEmailField() {
+    return SizedBox(
+      width: 360,
+      child: menuState.buildEmailField(
+        onChanged: (text) => updateInfo(info.copyWith(email: text)),
       ),
     );
   }
@@ -130,14 +139,9 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   Widget buildNameField() {
     return SizedBox(
       width: 360,
-      child: AFTextField(
-        key: nameKey,
-        hintText: LocaleKeys.document_mentionMenu_contactInputHint.tr(),
-        size: AFTextFieldSize.m,
-        focusNode: nameFocusNode,
-        controller: nameController,
+      child: menuState.buildNameField(
         onChanged: (text) {
-          detail = detail.copyWith(name: text);
+          final detail = menuState.detail.copyWith(name: text);
           updateInfo(info.copyWith(contactDetail: () => detail));
         },
       ),
@@ -148,17 +152,9 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     return SizedBox(
       width: 360,
       height: 68,
-      child: AFTextField(
-        maxLines: null,
-        expands: true,
-        maxLength: 190,
-        textAlignVertical: TextAlignVertical.top,
-        size: AFTextFieldSize.m,
-        keyboardType: TextInputType.multiline,
-        controller: descriptionController,
-        hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
+      child: menuState.buildDescriptionField(
         onChanged: (text) {
-          detail = detail.copyWith(description: text);
+          final detail = menuState.detail.copyWith(description: text);
           updateInfo(info.copyWith(contactDetail: () => detail));
         },
       ),
@@ -187,7 +183,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
       alignment: Alignment.centerRight,
       child: AFFilledTextButton.primary(
         text: LocaleKeys.settings_appearance_documentSettings_apply.tr(),
-        onTap: onApply,
+        onTap: () => menuState.onApply(widget.onInfoChanged),
       ),
     );
   }
@@ -211,17 +207,6 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
     );
   }
 
-  void onApply() {
-    if (detail.name.isEmpty) {
-      nameKey.currentState?.syncError(
-        errorText: LocaleKeys.document_mentionMenu_contactInputError.tr(),
-      );
-      return;
-    }
-    nameKey.currentState?.clearError();
-    widget.onInfoChanged.call(info);
-  }
-
   void onDismiss() {
     final mentionInfo = context.read<MentionMenuServiceInfo?>();
     mentionInfo?.onDismiss.call();
@@ -230,7 +215,11 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
   void updateInfo(InviteInfo newInfo) {
     if (mounted) {
       setState(() {
-        info = newInfo;
+        menuState.info = newInfo;
+        final newDetail = newInfo.contactDetail;
+        if (newDetail != null) {
+          menuState.detail = newDetail;
+        }
       });
     }
   }
@@ -242,5 +231,97 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+}
+
+extension ContactDetailMenuStateWidgetExtension on ContactDetailMenuState {
+  Widget buildEmailField({ValueChanged<String>? onChanged}) {
+    return AFTextField(
+      key: emailKey,
+      hintText: LocaleKeys.document_mentionMenu_emailInputHint.tr(),
+      size: AFTextFieldSize.m,
+      focusNode: emailFocusNode,
+      controller: emailController,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget buildNameField({ValueChanged<String>? onChanged}) {
+    return AFTextField(
+      key: nameKey,
+      hintText: LocaleKeys.document_mentionMenu_contactInputHint.tr(),
+      size: AFTextFieldSize.m,
+      focusNode: nameFocusNode,
+      controller: nameController,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget buildDescriptionField({ValueChanged<String>? onChanged}) {
+    return AFTextField(
+      maxLines: null,
+      expands: true,
+      maxLength: 190,
+      textAlignVertical: TextAlignVertical.top,
+      size: AFTextFieldSize.m,
+      keyboardType: TextInputType.multiline,
+      controller: descriptionController,
+    
+      hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
+      onChanged: onChanged,
+    );
+  }
+
+  bool onApply(ValueChanged<InviteInfo> onInfoChanged) {
+    if (info.email.isEmpty) {
+      emailKey.currentState?.syncError(
+        errorText: LocaleKeys.document_mentionMenu_emailInputError.tr(),
+      );
+      return false;
+    }
+    if (detail.name.isEmpty) {
+      nameKey.currentState?.syncError(
+        errorText: LocaleKeys.document_mentionMenu_contactInputError.tr(),
+      );
+      return false;
+    }
+    nameKey.currentState?.clearError();
+    emailKey.currentState?.clearError();
+    onInfoChanged.call(info);
+    return true;
+  }
+}
+
+class ContactDetailMenuState {
+  ContactDetailMenuState({
+    required this.nameFocusNode,
+    required this.emailFocusNode,
+    required this.menuFocusNode,
+    required this.nameController,
+    required this.emailController,
+    required this.descriptionController,
+    required this.info,
+    required this.detail,
+  });
+  final FocusNode nameFocusNode;
+  final FocusNode emailFocusNode;
+  final FocusScopeNode menuFocusNode;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController descriptionController;
+
+  InviteInfo info;
+  ContactDetail detail;
+
+  final nameKey = GlobalKey<AFTextFieldState>();
+  final emailKey = GlobalKey<AFTextFieldState>();
+
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    descriptionController.dispose();
+    nameFocusNode.dispose();
+    emailFocusNode.dispose();
+    menuFocusNode.dispose();
   }
 }

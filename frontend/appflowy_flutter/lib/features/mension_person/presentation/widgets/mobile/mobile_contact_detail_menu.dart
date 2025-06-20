@@ -1,5 +1,6 @@
 import 'package:appflowy/features/mension_person/data/models/invite.dart';
 import 'package:appflowy/features/mension_person/presentation/menu_extension.dart';
+import 'package:appflowy/features/mension_person/presentation/widgets/invite/contact_detail_menu.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -47,28 +48,30 @@ class MobileContactDetailMenu extends StatefulWidget {
 }
 
 class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
-  late InviteInfo info = widget.info;
+  late final ContactDetailMenuState menuState = ContactDetailMenuState(
+    nameFocusNode: FocusNode(),
+    emailFocusNode: FocusNode(),
+    menuFocusNode: FocusScopeNode(),
+    nameController: TextEditingController(),
+    emailController: TextEditingController(text: widget.info.email),
+    descriptionController: TextEditingController(
+      text: widget.info.contactDetail?.description ?? '',
+    ),
+    info: widget.info,
+    detail: widget.info.contactDetail ?? ContactDetail(),
+  );
 
-  late ContactDetail detail =
-      info.contactDetail ?? ContactDetail(name: info.email);
-  final nameKey = GlobalKey<AFTextFieldState>();
-  late final FocusNode nameFocusNode = FocusNode();
-  late final TextEditingController nameController =
-      TextEditingController(text: info.email);
-  late final TextEditingController descriptionController =
-      TextEditingController(text: detail.description);
+  InviteInfo get info => menuState.info;
 
   @override
   void initState() {
     super.initState();
-    nameFocusNode.makeSureHasFocus(() => !mounted);
+    menuState.nameFocusNode.makeSureHasFocus(() => !mounted);
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    descriptionController.dispose();
-    nameFocusNode.dispose();
+    menuState.dispose();
     super.dispose();
   }
 
@@ -86,6 +89,9 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              buildSubtitle(LocaleKeys.document_mentionMenu_email.tr()),
+              VSpace(spacing.xs),
+              buildEmailField(),
               buildSubtitle(LocaleKeys.document_mentionMenu_name.tr()),
               VSpace(spacing.m),
               buildNameField(),
@@ -138,16 +144,21 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
     );
   }
 
+  Widget buildEmailField() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: menuState.buildEmailField(
+        onChanged: (text) => updateInfo(info.copyWith(email: text)),
+      ),
+    );
+  }
+
   Widget buildNameField() {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      child: AFTextField(
-        key: nameKey,
-        hintText: LocaleKeys.document_mentionMenu_contactInputHint.tr(),
-        focusNode: nameFocusNode,
-        controller: nameController,
+      child: menuState.buildNameField(
         onChanged: (text) {
-          detail = detail.copyWith(name: text);
+          final detail = menuState.detail.copyWith(name: text);
           updateInfo(info.copyWith(contactDetail: () => detail));
         },
       ),
@@ -158,16 +169,9 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 132,
-      child: AFTextField(
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        keyboardType: TextInputType.multiline,
-        controller: descriptionController,
-        hintText: LocaleKeys.document_mentionMenu_aboutContactHint.tr(),
-        maxLength: 190,
+      child: menuState.buildDescriptionField(
         onChanged: (text) {
-          detail = detail.copyWith(description: text);
+          final detail = menuState.detail.copyWith(description: text);
           updateInfo(info.copyWith(contactDetail: () => detail));
         },
       ),
@@ -177,20 +181,17 @@ class _MobileContactDetailMenuState extends State<MobileContactDetailMenu> {
   void updateInfo(InviteInfo newInfo) {
     if (mounted) {
       setState(() {
-        info = newInfo;
+        menuState.info = newInfo;
+        final newDetail = newInfo.contactDetail;
+        if (newDetail != null) {
+          menuState.detail = newDetail;
+        }
       });
     }
   }
 
   void onApply() {
-    if (detail.name.isEmpty) {
-      nameKey.currentState?.syncError(
-        errorText: LocaleKeys.document_mentionMenu_contactInputError.tr(),
-      );
-      return;
-    }
-    nameKey.currentState?.clearError();
-    widget.onInfoChanged.call(info);
-    Navigator.pop(context);
+    final result = menuState.onApply(widget.onInfoChanged);
+    if (result) Navigator.pop(context);
   }
 }

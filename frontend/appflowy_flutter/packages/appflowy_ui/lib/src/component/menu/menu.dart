@@ -39,9 +39,9 @@ class AFMenu extends StatelessWidget {
       width: width,
       padding: padding ?? EdgeInsets.all(theme.spacing.m),
       child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
     );
   }
 }
