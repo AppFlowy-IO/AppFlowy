@@ -18,8 +18,13 @@ void main() {
     setUpGetIt();
     GetIt.I.registerSingleton<PersonListCache>(PersonListCache());
     repository = MockMentionRepository();
-    bloc = MentionBloc(repository, workspaceId, false, getIt<PersonListCache>())
-      ..add(MentionEvent.init());
+    bloc = MentionBloc(
+      repository: repository,
+      workspaceId: workspaceId,
+      sendNotification: false,
+      query: '',
+      personListCache: getIt<PersonListCache>(),
+    )..add(MentionEvent.init());
   });
 
   tearDown(() async {

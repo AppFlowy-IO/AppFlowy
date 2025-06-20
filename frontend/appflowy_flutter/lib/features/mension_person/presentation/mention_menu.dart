@@ -25,12 +25,14 @@ typedef MentionChildBuilder = Widget Function(
 class MentionMenu extends StatelessWidget {
   const MentionMenu({
     super.key,
+    this.query = '',
     this.width = 400,
     this.maxHeight = 400,
     this.builder,
   });
   final double width;
   final double maxHeight;
+  final String query;
   final MentionChildBuilder? builder;
 
   @override
@@ -45,10 +47,11 @@ class MentionMenu extends StatelessWidget {
         final sendNotification = snapshot.data ?? false;
         return BlocProvider(
           create: (_) => MentionBloc(
-            MockMentionRepository(),
-            workspaceId,
-            sendNotification,
-            getIt<PersonListCache>(),
+            repository: MockMentionRepository(),
+            workspaceId: workspaceId,
+            query: query,
+            sendNotification: sendNotification,
+            personListCache: getIt<PersonListCache>(),
           )..add(MentionEvent.init()),
           child: BlocBuilder<MentionBloc, MentionState>(
             builder: (context, state) {

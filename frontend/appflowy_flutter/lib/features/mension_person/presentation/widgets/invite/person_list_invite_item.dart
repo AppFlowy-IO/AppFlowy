@@ -67,6 +67,7 @@ class PersonListInviteItem extends StatelessWidget {
           (_) => Provider.value(
             value: serviceInfo,
             child: InviteMenu(
+              query: query,
               info: InviteInfo(email: query),
               onInfoChanged: (v) => serviceInfo.editorState.onInviteInfoApply(
                 inviteInfo: v,

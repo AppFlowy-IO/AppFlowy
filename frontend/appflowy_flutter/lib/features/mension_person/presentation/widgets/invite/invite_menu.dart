@@ -28,10 +28,12 @@ class InviteMenu extends StatefulWidget {
   const InviteMenu({
     super.key,
     required this.info,
+    required this.query,
     required this.onInfoChanged,
   });
 
   final InviteInfo info;
+  final String query;
   final ValueChanged<InviteInfo> onInfoChanged;
 
   @override
@@ -248,7 +250,7 @@ class _InviteMenuState extends State<InviteMenu> {
         builder: (service, lrbt) => service.buildMultiBlocProvider(
           (_) => Provider.value(
             value: serviceInfo,
-            child: MentionMenu(),
+            child: MentionMenu(query: widget.query),
           ),
         ),
         menuSize: Size.square(400),
@@ -285,6 +287,7 @@ class _InviteMenuState extends State<InviteMenu> {
               value: serviceInfo,
               child: ContactDetailMenu(
                 info: info,
+                query: widget.query,
                 onInfoChanged: widget.onInfoChanged,
               ),
             ),

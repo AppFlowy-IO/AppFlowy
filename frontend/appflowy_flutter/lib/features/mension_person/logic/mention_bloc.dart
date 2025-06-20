@@ -13,12 +13,13 @@ export 'mention_state.dart';
 // bool _showMorePages = false, _showMorePersons = false;
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
-  MentionBloc(
-    this.repository,
-    this.workspaceId,
-    this.sendNotification,
-    this.personListCache,
-  ) : super(MentionState()) {
+  MentionBloc({
+    required this.repository,
+    required this.workspaceId,
+    required this.query,
+    required this.sendNotification,
+    required this.personListCache,
+  }) : super(MentionState(sendNotification: sendNotification)) {
     on<Initial>(_onInitial);
     on<Query>(_onQuery);
     on<GetPersons>(_onGetPersons);
@@ -32,6 +33,7 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
   }
   final MentionRepository repository;
   final String workspaceId;
+  final String query;
   final bool sendNotification;
   final PersonListCache personListCache;
 
@@ -42,11 +44,13 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
     if (!isClosed) {
       emit(
         state.copyWith(
-          sendNotification: sendNotification,
           showMorePersons: false,
           showMorePage: false,
         ),
       );
+    }
+    if (query.isNotEmpty) {
+      add(MentionEvent.query(query));
     }
     add(MentionEvent.getPersons(workspaceId: workspaceId));
   }

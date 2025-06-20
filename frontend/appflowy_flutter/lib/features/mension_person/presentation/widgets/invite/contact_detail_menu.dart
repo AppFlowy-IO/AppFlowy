@@ -15,10 +15,12 @@ class ContactDetailMenu extends StatefulWidget {
   const ContactDetailMenu({
     super.key,
     required this.info,
+    required this.query,
     required this.onInfoChanged,
   });
 
   final InviteInfo info;
+  final String query;
   final ValueChanged<InviteInfo> onInfoChanged;
 
   @override
@@ -198,6 +200,7 @@ class _ContactDetailMenuState extends State<ContactDetailMenu> {
             value: serviceInfo,
             child: InviteMenu(
               info: widget.info,
+              query: widget.query,
               onInfoChanged: (v) => widget.onInfoChanged(v),
             ),
           ),
