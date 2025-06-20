@@ -2,11 +2,11 @@ import 'package:appflowy/features/mension_person/presentation/mention_menu_servi
 import 'package:appflowy/features/mension_person/presentation/mobile_mention_menu_service.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -21,8 +21,7 @@ CharacterShortcutEvent inlineActionsCommand(
       character: inlineActionCharacter,
       handler: (editorState) => inlineActionsCommandHandler(
         editorState,
-        inlineActionsService,
-        style,
+        inlineActionsService.context,
       ),
     );
 
@@ -30,8 +29,7 @@ InlineActionsMenuService? selectionMenuService;
 
 Future<bool> inlineActionsCommandHandler(
   EditorState editorState,
-  InlineActionsService service,
-  InlineActionsMenuStyle style,
+  BuildContext? context,
 ) async {
   final selection = editorState.selection;
   if (selection == null) {
@@ -47,16 +45,6 @@ Future<bool> inlineActionsCommandHandler(
     position: selection.start,
   );
 
-  final List<InlineActionsResult> initialResults = [];
-  for (final handler in service.handlers) {
-    final group = await handler.search(null);
-
-    if (group.results.isNotEmpty) {
-      initialResults.add(group);
-    }
-  }
-
-  final context = service.context;
   final workspaceBloc = context?.read<UserWorkspaceBloc?>();
   final documentBloc = context?.read<DocumentBloc?>();
   final reminderBloc = context?.read<ReminderBloc?>();

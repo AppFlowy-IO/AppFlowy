@@ -2207,6 +2207,7 @@
       "morePages": "more pages"
     },
     "mentionMenu": {
+      "mentionAPerson": "Mention a person",
       "people": "People",
       "sendNotification": "Send notification",
       "pages": "Pages",
