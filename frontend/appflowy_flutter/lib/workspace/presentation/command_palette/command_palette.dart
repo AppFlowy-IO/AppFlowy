@@ -210,7 +210,7 @@ class CommandPaletteModal extends StatelessWidget {
           return FlowyDialog(
             backgroundColor: theme.surfaceColorScheme.layer01,
             alignment: Alignment.topCenter,
-            insetPadding: const EdgeInsets.only(top: 100),
+            insetPadding: const EdgeInsets.only(top: 130),
             constraints: const BoxConstraints(
               maxHeight: 640,
               maxWidth: 960,

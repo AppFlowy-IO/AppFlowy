@@ -99,40 +99,6 @@ class DateReferenceService extends InlineActionsDelegate {
     );
   }
 
-  Future<void> _insertDateReference(
-    EditorState editorState,
-    DateTime date,
-    int start,
-    int end,
-  ) async {
-    final selection = editorState.selection;
-    if (selection == null || !selection.isCollapsed) {
-      return;
-    }
-
-    final node = editorState.getNodeAtPath(selection.end.path);
-    final delta = node?.delta;
-    if (node == null || delta == null) {
-      return;
-    }
-
-    final transaction = editorState.transaction
-      ..replaceText(
-        node,
-        start,
-        end,
-        MentionBlockKeys.mentionChar,
-        attributes: MentionBlockKeys.buildMentionDateAttributes(
-          date: date.toIso8601String(),
-          includeTime: false,
-          reminderId: null,
-          reminderOption: null,
-        ),
-      );
-
-    await editorState.apply(transaction);
-  }
-
   void _setOptions() {
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));
@@ -203,12 +169,38 @@ class DateReferenceService extends InlineActionsDelegate {
       label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
       onSelected: (context, editorState, menuService, replace) =>
-          _insertDateReference(
-        editorState,
-        date,
-        replace.$1,
-        replace.$2,
-      ),
+          editorState.insertDateReference(date, replace.$1, replace.$2),
     );
+  }
+}
+
+extension DateReferenceEditorStateExtension on EditorState {
+  Future<void> insertDateReference(
+    DateTime date,
+    int start,
+    int end,
+  ) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) return;
+
+    final node = getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) return;
+
+    final transaction = this.transaction
+      ..replaceText(
+        node,
+        start,
+        end,
+        MentionBlockKeys.mentionChar,
+        attributes: MentionBlockKeys.buildMentionDateAttributes(
+          date: date.toIso8601String(),
+          includeTime: false,
+          reminderId: null,
+          reminderOption: null,
+        ),
+      );
+
+    await apply(transaction);
   }
 }
