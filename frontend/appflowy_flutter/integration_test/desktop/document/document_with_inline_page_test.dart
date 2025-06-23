@@ -135,7 +135,7 @@ Future<String> insertInlinePage(
 
   // insert a inline page
   await tester.editor.showAtMenu();
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(Duration(seconds: 1));
   await tester.editor.tapAtMenuItemWithName(name);
 
   return name;
