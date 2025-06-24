@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -18,7 +19,6 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -87,25 +87,25 @@ class _DocumentPageState extends State<DocumentPage>
       providers: [
         BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider.value(value: documentBloc),
-        BlocProvider.value(
-          value: ViewLockStatusBloc(view: widget.view)
-            ..add(ViewLockStatusEvent.initial()),
-        ),
         BlocProvider(
           create: (context) =>
               ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
           lazy: false,
         ),
       ],
-      child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
-        listenWhen: (prev, curr) => curr.isLocked != prev.isLocked,
-        listener: (context, lockStatusState) {
-          if (lockStatusState.isLoadingLockStatus) {
+      child: BlocConsumer<PageAccessLevelBloc, PageAccessLevelState>(
+        listenWhen: (prev, curr) =>
+            curr.isLocked != prev.isLocked ||
+            curr.accessLevel != prev.accessLevel ||
+            curr.isLoadingLockStatus != prev.isLoadingLockStatus,
+        listener: (context, pageAccessLevelState) {
+          if (pageAccessLevelState.isLoadingLockStatus) {
             return;
           }
-          editorState?.editable = !lockStatusState.isLocked;
+
+          editorState?.editable = pageAccessLevelState.isEditable;
         },
-        builder: (context, lockStatusState) {
+        builder: (context, pageAccessLevelState) {
           return BlocBuilder<DocumentBloc, DocumentState>(
             buildWhen: shouldRebuildDocument,
             builder: (context, state) {
@@ -130,9 +130,10 @@ class _DocumentPageState extends State<DocumentPage>
 
               return MultiBlocListener(
                 listeners: [
-                  BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
-                    listener: (context, state) =>
-                        editorState.editable = !state.isLocked,
+                  BlocListener<PageAccessLevelBloc, PageAccessLevelState>(
+                    listener: (context, state) {
+                      editorState.editable = state.isEditable;
+                    },
                   ),
                   BlocListener<ActionNavigationBloc, ActionNavigationState>(
                     listenWhen: (_, curr) => curr.action != null,

@@ -120,4 +120,9 @@ class KVKeys {
   ///
   /// The value is a json list of id
   static const String compactModeIds = 'compactModeIds';
+
+  /// v0.9.4: has the user clicked the upgrade to pro button
+  /// The value is a boolean string
+  static const String hasClickedUpgradeToProButton =
+      'hasClickedUpgradeToProButton';
 }

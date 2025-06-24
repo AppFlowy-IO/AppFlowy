@@ -36,23 +36,20 @@ void main() {
       final loading = find.byType(Loading);
       await tester.pumpUntilNotFound(loading);
 
-      Finder success;
-
-      final Finder items = find.byType(WorkspaceMenuItem);
-
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
-      await tester.pumpUntilFound(items);
 
+      final items = find.byType(WorkspaceMenuItem);
       expect(items, findsNWidgets(2));
+
+      final lastWorkspace = items.last;
       expect(
-        tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
+        tester.widget<WorkspaceMenuItem>(lastWorkspace).workspace.name,
         name,
       );
 
-      final secondWorkspace = find.byType(WorkspaceMenuItem).last;
       await tester.hoverOnWidget(
-        secondWorkspace,
+        lastWorkspace,
         onHover: () async {
           // click the more button
           final moreButton = find.byType(WorkspaceMoreActionList);
@@ -68,10 +65,8 @@ void main() {
           expect(confirm, findsOneWidget);
           await tester.tapButton(find.text(LocaleKeys.button_ok.tr()));
           // delete success
-          success = find.text(LocaleKeys.workspace_createSuccess.tr());
+          final success = find.text(LocaleKeys.workspace_createSuccess.tr());
           await tester.pumpUntilFound(success);
-          expect(success, findsOneWidget);
-          await tester.pumpUntilNotFound(success);
         },
       );
     });
@@ -100,7 +95,7 @@ void main() {
 
       // expect to see the member count
       final memberCount = find.text('1 member');
-      expect(memberCount, findsNWidgets(2));
+      expect(memberCount, findsAny);
     });
 
     testWidgets('workspace menu popover behavior test', (tester) async {

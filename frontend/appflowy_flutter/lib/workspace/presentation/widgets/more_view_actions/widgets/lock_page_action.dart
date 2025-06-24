@@ -1,6 +1,6 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,16 +26,10 @@ class LockPageAction extends StatefulWidget {
 class _LockPageActionState extends State<LockPageAction> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ViewLockStatusBloc(view: widget.view)
-        ..add(
-          ViewLockStatusEvent.initial(),
-        ),
-      child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
-        builder: (context, state) {
-          return _buildTextButton(context);
-        },
-      ),
+    return BlocBuilder<PageAccessLevelBloc, PageAccessLevelState>(
+      builder: (context, state) {
+        return _buildTextButton(context);
+      },
     );
   }
 
@@ -65,7 +59,7 @@ class _LockPageActionState extends State<LockPageAction> {
   }
 
   Widget _buildSwitch(BuildContext context) {
-    final lockState = context.read<ViewLockStatusBloc>().state;
+    final lockState = context.read<PageAccessLevelBloc>().state;
     if (lockState.isLoadingLockStatus) {
       return SizedBox.shrink();
     }
@@ -86,10 +80,12 @@ class _LockPageActionState extends State<LockPageAction> {
   }
 
   Future<void> _toggle(BuildContext context) async {
-    final isLocked = context.read<ViewLockStatusBloc>().state.isLocked;
+    final isLocked = context.read<PageAccessLevelBloc>().state.isLocked;
 
-    context.read<ViewLockStatusBloc>().add(
-          isLocked ? ViewLockStatusEvent.unlock() : ViewLockStatusEvent.lock(),
+    context.read<PageAccessLevelBloc>().add(
+          isLocked
+              ? PageAccessLevelEvent.unlock()
+              : PageAccessLevelEvent.lock(),
         );
 
     Log.info('update page(${widget.view.id}) lock status: $isLocked');

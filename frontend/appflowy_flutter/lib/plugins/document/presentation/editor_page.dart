@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
@@ -16,7 +17,6 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
@@ -349,16 +349,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     );
 
     final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
-    final isLocked =
-        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    final isEditable =
+        context.read<PageAccessLevelBloc?>()?.state.isEditable ?? true;
 
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
-        editable: !isViewDeleted && !isLocked,
-        disableSelectionService: UniversalPlatform.isMobile && isLocked,
-        disableKeyboardService: UniversalPlatform.isMobile && isLocked,
+        editable: !isViewDeleted && isEditable,
+        disableSelectionService: UniversalPlatform.isMobile && !isEditable,
+        disableKeyboardService: UniversalPlatform.isMobile && !isEditable,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,

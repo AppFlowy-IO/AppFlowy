@@ -460,6 +460,13 @@ impl DatabaseManager {
     &self,
     params: CreateDatabaseParams,
   ) -> FlowyResult<Arc<RwLock<Database>>> {
+    if params.rows.len() > 500 {
+      return Err(
+        FlowyError::invalid_data()
+          .with_context("Only support importing csv with less than 500 rows"),
+      );
+    }
+
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let database = wdb.create_database(params).await?;

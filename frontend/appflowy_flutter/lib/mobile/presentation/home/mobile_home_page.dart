@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
@@ -121,8 +122,12 @@ class _MobileHomePageState extends State<MobileHomePage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => UserWorkspaceBloc(userProfile: widget.userProfile)
-            ..add(const UserWorkspaceEvent.initial()),
+          create: (_) => UserWorkspaceBloc(
+            userProfile: widget.userProfile,
+            repository: RustWorkspaceRepositoryImpl(
+              userId: widget.userProfile.id,
+            ),
+          )..add(UserWorkspaceEvent.initialize()),
         ),
         BlocProvider(
           create: (context) =>
@@ -234,7 +239,7 @@ class _HomePageState extends State<_HomePage> {
                       ),
                   ),
                 ],
-                child: MobileSpaceTab(
+                child: MobileHomePageTab(
                   userProfile: widget.userProfile,
                 ),
               ),
@@ -278,13 +283,13 @@ class _HomePageState extends State<_HomePage> {
     final String? message;
     ToastificationType toastType = ToastificationType.success;
     switch (actionType) {
-      case UserWorkspaceActionType.open:
+      case WorkspaceActionType.open:
         message = result.onFailure((e) {
           toastType = ToastificationType.error;
           return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
         });
         break;
-      case UserWorkspaceActionType.delete:
+      case WorkspaceActionType.delete:
         message = result.fold(
           (s) {
             toastType = ToastificationType.success;
@@ -296,7 +301,7 @@ class _HomePageState extends State<_HomePage> {
           },
         );
         break;
-      case UserWorkspaceActionType.leave:
+      case WorkspaceActionType.leave:
         message = result.fold(
           (s) {
             toastType = ToastificationType.success;
@@ -310,7 +315,7 @@ class _HomePageState extends State<_HomePage> {
           },
         );
         break;
-      case UserWorkspaceActionType.rename:
+      case WorkspaceActionType.rename:
         message = result.fold(
           (s) {
             toastType = ToastificationType.success;

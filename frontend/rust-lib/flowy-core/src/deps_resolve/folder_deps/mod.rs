@@ -17,6 +17,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::load_collab_by_object_id;
+use flowy_user_pub::entities::UserWorkspace;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
@@ -106,6 +107,10 @@ impl FolderUser for FolderUserImpl {
 
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn get_active_user_workspace(&self) -> FlowyResult<UserWorkspace> {
+    self.upgrade_user()?.get_active_user_workspace()
   }
 }
 

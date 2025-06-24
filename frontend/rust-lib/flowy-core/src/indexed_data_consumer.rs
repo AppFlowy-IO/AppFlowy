@@ -34,8 +34,15 @@ impl FullIndexedDataConsumer for EmbeddingFullIndexConsumer {
       return Ok(());
     }
 
-    if data.data.is_empty() {
-      return Ok(());
+    match data.data.as_ref() {
+      None => {
+        return Ok(());
+      },
+      Some(data) => {
+        if data.is_empty() {
+          return Ok(());
+        }
+      },
     }
 
     let scheduler = flowy_ai::embeddings::context::EmbedContext::shared().get_scheduler()?;
@@ -65,10 +72,15 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
   async fn consume_collab(
     &self,
     workspace_id: &Uuid,
-    data: UnindexedData,
+    data: Option<UnindexedData>,
     object_id: &Uuid,
     collab_type: CollabType,
   ) -> Result<bool, FlowyError> {
+    if data.is_none() {
+      return Ok(false);
+    }
+
+    let data = data.unwrap();
     if data.is_empty() {
       return Ok(false);
     }
@@ -95,7 +107,7 @@ impl InstantIndexedDataConsumer for EmbeddingsInstantConsumerImpl {
           workspace_id: *workspace_id,
           object_id: *object_id,
           collab_type,
-          data,
+          data: Some(data),
           metadata: UnindexedCollabMetadata::default(),
         };
 
@@ -161,7 +173,7 @@ impl FullIndexedDataConsumer for SearchFullIndexConsumer {
       .upgrade()
       .ok_or_else(|| FlowyError::internal().with_context("Tantivy state dropped"))?;
     let object_id = data.object_id.to_string();
-    let content = data.data.clone().into_string();
+    let content = data.data.clone().map(|v| v.into_string());
 
     strong.write().await.add_document(
       &object_id,
@@ -282,7 +294,7 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
   async fn consume_collab(
     &self,
     workspace_id: &Uuid,
-    data: UnindexedData,
+    data: Option<UnindexedData>,
     object_id: &Uuid,
     _collab_type: CollabType,
   ) -> Result<bool, FlowyError> {
@@ -302,7 +314,11 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
     let view = folder_manager.get_view(&object_id.to_string()).await?;
 
     // Create a combined hash that includes content + view name + icon
-    let content_hash = data.content_hash();
+    let content_hash = match &data {
+      None => "".to_string(),
+      Some(data) => data.content_hash(),
+    };
+
     let name_hash = format!("{}:{}", content_hash, view.name);
     let combined_hash = if let Some(icon) = &view.icon {
       format!("{}:{}:{}", name_hash, icon.ty.clone() as u8, icon.value)
@@ -328,7 +344,7 @@ impl InstantIndexedDataConsumer for SearchInstantIndexImpl {
     self.consume_history.insert(*object_id, combined_hash);
     state.write().await.add_document(
       &object_id.to_string(),
-      data.into_string(),
+      data.map(|v| v.into_string()),
       Some(view.name.clone()),
       view.icon.clone().map(|v| ViewIcon {
         ty: IconType::from(v.ty as u8),

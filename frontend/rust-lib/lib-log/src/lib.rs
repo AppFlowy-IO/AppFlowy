@@ -91,7 +91,7 @@ impl Builder {
       let subscriber = tracing_subscriber::fmt()
         .with_timer(CustomTime)
         .with_max_level(tracing::Level::TRACE)
-        .with_ansi(self.platform.is_not_ios())
+        .with_ansi(self.platform.is_desktop())
         .with_writer(StreamLog {
           sender: stream_log_sender.clone(),
         })

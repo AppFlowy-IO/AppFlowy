@@ -74,7 +74,7 @@ class _SettingsPlanComparisonDialogState
                 .settings_comparePlanDialog_paymentSuccess_description
                 .tr(args: [readyState.successfulPlanUpgrade!.label]),
             confirmLabel: LocaleKeys.button_close.tr(),
-            onConfirm: () {},
+            onConfirm: (_) {},
           );
         }
 
@@ -211,7 +211,7 @@ class _SettingsPlanComparisonDialogState
                                     .settings_comparePlanDialog_downgradeDialog_downgradeLabel
                                     .tr(),
                                 style: ConfirmPopupStyle.cancelAndOk,
-                                onConfirm: () =>
+                                onConfirm: (_) =>
                                     context.read<SettingsPlanBloc>().add(
                                           SettingsPlanEvent.cancelSubscription(
                                             reason: reason,
@@ -658,6 +658,7 @@ final _planLabels = [
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFive.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipFive.tr(),
   ),
   _PlanItem(
     label:
@@ -706,7 +707,6 @@ final List<_CellItem> _freeLabels = [
   ),
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     label:
@@ -743,7 +743,6 @@ final List<_CellItem> _proLabels = [
   ),
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     label:

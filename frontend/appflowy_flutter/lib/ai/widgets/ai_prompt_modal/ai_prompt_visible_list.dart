@@ -60,13 +60,6 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.spacing.l),
-          child: buildSearchField(context),
-        ),
-        VSpace(
-          theme.spacing.s,
-        ),
         BlocConsumer<AiPromptSelectorCubit, AiPromptSelectorState>(
           listener: (context, state) {
             state.maybeMap(
@@ -95,21 +88,39 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                 if (!readyState.isCustomPromptSectionSelected) {
                   return const SizedBox.shrink();
                 }
-                return Padding(
-                  padding: EdgeInsets.only(
+                return Container(
+                  margin: EdgeInsets.only(
                     left: theme.spacing.l,
-                    top: theme.spacing.s,
                     right: theme.spacing.l,
+                    bottom: theme.spacing.l,
                   ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.m),
+                    color: theme.surfaceContainerColorScheme.layer01,
+                  ),
+                  padding: EdgeInsets.all(theme.spacing.m),
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          "${LocaleKeys.ai_customPrompt_promptDatabase.tr()}: ${readyState.databaseConfig?.view.nameOrDefault ?? ""}",
-                          maxLines: 1,
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text:
+                                    "${LocaleKeys.ai_customPrompt_promptDatabase.tr()}: ",
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                              TextSpan(
+                                text: readyState
+                                        .databaseConfig?.view.nameOrDefault ??
+                                    "",
+                              ),
+                            ],
+                          ),
                           style: theme.textStyle.body.standard(
                             color: theme.textColorScheme.primary,
                           ),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -165,6 +176,10 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
             );
           },
         ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.spacing.l),
+          child: buildSearchField(context),
+        ),
         Expanded(
           child: TextFieldTapRegion(
             groupId: "ai_prompt_category_list",
@@ -211,10 +226,13 @@ class _AiPromptVisibleListState extends State<AiPromptVisibleList> {
                         .read<AiPromptSelectorCubit>()
                         .filterTextController
                         .clear(),
-                    child: FlowySvg(
-                      FlowySvgs.toast_close_s,
-                      color: theme.textColorScheme.secondary,
-                      size: const Size.square(20),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: FlowySvg(
+                        FlowySvgs.search_clear_m,
+                        color: theme.iconColorScheme.tertiary,
+                        size: const Size.square(20),
+                      ),
                     ),
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
@@ -123,14 +123,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       final workspaceBloc = _toggleNotifier.value.userWorkspaceBloc;
       final spaceBloc = _toggleNotifier.value.spaceBloc;
+      final commandBloc = context.read<CommandPaletteBloc>();
       Log.info(
         'CommandPalette onToggle: workspaceType ${workspaceBloc?.state.userProfile.workspaceType}',
       );
+      commandBloc.add(CommandPaletteEvent.refreshCachedViews());
       FlowyOverlay.show(
         context: context,
         builder: (_) => MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<CommandPaletteBloc>()),
+            BlocProvider.value(value: commandBloc),
             if (workspaceBloc != null) BlocProvider.value(value: workspaceBloc),
             if (spaceBloc != null) BlocProvider.value(value: spaceBloc),
           ],
@@ -202,8 +204,11 @@ class CommandPaletteModal extends StatelessWidget {
         builder: (context, state) {
           final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
-          final hasResult = state.combinedResponseItems.isNotEmpty;
+          final hasResult = state.combinedResponseItems.isNotEmpty,
+              searching = state.searching;
+          final spaceXl = theme.spacing.xl;
           return FlowyDialog(
+            backgroundColor: theme.surfaceColorScheme.layer01,
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
             constraints: const BoxConstraints(
@@ -216,35 +221,42 @@ class CommandPaletteModal extends StatelessWidget {
             child: shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
               Padding(
-                padding: EdgeInsets.all(theme.spacing.xl),
+                padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
-                    SearchField(query: state.query, isLoading: state.searching),
+                    SearchField(query: state.query, isLoading: searching),
                     if (noQuery)
                       Flexible(
                         child: RecentViewsList(
                           onSelected: () => FlowyOverlay.pop(context),
                         ),
                       ),
-                    if (hasResult && hasQuery) ...[
-                      AFDivider(),
+                    if (hasResult && hasQuery)
                       Flexible(
                         child: SearchResultList(
-                          trash: state.trash,
+                          cachedViews: state.cachedViews,
                           resultItems:
                               state.combinedResponseItems.values.toList(),
                           resultSummaries: state.resultSummaries,
                         ),
-                      ),
-                    ]
+                      )
                     // When there are no results and the query is not empty and not loading,
                     // show the no results message, centered in the available space.
-                    else if (hasQuery && !state.searching) ...[
+                    else if (hasQuery && !searching) ...[
                       if (showAskingAI) SearchAskAiEntrance(),
                       Expanded(
                         child: const NoSearchResultsHint(),
                       ),
                     ],
+                    if (hasQuery && searching && !hasResult)
+                      // Show a loading indicator when searching
+                      Expanded(
+                        child: Center(
+                          child: Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

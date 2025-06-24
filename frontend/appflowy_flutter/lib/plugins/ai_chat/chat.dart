@@ -1,3 +1,4 @@
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_message_bloc.dart';
@@ -54,6 +55,7 @@ class AIChatPagePlugin extends Plugin {
   }) : notifier = ViewPluginNotifier(view: view);
 
   late final ViewInfoBloc _viewInfoBloc;
+  late final PageAccessLevelBloc _pageAccessLevelBloc;
   late final _chatMessageSelectorBloc =
       ChatSelectMessageBloc(viewNotifier: notifier);
 
@@ -63,6 +65,7 @@ class AIChatPagePlugin extends Plugin {
   @override
   PluginWidgetBuilder get widgetBuilder => AIChatPagePluginWidgetBuilder(
         viewInfoBloc: _viewInfoBloc,
+        pageAccessLevelBloc: _pageAccessLevelBloc,
         chatMessageSelectorBloc: _chatMessageSelectorBloc,
         notifier: notifier,
       );
@@ -77,11 +80,14 @@ class AIChatPagePlugin extends Plugin {
   void init() {
     _viewInfoBloc = ViewInfoBloc(view: notifier.view)
       ..add(const ViewInfoEvent.started());
+    _pageAccessLevelBloc = PageAccessLevelBloc(view: notifier.view)
+      ..add(const PageAccessLevelEvent.initial());
   }
 
   @override
   void dispose() {
     _viewInfoBloc.close();
+    _pageAccessLevelBloc.close();
     _chatMessageSelectorBloc.close();
     notifier.dispose();
   }
@@ -91,11 +97,13 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
     with NavigationItem {
   AIChatPagePluginWidgetBuilder({
     required this.viewInfoBloc,
+    required this.pageAccessLevelBloc,
     required this.chatMessageSelectorBloc,
     required this.notifier,
   });
 
   final ViewInfoBloc viewInfoBloc;
+  final PageAccessLevelBloc pageAccessLevelBloc;
   final ChatSelectMessageBloc chatMessageSelectorBloc;
   final ViewPluginNotifier notifier;
   int? deletedViewIndex;
@@ -104,8 +112,12 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
   String? get viewName => notifier.view.nameOrDefault;
 
   @override
-  Widget get leftBarItem =>
-      ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view);
+  Widget get leftBarItem {
+    return BlocProvider.value(
+      value: pageAccessLevelBloc,
+      child: ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view),
+    );
+  }
 
   @override
   Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
@@ -128,6 +140,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
       providers: [
         BlocProvider.value(value: chatMessageSelectorBloc),
         BlocProvider.value(value: viewInfoBloc),
+        BlocProvider.value(value: pageAccessLevelBloc),
       ],
       child: AIChatPage(
         userProfile: context.userProfile!,

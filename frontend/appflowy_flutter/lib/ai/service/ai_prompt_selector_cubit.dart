@@ -80,6 +80,11 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
               );
             }
           }
+        } else {
+          final view = await getDatabaseView(configuration.view.id);
+          if (view != null) {
+            configuration = configuration.copyWith(view: view);
+          }
         }
 
         if (configuration == null) {
@@ -182,7 +187,8 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
       ready: (readyState) {
         final prompts = category == null
             ? availablePrompts
-            : availablePrompts.where((prompt) => prompt.category == category);
+            : availablePrompts
+                .where((prompt) => prompt.category.contains(category));
         final visiblePrompts = _getFilteredPrompts(prompts);
 
         final selectedPromptId = _getVisibleSelectedPrompt(
@@ -333,7 +339,7 @@ class AiPromptSelectorCubit extends Cubit<AiPromptSelectorState> {
   Iterable<AiPrompt> _getPromptsByCategory(_AiPromptSelectorReadyState state) {
     return availablePrompts.where((prompt) {
       if (state.selectedCategory != null) {
-        return prompt.category == state.selectedCategory;
+        return prompt.category.contains(state.selectedCategory);
       }
       if (state.isFeaturedSectionSelected) {
         return prompt.isFeatured;

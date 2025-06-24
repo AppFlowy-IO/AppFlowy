@@ -49,8 +49,7 @@ class _ChatFooterState extends State<ChatFooter> {
                   padding: AIChatUILayout.safeAreaInsets(context),
                   child: BlocSelector<ChatBloc, ChatState, bool>(
                     selector: (state) {
-                      return state.promptResponseState ==
-                          PromptResponseState.ready;
+                      return state.promptResponseState.isReady;
                     },
                     builder: (context, canSendMessage) {
                       final chatBloc = context.read<ChatBloc>();

@@ -951,7 +951,7 @@
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "AI On-device for Mac",
-        "memberProToggle": "More members & unlimited AI",
+        "memberProToggle": "More members & unlimited AI & guest access",
         "aiMaxToggle": "Unlimited AI and access to advanced models",
         "aiOnDeviceToggle": "Local AI for ultimate privacy",
         "aiCredit": {
@@ -1072,11 +1072,12 @@
         "itemTwo": "Members",
         "itemThree": "Storage",
         "itemFour": "Real-time collaboration",
-        "itemFive": "Mobile app",
+        "itemFive": "Guest editors",
         "itemSix": "AI Responses",
         "itemSeven": "AI Images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace",
@@ -1098,9 +1099,9 @@
         "itemTwo": "Up to 10",
         "itemThree": "Unlimited",
         "itemFour": "yes",
-        "itemFive": "yes",
+        "itemFive": "Up to 100",
         "itemSix": "Unlimited",
-        "itemSeven": "10 images per month",
+        "itemSeven": "50 images per month",
         "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
@@ -1648,6 +1649,7 @@
         "other": "Hide {count} hidden fields"
       },
       "openAsFullPage": "Open as full page",
+      "viewDatabase": "View the original Database",
       "moreRowActions": "More row actions"
     },
     "sort": {
@@ -2356,6 +2358,7 @@
     "label": "Search",
     "sidebarSearchIcon": "Search and quickly jump to a page",
     "searchOrAskAI": "Search or ask AI",
+    "searchFieldHint": "Search or ask a question in {}...",
     "askAIAnything": "Ask AI anything",
     "askAIFor": "Ask AI",
     "searching": "Searching...",
@@ -2366,6 +2369,7 @@
     "seeMore": "See more",
     "showMore": "Show more",
     "somethingWentWrong": "Something went wrong",
+    "pageNotExist": "This page doesn't exist",
     "tryAgainOrLater": "Please try again later",
     "placeholder": {
       "actions": "Search actions..."
@@ -2822,7 +2826,7 @@
     "betaTooltip": "We currently only support searching for pages and content in documents",
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field",
+    "clearSearchTooltip": "Clear input",
     "location": "Location",
     "created": "Created",
     "edited": "Edited"
@@ -3097,7 +3101,7 @@
       "many": "{count} members",
       "other": "{count} members"
     },
-    "tip": "You’ve been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
+    "tip": "You've been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
     "joinWorkspace": "Join workspace",
     "success": "You've successfully joined the workspace",
     "successMessage": "You can now access all the pages and workspaces within it.",
@@ -3428,10 +3432,37 @@
     "removeAccess": "Remove access",
     "turnIntoMember": "Turn into Member",
     "you": "(You)",
-    "guest": "Guest"
+    "guest": "Guest",
+    "onlyFullAccessCanInvite": "Only user with full access can invite others",
+    "invitationSent": "Invitation sent",
+    "emailAlreadyInList": "The email is already in the list",
+    "upgradeToProToInviteGuests": "Please upgrade to a Pro plan to invite more guests",
+    "maxGuestsReached": "You have reached the maximum number of guests",
+    "removedGuestSuccessfully": "Removed guest successfully",
+    "updatedAccessLevelSuccessfully": "Updated access level successfully",
+    "turnedIntoMemberSuccessfully": "Turned into member successfully",
+    "peopleAboveCanAccessWithLink": "People above can access with the link",
+    "cantMakeChanges": "Can't make changes",
+    "canMakeAnyChanges": "Can make any changes",
+    "generalAccess": "General access",
+    "peopleWithAccess": "People with access",
+    "peopleAboveCanAccessWithTheLink": "People above can access with the link",
+    "upgrade": "Upgrade",
+    "toProPlanToInviteGuests": " to the Pro plan to invite guests to this page",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "Upgrade to invite guest",
+        "member": "Upgrade to invite guest",
+        "guest": "Upgrade to invite guest"
+      },
+      "description": {
+        "owner": "Your workspace is currently on the Free plan. Upgrade to the Pro plan to allow external users to access this page as guests.",
+        "member": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan.",
+        "guest": "Some invitees are outside your workspace. To invite them as guests, please contact your workspace owner to upgrade to the Pro plan."
+      }
+    }
   },
   "shareSection": {
-    "shared": "Shared",
-    "refresh": "Refresh"
+    "shared": "Shared with me"
   }
 }

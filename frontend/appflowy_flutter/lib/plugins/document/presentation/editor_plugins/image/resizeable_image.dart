@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -285,9 +285,14 @@ class _ImageLoadFailedWidget extends StatelessWidget {
               maxLines: 2,
             ),
           const VSpace(12),
-          OutlinedRoundedButton(
-            text: LocaleKeys.chat_retry.tr(),
-            onTap: onRetry,
+          Listener(
+            onPointerDown: (event) {
+              onRetry();
+            },
+            child: OutlinedRoundedButton(
+              text: LocaleKeys.chat_retry.tr(),
+              onTap: () {},
+            ),
           ),
         ],
       ),

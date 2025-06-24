@@ -30,6 +30,8 @@ class TimestampTypeOptionEditorFactory implements TypeOptionEditorFactory {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: IncludeTimeButton(
+            includeTime: typeOption.includeTime,
+            showIcon: false,
             onChanged: (value) {
               final newTypeOption = _updateTypeOption(
                 typeOption: typeOption,
@@ -37,7 +39,6 @@ class TimestampTypeOptionEditorFactory implements TypeOptionEditorFactory {
               );
               onTypeOptionUpdated(newTypeOption.writeToBuffer());
             },
-            includeTime: typeOption.includeTime,
           ),
         ),
       ],

@@ -83,7 +83,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
                       description: LocaleKeys
                           .ai_continueWritingEmptyDocumentDescription
                           .tr(),
-                      onConfirm: state.onConfirm,
+                      onConfirm: (_) => state.onConfirm(),
                     );
                   }
                 },
@@ -151,7 +151,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
         description: LocaleKeys.document_plugins_discardResponse.tr(),
         confirmLabel: LocaleKeys.button_discard.tr(),
         style: ConfirmPopupStyle.cancelAndOk,
-        onConfirm: stopAndExit,
+        onConfirm: (_) => stopAndExit(),
         onCancel: () {},
       );
     } else {
@@ -182,7 +182,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
             description: LocaleKeys.document_plugins_discardResponse.tr(),
             confirmLabel: LocaleKeys.button_discard.tr(),
             style: ConfirmPopupStyle.cancelAndOk,
-            onConfirm: stopAndExit,
+            onConfirm: (_) => stopAndExit(),
             onCancel: () {},
           ).then((_) => dialogShown = false);
         } else {

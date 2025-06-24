@@ -180,17 +180,24 @@ jobs:
       - name: Create macOS dmg
         run: |
           brew install create-dmg
-          create-dmg \
-          --volname ${{ env.MACOS_DMG_NAME }} \
-          --hide-extension "AppFlowy.app" \
-          --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
-          --window-size 600 450 \
-          --icon-size 94 \
-          --icon "AppFlowy.app" 141 249 \
-          --app-drop-link 458 249 \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
-
+          i=0
+          until [[ -e "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" ]]; do
+            create-dmg \
+            --volname ${{ env.MACOS_DMG_NAME }} \
+            --hide-extension "AppFlowy.app" \
+            --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+            --window-size 600 450 \
+            --icon-size 94 \
+            --icon "AppFlowy.app" 141 249 \
+            --app-drop-link 458 249 \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app" || true
+            if [[ $i -eq 10 ]]; then
+              echo 'Error: create-dmg did not succeed even after 10 tries.'
+              exit 1
+            fi
+            i=$((i+1))
+          done
       - name: Notarize AppFlowy
         run: |
           xcrun notarytool submit ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }} -v -f "json" --wait
@@ -233,7 +240,7 @@ jobs:
         job:
           - {
             targets: "aarch64-apple-darwin,x86_64-apple-darwin",
-            os: macos-latest,
+            os: macos-14,
             extra-build-args: "",
           }
     steps:

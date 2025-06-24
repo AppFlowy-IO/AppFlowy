@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
@@ -11,8 +13,6 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -145,8 +145,8 @@ class _GridPageState extends State<GridPage> {
           create: (_) => gridBloc,
         ),
         BlocProvider(
-          create: (context) => ViewLockStatusBloc(view: widget.view)
-            ..add(ViewLockStatusEvent.initial()),
+          create: (context) => PageAccessLevelBloc(view: widget.view)
+            ..add(PageAccessLevelEvent.initial()),
         ),
       ],
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
@@ -297,7 +297,7 @@ class _GridPageContentState extends State<GridPageContent> {
       children: [
         _GridHeader(
           headerScrollController: headerScrollController,
-          editable: !context.read<ViewLockStatusBloc>().state.isLocked,
+          editable: context.read<PageAccessLevelBloc>().state.isEditable,
           shrinkWrap: widget.shrinkWrap,
         ),
         _GridRows(
@@ -409,6 +409,10 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   Widget build(BuildContext context) {
+    final paddingLeft = context
+            .read<DatabasePluginWidgetBuilderSize?>()
+            ?.paddingLeftWithMaxDocumentWidth ??
+        0.0;
     Widget child;
     if (widget.shrinkWrap) {
       child = Scrollbar(
@@ -420,9 +424,10 @@ class _GridRowsState extends State<_GridRows> {
             constraints: BoxConstraints(
               maxWidth: GridLayout.headerWidth(
                 context
-                        .read<DatabasePluginWidgetBuilderSize>()
-                        .horizontalPadding *
-                    3,
+                            .read<DatabasePluginWidgetBuilderSize>()
+                            .horizontalPadding *
+                        3 +
+                    paddingLeft,
                 context.read<GridBloc>().state.fields,
               ),
             ),
@@ -459,13 +464,16 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _shrinkWrapRenderList(BuildContext context) {
     final state = context.read<GridBloc>().state;
-    final horizontalPadding =
-        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
-            0.0;
+    final databaseSize = context.read<DatabasePluginWidgetBuilderSize?>();
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: EdgeInsets.fromLTRB(
+        databaseSize?.paddingLeft ?? 0.0,
+        0,
+        databaseSize?.horizontalPadding ?? 0.0,
+        0,
+      ),
       children: [
         widget.shrinkWrap
             ? _reorderableListView(state)
@@ -560,7 +568,7 @@ class _GridRowsState extends State<_GridRows> {
             children: footer,
           );
 
-          if (context.read<ViewLockStatusBloc>().state.isLocked) {
+          if (!context.read<PageAccessLevelBloc>().state.isEditable) {
             return IgnorePointer(
               key: const Key('grid_footer'),
               child: child,
@@ -602,7 +610,7 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
-      editable: !context.watch<ViewLockStatusBloc>().state.isLocked,
+      editable: context.watch<PageAccessLevelBloc>().state.isEditable,
       rowController: RowController(
         viewId: viewId,
         rowMeta: rowMeta,

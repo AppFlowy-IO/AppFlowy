@@ -7,6 +7,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -227,10 +228,11 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
                   action: TabBarViewAction.rename,
                   itemHeight: ActionListSizes.itemHeight,
                   onSelected: (action) {
-                    NavigatorTextFieldDialog(
+                    showAFTextFieldDialog(
+                      context: context,
                       title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-                      value: widget.view.nameOrDefault,
-                      onConfirm: (newValue, _) {
+                      initialValue: widget.view.nameOrDefault,
+                      onConfirm: (newValue) {
                         context.read<DatabaseTabBarBloc>().add(
                               DatabaseTabBarEvent.renameView(
                                 widget.view.id,
@@ -238,7 +240,7 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
                               ),
                             );
                       },
-                    ).show(context);
+                    );
                     menuController.close();
                   },
                 ),
@@ -292,25 +294,29 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
         );
       },
       child: IntrinsicWidth(
-        child: FlowyButton(
-          radius: Corners.s6Border,
-          hoverColor: AFThemeExtension.of(context).greyHover,
-          onTap: () {
-            if (widget.isSelected) menuController.show();
-            widget.onTap.call();
-          },
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          onSecondaryTap: () {
-            menuController.show();
-          },
-          leftIcon: _buildViewIcon(),
-          text: FlowyText(
-            widget.view.nameOrDefault,
-            lineHeight: 1.0,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            color: color,
-            fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
+        child: FlowyTooltip(
+          message: widget.view.nameOrDefault,
+          preferBelow: false,
+          child: FlowyButton(
+            radius: Corners.s6Border,
+            hoverColor: AFThemeExtension.of(context).greyHover,
+            onTap: () {
+              if (widget.isSelected) menuController.show();
+              widget.onTap.call();
+            },
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            onSecondaryTap: () {
+              menuController.show();
+            },
+            leftIcon: _buildViewIcon(),
+            text: FlowyText(
+              widget.view.nameOrDefault,
+              lineHeight: 1.0,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              color: color,
+              fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
+            ),
           ),
         ),
       ),

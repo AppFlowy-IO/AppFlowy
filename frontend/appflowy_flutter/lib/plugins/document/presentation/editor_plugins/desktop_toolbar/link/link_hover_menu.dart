@@ -145,6 +145,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
       popupBuilder: (context) => LinkHoverMenu(
         attribute: widget.attribute,
         triggerSize: size,
+        editable: editorState.editable,
         onEnter: (_) {
           isHoverMenuHovering = true;
         },
@@ -302,6 +303,7 @@ class LinkHoverMenu extends StatefulWidget {
     required this.attribute,
     required this.onEnter,
     required this.onExit,
+    required this.editable,
     required this.triggerSize,
     required this.onCopyLink,
     required this.onOpenLink,
@@ -318,6 +320,7 @@ class LinkHoverMenu extends StatefulWidget {
   final VoidCallback onOpenLink;
   final VoidCallback onEditLink;
   final VoidCallback onRemoveLink;
+  final bool editable;
   final ValueChanged<LinkConvertMenuCommand> onConvertTo;
 
   @override
@@ -330,6 +333,8 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
   late String href = widget.attribute.href ?? '';
   final popoverController = PopoverController();
   bool isConvertButtonSelected = false;
+
+  bool get editable => widget.editable;
 
   @override
   void initState() {
@@ -382,19 +387,21 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_edit_m),
                       tooltipText: LocaleKeys.editor_editLink.tr(),
+                      hoverColor: hoverColor,
                       preferBelow: false,
                       width: 36,
                       height: 32,
-                      onPressed: widget.onEditLink,
+                      onPressed: getTapCallback(widget.onEditLink),
                     ),
                     buildConvertButton(),
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_unlink_m),
                       tooltipText: LocaleKeys.editor_removeLink.tr(),
+                      hoverColor: hoverColor,
                       preferBelow: false,
                       width: 36,
                       height: 32,
-                      onPressed: widget.onRemoveLink,
+                      onPressed: getTapCallback(widget.onRemoveLink),
                     ),
                   ],
                 ),
@@ -460,6 +467,22 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
   }
 
   Widget buildConvertButton() {
+    final button = FlowyIconButton(
+      icon: FlowySvg(FlowySvgs.turninto_m),
+      isSelected: isConvertButtonSelected,
+      tooltipText: LocaleKeys.editor_convertTo.tr(),
+      preferBelow: false,
+      hoverColor: hoverColor,
+      width: 36,
+      height: 32,
+      onPressed: getTapCallback(() {
+        setState(() {
+          isConvertButtonSelected = true;
+        });
+        showConvertMenu();
+      }),
+    );
+    if (!editable) return button;
     return AppFlowyPopover(
       offset: Offset(44, 10.0),
       direction: PopoverDirection.bottomWithRightAligned,
@@ -468,20 +491,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () => keepEditorFocusNotifier.decrease(),
       popupBuilder: (context) => buildConvertMenu(),
-      child: FlowyIconButton(
-        icon: FlowySvg(FlowySvgs.turninto_m),
-        isSelected: isConvertButtonSelected,
-        tooltipText: LocaleKeys.editor_convertTo.tr(),
-        preferBelow: false,
-        width: 36,
-        height: 32,
-        onPressed: () {
-          setState(() {
-            isConvertButtonSelected = true;
-          });
-          showConvertMenu();
-        },
-      ),
+      child: button,
     );
   }
 
@@ -515,6 +525,13 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
         ),
       ),
     );
+  }
+
+  Color? get hoverColor => editable ? null : Colors.transparent;
+
+  VoidCallback? getTapCallback(VoidCallback callback) {
+    if (editable) return callback;
+    return null;
   }
 
   void showConvertMenu() {

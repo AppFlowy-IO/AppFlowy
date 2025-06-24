@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -64,7 +64,7 @@ class SidebarToast extends StatelessWidget {
         description: LocaleKeys.sideBar_storageLimitDialogTitle.tr(),
         confirmLabel:
             LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
           );
@@ -78,7 +78,7 @@ class SidebarToast extends StatelessWidget {
             LocaleKeys.sideBar_singleFileProPlanLimitationDescription.tr(),
         confirmLabel:
             LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
-        onConfirm: () {
+        onConfirm: (_) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
           );

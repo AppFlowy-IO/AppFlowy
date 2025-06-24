@@ -13,19 +13,25 @@ extension GetIcon on ResultIconPB {
   }) {
     final iconValue = value, iconType = ty;
     if (iconType == ResultIconTypePB.Emoji) {
-      return iconValue.isNotEmpty
-          ? Text(
-              iconValue,
-              strutStyle: StrutStyle(
-                fontSize: size,
-                height: lineHeight,
+      if (iconValue.isEmpty) return null;
+      if (UniversalPlatform.isMobile) {
+        return Text(
+          iconValue,
+          strutStyle: StrutStyle(
+            fontSize: size,
+            height: lineHeight,
 
-                /// currently [forceStrutHeight] set to true seems only work in iOS
-                forceStrutHeight: UniversalPlatform.isIOS,
-                leadingDistribution: TextLeadingDistribution.even,
-              ),
-            )
-          : null;
+            /// currently [forceStrutHeight] set to true seems only work in iOS
+            forceStrutHeight: UniversalPlatform.isIOS,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+        );
+      }
+      return RawEmojiIconWidget(
+        emoji: EmojiIconData.emoji(iconValue),
+        emojiSize: size,
+        lineHeight: lineHeight,
+      );
     } else if (iconType == ResultIconTypePB.Icon ||
         iconType == ResultIconTypePB.Url) {
       if (_resultIconValueTypes.contains(iconValue)) {

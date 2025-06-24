@@ -17,7 +17,8 @@ enum ViewMoreActionType {
   divider,
   lastModified,
   created,
-  lockPage;
+  lockPage,
+  leaveSharedPage;
 
   static const disableInLockedView = [
     delete,
@@ -52,6 +53,8 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return LocaleKeys.disclosureAction_collapseAllPages.tr();
       case ViewMoreActionType.lockPage:
         return LocaleKeys.disclosureAction_lockPage.tr();
+      case ViewMoreActionType.leaveSharedPage:
+        return 'Leave';
       case ViewMoreActionType.divider:
       case ViewMoreActionType.lastModified:
       case ViewMoreActionType.created:
@@ -81,6 +84,8 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return FlowySvgs.collapse_all_page_s;
       case ViewMoreActionType.lockPage:
         return FlowySvgs.lock_page_s;
+      case ViewMoreActionType.leaveSharedPage:
+        return FlowySvgs.leave_workspace_s;
       case ViewMoreActionType.divider:
       case ViewMoreActionType.lastModified:
       case ViewMoreActionType.copyLink:
@@ -105,6 +110,7 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
       case ViewMoreActionType.lastModified:
       case ViewMoreActionType.created:
       case ViewMoreActionType.lockPage:
+      case ViewMoreActionType.leaveSharedPage:
         return const SizedBox.shrink();
     }
   }

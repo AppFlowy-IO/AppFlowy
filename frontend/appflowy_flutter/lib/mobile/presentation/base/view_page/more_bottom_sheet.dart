@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/create_workspace_menu.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -44,10 +44,16 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         },
         child: ViewPageBottomSheet(
           view: view,
-          onAction: (action, {arguments}) async =>
-              _onAction(context, action, arguments),
+          onAction: (action, {arguments}) async => _onAction(
+            context,
+            action,
+            arguments,
+          ),
           onRename: (name) {
-            _onRename(context, name);
+            _onRename(
+              context,
+              name,
+            );
             context.pop();
           },
         ),
@@ -128,11 +134,13 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     required bool isLocked,
   }) async {
     if (isLocked) {
-      context.read<ViewLockStatusBloc>().add(const ViewLockStatusEvent.lock());
+      context
+          .read<PageAccessLevelBloc>()
+          .add(const PageAccessLevelEvent.lock());
     } else {
       context
-          .read<ViewLockStatusBloc>()
-          .add(const ViewLockStatusEvent.unlock());
+          .read<PageAccessLevelBloc>()
+          .add(const PageAccessLevelEvent.unlock());
     }
   }
 

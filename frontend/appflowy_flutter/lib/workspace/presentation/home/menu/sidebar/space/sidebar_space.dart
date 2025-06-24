@@ -1,10 +1,10 @@
 import 'package:appflowy/features/shared_section/presentation/shared_section.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
@@ -57,26 +57,28 @@ class SidebarSpace extends StatelessWidget {
                 if (state.views.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return FavoriteFolder(
-                  views: state.views.map((e) => e.item).toList(),
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: FavoriteFolder(
+                    views: state.views.map((e) => e.item).toList(),
+                  ),
                 );
               },
             ),
 
-            // spaces
-            if (shouldShowSpaces) ...[
-              const VSpace(16.0),
-              // spaces
-              const _Space(),
-            ],
-
             // shared
             if (FeatureFlag.sharedSection.isOn) ...[
-              const VSpace(16.0),
               SharedSection(
                 key: ValueKey(currentWorkspaceId),
                 workspaceId: currentWorkspaceId,
               ),
+            ],
+
+            // spaces
+            if (shouldShowSpaces) ...[
+              // spaces
+              const _Space(),
             ],
 
             const VSpace(200),
@@ -217,6 +219,6 @@ class _SpaceState extends State<_Space> {
       return;
     }
 
-    context.read<SpaceBloc>().add(SpaceEvent.open(space));
+    context.read<SpaceBloc>().add(SpaceEvent.open(space: space));
   }
 }

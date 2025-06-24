@@ -20,6 +20,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.disabled = false,
+    this.mainAxisAlignment = MainAxisAlignment.center,
   });
 
   /// Primary ghost text button.
@@ -32,6 +33,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     bool disabled = false,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center,
   }) {
     return AFGhostIconTextButton(
       key: key,
@@ -42,6 +44,7 @@ class AFGhostIconTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
+      mainAxisAlignment: mainAxisAlignment,
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (disabled) {
@@ -70,6 +73,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center,
   }) {
     return AFGhostIconTextButton(
       key: key,
@@ -80,6 +84,7 @@ class AFGhostIconTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: true,
+      mainAxisAlignment: mainAxisAlignment,
       backgroundColor: (context, isHovering, disabled) {
         return Colors.transparent;
       },
@@ -102,6 +107,8 @@ class AFGhostIconTextButton extends StatelessWidget {
   final AFBaseButtonColorBuilder? textColor;
   final AFBaseButtonColorBuilder? backgroundColor;
 
+  final MainAxisAlignment mainAxisAlignment;
+
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
@@ -119,7 +126,7 @@ class AFGhostIconTextButton extends StatelessWidget {
         final textColor = this.textColor?.call(context, isHovering, disabled) ??
             theme.textColorScheme.primary;
         return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: mainAxisAlignment,
           children: [
             iconBuilder(
               context,

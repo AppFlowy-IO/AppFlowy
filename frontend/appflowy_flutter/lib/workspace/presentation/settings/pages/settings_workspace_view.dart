@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -67,7 +67,7 @@ class SettingsWorkspaceView extends StatelessWidget {
           if (state.deleteWorkspace) {
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.deleteWorkspace(
-                    state.workspace!.workspaceId,
+                    workspaceId: state.workspace!.workspaceId,
                   ),
                 );
             Navigator.of(context).pop();
@@ -75,7 +75,7 @@ class SettingsWorkspaceView extends StatelessWidget {
           if (state.leaveWorkspace) {
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.leaveWorkspace(
-                    state.workspace!.workspaceId,
+                    workspaceId: state.workspace!.workspaceId,
                   ),
                 );
             Navigator.of(context).pop();
@@ -203,7 +203,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                             .settings_workspacePage_leaveWorkspacePrompt_content
                             .tr(),
                     style: ConfirmPopupStyle.cancelAndOk,
-                    onConfirm: () => context.read<WorkspaceSettingsBloc>().add(
+                    onConfirm: (_) => context.read<WorkspaceSettingsBloc>().add(
                           currentWorkspaceMemberRole?.isOwner ?? false
                               ? const WorkspaceSettingsEvent.deleteWorkspace()
                               : const WorkspaceSettingsEvent.leaveWorkspace(),
@@ -241,7 +241,9 @@ class _WorkspaceNameSetting extends StatefulWidget {
 class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   final TextEditingController workspaceNameController = TextEditingController();
   final focusNode = FocusNode();
-  Timer? _debounce;
+
+  Timer? debounce;
+  bool isSaving = false;
 
   @override
   void dispose() {
@@ -254,6 +256,10 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
       listener: (_, state) {
+        if (isSaving) {
+          return;
+        }
+
         final newName = state.workspace?.name;
         if (newName != null && newName != workspaceNameController.text) {
           workspaceNameController.text = newName;
@@ -287,10 +293,15 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   }
 
   void _debounceSaveName(String name) {
-    _debounce?.cancel();
-    _debounce = Timer(
+    isSaving = true;
+
+    debounce?.cancel();
+    debounce = Timer(
       const Duration(milliseconds: 300),
-      () => _saveWorkspaceName(name: name),
+      () {
+        _saveWorkspaceName(name: name);
+        isSaving = false;
+      },
     );
   }
 
@@ -336,7 +347,10 @@ class LanguageDropdown extends StatelessWidget {
 }
 
 class _WorkspaceIconSetting extends StatelessWidget {
-  const _WorkspaceIconSetting({required this.enableEdit, this.workspace});
+  const _WorkspaceIconSetting({
+    required this.enableEdit,
+    this.workspace,
+  });
 
   final bool enableEdit;
   final UserWorkspacePB? workspace;
@@ -351,25 +365,27 @@ class _WorkspaceIconSetting extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: 64,
-      width: 64,
-      child: Padding(
-        padding: const EdgeInsets.all(1),
-        child: WorkspaceIcon(
-          workspace: workspace!,
-          iconSize: 36,
-          emojiSize: 24.0,
-          fontSize: 24.0,
-          figmaLineHeight: 26.0,
-          borderRadius: 18.0,
-          enableEdit: true,
-          onSelected: (r) => context
-              .read<WorkspaceSettingsBloc>()
-              .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
-        ),
-      ),
+    Widget child = WorkspaceIcon(
+      workspaceIcon: workspace!.icon,
+      workspaceName: workspace!.name,
+      iconSize: 64.0,
+      emojiSize: 24.0,
+      fontSize: 24.0,
+      figmaLineHeight: 26.0,
+      borderRadius: 18.0,
+      isEditable: true,
+      onSelected: (r) => context
+          .read<WorkspaceSettingsBloc>()
+          .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
     );
+
+    if (!enableEdit) {
+      child = IgnorePointer(
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 
@@ -1156,7 +1172,7 @@ class _DocumentCursorColorSetting extends StatelessWidget {
                   .tr(),
               style: ConfirmPopupStyle.cancelAndOk,
               confirmLabel: LocaleKeys.settings_common_reset.tr(),
-              onConfirm: () => context
+              onConfirm: (_) => context
                 ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
                 ..read<DocumentAppearanceCubit>().syncCursorColor(null),
             );
@@ -1226,7 +1242,7 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
                   .tr(),
               style: ConfirmPopupStyle.cancelAndOk,
               confirmLabel: LocaleKeys.settings_common_reset.tr(),
-              onConfirm: () => context
+              onConfirm: (_) => context
                 ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
                 ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
             );

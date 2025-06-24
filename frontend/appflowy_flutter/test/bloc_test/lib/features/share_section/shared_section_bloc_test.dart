@@ -1,5 +1,5 @@
 import 'package:appflowy/features/share_tab/data/models/share_access_level.dart';
-import 'package:appflowy/features/shared_section/data/share_pages_repository.dart';
+import 'package:appflowy/features/shared_section/data/repositories/shared_pages_repository.dart';
 import 'package:appflowy/features/shared_section/logic/shared_section_bloc.dart';
 import 'package:appflowy/features/shared_section/models/shared_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -8,7 +8,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockSharePagesRepository extends Mock implements SharePagesRepository {}
+class MockSharePagesRepository extends Mock implements SharedPagesRepository {}
 
 void main() {
   late MockSharePagesRepository repository;
@@ -30,8 +30,8 @@ void main() {
     when(() => repository.getSharedPages())
         .thenAnswer((_) async => FlowyResult.success(initialPages));
     bloc = SharedSectionBloc(
-      repository: repository,
       workspaceId: workspaceId,
+      repository: repository,
     )..add(const SharedSectionEvent.init());
   });
 

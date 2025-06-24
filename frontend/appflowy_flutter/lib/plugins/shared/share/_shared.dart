@@ -1,10 +1,10 @@
 import 'package:appflowy/features/share_tab/data/models/models.dart';
-import 'package:appflowy/features/share_tab/logic/share_with_user_bloc.dart';
+import 'package:appflowy/features/share_tab/logic/share_tab_bloc.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
     final shareBloc = context.read<ShareBloc>();
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final shareWithUserBloc = context.read<ShareWithUserBloc>();
+    final shareWithUserBloc = context.read<ShareTabBloc>();
     // final animationDuration = const Duration(milliseconds: 120);
 
     return BlocBuilder<ShareBloc, ShareState>(
@@ -79,7 +79,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
           popover: (_) {
             return ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 414,
+                maxWidth: 460,
               ),
               child: MultiBlocProvider(
                 providers: [
@@ -96,6 +96,9 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
                   child: ShareMenu(
                     tabs: widget.tabs,
                     viewName: state.viewName,
+                    onClose: () {
+                      popoverController.hide();
+                    },
                   ),
                 ),
               ),
@@ -107,9 +110,7 @@ class _ShareMenuButtonState extends State<ShareMenuButton> {
               popoverController.show();
 
               /// Fetch the shared users when the popover is shown
-              context
-                  .read<ShareWithUserBloc>()
-                  .add(const ShareWithUserEvent.getSharedUsers());
+              context.read<ShareTabBloc>().add(ShareTabEvent.loadSharedUsers());
             },
           ),
         );

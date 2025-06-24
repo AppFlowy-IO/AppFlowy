@@ -347,7 +347,7 @@ enum FieldAction {
           title: LocaleKeys.grid_field_label.tr(),
           description: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
           confirmLabel: LocaleKeys.button_confirm.tr(),
-          onConfirm: () {
+          onConfirm: (_) {
             FieldBackendService.clearField(
               viewId: viewId,
               fieldId: fieldInfo.id,

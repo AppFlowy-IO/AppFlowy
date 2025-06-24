@@ -1,3 +1,5 @@
+import 'package:appflowy/features/workspace/data/repositories/rust_workspace_repository_impl.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -127,8 +129,12 @@ class DesktopHomeScreen extends StatelessWidget {
                 child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
                   buildWhen: (previous, current) => previous != current,
                   builder: (context, state) => BlocProvider(
-                    create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-                      ..add(const UserWorkspaceEvent.initial()),
+                    create: (_) => UserWorkspaceBloc(
+                      userProfile: userProfile,
+                      repository: RustWorkspaceRepositoryImpl(
+                        userId: userProfile.id,
+                      ),
+                    )..add(UserWorkspaceEvent.initialize()),
                     child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
                       listenWhen: (previous, current) =>
                           previous.currentWorkspace != current.currentWorkspace,

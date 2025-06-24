@@ -33,7 +33,7 @@ async fn user_update_with_reminder() {
     .event(GetAllReminders)
     .async_send()
     .await
-    .parse::<RepeatedReminderPB>()
+    .parse_or_panic::<RepeatedReminderPB>()
     .items;
 
   assert_eq!(reminders.len(), 1);

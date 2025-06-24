@@ -34,7 +34,7 @@ void main() {
     var workspaceIcon = tester.widget<WorkspaceIcon>(
       find.byType(WorkspaceIcon),
     );
-    expect(workspaceIcon.workspace.icon, '');
+    expect(workspaceIcon.workspaceIcon, '');
 
     await tester.openWorkspaceMenu();
     await tester.changeWorkspaceIcon(icon);
@@ -47,8 +47,8 @@ void main() {
     workspaceIcon = tester.widget<WorkspaceIcon>(
       find.byType(WorkspaceIcon),
     );
-    expect(workspaceIcon.workspace.icon, icon);
-    expect(find.findTextInFlowyText(name), findsOneWidget);
+    expect(workspaceIcon.workspaceIcon, icon);
+    expect(workspaceIcon.workspaceName, name);
   });
 
   testWidgets('verify the result again after relaunching', (tester) async {
@@ -69,7 +69,7 @@ void main() {
     final workspaceIcon = tester.widget<WorkspaceIcon>(
       find.byType(WorkspaceIcon),
     );
-    expect(workspaceIcon.workspace.icon, icon);
-    expect(workspaceIcon.workspace.name, name);
+    expect(workspaceIcon.workspaceIcon, icon);
+    expect(workspaceIcon.workspaceName, name);
   });
 }

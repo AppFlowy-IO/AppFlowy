@@ -1,5 +1,6 @@
 library;
 
+import 'package:appflowy/features/page_access_level/logic/page_access_level_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
@@ -60,6 +61,7 @@ class DocumentPlugin extends Plugin {
 
   late PluginType _pluginType;
   late final ViewInfoBloc _viewInfoBloc;
+  late final PageAccessLevelBloc _pageAccessLevelBloc;
 
   @override
   final ViewPluginNotifier notifier;
@@ -73,6 +75,7 @@ class DocumentPlugin extends Plugin {
   @override
   PluginWidgetBuilder get widgetBuilder => DocumentPluginWidgetBuilder(
         bloc: _viewInfoBloc,
+        pageAccessLevelBloc: _pageAccessLevelBloc,
         notifier: notifier,
         initialSelection: initialSelection,
         initialBlockId: initialBlockId,
@@ -88,11 +91,14 @@ class DocumentPlugin extends Plugin {
   void init() {
     _viewInfoBloc = ViewInfoBloc(view: notifier.view)
       ..add(const ViewInfoEvent.started());
+    _pageAccessLevelBloc = PageAccessLevelBloc(view: notifier.view)
+      ..add(const PageAccessLevelEvent.initial());
   }
 
   @override
   void dispose() {
     _viewInfoBloc.close();
+    _pageAccessLevelBloc.close();
     notifier.dispose();
   }
 }
@@ -104,10 +110,12 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     required this.notifier,
     this.initialSelection,
     this.initialBlockId,
+    required this.pageAccessLevelBloc,
   });
 
   final ViewInfoBloc bloc;
   final ViewPluginNotifier notifier;
+  final PageAccessLevelBloc pageAccessLevelBloc;
 
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
@@ -139,8 +147,15 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           PickerTabType.custom,
         ];
 
-    return BlocProvider<ViewInfoBloc>.value(
-      value: bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ViewInfoBloc>.value(
+          value: bloc,
+        ),
+        BlocProvider<PageAccessLevelBloc>.value(
+          value: pageAccessLevelBloc,
+        ),
+      ],
       child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
         builder: (_, state) => DocumentPage(
           key: ValueKey(view.id),
@@ -159,7 +174,12 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   String? get viewName => notifier.view.nameOrDefault;
 
   @override
-  Widget get leftBarItem => ViewTitleBar(key: ValueKey(view.id), view: view);
+  Widget get leftBarItem {
+    return BlocProvider.value(
+      value: pageAccessLevelBloc,
+      child: ViewTitleBar(key: ValueKey(view.id), view: view),
+    );
+  }
 
   @override
   Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
@@ -167,8 +187,15 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
 
   @override
   Widget? get rightBarItem {
-    return BlocProvider<ViewInfoBloc>.value(
-      value: bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ViewInfoBloc>.value(
+          value: bloc,
+        ),
+        BlocProvider<PageAccessLevelBloc>.value(
+          value: pageAccessLevelBloc,
+        ),
+      ],
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

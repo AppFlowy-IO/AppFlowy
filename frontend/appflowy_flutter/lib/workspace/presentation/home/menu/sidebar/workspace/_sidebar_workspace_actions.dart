@@ -1,8 +1,9 @@
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -148,25 +149,27 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
               description: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
               onConfirm: () {
                 workspaceBloc.add(
-                  UserWorkspaceEvent.deleteWorkspace(workspace.workspaceId),
+                  UserWorkspaceEvent.deleteWorkspace(
+                    workspaceId: workspace.workspaceId,
+                  ),
                 );
               },
             );
           case WorkspaceMoreAction.rename:
-            await NavigatorTextFieldDialog(
+            await showAFTextFieldDialog(
+              context: context,
               title: LocaleKeys.workspace_renameWorkspace.tr(),
-              value: workspace.name,
+              initialValue: workspace.name,
               hintText: '',
-              autoSelectAllText: true,
-              onConfirm: (name, context) async {
+              onConfirm: (name) async {
                 workspaceBloc.add(
                   UserWorkspaceEvent.renameWorkspace(
-                    workspace.workspaceId,
-                    name,
+                    workspaceId: workspace.workspaceId,
+                    name: name,
                   ),
                 );
               },
-            ).show(context);
+            );
           case WorkspaceMoreAction.leave:
             await showConfirmDialog(
               context: context,
@@ -174,9 +177,11 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
               description:
                   LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
               confirmLabel: LocaleKeys.button_yes.tr(),
-              onConfirm: () {
+              onConfirm: (_) {
                 workspaceBloc.add(
-                  UserWorkspaceEvent.leaveWorkspace(workspace.workspaceId),
+                  UserWorkspaceEvent.leaveWorkspace(
+                    workspaceId: workspace.workspaceId,
+                  ),
                 );
               },
             );

@@ -239,10 +239,14 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
   Future<void> _scaleWithStep(double step) async {
     final currentScaleFactor = await windowSizeManager.getScaleFactor();
-    final textScale = (currentScaleFactor + step).clamp(
+
+    double textScale = (currentScaleFactor + step).clamp(
       WindowSizeManager.minScaleFactor,
       WindowSizeManager.maxScaleFactor,
     );
+
+    // only keep 2 decimal places
+    textScale = double.parse(textScale.toStringAsFixed(2));
 
     Log.info('scale the app from $currentScaleFactor to $textScale');
 
@@ -254,7 +258,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       // The integration test will fail if we check the scale factor in the test.
       // #0      ScaledWidgetsFlutterBinding.Eval ()
       // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
-      appflowyScaleFactor = scaleFactor;
+      appflowyScaleFactor = double.parse(scaleFactor.toStringAsFixed(2));
     } else {
       ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scaleFactor;
     }

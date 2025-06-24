@@ -7,10 +7,12 @@ class AFModal extends StatelessWidget {
   const AFModal({
     super.key,
     this.constraints = const BoxConstraints(),
+    this.backgroundColor,
     required this.child,
   });
 
   final BoxConstraints constraints;
+  final Color? backgroundColor;
   final Widget child;
 
   @override
@@ -26,7 +28,7 @@ class AFModal extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: theme.shadow.medium,
               borderRadius: BorderRadius.circular(theme.borderRadius.xl),
-              color: theme.surfaceColorScheme.primary,
+              color: backgroundColor ?? theme.surfaceColorScheme.primary,
             ),
             child: Material(
               color: Colors.transparent,
@@ -59,12 +61,17 @@ class AFModalHeader extends StatelessWidget {
         left: theme.spacing.xxl,
         right: theme.spacing.xxl,
       ),
-      child: Row(
-        spacing: theme.spacing.s,
-        children: [
-          Expanded(child: leading),
-          ...trailing,
-        ],
+      child: DefaultTextStyle(
+        style: theme.textStyle.heading4.prominent(
+          color: theme.textColorScheme.primary,
+        ),
+        child: Row(
+          spacing: theme.spacing.s,
+          children: [
+            Expanded(child: leading),
+            ...trailing,
+          ],
+        ),
       ),
     );
   }

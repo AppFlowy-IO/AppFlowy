@@ -1,5 +1,4 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +31,9 @@ class ViewAncestorBloc extends Bloc<ViewAncestorEvent, ViewAncestorState> {
                 }
               },
             );
-            emit(state.copyWith(ancestor: ancester, isLoading: false));
+            if (ancester != null) {
+              emit(state.copyWith(ancestor: ancester, isLoading: false));
+            }
           },
         );
       },
@@ -89,7 +90,7 @@ extension ViewAncestorTextExtension on ViewAncestorState {
         return Text(
           displayPath.join(' / '),
           style: textStyle,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         );
       },
@@ -108,23 +109,30 @@ extension ViewAncestorTextExtension on ViewAncestorState {
     if (ancestors.length > 2) {
       displayPath = [ancestors.first.name, '...', ancestors.last.name];
     }
-    return RichText(
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        children: [
-          WidgetSpan(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('-', style: context.searchPanelPath),
-            ),
+    final theme = AppFlowyTheme.of(context);
+    final style = theme.textStyle.caption
+        .standard(color: theme.textColorScheme.tertiary)
+        .copyWith(letterSpacing: 0.1);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        HSpace(8),
+        Text(
+          '-',
+          style: style.copyWith(
+            color: theme.borderColorScheme.primaryHover,
           ),
-          TextSpan(
-            text: displayPath.join(' / '),
-            style: context.searchPanelPath,
+        ),
+        HSpace(8),
+        Flexible(
+          child: Text(
+            displayPath.join(' / '),
+            style: style,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

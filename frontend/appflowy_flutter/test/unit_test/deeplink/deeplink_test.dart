@@ -1,6 +1,7 @@
 import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/login_deeplink_handler.dart';
+import 'package:appflowy/startup/tasks/deeplink/open_app_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/payment_deeplink_handler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -9,7 +10,8 @@ void main() {
     final deepLinkHandlerRegistry = DeepLinkHandlerRegistry.instance
       ..register(LoginDeepLinkHandler())
       ..register(PaymentDeepLinkHandler())
-      ..register(InvitationDeepLinkHandler());
+      ..register(InvitationDeepLinkHandler())
+      ..register(OpenAppDeepLinkHandler());
 
     test('invitation deep link handler', () {
       final uri = Uri.parse(
@@ -52,6 +54,11 @@ void main() {
           expect(error, isNotNull);
         },
       );
+    });
+
+    test('open app deep link handler', () {
+      final uri = Uri.parse('appflowy-flutter://');
+      expect(OpenAppDeepLinkHandler().canHandle(uri), true);
     });
   });
 }

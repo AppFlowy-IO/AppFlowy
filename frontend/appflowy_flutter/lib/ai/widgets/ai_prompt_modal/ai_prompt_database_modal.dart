@@ -1,9 +1,9 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/ai/service/ai_prompt_database_selector_cubit.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialog_v2.dart';
@@ -12,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:equatable/equatable.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -215,80 +216,102 @@ class _HeaderState extends State<_Header> {
           return SizedBox.shrink();
         }
 
-        return Center(
-          child: ViewSelector(
-            viewSelectorCubit: BlocProvider(
-              create: (context) => ViewSelectorCubit(
-                getIgnoreViewType: getIgnoreViewType,
-              ),
-            ),
-            child: BlocSelector<SpaceBloc, SpaceState, (List<ViewPB>, ViewPB?)>(
-              selector: (state) => (state.spaces, state.currentSpace),
-              builder: (context, state) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: theme.spacing.xl,
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.spacing.m,
+            vertical: theme.spacing.xl,
+          ),
+          child: Row(
+            spacing: theme.spacing.s,
+            children: [
+              Expanded(
+                child: Text(
+                  LocaleKeys.ai_customPrompt_selectDatabase.tr(),
+                  style: theme.textStyle.body.standard(
+                    color: theme.textColorScheme.secondary,
                   ),
-                  child: AFPopover(
-                    controller: popoverController,
-                    decoration: BoxDecoration(
-                      color: theme.surfaceColorScheme.primary,
-                      borderRadius: BorderRadius.circular(theme.borderRadius.l),
-                      border: Border.all(
-                        color: theme.borderColorScheme.primary,
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: ViewSelector(
+                    viewSelectorCubit: BlocProvider(
+                      create: (context) => ViewSelectorCubit(
+                        getIgnoreViewType: getIgnoreViewType,
                       ),
-                      boxShadow: theme.shadow.medium,
                     ),
-                    anchor: AFAnchor(
-                      childAlignment: Alignment.topCenter,
-                      overlayAlignment: Alignment.bottomCenter,
-                      offset: Offset(0, theme.spacing.xs),
-                    ),
-                    popover: (context) {
-                      return _PopoverContent(
-                        onSelectViewItem: (item) {
-                          context
-                              .read<AiPromptDatabaseSelectorCubit>()
-                              .selectDatabaseView(item.view.id);
-                          popoverController.hide();
-                        },
-                      );
-                    },
-                    child: AFOutlinedButton.normal(
-                      onTap: () {
-                        context
-                            .read<ViewSelectorCubit>()
-                            .refreshSources(state.$1, state.$2);
-                        popoverController.toggle();
-                      },
-                      builder: (context, isHovering, disabled) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: theme.spacing.s,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                viewName == null
-                                    ? LocaleKeys.ai_customPrompt_selectDatabase
-                                        .tr()
-                                    : viewName!,
-                                style: theme.textStyle.body.enhanced(
-                                  color: theme.textColorScheme.primary,
-                                ),
-                              ),
+                    child: BlocSelector<SpaceBloc, SpaceState,
+                        (List<ViewPB>, ViewPB?)>(
+                      selector: (state) => (state.spaces, state.currentSpace),
+                      builder: (context, state) {
+                        return AFPopover(
+                          controller: popoverController,
+                          decoration: BoxDecoration(
+                            color: theme.surfaceColorScheme.primary,
+                            borderRadius:
+                                BorderRadius.circular(theme.borderRadius.l),
+                            border: Border.all(
+                              color: theme.borderColorScheme.primary,
                             ),
-                            FlowySvg(
-                              FlowySvgs.toolbar_arrow_down_m,
-                              size: Size(12, 20),
-                            ),
-                          ],
+                            boxShadow: theme.shadow.medium,
+                          ),
+                          padding: EdgeInsets.zero,
+                          anchor: AFAnchor(
+                            childAlignment: Alignment.topCenter,
+                            overlayAlignment: Alignment.bottomCenter,
+                            offset: Offset(0, theme.spacing.xs),
+                          ),
+                          popover: (context) {
+                            return _PopoverContent(
+                              onSelectViewItem: (item) {
+                                context
+                                    .read<AiPromptDatabaseSelectorCubit>()
+                                    .selectDatabaseView(item.view.id);
+                                popoverController.hide();
+                              },
+                            );
+                          },
+                          child: AFOutlinedButton.normal(
+                            onTap: () {
+                              context
+                                  .read<ViewSelectorCubit>()
+                                  .refreshSources(state.$1, state.$2);
+                              popoverController.toggle();
+                            },
+                            builder: (context, isHovering, disabled) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: theme.spacing.s,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      viewName ??
+                                          LocaleKeys
+                                              .ai_customPrompt_selectDatabase
+                                              .tr(),
+                                      style: theme.textStyle.body.enhanced(
+                                        color: theme.textColorScheme.primary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  FlowySvg(
+                                    FlowySvgs.toolbar_arrow_down_m,
+                                    color: theme.iconColorScheme.primary,
+                                    size: Size(12, 20),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         );
                       },
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -340,13 +363,8 @@ class _Expanded extends StatelessWidget {
         return state.maybeMap(
           orElse: () => SizedBox.shrink(),
           selected: (selectedState) {
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(theme.borderRadius.l),
-              ),
-              padding: EdgeInsets.all(
-                theme.spacing.m,
-              ),
+            return Padding(
+              padding: EdgeInsets.all(theme.spacing.m),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,11 +374,15 @@ class _Expanded extends StatelessWidget {
                     title: LocaleKeys.ai_customPrompt_title.tr(),
                     currentFieldId: selectedState.config.titleFieldId,
                     isDisabled: true,
+                    fields: selectedState.fields,
                     onSelect: (id) {},
                   ),
                   FieldSelector(
                     title: LocaleKeys.ai_customPrompt_content.tr(),
                     currentFieldId: selectedState.config.contentFieldId,
+                    fields: selectedState.fields
+                        .where((f) => f.fieldType == FieldType.RichText)
+                        .toList(),
                     onSelect: (id) {
                       if (id != null) {
                         context
@@ -373,6 +395,9 @@ class _Expanded extends StatelessWidget {
                     title: LocaleKeys.ai_customPrompt_example.tr(),
                     currentFieldId: selectedState.config.exampleFieldId,
                     isOptional: true,
+                    fields: selectedState.fields
+                        .where((f) => f.fieldType == FieldType.RichText)
+                        .toList(),
                     onSelect: (id) {
                       context
                           .read<AiPromptDatabaseSelectorCubit>()
@@ -383,6 +408,14 @@ class _Expanded extends StatelessWidget {
                     title: LocaleKeys.ai_customPrompt_category.tr(),
                     currentFieldId: selectedState.config.categoryFieldId,
                     isOptional: true,
+                    fields: selectedState.fields
+                        .where(
+                          (f) =>
+                              f.fieldType == FieldType.RichText ||
+                              f.fieldType == FieldType.SingleSelect ||
+                              f.fieldType == FieldType.MultiSelect,
+                        )
+                        .toList(),
                     onSelect: (id) {
                       context
                           .read<AiPromptDatabaseSelectorCubit>()
@@ -501,13 +534,26 @@ class _PopoverContentState extends State<_PopoverContent> {
   }
 }
 
-class FieldSelector extends StatefulWidget {
+class _FieldPBWrapper extends Equatable with AFDropDownMenuMixin {
+  const _FieldPBWrapper(this.field);
+
+  final FieldPB field;
+
+  @override
+  String get label => field.name;
+
+  @override
+  List<Object?> get props => [field.id];
+}
+
+class FieldSelector extends StatelessWidget {
   const FieldSelector({
     super.key,
     required this.title,
     required this.currentFieldId,
     this.isDisabled = false,
     this.isOptional = false,
+    this.fields = const [],
     required this.onSelect,
   });
 
@@ -515,143 +561,66 @@ class FieldSelector extends StatefulWidget {
   final String? currentFieldId;
   final bool isDisabled;
   final bool isOptional;
+  final List<FieldPB> fields;
   final void Function(String? id)? onSelect;
-
-  @override
-  State<FieldSelector> createState() => _FieldSelectorState();
-}
-
-class _FieldSelectorState extends State<FieldSelector> {
-  final popoverController = AFPopoverController();
-
-  @override
-  void dispose() {
-    popoverController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return BlocBuilder<AiPromptDatabaseSelectorCubit,
-        AiPromptDatabaseSelectorState>(
-      builder: (context, state) {
-        final fields = _getVisibleFields(state);
-        final selectedField = fields.firstWhereOrNull(
-          (field) => field.id == widget.currentFieldId,
-        );
-
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.title,
-              style: theme.textStyle.body.standard(
-                color: theme.textColorScheme.secondary,
-              ),
-            ),
-            AFPopover(
-              controller: popoverController,
-              decoration: BoxDecoration(
-                color: theme.surfaceColorScheme.primary,
-                borderRadius: BorderRadius.circular(theme.borderRadius.l),
-                border: Border.all(
-                  color: theme.borderColorScheme.primary,
-                ),
-                boxShadow: theme.shadow.medium,
-              ),
-              anchor: AFAnchor(
-                childAlignment: Alignment.topRight,
-                overlayAlignment: Alignment.bottomRight,
-                offset: Offset(0, theme.spacing.xs),
-              ),
-              popover: (context) {
-                return ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 240),
-                  child: ListView.builder(
-                    itemCount: fields.length + (widget.isOptional ? 1 : 0),
-                    shrinkWrap: true,
-                    padding: EdgeInsets.all(theme.spacing.m),
-                    itemBuilder: (context, index) {
-                      if (widget.isOptional && index == 0) {
-                        return AFTextMenuItem(
-                          title: LocaleKeys.ai_customPrompt_selectField.tr(),
-                          onTap: () {
-                            widget.onSelect?.call(null);
-                            popoverController.hide();
-                          },
-                          trailing: selectedField == null
-                              ? FlowySvg(
-                                  FlowySvgs.check_s,
-                                  size: const Size.square(20),
-                                  color: theme.fillColorScheme.themeThick,
-                                )
-                              : null,
-                        );
-                      }
-                      final field = fields[index - (widget.isOptional ? 1 : 0)];
-                      return AFTextMenuItem(
-                        title: field.name,
-                        trailing: field.id == selectedField?.id
-                            ? FlowySvg(
-                                FlowySvgs.check_s,
-                                size: const Size.square(20),
-                                color: theme.fillColorScheme.themeThick,
-                              )
-                            : null,
-                        onTap: () {
-                          widget.onSelect?.call(field.id);
-                          popoverController.hide();
-                        },
-                      );
-                    },
-                  ),
-                );
-              },
-              child: AFOutlinedButton.normal(
-                disabled: widget.isDisabled,
-                builder: (context, isHovering, disabled) {
-                  return Row(
-                    children: [
-                      Text(
-                        selectedField?.name ??
-                            LocaleKeys.ai_customPrompt_selectField.tr(),
-                        style: theme.textStyle.body.enhanced(
-                          color: disabled
-                              ? theme.textColorScheme.tertiary
-                              : selectedField == null
-                                  ? theme.textColorScheme.secondary
-                                  : theme.textColorScheme.primary,
-                        ),
-                      ),
-                      HSpace(
-                        theme.spacing.s,
-                      ),
-                      FlowySvg(
-                        FlowySvgs.toolbar_arrow_down_m,
-                        size: Size(12, 20),
-                      ),
-                    ],
-                  );
-                },
-                onTap: () => popoverController.toggle(),
-              ),
-            ),
-          ],
-        );
-      },
+    final selectedField = fields.firstWhereOrNull(
+      (field) => field.id == currentFieldId,
     );
-  }
 
-  List<FieldPB> _getVisibleFields(AiPromptDatabaseSelectorState state) {
-    return state.maybeMap(
-      orElse: () => [],
-      selected: (value) {
-        return value.fields
-            .where((field) => field.fieldType == FieldType.RichText)
-            .toList();
-      },
+    return Row(
+      spacing: theme.spacing.s,
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: AFDropDownMenu<_FieldPBWrapper>(
+            isDisabled: isDisabled,
+            items: fields.map((field) => _FieldPBWrapper(field)).toList(),
+            selectedItems: [
+              if (selectedField != null) _FieldPBWrapper(selectedField),
+            ],
+            clearIcon: selectedField == null ||
+                    !fields.contains(selectedField) ||
+                    !isOptional
+                ? null
+                : MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        onSelect?.call(null);
+                      },
+                      child: FlowySvg(
+                        FlowySvgs.search_clear_m,
+                        size: Size.square(16),
+                        color: theme.iconColorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+            onSelected: (value) {
+              if (value == null) {
+                return;
+              }
+              onSelect?.call(value.field.id);
+            },
+            dropdownIcon: FlowySvg(
+              FlowySvgs.toolbar_arrow_down_m,
+              color: theme.iconColorScheme.primary,
+              size: Size(12, 20),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

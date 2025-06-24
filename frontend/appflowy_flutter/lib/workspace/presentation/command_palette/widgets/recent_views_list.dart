@@ -1,13 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_recent_view_cell.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_special_styles.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -64,6 +60,7 @@ class RecentViewsList extends StatelessWidget {
               padding: EdgeInsets.only(right: hidePreview ? 0 : 6),
               child: FlowyScrollbar(
                 controller: controller,
+                thumbVisibility: false,
                 child: SingleChildScrollView(
                   controller: controller,
                   physics: const ClampingScrollPhysics(),
@@ -76,8 +73,8 @@ class RecentViewsList extends StatelessWidget {
                       children: [
                         if (showAskingAI) SearchAskAiEntrance(),
                         buildTitle(context),
-                        buildViewList(state, context),
-                        VSpace(8),
+                        buildViewList(state, context, hidePreview),
+                        VSpace(16),
                       ],
                     ),
                   ),
@@ -100,13 +97,21 @@ class RecentViewsList extends StatelessWidget {
       ),
       child: Text(
         LocaleKeys.sideBar_recent.tr(),
-        style: context.searchPanelTitle1,
+        style: theme.textStyle.body
+            .enhanced(color: theme.textColorScheme.secondary)
+            .copyWith(
+              letterSpacing: 0.2,
+              height: 22 / 16,
+            ),
       ),
     );
   }
 
-  Widget buildViewList(RecentViewsState state, BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
+  Widget buildViewList(
+    RecentViewsState state,
+    BuildContext context,
+    bool hidePreview,
+  ) {
     final recentViews = state.views.map((e) => e.item).toSet().toList();
 
     if (recentViews.isEmpty) {
@@ -119,29 +124,15 @@ class RecentViewsList extends StatelessWidget {
       itemBuilder: (_, index) {
         final view = recentViews[index];
 
-        final icon = view.icon.value.isNotEmpty
-            ? Text(
-                view.icon.value,
-                strutStyle: StrutStyle(
-                  fontSize: 16,
-                  height: 20 / 16,
-                  forceStrutHeight: true,
-                  leadingDistribution: TextLeadingDistribution.even,
-                ),
-              )
-            : FlowySvg(
-                view.iconData,
-                size: const Size.square(18),
-                color: theme.iconColorScheme.secondary,
-              );
-
         return SearchRecentViewCell(
+          key: ValueKey(view.id),
           icon: SizedBox.square(
             dimension: 20,
-            child: Center(child: icon),
+            child: Center(child: view.buildIcon(context)),
           ),
           view: view,
           onSelected: onSelected,
+          isNarrowWindow: hidePreview,
         );
       },
     );
@@ -150,7 +141,7 @@ class RecentViewsList extends StatelessWidget {
   Widget buildPreview(RecentViewsState state) {
     final hoveredView = state.hoveredView;
     if (hoveredView == null) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
     return Align(
       alignment: Alignment.topLeft,
@@ -158,13 +149,7 @@ class RecentViewsList extends StatelessWidget {
         key: ValueKey(hoveredView.id),
         view: hoveredView,
         onViewOpened: () {
-          getIt<ActionNavigationBloc>().add(
-            ActionNavigationEvent.performAction(
-              action: NavigationAction(
-                objectId: hoveredView.id,
-              ),
-            ),
-          );
+          hoveredView.id.navigateTo();
           onSelected();
         },
       ),
