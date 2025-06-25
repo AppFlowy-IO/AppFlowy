@@ -1,5 +1,3 @@
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/features/mension_person/data/cache/person_list_cache.dart';
 import 'package:appflowy/features/mension_person/data/models/mention_menu_item.dart';
 import 'package:appflowy/features/mension_person/data/repositories/mock_mention_repository.dart';
@@ -29,10 +27,12 @@ class MentionMenu extends StatelessWidget {
     this.width = 400,
     this.maxHeight = 400,
     this.builder,
+    required this.sendNotification,
   });
   final double width;
   final double maxHeight;
   final String query;
+  final bool sendNotification;
   final MentionChildBuilder? builder;
 
   @override
@@ -40,47 +40,40 @@ class MentionMenu extends StatelessWidget {
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
-    return FutureBuilder(
-      future: getIt<KeyValueStorage>().getBool(KVKeys.atMenuSendNotification),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        final sendNotification = snapshot.data ?? false;
-        return BlocProvider(
-          create: (_) => MentionBloc(
-            repository: MockMentionRepository(),
-            workspaceId: workspaceId,
-            query: query,
-            sendNotification: sendNotification,
-            personListCache: getIt<PersonListCache>(),
-          )..add(MentionEvent.init()),
-          child: BlocBuilder<MentionBloc, MentionState>(
-            builder: (context, state) {
-              final itemMap = MentionItemMap();
-              final child = Provider<MentionItemMap>.value(
-                value: itemMap,
-                child: MentionMenuScroller(
-                  builder: (_, controller) {
-                    return BlocListener<MentionBloc, MentionState>(
-                      listener: (context, state) {
-                        if (!controller.hasClients || !context.mounted) return;
-                        controller.jumpTo(0);
-                      },
-                      listenWhen: (previous, current) =>
-                          previous.query != current.query,
-                      child: MentionMenuShortcuts(
-                        scrollController: controller,
-                        itemMap: itemMap,
-                        child: buildMenu(context, controller),
-                      ),
-                    );
+    return BlocProvider(
+      create: (_) => MentionBloc(
+        repository: MockMentionRepository(),
+        workspaceId: workspaceId,
+        query: query,
+        sendNotification: sendNotification,
+        personListCache: getIt<PersonListCache>(),
+      )..add(MentionEvent.init()),
+      child: BlocBuilder<MentionBloc, MentionState>(
+        builder: (context, state) {
+          final itemMap = MentionItemMap();
+          final child = Provider<MentionItemMap>.value(
+            value: itemMap,
+            child: MentionMenuScroller(
+              builder: (_, controller) {
+                return BlocListener<MentionBloc, MentionState>(
+                  listener: (context, state) {
+                    if (!controller.hasClients || !context.mounted) return;
+                    controller.jumpTo(0);
                   },
-                ),
-              );
-              return builder?.call(context, child) ?? child;
-            },
-          ),
-        );
-      },
+                  listenWhen: (previous, current) =>
+                      previous.query != current.query,
+                  child: MentionMenuShortcuts(
+                    scrollController: controller,
+                    itemMap: itemMap,
+                    child: buildMenu(context, controller),
+                  ),
+                );
+              },
+            ),
+          );
+          return builder?.call(context, child) ?? child;
+        },
+      ),
     );
   }
 

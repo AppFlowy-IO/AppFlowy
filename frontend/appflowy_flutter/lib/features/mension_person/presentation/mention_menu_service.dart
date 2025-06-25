@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -50,10 +53,13 @@ class DesktopMentionMenuService extends MentionMenuService {
   @override
   Future<void> show() async {
     final completer = Completer<void>();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final sendNotification = await getIt<KeyValueStorage>()
+              .getBool(KVKeys.atMenuSendNotification) ??
+          false;
       _show(
         MentionMenuBuilderInfo(
-          builder: (service, ltrb) => _buildMentionMenu(ltrb),
+          builder: (service, ltrb) => _buildMentionMenu(ltrb, sendNotification),
           menuSize: Size.square(400),
         ),
       );
@@ -88,6 +94,7 @@ class DesktopMentionMenuService extends MentionMenuService {
             behavior: HitTestBehavior.opaque,
             onTap: dismiss,
             child: Stack(
+              fit: StackFit.expand,
               children: [
                 ltrb.buildPositioned(
                   child: builderInfo.builder.call(this, ltrb),
@@ -107,7 +114,7 @@ class DesktopMentionMenuService extends MentionMenuService {
     editorService.scrollService?.disable();
   }
 
-  Widget _buildMentionMenu(LTRB ltrb) {
+  Widget _buildMentionMenu(LTRB ltrb, bool sendNotification) {
     final editorHeight = editorState.renderBox!.size.height;
     return buildMultiBlocProvider(
       (_) => Provider(
@@ -123,7 +130,7 @@ class DesktopMentionMenuService extends MentionMenuService {
           },
         ),
         dispose: (context, value) => value.dispose(),
-        child: MentionMenu(),
+        child: MentionMenu(sendNotification: sendNotification),
       ),
     );
   }

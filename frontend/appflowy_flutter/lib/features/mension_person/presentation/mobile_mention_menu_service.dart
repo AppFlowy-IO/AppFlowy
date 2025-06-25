@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/features/mension_person/logic/mention_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -49,11 +52,14 @@ class MobileMentionMenuService extends MentionMenuService {
   @override
   Future<void> show() async {
     final completer = Completer<void>();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       final screenSize = MediaQuery.of(context).size;
+      final sendNotification = await getIt<KeyValueStorage>()
+              .getBool(KVKeys.atMenuSendNotification) ??
+          false;
       _show(
         MentionMenuBuilderInfo(
-          builder: (service, ltrb) => _buildMentionMenu(ltrb),
+          builder: (service, ltrb) => _buildMentionMenu(ltrb, sendNotification),
           menuSize: Size(screenSize.width - 40, 240),
         ),
       );
@@ -117,7 +123,7 @@ class MobileMentionMenuService extends MentionMenuService {
     editorService.scrollService?.disable();
   }
 
-  Widget _buildMentionMenu(LTRB ltrb) {
+  Widget _buildMentionMenu(LTRB ltrb, bool sendNotification) {
     final editorHeight = editorState.renderBox!.size.height;
     final startOffset = editorState.selection?.endIndex ?? 0;
     return buildMultiBlocProvider(
@@ -139,6 +145,7 @@ class MobileMentionMenuService extends MentionMenuService {
           child: MentionMenu(
             width: screenSize.width - 40,
             maxHeight: 240,
+            sendNotification: sendNotification,
             builder: (context, child) {
               final mentionBloc = context.read<MentionBloc>();
               return MobileInputWidget(

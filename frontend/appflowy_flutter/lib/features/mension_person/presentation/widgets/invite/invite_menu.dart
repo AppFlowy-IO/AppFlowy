@@ -1,8 +1,11 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/features/mension_person/data/models/models.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu.dart';
 import 'package:appflowy/features/mension_person/presentation/mention_menu_service.dart';
 import 'package:appflowy/features/mension_person/presentation/menu_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -249,15 +252,21 @@ class _InviteMenuState extends State<InviteMenu> {
   List<PersonRoleDropDownMenuItem> roleItems() =>
       PersonRole.values.map((role) => role.buildItem()).toList();
 
-  void onBack() {
+  Future<void> onBack() async {
     final serviceInfo = context.read<MentionMenuServiceInfo?>();
     if (serviceInfo == null) return;
+    final sendNotification =
+        await getIt<KeyValueStorage>().getBool(KVKeys.atMenuSendNotification) ??
+            false;
     serviceInfo.onMenuReplace.call(
       MentionMenuBuilderInfo(
         builder: (service, lrbt) => service.buildMultiBlocProvider(
           (_) => Provider.value(
             value: serviceInfo,
-            child: MentionMenu(query: widget.query),
+            child: MentionMenu(
+              query: widget.query,
+              sendNotification: sendNotification,
+            ),
           ),
         ),
         menuSize: Size.square(400),
