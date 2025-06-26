@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/slash_menu/slash_menu_items/mention_item.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -327,6 +328,16 @@ class AddBlockMenuItemBuilder {
               );
             });
           }
+        },
+      ),
+      TypeOptionMenuItemValue(
+        value: ParagraphBlockKeys.type,
+        backgroundColor: colorMap[MentionBlockKeys.type]!,
+        text: LocaleKeys.document_mentionMenu_person.tr(),
+        icon: FlowySvgs.mention_invite_user_m,
+        onTap: (_, __) async {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+          await editorState.insertAtCharacter();
         },
       ),
     ];

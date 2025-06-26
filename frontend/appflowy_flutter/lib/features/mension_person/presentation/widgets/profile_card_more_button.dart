@@ -28,7 +28,7 @@ class ProfileCardMoreButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final personBloc = context.read<PersonBloc>(),
         person = personBloc.state.person;
-    if (person.isEmpty) return const SizedBox.shrink();
+    if (person.isEmpty || person.deleted) return const SizedBox.shrink();
     final theme = AppFlowyTheme.of(context);
 
     return AppFlowyPopover(

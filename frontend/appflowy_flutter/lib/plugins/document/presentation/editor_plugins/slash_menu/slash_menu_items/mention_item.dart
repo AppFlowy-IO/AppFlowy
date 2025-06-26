@@ -24,7 +24,7 @@ SelectionMenuItem mentionSlashMenuItem = SelectionMenuItem(
   ),
 );
 
-extension on EditorState {
+extension MentionMenuEditorStateExtension on EditorState {
   Future<void> insertAtCharacter() async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {

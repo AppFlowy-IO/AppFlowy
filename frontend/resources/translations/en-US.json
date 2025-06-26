@@ -2209,6 +2209,7 @@
     "mentionMenu": {
       "mentionAPerson": "Mention a person",
       "people": "People",
+      "person": "Person",
       "sendNotification": "Send notification",
       "pages": "Pages",
       "moreResults": "{} more results...",
