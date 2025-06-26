@@ -2,7 +2,7 @@
     <b>
         <a href="https://www.appflowy.com">AppFlowy</a><br>
     </b>
-    ⭐️  The Open Source Alternative to Notion  ⭐️ <br>
+    ⭐️  The open-source alternative to Notion  ⭐️ <br>
 </h1>
 
 <p align="center">
@@ -57,7 +57,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 
 - [Rust](https://www.rust-lang.org/)
 
-## Stay up-to-date
+## Stay up to date
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github - how to star the repo" width="100%" /></p>
 
