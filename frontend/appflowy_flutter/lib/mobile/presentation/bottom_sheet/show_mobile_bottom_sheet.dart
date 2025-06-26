@@ -37,6 +37,7 @@ Future<T?> showMobileBottomSheet<T>(
   VoidCallback? onRemove,
   // this field is only used if showHeader is true
   String title = '',
+  String? doneText,
   bool isScrollControlled = true,
   bool showDivider = true,
   bool useRootNavigator = false,
@@ -115,6 +116,7 @@ Future<T?> showMobileBottomSheet<T>(
             showDoneButton: showDoneButton,
             showRemoveButton: showRemoveButton,
             title: title,
+            doneText: doneText,
             onRemove: onRemove,
             onDone: onDone,
           ),
@@ -214,8 +216,11 @@ class BottomSheetHeader extends StatelessWidget {
     required this.showBackButton,
     required this.showCloseButton,
     required this.showRemoveButton,
-    required this.title,
     required this.showDoneButton,
+    required this.title,
+    this.backButtonBuilder,
+    this.doneButtonBuilder,
+    this.doneText,
     this.onRemove,
     this.onDone,
     this.onBack,
@@ -223,6 +228,7 @@ class BottomSheetHeader extends StatelessWidget {
   });
 
   final String title;
+  final String? doneText;
 
   final bool showBackButton;
   final bool showCloseButton;
@@ -232,8 +238,10 @@ class BottomSheetHeader extends StatelessWidget {
   final VoidCallback? onRemove;
   final VoidCallback? onBack;
   final VoidCallback? onClose;
+  final ValueChanged<BuildContext>? onDone;
 
-  final void Function(BuildContext context)? onDone;
+  final WidgetBuilder? backButtonBuilder;
+  final WidgetBuilder? doneButtonBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -247,9 +255,8 @@ class BottomSheetHeader extends StatelessWidget {
             if (showBackButton)
               Align(
                 alignment: Alignment.centerLeft,
-                child: BottomSheetBackButton(
-                  onTap: onBack,
-                ),
+                child: backButtonBuilder?.call(context) ??
+                    BottomSheetBackButton(onTap: onBack),
               ),
             if (showCloseButton)
               Align(
@@ -279,15 +286,17 @@ class BottomSheetHeader extends StatelessWidget {
             if (showDoneButton)
               Align(
                 alignment: Alignment.centerRight,
-                child: BottomSheetDoneButton(
-                  onDone: () {
-                    if (onDone != null) {
-                      onDone?.call(context);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
+                child: doneButtonBuilder?.call(context) ??
+                    BottomSheetDoneButton(
+                      text: doneText,
+                      onDone: () {
+                        if (onDone != null) {
+                          onDone?.call(context);
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
               ),
           ],
         ),

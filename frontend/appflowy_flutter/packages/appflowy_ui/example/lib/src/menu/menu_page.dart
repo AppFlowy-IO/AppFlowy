@@ -13,11 +13,12 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   final popoverController = AFPopoverController();
+  final switchNotifier = ValueNotifier(false);
 
   @override
   void dispose() {
     popoverController.dispose();
-
+    switchNotifier.dispose();
     super.dispose();
   }
 
@@ -61,6 +62,26 @@ class _MenuPageState extends State<MenuPage> {
               children: [
                 AFMenuSection(
                   title: 'Section 1',
+                  titleTrailing: ValueListenableBuilder<bool>(
+                    valueListenable: switchNotifier,
+                    builder: (context, value, child) {
+                      return Row(
+                        children: [
+                          Text(
+                            'Title trailing',
+                            style: theme.textStyle.caption.standard(
+                              color: theme.textColorScheme.secondary,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          _Switch(
+                            value: value,
+                            onChanged: (v) => switchNotifier.value = v,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   children: [
                     AFTextMenuItem(
                       leading: leading,
@@ -194,6 +215,49 @@ class _MenuPageState extends State<MenuPage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Switch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _Switch({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onChanged.call(!value),
+        child: Container(
+          width: 34,
+          height: 18,
+          decoration: BoxDecoration(
+              color: value
+                  ? theme.fillColorScheme.themeThick
+                  : theme.fillColorScheme.secondary,
+              borderRadius: BorderRadius.circular(17)),
+          child: Align(
+            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              width: 16,
+              height: 16,
+              margin: EdgeInsets.all(1),
+              decoration: BoxDecoration(
+                color: theme.iconColorScheme.onFill,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
         ),
       ),
     );

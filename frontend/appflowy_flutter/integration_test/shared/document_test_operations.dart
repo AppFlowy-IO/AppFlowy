@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-
+import 'package:appflowy/features/mension_person/presentation/widgets/page_list.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
@@ -15,7 +15,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cov
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
-import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -232,10 +231,8 @@ class EditorOperations {
   ///
   /// Must call [showAtMenu] first.
   Future<void> tapAtMenuItemWithName(String name) async {
-    final atMenuItem = find.descendant(
-      of: find.byType(InlineActionsHandler),
-      matching: find.text(name, findRichText: true),
-    );
+    final pageList = find.byType(PageList);
+    final atMenuItem = find.descendant(of: pageList, matching: find.text(name));
     await tester.tapButton(atMenuItem);
   }
 

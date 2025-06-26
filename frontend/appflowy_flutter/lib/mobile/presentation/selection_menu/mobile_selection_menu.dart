@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/selection_menu/mobile_selection_menu_item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'mobile_selection_menu_item_widget.dart';
@@ -293,4 +296,43 @@ class _Position {
   @override
   int get hashCode =>
       left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
+}
+
+extension SelectionMenuBuildContextExtension on BuildContext {
+  Widget buildNoResultWidget() {
+    final theme = AppFlowyTheme.of(this);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(this).cardColor,
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 5,
+            spreadRadius: 1,
+            color: Colors.black.withValues(alpha: 0.1),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: SizedBox(
+        width: 240,
+        height: 48,
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: Material(
+            color: Colors.transparent,
+            child: Center(
+              child: Text(
+                LocaleKeys.inlineActions_noResults.tr(),
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: theme.textColorScheme.primary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

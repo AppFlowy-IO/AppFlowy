@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'slash_menu_items/mention_item.dart';
 import 'slash_menu_items/mobile_items.dart';
 import 'slash_menu_items/slash_menu_items.dart';
 
@@ -27,7 +28,7 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
   }
   if (isMobile) {
     if (isInTable) {
-      return mobileItemsInTale;
+      return mobileItemsInTable;
     } else {
       return mobileItems;
     }
@@ -131,6 +132,9 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
     // emoji
     emojiSlashMenuItem,
 
+    // mention
+    mentionSlashMenuItem,
+
     // date or reminder
     dateOrReminderSlashMenuItem,
 
@@ -194,6 +198,9 @@ List<SelectionMenuItem> _simpleTableSlashMenuItems() {
 
     // emoji
     emojiSlashMenuItem,
+
+    // mention
+    mentionSlashMenuItem,
 
     // date or reminder
     dateOrReminderSlashMenuItem,

@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'mention_item.dart';
 import 'slash_menu_items.dart';
 
 final List<SelectionMenuItem> mobileItems = [
@@ -14,17 +15,19 @@ final List<SelectionMenuItem> mobileItems = [
   fileAndMediaMobileSlashMenuItem,
   mobileTableSlashMenuItem,
   visualsMobileSlashMenuItem,
+  mentionSlashMenuItem,
   dateOrReminderSlashMenuItem,
   buildSubpageSlashMenuItem(svg: FlowySvgs.type_page_m),
   advancedMobileSlashMenuItem,
 ];
 
-final List<SelectionMenuItem> mobileItemsInTale = [
+final List<SelectionMenuItem> mobileItemsInTable = [
   textStyleMobileSlashMenuItem,
   listMobileSlashMenuItem,
   toggleListMobileSlashMenuItem,
   fileAndMediaMobileSlashMenuItem,
   visualsMobileSlashMenuItem,
+  mentionSlashMenuItem,
   dateOrReminderSlashMenuItem,
   buildSubpageSlashMenuItem(svg: FlowySvgs.type_page_m),
   advancedMobileSlashMenuItem,
