@@ -2,7 +2,7 @@
     <b>
         <a href="https://www.appflowy.com">AppFlowy</a><br>
     </b>
-    ⭐️  The Open Source Alternative To Notion  ⭐️ <br>
+    ⭐️  The Open Source Alternative to Notion  ⭐️ <br>
 </h1>
 
 <p align="center">
@@ -39,7 +39,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 <p align="center" >
     <img src="https://github.com/user-attachments/assets/e83dd1a3-4975-4d0e-91a1-9eb6e0d248cd" alt="Work across devices" width="1040px" /></p>
 
-## User Installation
+## Installation options
 
 - [Download AppFlowy Desktop (macOS, Windows, and Linux)](https://github.com/AppFlowy-IO/AppFlowy/releases)
 - Other
@@ -51,34 +51,33 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 - [Self-hosting AppFlowy](https://appflowy.com/docs/self-host-appflowy-overview)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
-## Built With
+## Built with
 
 - [Flutter](https://flutter.dev/)
 
 - [Rust](https://www.rust-lang.org/)
 
-## Stay Up-to-Date
+## Stay up-to-date
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github - how to star the repo" width="100%" /></p>
 
-## Getting Started with development
+## Getting started with development
 
-Please view the [documentation](https://docs.appflowy.io/docs/documentation/appflowy/from-source) for OS specific
-development instructions
+For OS-specific development instructions, refer to [Building from Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source).
 
 ## Roadmap
 
 - [AppFlowy Roadmap ReadMe](https://docs.appflowy.io/docs/appflowy/roadmap)
 - [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
 
-If you'd like to propose a feature, submit a feature
-request [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=feature_request.yaml&title=%5BFR%5D+) <br/>
-If you'd like to report a bug, submit a bug
-report [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=bug_report.yaml&title=%5BBug%5D+)
+If you'd like to propose a feature, then you can [submit a feature
+request](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=feature_request.yaml&title=%5BFR%5D+). <br/>
+If you'd like to report a bug, then you can [submit a bug
+report](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=bug_report.yaml&title=%5BBug%5D+).
 
-## **Releases**
+## Releases
 
-Please see the [changelog](https://appflowy.com/what-is-new) for more details about a given release.
+For more details about a given release, refer to the [changelog](https://appflowy.com/what-is-new).
 
 ## Contributing
 
@@ -105,7 +104,7 @@ run `npx inlang machine translate` to add missing translations.
   <img src="https://contrib.rocks/image?repo=AppFlowy-IO/AppFlowy" />
 </a>
 
-## Why Are We Building This?
+## Why are we building this?
 
 Notion has been our favourite project and knowledge management tool in recent years because of its aesthetic appeal and
 functionality. Our team uses it daily, and we are on its paid plan. However, as we all know, Notion has its limitations.
@@ -150,7 +149,7 @@ more information.
 
 ## Acknowledgments
 
-Special thanks to these amazing projects which help power AppFlowy:
+Special thanks to these amazing projects that help power AppFlowy:
 
 - [cargo-make](https://github.com/sagiegurari/cargo-make)
 - [contrib.rocks](https://contrib.rocks)
