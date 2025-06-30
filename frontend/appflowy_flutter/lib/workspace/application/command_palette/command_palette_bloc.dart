@@ -54,6 +54,7 @@ class CommandPaletteBloc
   final TrashService _trashService = TrashService();
   final TrashListener _trashListener = TrashListener();
   String? _activeQuery;
+  int askAIId = 0;
 
   @override
   Future<void> close() {
@@ -334,14 +335,20 @@ class CommandPaletteBloc
     _GoingToAskAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: true, askAISources: event.sources));
+    emit(
+      state.copyWith(
+        askAI: true,
+        askAISources: event.sources,
+        askAIId: '${askAIId++}',
+      ),
+    );
   }
 
   FutureOr<void> _onAskedAI(
     _AskedAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: false, askAISources: null));
+    emit(state.copyWith(askAI: false, askAISources: null, askAIId: ''));
   }
 
   bool _isActiveSearch(String searchId) =>
@@ -413,6 +420,7 @@ class CommandPaletteState with _$CommandPaletteState {
     required bool searching,
     required bool generatingAIOverview,
     @Default(false) bool askAI,
+    @Default('') String askAIId,
     @Default(null) List<SearchSourcePB>? askAISources,
     @Default([]) List<TrashPB> trash,
     @Default(null) String? searchId,
