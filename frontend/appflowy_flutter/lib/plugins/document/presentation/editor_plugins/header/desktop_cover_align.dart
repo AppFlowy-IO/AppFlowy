@@ -31,6 +31,7 @@ class DesktopCoverAlignController extends ChangeNotifier {
 
   void reset() {
     _adjustedAlign = Alignment.center;
+    notifyListeners();
   }
 
   void cancel() {
@@ -85,17 +86,14 @@ class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
     final alignment = controller.alignment;
     x = alignment.x;
     y = alignment.y;
-    controller.addListener(() {
-      setState(() {
-        x = controller.alignment.x;
-        y = controller.alignment.y;
-      });
-    });
+    controller.addListener(updateAlign);
   }
 
   @override
   void dispose() {
+    controller.removeListener(updateAlign);
     super.dispose();
+
     _stopImageStream();
   }
 
@@ -107,10 +105,18 @@ class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
 
   @override
   void didUpdateWidget(DesktopCoverAlign oldWidget) {
-    super.didUpdateWidget(oldWidget);
     if (widget.imageProvider != oldWidget.imageProvider) {
+      controller.reset();
       _resolveImage();
     }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void updateAlign() {
+    setState(() {
+      x = controller.alignment.x;
+      y = controller.alignment.y;
+    });
   }
 
   void _resolveImage() {
