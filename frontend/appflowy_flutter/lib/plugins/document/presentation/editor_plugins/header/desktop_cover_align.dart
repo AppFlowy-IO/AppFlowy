@@ -56,12 +56,12 @@ class DesktopCoverAlign extends StatefulWidget {
     required this.controller,
     required this.imageProvider,
     this.fit = BoxFit.cover,
-    this.enableAlign = false,
+    this.alignEnable = false,
   });
   final DesktopCoverAlignController controller;
   final ImageProvider imageProvider;
   final BoxFit fit;
-  final bool enableAlign;
+  final bool alignEnable;
 
   @override
   State<DesktopCoverAlign> createState() => _DesktopCoverAlignState();
@@ -205,7 +205,7 @@ class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
           fit: widget.fit,
           alignment: Alignment(-x, -y),
         );
-        if (widget.enableAlign && _imageSize != null) {
+        if (widget.alignEnable && _imageSize != null) {
           child = GestureDetector(
             onHorizontalDragUpdate: (details) {
               final delta = details.delta;
