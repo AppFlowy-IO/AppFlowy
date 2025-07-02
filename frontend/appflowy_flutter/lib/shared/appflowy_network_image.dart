@@ -24,6 +24,7 @@ class FlowyNetworkImage extends StatefulWidget {
     this.fit = BoxFit.cover,
     this.progressIndicatorBuilder,
     this.errorWidgetBuilder,
+    this.imageBuilder,
     required this.url,
     this.maxRetries = 5,
     this.retryDuration = const Duration(seconds: 6),
@@ -62,6 +63,9 @@ class FlowyNetworkImage extends StatefulWidget {
 
   /// Retry error codes.
   final Set<int> retryErrorCodes;
+
+  /// Optional builder to further customize the display of the image.
+  final ImageWidgetBuilder? imageBuilder;
 
   final void Function(bool isImageInCache)? onImageLoaded;
 
@@ -139,7 +143,9 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
+          alignment: Alignment(0, 0),
           progressIndicatorBuilder: widget.progressIndicatorBuilder,
+          imageBuilder: widget.imageBuilder,
           errorWidget: _errorWidgetBuilder,
           errorListener: (value) async {
             Log.error(
