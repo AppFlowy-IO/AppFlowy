@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover_align.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
@@ -24,6 +25,8 @@ class DesktopCover extends StatefulWidget {
     required this.node,
     required this.coverType,
     this.coverDetails,
+    this.enableAlign = false,
+    this.onAlignControllerCreated,
   });
 
   final ViewPB view;
@@ -31,7 +34,9 @@ class DesktopCover extends StatefulWidget {
   final EditorState editorState;
   final CoverType coverType;
   final String? coverDetails;
-
+  final bool enableAlign;
+  final Function(DesktopCoverAlignController? alignController)?
+      onAlignControllerCreated;
   @override
   State<DesktopCover> createState() => _DesktopCoverState();
 }
@@ -42,6 +47,19 @@ class _DesktopCoverState extends State<DesktopCover> {
       );
   String? get coverDetails =>
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
+  String? get coverAlign =>
+      widget.node.attributes[DocumentHeaderBlockKeys.align];
+
+  late final DesktopCoverAlignController coverAlignController;
+
+  @override
+  void initState() {
+    super.initState();
+    coverAlignController = DesktopCoverAlignController(coverAlign);
+    if (widget.onAlignControllerCreated != null) {
+      widget.onAlignControllerCreated!(coverAlignController);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +92,13 @@ class _DesktopCoverState extends State<DesktopCover> {
               child: FlowyNetworkImage(
                 url: cover.value,
                 userProfilePB: userProfilePB,
+                imageBuilder: (context, provider) {
+                  return DesktopCoverAlign(
+                    controller: coverAlignController,
+                    imageProvider: provider,
+                    enableAlign: widget.enableAlign,
+                  );
+                },
               ),
             );
           }
@@ -82,9 +107,12 @@ class _DesktopCoverState extends State<DesktopCover> {
             return SizedBox(
               height: height,
               width: double.infinity,
-              child: Image.asset(
-                PageStyleCoverImageType.builtInImagePath(cover.value),
-                fit: BoxFit.cover,
+              child: DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: AssetImage(
+                  PageStyleCoverImageType.builtInImagePath(cover.value),
+                ),
+                enableAlign: widget.enableAlign,
               ),
             );
           }
@@ -115,9 +143,12 @@ class _DesktopCoverState extends State<DesktopCover> {
             return SizedBox(
               height: height,
               width: double.infinity,
-              child: Image.file(
-                File(cover.value),
-                fit: BoxFit.cover,
+              child: DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: FileImage(
+                  File(cover.value),
+                ),
+                enableAlign: widget.enableAlign,
               ),
             );
           }
@@ -134,6 +165,7 @@ class _DesktopCoverState extends State<DesktopCover> {
     if (detail == null) {
       return const SizedBox.shrink();
     }
+
     switch (widget.coverType) {
       case CoverType.file:
         if (isURL(detail)) {
@@ -144,20 +176,33 @@ class _DesktopCoverState extends State<DesktopCover> {
             userProfilePB: userProfilePB,
             errorWidgetBuilder: (context, url, error) =>
                 const SizedBox.shrink(),
+            imageBuilder: (context, provider) {
+              return DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: provider,
+                enableAlign: widget.enableAlign ,
+              );
+            },
           );
         }
         final imageFile = File(detail);
         if (!imageFile.existsSync()) {
           return const SizedBox.shrink();
         }
-        return Image.file(
-          imageFile,
-          fit: BoxFit.cover,
+        final provider = FileImage(imageFile);
+        return DesktopCoverAlign(
+          controller: coverAlignController,
+          imageProvider: provider,
+          enableAlign: widget.enableAlign,
         );
+
       case CoverType.asset:
-        return Image.asset(
-          PageStyleCoverImageType.builtInImagePath(detail),
-          fit: BoxFit.cover,
+        final provider =
+            AssetImage(PageStyleCoverImageType.builtInImagePath(detail));
+        return DesktopCoverAlign(
+          controller: coverAlignController,
+          imageProvider: provider,
+          enableAlign: widget.enableAlign,
         );
       case CoverType.color:
         final color = widget.coverDetails?.tryToColor() ?? Colors.white;
