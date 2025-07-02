@@ -62,6 +62,14 @@ class _DesktopCoverState extends State<DesktopCover> {
   }
 
   @override
+  void didUpdateWidget(covariant DesktopCover oldWidget) {
+    if (widget.coverDetails != oldWidget.coverDetails) {
+      coverAlignController.reset();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.view.extra.isEmpty) {
       return _buildCoverImageV1();
@@ -180,7 +188,7 @@ class _DesktopCoverState extends State<DesktopCover> {
               return DesktopCoverAlign(
                 controller: coverAlignController,
                 imageProvider: provider,
-                enableAlign: widget.enableAlign ,
+                enableAlign: widget.enableAlign,
               );
             },
           );
