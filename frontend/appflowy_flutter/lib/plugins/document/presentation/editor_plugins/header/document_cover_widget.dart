@@ -65,6 +65,8 @@ enum CoverType {
       orElse: () => CoverType.none,
     );
   }
+
+  bool get isPhoto => this == file || this == asset;
 }
 
 // This key is used to intercept the selection event in the document cover widget.
@@ -564,6 +566,14 @@ class DocumentCoverState extends State<DocumentCover> {
   bool isAlignOpen = false;
   DesktopCoverAlignController? coverAlignController;
 
+  bool get isCoverAlignSupport {
+    if (widget.view.extra.isEmpty) {
+      // version <= 0.5.5
+      return widget.coverType.isPhoto;
+    }
+    return widget.view.cover?.isAlignEnable ?? false ;
+  }
+
   @override
   void dispose() {
     coverAlignController?.dispose();
@@ -818,10 +828,16 @@ class DocumentCoverState extends State<DocumentCover> {
           DeleteCoverButton(
             onTap: () => onCoverChanged(CoverType.none, null),
           ),
-          const HSpace(10),
-          AlignCoverButton(
-            onTap: switchAlignMode,
-          ),
+          if (isCoverAlignSupport)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const HSpace(10),
+                AlignCoverButton(
+                  onTap: switchAlignMode,
+                ),
+              ],
+            ),
         ],
       ),
     );
