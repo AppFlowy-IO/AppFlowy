@@ -104,7 +104,7 @@ class _DesktopCoverState extends State<DesktopCover> {
                   return DesktopCoverAlign(
                     controller: coverAlignController,
                     imageProvider: provider,
-                    enableAlign: widget.enableAlign,
+                    alignEnable: widget.enableAlign,
                   );
                 },
               ),
@@ -120,7 +120,7 @@ class _DesktopCoverState extends State<DesktopCover> {
                 imageProvider: AssetImage(
                   PageStyleCoverImageType.builtInImagePath(cover.value),
                 ),
-                enableAlign: widget.enableAlign,
+                alignEnable: widget.enableAlign,
               ),
             );
           }
@@ -156,7 +156,7 @@ class _DesktopCoverState extends State<DesktopCover> {
                 imageProvider: FileImage(
                   File(cover.value),
                 ),
-                enableAlign: widget.enableAlign,
+                alignEnable: widget.enableAlign,
               ),
             );
           }
@@ -188,7 +188,7 @@ class _DesktopCoverState extends State<DesktopCover> {
               return DesktopCoverAlign(
                 controller: coverAlignController,
                 imageProvider: provider,
-                enableAlign: widget.enableAlign,
+                alignEnable: widget.enableAlign,
               );
             },
           );
@@ -201,7 +201,7 @@ class _DesktopCoverState extends State<DesktopCover> {
         return DesktopCoverAlign(
           controller: coverAlignController,
           imageProvider: provider,
-          enableAlign: widget.enableAlign,
+          alignEnable: widget.enableAlign,
         );
 
       case CoverType.asset:
@@ -210,7 +210,7 @@ class _DesktopCoverState extends State<DesktopCover> {
         return DesktopCoverAlign(
           controller: coverAlignController,
           imageProvider: provider,
-          enableAlign: widget.enableAlign,
+          alignEnable: widget.enableAlign,
         );
       case CoverType.color:
         final color = widget.coverDetails?.tryToColor() ?? Colors.white;
