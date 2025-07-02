@@ -565,6 +565,12 @@ class DocumentCoverState extends State<DocumentCover> {
   DesktopCoverAlignController? coverAlignController;
 
   @override
+  void dispose() {
+    coverAlignController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return UniversalPlatform.isDesktopOrWeb
         ? _buildDesktopCover()
