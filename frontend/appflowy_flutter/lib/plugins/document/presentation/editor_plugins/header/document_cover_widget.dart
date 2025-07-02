@@ -138,11 +138,11 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
     viewListener = ViewListener(viewId: widget.view.id)
       ..start(
-        onViewUpdated: (view) {
+        onViewUpdated: (value) {
           setState(() {
-            viewIcon = EmojiIconData.fromViewIconPB(view.icon);
-            cover = view.cover;
-            view = view;
+            viewIcon = EmojiIconData.fromViewIconPB(value.icon);
+            cover = value.cover;
+            view = value;
           });
         },
       );
@@ -571,7 +571,7 @@ class DocumentCoverState extends State<DocumentCover> {
       // version <= 0.5.5
       return widget.coverType.isPhoto;
     }
-    return widget.view.cover?.isAlignEnable ?? false ;
+    return widget.view.cover?.isAlignEnable ?? false;
   }
 
   @override
