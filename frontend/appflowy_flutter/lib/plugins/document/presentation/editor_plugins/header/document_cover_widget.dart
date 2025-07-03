@@ -46,7 +46,11 @@ class DocumentHeaderBlockKeys {
   static const String coverType = 'cover_selection_type';
   static const String coverDetails = 'cover_selection';
   static const String icon = 'selected_icon';
-  static const String align = 'cover_selection_align';
+  // CoverOffset​​ indicates the offset of the cover image within the container,
+  // expressed as a comma-separated pair. The default value is "0.0,0.0", which
+  // is equivalent to Alignment.center. Values must be comma-separated, precise
+  // to ​​one decimal place​​, and within the range of ​​-1 to 1​​.
+  static const String coverOffset = 'cover_selection_offset';
 }
 
 // for the version under 0.5.5, including 0.5.5
@@ -327,7 +331,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     if (cover != null) {
       attributes[DocumentHeaderBlockKeys.coverType] = cover.$1.toString();
       attributes[DocumentHeaderBlockKeys.coverDetails] = cover.$2;
-      attributes[DocumentHeaderBlockKeys.align] = cover.$3;
+      attributes[DocumentHeaderBlockKeys.coverOffset] = cover.$3;
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon.emoji;
