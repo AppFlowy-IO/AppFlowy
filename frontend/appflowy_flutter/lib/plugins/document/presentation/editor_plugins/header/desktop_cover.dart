@@ -48,7 +48,7 @@ class _DesktopCoverState extends State<DesktopCover> {
   String? get coverDetails =>
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
   String? get coverAlign =>
-      widget.node.attributes[DocumentHeaderBlockKeys.align];
+      widget.node.attributes[DocumentHeaderBlockKeys.coverOffset];
 
   late final DesktopCoverAlignController coverAlignController;
 
