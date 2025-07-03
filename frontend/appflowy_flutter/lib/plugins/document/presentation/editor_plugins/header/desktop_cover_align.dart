@@ -70,7 +70,6 @@ class DesktopCoverAlign extends StatefulWidget {
 class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
   ImageStreamListener? _imageStreamListener;
   ImageStream? _imageStream;
-  ImageInfo? _imageInfo;
   Size? _imageSize;
 
   Size? _frameSize;
@@ -133,7 +132,6 @@ class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
           info.image.width.toDouble(),
           info.image.height.toDouble(),
         );
-        _imageInfo = _imageInfo;
       }
 
       synchronousCall ? setupCB() : setState(setupCB);
