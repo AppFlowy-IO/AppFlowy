@@ -143,7 +143,6 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
-          alignment: Alignment(0, 0),
           progressIndicatorBuilder: widget.progressIndicatorBuilder,
           imageBuilder: widget.imageBuilder,
           errorWidget: _errorWidgetBuilder,
