@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -388,9 +387,10 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
-  final void Function(
-      {(CoverType, String?, String?)? cover,
-      EmojiIconData? icon}) onIconOrCoverChanged;
+  final void Function({
+    (CoverType, String?, String?)? cover,
+    EmojiIconData? icon,
+  }) onIconOrCoverChanged;
   final double offset;
   final String? documentId;
   final ValueNotifier<bool> isCoverTitleHovered;
@@ -684,12 +684,18 @@ class DocumentCoverState extends State<DocumentCover> {
                                 onSelectedNetworkImage: (url) async {
                                   context.pop();
                                   widget.onChangeCover(
-                                      CoverType.file, url, null);
+                                    CoverType.file,
+                                    url,
+                                    null,
+                                  );
                                 },
                                 onSelectedColor: (color) {
                                   context.pop();
                                   widget.onChangeCover(
-                                      CoverType.color, color, null);
+                                    CoverType.color,
+                                    color,
+                                    null,
+                                  );
                                 },
                               ),
                             ),
