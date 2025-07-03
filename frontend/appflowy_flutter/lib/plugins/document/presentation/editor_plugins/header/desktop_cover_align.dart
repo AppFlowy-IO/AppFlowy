@@ -148,13 +148,17 @@ class _DesktopCoverAlignState extends State<DesktopCoverAlign> {
     if (_imageStream?.key == newStream.key) {
       return;
     }
-    _imageStream?.removeListener(_imageStreamListener!);
+    if (_imageStreamListener != null) {
+      _imageStream?.removeListener(_imageStreamListener!);
+    }
     _imageStream = newStream;
     _imageStream!.addListener(_getOrCreateListener());
   }
 
   void _stopImageStream() {
-    _imageStream?.removeListener(_imageStreamListener!);
+    if (_imageStreamListener != null) {
+      _imageStream?.removeListener(_imageStreamListener!);
+    }
   }
 
   void _changeAlignOffset(Offset offset) {
