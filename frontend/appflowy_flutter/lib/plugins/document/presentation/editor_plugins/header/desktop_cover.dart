@@ -6,6 +6,7 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover_align.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover_align.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
@@ -27,6 +28,8 @@ class DesktopCover extends StatefulWidget {
     this.coverDetails,
     this.enableAlign = false,
     this.onAlignControllerCreated,
+    this.enableAlign = false,
+    this.onAlignControllerCreated,
   });
 
   final ViewPB view;
@@ -34,6 +37,9 @@ class DesktopCover extends StatefulWidget {
   final EditorState editorState;
   final CoverType coverType;
   final String? coverDetails;
+  final bool enableAlign;
+  final Function(DesktopCoverAlignController? alignController)?
+      onAlignControllerCreated;
   final bool enableAlign;
   final Function(DesktopCoverAlignController? alignController)?
       onAlignControllerCreated;
@@ -107,6 +113,13 @@ class _DesktopCoverState extends State<DesktopCover> {
                     alignEnable: widget.enableAlign,
                   );
                 },
+                imageBuilder: (context, provider) {
+                  return DesktopCoverAlign(
+                    controller: coverAlignController,
+                    imageProvider: provider,
+                    alignEnable: widget.enableAlign,
+                  );
+                },
               ),
             );
           }
@@ -115,6 +128,12 @@ class _DesktopCoverState extends State<DesktopCover> {
             return SizedBox(
               height: height,
               width: double.infinity,
+              child: DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: AssetImage(
+                  PageStyleCoverImageType.builtInImagePath(cover.value),
+                ),
+                alignEnable: widget.enableAlign,
               child: DesktopCoverAlign(
                 controller: coverAlignController,
                 imageProvider: AssetImage(
@@ -157,6 +176,12 @@ class _DesktopCoverState extends State<DesktopCover> {
                   File(cover.value),
                 ),
                 alignEnable: widget.enableAlign,
+              child: DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: FileImage(
+                  File(cover.value),
+                ),
+                alignEnable: widget.enableAlign,
               ),
             );
           }
@@ -174,6 +199,7 @@ class _DesktopCoverState extends State<DesktopCover> {
       return const SizedBox.shrink();
     }
 
+
     switch (widget.coverType) {
       case CoverType.file:
         if (isURL(detail)) {
@@ -184,6 +210,13 @@ class _DesktopCoverState extends State<DesktopCover> {
             userProfilePB: userProfilePB,
             errorWidgetBuilder: (context, url, error) =>
                 const SizedBox.shrink(),
+            imageBuilder: (context, provider) {
+              return DesktopCoverAlign(
+                controller: coverAlignController,
+                imageProvider: provider,
+                alignEnable: widget.enableAlign,
+              );
+            },
             imageBuilder: (context, provider) {
               return DesktopCoverAlign(
                 controller: coverAlignController,
@@ -204,7 +237,20 @@ class _DesktopCoverState extends State<DesktopCover> {
           alignEnable: widget.enableAlign,
         );
 
+        final provider = FileImage(imageFile);
+        return DesktopCoverAlign(
+          controller: coverAlignController,
+          imageProvider: provider,
+          alignEnable: widget.enableAlign,
+        );
+
       case CoverType.asset:
+        final provider =
+            AssetImage(PageStyleCoverImageType.builtInImagePath(detail));
+        return DesktopCoverAlign(
+          controller: coverAlignController,
+          imageProvider: provider,
+          alignEnable: widget.enableAlign,
         final provider =
             AssetImage(PageStyleCoverImageType.builtInImagePath(detail));
         return DesktopCoverAlign(
