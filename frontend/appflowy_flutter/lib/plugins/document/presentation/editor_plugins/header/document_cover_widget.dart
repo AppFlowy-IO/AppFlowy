@@ -32,6 +32,7 @@ import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'cover_title.dart';
+import 'desktop_cover_align.dart';
 
 const double kCoverHeight = 280.0;
 const double kIconHeight = 60.0;
@@ -44,6 +45,11 @@ class DocumentHeaderBlockKeys {
   static const String coverType = 'cover_selection_type';
   static const String coverDetails = 'cover_selection';
   static const String icon = 'selected_icon';
+  // CoverOffset​​ indicates the offset of the cover image within the container,
+  // expressed as a comma-separated pair. The default value is "0.0,0.0", which
+  // is equivalent to Alignment.center. Values must be comma-separated, precise
+  // to ​​one decimal place​​, and within the range of ​​-1 to 1​​.
+  static const String coverOffset = 'cover_selection_offset';
 }
 
 // for the version under 0.5.5, including 0.5.5
@@ -62,6 +68,8 @@ enum CoverType {
       orElse: () => CoverType.none,
     );
   }
+
+  bool get isPhoto => this == file || this == asset;
 }
 
 // This key is used to intercept the selection event in the document cover widget.
@@ -133,11 +141,11 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
     viewListener = ViewListener(viewId: widget.view.id)
       ..start(
-        onViewUpdated: (view) {
+        onViewUpdated: (value) {
           setState(() {
-            viewIcon = EmojiIconData.fromViewIconPB(view.icon);
-            cover = view.cover;
-            view = view;
+            viewIcon = EmojiIconData.fromViewIconPB(value.icon);
+            cover = value.cover;
+            view = value;
           });
         },
       );
@@ -187,8 +195,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                       node: widget.node,
                       coverType: coverType,
                       coverDetails: coverDetails,
-                      onChangeCover: (type, details) =>
-                          _saveIconOrCover(cover: (type, details)),
+                      onChangeCover: (type, details, align) =>
+                          _saveIconOrCover(cover: (type, details, align)),
                     ),
                   _buildAlignedCoverIcon(context),
                 ],
@@ -301,7 +309,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   void _saveIconOrCover({
-    (CoverType, String?)? cover,
+    (CoverType, String?, String?)? cover,
     EmojiIconData? icon,
   }) async {
     if (!widget.editorState.editable) {
@@ -322,6 +330,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     if (cover != null) {
       attributes[DocumentHeaderBlockKeys.coverType] = cover.$1.toString();
       attributes[DocumentHeaderBlockKeys.coverDetails] = cover.$2;
+      attributes[DocumentHeaderBlockKeys.coverOffset] = cover.$3;
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon.emoji;
@@ -378,8 +387,10 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
-  final void Function({(CoverType, String?)? cover, EmojiIconData? icon})
-      onIconOrCoverChanged;
+  final void Function({
+    (CoverType, String?, String?)? cover,
+    EmojiIconData? icon,
+  }) onIconOrCoverChanged;
   final double offset;
   final String? documentId;
   final ValueNotifier<bool> isCoverTitleHovered;
@@ -443,8 +454,8 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(
             cover: UniversalPlatform.isDesktopOrWeb
-                ? (CoverType.asset, '1')
-                : (CoverType.color, '0xffe8e0ff'),
+                ? (CoverType.asset, '1', null)
+                : (CoverType.color, '0xffe8e0ff', null),
           ),
           useIntrinsicWidth: true,
           leftIcon: const FlowySvg(FlowySvgs.add_cover_s),
@@ -544,7 +555,8 @@ class DocumentCover extends StatefulWidget {
   final EditorState editorState;
   final CoverType coverType;
   final String? coverDetails;
-  final void Function(CoverType type, String? details) onChangeCover;
+  final void Function(CoverType type, String? details, String? align)
+      onChangeCover;
 
   @override
   State<DocumentCover> createState() => DocumentCoverState();
@@ -555,6 +567,22 @@ class DocumentCoverState extends State<DocumentCover> {
 
   bool isOverlayButtonsHidden = true;
   bool isPopoverOpen = false;
+  bool isAlignOpen = false;
+  DesktopCoverAlignController? coverAlignController;
+
+  bool get isCoverAlignSupport {
+    if (widget.view.extra.isEmpty) {
+      // version <= 0.5.5
+      return widget.coverType.isPhoto;
+    }
+    return widget.view.cover?.isAlignEnable ?? false;
+  }
+
+  @override
+  void dispose() {
+    coverAlignController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -581,8 +609,13 @@ class DocumentCoverState extends State<DocumentCover> {
                 node: widget.node,
                 coverType: widget.coverType,
                 coverDetails: widget.coverDetails,
+                enableAlign: isAlignOpen,
+                onAlignControllerCreated: (alignController) {
+                  coverAlignController = alignController;
+                },
               ),
             ),
+            if (isAlignOpen) _buildConverAlignOverlayButtons(context),
             if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context),
           ],
         ),
@@ -642,6 +675,7 @@ class DocumentCoverState extends State<DocumentCover> {
                                   widget.onChangeCover(
                                     CoverType.file,
                                     files.first.path,
+                                    null,
                                   );
                                 },
                                 onSelectedAIImage: (_) {
@@ -649,11 +683,19 @@ class DocumentCoverState extends State<DocumentCover> {
                                 },
                                 onSelectedNetworkImage: (url) async {
                                   context.pop();
-                                  widget.onChangeCover(CoverType.file, url);
+                                  widget.onChangeCover(
+                                    CoverType.file,
+                                    url,
+                                    null,
+                                  );
                                 },
                                 onSelectedColor: (color) {
                                   context.pop();
-                                  widget.onChangeCover(CoverType.color, color);
+                                  widget.onChangeCover(
+                                    CoverType.color,
+                                    color,
+                                    null,
+                                  );
                                 },
                               ),
                             ),
@@ -673,7 +715,8 @@ class DocumentCoverState extends State<DocumentCover> {
                 SizedBox.square(
                   dimension: 32.0,
                   child: DeleteCoverButton(
-                    onTap: () => widget.onChangeCover(CoverType.none, null),
+                    onTap: () =>
+                        widget.onChangeCover(CoverType.none, null, null),
                   ),
                 ),
               ],
@@ -704,7 +747,7 @@ class DocumentCoverState extends State<DocumentCover> {
         final imageFile = File(detail);
         if (!imageFile.existsSync()) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onChangeCover(CoverType.none, null);
+            widget.onChangeCover(CoverType.none, null, null);
           });
           return const SizedBox.shrink();
         }
@@ -795,6 +838,35 @@ class DocumentCoverState extends State<DocumentCover> {
           DeleteCoverButton(
             onTap: () => onCoverChanged(CoverType.none, null),
           ),
+          if (isCoverAlignSupport)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const HSpace(10),
+                AlignCoverButton(
+                  onTap: switchAlignMode,
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConverAlignOverlayButtons(BuildContext context) {
+    return Positioned(
+      bottom: 20,
+      right: 50,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AlignCoverCancelButton(
+            onTap: cancelCoverAlign,
+          ),
+          const HSpace(10),
+          AlignCoverSaveButton(
+            onTap: saveCoverAlign,
+          ),
         ],
       ),
     );
@@ -818,7 +890,7 @@ class DocumentCoverState extends State<DocumentCover> {
         (details, _) = await saveImageToCloudStorage(details!, widget.view.id);
       }
     }
-    widget.onChangeCover(type, details);
+    widget.onChangeCover(type, details, null);
 
     // After cover change,delete from localstorage if previous cover was image type
     if (isFileType(previousType, previousDetails) && _isLocalMode()) {
@@ -826,11 +898,39 @@ class DocumentCoverState extends State<DocumentCover> {
     }
   }
 
-  void setOverlayButtonsHidden(bool value) {
-    if (isOverlayButtonsHidden == value) return;
+  void setOverlayButtonsHidden(bool isHidden) {
+    if (isHidden && isAlignOpen) {
+      cancelCoverAlign();
+      setState(() {
+        isAlignOpen = false;
+      });
+    }
+    if (isOverlayButtonsHidden == isHidden) return;
     setState(() {
-      isOverlayButtonsHidden = value;
+      isOverlayButtonsHidden = isHidden;
     });
+  }
+
+  void switchAlignMode() {
+    setState(() {
+      isAlignOpen = !isAlignOpen;
+      isOverlayButtonsHidden = isAlignOpen;
+    });
+  }
+
+  void cancelCoverAlign() {
+    if (coverAlignController != null) {
+      coverAlignController!.cancel();
+    }
+    saveCoverAlign();
+  }
+
+  void saveCoverAlign() {
+    if (coverAlignController != null && coverAlignController!.isModified) {
+      final alignAttr = coverAlignController!.getAlignAttribute();
+      widget.onChangeCover(widget.coverType, widget.coverDetails, alignAttr);
+    }
+    switchAlignMode();
   }
 
   bool _isLocalMode() {
@@ -938,5 +1038,86 @@ class _DocumentIconState extends State<DocumentIcon> {
     }
 
     return child;
+  }
+}
+
+@visibleForTesting
+class AlignCoverButton extends StatelessWidget {
+  const AlignCoverButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final fillColor = UniversalPlatform.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+    final svgColor = UniversalPlatform.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.tertiary
+        : Theme.of(context).colorScheme.onPrimary;
+    return FlowyIconButton(
+      hoverColor: Theme.of(context).colorScheme.surface,
+      fillColor: fillColor,
+      iconPadding: const EdgeInsets.all(5),
+      width: 28,
+      icon: FlowySvg(
+        FlowySvgs.table_align_center_s,
+        color: svgColor,
+      ),
+      onPressed: onTap,
+    );
+  }
+}
+
+@visibleForTesting
+class AlignCoverSaveButton extends StatelessWidget {
+  const AlignCoverSaveButton({
+    required this.onTap,
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = UniversalPlatform.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+
+    return FlowyButton(
+      onTap: onTap,
+      useIntrinsicWidth: true,
+      hoverColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: backgroundColor,
+      text: FlowyText(LocaleKeys.button_save.tr()),
+    );
+  }
+}
+
+@visibleForTesting
+class AlignCoverCancelButton extends StatelessWidget {
+  const AlignCoverCancelButton({
+    required this.onTap,
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = UniversalPlatform.isDesktopOrWeb
+        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+
+    return FlowyButton(
+      onTap: onTap,
+      useIntrinsicWidth: true,
+      hoverColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: backgroundColor,
+      text: FlowyText(LocaleKeys.button_cancel.tr()),
+    );
   }
 }
