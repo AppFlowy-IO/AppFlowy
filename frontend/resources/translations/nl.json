@@ -26,6 +26,8 @@
     "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn",
     "unmatchedPasswordError": "Herhaal wachtwoord is niet hetzelfde als wachtwoord",
     "alreadyHaveAnAccount": "Heb je al een account?",
-    "emailHint": "E-mail"
+    "emailHint": "E-mail",
+    "passwordHint": "Wachtwoord",
+    "repeatPasswordHint": "Herhaal wachtwoord"
   }
 }
