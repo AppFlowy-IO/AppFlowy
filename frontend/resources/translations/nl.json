@@ -116,6 +116,7 @@
     "new": "Nieuw werkplek",
     "importFromNotion": "Importeren uit Notion",
     "learnMore": "Leer meer",
-    "reset": "Werkplek opnieuw instellen"
+    "reset": "Werkplek opnieuw instellen",
+    "renameWorkspace": "Werkruimte hernoemen"
   }
 }
