@@ -184,6 +184,7 @@
     "wordCount": "Aantal woorden: {}",
     "charCount": "Aantal karakters: {}",
     "createdAt": "Aangemaakt op: {}",
-    "deleteView": "Verwijderen"
+    "deleteView": "Verwijderen",
+    "duplicateView": "Dupliceren"
   }
 }
