@@ -57,6 +57,7 @@
     "signInWithApple": "Ga verder met Apple",
     "continueAnotherWay": "Ga op een andere manier verder",
     "signUpWithGoogle": "Registreren met Google",
-    "signUpWithGithub": "Registreren met GitHub"
+    "signUpWithGithub": "Registreren met GitHub",
+    "signUpWithDiscord": "Registreren met Discord"
   }
 }
