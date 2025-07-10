@@ -117,6 +117,7 @@
     "importFromNotion": "Importeren uit Notion",
     "learnMore": "Leer meer",
     "reset": "Werkplek opnieuw instellen",
-    "renameWorkspace": "Werkruimte hernoemen"
+    "renameWorkspace": "Werkruimte hernoemen",
+    "workspaceNameCannotBeEmpty": "De naam van de werkruimte kan niet leeg zijn"
   }
 }
