@@ -156,6 +156,7 @@
     "csv": "CSV",
     "copyLink": "Link kopiëren",
     "publishToTheWeb": "Op het web publiceren",
-    "publishToTheWebHint": "Maak een Website met AppFlowy"
+    "publishToTheWebHint": "Maak een Website met AppFlowy",
+    "publish": "Publiceren"
   }
 }
