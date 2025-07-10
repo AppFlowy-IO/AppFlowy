@@ -192,5 +192,8 @@
     "syncedAtLabel": "Gesynchroniseerd op:",
     "saveAsNewPage": "Bericht aan de pagina toevoegen",
     "saveAsNewPageDisabled": "Geen bericht beschikbaar"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown"
   }
 }
