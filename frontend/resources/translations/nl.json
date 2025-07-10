@@ -131,6 +131,7 @@
     },
     "menuTitle": "Werkplekken",
     "deleteWorkspaceHintText": "Contacteer ons op Discord",
-    "createSuccess": "Werkplek is succesvol aangemaakt"
+    "createSuccess": "Werkplek is succesvol aangemaakt",
+    "createFailed": "Het is niet gelukt om de werkplek te creëren"
   }
 }
