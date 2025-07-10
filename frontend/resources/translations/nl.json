@@ -43,6 +43,7 @@
     "signingInText": "Aan het aanmelden...",
     "forgotPassword": "Wachtwoord vergeten?",
     "emailHint": "E-mail",
-    "passwordHint": "Wachtwoord"
+    "passwordHint": "Wachtwoord",
+    "dontHaveAnAccount": "Heb je nog geen account?"
   }
 }
