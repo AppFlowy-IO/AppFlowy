@@ -162,6 +162,7 @@
     "visitSite": "Site bezoeken",
     "exportAsTab": "Exporteren als",
     "publishTab": "Publiceren",
-    "shareTab": "Delen"
+    "shareTab": "Delen",
+    "publishOnAppFlowy": "Publiceren op AppFlowy"
   }
 }
