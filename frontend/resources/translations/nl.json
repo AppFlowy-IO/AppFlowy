@@ -74,6 +74,7 @@
     "magicLinkSentDescription": "Er is een Magic Link naar je e-mailadres verstuurd. Klik op de link om je aanmelding te voltooien. De link verloopt na 5 minuten.",
     "tokenHasExpiredOrInvalid": "De code is verlopen of ongeldig. Probeer het opnieuw.",
     "signingIn": "Aan het aanmelden..",
-    "checkYourEmail": "Controleer je mail"
+    "checkYourEmail": "Controleer je ",
+    "temporaryVerificationLinkSent": "Er is een tijdelijke verificatielink verzonden. Controleer uw inbox op"
   }
 }
