@@ -8,5 +8,6 @@
   "letsGoButtonText": "Laten we starten",
   "title": "Titel",
   "youCanAlso": "Je kan ook",
-  "and": "en"
+  "and": "en",
+  "failedToOpenUrl": "URL kon niet worden geopend: {}"
 }
