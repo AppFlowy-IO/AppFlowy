@@ -93,6 +93,7 @@
     "continueToResetPassword": "Ga door met het opnieuw instellen van het wachtwoord",
     "resetPasswordSuccess": "Wachtwoord succesvol opnieuw ingesteld",
     "resetPasswordFailed": "Het wachtwoord kon niet worden gereset",
-    "resetPasswordLinkSent": "Er is een link naar uw e-mailadres verzonden om uw wachtwoord te resetten. Controleer uw inbox op"
+    "resetPasswordLinkSent": "Er is een link naar uw e-mailadres verzonden om uw wachtwoord te resetten. Controleer uw inbox op",
+    "resetPasswordLinkExpired": "De link om uw wachtwoord te resetten is verlopen. Vraag een nieuwe link aan."
   }
 }
