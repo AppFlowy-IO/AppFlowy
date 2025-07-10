@@ -189,6 +189,7 @@
     "wordCountLabel": "Aantal woorden:",
     "charCountLabel": "Aantal karakters:",
     "createdAtLabel": "Aangemaakt op:",
-    "syncedAtLabel": "Gesynchroniseerd op:"
+    "syncedAtLabel": "Gesynchroniseerd op:",
+    "saveAsNewPage": "Bericht aan de pagina toevoegen"
   }
 }
