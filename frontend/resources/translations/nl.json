@@ -99,6 +99,7 @@
     "enterNewPasswordFor": "Voer een nieuw wachtwoord in voor",
     "newPassword": "Nieuw wachtwoord",
     "enterNewPassword": "Voer nieuw wachtwoord in",
-    "confirmPassword": "Bevestig wachtwoord"
+    "confirmPassword": "Bevestig wachtwoord",
+    "confirmNewPassword": "Voer nieuw wachtwoord in"
   }
 }
