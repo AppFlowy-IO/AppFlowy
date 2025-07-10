@@ -110,6 +110,7 @@
     "loginToAppFlowyCloud": "Inloggen bij AppFlowy Cloud"
   },
   "workspace": {
-    "chooseWorkspace": "Kies je werkplek"
+    "chooseWorkspace": "Kies je werkplek",
+    "defaultName": "Mijn Werkplek"
   }
 }
