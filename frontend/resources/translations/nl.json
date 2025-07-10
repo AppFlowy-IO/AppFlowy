@@ -34,6 +34,7 @@
   "signIn": {
     "loginTitle": "Bij @:appName inloggen",
     "loginButtonText": "Inloggen",
-    "loginStartWithAnonymous": "Anonieme sessie starten"
+    "loginStartWithAnonymous": "Anonieme sessie starten",
+    "continueAnonymousUser": "Verder gaan met anonieme sessie"
   }
 }
