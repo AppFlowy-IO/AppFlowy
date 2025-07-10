@@ -19,6 +19,7 @@
     "openMenuTooltip": "Klik om het menu te openen"
   },
   "signUp": {
-    "buttonText": "Registreren"
+    "buttonText": "Registreren",
+    "title": "Registreer je bij @:appName"
   }
 }
