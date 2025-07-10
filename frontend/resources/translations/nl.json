@@ -59,6 +59,8 @@
     "signUpWithGoogle": "Registreren met Google",
     "signUpWithGithub": "Registreren met GitHub",
     "signUpWithDiscord": "Registreren met Discord",
-    "signInWith": "Aanmelden met:"
+    "signInWith": "Aanmelden met:",
+    "signInWithEmail": "Aanmelden met E-mail",
+    "signInWithMagicLink": "Aanmelden met Magic Link"
   }
 }
