@@ -64,6 +64,7 @@
     "signInWithMagicLink": "Aanmelden met Magic Link",
     "signUpWithMagicLink": "Registreren met Magic Link",
     "pleaseInputYourEmail": "Vul uw e-mailadres in",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "magicLinkSent": "Magic Link is verzonden!"
   }
 }
