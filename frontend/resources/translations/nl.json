@@ -22,6 +22,7 @@
     "buttonText": "Registreren",
     "title": "Registreer je bij @:appName",
     "getStartedText": "Aan de slag",
-    "emptyPasswordError": "Wachtwoord mag niet leeg zijn"
+    "emptyPasswordError": "Wachtwoord mag niet leeg zijn",
+    "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn"
   }
 }
