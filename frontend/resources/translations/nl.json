@@ -71,6 +71,7 @@
     "logIn": "Inloggen",
     "generalError": "Er liep iets fout. Probeer later opnieuw",
     "limitRateError": "Om veiligheidsredenen kunt u slechts elke 60 seconden een Magic Link opvragen",
-    "magicLinkSentDescription": "Er is een Magic Link naar je e-mailadres verstuurd. Klik op de link om je aanmelding te voltooien. De link verloopt na 5 minuten."
+    "magicLinkSentDescription": "Er is een Magic Link naar je e-mailadres verstuurd. Klik op de link om je aanmelding te voltooien. De link verloopt na 5 minuten.",
+    "tokenHasExpiredOrInvalid": "De code is verlopen of ongeldig. Probeer het opnieuw."
   }
 }
