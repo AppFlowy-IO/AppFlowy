@@ -89,6 +89,7 @@
     "tooFrequentVerificationCodeRequest": "U heeft te veel verzoeken ingediend. Probeer het later opnieuw.",
     "invalidLoginCredentials": "Uw wachtwoord is onjuist, probeer het opnieuw.",
     "resetPassword": "Wachtwoord opnieuw instellen",
-    "resetPasswordDescription": "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen"
+    "resetPasswordDescription": "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen",
+    "continueToResetPassword": "Ga door met het opnieuw instellen van het wachtwoord"
   }
 }
