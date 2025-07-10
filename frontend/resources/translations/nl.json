@@ -92,6 +92,7 @@
     "resetPasswordDescription": "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen",
     "continueToResetPassword": "Ga door met het opnieuw instellen van het wachtwoord",
     "resetPasswordSuccess": "Wachtwoord succesvol opnieuw ingesteld",
-    "resetPasswordFailed": "Het wachtwoord kon niet worden gereset"
+    "resetPasswordFailed": "Het wachtwoord kon niet worden gereset",
+    "resetPasswordLinkSent": "Er is een link naar uw e-mailadres verzonden om uw wachtwoord te resetten. Controleer uw inbox op"
   }
 }
