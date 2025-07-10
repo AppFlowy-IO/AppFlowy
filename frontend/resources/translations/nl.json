@@ -130,6 +130,7 @@
       "reachOut": "Contacteer ons op Discord"
     },
     "menuTitle": "Werkplekken",
-    "deleteWorkspaceHintText": "Contacteer ons op Discord"
+    "deleteWorkspaceHintText": "Contacteer ons op Discord",
+    "createSuccess": "Werkplek is succesvol aangemaakt"
   }
 }
