@@ -20,6 +20,7 @@
   },
   "signUp": {
     "buttonText": "Registreren",
-    "title": "Registreer je bij @:appName"
+    "title": "Registreer je bij @:appName",
+    "getStartedText": "Aan de slag"
   }
 }
