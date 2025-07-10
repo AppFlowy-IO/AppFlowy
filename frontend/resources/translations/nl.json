@@ -122,6 +122,9 @@
     "resetWorkspacePrompt": "Als u de werkplek reset, worden alle pagina's en gegevens erin verwijderd. Weet u zeker dat u de werkruimte wilt resetten? Je kan ook contact opnemen met het supportteam om de werkruimte te herstellen.",
     "hint": "Werkruimte",
     "notFoundError": "Werkplek niet gevonden",
-    "failedToLoad": "Er is iets misgegaan! Het laden van de werkplek is mislukt. Probeer alle geopende exemplaren van@:appName te sluiten en probeer het opnieuw."
+    "failedToLoad": "Er is iets misgegaan! Het laden van de werkplek is mislukt. Probeer alle geopende exemplaren van@:appName te sluiten en probeer het opnieuw.",
+    "errorActions": {
+      "reportIssue": "Probleem melden"
+    }
   }
 }
