@@ -30,5 +30,8 @@
     "passwordHint": "Wachtwoord",
     "repeatPasswordHint": "Herhaal wachtwoord",
     "signUpWith": "Meld je aan met:"
+  },
+  "signIn": {
+    "loginTitle": "Bij @:appName inloggen"
   }
 }
