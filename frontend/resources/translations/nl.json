@@ -1,6 +1,6 @@
 {
   "appName": "Appflowy",
   "defaultUsername": "Ik",
-  "welcomeText": "Welkom bij",
+  "welcomeText": "Welkom bij @:appName",
   "welcomeTo": "Welkom bij"
 }
