@@ -149,6 +149,9 @@
   },
   "shareAction": {
     "buttonText": "Delen",
-    "workInProgress": "Weldra beschikbaar"
+    "workInProgress": "Weldra beschikbaar",
+    "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Naar het klembord kopiëren"
   }
 }
