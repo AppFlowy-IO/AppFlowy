@@ -128,6 +128,7 @@
       "reportIssueOnGithub": "Een probleem melden op GitHub",
       "exportLogFiles": "Log files exporteren",
       "reachOut": "Contacteer ons op Discord"
-    }
+    },
+    "menuTitle": "Werkplekken"
   }
 }
