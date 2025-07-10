@@ -3,5 +3,6 @@
   "defaultUsername": "Ik",
   "welcomeText": "Welkom bij @:appName",
   "welcomeTo": "Welkom bij",
-  "githubStarText": "Geef een ster op GitHub"
+  "githubStarText": "Geef een ster op GitHub",
+  "subscribeNewsletterText": "Abonneren op de Nieuwsbrief"
 }
