@@ -12,6 +12,7 @@
   "failedToOpenUrl": "URL kon niet worden geopend: {}",
   "blockActions": {
     "addBelowTooltip": "Klik om hieronder toe te voegen",
-    "addAboveCmd": "Alt+Klik"
+    "addAboveCmd": "Alt+Klik",
+    "addAboveMacCmd": "Option+Klik"
   }
 }
