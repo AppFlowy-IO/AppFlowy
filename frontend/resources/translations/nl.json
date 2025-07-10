@@ -136,6 +136,6 @@
     "createLimitExceeded": "Je hebt het maximale aantal werkplekken voor je account bereikt. Als je extra werkplekken nodig hebt om je werk verder te zetten, kan je een aanvraag indienen via GitHub.",
     "deleteSuccess": "Werkplek succesvol verwijderd",
     "deleteFailed": "Het is niet gelukt om de werkplek te verwijderen",
-    "openSuccess": "Werkplek succesvol geöpend"
+    "openSuccess": "Werkplek succesvol geopend"
   }
 }
