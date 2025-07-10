@@ -41,6 +41,7 @@
     "anonymousMode": "Anonieme modus",
     "buttonText": "Aanmelden",
     "signingInText": "Aan het aanmelden...",
-    "forgotPassword": "Wachtwoord vergeten"
+    "forgotPassword": "Wachtwoord vergeten",
+    "emailHint": "E-mail"
   }
 }
