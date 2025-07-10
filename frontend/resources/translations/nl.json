@@ -153,6 +153,7 @@
     "markdown": "Markdown",
     "html": "HTML",
     "clipboard": "Naar het klembord kopiëren",
-    "csv": "CSV"
+    "csv": "CSV",
+    "copyLink": "Link kopiëren"
   }
 }
