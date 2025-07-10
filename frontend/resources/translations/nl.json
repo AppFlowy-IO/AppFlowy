@@ -61,6 +61,7 @@
     "signUpWithDiscord": "Registreren met Discord",
     "signInWith": "Aanmelden met:",
     "signInWithEmail": "Aanmelden met E-mail",
-    "signInWithMagicLink": "Aanmelden met Magic Link"
+    "signInWithMagicLink": "Aanmelden met Magic Link",
+    "signUpWithMagicLink": "Registreren met Magic Link"
   }
 }
