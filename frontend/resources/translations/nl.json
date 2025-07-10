@@ -58,6 +58,7 @@
     "continueAnotherWay": "Ga op een andere manier verder",
     "signUpWithGoogle": "Registreren met Google",
     "signUpWithGithub": "Registreren met GitHub",
-    "signUpWithDiscord": "Registreren met Discord"
+    "signUpWithDiscord": "Registreren met Discord",
+    "signInWith": "Aanmelden met:"
   }
 }
