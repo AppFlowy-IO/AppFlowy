@@ -13,6 +13,7 @@
   "blockActions": {
     "addBelowTooltip": "Klik om hieronder toe te voegen",
     "addAboveCmd": "Alt+Klik",
-    "addAboveMacCmd": "Option+Klik"
+    "addAboveMacCmd": "Option+Klik",
+    "addAboveTooltip": "hierboven toe te voegen"
   }
 }
