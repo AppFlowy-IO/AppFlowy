@@ -87,6 +87,7 @@
     "loginAs": "Inloggen als",
     "invalidVerificationCode": "Voer een geldige verificatiecode in",
     "tooFrequentVerificationCodeRequest": "U heeft te veel verzoeken ingediend. Probeer het later opnieuw.",
-    "invalidLoginCredentials": "Uw wachtwoord is onjuist, probeer het opnieuw."
+    "invalidLoginCredentials": "Uw wachtwoord is onjuist, probeer het opnieuw.",
+    "resetPassword": "Wachtwoord opnieuw instellen"
   }
 }
