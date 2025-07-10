@@ -182,6 +182,8 @@
     "import": "Importeren",
     "moreOptions": "Meer opties",
     "wordCount": "Aantal woorden: {}",
-    "charCount": "Aantal karakters: {}"
+    "charCount": "Aantal karakters: {}",
+    "createdAt": "Aangemaakt op: {}",
+    "deleteView": "Verwijderen"
   }
 }
