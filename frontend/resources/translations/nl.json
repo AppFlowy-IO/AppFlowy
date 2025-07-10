@@ -154,6 +154,7 @@
     "html": "HTML",
     "clipboard": "Naar het klembord kopiëren",
     "csv": "CSV",
-    "copyLink": "Link kopiëren"
+    "copyLink": "Link kopiëren",
+    "publishToTheWeb": "Op het web publiceren"
   }
 }
