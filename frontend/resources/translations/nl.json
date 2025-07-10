@@ -152,6 +152,7 @@
     "workInProgress": "Weldra beschikbaar",
     "markdown": "Markdown",
     "html": "HTML",
-    "clipboard": "Naar het klembord kopiëren"
+    "clipboard": "Naar het klembord kopiëren",
+    "csv": "CSV"
   }
 }
