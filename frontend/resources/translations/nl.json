@@ -91,6 +91,7 @@
     "resetPassword": "Wachtwoord opnieuw instellen",
     "resetPasswordDescription": "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen",
     "continueToResetPassword": "Ga door met het opnieuw instellen van het wachtwoord",
-    "resetPasswordSuccess": "Wachtwoord succesvol opnieuw ingesteld"
+    "resetPasswordSuccess": "Wachtwoord succesvol opnieuw ingesteld",
+    "resetPasswordFailed": "Het wachtwoord kon niet worden gereset"
   }
 }
