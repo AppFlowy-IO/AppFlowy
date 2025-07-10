@@ -15,6 +15,10 @@
     "addAboveCmd": "Alt+Klik",
     "addAboveMacCmd": "Option+Klik",
     "addAboveTooltip": "hierboven toe te voegen",
-    "dragTooltip": "Slepen om te verplaatsen"
+    "dragTooltip": "Slepen om te verplaatsen",
+    "openMenuTooltip": "Klik om het menu te openen"
+  },
+  "signUp": {
+    "buttonText": "Registreren"
   }
 }
