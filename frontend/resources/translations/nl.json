@@ -24,6 +24,7 @@
     "getStartedText": "Aan de slag",
     "emptyPasswordError": "Wachtwoord mag niet leeg zijn",
     "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn",
-    "unmatchedPasswordError": "Herhaal wachtwoord is niet hetzelfde als wachtwoord"
+    "unmatchedPasswordError": "Herhaal wachtwoord is niet hetzelfde als wachtwoord",
+    "alreadyHaveAnAccount": "Heb je al een account?"
   }
 }
