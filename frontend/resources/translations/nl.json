@@ -40,6 +40,7 @@
     "switchToAppFlowyCloud": "AppFlowy Cloud",
     "anonymousMode": "Anonieme modus",
     "buttonText": "Aanmelden",
-    "signingInText": "Aan het aanmelden..."
+    "signingInText": "Aan het aanmelden...",
+    "forgotPassword": "Wachtwoord vergeten"
   }
 }
