@@ -190,6 +190,7 @@
     "charCountLabel": "Aantal karakters:",
     "createdAtLabel": "Aangemaakt op:",
     "syncedAtLabel": "Gesynchroniseerd op:",
-    "saveAsNewPage": "Bericht aan de pagina toevoegen"
+    "saveAsNewPage": "Bericht aan de pagina toevoegen",
+    "saveAsNewPageDisabled": "Geen bericht beschikbaar"
   }
 }
