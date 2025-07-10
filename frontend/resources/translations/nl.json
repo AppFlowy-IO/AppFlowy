@@ -125,7 +125,8 @@
     "failedToLoad": "Er is iets misgegaan! Het laden van de werkplek is mislukt. Probeer alle geopende exemplaren van@:appName te sluiten en probeer het opnieuw.",
     "errorActions": {
       "reportIssue": "Probleem melden",
-      "reportIssueOnGithub": "Een probleem melden op GitHub"
+      "reportIssueOnGithub": "Een probleem melden op GitHub",
+      "exportLogFiles": "Log files exporteren"
     }
   }
 }
