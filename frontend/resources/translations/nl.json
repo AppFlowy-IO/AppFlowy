@@ -148,6 +148,7 @@
     "leaveCurrentWorkspacePrompt": "Ben je zeker dat je de huidige werkruimte wil verlaten?"
   },
   "shareAction": {
-    "buttonText": "Delen"
+    "buttonText": "Delen",
+    "workInProgress": "Weldra beschikbaar"
   }
 }
