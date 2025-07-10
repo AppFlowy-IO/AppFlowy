@@ -32,6 +32,7 @@
     "signUpWith": "Meld je aan met:"
   },
   "signIn": {
-    "loginTitle": "Bij @:appName inloggen"
+    "loginTitle": "Bij @:appName inloggen",
+    "loginButtonText": "Inloggen"
   }
 }
