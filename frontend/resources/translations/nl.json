@@ -44,6 +44,7 @@
     "forgotPassword": "Wachtwoord vergeten?",
     "emailHint": "E-mail",
     "passwordHint": "Wachtwoord",
-    "dontHaveAnAccount": "Heb je nog geen account?"
+    "dontHaveAnAccount": "Heb je nog geen account?",
+    "createAccount": "Maak een account"
   }
 }
