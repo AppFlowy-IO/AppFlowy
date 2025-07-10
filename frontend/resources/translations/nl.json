@@ -185,6 +185,10 @@
     "charCount": "Aantal karakters: {}",
     "createdAt": "Aangemaakt op: {}",
     "deleteView": "Verwijderen",
-    "duplicateView": "Dupliceren"
+    "duplicateView": "Dupliceren",
+    "wordCountLabel": "Aantal woorden:",
+    "charCountLabel": "Aantal karakters:",
+    "createdAtLabel": "Aangemaakt op:",
+    "syncedAtLabel": "Gesynchroniseerd op:"
   }
 }
