@@ -85,6 +85,7 @@
     "continueWithEmail": "Ga verder met e-mail",
     "enterPassword": "Voer wachtwoord in",
     "loginAs": "Inloggen als",
-    "invalidVerificationCode": "Voer een geldige verificatiecode in"
+    "invalidVerificationCode": "Voer een geldige verificatiecode in",
+    "tooFrequentVerificationCodeRequest": "U heeft te veel verzoeken ingediend. Probeer het later opnieuw."
   }
 }
