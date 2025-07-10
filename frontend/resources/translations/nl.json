@@ -105,6 +105,7 @@
     "confirmPasswordCannotBeEmpty": "Bevestig wachtwoord mag niet leeg zijn",
     "passwordsDoNotMatch": "Wachtwoorden komen niet overeen",
     "verifying": "Aan het verifiëren...",
-    "continueWithPassword": "Verder gaan met wachtwoord"
+    "continueWithPassword": "Verder gaan met wachtwoord",
+    "youAreInLocalMode": "Je bent in lokale modus"
   }
 }
