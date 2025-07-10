@@ -129,6 +129,7 @@
       "exportLogFiles": "Log files exporteren",
       "reachOut": "Contacteer ons op Discord"
     },
-    "menuTitle": "Werkplekken"
+    "menuTitle": "Werkplekken",
+    "deleteWorkspaceHintText": "Contacteer ons op Discord"
   }
 }
