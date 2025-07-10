@@ -113,6 +113,8 @@
     "chooseWorkspace": "Kies je werkplek",
     "defaultName": "Mijn Werkplek",
     "create": "Werkplek creëren",
-    "new": "Nieuw werkplek"
+    "new": "Nieuw werkplek",
+    "importFromNotion": "Importeren uit Notion",
+    "learnMore": "Leer meer"
   }
 }
