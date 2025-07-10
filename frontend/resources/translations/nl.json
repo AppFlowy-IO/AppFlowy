@@ -1,4 +1,5 @@
 {
   "appName": "Appflowy",
-  "defaultUsername": "Ik"
+  "defaultUsername": "Ik",
+  "welcomeText": "Welkom bij"
 }
