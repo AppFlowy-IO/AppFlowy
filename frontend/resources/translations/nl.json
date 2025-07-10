@@ -51,6 +51,7 @@
     "passwordMustContain": "Het wachtwoord moet minimaal één letter, één cijfer en één symbool bevatten.",
     "syncPromptMessage": "Het synchroniseren van de gegevens kan even duren. Sluit deze pagina niet",
     "or": "OF",
-    "signInWithGoogle": "Ga verder met Google"
+    "signInWithGoogle": "Ga verder met Google",
+    "signInWithGithub": "Ga verder met GitHub"
   }
 }
