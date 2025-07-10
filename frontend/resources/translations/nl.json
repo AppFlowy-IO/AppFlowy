@@ -101,6 +101,7 @@
     "enterNewPassword": "Voer nieuw wachtwoord in",
     "confirmPassword": "Bevestig wachtwoord",
     "confirmNewPassword": "Voer nieuw wachtwoord in",
-    "newPasswordCannotBeEmpty": "Nieuw wachtwoord mag niet leeg zijn"
+    "newPasswordCannotBeEmpty": "Nieuw wachtwoord mag niet leeg zijn",
+    "confirmPasswordCannotBeEmpty": "Bevestig wachtwoord mag niet leeg zijn"
   }
 }
