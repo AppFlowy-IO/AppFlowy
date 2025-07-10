@@ -115,6 +115,7 @@
     "create": "Werkplek creëren",
     "new": "Nieuw werkplek",
     "importFromNotion": "Importeren uit Notion",
-    "learnMore": "Leer meer"
+    "learnMore": "Leer meer",
+    "reset": "Werkplek opnieuw instellen"
   }
 }
