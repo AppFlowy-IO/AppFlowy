@@ -9,5 +9,8 @@
   "title": "Titel",
   "youCanAlso": "Je kan ook",
   "and": "en",
-  "failedToOpenUrl": "URL kon niet worden geopend: {}"
+  "failedToOpenUrl": "URL kon niet worden geopend: {}",
+  "blockActions": {
+    "addBelowTooltip": "Klik om hieronder toe te voegen"
+  }
 }
