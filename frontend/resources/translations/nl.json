@@ -4,5 +4,6 @@
   "welcomeText": "Welkom bij @:appName",
   "welcomeTo": "Welkom bij",
   "githubStarText": "Geef een ster op GitHub",
-  "subscribeNewsletterText": "Abonneren op de Nieuwsbrief"
+  "subscribeNewsletterText": "Abonneren op de Nieuwsbrief",
+  "letsGoButtonText": "Titel"
 }
