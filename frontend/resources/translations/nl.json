@@ -94,6 +94,7 @@
     "resetPasswordSuccess": "Wachtwoord succesvol opnieuw ingesteld",
     "resetPasswordFailed": "Het wachtwoord kon niet worden gereset",
     "resetPasswordLinkSent": "Er is een link naar uw e-mailadres verzonden om uw wachtwoord te resetten. Controleer uw inbox op",
-    "resetPasswordLinkExpired": "De link om uw wachtwoord te resetten is verlopen. Vraag een nieuwe link aan."
+    "resetPasswordLinkExpired": "De link om uw wachtwoord te resetten is verlopen. Vraag een nieuwe link aan.",
+    "resetPasswordLinkInvalid": "De link om uw wachtwoord te resetten is ongeldig. Vraag een nieuwe link aan."
   }
 }
