@@ -108,5 +108,8 @@
     "continueWithPassword": "Verder gaan met wachtwoord",
     "youAreInLocalMode": "Je bent in lokale modus",
     "loginToAppFlowyCloud": "Inloggen bij AppFlowy Cloud"
+  },
+  "workspace": {
+    "chooseWorkspace": "Kies je werkplek"
   }
 }
