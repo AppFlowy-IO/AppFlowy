@@ -98,6 +98,7 @@
     "resetPasswordLinkInvalid": "De link om uw wachtwoord te resetten is ongeldig. Vraag een nieuwe link aan.",
     "enterNewPasswordFor": "Voer een nieuw wachtwoord in voor",
     "newPassword": "Nieuw wachtwoord",
-    "enterNewPassword": "Voer nieuw wachtwoord in"
+    "enterNewPassword": "Voer nieuw wachtwoord in",
+    "confirmPassword": "Bevestig wachtwoord"
   }
 }
