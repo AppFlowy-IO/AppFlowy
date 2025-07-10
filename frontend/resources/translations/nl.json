@@ -111,6 +111,7 @@
   },
   "workspace": {
     "chooseWorkspace": "Kies je werkplek",
-    "defaultName": "Mijn Werkplek"
+    "defaultName": "Mijn Werkplek",
+    "create": "Werkplek creëren"
   }
 }
