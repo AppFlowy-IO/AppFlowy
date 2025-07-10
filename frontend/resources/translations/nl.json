@@ -167,6 +167,7 @@
     "shareTabTitle": "Uitnodigen om samen te werken",
     "shareTabDescription": "Voor eenvoudige samenwerking met iedereen",
     "copyLinkSuccess": "Link naar klembord gekopieerd",
-    "copyShareLink": "Kopieer de deellink"
+    "copyShareLink": "Kopieer de deellink",
+    "copyLinkFailed": "Het is niet gelukt de link naar het klembord te kopiëren"
   }
 }
