@@ -180,6 +180,7 @@
     "large": "groot",
     "fontSize": "Lettergrootte",
     "import": "Importeren",
-    "moreOptions": "Meer opties"
+    "moreOptions": "Meer opties",
+    "wordCount": "Aantal woorden: {}"
   }
 }
