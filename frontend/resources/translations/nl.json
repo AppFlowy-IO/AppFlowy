@@ -103,6 +103,7 @@
     "confirmNewPassword": "Voer nieuw wachtwoord in",
     "newPasswordCannotBeEmpty": "Nieuw wachtwoord mag niet leeg zijn",
     "confirmPasswordCannotBeEmpty": "Bevestig wachtwoord mag niet leeg zijn",
-    "passwordsDoNotMatch": "Wachtwoorden komen niet overeen"
+    "passwordsDoNotMatch": "Wachtwoorden komen niet overeen",
+    "verifying": "Aan het verifiëren..."
   }
 }
