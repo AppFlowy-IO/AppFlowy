@@ -21,6 +21,7 @@
   "signUp": {
     "buttonText": "Registreren",
     "title": "Registreer je bij @:appName",
-    "getStartedText": "Aan de slag"
+    "getStartedText": "Aan de slag",
+    "emptyPasswordError": "Wachtwoord mag niet leeg zijn"
   }
 }
