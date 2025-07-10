@@ -144,6 +144,7 @@
     "updateIconFailed": "Het is niet gelukt om het icon van de werkplek te updaten",
     "cannotDeleteTheOnlyWorkspace": "De enige resterende werkruimte kan niet verwijderd worden",
     "fetchWorkspacesFailed": "Het ophalen van werkplekken is mislukt",
-    "leaveCurrentWorkspace": "Werkruimte verlaten"
+    "leaveCurrentWorkspace": "Werkruimte verlaten",
+    "leaveCurrentWorkspacePrompt": "Ben je zeker dat je de huidige werkruimte wil verlaten?"
   }
 }
