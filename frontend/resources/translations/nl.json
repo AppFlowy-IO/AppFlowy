@@ -159,6 +159,7 @@
     "publishToTheWebHint": "Maak een Website met AppFlowy",
     "publish": "Publiceren",
     "unPublish": "Publicatie ongedaan maken",
-    "visitSite": "Site bezoeken"
+    "visitSite": "Site bezoeken",
+    "exportAsTab": "Exporteren als"
   }
 }
