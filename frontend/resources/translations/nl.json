@@ -194,6 +194,7 @@
     "saveAsNewPageDisabled": "Geen bericht beschikbaar"
   },
   "importPanel": {
-    "textAndMarkdown": "Text & Markdown"
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Dokument van v0.1.0"
   }
 }
