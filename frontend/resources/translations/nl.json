@@ -80,6 +80,7 @@
     "continueToSignIn": "Ga door met inloggen",
     "continueWithLoginCode": "Ga verder met inlogcode",
     "backToLogin": "Terug naar inloggen",
-    "enterCode": "Voer de code in"
+    "enterCode": "Voer de code in",
+    "enterCodeManually": "Voer de code handmatig in"
   }
 }
