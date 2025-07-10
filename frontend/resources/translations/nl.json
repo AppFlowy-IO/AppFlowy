@@ -157,6 +157,7 @@
     "copyLink": "Link kopiëren",
     "publishToTheWeb": "Op het web publiceren",
     "publishToTheWebHint": "Maak een Website met AppFlowy",
-    "publish": "Publiceren"
+    "publish": "Publiceren",
+    "unPublish": "Publicatie ongedaan maken"
   }
 }
