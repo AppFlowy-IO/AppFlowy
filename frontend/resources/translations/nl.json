@@ -165,6 +165,8 @@
     "shareTab": "Delen",
     "publishOnAppFlowy": "Publiceren op AppFlowy",
     "shareTabTitle": "Uitnodigen om samen te werken",
-    "shareTabDescription": "Voor eenvoudige samenwerking met iedereen"
+    "shareTabDescription": "Voor eenvoudige samenwerking met iedereen",
+    "copyLinkSuccess": "Link naar klembord gekopieerd",
+    "copyShareLink": "Kopieer de deellink"
   }
 }
