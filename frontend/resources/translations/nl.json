@@ -52,6 +52,7 @@
     "syncPromptMessage": "Het synchroniseren van de gegevens kan even duren. Sluit deze pagina niet",
     "or": "OF",
     "signInWithGoogle": "Ga verder met Google",
-    "signInWithGithub": "Ga verder met GitHub"
+    "signInWithGithub": "Ga verder met GitHub",
+    "signInWithDiscord": "Ga verder met Discord"
   }
 }
