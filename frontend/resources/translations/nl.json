@@ -45,6 +45,7 @@
     "emailHint": "E-mail",
     "passwordHint": "Wachtwoord",
     "dontHaveAnAccount": "Heb je nog geen account?",
-    "createAccount": "Maak een account"
+    "createAccount": "Maak een account",
+    "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn"
   }
 }
