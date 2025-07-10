@@ -11,6 +11,7 @@
   "and": "en",
   "failedToOpenUrl": "URL kon niet worden geopend: {}",
   "blockActions": {
-    "addBelowTooltip": "Klik om hieronder toe te voegen"
+    "addBelowTooltip": "Klik om hieronder toe te voegen",
+    "addAboveCmd": "Alt+Klik"
   }
 }
