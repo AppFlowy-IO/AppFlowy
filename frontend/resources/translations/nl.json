@@ -76,6 +76,7 @@
     "signingIn": "Aan het aanmelden..",
     "checkYourEmail": "Controleer je ",
     "temporaryVerificationLinkSent": "Er is een tijdelijke verificatielink verzonden. Controleer uw inbox op",
-    "temporaryVerificationCodeSent": "Er is een tijdelijke verificatiecode verzonden. Controleer uw inbox op"
+    "temporaryVerificationCodeSent": "Er is een tijdelijke verificatiecode verzonden. Controleer uw inbox op",
+    "continueToSignIn": "Ga door met inloggen"
   }
 }
