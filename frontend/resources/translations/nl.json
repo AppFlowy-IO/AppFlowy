@@ -82,6 +82,7 @@
     "backToLogin": "Terug naar inloggen",
     "enterCode": "Voer de code in",
     "enterCodeManually": "Voer de code handmatig in",
-    "continueWithEmail": "Ga verder met e-mail"
+    "continueWithEmail": "Ga verder met e-mail",
+    "enterPassword": "Voer wachtwoord in"
   }
 }
