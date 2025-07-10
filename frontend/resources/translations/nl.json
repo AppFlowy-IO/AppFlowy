@@ -28,6 +28,7 @@
     "alreadyHaveAnAccount": "Heb je al een account?",
     "emailHint": "E-mail",
     "passwordHint": "Wachtwoord",
-    "repeatPasswordHint": "Herhaal wachtwoord"
+    "repeatPasswordHint": "Herhaal wachtwoord",
+    "signUpWith": "Meld je aan met:"
   }
 }
