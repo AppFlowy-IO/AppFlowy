@@ -84,6 +84,7 @@
     "enterCodeManually": "Voer de code handmatig in",
     "continueWithEmail": "Ga verder met e-mail",
     "enterPassword": "Voer wachtwoord in",
-    "loginAs": "Inloggen als"
+    "loginAs": "Inloggen als",
+    "invalidVerificationCode": "Voer een geldige verificatiecode in"
   }
 }
