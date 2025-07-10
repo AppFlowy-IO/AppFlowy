@@ -169,5 +169,10 @@
     "copyLinkSuccess": "Link naar klembord gekopieerd",
     "copyShareLink": "Kopieer de deellink",
     "copyLinkFailed": "Het is niet gelukt de link naar het klembord te kopiëren"
+  },
+  "moreAction": {
+    "small": "klein",
+    "medium": "medium",
+    "large": "groot"
   }
 }
