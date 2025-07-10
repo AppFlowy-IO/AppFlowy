@@ -46,6 +46,8 @@
     "passwordHint": "Wachtwoord",
     "dontHaveAnAccount": "Heb je nog geen account?",
     "createAccount": "Maak een account",
-    "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn"
+    "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn",
+    "unmatchedPasswordError": "Herhaal wachtwoord is niet hetzelfde als wachtwoord",
+    "passwordMustContain": "Het wachtwoord moet minimaal één letter, één cijfer en één symbool bevatten."
   }
 }
