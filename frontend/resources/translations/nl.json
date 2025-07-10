@@ -79,6 +79,7 @@
     "temporaryVerificationCodeSent": "Er is een tijdelijke verificatiecode verzonden. Controleer uw inbox op",
     "continueToSignIn": "Ga door met inloggen",
     "continueWithLoginCode": "Ga verder met inlogcode",
-    "backToLogin": "Terug naar inloggen"
+    "backToLogin": "Terug naar inloggen",
+    "enterCode": "Voer de code in"
   }
 }
