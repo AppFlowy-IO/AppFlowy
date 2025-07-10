@@ -181,6 +181,7 @@
     "fontSize": "Lettergrootte",
     "import": "Importeren",
     "moreOptions": "Meer opties",
-    "wordCount": "Aantal woorden: {}"
+    "wordCount": "Aantal woorden: {}",
+    "charCount": "Aantal karakters: {}"
   }
 }
