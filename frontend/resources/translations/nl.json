@@ -168,7 +168,10 @@
     "shareTabDescription": "Voor eenvoudige samenwerking met iedereen",
     "copyLinkSuccess": "Link naar klembord gekopieerd",
     "copyShareLink": "Kopieer de deellink",
-    "copyLinkFailed": "Het is niet gelukt de link naar het klembord te kopiëren"
+    "copyLinkFailed": "Het is niet gelukt de link naar het klembord te kopiëren",
+    "copyLinkToBlockSuccess": "De block link is naar het klembord gekopieerd",
+    "copyLinkToBlockFailed": "Het is niet gelukt de block link naar het klembord te kopiëren",
+    "manageAllSites": "Beheer alle sites"
   },
   "moreAction": {
     "small": "klein",
