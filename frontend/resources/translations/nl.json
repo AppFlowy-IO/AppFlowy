@@ -35,6 +35,7 @@
     "loginTitle": "Bij @:appName inloggen",
     "loginButtonText": "Inloggen",
     "loginStartWithAnonymous": "Anonieme sessie starten",
-    "continueAnonymousUser": "Verder gaan met anonieme sessie"
+    "continueAnonymousUser": "Verder gaan met anonieme sessie",
+    "continueWithLocalModel": "Ga verder met het lokale model"
   }
 }
