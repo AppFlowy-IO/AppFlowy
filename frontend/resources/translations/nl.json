@@ -178,6 +178,7 @@
     "small": "klein",
     "medium": "medium",
     "large": "groot",
-    "fontSize": "Lettergrootte"
+    "fontSize": "Lettergrootte",
+    "import": "Importeren"
   }
 }
