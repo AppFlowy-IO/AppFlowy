@@ -117,7 +117,8 @@
     "importFromNotion": "Importeren uit Notion",
     "learnMore": "Leer meer",
     "reset": "Werkplek opnieuw instellen",
-    "renameWorkspace": "Werkruimte hernoemen",
-    "workspaceNameCannotBeEmpty": "De naam van de werkruimte kan niet leeg zijn"
+    "renameWorkspace": "Werkplek hernoemen",
+    "workspaceNameCannotBeEmpty": "De naam van de werkplek kan niet leeg zijn",
+    "resetWorkspacePrompt": "Als u de werkplek reset, worden alle pagina's en gegevens erin verwijderd. Weet u zeker dat u de werkruimte wilt resetten? Je kan ook contact opnemen met het supportteam om de werkruimte te herstellen."
   }
 }
