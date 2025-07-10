@@ -2,5 +2,6 @@
   "appName": "Appflowy",
   "defaultUsername": "Ik",
   "welcomeText": "Welkom bij @:appName",
-  "welcomeTo": "Welkom bij"
+  "welcomeTo": "Welkom bij",
+  "githubStarText": "Geef een ster op GitHub"
 }
