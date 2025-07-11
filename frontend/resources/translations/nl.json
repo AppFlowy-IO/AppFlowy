@@ -293,7 +293,8 @@
     "switchModel": {
       "label": "Model aanpassen",
       "localModel": "Lokaal Model",
-      "cloudModel": "Cloud Model"
+      "cloudModel": "Cloud Model",
+      "autoModel": "Auto"
     }
   }
 }
