@@ -518,6 +518,24 @@
     "editing": "Bewerken",
     "gotIt": "Ik heb het begrepen",
     "retry": "Opnieuw proberen",
-    "uploadFailed": "Uploaden mislukt."
+    "uploadFailed": "Uploaden mislukt.",
+    "copyLinkOriginal": "Link naar origineel kopiëren"
+  },
+  "label": {
+    "welcome": "Welkom!",
+    "firstName": "Voornaam",
+    "middleName": "Middelste naam",
+    "lastName": "Achternaam",
+    "stepX": "Stap {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Er kan geen verbinding worden gemaakt met uw account.",
+      "failedMsg": "Zorg ervoor dat u het aanmeldingsproces in uw browser hebt voltooid."
+    },
+    "google": {
+      "title": "GOOGLE Sign-In",
+      "instruction1": "Om uw Google-contacten te importeren, moet u deze toepassing autoriseren via uw webbrowser."
+    }
   }
 }
