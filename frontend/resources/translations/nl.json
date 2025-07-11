@@ -315,7 +315,8 @@
       "created": "Gemaakt"
     },
     "confirmDeleteAll": {
-      "title": "Alle pagina's in de prullenmand"
+      "title": "Alle pagina's in de prullenmand",
+      "caption": "Weet u zeker dat u alles uit de Prullenmand wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
     }
   }
 }
