@@ -281,7 +281,8 @@
       "textAndImage": "Tekst en afbeelding",
       "text": "Alinea",
       "bullet": "Opsommingslijst",
-      "number": "Genummerde lijst"
+      "number": "Genummerde lijst",
+      "table": "Tabel"
     }
   }
 }
