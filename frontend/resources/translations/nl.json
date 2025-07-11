@@ -344,6 +344,8 @@
   "dialogCreatePageNameHint": "Paginanaam",
   "questionBubble": {
     "shortcuts": "Snelkoppelingen",
-    "whatsNew": "Wat is er nieuw?"
+    "whatsNew": "Wat is er nieuw?",
+    "helpAndDocumentation": "Hulp en documentatie",
+    "getSupport": "Krijg ondersteuning"
   }
 }
