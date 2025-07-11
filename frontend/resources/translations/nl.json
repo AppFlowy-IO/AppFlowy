@@ -336,6 +336,8 @@
     "confirmDeleteTitle": "Weet u zeker dat u deze pagina permanent wilt verwijderen?"
   },
   "deletePagePrompt": {
-    "text": "Deze pagina staat in de Prullenmand"
+    "text": "Deze pagina staat in de Prullenmand",
+    "restore": "Pagina herstellen",
+    "deletePermanent": "Permanent verwijderen"
   }
 }
