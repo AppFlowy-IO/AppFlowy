@@ -448,7 +448,7 @@
   "notifications": {
     "export": {
       "markdown": "Notitie geëxporteerd naar Markdown",
-      "path": "Documenten/vloeiend"
+      "path": "Documenten/flowy"
     }
   }
 }
