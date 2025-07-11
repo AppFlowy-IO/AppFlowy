@@ -477,6 +477,7 @@
     "insertAbove": "Boven invoegen",
     "upload": "Uploaden",
     "edit": "Bewerken",
-    "delete": "Verwijderen"
+    "delete": "Verwijderen",
+    "copy": "Kopiëren"
   }
 }
