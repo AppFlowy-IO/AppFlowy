@@ -321,6 +321,9 @@
     "confirmRestoreAll": {
       "title": "Alle pagina's in de prullenmand herstellen",
       "caption": "Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "restorePage": {
+      "title": "Herstellen: {}"
     }
   }
 }
