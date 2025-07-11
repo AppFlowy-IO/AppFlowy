@@ -379,5 +379,9 @@
     "highlight": "Benadrukken",
     "color": "Kleur",
     "addLink": "Link toevoegen"
+  },
+  "tooltip": {
+    "lightMode": "Overschakelen naar de Lichte Modus",
+    "darkMode": "Overschakelen naar Donkere Modus"
   }
 }
