@@ -279,7 +279,9 @@
       "textOnly": "Tekst",
       "imageOnly": "Alleen afbeelding",
       "textAndImage": "Tekst en afbeelding",
-      "text": "Alinea"
+      "text": "Alinea",
+      "bullet": "Opsommingslijst",
+      "number": "Genummerde lijst"
     }
   }
 }
