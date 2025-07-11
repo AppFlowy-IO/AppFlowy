@@ -274,7 +274,8 @@
     "addToNewPageSuccessToast": "Bericht toegevoegd aan",
     "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen",
     "changeFormat": {
-      "actionButton": "Formaat wijzigen"
+      "actionButton": "Formaat wijzigen",
+      "confirmButton": "Regenereren met dit formaat"
     }
   }
 }
