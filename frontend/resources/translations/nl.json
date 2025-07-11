@@ -259,6 +259,7 @@
     },
     "clickToMention": "Vermeld een pagina",
     "uploadFile": "Voeg PDF's, tekst- of markdown-bestanden toe",
-    "questionDetail": "Hoi {}! Hoe kan ik je vandaag helpen?"
+    "questionDetail": "Hoi {}! Hoe kan ik je vandaag helpen?",
+    "indexingFile": "Indexeren {}"
   }
 }
