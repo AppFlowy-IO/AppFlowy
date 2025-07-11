@@ -444,5 +444,11 @@
     "askOwnerToUpgradeToLocalAI": "Vraag de eigenaar van de werkplek om AI op het apparaat in te schakelen",
     "upgradeToAILocal": "Voer lokale modellen uit op uw apparaat voor ultieme privacy",
     "upgradeToAILocalDesc": "Chat met PDF's, verbeter uw schrijfvaardigheid en vul tabellen automatisch in met behulp van lokale AI"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Notitie geëxporteerd naar Markdown",
+      "path": "Documenten/vloeiend"
+    }
   }
 }
