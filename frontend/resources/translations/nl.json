@@ -1676,7 +1676,950 @@
       "action": "Actie",
       "add": "Klik om hieronder toe te voegen",
       "drag": "Slepen om te verplaatsen",
-      "deleteRowPrompt": "Weet u zeker dat u deze rij wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      "deleteRowPrompt": "Weet u zeker dat u deze rij wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "deleteCardPrompt": "Weet u zeker dat u deze kaart wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "dragAndClick": "Sleep om te verplaatsen, klik om het menu te openen",
+      "insertRecordAbove": "Voeg record hierboven in",
+      "insertRecordBelow": "Voeg hieronder een record in",
+      "noContent": "Geen inhoud",
+      "reorderRowDescription": "rij opnieuw ordenen",
+      "createRowAboveDescription": "maak een rij hierboven",
+      "createRowBelowDescription": "een rij hieronder invoegen"
+    },
+    "selectOption": {
+      "create": "Creëren",
+      "purpleColor": "Paars",
+      "pinkColor": "Roze",
+      "lightPinkColor": "Lichtroze",
+      "orangeColor": "Oranje",
+      "yellowColor": "Geel",
+      "limeColor": "Limoen",
+      "greenColor": "Groen",
+      "aquaColor": "Turquoise",
+      "blueColor": "Blauw",
+      "deleteTag": "Tag verwijderen",
+      "colorPanelTitle": "Kleur",
+      "panelTitle": "Selecteer een optie of maak er een aan",
+      "searchOption": "Zoek naar een optie",
+      "searchOrCreateOption": "Zoek een optie of maak er een aan",
+      "createNew": "Maak een nieuwe",
+      "orSelectOne": "Of selecteer een optie",
+      "typeANewOption": "Typ een nieuwe optie",
+      "tagName": "Tagnaam"
+    },
+    "checklist": {
+      "taskHint": "Taakomschrijving",
+      "addNew": "Een nieuwe taak toevoegen",
+      "submitNewTask": "Creëren",
+      "hideComplete": "Voltooide taken verbergen",
+      "showComplete": "Toon alle taken"
+    },
+    "url": {
+      "launch": "Link openen in browser",
+      "copy": "Link naar klembord kopiëren",
+      "textFieldHint": "Voer een URL in"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Gerelateerde database",
+      "relatedDatabasePlaceholder": "Geen",
+      "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Zoeken",
+      "noDatabaseSelected": "Er is geen database geselecteerd, selecteer eerst een database uit onderstaande lijst:",
+      "emptySearchResult": "Geen gegevens gevonden",
+      "linkedRowListLabel": "{count} gekoppelde rijen",
+      "unlinkedRowListLabel": "Een andere rij koppelen"
+    },
+    "menuName": "Rooster",
+    "referencedGridPrefix": "Zicht op",
+    "calculate": "Berekenen",
+    "calculationTypeLabel": {
+      "none": "Geen",
+      "average": "Gemiddeld",
+      "max": "Maximum",
+      "median": "Gemiddelde",
+      "min": "Minimum",
+      "sum": "Som",
+      "count": "Aantal",
+      "countEmpty": "Aantal lege",
+      "countEmptyShort": "LEEG",
+      "countNonEmpty": "Aantal niet leeg",
+      "countNonEmptyShort": "GEVULD"
+    },
+    "media": {
+      "rename": "Hernoemen",
+      "download": "Download",
+      "expand": "Uitvouwen",
+      "delete": "Verwijderen",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Bestand of link toevoegen",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Bestand toevoegen",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Weet u zeker dat u dit bestand wilt verwijderen? Deze actie is onomkeerbaar.",
+      "showFileNames": "Bestandsnaam weergeven",
+      "downloadSuccess": "Bestand gedownload",
+      "downloadFailedToken": "Het downloaden van het bestand is mislukt, gebruikerstoken is niet beschikbaar",
+      "setAsCover": "Instellen als omslag",
+      "openInBrowser": "Openen in browser",
+      "embedLink": "Bestandslink insluiten"
     }
+  },
+  "document": {
+    "menuName": "Document",
+    "date": {
+      "timeHintTextInTwelveHour": "13:00 uur",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "creating": "Creëren...",
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Selecteer een bord om naar te linken",
+        "createANewBoard": "Een nieuw bord aanmaken"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Selecteer een Raster om naar te linken",
+        "createANewGrid": "Een nieuw Raster maken"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Selecteer een agenda om aan te koppelen",
+        "createANewCalendar": "Een nieuwe agenda maken"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Selecteer een document om naar te linken"
+      },
+      "name": {
+        "textStyle": "Tekststijl",
+        "list": "Lijst",
+        "toggle": "Schakelen",
+        "fileAndMedia": "Bestand & Media",
+        "simpleTable": "Eenvoudige tabel",
+        "visuals": "Visueel",
+        "document": "Document",
+        "advanced": "Geavanceerd",
+        "text": "Tekst",
+        "heading1": "Kop 1",
+        "heading2": "Kop 2",
+        "heading3": "Kop 3",
+        "image": "Afbeelding",
+        "bulletedList": "Opsommingstekenlijst",
+        "numberedList": "Genummerde lijst",
+        "todoList": "Takenlijst",
+        "doc": "Doc",
+        "linkedDoc": "Link naar pagina",
+        "grid": "Grid",
+        "linkedGrid": "Gekoppeld Grid",
+        "kanban": "Kanban",
+        "linkedKanban": "Gekoppelde Kanban",
+        "calendar": "Kalender",
+        "linkedCalendar": "Gekoppelde agenda",
+        "quote": "Citaat",
+        "divider": "Verdeler",
+        "table": "Tabel",
+        "callout": "Oproep",
+        "outline": "Outline",
+        "mathEquation": "Wiskundige vergelijking",
+        "code": "Code",
+        "toggleList": "Lijst wisselen",
+        "toggleHeading1": "Kop 1 omschakelen",
+        "toggleHeading2": "Kop 2 omschakelen",
+        "toggleHeading3": "Kop 3 omschakelen",
+        "emoji": "Emoji",
+        "aiWriter": "Vraag AI alles",
+        "dateOrReminder": "Datum of herinnering",
+        "photoGallery": "Fotogalerij",
+        "file": "Bestand",
+        "twoColumns": "2 kolommen",
+        "threeColumns": "3 kolommen",
+        "fourColumns": "4 kolommen"
+      },
+      "subPage": {
+        "name": "Document",
+        "keyword1": "subpagina",
+        "keyword2": "pagina",
+        "keyword3": "childpagina",
+        "keyword4": "pagina invoegen",
+        "keyword5": "pagina insluiten",
+        "keyword6": "nieuwe pagina",
+        "keyword7": "pagina maken",
+        "keyword8": "document"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Overzicht",
+      "codeBlock": "Codeblok"
+    },
+    "plugins": {
+      "referencedBoard": "Gerefereerd bord",
+      "referencedGrid": "Gerefereerd raster",
+      "referencedCalendar": "Gerefereerde kalender",
+      "referencedDocument": "Gerefereerd document",
+      "aiWriter": {
+        "userQuestion": "Vraag AI alles",
+        "continueWriting": "Blijf schrijven",
+        "fixSpelling": "Spelling en grammatica corrigeren",
+        "improveWriting": "Verbeter het schrijven",
+        "summarize": "Samenvatten",
+        "explain": "Uitleggen",
+        "makeShorter": "Korter maken",
+        "makeLonger": "Maak langer"
+      },
+      "autoGeneratorMenuItemName": "AI-schrijver",
+      "autoGeneratorTitleName": "AI: Vraag AI om wat dan ook te schrijven...",
+      "autoGeneratorLearnMore": "Meer informatie",
+      "autoGeneratorGenerate": "Genereren",
+      "autoGeneratorHintText": "Vraag het aan AI ...",
+      "autoGeneratorCantGetOpenAIKey": "Kan AI-sleutel niet krijgen",
+      "autoGeneratorRewrite": "Herschrijven",
+      "smartEdit": "Vraag AI",
+      "aI": "AI",
+      "smartEditFixSpelling": "Spelling en grammatica corrigeren",
+      "warning": "⚠️ AI-reacties kunnen onnauwkeurig of misleidend zijn.",
+      "smartEditSummarize": "Samenvatten",
+      "smartEditImproveWriting": "Verbeter het schrijven",
+      "smartEditMakeLonger": "Maak langer",
+      "smartEditCouldNotFetchResult": "Het resultaat kon niet worden opgehaald van AI",
+      "smartEditCouldNotFetchKey": "Kon AI-sleutel niet ophalen",
+      "smartEditDisabled": "AI verbinden in Instellingen",
+      "appflowyAIEditDisabled": "Meld u aan om AI-functies in te schakelen",
+      "discardResponse": "Weet u zeker dat u het AI-antwoord wilt verwijderen?",
+      "createInlineMathEquation": "Maak een vergelijking",
+      "fonts": "Lettertypen",
+      "insertDate": "Datum invoegen",
+      "emoji": "Emoji",
+      "toggleList": "Lijst wisselen",
+      "emptyToggleHeading": "Lege toggle h{}. Klik om inhoud toe te voegen.",
+      "emptyToggleList": "Lege wissellijst. Klik om inhoud toe te voegen.",
+      "emptyToggleHeadingWeb": "Lege toggle h{level}. Klik om inhoud toe te voegen.",
+      "quoteList": "Quotelijst",
+      "numberedList": "Genummerde lijst",
+      "bulletedList": "Opsommingstekenlijst",
+      "todoList": "Todo-lijst",
+      "callout": "Oproep",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Kleur",
+          "align": "Uitlijnen",
+          "delete": "Verwijderen",
+          "duplicate": "Dupliceren",
+          "insertLeft": "Links invoegen",
+          "insertRight": "Rechts invoegen",
+          "insertAbove": "Boven invoegen",
+          "insertBelow": "Hieronder invoegen",
+          "headerColumn": "Koptekstkolom",
+          "headerRow": "Koptekstrij",
+          "clearContents": "Inhoud verwijderen",
+          "setToPageWidth": "Instellen op paginabreedte",
+          "distributeColumnsWidth": "Kolommen gelijkmatig verdelen",
+          "duplicateRow": "Rij dupliceren",
+          "duplicateColumn": "Kolom duppliceren",
+          "textColor": "Tekstkleur",
+          "cellBackgroundColor": "Achtergrondkleur van de cel",
+          "duplicateTable": "Tabel duppliceren"
+        },
+        "clickToAddNewRow": "Klik om een nieuwe rij toe te voegen",
+        "clickToAddNewColumn": "Klik om een nieuwe kolom toe te voegen",
+        "clickToAddNewRowAndColumn": "Klik om een nieuwe rij en kolom toe te voegen",
+        "headerName": {
+          "table": "Tabel",
+          "alignText": "Tekst uitlijnen"
+        }
+      },
+      "cover": {
+        "changeCover": "Wijzig coverafbeelding",
+        "colors": "Kleuren",
+        "images": "Afbeeldingen",
+        "clearAll": "Alles wissen",
+        "abstract": "Abstract",
+        "addCover": "Coverafbeelding toevoegen",
+        "addLocalImage": "Lokale afbeelding toevoegen",
+        "invalidImageUrl": "Ongeldige afbeelding-URL",
+        "failedToAddImageToGallery": "Het is niet gelukt om een afbeelding aan de galerij toe te voegen",
+        "enterImageUrl": "Voer de URL van de afbeelding in",
+        "add": "Toevoegen",
+        "back": "Terug",
+        "saveToGallery": "Opslaan in galerij",
+        "removeIcon": "Verwijder pictogram",
+        "removeCover": "Coverafbeelding verwijderen",
+        "pasteImageUrl": "Afbeelding-URL plakken",
+        "or": "OF",
+        "pickFromFiles": "Kiezen uit bestanden",
+        "couldNotFetchImage": "Afbeelding kon niet worden opgehaald",
+        "imageSavingFailed": "Opslaan van afbeelding mislukt",
+        "addIcon": "Pictogram toevoegen",
+        "changeIcon": "Pictogram wijzigen",
+        "coverRemoveAlert": "Het wordt uit de cover verwijderd nadat het is verwijderd.",
+        "alertDialogConfirmation": "Weet u zeker dat u wilt doorgaan?"
+      },
+      "mathEquation": {
+        "name": "Wiskundige vergelijking",
+        "addMathEquation": "Voeg een wiskundige vergelijking toe",
+        "editMathEquation": "Bewerk wiskundige vergelijking"
+      },
+      "optionAction": {
+        "click": "Klik",
+        "toOpenMenu": " om het menu te openen",
+        "drag": "Sleuren",
+        "toMove": " bewegen",
+        "delete": "Verwijderen",
+        "duplicate": "Duplicaat",
+        "turnInto": "Verander in",
+        "moveUp": "Omhoog verplaatsen",
+        "moveDown": "Naar beneden verplaatsen",
+        "color": "Kleur",
+        "align": "Uitlijnen",
+        "left": "Links",
+        "center": "Centrum",
+        "right": "Rechts",
+        "defaultColor": "Standaard",
+        "depth": "Diepte",
+        "copyLinkToBlock": "Link kopiëren om te blokkeren"
+      },
+      "image": {
+        "addAnImage": "Afbeeldingen toevoegen",
+        "copiedToPasteBoard": "De afbeeldingslink is naar het klembord gekopieerd",
+        "addAnImageDesktop": "Voeg een afbeelding toe",
+        "addAnImageMobile": "Klik om een of meer afbeeldingen toe te voegen",
+        "dropImageToInsert": "Afbeeldingen neerzetten om in te voegen",
+        "imageUploadFailed": "Afbeelding uploaden mislukt",
+        "imageDownloadFailed": "Het downloaden van de afbeelding is mislukt. Probeer het opnieuw.",
+        "imageDownloadFailedToken": "Het downloaden van de afbeelding is mislukt vanwege een ontbrekende gebruikerstoken. Probeer het opnieuw.",
+        "errorCode": "Foutcode"
+      },
+      "photoGallery": {
+        "name": "Fotogalerij",
+        "imageKeyword": "afbeelding",
+        "imageGalleryKeyword": "fotogalerij",
+        "photoKeyword": "foto",
+        "photoBrowserKeyword": "fotobrowser",
+        "galleryKeyword": "galerij",
+        "addImageTooltip": "Afbeelding toevoegen",
+        "changeLayoutTooltip": "Lay-out wijzigen",
+        "browserLayout": "Browser",
+        "gridLayout": "Grid",
+        "deleteBlockTooltip": "Hele galerij verwijderen"
+      },
+      "math": {
+        "copiedToPasteBoard": "De wiskundige vergelijking is naar het klembord gekopieerd"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "De link is gekopieerd naar het klembord",
+        "convertToLink": "Converteren naar embed-link"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Voeg koppen toe om een inhoudsopgave te maken.",
+        "noMatchHeadings": "Er zijn geen overeenkomende koppen gevonden."
+      },
+      "table": {
+        "addAfter": "Voeg toe na",
+        "addBefore": "Voeg toe vóór",
+        "delete": "Verwijderen",
+        "clear": "Inhoud verwijderen",
+        "duplicate": "Dupliceren",
+        "bgColor": "Achtergrondkleur"
+      },
+      "contextMenu": {
+        "copy": "Kopiëren",
+        "cut": "Knippen",
+        "paste": "Plakken",
+        "pasteAsPlainText": "Plakken als platte tekst"
+      },
+      "action": "Acties",
+      "database": {
+        "selectDataSource": "Gegevensbron selecteren",
+        "noDataSource": "Geen gegevensbron",
+        "selectADataSource": "Selecteer een gegevensbron",
+        "toContinue": "doorgaan",
+        "newDatabase": "Nieuwe database",
+        "linkToDatabase": "Link naar database"
+      },
+      "date": "Datum",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Voeg een video toe",
+        "placeholder": "Plak de videolink",
+        "copiedToPasteBoard": "De videolink is naar het klembord gekopieerd",
+        "insertVideo": "Video toevoegen",
+        "invalidVideoUrl": "De bron-URL wordt nog niet ondersteund.",
+        "invalidVideoUrlYouTube": "YouTube wordt nog niet ondersteund.",
+        "supportedFormats": "Ondersteunde formaten: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Bestand",
+        "uploadTab": "Uploaden",
+        "uploadMobile": "Kies een bestand",
+        "uploadMobileGallery": "Van fotogalerij",
+        "networkTab": "Link insluiten",
+        "placeholderText": "Een bestand uploaden of insluiten",
+        "placeholderDragging": "Zet het bestand neer om te uploaden",
+        "dropFileToUpload": "Een bestand neerzetten om te uploaden",
+        "fileUploadHint": "Versleep een bestand of klik erop ",
+        "fileUploadHintSuffix": "Bladeren",
+        "networkHint": "Plak een bestandslink",
+        "networkUrlInvalid": "Ongeldige URL. Controleer de URL en probeer het opnieuw.",
+        "networkAction": "Insluiten",
+        "fileTooBigError": "Bestandsgrootte is te groot, upload een bestand met een bestandsgrootte van minder dan 10 MB",
+        "renameFile": {
+          "title": "Bestand hernoemen",
+          "description": "Voer de nieuwe naam voor dit bestand in",
+          "nameEmptyError": "De bestandsnaam mag niet leeg zijn."
+        },
+        "uploadedAt": "Geüpload op {}",
+        "linkedAt": "Link toegevoegd op {}",
+        "failedToOpenMsg": "Kan niet openen, bestand niet gevonden"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (plakken afwerken)",
+        "errors": {
+          "failedDeletePage": "Het is niet gelukt om de pagina te verwijderen",
+          "failedCreatePage": "Het is niet gelukt om de pagina aan te maken",
+          "failedMovePage": "Het is niet gelukt om de pagina naar dit document te verplaatsen",
+          "failedDuplicatePage": "Het is niet gelukt om de pagina te dupliceren",
+          "failedDuplicateFindView": "Het is niet gelukt om de pagina te dupliceren - originele weergave niet gevonden"
+        }
+      },
+      "cannotMoveToItsChildren": "Kan niet naar zijn kinderen verhuizen",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Plakken als",
+          "mention": "Noemen",
+          "URL": "URL",
+          "bookmark": "Bladwijzer",
+          "embed": "Insluiten"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Converteren naar Vermelding",
+          "toUrl": "Converteren naar URL",
+          "toEmbed": "Converteren naar ingesloten",
+          "toBookmark": "Converteren naar bladwijzer",
+          "copyLink": "Link kopiëren",
+          "replace": "Vervangen",
+          "reload": "Herladen",
+          "removeLink": "Link verwijderen",
+          "pasteHint": "Plak https://...",
+          "unableToDisplay": "kan niet worden weergegeven"
+        }
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "Inhoudsopgave"
+    },
+    "textBlock": {
+      "placeholder": "Typ '/' voor opdrachten"
+    },
+    "title": {
+      "placeholder": "Zonder titel"
+    },
+    "imageBlock": {
+      "placeholder": "Klik om afbeelding(en) toe te voegen",
+      "upload": {
+        "label": "Uploaden",
+        "placeholder": "Klik om een afbeelding te uploaden"
+      },
+      "url": {
+        "label": "Afbeelding-URL",
+        "placeholder": "Voer de URL van de afbeelding in"
+      },
+      "ai": {
+        "label": "Genereer een afbeelding van AI",
+        "placeholder": "Vul de prompt in zodat AI een afbeelding kan genereren"
+      },
+      "stability_ai": {
+        "label": "Genereer een afbeelding van Stability AI",
+        "placeholder": "Vul de prompt in zodat Stability AI een afbeelding kan genereren"
+      },
+      "support": "De maximale afbeeldingsgrootte is 5 MB. Ondersteunde formaten: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Ongeldige afbeelding",
+        "invalidImageSize": "De afbeeldingsgrootte moet kleiner zijn dan 5 MB",
+        "invalidImageFormat": "Afbeeldingsformaat wordt niet ondersteund. Ondersteunde formaten: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Ongeldige afbeelding-URL",
+        "noImage": "Bestand of map bestaat niet",
+        "multipleImagesFailed": "Eén of meer afbeeldingen konden niet worden geüpload. Probeer het opnieuw."
+      },
+      "embedLink": {
+        "label": "Link insluiten",
+        "placeholder": "Plak of typ een afbeeldingslink"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Zoek naar een afbeelding",
+      "pleaseInputYourOpenAIKey": "Voer uw AI-sleutel in op de pagina Instellingen",
+      "saveImageToGallery": "Afbeelding opslaan",
+      "failedToAddImageToGallery": "Afbeelding opslaan mislukt",
+      "successToAddImageToGallery": "Afbeelding opgeslagen in Foto's",
+      "unableToLoadImage": "Afbeelding kan niet worden geladen",
+      "maximumImageSize": "De maximaal ondersteunde upload-afbeeldingsgrootte is 10 MB",
+      "uploadImageErrorImageSizeTooBig": "De afbeeldingsgrootte moet kleiner zijn dan 10 MB",
+      "imageIsUploading": "Afbeelding wordt geüpload",
+      "openFullScreen": "Openen in volledig scherm",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Vorige afbeelding",
+          "nextImageTooltip": "Volgende afbeelding",
+          "zoomOutTooltip": "Uitzoomen",
+          "zoomInTooltip": "Inzoomen",
+          "changeZoomLevelTooltip": "Zoomniveau wijzigen",
+          "openLocalImage": "Open afbeelding",
+          "downloadImage": "Afbeelding downloaden",
+          "closeViewer": "Interactieve viewer sluiten",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Afbeelding verwijderen"
+        }
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Taal",
+        "placeholder": "Selecteer taal",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Kopiëren",
+      "searchLanguageHint": "Zoeken naar een taal",
+      "codeCopiedSnackbar": "Code gekopieerd naar klembord!"
+    },
+    "inlineLink": {
+      "placeholder": "Plak of typ een link",
+      "openInNewTab": "Openen in nieuw tabblad",
+      "copyLink": "Link kopiëren",
+      "removeLink": "Link verwijderen",
+      "url": {
+        "label": "Link-URL",
+        "placeholder": "Voer de link-URL in"
+      },
+      "title": {
+        "label": "Linktitel",
+        "placeholder": "Voer linktitel in"
+      }
+    },
+    "mention": {
+      "placeholder": "Noem een persoon, een pagina of een datum...",
+      "page": {
+        "label": "Link naar pagina",
+        "tooltip": "Klik om de pagina te openen"
+      },
+      "deleted": "Verwijderd",
+      "deletedContent": "Deze inhoud bestaat niet of is verwijderd",
+      "noAccess": "Geen toegang",
+      "deletedPage": "Verwijderde pagina",
+      "trashHint": " - in de prullenmand",
+      "morePages": "meer pagina's"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Resetten naar standaardinstellingen",
+      "textSize": "Tekstgrootte",
+      "textColor": "Tekstkleur",
+      "h1": "Kop 1",
+      "h2": "Kop 2",
+      "h3": "Kop 3",
+      "alignLeft": "Links uitlijnen",
+      "alignRight": "Rechts uitlijnen",
+      "alignCenter": "Centreren",
+      "link": "Link",
+      "textAlign": "Tekst uitlijnen",
+      "moreOptions": "Meer opties",
+      "font": "Lettertype",
+      "inlineCode": "Inline-code",
+      "suggestions": "Suggesties",
+      "turnInto": "Verander in",
+      "equation": "Vergelijking",
+      "insert": "Invoegen",
+      "linkInputHint": "Link plakken of pagina's doorzoeken",
+      "pageOrURL": "Pagina of URL",
+      "linkName": "Linknaam",
+      "linkNameHint": "Naam van invoerlink"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "De inhoud van het blok kan niet worden ontleed",
+      "clickToCopyTheBlockContent": "Klik om de blokinhoud te kopiëren",
+      "blockContentHasBeenCopied": "De inhoud van het blok is gekopieerd.",
+      "parseError": "Er is een fout opgetreden bij het parseren van het blok {}.",
+      "copyBlockContent": "Kopieer blokinhoud"
+    },
+    "mobilePageSelector": {
+      "title": "Selecteer pagina",
+      "failedToLoad": "Het laden van de paginalijst is mislukt",
+      "noPagesFound": "Geen pagina's gevonden"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Kies foto",
+      "takePicture": "Maak een foto",
+      "chooseFile": "Kies bestand"
+    }
+  },
+  "board": {
+    "column": {
+      "label": "Kolom",
+      "createNewCard": "Nieuw",
+      "renameGroupTooltip": "Druk om de groep te hernoemen",
+      "createNewColumn": "Een nieuwe groep toevoegen",
+      "addToColumnTopTooltip": "Voeg bovenaan een nieuwe kaart toe",
+      "addToColumnBottomTooltip": "Voeg onderaan een nieuwe kaart toe",
+      "renameColumn": "Hernoemen",
+      "hideColumn": "Verbergen",
+      "newGroup": "Nieuwe groep",
+      "deleteColumn": "Verwijderen",
+      "deleteColumnConfirmation": "Hiermee worden deze groep en alle kaarten erin verwijderd. Weet u zeker dat u wilt doorgaan?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Verborgen groepen",
+      "collapseTooltip": "Verberg de verborgen groepen",
+      "expandTooltip": "Bekijk de verborgen groepen"
+    },
+    "cardDetail": "Kaartdetails",
+    "cardActions": "Kaartacties",
+    "cardDuplicated": "Kaart is gedupliceerd",
+    "cardDeleted": "Kaart is verwijderd",
+    "showOnCard": "Toon op kaartdetails",
+    "setting": "Instelling",
+    "propertyName": "Eigenschapsnaam",
+    "menuName": "Bord",
+    "showUngrouped": "Niet-gegroepeerde items weergeven",
+    "ungroupedButtonText": "Niet gegroepeerd",
+    "ungroupedButtonTooltip": "Bevat kaarten die in geen enkele groep thuishoren",
+    "ungroupedItemsTitle": "Klik om toe te voegen aan het bord",
+    "groupBy": "Groeperen op",
+    "groupCondition": "Groepsconditie",
+    "referencedBoardPrefix": "Uitzicht op",
+    "notesTooltip": "Notities binnenin",
+    "mobile": {
+      "editURL": "URL bewerken",
+      "showGroup": "Groep weergeven",
+      "showGroupContent": "Weet u zeker dat u deze groep op het bord wilt weergeven?",
+      "failedToLoad": "Het laden van de bordweergave is mislukt"
+    },
+    "dateCondition": {
+      "weekOf": "Week van {} - {}",
+      "today": "Vandaag",
+      "yesterday": "Gisteren",
+      "tomorrow": "Morgen",
+      "lastSevenDays": "Laatste 7 dagen",
+      "nextSevenDays": "Volgende 7 dagen",
+      "lastThirtyDays": "Laatste 30 dagen",
+      "nextThirtyDays": "Volgende 30 dagen"
+    },
+    "noGroup": "Geen groepering per eigenschap",
+    "noGroupDesc": "Voor bordweergaven is een eigenschap nodig waarop gegroepeerd kan worden om ze weer te geven",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "bestanden"
+    }
+  },
+  "calendar": {
+    "menuName": "Kalender",
+    "defaultNewCalendarTitle": "Zonder titel",
+    "newEventButtonTooltip": "Een nieuw evenement toevoegen",
+    "navigation": {
+      "today": "Vandaag",
+      "jumpToday": "Ga naar Vandaag",
+      "previousMonth": "Vorige maand",
+      "nextMonth": "Volgende maand",
+      "views": {
+        "day": "Dag",
+        "week": "Week",
+        "month": "Maand",
+        "year": "Jaar"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "Nog geen evenementen",
+      "emptyBody": "Klik op de plusknop om een evenement voor deze dag aan te maken."
+    },
+    "settings": {
+      "showWeekNumbers": "Weeknummers weergeven",
+      "showWeekends": "Toon weekenden",
+      "firstDayOfWeek": "Begin de week op",
+      "layoutDateField": "Kalenderindeling door",
+      "changeLayoutDateField": "Wijzig lay-outveld",
+      "noDateTitle": "Geen datum",
+      "noDateHint": {
+        "zero": "Ongeplande gebeurtenissen worden hier weergegeven",
+        "one": "{count} ongeplande gebeurtenis",
+        "other": "{count} ongeplande gebeurtenissen"
+      },
+      "unscheduledEventsTitle": "Ongeplande evenementen",
+      "clickToAdd": "Klik om toe te voegen aan de kalender",
+      "name": "Kalenderinstellingen",
+      "clickToOpen": "Klik om het record te openen"
+    },
+    "referencedCalendarPrefix": "Zicht van",
+    "quickJumpYear": "Spring naar",
+    "duplicateEvent": "Dubbele gebeurtenis"
+  },
+  "errorDialog": {
+    "title": "@:appName Fout",
+    "howToFixFallback": "Onze excuses voor het ongemak! Meld een probleem op onze GitHub-pagina met een beschrijving van uw fout.",
+    "howToFixFallbackHint1": "Onze excuses voor het ongemak! Meld een probleem op onze ",
+    "howToFixFallbackHint2": " pagina die uw fout beschrijft.",
+    "github": "Bekijk op GitHub"
+  },
+  "search": {
+    "label": "Zoekopdracht",
+    "sidebarSearchIcon": "Zoeken en snel naar een pagina springen",
+    "searchOrAskAI": "Zoek of vraag AI",
+    "searchFieldHint": "Zoek of stel een vraag in {}...",
+    "askAIAnything": "Vraag AI alles",
+    "askAIFor": "Vraag AI",
+    "searching": "Zoeken...",
+    "noResultForSearching": "Geen overeenkomsten gevonden",
+    "noResultForSearchingHint": "Probeer verschillende vragen of trefwoorden.\nSommige pagina's bevinden zich mogelijk in de Prullenbak.",
+    "noResultForSearchingHintWithoutTrash": "Probeer verschillende vragen of trefwoorden\nSommige pagina's kunnen in de ",
+    "bestMatch": "Beste match",
+    "seeMore": "Bekijk meer",
+    "showMore": "Meer weergeven",
+    "somethingWentWrong": "Er is iets misgegaan",
+    "pageNotExist": "Deze pagina bestaat niet",
+    "tryAgainOrLater": "Probeer het later opnieuw",
+    "placeholder": {
+      "actions": "Zoekacties..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Gekopieerd naar klembord",
+      "fail": "Kan niet kopiëren"
+    }
+  },
+  "unSupportBlock": "De huidige versie ondersteunt dit blok niet.",
+  "views": {
+    "deleteContentTitle": "Weet u zeker dat u de {pageType} wilt verwijderen?",
+    "deleteContentCaption": "Als u dit {pageType} verwijdert, kunt u het vanuit de prullenbak herstellen."
+  },
+  "colors": {
+    "custom": "Aangepast",
+    "default": "Standaard",
+    "red": "Rood",
+    "orange": "Oranje",
+    "yellow": "Geel",
+    "green": "Groen",
+    "blue": "Blauw",
+    "purple": "Paars",
+    "pink": "Roze",
+    "brown": "Bruin",
+    "gray": "Grijs"
+  },
+  "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Zoek emoji",
+    "noRecent": "Geen recente emoji",
+    "noEmojiFound": "Geen emoji gevonden",
+    "filter": "Filter",
+    "random": "Willekeurig",
+    "selectSkinTone": "Selecteer huidskleur",
+    "remove": "Emoji verwijderen",
+    "categories": {
+      "smileys": "Smileys en emoji",
+      "people": "mensen",
+      "animals": "natuur",
+      "food": "voedingsmiddelen",
+      "activities": "activiteiten",
+      "places": "plaatsen",
+      "objects": "objecten",
+      "symbols": "symbolen",
+      "flags": "vlaggen",
+      "nature": "natuur",
+      "frequentlyUsed": "vaak gebruikt"
+    },
+    "skinTone": {
+      "default": "Standaard",
+      "light": "Licht",
+      "mediumLight": "Medium-Licht",
+      "medium": "Medium",
+      "mediumDark": "Middeldonker",
+      "dark": "Donker"
+    },
+    "openSourceIconsFrom": "Open source-pictogrammen van"
+  },
+  "inlineActions": {
+    "noResults": "Geen resultaten",
+    "recentPages": "Recente pagina's",
+    "pageReference": "Paginaverwijzing",
+    "docReference": "Documentreferentie",
+    "boardReference": "Bordreferentie",
+    "calReference": "Kalenderreferentie",
+    "gridReference": "Rasterreferentie",
+    "date": "Datum",
+    "reminder": {
+      "groupTitle": "Herinnering",
+      "shortKeyword": "herinneren"
+    },
+    "createPage": "Maak een subpagina \"{}\""
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Wijzig de datum- en tijdnotatie in de instellingen",
+    "dateFormat": "Datumnotatie",
+    "includeTime": "Inclusief tijd",
+    "isRange": "Einddatum",
+    "timeFormat": "Tijdformaat",
+    "clearDate": "Datum verwijderen",
+    "reminderLabel": "Herinnering",
+    "selectReminder": "Selecteer herinnering",
+    "reminderOptions": {
+      "none": "Geen",
+      "atTimeOfEvent": "Tijdstip van de gebeurtenis",
+      "fiveMinsBefore": "5 minuten voor",
+      "tenMinsBefore": "10 minuten voor",
+      "fifteenMinsBefore": "15 minuten voor",
+      "thirtyMinsBefore": "30 minuten voor",
+      "oneHourBefore": "1 uur voor",
+      "twoHoursBefore": "2 uur van tevoren",
+      "onDayOfEvent": "Op de dag van het evenement",
+      "oneDayBefore": "1 dag ervoor",
+      "twoDaysBefore": "2 dagen ervoor",
+      "oneWeekBefore": "1 week ervoor",
+      "custom": "Aangepast"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Gisteren",
+    "today": "Vandaag",
+    "tomorrow": "Morgen",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Meldingen",
+    "closeNotification": "Melding sluiten",
+    "viewNotifications": "Meldingen bekijken",
+    "noNotifications": "Nog geen meldingen",
+    "mentionedYou": "heeft jou genoemd",
+    "archivedTooltip": "Archiveer deze melding",
+    "unarchiveTooltip": "Deze melding uit het archief halen",
+    "markAsReadTooltip": "Markeer deze melding als gelezen",
+    "markAsArchivedSucceedToast": "Succesvol gearchiveerd",
+    "markAllAsArchivedSucceedToast": "Alles succesvol gearchiveerd",
+    "markAsReadSucceedToast": "Markeer als succesvol gelezen",
+    "markAllAsReadSucceedToast": "Alles succesvol als gelezen markeren",
+    "today": "Vandaag",
+    "older": "Ouder",
+    "mobile": {
+      "title": "Updates"
+    },
+    "emptyTitle": "Alles bij!",
+    "emptyBody": "Geen meldingen of acties in behandeling. Geniet van de rust.",
+    "tabs": {
+      "inbox": "Postvak IN",
+      "upcoming": "Aankomende"
+    },
+    "actions": {
+      "markAllRead": "Alles als gelezen markeren",
+      "showAll": "Alle",
+      "showUnreads": "Ongelezen"
+    },
+    "filters": {
+      "ascending": "Oplopend",
+      "descending": "Aflopend",
+      "groupByDate": "Groeperen op datum",
+      "showUnreadsOnly": "Alleen ongelezen berichten weergeven",
+      "resetToDefault": "Resetten naar standaardinstellingen"
+    }
+  },
+  "reminderNotification": {
+    "title": "Herinnering",
+    "message": "Controleer dit voordat u het vergeet!",
+    "tooltipDelete": "Verwijderen",
+    "tooltipMarkRead": "Markeer als gelezen",
+    "tooltipMarkUnread": "Markeer als ongelezen"
+  },
+  "findAndReplace": {
+    "find": "Vinden",
+    "previousMatch": "Vorige overeenkomst",
+    "nextMatch": "Volgende overeenkomst",
+    "close": "Sluiten",
+    "replace": "Vervangen",
+    "replaceAll": "Alles vervangen",
+    "noResult": "Geen resultaten",
+    "caseSensitive": "Hoofdlettergevoelig",
+    "searchMore": "Zoek om meer resultaten te vinden"
+  },
+  "error": {
+    "weAreSorry": "Het spijt ons",
+    "loadingViewError": "Er is een probleem met het laden van deze weergave. Controleer je internetverbinding, vernieuw de app en neem gerust contact op met het team als het probleem aanhoudt.",
+    "syncError": "Gegevens worden niet gesynchroniseerd vanaf een ander apparaat",
+    "syncErrorHint": "Open deze pagina opnieuw op het apparaat waarop u deze voor het laatst hebt bewerkt en open de pagina vervolgens opnieuw op het huidige apparaat.",
+    "clickToCopy": "Klik om de foutcode te kopiëren"
+  },
+  "editor": {
+    "bold": "Vetgedrukt",
+    "bulletedList": "Opsommingstekenlijst",
+    "bulletedListShortForm": "Opgesomd",
+    "checkbox": "Selectievakje",
+    "embedCode": "Insluitcode",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Onderlijnen",
+    "color": "Kleur",
+    "image": "Afbeelding",
+    "date": "Datum",
+    "page": "Pagina",
+    "italic": "Cursief",
+    "link": "Link",
+    "numberedList": "Genummerde lijst",
+    "numberedListShortForm": "Genummerd",
+    "toggleHeading1ShortForm": "H1 in/uitschakelen",
+    "toggleHeading2ShortForm": "H2 in/uitschakelen",
+    "toggleHeading3ShortForm": "H3 in/uitschakelen",
+    "quote": "Citaat",
+    "strikethrough": "Doorhalen",
+    "text": "Tekst",
+    "underline": "Onderstrepen",
+    "fontColorDefault": "Standaard",
+    "fontColorGray": "Grijs",
+    "fontColorBrown": "Bruin",
+    "fontColorOrange": "Oranje",
+    "fontColorYellow": "Geel",
+    "fontColorGreen": "Groen",
+    "fontColorBlue": "Blauw",
+    "fontColorPurple": "Paars",
+    "fontColorPink": "Roze",
+    "fontColorRed": "Rood",
+    "backgroundColorDefault": "Standaardachtergrond",
+    "backgroundColorGray": "Grijze achtergrond",
+    "backgroundColorBrown": "Bruine achtergrond",
+    "backgroundColorOrange": "Oranje achtergrond",
+    "backgroundColorYellow": "Gele achtergrond",
+    "backgroundColorGreen": "Groene achtergrond",
+    "backgroundColorBlue": "Blauwe achtergrond",
+    "backgroundColorPurple": "Paarse achtergrond",
+    "backgroundColorPink": "Roze achtergrond",
+    "backgroundColorRed": "Rode achtergrond",
+    "backgroundColorLime": "Kalk achtergrond",
+    "backgroundColorAqua": "Turquoise achtergrond",
+    "done": "Klaar",
+    "cancel": "Annuleren",
+    "tint1": "Tint 1",
+    "tint2": "Tint 2",
+    "tint3": "Tint 3",
+    "tint4": "Tint 4",
+    "tint5": "Tint 5",
+    "tint6": "Tint 6",
+    "tint7": "Tint 7",
+    "tint8": "Tint 8",
+    "tint9": "Tint 9",
+    "lightLightTint1": "Paars",
+    "lightLightTint2": "Roze",
+    "lightLightTint3": "Lichtroze",
+    "lightLightTint4": "Oranje",
+    "lightLightTint5": "Geel",
+    "lightLightTint6": "Limoen",
+    "lightLightTint7": "Groen",
+    "lightLightTint8": "Turquoise",
+    "lightLightTint9": "Blauw",
+    "urlHint": "URL",
+    "mobileHeading1": "Kop 1",
+    "mobileHeading2": "Kop 2",
+    "mobileHeading3": "Kop 3",
+    "mobileHeading4": "Kop 4",
+    "mobileHeading5": "Kop 5",
+    "mobileHeading6": "Kop 6",
+    "textColor": "Tekstkleur",
+    "backgroundColor": "Achtergrondkleur",
+    "addYourLink": "Voeg uw link toe",
+    "openLink": "Link openen",
+    "copyLink": "Link kopiëren",
+    "removeLink": "Link verwijderen",
+    "editLink": "Link bewerken",
+    "convertTo": "Converteren naar",
+    "linkText": "Tekst"
   }
 }
