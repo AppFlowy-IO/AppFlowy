@@ -217,6 +217,7 @@
     "unfavorite": "Verwijderen uit Favorieten",
     "favorite": "Toevoegen aan Favorieten",
     "openNewTab": "Openen in een nieuwe Tab",
-    "moveTo": "Verplaatsen naar"
+    "moveTo": "Verplaatsen naar",
+    "addToFavorites": "Toevoegen aan Favorieten"
   }
 }
