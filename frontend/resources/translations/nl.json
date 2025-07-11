@@ -275,7 +275,8 @@
     "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen",
     "changeFormat": {
       "actionButton": "Formaat wijzigen",
-      "confirmButton": "Regenereren met dit formaat"
+      "confirmButton": "Regenereren met dit formaat",
+      "textOnly": "Tekst"
     }
   }
 }
