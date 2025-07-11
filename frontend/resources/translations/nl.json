@@ -236,6 +236,7 @@
     "newChat": "Nieuwe AI Chat",
     "inputMessageHint": "Vraag aan @:appName AI",
     "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI",
-    "relatedQuestion": "Voorgesteld"
+    "relatedQuestion": "Voorgesteld",
+    "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en"
   }
 }
