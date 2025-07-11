@@ -249,6 +249,7 @@
     "question5": "Maak een illustratie voor mijn pagina",
     "question6": "Maak een to-dolijst voor mijn komende week",
     "aiMistakePrompt": "AI kan fouten maken. Controleer belangrijke informatie.",
-    "chatWithFilePrompt": "Wil je chatten met het bestand?"
+    "chatWithFilePrompt": "Wil je chatten met het bestand?",
+    "indexFileSuccess": "Bestand succesvol geïndexeerd"
   }
 }
