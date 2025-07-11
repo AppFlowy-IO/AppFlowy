@@ -347,6 +347,9 @@
     "whatsNew": "Wat is er nieuw?",
     "helpAndDocumentation": "Hulp en documentatie",
     "getSupport": "Krijg ondersteuning",
-    "markdown": "Markdown"
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Debug Informatie"
+    }
   }
 }
