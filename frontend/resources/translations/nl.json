@@ -374,6 +374,8 @@
     "bulletList": "Opsommingstekenlijst",
     "checkList": "Controlelijst",
     "inlineCode": "Inline-code",
-    "quote": "Citaatblok"
+    "quote": "Citaatblok",
+    "header": "Koptekst",
+    "highlight": "Benadrukken"
   }
 }
