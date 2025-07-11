@@ -282,7 +282,8 @@
       "text": "Alinea",
       "bullet": "Opsommingslijst",
       "number": "Genummerde lijst",
-      "table": "Tabel"
+      "table": "Tabel",
+      "blankDescription": "Formaat antwoord aanpassen"
     }
   }
 }
