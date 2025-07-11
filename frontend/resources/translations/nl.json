@@ -762,7 +762,8 @@
         "title": "Cache wissen",
         "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
         "dialog": {
-          "title": "Cache wissen"
+          "title": "Cache wissen",
+          "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens."
         }
       }
     }
