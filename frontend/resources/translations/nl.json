@@ -256,6 +256,7 @@
       "zero": "0 bronnen gevonden",
       "one": "{count} bron gevonden",
       "other": "{count} bronnen gevonden"
-    }
+    },
+    "clickToMention": "Vermeld een pagina"
   }
 }
