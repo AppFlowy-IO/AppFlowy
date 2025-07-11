@@ -227,5 +227,6 @@
     "lockPage": "Pagina vergrendelen"
   },
   "blankPageTitle": "Lege pagina",
-  "newPageText": "Nieuwe pagina"
+  "newPageText": "Nieuwe pagina",
+  "newDocumentText": "Nieuw document"
 }
