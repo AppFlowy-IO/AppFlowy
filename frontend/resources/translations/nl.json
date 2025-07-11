@@ -382,6 +382,7 @@
   },
   "tooltip": {
     "lightMode": "Overschakelen naar de Lichte Modus",
-    "darkMode": "Overschakelen naar Donkere Modus"
+    "darkMode": "Overschakelen naar Donkere Modus",
+    "openAsPage": "Openen als Pagina"
   }
 }
