@@ -230,5 +230,6 @@
   "newPageText": "Nieuwe pagina",
   "newDocumentText": "Nieuw document",
   "newGridText": "Nieuwe databasetabel",
-  "newCalendarText": "Nieuwe kalender"
+  "newCalendarText": "Nieuwe kalender",
+  "newBoardText": "Nieuw bord"
 }
