@@ -1239,7 +1239,58 @@
         "archiveAll": "Alles archiveren"
       },
       "emptyInbox": {
-        "title": "Nog geen berichten"
+        "title": "Nog geen berichten",
+        "description": "Stel hier herinneringen in om meldingen te ontvangen."
+      },
+      "emptyUnread": {
+        "title": "Geen ongelezen meldingen",
+        "description": "Je bent helemaal bij!"
+      },
+      "emptyArchived": {
+        "title": "Geen gearchiveerd berichten",
+        "description": "Gearchiveerde meldingen verschijnen hier."
+      },
+      "tabs": {
+        "inbox": "Postvak IN",
+        "unread": "Ongelezen",
+        "archived": "Gearchiveerd"
+      },
+      "refreshSuccess": "Meldingen succesvol vernieuwd",
+      "titles": {
+        "notifications": "Meldingen",
+        "reminder": "Herinnering"
+      }
+    },
+    "appearance": {
+      "resetSetting": "Reset",
+      "fontFamily": {
+        "label": "Lettertypefamilie",
+        "search": "Zoeken",
+        "defaultFont": "Systeem"
+      },
+      "themeMode": {
+        "label": "Themamodus",
+        "light": "Lichte Modus",
+        "dark": "Donkere Modus",
+        "system": "Aanpassen aan het systeem"
+      },
+      "fontScaleFactor": "Lettertype schaalfactor",
+      "displaySize": "Weergaveformaat",
+      "documentSettings": {
+        "cursorColor": "Kleur van documentcursor",
+        "selectionColor": "Documentselectiekleur",
+        "width": "Documentbreedte",
+        "changeWidth": "Wijzigen",
+        "pickColor": "Selecteer een kleur",
+        "colorShade": "Kleurtint",
+        "opacity": "Dekking",
+        "hexEmptyError": "Hex-kleur kan niet leeg zijn",
+        "hexLengthError": "Hexadecimale waarde moet 6 cijfers lang zijn",
+        "hexInvalidError": "Ongeldige hexadecimale waarde",
+        "opacityEmptyError": "De dekking kan niet leeg zijn",
+        "opacityRangeError": "De dekking moet tussen 1 en 100 liggen",
+        "app": "App",
+        "flowy": "Flowy"
       }
     }
   }
