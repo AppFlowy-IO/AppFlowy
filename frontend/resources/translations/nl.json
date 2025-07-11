@@ -240,6 +240,7 @@
     "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en",
     "aiServerUnavailable": "De AI service is tijdelijk niet beschikbaar. Probeer later opnieuw!",
     "retry": "Probeer opnieuw",
-    "clickToRetry": "Klik om opnieuw te proberen"
+    "clickToRetry": "Klik om opnieuw te proberen",
+    "regenerateAnswer": "Opnieuw genereren"
   }
 }
