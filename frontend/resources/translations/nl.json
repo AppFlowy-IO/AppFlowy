@@ -220,6 +220,7 @@
     "moveTo": "Verplaatsen naar",
     "addToFavorites": "Toevoegen aan Favorieten",
     "copyLink": "Link kopiëren",
-    "changeIcon": "Icon aanpassen"
+    "changeIcon": "Icon aanpassen",
+    "collapseAllPages": "Alle subpagina's samenvouwen"
   }
 }
