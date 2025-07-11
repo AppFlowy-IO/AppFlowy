@@ -710,7 +710,23 @@
         "content": "Weet u zeker dat u deze werkplek wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en alle pagina's die u hebt gepubliceerd, worden niet langer gepubliceerd."
       },
       "leaveWorkspacePrompt": {
-        "title": "Werkplek verlaten"
+        "title": "Werkplek verlaten",
+        "content": "Weet u zeker dat u deze werkplek wilt verlaten? U verliest dan de toegang tot alle pagina's en gegevens erin.",
+        "success": "U hebt de werkplek succesvol verlaten.",
+        "fail": "Het is niet gelukt de werkplek te verlaten."
+      },
+      "manageWorkspace": {
+        "title": "Werkplek beheren",
+        "leaveWorkspace": "Werkplek verlaten",
+        "deleteWorkspace": "Werkplek verwijderen"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Gegevens beheren",
+      "title": "Gegevens beheren",
+      "description": "Beheer de lokale opslag van uw gegevens of importeer uw bestaande gegevens in @:appName .",
+      "dataStorage": {
+        "title": "Locatie van bestandsopslag"
       }
     }
   }
