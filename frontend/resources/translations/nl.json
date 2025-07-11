@@ -213,6 +213,7 @@
   "disclosureAction": {
     "rename": "Hernoemen",
     "delete": "Verwijderen",
-    "duplicate": "Dupliceren"
+    "duplicate": "Dupliceren",
+    "unfavorite": "Verwijderen uit Favorieten"
   }
 }
