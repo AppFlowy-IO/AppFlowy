@@ -340,5 +340,6 @@
     "restore": "Pagina herstellen",
     "deletePermanent": "Permanent verwijderen",
     "deletePermanentDescription": "Weet u zeker dat u deze pagina definitief wilt verwijderen? Dit is onomkeerbaar."
-  }
+  },
+  "dialogCreatePageNameHint": "Paginanaam"
 }
