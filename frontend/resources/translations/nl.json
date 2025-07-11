@@ -1324,7 +1324,8 @@
         "uploadSuccess": "Je thema is succesvol geüpload",
         "deletionFailure": "Het thema kan niet worden verwijderd. Probeer het handmatig te verwijderen.",
         "filePickerDialogTitle": "Kies een .flowy_plugin-bestand",
-        "urlUploadFailure": "URL kan niet worden geopend: {}"
+        "urlUploadFailure": "URL kan niet worden geopend: {}",
+        "failure": "Het geüploade Thema heeft een ongeldig formaat"
       },
       "theme": "Thema",
       "builtInsLabel": "Ingebouwde thema's",
@@ -1405,7 +1406,9 @@
         "generatedLinkFailed": "Het is niet gelukt om een link te genereren",
         "resetLinkSuccessfully": "Link succesvol gereset",
         "resetLinkFailed": "Link kon niet worden gereset"
-      }
+      },
+      "lightLabel": "Licht",
+      "darkLabel": "Donker"
     },
     "files": {
       "copy": "Kopiëren",
