@@ -440,6 +440,7 @@
     "aiImageResponseLimit": "U hebt geen AI-afbeeldingsreacties meer.\nGa naar Instellingen -> Plan -> Klik op AI Max om meer AI-beeldreacties te krijgen",
     "purchaseStorageSpace": "Koop opslagruimte",
     "singleFileProPlanLimitationDescription": "U hebt de maximale bestandsgrootte voor het uploaden in het gratis abonnement overschreden. Upgrade naar het Pro-abonnement om grotere bestanden te uploaden.",
-    "purchaseAIResponse": "Koop"
+    "purchaseAIResponse": "Koop",
+    "askOwnerToUpgradeToLocalAI": "Vraag de eigenaar van de werkruimte om AI op het apparaat in te schakelen"
   }
 }
