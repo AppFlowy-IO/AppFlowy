@@ -295,6 +295,10 @@
       "localModel": "Lokaal Model",
       "cloudModel": "Cloud Model",
       "autoModel": "Auto"
+    },
+    "selectBanner": {
+      "saveButton": "Toevoegen aan …",
+      "selectMessages": "Selecteer berichten"
     }
   }
 }
