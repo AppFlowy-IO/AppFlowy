@@ -357,6 +357,7 @@
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Verwijderen, hernoemen en meer...",
-    "addPageTooltip": "Voeg snel een pagina toe binnen"
+    "addPageTooltip": "Voeg snel een pagina toe binnen",
+    "defaultNewPageName": "Zonder titel"
   }
 }
