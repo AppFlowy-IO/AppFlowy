@@ -487,6 +487,10 @@
     "removeFromRecent": "Verwijderen uit Recent",
     "addToFavorites": "Toevoegen aan Favorieten",
     "favoriteSuccessfully": "Succesvol gefavoriseerd",
-    "unfavoriteSuccessfully": "Succesvol gedefavoriseerd"
+    "unfavoriteSuccessfully": "Succesvol gedefavoriseerd",
+    "duplicateSuccessfully": "Succesvol gedupliceerd",
+    "rename": "Hernoemen",
+    "helpCenter": "Helpcentrum",
+    "add": "Toevoegen"
   }
 }
