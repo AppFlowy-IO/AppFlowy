@@ -1215,6 +1215,31 @@
       "enableNotifications": {
         "label": "Meldingen inschakelen",
         "hint": "Schakel deze optie uit om geen lokale meldingen meer te ontvangen."
+      },
+      "showNotificationsIcon": {
+        "label": "Meldingenpictogram weergeven",
+        "hint": "Schakel deze optie uit om het meldingsicoon in de zijbalk te verbergen."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Alle meldingen zijn succesvol gearchiveerd",
+        "success": "Melding succesvol gearchiveerd"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Alles succesvol als gelezen gemarkeerd",
+        "success": "Met succes gemarkeerd als gelezen"
+      },
+      "action": {
+        "markAsRead": "Markeer als gelezen",
+        "multipleChoice": "Selecteer meer",
+        "archive": "Archief"
+      },
+      "settings": {
+        "settings": "Instellingen",
+        "markAllAsRead": "Alles als gelezen markeren",
+        "archiveAll": "Alles archiveren"
+      },
+      "emptyInbox": {
+        "title": "Nog geen berichten"
       }
     }
   }
