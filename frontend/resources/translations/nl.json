@@ -491,6 +491,8 @@
     "duplicateSuccessfully": "Succesvol gedupliceerd",
     "rename": "Hernoemen",
     "helpCenter": "Helpcentrum",
-    "add": "Toevoegen"
+    "add": "Toevoegen",
+    "yes": "Ja",
+    "no": "Neen"
   }
 }
