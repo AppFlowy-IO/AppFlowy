@@ -205,7 +205,8 @@
     "iconUploader": {
       "placeholderLeft": "Sleep en borg een bestand, klik om",
       "placeholderUpload": "Uploaden",
-      "placeholderRight": ", of plak een imagelink"
+      "placeholderRight": ", of plak een imagelink",
+      "dropToUpload": "Borg een bestand om te uploaden"
     }
   }
 }
