@@ -228,5 +228,6 @@
   },
   "blankPageTitle": "Lege pagina",
   "newPageText": "Nieuwe pagina",
-  "newDocumentText": "Nieuw document"
+  "newDocumentText": "Nieuw document",
+  "newGridText": "Nieuwe databasetabel"
 }
