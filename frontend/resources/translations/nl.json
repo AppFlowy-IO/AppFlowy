@@ -436,6 +436,7 @@
     "askOwnerToUpgradeToProIOS": "Er is onvoldoende gratis opslagruimte beschikbaar voor uw werkplek.",
     "askOwnerToUpgradeToAIMax": "Je werkplek heeft geen gratis AI-reacties meer. Vraag je werkruimte-eigenaar om je abonnement te upgraden of AI-add-ons aan te schaffen.",
     "askOwnerToUpgradeToAIMaxIOS": "Er zijn onvoldoende gratis AI-reacties beschikbaar op uw werkplek",
-    "purchaseAIMax": "Je werkruimte heeft geen AI model-reacties meer. Vraag de eigenaar van je werkruimte om AI Max aan te schaffen."
+    "purchaseAIMax": "Je werkruimte heeft geen AI model-reacties meer. Vraag de eigenaar van je werkruimte om AI Max aan te schaffen.",
+    "aiImageResponseLimit": "U hebt geen AI-afbeeldingsreacties meer.\nGa naar Instellingen -> Plan -> Klik op AI Max om meer AI-beeldreacties te krijgen"
   }
 }
