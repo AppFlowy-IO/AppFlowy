@@ -284,7 +284,8 @@
       "number": "Genummerde lijst",
       "table": "Tabel",
       "blankDescription": "Formaat antwoord aanpassen",
-      "defaultDescription": "Automatisch antwoordformaat"
+      "defaultDescription": "Automatisch antwoordformaat",
+      "textWithImageDescription": "@:chat .changeFormat.text met afbeelding"
     }
   }
 }
