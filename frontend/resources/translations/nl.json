@@ -221,6 +221,7 @@
     "addToFavorites": "Toevoegen aan Favorieten",
     "copyLink": "Link kopiëren",
     "changeIcon": "Icon aanpassen",
-    "collapseAllPages": "Alle subpagina's samenvouwen"
+    "collapseAllPages": "Alle subpagina's samenvouwen",
+    "movePageTo": "Verplaats alle pagina's naar"
   }
 }
