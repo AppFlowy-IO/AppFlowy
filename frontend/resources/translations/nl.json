@@ -328,7 +328,8 @@
     },
     "mobile": {
       "actions": "Prullenmand acties",
-      "empty": "Geen pagina's of ruimtes in de prullenmand"
+      "empty": "Geen pagina's of ruimtes in de Prullenmand",
+      "emptyDescription": "Verplaats de spullen die u niet nodig hebt naar de Prullenmand."
     }
   }
 }
