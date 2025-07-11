@@ -1456,7 +1456,8 @@
       "tooltipSelectIcon": "Selecteer icon",
       "selectAnIcon": "Selecteer een icon",
       "pleaseInputYourOpenAIKey": "Voer uw AI-sleutel in",
-      "clickToLogout": "Klik om de huidige gebruiker af te melden"
+      "clickToLogout": "Klik om de huidige gebruiker af te melden",
+      "pleaseInputYourStabilityAIKey": "Voer uw Stability AI sleutel in."
     },
     "mobile": {
       "personalInfo": "Persoonlijke gegevens",
@@ -1474,6 +1475,10 @@
       "selectLayout": "Selecteer lay-out",
       "selectStartingDay": "Selecteer startdag",
       "version": "Versie"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Snelkoppelingen",
+      "command": "Commando"
     }
   },
   "grid": {
