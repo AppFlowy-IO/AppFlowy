@@ -269,6 +269,7 @@
     "regenerate": "Probeer het opnieuw",
     "addToPageButton": "Bericht toevoegen aan pagina",
     "addToPageTitle": "Bericht toevoegen aan...",
-    "addToNewPage": "Nieuwe pagina maken"
+    "addToNewPage": "Nieuwe pagina maken",
+    "addToNewPageName": "Berichten geëxtraheerd uit \"{}\""
   }
 }
