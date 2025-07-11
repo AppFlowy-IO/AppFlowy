@@ -323,7 +323,8 @@
       "caption": "Deze actie kan niet ongedaan worden gemaakt."
     },
     "restorePage": {
-      "title": "Herstellen: {}"
+      "title": "Herstellen: {}",
+      "caption": "Weet u zeker dat u deze pagina wilt herstellen?"
     }
   }
 }
