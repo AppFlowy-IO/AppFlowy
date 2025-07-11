@@ -706,7 +706,11 @@
         "title": "Taal"
       },
       "deleteWorkspacePrompt": {
-        "title": "Werkplek verwijderen"
+        "title": "Werkplek verwijderen",
+        "content": "Weet u zeker dat u deze werkplek wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en alle pagina's die u hebt gepubliceerd, worden niet langer gepubliceerd."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Werkplek verlaten"
       }
     }
   }
