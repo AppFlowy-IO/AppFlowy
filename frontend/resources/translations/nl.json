@@ -949,7 +949,8 @@
         "unlimitedAILabel": "Onbeperkte reacties",
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
-        "aiOnDeviceBadge": "AI op het apparaat voor Mac"
+        "aiOnDeviceBadge": "AI op het apparaat voor Mac",
+        "memberProToggle": "Meer leden & onbeperkte AI & gasttoegang"
       }
     }
   }
