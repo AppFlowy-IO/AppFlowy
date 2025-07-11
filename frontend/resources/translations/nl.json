@@ -956,7 +956,15 @@
         "aiCredit": {
           "title": "Voeg @:appName AI-krediet toe",
           "price": "{}",
-          "priceDescription": "voor 1.000 credits"
+          "priceDescription": "voor 1.000 credits",
+          "purchase": "Aankoop AI",
+          "info": "Voeg 1.000 AI-credits per werkruimte toe en integreer naadloos aanpasbare AI in uw workflow voor slimmere en snellere resultaten met maximaal:",
+          "infoItemOne": "10.000 reacties per database",
+          "infoItemTwo": "1.000 reacties per werkruimte"
+        },
+        "currentPlan": {
+          "bannerLabel": "Huidig plan",
+          "freeTitle": "Gratis"
         }
       }
     }
