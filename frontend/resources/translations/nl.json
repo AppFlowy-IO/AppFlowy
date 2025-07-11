@@ -476,6 +476,7 @@
     "insertBelow": "Hieronder invoegen",
     "insertAbove": "Boven invoegen",
     "upload": "Uploaden",
-    "edit": "Bewerken"
+    "edit": "Bewerken",
+    "delete": "Verwijderen"
   }
 }
