@@ -270,6 +270,7 @@
     "addToPageButton": "Bericht toevoegen aan pagina",
     "addToPageTitle": "Bericht toevoegen aan...",
     "addToNewPage": "Nieuwe pagina maken",
-    "addToNewPageName": "Berichten geëxtraheerd uit \"{}\""
+    "addToNewPageName": "Berichten geëxtraheerd uit \"{}\"",
+    "addToNewPageSuccessToast": "Bericht toegevoegd aan"
   }
 }
