@@ -746,6 +746,10 @@
         "tooltip": "Gegevens importeren uit @:appName back-ups/gegevensmappen",
         "description": "Gegevens kopiëren uit een externe @:appName gegevensmap",
         "action": "Blader door het bestand"
+      },
+      "encryption": {
+        "title": "Encryptie",
+        "tooltip": "Beheer hoe uw gegevens worden opgeslagen en gecodeerd"
       }
     }
   }
