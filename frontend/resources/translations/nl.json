@@ -757,6 +757,13 @@
           "title": "Al uw gegevens versleutelen?",
           "description": "Door al uw gegevens te versleutelen, blijven ze veilig. Deze actie kan NIET ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?"
         }
+      },
+      "cache": {
+        "title": "Cache wissen",
+        "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
+        "dialog": {
+          "title": "Cache wissen"
+        }
       }
     }
   }
