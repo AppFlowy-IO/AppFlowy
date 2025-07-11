@@ -763,8 +763,63 @@
         "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
         "dialog": {
           "title": "Cache wissen",
-          "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens."
+          "description": "Help problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
+          "successHint": "Cache gewist!"
         }
+      },
+      "data": {
+        "fixYourData": "Bewerk uw gegevens",
+        "fixButton": "Bewerken",
+        "fixYourDataDescription": "Als u problemen ondervindt met uw gegevens, kunt u hier proberen het op te lossen."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Snelkoppelingen",
+      "title": "Snelkoppelingen",
+      "editBindingHint": "Nieuwe binding invoeren",
+      "searchHint": "Zoeken",
+      "actions": {
+        "resetDefault": "Standaardinstellingen herstellen"
+      },
+      "errorPage": {
+        "message": "Snelkoppelingen laden mislukt: {}",
+        "howToFix": "Probeer het opnieuw. Als het probleem zich blijft voordoen, neem dan contact op via GitHub."
+      },
+      "resetDialog": {
+        "title": "Snelkoppelingen resetten",
+        "description": "Hiermee worden al uw sneltoetsen teruggezet naar de standaardinstellingen. U kunt dit later niet ongedaan maken. Weet u zeker dat u wilt doorgaan?",
+        "buttonLabel": "Reset"
+      },
+      "conflictDialog": {
+        "title": "{} is momenteel in gebruik",
+        "descriptionPrefix": "Deze toetscombinatie wordt momenteel gebruikt door ",
+        "descriptionSuffix": "Als u deze toetscombinatie vervangt, wordt deze verwijderd uit {}.",
+        "confirmLabel": "Doorgaan"
+      },
+      "editTooltip": "Druk om te beginnen met het bewerken van de toetscombinatie",
+      "keybindings": {
+        "toggleToDoList": "Schakelen naar takenlijst",
+        "insertNewParagraphInCodeblock": "Nieuwe alinea invoegen",
+        "pasteInCodeblock": "Plak in codeblok",
+        "selectAllCodeblock": "Selecteer alles",
+        "indentLineCodeblock": "Voeg twee spaties in aan het begin van de regel",
+        "outdentLineCodeblock": "Verwijder twee spaties aan het begin van de regel",
+        "twoSpacesCursorCodeblock": "Twee spaties invoegen bij cursor",
+        "copy": "Selectie kopiëren",
+        "paste": "Inhoud plakken",
+        "cut": "Selectie knippen",
+        "alignLeft": "Tekst links uitlijnen",
+        "alignCenter": "Tekst centreren",
+        "alignRight": "Tekst rechts uitlijnen",
+        "insertInlineMathEquation": "Inline wiskundige vergelijking invoegen",
+        "undo": "Ongedaan maken",
+        "redo": "Opnieuw doen",
+        "convertToParagraph": "Blok naar alinea converteren",
+        "backspace": "Verwijderen",
+        "deleteLeftWord": "Verwijder het linker woord",
+        "deleteLeftSentence": "Linkerzin verwijderen",
+        "delete": "Verwijder het rechter teken",
+        "deleteMacOS": "Verwijder het rechter teken"
       }
     }
   }
