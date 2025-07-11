@@ -358,6 +358,9 @@
   "menuAppHeader": {
     "moreButtonToolTip": "Verwijderen, hernoemen en meer...",
     "addPageTooltip": "Voeg snel een pagina toe binnen",
-    "defaultNewPageName": "Zonder titel"
-  }
+    "defaultNewPageName": "Zonder titel",
+    "renameDialog": "Hernoemen",
+    "pageNameSuffix": "Kopiëren"
+  },
+  "noPagesInside": "Geen pagina's binnenin"
 }
