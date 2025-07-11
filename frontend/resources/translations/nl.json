@@ -405,6 +405,7 @@
     "clickToHidePersonal": "Klik om persoonlijke werkplek te verbergen",
     "clickToHideFavorites": "Klik om favoriete werkplek te verbergen",
     "addAPage": "Nieuwe pagina toevoegen",
-    "addAPageToPrivate": "Pagina toevoegen aan de privé werkplek"
+    "addAPageToPrivate": "Pagina toevoegen aan de privé werkplek",
+    "addAPageToWorkspace": "Pagina toevoegen aan de werkplek"
   }
 }
