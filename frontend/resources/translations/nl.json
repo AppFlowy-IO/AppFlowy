@@ -332,6 +332,10 @@
       "emptyDescription": "Verplaats de spullen die u niet nodig hebt naar de Prullenmand.",
       "isDeleted": "is verwijderd",
       "isRestored": "wordt hersteld"
-    }
+    },
+    "confirmDeleteTitle": "Weet u zeker dat u deze pagina permanent wilt verwijderen?"
+  },
+  "deletePagePrompt": {
+    "text": "Deze pagina staat in de Prullenmand"
   }
 }
