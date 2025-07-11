@@ -386,6 +386,9 @@
     "openAsPage": "Openen als Pagina",
     "addNewRow": "Een nieuwe rij toevoegen",
     "openMenu": "Klik om het menu te openen",
-    "dragRow": "Versleep om de rij opnieuw te ordenen"
+    "dragRow": "Versleep om de rij opnieuw te ordenen",
+    "viewDataBase": "Database bekijken",
+    "referencePage": "Er wordt verwezen naar deze {naam}",
+    "addBlockBelow": "Voeg hieronder een blok toe"
   }
 }
