@@ -262,6 +262,8 @@
     "questionDetail": "Hoi {}! Hoe kan ik je vandaag helpen?",
     "indexingFile": "Indexeren {}",
     "generatingResponse": "Respons genereren",
-    "selectSources": "Selecteer bronnen"
+    "selectSources": "Selecteer bronnen",
+    "currentPage": "Huidige pagina",
+    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren"
   }
 }
