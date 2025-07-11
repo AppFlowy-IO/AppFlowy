@@ -330,7 +330,8 @@
       "actions": "Prullenmand acties",
       "empty": "Geen pagina's of ruimtes in de Prullenmand",
       "emptyDescription": "Verplaats de spullen die u niet nodig hebt naar de Prullenmand.",
-      "isDeleted": "is verwijderd"
+      "isDeleted": "is verwijderd",
+      "isRestored": "wordt hersteld"
     }
   }
 }
