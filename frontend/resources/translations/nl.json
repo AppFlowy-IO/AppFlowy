@@ -395,6 +395,8 @@
   "sideBar": {
     "closeSidebar": "Sluit zijbalk",
     "openSidebar": "Open zijbalk",
-    "expandSidebar": "Uitvouwen als volledige pagina"
+    "expandSidebar": "Uitvouwen als volledige pagina",
+    "personal": "Persoonlijk",
+    "private": "Privé"
   }
 }
