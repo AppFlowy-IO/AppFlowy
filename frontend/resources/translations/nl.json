@@ -450,5 +450,32 @@
       "markdown": "Notitie geëxporteerd naar Markdown",
       "path": "Documenten/flowy"
     }
+  },
+  "contactsPage": {
+    "title": "Contacten",
+    "whatsHappening": "Wat gebeurt er deze week?",
+    "addContact": "Contactpersoon toevoegen",
+    "editContact": "Contactpersoon bewerken"
+  },
+  "button": {
+    "ok": "OK",
+    "confirm": "Bevestigen",
+    "done": "Klaar",
+    "cancel": "Annuleren",
+    "signIn": "Aanmelden",
+    "signOut": "Afmelden",
+    "complete": "Klaar",
+    "change": "Aanpassen",
+    "save": "Bewaren",
+    "generate": "Genereren",
+    "esc": "ESC",
+    "keep": "Houden",
+    "tryAgain": "Probeer het opnieuw",
+    "discard": "Weggooien",
+    "replace": "Vervangen",
+    "insertBelow": "Hieronder invoegen",
+    "insertAbove": "Boven invoegen",
+    "upload": "Uploaden",
+    "edit": "Bewerken"
   }
 }
