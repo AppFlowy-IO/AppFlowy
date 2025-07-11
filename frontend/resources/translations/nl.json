@@ -429,6 +429,8 @@
     "upgradeToAIMax": "Ontgrendel onbeperkte AI",
     "storageLimitDialogTitle": "Je hebt geen gratis opslagruimte meer. Upgrade om onbeperkte opslagruimte te ontgrendelen.",
     "storageLimitDialogTitleIOS": "U heeft geen gratis opslagruimte meer.",
-    "aiResponseLimitTitle": "Je hebt geen gratis AI-reacties meer. Upgrade naar het Pro-abonnement of koop een AI-add-on om onbeperkte reacties te ontgrendelen."
+    "aiResponseLimitTitle": "Je hebt geen gratis AI-reacties meer. Upgrade naar het Pro-abonnement of koop een AI-add-on om onbeperkte reacties te ontgrendelen.",
+    "aiResponseLimitDialogTitle": "Limiet voor AI-reacties bereikt",
+    "aiResponseLimit": "U hebt geen gratis AI-reacties meer.<inlang-LineFeed>\nGa naar Instellingen -&gt; Plan -&gt; Klik op AI Max of Pro Plan om meer AI-reacties te krijgen"
   }
 }
