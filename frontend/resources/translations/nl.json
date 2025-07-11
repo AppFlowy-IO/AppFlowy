@@ -271,6 +271,7 @@
     "addToPageTitle": "Bericht toevoegen aan...",
     "addToNewPage": "Nieuwe pagina maken",
     "addToNewPageName": "Berichten geëxtraheerd uit \"{}\"",
-    "addToNewPageSuccessToast": "Bericht toegevoegd aan"
+    "addToNewPageSuccessToast": "Bericht toegevoegd aan",
+    "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen"
   }
 }
