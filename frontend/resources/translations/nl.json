@@ -964,8 +964,47 @@
         },
         "currentPlan": {
           "bannerLabel": "Huidig plan",
-          "freeTitle": "Gratis"
+          "freeTitle": "Gratis",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfect voor maximaal 2 personen om alles te organiseren",
+          "proInfo": "Ideaal voor kleine en middelgrote teams tot 10 leden.",
+          "teamInfo": "Ideaal voor alle productieve en goed georganiseerde teams.",
+          "upgrade": "Plan wijzigen",
+          "canceledInfo": "Uw abonnement is geannuleerd en op {} wordt u teruggezet naar het gratis abonnement."
+        },
+        "addons": {
+          "title": "Uitbreidingen",
+          "addLabel": "Toevoegen",
+          "activeLabel": "Toegevoegd",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Onbeperkte AI-reacties, mogelijk gemaakt door geavanceerde AI-modellen, en 50 AI-afbeeldingen per maand",
+            "price": "{}",
+            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd"
+          },
+          "aiOnDevice": {
+            "title": "AI op het apparaat voor Mac",
+            "description": "Draai Mistral 7B, LLAMA 3 en meer lokale modellen op uw machine",
+            "price": "{}",
+            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd",
+            "recommend": "Aanbevolen M1 of nieuwer"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Nieuwjaarsaanbieding!",
+          "title": "Laat je team groeien!",
+          "info": "Upgrade en bespaar 10% op Pro- en Team-abonnementen! Verhoog je productiviteit op de werkvloer met krachtige nieuwe functies, waaronder @:appName AI.",
+          "viewPlans": "Bekijk plannen"
         }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Facturering",
+      "title": "Facturering",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Gratis"
       }
     }
   }
