@@ -303,5 +303,8 @@
       "allSelected": "Alle geselecteerde"
     },
     "stopTooltip": "Stop met genereren"
+  },
+  "trash": {
+    "text": "Prullemand"
   }
 }
