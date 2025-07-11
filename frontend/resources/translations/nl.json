@@ -237,6 +237,7 @@
     "inputMessageHint": "Vraag aan @:appName AI",
     "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI",
     "relatedQuestion": "Voorgesteld",
-    "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en"
+    "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en",
+    "aiServerUnavailable": "De AI service is tijdelijk niet beschikbaar. Probeer later opnieuw."
   }
 }
