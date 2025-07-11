@@ -482,6 +482,11 @@
     "duplicate": "Dupliceren",
     "putback": "Terugzetten",
     "update": "Update",
-    "share": "Deel"
+    "share": "Deel",
+    "removeFromFavorites": "Verwijderen uit Favorieten",
+    "removeFromRecent": "Verwijderen uit Recent",
+    "addToFavorites": "Toevoegen aan Favorieten",
+    "favoriteSuccessfully": "Succesvol gefavoriseerd",
+    "unfavoriteSuccessfully": "Succesvol gedefavoriseerd"
   }
 }
