@@ -212,6 +212,7 @@
   },
   "disclosureAction": {
     "rename": "Hernoemen",
-    "delete": "Verwijderen"
+    "delete": "Verwijderen",
+    "duplicate": "Dupliceren"
   }
 }
