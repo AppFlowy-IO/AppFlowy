@@ -494,6 +494,14 @@
     "add": "Toevoegen",
     "yes": "Ja",
     "no": "Neen",
-    "clear": "Leeg maken"
+    "clear": "Leeg maken",
+    "remove": "Verwijderen",
+    "dontRemove": "Niet verwijderen",
+    "copyLink": "Link kopiëren",
+    "align": "Uitlijnen",
+    "login": "Inloggen",
+    "logout": "Uitloggen",
+    "deleteAccount": "Account verwijderen",
+    "back": "Terug"
   }
 }
