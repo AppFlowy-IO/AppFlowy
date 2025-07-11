@@ -264,6 +264,7 @@
     "generatingResponse": "Respons genereren",
     "selectSources": "Selecteer bronnen",
     "currentPage": "Huidige pagina",
-    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren"
+    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren",
+    "sourceUnsupported": "Op dit moment ondersteunen we geen chatten met databases"
   }
 }
