@@ -384,6 +384,8 @@
     "lightMode": "Overschakelen naar de Lichte Modus",
     "darkMode": "Overschakelen naar Donkere Modus",
     "openAsPage": "Openen als Pagina",
-    "addNewRow": "Een nieuwe rij toevoegen"
+    "addNewRow": "Een nieuwe rij toevoegen",
+    "openMenu": "Klik om het menu te openen",
+    "dragRow": "Versleep om de rij opnieuw te ordenen"
   }
 }
