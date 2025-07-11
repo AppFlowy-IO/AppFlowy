@@ -278,7 +278,8 @@
       "confirmButton": "Regenereren met dit formaat",
       "textOnly": "Tekst",
       "imageOnly": "Alleen afbeelding",
-      "textAndImage": "Tekst en afbeelding"
+      "textAndImage": "Tekst en afbeelding",
+      "text": "Alinea"
     }
   }
 }
