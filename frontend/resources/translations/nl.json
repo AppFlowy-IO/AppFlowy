@@ -248,6 +248,7 @@
     "question4": "Recept met wat er in mijn keuken staat",
     "question5": "Maak een illustratie voor mijn pagina",
     "question6": "Maak een to-dolijst voor mijn komende week",
-    "aiMistakePrompt": "AI kan fouten maken. Controleer belangrijke informatie."
+    "aiMistakePrompt": "AI kan fouten maken. Controleer belangrijke informatie.",
+    "chatWithFilePrompt": "Wil je chatten met het bestand?"
   }
 }
