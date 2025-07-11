@@ -362,5 +362,9 @@
     "renameDialog": "Hernoemen",
     "pageNameSuffix": "Kopiëren"
   },
-  "noPagesInside": "Geen pagina's binnenin"
+  "noPagesInside": "Geen pagina's binnenin",
+  "toolbar": {
+    "undo": "Ongedaan maken",
+    "redo": "Opnieuw doen"
+  }
 }
