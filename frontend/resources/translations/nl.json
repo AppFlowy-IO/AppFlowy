@@ -276,7 +276,9 @@
     "changeFormat": {
       "actionButton": "Formaat wijzigen",
       "confirmButton": "Regenereren met dit formaat",
-      "textOnly": "Tekst"
+      "textOnly": "Tekst",
+      "imageOnly": "Alleen afbeelding",
+      "textAndImage": "Tekst en afbeelding"
     }
   }
 }
