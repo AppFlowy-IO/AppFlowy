@@ -272,6 +272,9 @@
     "addToNewPage": "Nieuwe pagina maken",
     "addToNewPageName": "Berichten geëxtraheerd uit \"{}\"",
     "addToNewPageSuccessToast": "Bericht toegevoegd aan",
-    "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen"
+    "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen",
+    "changeFormat": {
+      "actionButton": "Formaat wijzigen"
+    }
   }
 }
