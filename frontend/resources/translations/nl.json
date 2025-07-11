@@ -915,7 +915,41 @@
         "disableLocalAITitle": "Lokale AI uitschakelen",
         "disableLocalAIDescription": "Wilt u lokale AI uitschakelen?",
         "localAIToggleTitle": "AppFlowy Lokale AI (LAI)",
-        "localAIToggleSubTitle": "Voer de meest geavanceerde lokale AI-modellen uit binnen AppFlowy voor ultieme privacy en veiligheid"
+        "localAIToggleSubTitle": "Voer de meest geavanceerde lokale AI-modellen uit binnen AppFlowy voor ultieme privacy en veiligheid",
+        "offlineAIInstruction1": "Volg de",
+        "offlineAIInstruction2": "instructies",
+        "offlineAIInstruction3": "om offline AI te activeren.",
+        "offlineAIDownload1": "Als u de AppFlowy AI nog niet heeft gedownload,",
+        "offlineAIDownload2": "download",
+        "offlineAIDownload3": "het eerst",
+        "activeOfflineAI": "Actief",
+        "downloadOfflineAI": "Download",
+        "openModelDirectory": "Map openen",
+        "laiNotReady": "De Local AI-app is niet correct geïnstalleerd.",
+        "ollamaNotReady": "De Ollama-server is niet klaar.",
+        "pleaseFollowThese": "Volg deze",
+        "instructions": "instructies",
+        "installOllamaLai": "om Ollama en AppFlowy Local AI in te stellen.",
+        "modelsMissing": "De gewenste modellen kunnen niet worden gevonden: ",
+        "downloadModel": "om ze te downloaden."
+      }
+    },
+    "planPage": {
+      "menuLabel": "Plan",
+      "title": "Prijsplan",
+      "planUsage": {
+        "title": "Overzicht van plangebruik",
+        "storageLabel": "Opslag",
+        "storageUsage": "{} van {} GB",
+        "unlimitedStorageLabel": "Onbeperkte opslag",
+        "collaboratorsLabel": "Leden",
+        "collaboratorsUsage": "{} van {}",
+        "aiResponseLabel": "AI-reacties",
+        "aiResponseUsage": "{} van {}",
+        "unlimitedAILabel": "Onbeperkte reacties",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI op het apparaat voor Mac"
       }
     }
   }
