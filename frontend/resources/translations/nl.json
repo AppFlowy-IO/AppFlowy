@@ -372,6 +372,8 @@
     "strike": "Doorhalen",
     "numList": "Genummerde lijst",
     "bulletList": "Opsommingstekenlijst",
-    "checkList": "Controlelijst"
+    "checkList": "Controlelijst",
+    "inlineCode": "Inline-code",
+    "quote": "Citaatblok"
   }
 }
