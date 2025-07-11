@@ -310,7 +310,8 @@
     "restore": "Herstellen",
     "deleteAll": "Alles verwijderen",
     "pageHeader": {
-      "fileName": "Bestandsnaam"
+      "fileName": "Bestandsnaam",
+      "lastModified": "Laatst gewijzigd"
     }
   }
 }
