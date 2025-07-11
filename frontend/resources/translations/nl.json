@@ -305,6 +305,8 @@
     "stopTooltip": "Stop met genereren"
   },
   "trash": {
-    "text": "Prullemand"
+    "text": "Prullemand",
+    "restoreAll": "Alles herstellen",
+    "restore": "Herstellen"
   }
 }
