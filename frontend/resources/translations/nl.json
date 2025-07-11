@@ -376,6 +376,8 @@
     "inlineCode": "Inline-code",
     "quote": "Citaatblok",
     "header": "Koptekst",
-    "highlight": "Benadrukken"
+    "highlight": "Benadrukken",
+    "color": "Kleur",
+    "addLink": "Link toevoegen"
   }
 }
