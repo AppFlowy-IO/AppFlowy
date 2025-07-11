@@ -308,6 +308,9 @@
     "text": "Prullemand",
     "restoreAll": "Alles herstellen",
     "restore": "Herstellen",
-    "deleteAll": "Alles verwijderen"
+    "deleteAll": "Alles verwijderen",
+    "pageHeader": {
+      "fileName": "Bestandsnaam"
+    }
   }
 }
