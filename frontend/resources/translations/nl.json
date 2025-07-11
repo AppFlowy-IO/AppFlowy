@@ -267,6 +267,8 @@
     "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren",
     "sourceUnsupported": "Op dit moment ondersteunen we geen chatten met databases",
     "regenerate": "Probeer het opnieuw",
-    "addToPageButton": "Bericht toevoegen aan pagina"
+    "addToPageButton": "Bericht toevoegen aan pagina",
+    "addToPageTitle": "Bericht toevoegen aan...",
+    "addToNewPage": "Nieuwe pagina maken"
   }
 }
