@@ -502,6 +502,22 @@
     "login": "Inloggen",
     "logout": "Uitloggen",
     "deleteAccount": "Account verwijderen",
-    "back": "Terug"
+    "back": "Terug",
+    "signInGoogle": "Doorgaan met Google",
+    "signInGithub": "Doorgaan met GitHub",
+    "signInDiscord": "Doorgaan met Discord",
+    "more": "Meer",
+    "create": "Creëren",
+    "close": "Sluiten",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "submit": "Indienen",
+    "download": "Download",
+    "backToHome": "Terug naar Home",
+    "viewing": "Bekijken",
+    "editing": "Bewerken",
+    "gotIt": "Ik heb het begrepen",
+    "retry": "Opnieuw proberen",
+    "uploadFailed": "Uploaden mislukt."
   }
 }
