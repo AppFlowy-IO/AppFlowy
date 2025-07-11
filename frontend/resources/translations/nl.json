@@ -301,6 +301,7 @@
       "selectMessages": "Selecteer berichten",
       "nSelected": "{} geselecteerd",
       "allSelected": "Alle geselecteerde"
-    }
+    },
+    "stopTooltip": "Stop met genereren"
   }
 }
