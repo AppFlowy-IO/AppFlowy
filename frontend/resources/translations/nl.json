@@ -1204,7 +1204,18 @@
       "historicalUserListTooltip": "Deze lijst toont uw anonieme accounts. U kunt op een account klikken om de details ervan te bekijken. Anonieme accounts worden aangemaakt door op de knop 'Aan de slag' te klikken.",
       "openHistoricalUser": "Klik om het anonieme account te openen",
       "customPathPrompt": "Het opslaan van de gegevensmap @:appName in een cloudgesynchroniseerde map zoals Google Drive kan risico's met zich meebrengen. Als de database in deze map vanaf meerdere locaties tegelijk wordt geopend of gewijzigd, kan dit leiden tot synchronisatieconflicten en mogelijke gegevensbeschadiging.",
-      "importAppFlowyData": "Gegevens importeren uit externe @:appName map"
+      "importAppFlowyData": "Gegevens importeren uit externe @:appName map",
+      "importingAppFlowyDataTip": "Gegevensimport is bezig. Sluit de app niet.",
+      "importAppFlowyDataDescription": "Kopieer gegevens uit een externe @:appName gegevensmap en importeer deze in de huidige AppFlowy-gegevensmap",
+      "importSuccess": "De gegevensmap @:appName is succesvol geïmporteerd",
+      "importFailed": "Het importeren van de gegevensmap @:appName is mislukt",
+      "importGuide": "Voor meer informatie kunt u het genoemde document raadplegen"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Meldingen inschakelen",
+        "hint": "Schakel deze optie uit om geen lokale meldingen meer te ontvangen."
+      }
     }
   }
 }
