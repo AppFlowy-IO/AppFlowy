@@ -726,7 +726,26 @@
       "title": "Gegevens beheren",
       "description": "Beheer de lokale opslag van uw gegevens of importeer uw bestaande gegevens in @:appName .",
       "dataStorage": {
-        "title": "Locatie van bestandsopslag"
+        "title": "Locatie van bestandsopslag",
+        "tooltip": "De locatie waar uw bestanden zijn opgeslagen",
+        "actions": {
+          "change": "Pad wijzigen",
+          "open": "Map openen",
+          "openTooltip": "Open huidige locatie van de gegevensmap",
+          "copy": "Pad kopiëren",
+          "copiedHint": "Pad gekopieerd!",
+          "resetTooltip": "Resetten naar standaardlocatie"
+        },
+        "resetDialog": {
+          "title": "Weet je het zeker?",
+          "description": "Als u het pad terugzet naar de standaardgegevenslocatie, worden uw gegevens niet verwijderd. Als u uw huidige gegevens opnieuw wilt importeren, moet u eerst het pad van uw huidige locatie kopiëren."
+        }
+      },
+      "importData": {
+        "title": "Gegevens importeren",
+        "tooltip": "Gegevens importeren uit @:appName back-ups/gegevensmappen",
+        "description": "Gegevens kopiëren uit een externe @:appName gegevensmap",
+        "action": "Blader door het bestand"
       }
     }
   }
