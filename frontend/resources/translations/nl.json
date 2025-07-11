@@ -242,6 +242,8 @@
     "retry": "Probeer opnieuw",
     "clickToRetry": "Klik om opnieuw te proberen",
     "regenerateAnswer": "Opnieuw genereren",
-    "question1": "Hoe Kanban gebruiken om taken te beheren"
+    "question1": "Hoe Kanban gebruiken om taken te beheren",
+    "question2": "Leg de GTD-methode uit",
+    "question3": "Waarom Rust gebruiken"
   }
 }
