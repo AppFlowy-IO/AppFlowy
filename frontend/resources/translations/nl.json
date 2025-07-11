@@ -200,5 +200,10 @@
     "notionZip": "ZIP File geëxporteerd uit Notion",
     "csv": "CSV",
     "database": "Database"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Sleep en borg een bestand, klik om"
+    }
   }
 }
