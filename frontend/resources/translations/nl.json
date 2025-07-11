@@ -325,6 +325,9 @@
     "restorePage": {
       "title": "Herstellen: {}",
       "caption": "Weet u zeker dat u deze pagina wilt herstellen?"
+    },
+    "mobile": {
+      "actions": "Prullenmand acties"
     }
   }
 }
