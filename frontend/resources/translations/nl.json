@@ -950,7 +950,14 @@
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "AI op het apparaat voor Mac",
-        "memberProToggle": "Meer leden & onbeperkte AI & gasttoegang"
+        "memberProToggle": "Meer leden & onbeperkte AI & gasttoegang",
+        "aiMaxToggle": "Onbeperkte AI en toegang tot geavanceerde modellen",
+        "aiOnDeviceToggle": "Lokale AI voor ultieme privacy",
+        "aiCredit": {
+          "title": "Voeg @:appName AI-krediet toe",
+          "price": "{}",
+          "priceDescription": "voor 1.000 credits"
+        }
       }
     }
   }
