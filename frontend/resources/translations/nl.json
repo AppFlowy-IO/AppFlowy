@@ -674,7 +674,39 @@
         "failedToLoadThemes": "Thema's kunnen niet worden geladen. Controleer uw toestemmingsinstellingen in Systeeminstellingen > Privacy en beveiliging > Bestanden en mappen > @:appName"
       },
       "workspaceFont": {
-        "title": "Werkruimtelettertype"
+        "title": "Werkruimtelettertype",
+        "noFontHint": "Er is geen lettertype gevonden. Probeer een andere term."
+      },
+      "textDirection": {
+        "title": "Tekstrichting",
+        "leftToRight": "Van links naar rechts",
+        "rightToLeft": "Van rechts naar links",
+        "auto": "Auto",
+        "enableRTLItems": "RTL-werkbalkitems inschakelen"
+      },
+      "layoutDirection": {
+        "title": "Lay-outrichting",
+        "leftToRight": "Van links naar rechts",
+        "rightToLeft": "Van rechts naar links"
+      },
+      "dateTime": {
+        "title": "Datum en tijd",
+        "example": "{} om {} ({})",
+        "24HourTime": "24-uurstijd",
+        "dateFormat": {
+          "label": "Datumnotatie",
+          "local": "Lokaal",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Gemakkelijk",
+          "dmy": "D/M/J"
+        }
+      },
+      "language": {
+        "title": "Taal"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Werkplek verwijderen"
       }
     }
   }
