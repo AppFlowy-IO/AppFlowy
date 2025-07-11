@@ -226,5 +226,6 @@
     "move": "Verplaats",
     "lockPage": "Pagina vergrendelen"
   },
-  "blankPageTitle": "Lege pagina"
+  "blankPageTitle": "Lege pagina",
+  "newPageText": "Nieuwe pagina"
 }
