@@ -1674,7 +1674,9 @@
       "newRow": "Nieuwe rij",
       "loadMore": "Meer laden",
       "action": "Actie",
-      "add": "Klik om hieronder toe te voegen"
+      "add": "Klik om hieronder toe te voegen",
+      "drag": "Slepen om te verplaatsen",
+      "deleteRowPrompt": "Weet u zeker dat u deze rij wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
     }
   }
 }
