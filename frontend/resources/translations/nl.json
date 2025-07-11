@@ -479,6 +479,8 @@
     "edit": "Bewerken",
     "delete": "Verwijderen",
     "copy": "Kopiëren",
-    "duplicate": "Dupliceren"
+    "duplicate": "Dupliceren",
+    "putback": "Terugzetten",
+    "update": "Update"
   }
 }
