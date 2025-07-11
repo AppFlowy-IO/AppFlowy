@@ -433,6 +433,7 @@
     "aiResponseLimitDialogTitle": "Limiet voor AI-reacties bereikt",
     "aiResponseLimit": "U hebt geen gratis AI-reacties meer.\nGa naar Instellingen -> Plan -> Klik op AI Max of Pro Plan om meer AI-reacties te krijgen",
     "askOwnerToUpgradeToPro": "Je werkplek heeft bijna geen gratis opslagruimte meer. Vraag je werkruimte-eigenaar om te upgraden naar het Pro-abonnement.",
-    "askOwnerToUpgradeToProIOS": "Er is onvoldoende gratis opslagruimte beschikbaar voor uw werkplek."
+    "askOwnerToUpgradeToProIOS": "Er is onvoldoende gratis opslagruimte beschikbaar voor uw werkplek.",
+    "askOwnerToUpgradeToAIMax": "Je werkplek heeft geen gratis AI-reacties meer. Vraag je werkruimte-eigenaar om je abonnement te upgraden of AI-add-ons aan te schaffen."
   }
 }
