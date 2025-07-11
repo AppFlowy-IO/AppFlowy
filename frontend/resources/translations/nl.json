@@ -354,5 +354,9 @@
       "fail": "Kan debug-info niet naar het klembord kopiëren"
     },
     "feedback": "Feedback"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Verwijderen, hernoemen en meer...",
+    "addPageTooltip": "Voeg snel een pagina toe binnen"
   }
 }
