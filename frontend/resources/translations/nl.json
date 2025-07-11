@@ -222,6 +222,7 @@
     "copyLink": "Link kopiëren",
     "changeIcon": "Icon aanpassen",
     "collapseAllPages": "Alle subpagina's samenvouwen",
-    "movePageTo": "Verplaats alle pagina's naar"
+    "movePageTo": "Verplaats alle pagina's naar",
+    "move": "Verplaats"
   }
 }
