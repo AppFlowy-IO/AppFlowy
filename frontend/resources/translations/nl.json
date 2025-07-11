@@ -251,6 +251,11 @@
     "aiMistakePrompt": "AI kan fouten maken. Controleer belangrijke informatie.",
     "chatWithFilePrompt": "Wil je chatten met het bestand?",
     "indexFileSuccess": "Bestand succesvol geïndexeerd",
-    "inputActionNoPages": "Geen paginaresultaten"
+    "inputActionNoPages": "Geen paginaresultaten",
+    "referenceSource": {
+      "zero": "0 bronnen gevonden",
+      "one": "{count} bron gevonden",
+      "other": "{count} bronnen gevonden"
+    }
   }
 }
