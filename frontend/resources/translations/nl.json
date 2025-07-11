@@ -1004,8 +1004,41 @@
       "title": "Facturering",
       "plan": {
         "title": "Plan",
-        "freeLabel": "Gratis"
-      }
+        "freeLabel": "Gratis",
+        "proLabel": "Pro",
+        "planButtonLabel": "Plan wijzigen",
+        "billingPeriod": "Factureringsperiode",
+        "periodButtonLabel": "Factureringsperiode aanpassen"
+      },
+      "paymentDetails": {
+        "title": "Betalingsgegevens",
+        "methodLabel": "Betaalmethode",
+        "methodButtonLabel": "Bewerking betaalmethode"
+      },
+      "addons": {
+        "title": "Uitbreidingen",
+        "addLabel": "Toevoegen",
+        "removeLabel": "Verwijderen",
+        "renewLabel": "Vernieuwen",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Ontgrendel onbeperkte AI en geavanceerde modellen",
+          "activeDescription": "Volgende factuur verschuldigd op {}",
+          "canceledDescription": "AI Max is beschikbaar tot {}"
+        },
+        "aiOnDevice": {
+          "label": "AI op het apparaat voor Mac",
+          "description": "Ontgrendel onbeperkte AI op uw apparaat",
+          "activeDescription": "Volgende factuur verschuldigd op {}",
+          "canceledDescription": "AI On-device voor Mac is beschikbaar tot {}"
+        },
+        "removeDialog": {
+          "title": "Verwijderen {}",
+          "description": "Weet u zeker dat u {plan} wilt verwijderen? U verliest dan onmiddellijk de toegang tot de functies en voordelen van {plan}."
+        }
+      },
+      "currentPeriodBadge": "HUIDIG",
+      "changePeriod": "Wijzig periode"
     }
   }
 }
