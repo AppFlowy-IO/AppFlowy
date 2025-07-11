@@ -478,6 +478,7 @@
     "upload": "Uploaden",
     "edit": "Bewerken",
     "delete": "Verwijderen",
-    "copy": "Kopiëren"
+    "copy": "Kopiëren",
+    "duplicate": "Dupliceren"
   }
 }
