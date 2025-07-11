@@ -198,6 +198,7 @@
     "documentFromV010": "Dokument vanaf v0.1.0",
     "databaseFromV010": "Database vanaf v0.1.0",
     "notionZip": "ZIP File geëxporteerd uit Notion",
-    "csv": "CSV"
+    "csv": "CSV",
+    "database": "Database"
   }
 }
