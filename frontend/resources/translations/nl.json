@@ -257,6 +257,7 @@
       "one": "{count} bron gevonden",
       "other": "{count} bronnen gevonden"
     },
-    "clickToMention": "Vermeld een pagina"
+    "clickToMention": "Vermeld een pagina",
+    "uploadFile": "Voeg PDF's, tekst- of markdown-bestanden toe"
   }
 }
