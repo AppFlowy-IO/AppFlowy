@@ -327,7 +327,8 @@
       "caption": "Weet u zeker dat u deze pagina wilt herstellen?"
     },
     "mobile": {
-      "actions": "Prullenmand acties"
+      "actions": "Prullenmand acties",
+      "empty": "Geen pagina's of ruimtes in de prullenbak"
     }
   }
 }
