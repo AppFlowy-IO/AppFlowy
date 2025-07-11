@@ -298,7 +298,9 @@
     },
     "selectBanner": {
       "saveButton": "Toevoegen aan …",
-      "selectMessages": "Selecteer berichten"
+      "selectMessages": "Selecteer berichten",
+      "nSelected": "{} geselecteerd",
+      "allSelected": "Alle geselecteerde"
     }
   }
 }
