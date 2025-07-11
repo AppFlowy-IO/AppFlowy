@@ -393,6 +393,8 @@
     "aiGenerate": "Genereren"
   },
   "sideBar": {
-    "closeSidebar": "Sluit zijbalk"
+    "closeSidebar": "Sluit zijbalk",
+    "openSidebar": "Open zijbalk",
+    "expandSidebar": "Uitvouwen als volledige pagina"
   }
 }
