@@ -311,7 +311,8 @@
     "deleteAll": "Alles verwijderen",
     "pageHeader": {
       "fileName": "Bestandsnaam",
-      "lastModified": "Laatst gewijzigd"
+      "lastModified": "Laatst gewijzigd",
+      "created": "Gemaakt"
     }
   }
 }
