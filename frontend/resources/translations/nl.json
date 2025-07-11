@@ -203,7 +203,9 @@
   },
   "emojiIconPicker": {
     "iconUploader": {
-      "placeholderLeft": "Sleep en borg een bestand, klik om"
+      "placeholderLeft": "Sleep en borg een bestand, klik om",
+      "placeholderUpload": "Uploaden",
+      "placeholderRight": ", of plak een imagelink"
     }
   }
 }
