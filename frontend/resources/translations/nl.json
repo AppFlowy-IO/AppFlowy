@@ -229,5 +229,6 @@
   "blankPageTitle": "Lege pagina",
   "newPageText": "Nieuwe pagina",
   "newDocumentText": "Nieuw document",
-  "newGridText": "Nieuwe databasetabel"
+  "newGridText": "Nieuwe databasetabel",
+  "newCalendarText": "Nieuwe kalender"
 }
