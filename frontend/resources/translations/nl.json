@@ -365,6 +365,12 @@
   "noPagesInside": "Geen pagina's binnenin",
   "toolbar": {
     "undo": "Ongedaan maken",
-    "redo": "Opnieuw doen"
+    "redo": "Opnieuw doen",
+    "bold": "Vetgedrukt",
+    "italic": "Cursief",
+    "underline": "Onderstrepen",
+    "strike": "Doorhalen",
+    "numList": "Genummerde lijst",
+    "bulletList": "Opsommingstekenlijst"
   }
 }
