@@ -283,7 +283,8 @@
       "bullet": "Opsommingslijst",
       "number": "Genummerde lijst",
       "table": "Tabel",
-      "blankDescription": "Formaat antwoord aanpassen"
+      "blankDescription": "Formaat antwoord aanpassen",
+      "defaultDescription": "Automatisch antwoordformaat"
     }
   }
 }
