@@ -195,6 +195,7 @@
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Dokument vanaf v0.1.0"
+    "documentFromV010": "Dokument vanaf v0.1.0",
+    "databaseFromV010": "Database vanaf v0.1.0"
   }
 }
