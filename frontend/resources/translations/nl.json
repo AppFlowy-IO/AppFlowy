@@ -292,7 +292,8 @@
     },
     "switchModel": {
       "label": "Model aanpassen",
-      "localModel": "Lokaal model"
+      "localModel": "Lokaal Model",
+      "cloudModel": "Cloud Model"
     }
   }
 }
