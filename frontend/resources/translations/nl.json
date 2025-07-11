@@ -107,7 +107,12 @@
     "verifying": "Aan het verifiëren...",
     "continueWithPassword": "Verder gaan met wachtwoord",
     "youAreInLocalMode": "Je bent in lokale modus",
-    "loginToAppFlowyCloud": "Inloggen bij AppFlowy Cloud"
+    "loginToAppFlowyCloud": "Inloggen bij AppFlowy Cloud",
+    "anonymous": "Anoniem",
+    "LogInWithGoogle": "Login met Google",
+    "LogInWithGithub": "Login met Github",
+    "LogInWithDiscord": "Login met Discord",
+    "loginAsGuestButtonText": "Starten"
   },
   "workspace": {
     "chooseWorkspace": "Kies je werkplek",
@@ -353,7 +358,8 @@
       "success": "Debug-info naar het klembord gekopieerd!",
       "fail": "Kan debug-info niet naar het klembord kopiëren"
     },
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "help": "Hulp & Support"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Verwijderen, hernoemen en meer...",
@@ -378,7 +384,8 @@
     "header": "Koptekst",
     "highlight": "Benadrukken",
     "color": "Kleur",
-    "addLink": "Link toevoegen"
+    "addLink": "Link toevoegen",
+    "link": "Link"
   },
   "tooltip": {
     "lightMode": "Overschakelen naar de Lichte Modus",
@@ -519,7 +526,8 @@
     "gotIt": "Ik heb het begrepen",
     "retry": "Opnieuw proberen",
     "uploadFailed": "Uploaden mislukt.",
-    "copyLinkOriginal": "Link naar origineel kopiëren"
+    "copyLinkOriginal": "Link naar origineel kopiëren",
+    "tryAGain": "Opnieuw proberen"
   },
   "label": {
     "welcome": "Welkom!",
@@ -548,7 +556,8 @@
       "members": "Leden",
       "trash": "Prullenmand",
       "helpAndDocumentation": "Hulp en documentatie",
-      "getSupport": "Krijg ondersteuning"
+      "getSupport": "Krijg ondersteuning",
+      "helpAndSupport": "Hulp & Support"
     },
     "sites": {
       "title": "Sites",
@@ -3347,7 +3356,121 @@
       "custom": "Aangepast",
       "customPrompt": "Aangepaste prompts",
       "databasePrompts": "Laad prompts vanuit uw eigen database",
-      "selectDatabase": "Selecteer database"
+      "selectDatabase": "Selecteer database",
+      "promptDatabase": "Prompt database",
+      "configureDatabase": "Database configureren",
+      "title": "Titel",
+      "content": "Inhoud",
+      "example": "Voorbeeld",
+      "category": "Categorie",
+      "selectField": "Selecteer veld",
+      "loading": "Bezig met laden",
+      "invalidDatabase": "Ongeldige database",
+      "invalidDatabaseHelp": "Zorg ervoor dat de database minimaal twee tekstuele eigenschappen heeft:\n◦ Eén gebruikt voor de promptnaam\n◦ Eén gebruikt voor de promptinhoud\nOptioneel kunt u ook eigenschappen toevoegen voor het promptvoorbeeld en de categorie.",
+      "noResults": "Geen prompts gevonden",
+      "all": "Alle",
+      "development": "Ontwikkeling",
+      "writing": "Aan het schrijven",
+      "healthAndFitness": "Gezondheid en fitness",
+      "business": "Bedrijf",
+      "marketing": "Marketing",
+      "travel": "Reizen",
+      "others": "Andere",
+      "prompt": "Prompt",
+      "promptExample": "Prompt voorbeeld",
+      "sampleOutput": "Voorbeeld output",
+      "contentSeo": "Inhoud/SEO",
+      "emailMarketing": "E-mailmarketing",
+      "paidAds": "Betaalde advertenties",
+      "prCommunication": "PR/Communicatie",
+      "recruiting": "Werving",
+      "sales": "Verkoop",
+      "socialMedia": "Sociale media",
+      "strategy": "Strategie",
+      "caseStudies": "Casestudies",
+      "salesCopy": "Verkoopteksten",
+      "education": "Onderwijs",
+      "work": "Werk",
+      "podcastProduction": "Podcastproductie",
+      "copyWriting": "Copywriting",
+      "customerSuccess": "Klantensucces"
     }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Update vereist om door te gaan",
+    "criticalUpdateDescription": "We hebben verbeteringen doorgevoerd om je ervaring te verbeteren! Werk bij van {currentVersion} naar {newVersion} om de app te blijven gebruiken.",
+    "criticalUpdateButton": "Update",
+    "bannerUpdateTitle": "Nieuwe versie beschikbaar!",
+    "bannerUpdateDescription": "Ontvang de nieuwste functies en oplossingen. Klik op 'Update' om nu te installeren.",
+    "bannerUpdateButton": "Update",
+    "settingsUpdateTitle": "Nieuwe versie ({newVersion}) beschikbaar!",
+    "settingsUpdateDescription": "Huidige versie: {currentVersion} (officiële build) → {newVersion}",
+    "settingsUpdateButton": "Update",
+    "settingsUpdateWhatsNew": "Wat is er nieuw"
+  },
+  "lockPage": {
+    "lockPage": "Vergrendeld",
+    "reLockPage": "Opnieuw vergrendelen",
+    "lockTooltip": "Pagina vergrendeld om onbedoelde bewerking te voorkomen. Klik om te ontgrendelen.",
+    "pageLockedToast": "Pagina vergrendeld. Bewerken is uitgeschakeld totdat iemand de pagina ontgrendelt.",
+    "lockedOperationTooltip": "Pagina vergrendeld om onbedoelde bewerkingen te voorkomen."
+  },
+  "suggestion": {
+    "accept": "Accepteren",
+    "keep": "Houden",
+    "discard": "Annuleren",
+    "close": "Sluiten",
+    "tryAgain": "Probeer het opnieuw",
+    "rewrite": "Herschrijven",
+    "insertBelow": "Hieronder invoegen"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "Weergave",
+      "comment": "Opmerking",
+      "edit": "Bewerken",
+      "fullAccess": "Volledige toegang"
+    },
+    "inviteByEmail": "Uitnodigen per e-mail",
+    "invite": "Uitnodigen",
+    "anyoneAtWorkspace": "Iedereen bij {werkruimte}",
+    "anyoneInGroupWithLinkCanEdit": "Iedereen in deze groep met de link kan bewerken",
+    "copyLink": "Link kopiëren",
+    "copiedLinkToClipboard": "Link naar klembord gekopieerd",
+    "removeAccess": "Toegang verwijderen",
+    "turnIntoMember": "Omvormen naar lid",
+    "you": "(Jij)",
+    "guest": "Gast",
+    "onlyFullAccessCanInvite": "Alleen gebruikers met volledige toegang kunnen anderen uitnodigen",
+    "invitationSent": "Uitnodiging verzonden",
+    "emailAlreadyInList": "Het e-mailadres staat al in de lijst",
+    "upgradeToProToInviteGuests": "Upgrade naar een Pro-abonnement om meer gasten uit te nodigen",
+    "maxGuestsReached": "U heeft het maximale aantal gasten bereikt",
+    "removedGuestSuccessfully": "Gast succesvol verwijderd",
+    "updatedAccessLevelSuccessfully": "Toegangsniveau succesvol bijgewerkt",
+    "turnedIntoMemberSuccessfully": "Met succes lid geworden",
+    "peopleAboveCanAccessWithLink": "Mensen hierboven hebben toegang via de link",
+    "cantMakeChanges": "Kan geen wijzigingen aanbrengen",
+    "canMakeAnyChanges": "Kan alle wijzigingen aanbrengen",
+    "generalAccess": "Algemene toegang",
+    "peopleWithAccess": "Mensen met toegang",
+    "peopleAboveCanAccessWithTheLink": "Mensen hierboven hebben toegang via de link",
+    "upgrade": "Upgrade",
+    "toProPlanToInviteGuests": " naar het Pro-abonnement om gasten uit te nodigen voor deze pagina",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "Upgraden om gasten uit te nodigen",
+        "member": "Upgraden om gasten uit te nodigen",
+        "guest": "Upgraden om gasten uit te nodigen"
+      },
+      "description": {
+        "owner": "Je werkplek staat momenteel op het het gratis abonnement. Upgrade naar het Pro-abonnement om externe gebruikers toegang te geven tot deze pagina als gast.",
+        "member": "Sommige genodigden bevinden zich buiten uw werkruimte. Om ze als gasten uit te nodigen, neemt u contact op met de eigenaar van uw werkruimte om te upgraden naar het Pro-abonnement.",
+        "guest": "Sommige genodigden bevinden zich buiten uw werkruimte. Om ze als gasten uit te nodigen, neemt u contact op met de eigenaar van uw werkruimte om te upgraden naar het Pro-abonnement."
+      }
+    }
+  },
+  "shareSection": {
+    "shared": "Gedeeld met mij"
   }
 }
