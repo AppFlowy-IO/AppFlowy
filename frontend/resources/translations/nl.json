@@ -305,7 +305,7 @@
     "stopTooltip": "Stop met genereren"
   },
   "trash": {
-    "text": "Prullemand",
+    "text": "Prullenmand",
     "restoreAll": "Alles herstellen",
     "restore": "Herstellen",
     "deleteAll": "Alles verwijderen",
@@ -313,6 +313,9 @@
       "fileName": "Bestandsnaam",
       "lastModified": "Laatst gewijzigd",
       "created": "Gemaakt"
+    },
+    "confirmDeleteAll": {
+      "title": "Alle pagina's in de prullenbak"
     }
   }
 }
