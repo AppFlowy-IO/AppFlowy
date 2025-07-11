@@ -233,6 +233,8 @@
   "newCalendarText": "Nieuwe kalender",
   "newBoardText": "Nieuw bord",
   "chat": {
-    "newChat": "Nieuwe AI Chat"
+    "newChat": "Nieuwe AI Chat",
+    "inputMessageHint": "Vraag aan @:appName AI",
+    "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI"
   }
 }
