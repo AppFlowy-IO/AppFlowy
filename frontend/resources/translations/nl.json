@@ -349,7 +349,8 @@
     "getSupport": "Krijg ondersteuning",
     "markdown": "Markdown",
     "debug": {
-      "name": "Debug Informatie"
+      "name": "Debug Informatie",
+      "success": "Debug-info naar het klembord gekopieerd!"
     }
   }
 }
