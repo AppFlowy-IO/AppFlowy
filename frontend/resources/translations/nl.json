@@ -223,6 +223,8 @@
     "changeIcon": "Icon aanpassen",
     "collapseAllPages": "Alle subpagina's samenvouwen",
     "movePageTo": "Verplaats alle pagina's naar",
-    "move": "Verplaats"
-  }
+    "move": "Verplaats",
+    "lockPage": "Pagina vergrendelen"
+  },
+  "blankPageTitle": "Lege pagina"
 }
