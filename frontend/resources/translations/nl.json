@@ -2827,6 +2827,527 @@
     "noResultsHint": "We hebben niet gevonden wat u zocht. Probeer een andere term.",
     "clearSearchTooltip": "Invoer wissen",
     "location": "Locatie",
-    "created": "Gemaakt"
+    "created": "Gemaakt",
+    "edited": "Bewerkt"
+  },
+  "space": {
+    "delete": "Verwijderen",
+    "deleteConfirmation": "Verwijderen: ",
+    "deleteConfirmationDescription": "Alle pagina's in deze ruimte worden verwijderd en naar de Prullenmand verplaatst. Alle gepubliceerde pagina's worden niet langer gepubliceerd.",
+    "rename": "Ruimte hernoemen",
+    "changeIcon": "Wijziging pictogram",
+    "manage": "Ruimte beheren",
+    "addNewSpace": "Ruimte creëren",
+    "collapseAllSubPages": "Alle subpagina's samenvouwen",
+    "createNewSpace": "Creëer een nieuwe ruimte",
+    "createSpaceDescription": "Creëer meerdere openbare en privéruimtes om uw werk beter te organiseren.",
+    "spaceName": "Naam van de ruimte",
+    "spaceNamePlaceholder": "bijv. Marketing, Techniek, HR",
+    "permission": "Ruimte toestemmingen",
+    "publicPermission": "Openbaar",
+    "publicPermissionDescription": "Alle werkruimteleden met volledige toegang",
+    "privatePermission": "Privé",
+    "privatePermissionDescription": "Alleen jij hebt toegang tot deze ruimte",
+    "spaceIconBackground": "Achtergrondkleur",
+    "spaceIcon": "Icon",
+    "dangerZone": "Gevarenzone",
+    "unableToDeleteLastSpace": "Kan de laatste ruimte niet verwijderen",
+    "unableToDeleteSpaceNotCreatedByYou": "Kan geen ruimtes verwijderen die door anderen zijn aangemaakt",
+    "enableSpacesForYourWorkspace": "Ruimten inschakelen voor uw werkplek",
+    "title": "Ruimtes",
+    "defaultSpaceName": "Algemeen",
+    "upgradeSpaceTitle": "Ruimtes inschakelen",
+    "upgradeSpaceDescription": "Maak meerdere openbare en privéruimtes om uw werkruimte beter te organiseren.",
+    "upgrade": "Update",
+    "upgradeYourSpace": "Meerdere ruimtes creëren",
+    "quicklySwitch": "Snel naar de volgende ruimte schakelen",
+    "duplicate": "Dupliceer ruimte",
+    "movePageToSpace": "Verplaats pagina naar ruimte",
+    "cannotMovePageToDatabase": "Kan pagina niet naar database verplaatsen",
+    "switchSpace": "Wissel van ruimte",
+    "spaceNameCannotBeEmpty": "Ruimtenaam mag niet leeg zijn",
+    "success": {
+      "deleteSpace": "Ruimte succesvol verwijderd",
+      "renameSpace": "Ruimte succesvol hernoemd",
+      "duplicateSpace": "Ruimte succesvol gedupliceerd",
+      "updateSpace": "Ruimte succesvol bijgewerkt"
+    },
+    "error": {
+      "deleteSpace": "Ruimte verwijderen mislukt",
+      "renameSpace": "Het is niet gelukt om de ruimte te hernoemen",
+      "duplicateSpace": "Het is niet gelukt om de ruimte te dupliceren",
+      "updateSpace": "Het is niet gelukt om de ruimte bij te werken"
+    },
+    "createSpace": "Ruimte creëren",
+    "manageSpace": "Ruimte beheren",
+    "renameSpace": "Ruimte hernoemen",
+    "mSpaceIconColor": "Kleur van het ruimtepictogram",
+    "mSpaceIcon": "Ruimte-icoon"
+  },
+  "publish": {
+    "hasNotBeenPublished": "Deze pagina is nog niet gepubliceerd",
+    "spaceHasNotBeenPublished": "Heb nog geen ondersteuning geboden voor het publiceren van een ruimte",
+    "reportPage": "Rapportpagina",
+    "databaseHasNotBeenPublished": "Het publiceren van een database wordt nog niet ondersteund.",
+    "createdWith": "Gemaakt met",
+    "downloadApp": "AppFlowy downloaden",
+    "copy": {
+      "codeBlock": "De inhoud van het codeblok is naar het klembord gekopieerd",
+      "imageBlock": "De afbeeldingslink is naar het klembord gekopieerd",
+      "mathBlock": "De wiskundige vergelijking is naar het klembord gekopieerd",
+      "fileBlock": "De bestandslink is naar het klembord gekopieerd"
+    },
+    "containsPublishedPage": "Deze pagina bevat een of meer gepubliceerde pagina's. Als u verdergaat, worden deze niet meer gepubliceerd. Wilt u doorgaan met verwijderen?",
+    "publishSuccessfully": "Succesvol gepubliceerd",
+    "unpublishSuccessfully": "Succesvol gedepubliceerd",
+    "publishFailed": "Publiceren mislukt",
+    "unpublishFailed": "Het is niet gelukt om de publicatie ongedaan te maken",
+    "noAccessToVisit": "Geen toegang tot deze pagina...",
+    "createWithAppFlowy": "Maak een website met AppFlowy",
+    "fastWithAI": "Snel en eenvoudig met AI.",
+    "tryItNow": "Probeer het nu",
+    "onlyGridViewCanBePublished": "Alleen rasterweergave kan worden gepubliceerd",
+    "database": {
+      "zero": "Publiceer {} geselecteerde weergave",
+      "one": "Publiceer {} geselecteerde weergaven",
+      "many": "Publiceer {} geselecteerde weergaven",
+      "other": "Publiceer {} geselecteerde weergaven"
+    },
+    "mustSelectPrimaryDatabase": "Het primaire beeld moet geselecteerd zijn",
+    "noDatabaseSelected": "Er is geen database geselecteerd. Selecteer minimaal één database.",
+    "unableToDeselectPrimaryDatabase": "Kan de primaire database niet deselecteren",
+    "saveThisPage": "Begin met deze sjabloon",
+    "duplicateTitle": "Waar zou je willen toevoegen",
+    "selectWorkspace": "Selecteer een werkplek",
+    "addTo": "Toevoegen aan",
+    "duplicateSuccessfully": "Toegevoegd aan uw werkplek",
+    "duplicateSuccessfullyDescription": "Heb je AppFlowy nog niet geïnstalleerd? De download start automatisch nadat je op 'Downloaden' hebt geklikt.",
+    "downloadIt": "Download",
+    "openApp": "Openen in app",
+    "duplicateFailed": "Dupliceren mislukt",
+    "membersCount": {
+      "zero": "Geen leden",
+      "one": "1 lid",
+      "many": "{count} leden",
+      "other": "{count} leden"
+    },
+    "useThisTemplate": "Gebruik de sjabloon"
+  },
+  "web": {
+    "continue": "Doorgaan",
+    "or": "of",
+    "continueWithGoogle": "Doorgaan met Google",
+    "continueWithGithub": "Doorgaan met GitHub",
+    "continueWithDiscord": "Doorgaan met Discord",
+    "continueWithApple": "Doorgaan met Apple ",
+    "moreOptions": "Meer opties",
+    "collapse": "Samenvouwen",
+    "signInAgreement": "Door hierboven op \"Doorgaan\" te klikken, stemt u in met\nAppFlowy's ",
+    "signInLocalAgreement": "Door hierboven op \"Aan de slag\" te klikken, gaat u akkoord met\nAppFlowy's ",
+    "and": "En",
+    "termOfUse": "Voorwaarden",
+    "privacyPolicy": "Privacybeleid",
+    "signInError": "Aanmeldingsfout",
+    "login": "Meld je aan of log in",
+    "fileBlock": {
+      "uploadedAt": "Geüpload op {time}",
+      "linkedAt": "Link toegevoegd op {time}",
+      "empty": "Een bestand uploaden of insluiten",
+      "uploadFailed": "Uploaden mislukt, probeer het opnieuw",
+      "retry": "Opnieuw proberen"
+    },
+    "importNotion": "Importeren vanuit Notion",
+    "import": "Importeren",
+    "importSuccess": "Succesvol geüpload",
+    "importSuccessMessage": "We laten je weten wanneer de import voltooid is. Daarna kun je je geïmporteerde pagina's bekijken in de zijbalk.",
+    "importFailed": "Importeren mislukt, controleer het bestandsformaat",
+    "dropNotionFile": "Sleep uw Notion zip-bestand hierheen om te uploaden, of klik om te bladeren",
+    "error": {
+      "pageNameIsEmpty": "De paginanaam is leeg, probeer een andere"
+    }
+  },
+  "globalComment": {
+    "comments": "Reacties",
+    "addComment": "Voeg een opmerking toe",
+    "reactedBy": "Reacties van",
+    "addReaction": "Reactie toevoegen",
+    "reactedByMore": "en {tel} anderen",
+    "showSeconds": {
+      "one": "1 seconde geleden",
+      "other": "{count} seconden geleden",
+      "zero": "Zojuist",
+      "many": "{count} seconden geleden"
+    },
+    "showMinutes": {
+      "one": "1 minuut geleden",
+      "other": "{count} minuten geleden",
+      "many": "{count} minuten geleden"
+    },
+    "showHours": {
+      "one": "1 uur geleden",
+      "other": "{count} uren geleden",
+      "many": "{count} uren geleden"
+    },
+    "showDays": {
+      "one": "1 dag geleden",
+      "other": "{count} dagen geleden",
+      "many": "{count} dagen geleden"
+    },
+    "showMonths": {
+      "one": "1 maand geleden",
+      "other": "{aantal} maanden geleden",
+      "many": "{aantal} maanden geleden"
+    },
+    "showYears": {
+      "one": "1 jaar geleden",
+      "other": "{aantal} jaren geleden",
+      "many": "{aantal} jaren geleden"
+    },
+    "reply": "Antwoorden",
+    "deleteComment": "Commentaar verwijderen",
+    "youAreNotOwner": "U bent niet de eigenaar van deze commentaar",
+    "confirmDeleteDescription": "Weet u zeker dat u deze commentaar wilt verwijderen?",
+    "hasBeenDeleted": "Verwijderd",
+    "replyingTo": "Reageren op",
+    "noAccessDeleteComment": "Je mag deze commentaar niet verwijderen",
+    "collapse": "Samenplooien",
+    "readMore": "Lees verder",
+    "failedToAddComment": "Commentaar toevoegen mislukt",
+    "commentAddedSuccessfully": "Commentaar succesvol toegevoegd.",
+    "commentAddedSuccessTip": "Je hebt zojuist een commentaar toegevoegd of erop gereageerd. Wil je direct naar boven springen om de laatste commentaar te zien?"
+  },
+  "template": {
+    "asTemplate": "Opslaan als sjabloon",
+    "name": "Sjabloonnaam",
+    "description": "Sjabloonbeschrijving",
+    "about": "Sjabloon Over",
+    "deleteFromTemplate": "Verwijderen uit sjablonen",
+    "preview": "Sjabloon Preview",
+    "categories": "Sjablooncategorieën",
+    "isNewTemplate": "PIN naar nieuwe sjabloon",
+    "featured": "PIN naar Aanbevolen",
+    "relatedTemplates": "Gerelateerde sjablonen",
+    "requiredField": "{veld} is verplicht",
+    "addCategory": "Voeg \"{categorie}\" toe",
+    "addNewCategory": "Nieuwe categorie toevoegen",
+    "addNewCreator": "Nieuwe maker toevoegen",
+    "deleteCategory": "Categorie verwijderen",
+    "editCategory": "Categorie bewerken",
+    "editCreator": "Bewerk maker",
+    "category": {
+      "name": "Categorienaam",
+      "icon": "Categorie-icoon",
+      "bgColor": "Achtergrondkleur van de categorie",
+      "priority": "Categorieprioriteit",
+      "desc": "Categoriebeschrijving",
+      "type": "Categorietype",
+      "icons": "Categorie-iconen",
+      "colors": "Categorie Kleuren",
+      "byUseCase": "Per Use Case",
+      "byFeature": "Op kenmerk",
+      "deleteCategory": "Categorie verwijderen",
+      "deleteCategoryDescription": "Weet u zeker dat u deze categorie wilt verwijderen?",
+      "typeToSearch": "Typ om categorieën te zoeken..."
+    },
+    "creator": {
+      "label": "Sjabloonmaker",
+      "name": "Naam van de maker",
+      "avatar": "Sjabloonmaker avatar",
+      "accountLinks": "Links naar makersaccounts",
+      "uploadAvatar": "Klik om avatar te uploaden",
+      "deleteCreator": "Maker verwijderen",
+      "deleteCreatorDescription": "Weet u zeker dat u deze maker wilt verwijderen?",
+      "typeToSearch": "Typ om makers te zoeken..."
+    },
+    "uploadSuccess": "Sjabloon succesvol geüpload",
+    "uploadSuccessDescription": "Je sjabloon is succesvol geüpload. Je kunt hem nu bekijken in de sjabloongalerij.",
+    "viewTemplate": "Sjabloon bekijken",
+    "deleteTemplate": "Sjabloon verwijderen",
+    "deleteSuccess": "Sjabloon succesvol verwijderd",
+    "deleteTemplateDescription": "Dit heeft geen invloed op de huidige pagina of de publicatiestatus. Weet u zeker dat u deze sjabloon wilt verwijderen?",
+    "addRelatedTemplate": "Gerelateerde sjabloon toevoegen",
+    "removeRelatedTemplate": "Gerelateerde sjabloon verwijderen",
+    "uploadAvatar": "Avatar uploaden",
+    "searchInCategory": "Zoeken in {categorie}",
+    "label": "Sjablonen"
+  },
+  "fileDropzone": {
+    "dropFile": "Klik of sleep het bestand naar dit gebied om te uploaden",
+    "uploading": "Uploaden...",
+    "uploadFailed": "Uploaden mislukt",
+    "uploadSuccess": "Uploaden gelukt",
+    "uploadSuccessDescription": "Het bestand is succesvol geüpload",
+    "uploadFailedDescription": "Het uploaden van het bestand is mislukt",
+    "uploadingDescription": "Het bestand wordt geüpload"
+  },
+  "gallery": {
+    "preview": "Openen in volledig scherm",
+    "copy": "Kopiëren",
+    "download": "Download",
+    "prev": "Vorige",
+    "next": "Volgende",
+    "resetZoom": "Zoom resetten",
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen"
+  },
+  "invitation": {
+    "join": "Meedoen",
+    "on": "op",
+    "invitedBy": "Uitgenodigd door",
+    "membersCount": {
+      "zero": "{count} leden",
+      "one": "{count} lid",
+      "many": "{count} leden",
+      "other": "{count} leden"
+    },
+    "tip": "U bent uitgenodigd om deel te nemen aan deze werkruimte met de onderstaande contactgegevens. Als deze gegevens onjuist zijn, neem dan contact op met uw beheerder om de uitnodiging opnieuw te versturen.",
+    "joinWorkspace": "Toetreden tot werkplek",
+    "success": "Je bent succesvol toegetreden tot de werkplek",
+    "successMessage": "U hebt nu toegang tot alle pagina's en werkplekken daarin.",
+    "openWorkspace": "Open AppFlowy",
+    "alreadyAccepted": "Je hebt de uitnodiging al geaccepteerd",
+    "errorModal": {
+      "title": "Er is iets misgegaan",
+      "description": "Uw huidige account {email} heeft mogelijk geen toegang tot deze werkruimte. Log in met het juiste account of neem contact op met de eigenaar van de werkruimte voor hulp.",
+      "contactOwner": "Neem contact op met de eigenaar",
+      "close": "Terug naar huis",
+      "changeAccount": "Account wijzigen"
+    }
+  },
+  "requestAccess": {
+    "title": "Geen toegang tot deze pagina",
+    "subtitle": "U kunt toegang aanvragen bij de eigenaar van deze pagina. Na goedkeuring kunt u de pagina bekijken.",
+    "requestAccess": "Toegang aanvragen",
+    "backToHome": "Terug naar homepagina",
+    "tip": "Je bent momenteel ingelogd als<link/> .",
+    "mightBe": "Het kan zijn dat je moet <login/> met een ander account.",
+    "successful": "Aanvraag succesvol verzonden",
+    "successfulMessage": "Zodra de eigenaar uw verzoek heeft goedgekeurd, wordt u hiervan op de hoogte gesteld.",
+    "requestError": "Het is niet gelukt om toegang aan te vragen",
+    "repeatRequestError": "U heeft al toegang tot deze pagina aangevraagd"
+  },
+  "approveAccess": {
+    "title": "Goedkeuren verzoek tot deelname aan werkruimte",
+    "requestSummary": "<user/>verzoeken om lid te worden van <workspace/> en toegang en toegang te krijgen tot <page/>",
+    "upgrade": "upgraden",
+    "downloadApp": "AppFlowy downloaden",
+    "approveButton": "Goedkeuren",
+    "approveSuccess": "Succesvol goedgekeurd",
+    "approveError": "Goedkeuring mislukt, zorg ervoor dat de limiet van het werkruimteplan niet wordt overschreden",
+    "getRequestInfoError": "Het is niet gelukt om de aanvraaggegevens te verkrijgen",
+    "memberCount": {
+      "zero": "Geen leden",
+      "one": "1 lid",
+      "many": "{count} leden",
+      "other": "{count} leden"
+    },
+    "alreadyProTitle": "U hebt de limiet van het werkplekplan bereikt",
+    "alreadyProMessage": "Vraag hen contact op te nemen met <email/> om meer leden te ontgrendelen",
+    "repeatApproveError": "Je hebt dit verzoek al goedgekeurd",
+    "ensurePlanLimit": "Zorg ervoor dat de limiet van het werkplekplan niet wordt overschreden. Als de limiet wordt overschreden, overweeg dan:<upgrade/> het werkruimteplan of<download/> .",
+    "requestToJoin": "verzoekt om lid te worden",
+    "asMember": "als lid"
+  },
+  "upgradePlanModal": {
+    "title": "Upgraden naar Pro",
+    "message": "{name} heeft de limiet voor gratis leden bereikt. Upgrade naar het Pro-abonnement om meer leden uit te nodigen.",
+    "upgradeSteps": "Hoe u uw abonnement op AppFlowy kunt upgraden:",
+    "step1": "1. Ga naar Instellingen",
+    "step2": "2. Klik op 'Plannen'",
+    "step3": "3. Selecteer 'Abonnement wijzigen'",
+    "appNote": "Opmerking: ",
+    "actionButton": "Upgrade",
+    "downloadLink": "App downloaden",
+    "laterButton": "Later",
+    "refreshNote": "Klik na een succesvolle upgrade op<refresh/> om uw nieuwe functies te activeren.",
+    "refresh": "hier"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumbs"
+  },
+  "time": {
+    "justNow": "Zojuist",
+    "seconds": {
+      "one": "1 seconde",
+      "other": "{count} seconden"
+    },
+    "minutes": {
+      "one": "1 minuut",
+      "other": "{count} minuten"
+    },
+    "hours": {
+      "one": "1 uur",
+      "other": "{count} uren"
+    },
+    "days": {
+      "one": "1 dag",
+      "other": "{count} dagen"
+    },
+    "weeks": {
+      "one": "1 week",
+      "other": "{count} weken"
+    },
+    "months": {
+      "one": "1 maand",
+      "other": "{count} maanden"
+    },
+    "years": {
+      "one": "1 jaar",
+      "other": "{count} jaren"
+    },
+    "ago": "geleden",
+    "yesterday": "Gisteren",
+    "today": "Vandaag"
+  },
+  "members": {
+    "zero": "Geen leden",
+    "one": "1 lid",
+    "many": "{count} leden",
+    "other": "{count} leden"
+  },
+  "tabMenu": {
+    "close": "Sluiten",
+    "closeDisabledHint": "Kan een vastgezet tabblad niet sluiten, maak het eerst los",
+    "closeOthers": "Sluit andere tabbladen",
+    "closeOthersHint": "Hiermee worden alle niet-vastgezette tabbladen gesloten, behalve deze",
+    "closeOthersDisabledHint": "Alle tabbladen zijn vastgezet, ik kan geen tabbladen vinden om te sluiten",
+    "favorite": "Favoriet",
+    "unfavorite": "Niet meer favoriet",
+    "favoriteDisabledHint": "Kan deze weergave niet als favoriet markeren",
+    "pinTab": "Pin",
+    "unpinTab": "Unpin"
+  },
+  "openFileMessage": {
+    "success": "Bestand succesvol geopend",
+    "fileNotFound": "Bestand niet gevonden",
+    "noAppToOpenFile": "Geen app om dit bestand te openen",
+    "permissionDenied": "Geen toestemming om dit bestand te openen",
+    "unknownError": "Bestand openen mislukt"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "Uitnodigen voor je werkplek",
+    "inviteFailedMemberLimit": "De ledenlimiet is bereikt, alstublieft ",
+    "upgrade": "upgraden",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "Uitnodigingen versturen",
+    "inviteAlready": "Je hebt dit e-mailadres al uitgenodigd: {email}",
+    "inviteSuccess": "Uitnodiging succesvol verzonden",
+    "description": "Voer hieronder e-mailadressen in, met komma's ertussen. De kosten zijn gebaseerd op het aantal leden.",
+    "emails": "E-mail"
+  },
+  "quickNote": {
+    "label": "Snelle notitie",
+    "quickNotes": "Snelle notities",
+    "search": "Zoek Snelle Notities",
+    "collapseFullView": "Volledige weergave inklappen",
+    "expandFullView": "Volledig beeld uitvouwen",
+    "createFailed": "Het is niet gelukt om een Snelle Notitie te maken",
+    "quickNotesEmpty": "Geen snelle notities",
+    "emptyNote": "Lege notitie",
+    "deleteNotePrompt": "De geselecteerde notitie wordt definitief verwijderd. Weet u zeker dat u deze wilt verwijderen?",
+    "addNote": "Nieuwe notitie",
+    "noAdditionalText": "Geen aanvullende tekst"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "Vergelijk en selecteer een plan",
+    "yearly": "Jaarlijks",
+    "save": "Bespaar {korting}%",
+    "monthly": "Maandelijks",
+    "priceIn": "Prijs in ",
+    "free": "Gratis",
+    "pro": "Pro",
+    "freeDescription": "Voor individuen tot 2 leden om alles te organiseren",
+    "proDescription": "Voor kleine teams om projecten en teamkennis te beheren",
+    "proDuration": {
+      "monthly": "per lid en per maand\nmaandelijks gefactureerd",
+      "yearly": "per lid en per maand\njaarlijks gefactureerd"
+    },
+    "cancel": "Downgraden",
+    "changePlan": "Upgraden naar Pro Plan",
+    "everythingInFree": "Alles in Gratis +",
+    "currentPlan": "Huidig",
+    "freeDuration": "voor altijd",
+    "freePoints": {
+      "first": "1 collaboratieve werkplek voor maximaal 2 leden",
+      "second": "Onbeperkt aantal pagina's en blokken",
+      "three": "5 GB opslag",
+      "four": "Intelligent zoeken",
+      "five": "20 AI-reacties",
+      "six": "Mobiele app",
+      "seven": "Realtime samenwerking"
+    },
+    "proPoints": {
+      "first": "Onbeperkte opslag",
+      "second": "Maximaal 10 werkruimteleden",
+      "three": "Onbeperkte AI-reacties",
+      "four": "Onbeperkt aantal bestanden uploaden",
+      "five": "Aangepaste naamruimte"
+    },
+    "cancelPlan": {
+      "title": "Jammer dat je weggaat",
+      "success": "Uw abonnement is succesvol geannuleerd",
+      "description": "Jammer dat je weggaat. We horen graag je feedback om AppFlowy te verbeteren. Neem even de tijd om een paar vragen te beantwoorden.",
+      "commonOther": "Andere",
+      "otherHint": "Schrijf hier je antwoord",
+      "questionOne": {
+        "question": "Wat heeft u ertoe aangezet uw AppFlowy Pro-abonnement op te zeggen?",
+        "answerOne": "Kosten te hoog",
+        "answerTwo": "Functies voldeden niet aan de verwachtingen",
+        "answerThree": "Een beter alternatief gevonden",
+        "answerFour": "Ik heb het niet genoeg gebruikt om de kosten te rechtvaardigen",
+        "answerFive": "Serviceprobleem of technische problemen"
+      },
+      "questionTwo": {
+        "question": "Hoe waarschijnlijk is het dat u overweegt om u in de toekomst opnieuw te abonneren op AppFlowy Pro?",
+        "answerOne": "Zeer waarschijnlijk",
+        "answerTwo": "Iets waarschijnlijk",
+        "answerThree": "Ik weet het niet zeker",
+        "answerFour": "Onwaarschijnlijk",
+        "answerFive": "Zeer onwaarschijnlijk"
+      },
+      "questionThree": {
+        "question": "Welke Pro-functie waardeerde u het meest tijdens uw abonnement?",
+        "answerOne": "Samenwerking tussen meerdere gebruikers",
+        "answerTwo": "Langere versiegeschiedenis",
+        "answerThree": "Onbeperkte AI-reacties",
+        "answerFour": "Toegang tot lokale AI-modellen"
+      },
+      "questionFour": {
+        "question": "Hoe zou u uw algemene ervaring met AppFlowy beschrijven?",
+        "answerOne": "Geweldig",
+        "answerTwo": "Goed",
+        "answerThree": "Gemiddeld",
+        "answerFour": "Onder het gemiddelde",
+        "answerFive": "Ontevreden"
+      }
+    }
+  },
+  "ai": {
+    "contentPolicyViolation": "Het genereren van de afbeelding is mislukt vanwege gevoelige inhoud. Herformuleer uw invoer en probeer het opnieuw.",
+    "textLimitReachedDescription": "Je werkruimte heeft geen gratis AI-reacties meer. Upgrade naar het Pro-abonnement of koop een AI-add-on om onbeperkte reacties te ontgrendelen.",
+    "imageLimitReachedDescription": "Je hebt je gratis AI-afbeeldingsquotum opgebruikt. Upgrade naar het Pro-abonnement of koop een AI-add-on om onbeperkte reacties te ontgrendelen.",
+    "limitReachedAction": {
+      "textDescription": "Je werkruimte heeft geen gratis AI-reacties meer. Om meer reacties te krijgen, klik hier.",
+      "imageDescription": "Je hebt je gratis AI-afbeeldingsquotum opgebruikt.",
+      "upgrade": "upgraden",
+      "toThe": "naar de",
+      "proPlan": "Pro-plan",
+      "orPurchaseAn": "of koop een",
+      "aiAddon": "AI-add-on"
+    },
+    "editing": "Bewerken",
+    "analyzing": "Analyseren",
+    "continueWritingEmptyDocumentTitle": "Doorgaan met schrijven fout",
+    "continueWritingEmptyDocumentDescription": "We hebben moeite met het verder uitwerken van de inhoud van je document. Schrijf een korte inleiding en dan kunnen we verder!",
+    "more": "Meer",
+    "customPrompt": {
+      "browsePrompts": "Blader door prompts",
+      "usePrompt": "Gebruik prompt",
+      "featured": "Uitgelicht",
+      "custom": "Aangepast",
+      "customPrompt": "Aangepaste prompts",
+      "databasePrompts": "Laad prompts vanuit uw eigen database",
+      "selectDatabase": "Selecteer database"
+    }
   }
 }
