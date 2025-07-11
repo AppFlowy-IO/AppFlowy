@@ -1038,7 +1038,173 @@
         }
       },
       "currentPeriodBadge": "HUIDIG",
-      "changePeriod": "Wijzig periode"
+      "changePeriod": "Wijzig periode",
+      "planPeriod": "{} periode",
+      "monthlyInterval": "Maandelijks",
+      "monthlyPriceInfo": "per gebruiker maandelijks gefactureerd",
+      "annualInterval": "Jaarlijks",
+      "annualPriceInfo": "per gebruiker jaarlijks gefactureerd"
+    },
+    "comparePlanDialog": {
+      "title": "Vergelijk en selecteer een plan",
+      "planFeatures": "Plan\nFuncties",
+      "current": "Huidig",
+      "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgraden",
+        "current": "Huidig"
+      },
+      "freePlan": {
+        "title": "Gratis",
+        "description": "Voor individuen tot 2 leden om alles te organiseren",
+        "price": "{}",
+        "priceInfo": "Voor altijd gratis"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "Voor kleine teams om projecten en teamkennis te beheren",
+        "price": "{}",
+        "priceInfo": "Per gebruiker per maand\njaarlijks gefactureerd\n\n{} maandelijks gefactureerd"
+      },
+      "planLabels": {
+        "itemOne": "Werkplekken",
+        "itemTwo": "Leden",
+        "itemThree": "Opslag",
+        "itemFour": "Realtime samenwerking",
+        "itemFive": "Gastredacteuren",
+        "itemSix": "AI-reacties",
+        "itemSeven": "AI-afbeeldingen",
+        "itemFileUpload": "Bestandsuploads",
+        "customNamespace": "Aangepaste naamruimte",
+        "tooltipFive": "Samenwerken op specifieke pagina's met niet-leden",
+        "tooltipSix": "Levensduur betekent dat het aantal reacties nooit wordt gereset",
+        "intelligentSearch": "Intelligent zoeken",
+        "tooltipSeven": "Hiermee kunt u een deel van de URL voor uw werkruimte aanpassen",
+        "customNamespaceTooltip": "Aangepaste gepubliceerde site-URL"
+      },
+      "freeLabels": {
+        "itemOne": "Per werkruimte in rekening gebracht",
+        "itemTwo": "Tot 2",
+        "itemThree": "5 GB",
+        "itemFour": "Ja",
+        "itemFive": "Ja",
+        "itemSix": "10 levenslange",
+        "itemSeven": "2 levenslang",
+        "itemFileUpload": "Tot 7 MB",
+        "intelligentSearch": "Intelligent zoeken"
+      },
+      "proLabels": {
+        "itemOne": "Per werkruimte in rekening gebracht",
+        "itemTwo": "Tot 10",
+        "itemThree": "Onbeperkt",
+        "itemFour": "Ja",
+        "itemFive": "Tot 100",
+        "itemSix": "Onbeperkt",
+        "itemSeven": "50 afbeeldingen per maand",
+        "itemFileUpload": "Onbeperkt",
+        "intelligentSearch": "Intelligent zoeken"
+      },
+      "paymentSuccess": {
+        "title": "U bevindt zich nu op het {} plan!",
+        "description": "Uw betaling is succesvol verwerkt en uw abonnement is geüpgraded naar @:appName {}. U kunt uw abonnementsdetails bekijken op de pagina 'Abonnement'."
+      },
+      "downgradeDialog": {
+        "title": "Weet u zeker dat u uw abonnement wilt downgraden?",
+        "description": "Als u uw abonnement downgradet, keert u terug naar het gratis abonnement. Leden verliezen mogelijk de toegang tot deze werkruimte en u moet mogelijk ruimte vrijmaken om aan de opslaglimieten van het gratis abonnement te voldoen.",
+        "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Jammer dat je weggaat",
+      "description": "Jammer dat je weggaat. We horen graag je feedback om ons te helpen @:appName te verbeteren. Neem even de tijd om een paar vragen te beantwoorden.",
+      "commonOther": "Andere",
+      "otherHint": "Schrijf hier je antwoord",
+      "questionOne": {
+        "question": "Wat heeft u ertoe aangezet uw @:appName Pro-abonnement op te zeggen?",
+        "answerOne": "Kosten te hoog",
+        "answerTwo": "Functies voldeden niet aan de verwachtingen",
+        "answerThree": "Een beter alternatief gevonden",
+        "answerFour": "Ik heb het niet genoeg gebruikt om de kosten te rechtvaardigen",
+        "answerFive": "Serviceprobleem of technische problemen"
+      },
+      "questionTwo": {
+        "question": "Hoe waarschijnlijk is het dat u overweegt om u in de toekomst opnieuw te abonneren op @:appName Pro?",
+        "answerOne": "Zeer waarschijnlijk",
+        "answerTwo": "Iets waarschijnlijk",
+        "answerThree": "Ik weet het niet zeker",
+        "answerFour": "Onwaarschijnlijk",
+        "answerFive": "Zeer onwaarschijnlijk"
+      },
+      "questionThree": {
+        "question": "Welke Pro-functie vond u het meest waardevol tijdens uw abonnement?",
+        "answerOne": "Samenwerking tussen meerdere gebruikers",
+        "answerTwo": "Langere versiegeschiedenis",
+        "answerThree": "Onbeperkte AI-reacties",
+        "answerFour": "Toegang tot lokale AI-modellen"
+      },
+      "questionFour": {
+        "question": "Hoe zou u uw algehele ervaring met @:appName beschrijven?",
+        "answerOne": "Geweldig",
+        "answerTwo": "Goed",
+        "answerThree": "Gemiddeld",
+        "answerFour": "Onder het gemiddelde",
+        "answerFive": "Ontevreden"
+      }
+    },
+    "common": {
+      "uploadingFile": "Het bestand wordt geüpload. Sluit de app niet af.",
+      "uploadNotionSuccess": "Je Notion zip-bestand is succesvol geüpload. Zodra de import is voltooid, ontvang je een bevestigingsmail.",
+      "reset": "Reset"
+    },
+    "menu": {
+      "appearance": "Weergave",
+      "language": "Taal",
+      "user": "Gebruiker",
+      "files": "Bestanden",
+      "notifications": "Meldingen",
+      "open": "Open Instellingen",
+      "logout": "Uitloggen",
+      "logoutPrompt": "Weet u zeker dat u wilt uitloggen?",
+      "selfEncryptionLogoutPrompt": "Weet u zeker dat u wilt uitloggen? Zorg ervoor dat u het encryptiegeheim hebt gekopieerd.",
+      "syncSetting": "Synchronisatie-instelling",
+      "cloudSettings": "Cloudinstellingen",
+      "enableSync": "Synchronisatie inschakelen",
+      "enableSyncLog": "Synchronisatielogboek inschakelen",
+      "enableSyncLogWarning": "Bedankt voor uw hulp bij het diagnosticeren van synchronisatieproblemen. Hiermee worden uw documentbewerkingen in een lokaal bestand vastgelegd. Sluit de app af en open deze opnieuw nadat u deze hebt ingeschakeld.",
+      "enableEncrypt": "Gegevens versleutelen",
+      "cloudURL": "Basis-URL",
+      "webURL": "Web-URL",
+      "invalidCloudURLScheme": "Ongeldig schema",
+      "cloudServerType": "Cloudserver",
+      "cloudServerTypeTip": "Houd er rekening mee dat uw huidige account mogelijk wordt afgemeld nadat u de cloudserver hebt gewisseld",
+      "cloudLocal": "Lokaal",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-Hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "De cloud-url mag niet leeg zijn",
+      "clickToCopy": "Kopiëren naar klembord",
+      "selfHostStart": "Als u geen server heeft, raadpleeg dan de",
+      "selfHostContent": "document",
+      "selfHostEnd": "voor begeleiding bij het zelf hosten van uw eigen server",
+      "pleaseInputValidURL": "Voer een geldige URL in",
+      "changeUrl": "Zelf-gehoste URL wijzigen naar {}",
+      "cloudURLHint": "Voer de basis-URL van uw server in",
+      "webURLHint": "Voer de basis-URL van uw webserver in",
+      "cloudWSURL": "Websocket-URL",
+      "cloudWSURLHint": "Voer het websocketadres van uw server in",
+      "restartApp": "Opnieuw starten",
+      "restartAppTip": "Start de applicatie opnieuw om de wijzigingen door te voeren. Houd er rekening mee dat uw huidige account hierdoor mogelijk wordt afgemeld.",
+      "changeServerTip": "Nadat u de server hebt gewijzigd, moet u op de knop Opnieuw opstarten klikken om de wijzigingen door te voeren",
+      "enableEncryptPrompt": "Activeer encryptie om uw gegevens met dit geheim te beveiligen. Bewaar het veilig; eenmaal ingeschakeld, kunt u het niet meer uitschakelen. Bij verlies zijn uw gegevens onherstelbaar. Klik om te kopiëren",
+      "inputEncryptPrompt": "Voer uw encryptiegeheim in voor",
+      "clickToCopySecret": "Klik om het geheim te kopiëren",
+      "configServerSetting": "Configureer uw serverinstellingen",
+      "configServerGuide": "Nadat u 'Snel starten' hebt geselecteerd, navigeert u naar 'Instellingen' en vervolgens naar 'Cloudinstellingen' om uw zelfgehoste server te configureren.",
+      "inputTextFieldHint": "Jouw geheim",
+      "historicalUserList": "Aanmeldingsgeschiedenis",
+      "historicalUserListTooltip": "Deze lijst toont uw anonieme accounts. U kunt op een account klikken om de details ervan te bekijken. Anonieme accounts worden aangemaakt door op de knop 'Aan de slag' te klikken.",
+      "openHistoricalUser": "Klik om het anonieme account te openen",
+      "customPathPrompt": "Het opslaan van de gegevensmap @:appName in een cloudgesynchroniseerde map zoals Google Drive kan risico's met zich meebrengen. Als de database in deze map vanaf meerdere locaties tegelijk wordt geopend of gewijzigd, kan dit leiden tot synchronisatieconflicten en mogelijke gegevensbeschadiging.",
+      "importAppFlowyData": "Gegevens importeren uit externe @:appName map"
     }
   }
 }
