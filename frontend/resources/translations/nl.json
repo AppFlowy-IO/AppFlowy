@@ -389,6 +389,10 @@
     "dragRow": "Versleep om de rij opnieuw te ordenen",
     "viewDataBase": "Database bekijken",
     "referencePage": "Er wordt verwezen naar deze {naam}",
-    "addBlockBelow": "Voeg hieronder een blok toe"
+    "addBlockBelow": "Voeg hieronder een blok toe",
+    "aiGenerate": "Genereren"
+  },
+  "sideBar": {
+    "closeSidebar": "Sluit zijbalk"
   }
 }
