@@ -291,7 +291,8 @@
       "tableWithImageDescription": "@:chat .changeFormat.table met afbeelding"
     },
     "switchModel": {
-      "label": "Model aanpassen"
+      "label": "Model aanpassen",
+      "localModel": "Lokaal model"
     }
   }
 }
