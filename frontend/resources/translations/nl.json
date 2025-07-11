@@ -209,5 +209,9 @@
       "dropToUpload": "Borg een bestand om te uploaden",
       "change": "Aanpassen"
     }
+  },
+  "disclosureAction": {
+    "rename": "Hernoemen",
+    "delete": "Verwijderen"
   }
 }
