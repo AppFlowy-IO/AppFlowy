@@ -588,7 +588,67 @@
       "error": {
         "failedToGeneratePaymentLink": "Het is niet gelukt om een betalingslink voor het Pro Plan te genereren",
         "failedToUpdateNamespace": "Het is niet gelukt om de naamruimte bij te werken",
-        "proPlanLimitation": "U moet upgraden naar Pro Plan om de naamruimte bij te werken"
+        "proPlanLimitation": "U moet upgraden naar Pro Plan om de naamruimte bij te werken",
+        "namespaceAlreadyInUse": "De naamruimte is al in gebruik, probeer een andere",
+        "invalidNamespace": "Ongeldige naamruimte, probeer een andere",
+        "namespaceLengthAtLeast2Characters": "De naamruimte moet minimaal 2 tekens lang zijn",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Alleen de eigenaar van de werkruimte kan de naamruimte bijwerken",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Alleen de eigenaar van de werkruimte kan de startpagina verwijderen",
+        "setHomepageFailed": "Het is niet gelukt om de startpagina in te stellen",
+        "namespaceTooLong": "De naamruimte is te lang, probeer een andere",
+        "namespaceTooShort": "De naamruimte is te kort, probeer een andere",
+        "namespaceIsReserved": "De naamruimte is gereserveerd, probeer een andere",
+        "updatePathNameFailed": "Het is niet gelukt om de padnaam bij te werken",
+        "removeHomePageFailed": "Het is niet gelukt om de startpagina te verwijderen",
+        "publishNameContainsInvalidCharacters": "De padnaam bevat ongeldige tekens. Probeer een andere.",
+        "publishNameTooShort": "De padnaam is te kort, probeer een andere",
+        "publishNameTooLong": "De padnaam is te lang, probeer een andere",
+        "publishNameAlreadyInUse": "De padnaam is al in gebruik, probeer een andere",
+        "namespaceContainsInvalidCharacters": "De naamruimte bevat ongeldige tekens. Probeer een andere.",
+        "publishPermissionDenied": "Alleen de eigenaar van de werkruimte of de pagina-uitgever kan de publicatie-instellingen beheren",
+        "publishNameCannotBeEmpty": "De padnaam mag niet leeg zijn, probeer een andere"
+      },
+      "success": {
+        "namespaceUpdated": "Naamruimte succesvol bijgewerkt",
+        "setHomepageSuccess": "Homepage succesvol ingesteld",
+        "updatePathNameSuccess": "Padnaam succesvol bijgewerkt",
+        "removeHomePageSuccess": "Homepage succesvol verwijderd"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "Account en app",
+      "title": "Mijn account",
+      "general": {
+        "title": "Accountnaam en profielafbeelding",
+        "changeProfilePicture": "Profielfoto wijzigen"
+      },
+      "email": {
+        "title": "E-mail",
+        "actions": {
+          "change": "E-mail wijzigen"
+        }
+      },
+      "login": {
+        "title": "Account inloggen",
+        "loginLabel": "Inloggen",
+        "logoutLabel": "Uitloggen"
+      },
+      "isUpToDate": "@:appName is up-to-date!",
+      "officialVersion": "Versie {version} (officiële build)"
+    },
+    "workspacePage": {
+      "menuLabel": "Werkruimte",
+      "title": "Werkruimte",
+      "description": "Pas het uiterlijk van uw werkruimte, thema, lettertype, tekstindeling, datum-/tijdnotatie en taal aan.",
+      "workspaceName": {
+        "title": "Werkpleknaam"
+      },
+      "workspaceIcon": {
+        "title": "Werkplekpictogram",
+        "description": "Upload een afbeelding of gebruik een emoji voor je werkruimte. Het pictogram wordt weergegeven in je zijbalk en meldingen."
+      },
+      "appearance": {
+        "title": "Weergave"
       }
     }
   }
