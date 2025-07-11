@@ -241,6 +241,7 @@
     "aiServerUnavailable": "De AI service is tijdelijk niet beschikbaar. Probeer later opnieuw!",
     "retry": "Probeer opnieuw",
     "clickToRetry": "Klik om opnieuw te proberen",
-    "regenerateAnswer": "Opnieuw genereren"
+    "regenerateAnswer": "Opnieuw genereren",
+    "question1": "Hoe Kanban gebruiken om taken te beheren"
   }
 }
