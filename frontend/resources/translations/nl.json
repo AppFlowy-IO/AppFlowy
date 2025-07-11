@@ -383,6 +383,7 @@
   "tooltip": {
     "lightMode": "Overschakelen naar de Lichte Modus",
     "darkMode": "Overschakelen naar Donkere Modus",
-    "openAsPage": "Openen als Pagina"
+    "openAsPage": "Openen als Pagina",
+    "addNewRow": "Een nieuwe rij toevoegen"
   }
 }
