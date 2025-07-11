@@ -1453,7 +1453,119 @@
       "about": "Over",
       "pushNotifications": "Pushmeldingen",
       "support": "Support",
-      "joinDiscord": "Sluit je bij ons aan op Discord"
+      "joinDiscord": "Sluit je bij ons aan op Discord",
+      "privacyPolicy": "Privacybeleid",
+      "userAgreement": "Gebruikersovereenkomst",
+      "termsAndConditions": "Algemene voorwaarden",
+      "userprofileError": "Het laden van het gebruikersprofiel is mislukt",
+      "userprofileErrorDescription": "Probeer uit te loggen en opnieuw in te loggen om te controleren of het probleem zich blijft voordoen.",
+      "selectLayout": "Selecteer lay-out",
+      "selectStartingDay": "Selecteer startdag",
+      "version": "Versie"
+    }
+  },
+  "grid": {
+    "deleteView": "Weet u zeker dat u deze weergave wilt verwijderen?",
+    "createView": "Nieuw",
+    "title": {
+      "placeholder": "Zonder titel"
+    },
+    "settings": {
+      "filter": "Filter",
+      "sort": "Sorteren",
+      "sortBy": "Sorteren op",
+      "properties": "Eigenschappen",
+      "reorderPropertiesTooltip": "Versleep om eigenschappen opnieuw te ordenen",
+      "group": "Groeperen",
+      "addFilter": "Filter toevoegen",
+      "deleteFilter": "Filter verwijderen",
+      "filterBy": "Filteren op",
+      "typeAValue": "Typ een waarde...",
+      "layout": "Indeling",
+      "compactMode": "Compacte modus",
+      "databaseLayout": "Indeling",
+      "viewList": {
+        "zero": "0 weergaven",
+        "one": "{count} weergaven",
+        "other": "{count} weergaven"
+      },
+      "editView": "Bewerken Weergave",
+      "boardSettings": "Bordinstellingen",
+      "calendarSettings": "Kalenderinstellingen",
+      "createView": "Nieuw uitzicht",
+      "duplicateView": "Duppliceer weergave",
+      "deleteView": "Weergave verwijderen",
+      "numberOfVisibleFields": "{} weergaves"
+    },
+    "filter": {
+      "empty": "Geen actieve filters",
+      "addFilter": "Filter toevoegen",
+      "cannotFindCreatableField": "Kan geen geschikt veld vinden om op te filteren",
+      "conditon": "Voorwaarde",
+      "where": "Waar"
+    },
+    "textFilter": {
+      "contains": "Bevat",
+      "doesNotContain": "Bevat niet",
+      "endsWith": "Eindigt met",
+      "startWith": "Begint met",
+      "is": "Is",
+      "isNot": "Is niet",
+      "isEmpty": "Is leeg",
+      "isNotEmpty": "Is niet leeg",
+      "choicechipPrefix": {
+        "isNot": "Niet",
+        "startWith": "Begint met",
+        "endWith": "Eindigt met",
+        "isEmpty": "is leeg",
+        "isNotEmpty": "is niet leeg"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Geselecteerd",
+      "isUnchecked": "Gedeselecteerd",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "Is compleet",
+      "isIncomplted": "Is onvolledig"
+    },
+    "selectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is niet",
+      "contains": "Bevat",
+      "doesNotContain": "Bevat niet",
+      "isEmpty": "Is leeg",
+      "isNotEmpty": "Is niet leeg"
+    },
+    "dateFilter": {
+      "is": "Is op",
+      "before": "Is voor",
+      "after": "Is na",
+      "onOrBefore": "Is op of voor",
+      "onOrAfter": "Is op of na",
+      "between": "Is tussen",
+      "empty": "Is leeg",
+      "notEmpty": "Is niet leeg",
+      "startDate": "Startdatum",
+      "endDate": "Einddatum",
+      "choicechipPrefix": {
+        "before": "Voor",
+        "after": "Na",
+        "between": "Tussen",
+        "onOrBefore": "Op of voor",
+        "onOrAfter": "Op of na",
+        "isEmpty": "Is leeg",
+        "isNotEmpty": "Is niet leeg"
+      }
+    },
+    "numberFilter": {
+      "equal": "is gelijk aan",
+      "notEqual": "Is niet gelijk aan",
+      "lessThan": "Is minder dan",
+      "greaterThan": "Is meer dan"
     }
   }
 }
