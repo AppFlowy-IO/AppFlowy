@@ -1483,7 +1483,8 @@
       "addNewCommand": "Een nieuw commando toevoegen",
       "updateShortcutStep": "Appuyez sur la combinaison de touches souhaitée et appuyez sur ENTER",
       "shortcutIsAlreadyUsed": "Deze snelkoppeling wordt al gebruikt voor: {conflict}",
-      "resetToDefault": "Sneltoetsen terugzetten naar standaard"
+      "resetToDefault": "Sneltoetsen terugzetten naar standaard",
+      "couldNotLoadErrorMsg": "Snelkoppelingen kunnen niet worden geladen, probeer het opnieuw"
     }
   },
   "grid": {
