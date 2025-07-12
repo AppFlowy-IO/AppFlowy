@@ -112,7 +112,8 @@
     "LogInWithGoogle": "Login met Google",
     "LogInWithGithub": "Login met Github",
     "LogInWithDiscord": "Login met Discord",
-    "loginAsGuestButtonText": "Starten"
+    "loginAsGuestButtonText": "Starten",
+    "logInWithMagicLink": "Maak verbinding met Magic Link"
   },
   "workspace": {
     "chooseWorkspace": "Kies je werkplek",
@@ -397,7 +398,10 @@
     "viewDataBase": "Database bekijken",
     "referencePage": "Er wordt verwezen naar deze {naam}",
     "addBlockBelow": "Voeg hieronder een blok toe",
-    "aiGenerate": "Genereren"
+    "aiGenerate": "Genereren",
+    "urlLaunchAccessory": "In browser openen",
+    "urlCopyAccessory": "Kopieer webadres.",
+    "genSummary": "Samenvatting genereren"
   },
   "sideBar": {
     "closeSidebar": "Sluit zijbalk",
@@ -450,7 +454,10 @@
     "purchaseAIResponse": "Koop",
     "askOwnerToUpgradeToLocalAI": "Vraag de eigenaar van de werkplek om AI op het apparaat in te schakelen",
     "upgradeToAILocal": "Voer lokale modellen uit op uw apparaat voor ultieme privacy",
-    "upgradeToAILocalDesc": "Chat met PDF's, verbeter uw schrijfvaardigheid en vul tabellen automatisch in met behulp van lokale AI"
+    "upgradeToAILocalDesc": "Chat met PDF's, verbeter uw schrijfvaardigheid en vul tabellen automatisch in met behulp van lokale AI",
+    "public": "Publiek",
+    "clickToHidePublic": "Klik om het openbare gedeelte te verbergen.\nDe pagina's die u hier aanmaakt, zijn zichtbaar voor alle leden.",
+    "addAPageToPublic": "Voeg een pagina toe aan de openbare ruimte."
   },
   "notifications": {
     "export": {
@@ -643,14 +650,16 @@
         "logoutLabel": "Uitloggen"
       },
       "isUpToDate": "@:appName is up-to-date!",
-      "officialVersion": "Versie {version} (officiële build)"
+      "officialVersion": "Versie {version} (officiële build)",
+      "description": "Pas uw profiel aan, beheer uw beveiligingsinstellingen en AI API-sleutels of log in op uw account."
     },
     "workspacePage": {
       "menuLabel": "Werkruimte",
       "title": "Werkruimte",
       "description": "Pas het uiterlijk van uw werkruimte, thema, lettertype, tekstindeling, datum-/tijdnotatie en taal aan.",
       "workspaceName": {
-        "title": "Werkpleknaam"
+        "title": "Werkpleknaam",
+        "editTooltip": "Naam van werkplek opgeslagen"
       },
       "workspaceIcon": {
         "title": "Werkplekpictogram",
@@ -940,7 +949,8 @@
         "instructions": "instructies",
         "installOllamaLai": "om Ollama en AppFlowy Local AI in te stellen.",
         "modelsMissing": "De gewenste modellen kunnen niet worden gevonden: ",
-        "downloadModel": "om ze te downloaden."
+        "downloadModel": "om ze te downloaden.",
+        "title": "AI API-sleutel"
       }
     },
     "planPage": {
@@ -980,7 +990,23 @@
           "proInfo": "Ideaal voor kleine en middelgrote teams tot 10 leden.",
           "teamInfo": "Ideaal voor alle productieve en goed georganiseerde teams.",
           "upgrade": "Plan wijzigen",
-          "canceledInfo": "Uw abonnement is geannuleerd en op {} wordt u teruggezet naar het gratis abonnement."
+          "canceledInfo": "Uw abonnement is geannuleerd en op {} wordt u teruggezet naar het gratis abonnement.",
+          "freeProOne": "Gedeelde werkruimte",
+          "freeProTwo": "Maximaal 2 leden (inclusief eigenaar)",
+          "freeProThree": "Onbeperkt aantal gasten (alleen bekijken)",
+          "freeProFour": "Geheugen 5 GB",
+          "freeProFive": "Wijzigingsgeschiedenis van 30 dagen",
+          "freeConOne": "Gastmedewerker (bewerkingsrechten)",
+          "freeConTwo": "Onbeperkte opslagruimte",
+          "freeConThree": "Wijzigingsgeschiedenis van 6 maanden",
+          "professionalProOne": "Gedeelde werkruimte",
+          "professionalProTwo": "Onbeperkt aantal leden",
+          "professionalProThree": "Onbeperkt aantal gasten (alleen bekijken)",
+          "professionalProFour": "Onbeperkte opslagruimte",
+          "professionalProFive": "Wijzigingsgeschiedenis van 6 maanden",
+          "professionalConOne": "Onbeperkt aantal gastmedewerkers (bewerkingsrechten)",
+          "professionalConTwo": "Onbeperkte AI-antwoorden",
+          "professionalConThree": "Wijzigingsgeschiedenis van 1 jaar"
         },
         "addons": {
           "title": "Uitbreidingen",
@@ -990,14 +1016,16 @@
             "title": "AI Max",
             "description": "Onbeperkte AI-reacties, mogelijk gemaakt door geavanceerde AI-modellen, en 50 AI-afbeeldingen per maand",
             "price": "{}",
-            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd"
+            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd",
+            "billingInfo": "jaarlijkse facturering of {} voor maandelijkse facturering"
           },
           "aiOnDevice": {
             "title": "AI op het apparaat voor Mac",
             "description": "Draai Mistral 7B, LLAMA 3 en meer lokale modellen op uw machine",
             "price": "{}",
             "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd",
-            "recommend": "Aanbevolen M1 of nieuwer"
+            "recommend": "Aanbevolen M1 of nieuwer",
+            "billingInfo": "jaarlijkse facturering of {} voor maandelijkse facturering"
           }
         },
         "deal": {
@@ -1005,7 +1033,9 @@
           "title": "Laat je team groeien!",
           "info": "Upgrade en bespaar 10% op Pro- en Team-abonnementen! Verhoog je productiviteit op de werkvloer met krachtige nieuwe functies, waaronder @:appName AI.",
           "viewPlans": "Bekijk plannen"
-        }
+        },
+        "guestCollabToggle": "10 gastmedewerkers",
+        "storageUnlimited": "Onbeperkte opslag met uw Pro-abonnement"
       }
     },
     "billingPage": {
@@ -1061,7 +1091,8 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgraden",
-        "current": "Huidig"
+        "current": "Huidig",
+        "downgradeDisabledTooltip": "Aan het einde van de factureringsperiode wordt uw niveau automatisch verlaagd"
       },
       "freePlan": {
         "title": "Gratis",
@@ -1089,7 +1120,11 @@
         "tooltipSix": "Levensduur betekent dat het aantal reacties nooit wordt gereset",
         "intelligentSearch": "Intelligent zoeken",
         "tooltipSeven": "Hiermee kunt u een deel van de URL voor uw werkruimte aanpassen",
-        "customNamespaceTooltip": "Aangepaste gepubliceerde site-URL"
+        "customNamespaceTooltip": "Aangepaste gepubliceerde site-URL",
+        "tooltipThree": "Gasten hebben alleen leesrechten voor de speciaal gedeelde inhoud",
+        "tooltipFour": "Gasten worden gefactureerd als één stoel",
+        "itemEight": "AI-antwoorden",
+        "tooltipEight": "Levenslang betekent dat het aantal reacties nooit opnieuw wordt ingesteld."
       },
       "freeLabels": {
         "itemOne": "Per werkruimte in rekening gebracht",
@@ -1100,7 +1135,8 @@
         "itemSix": "10 levenslange",
         "itemSeven": "2 levenslang",
         "itemFileUpload": "Tot 7 MB",
-        "intelligentSearch": "Intelligent zoeken"
+        "intelligentSearch": "Intelligent zoeken",
+        "itemEight": "1.000 levenslang"
       },
       "proLabels": {
         "itemOne": "Per werkruimte in rekening gebracht",
@@ -1111,7 +1147,8 @@
         "itemSix": "Onbeperkt",
         "itemSeven": "50 afbeeldingen per maand",
         "itemFileUpload": "Onbeperkt",
-        "intelligentSearch": "Intelligent zoeken"
+        "intelligentSearch": "Intelligent zoeken",
+        "itemEight": "10.000 maandelijks"
       },
       "paymentSuccess": {
         "title": "U bevindt zich nu op het {} plan!",
@@ -1484,7 +1521,20 @@
       "updateShortcutStep": "Appuyez sur la combinaison de touches souhaitée et appuyez sur ENTER",
       "shortcutIsAlreadyUsed": "Deze snelkoppeling wordt al gebruikt voor: {conflict}",
       "resetToDefault": "Sneltoetsen terugzetten naar standaard",
-      "couldNotLoadErrorMsg": "Snelkoppelingen kunnen niet worden geladen, probeer het opnieuw"
+      "couldNotLoadErrorMsg": "Snelkoppelingen kunnen niet worden geladen, probeer het opnieuw",
+      "couldNotSaveErrorMsg": "Snelkoppelingen kunnen niet worden opgeslagen. Probeer het opnieuw.",
+      "commands": {
+        "codeBlockNewParagraph": "Voeg een nieuwe alinea in naast het codeblok",
+        "codeBlockIndentLines": "Voeg twee spaties in aan het begin van de regel in het codeblok",
+        "codeBlockOutdentLines": "Verwijder twee spaties aan het begin van de regel in het codeblok",
+        "codeBlockAddTwoSpaces": "Voeg twee spaties in aan het begin van de regel in het codeblok",
+        "codeBlockSelectAll": "Selecteer alle inhoud binnen een codeblok",
+        "codeBlockPasteText": "Plak de tekst in het codeblok",
+        "textAlignLeft": "Tekst links uitlijnen",
+        "textAlignCenter": "Tekst centreren",
+        "textAlignRight": "Tekst rechts uitlijnen",
+        "codeBlockDeleteTwoSpaces": "Verwijder twee spaties aan het begin van de regel in het codeblok"
+      }
     }
   },
   "grid": {
@@ -1507,18 +1557,15 @@
       "layout": "Indeling",
       "compactMode": "Compacte modus",
       "databaseLayout": "Indeling",
-      "viewList": {
-        "zero": "0 weergaven",
-        "one": "{count} weergaven",
-        "other": "{count} weergaven"
-      },
+      "viewList": "Databaseweergave",
       "editView": "Bewerken Weergave",
       "boardSettings": "Bordinstellingen",
       "calendarSettings": "Kalenderinstellingen",
       "createView": "Nieuw uitzicht",
       "duplicateView": "Duppliceer weergave",
       "deleteView": "Weergave verwijderen",
-      "numberOfVisibleFields": "{} weergaves"
+      "numberOfVisibleFields": "{} weergaves",
+      "Properties": "Eigenschappen"
     },
     "filter": {
       "empty": "Geen actieve filters",
@@ -1684,7 +1731,8 @@
       "addSort": "Sortering toevoegen",
       "sortsActive": "Kan niet {intentie} tijdens het sorteren",
       "removeSorting": "Wilt u alle sorteringen in deze weergave verwijderen en doorgaan?",
-      "fieldInUse": "U sorteert al op dit veld"
+      "fieldInUse": "U sorteert al op dit veld",
+      "deleteSort": "Sortering verwijderen"
     },
     "row": {
       "label": "Rij",
@@ -1853,7 +1901,8 @@
         "file": "Bestand",
         "twoColumns": "2 kolommen",
         "threeColumns": "3 kolommen",
-        "fourColumns": "4 kolommen"
+        "fourColumns": "4 kolommen",
+        "checkbox": "Selectievakje"
       },
       "subPage": {
         "name": "Document",
@@ -2189,7 +2238,8 @@
           "scalePercentage": "{}%",
           "deleteImageTooltip": "Afbeelding verwijderen"
         }
-      }
+      },
+      "pleaseInputYourStabilityAIKey": "Voer uw Stability AI-sleutel in op de pagina Instellingen"
     },
     "codeBlock": {
       "language": {
@@ -2282,7 +2332,8 @@
       "hideColumn": "Verbergen",
       "newGroup": "Nieuwe groep",
       "deleteColumn": "Verwijderen",
-      "deleteColumnConfirmation": "Hiermee worden deze groep en alle kaarten erin verwijderd. Weet u zeker dat u wilt doorgaan?"
+      "deleteColumnConfirmation": "Hiermee worden deze groep en alle kaarten erin verwijderd. Weet u zeker dat u wilt doorgaan?",
+      "groupActions": "Groepacties"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Verborgen groepen",
@@ -2355,11 +2406,7 @@
       "layoutDateField": "Kalenderindeling door",
       "changeLayoutDateField": "Wijzig lay-outveld",
       "noDateTitle": "Geen datum",
-      "noDateHint": {
-        "zero": "Ongeplande gebeurtenissen worden hier weergegeven",
-        "one": "{count} ongeplande gebeurtenis",
-        "other": "{count} ongeplande gebeurtenissen"
-      },
+      "noDateHint": "Ongeplande evenementen verschijnen hier",
       "unscheduledEventsTitle": "Ongeplande evenementen",
       "clickToAdd": "Klik om toe te voegen aan de kalender",
       "name": "Kalenderinstellingen",
@@ -2534,7 +2581,11 @@
       "groupByDate": "Groeperen op datum",
       "showUnreadsOnly": "Alleen ongelezen berichten weergeven",
       "resetToDefault": "Resetten naar standaardinstellingen"
-    }
+    },
+    "archievedTooltip": "Deze notificatie archiveren",
+    "unarchievedTooltip": "Deze notificatie is niet gearchiveerd",
+    "markAsArchievedSucceedToast": "Archivering is gelukt",
+    "markAllAsArchievedSucceedToast": "Alles succesvol gearchiveerd"
   },
   "reminderNotification": {
     "title": "Herinnering",
@@ -3407,7 +3458,8 @@
       "work": "Werk",
       "podcastProduction": "Podcastproductie",
       "copyWriting": "Copywriting",
-      "customerSuccess": "Klantensucces"
+      "customerSuccess": "Klantensucces",
+      "learning": "Leren"
     }
   },
   "autoUpdate": {
