@@ -1557,7 +1557,6 @@
       "layout": "Indeling",
       "compactMode": "Compacte modus",
       "databaseLayout": "Indeling",
-      "viewList": "Databaseweergave",
       "editView": "Bewerken Weergave",
       "boardSettings": "Bordinstellingen",
       "calendarSettings": "Kalenderinstellingen",
@@ -1565,7 +1564,8 @@
       "duplicateView": "Duppliceer weergave",
       "deleteView": "Weergave verwijderen",
       "numberOfVisibleFields": "{} weergaves",
-      "Properties": "Eigenschappen"
+      "Properties": "Eigenschappen",
+      "viewList": "Databaseweergave"
     },
     "filter": {
       "empty": "Geen actieve filters",
@@ -2406,11 +2406,11 @@
       "layoutDateField": "Kalenderindeling door",
       "changeLayoutDateField": "Wijzig lay-outveld",
       "noDateTitle": "Geen datum",
-      "noDateHint": "Ongeplande evenementen verschijnen hier",
       "unscheduledEventsTitle": "Ongeplande evenementen",
       "clickToAdd": "Klik om toe te voegen aan de kalender",
       "name": "Kalenderinstellingen",
-      "clickToOpen": "Klik om het record te openen"
+      "clickToOpen": "Klik om het record te openen",
+      "noDateHint": "Ongeplande evenementen verschijnen hier"
     },
     "referencedCalendarPrefix": "Zicht van",
     "quickJumpYear": "Spring naar",
