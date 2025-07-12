@@ -1,3 +1,8 @@
 {
-  "subscribeNewsletterText": "Abonneren op de Nieuwsbrief"
+  "subscribeNewsletterText": "Abonneren op de Nieuwsbrief",
+  "letsGoButtonText": "Laten we starten",
+  "title": "Titel",
+  "youCanAlso": "Je kan ook",
+  "and": "en",
+  "failedToOpenUrl": "URL kon niet worden geopend: {}"
 }
