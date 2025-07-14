@@ -43,11 +43,11 @@ Future<bool> afLaunchUri(
   }
 
   // on Linux or Android, add http scheme to the url if it is not present
-  final isNotCustomUrlOnWidows =
+  final isNotCustomUrlOnWindows =
       UniversalPlatform.isWindows && !isCustomUrL(url);
   if ((UniversalPlatform.isLinux ||
           UniversalPlatform.isAndroid ||
-          isNotCustomUrlOnWidows) &&
+          isNotCustomUrlOnWindows) &&
       !isURL(url, {'require_protocol': true})) {
     uri = Uri.parse('https://$url');
   }
