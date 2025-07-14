@@ -38,7 +38,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
   }
 
   final zip = zipEncoder.encode(archive);
-  if (zip == null) {
+  if (zip.isNotEmpty) {
     if (context != null && context.mounted) {
       showToastNotification(
         message: LocaleKeys.noLogFiles.tr(),
