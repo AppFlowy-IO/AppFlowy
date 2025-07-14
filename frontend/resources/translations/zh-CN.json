@@ -149,7 +149,7 @@
     "moreOptions": "更多选项",
     "wordCount": "字数:{}",
     "charCount": "字符数:{}",
-    "createdAt": "创建于 :{}",
+    "createdAt": "创建于:{}",
     "deleteView": "删除",
     "duplicateView": "复制",
     "wordCountLabel": "词总数:",
