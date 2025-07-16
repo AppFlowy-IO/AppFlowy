@@ -22,6 +22,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -787,18 +788,9 @@ class DocumentCoverState extends State<DocumentCover> {
             ),
             margin: EdgeInsets.zero,
             onClose: () => isPopoverOpen = false,
-            child: IntrinsicWidth(
-              child: RoundedTextButton(
-                height: 28.0,
-                onPressed: () => popoverController.show(),
-                hoverColor: Theme.of(context).colorScheme.surface,
-                textColor: Theme.of(context).colorScheme.tertiary,
-                fillColor: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.5),
-                title: LocaleKeys.document_plugins_cover_changeCover.tr(),
-              ),
+            child: AFOverlayTextButton.primary(
+              onTap: () => popoverController.show(),
+              text: LocaleKeys.document_plugins_cover_changeCover.tr(),
             ),
             popupBuilder: (BuildContext popoverContext) {
               isPopoverOpen = true;
@@ -946,22 +938,12 @@ class DeleteCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fillColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
-    final svgColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.tertiary
-        : Theme.of(context).colorScheme.onPrimary;
-    return FlowyIconButton(
-      hoverColor: Theme.of(context).colorScheme.surface,
-      fillColor: fillColor,
-      iconPadding: const EdgeInsets.all(5),
-      width: 28,
-      icon: FlowySvg(
+    return AFOverlayIconButton.primary(
+      iconBuilder: (context, isHovering, __) => FlowySvg(
         FlowySvgs.delete_s,
-        color: svgColor,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
-      onPressed: onTap,
+      onTap: onTap,
     );
   }
 }
@@ -1052,22 +1034,12 @@ class AlignCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fillColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
-    final svgColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.tertiary
-        : Theme.of(context).colorScheme.onPrimary;
-    return FlowyIconButton(
-      hoverColor: Theme.of(context).colorScheme.surface,
-      fillColor: fillColor,
-      iconPadding: const EdgeInsets.all(5),
-      width: 28,
-      icon: FlowySvg(
+    return AFOverlayIconButton.primary(
+      iconBuilder: (context, isHovering, __) => FlowySvg(
         FlowySvgs.table_align_center_s,
-        color: svgColor,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
-      onPressed: onTap,
+      onTap: onTap,
     );
   }
 }
@@ -1083,16 +1055,9 @@ class AlignCoverSaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
-
-    return FlowyButton(
+    return AFOverlayTextButton.primary(
       onTap: onTap,
-      useIntrinsicWidth: true,
-      hoverColor: Theme.of(context).colorScheme.surface,
-      backgroundColor: backgroundColor,
-      text: FlowyText(LocaleKeys.button_save.tr()),
+      text: LocaleKeys.button_save.tr(),
     );
   }
 }
@@ -1108,16 +1073,9 @@ class AlignCoverCancelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
-
-    return FlowyButton(
+    return AFOverlayTextButton.primary(
       onTap: onTap,
-      useIntrinsicWidth: true,
-      hoverColor: Theme.of(context).colorScheme.surface,
-      backgroundColor: backgroundColor,
-      text: FlowyText(LocaleKeys.button_cancel.tr()),
+      text: LocaleKeys.button_cancel.tr(),
     );
   }
 }
