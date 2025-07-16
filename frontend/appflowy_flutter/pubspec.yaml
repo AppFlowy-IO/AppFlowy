@@ -109,7 +109,6 @@ dependencies:
   mime: ^2.0.0
   nanoid: ^1.0.0
   numerus: ^2.1.2
-
   # Used to open local files on Mobile
   open_filex: ^4.5.0
   package_info_plus: ^8.0.2
@@ -246,14 +245,13 @@ dependency_overrides:
       url: https://github.com/LucasXu0/unsplash_client.git
       ref: a8411fc
 
-  # auto_updater:
-  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater
-
-  # auto_updater_macos:
-  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos
-
-  # auto_updater_platform_interface:
-  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
+  # https://github.com/LucasXu0/flutter-permission-handler/commit/faef1c97970de29995642bfae61b884591798684
+  # Prevent the location from being accessed continuously on Windows
+  permission_handler:
+    git:
+      url: https://github.com/LucasXu0/flutter-permission-handler.git
+      path: permission_handler
+      ref: faef1c9
 
 flutter:
   generate: true

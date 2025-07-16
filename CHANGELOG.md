@@ -1,4 +1,16 @@
 # Release Notes
+## Version 0.9.4 – 02/07/2025
+### Desktop
+#### New Features
+- Private page sharing: Add members to private pages with Can View or Can Edit permissions
+- Guest editor collaboration: Invite non-members (guest editors) to collaborate in real-time on your pages
+- Shared with me: Browse all pages shared with you under the new Shared with me section
+- New syncing protocol: Optimized for faster, more reliable multi-user and multi-device data sync
+### Mobile
+#### New Features
+- Shared page collaboration: View and edit pages that have been shared with you on iOS and Android
+- New syncing protocol: Optimized for faster, more reliable multi-user and multi-device data sync
+
 ## Version 0.9.3 - 28/05/2025
 ### Desktop
 #### New Features
@@ -23,8 +35,8 @@
 ## Version 0.9.2 - 14/05/2025
 ### Desktop
 #### New Features
-- Supported AI Overview in Search to answer user queries based on their entire workspace 
-- Revamped the Search panel in the desktop app 
+- Supported AI Overview in Search to answer user queries based on their entire workspace
+- Revamped the Search panel in the desktop app
 - Enabled loading custom prompts from an AppFlowy database page
 #### Bug Fixes
 - Improved inserting emojis using the colon (:)
@@ -235,7 +247,7 @@
 - Fixed an error when opening files in the database in local mode
 - Fixed arrow up/down navigation not working for selecting a language in Code Block
 - Fixed an issue where deleting multiple blocks using the drag button on the document page didn’t work
-  
+
 ## Version 0.7.7 - 09/12/2024
 ### Bug Fixes
 - Fixed sidebar menu resize regression
