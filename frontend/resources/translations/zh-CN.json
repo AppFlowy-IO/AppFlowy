@@ -526,6 +526,8 @@
       "settings": "设置",
       "members": "成员",
       "trash": "回收站",
+      "helpAndDocumentation": "帮助 & 说明文档",
+      "getSupport": "获取支持",
       "helpAndSupport": "帮助与支持"
     },
     "sites": {
@@ -539,6 +541,7 @@
       "selectHomePage": "选择一个页面",
       "customUrl": "自定义 URL",
       "namespace": {
+        "tooltip": "我们保留移除任何不合适的内容",
         "updateExistingNamespace": "更新现有的名称空间",
         "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
         "redirectToPayment": "正在重定向至付款页面......",
@@ -548,6 +551,7 @@
       "publishedPage": {
         "title": "所有已发布页面",
         "description": "管理您已发布的页面",
+        "page": "页面",
         "date": "已发布的数据",
         "emptyHinText": "在当前工作空间没有已发布的页面",
         "noPublishedPages": "没有已发布的页面",
@@ -556,6 +560,7 @@
         "clickToOpenPageInBrowser": "在浏览器中打开页面"
       },
       "error": {
+        "failedToGeneratePaymentLink": "Pro计划支付链接生成失败",
         "failedToUpdateNamespace": "更新名称空间失败",
         "proPlanLimitation": "您需要升级至 Pro 方案以更新名称空间",
         "namespaceAlreadyInUse": "该名称空间已被占用你，请尝试其他名称空间",
@@ -602,6 +607,7 @@
         "loginLabel": "登录",
         "logoutLabel": "退出登录"
       },
+      "officialVersion": "版本 {version} (Official build)",
       "description": "自定义您的简介，管理账户安全信息和 AI API keys，或登陆您的账户"
     },
     "workspacePage": {
@@ -744,17 +750,22 @@
     "shortcutsPage": {
       "menuLabel": "快捷键",
       "title": "快捷键",
+      "editBindingHint": "绑定新的快捷键",
+      "searchHint": "搜索",
       "actions": {
         "resetDefault": "重置为默认"
       },
       "errorPage": {
+        "message": "加载快捷键失败： {}",
         "howToFix": "请再次尝试，如果该问题依然存在，请在 Github 上联系我们"
       },
       "resetDialog": {
         "title": "重置快捷键",
-        "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
+        "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？",
+        "buttonLabel": "重置"
       },
       "conflictDialog": {
+        "title": "{} 已被绑定",
         "confirmLabel": "继续"
       },
       "keybindings": {
