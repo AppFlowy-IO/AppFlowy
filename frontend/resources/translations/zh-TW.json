@@ -554,6 +554,47 @@
       "helpAndDocumentation": "說明與文件",
       "getSupport": "取得支援"
     },
+    "sites": {
+      "title": "網站",
+      "namespaceTitle": "命名空間",
+      "namespaceDescription": "管理您的命名空間和首頁",
+      "namespaceHeader": "命名空間",
+      "homepageHeader": "首頁",
+      "updateNamespace": "更新命名空間",
+      "removeHomepage": "移除首頁",
+      "selectHomePage": "選擇一個頁面",
+      "clearHomePage": "清除此命名空間的首頁",
+      "customUrl": "自訂網址",
+      "homePage": {
+        "upgradeToPro": "要設定首頁，請升級到專業版"
+      },
+      "namespace": {
+        "description": "此變更將適用於此命名空間中所有已發佈的頁面",
+        "tooltip": "我們保留刪除任何不當命名空間的權利",
+        "updateExistingNamespace": "更新現有命名空間",
+        "upgradeToPro": "要擁有自訂命名空間，請升級到專業版",
+        "redirectToPayment": "正在重新導向至付款頁面…",
+        "onlyWorkspaceOwnerCanSetHomePage": "只有工作區擁有者才能設定首頁",
+        "pleaseAskOwnerToSetHomePage": "請要求工作區擁有者升級到專業版"
+      },
+      "publishedPage": {
+        "title": "所有已發佈的頁面",
+        "description": "管理您的已發佈頁面",
+        "page": "頁面",
+        "pathName": "路徑名稱",
+        "date": "發布日期",
+        "emptyHinText": "這個工作區沒有已發佈的頁面",
+        "noPublishedPages": "沒有已發布的頁面",
+        "settings": "發布設定",
+        "clickToOpenPageInApp": "在應用程式中開啟頁面",
+        "clickToOpenPageInBrowser": "在瀏覽器中開啟頁面"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "專業版付款連結產生失敗",
+        "failedToUpdateNamespace": "更新命名空間失敗",
+        "proPlanLimitation": "您需要升級到專業版才能更新命名空間"
+      }
+    },
     "accountPage": {
       "menuLabel": "我的帳號",
       "title": "我的帳號",
@@ -573,6 +614,53 @@
         "logoutLabel": "登出"
       },
       "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號"
+    },
+    "workspacePage": {
+      "appearance": {
+        "options": {
+          "system": "自動",
+          "light": "淺色",
+          "dark": "深色"
+        }
+      },
+      "theme": {
+        "title": "主題"
+      },
+      "workspaceFont": {
+        "title": "工作區字型"
+      },
+      "textDirection": {
+        "title": "文字方向",
+        "leftToRight": "從左到右",
+        "rightToLeft": "從右到左",
+        "auto": "自動"
+      },
+      "layoutDirection": {
+        "title": "版面配置方向",
+        "leftToRight": "從左到右",
+        "rightToLeft": "從右到左"
+      },
+      "dateTime": {
+        "title": "日期與時間",
+        "example": "{} 在 {} ({})",
+        "24HourTime": "24 小時制",
+        "dateFormat": {
+          "label": "日期格式",
+          "local": "本地",
+          "us": "美國",
+          "friendly": "友善",
+          "dmy": "日/月/年"
+        }
+      },
+      "language": {
+        "title": "語言"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "刪除工作區"
+      },
+      "leaveWorkspacePrompt": {
+        "title": "離開工作區"
+      }
     },
     "menu": {
       "appearance": "外觀",
