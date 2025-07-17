@@ -689,8 +689,66 @@
           "change": "變更路徑",
           "open": "開啟資料夾",
           "copy": "複製路徑",
-          "copiedHint": "已複製路徑!"
+          "copiedHint": "已複製路徑!",
+          "resetTooltip": "重設至預設位置"
+        },
+        "resetDialog": {
+          "title": "確定嗎？"
         }
+      },
+      "importData": {
+        "title": "匯入資料",
+        "action": "瀏覽檔案"
+      },
+      "encryption": {
+        "title": "加密",
+        "descriptionEncrypted": "您的資料已加密。",
+        "action": "加密資料",
+        "dialog": {
+          "title": "是否為所有資料加密？"
+        }
+      },
+      "cache": {
+        "title": "清除快取",
+        "dialog": {
+          "title": "清除快取",
+          "successHint": "已清除快取!"
+        }
+      },
+      "data": {
+        "fixYourData": "修復您的資料",
+        "fixButton": "修復"
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "快捷鍵",
+      "title": "快捷鍵",
+      "editBindingHint": "輸入新的綁定",
+      "searchHint": "搜尋",
+      "actions": {
+        "resetDefault": "重設預設值"
+      },
+      "resetDialog": {
+        "title": "重設快捷鍵",
+        "buttonLabel": "重設"
+      },
+      "conflictDialog": {
+        "confirmLabel": "繼續"
+      },
+      "keybindings": {
+        "toggleToDoList": "切換至待辦事項清單",
+        "selectAllCodeblock": "全選",
+        "copy": "複製選取項目",
+        "alignLeft": "將文字左對齊",
+        "alignCenter": "將文字置中對齊",
+        "alignRight": "將文字右對齊",
+        "undo": "復原",
+        "redo": "重做",
+        "backspace": "刪除",
+        "deleteLeftWord": "刪除左邊的單字",
+        "deleteLeftSentence": "刪除左邊的句子",
+        "delete": "刪除右邊的字元",
+        "deleteMacOS": "刪除左邊的字元"
       }
     },
     "menu": {
