@@ -613,10 +613,21 @@
         "loginLabel": "登入",
         "logoutLabel": "登出"
       },
+      "isUpToDate": "@:appName 已更新!",
+      "officialVersion": "版本 {version} (Official build)",
       "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號"
     },
     "workspacePage": {
+      "menuLabel": "工作區",
+      "title": "工作區",
+      "workspaceName": {
+        "title": "工作區名稱"
+      },
+      "workspaceIcon": {
+        "title": "工作區圖示"
+      },
       "appearance": {
+        "title": "外觀",
         "options": {
           "system": "自動",
           "light": "淺色",
@@ -624,7 +635,8 @@
         }
       },
       "theme": {
-        "title": "主題"
+        "title": "主題",
+        "uploadCustomThemeTooltip": "上傳自訂主題"
       },
       "workspaceFont": {
         "title": "工作區字型"
@@ -648,6 +660,7 @@
           "label": "日期格式",
           "local": "本地",
           "us": "美國",
+          "iso": "ISO",
           "friendly": "友善",
           "dmy": "日/月/年"
         }
@@ -660,6 +673,24 @@
       },
       "leaveWorkspacePrompt": {
         "title": "離開工作區"
+      },
+      "manageWorkspace": {
+        "title": "管理工作區",
+        "leaveWorkspace": "離開工作區",
+        "deleteWorkspace": "刪除工作區"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "管理資料",
+      "title": "管理資料",
+      "dataStorage": {
+        "title": "檔案儲存位置",
+        "actions": {
+          "change": "變更路徑",
+          "open": "開啟資料夾",
+          "copy": "複製路徑",
+          "copiedHint": "已複製路徑!"
+        }
       }
     },
     "menu": {
