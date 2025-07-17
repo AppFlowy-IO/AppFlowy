@@ -824,6 +824,26 @@
         "downloadModel": "以下載它們。"
       }
     },
+    "planPage": {
+      "planUsage": {
+        "aiCredit": {
+          "price": "{}"
+        },
+        "addons": {
+          "aiMax": {
+            "price": "{}"
+          },
+          "aiOnDevice": {
+            "price": "{}"
+          }
+        }
+      }
+    },
+    "comparePlanDialog": {
+      "freeLabels": {
+        "itemThree": "5 GB"
+      }
+    },
     "menu": {
       "appearance": "外觀",
       "language": "語言",
@@ -1259,6 +1279,14 @@
       "median": "中間值",
       "min": "最小值",
       "sum": "總和"
+    },
+    "media": {
+      "download": "下載",
+      "delete": "刪除",
+      "moreFilesHint": "+{}",
+      "attachmentsHint": "{}",
+      "extraCount": "+{}",
+      "showFileNames": "顯示檔案名稱"
     }
   },
   "document": {
@@ -1282,6 +1310,13 @@
       },
       "document": {
         "selectADocumentToLinkTo": "選擇要連結的文件"
+      },
+      "name": {
+        "document": "文件",
+        "text": "文字",
+        "doc": "文件",
+        "grid": "網格",
+        "file": "檔案"
       }
     },
     "selectionMenu": {
@@ -1321,6 +1356,16 @@
       "bulletedList": "項目符號列表",
       "todoList": "待辦事項列表",
       "callout": "引述",
+      "simpleTable": {
+        "moreActions": {
+          "color": "顏色",
+          "delete": "刪除",
+          "textColor": "文字顏色"
+        },
+        "headerName": {
+          "table": "表格"
+        }
+      },
       "cover": {
         "changeCover": "更換封面",
         "colors": "顏色",
@@ -1402,7 +1447,16 @@
         "newDatabase": "新建資料庫",
         "linkToDatabase": "連結至資料庫"
       },
-      "date": "日期"
+      "date": "日期",
+      "file": {
+        "name": "檔案",
+        "uploadTab": "上傳"
+      },
+      "linkPreview": {
+        "typeSelection": {
+          "URL": "網址"
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "目錄"
@@ -1455,6 +1509,11 @@
       "maximumImageSize": "支援的最大上傳圖片大小為 10MB",
       "uploadImageErrorImageSizeTooBig": "圖片大小必須小於 10MB",
       "imageIsUploading": "圖片上傳中",
+      "interactiveViewer": {
+        "toolbar": {
+          "scalePercentage": "{}%"
+        }
+      },
       "pleaseInputYourStabilityAIKey": "請在設定頁面輸入您的 Stability AI 金鑰"
     },
     "codeBlock": {
@@ -1491,7 +1550,9 @@
       "deletedContent": "該內容不存在或已經刪除"
     },
     "toolbar": {
-      "resetToDefaultFont": "重設為預設字型"
+      "resetToDefaultFont": "重設為預設字型",
+      "moreOptions": "更多選項",
+      "font": "字型"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "目前版本不支援此區塊。",
@@ -1542,6 +1603,9 @@
       "showGroup": "取消隱藏群組",
       "showGroupContent": "您確定要在看板上顯示此群組嗎？",
       "failedToLoad": "無法載入看板"
+    },
+    "media": {
+      "cardText": "{} {}"
     }
   },
   "calendar": {
@@ -1951,5 +2015,123 @@
     "loadingTooltip": "我們正在尋找結果...",
     "betaLabel": "BETA",
     "betaTooltip": "目前我們只支援搜尋頁面"
+  },
+  "space": {
+    "delete": "刪除",
+    "deleteConfirmation": "刪除:",
+    "spaceIcon": "圖示",
+    "upgrade": "更新"
+  },
+  "web": {
+    "or": "或"
+  },
+  "gallery": {
+    "copy": "複製",
+    "download": "下載"
+  },
+  "invitation": {
+    "openWorkspace": "開啟 AppFlowy",
+    "errorModal": {
+      "changeAccount": "更改帳戶"
+    }
+  },
+  "requestAccess": {
+    "backToHome": "返回首頁"
+  },
+  "approveAccess": {
+    "upgrade": "升級",
+    "downloadApp": "下載 AppFlowy",
+    "memberCount": {
+      "zero": "沒有成員",
+      "one": "1名成員",
+      "many": "{count} 名成員",
+      "other": "{count} 名成員"
+    }
+  },
+  "upgradePlanModal": {
+    "title": "升級到專業版",
+    "actionButton": "升級",
+    "downloadLink": "下載應用程式"
+  },
+  "time": {
+    "seconds": {
+      "one": "1秒",
+      "other": "{count} 秒"
+    },
+    "minutes": {
+      "one": "1分鐘",
+      "other": "{count} 分鐘"
+    },
+    "hours": {
+      "one": "1小時",
+      "other": "{count} 小時"
+    },
+    "days": {
+      "one": "1天",
+      "other": "{count} 天"
+    },
+    "weeks": {
+      "one": "1週",
+      "other": "{count} 週"
+    },
+    "months": {
+      "one": "1個月",
+      "other": "{count} 個月"
+    },
+    "years": {
+      "one": "1年",
+      "other": "{count} 年"
+    },
+    "yesterday": "昨天",
+    "today": "今天"
+  },
+  "members": {
+    "zero": "沒有成員",
+    "one": "1名成員",
+    "many": "{count} 名成員",
+    "other": "{count} 名成員"
+  },
+  "tabMenu": {
+    "close": "關閉"
+  },
+  "openFileMessage": {
+    "fileNotFound": "未找到檔案"
+  },
+  "inviteMember": {
+    "upgrade": "升級",
+    "emails": "電子郵件"
+  },
+  "subscribe": {
+    "monthly": "每月",
+    "freePoints": {
+      "six": "行動應用程式"
+    },
+    "cancelPlan": {
+      "commonOther": "其他"
+    }
+  },
+  "ai": {
+    "limitReachedAction": {
+      "upgrade": "升級"
+    },
+    "editing": "編輯中",
+    "analyzing": "分析中",
+    "more": "更多",
+    "customPrompt": {
+      "custom": "自訂",
+      "loading": "載入中",
+      "all": "全部",
+      "development": "開發",
+      "others": "其他",
+      "work": "工作"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateButton": "更新",
+    "bannerUpdateButton": "更新",
+    "settingsUpdateButton": "更新"
+  },
+  "lockPage": {
+    "lockPage": "已鎖定"
   }
 }
