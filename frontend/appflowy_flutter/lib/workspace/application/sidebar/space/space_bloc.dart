@@ -7,6 +7,7 @@ import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/view/create_view_result.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
     hide AFRolePB;
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -279,13 +279,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 );
               }
             }
-             afterOpen?.call();
+            afterOpen?.call();
           },
           expand: (space, isExpanded) async {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, layout, index, openAfterCreate) async {
+          createPage: (name, layout, index, openAfterCreate, createId) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -303,7 +303,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 emit(
                   state.copyWith(
                     lastCreatedPage: openAfterCreate ? view : null,
-                    createPageResult: FlowyResult.success(null),
+                    createPageResult: CreatePageResult.succeed(layout: layout, createId: createId),
                   ),
                 );
               },
@@ -311,7 +311,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 Log.error('Failed to create root view: $error');
                 emit(
                   state.copyWith(
-                    createPageResult: FlowyResult.failure(error),
+                    createPageResult: CreatePageResult.failed(layout: layout, createId: createId),
                   ),
                 );
               },
@@ -774,6 +774,7 @@ class SpaceEvent with _$SpaceEvent {
     required ViewLayoutPB layout,
     int? index,
     required bool openAfterCreate,
+    String? createId,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;
   const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
@@ -794,7 +795,7 @@ class SpaceState with _$SpaceState {
     @Default(null) ViewPB? currentSpace,
     @Default(true) bool isExpanded,
     @Default(null) ViewPB? lastCreatedPage,
-    FlowyResult<void, FlowyError>? createPageResult,
+    CreatePageResult? createPageResult,
     @Default(false) bool shouldShowUpgradeDialog,
     @Default(false) bool isDuplicatingSpace,
     @Default(false) bool isInitialized,
