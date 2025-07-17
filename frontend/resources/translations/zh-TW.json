@@ -363,10 +363,10 @@
     "renameDialog": "重新命名",
     "pageNameSuffix": "複製"
   },
-  "noPagesInside": "內部沒有頁面",
+  "noPagesInside": "裡面沒有頁面。",
   "toolbar": {
     "undo": "復原",
-    "redo": "取消復原",
+    "redo": "重做",
     "bold": "粗體",
     "italic": "斜體",
     "underline": "底線",
@@ -374,7 +374,7 @@
     "numList": "編號清單",
     "bulletList": "項目符號清單",
     "checkList": "核取清單",
-    "inlineCode": "程式碼",
+    "inlineCode": "行內程式碼",
     "quote": "區塊引述",
     "header": "標題",
     "highlight": "醒目提示",
@@ -392,12 +392,13 @@
     "viewDataBase": "檢視資料庫",
     "referencePage": "這個 {name} 已被引用",
     "addBlockBelow": "在下方新增一個區塊",
-    "aiGenerate": "產生",
+    "aiGenerate": "生成",
     "genSummary": "產成摘要"
   },
   "sideBar": {
     "closeSidebar": "關閉側欄",
     "openSidebar": "開啟側欄",
+    "expandSidebar": "展開為完整頁面",
     "personal": "個人",
     "private": "私人",
     "workspace": "工作區",
@@ -412,11 +413,14 @@
     "recent": "最近",
     "today": "今天",
     "thisWeek": "本週",
-    "justNow": "剛才",
+    "others": "較早的收藏夾",
+    "earlier": "之前",
+    "justNow": "剛剛",
     "minutesAgo": "{count} 分鐘前",
-    "lastViewed": "上次查看",
+    "lastViewed": "上次瀏覽",
     "favoriteAt": "已收藏",
     "emptyRecent": "沒有最近的頁面",
+    "emptyRecentDescription": "當您檢視頁面時，它們將會出現在這裡，方便您取回。",
     "emptyFavorite": "沒有收藏的頁面",
     "emptyFavoriteDescription": "將頁面標記為收藏 - 它們將列在此處以便您可以快速存取！",
     "removePageFromRecent": "要從最近的頁面中刪除此頁面嗎？",
@@ -430,18 +434,28 @@
     "storageLimitDialogTitleIOS": "您的免費儲存空間已用完。",
     "aiResponseLimitTitle": "您的免費 AI 回覆已用完，升級到 Pro 或購買 AI 附加方案以解鎖無限回覆",
     "aiResponseLimitDialogTitle": "AI 回覆已達到限制",
+    "aiResponseLimit": "您已用完免費的 AI 回應。\n前往 設定 -> 方案 -> 點擊 AI Max 或 Pro 方案以獲得更多 AI 回應。",
+    "askOwnerToUpgradeToPro": "您的工作區即將耗盡免費儲存空間。請要求您的工作區擁有者升級到專業版",
+    "askOwnerToUpgradeToProIOS": "您的工作區即將耗盡免費儲存空間。",
+    "askOwnerToUpgradeToAIMax": "您的工作區已用完免費的 AI 回應。請要求您的工作區擁有者升級方案或購買 AI 附加功能",
+    "askOwnerToUpgradeToAIMaxIOS": "您的工作區即將耗盡免費的 AI 回應。",
+    "purchaseAIMax": "您的工作區已用完 AI 圖片回應。請要求您的工作區擁有者購買 AI Max。",
+    "aiImageResponseLimit": "您已用完 AI 圖像回應。\n前往 設定 -> 方案 -> 點擊 AI Max 以獲得更多 AI 圖像回應",
     "purchaseStorageSpace": "購買儲存空間",
-    "purchaseAIResponse": "購買"
+    "singleFileProPlanLimitationDescription": "您已超過免費方案允許的最大檔案上傳大小。請升級到專業版以上傳更大的檔案",
+    "purchaseAIResponse": "購買",
+    "askOwnerToUpgradeToLocalAI": "要求工作區擁有者啟用 AI 裝置端功能",
+    "upgradeToAILocalDesc": "在您的設備上執行本地模型，以獲得終極隱私保護"
   },
   "notifications": {
     "export": {
       "markdown": "已將筆記匯出成 Markdown",
-      "path": "Documents/flowy"
+      "path": "文件/flowy"
     }
   },
   "contactsPage": {
     "title": "聯絡人",
-    "whatsHappening": "這週有什麼新鮮事？",
+    "whatsHappening": "本週有什麼事發生？",
     "addContact": "新增聯絡人",
     "editContact": "編輯聯絡人"
   },
@@ -453,6 +467,7 @@
     "signIn": "登入",
     "signOut": "登出",
     "complete": "完成",
+    "change": "變更",
     "save": "儲存",
     "generate": "生成",
     "esc": "ESC",
