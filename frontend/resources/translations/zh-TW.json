@@ -445,6 +445,7 @@
     "singleFileProPlanLimitationDescription": "您已超過免費方案允許的最大檔案上傳大小。請升級到專業版以上傳更大的檔案",
     "purchaseAIResponse": "購買",
     "askOwnerToUpgradeToLocalAI": "要求工作區擁有者啟用 AI 裝置端功能",
+    "upgradeToAILocal": "在您的設備上執行本地模型，以獲得終極隱私保護",
     "upgradeToAILocalDesc": "在您的設備上執行本地模型，以獲得終極隱私保護"
   },
   "notifications": {
@@ -480,6 +481,7 @@
     "upload": "上傳",
     "edit": "編輯",
     "delete": "刪除",
+    "copy": "複製",
     "duplicate": "複製",
     "putback": "放回",
     "update": "更新",
@@ -488,6 +490,7 @@
     "removeFromRecent": "從最近刪除",
     "addToFavorites": "加入最愛",
     "favoriteSuccessfully": "收藏成功",
+    "unfavoriteSuccessfully": "已成功取消收藏",
     "duplicateSuccessfully": "複製成功",
     "rename": "重新命名",
     "helpCenter": "支援中心",
@@ -511,8 +514,15 @@
     "close": "關閉",
     "next": "下一個",
     "previous": "上一個",
+    "submit": "提交",
     "download": "下載",
     "backToHome": "回首頁",
+    "viewing": "檢視中",
+    "editing": "編輯中",
+    "gotIt": "知道了",
+    "retry": "重試",
+    "uploadFailed": "上傳失敗。",
+    "copyLinkOriginal": "複製原始連結",
     "tryAGain": "再試一次"
   },
   "label": {
@@ -540,7 +550,9 @@
     "popupMenuItem": {
       "settings": "設定",
       "members": "成員",
-      "trash": "垃圾桶"
+      "trash": "垃圾桶",
+      "helpAndDocumentation": "說明與文件",
+      "getSupport": "取得支援"
     },
     "accountPage": {
       "menuLabel": "我的帳號",
