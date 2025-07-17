@@ -307,6 +307,7 @@
   "trash": {
     "text": "垃圾桶",
     "restoreAll": "全部還原",
+    "restore": "還原",
     "deleteAll": "全部刪除",
     "pageHeader": {
       "fileName": "檔案名稱",
@@ -315,30 +316,37 @@
     },
     "confirmDeleteAll": {
       "title": "您確定要刪除垃圾桶中的所有頁面嗎？",
-      "caption": "此操作無法復原。"
+      "caption": "您確定要刪除垃圾桶中的所有內容嗎？此動作無法復原。"
     },
     "confirmRestoreAll": {
-      "title": "您確定要還原垃圾桶中的所有頁面嗎？",
-      "caption": "此操作無法復原。"
+      "title": "還原垃圾桶中的所有頁面",
+      "caption": "這個動作無法復原。"
+    },
+    "restorePage": {
+      "title": "還原: {}",
+      "caption": "您確定要還原此頁面嗎？"
     },
     "mobile": {
       "actions": "垃圾桶操作",
-      "empty": "垃圾桶是空的",
-      "emptyDescription": "您沒有任何已刪除的檔案",
+      "empty": "垃圾桶中沒有頁面或空間。",
+      "emptyDescription": "將不需要的項目移至垃圾桶。",
       "isDeleted": "已刪除",
       "isRestored": "已還原"
     },
-    "confirmDeleteTitle": "確定永久刪除此頁面"
+    "confirmDeleteTitle": "您確定要永久刪除此頁面嗎？"
   },
   "deletePagePrompt": {
     "text": "此頁面在垃圾桶中",
     "restore": "還原頁面",
-    "deletePermanent": "永久刪除"
+    "deletePermanent": "永久刪除",
+    "deletePermanentDescription": "您確定要永久刪除此頁面嗎？這是一個不可逆的動作。"
   },
   "dialogCreatePageNameHint": "頁面名稱",
   "questionBubble": {
     "shortcuts": "快捷鍵",
-    "whatsNew": "有什麼新功能？",
+    "whatsNew": "最新消息是什麼？",
+    "helpAndDocumentation": "說明與文件。",
+    "getSupport": "取得支援",
     "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
@@ -352,7 +360,8 @@
     "moreButtonToolTip": "移除、重新命名等等...",
     "addPageTooltip": "快速在此新增頁面",
     "defaultNewPageName": "未命名",
-    "renameDialog": "重新命名"
+    "renameDialog": "重新命名",
+    "pageNameSuffix": "複製"
   },
   "noPagesInside": "內部沒有頁面",
   "toolbar": {
