@@ -771,6 +771,7 @@
         "indent": "縮排",
         "outdent": "取消縮排",
         "exit": "結束編輯模式",
+        "selectAll": "全選",
         "showEmojiPicker": "顯示表情符號選擇器"
       }
     },
@@ -826,11 +827,15 @@
     },
     "planPage": {
       "planUsage": {
+        "collaboratorsLabel": "成員",
+        "proBadge": "專業版",
+        "aiMaxBadge": "AI Max",
         "aiCredit": {
           "price": "{}"
         },
         "addons": {
           "aiMax": {
+            "title": "AI Max",
             "price": "{}"
           },
           "aiOnDevice": {
@@ -839,10 +844,47 @@
         }
       }
     },
-    "comparePlanDialog": {
-      "freeLabels": {
-        "itemThree": "5 GB"
+    "billingPage": {
+      "addons": {
+        "aiMax": {
+          "label": "AI Max"
+        },
+        "removeDialog": {
+          "title": "移除 {}"
+        }
       }
+    },
+    "comparePlanDialog": {
+      "current": "目前",
+      "actions": {
+        "upgrade": "升級"
+      },
+      "freePlan": {
+        "price": "{}"
+      },
+      "proPlan": {
+        "price": "{}"
+      },
+      "planLabels": {
+        "itemOne": "工作區",
+        "itemTwo": "成員",
+        "itemSeven": "AI 圖像",
+        "itemFileUpload": "檔案上傳"
+      },
+      "freeLabels": {
+        "itemThree": "5 GB",
+        "itemFour": "是的",
+        "itemFive": "是的"
+      },
+      "proLabels": {
+        "itemFour": "是的"
+      }
+    },
+    "cancelSurveyDialog": {
+      "commonOther": "其他"
+    },
+    "common": {
+      "reset": "重設"
     },
     "menu": {
       "appearance": "外觀",
@@ -897,6 +939,9 @@
       "enableNotifications": {
         "label": "啟用通知",
         "hint": "關閉以停止顯示本機通知。"
+      },
+      "settings": {
+        "settings": "設定"
       }
     },
     "appearance": {
@@ -916,6 +961,7 @@
       "documentSettings": {
         "cursorColor": "文件游標顏色",
         "selectionColor": "文件選取顏色",
+        "changeWidth": "變更",
         "hexEmptyError": "十六進位色碼不能為空",
         "hexLengthError": "十六進位值必須為 6 位數",
         "hexInvalidError": "無效的十六進位值",
@@ -983,12 +1029,21 @@
         "emailInvalidError": "電郵無效，請檢查並重試",
         "emailSent": "郵件已發送，請查看您的收件匣",
         "members": "成員",
+        "membersCount": {
+          "zero": "{} 個成員",
+          "one": "{} 個成員",
+          "other": "{} 個成員"
+        },
+        "memberLimitExceededUpgrade": "升級",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "新增成員失敗",
         "addMemberSuccess": "成員新增成功",
         "removeMember": "刪除成員",
         "areYouSureToRemoveMember": "確定要刪除該成員?",
         "inviteMemberSuccess": "邀請已成功發送",
-        "failedToInviteMember": "邀請成員失敗"
+        "failedToInviteMember": "邀請成員失敗",
+        "or": "或",
+        "reset": "重設"
       }
     },
     "files": {
@@ -1164,6 +1219,8 @@
       "urlFieldName": "網址",
       "checklistFieldName": "核取清單",
       "summaryFieldName": "AI 總結",
+      "translateFieldName": "AI 翻譯",
+      "translateTo": "翻譯為",
       "numberFormat": "數字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含時間",
@@ -1228,6 +1285,7 @@
       "copyProperty": "已將屬性複製到剪貼簿",
       "count": "計數",
       "newRow": "新增列",
+      "loadMore": "載入更多",
       "action": "操作",
       "add": "點選以在下方新增",
       "drag": "拖曳以移動",
@@ -1312,11 +1370,26 @@
         "selectADocumentToLinkTo": "選擇要連結的文件"
       },
       "name": {
+        "textStyle": "文字樣式",
+        "toggle": "切換",
+        "fileAndMedia": "檔案和媒體",
         "document": "文件",
         "text": "文字",
+        "heading1": "標題 1",
+        "heading2": "標題 2",
+        "heading3": "標題 3",
+        "image": "圖像",
         "doc": "文件",
         "grid": "網格",
+        "code": "程式碼",
+        "toggleList": "切換列表",
+        "toggleHeading1": "切換標題 1",
+        "toggleHeading2": "切換標題 2",
+        "toggleHeading3": "切換標題 3",
         "file": "檔案"
+      },
+      "subPage": {
+        "keyword8": "文件"
       }
     },
     "selectionMenu": {
@@ -1360,6 +1433,7 @@
         "moreActions": {
           "color": "顏色",
           "delete": "刪除",
+          "duplicate": "副本",
           "textColor": "文字顏色"
         },
         "headerName": {
@@ -1416,6 +1490,12 @@
         "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "imageUploadFailed": "圖片上傳失敗",
         "errorCode": "錯誤代碼"
+      },
+      "photoGallery": {
+        "imageKeyword": "圖像",
+        "photoKeyword": "照片",
+        "browserLayout": "瀏覽器",
+        "gridLayout": "網格"
       },
       "urlPreview": {
         "copiedToPasteBoard": "連結已複製到剪貼簿",
@@ -1551,6 +1631,11 @@
     },
     "toolbar": {
       "resetToDefaultFont": "重設為預設字型",
+      "textSize": "文字大小",
+      "textColor": "文字顏色",
+      "h1": "標題 1",
+      "h2": "標題 2",
+      "h3": "標題 3",
       "moreOptions": "更多選項",
       "font": "字型"
     },
@@ -1604,8 +1689,14 @@
       "showGroupContent": "您確定要在看板上顯示此群組嗎？",
       "failedToLoad": "無法載入看板"
     },
+    "dateCondition": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "tomorrow": "明天"
+    },
     "media": {
-      "cardText": "{} {}"
+      "cardText": "{} {}",
+      "fallbackName": "檔案"
     }
   },
   "calendar": {
@@ -1616,7 +1707,13 @@
       "today": "今天",
       "jumpToday": "跳到今天",
       "previousMonth": "上個月",
-      "nextMonth": "下個月"
+      "nextMonth": "下個月",
+      "views": {
+        "day": "天",
+        "week": "星期",
+        "month": "月",
+        "year": "年"
+      }
     },
     "mobileEventScreen": {
       "emptyTitle": "目前尚無事件",
@@ -1754,6 +1851,7 @@
   },
   "notificationHub": {
     "title": "通知",
+    "today": "今天",
     "mobile": {
       "title": "更新"
     },
@@ -1816,6 +1914,9 @@
     "link": "連結",
     "numberedList": "編號清單",
     "numberedListShortForm": "編號",
+    "toggleHeading1ShortForm": "切換標題 1",
+    "toggleHeading2ShortForm": "切換標題 2",
+    "toggleHeading3ShortForm": "切換標題 3",
     "quote": "引述",
     "strikethrough": "刪除線",
     "text": "文字",
@@ -1864,6 +1965,9 @@
     "mobileHeading1": "標題 1",
     "mobileHeading2": "標題 2",
     "mobileHeading3": "標題 3",
+    "mobileHeading4": "標題 4",
+    "mobileHeading5": "標題 5",
+    "mobileHeading6": "標題 6",
     "textColor": "文字顏色",
     "backgroundColor": "背景顏色",
     "addYourLink": "新增你的連結",
@@ -1963,8 +2067,30 @@
         "deleteMyAccount": "刪除我的帳號",
         "dialogTitle": "刪除帳號",
         "dialogContent1": "確定要永久刪除您的帳號",
-        "dialogContent2": "此操作無法撤銷，此操作將刪除所有團隊空間的存取權限，刪除您的整個帳戶（包括私人工作區），並將您從所有共用工作區中刪除"
-      }
+        "dialogContent2": "此操作無法撤銷，此操作將刪除所有團隊空間的存取權限，刪除您的整個帳戶（包括私人工作區），並將您從所有共用工作區中刪除",
+        "confirmHint3": "刪除我的帳戶"
+      },
+      "password": {
+        "title": "密碼",
+        "confirmPassword": "確認密碼",
+        "changePassword": "變更密碼",
+        "currentPassword": "目前密碼",
+        "newPassword": "新密碼",
+        "confirmNewPassword": "確認新密碼",
+        "setupPassword": "設定密碼",
+        "error": {
+          "newPasswordIsRequired": "需要新密碼"
+        },
+        "hint": {
+          "enterYourPassword": "輸入您的密碼",
+          "confirmYourPassword": "確認您的密碼",
+          "enterYourCurrentPassword": "輸入您的目前密碼",
+          "enterYourNewPassword": "輸入您的新密碼",
+          "confirmYourNewPassword": "確認您的新密碼"
+        }
+      },
+      "myAccount": "我的帳戶",
+      "myProfile": "我的個人資料"
     },
     "workplace": {
       "name": "工作區",
@@ -2019,19 +2145,83 @@
   "space": {
     "delete": "刪除",
     "deleteConfirmation": "刪除:",
+    "spaceIconBackground": "背景顏色",
     "spaceIcon": "圖示",
+    "defaultSpaceName": "一般",
     "upgrade": "更新"
   },
+  "publish": {
+    "tryItNow": "立即嘗試",
+    "membersCount": {
+      "zero": "沒有成員",
+      "one": "1名成員",
+      "many": "{count} 名成員",
+      "other": "{count} 名成員"
+    }
+  },
   "web": {
-    "or": "或"
+    "continue": "繼續",
+    "or": "或",
+    "moreOptions": "更多選項",
+    "fileBlock": {
+      "retry": "重試"
+    },
+    "import": "匯入",
+    "importSuccess": "上傳成功"
+  },
+  "globalComment": {
+    "showSeconds": {
+      "one": "1秒前",
+      "other": "{count} 秒前",
+      "zero": "剛剛",
+      "many": "{count} 秒前"
+    },
+    "showMinutes": {
+      "one": "1分鐘前",
+      "other": "{count} 分鐘前",
+      "many": "{count} 分鐘前"
+    },
+    "showHours": {
+      "one": "1小時前",
+      "other": "{count} 小時前",
+      "many": "{count} 小時前"
+    },
+    "showDays": {
+      "one": "1天前",
+      "other": "{count} 天前",
+      "many": "{count} 天前"
+    },
+    "showMonths": {
+      "one": "1個月前",
+      "other": "{count} 個月前",
+      "many": "{count} 個月前"
+    },
+    "showYears": {
+      "one": "1年前",
+      "other": "{count} 年前",
+      "many": "{count} 年前"
+    },
+    "reply": "回覆",
+    "readMore": "閱讀更多"
   },
   "gallery": {
     "copy": "複製",
-    "download": "下載"
+    "download": "下載",
+    "resetZoom": "重設縮放",
+    "zoomIn": "放大",
+    "zoomOut": "縮小"
   },
   "invitation": {
+    "membersCount": {
+      "zero": "{count} 名成員",
+      "one": "{count} 名成員",
+      "many": "{count} 名成員",
+      "other": "{count} 名成員"
+    },
+    "joinWorkspace": "加入工作區",
     "openWorkspace": "開啟 AppFlowy",
     "errorModal": {
+      "close": "返回首頁",
       "changeAccount": "更改帳戶"
     }
   },
@@ -2099,9 +2289,12 @@
   },
   "inviteMember": {
     "upgrade": "升級",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "發送邀請",
     "emails": "電子郵件"
   },
   "subscribe": {
+    "yearly": "每年",
     "monthly": "每月",
     "freePoints": {
       "six": "行動應用程式"
@@ -2122,7 +2315,14 @@
       "loading": "載入中",
       "all": "全部",
       "development": "開發",
+      "writing": "寫作",
+      "healthAndFitness": "健康與健身",
+      "business": "商業",
+      "marketing": "行銷",
+      "travel": "旅行",
       "others": "其他",
+      "salesCopy": "銷售副本",
+      "education": "教育",
       "work": "工作"
     }
   },
@@ -2133,5 +2333,34 @@
   },
   "lockPage": {
     "lockPage": "已鎖定"
+  },
+  "suggestion": {
+    "accept": "接受",
+    "keep": "保留",
+    "discard": "丟棄",
+    "close": "關閉",
+    "tryAgain": "再試一次"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "檢視",
+      "edit": "編輯"
+    },
+    "inviteByEmail": "透過電子郵件邀請",
+    "invite": "邀請",
+    "you": "(你)",
+    "guest": "客人",
+    "invitationSent": "邀請已發送",
+    "upgrade": "升級",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "升級為邀請嘉賓",
+        "member": "升級為邀請嘉賓",
+        "guest": "升級為邀請嘉賓"
+      }
+    }
+  },
+  "shareSection": {
+    "shared": "與我分享"
   }
 }
