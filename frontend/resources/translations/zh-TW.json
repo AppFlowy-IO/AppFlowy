@@ -253,9 +253,56 @@
     "question5": "為我的頁面創建插圖",
     "question6": "為我即將到來的下週擬定待辦事項清單",
     "aiMistakePrompt": "AI 可能會犯錯，請檢查重要資訊。",
-    "clickToMention": "單擊以提及頁面",
+    "chatWithFilePrompt": "您想與檔案聊天嗎？",
+    "indexFileSuccess": "檔案索引成功",
+    "inputActionNoPages": "沒有頁面結果",
+    "referenceSource": {
+      "zero": "未找到 0 個來源",
+      "one": "已找到 {count} 個來源",
+      "other": "已找到 {count} 個來源"
+    },
+    "clickToMention": "提及頁面",
     "uploadFile": "上傳 PDF、md 或 txt 檔案以進行聊天",
-    "questionDetail": "{} 你好！我能為您提供什麼幫助？"
+    "questionDetail": "嗨，{}！今天我能如何幫助您？",
+    "indexingFile": "正在索引 {}",
+    "generatingResponse": "正在產生回應",
+    "selectSources": "選擇來源",
+    "currentPage": "目前頁面",
+    "sourcesLimitReached": "您只能選取最多 3 個頂層文件及其子文件",
+    "sourceUnsupported": "目前我們不支援與資料庫聊天",
+    "regenerate": "再試一次",
+    "addToPageButton": "新增訊息到頁面",
+    "addToPageTitle": "新增訊息到...",
+    "addToNewPage": "建立新頁面",
+    "addToNewPageName": "從\"{}\"中提取的訊息",
+    "addToNewPageSuccessToast": "已將訊息新增至",
+    "openPagePreviewFailedToast": "開啟頁面失敗",
+    "changeFormat": {
+      "actionButton": "變更格式",
+      "confirmButton": "用此格式重新產生",
+      "textOnly": "文字",
+      "imageOnly": "僅限圖片",
+      "textAndImage": "文字和圖片",
+      "text": "段落",
+      "bullet": "項目符號清單",
+      "number": "編號清單",
+      "table": "表格",
+      "blankDescription": "格式化回應",
+      "defaultDescription": "自動回應格式"
+    },
+    "switchModel": {
+      "label": "切換模型",
+      "localModel": "本地模型",
+      "cloudModel": "雲端模型",
+      "autoModel": "自動"
+    },
+    "selectBanner": {
+      "saveButton": "新增到…",
+      "selectMessages": "選擇訊息",
+      "nSelected": " {} 已選取",
+      "allSelected": "全部已選取"
+    },
+    "stopTooltip": "停止生成"
   },
   "trash": {
     "text": "垃圾桶",
