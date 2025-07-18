@@ -3014,14 +3014,18 @@
     "viewTemplate": "查看範本",
     "deleteTemplate": "刪除範本",
     "deleteSuccess": "範本刪除成功",
+    "addRelatedTemplate": "新增相關範本",
     "removeRelatedTemplate": "刪除相關範本",
     "uploadAvatar": "上傳頭像",
+    "searchInCategory": "在 {category} 中搜尋",
     "label": "範本"
   },
   "fileDropzone": {
+    "dropFile": "點擊或拖曳檔案到此區域以上傳",
     "uploading": "正在上傳...",
     "uploadFailed": "上傳失敗",
     "uploadSuccess": "上傳成功",
+    "uploadSuccessDescription": "檔案已成功上傳",
     "uploadFailedDescription": "檔案上傳失敗",
     "uploadingDescription": "檔案正在上傳"
   },
@@ -3046,8 +3050,12 @@
       "other": "{count} 名成員"
     },
     "joinWorkspace": "加入工作區",
+    "success": "您已成功加入工作區",
+    "successMessage": "現在您可以存取其中的所有頁面和工作區。",
     "openWorkspace": "開啟 AppFlowy",
+    "alreadyAccepted": "您已經接受邀請",
     "errorModal": {
+      "title": "發生錯誤",
       "contactOwner": "聯絡擁有者",
       "close": "返回首頁",
       "changeAccount": "更改帳戶"
@@ -3057,19 +3065,29 @@
     "title": "沒有此頁面的存取權",
     "requestAccess": "要求存取",
     "backToHome": "返回首頁",
-    "successful": "請求已成功發送"
+    "tip": "您目前以<link/>身分登入。",
+    "mightBe": "您可能需要使用不同的帳戶<login/>",
+    "successful": "請求已成功發送",
+    "successfulMessage": "當擁有者批准您的請求時，您會收到通知。",
+    "requestError": "請求存取權失敗",
+    "repeatRequestError": "您已經要求存取此頁面"
   },
   "approveAccess": {
+    "title": "批准工作區加入請求",
+    "requestSummary": "<user/> 請求加入 <workspace/> 並存取 <page/>",
     "upgrade": "升級",
     "downloadApp": "下載 AppFlowy",
     "approveButton": "核准",
     "approveSuccess": "已成功批准",
+    "getRequestInfoError": "取得請求資訊失敗",
     "memberCount": {
       "zero": "沒有成員",
       "one": "1名成員",
       "many": "{count} 名成員",
       "other": "{count} 名成員"
     },
+    "alreadyProTitle": "您已達到工作區方案限制",
+    "repeatApproveError": "您已經批准此請求",
     "requestToJoin": "已請求加入",
     "asMember": "作為會員"
   },
@@ -3130,7 +3148,10 @@
   },
   "tabMenu": {
     "close": "關閉",
+    "closeDisabledHint": "無法關閉釘選的分頁，請先取消釘選",
     "closeOthers": "關閉其他分頁",
+    "closeOthersHint": "這將關閉所有未釘選的分頁，除了這個",
+    "closeOthersDisabledHint": "所有分頁都已釘選，找不到要關閉的分頁",
     "favorite": "最愛",
     "unfavorite": "取消最愛",
     "favoriteDisabledHint": "無法將此檢視設為最愛",
@@ -3174,6 +3195,10 @@
     "priceIn": "價格",
     "free": "免費",
     "pro": "專業版",
+    "proDuration": {
+      "monthly": "每位成員每月\n按月計費",
+      "yearly": "每位成員每月\n年度計費"
+    },
     "cancel": "降級",
     "changePlan": "升級到專業計劃",
     "everythingInFree": "所有內容免費+",
@@ -3201,10 +3226,15 @@
       "commonOther": "其他",
       "otherHint": "在此處輸入您的答案",
       "questionOne": {
+        "question": "是什麼促使你取消你的 AppFlowy Pro 訂閱？",
         "answerOne": "成本太高",
-        "answerThree": "找到更好的替代方案"
+        "answerTwo": "功能未達預期",
+        "answerThree": "找到更好的替代方案",
+        "answerFour": "使用量不足以證明費用合理",
+        "answerFive": "服務問題或技術困難"
       },
       "questionTwo": {
+        "question": "未來您幾何可能考慮重新訂閱?",
         "answerOne": "非常有可能",
         "answerTwo": "相當有可能",
         "answerThree": "不確定",
@@ -3298,6 +3328,8 @@
   "lockPage": {
     "lockPage": "已鎖定",
     "reLockPage": "重新鎖定",
+    "lockTooltip": "頁面鎖定以防止意外編輯。點擊以解鎖。",
+    "pageLockedToast": "頁面已鎖定。除非有人將其解鎖，否則無法編輯。",
     "lockedOperationTooltip": "頁面已鎖定以防止意外編輯。"
   },
   "suggestion": {
@@ -3319,6 +3351,7 @@
     "inviteByEmail": "透過電子郵件邀請",
     "invite": "邀請",
     "anyoneAtWorkspace": "{workspace} 中的任何人",
+    "anyoneInGroupWithLinkCanEdit": "擁有連結的群組中的任何人都可以編輯",
     "copyLink": "複製連結",
     "copiedLinkToClipboard": "已將連結複製到剪貼簿",
     "removeAccess": "移除存取權",
@@ -3333,11 +3366,14 @@
     "removedGuestSuccessfully": "已成功移除訪客",
     "updatedAccessLevelSuccessfully": "已成功更新存取層級",
     "turnedIntoMemberSuccessfully": "已成功轉為會員",
+    "peopleAboveCanAccessWithLink": "以上人士可以使用連結存取",
     "cantMakeChanges": "無法進行變更",
     "canMakeAnyChanges": "可以進行任何變更",
     "generalAccess": "一般存取權",
     "peopleWithAccess": "擁有存取權的人員",
+    "peopleAboveCanAccessWithTheLink": "擁有連結的人士可以存取",
     "upgrade": "升級",
+    "toProPlanToInviteGuests": "要邀請訪客到此頁面，需要升級至專業版",
     "upgradeToInviteGuest": {
       "title": {
         "owner": "升級為邀請嘉賓",
