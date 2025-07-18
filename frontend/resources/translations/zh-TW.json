@@ -2523,20 +2523,72 @@
   "template": {
     "asTemplate": "另存為範本",
     "name": "範本名稱",
+    "description": "範本說明",
+    "about": "關於範本",
     "deleteFromTemplate": "從範本中刪除",
+    "preview": "範本預覽",
+    "categories": "範本類別",
+    "isNewTemplate": "釘選到新範本",
+    "featured": "釘選到精選區",
     "relatedTemplates": "相關範本",
+    "requiredField": "{field} 必填",
+    "addCategory": "新增 “{category}”",
+    "addNewCategory": "新增類別",
+    "addNewCreator": "新增創作者",
+    "deleteCategory": "刪除類別",
+    "editCategory": "編輯類別",
+    "editCreator": "編輯創建者",
+    "category": {
+      "name": "類別名稱",
+      "icon": "類別圖示",
+      "bgColor": "類別背景顏色",
+      "priority": "類別優先級",
+      "desc": "類別描述",
+      "type": "類別類型",
+      "icons": "類別圖示",
+      "colors": "類別顏色",
+      "byUseCase": "依使用案例",
+      "byFeature": "按功能",
+      "deleteCategory": "刪除類別"
+    },
+    "creator": {
+      "label": "範本創作者",
+      "name": "創作者姓名",
+      "avatar": "創作者頭像",
+      "accountLinks": "創作者帳戶連結",
+      "uploadAvatar": "點擊上傳頭像",
+      "deleteCreator": "刪除創建者",
+      "typeToSearch": "輸入以搜尋創作者..."
+    },
+    "uploadSuccess": "範本已成功上傳",
+    "viewTemplate": "查看範本",
     "deleteTemplate": "刪除範本",
+    "deleteSuccess": "範本刪除成功",
     "removeRelatedTemplate": "刪除相關範本",
+    "uploadAvatar": "上傳頭像",
     "label": "範本"
   },
+  "fileDropzone": {
+    "uploading": "正在上傳...",
+    "uploadFailed": "上傳失敗",
+    "uploadSuccess": "上傳成功",
+    "uploadFailedDescription": "檔案上傳失敗",
+    "uploadingDescription": "檔案正在上傳"
+  },
   "gallery": {
+    "preview": "全螢幕打開",
     "copy": "複製",
     "download": "下載",
+    "prev": "上一個",
+    "next": "下一個",
     "resetZoom": "重設縮放",
     "zoomIn": "放大",
     "zoomOut": "縮小"
   },
   "invitation": {
+    "join": "加入",
+    "on": "在",
+    "invitedBy": "受邀者",
     "membersCount": {
       "zero": "{count} 名成員",
       "one": "{count} 名成員",
@@ -2546,29 +2598,48 @@
     "joinWorkspace": "加入工作區",
     "openWorkspace": "開啟 AppFlowy",
     "errorModal": {
+      "contactOwner": "聯絡擁有者",
       "close": "返回首頁",
       "changeAccount": "更改帳戶"
     }
   },
   "requestAccess": {
-    "backToHome": "返回首頁"
+    "title": "沒有此頁面的存取權",
+    "requestAccess": "要求存取",
+    "backToHome": "返回首頁",
+    "successful": "請求已成功發送"
   },
   "approveAccess": {
     "upgrade": "升級",
     "downloadApp": "下載 AppFlowy",
+    "approveButton": "核准",
+    "approveSuccess": "已成功批准",
     "memberCount": {
       "zero": "沒有成員",
       "one": "1名成員",
       "many": "{count} 名成員",
       "other": "{count} 名成員"
-    }
+    },
+    "requestToJoin": "已請求加入",
+    "asMember": "作為會員"
   },
   "upgradePlanModal": {
     "title": "升級到專業版",
+    "upgradeSteps": "如何在 AppFlowy 上升級您的方案:",
+    "step1": "1. 前往設定",
+    "step2": "2. 按一下「方案」",
+    "step3": "3. 選擇「變更方案」",
+    "appNote": "注意:",
     "actionButton": "升級",
-    "downloadLink": "下載應用程式"
+    "downloadLink": "下載應用程式",
+    "laterButton": "之後",
+    "refresh": "這裡"
+  },
+  "breadcrumbs": {
+    "label": "麵包屑導航"
   },
   "time": {
+    "justNow": "剛剛",
     "seconds": {
       "one": "1秒",
       "other": "{count} 秒"
@@ -2597,6 +2668,7 @@
       "one": "1年",
       "other": "{count} 年"
     },
+    "ago": "前",
     "yesterday": "昨天",
     "today": "今天"
   },
@@ -2607,37 +2679,133 @@
     "other": "{count} 名成員"
   },
   "tabMenu": {
-    "close": "關閉"
+    "close": "關閉",
+    "closeOthers": "關閉其他分頁",
+    "favorite": "最愛",
+    "unfavorite": "取消最愛",
+    "favoriteDisabledHint": "無法將此檢視設為最愛",
+    "pinTab": "釘選",
+    "unpinTab": "取消釘選"
   },
   "openFileMessage": {
-    "fileNotFound": "未找到檔案"
+    "success": "檔案已成功開啟",
+    "fileNotFound": "未找到檔案",
+    "noAppToOpenFile": "沒有應用程式可以開啟這個檔案",
+    "permissionDenied": "沒有權限開啟此檔案",
+    "unknownError": "檔案開啟失敗"
   },
   "inviteMember": {
+    "requestInviteMembers": "邀請加入您的工作區",
+    "inviteFailedMemberLimit": "成員限制已達到，請",
     "upgrade": "升級",
     "addEmail": "email@example.com, email2@example.com...",
     "requestInvites": "發送邀請",
+    "inviteAlready": "您已經邀請了這個電子郵件: {email}",
+    "inviteSuccess": "邀請已成功發送",
     "emails": "電子郵件"
   },
+  "quickNote": {
+    "label": "快速筆記",
+    "quickNotes": "快速筆記",
+    "search": "搜尋快速筆記",
+    "collapseFullView": "摺疊全螢幕檢視",
+    "expandFullView": "展開全螢幕檢視",
+    "createFailed": "建立快速筆記失敗",
+    "quickNotesEmpty": "沒有快速筆記",
+    "emptyNote": "空筆記",
+    "addNote": "新筆記",
+    "noAdditionalText": "沒有額外文字"
+  },
   "subscribe": {
+    "upgradePlanTitle": "比較並選擇計劃",
     "yearly": "每年",
+    "save": "節省 {discount}%。",
     "monthly": "每月",
+    "priceIn": "價格",
+    "free": "免費",
+    "pro": "專業版",
+    "cancel": "降級",
+    "changePlan": "升級到專業計劃",
+    "everythingInFree": "所有內容免費+",
+    "currentPlan": "目前",
+    "freeDuration": "永遠",
     "freePoints": {
-      "six": "行動應用程式"
+      "first": "1 個協作工作區，最多 2 名成員",
+      "second": "無限頁面和區塊",
+      "three": "5GB 儲存空間",
+      "four": "智慧搜尋",
+      "five": "20 次 AI 回應",
+      "six": "行動應用程式",
+      "seven": "即時協作"
+    },
+    "proPoints": {
+      "first": "無限儲存空間",
+      "second": "最多 10 個工作區成員",
+      "three": "無限的 AI 回應",
+      "four": "無限檔案上傳",
+      "five": "自定義命名空間"
     },
     "cancelPlan": {
-      "commonOther": "其他"
+      "title": "很遺憾看到您離開",
+      "success": "您的訂閱已成功取消",
+      "commonOther": "其他",
+      "otherHint": "在此處輸入您的答案",
+      "questionOne": {
+        "answerOne": "成本太高",
+        "answerThree": "找到更好的替代方案"
+      },
+      "questionTwo": {
+        "answerOne": "非常有可能",
+        "answerTwo": "相當有可能",
+        "answerThree": "不確定",
+        "answerFour": "不太可能",
+        "answerFive": "非常不可能"
+      },
+      "questionThree": {
+        "answerOne": "多人協作",
+        "answerTwo": "更長的歷史版本時間",
+        "answerThree": "無限的 AI 回應",
+        "answerFour": "存取本地 AI 模型"
+      },
+      "questionFour": {
+        "answerOne": "很棒",
+        "answerTwo": "好的",
+        "answerThree": "平均",
+        "answerFour": "低於平均水平",
+        "answerFive": "不滿意"
+      }
     }
   },
   "ai": {
     "limitReachedAction": {
-      "upgrade": "升級"
+      "upgrade": "升級",
+      "toThe": "到",
+      "proPlan": "專業方案",
+      "orPurchaseAn": "或購買一個",
+      "aiAddon": "AI 插件"
     },
     "editing": "編輯中",
     "analyzing": "分析中",
+    "continueWritingEmptyDocumentTitle": "繼續寫作錯誤",
     "more": "更多",
     "customPrompt": {
+      "browsePrompts": "瀏覽提示",
+      "usePrompt": "使用提示",
+      "featured": "精選",
       "custom": "自訂",
+      "customPrompt": "自訂提示",
+      "databasePrompts": "從您自己的資料庫載入提示",
+      "selectDatabase": "選擇資料庫",
+      "promptDatabase": "提示資料庫",
+      "configureDatabase": "配置資料庫",
+      "title": "標題",
+      "content": "內容",
+      "example": "範例",
+      "category": "類別",
+      "selectField": "選擇欄位",
       "loading": "載入中",
+      "invalidDatabase": "無效資料庫",
+      "noResults": "找不到任何提示",
       "all": "全部",
       "development": "開發",
       "writing": "寫作",
@@ -2646,36 +2814,79 @@
       "marketing": "行銷",
       "travel": "旅行",
       "others": "其他",
+      "prompt": "提示",
+      "promptExample": "提示範例",
+      "sampleOutput": "範例輸出",
+      "contentSeo": "內容/搜尋引擎優化",
+      "emailMarketing": "電子郵件行銷",
+      "paidAds": "付費廣告",
+      "prCommunication": "公關/傳播",
+      "recruiting": "招募",
+      "sales": "銷售量",
+      "socialMedia": "社群媒體",
+      "strategy": "策略",
+      "caseStudies": "案例研究",
       "salesCopy": "銷售副本",
       "education": "教育",
-      "work": "工作"
+      "work": "工作",
+      "podcastProduction": "播客製作",
+      "copyWriting": "文案撰寫",
+      "customerSuccess": "客戶成功"
     }
   },
   "autoUpdate": {
+    "criticalUpdateTitle": "需要更新才能繼續",
     "criticalUpdateButton": "更新",
+    "bannerUpdateTitle": "新版本發布!",
+    "bannerUpdateDescription": "取得最新功能和修復。點擊「更新」即可立即安裝",
     "bannerUpdateButton": "更新",
-    "settingsUpdateButton": "更新"
+    "settingsUpdateTitle": "版本 ({newVersion}) 可用!",
+    "settingsUpdateDescription": "目前版本: {currentVersion} (正式發布版)→ {newVersion}",
+    "settingsUpdateButton": "更新",
+    "settingsUpdateWhatsNew": "最新消息"
   },
   "lockPage": {
-    "lockPage": "已鎖定"
+    "lockPage": "已鎖定",
+    "reLockPage": "重新鎖定",
+    "lockedOperationTooltip": "頁面已鎖定以防止意外編輯。"
   },
   "suggestion": {
     "accept": "接受",
     "keep": "保留",
     "discard": "丟棄",
     "close": "關閉",
-    "tryAgain": "再試一次"
+    "tryAgain": "再試一次",
+    "rewrite": "重新撰寫",
+    "insertBelow": "在下面插入"
   },
   "shareTab": {
     "accessLevel": {
       "view": "檢視",
-      "edit": "編輯"
+      "comment": "評論",
+      "edit": "編輯",
+      "fullAccess": "完全存取權限"
     },
     "inviteByEmail": "透過電子郵件邀請",
     "invite": "邀請",
+    "anyoneAtWorkspace": "{workspace} 中的任何人",
+    "copyLink": "複製連結",
+    "copiedLinkToClipboard": "已將連結複製到剪貼簿",
+    "removeAccess": "移除存取權",
+    "turnIntoMember": "轉為會員",
     "you": "(你)",
     "guest": "客人",
+    "onlyFullAccessCanInvite": "只有擁有完整存取權的使用者才能邀請其他人",
     "invitationSent": "邀請已發送",
+    "emailAlreadyInList": "這封電子郵件已經在清單中",
+    "upgradeToProToInviteGuests": "請升級到專業方案以邀請更多訪客",
+    "maxGuestsReached": "您已達到最大訪客人數",
+    "removedGuestSuccessfully": "已成功移除訪客",
+    "updatedAccessLevelSuccessfully": "已成功更新存取層級",
+    "turnedIntoMemberSuccessfully": "已成功轉為會員",
+    "cantMakeChanges": "無法進行變更",
+    "canMakeAnyChanges": "可以進行任何變更",
+    "generalAccess": "一般存取權",
+    "peopleWithAccess": "擁有存取權的人員",
     "upgrade": "升級",
     "upgradeToInviteGuest": {
       "title": {
