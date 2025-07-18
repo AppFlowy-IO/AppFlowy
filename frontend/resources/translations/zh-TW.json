@@ -2828,6 +2828,7 @@
     "addNewSpace": "創建空間",
     "collapseAllSubPages": "折疊所有子頁面",
     "createNewSpace": "創建新空間",
+    "createSpaceDescription": "建立多個公開與私人空間，以更好地整理您的工作。",
     "spaceName": "空間名稱",
     "spaceNamePlaceholder": "例如行銷、工程、人力資源",
     "permission": "空間許可",
@@ -2884,6 +2885,7 @@
       "mathBlock": "數學方程式已複製到剪貼簿",
       "fileBlock": "檔案連結已複製到剪貼簿"
     },
+    "containsPublishedPage": "此頁面包含一個或多個已發佈的頁面。如果您繼續，它們將會被取消發布。您要繼續刪除嗎？",
     "publishSuccessfully": "發布成功",
     "unpublishSuccessfully": "取消發布成功",
     "publishFailed": "發布失敗",
@@ -2907,6 +2909,7 @@
     "selectWorkspace": "選擇工作區",
     "addTo": "添加",
     "duplicateSuccessfully": "已新增至您的工作區",
+    "duplicateSuccessfullyDescription": "尚未安裝AppFlowy？點擊「下載」後，下載將自動開始。",
     "downloadIt": "下載",
     "openApp": "在應用程式中打開",
     "duplicateFailed": "副本失敗",
@@ -2927,6 +2930,8 @@
     "continueWithApple": "繼續使用 Apple ",
     "moreOptions": "更多選項",
     "collapse": "摺疊",
+    "signInAgreement": "點擊上方「繼續」，即表示您同意 AppFlowy 的…",
+    "signInLocalAgreement": "點擊上方「開始」即表示您同意 AppFlowy 的…",
     "and": "和",
     "termOfUse": "條款",
     "privacyPolicy": "隱私權政策",
@@ -2942,6 +2947,7 @@
     "importNotion": "從 Notion 匯入",
     "import": "匯入",
     "importSuccess": "上傳成功",
+    "importSuccessMessage": "匯入完成時，我們會通知您。之後，您可以在側邊欄中查看您的匯入頁面。",
     "importFailed": "匯入失敗，請檢查檔案格式。",
     "dropNotionFile": "在此處拖放您的Notion zip 檔案以上傳，或點擊瀏覽。",
     "error": {
@@ -2995,7 +3001,8 @@
     "collapse": "摺疊",
     "readMore": "閱讀更多",
     "failedToAddComment": "新增評論失敗",
-    "commentAddedSuccessfully": "評論已成功新增。"
+    "commentAddedSuccessfully": "評論已成功新增。",
+    "commentAddedSuccessTip": "您剛才新增或回覆了一則評論。是否要跳至頂端，以查看最新的評論？"
   },
   "template": {
     "asTemplate": "另存為範本",
@@ -3041,9 +3048,11 @@
       "typeToSearch": "輸入以搜尋創作者..."
     },
     "uploadSuccess": "範本已成功上傳",
+    "uploadSuccessDescription": "您的範本已成功上傳。您現在可以在範本庫中檢視它。",
     "viewTemplate": "查看範本",
     "deleteTemplate": "刪除範本",
     "deleteSuccess": "範本刪除成功",
+    "deleteTemplateDescription": "這不會影響目前頁面或發布狀態。您確定要刪除此範本嗎？",
     "addRelatedTemplate": "新增相關範本",
     "removeRelatedTemplate": "刪除相關範本",
     "uploadAvatar": "上傳頭像",
@@ -3079,6 +3088,7 @@
       "many": "{count} 名成員",
       "other": "{count} 名成員"
     },
+    "tip": "您已收到邀請，使用下方聯絡資訊加入這個工作區。如果資訊有誤，請聯繫您的管理員重新發送邀請。",
     "joinWorkspace": "加入工作區",
     "success": "您已成功加入工作區",
     "successMessage": "現在您可以存取其中的所有頁面和工作區。",
@@ -3086,6 +3096,7 @@
     "alreadyAccepted": "您已經接受邀請",
     "errorModal": {
       "title": "發生錯誤",
+      "description": "您目前的帳戶 {email} 可能沒有權限存取這個工作區。請使用正確的帳戶登入，或聯絡工作區擁有者尋求協助。",
       "contactOwner": "聯絡擁有者",
       "close": "返回首頁",
       "changeAccount": "更改帳戶"
@@ -3093,6 +3104,7 @@
   },
   "requestAccess": {
     "title": "沒有此頁面的存取權",
+    "subtitle": "您可以向此頁面的擁有者請求存取權。獲得批准後，您就可以查看該頁面。",
     "requestAccess": "要求存取",
     "backToHome": "返回首頁",
     "tip": "您目前以<link/>身分登入。",
@@ -3109,6 +3121,7 @@
     "downloadApp": "下載 AppFlowy",
     "approveButton": "核准",
     "approveSuccess": "已成功批准",
+    "approveError": "批准失敗，請確認工作區方案限制是否已達上限。",
     "getRequestInfoError": "取得請求資訊失敗",
     "memberCount": {
       "zero": "沒有成員",
@@ -3117,12 +3130,15 @@
       "other": "{count} 名成員"
     },
     "alreadyProTitle": "您已達到工作區方案限制",
+    "alreadyProMessage": "請他們聯繫 <email/>> 以解鎖更多成員。",
     "repeatApproveError": "您已經批准此請求",
+    "ensurePlanLimit": "請確認工作區方案限制是否已達上限。如果已達上限，請考慮 <upgrade/> 工作區方案或 <ownload/>。",
     "requestToJoin": "已請求加入",
     "asMember": "作為會員"
   },
   "upgradePlanModal": {
     "title": "升級到專業版",
+    "message": "{name} 已達到免費成員上限。升級至專業版以邀請更多成員。",
     "upgradeSteps": "如何在 AppFlowy 上升級您的方案:",
     "step1": "1. 前往設定",
     "step2": "2. 按一下「方案」",
@@ -3131,6 +3147,7 @@
     "actionButton": "升級",
     "downloadLink": "下載應用程式",
     "laterButton": "之後",
+    "refreshNote": "成功升級後，請點擊 <refresh/> 以啟用您的新功能。",
     "refresh": "這裡"
   },
   "breadcrumbs": {
@@ -3199,9 +3216,11 @@
     "requestInviteMembers": "邀請加入您的工作區",
     "inviteFailedMemberLimit": "成員限制已達到，請",
     "upgrade": "升級",
+    "addEmail": "email@example.com, email2@example.com...",
     "requestInvites": "發送邀請",
     "inviteAlready": "您已經邀請了這個電子郵件: {email}",
     "inviteSuccess": "邀請已成功發送",
+    "description": "在下方輸入電子郵件地址，以逗號分隔。費用將根據成員數量計算。",
     "emails": "電子郵件"
   },
   "quickNote": {
@@ -3213,6 +3232,7 @@
     "createFailed": "建立快速筆記失敗",
     "quickNotesEmpty": "沒有快速筆記",
     "emptyNote": "空筆記",
+    "deleteNotePrompt": "所選筆記將會永久刪除。您確定要刪除嗎？",
     "addNote": "新筆記",
     "noAdditionalText": "沒有額外文字"
   },
@@ -3224,6 +3244,7 @@
     "priceIn": "價格",
     "free": "免費",
     "pro": "專業版",
+    "freeDescription": "適合最多 2 名成員，用來整理所有事務。",
     "proDuration": {
       "monthly": "每位成員每月\n按月計費",
       "yearly": "每位成員每月\n年度計費"
