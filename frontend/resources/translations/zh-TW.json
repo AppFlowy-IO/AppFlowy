@@ -1469,7 +1469,7 @@
     "deleteView": "您確定要刪除此檢視嗎?",
     "createView": "建立",
     "title": {
-      "placeholder": "未命名"
+      "placeholder": "無標題"
     },
     "settings": {
       "filter": "篩選",
@@ -1480,13 +1480,13 @@
       "group": "群組",
       "addFilter": "新增篩選器",
       "deleteFilter": "刪除篩選器",
-      "filterBy": "以……篩選",
+      "filterBy": "依據篩選",
       "typeAValue": "輸入一個值……",
-      "layout": "版面佈局",
+      "layout": "版面配置",
       "compactMode": "緊湊模式",
       "databaseLayout": "版面佈局",
       "viewList": {
-        "zero": "0 次觀看",
+        "zero": "0 次瀏覽",
         "one": "{count} 次瀏覽",
         "other": "{count} 次瀏覽"
       },
@@ -1494,9 +1494,9 @@
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
       "createView": "建立檢視",
-      "duplicateView": "複製檢視",
+      "duplicateView": "副本檢視",
       "deleteView": "刪除檢視",
-      "numberOfVisibleFields": "{} 顯示"
+      "numberOfVisibleFields": "顯示 {}"
     },
     "filter": {
       "empty": "沒有任何作用中的篩選器",
@@ -1543,11 +1543,11 @@
     },
     "dateFilter": {
       "is": "是",
-      "before": "在……之前",
-      "after": "在……之後",
-      "onOrBefore": "在……之前或當天",
-      "onOrAfter": "在……之後或當天",
-      "between": "在……之間",
+      "before": "在...之前",
+      "after": "在...之後",
+      "onOrBefore": "在...之前或當天",
+      "onOrAfter": "在...之後或當天",
+      "between": "在...之間",
       "empty": "為空",
       "notEmpty": "不為空",
       "startDate": "開始日期",
@@ -1574,11 +1574,11 @@
     },
     "field": {
       "label": "屬性",
-      "hide": "隱藏",
-      "show": "顯示",
+      "hide": "隱藏屬性",
+      "show": "顯示屬性",
       "insertLeft": "左方插入",
       "insertRight": "右方插入",
-      "duplicate": "複製",
+      "duplicate": "副本",
       "delete": "刪除",
       "wrapCellContent": "文字換行",
       "clear": "清除儲存格",
