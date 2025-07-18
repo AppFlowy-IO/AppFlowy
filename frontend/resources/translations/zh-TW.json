@@ -1969,7 +1969,11 @@
     "unarchiveTooltip": "取消將此通知歸檔",
     "markAsReadTooltip": "此通知標記為已讀取",
     "markAsArchivedSucceedToast": "已成功歸檔",
+    "markAllAsArchivedSucceedToast": "已成功歸檔全部項目",
+    "markAsReadSucceedToast": "已成功標記為已讀取",
+    "markAllAsReadSucceedToast": "已成功將所有項目標記為已讀取",
     "today": "今天",
+    "older": "較舊",
     "mobile": {
       "title": "更新"
     },
