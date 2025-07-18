@@ -1846,6 +1846,9 @@
           "cellBackgroundColor": "儲存格背景顏色",
           "duplicateTable": "副本表格"
         },
+        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewColumn": "點擊以新增一個欄位",
+        "clickToAddNewRowAndColumn": "點擊新增列和欄",
         "headerName": {
           "table": "表格",
           "alignText": "對齊文字"
@@ -1905,7 +1908,11 @@
         "addAnImage": "新增圖片",
         "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "addAnImageDesktop": "新增圖片",
+        "addAnImageMobile": "點擊新增一張或多張圖片",
+        "dropImageToInsert": "將圖片拖曳至此插入",
         "imageUploadFailed": "圖片上傳失敗",
+        "imageDownloadFailed": "圖片下載失敗，請再試一次",
+        "imageDownloadFailedToken": "圖片下載因缺少用戶憑證而失敗，請再試一次\n",
         "errorCode": "錯誤代碼"
       },
       "photoGallery": {
@@ -1918,7 +1925,11 @@
         "addImageTooltip": "新增圖片",
         "changeLayoutTooltip": "變更版面",
         "browserLayout": "瀏覽器",
-        "gridLayout": "網格"
+        "gridLayout": "網格",
+        "deleteBlockTooltip": "刪除整個圖庫"
+      },
+      "math": {
+        "copiedToPasteBoard": "數學方程式已複製到剪貼簿"
       },
       "urlPreview": {
         "copiedToPasteBoard": "連結已複製到剪貼簿",
@@ -1939,7 +1950,8 @@
       "contextMenu": {
         "copy": "複製",
         "cut": "剪下",
-        "paste": "貼上"
+        "paste": "貼上",
+        "pasteAsPlainText": "以純文字貼上"
       },
       "action": "操作",
       "database": {
@@ -1955,8 +1967,11 @@
         "label": "影片",
         "emptyLabel": "新增影片",
         "placeholder": "貼上影片連結",
+        "copiedToPasteBoard": "影片連結已複製到剪貼簿",
         "insertVideo": "新增影片",
-        "invalidVideoUrlYouTube": "目前不支援 YouTube。"
+        "invalidVideoUrl": "來源網址目前不受支援。",
+        "invalidVideoUrlYouTube": "目前不支援 YouTube。",
+        "supportedFormats": "支援格式: MP4、WebM、MOV、AVI、FLV、MPEG/M4V、H.264"
       },
       "file": {
         "name": "檔案",
@@ -1967,17 +1982,35 @@
         "placeholderText": "上傳或嵌入檔案",
         "placeholderDragging": "將檔案拖曳以上傳",
         "dropFileToUpload": "拖放檔案進行上傳",
+        "fileUploadHint": "拖放檔案或點擊以",
         "fileUploadHintSuffix": "瀏覽",
         "networkHint": "貼上檔案連結",
+        "networkUrlInvalid": "網址無效。請檢查網址並再次嘗試。",
         "networkAction": "嵌入",
+        "fileTooBigError": "檔案太大，請上傳大小低於 10MB 的檔案。",
         "renameFile": {
-          "title": "重新命名檔案"
+          "title": "重新命名檔案",
+          "description": "輸入此檔案的新名稱",
+          "nameEmptyError": "檔案名稱不能為空。"
         },
         "uploadedAt": "已上傳至 {}",
-        "linkedAt": "連結已添加於 {}"
+        "linkedAt": "連結已添加於 {}",
+        "failedToOpenMsg": "開啟失敗，找不到檔案。"
       },
+      "subPage": {
+        "handlingPasteHint": "- (處理貼上)",
+        "errors": {
+          "failedDeletePage": "刪除頁面失敗",
+          "failedCreatePage": "建立頁面失敗",
+          "failedMovePage": "將頁面移至此文件失敗",
+          "failedDuplicatePage": "複製頁面失敗",
+          "failedDuplicateFindView": "複製頁面失敗 - 找不到原始視圖"
+        }
+      },
+      "cannotMoveToItsChildren": "無法移動到其子代",
       "linkPreview": {
         "typeSelection": {
+          "pasteAs": "貼上為",
           "mention": "提及",
           "URL": "網址",
           "bookmark": "書籤",
@@ -2030,7 +2063,8 @@
         "invalidImageSize": "圖片大小必須小於 5MB",
         "invalidImageFormat": "不支援的圖片格式。支援的格式：JPEG、PNG、GIF、SVG",
         "invalidImageUrl": "無效的圖片網址",
-        "noImage": "沒有該檔案或目錄"
+        "noImage": "沒有該檔案或目錄",
+        "multipleImagesFailed": "部分圖片上傳失敗，請再試一次"
       },
       "embedLink": {
         "label": "嵌入連結",
@@ -2058,6 +2092,7 @@
           "changeZoomLevelTooltip": "更改縮放級別",
           "openLocalImage": "打開圖片",
           "downloadImage": "下載圖片",
+          "closeViewer": "關閉互動式檢視器",
           "scalePercentage": "{}%",
           "deleteImageTooltip": "刪除圖片"
         }
@@ -2095,6 +2130,7 @@
       },
       "deleted": "已刪除",
       "deletedContent": "該內容不存在或已經刪除",
+      "noAccess": "無權限",
       "deletedPage": "已刪除頁面",
       "trashHint": " - 在垃圾桶裡",
       "morePages": "更多頁面"
@@ -2118,13 +2154,16 @@
       "turnInto": "變成",
       "equation": "方程式",
       "insert": "插入",
+      "linkInputHint": "貼上連結或搜尋頁面",
       "pageOrURL": "頁面或網址",
       "linkName": "連結名稱",
       "linkNameHint": "輸入連結名稱"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "目前版本不支援此區塊。",
+      "clickToCopyTheBlockContent": "點擊以複製區塊內容",
       "blockContentHasBeenCopied": "區塊內容已被複製。",
+      "parseError": "解析 {} 區塊時發生錯誤。",
       "copyBlockContent": "複製區塊內容"
     },
     "mobilePageSelector": {
@@ -2190,6 +2229,7 @@
       "nextThirtyDays": "接下來的 30 天"
     },
     "noGroup": "沒有按屬性分組",
+    "noGroupDesc": "看板視圖需要一個用於分組的屬性才能顯示。",
     "media": {
       "cardText": "{} {}",
       "fallbackName": "檔案"
@@ -2229,7 +2269,8 @@
       },
       "unscheduledEventsTitle": "未排程的事件",
       "clickToAdd": "點選以新增至日曆",
-      "name": "日曆設定"
+      "name": "日曆設定",
+      "clickToOpen": "點擊以開啟記錄"
     },
     "referencedCalendarPrefix": "檢視",
     "quickJumpYear": "跳到",
@@ -2238,15 +2279,21 @@
   "errorDialog": {
     "title": "@:appName 錯誤",
     "howToFixFallback": "對於給您帶來的不便，我們深表歉意！在我們的 GitHub 頁面上提交描述您的錯誤的問題。",
+    "howToFixFallbackHint1": "對於造成的不便，我們深感抱歉！在我們的...上提交問題。(",
+    "howToFixFallbackHint2": " 頁面描述您的錯誤。",
     "github": "在 GitHub 上檢視"
   },
   "search": {
     "label": "搜尋",
+    "sidebarSearchIcon": "搜尋並快速跳至頁面",
     "searchOrAskAI": "搜尋或詢問 AI",
+    "searchFieldHint": "在{}中搜尋或提問...(",
     "askAIAnything": "向 AI 提問任何問題",
     "askAIFor": "詢問 AI",
     "searching": "正在搜尋…",
     "noResultForSearching": "沒有找到符合的結果",
+    "noResultForSearchingHint": "嘗試不同的問題或關鍵字。\n 部分頁面可能在垃圾桶中。",
+    "noResultForSearchingHintWithoutTrash": "嘗試不同的問題或關鍵字。\n 部分頁面可能在...",
     "bestMatch": "最佳匹配",
     "seeMore": "查看更多",
     "showMore": "顯示更多",
@@ -2325,7 +2372,8 @@
     "reminder": {
       "groupTitle": "提醒",
       "shortKeyword": "提醒"
-    }
+    },
+    "createPage": "建立\"{}\"子頁面"
   },
   "datePicker": {
     "dateTimeFormatTooltip": "在設定中更改日期和時間格式",
@@ -2599,6 +2647,7 @@
         "dialogContent1": "確定要永久刪除您的帳號",
         "dialogContent2": "此操作無法撤銷，此操作將刪除所有團隊空間的存取權限，刪除您的整個帳戶（包括私人工作區），並將您從所有共用工作區中刪除",
         "confirmHint3": "刪除我的帳戶",
+        "failedToGetCurrentUser": "取得目前使用者電子郵件失敗",
         "deleteAccountSuccess": "帳戶已成功刪除"
       },
       "password": {
@@ -2716,12 +2765,15 @@
     "spaceNamePlaceholder": "例如行銷、工程、人力資源",
     "permission": "空間許可",
     "publicPermission": "民眾",
+    "publicPermissionDescription": "所有具有完全存取權的工作區成員",
     "privatePermission": "私人",
     "privatePermissionDescription": "只有您可以訪問此空間",
     "spaceIconBackground": "背景顏色",
     "spaceIcon": "圖示",
     "dangerZone": "危險區域",
     "unableToDeleteLastSpace": "無法刪除最後一個空間",
+    "unableToDeleteSpaceNotCreatedByYou": "無法刪除他人建立的工作區",
+    "enableSpacesForYourWorkspace": "啟用工作區的 Spaces",
     "title": "空間",
     "defaultSpaceName": "一般",
     "upgradeSpaceTitle": "啟用空間",
@@ -2753,19 +2805,41 @@
     "mSpaceIcon": "空間圖示"
   },
   "publish": {
+    "hasNotBeenPublished": "此頁面尚未發布。",
+    "spaceHasNotBeenPublished": "目前尚不支援發布工作區",
     "reportPage": "報告頁面",
+    "databaseHasNotBeenPublished": "目前尚不支援發布資料庫。",
     "createdWith": "創建於",
     "downloadApp": "下載 AppFlowy",
+    "copy": {
+      "codeBlock": "程式碼區塊的內容已複製到剪貼簿",
+      "imageBlock": "圖片連結已複製到剪貼簿",
+      "mathBlock": "數學方程式已複製到剪貼簿",
+      "fileBlock": "檔案連結已複製到剪貼簿"
+    },
     "publishSuccessfully": "發布成功",
     "unpublishSuccessfully": "取消發布成功",
     "publishFailed": "發布失敗",
     "unpublishFailed": "取消發布失敗",
     "noAccessToVisit": "無法存取此頁面...",
+    "createWithAppFlowy": "使用 AppFlowy 建立網站",
     "fastWithAI": "使用AI快速且輕鬆。",
     "tryItNow": "立即嘗試",
+    "onlyGridViewCanBePublished": "僅限網格檢視可發布",
+    "database": {
+      "zero": "發布所選取的 {} 檢視",
+      "one": "發布所選取的 {} 多個檢視",
+      "many": "發布所選取的 {} 多個檢視",
+      "other": "發布所選取的 {} 多個檢視"
+    },
+    "mustSelectPrimaryDatabase": "必須選擇主要檢視",
+    "noDatabaseSelected": "未選取資料庫，請至少選取一個資料庫。",
+    "unableToDeselectPrimaryDatabase": "無法取消選擇主要資料庫",
     "saveThisPage": "使用此範本開始",
+    "duplicateTitle": "您想將其新增到哪裡?",
     "selectWorkspace": "選擇工作區",
     "addTo": "添加",
+    "duplicateSuccessfully": "已新增至您的工作區",
     "downloadIt": "下載",
     "openApp": "在應用程式中打開",
     "duplicateFailed": "副本失敗",
