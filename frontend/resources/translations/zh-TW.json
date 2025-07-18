@@ -290,7 +290,11 @@
       "number": "編號清單",
       "table": "表格",
       "blankDescription": "格式化回應",
-      "defaultDescription": "自動回應格式"
+      "defaultDescription": "自動回應格式",
+      "textWithImageDescription": "@:chat .changeFormat.text 搭配圖像",
+      "numberWithImageDescription": "@:chat .changeFormat.number 搭配圖像",
+      "bulletWithImageDescription": "@:chat .changeFormat.bullet 搭配圖像",
+      "tableWithImageDescription": "@:chat .changeFormat.table 搭配圖像"
     },
     "switchModel": {
       "label": "切換模型",
@@ -836,6 +840,11 @@
         "moveCursorUp": "向上移動游標",
         "moveCursorTopSelect": "選取並將游標移至頂端",
         "moveCursorTop": "將游標移至頂端",
+        "moveCursorUpSelect": "選取並將游標向上移動",
+        "moveCursorBottomSelect": "選取並將游標移到底部",
+        "moveCursorBottom": "將游標移到底部",
+        "moveCursorDown": "將游標向下移動",
+        "moveCursorDownSelect": "選取並將游標向下移動",
         "home": "捲動至頂部",
         "end": "捲動至底部",
         "toggleBold": "切換粗體",
@@ -850,9 +859,28 @@
         "indent": "縮排",
         "outdent": "取消縮排",
         "exit": "結束編輯模式",
+        "pageUp": "向上滾動一頁",
+        "pageDown": "向下滾動一頁",
         "selectAll": "全選",
-        "showEmojiPicker": "顯示表情符號選擇器"
-      }
+        "pasteWithoutFormatting": "貼上內容，不含格式",
+        "showEmojiPicker": "顯示表情符號選擇器",
+        "enterInTableCell": "在表格中新增換行符號",
+        "leftInTableCell": "在表格中向左移動一個儲存格",
+        "rightInTableCell": "在表格中向右移動一個儲存格",
+        "upInTableCell": "在表格中向上移動一個儲存格",
+        "downInTableCell": "在表格中向下移動一個儲存格",
+        "tabInTableCell": "前往表格中的下一個可用儲存格",
+        "shiftTabInTableCell": "前往表格中先前可用的儲存格",
+        "backSpaceInTableCell": "在儲存格開頭停止"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
+        "textAlignLeft": "將文字左對齊",
+        "textAlignCenter": "將文字置中對齊",
+        "textAlignRight": "將文字右對齊"
+      },
+      "couldNotLoadErrorMsg": "無法載入快捷鍵，請再次嘗試",
+      "couldNotSaveErrorMsg": "無法儲存快捷鍵，請再次嘗試"
     },
     "aiPage": {
       "title": "AI 設定",
@@ -905,50 +933,134 @@
       }
     },
     "planPage": {
+      "menuLabel": "方案",
+      "title": "價格方案",
       "planUsage": {
+        "title": "方案使用摘要",
+        "storageLabel": "儲存空間",
+        "storageUsage": "{} / {} GB",
+        "unlimitedStorageLabel": "無限儲存空間",
         "collaboratorsLabel": "成員",
+        "collaboratorsUsage": "{} / {}",
+        "aiResponseLabel": "AI 回應",
+        "aiResponseUsage": "{} / {}",
+        "unlimitedAILabel": "無限回應",
         "proBadge": "專業版",
         "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "Mac 上的 AI 本機處理",
+        "memberProToggle": "更多成員、無限 AI 和來賓存取權",
+        "aiOnDeviceToggle": "本地 AI，確保極致隱私",
         "aiCredit": {
-          "price": "{}"
+          "title": "新增 @:appName AI 額度",
+          "price": "{}",
+          "priceDescription": "用於 1,000 個額度",
+          "purchase": "購買 AI",
+          "infoItemOne": "每個資料庫 10,000 次回應",
+          "infoItemTwo": "每個工作區 1,000 次回應"
+        },
+        "currentPlan": {
+          "bannerLabel": "目前方案",
+          "freeTitle": "免費版",
+          "proTitle": "專業版",
+          "teamTitle": "團隊",
+          "upgrade": "變更計劃"
         },
         "addons": {
+          "title": "附加組件",
+          "addLabel": "新增",
+          "activeLabel": "已新增",
           "aiMax": {
             "title": "AI Max",
-            "price": "{}"
+            "price": "{}",
+            "priceInfo": "每位使用者每月，按年計費"
           },
           "aiOnDevice": {
-            "price": "{}"
+            "title": "Mac 上的 AI 本機處理",
+            "description": "在您的機器上執行 Mistral 7B、LLAMA 3 和更多本機模型",
+            "price": "{}",
+            "priceInfo": "每位使用者每月，按年計費",
+            "recommend": "建議使用 M1 或更新版本"
           }
+        },
+        "deal": {
+          "bannerLabel": "新年優惠!",
+          "title": "擴展您的團隊!",
+          "viewPlans": "查看方案"
         }
       }
     },
     "billingPage": {
+      "menuLabel": "帳單",
+      "title": "帳單",
+      "plan": {
+        "title": "方案",
+        "freeLabel": "免費版",
+        "proLabel": "專業版",
+        "planButtonLabel": "變更計劃",
+        "billingPeriod": "計費週期",
+        "periodButtonLabel": "Edit period"
+      },
+      "paymentDetails": {
+        "title": "付款資訊",
+        "methodLabel": "付款方式",
+        "methodButtonLabel": "編輯方式"
+      },
       "addons": {
+        "title": "附加組件",
+        "addLabel": "新增",
+        "removeLabel": "移除",
+        "renewLabel": "續訂",
         "aiMax": {
-          "label": "AI Max"
+          "label": "AI Max",
+          "description": "解鎖無限 AI 和進階模型"
+        },
+        "aiOnDevice": {
+          "label": "Mac 上的 AI 本機處理",
+          "activeDescription": "下期帳單到期日為 {}"
         },
         "removeDialog": {
           "title": "移除 {}"
         }
-      }
+      },
+      "currentPeriodBadge": "目前",
+      "changePeriod": "變更週期",
+      "planPeriod": "{} 週期",
+      "monthlyInterval": "每月",
+      "monthlyPriceInfo": "每座位每月計費",
+      "annualInterval": "每年",
+      "annualPriceInfo": "每座位按年計費"
     },
     "comparePlanDialog": {
+      "title": "比較並選擇方案",
+      "planFeatures": "方案\n功能",
       "current": "目前",
       "actions": {
-        "upgrade": "升級"
+        "upgrade": "升級",
+        "downgrade": "降級",
+        "current": "目前"
       },
       "freePlan": {
-        "price": "{}"
+        "title": "免費版",
+        "description": "適用於最多 2 名成員，以整理所有事務",
+        "price": "{}",
+        "priceInfo": "永遠免費"
       },
       "proPlan": {
+        "title": "專業版",
         "price": "{}"
       },
       "planLabels": {
         "itemOne": "工作區",
         "itemTwo": "成員",
+        "itemThree": "儲存空間",
+        "itemFour": "即時協作",
+        "itemFive": "客戶編輯器",
+        "itemSix": "AI 回應",
         "itemSeven": "AI 圖像",
-        "itemFileUpload": "檔案上傳"
+        "itemFileUpload": "檔案上傳",
+        "customNamespace": "自訂命名空間",
+        "tooltipFive": "與非會員共同編輯特定頁面",
+        "intelligentSearch": "智慧搜尋"
       },
       "freeLabels": {
         "itemThree": "5 GB",
@@ -1283,14 +1395,14 @@
       "typeAValue": "輸入一個值……",
       "layout": "版面佈局",
       "databaseLayout": "版面佈局",
-      "viewList": "資料庫檢視",
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
       "createView": "建立檢視",
       "duplicateView": "複製檢視",
       "deleteView": "刪除檢視",
-      "numberOfVisibleFields": "{} 顯示"
+      "numberOfVisibleFields": "{} 顯示",
+      "viewList": "資料庫檢視"
     },
     "textFilter": {
       "contains": "包含",
