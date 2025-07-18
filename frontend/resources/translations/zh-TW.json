@@ -2806,6 +2806,7 @@
     "photoPermissionTitle": "@:appName 希望存取您的圖片庫",
     "photoPermissionDescription": "允許存取圖片庫以上傳圖片",
     "cameraPermissionTitle": "@:appName 想要存取您的攝影機",
+    "cameraPermissionDescription": "@:appName 需要存取您的相機，才能讓您從相機新增圖片到您的文件。",
     "doNotAllow": "不允許",
     "image": "圖像"
   },
@@ -2833,6 +2834,7 @@
   "space": {
     "delete": "刪除",
     "deleteConfirmation": "刪除:",
+    "deleteConfirmationDescription": "這個空間中的所有頁面都將被刪除並移至垃圾桶，任何已發布的頁面都會取消發布。",
     "rename": "重新命名空間",
     "changeIcon": "變更圖示",
     "manage": "管理空間",
@@ -3285,6 +3287,7 @@
     "cancelPlan": {
       "title": "很遺憾看到您離開",
       "success": "您的訂閱已成功取消",
+      "description": "很遺憾看到您離開。我們非常希望聽到您的回饋，以幫助我們改善 AppFlowy。請花一點時間回答幾個問題。",
       "commonOther": "其他",
       "otherHint": "在此處輸入您的答案",
       "questionOne": {
@@ -3323,7 +3326,10 @@
   "ai": {
     "contentPolicyViolation": "圖片生成因敏感內容而失敗。請重新措辭您的輸入並再次嘗試。",
     "textLimitReachedDescription": "您的工作區已用完免費的 AI 回應。升級至專業版或購買 AI 附加組件以解鎖無限回應",
+    "imageLimitReachedDescription": "您已用完免費的 AI 圖片配額。請升級至專業版或購買 AI 附加組件以解鎖無限回應。",
     "limitReachedAction": {
+      "textDescription": "您的工作區已用完免費的 AI 回應。要獲得更多回應，請…",
+      "imageDescription": "您已用完免費的 AI 圖片配額。請…",
       "upgrade": "升級",
       "toThe": "到",
       "proPlan": "專業方案",
@@ -3333,6 +3339,7 @@
     "editing": "編輯中",
     "analyzing": "分析中",
     "continueWritingEmptyDocumentTitle": "繼續寫作錯誤",
+    "continueWritingEmptyDocumentDescription": "我們在擴展文件中內容時遇到困難。請寫一個簡短的介紹，然後我們可以從那裡開始！",
     "more": "更多",
     "customPrompt": {
       "browsePrompts": "瀏覽提示",
@@ -3351,6 +3358,7 @@
       "selectField": "選擇欄位",
       "loading": "載入中",
       "invalidDatabase": "無效資料庫",
+      "invalidDatabaseHelp": "請確保資料庫至少具有兩個文字屬性:\n ◦ 一個用於提示名稱 ◦ 一個用於提示內容\n您也可以選擇性地新增屬性以用於提示範例和類別。",
       "noResults": "找不到任何提示",
       "all": "全部",
       "development": "開發",
@@ -3382,6 +3390,7 @@
   },
   "autoUpdate": {
     "criticalUpdateTitle": "需要更新才能繼續",
+    "criticalUpdateDescription": "我們已進行改進以提升您的體驗！請從 {currentVersion} 更新至 {newVersion} 以繼續使用應用程式。",
     "criticalUpdateButton": "更新",
     "bannerUpdateTitle": "新版本發布!",
     "bannerUpdateDescription": "取得最新功能和修復。點擊「更新」即可立即安裝",
@@ -3445,6 +3454,11 @@
         "owner": "升級為邀請嘉賓",
         "member": "升級為邀請嘉賓",
         "guest": "升級為邀請嘉賓"
+      },
+      "description": {
+        "owner": "您的工作區目前使用的是免費方案。升級至專業版，以允許外部使用者作為訪客存取此頁面。",
+        "member": "部分受邀者不在您的工作區內。若要將他們邀請為訪客，請聯繫您的工作區擁有者以升級至專業版。",
+        "guest": "部分受邀者不在您的工作區內。若要將他們邀請為訪客，請聯繫您的工作區擁有者以升級至專業版。"
       }
     }
   },
