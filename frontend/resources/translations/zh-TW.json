@@ -2323,22 +2323,22 @@
       }
     },
     "mobileEventScreen": {
-      "emptyTitle": "目前尚無事件",
+      "emptyTitle": "目前尚目前沒有任何活動",
       "emptyBody": "點選加號按鈕以在此日新增事件。"
     },
     "settings": {
       "showWeekNumbers": "顯示週數",
       "showWeekends": "顯示週末",
-      "firstDayOfWeek": "一週的第一天",
+      "firstDayOfWeek": "週開始於",
       "layoutDateField": "排列方式",
       "changeLayoutDateField": "更改排列欄位",
-      "noDateTitle": "未註明日期的",
+      "noDateTitle": "未註明日無日期",
       "noDateHint": {
         "zero": "未排程的事件將顯示在這裡",
         "one": "有 {count} 個未排程的事件",
         "other": "有 {count} 個未排程的事件"
       },
-      "unscheduledEventsTitle": "未排程的事件",
+      "unscheduledEventsTitle": "未排定的活動",
       "clickToAdd": "點選以新增至日曆",
       "name": "日曆設定",
       "clickToOpen": "點擊以開啟記錄"
@@ -2350,7 +2350,7 @@
   "errorDialog": {
     "title": "@:appName 錯誤",
     "howToFixFallback": "對於給您帶來的不便，我們深表歉意！在我們的 GitHub 頁面上提交描述您的錯誤的問題。",
-    "howToFixFallbackHint1": "對於造成的不便，我們深感抱歉！在我們的...上提交問題。(",
+    "howToFixFallbackHint1": "對於造成的不便，我們深感抱歉！在我們的...上提交問題。",
     "howToFixFallbackHint2": " 頁面描述您的錯誤。",
     "github": "在 GitHub 上檢視"
   },
@@ -2358,13 +2358,13 @@
     "label": "搜尋",
     "sidebarSearchIcon": "搜尋並快速跳至頁面",
     "searchOrAskAI": "搜尋或詢問 AI",
-    "searchFieldHint": "在{}中搜尋或提問...(",
+    "searchFieldHint": "在{}中搜尋或提問...",
     "askAIAnything": "向 AI 提問任何問題",
     "askAIFor": "詢問 AI",
     "searching": "正在搜尋…",
     "noResultForSearching": "沒有找到符合的結果",
     "noResultForSearchingHint": "嘗試不同的問題或關鍵字。\n 部分頁面可能在垃圾桶中。",
-    "noResultForSearchingHintWithoutTrash": "嘗試不同的問題或關鍵字。\n 部分頁面可能在...",
+    "noResultForSearchingHintWithoutTrash": "嘗試不同的問題或關鍵字。\n 部分頁面可能在",
     "bestMatch": "最佳匹配",
     "seeMore": "查看更多",
     "showMore": "顯示更多",
@@ -2377,18 +2377,18 @@
   },
   "message": {
     "copy": {
-      "success": "已複製！",
+      "success": "已複製已複製到剪貼簿",
       "fail": "無法複製"
     }
   },
   "unSupportBlock": "目前版本不支援此區塊。",
   "views": {
-    "deleteContentTitle": "您確定要刪除 {pageType} 嗎？",
+    "deleteContentTitle": "您確定要刪除 {pageType} 嗎?",
     "deleteContentCaption": "如果您刪除此 {pageType}，您可以從垃圾桶中將其復原。"
   },
   "colors": {
     "custom": "自訂",
-    "default": "預設",
+    "default": "預設值",
     "red": "紅色",
     "orange": "橙色",
     "yellow": "黃色",
@@ -2410,11 +2410,11 @@
     "remove": "移除表情符號",
     "categories": {
       "smileys": "笑臉與情緒",
-      "people": "人物與身體",
-      "animals": "動物與自然",
-      "food": "食物與飲料",
+      "people": "人物",
+      "animals": "自然",
+      "food": "食物",
       "activities": "活動",
-      "places": "旅行與地點",
+      "places": "地點",
       "objects": "物件",
       "symbols": "符號",
       "flags": "旗幟",
@@ -2422,7 +2422,7 @@
       "frequentlyUsed": "常用"
     },
     "skinTone": {
-      "default": "預設",
+      "default": "預設值",
       "light": "淺色",
       "mediumLight": "中淺色",
       "medium": "中色",
