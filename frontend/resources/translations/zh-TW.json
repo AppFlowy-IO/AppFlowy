@@ -865,7 +865,7 @@
       },
       "commands": {
         "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
-        "codeBlockPasteText": "Paste text in codeblock",
+        "codeBlockPasteText": "將文字貼到程式碼區塊中",
         "textAlignLeft": "將文字左對齊",
         "textAlignCenter": "將文字置中對齊",
         "textAlignRight": "將文字右對齊"
