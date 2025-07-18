@@ -1882,7 +1882,7 @@
           "cellBackgroundColor": "儲存格背景顏色",
           "duplicateTable": "副本表格"
         },
-        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewRow": "點擊以新增一列",
         "clickToAddNewColumn": "點擊以新增一個欄位",
         "clickToAddNewRowAndColumn": "點擊新增列和欄",
         "headerName": {
