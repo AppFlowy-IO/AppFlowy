@@ -51,34 +51,34 @@
     "passwordMustContain": "密碼必須包含至少一個字母、一個數字和一個符號。",
     "syncPromptMessage": "同步資料可能需要一些時間。請不要關閉此頁面",
     "or": "或",
-    "signInWithGoogle": "使用Google 登入",
-    "signInWithGithub": "使用Github 登入",
-    "signInWithDiscord": "使用Discord 登入",
+    "signInWithGoogle": "使用 Google 登入",
+    "signInWithGithub": "使用 Github 登入",
+    "signInWithDiscord": "使用 Discord 登入",
     "signInWithApple": "使用 Apple 帳號登入",
     "continueAnotherWay": "使用其他方式登入",
-    "signUpWithGoogle": "使用Google 註冊",
-    "signUpWithGithub": "使用Github 註冊",
-    "signUpWithDiscord": "使用Discord 註冊",
-    "signInWith": "透過以下方式登入：",
+    "signUpWithGoogle": "使用 Google 註冊",
+    "signUpWithGithub": "使用 Github 註冊",
+    "signUpWithDiscord": "使用 Discord 註冊",
+    "signInWith": "透過以下方式登入:",
     "signInWithEmail": "使用電子郵件登入",
     "signInWithMagicLink": "繼續",
-    "signUpWithMagicLink": "使用Magic Link 註冊",
+    "signUpWithMagicLink": "使用 Magic Link 註冊",
     "pleaseInputYourEmail": "請輸入您的電郵地址",
     "settings": "設定",
-    "magicLinkSent": "我們己發送Magic Link 到您的電子郵件，點擊連結登入",
+    "magicLinkSent": "我們己發送 Magic Link 到您的電子郵件，點擊連結登入",
     "invalidEmail": "請輸入有效的電郵地址",
     "alreadyHaveAnAccount": "已經有帳戶？",
     "logIn": "登入",
     "generalError": "出了些問題。請稍後再試",
-    "limitRateError": "出於安全原因，您只能每60 秒申請一次Magic Link",
+    "limitRateError": "出於安全原因，您只能每 60 秒申請一次 Magic Link",
     "magicLinkSentDescription": "連結已發送到您的電子信箱。點擊連結即可登入。連結將在 5 分鐘後過期。",
     "tokenHasExpiredOrInvalid": "此代碼已過期或無效，請重新嘗試。",
     "signingIn": "正在登入…",
     "checkYourEmail": "檢查您的電子郵件信箱",
     "temporaryVerificationLinkSent": "已發送一封暫時驗證連結。 請查看您的收件匣，地址為:",
     "temporaryVerificationCodeSent": "已發送一封暫時驗證碼。 請查看您的收件匣，地址為:",
-    "continueToSignIn": "繼續登入。",
-    "continueWithLoginCode": "繼續使用登入代碼。",
+    "continueToSignIn": "繼續登入",
+    "continueWithLoginCode": "繼續使用登入代碼",
     "backToLogin": "返回登入頁面",
     "enterCode": "輸入代碼",
     "enterCodeManually": "手動輸入代碼",
@@ -130,7 +130,7 @@
       "reachOut": "在 Discord 上聯絡我們"
     },
     "menuTitle": "工作區",
-    "deleteWorkspaceHintText": "您確定要刪除工作區嗎？此操作無法撤銷",
+    "deleteWorkspaceHintText": "您確定要刪除工作區嗎？ 此動作無法復原，您已發布的任何頁面都將會取消發布。",
     "createSuccess": "成功創建工作區",
     "createFailed": "無法創建工作區",
     "createLimitExceeded": "您已達到帳戶允許的最大工作區限制。如果您需要額外的工作空間，請在 Github 上申請",
@@ -182,7 +182,7 @@
     "import": "匯入",
     "moreOptions": "更多選項",
     "wordCount": "字數: {}",
-    "charCount": "字元數：{}",
+    "charCount": "字元數: {}",
     "createdAt": "建立於: {}",
     "deleteView": "刪除",
     "duplicateView": "副本",
@@ -195,8 +195,8 @@
   },
   "importPanel": {
     "textAndMarkdown": "文字 & Markdown",
-    "documentFromV010": "來自 v0.1.0 的文件",
-    "databaseFromV010": "來自 v0.1.0 的資料庫",
+    "documentFromV010": "文件來自 v0.1.0",
+    "databaseFromV010": "資料庫來自 v0.1.0",
     "notionZip": "Notion 匯出 ZIP 檔案",
     "csv": "CSV",
     "database": "資料庫"
@@ -235,11 +235,11 @@
   "chat": {
     "newChat": "AI 聊天",
     "inputMessageHint": "詢問 @:appName AI",
-    "inputLocalAIMessageHint": "詢問 @:appName 本機 AI",
+    "inputLocalAIMessageHint": "詢問 @:appName 本地 AI",
     "unsupportedCloudPrompt": "此功能僅在使用 @:appName Cloud 時可用",
     "relatedQuestion": "相關問題",
     "serverUnavailable": "服務暫時無法使用，請稍後再試。",
-    "aiServerUnavailable": "🌈 哎呀！ 🌈 AI 服務目前不可用，請稍後再試。 ",
+    "aiServerUnavailable": "AI 服務目前暫時不可用。請稍後再試一次。",
     "retry": "重試",
     "clickToRetry": "點擊重試",
     "regenerateAnswer": "重新產生",
@@ -259,7 +259,7 @@
       "other": "已找到 {count} 個來源"
     },
     "clickToMention": "提及頁面",
-    "uploadFile": "上傳 PDF、md 或 txt 檔案以進行聊天",
+    "uploadFile": "附加 PDF、文字或 Markdown 檔案。",
     "questionDetail": "嗨，{}！今天我能如何幫助您？",
     "indexingFile": "正在索引 {}",
     "generatingResponse": "正在產生回應",
@@ -316,7 +316,7 @@
       "created": "建立時間"
     },
     "confirmDeleteAll": {
-      "title": "您確定要刪除垃圾桶中的所有頁面嗎？",
+      "title": "垃圾桶中的所有頁面",
       "caption": "您確定要刪除垃圾桶中的所有內容嗎？此動作無法復原。"
     },
     "confirmRestoreAll": {
@@ -329,7 +329,7 @@
     },
     "mobile": {
       "actions": "垃圾桶操作",
-      "empty": "垃圾桶中沒有頁面或空間。",
+      "empty": "垃圾桶中沒有頁面或空間",
       "emptyDescription": "將不需要的項目移至垃圾桶。",
       "isDeleted": "已刪除",
       "isRestored": "已還原"
@@ -345,13 +345,13 @@
   "dialogCreatePageNameHint": "頁面名稱",
   "questionBubble": {
     "shortcuts": "快捷鍵",
-    "whatsNew": "最新消息是什麼？",
+    "whatsNew": "最新消息？",
     "helpAndDocumentation": "說明與文件。",
     "getSupport": "取得支援",
     "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
-      "success": "已將除錯資訊複製到剪貼簿！",
+      "success": "已將除錯資訊複製到剪貼簿",
       "fail": "無法將除錯資訊複製到剪貼簿"
     },
     "feedback": "意見回饋"
@@ -359,7 +359,7 @@
   "menuAppHeader": {
     "moreButtonToolTip": "移除、重新命名等等...",
     "addPageTooltip": "快速在此新增頁面",
-    "defaultNewPageName": "未命名",
+    "defaultNewPageName": "無標題",
     "renameDialog": "重新命名",
     "pageNameSuffix": "複製"
   },
@@ -382,7 +382,7 @@
     "addLink": "新增連結"
   },
   "tooltip": {
-    "lightMode": "切換至亮色模式",
+    "lightMode": "切換至淺色模式",
     "darkMode": "切換至深色模式",
     "openAsPage": "以頁面開啟",
     "addNewRow": "新增一列",
@@ -420,19 +420,19 @@
     "emptyRecent": "沒有最近的頁面",
     "emptyRecentDescription": "當您檢視頁面時，它們將會出現在這裡，方便您取回。",
     "emptyFavorite": "沒有收藏的頁面",
-    "emptyFavoriteDescription": "將頁面標記為收藏 - 它們將列在此處以便您可以快速存取！",
-    "removePageFromRecent": "要從最近的頁面中刪除此頁面嗎？",
+    "emptyFavoriteDescription": "將頁面標記為收藏 - 它們將列在此處以便您可以快速存取!",
+    "removePageFromRecent": "要從最近的頁面中刪除此頁面嗎?",
     "removeSuccess": "刪除成功",
     "favoriteSpace": "收藏",
     "RecentSpace": "最近的",
     "Spaces": "空間",
-    "upgradeToPro": "升級到 Pro",
+    "upgradeToPro": "升級到專業版",
     "upgradeToAIMax": "解鎖無限 AI",
     "storageLimitDialogTitle": "您的免費儲存空間已用完，升級以解鎖無限儲存空間",
     "storageLimitDialogTitleIOS": "您的免費儲存空間已用完。",
-    "aiResponseLimitTitle": "您的免費 AI 回覆已用完，升級到 Pro 或購買 AI 附加方案以解鎖無限回覆",
+    "aiResponseLimitTitle": "您的免費 AI 回覆已用完，升級到專業版或購買 AI 附加方案以解鎖無限回覆",
     "aiResponseLimitDialogTitle": "AI 回覆已達到限制",
-    "aiResponseLimit": "您已用完免費的 AI 回應。\n前往 設定 -> 方案 -> 點擊 AI Max 或 Pro 方案以獲得更多 AI 回應。",
+    "aiResponseLimit": "您已用完免費的 AI 回應。\n前往 設定 -> 方案 -> 點擊 AI Max 或專業版方案以獲得更多 AI 回應。",
     "askOwnerToUpgradeToPro": "您的工作區即將耗盡免費儲存空間。請要求您的工作區擁有者升級到專業版",
     "askOwnerToUpgradeToProIOS": "您的工作區即將耗盡免費儲存空間。",
     "askOwnerToUpgradeToAIMax": "您的工作區已用完免費的 AI 回應。請要求您的工作區擁有者升級方案或購買 AI 附加功能",
@@ -440,7 +440,7 @@
     "purchaseAIMax": "您的工作區已用完 AI 圖片回應。請要求您的工作區擁有者購買 AI Max。",
     "aiImageResponseLimit": "您已用完 AI 圖像回應。\n前往 設定 -> 方案 -> 點擊 AI Max 以獲得更多 AI 圖像回應",
     "purchaseStorageSpace": "購買儲存空間",
-    "singleFileProPlanLimitationDescription": "您已超過免費方案允許的最大檔案上傳大小。請升級到專業版以上傳更大的檔案",
+    "singleFileProPlanLimitationDescription": "您已超過免費方案允許的最大檔案上傳容量。請升級到專業版以上傳更大的檔案",
     "purchaseAIResponse": "購買",
     "askOwnerToUpgradeToLocalAI": "要求工作區擁有者啟用 AI 裝置端功能",
     "upgradeToAILocal": "在您的設備上執行本地模型，以獲得終極隱私保護",
@@ -454,7 +454,7 @@
   },
   "contactsPage": {
     "title": "聯絡人",
-    "whatsHappening": "本週有什麼事發生？",
+    "whatsHappening": "本週有什麼事發生?",
     "addContact": "新增聯絡人",
     "editContact": "編輯聯絡人"
   },
@@ -504,14 +504,14 @@
     "logout": "登出",
     "deleteAccount": "刪除帳號",
     "back": "返回",
-    "signInGoogle": "使用Google 登入",
-    "signInGithub": "使用Github 登入",
-    "signInDiscord": "使用Discord 登入",
+    "signInGoogle": "使用 Google 登入",
+    "signInGithub": "使用 Github 登入",
+    "signInDiscord": "使用 Discord 登入",
     "more": "更多",
     "create": "新增",
     "close": "關閉",
-    "next": "下一個",
-    "previous": "上一個",
+    "next": "下一步",
+    "previous": "上一步",
     "submit": "提交",
     "download": "下載",
     "backToHome": "回首頁",
@@ -523,11 +523,11 @@
     "copyLinkOriginal": "複製原始連結"
   },
   "label": {
-    "welcome": "歡迎！",
-    "firstName": "名",
+    "welcome": "歡迎!",
+    "firstName": "名字",
     "middleName": "中間名",
-    "lastName": "姓",
-    "stepX": "第 {X} 步"
+    "lastName": "姓氏",
+    "stepX": "步驟 {X}"
   },
   "oAuth": {
     "err": {
@@ -535,11 +535,11 @@
       "failedMsg": "請確認您已在瀏覽器中完成登入程序。"
     },
     "google": {
-      "title": "Google 帳號登入",
+      "title": "GOOGLE  帳號登入",
       "instruction1": "若要匯入您的 Google 聯絡人，您必須透過瀏覽器授權此應用程式。",
-      "instruction2": "點選圖示或選取文字以複製程式碼到剪貼簿：",
-      "instruction3": "前往下列網址，並輸入上述程式碼：",
-      "instruction4": "完成註冊後，請點選下方按鈕："
+      "instruction2": "點選圖示或選取文字以複製程式碼到剪貼簿:",
+      "instruction3": "前往下列網址，並輸入上述程式碼:",
+      "instruction4": "完成註冊後，請點選下方按鈕:"
     }
   },
   "settings": {
