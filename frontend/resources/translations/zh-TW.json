@@ -896,8 +896,8 @@
         "readOnlyField": "此欄位為唯讀設定",
         "llmModelType": "語言模型類型",
         "downloadLLMPrompt": "下載 {}",
-        "downloadAppFlowyOfflineAI": "下載 AI 離線套件將啟用裝置上的 AI 執行。您要繼續嗎？",
-        "downloadLLMPromptDetail": "下載 {} 本地模型將佔用高達 {} 的儲存空間。您要繼續嗎？",
+        "downloadAppFlowyOfflineAI": "下載 AI 離線套件將啟用裝置上的 AI 執行。您要繼續嗎?",
+        "downloadLLMPromptDetail": "下載 {} 本地模型將佔用高達 {} 的儲存空間。您要繼續嗎?",
         "downloadBigFilePrompt": "下載完成可能需要大約 10 分鐘的時間",
         "downloadAIModelButton": "下載",
         "downloadingModel": "正在下載中",
@@ -914,13 +914,13 @@
         "failToLoadLocalAI": "啟動本地 AI 失敗。",
         "restartLocalAI": "重新啟動",
         "disableLocalAITitle": "停用本地 AI",
-        "disableLocalAIDescription": "您要停用本地 AI 嗎？",
+        "disableLocalAIDescription": "您要停用本地 AI 嗎?",
         "localAIToggleTitle": "AppFlowy 本地 AI (LAI)",
-        "localAIToggleSubTitle": "在 AppFlowy 中執行最先進的本地  AI 模型，以獲得終極隱私和安全性。",
+        "localAIToggleSubTitle": "在 AppFlowy 中執行最先進的本地  AI 模型，以獲得終極隱私和安全性",
         "offlineAIInstruction1": "跟隨",
         "offlineAIInstruction2": "指示",
         "offlineAIInstruction3": "以啟用離線 AI。",
-        "offlineAIDownload1": "如果您尚未下載 AppFlowy AI，請",
+        "offlineAIDownload1": "如果您尚未下載 AppFlowy AI，請...",
         "offlineAIDownload2": "下載",
         "offlineAIDownload3": "先下載它。",
         "activeOfflineAI": "啟用",
@@ -949,11 +949,11 @@
         "aiResponseUsage": "{} / {}",
         "unlimitedAILabel": "無限回應",
         "proBadge": "專業版",
-        "aiMaxBadge": "人工智慧",
+        "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "Mac 上的 AI 本機處理",
         "memberProToggle": "更多成員、無限 AI 和來賓存取權",
         "aiMaxToggle": "無限的 AI 和存取進階模型",
-        "aiOnDeviceToggle": "本地 AI，確保極致隱私",
+        "aiOnDeviceToggle": "本地 AI 確保極致隱私。",
         "aiCredit": {
           "title": "新增 @:appName AI 額度",
           "price": "{}",
@@ -979,7 +979,7 @@
           "addLabel": "新增",
           "activeLabel": "已新增",
           "aiMax": {
-            "title": "人工智慧",
+            "title": "AI Max",
             "description": "每月享有 50 張人工智慧圖片，並由進階人工智慧模型提供無限的 AI 回應。",
             "price": "{}",
             "priceInfo": "每位使用者每月，按年計費"
@@ -1110,7 +1110,7 @@
         "description": "您的付款已成功處理，您的方案已升級至 @:appName {}。 您可以在方案頁面查看您的方案詳細資訊。"
       },
       "downgradeDialog": {
-        "title": "您確定要降級您的方案嗎？",
+        "title": "您確定要降級您的方案嗎?",
         "description": "降級您的方案將會讓您回歸至免費方案。成員可能會失去存取這個工作區的權限，您可能需要釋放空間以符合免費方案的儲存空間限制。",
         "downgradeLabel": "降級計劃"
       }
@@ -1121,7 +1121,7 @@
       "commonOther": "其他",
       "otherHint": "在這裡寫下你的答案",
       "questionOne": {
-        "question": "是什麼促使您取消了您的 @:appName Pro 訂閱？",
+        "question": "是什麼促使您取消了您的 @:appName Pro 訂閱?",
         "answerOne": "成本太高",
         "answerTwo": "功能未達預期",
         "answerThree": "找到更好的替代方案",
@@ -1129,7 +1129,7 @@
         "answerFive": "服務問題或技術困難"
       },
       "questionTwo": {
-        "question": "您未來考慮重新訂閱 @:appName Pro 的可能性有多大？",
+        "question": "您未來考慮重新訂閱 @:appName Pro 的可能性有多大?",
         "answerOne": "很有可能",
         "answerTwo": "有可能",
         "answerThree": "不确定",
@@ -1137,14 +1137,14 @@
         "answerFive": "不太可能"
       },
       "questionThree": {
-        "question": "您在訂閱期間最重視哪個Pro功能？",
+        "question": "您在訂閱期間最重視哪個Pro功能?",
         "answerOne": "多用戶協作",
         "answerTwo": "更長的歷史版本記錄時間",
         "answerThree": "無限的 AI 回應",
         "answerFour": "存取本地 AI 模型"
       },
       "questionFour": {
-        "question": "您如何描述您對 @:appName 的整體體驗？(",
+        "question": "您如何描述您對 @:appName 的整體體驗?",
         "answerOne": "很棒",
         "answerTwo": "好的",
         "answerThree": "平均",
@@ -1165,8 +1165,8 @@
       "notifications": "通知",
       "open": "開啟設定",
       "logout": "登出",
-      "logoutPrompt": "您確定要登出嗎？",
-      "selfEncryptionLogoutPrompt": "您確定要登出嗎？請確保您已複製加密金鑰",
+      "logoutPrompt": "您確定要登出嗎?",
+      "selfEncryptionLogoutPrompt": "您確定要登出嗎? 請確保您已複製加密金鑰",
       "syncSetting": "同步設定",
       "cloudSettings": "雲端設定",
       "enableSync": "啟用同步",
@@ -1179,8 +1179,8 @@
       "cloudServerType": "雲端伺服器種類",
       "cloudServerTypeTip": "請注意，切換雲端伺服器後可能會登出您目前的帳號",
       "cloudLocal": "本地",
-      "cloudAppFlowy": "@:appName 雲端測試版 (Beta)",
-      "cloudAppFlowySelfHost": "自架 @:appName 雲端伺服器",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName 雲端 自架設",
       "appFlowyCloudUrlCanNotBeEmpty": "雲端網址不能為空",
       "clickToCopy": "點選以複製",
       "selfHostStart": "若您尚未設定伺服器，請參閱",
@@ -1240,7 +1240,7 @@
         "archiveAll": "全部存檔"
       },
       "emptyInbox": {
-        "title": "收件匣清零！",
+        "title": "收件匣清零!",
         "description": "在此處設定提醒以接收通知。"
       },
       "emptyUnread": {
@@ -1271,11 +1271,11 @@
       },
       "themeMode": {
         "label": "主題模式",
-        "light": "亮色模式",
+        "light": "淺色模式",
         "dark": "深色模式",
-        "system": "依照系統設定"
+        "system": "調整至系統設定。"
       },
-      "fontScaleFactor": "字體比例",
+      "fontScaleFactor": "字型縮放比例",
       "displaySize": "顯示大小",
       "documentSettings": {
         "cursorColor": "文件游標顏色",
@@ -1285,7 +1285,7 @@
         "pickColor": "選擇顏色",
         "colorShade": "色彩色調",
         "opacity": "不透明度",
-        "hexEmptyError": "十六進位色碼不能為空",
+        "hexEmptyError": "十六進位顏色不能為空",
         "hexLengthError": "十六進位值必須為 6 位數",
         "hexInvalidError": "無效的十六進位值",
         "opacityEmptyError": "不透明度不能為空",
@@ -1305,7 +1305,7 @@
         "hint": "預設指定文字應從左邊或右邊開始。",
         "ltr": "從左到右",
         "rtl": "從右到左",
-        "auto": "自動調整",
+        "auto": "自動",
         "fallback": "與版面配置方向相同"
       },
       "themeUpload": {
@@ -1316,7 +1316,7 @@
         "uploadSuccess": "您的主題已成功上傳",
         "deletionFailure": "刪除主題失敗。請嘗試手動刪除。",
         "filePickerDialogTitle": "選擇 .flowy_plugin 檔案",
-        "urlUploadFailure": "無法開啟網址：{}"
+        "urlUploadFailure": "無法開啟網址: {}"
       },
       "theme": "主題",
       "builtInsLabel": "內建主題",
@@ -1340,11 +1340,11 @@
         "title": "成員設定",
         "inviteMembers": "邀請成員",
         "inviteHint": "透過電子郵件邀請",
-        "sendInvite": "發送邀請",
+        "sendInvite": "邀請",
         "copyInviteLink": "複製邀請連結",
         "label": "成員",
         "user": "使用者",
-        "role": "身分組",
+        "role": "角色",
         "removeFromWorkspace": "從工作區中刪除",
         "removeFromWorkspaceSuccess": "成功從工作區移除。",
         "removeFromWorkspaceFailed": "從工作區移除失敗",
@@ -1353,16 +1353,16 @@
         "member": "成員",
         "memberHintText": "成員可以閱讀、評論和編輯頁面。邀請其他成員和訪客",
         "guestHintText": "訪客可以閱讀、做出回應、發表評論，並且可以在獲得許可的情況下編輯頁面",
-        "emailInvalidError": "電郵無效，請檢查並重試",
-        "emailSent": "郵件已發送，請查看您的收件匣",
+        "emailInvalidError": "電子郵件無效，請檢查並再次嘗試",
+        "emailSent": "已發送電子郵件，請查看收件匣",
         "members": "成員",
         "membersCount": {
           "zero": "{} 個成員",
           "one": "{} 個成員",
           "other": "{} 個成員"
         },
-        "inviteFailedDialogTitle": "升級至專業方案",
-        "inviteFailedMemberLimit": "此工作區已達到免費限制。請升級到 Pro 以解鎖更多成員。",
+        "inviteFailedDialogTitle": "升級至專業版方案",
+        "inviteFailedMemberLimit": "此工作區已達到免費限制。請升級到專業版以解鎖更多成員。",
         "inviteFailedMemberLimitMobile": "您的工作區已達到成員上限。",
         "memberLimitExceeded": "已達成員上限，若要邀請更多成員，請...",
         "memberLimitExceededUpgrade": "升級",
@@ -1382,12 +1382,12 @@
         "generateANewLink": "產生新連結",
         "inviteMemberByEmail": "透過電子郵件邀請會員",
         "inviteMemberHintText": "透過電子郵件邀請",
-        "resetInviteLink": "重設邀請連結？",
+        "resetInviteLink": "重設邀請連結?",
         "resetInviteLinkDescription": "重設將會停用目前所有空間成員的連結，並產生新的連結。舊連結將不再有效。",
         "adminPanel": "管理面板",
         "reset": "重設",
         "resetInviteLinkSuccess": "邀請連結已成功重置",
-        "resetInviteLinkFailed": "無法重設邀請連結。",
+        "resetInviteLinkFailed": "無法重設邀請連結",
         "resetInviteLinkFailedDescription": "請稍後再試一次",
         "memberPageDescription1": "存取",
         "memberPageDescription2": "用於訪客和進階使用者管理。",
@@ -1427,17 +1427,17 @@
       "locationCannotBeEmpty": "路徑不能為空",
       "pathCopiedSnackbar": "儲存檔案的路徑已被複製到剪貼簿！",
       "changeLocationTooltips": "更改資料目錄",
-      "change": "更改",
+      "change": "變更",
       "openLocationTooltips": "開啟另一個資料目錄",
       "openCurrentDataFolder": "開啟目前資料目錄",
       "recoverLocationTooltips": "重設為 @:appName 的預設資料目錄",
-      "exportFileSuccess": "匯出檔案成功！",
-      "exportFileFail": "匯出檔案失敗！",
+      "exportFileSuccess": "匯出檔案成功!",
+      "exportFileFail": "匯出檔案失敗!",
       "export": "匯出",
       "clearCache": "清除快取",
-      "clearCacheDesc": "如果您遇到圖像無法載入或字體無法正確顯示等問題，請嘗試清除快取。此操作不會刪除您的使用者資料",
+      "clearCacheDesc": "如果您遇到圖片無法載入或字型顯示不正確的問題，請嘗試清除快取。 此動作不會移除您的使用者資料。",
       "areYouSureToClearCache": "確定清除快取?",
-      "clearCacheSuccess": "快取清除成功"
+      "clearCacheSuccess": "快取清除成功!"
     },
     "user": {
       "name": "名稱",
@@ -1466,7 +1466,7 @@
     }
   },
   "grid": {
-    "deleteView": "您確定要刪除此檢視嗎？",
+    "deleteView": "您確定要刪除此檢視嗎?",
     "createView": "建立",
     "title": {
       "placeholder": "未命名"
