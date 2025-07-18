@@ -107,12 +107,7 @@
     "verifying": "正在驗證…",
     "continueWithPassword": "繼續使用密碼",
     "youAreInLocalMode": "您目前處於本地模式。",
-    "loginToAppFlowyCloud": "登入 AppFlowy Cloud",
-    "anonymous": "匿名的",
-    "LogInWithGoogle": "使用 Google 登入",
-    "LogInWithGithub": "使用 Github 登入",
-    "LogInWithDiscord": "使用 Discord 登入",
-    "loginAsGuestButtonText": "以訪客身分登入"
+    "loginToAppFlowyCloud": "登入 AppFlowy Cloud"
   },
   "workspace": {
     "chooseWorkspace": "選擇你的工作區",
@@ -359,8 +354,7 @@
       "success": "已將除錯資訊複製到剪貼簿！",
       "fail": "無法將除錯資訊複製到剪貼簿"
     },
-    "feedback": "意見回饋",
-    "help": "幫助 & 支援"
+    "feedback": "意見回饋"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "移除、重新命名等等...",
@@ -385,8 +379,7 @@
     "header": "標題",
     "highlight": "醒目提示",
     "color": "顏色",
-    "addLink": "新增連結",
-    "link": "連結"
+    "addLink": "新增連結"
   },
   "tooltip": {
     "lightMode": "切換至亮色模式",
@@ -398,8 +391,7 @@
     "viewDataBase": "檢視資料庫",
     "referencePage": "這個 {name} 已被引用",
     "addBlockBelow": "在下方新增一個區塊",
-    "aiGenerate": "生成",
-    "genSummary": "產成摘要"
+    "aiGenerate": "生成"
   },
   "sideBar": {
     "closeSidebar": "關閉側欄",
@@ -528,8 +520,7 @@
     "gotIt": "知道了",
     "retry": "重試",
     "uploadFailed": "上傳失敗。",
-    "copyLinkOriginal": "複製原始連結",
-    "tryAGain": "再試一次"
+    "copyLinkOriginal": "複製原始連結"
   },
   "label": {
     "welcome": "歡迎！",
@@ -644,8 +635,7 @@
         "logoutLabel": "登出"
       },
       "isUpToDate": "@:appName 已更新!",
-      "officialVersion": "版本 {version} (Official build)",
-      "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號"
+      "officialVersion": "版本 {version} (Official build)"
     },
     "workspacePage": {
       "menuLabel": "工作區",
@@ -1379,8 +1369,7 @@
       "tooltipSelectIcon": "選擇圖示",
       "selectAnIcon": "選擇圖示",
       "pleaseInputYourOpenAIKey": "請輸入您的 AI 金鑰",
-      "clickToLogout": "點選以登出目前使用者",
-      "pleaseInputYourStabilityAIKey": "請輸入您的 Stability AI 金鑰"
+      "clickToLogout": "點選以登出目前使用者"
     },
     "mobile": {
       "personalInfo": "個人資料",
@@ -1398,20 +1387,6 @@
       "selectLayout": "選擇版面配置",
       "selectStartingDay": "選擇一週的起始日",
       "version": "版本"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "快捷鍵",
-      "command": "指令",
-      "keyBinding": "鍵盤綁定",
-      "addNewCommand": "新增指令",
-      "updateShortcutStep": "按下您想要的鍵盤組合並按下 ENTER",
-      "shortcutIsAlreadyUsed": "此快捷鍵已被使用於：{conflict}",
-      "resetToDefault": "重設為預設鍵盤綁定",
-      "couldNotLoadErrorMsg": "無法載入快捷鍵，請再試一次",
-      "couldNotSaveErrorMsg": "無法儲存快捷鍵，請再試一次",
-      "commands": {
-        "textAlignRight": "向右對齊文字"
-      }
     }
   },
   "grid": {
@@ -1434,7 +1409,6 @@
       "layout": "版面佈局",
       "compactMode": "緊湊模式",
       "databaseLayout": "版面佈局",
-      "viewList": "資料庫檢視",
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
@@ -1912,8 +1886,7 @@
         "toolbar": {
           "scalePercentage": "{}%"
         }
-      },
-      "pleaseInputYourStabilityAIKey": "請在設定頁面輸入您的 Stability AI 金鑰"
+      }
     },
     "codeBlock": {
       "language": {
@@ -1991,8 +1964,7 @@
       "hideColumn": "隱藏",
       "newGroup": "新增群組",
       "deleteColumn": "刪除",
-      "deleteColumnConfirmation": "這將刪除此群組及其中所有卡片。\n您確定要繼續嗎？",
-      "groupActions": "群組操作"
+      "deleteColumnConfirmation": "這將刪除此群組及其中所有卡片。\n您確定要繼續嗎？"
     },
     "hiddenGroupSection": {
       "sectionTitle": "隱藏的群組",
