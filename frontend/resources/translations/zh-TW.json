@@ -595,6 +595,11 @@
         "failedToGeneratePaymentLink": "專業版付款連結產生失敗",
         "failedToUpdateNamespace": "更新命名空間失敗",
         "proPlanLimitation": "您需要升級到專業版才能更新命名空間",
+        "namespaceAlreadyInUse": "這個命名空間已經被佔用，請嘗試另一個",
+        "invalidNamespace": "無效的命名空間，請嘗試另一個",
+        "namespaceLengthAtLeast2Characters": "命名空間至少必須有 2 個字元長度",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "只有工作區擁有者才能更新命名空間",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "只有工作區擁有者才能移除首頁",
         "setHomepageFailed": "設定首頁失敗",
         "namespaceTooLong": "命名空間太長，請嘗試另一個",
         "namespaceTooShort": "命名空間太短，請嘗試另一個",
@@ -724,6 +729,7 @@
     "manageDataPage": {
       "menuLabel": "管理資料",
       "title": "管理資料",
+      "description": "管理資料本機儲存或將現有資料匯入到 @:appName。",
       "dataStorage": {
         "title": "檔案儲存位置",
         "tooltip": "您的檔案儲存位置",
@@ -764,7 +770,8 @@
       },
       "data": {
         "fixYourData": "修復您的資料",
-        "fixButton": "修復"
+        "fixButton": "修復",
+        "fixYourDataDescription": "如果您在使用資料時遇到問題，您可以在這裡嘗試修復它。"
       }
     },
     "shortcutsPage": {
@@ -785,17 +792,29 @@
       },
       "conflictDialog": {
         "title": "{} 目前正在使用中",
+        "descriptionPrefix": "這個快捷鍵目前使用中由",
+        "descriptionSuffix": ". 如果您取代此快捷鍵，它將從 {} 中移除。",
         "confirmLabel": "繼續"
       },
+      "editTooltip": "按一下以開始編輯快捷鍵。",
       "keybindings": {
         "toggleToDoList": "切換至待辦事項清單",
+        "insertNewParagraphInCodeblock": "插入新段落",
+        "pasteInCodeblock": "貼上程式碼區塊",
         "selectAllCodeblock": "全選",
+        "indentLineCodeblock": "在行首插入兩個空格",
+        "outdentLineCodeblock": "刪除行首的兩個空格",
+        "twoSpacesCursorCodeblock": "在游標處插入兩個空格",
         "copy": "複製選取項目",
+        "paste": "貼上內容",
+        "cut": "剪下選取項目",
         "alignLeft": "將文字左對齊",
         "alignCenter": "將文字置中對齊",
         "alignRight": "將文字右對齊",
+        "insertInlineMathEquation": "插入行內數學方程式",
         "undo": "復原",
         "redo": "重做",
+        "convertToParagraph": "將區塊轉換為段落",
         "backspace": "刪除",
         "deleteLeftWord": "刪除左邊的單字",
         "deleteLeftSentence": "刪除左邊的句子",
@@ -809,6 +828,14 @@
         "moveCursorBeginSelect": "選取並將游標移至開頭",
         "moveCursorLeftWordSelect": "選取並將游標向左移動一個單字",
         "moveCursorRight": "將游標向右移動",
+        "moveCursorEnd": "將游標移至結尾",
+        "moveCursorRightWord": "將游標向右移動一個單字",
+        "moveCursorRightSelect": "選取並將游標向右移動一個位置",
+        "moveCursorEndSelect": "選取並將游標移至結尾",
+        "moveCursorRightWordSelect": "選取並將游標向右移動一個單字",
+        "moveCursorUp": "向上移動游標",
+        "moveCursorTopSelect": "選取並將游標移至頂端",
+        "moveCursorTop": "將游標移至頂端",
         "home": "捲動至頂部",
         "end": "捲動至底部",
         "toggleBold": "切換粗體",
@@ -1689,7 +1716,13 @@
       "h2": "標題 2",
       "h3": "標題 3",
       "moreOptions": "更多選項",
-      "font": "字型"
+      "font": "字型",
+      "suggestions": "建議事項",
+      "turnInto": "變成",
+      "insert": "插入",
+      "pageOrURL": "頁面或網址",
+      "linkName": "連結名稱",
+      "linkNameHint": "輸入連結名稱"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "目前版本不支援此區塊。",
@@ -1699,10 +1732,16 @@
       "title": "選擇頁面",
       "failedToLoad": "載入頁面清單失敗",
       "noPagesFound": "沒有找到該頁面"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "選擇照片",
+      "takePicture": "拍照",
+      "chooseFile": "選擇檔案"
     }
   },
   "board": {
     "column": {
+      "label": "欄位",
       "createNewCard": "建立",
       "renameGroupTooltip": "點選以重新命名群組",
       "createNewColumn": "新增群組",
@@ -1733,6 +1772,7 @@
     "ungroupedButtonTooltip": "包含不屬於任何群組的卡片",
     "ungroupedItemsTitle": "點選以新增到看板",
     "groupBy": "分組",
+    "groupCondition": "群組條件",
     "referencedBoardPrefix": "看板檢視",
     "notesTooltip": "內部備註",
     "mobile": {
@@ -1742,10 +1782,16 @@
       "failedToLoad": "無法載入看板"
     },
     "dateCondition": {
+      "weekOf": "第 {} 週 - {}",
       "today": "今天",
       "yesterday": "昨天",
-      "tomorrow": "明天"
+      "tomorrow": "明天",
+      "lastSevenDays": "過去 7 天",
+      "nextSevenDays": "接下來的7天",
+      "lastThirtyDays": "過去 30 天",
+      "nextThirtyDays": "接下來的 30 天"
     },
+    "noGroup": "沒有按屬性分組",
     "media": {
       "cardText": "{} {}",
       "fallbackName": "檔案"
@@ -1788,7 +1834,8 @@
       "name": "日曆設定"
     },
     "referencedCalendarPrefix": "檢視",
-    "quickJumpYear": "跳到"
+    "quickJumpYear": "跳到",
+    "duplicateEvent": "重複事件"
   },
   "errorDialog": {
     "title": "@:appName 錯誤",
@@ -1797,6 +1844,16 @@
   },
   "search": {
     "label": "搜尋",
+    "searchOrAskAI": "搜尋或詢問 AI",
+    "askAIAnything": "向 AI 提問任何問題",
+    "askAIFor": "詢問 AI",
+    "searching": "正在搜尋…",
+    "noResultForSearching": "沒有找到符合的結果",
+    "bestMatch": "最佳匹配",
+    "seeMore": "查看更多",
+    "showMore": "顯示更多",
+    "pageNotExist": "這個頁面不存在",
+    "tryAgainOrLater": "請稍後再試一次",
     "placeholder": {
       "actions": "搜尋操作..."
     }
@@ -1854,7 +1911,8 @@
       "medium": "中色",
       "mediumDark": "中深色",
       "dark": "深色"
-    }
+    },
+    "openSourceIconsFrom": "從來源取得圖示"
   },
   "inlineActions": {
     "noResults": "無結果",
@@ -1903,6 +1961,14 @@
   },
   "notificationHub": {
     "title": "通知",
+    "closeNotification": "關閉通知",
+    "viewNotifications": "查看通知",
+    "noNotifications": "目前沒有任何通知",
+    "mentionedYou": "已提及您",
+    "archivedTooltip": "將此通知歸檔",
+    "unarchiveTooltip": "取消將此通知歸檔",
+    "markAsReadTooltip": "此通知標記為已讀取",
+    "markAsArchivedSucceedToast": "已成功歸檔",
     "today": "今天",
     "mobile": {
       "title": "更新"
