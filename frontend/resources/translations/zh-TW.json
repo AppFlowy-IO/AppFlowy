@@ -1,4 +1,5 @@
 {
+  "appName": "AppFlowy",
   "defaultUsername": "我",
   "welcomeText": "歡迎使用 @:appName",
   "welcomeTo": "歡迎來到",
@@ -149,7 +150,10 @@
   "shareAction": {
     "buttonText": "分享",
     "workInProgress": "即將推出",
+    "markdown": "Markdown",
+    "html": "HTML",
     "clipboard": "複製到剪貼簿",
+    "csv": "CSV",
     "copyLink": "複製連結",
     "publishToTheWeb": "發佈到網頁",
     "publishToTheWebHint": "使用 AppFlowy 建立網站",
@@ -194,6 +198,7 @@
     "documentFromV010": "來自 v0.1.0 的文件",
     "databaseFromV010": "來自 v0.1.0 的資料庫",
     "notionZip": "Notion 匯出 ZIP 檔案",
+    "csv": "CSV",
     "database": "資料庫"
   },
   "emojiIconPicker": {
@@ -343,6 +348,7 @@
     "whatsNew": "最新消息是什麼？",
     "helpAndDocumentation": "說明與文件。",
     "getSupport": "取得支援",
+    "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
       "success": "已將除錯資訊複製到剪貼簿！",
@@ -463,6 +469,7 @@
     "change": "變更",
     "save": "儲存",
     "generate": "生成",
+    "esc": "ESC",
     "keep": "保留",
     "tryAgain": "再試一次",
     "discard": "放棄變更",
@@ -691,6 +698,7 @@
           "label": "日期格式",
           "local": "本地",
           "us": "美國",
+          "iso": "ISO",
           "friendly": "友善",
           "dmy": "日/月/年"
         }
@@ -929,12 +937,14 @@
         "aiResponseUsage": "{} / {}",
         "unlimitedAILabel": "無限回應",
         "proBadge": "專業版",
+        "aiMaxBadge": "人工智慧",
         "aiOnDeviceBadge": "Mac 上的 AI 本機處理",
         "memberProToggle": "更多成員、無限 AI 和來賓存取權",
         "aiMaxToggle": "無限的 AI 和存取進階模型",
         "aiOnDeviceToggle": "本地 AI，確保極致隱私",
         "aiCredit": {
           "title": "新增 @:appName AI 額度",
+          "price": "{}",
           "priceDescription": "用於 1,000 個額度",
           "purchase": "購買 AI",
           "infoItemOne": "每個資料庫 10,000 次回應",
@@ -952,12 +962,14 @@
           "addLabel": "新增",
           "activeLabel": "已新增",
           "aiMax": {
+            "title": "人工智慧",
             "price": "{}",
             "priceInfo": "每位使用者每月，按年計費"
           },
           "aiOnDevice": {
             "title": "Mac 上的 AI 本機處理",
             "description": "在您的機器上執行 Mistral 7B、LLAMA 3 和更多本機模型",
+            "price": "{}",
             "priceInfo": "每位使用者每月，按年計費",
             "recommend": "建議使用 M1 或更新版本"
           }
@@ -991,6 +1003,7 @@
         "removeLabel": "移除",
         "renewLabel": "續訂",
         "aiMax": {
+          "label": "AI Max",
           "description": "解鎖無限 AI 和進階模型",
           "activeDescription": "下期帳單到期日為 {}",
           "canceledDescription": "AI 最大將於 {} 啟用"
@@ -1025,10 +1038,12 @@
       "freePlan": {
         "title": "免費版",
         "description": "適用於最多 2 名成員，以整理所有事務",
+        "price": "{}",
         "priceInfo": "永遠免費"
       },
       "proPlan": {
-        "title": "專業版"
+        "title": "專業版",
+        "price": "{}"
       },
       "planLabels": {
         "itemOne": "工作區",
@@ -1047,6 +1062,7 @@
       "freeLabels": {
         "itemOne": "每個工作區收取費用",
         "itemTwo": "最多 2 個",
+        "itemThree": "5 GB",
         "itemFour": "是的",
         "itemFive": "是的",
         "itemSix": "終身 10 次",
@@ -1241,6 +1257,8 @@
         "hexInvalidError": "無效的十六進位值",
         "opacityEmptyError": "不透明度不能為空",
         "opacityRangeError": "不透明度必須在 1 到 100 之間",
+        "app": "App",
+        "flowy": "Flowy",
         "apply": "套用"
       },
       "layoutDirection": {
@@ -1274,6 +1292,7 @@
         "label": "日期格式",
         "local": "本地",
         "us": "美國",
+        "iso": "ISO",
         "friendly": "友善",
         "dmy": "日/月/年"
       },
@@ -1314,6 +1333,7 @@
         "memberLimitExceeded": "已達成員上限，若要邀請更多成員，請...",
         "memberLimitExceededUpgrade": "升級",
         "memberLimitExceededPro": "已達成員上限，若需要更多成員，請聯繫...",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "新增成員失敗",
         "addMemberSuccess": "成員新增成功",
         "removeMember": "刪除成員",
@@ -1696,8 +1716,11 @@
       "download": "下載",
       "expand": "展開",
       "delete": "刪除",
+      "moreFilesHint": "+{}",
       "addFileOrImage": "新增檔案或連結",
+      "attachmentsHint": "{}",
       "addFileMobile": "新增檔案",
+      "extraCount": "+{}",
       "deleteFileDescription": "您確定要刪除此檔案嗎？此動作不可逆轉。",
       "showFileNames": "顯示檔案名稱",
       "downloadSuccess": "檔案已下載",
@@ -1709,6 +1732,10 @@
   },
   "document": {
     "menuName": "文件",
+    "date": {
+      "timeHintTextInTwelveHour": "下午 1:00",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
     "creating": "正在建立…",
     "slashMenu": {
       "board": {
@@ -1810,6 +1837,7 @@
       "autoGeneratorCantGetOpenAIKey": "無法取得 AI 金鑰",
       "autoGeneratorRewrite": "改寫",
       "smartEdit": "AI 助理",
+      "aI": "人工智慧",
       "smartEditFixSpelling": "修正拼寫",
       "warning": "⚠️ AI 的回覆可能不準確或具有誤導性。",
       "smartEditSummarize": "總結",
@@ -2078,6 +2106,9 @@
         "label": "嵌入連結",
         "placeholder": "貼上或輸入圖片連結"
       },
+      "unsplash": {
+        "label": "Unsplash"
+      },
       "searchForAnImage": "搜尋圖片",
       "pleaseInputYourOpenAIKey": "請在設定頁面輸入您的 AI 金鑰",
       "saveImageToGallery": "儲存圖片",
@@ -2098,6 +2129,7 @@
           "openLocalImage": "打開圖片",
           "downloadImage": "下載圖片",
           "closeViewer": "關閉互動式檢視器",
+          "scalePercentage": "{}%",
           "deleteImageTooltip": "刪除圖片"
         }
       }
@@ -2235,6 +2267,7 @@
     "noGroup": "沒有按屬性分組",
     "noGroupDesc": "看板視圖需要一個用於分組的屬性才能顯示。",
     "media": {
+      "cardText": "{} {}",
       "fallbackName": "檔案"
     }
   },
@@ -2726,11 +2759,13 @@
     "backgroundImage": "背景圖片",
     "presets": "預設",
     "photo": "圖片",
+    "unsplash": "Unsplash",
     "pageCover": "封面",
     "none": "無",
     "openSettings": "打開設定",
     "photoPermissionTitle": "@:appName 希望存取您的圖片庫",
     "photoPermissionDescription": "允許存取圖片庫以上傳圖片",
+    "cameraPermissionTitle": "@:appName 想要存取您的攝影機",
     "doNotAllow": "不允許",
     "image": "圖像"
   },
@@ -2746,6 +2781,7 @@
     "recentHistory": "最近歷史",
     "navigateHint": "用於導航",
     "loadingTooltip": "我們正在尋找結果...",
+    "betaLabel": "BETA",
     "betaTooltip": "目前我們只支援搜尋頁面",
     "fromTrashHint": "從垃圾桶",
     "noResultsHint": "我們找不到您要搜尋的內容，請嘗試搜尋另一個詞語。",
