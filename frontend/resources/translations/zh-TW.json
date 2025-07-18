@@ -971,7 +971,8 @@
           "freeInfo": "非常適合最多 2 名個人使用，以整理所有內容",
           "proInfo": "非常適合小型和中型團隊，最多 10 名成員。",
           "teamInfo": "非常適合所有高效且井然有序的團隊。",
-          "upgrade": "變更計劃"
+          "upgrade": "變更計劃",
+          "canceledInfo": "您的方案已取消，您將在 {} 時降級為免費方案。"
         },
         "addons": {
           "title": "附加組件",
@@ -979,6 +980,7 @@
           "activeLabel": "已新增",
           "aiMax": {
             "title": "人工智慧",
+            "description": "每月享有 50 張人工智慧圖片，並由進階人工智慧模型提供無限的 AI 回應。",
             "price": "{}",
             "priceInfo": "每位使用者每月，按年計費"
           },
@@ -993,6 +995,7 @@
         "deal": {
           "bannerLabel": "新年優惠!",
           "title": "擴展您的團隊!",
+          "info": "升級即可享受專業版和團隊方案 10% 的折扣！透過強大的新功能，包括 @:appName AI，提升工作區生產力。",
           "viewPlans": "查看方案"
         }
       }
@@ -1031,7 +1034,8 @@
           "canceledDescription": "Mac 的 AI 在裝置上可用至 {}"
         },
         "removeDialog": {
-          "title": "移除 {}"
+          "title": "移除 {}",
+          "description": "您確定要移除 {plan} 嗎？ 您將立即失去 {plan} 的功能和權益。"
         }
       },
       "currentPeriodBadge": "目前",
@@ -1059,6 +1063,7 @@
       },
       "proPlan": {
         "title": "專業版",
+        "description": "適合小型團隊，用來管理專案與團隊知識",
         "price": "{}",
         "priceInfo": "每位用戶每月\n按年計費\n\n{} 按月計費"
       },
@@ -1101,15 +1106,18 @@
         "intelligentSearch": "智慧搜尋"
       },
       "paymentSuccess": {
-        "title": "您現在在{}方案中!"
+        "title": "您現在在{}方案中!",
+        "description": "您的付款已成功處理，您的方案已升級至 @:appName {}。 您可以在方案頁面查看您的方案詳細資訊。"
       },
       "downgradeDialog": {
         "title": "您確定要降級您的方案嗎？",
+        "description": "降級您的方案將會讓您回歸至免費方案。成員可能會失去存取這個工作區的權限，您可能需要釋放空間以符合免費方案的儲存空間限制。",
         "downgradeLabel": "降級計劃"
       }
     },
     "cancelSurveyDialog": {
       "title": "很遺憾看到你離開",
+      "description": "很遺憾看到您離開。我們非常希望聽到您的回饋，以幫助我們改善 @:appName。請花一點時間回答幾個問題。",
       "commonOther": "其他",
       "otherHint": "在這裡寫下你的答案",
       "questionOne": {
@@ -2711,9 +2719,12 @@
         "dialogTitle": "刪除帳號",
         "dialogContent1": "確定要永久刪除您的帳號",
         "dialogContent2": "此操作無法撤銷，此操作將刪除所有團隊空間的存取權限，刪除您的整個帳戶（包括私人工作區），並將您從所有共用工作區中刪除",
+        "confirmHint1": "請輸入「@:newSettings.myAccount.deleteAccount.confirmHint3」以確認。",
+        "confirmHint2": "我了解此動作不可逆轉，且將永久刪除我的帳戶及所有相關資料。",
         "confirmHint3": "刪除我的帳戶",
         "checkToConfirmError": "您必須勾選方塊以確認刪除。",
         "failedToGetCurrentUser": "取得目前使用者電子郵件失敗",
+        "confirmTextValidationFailed": "您的確認文字不符合\n\"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "帳戶已成功刪除"
       },
       "password": {
@@ -3245,6 +3256,7 @@
     "free": "免費",
     "pro": "專業版",
     "freeDescription": "適合最多 2 名成員，用來整理所有事務。",
+    "proDescription": "適合小型團隊，用來管理專案與團隊知識",
     "proDuration": {
       "monthly": "每位成員每月\n按月計費",
       "yearly": "每位成員每月\n年度計費"
@@ -3292,12 +3304,14 @@
         "answerFive": "非常不可能"
       },
       "questionThree": {
+        "question": "您在訂閱期間最重視哪個專業版功能？",
         "answerOne": "多人協作",
         "answerTwo": "更長的歷史版本時間",
         "answerThree": "無限的 AI 回應",
         "answerFour": "存取本地 AI 模型"
       },
       "questionFour": {
+        "question": "您如何描述您使用 AppFlowy 的整體體驗？",
         "answerOne": "很棒",
         "answerTwo": "好的",
         "answerThree": "平均",
@@ -3307,6 +3321,8 @@
     }
   },
   "ai": {
+    "contentPolicyViolation": "圖片生成因敏感內容而失敗。請重新措辭您的輸入並再次嘗試。",
+    "textLimitReachedDescription": "您的工作區已用完免費的 AI 回應。升級至專業版或購買 AI 附加組件以解鎖無限回應",
     "limitReachedAction": {
       "upgrade": "升級",
       "toThe": "到",
