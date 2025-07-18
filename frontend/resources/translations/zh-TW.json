@@ -1053,6 +1053,7 @@
         "intelligentSearch": "智慧搜尋"
       },
       "freeLabels": {
+        "itemTwo": "最多 2 個",
         "itemThree": "5 GB",
         "itemFour": "是的",
         "itemFive": "是的",
@@ -1409,6 +1410,11 @@
       "layout": "版面佈局",
       "compactMode": "緊湊模式",
       "databaseLayout": "版面佈局",
+      "viewList": {
+        "zero": "0 次觀看",
+        "one": "{count} 次瀏覽",
+        "other": "{count} 次瀏覽"
+      },
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
@@ -1485,6 +1491,8 @@
       "notEqual": "不等於",
       "lessThan": "小於",
       "greaterThan": "大於",
+      "lessThanOrEqualTo": "小於或等於",
+      "greaterThanOrEqualTo": "大於或等於",
       "isEmpty": "為空",
       "isNotEmpty": "不為空"
     },
@@ -1542,6 +1550,7 @@
       "addOption": "新增選項",
       "editProperty": "編輯屬性",
       "newProperty": "新增屬性",
+      "openRowDocument": "作為頁面打開",
       "deleteFieldPromptMessage": "您確定嗎？這個屬性將被刪除",
       "clearFieldPromptMessage": "確定操作，該列中的所有單元格都將被清空",
       "newColumn": "新增欄位",
@@ -1620,6 +1629,14 @@
       "copy": "複製網址",
       "textFieldHint": "輸入網址"
     },
+    "relation": {
+      "relatedDatabasePlaceholder": "沒有任何",
+      "inRelatedDatabase": "在",
+      "rowSearchTextFieldPlaceholder": "搜尋",
+      "emptySearchResult": "找不到任何記錄",
+      "linkedRowListLabel": "{} 個關聯資料列",
+      "unlinkedRowListLabel": "連結另一個資料列"
+    },
     "menuName": "網格",
     "referencedGridPrefix": "檢視",
     "calculate": "計算",
@@ -1629,15 +1646,28 @@
       "max": "最大值",
       "median": "中間值",
       "min": "最小值",
-      "sum": "總和"
+      "sum": "總和",
+      "count": "計數",
+      "countEmpty": "計數為空",
+      "countEmptyShort": "空的",
+      "countNonEmpty": "計數不為空",
+      "countNonEmptyShort": "已滿"
     },
     "media": {
+      "rename": "重新命名",
       "download": "下載",
+      "expand": "展開",
       "delete": "刪除",
       "moreFilesHint": "+{}",
+      "addFileOrImage": "新增檔案或連結",
       "attachmentsHint": "{}",
+      "addFileMobile": "新增檔案",
       "extraCount": "+{}",
-      "showFileNames": "顯示檔案名稱"
+      "showFileNames": "顯示檔案名稱",
+      "downloadSuccess": "檔案已下載",
+      "setAsCover": "設為封面",
+      "openInBrowser": "在瀏覽器中開啟",
+      "embedLink": "嵌入檔案連結"
     }
   },
   "document": {
@@ -1646,6 +1676,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "Creating...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "選擇要連結的看板",
@@ -1664,24 +1695,58 @@
       },
       "name": {
         "textStyle": "文字樣式",
+        "list": "清單",
         "toggle": "切換",
         "fileAndMedia": "檔案和媒體",
+        "simpleTable": "簡單表格",
+        "visuals": "視覺效果",
         "document": "文件",
+        "advanced": "進階",
         "text": "文字",
         "heading1": "標題 1",
         "heading2": "標題 2",
         "heading3": "標題 3",
         "image": "圖像",
+        "bulletedList": "Bulleted list",
+        "numberedList": "編號清單",
+        "todoList": "待辦事項清單",
         "doc": "文件",
+        "linkedDoc": "Link to page",
         "grid": "網格",
+        "linkedGrid": "連結網格",
+        "kanban": "看板",
+        "linkedKanban": "連結看板",
+        "calendar": "日曆",
+        "linkedCalendar": "連結日曆",
+        "quote": "引用",
+        "divider": "分隔線",
+        "table": "表格",
+        "callout": "醒目提示框",
+        "outline": "大綱",
+        "mathEquation": "數學方程式",
         "code": "程式碼",
         "toggleList": "切換列表",
         "toggleHeading1": "切換標題 1",
         "toggleHeading2": "切換標題 2",
         "toggleHeading3": "切換標題 3",
-        "file": "檔案"
+        "emoji": "表情符號",
+        "aiWriter": "向 AI 提問",
+        "dateOrReminder": "日期或提醒事項",
+        "photoGallery": "照片圖庫",
+        "file": "檔案",
+        "twoColumns": "兩欄",
+        "threeColumns": "三欄",
+        "fourColumns": "四欄"
       },
       "subPage": {
+        "name": "文件",
+        "keyword1": "子頁面",
+        "keyword2": "頁面",
+        "keyword3": "子頁面",
+        "keyword4": "插入頁面",
+        "keyword5": "嵌入頁面",
+        "keyword6": "新頁面",
+        "keyword7": "建立頁面",
         "keyword8": "文件"
       }
     },
@@ -1694,6 +1759,16 @@
       "referencedGrid": "已連結的網格",
       "referencedCalendar": "已連結的日曆",
       "referencedDocument": "已連結的文件",
+      "aiWriter": {
+        "userQuestion": "向 AI提 問",
+        "continueWriting": "繼續寫作",
+        "fixSpelling": "修正拼字和語法",
+        "improveWriting": "改善寫作品質",
+        "summarize": "總結",
+        "explain": "解釋",
+        "makeShorter": "縮短篇幅",
+        "makeLonger": "擴展內容"
+      },
       "autoGeneratorMenuItemName": "AI 寫手",
       "autoGeneratorTitleName": "AI：讓 AI 撰寫任何內容……",
       "autoGeneratorLearnMore": "瞭解更多",
@@ -1711,6 +1786,7 @@
       "smartEditCouldNotFetchResult": "無法取得 AI 的結果",
       "smartEditCouldNotFetchKey": "無法取得 AI 金鑰",
       "smartEditDisabled": "在設定連結 AI ",
+      "appflowyAIEditDisabled": "登入以啟用 AI 功能",
       "discardResponse": "確定捨棄 AI 的回覆？",
       "createInlineMathEquation": "建立公式",
       "fonts": "字型",
@@ -1725,9 +1801,22 @@
       "simpleTable": {
         "moreActions": {
           "color": "顏色",
+          "align": "對齊",
           "delete": "刪除",
           "duplicate": "副本",
-          "textColor": "文字顏色"
+          "insertLeft": "插入左側",
+          "insertRight": "插入右側",
+          "insertAbove": "插入上方",
+          "insertBelow": "在下面插入",
+          "headerColumn": "標題欄位",
+          "headerRow": "Header row",
+          "clearContents": "清除內容",
+          "setToPageWidth": "設定為頁面寬度",
+          "distributeColumnsWidth": "Distribute columns evenly",
+          "duplicateRow": "副本列",
+          "duplicateColumn": "副本欄位",
+          "textColor": "文字顏色",
+          "cellBackgroundColor": "儲存格背景顏色"
         },
         "headerName": {
           "table": "表格"
