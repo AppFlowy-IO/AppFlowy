@@ -2905,7 +2905,7 @@
     "unpublishFailed": "取消發布失敗",
     "noAccessToVisit": "無法存取此頁面...",
     "createWithAppFlowy": "使用 AppFlowy 建立網站",
-    "fastWithAI": "使用AI快速且輕鬆。",
+    "fastWithAI": "使用 AI 快速且輕鬆。",
     "tryItNow": "立即嘗試",
     "onlyGridViewCanBePublished": "僅限網格檢視可發布",
     "database": {
@@ -2932,7 +2932,7 @@
       "many": "{count} 名成員",
       "other": "{count} 名成員"
     },
-    "useThisTemplate": "使用模板"
+    "useThisTemplate": "使用範本"
   },
   "web": {
     "continue": "繼續",
@@ -2974,40 +2974,40 @@
     "addReaction": "新增反應",
     "reactedByMore": "和 {count} 其他人",
     "showSeconds": {
-      "one": "1秒前",
+      "one": "1 秒前",
       "other": "{count} 秒前",
       "zero": "剛剛",
       "many": "{count} 秒前"
     },
     "showMinutes": {
-      "one": "1分鐘前",
+      "one": "1 分鐘前",
       "other": "{count} 分鐘前",
       "many": "{count} 分鐘前"
     },
     "showHours": {
-      "one": "1小時前",
+      "one": "1 小時前",
       "other": "{count} 小時前",
       "many": "{count} 小時前"
     },
     "showDays": {
-      "one": "1天前",
+      "one": "1 天前",
       "other": "{count} 天前",
       "many": "{count} 天前"
     },
     "showMonths": {
-      "one": "1個月前",
+      "one": "1 個月前",
       "other": "{count} 個月前",
       "many": "{count} 個月前"
     },
     "showYears": {
-      "one": "1年前",
+      "one": "1 年前",
       "other": "{count} 年前",
       "many": "{count} 年前"
     },
     "reply": "回覆",
     "deleteComment": "刪除評論",
     "youAreNotOwner": "您不是此評論的所有者。",
-    "confirmDeleteDescription": "您確定要刪除這則評論嗎？",
+    "confirmDeleteDescription": "您確定要刪除這則評論嗎?",
     "hasBeenDeleted": "已刪除",
     "replyingTo": "回復給",
     "noAccessDeleteComment": "您沒有權限刪除此評論。",
@@ -3015,7 +3015,7 @@
     "readMore": "閱讀更多",
     "failedToAddComment": "新增評論失敗",
     "commentAddedSuccessfully": "評論已成功新增。",
-    "commentAddedSuccessTip": "您剛才新增或回覆了一則評論。是否要跳至頂端，以查看最新的評論？"
+    "commentAddedSuccessTip": "您剛才新增或回覆了一則評論。是否要跳至頂端，以查看最新的評論?"
   },
   "template": {
     "asTemplate": "另存為範本",
@@ -3047,7 +3047,7 @@
       "byUseCase": "依使用案例",
       "byFeature": "按功能",
       "deleteCategory": "刪除類別",
-      "deleteCategoryDescription": "您確定要刪除此類別嗎？",
+      "deleteCategoryDescription": "您確定要刪除此類別嗎?",
       "typeToSearch": "在搜尋類別時輸入..."
     },
     "creator": {
@@ -3057,7 +3057,7 @@
       "accountLinks": "創作者帳戶連結",
       "uploadAvatar": "點擊上傳頭像",
       "deleteCreator": "刪除創建者",
-      "deleteCreatorDescription": "您確定要刪除此創作者嗎？",
+      "deleteCreatorDescription": "您確定要刪除此創作者嗎?",
       "typeToSearch": "輸入以搜尋創作者..."
     },
     "uploadSuccess": "範本已成功上傳",
@@ -3120,8 +3120,8 @@
     "subtitle": "您可以向此頁面的擁有者請求存取權。獲得批准後，您就可以查看該頁面。",
     "requestAccess": "要求存取",
     "backToHome": "返回首頁",
-    "tip": "您目前以<link/>身分登入。",
-    "mightBe": "您可能需要使用不同的帳戶<login/>",
+    "tip": "您目前以 <link/> 身分登入。",
+    "mightBe": "您可能需要使用不同的帳戶 <login/>",
     "successful": "請求已成功發送",
     "successfulMessage": "當擁有者批准您的請求時，您會收到通知。",
     "requestError": "請求存取權失敗",
@@ -3138,7 +3138,7 @@
     "getRequestInfoError": "取得請求資訊失敗",
     "memberCount": {
       "zero": "沒有成員",
-      "one": "1名成員",
+      "one": "1 名成員",
       "many": "{count} 名成員",
       "other": "{count} 名成員"
     },
@@ -3169,31 +3169,31 @@
   "time": {
     "justNow": "剛剛",
     "seconds": {
-      "one": "1秒",
+      "one": "1 秒",
       "other": "{count} 秒"
     },
     "minutes": {
-      "one": "1分鐘",
+      "one": "1 分鐘",
       "other": "{count} 分鐘"
     },
     "hours": {
-      "one": "1小時",
+      "one": "1 小時",
       "other": "{count} 小時"
     },
     "days": {
-      "one": "1天",
+      "one": "1 天",
       "other": "{count} 天"
     },
     "weeks": {
-      "one": "1週",
+      "one": "1 週",
       "other": "{count} 週"
     },
     "months": {
-      "one": "1個月",
+      "one": "1 個月",
       "other": "{count} 個月"
     },
     "years": {
-      "one": "1年",
+      "one": "1 年",
       "other": "{count} 年"
     },
     "ago": "前",
@@ -3202,7 +3202,7 @@
   },
   "members": {
     "zero": "沒有成員",
-    "one": "1名成員",
+    "one": "1 名成員",
     "many": "{count} 名成員",
     "other": "{count} 名成員"
   },
@@ -3227,7 +3227,7 @@
   },
   "inviteMember": {
     "requestInviteMembers": "邀請加入您的工作區",
-    "inviteFailedMemberLimit": "成員限制已達到，請",
+    "inviteFailedMemberLimit": "成員限制已達到，請...",
     "upgrade": "升級",
     "addEmail": "email@example.com, email2@example.com...",
     "requestInvites": "發送邀請",
