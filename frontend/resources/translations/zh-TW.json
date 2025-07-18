@@ -865,6 +865,7 @@
       },
       "commands": {
         "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
+        "codeBlockPasteText": "Paste text in codeblock",
         "textAlignLeft": "將文字左對齊",
         "textAlignCenter": "將文字置中對齊",
         "textAlignRight": "將文字右對齊"
@@ -939,6 +940,7 @@
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "Mac 上的 AI 本機處理",
         "memberProToggle": "更多成員、無限 AI 和來賓存取權",
+        "aiMaxToggle": "無限的 AI 和存取進階模型",
         "aiOnDeviceToggle": "本地 AI，確保極致隱私",
         "aiCredit": {
           "title": "新增 @:appName AI 額度",
@@ -1002,11 +1004,15 @@
         "renewLabel": "續訂",
         "aiMax": {
           "label": "AI Max",
-          "description": "解鎖無限 AI 和進階模型"
+          "description": "解鎖無限 AI 和進階模型",
+          "activeDescription": "下期帳單到期日為 {}",
+          "canceledDescription": "AI 最大將於 {} 啟用"
         },
         "aiOnDevice": {
           "label": "Mac 上的 AI 本機處理",
-          "activeDescription": "下期帳單到期日為 {}"
+          "description": "解鎖裝置上的無限 AI",
+          "activeDescription": "下期帳單到期日為 {}",
+          "canceledDescription": "Mac 的 AI 在裝置上可用至 {}"
         },
         "removeDialog": {
           "title": "移除 {}"
@@ -1050,17 +1056,22 @@
         "itemFileUpload": "檔案上傳",
         "customNamespace": "自訂命名空間",
         "tooltipFive": "與非會員共同編輯特定頁面",
-        "intelligentSearch": "智慧搜尋"
+        "intelligentSearch": "智慧搜尋",
+        "customNamespaceTooltip": "自訂發佈網站網址"
       },
       "freeLabels": {
+        "itemOne": "每個工作區收取費用",
         "itemTwo": "最多 2 個",
         "itemThree": "5 GB",
         "itemFour": "是的",
         "itemFive": "是的",
+        "itemSix": "終身 10 次",
+        "itemSeven": "終身 2 次",
         "itemFileUpload": "最多 7 MB",
         "intelligentSearch": "智慧搜尋"
       },
       "proLabels": {
+        "itemOne": "Charged per workspace",
         "itemTwo": "最多 10 個",
         "itemThree": "無限",
         "itemFour": "是的",
@@ -1090,6 +1101,7 @@
       },
       "questionThree": {
         "answerOne": "多用戶協作",
+        "answerTwo": "Longer time version history",
         "answerThree": "無限的 AI 回應",
         "answerFour": "存取本地 AI 模型"
       },
@@ -1300,6 +1312,7 @@
           "one": "{} 個成員",
           "other": "{} 個成員"
         },
+        "inviteFailedDialogTitle": "升級至專業方案",
         "memberLimitExceededUpgrade": "升級",
         "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "新增成員失敗",
@@ -1308,13 +1321,18 @@
         "areYouSureToRemoveMember": "確定要刪除該成員?",
         "inviteMemberSuccess": "邀請已成功發送",
         "failedToInviteMember": "邀請成員失敗",
+        "workspaceMembersError": "哎呀，出錯了",
+        "inviteLinkToAddMember": "邀請連結以新增成員",
         "clickToCopyLink": "點擊複製連結",
         "or": "或",
         "generateANewLink": "產生新連結",
         "inviteMemberByEmail": "透過電子郵件邀請會員",
         "inviteMemberHintText": "透過電子郵件邀請",
+        "resetInviteLink": "重設邀請連結？",
         "adminPanel": "管理面板",
         "reset": "重設",
+        "resetInviteLinkSuccess": "邀請連結已成功重置",
+        "resetInviteLinkFailed": "無法重設邀請連結。",
         "resetInviteLinkFailedDescription": "請稍後再試一次",
         "memberPageDescription1": "存取",
         "copyLink": "複製連結",
@@ -1571,15 +1589,20 @@
         "many": "隱藏 {count} 個隱藏欄位",
         "other": "隱藏 {count} 個隱藏欄位"
       },
-      "openAsFullPage": "以整頁形式打開"
+      "openAsFullPage": "以整頁形式打開",
+      "moreRowActions": "更多列動作"
     },
     "sort": {
       "ascending": "升冪",
       "descending": "降冪",
+      "by": "由",
+      "empty": "No active sorts",
       "deleteAllSorts": "刪除所有排序",
-      "addSort": "新增排序"
+      "addSort": "新增排序",
+      "fieldInUse": "您已經按照此欄位進行排序"
     },
     "row": {
+      "label": "列",
       "duplicate": "複製",
       "delete": "刪除",
       "titlePlaceholder": "未命名",
@@ -1594,7 +1617,10 @@
       "dragAndClick": "拖曳以移動，點選以開啟選單",
       "insertRecordAbove": "在上方插入記錄",
       "insertRecordBelow": "在下方插入記錄",
-      "noContent": "無內容"
+      "noContent": "無內容",
+      "reorderRowDescription": "重新排列列",
+      "createRowAboveDescription": "在上方建立一個列",
+      "createRowBelowDescription": "在下方插入一個列"
     },
     "selectOption": {
       "create": "建立",
@@ -1630,6 +1656,7 @@
       "textFieldHint": "輸入網址"
     },
     "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
       "relatedDatabasePlaceholder": "沒有任何",
       "inRelatedDatabase": "在",
       "rowSearchTextFieldPlaceholder": "搜尋",
@@ -1816,10 +1843,12 @@
           "duplicateRow": "副本列",
           "duplicateColumn": "副本欄位",
           "textColor": "文字顏色",
-          "cellBackgroundColor": "儲存格背景顏色"
+          "cellBackgroundColor": "儲存格背景顏色",
+          "duplicateTable": "副本表格"
         },
         "headerName": {
-          "table": "表格"
+          "table": "表格",
+          "alignText": "對齊文字"
         }
       },
       "cover": {
@@ -1837,6 +1866,7 @@
         "back": "返回",
         "saveToGallery": "儲存到相簿",
         "removeIcon": "移除圖示",
+        "removeCover": "Remove cover",
         "pasteImageUrl": "貼上圖片網址",
         "or": "或",
         "pickFromFiles": "從檔案中挑選",
@@ -1855,6 +1885,8 @@
       "optionAction": {
         "click": "點選",
         "toOpenMenu": " 開啟選單",
+        "drag": "拖曳",
+        "toMove": "移動",
         "delete": "刪除",
         "duplicate": "複製",
         "turnInto": "變成",
@@ -1865,17 +1897,26 @@
         "left": "左",
         "center": "中",
         "right": "右",
-        "defaultColor": "預設"
+        "defaultColor": "預設",
+        "depth": "深度",
+        "copyLinkToBlock": "Copy link to block"
       },
       "image": {
         "addAnImage": "新增圖片",
         "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
+        "addAnImageDesktop": "Add an image",
         "imageUploadFailed": "圖片上傳失敗",
         "errorCode": "錯誤代碼"
       },
       "photoGallery": {
+        "name": "照片庫",
         "imageKeyword": "圖像",
+        "imageGalleryKeyword": "圖片庫",
         "photoKeyword": "照片",
+        "photoBrowserKeyword": "照片瀏覽器",
+        "galleryKeyword": "圖庫",
+        "addImageTooltip": "新增圖片",
+        "changeLayoutTooltip": "變更版面",
         "browserLayout": "瀏覽器",
         "gridLayout": "網格"
       },
@@ -1910,13 +1951,49 @@
         "linkToDatabase": "連結至資料庫"
       },
       "date": "日期",
+      "video": {
+        "label": "影片",
+        "emptyLabel": "新增影片",
+        "placeholder": "貼上影片連結",
+        "insertVideo": "新增影片",
+        "invalidVideoUrlYouTube": "目前不支援 YouTube。"
+      },
       "file": {
         "name": "檔案",
-        "uploadTab": "上傳"
+        "uploadTab": "上傳",
+        "uploadMobile": "選擇一個檔案",
+        "uploadMobileGallery": "來自照片庫",
+        "networkTab": "嵌入連結",
+        "placeholderText": "上傳或嵌入檔案",
+        "placeholderDragging": "將檔案拖曳以上傳",
+        "dropFileToUpload": "拖放檔案進行上傳",
+        "fileUploadHintSuffix": "瀏覽",
+        "networkHint": "貼上檔案連結",
+        "networkAction": "嵌入",
+        "renameFile": {
+          "title": "重新命名檔案"
+        },
+        "uploadedAt": "已上傳至 {}",
+        "linkedAt": "連結已添加於 {}"
       },
       "linkPreview": {
         "typeSelection": {
-          "URL": "網址"
+          "mention": "提及",
+          "URL": "網址",
+          "bookmark": "書籤",
+          "embed": "嵌入"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "轉換為提及",
+          "toUrl": "轉換為網址",
+          "toEmbed": "轉換為嵌入",
+          "toBookmark": "轉換為書籤",
+          "copyLink": "複製連結",
+          "replace": "代替",
+          "reload": "重新載入",
+          "removeLink": "移除連結",
+          "pasteHint": "貼上 https://...",
+          "unableToDisplay": "無法顯示"
         }
       }
     },
@@ -1971,9 +2048,18 @@
       "maximumImageSize": "支援的最大上傳圖片大小為 10MB",
       "uploadImageErrorImageSizeTooBig": "圖片大小必須小於 10MB",
       "imageIsUploading": "圖片上傳中",
+      "openFullScreen": "全螢幕打開",
       "interactiveViewer": {
         "toolbar": {
-          "scalePercentage": "{}%"
+          "previousImageTooltip": "上一張圖片",
+          "nextImageTooltip": "下一張圖片",
+          "zoomOutTooltip": "縮小",
+          "zoomInTooltip": "放大",
+          "changeZoomLevelTooltip": "更改縮放級別",
+          "openLocalImage": "打開圖片",
+          "downloadImage": "下載圖片",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "刪除圖片"
         }
       }
     },
@@ -2008,7 +2094,10 @@
         "tooltip": "點選以開啟頁面"
       },
       "deleted": "已刪除",
-      "deletedContent": "該內容不存在或已經刪除"
+      "deletedContent": "該內容不存在或已經刪除",
+      "deletedPage": "已刪除頁面",
+      "trashHint": " - 在垃圾桶裡",
+      "morePages": "更多頁面"
     },
     "toolbar": {
       "resetToDefaultFont": "重設為預設字型",
@@ -2017,10 +2106,17 @@
       "h1": "標題 1",
       "h2": "標題 2",
       "h3": "標題 3",
+      "alignLeft": "左對齊",
+      "alignRight": "右對齊",
+      "alignCenter": "居中對齊",
+      "link": "關聯",
+      "textAlign": "文字對齊",
       "moreOptions": "更多選項",
       "font": "字型",
+      "inlineCode": "內聯程式碼",
       "suggestions": "建議事項",
       "turnInto": "變成",
+      "equation": "方程式",
       "insert": "插入",
       "pageOrURL": "頁面或網址",
       "linkName": "連結名稱",
@@ -2028,7 +2124,8 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "目前版本不支援此區塊。",
-      "blockContentHasBeenCopied": "區塊內容已被複製。"
+      "blockContentHasBeenCopied": "區塊內容已被複製。",
+      "copyBlockContent": "複製區塊內容"
     },
     "mobilePageSelector": {
       "title": "選擇頁面",
@@ -2153,6 +2250,7 @@
     "bestMatch": "最佳匹配",
     "seeMore": "查看更多",
     "showMore": "顯示更多",
+    "somethingWentWrong": "出了點問題",
     "pageNotExist": "這個頁面不存在",
     "tryAgainOrLater": "請稍後再試一次",
     "placeholder": {
@@ -2662,6 +2760,8 @@
     "unpublishSuccessfully": "取消發布成功",
     "publishFailed": "發布失敗",
     "unpublishFailed": "取消發布失敗",
+    "noAccessToVisit": "無法存取此頁面...",
+    "fastWithAI": "使用AI快速且輕鬆。",
     "tryItNow": "立即嘗試",
     "saveThisPage": "使用此範本開始",
     "selectWorkspace": "選擇工作區",
