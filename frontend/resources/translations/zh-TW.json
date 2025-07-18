@@ -1071,7 +1071,7 @@
         "intelligentSearch": "智慧搜尋"
       },
       "proLabels": {
-        "itemOne": "Charged per workspace",
+        "itemOne": "每個工作區收取費用",
         "itemTwo": "最多 10 個",
         "itemThree": "無限",
         "itemFour": "是的",
@@ -1101,7 +1101,7 @@
       },
       "questionThree": {
         "answerOne": "多用戶協作",
-        "answerTwo": "Longer time version history",
+        "answerTwo": "更長的歷史版本記錄時間",
         "answerThree": "無限的 AI 回應",
         "answerFour": "存取本地 AI 模型"
       },
@@ -1596,7 +1596,7 @@
       "ascending": "升冪",
       "descending": "降冪",
       "by": "由",
-      "empty": "No active sorts",
+      "empty": "沒有任何作用中的排序",
       "deleteAllSorts": "刪除所有排序",
       "addSort": "新增排序",
       "fieldInUse": "您已經按照此欄位進行排序"
@@ -1656,7 +1656,7 @@
       "textFieldHint": "輸入網址"
     },
     "relation": {
-      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceLabel": "相關資料庫",
       "relatedDatabasePlaceholder": "沒有任何",
       "inRelatedDatabase": "在",
       "rowSearchTextFieldPlaceholder": "搜尋",
@@ -1703,7 +1703,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
-    "creating": "Creating...",
+    "creating": "正在建立…",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "選擇要連結的看板",
@@ -1734,11 +1734,11 @@
         "heading2": "標題 2",
         "heading3": "標題 3",
         "image": "圖像",
-        "bulletedList": "Bulleted list",
+        "bulletedList": "項目符號清單",
         "numberedList": "編號清單",
         "todoList": "待辦事項清單",
         "doc": "文件",
-        "linkedDoc": "Link to page",
+        "linkedDoc": "連結到頁面",
         "grid": "網格",
         "linkedGrid": "連結網格",
         "kanban": "看板",
@@ -1836,10 +1836,10 @@
           "insertAbove": "插入上方",
           "insertBelow": "在下面插入",
           "headerColumn": "標題欄位",
-          "headerRow": "Header row",
+          "headerRow": "標題列",
           "clearContents": "清除內容",
           "setToPageWidth": "設定為頁面寬度",
-          "distributeColumnsWidth": "Distribute columns evenly",
+          "distributeColumnsWidth": "平均分配欄位",
           "duplicateRow": "副本列",
           "duplicateColumn": "副本欄位",
           "textColor": "文字顏色",
@@ -1866,7 +1866,7 @@
         "back": "返回",
         "saveToGallery": "儲存到相簿",
         "removeIcon": "移除圖示",
-        "removeCover": "Remove cover",
+        "removeCover": "移除封面",
         "pasteImageUrl": "貼上圖片網址",
         "or": "或",
         "pickFromFiles": "從檔案中挑選",
@@ -1899,12 +1899,12 @@
         "right": "右",
         "defaultColor": "預設",
         "depth": "深度",
-        "copyLinkToBlock": "Copy link to block"
+        "copyLinkToBlock": "Copy link to block複製連結到區塊"
       },
       "image": {
         "addAnImage": "新增圖片",
         "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
-        "addAnImageDesktop": "Add an image",
+        "addAnImageDesktop": "新增圖片",
         "imageUploadFailed": "圖片上傳失敗",
         "errorCode": "錯誤代碼"
       },
