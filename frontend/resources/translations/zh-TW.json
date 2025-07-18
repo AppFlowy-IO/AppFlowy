@@ -960,7 +960,18 @@
       }
     },
     "cancelSurveyDialog": {
-      "commonOther": "其他"
+      "commonOther": "其他",
+      "questionThree": {
+        "answerThree": "無限的 AI 回應",
+        "answerFour": "存取本地 AI 模型"
+      },
+      "questionFour": {
+        "answerOne": "很棒",
+        "answerTwo": "好的",
+        "answerThree": "平均",
+        "answerFour": "低於平均水平",
+        "answerFive": "不滿意"
+      }
     },
     "common": {
       "reset": "重設"
@@ -978,8 +989,10 @@
       "syncSetting": "同步設定",
       "cloudSettings": "雲端設定",
       "enableSync": "啟用同步",
+      "enableSyncLog": "啟用同步記錄",
       "enableEncrypt": "加密資料",
       "cloudURL": "基礎網址",
+      "webURL": "網頁網址",
       "invalidCloudURLScheme": "網址格式無效",
       "cloudServerType": "雲端伺服器種類",
       "cloudServerTypeTip": "請注意，切換雲端伺服器後可能會登出您目前的帳號",
@@ -1019,8 +1032,46 @@
         "label": "啟用通知",
         "hint": "關閉以停止顯示本機通知。"
       },
+      "showNotificationsIcon": {
+        "label": "顯示通知圖示"
+      },
+      "archiveNotifications": {
+        "allSuccess": "已成功存檔所有通知",
+        "success": "已成功存檔通知"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "已成功標記全部為已讀",
+        "success": "已成功標記為已讀"
+      },
+      "action": {
+        "markAsRead": "標記為已讀",
+        "multipleChoice": "選擇更多",
+        "archive": "檔歸檔"
+      },
       "settings": {
-        "settings": "設定"
+        "settings": "設定",
+        "markAllAsRead": "全部標記為已讀",
+        "archiveAll": "全部存檔"
+      },
+      "emptyInbox": {
+        "title": "收件匣清零！"
+      },
+      "emptyUnread": {
+        "title": "沒有未讀取的通知",
+        "description": "您已完成所有更新!"
+      },
+      "emptyArchived": {
+        "title": "沒有歸檔"
+      },
+      "tabs": {
+        "inbox": "收件匣",
+        "unread": "未讀",
+        "archived": "已歸檔"
+      },
+      "refreshSuccess": "已成功重新整理通知",
+      "titles": {
+        "notifications": "通知",
+        "reminder": "提醒事項"
       }
     },
     "appearance": {
@@ -1037,10 +1088,15 @@
         "system": "依照系統設定"
       },
       "fontScaleFactor": "字體比例",
+      "displaySize": "顯示大小",
       "documentSettings": {
         "cursorColor": "文件游標顏色",
         "selectionColor": "文件選取顏色",
+        "width": "文件寬度",
         "changeWidth": "變更",
+        "pickColor": "選擇顏色",
+        "colorShade": "色彩色調",
+        "opacity": "不透明度",
         "hexEmptyError": "十六進位色碼不能為空",
         "hexLengthError": "十六進位值必須為 6 位數",
         "hexInvalidError": "無效的十六進位值",
@@ -1091,9 +1147,11 @@
         "twentyFourHour": "24 小時制"
       },
       "showNamingDialogWhenCreatingPage": "建立頁面時顯示命名對話框",
+      "enableRTLToolbarItems": "啟用從右到左工具列項目",
       "members": {
         "title": "成員設定",
         "inviteMembers": "邀請成員",
+        "inviteHint": "透過電子郵件邀請",
         "sendInvite": "發送邀請",
         "copyInviteLink": "複製邀請連結",
         "label": "成員",
@@ -1225,14 +1283,14 @@
       "typeAValue": "輸入一個值……",
       "layout": "版面佈局",
       "databaseLayout": "版面佈局",
+      "viewList": "資料庫檢視",
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
       "createView": "建立檢視",
       "duplicateView": "複製檢視",
       "deleteView": "刪除檢視",
-      "numberOfVisibleFields": "{} 顯示",
-      "viewList": "資料庫檢視"
+      "numberOfVisibleFields": "{} 顯示"
     },
     "textFilter": {
       "contains": "包含",
@@ -1278,15 +1336,31 @@
       "onOrAfter": "在……之後或當天",
       "between": "在……之間",
       "empty": "為空",
-      "notEmpty": "不為空"
+      "notEmpty": "不為空",
+      "startDate": "開始日期",
+      "endDate": "結束日期",
+      "choicechipPrefix": {
+        "before": "之前",
+        "after": "之後",
+        "between": "之間",
+        "isEmpty": "為空",
+        "isNotEmpty": "不為空"
+      }
+    },
+    "numberFilter": {
+      "isEmpty": "為空",
+      "isNotEmpty": "不為空"
     },
     "field": {
+      "label": "屬性",
       "hide": "隱藏",
       "show": "顯示",
       "insertLeft": "左方插入",
       "insertRight": "右方插入",
       "duplicate": "複製",
       "delete": "刪除",
+      "wrapCellContent": "文字換行",
+      "clear": "清除儲存格",
       "textFieldName": "文字",
       "checkboxFieldName": "核取方塊",
       "dateFieldName": "日期",
@@ -1297,7 +1371,10 @@
       "multiSelectFieldName": "多選",
       "urlFieldName": "網址",
       "checklistFieldName": "核取清單",
+      "relationFieldName": "關係",
       "summaryFieldName": "AI 總結",
+      "timeFieldName": "時間",
+      "mediaFieldName": "檔案和媒體",
       "translateFieldName": "AI 翻譯",
       "translateTo": "翻譯為",
       "numberFormat": "數字格式",
