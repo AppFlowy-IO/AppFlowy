@@ -617,7 +617,7 @@
       }
     },
     "accountPage": {
-      "menuLabel": "我的帳號",
+      "menuLabel": "我帳戶與應用程式",
       "title": "我的帳號",
       "general": {
         "title": "帳號名稱和個人資料圖片",
@@ -626,11 +626,11 @@
       "email": {
         "title": "電子郵件",
         "actions": {
-          "change": "更改電子郵件"
+          "change": "變更電子郵件地址"
         }
       },
       "login": {
-        "title": "帳號登入",
+        "title": "帳戶登入",
         "loginLabel": "登入",
         "logoutLabel": "登出"
       },
@@ -659,11 +659,11 @@
       },
       "resetCursorColor": {
         "title": "重設文件游標顏色",
-        "description": "您確定要重設游標顏色嗎？"
+        "description": "您確定要重設游標顏色嗎?"
       },
       "resetSelectionColor": {
         "title": "重設文件選取顏色",
-        "description": "您確定要重設選取顏色嗎？"
+        "description": "您確定要重設選取顏色嗎?"
       },
       "resetWidth": {
         "resetSuccess": "文件寬度已成功重設。"
@@ -738,7 +738,7 @@
           "resetTooltip": "重設至預設位置"
         },
         "resetDialog": {
-          "title": "確定嗎？",
+          "title": "您確定嗎?",
           "description": "將路徑重設為預設資料位置不會刪除您的資料。如果您想重新匯入目前資料，應該先複製您目前位置的路徑。"
         }
       },
@@ -755,8 +755,8 @@
         "descriptionEncrypted": "您的資料已加密。",
         "action": "加密資料",
         "dialog": {
-          "title": "是否為所有資料加密？",
-          "description": "加密您的所有資料將能確保您的資料安全。此動作無法復原。您確定要繼續嗎？"
+          "title": "是否為所有資料加密?",
+          "description": "加密您的所有資料將能確保您的資料安全。此動作無法復原。您確定要繼續嗎?"
         }
       },
       "cache": {
@@ -788,7 +788,7 @@
       },
       "resetDialog": {
         "title": "重設快捷鍵",
-        "description": "這將會將您的所有快捷鍵重設為預設值，之後無法復原此動作，您確定要繼續嗎？",
+        "description": "這將會將您的所有快捷鍵重設為預設值，之後無法復原此動作，您確定要繼續嗎?",
         "buttonLabel": "重設"
       },
       "conflictDialog": {
@@ -849,7 +849,7 @@
         "toggleUnderline": "切換底線",
         "toggleStrikethrough": "切換刪除線",
         "toggleCode": "切換行內程式碼",
-        "toggleHighlight": "切換標示/高亮",
+        "toggleHighlight": "切換標示重點",
         "showLinkMenu": "顯示連結選單",
         "openInlineLink": "開啟行內連結",
         "openLinks": "開啟所有已選取的連結",
@@ -872,9 +872,9 @@
       },
       "commands": {
         "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
-        "codeBlockIndentLines": "在程式碼區塊開頭插入兩個空格。",
-        "codeBlockOutdentLines": "刪除程式碼區塊開頭的兩個空格。",
-        "codeBlockAddTwoSpaces": "在程式碼區塊中光標位置插入兩個空格。",
+        "codeBlockIndentLines": "在程式碼區塊開頭插入兩個空格",
+        "codeBlockOutdentLines": "刪除程式碼區塊開頭的兩個空格",
+        "codeBlockAddTwoSpaces": "在程式碼區塊中光標位置插入兩個空格",
         "codeBlockSelectAll": "選取程式碼區塊內的所有內容",
         "codeBlockPasteText": "將文字貼到程式碼區塊中",
         "textAlignLeft": "將文字左對齊",
@@ -889,7 +889,7 @@
       "menuLabel": "AI 設定",
       "keys": {
         "enableAISearchTitle": "AI 搜尋",
-        "aiSettingsDescription": "選擇用於支援 AppFlowy AI 的偏好模型。現在包含 GPT-4o、GPT-o3-mini、DeepSeek R1、Claude 3.5 Sonnet，以及在 Ollama 中可用的模型。",
+        "aiSettingsDescription": "選擇用於支援 AppFlowy AI 的偏好模型。現在包含 GPT-4o、GPT-o3-mini、DeepSeek R1、Claude 3.5 Sonnet，以及在 Ollama 中可用的模型",
         "loginToEnableAIFeature": "AI 功能僅在您使用 @:appName Cloud 登入後才能啟用。如果您沒有 @:appName 帳戶，請前往「我的帳戶」註冊。",
         "llmModel": "語言模型",
         "globalLLMModel": "全域語言模型",
