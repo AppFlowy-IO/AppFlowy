@@ -707,10 +707,12 @@
         "title": "語言"
       },
       "deleteWorkspacePrompt": {
-        "title": "刪除工作區"
+        "title": "刪除工作區",
+        "content": "您確定要刪除這個工作區嗎？此動作無法復原，您發佈的所有頁面都將會取消發佈。"
       },
       "leaveWorkspacePrompt": {
         "title": "離開工作區",
+        "content": "您確定要離開這個工作區嗎？ 您將失去存取其中所有頁面和資料的權限。",
         "success": "您已成功離開工作區。",
         "fail": "離開工作區失敗。"
       },
@@ -736,7 +738,8 @@
           "resetTooltip": "重設至預設位置"
         },
         "resetDialog": {
-          "title": "確定嗎？"
+          "title": "確定嗎？",
+          "description": "將路徑重設為預設資料位置不會刪除您的資料。如果您想重新匯入目前資料，應該先複製您目前位置的路徑。"
         }
       },
       "importData": {
@@ -752,13 +755,16 @@
         "descriptionEncrypted": "您的資料已加密。",
         "action": "加密資料",
         "dialog": {
-          "title": "是否為所有資料加密？"
+          "title": "是否為所有資料加密？",
+          "description": "加密您的所有資料將能確保您的資料安全。此動作無法復原。您確定要繼續嗎？"
         }
       },
       "cache": {
         "title": "清除快取",
+        "description": "協助解決圖像無法載入、空間中缺少頁面和字型無法載入等問題。這不會影響您的資料。",
         "dialog": {
           "title": "清除快取",
+          "description": "協助解決圖像無法載入、空間中缺少頁面和字型無法載入等問題。這不會影響您的資料。",
           "successHint": "已清除快取!"
         }
       },
@@ -782,6 +788,7 @@
       },
       "resetDialog": {
         "title": "重設快捷鍵",
+        "description": "這將會將您的所有快捷鍵重設為預設值，之後無法復原此動作，您確定要繼續嗎？",
         "buttonLabel": "重設"
       },
       "conflictDialog": {
@@ -865,6 +872,10 @@
       },
       "commands": {
         "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
+        "codeBlockIndentLines": "在程式碼區塊開頭插入兩個空格。",
+        "codeBlockOutdentLines": "刪除程式碼區塊開頭的兩個空格。",
+        "codeBlockAddTwoSpaces": "在程式碼區塊中光標位置插入兩個空格。",
+        "codeBlockSelectAll": "選取程式碼區塊內的所有內容",
         "codeBlockPasteText": "將文字貼到程式碼區塊中",
         "textAlignLeft": "將文字左對齊",
         "textAlignCenter": "將文字置中對齊",
@@ -879,6 +890,7 @@
       "keys": {
         "enableAISearchTitle": "AI 搜尋",
         "aiSettingsDescription": "選擇用於支援 AppFlowy AI 的偏好模型。現在包含 GPT-4o、GPT-o3-mini、DeepSeek R1、Claude 3.5 Sonnet，以及在 Ollama 中可用的模型。",
+        "loginToEnableAIFeature": "AI 功能僅在您使用 @:appName Cloud 登入後才能啟用。如果您沒有 @:appName 帳戶，請前往「我的帳戶」註冊。",
         "llmModel": "語言模型",
         "globalLLMModel": "全域語言模型",
         "readOnlyField": "此欄位為唯讀設定",
@@ -947,6 +959,7 @@
           "price": "{}",
           "priceDescription": "用於 1,000 個額度",
           "purchase": "購買 AI",
+          "info": "每個工作區新增 1,000 個 AI 積分，並無縫整合可自訂的 AI 功能到您的工作流程中，以更聰明、更快速地獲得結果，最高可達:",
           "infoItemOne": "每個資料庫 10,000 次回應",
           "infoItemTwo": "每個工作區 1,000 次回應"
         },
@@ -955,6 +968,9 @@
           "freeTitle": "免費版",
           "proTitle": "專業版",
           "teamTitle": "團隊",
+          "freeInfo": "非常適合最多 2 名個人使用，以整理所有內容",
+          "proInfo": "非常適合小型和中型團隊，最多 10 名成員。",
+          "teamInfo": "非常適合所有高效且井然有序的團隊。",
           "upgrade": "變更計劃"
         },
         "addons": {
@@ -1043,7 +1059,8 @@
       },
       "proPlan": {
         "title": "專業版",
-        "price": "{}"
+        "price": "{}",
+        "priceInfo": "每位用戶每月\n按年計費\n\n{} 按月計費"
       },
       "planLabels": {
         "itemOne": "工作區",
@@ -1056,7 +1073,9 @@
         "itemFileUpload": "檔案上傳",
         "customNamespace": "自訂命名空間",
         "tooltipFive": "與非會員共同編輯特定頁面",
+        "tooltipSix": "終身代表回應次數永遠不會重設",
         "intelligentSearch": "智慧搜尋",
+        "tooltipSeven": "允許您自訂工作區部分的網址",
         "customNamespaceTooltip": "自訂發佈網站網址"
       },
       "freeLabels": {
@@ -1094,6 +1113,7 @@
       "commonOther": "其他",
       "otherHint": "在這裡寫下你的答案",
       "questionOne": {
+        "question": "是什麼促使您取消了您的 @:appName Pro 訂閱？",
         "answerOne": "成本太高",
         "answerTwo": "功能未達預期",
         "answerThree": "找到更好的替代方案",
@@ -1101,6 +1121,7 @@
         "answerFive": "服務問題或技術困難"
       },
       "questionTwo": {
+        "question": "您未來考慮重新訂閱 @:appName Pro 的可能性有多大？",
         "answerOne": "很有可能",
         "answerTwo": "有可能",
         "answerThree": "不确定",
@@ -1115,6 +1136,7 @@
         "answerFour": "存取本地 AI 模型"
       },
       "questionFour": {
+        "question": "您如何描述您對 @:appName 的整體體驗？(",
         "answerOne": "很棒",
         "answerTwo": "好的",
         "answerThree": "平均",
@@ -1124,6 +1146,7 @@
     },
     "common": {
       "uploadingFile": "檔案正在上傳中，請勿關閉應用程式",
+      "uploadNotionSuccess": "您的 Notion 壓縮檔已成功上傳。匯入完成後，您將收到確認電子郵件",
       "reset": "重設"
     },
     "menu": {
@@ -1140,6 +1163,7 @@
       "cloudSettings": "雲端設定",
       "enableSync": "啟用同步",
       "enableSyncLog": "啟用同步記錄",
+      "enableSyncLogWarning": "感謝您協助診斷同步問題。這將會將您的文件編輯記錄到本機檔案中。啟用後請關閉並重新開啟應用程式。",
       "enableEncrypt": "加密資料",
       "cloudURL": "基礎網址",
       "webURL": "網頁網址",
@@ -1208,7 +1232,8 @@
         "archiveAll": "全部存檔"
       },
       "emptyInbox": {
-        "title": "收件匣清零！"
+        "title": "收件匣清零！",
+        "description": "在此處設定提醒以接收通知。"
       },
       "emptyUnread": {
         "title": "沒有未讀取的通知",
@@ -1329,6 +1354,7 @@
           "other": "{} 個成員"
         },
         "inviteFailedDialogTitle": "升級至專業方案",
+        "inviteFailedMemberLimit": "此工作區已達到免費限制。請升級到 Pro 以解鎖更多成員。",
         "inviteFailedMemberLimitMobile": "您的工作區已達到成員上限。",
         "memberLimitExceeded": "已達成員上限，若要邀請更多成員，請...",
         "memberLimitExceededUpgrade": "升級",
@@ -1349,6 +1375,7 @@
         "inviteMemberByEmail": "透過電子郵件邀請會員",
         "inviteMemberHintText": "透過電子郵件邀請",
         "resetInviteLink": "重設邀請連結？",
+        "resetInviteLinkDescription": "重設將會停用目前所有空間成員的連結，並產生新的連結。舊連結將不再有效。",
         "adminPanel": "管理面板",
         "reset": "重設",
         "resetInviteLinkSuccess": "邀請連結已成功重置",
@@ -2501,6 +2528,7 @@
     "weAreSorry": "我們很抱歉",
     "loadingViewError": "我們在載入此檢視時遇到問題。請檢查您的網路連線，重新整理應用程式，並且如果問題持續，請隨時聯絡我們的團隊。",
     "syncError": "資料尚未從其他裝置同步",
+    "syncErrorHint": "請在上次編輯的設備上重新開啟此頁面，然後在目前的設備上再次開啟它。",
     "clickToCopy": "點擊以複製錯誤碼"
   },
   "editor": {
@@ -2678,6 +2706,7 @@
       "deleteAccount": {
         "title": "刪除帳號",
         "subtitle": "永久刪除您的帳號和所有資料",
+        "description": "永久刪除您的帳戶並從所有工作區移除存取權。",
         "deleteMyAccount": "刪除我的帳號",
         "dialogTitle": "刪除帳號",
         "dialogContent1": "確定要永久刪除您的帳號",
