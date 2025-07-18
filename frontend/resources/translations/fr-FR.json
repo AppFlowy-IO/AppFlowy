@@ -1486,7 +1486,6 @@
       "layout": "Mise en page",
       "compactMode": "Mode compact",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1494,7 +1493,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "filter": {
       "empty": "Aucun filtre actif",
@@ -2333,11 +2333,11 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
-      "clickToOpen": "Cliquez pour ouvrir l'évènement"
+      "clickToOpen": "Cliquez pour ouvrir l'évènement",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -2471,11 +2471,7 @@
     "viewNotifications": "Afficher les notifications",
     "noNotifications": "Aucune notification pour le moment",
     "mentionedYou": "vous a mentionné",
-    "archievedTooltip": "Archiver cette notification",
-    "unarchievedTooltip": "Cette notification n'a pas été archivée.",
     "markAsReadTooltip": "Marquer comme lu cette notification",
-    "markAsArchievedSucceedToast": "Archivage réussi",
-    "markAllAsArchievedSucceedToast": "Tout archiver avec succès",
     "markAsReadSucceedToast": "Marquer comme lu avec succès",
     "markAllAsReadSucceedToast": "Tout marquer comme lu avec succès",
     "today": "Aujourd'hui",
@@ -2500,7 +2496,11 @@
       "groupByDate": "Regrouper par date",
       "showUnreadsOnly": "Afficher uniquement les éléments non lus",
       "resetToDefault": "Réinitialiser aux valeurs par défaut"
-    }
+    },
+    "archievedTooltip": "Archiver cette notification",
+    "unarchievedTooltip": "Cette notification n'a pas été archivée.",
+    "markAsArchievedSucceedToast": "Archivage réussi",
+    "markAllAsArchievedSucceedToast": "Tout archiver avec succès"
   },
   "reminderNotification": {
     "title": "Rappel",
@@ -3321,16 +3321,15 @@
       "browsePrompts": "Parcourir les invites",
       "usePrompt": "Utiliser l'invite",
       "featured": "En vedette",
+      "example": "Exemple",
       "all": "Tous",
       "development": "Développement",
       "writing": "En écrivant",
       "healthAndFitness": "Santé et forme physique",
       "business": "Entreprise",
       "marketing": "Commercialisation",
-      "learning": "Apprentissage",
       "travel": "Voyage",
       "others": "Autre",
-      "example": "Exemple",
       "sampleOutput": "Exemple de sortie",
       "contentSeo": "Contenu/SEO",
       "emailMarketing": "Marketing par e-mail",
@@ -3341,7 +3340,8 @@
       "socialMedia": "Réseaux sociaux",
       "strategy": "Stratégie",
       "caseStudies": "Études de cas",
-      "salesCopy": "Texte de vente"
+      "salesCopy": "Texte de vente",
+      "learning": "Apprentissage"
     }
   },
   "autoUpdate": {
