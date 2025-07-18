@@ -3,9 +3,9 @@
   "defaultUsername": "我",
   "welcomeText": "歡迎使用 @:appName",
   "welcomeTo": "歡迎來到",
-  "githubStarText": "在 GitHub 點星",
+  "githubStarText": "在 GitHub 上按讚/星標",
   "subscribeNewsletterText": "訂閱電子報",
-  "letsGoButtonText": "開始使用",
+  "letsGoButtonText": "快速開始",
   "title": "標題",
   "youCanAlso": "你也可以",
   "and": "和",
@@ -74,7 +74,9 @@
     "magicLinkSentDescription": "連結已發送到您的電子信箱。點擊連結即可登入。連結將在 5 分鐘後過期。",
     "tokenHasExpiredOrInvalid": "此代碼已過期或無效，請重新嘗試。",
     "signingIn": "正在登入…",
-    "checkYourEmail": "檢查您的電子郵件信箱。",
+    "checkYourEmail": "檢查您的電子郵件信箱",
+    "temporaryVerificationLinkSent": "已發送一封暫時驗證連結。 請查看您的收件匣，地址為:",
+    "temporaryVerificationCodeSent": "已發送一封暫時驗證碼。 請查看您的收件匣，地址為:",
     "continueToSignIn": "繼續登入。",
     "continueWithLoginCode": "繼續使用登入代碼。",
     "backToLogin": "返回登入頁面",
@@ -592,7 +594,26 @@
       "error": {
         "failedToGeneratePaymentLink": "專業版付款連結產生失敗",
         "failedToUpdateNamespace": "更新命名空間失敗",
-        "proPlanLimitation": "您需要升級到專業版才能更新命名空間"
+        "proPlanLimitation": "您需要升級到專業版才能更新命名空間",
+        "setHomepageFailed": "設定首頁失敗",
+        "namespaceTooLong": "命名空間太長，請嘗試另一個",
+        "namespaceTooShort": "命名空間太短，請嘗試另一個",
+        "namespaceIsReserved": "命名空間已保留，請嘗試另一個",
+        "updatePathNameFailed": "更新路徑名稱失敗",
+        "removeHomePageFailed": "移除首頁失敗",
+        "publishNameContainsInvalidCharacters": "路徑名稱包含無效字元，請嘗試另一個",
+        "publishNameTooShort": "徑名稱太短，請嘗試另一個",
+        "publishNameTooLong": "路徑名稱太長，請嘗試另一個",
+        "publishNameAlreadyInUse": "路徑名稱已經在使用中，請嘗試另一個",
+        "namespaceContainsInvalidCharacters": "命名空間包含無效字元，請嘗試另一個",
+        "publishPermissionDenied": "只有工作區擁有者或頁面發布者才能管理發佈設定",
+        "publishNameCannotBeEmpty": "路徑名稱不能為空，請嘗試另一個"
+      },
+      "success": {
+        "namespaceUpdated": "命名空間更新成功",
+        "setHomepageSuccess": "Set homepage successfully",
+        "updatePathNameSuccess": "路徑名稱已成功更新",
+        "removeHomePageSuccess": "移除首頁成功"
       }
     },
     "accountPage": {
@@ -620,32 +641,50 @@
     "workspacePage": {
       "menuLabel": "工作區",
       "title": "工作區",
+      "description": "自訂您的工作區外觀，包括主題、字型、文字佈局、日期/時間格式和語言。",
       "workspaceName": {
         "title": "工作區名稱"
       },
       "workspaceIcon": {
-        "title": "工作區圖示"
+        "title": "工作區圖示",
+        "description": "上傳圖片或使用表情符號作為您的工作區圖示。圖示將顯示在側邊欄和通知中。"
       },
       "appearance": {
         "title": "外觀",
+        "description": "自訂您的工作區外觀，包括主題、字型、文字佈局、日期、時間和語言。",
         "options": {
           "system": "自動",
           "light": "淺色",
           "dark": "深色"
         }
       },
+      "resetCursorColor": {
+        "title": "重設文件游標顏色",
+        "description": "您確定要重設游標顏色嗎？"
+      },
+      "resetSelectionColor": {
+        "title": "重設文件選取顏色",
+        "description": "您確定要重設選取顏色嗎？"
+      },
+      "resetWidth": {
+        "resetSuccess": "文件寬度已成功重設。"
+      },
       "theme": {
         "title": "主題",
-        "uploadCustomThemeTooltip": "上傳自訂主題"
+        "description": "選擇預設主題，或上傳您自己的自訂主題。",
+        "uploadCustomThemeTooltip": "上傳自訂主題",
+        "failedToLoadThemes": "載入主題失敗，請檢查您的系統設定中的權限設定：系統設定 > 隱私與安全性 > 檔案和資料夾 > @:appName"
       },
       "workspaceFont": {
-        "title": "工作區字型"
+        "title": "工作區字型",
+        "noFontHint": "找不到字型，請嘗試另一個詞彙。"
       },
       "textDirection": {
         "title": "文字方向",
         "leftToRight": "從左到右",
         "rightToLeft": "從右到左",
-        "auto": "自動"
+        "auto": "自動",
+        "enableRTLItems": "啟用從右到左工具列項目"
       },
       "layoutDirection": {
         "title": "版面配置方向",
@@ -672,7 +711,9 @@
         "title": "刪除工作區"
       },
       "leaveWorkspacePrompt": {
-        "title": "離開工作區"
+        "title": "離開工作區",
+        "success": "您已成功離開工作區。",
+        "fail": "離開工作區失敗。"
       },
       "manageWorkspace": {
         "title": "管理工作區",
@@ -685,9 +726,11 @@
       "title": "管理資料",
       "dataStorage": {
         "title": "檔案儲存位置",
+        "tooltip": "您的檔案儲存位置",
         "actions": {
           "change": "變更路徑",
           "open": "開啟資料夾",
+          "openTooltip": "開啟目前資料夾位置",
           "copy": "複製路徑",
           "copiedHint": "已複製路徑!",
           "resetTooltip": "重設至預設位置"
@@ -698,10 +741,14 @@
       },
       "importData": {
         "title": "匯入資料",
+        "tooltip": "從 @:appName 備份/資料夾匯入資料",
+        "description": "從外部 @:appName 資料夾複製資料",
         "action": "瀏覽檔案"
       },
       "encryption": {
         "title": "加密",
+        "tooltip": "管理您的資料儲存和加密方式",
+        "descriptionNoEncryption": "啟用加密將會加密所有資料。這無法逆轉。",
         "descriptionEncrypted": "您的資料已加密。",
         "action": "加密資料",
         "dialog": {
@@ -728,11 +775,16 @@
       "actions": {
         "resetDefault": "重設預設值"
       },
+      "errorPage": {
+        "message": "載入快捷鍵失敗: {}",
+        "howToFix": "請再試一次，如果問題持續發生，請透過 GitHub 聯繫我們。"
+      },
       "resetDialog": {
         "title": "重設快捷鍵",
         "buttonLabel": "重設"
       },
       "conflictDialog": {
+        "title": "{} 目前正在使用中",
         "confirmLabel": "繼續"
       },
       "keybindings": {
