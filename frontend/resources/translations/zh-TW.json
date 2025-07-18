@@ -620,7 +620,7 @@
       },
       "success": {
         "namespaceUpdated": "命名空間更新成功",
-        "setHomepageSuccess": "Set homepage successfully",
+        "setHomepageSuccess": "設定首頁成功",
         "updatePathNameSuccess": "路徑名稱已成功更新",
         "removeHomePageSuccess": "移除首頁成功"
       }
@@ -998,7 +998,7 @@
         "proLabel": "專業版",
         "planButtonLabel": "變更計劃",
         "billingPeriod": "計費週期",
-        "periodButtonLabel": "Edit period"
+        "periodButtonLabel": "編輯期間"
       },
       "paymentDetails": {
         "title": "付款資訊",
@@ -1328,9 +1328,9 @@
         "memberPageDescription1": "存取",
         "copyLink": "複製連結",
         "generatedLinkSuccessfully": "連結已成功產生",
-        "generatedLinkFailed": "Failed to generate link",
-        "resetLinkSuccessfully": "Reset link successfully",
-        "resetLinkFailed": "Failed to reset link"
+        "generatedLinkFailed": "連結產生失敗",
+        "resetLinkSuccessfully": "連結已成功重置",
+        "resetLinkFailed": "連結重置失敗"
       }
     },
     "files": {
