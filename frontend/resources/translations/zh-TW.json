@@ -1081,7 +1081,11 @@
         "itemFileUpload": "無限",
         "intelligentSearch": "智慧搜尋"
       },
+      "paymentSuccess": {
+        "title": "您現在在{}方案中!"
+      },
       "downgradeDialog": {
+        "title": "您確定要降級您的方案嗎？",
         "downgradeLabel": "降級計劃"
       }
     },
@@ -1090,7 +1094,11 @@
       "commonOther": "其他",
       "otherHint": "在這裡寫下你的答案",
       "questionOne": {
-        "answerOne": "成本太高"
+        "answerOne": "成本太高",
+        "answerTwo": "功能未達預期",
+        "answerThree": "找到更好的替代方案",
+        "answerFour": "使用量不足以證明費用合理",
+        "answerFive": "服務問題或技術困難"
       },
       "questionTwo": {
         "answerOne": "很有可能",
@@ -1100,6 +1108,7 @@
         "answerFive": "不太可能"
       },
       "questionThree": {
+        "question": "您在訂閱期間最重視哪個Pro功能？",
         "answerOne": "多用戶協作",
         "answerTwo": "更長的歷史版本記錄時間",
         "answerThree": "無限的 AI 回應",
@@ -1114,6 +1123,7 @@
       }
     },
     "common": {
+      "uploadingFile": "檔案正在上傳中，請勿關閉應用程式",
       "reset": "重設"
     },
     "menu": {
@@ -1145,7 +1155,9 @@
       "selfHostContent": "文件",
       "selfHostEnd": "有關如何自架個人伺服器的指南",
       "pleaseInputValidURL": "請輸入有效的網址",
+      "changeUrl": "將自架設網址變更為 {}",
       "cloudURLHint": "請輸入您伺服器的基礎網址",
+      "webURLHint": "輸入您的網路伺服器基本網址",
       "cloudWSURL": "Websocket 網址",
       "cloudWSURLHint": "請輸入您伺服器的 Websocket 位址",
       "restartApp": "重新啟動",
@@ -1174,7 +1186,8 @@
         "hint": "關閉以停止顯示本機通知。"
       },
       "showNotificationsIcon": {
-        "label": "顯示通知圖示"
+        "label": "顯示通知圖示",
+        "hint": "關閉以隱藏側邊欄中的通知圖示。"
       },
       "archiveNotifications": {
         "allSuccess": "已成功存檔所有通知",
@@ -1202,7 +1215,8 @@
         "description": "您已完成所有更新!"
       },
       "emptyArchived": {
-        "title": "沒有歸檔"
+        "title": "沒有歸檔",
+        "description": "在此設定提醒，以接收通知。"
       },
       "tabs": {
         "inbox": "收件匣",
@@ -1299,6 +1313,8 @@
         "user": "使用者",
         "role": "身分組",
         "removeFromWorkspace": "從工作區中刪除",
+        "removeFromWorkspaceSuccess": "成功從工作區移除。",
+        "removeFromWorkspaceFailed": "從工作區移除失敗",
         "owner": "擁有者",
         "guest": "訪客",
         "member": "成員",
@@ -1313,7 +1329,10 @@
           "other": "{} 個成員"
         },
         "inviteFailedDialogTitle": "升級至專業方案",
+        "inviteFailedMemberLimitMobile": "您的工作區已達到成員上限。",
+        "memberLimitExceeded": "已達成員上限，若要邀請更多成員，請...",
         "memberLimitExceededUpgrade": "升級",
+        "memberLimitExceededPro": "已達成員上限，若需要更多成員，請聯繫...",
         "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "新增成員失敗",
         "addMemberSuccess": "成員新增成功",
@@ -1322,6 +1341,7 @@
         "inviteMemberSuccess": "邀請已成功發送",
         "failedToInviteMember": "邀請成員失敗",
         "workspaceMembersError": "哎呀，出錯了",
+        "workspaceMembersErrorDescription": "我們目前無法載入成員清單。請稍後再試",
         "inviteLinkToAddMember": "邀請連結以新增成員",
         "clickToCopyLink": "點擊複製連結",
         "or": "或",
@@ -1335,6 +1355,8 @@
         "resetInviteLinkFailed": "無法重設邀請連結。",
         "resetInviteLinkFailedDescription": "請稍後再試一次",
         "memberPageDescription1": "存取",
+        "memberPageDescription2": "用於訪客和進階使用者管理。",
+        "noInviteLink": "您尚未產生邀請連結。",
         "copyLink": "複製連結",
         "generatedLinkSuccessfully": "連結已成功產生",
         "generatedLinkFailed": "連結產生失敗",
@@ -1444,6 +1466,7 @@
     "filter": {
       "empty": "沒有任何作用中的篩選器",
       "addFilter": "新增篩選器",
+      "cannotFindCreatableField": "找不到適合用於篩選的欄位",
       "conditon": "條件",
       "where": "在哪裡"
     },
@@ -1524,6 +1547,7 @@
       "delete": "刪除",
       "wrapCellContent": "文字換行",
       "clear": "清除儲存格",
+      "switchPrimaryFieldTooltip": "無法變更主要欄位的類型",
       "textFieldName": "文字",
       "checkboxFieldName": "核取方塊",
       "dateFieldName": "日期",
@@ -1590,6 +1614,7 @@
         "other": "隱藏 {count} 個隱藏欄位"
       },
       "openAsFullPage": "以整頁形式打開",
+      "viewDatabase": "查看原始資料庫",
       "moreRowActions": "更多列動作"
     },
     "sort": {
@@ -1597,8 +1622,11 @@
       "descending": "降冪",
       "by": "由",
       "empty": "沒有任何作用中的排序",
+      "cannotFindCreatableField": "找不到適合用於排序的欄位",
       "deleteAllSorts": "刪除所有排序",
       "addSort": "新增排序",
+      "sortsActive": "在排序時無法 {intention}",
+      "removeSorting": "您想移除此檢視中的所有排序，並繼續嗎？",
       "fieldInUse": "您已經按照此欄位進行排序"
     },
     "row": {
@@ -1614,6 +1642,8 @@
       "action": "操作",
       "add": "點選以在下方新增",
       "drag": "拖曳以移動",
+      "deleteRowPrompt": "您確定要刪除這列嗎？此動作無法復原。",
+      "deleteCardPrompt": "您確定要刪除這張卡片嗎？此動作無法復原。",
       "dragAndClick": "拖曳以移動，點選以開啟選單",
       "insertRecordAbove": "在上方插入記錄",
       "insertRecordBelow": "在下方插入記錄",
@@ -1660,6 +1690,7 @@
       "relatedDatabasePlaceholder": "沒有任何",
       "inRelatedDatabase": "在",
       "rowSearchTextFieldPlaceholder": "搜尋",
+      "noDatabaseSelected": "未選取資料庫，請先從下方清單中選擇一個:",
       "emptySearchResult": "找不到任何記錄",
       "linkedRowListLabel": "{} 個關聯資料列",
       "unlinkedRowListLabel": "連結另一個資料列"
@@ -1690,8 +1721,10 @@
       "attachmentsHint": "{}",
       "addFileMobile": "新增檔案",
       "extraCount": "+{}",
+      "deleteFileDescription": "您確定要刪除此檔案嗎？此動作不可逆轉。",
       "showFileNames": "顯示檔案名稱",
       "downloadSuccess": "檔案已下載",
+      "downloadFailedToken": "下載檔案失敗，使用者權杖無效",
       "setAsCover": "設為封面",
       "openInBrowser": "在瀏覽器中開啟",
       "embedLink": "嵌入檔案連結"
@@ -1820,6 +1853,9 @@
       "insertDate": "插入日期",
       "emoji": "表情符號",
       "toggleList": "切換列表",
+      "emptyToggleHeading": " 空的切換器 h{}。點擊以新增內容。",
+      "emptyToggleList": "空的切換器清單。點擊以新增內容。",
+      "emptyToggleHeadingWeb": "空的切換器 h{level}。點擊以新增內容。",
       "quoteList": "引述列表",
       "numberedList": "編號列表",
       "bulletedList": "項目符號列表",
@@ -2647,6 +2683,7 @@
         "dialogContent1": "確定要永久刪除您的帳號",
         "dialogContent2": "此操作無法撤銷，此操作將刪除所有團隊空間的存取權限，刪除您的整個帳戶（包括私人工作區），並將您從所有共用工作區中刪除",
         "confirmHint3": "刪除我的帳戶",
+        "checkToConfirmError": "您必須勾選方塊以確認刪除。",
         "failedToGetCurrentUser": "取得目前使用者電子郵件失敗",
         "deleteAccountSuccess": "帳戶已成功刪除"
       },
@@ -2874,13 +2911,19 @@
     },
     "importNotion": "從 Notion 匯入",
     "import": "匯入",
-    "importSuccess": "上傳成功"
+    "importSuccess": "上傳成功",
+    "importFailed": "匯入失敗，請檢查檔案格式。",
+    "dropNotionFile": "在此處拖放您的Notion zip 檔案以上傳，或點擊瀏覽。",
+    "error": {
+      "pageNameIsEmpty": "頁面名稱為空，請嘗試另一個。"
+    }
   },
   "globalComment": {
     "comments": "評論",
     "addComment": "新增評論",
     "reactedBy": "反應由",
     "addReaction": "新增反應",
+    "reactedByMore": "和 {count} 其他人",
     "showSeconds": {
       "one": "1秒前",
       "other": "{count} 秒前",
@@ -2914,9 +2957,15 @@
     },
     "reply": "回覆",
     "deleteComment": "刪除評論",
+    "youAreNotOwner": "您不是此評論的所有者。",
+    "confirmDeleteDescription": "您確定要刪除這則評論嗎？",
     "hasBeenDeleted": "已刪除",
+    "replyingTo": "回復給",
+    "noAccessDeleteComment": "您沒有權限刪除此評論。",
     "collapse": "摺疊",
-    "readMore": "閱讀更多"
+    "readMore": "閱讀更多",
+    "failedToAddComment": "新增評論失敗",
+    "commentAddedSuccessfully": "評論已成功新增。"
   },
   "template": {
     "asTemplate": "另存為範本",
@@ -2947,7 +2996,9 @@
       "colors": "類別顏色",
       "byUseCase": "依使用案例",
       "byFeature": "按功能",
-      "deleteCategory": "刪除類別"
+      "deleteCategory": "刪除類別",
+      "deleteCategoryDescription": "您確定要刪除此類別嗎？",
+      "typeToSearch": "在搜尋類別時輸入..."
     },
     "creator": {
       "label": "範本創作者",
@@ -2956,6 +3007,7 @@
       "accountLinks": "創作者帳戶連結",
       "uploadAvatar": "點擊上傳頭像",
       "deleteCreator": "刪除創建者",
+      "deleteCreatorDescription": "您確定要刪除此創作者嗎？",
       "typeToSearch": "輸入以搜尋創作者..."
     },
     "uploadSuccess": "範本已成功上傳",
