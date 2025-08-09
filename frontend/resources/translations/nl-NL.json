@@ -177,6 +177,36 @@
   "moreAction": {
     "small": "klein",
     "medium": "medium",
-    "large": "groot"
+    "large": "groot",
+    "fontSize": "Lettergrootte",
+    "import": "Importeren",
+    "moreOptions": "Meer opties",
+    "wordCount": "Aantal woorden: {}",
+    "charCount": "Aantal karakters: {}",
+    "createdAt": "Aangemaakt op: {}",
+    "deleteView": "Verwijderen",
+    "duplicateView": "Dupliceren",
+    "wordCountLabel": "Aantal woorden:",
+    "charCountLabel": "Aantal karakters:",
+    "createdAtLabel": "Aangemaakt op:",
+    "syncedAtLabel": "Gesynchroniseerd op:",
+    "saveAsNewPage": "Bericht aan de pagina toevoegen",
+    "saveAsNewPageDisabled": "Geen bericht beschikbaar"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Dokument vanaf v0.1.0",
+    "databaseFromV010": "Database vanaf v0.1.0",
+    "notionZip": "ZIP File geëxporteerd uit Notion",
+    "csv": "CSV",
+    "database": "Database"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Sleep en borg een bestand, klik om",
+      "placeholderUpload": "Uploaden",
+      "placeholderRight": ", of plak een imagelink",
+      "dropToUpload": "Borg een bestand om te uploaden"
+    }
   }
 }
