@@ -43,6 +43,18 @@
     "signingInText": "Aan het aanmelden...",
     "forgotPassword": "Wachtwoord vergeten?",
     "emailHint": "E-mail",
-    "passwordHint": "Wachtwoord"
+    "passwordHint": "Wachtwoord",
+    "dontHaveAnAccount": "Heb je nog geen account?",
+    "createAccount": "Maak een account",
+    "repeatPasswordEmptyError": "Herhaal wachtwoord mag niet leeg zijn",
+    "unmatchedPasswordError": "Herhaal wachtwoord is niet hetzelfde als wachtwoord",
+    "passwordMustContain": "Het wachtwoord moet minimaal één letter, één cijfer en één symbool bevatten.",
+    "syncPromptMessage": "Het synchroniseren van de gegevens kan even duren. Sluit deze pagina niet.",
+    "or": "OF",
+    "signInWithGoogle": "Ga verder met Google",
+    "signInWithGithub": "Ga verder met GitHub",
+    "signInWithDiscord": "Ga verder met Discord",
+    "signInWithApple": "Ga verder met Apple",
+    "continueAnotherWay": "Ga op een andere manier verder"
   }
 }
