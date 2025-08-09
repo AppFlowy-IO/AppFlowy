@@ -155,6 +155,28 @@
     "clipboard": "Naar het klembord kopiëren",
     "csv": "CSV",
     "copyLink": "Link kopiëren",
-    "publishToTheWeb": "Op het web publiceren"
+    "publishToTheWeb": "Op het web publiceren",
+    "publishToTheWebHint": "Maak een Website met AppFlowy",
+    "publish": "Publiceren",
+    "unPublish": "Publicatie ongedaan maken",
+    "visitSite": "Site bezoeken",
+    "exportAsTab": "Exporteren als",
+    "publishTab": "Publiceren",
+    "shareTab": "Delen",
+    "publishOnAppFlowy": "Publiceren op AppFlowy",
+    "shareTabTitle": "Uitnodigen om samen te werken",
+    "shareTabDescription": "Voor eenvoudige samenwerking met iedereen",
+    "copyLinkSuccess": "Link naar klembord gekopieerd",
+    "copyShareLink": "Kopieer de deellink",
+    "copyLinkFailed": "Het is niet gelukt de link naar het klembord te kopiëren",
+    "copyLinkToBlockSuccess": "De block-link is naar het klembord gekopieerd",
+    "copyLinkToBlockFailed": "Het is niet gelukt de block link naar het klembord te kopiëren",
+    "manageAllSites": "Beheer alle sites",
+    "updatePathName": "Padnaam bijwerken"
+  },
+  "moreAction": {
+    "small": "klein",
+    "medium": "medium",
+    "large": "groot"
   }
 }
