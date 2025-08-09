@@ -13,6 +13,13 @@
   "blockActions": {
     "addBelowTooltip": "Klik om hieronder toe te voegen",
     "addAboveCmd": "Alt+Klik",
-    "addAboveMacCmd": "Option+Klik"
+    "addAboveMacCmd": "Option+Klik",
+    "addAboveTooltip": "hierboven toe te voegen",
+    "dragTooltip": "Slepen om te verplaatsen",
+    "openMenuTooltip": "Klik om het menu te openen"
+  },
+  "signUp": {
+    "buttonText": "Registreren",
+    "title": "Registreer je bij @:appName"
   }
 }
