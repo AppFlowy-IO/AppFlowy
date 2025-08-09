@@ -512,6 +512,64 @@
     "next": "Volgende",
     "previous": "Vorige",
     "submit": "Indienen",
-    "download": "Download"
+    "download": "Download",
+    "backToHome": "Terug naar Home",
+    "viewing": "Bekijken",
+    "editing": "Bewerken",
+    "gotIt": "Ik heb het begrepen",
+    "retry": "Opnieuw proberen",
+    "uploadFailed": "Uploaden mislukt.",
+    "copyLinkOriginal": "Link naar origineel kopiëren"
+  },
+  "label": {
+    "welcome": "Welkom!",
+    "firstName": "Voornaam",
+    "middleName": "Middelste naam",
+    "lastName": "Achternaam",
+    "stepX": "Stap {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Er kan geen verbinding worden gemaakt met uw account.",
+      "failedMsg": "Zorg ervoor dat u het aanmeldingsproces in uw browser hebt voltooid."
+    },
+    "google": {
+      "title": "GOOGLE Sign-In",
+      "instruction1": "Om uw Google-contacten te importeren, moet u deze toepassing autoriseren via uw webbrowser.",
+      "instruction2": "Kopieer deze code naar uw klembord door op het pictogram te klikken of de tekst te selecteren:",
+      "instruction3": "Ga naar de volgende link in uw webbrowser en voer de bovenstaande code in:",
+      "instruction4": "Klik op de onderstaande knop wanneer u uw aanmelding heeft voltooid:"
+    }
+  },
+  "settings": {
+    "title": "Instellingen",
+    "popupMenuItem": {
+      "settings": "Instellingen",
+      "members": "Leden",
+      "trash": "Prullenmand",
+      "helpAndDocumentation": "Hulp en documentatie",
+      "getSupport": "Krijg ondersteuning"
+    },
+    "sites": {
+      "title": "Sites",
+      "namespaceTitle": "Naamruimte",
+      "namespaceDescription": "Beheer uw naamruimte en startpagina",
+      "namespaceHeader": "Naamruimte",
+      "homepageHeader": "Naamruimte",
+      "updateNamespace": "Naamruimte bijwerken",
+      "removeHomepage": "Startpagina verwijderen",
+      "selectHomePage": "Selecteer een pagina",
+      "clearHomePage": "Wis de startpagina voor deze naamruimte",
+      "customUrl": "Aangepaste URL",
+      "homePage": {
+        "upgradeToPro": "Upgrade naar het Pro-abonnement om een startpagina in te stellen"
+      },
+      "namespace": {
+        "description": "Deze wijziging is van toepassing op alle gepubliceerde pagina's die in deze naamruimte actief zijn",
+        "tooltip": "Wij behouden ons het recht voor om ongepaste naamruimten te verwijderen",
+        "updateExistingNamespace": "Bestaande naamruimte bijwerken",
+        "upgradeToPro": "Upgrade naar het Pro-abonnement om een aangepaste naamruimte te claimen"
+      }
+    }
   }
 }
