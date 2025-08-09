@@ -292,7 +292,7 @@
       "table": "Tabel",
       "blankDescription": "Formaat antwoord aanpassen",
       "defaultDescription": "Automatisch antwoordformaat",
-      "textWithImageDescription": "@:chat .changeFormat.text met afbeelding",
+      "textWithImageDescription": "@:chat.changeFormat.text met afbeelding",
       "numberWithImageDescription": "@:chat .changeFormat.number met afbeelding",
       "bulletWithImageDescription": "@:chat .changeFormat.bullet met afbeelding",
       "tableWithImageDescription": "@:chat .changeFormat.table met afbeelding"

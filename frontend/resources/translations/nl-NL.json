@@ -265,6 +265,28 @@
     "generatingResponse": "Respons genereren",
     "selectSources": "Selecteer bronnen",
     "currentPage": "Huidige pagina",
-    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren"
+    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren",
+    "sourceUnsupported": "Op dit moment ondersteunen we geen chatten met databases",
+    "regenerate": "Probeer het opnieuw",
+    "addToPageButton": "Bericht toevoegen aan pagina",
+    "addToPageTitle": "Bericht toevoegen aan...",
+    "addToNewPage": "Nieuwe pagina maken",
+    "addToNewPageName": "Berichten geëxtraheerd uit \"{}\"",
+    "addToNewPageSuccessToast": "Bericht toegevoegd aan",
+    "openPagePreviewFailedToast": "Het is niet gelukt om de pagina te openen",
+    "changeFormat": {
+      "actionButton": "Formaat wijzigen",
+      "confirmButton": "Regenereren met dit formaat",
+      "textOnly": "Tekst",
+      "imageOnly": "Alleen afbeelding",
+      "textAndImage": "Tekst en afbeelding",
+      "text": "Alinea",
+      "bullet": "Opsommingslijst",
+      "number": "Genummerde lijst",
+      "table": "Tabel",
+      "blankDescription": "Formaat antwoord aanpassen",
+      "defaultDescription": "Automatisch antwoordformaat",
+      "textWithImageDescription": "@:chat.changeFormat.text met afbeelding"
+    }
   }
 }
