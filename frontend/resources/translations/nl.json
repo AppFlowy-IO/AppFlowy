@@ -242,6 +242,7 @@
     "newChat": "Nieuwe AI Chat",
     "inputMessageHint": "Vraag aan @:appName AI",
     "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI",
+    "unsupportedCloudPrompt": "Deze functie is enkel beschikbaar in @:appName Cloud",
     "relatedQuestion": "Voorgesteld",
     "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en",
     "aiServerUnavailable": "De AI service is tijdelijk niet beschikbaar. Probeer later opnieuw!",

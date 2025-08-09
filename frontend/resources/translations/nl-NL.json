@@ -231,5 +231,11 @@
   "newDocumentText": "Nieuw document",
   "newGridText": "Nieuwe databasetabel",
   "newCalendarText": "Nieuwe kalender",
-  "newBoardText": "Nieuw bord"
+  "newBoardText": "Nieuw bord",
+  "chat": {
+    "newChat": "Nieuwe AI Chat",
+    "inputMessageHint": "Vraag aan @:appName AI",
+    "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI",
+    "unsupportedCloudPrompt": "Deze functie is enkel beschikbaar in @:appName Cloud"
+  }
 }
