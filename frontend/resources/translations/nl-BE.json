@@ -206,7 +206,30 @@
       "placeholderLeft": "Sleep en borg een bestand, klik om",
       "placeholderUpload": "Uploaden",
       "placeholderRight": ", of plak een imagelink",
-      "dropToUpload": "Borg een bestand om te uploaden"
+      "dropToUpload": "Borg een bestand om te uploaden",
+      "change": "Aanpassen"
     }
-  }
+  },
+  "disclosureAction": {
+    "rename": "Hernoemen",
+    "delete": "Verwijderen",
+    "duplicate": "Dupliceren",
+    "unfavorite": "Verwijderen uit Favorieten",
+    "favorite": "Toevoegen aan Favorieten",
+    "openNewTab": "Openen in een nieuwe Tab",
+    "moveTo": "Verplaatsen naar",
+    "addToFavorites": "Toevoegen aan Favorieten",
+    "copyLink": "Link kopiëren",
+    "changeIcon": "Icon aanpassen",
+    "collapseAllPages": "Alle subpagina's samenvouwen",
+    "movePageTo": "Verplaats alle pagina's naar",
+    "move": "Verplaats",
+    "lockPage": "Pagina vergrendelen"
+  },
+  "blankPageTitle": "Lege pagina",
+  "newPageText": "Nieuwe pagina",
+  "newDocumentText": "Nieuw document",
+  "newGridText": "Nieuwe databasetabel",
+  "newCalendarText": "Nieuwe kalender",
+  "newBoardText": "Nieuw bord"
 }
