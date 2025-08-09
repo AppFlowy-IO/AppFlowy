@@ -1,8 +1,18 @@
 {
+  "appName": "AppFlowy",
+  "defaultUsername": "Ik",
+  "welcomeText": "Welkom bij @:appName",
+  "welcomeTo": "Welkom bij",
+  "githubStarText": "Geef een ster op GitHub",
   "subscribeNewsletterText": "Abonneren op de Nieuwsbrief",
   "letsGoButtonText": "Laten we starten",
   "title": "Titel",
   "youCanAlso": "Je kan ook",
   "and": "en",
-  "failedToOpenUrl": "URL kon niet worden geopend: {}"
+  "failedToOpenUrl": "URL kon niet worden geopend: {}",
+  "blockActions": {
+    "addBelowTooltip": "Klik om hieronder toe te voegen",
+    "addAboveCmd": "Alt+Klik",
+    "addAboveMacCmd": "Option+Klik"
+  }
 }
