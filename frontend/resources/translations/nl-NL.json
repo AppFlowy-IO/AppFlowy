@@ -119,6 +119,17 @@
     "reset": "Werkplek opnieuw instellen",
     "renameWorkspace": "Werkplek hernoemen",
     "workspaceNameCannotBeEmpty": "De naam van de werkplek kan niet leeg zijn",
-    "resetWorkspacePrompt": "Als u de werkplek reset, worden alle pagina's en gegevens erin verwijderd. Weet u zeker dat u de werkruimte wilt resetten? Je kan ook contact opnemen met het supportteam om de werkruimte te herstellen."
+    "resetWorkspacePrompt": "Als u de werkplek reset, worden alle pagina's en gegevens erin verwijderd. Weet u zeker dat u de werkruimte wilt resetten? Je kan ook contact opnemen met het supportteam om de werkruimte te herstellen.",
+    "hint": "Werkruimte",
+    "notFoundError": "Werkplek niet gevonden",
+    "failedToLoad": "Er is iets misgegaan! Het laden van de werkplek is mislukt. Probeer alle geopende exemplaren van@:appName te sluiten en probeer het opnieuw.",
+    "errorActions": {
+      "reportIssue": "Probleem melden",
+      "reportIssueOnGithub": "Een probleem melden op GitHub",
+      "exportLogFiles": "Log files exporteren",
+      "reachOut": "Contacteer ons op Discord"
+    },
+    "menuTitle": "Werkplekken",
+    "deleteWorkspaceHintText": "Ben je zeker om deze werkplek te verwijderen? Dit kan later niet geannuleerd worden."
   }
 }
