@@ -67,6 +67,8 @@
     "settings": "Instellingen",
     "magicLinkSent": "Magic Link is verzonden!",
     "invalidEmail": "Voer een geldig e-mailadres in",
-    "alreadyHaveAnAccount": "Heb je al een account?"
+    "alreadyHaveAnAccount": "Heb je al een account?",
+    "logIn": "Inloggen",
+    "generalError": "Er liep iets fout. Probeer later opnieuw"
   }
 }
