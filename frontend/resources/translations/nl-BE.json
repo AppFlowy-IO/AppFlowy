@@ -34,6 +34,10 @@
   "signIn": {
     "loginTitle": "Bij @:appName inloggen",
     "loginButtonText": "Inloggen",
-    "loginStartWithAnonymous": "Anonieme sessie starten"
+    "loginStartWithAnonymous": "Anonieme sessie starten",
+    "continueAnonymousUser": "Verder gaan met anonieme sessie",
+    "continueWithLocalModel": "Ga verder met het lokale model",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "Anonieme modus"
   }
 }
