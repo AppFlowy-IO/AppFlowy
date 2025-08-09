@@ -463,7 +463,7 @@
   "notifications": {
     "export": {
       "markdown": "Notitie geëxporteerd naar Markdown",
-      "path": "Documenten/flowy"
+      "path": "Documents/flowy"
     }
   },
   "contactsPage": {
@@ -486,7 +486,7 @@
     "esc": "ESC",
     "keep": "Houden",
     "tryAgain": "Probeer het opnieuw",
-    "discard": "Weggooien",
+    "discard": "Verwerpen",
     "replace": "Vervangen",
     "insertBelow": "Hieronder invoegen",
     "insertAbove": "Boven invoegen",
