@@ -333,6 +333,74 @@
       "emptyDescription": "Verplaats de spullen die u niet nodig hebt naar de Prullenmand.",
       "isDeleted": "is verwijderd",
       "isRestored": "is hersteld"
-    }
+    },
+    "confirmDeleteTitle": "Weet u zeker dat u deze pagina permanent wilt verwijderen?"
+  },
+  "deletePagePrompt": {
+    "text": "Deze pagina staat in de Prullenmand",
+    "restore": "Pagina herstellen",
+    "deletePermanent": "Permanent verwijderen",
+    "deletePermanentDescription": "Weet u zeker dat u deze pagina definitief wilt verwijderen? Dit is onomkeerbaar."
+  },
+  "dialogCreatePageNameHint": "Paginanaam",
+  "questionBubble": {
+    "shortcuts": "Snelkoppelingen",
+    "whatsNew": "Wat is er nieuw?",
+    "helpAndDocumentation": "Hulp en documentatie",
+    "getSupport": "Krijg ondersteuning",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Debug Informatie",
+      "success": "Debug-info naar het klembord gekopieerd!",
+      "fail": "Kan debug-info niet naar het klembord kopiëren"
+    },
+    "feedback": "Feedback"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Verwijderen, hernoemen en meer...",
+    "addPageTooltip": "Voeg snel een pagina toe binnen",
+    "defaultNewPageName": "Zonder titel",
+    "renameDialog": "Hernoemen",
+    "pageNameSuffix": "Kopiëren"
+  },
+  "noPagesInside": "Geen pagina's binnenin",
+  "toolbar": {
+    "undo": "Ongedaan maken",
+    "redo": "Opnieuw doen",
+    "bold": "Vetgedrukt",
+    "italic": "Cursief",
+    "underline": "Onderstrepen",
+    "strike": "Doorhalen",
+    "numList": "Genummerde lijst",
+    "bulletList": "Opsommingstekenlijst",
+    "checkList": "Controlelijst",
+    "inlineCode": "Inline-code",
+    "quote": "Citaatblok",
+    "header": "Koptekst",
+    "highlight": "Benadrukken",
+    "color": "Kleur",
+    "addLink": "Link toevoegen"
+  },
+  "tooltip": {
+    "lightMode": "Overschakelen naar de Lichte Modus",
+    "darkMode": "Overschakelen naar Donkere Modus",
+    "openAsPage": "Openen als Pagina",
+    "addNewRow": "Een nieuwe rij toevoegen",
+    "openMenu": "Klik om het menu te openen",
+    "dragRow": "Versleep om de rij opnieuw te ordenen",
+    "viewDataBase": "Database bekijken",
+    "referencePage": "Er wordt verwezen naar deze {naam}",
+    "addBlockBelow": "Voeg hieronder een blok toe",
+    "aiGenerate": "Voeg hieronder een blok toe"
+  },
+  "sideBar": {
+    "closeSidebar": "Sluit zijbalk",
+    "openSidebar": "Open zijbalk",
+    "expandSidebar": "Uitvouwen als volledige pagina",
+    "personal": "Persoonlijk",
+    "private": "Privé",
+    "workspace": "Werkplek",
+    "favorites": "Favorieten",
+    "clickToHidePrivate": "Klik om de privéruimte te verbergen\nDe pagina's die u hier hebt gemaakt, zijn alleen voor u zichtbaar"
   }
 }
