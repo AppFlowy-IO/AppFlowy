@@ -236,6 +236,35 @@
     "newChat": "Nieuwe AI Chat",
     "inputMessageHint": "Vraag aan @:appName AI",
     "inputLocalAIMessageHint": "Vraag aan @:appName Lokale AI",
-    "unsupportedCloudPrompt": "Deze functie is enkel beschikbaar in @:appName Cloud"
+    "unsupportedCloudPrompt": "Deze functie is enkel beschikbaar in @:appName Cloud",
+    "relatedQuestion": "Gerelateerd",
+    "serverUnavailable": "Verbinding verloren. Controleer je internetverbinding en",
+    "aiServerUnavailable": "De AI service is tijdelijk niet beschikbaar. Probeer later opnieuw!",
+    "retry": "Probeer opnieuw",
+    "clickToRetry": "Klik om opnieuw te proberen",
+    "regenerateAnswer": "Opnieuw genereren",
+    "question1": "Hoe Kanban gebruiken om taken te beheren",
+    "question2": "Leg de GTD-methode uit",
+    "question3": "Waarom Rust gebruiken",
+    "question4": "Recept met wat er in mijn keuken staat",
+    "question5": "Maak een illustratie voor mijn pagina",
+    "question6": "Maak een to-do lijst voor mijn komende week",
+    "aiMistakePrompt": "AI kan fouten maken. Controleer belangrijke informatie.",
+    "chatWithFilePrompt": "Wil je chatten met het bestand?",
+    "indexFileSuccess": "Bestand succesvol geïndexeerd",
+    "inputActionNoPages": "Geen paginaresultaten",
+    "referenceSource": {
+      "zero": "0 bronnen gevonden",
+      "one": "{count} bron gevonden",
+      "other": "{count} bronnen gevonden"
+    },
+    "clickToMention": "Klik hier om een pagina te vermelden",
+    "uploadFile": "Voeg PDF's, tekst- of markdown-bestanden toe",
+    "questionDetail": "Hoi {}! Hoe kan ik je vandaag helpen?",
+    "indexingFile": "Indexeren {}",
+    "generatingResponse": "Respons genereren",
+    "selectSources": "Selecteer bronnen",
+    "currentPage": "Huidige pagina",
+    "sourcesLimitReached": "U kan maximaal 3 documenten op het hoogste niveau en de onderliggende documenten selecteren"
   }
 }
