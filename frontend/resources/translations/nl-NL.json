@@ -38,6 +38,11 @@
     "continueAnonymousUser": "Verder gaan met anonieme sessie",
     "continueWithLocalModel": "Ga verder met het lokale model",
     "switchToAppFlowyCloud": "AppFlowy Cloud",
-    "anonymousMode": "Anonieme modus"
+    "anonymousMode": "Anonieme modus",
+    "buttonText": "Aanmelden",
+    "signingInText": "Aan het aanmelden...",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "emailHint": "E-mail",
+    "passwordHint": "Wachtwoord"
   }
 }
