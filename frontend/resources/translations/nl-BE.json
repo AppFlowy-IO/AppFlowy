@@ -75,6 +75,11 @@
     "tokenHasExpiredOrInvalid": "De code is verlopen of ongeldig. Probeer het opnieuw.",
     "signingIn": "Aan het aanmelden...",
     "checkYourEmail": "Controleer je e-mail",
-    "temporaryVerificationLinkSent": "Een tijdelijke verificatielink is verzonden. Controleer uw inbox op"
+    "temporaryVerificationLinkSent": "Een tijdelijke verificatielink is verzonden. Controleer uw inbox op",
+    "temporaryVerificationCodeSent": "Er is een tijdelijke verificatiecode verzonden. Controleer uw inbox op",
+    "continueToSignIn": "Ga door met inloggen",
+    "continueWithLoginCode": "Ga verder met inlogcode",
+    "backToLogin": "Terug naar inloggen",
+    "enterCode": "Voer de code in"
   }
 }
