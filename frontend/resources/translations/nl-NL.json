@@ -138,6 +138,23 @@
     "deleteFailed": "Het is niet gelukt om de werkplek te verwijderen",
     "openSuccess": "Werkplek succesvol geopend",
     "openFailed": "Het is niet gelukt de werkplek te openen",
-    "renameSuccess": "Werkplek succesvol hernoemd"
+    "renameSuccess": "Werkplek succesvol hernoemd",
+    "renameFailed": "Het is niet gelukt om de werkplek te hernoemen",
+    "updateIconSuccess": "Het icon van de werkplek is succesvol geüpdatet",
+    "updateIconFailed": "Het is niet gelukt om het icon van de werkplek te updaten",
+    "cannotDeleteTheOnlyWorkspace": "De enige resterende werkruimte kan niet verwijderd worden",
+    "fetchWorkspacesFailed": "Het ophalen van werkplekken is mislukt",
+    "leaveCurrentWorkspace": "Werkruimte verlaten",
+    "leaveCurrentWorkspacePrompt": "Ben je zeker dat je de huidige werkruimte wil verlaten?"
+  },
+  "shareAction": {
+    "buttonText": "Delen",
+    "workInProgress": "Weldra beschikbaar",
+    "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Naar het klembord kopiëren",
+    "csv": "CSV",
+    "copyLink": "Link kopiëren",
+    "publishToTheWeb": "Op het web publiceren"
   }
 }
