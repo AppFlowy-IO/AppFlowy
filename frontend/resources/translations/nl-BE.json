@@ -401,6 +401,9 @@
     "private": "Privé",
     "workspace": "Werkplek",
     "favorites": "Favorieten",
-    "clickToHidePrivate": "Klik om de privéruimte te verbergen\nDe pagina's die u hier hebt gemaakt, zijn alleen voor u zichtbaar"
+    "clickToHidePrivate": "Klik om de privéruimte te verbergen\nDe pagina's die u hier hebt gemaakt, zijn alleen voor u zichtbaar",
+    "clickToHideWorkspace": "Klik om de werkplek te verbergen\nDe pagina's die u hier hebt gemaakt, zijn voor elk lid zichtbaar",
+    "clickToHidePersonal": "Klik om persoonlijke werkplek te verbergen",
+    "clickToHideFavorites": "Klik om favoriete werkplek te verbergen"
   }
 }
