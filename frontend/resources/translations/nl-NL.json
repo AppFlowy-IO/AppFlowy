@@ -306,6 +306,33 @@
     "stopTooltip": "Stop met genereren"
   },
   "trash": {
-    "text": "Prullenmand"
+    "text": "Prullenmand",
+    "restoreAll": "Alles herstellen",
+    "restore": "Herstellen",
+    "deleteAll": "Alles verwijderen",
+    "pageHeader": {
+      "fileName": "Bestandsnaam",
+      "lastModified": "Laatst gewijzigd",
+      "created": "Gemaakt"
+    },
+    "confirmDeleteAll": {
+      "title": "Ben je zeker? Alle pagina's in de Prullenmand verwijderen?",
+      "caption": "Weet u zeker dat u alles uit de Prullenmand wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "confirmRestoreAll": {
+      "title": "Alle pagina's in de Prullenmand herstellen",
+      "caption": "Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "restorePage": {
+      "title": "Herstellen: {}",
+      "caption": "Weet u zeker dat u deze pagina wilt herstellen?"
+    },
+    "mobile": {
+      "actions": "Prullenmand acties",
+      "empty": "Geen pagina's of ruimtes in de Prullenmand",
+      "emptyDescription": "Verplaats de spullen die u niet nodig hebt naar de Prullenmand.",
+      "isDeleted": "is verwijderd",
+      "isRestored": "is hersteld"
+    }
   }
 }
