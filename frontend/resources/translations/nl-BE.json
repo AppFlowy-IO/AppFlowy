@@ -80,6 +80,16 @@
     "continueToSignIn": "Ga door met inloggen",
     "continueWithLoginCode": "Ga verder met inlogcode",
     "backToLogin": "Terug naar inloggen",
-    "enterCode": "Voer de code in"
+    "enterCode": "Voer de code in",
+    "enterCodeManually": "Voer de code handmatig in",
+    "continueWithEmail": "Ga verder met e-mail",
+    "enterPassword": "Voer wachtwoord in",
+    "loginAs": "Inloggen als",
+    "invalidVerificationCode": "Voer een geldige verificatiecode in",
+    "tooFrequentVerificationCodeRequest": "U heeft te veel verzoeken ingediend. Probeer het later opnieuw.",
+    "invalidLoginCredentials": "Uw wachtwoord is onjuist, probeer het opnieuw.",
+    "resetPassword": "Wachtwoord opnieuw instellen",
+    "resetPasswordDescription": "Voer uw e-mailadres in om uw wachtwoord opnieuw in te stellen",
+    "continueToResetPassword": "Ga door met het opnieuw instellen van het wachtwoord"
   }
 }
