@@ -604,8 +604,37 @@
         "publishNameTooShort": "De padnaam is te kort, probeer een andere",
         "publishNameTooLong": "De padnaam is te lang, probeer een andere",
         "publishNameAlreadyInUse": "De padnaam is al in gebruik, probeer een andere",
-        "namespaceContainsInvalidCharacters": "De naamruimte bevat ongeldige tekens. Probeer een andere."
+        "namespaceContainsInvalidCharacters": "De naamruimte bevat ongeldige tekens. Probeer een andere.",
+        "publishPermissionDenied": "Alleen de eigenaar van de werkruimte of de pagina-uitgever kan de publicatie-instellingen beheren",
+        "publishNameCannotBeEmpty": "De padnaam mag niet leeg zijn, probeer een andere"
+      },
+      "success": {
+        "namespaceUpdated": "Naamruimte succesvol bijgewerkt",
+        "setHomepageSuccess": "Homepage succesvol ingesteld",
+        "updatePathNameSuccess": "Padnaam succesvol bijgewerkt",
+        "removeHomePageSuccess": "Homepage succesvol verwijderd"
       }
+    },
+    "accountPage": {
+      "menuLabel": "Account en app",
+      "title": "Mijn account",
+      "general": {
+        "title": "Accountnaam en profielafbeelding",
+        "changeProfilePicture": "Profielfoto wijzigen"
+      },
+      "email": {
+        "title": "E-mail",
+        "actions": {
+          "change": "E-mail wijzigen"
+        }
+      },
+      "login": {
+        "title": "Account inloggen",
+        "loginLabel": "Inloggen",
+        "logoutLabel": "Uitloggen"
+      },
+      "isUpToDate": "@:appName is up-to-date!",
+      "officialVersion": "Versie {version} (officiële build)"
     }
   }
 }
