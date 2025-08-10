@@ -1386,8 +1386,92 @@
         "resetInviteLinkFailed": "Het is niet gelukt de uitnodigingslink te resetten",
         "resetInviteLinkFailedDescription": "Probeer het later opnieuw",
         "memberPageDescription1": "Ga naar",
-        "memberPageDescription2": "voor gastbeheer en geavanceerd gebruikersbeheer."
+        "memberPageDescription2": "voor gastbeheer en geavanceerd gebruikersbeheer.",
+        "noInviteLink": "Je hebt nog geen uitnodigingslink gegenereerd.",
+        "copyLink": "Link kopiëren",
+        "generatedLinkSuccessfully": "Link succesvol gegenereerd",
+        "generatedLinkFailed": "Het is niet gelukt om een link te genereren",
+        "resetLinkSuccessfully": "Link succesvol gereset",
+        "resetLinkFailed": "Link kon niet worden gereset"
       }
+    },
+    "files": {
+      "copy": "Kopiëren",
+      "defaultLocation": "Lees opslaglocatie voor files en data",
+      "exportData": "Exporteer uw gegevens",
+      "doubleTapToCopy": "Dubbeltik om het pad te kopiëren",
+      "restoreLocation": "Herstel naar het standaardpad voor @:appName",
+      "customizeLocation": "Open een andere map",
+      "restartApp": "Start de app opnieuw op om de wijzigingen door te voeren.",
+      "exportDatabase": "Database exporteren",
+      "selectFiles": "Selecteer de bestanden die geëxporteerd moeten worden",
+      "selectAll": "Selecteer alles",
+      "deselectAll": "Alles deselecteren",
+      "createNewFolder": "Een nieuwe map maken",
+      "createNewFolderDesc": "Vertel ons waar u uw gegevens wilt opslaan",
+      "defineWhereYourDataIsStored": "Bepaal waar uw gegevens zijn opgeslagen",
+      "open": "Open",
+      "openFolder": "Een bestaande map openen",
+      "openFolderDesc": "Lees en schrijf het naar uw bestaande @:appName map",
+      "folderHintText": "mapnaam",
+      "location": "Een nieuwe map aan het maken",
+      "locationDesc": "Kies een naam voor uw @:appName gegevensmap",
+      "browser": "Bladeren",
+      "create": "Creëren",
+      "set": "Bewaren",
+      "folderPath": "Pad om uw map op te slaan",
+      "locationCannotBeEmpty": "Pad kan niet leeg zijn",
+      "pathCopiedSnackbar": "Bestandsopslagpad gekopieerd naar klembord!",
+      "changeLocationTooltips": "Wijzig de gegevensmap",
+      "change": "Wijzigen",
+      "openLocationTooltips": "Open een andere gegevensmap",
+      "openCurrentDataFolder": "Open huidige gegevensmap",
+      "recoverLocationTooltips": "Reset naar de standaard gegevensmap @:appName",
+      "exportFileSuccess": "Bestand succesvol geëxporteerd!",
+      "exportFileFail": "Exporteren van bestand mislukt!",
+      "export": "Exporteren",
+      "clearCache": "Cache wissen",
+      "clearCacheDesc": "Als je problemen ondervindt met het niet laden van afbeeldingen of het niet correct weergeven van lettertypen, probeer dan je cache te wissen. Je gebruikersgegevens worden hiermee niet verwijderd.",
+      "areYouSureToClearCache": "Weet u zeker dat u de cache wilt wissen?",
+      "clearCacheSuccess": "Cache succesvol gewist!"
+    },
+    "user": {
+      "name": "Naam",
+      "email": "E-mail",
+      "tooltipSelectIcon": "Selecteer icon",
+      "selectAnIcon": "Selecteer een icon",
+      "pleaseInputYourOpenAIKey": "Voer uw AI-sleutel in",
+      "clickToLogout": "Klik om de huidige gebruiker af te melden"
+    },
+    "mobile": {
+      "personalInfo": "Persoonlijke gegevens",
+      "username": "Gebruikersnaam",
+      "usernameEmptyError": "Gebruikersnaam mag niet leeg zijn",
+      "about": "Over",
+      "pushNotifications": "Pushmeldingen",
+      "support": "Support",
+      "joinDiscord": "Sluit je bij ons aan op Discord",
+      "privacyPolicy": "Privacybeleid",
+      "userAgreement": "Gebruikersovereenkomst",
+      "termsAndConditions": "Algemene voorwaarden",
+      "userprofileError": "Het laden van het gebruikersprofiel is mislukt",
+      "userprofileErrorDescription": "Probeer uit te loggen en opnieuw in te loggen om te controleren of het probleem zich blijft voordoen.",
+      "selectLayout": "Selecteer lay-out",
+      "selectStartingDay": "Selecteer startdag",
+      "version": "Versie"
+    }
+  },
+  "grid": {
+    "deleteView": "Weet u zeker dat u deze weergave wilt verwijderen?",
+    "createView": "Nieuw",
+    "title": {
+      "placeholder": "Zonder titel"
+    },
+    "settings": {
+      "filter": "Filter",
+      "sort": "Sorteren",
+      "sortBy": "Sorteren op",
+      "properties": "Eigenschappen"
     }
   }
 }
