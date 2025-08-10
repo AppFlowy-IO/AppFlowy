@@ -1558,15 +1558,15 @@
       "layout": "Indeling",
       "compactMode": "Compacte modus",
       "databaseLayout": "Indeling",
-      "editView": "Bewerken Weergave",
+      "viewList": "Databaseweergave",
+      "editView": "Weergave bewerken",
       "boardSettings": "Bordinstellingen",
       "calendarSettings": "Kalenderinstellingen",
-      "createView": "Nieuw uitzicht",
+      "createView": "Nieuwe weergave",
       "duplicateView": "Duppliceer weergave",
       "deleteView": "Weergave verwijderen",
-      "numberOfVisibleFields": "{} weergaves",
-      "Properties": "Eigenschappen",
-      "viewList": "Databaseweergave"
+      "numberOfVisibleFields": "{} zichtbaar",
+      "Properties": "Eigenschappen"
     },
     "filter": {
       "empty": "Geen actieve filters",

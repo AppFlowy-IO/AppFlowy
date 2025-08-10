@@ -1471,7 +1471,38 @@
       "filter": "Filter",
       "sort": "Sorteren",
       "sortBy": "Sorteren op",
-      "properties": "Eigenschappen"
+      "properties": "Eigenschappen",
+      "reorderPropertiesTooltip": "Versleep om eigenschappen opnieuw te ordenen",
+      "group": "Groeperen",
+      "addFilter": "Filter toevoegen",
+      "deleteFilter": "Filter verwijderen",
+      "filterBy": "Filteren op",
+      "typeAValue": "Typ een waarde...",
+      "layout": "Indeling",
+      "compactMode": "Compacte modus",
+      "databaseLayout": "Indeling",
+      "viewList": {
+        "zero": "Nooit bekeken",
+        "one": "{count} maal beken",
+        "other": "{count} maal beken"
+      },
+      "editView": "Weergave bewerken",
+      "boardSettings": "Bordinstellingen",
+      "calendarSettings": "Kalenderinstellingen",
+      "createView": "Nieuwe weergave",
+      "duplicateView": "Duppliceer weergave",
+      "deleteView": "Weergave verwijderen",
+      "numberOfVisibleFields": "{} zichtbaar"
+    },
+    "filter": {
+      "empty": "Geen actieve filters",
+      "addFilter": "Filter toevoegen",
+      "cannotFindCreatableField": "Kan geen geschikt veld vinden om op te filteren",
+      "conditon": "Voorwaarde",
+      "where": "Waar"
+    },
+    "textFilter": {
+      "contains": "Bevat"
     }
   }
 }
