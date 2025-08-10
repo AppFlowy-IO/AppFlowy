@@ -1839,7 +1839,7 @@
   "document": {
     "menuName": "Document",
     "date": {
-      "timeHintTextInTwelveHour": "13:00 uur",
+      "timeHintTextInTwelveHour": "01:00 uur PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
     "creating": "Creëren...",
@@ -1849,8 +1849,8 @@
         "createANewBoard": "Een nieuw bord aanmaken"
       },
       "grid": {
-        "selectAGridToLinkTo": "Selecteer een Raster om naar te linken",
-        "createANewGrid": "Een nieuw Raster maken"
+        "selectAGridToLinkTo": "Selecteer een database om naar te linken",
+        "createANewGrid": "Een nieuw database maken"
       },
       "calendar": {
         "selectACalendarToLinkTo": "Selecteer een agenda om aan te koppelen",
@@ -1865,7 +1865,7 @@
         "toggle": "Schakelen",
         "fileAndMedia": "Bestand & Media",
         "simpleTable": "Eenvoudige tabel",
-        "visuals": "Visueel",
+        "visuals": "Visuals",
         "document": "Document",
         "advanced": "Geavanceerd",
         "text": "Tekst",
@@ -1876,10 +1876,10 @@
         "bulletedList": "Opsommingstekenlijst",
         "numberedList": "Genummerde lijst",
         "todoList": "Takenlijst",
-        "doc": "Doc",
+        "doc": "Document",
         "linkedDoc": "Link naar pagina",
-        "grid": "Grid",
-        "linkedGrid": "Gekoppeld Grid",
+        "grid": "Database",
+        "linkedGrid": "Gekoppeld database",
         "kanban": "Kanban",
         "linkedKanban": "Gekoppelde Kanban",
         "calendar": "Kalender",
@@ -1887,7 +1887,7 @@
         "quote": "Citaat",
         "divider": "Verdeler",
         "table": "Tabel",
-        "callout": "Oproep",
+        "callout": "Callout",
         "outline": "Outline",
         "mathEquation": "Wiskundige vergelijking",
         "code": "Code",

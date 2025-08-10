@@ -1752,7 +1752,77 @@
       "attachmentsHint": "{}",
       "addFileMobile": "Bestand toevoegen",
       "extraCount": "+{}",
-      "deleteFileDescription": "Weet u zeker dat u dit bestand wilt verwijderen? Deze actie is onomkeerbaar."
+      "deleteFileDescription": "Weet u zeker dat u dit bestand wilt verwijderen? Deze actie is onomkeerbaar.",
+      "showFileNames": "Bestandsnaam weergeven",
+      "downloadSuccess": "Bestand gedownload",
+      "downloadFailedToken": "Het downloaden van het bestand is mislukt, gebruikerstoken is niet beschikbaar",
+      "setAsCover": "Instellen als omslag",
+      "openInBrowser": "Openen in browser",
+      "embedLink": "Bestandslink insluiten"
+    }
+  },
+  "document": {
+    "menuName": "Document",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 uur PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "creating": "Creëren...",
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Selecteer een bord om naar te linken",
+        "createANewBoard": "Een nieuw bord aanmaken"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Selecteer een database om naar te linken",
+        "createANewGrid": "Een nieuw database maken"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Selecteer een agenda om aan te koppelen",
+        "createANewCalendar": "Een nieuwe agenda maken"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Selecteer een document om naar te linken"
+      },
+      "name": {
+        "textStyle": "Tekststijl",
+        "list": "Lijst",
+        "toggle": "Schakelen",
+        "fileAndMedia": "Bestand & Media",
+        "simpleTable": "Eenvoudige tabel",
+        "visuals": "Visuals",
+        "document": "Document",
+        "advanced": "Geavanceerd",
+        "text": "Tekst",
+        "heading1": "Kop 1",
+        "heading2": "Kop 2",
+        "heading3": "Kop 3",
+        "image": "Afbeelding",
+        "bulletedList": "Opsommingstekenlijst",
+        "numberedList": "Genummerde lijst",
+        "todoList": "Takenlijst",
+        "doc": "Document",
+        "linkedDoc": "Link naar pagina",
+        "grid": "Database",
+        "linkedGrid": "Gekoppeld database",
+        "kanban": "Kanban",
+        "linkedKanban": "Gekoppelde Kanban",
+        "calendar": "Kalender",
+        "linkedCalendar": "Gekoppelde agenda",
+        "quote": "Citaat",
+        "divider": "Verdeler",
+        "table": "Tabel",
+        "callout": "Callout",
+        "outline": "Outline",
+        "mathEquation": "Wiskundige vergelijking",
+        "code": "Code",
+        "toggleList": "Lijst wisselen",
+        "toggleHeading1": "Kop 1 omschakelen",
+        "toggleHeading2": "Kop 2 omschakelen",
+        "toggleHeading3": "Kop 3 omschakelen",
+        "emoji": "Emoji",
+        "aiWriter": "Vraag AI alles"
+      }
     }
   }
 }
