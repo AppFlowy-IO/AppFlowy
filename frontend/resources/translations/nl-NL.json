@@ -635,6 +635,27 @@
       },
       "isUpToDate": "@:appName is up-to-date!",
       "officialVersion": "Versie {version} (officiële build)"
+    },
+    "workspacePage": {
+      "menuLabel": "Werkruimte",
+      "title": "Werkruimte",
+      "description": "Pas het uiterlijk van uw werkruimte, thema, lettertype, tekstindeling, datum-/tijdnotatie en taal aan.",
+      "workspaceName": {
+        "title": "Werkpleknaam"
+      },
+      "workspaceIcon": {
+        "title": "Werkplekpictogram",
+        "description": "Upload een afbeelding of gebruik een emoji voor je werkruimte. Het pictogram wordt weergegeven in je zijbalk en meldingen."
+      },
+      "appearance": {
+        "title": "Weergave",
+        "description": "Pas het uiterlijk, thema, lettertype, tekstindeling, datum, tijd en taal van uw werkplek aan.",
+        "options": {
+          "system": "Auto",
+          "light": "Licht",
+          "dark": "Donker"
+        }
+      }
     }
   }
 }
