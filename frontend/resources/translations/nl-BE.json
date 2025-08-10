@@ -1214,7 +1214,85 @@
         "hint": "Schakel deze optie uit om geen lokale meldingen meer te ontvangen."
       },
       "showNotificationsIcon": {
-        "label": "Meldingenpictogram weergeven"
+        "label": "Meldingenpictogram weergeven",
+        "hint": "Schakel deze optie uit om het meldingsicoon in de zijbalk te verbergen."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Alle meldingen zijn succesvol gearchiveerd",
+        "success": "Melding succesvol gearchiveerd"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Alles succesvol als gelezen gemarkeerd",
+        "success": "Met succes gemarkeerd als gelezen"
+      },
+      "action": {
+        "markAsRead": "Markeer als gelezen",
+        "multipleChoice": "Selecteer meer",
+        "archive": "Archief"
+      },
+      "settings": {
+        "settings": "Instellingen",
+        "markAllAsRead": "Alles als gelezen markeren",
+        "archiveAll": "Alles archiveren"
+      },
+      "emptyInbox": {
+        "title": "Nog geen berichten",
+        "description": "Stel hier herinneringen in om meldingen te ontvangen."
+      },
+      "emptyUnread": {
+        "title": "Geen ongelezen meldingen",
+        "description": "Je bent helemaal bij!"
+      },
+      "emptyArchived": {
+        "title": "Geen gearchiveerd berichten",
+        "description": "Gearchiveerde meldingen verschijnen hier."
+      },
+      "tabs": {
+        "inbox": "Postvak IN",
+        "unread": "Ongelezen",
+        "archived": "Gearchiveerd"
+      },
+      "refreshSuccess": "Meldingen succesvol vernieuwd",
+      "titles": {
+        "notifications": "Meldingen",
+        "reminder": "Herinnering"
+      }
+    },
+    "appearance": {
+      "resetSetting": "Reset",
+      "fontFamily": {
+        "label": "Lettertypefamilie",
+        "search": "Zoeken",
+        "defaultFont": "Systeem"
+      },
+      "themeMode": {
+        "label": "Themamodus",
+        "light": "Lichte Modus",
+        "dark": "Donkere Modus",
+        "system": "Aanpassen aan het systeem"
+      },
+      "fontScaleFactor": "Lettertype schaalfactor",
+      "displaySize": "Weergaveformaat",
+      "documentSettings": {
+        "cursorColor": "Kleur van documentcursor",
+        "selectionColor": "Documentselectiekleur",
+        "width": "Documentbreedte",
+        "changeWidth": "Wijzigen",
+        "pickColor": "Selecteer een kleur",
+        "colorShade": "Kleurtint",
+        "opacity": "Dekking",
+        "hexEmptyError": "Hex-kleur kan niet leeg zijn",
+        "hexLengthError": "Hex-kleur waarde moet 6 cijfers lang zijn",
+        "hexInvalidError": "Ongeldige hex-kleur waarde",
+        "opacityEmptyError": "Dekking kan niet leeg zijn",
+        "opacityRangeError": "Dekking moet tussen 1 en 100 liggen",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Toepassen"
+      },
+      "layoutDirection": {
+        "label": "Lay-outrichting",
+        "hint": "Bepaal hoe de inhoud op uw scherm wordt weergegeven, van links naar rechts of van rechts naar links."
       }
     }
   }
