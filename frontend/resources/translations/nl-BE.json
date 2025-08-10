@@ -1689,7 +1689,70 @@
       "pinkColor": "Roze",
       "lightPinkColor": "Lichtroze",
       "orangeColor": "Oranje",
-      "yellowColor": "Geel"
+      "yellowColor": "Geel",
+      "limeColor": "Limoen",
+      "greenColor": "Groen",
+      "aquaColor": "Turquoise",
+      "blueColor": "Blauw",
+      "deleteTag": "Tag verwijderen",
+      "colorPanelTitle": "Kleur",
+      "panelTitle": "Selecteer een optie of maak er een aan",
+      "searchOption": "Zoek naar een optie",
+      "searchOrCreateOption": "Zoek een optie of maak er een aan",
+      "createNew": "Maak een nieuwe",
+      "orSelectOne": "Of selecteer een optie",
+      "typeANewOption": "Typ een nieuwe optie",
+      "tagName": "Tagnaam"
+    },
+    "checklist": {
+      "taskHint": "Taakomschrijving",
+      "addNew": "Een nieuwe taak toevoegen",
+      "submitNewTask": "Creëren",
+      "hideComplete": "Voltooide taken verbergen",
+      "showComplete": "Toon alle taken"
+    },
+    "url": {
+      "launch": "Link openen in browser",
+      "copy": "Link naar klembord kopiëren",
+      "textFieldHint": "Voer een URL in"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Gerelateerde database",
+      "relatedDatabasePlaceholder": "Geen",
+      "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Zoeken",
+      "noDatabaseSelected": "Er is geen database geselecteerd, selecteer eerst een database uit onderstaande lijst:",
+      "emptySearchResult": "Geen gegevens gevonden",
+      "linkedRowListLabel": "{count} gekoppelde rijen",
+      "unlinkedRowListLabel": "Een andere rij koppelen"
+    },
+    "menuName": "Rooster",
+    "referencedGridPrefix": "Zicht op",
+    "calculate": "Berekenen",
+    "calculationTypeLabel": {
+      "none": "Geen",
+      "average": "Gemiddeld",
+      "max": "Maximum",
+      "median": "Mediaan",
+      "min": "Minimum",
+      "sum": "Som",
+      "count": "Aantal",
+      "countEmpty": "Aantal lege",
+      "countEmptyShort": "LEEG",
+      "countNonEmpty": "Aantal niet leeg",
+      "countNonEmptyShort": "GEVULD"
+    },
+    "media": {
+      "rename": "Hernoemen",
+      "download": "Download",
+      "expand": "Uitvouwen",
+      "delete": "Verwijderen",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Bestand of link toevoegen",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Bestand toevoegen",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Weet u zeker dat u dit bestand wilt verwijderen? Deze actie is onomkeerbaar."
     }
   }
 }
