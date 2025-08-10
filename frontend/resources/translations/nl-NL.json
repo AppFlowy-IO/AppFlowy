@@ -1502,7 +1502,76 @@
       "where": "Waar"
     },
     "textFilter": {
-      "contains": "Bevat"
+      "contains": "Bevat",
+      "doesNotContain": "Bevat niet",
+      "endsWith": "Eindigt met",
+      "startWith": "Begint met",
+      "is": "Is",
+      "isNot": "Is niet",
+      "isEmpty": "Is leeg",
+      "isNotEmpty": "Is niet leeg",
+      "choicechipPrefix": {
+        "isNot": "Niet",
+        "startWith": "Begint met",
+        "endWith": "Eindigt met",
+        "isEmpty": "is leeg",
+        "isNotEmpty": "is niet leeg"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Geselecteerd",
+      "isUnchecked": "Gedeselecteerd",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "Is compleet",
+      "isIncomplted": "Is onvolledig"
+    },
+    "selectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is niet",
+      "contains": "Bevat",
+      "doesNotContain": "Bevat niet",
+      "isEmpty": "Is leeg",
+      "isNotEmpty": "Is niet leeg"
+    },
+    "dateFilter": {
+      "is": "Is op",
+      "before": "Is voor",
+      "after": "Is na",
+      "onOrBefore": "Is op of voor",
+      "onOrAfter": "Is op of na",
+      "between": "Is tussen",
+      "empty": "Is leeg",
+      "notEmpty": "Is niet leeg",
+      "startDate": "Startdatum",
+      "endDate": "Einddatum",
+      "choicechipPrefix": {
+        "before": "Voor",
+        "after": "Na",
+        "between": "Tussen",
+        "onOrBefore": "Op of voor",
+        "onOrAfter": "Op of na",
+        "isEmpty": "Is leeg",
+        "isNotEmpty": "Is niet leeg"
+      }
+    },
+    "numberFilter": {
+      "equal": "Is gelijk aan",
+      "notEqual": "Is niet gelijk aan",
+      "lessThan": "Is minder dan",
+      "greaterThan": "Is meer dan",
+      "lessThanOrEqualTo": "Is kleiner dan of gelijk aan",
+      "greaterThanOrEqualTo": "Is groter dan of gelijk aan",
+      "isEmpty": "Is leeg",
+      "isNotEmpty": "Is niet leeg"
+    },
+    "field": {
+      "label": "Eigenschap",
+      "hide": "Eigenschap verbergen",
+      "show": "Toon eigenschap"
     }
   }
 }

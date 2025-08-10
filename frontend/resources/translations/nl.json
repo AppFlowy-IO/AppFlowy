@@ -1558,7 +1558,6 @@
       "layout": "Indeling",
       "compactMode": "Compacte modus",
       "databaseLayout": "Indeling",
-      "viewList": "Databaseweergave",
       "editView": "Weergave bewerken",
       "boardSettings": "Bordinstellingen",
       "calendarSettings": "Kalenderinstellingen",
@@ -1566,7 +1565,8 @@
       "duplicateView": "Duppliceer weergave",
       "deleteView": "Weergave verwijderen",
       "numberOfVisibleFields": "{} zichtbaar",
-      "Properties": "Eigenschappen"
+      "Properties": "Eigenschappen",
+      "viewList": "Databaseweergave"
     },
     "filter": {
       "empty": "Geen actieve filters",
@@ -1612,7 +1612,7 @@
       "isNotEmpty": "Is niet leeg"
     },
     "dateFilter": {
-      "is": "Is op",
+      "is": "Is",
       "before": "Is voor",
       "after": "Is na",
       "onOrBefore": "Is op of voor",
@@ -1633,7 +1633,7 @@
       }
     },
     "numberFilter": {
-      "equal": "is gelijk aan",
+      "equal": "Is gelijk aan",
       "notEqual": "Is niet gelijk aan",
       "lessThan": "Is minder dan",
       "greaterThan": "Is meer dan",
