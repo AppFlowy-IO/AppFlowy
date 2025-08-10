@@ -118,11 +118,6 @@ script_runner = "@duckscript"
 
 # only use in CI job
 [tasks.sdk-build-android-ci]
-mac_alias = "sdk-build-android-ci-unix"
-linux_alias = "sdk-build-android-ci-unix"
-windows_alias = "sdk-build-android-ci-windows"
-
-[tasks.sdk-build-android-ci-unix]
 dependencies = ["set-app-version"]
 private = true
 script = [
@@ -133,18 +128,6 @@ script = [
   """,
 ]
 script_runner = "@shell"
-
-[tasks.sdk-build-android-ci-windows]
-dependencies = ["set-app-version"]
-private = true
-script = [
-  """
-    cd rust-lib
-    exec cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
-    cd ..
-  """,
-]
-script_runner = "@duckscript"
 
 [tasks.post-mobile-ios]
 private = true
