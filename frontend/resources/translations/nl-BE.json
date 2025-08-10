@@ -859,7 +859,57 @@
         "showEmojiPicker": "Emoji-kiezer weergeven",
         "enterInTableCell": "Regeleinde toevoegen in tabel",
         "leftInTableCell": "Ga één cel naar links in de tabel",
-        "rightInTableCell": "Ga één cel naar rechts in de tabel"
+        "rightInTableCell": "Ga één cel naar rechts in de tabel",
+        "upInTableCell": "Ga één cel omhoog in de tabel",
+        "downInTableCell": "Ga één cel naar beneden in de tabel",
+        "tabInTableCell": "Ga naar de volgende beschikbare cel in de tabel",
+        "shiftTabInTableCell": "Ga naar de eerder beschikbare cel in de tabel",
+        "backSpaceInTableCell": "Stop aan het begin van de cel"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "Voeg een nieuwe alinea in naast het codeblok",
+        "codeBlockIndentLines": "Voeg twee spaties in aan het begin van de regel in het codeblok",
+        "codeBlockOutdentLines": "Verwijder twee spaties aan het begin van de regel in het codeblok",
+        "codeBlockAddTwoSpaces": "Twee spaties invoegen op de cursorpositie in het codeblok",
+        "codeBlockSelectAll": "Selecteer alle inhoud binnen een codeblok",
+        "codeBlockPasteText": "Tekst plakken in codeblok",
+        "textAlignLeft": "Tekst links uitlijnen",
+        "textAlignCenter": "Tekst centreren",
+        "textAlignRight": "Tekst rechts uitlijnen"
+      },
+      "couldNotLoadErrorMsg": "Snelkoppelingen konden niet worden geladen. Probeer het opnieuw.",
+      "couldNotSaveErrorMsg": "Snelkoppelingen konden niet worden opgeslagen. Probeer het opnieuw."
+    },
+    "aiPage": {
+      "title": "AI-instellingen",
+      "menuLabel": "AI-instellingen",
+      "keys": {
+        "enableAISearchTitle": "AI-zoekopdracht",
+        "aiSettingsDescription": "Kies uw voorkeursmodel voor AppFlowy AI. Nu inclusief GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet en modellen beschikbaar in Ollama.",
+        "loginToEnableAIFeature": "AI-functies worden alleen ingeschakeld na inloggen met @:appName Cloud. Als u geen @:appName account heeft, ga dan naar 'Mijn account' om u aan te melden.",
+        "llmModel": "Taalmodel",
+        "globalLLMModel": "Globaal taalmodel",
+        "readOnlyField": "Dit veld is alleen-lezen",
+        "llmModelType": "Taalmodeltype",
+        "downloadLLMPrompt": "Downloaden {}",
+        "downloadAppFlowyOfflineAI": "Door het offline AI-pakket te downloaden, kan AI op uw apparaat worden uitgevoerd. Wilt u doorgaan?",
+        "downloadLLMPromptDetail": "Het downloaden van {} lokaal model neemt maximaal {} opslagruimte in beslag. Wilt u doorgaan?",
+        "downloadBigFilePrompt": "Het kan ongeveer 10 minuten duren voordat de download is voltooid",
+        "downloadAIModelButton": "Download",
+        "downloadingModel": "Downloaden",
+        "localAILoaded": "Lokaal AI-model succesvol toegevoegd en klaar voor gebruik",
+        "localAIStart": "Lokale AI start op. Als het traag is, probeer het dan uit en aan te zetten.",
+        "localAILoading": "Het lokale AI-chatmodel wordt geladen...",
+        "localAIStopped": "Lokale AI gestopt",
+        "localAIRunning": "Lokale AI draait",
+        "localAINotReadyRetryLater": "Lokale AI wordt geïnitialiseerd. Probeer het later opnieuw.",
+        "localAIDisabled": "U gebruikt lokale AI, maar deze is uitgeschakeld. Ga naar de instellingen om deze in te schakelen of probeer een ander model.",
+        "localAIInitializing": "Lokale AI wordt geladen. Dit kan enkele seconden duren, afhankelijk van uw apparaat.",
+        "localAINotReadyTextFieldPrompt": "Je kunt niet bewerken terwijl de lokale AI wordt geladen",
+        "localAIDisabledTextFieldPrompt": "U kunt niet bewerken terwijl Lokale AI is uitgeschakeld",
+        "failToLoadLocalAI": "Het starten van lokale AI is mislukt.",
+        "restartLocalAI": "Lokale AI opnieuw starten",
+        "disableLocalAITitle": "Lokale AI uitschakelen"
       }
     }
   }

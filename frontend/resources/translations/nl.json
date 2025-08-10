@@ -930,7 +930,7 @@
         "localAINotReadyTextFieldPrompt": "Je kunt niet bewerken terwijl de lokale AI wordt geladen",
         "localAIDisabledTextFieldPrompt": "U kunt niet bewerken terwijl Lokale AI is uitgeschakeld",
         "failToLoadLocalAI": "Het starten van lokale AI is mislukt.",
-        "restartLocalAI": "Opnieuw starten",
+        "restartLocalAI": "Lokale AI opnieuw starten",
         "disableLocalAITitle": "Lokale AI uitschakelen",
         "disableLocalAIDescription": "Wilt u lokale AI uitschakelen?",
         "localAIToggleTitle": "AppFlowy Lokale AI (LAI)",
