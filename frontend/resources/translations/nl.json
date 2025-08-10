@@ -1118,7 +1118,7 @@
         "itemFileUpload": "Bestandsuploads",
         "customNamespace": "Aangepaste naamruimte",
         "tooltipFive": "Samenwerken op specifieke pagina's met niet-leden",
-        "tooltipSix": "Levensduur betekent dat het aantal reacties nooit wordt gereset",
+        "tooltipSix": "Levenslang betekent dat het aantal reacties nooit wordt gereset",
         "intelligentSearch": "Intelligent zoeken",
         "tooltipSeven": "Hiermee kunt u een deel van de URL voor uw werkruimte aanpassen",
         "customNamespaceTooltip": "Aangepaste gepubliceerde site-URL",
@@ -1152,7 +1152,7 @@
         "itemEight": "10.000 maandelijks"
       },
       "paymentSuccess": {
-        "title": "U bevindt zich nu op het {} plan!",
+        "title": "U zit nu op het {} plan!",
         "description": "Uw betaling is succesvol verwerkt en uw abonnement is geüpgraded naar @:appName {}. U kunt uw abonnementsdetails bekijken op de pagina 'Abonnement'."
       },
       "downgradeDialog": {
@@ -1177,7 +1177,7 @@
       "questionTwo": {
         "question": "Hoe waarschijnlijk is het dat u overweegt om u in de toekomst opnieuw te abonneren op @:appName Pro?",
         "answerOne": "Zeer waarschijnlijk",
-        "answerTwo": "Iets waarschijnlijk",
+        "answerTwo": "Waarschijnlijk",
         "answerThree": "Ik weet het niet zeker",
         "answerFour": "Onwaarschijnlijk",
         "answerFive": "Zeer onwaarschijnlijk"
