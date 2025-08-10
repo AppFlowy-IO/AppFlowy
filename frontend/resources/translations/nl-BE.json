@@ -581,7 +581,19 @@
         "date": "Publicatiedatum",
         "emptyHinText": "Er zijn geen gepubliceerde pagina's in deze werkruimte",
         "noPublishedPages": "Geen gepubliceerde pagina's",
-        "settings": "Publicatie-instellingen"
+        "settings": "Publicatie-instellingen",
+        "clickToOpenPageInApp": "Open pagina in app",
+        "clickToOpenPageInBrowser": "Pagina openen in browser"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Het is niet gelukt om een betalingslink voor het Pro Plan te genereren",
+        "failedToUpdateNamespace": "Het is niet gelukt om de naamruimte bij te werken",
+        "proPlanLimitation": "U moet upgraden naar Pro Plan om de naamruimte bij te werken",
+        "namespaceAlreadyInUse": "De naamruimte is al in gebruik, probeer een andere",
+        "invalidNamespace": "Ongeldige naamruimte, probeer een andere",
+        "namespaceLengthAtLeast2Characters": "De naamruimte moet minimaal 2 tekens lang zijn",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Alleen de eigenaar van de werkruimte kan de naamruimte bijwerken",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Alleen de eigenaar van de werkruimte kan de startpagina verwijderen"
       }
     }
   }
