@@ -574,7 +574,14 @@
         "pleaseAskOwnerToSetHomePage": "Vraag de eigenaar van de werkruimte om te upgraden naar het Pro-abonnement"
       },
       "publishedPage": {
-        "title": "Alle gepubliceerde pagina's"
+        "title": "Alle gepubliceerde pagina's",
+        "description": "Beheer uw gepubliceerde pagina's",
+        "page": "Pagina",
+        "pathName": "Padnaam",
+        "date": "Publicatiedatum",
+        "emptyHinText": "Er zijn geen gepubliceerde pagina's in deze werkruimte",
+        "noPublishedPages": "Geen gepubliceerde pagina's",
+        "settings": "Publicatie-instellingen"
       }
     }
   }
