@@ -752,8 +752,29 @@
         "tooltip": "Beheer hoe uw gegevens worden opgeslagen en gecodeerd",
         "descriptionNoEncryption": "Als u encryptie inschakelt, worden alle gegevens gecodeerd. Dit kan niet ongedaan worden gemaakt.",
         "descriptionEncrypted": "Uw gegevens zijn versleuteld.",
-        "action": "Gegevens versleutelen"
+        "action": "Gegevens versleutelen",
+        "dialog": {
+          "title": "Al uw gegevens versleutelen?",
+          "description": "Door al uw gegevens te versleutelen, blijven ze veilig. Deze actie kan NIET ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?"
+        }
+      },
+      "cache": {
+        "title": "Cache wissen",
+        "description": "Helpt problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
+        "dialog": {
+          "title": "Cache wissen",
+          "description": "Helpt problemen op te lossen zoals afbeeldingen die niet laden, ontbrekende pagina's in een werkplek en lettertypen die niet laden. Dit heeft geen invloed op uw gegevens.",
+          "successHint": "Cache gewist!"
+        }
+      },
+      "data": {
+        "fixYourData": "Bewerk uw gegevens",
+        "fixButton": "Bewerken",
+        "fixYourDataDescription": "Als u problemen ondervindt met uw gegevens, kunt u hier proberen het op te lossen."
       }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Snelkoppelingen"
     }
   }
 }
