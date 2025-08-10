@@ -568,7 +568,8 @@
         "description": "Deze wijziging is van toepassing op alle gepubliceerde pagina's die in deze naamruimte actief zijn",
         "tooltip": "Wij behouden ons het recht voor om ongepaste naamruimten te verwijderen",
         "updateExistingNamespace": "Bestaande naamruimte bijwerken",
-        "upgradeToPro": "Upgrade naar het Pro-abonnement om een aangepaste naamruimte te claimen"
+        "upgradeToPro": "Upgrade naar het Pro-abonnement om een aangepaste naamruimte te claimen",
+        "redirectToPayment": "Doorverwijzen naar betaalpagina..."
       }
     }
   }
