@@ -569,7 +569,12 @@
         "tooltip": "Wij behouden ons het recht voor om ongepaste naamruimten te verwijderen",
         "updateExistingNamespace": "Bestaande naamruimte bijwerken",
         "upgradeToPro": "Upgrade naar het Pro-abonnement om een aangepaste naamruimte te claimen",
-        "redirectToPayment": "Doorverwijzen naar betaalpagina..."
+        "redirectToPayment": "Doorverwijzen naar betaalpagina...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Alleen de eigenaar van de werkruimte kan een startpagina instellen",
+        "pleaseAskOwnerToSetHomePage": "Vraag de eigenaar van de werkruimte om te upgraden naar het Pro-abonnement"
+      },
+      "publishedPage": {
+        "title": "Alle gepubliceerde pagina's"
       }
     }
   }
