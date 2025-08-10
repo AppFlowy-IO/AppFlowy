@@ -737,8 +737,22 @@
           "resetTooltip": "Resetten naar standaardlocatie"
         },
         "resetDialog": {
-          "title": "Weet je het zeker?"
+          "title": "Weet je het zeker?",
+          "description": "Als u het pad terugzet naar de standaardgegevenslocatie, worden uw gegevens niet verwijderd. Als u uw huidige gegevens opnieuw wilt importeren, moet u eerst het pad van uw huidige locatie kopiëren."
         }
+      },
+      "importData": {
+        "title": "Gegevens importeren",
+        "tooltip": "Gegevens importeren uit @:appName back-ups/gegevensmappen",
+        "description": "Gegevens kopiëren uit een externe @:appName gegevensmap",
+        "action": "Blader door het bestand"
+      },
+      "encryption": {
+        "title": "Encryptie",
+        "tooltip": "Beheer hoe uw gegevens worden opgeslagen en gecodeerd",
+        "descriptionNoEncryption": "Als u encryptie inschakelt, worden alle gegevens gecodeerd. Dit kan niet ongedaan worden gemaakt.",
+        "descriptionEncrypted": "Uw gegevens zijn versleuteld.",
+        "action": "Gegevens versleutelen"
       }
     }
   }
