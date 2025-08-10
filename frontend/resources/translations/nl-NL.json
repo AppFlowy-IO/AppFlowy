@@ -603,7 +603,8 @@
         "publishNameContainsInvalidCharacters": "De padnaam bevat ongeldige tekens. Probeer een andere.",
         "publishNameTooShort": "De padnaam is te kort, probeer een andere",
         "publishNameTooLong": "De padnaam is te lang, probeer een andere",
-        "publishNameAlreadyInUse": "De padnaam is al in gebruik, probeer een andere"
+        "publishNameAlreadyInUse": "De padnaam is al in gebruik, probeer een andere",
+        "namespaceContainsInvalidCharacters": "De naamruimte bevat ongeldige tekens. Probeer een andere."
       }
     }
   }
