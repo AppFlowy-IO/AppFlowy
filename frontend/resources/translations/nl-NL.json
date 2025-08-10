@@ -593,7 +593,17 @@
         "invalidNamespace": "Ongeldige naamruimte, probeer een andere",
         "namespaceLengthAtLeast2Characters": "De naamruimte moet minimaal 2 tekens lang zijn",
         "onlyWorkspaceOwnerCanUpdateNamespace": "Alleen de eigenaar van de werkruimte kan de naamruimte bijwerken",
-        "onlyWorkspaceOwnerCanRemoveHomepage": "Alleen de eigenaar van de werkruimte kan de startpagina verwijderen"
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Alleen de eigenaar van de werkruimte kan de startpagina verwijderen",
+        "setHomepageFailed": "Het is niet gelukt om de startpagina in te stellen",
+        "namespaceTooLong": "De naamruimte is te lang, probeer een andere",
+        "namespaceTooShort": "De naamruimte is te kort, probeer een andere",
+        "namespaceIsReserved": "De naamruimte is gereserveerd, probeer een andere",
+        "updatePathNameFailed": "Het is niet gelukt om de padnaam bij te werken",
+        "removeHomePageFailed": "Het is niet gelukt om de startpagina te verwijderen",
+        "publishNameContainsInvalidCharacters": "De padnaam bevat ongeldige tekens. Probeer een andere.",
+        "publishNameTooShort": "De padnaam is te kort, probeer een andere",
+        "publishNameTooLong": "De padnaam is te lang, probeer een andere",
+        "publishNameAlreadyInUse": "De padnaam is al in gebruik, probeer een andere"
       }
     }
   }
