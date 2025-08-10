@@ -1647,6 +1647,49 @@
       "openAsFullPage": "Openen als volledige pagina",
       "viewDatabase": "Bekijk de originele database",
       "moreRowActions": "Meer rijacties"
+    },
+    "sort": {
+      "ascending": "Oplopend",
+      "descending": "Aflopend",
+      "by": "Op",
+      "empty": "Geen actieve sorteringen",
+      "cannotFindCreatableField": "Kan geen geschikt veld vinden om op te sorteren",
+      "deleteAllSorts": "Verwijder alle sorteringen",
+      "addSort": "Sortering toevoegen",
+      "sortsActive": "Kan niet {intention} tijdens het sorteren",
+      "removeSorting": "Wilt u alle sorteringen in deze weergave verwijderen en doorgaan?",
+      "fieldInUse": "U sorteert al op dit veld"
+    },
+    "row": {
+      "label": "Rij",
+      "duplicate": "Dupliceren",
+      "delete": "Verwijderen",
+      "titlePlaceholder": "Zonder titel",
+      "textPlaceholder": "Leeg",
+      "copyProperty": "Eigenschap gekopieerd naar klembord",
+      "count": "Aantal",
+      "newRow": "Nieuwe rij",
+      "loadMore": "Meer laden",
+      "action": "Actie",
+      "add": "Klik om hieronder toe te voegen",
+      "drag": "Slepen om te verplaatsen",
+      "deleteRowPrompt": "Weet u zeker dat u deze rij wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "deleteCardPrompt": "Weet u zeker dat u deze kaart wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "dragAndClick": "Sleep om te verplaatsen, klik om het menu te openen",
+      "insertRecordAbove": "Voeg record hierboven in",
+      "insertRecordBelow": "Voeg hieronder een record in",
+      "noContent": "Geen inhoud",
+      "reorderRowDescription": "rij opnieuw ordenen",
+      "createRowAboveDescription": "maak een rij hierboven",
+      "createRowBelowDescription": "een rij hieronder invoegen"
+    },
+    "selectOption": {
+      "create": "Creëren",
+      "purpleColor": "Paars",
+      "pinkColor": "Roze",
+      "lightPinkColor": "Lichtroze",
+      "orangeColor": "Oranje",
+      "yellowColor": "Geel"
     }
   }
 }

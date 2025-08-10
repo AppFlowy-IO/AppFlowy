@@ -1730,7 +1730,7 @@
       "cannotFindCreatableField": "Kan geen geschikt veld vinden om op te sorteren",
       "deleteAllSorts": "Verwijder alle sorteringen",
       "addSort": "Sortering toevoegen",
-      "sortsActive": "Kan niet {intentie} tijdens het sorteren",
+      "sortsActive": "Kan niet {intention} tijdens het sorteren",
       "removeSorting": "Wilt u alle sorteringen in deze weergave verwijderen en doorgaan?",
       "fieldInUse": "U sorteert al op dit veld",
       "deleteSort": "Sortering verwijderen"
