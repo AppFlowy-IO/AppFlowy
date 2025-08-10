@@ -84,15 +84,74 @@ The iOS app will be built and available in `frontend/appflowy_flutter/build/ios/
 - [Android NDK](https://developer.android.com/ndk/downloads/) version 24
 - cargo-ndk: `cargo install cargo-ndk`
 
-#### Detailed Setup Instructions
+**Additional Setup:**
 
-For comprehensive Android build setup including Windows support, please refer to the [Android-specific build guide](../frontend/appflowy_flutter/android/README.md) which covers:
+1. **Set Environment Variables**
 
-- Platform-specific environment variable setup
-- Cargo configuration for all operating systems
-- NDK 24 clang fixes
-- Path configuration
-- Troubleshooting common issues
+   **Windows:**
+   ```cmd
+   set ANDROID_NDK_HOME=C:\Users\%USERNAME%\AppData\Local\Android\Sdk\ndk\24.0.8215888
+   ```
+
+   **macOS/Linux:**
+   ```bash
+   export ANDROID_NDK_HOME=~/Android/Sdk/ndk/24.0.8215888
+   ```
+
+2. **Configure Cargo for Android**
+
+   Create or edit `~/.cargo/config` (Linux/macOS) or `%USERPROFILE%\.cargo\config` (Windows):
+
+   **Linux/macOS:**
+   ```toml
+   [target.aarch64-linux-android]
+   ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+   linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang"
+   
+   [target.armv7-linux-androideabi]
+   ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+   linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang"
+   
+   [target.i686-linux-android]
+   ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+   linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang"
+   
+   [target.x86_64-linux-android]
+   ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+   linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
+   ```
+
+   **Windows:**
+   ```toml
+   [target.aarch64-linux-android]
+   ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+   linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\aarch64-linux-android29-clang.exe"
+   
+   [target.armv7-linux-androideabi]
+   ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+   linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\armv7a-linux-androideabi29-clang.exe"
+   
+   [target.i686-linux-android]
+   ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+   linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\i686-linux-android29-clang.exe"
+   
+   [target.x86_64-linux-android]
+   ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+   linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\x86_64-linux-android29-clang.exe"
+   ```
+
+3. **NDK 24 Clang Fix**
+
+   Create a file named `libgcc.a` with this content:
+   ```
+   INPUT(-lunwind)
+   ```
+
+   **Linux/macOS:** Place it in `Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.1/lib/linux/`
+   
+   **Windows:** Place it in `Android\Sdk\ndk\24.0.8215888\toolchains\llvm\prebuilt\windows-x86_64\lib64\clang\14.0.1\lib\linux\`
+
+   Copy this file to the following subdirectories: `aarch64`, `arm`, `i386`, and `x86_64`.
 
 #### Build Steps
 ```bash
