@@ -681,7 +681,36 @@
         "title": "Tekstrichting",
         "leftToRight": "Van links naar rechts",
         "rightToLeft": "Van rechts naar links",
-        "auto": "Auto"
+        "auto": "Auto",
+        "enableRTLItems": "RTL-werkbalkitems inschakelen"
+      },
+      "layoutDirection": {
+        "title": "Lay-outrichting",
+        "leftToRight": "Van links naar rechts",
+        "rightToLeft": "Van rechts naar links"
+      },
+      "dateTime": {
+        "title": "Datum en tijd",
+        "example": "{} om {} ({})",
+        "24HourTime": "24-uurstijd",
+        "dateFormat": {
+          "label": "Datumnotatie",
+          "local": "Lokaal",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Gemakkelijk",
+          "dmy": "D/M/J"
+        }
+      },
+      "language": {
+        "title": "Taal"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Werkplek verwijderen",
+        "content": "Weet u zeker dat u deze werkplek wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en alle pagina's die u hebt gepubliceerd, worden niet langer gepubliceerd."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Werkplek verlaten"
       }
     }
   }
