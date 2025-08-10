@@ -952,8 +952,104 @@
         "aiOnDeviceToggle": "Lokale AI voor ultieme privacy",
         "aiCredit": {
           "title": "Voeg @:appName AI-krediet toe",
-          "price": "{}"
+          "price": "{}",
+          "priceDescription": "voor 1.000 credits",
+          "purchase": "Koop AI",
+          "info": "Voeg 1.000 AI-credits per werkruimte toe en integreer naadloos aanpasbare AI in uw workflow voor slimmere en snellere resultaten met maximaal:",
+          "infoItemOne": "10.000 reacties per database",
+          "infoItemTwo": "1.000 reacties per werkruimte"
+        },
+        "currentPlan": {
+          "bannerLabel": "Huidig plan",
+          "freeTitle": "Gratis",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfect voor maximaal 2 personen om alles te organiseren",
+          "proInfo": "Ideaal voor kleine en middelgrote teams tot 10 leden.",
+          "teamInfo": "Ideaal voor alle productieve en goed georganiseerde teams.",
+          "upgrade": "Plan wijzigen",
+          "canceledInfo": "Uw abonnement is geannuleerd en op {} wordt u teruggezet naar het gratis abonnement."
+        },
+        "addons": {
+          "title": "Uitbreidingen",
+          "addLabel": "Toevoegen",
+          "activeLabel": "Toegevoegd",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Onbeperkte AI-reacties, mogelijk gemaakt door geavanceerde AI-modellen, en 50 AI-afbeeldingen per maand",
+            "price": "{}",
+            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd"
+          },
+          "aiOnDevice": {
+            "title": "AI op het apparaat voor Mac",
+            "description": "Draai Mistral 7B, LLAMA 3 en meer lokale modellen op uw machine",
+            "price": "{}",
+            "priceInfo": "Per gebruiker per maand, jaarlijks gefactureerd",
+            "recommend": "Aanbevolen M1 of nieuwer"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Nieuwjaarsaanbieding!",
+          "title": "Laat je team groeien!",
+          "info": "Upgrade en bespaar 10% op Pro- en Team-abonnementen! Verhoog je productiviteit op de werkvloer met krachtige nieuwe functies, waaronder @:appName AI.",
+          "viewPlans": "Bekijk plannen"
         }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Facturering",
+      "title": "Facturering",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Gratis",
+        "proLabel": "Pro",
+        "planButtonLabel": "Plan wijzigen",
+        "billingPeriod": "Factureringsperiode",
+        "periodButtonLabel": "Factureringsperiode aanpassen"
+      },
+      "paymentDetails": {
+        "title": "Betalingsgegevens",
+        "methodLabel": "Betaalmethode",
+        "methodButtonLabel": "Bewerk betaalmethode"
+      },
+      "addons": {
+        "title": "Uitbreidingen",
+        "addLabel": "Toevoegen",
+        "removeLabel": "Verwijderen",
+        "renewLabel": "Vernieuwen",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Ontgrendel onbeperkte AI en geavanceerde modellen",
+          "activeDescription": "Volgende factuur verschuldigd op {}",
+          "canceledDescription": "AI Max is beschikbaar tot {}"
+        },
+        "aiOnDevice": {
+          "label": "AI op het apparaat voor Mac",
+          "description": "Ontgrendel onbeperkte AI op uw apparaat",
+          "activeDescription": "Volgende factuur verschuldigd op {}",
+          "canceledDescription": "AI On-device voor Mac is beschikbaar tot {}"
+        },
+        "removeDialog": {
+          "title": "Verwijderen {}",
+          "description": "Weet u zeker dat u {plan} wilt verwijderen? U verliest dan onmiddellijk de toegang tot de functies en voordelen van {plan}."
+        }
+      },
+      "currentPeriodBadge": "HUIDIG",
+      "changePeriod": "Wijzig periode",
+      "planPeriod": "{} periode",
+      "monthlyInterval": "Maandelijks",
+      "monthlyPriceInfo": "per gebruiker maandelijks gefactureerd",
+      "annualInterval": "Jaarlijks",
+      "annualPriceInfo": "per gebruiker jaarlijks gefactureerd"
+    },
+    "comparePlanDialog": {
+      "title": "Vergelijk en selecteer een plan",
+      "planFeatures": "Plan\nFuncties",
+      "current": "Huidig",
+      "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgraden",
+        "current": "Huidig"
       }
     }
   }
