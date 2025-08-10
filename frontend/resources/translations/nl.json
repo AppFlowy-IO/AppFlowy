@@ -1256,7 +1256,7 @@
       "importAppFlowyDataDescription": "Kopieer gegevens uit een externe @:appName gegevensmap en importeer deze in de huidige AppFlowy-gegevensmap",
       "importSuccess": "De gegevensmap @:appName is succesvol geïmporteerd",
       "importFailed": "Het importeren van de gegevensmap @:appName is mislukt",
-      "importGuide": "Voor meer informatie kunt u het genoemde document raadplegen"
+      "importGuide": "Voor meer informatie kan u het genoemde document raadplegen"
     },
     "notifications": {
       "enableNotifications": {

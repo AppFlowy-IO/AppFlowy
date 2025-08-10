@@ -1155,7 +1155,67 @@
     },
     "menu": {
       "appearance": "Weergave",
-      "language": "Taal"
+      "language": "Taal",
+      "user": "Gebruiker",
+      "files": "Bestanden",
+      "notifications": "Meldingen",
+      "open": "Open Instellingen",
+      "logout": "Uitloggen",
+      "logoutPrompt": "Weet u zeker dat u wilt uitloggen?",
+      "selfEncryptionLogoutPrompt": "Weet u zeker dat u wilt uitloggen? Zorg ervoor dat u het encryptiegeheim hebt gekopieerd.",
+      "syncSetting": "Synchronisatie-instelling",
+      "cloudSettings": "Cloudinstellingen",
+      "enableSync": "Synchronisatie inschakelen",
+      "enableSyncLog": "Synchronisatielogboek inschakelen",
+      "enableSyncLogWarning": "Bedankt voor uw hulp bij het diagnosticeren van synchronisatieproblemen. Hiermee worden uw documentbewerkingen in een lokaal bestand vastgelegd. Sluit de app af en open deze opnieuw nadat u deze hebt ingeschakeld.",
+      "enableEncrypt": "Gegevens versleutelen",
+      "cloudURL": "Basis-URL",
+      "webURL": "Web-URL",
+      "invalidCloudURLScheme": "Ongeldig schema",
+      "cloudServerType": "Cloudserver",
+      "cloudServerTypeTip": "Houd er rekening mee dat uw huidige account mogelijk wordt afgemeld nadat u de cloudserver hebt gewisseld",
+      "cloudLocal": "Lokaal",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-Hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "De cloud-url mag niet leeg zijn",
+      "clickToCopy": "Kopiëren naar klembord",
+      "selfHostStart": "Als u geen server heeft, raadpleeg dan de",
+      "selfHostContent": "document",
+      "selfHostEnd": "voor begeleiding bij het zelf hosten van uw eigen server",
+      "pleaseInputValidURL": "Voer een geldige URL in",
+      "changeUrl": "Zelf-gehoste URL wijzigen naar {}",
+      "cloudURLHint": "Voer de basis-URL van uw server in",
+      "webURLHint": "Voer de basis-URL van uw webserver in",
+      "cloudWSURL": "Websocket-URL",
+      "cloudWSURLHint": "Voer het websocketadres van uw server in",
+      "restartApp": "Opnieuw starten",
+      "restartAppTip": "Start de applicatie opnieuw om de wijzigingen door te voeren. Houd er rekening mee dat uw huidige account hierdoor mogelijk wordt afgemeld.",
+      "changeServerTip": "Nadat u de server hebt gewijzigd, moet u op de knop Opnieuw opstarten klikken om de wijzigingen door te voeren",
+      "enableEncryptPrompt": "Activeer encryptie om uw gegevens met dit geheim te beveiligen. Bewaar het veilig; eenmaal ingeschakeld, kunt u het niet meer uitschakelen. Bij verlies zijn uw gegevens onherstelbaar. Klik om te kopiëren",
+      "inputEncryptPrompt": "Voer uw encryptiegeheim in voor",
+      "clickToCopySecret": "Klik om het geheim te kopiëren",
+      "configServerSetting": "Configureer uw serverinstellingen",
+      "configServerGuide": "Nadat u 'Snel starten' hebt geselecteerd, navigeert u naar 'Instellingen' en vervolgens naar 'Cloudinstellingen' om uw zelfgehoste server te configureren.",
+      "inputTextFieldHint": "Jouw geheim",
+      "historicalUserList": "Aanmeldingsgeschiedenis",
+      "historicalUserListTooltip": "Deze lijst toont uw anonieme accounts. U kunt op een account klikken om de details ervan te bekijken. Anonieme accounts worden aangemaakt door op de knop 'Aan de slag' te klikken.",
+      "openHistoricalUser": "Klik om het anonieme account te openen",
+      "customPathPrompt": "Het opslaan van de gegevensmap @:appName in een cloudgesynchroniseerde map zoals Google Drive kan risico's met zich meebrengen. Als de database in deze map vanaf meerdere locaties tegelijk wordt geopend of gewijzigd, kan dit leiden tot synchronisatieconflicten en mogelijke gegevensbeschadiging.",
+      "importAppFlowyData": "Gegevens importeren uit externe @:appName map",
+      "importingAppFlowyDataTip": "Gegevensimport is bezig. Sluit de app niet.",
+      "importAppFlowyDataDescription": "Kopieer gegevens uit een externe @:appName gegevensmap en importeer deze in de huidige AppFlowy-gegevensmap",
+      "importSuccess": "De gegevensmap @:appName is succesvol geïmporteerd",
+      "importFailed": "Het importeren van de gegevensmap @:appName is mislukt",
+      "importGuide": "Voor meer informatie kan u het genoemde document raadplegen"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Meldingen inschakelen",
+        "hint": "Schakel deze optie uit om geen lokale meldingen meer te ontvangen."
+      },
+      "showNotificationsIcon": {
+        "label": "Meldingenpictogram weergeven"
+      }
     }
   }
 }
