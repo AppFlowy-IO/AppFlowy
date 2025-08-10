@@ -655,6 +655,33 @@
           "light": "Licht",
           "dark": "Donker"
         }
+      },
+      "resetCursorColor": {
+        "title": "Kleur van documentcursor opnieuw instellen",
+        "description": "Weet u zeker dat u de cursorkleur opnieuw wilt instellen?"
+      },
+      "resetSelectionColor": {
+        "title": "Kleur van documentselectie resetten",
+        "description": "Weet u zeker dat u de selectiekleur wilt resetten?"
+      },
+      "resetWidth": {
+        "resetSuccess": "Documentbreedte succesvol gereset"
+      },
+      "theme": {
+        "title": "Thema",
+        "description": "Selecteer een vooraf ingesteld thema of upload uw eigen thema.",
+        "uploadCustomThemeTooltip": "Upload een aangepast thema",
+        "failedToLoadThemes": "Thema's kunnen niet worden geladen. Controleer uw toestemmingsinstellingen in Systeeminstellingen > Privacy en beveiliging > Bestanden en mappen > @:appName"
+      },
+      "workspaceFont": {
+        "title": "Werkruimte lettertype",
+        "noFontHint": "Er is geen lettertype gevonden. Probeer een andere term."
+      },
+      "textDirection": {
+        "title": "Tekstrichting",
+        "leftToRight": "Van links naar rechts",
+        "rightToLeft": "Van rechts naar links",
+        "auto": "Auto"
       }
     }
   }

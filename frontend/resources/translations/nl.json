@@ -693,7 +693,7 @@
         "failedToLoadThemes": "Thema's kunnen niet worden geladen. Controleer uw toestemmingsinstellingen in Systeeminstellingen > Privacy en beveiliging > Bestanden en mappen > @:appName"
       },
       "workspaceFont": {
-        "title": "Werkruimtelettertype",
+        "title": "Werkruimte lettertype",
         "noFontHint": "Er is geen lettertype gevonden. Probeer een andere term."
       },
       "textDirection": {
