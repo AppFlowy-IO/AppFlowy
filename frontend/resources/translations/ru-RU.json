@@ -2478,11 +2478,7 @@
     "viewNotifications": "Просмотреть уведомления",
     "noNotifications": "Уведомлений пока нет",
     "mentionedYou": "Упомянул(а) вас",
-    "archievedTooltip": "Архивировать это уведомление",
-    "unarchievedTooltip": "Разархивировать это уведомление",
     "markAsReadTooltip": "Отметить это уведомление как прочитанное",
-    "markAsArchievedSucceedToast": "Успешно заархивировано",
-    "markAllAsArchievedSucceedToast": "Все успешно заархивировано",
     "markAsReadSucceedToast": "Отмечено как прочитанное успешно",
     "markAllAsReadSucceedToast": "Все успешно отмечено как прочитанное",
     "today": "Сегодня",
@@ -2507,7 +2503,11 @@
       "groupByDate": "Группировать по дате",
       "showUnreadsOnly": "Показать только непрочитанные",
       "resetToDefault": "Сбросить до значений по умолчанию"
-    }
+    },
+    "archievedTooltip": "Архивировать это уведомление",
+    "unarchievedTooltip": "Разархивировать это уведомление",
+    "markAsArchievedSucceedToast": "Успешно заархивировано",
+    "markAllAsArchievedSucceedToast": "Все успешно заархивировано"
   },
   "reminderNotification": {
     "title": "Напоминание",
@@ -3333,17 +3333,16 @@
       "browsePrompts": "Обзор запросов",
       "usePrompt": "Использовать запрос",
       "featured": "Рекомендуемые",
+      "example": "Пример",
       "all": "Все",
       "development": "Разработка",
       "writing": "Написание",
       "healthAndFitness": "Здоровье и фитнес",
       "business": "Бизнес",
       "marketing": "Маркетинг",
-      "learning": "Обучение",
       "travel": "Путешествия",
       "others": "Другое",
       "prompt": "Запрос",
-      "example": "Пример",
       "sampleOutput": "Пример вывода",
       "contentSeo": "Контент/SEO",
       "emailMarketing": "Email маркетинг",
@@ -3354,7 +3353,8 @@
       "socialMedia": "Социальные сети",
       "strategy": "Стратегия",
       "caseStudies": "Кейсы",
-      "salesCopy": "Продающий текст"
+      "salesCopy": "Продающий текст",
+      "learning": "Обучение"
     }
   },
   "autoUpdate": {
