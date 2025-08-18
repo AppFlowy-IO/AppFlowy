@@ -1824,8 +1824,67 @@
         "aiWriter": "Vraag AI alles",
         "dateOrReminder": "Datum of herinnering",
         "photoGallery": "Fotogalerij",
-        "file": "Bestand"
+        "file": "Bestand",
+        "twoColumns": "2 kolommen",
+        "threeColumns": "3 kolommen",
+        "fourColumns": "4 kolommen"
+      },
+      "subPage": {
+        "name": "Document",
+        "keyword1": "subpagina",
+        "keyword2": "pagina",
+        "keyword3": "childpagina",
+        "keyword4": "pagina invoegen",
+        "keyword5": "pagina insluiten",
+        "keyword6": "nieuwe pagina",
+        "keyword7": "pagina maken",
+        "keyword8": "document"
       }
+    },
+    "selectionMenu": {
+      "outline": "Overzicht",
+      "codeBlock": "Codeblok"
+    },
+    "plugins": {
+      "referencedBoard": "Gerefereerd bord",
+      "referencedGrid": "Gerefereerd raster",
+      "referencedCalendar": "Gerefereerde kalender",
+      "referencedDocument": "Gerefereerd document",
+      "aiWriter": {
+        "userQuestion": "Vraag AI alles",
+        "continueWriting": "Blijf schrijven",
+        "fixSpelling": "Spelling en grammatica corrigeren",
+        "improveWriting": "Verbeter het schrijven",
+        "summarize": "Samenvatten",
+        "explain": "Uitleggen",
+        "makeShorter": "Korter maken",
+        "makeLonger": "Maak langer"
+      },
+      "autoGeneratorMenuItemName": "AI-schrijver",
+      "autoGeneratorTitleName": "AI: Vraag AI om wat dan ook te schrijven...",
+      "autoGeneratorLearnMore": "Meer informatie",
+      "autoGeneratorGenerate": "Genereren",
+      "autoGeneratorHintText": "Vraag het aan AI ...",
+      "autoGeneratorCantGetOpenAIKey": "Kan AI-sleutel niet krijgen",
+      "autoGeneratorRewrite": "Herschrijven",
+      "smartEdit": "Vraag AI",
+      "aI": "AI",
+      "smartEditFixSpelling": "Spelling en grammatica corrigeren",
+      "warning": "⚠️ AI-reacties kunnen onnauwkeurig of misleidend zijn.",
+      "smartEditSummarize": "Samenvatten",
+      "smartEditImproveWriting": "Verbeter het schrijven",
+      "smartEditMakeLonger": "Maak langer",
+      "smartEditCouldNotFetchResult": "Het resultaat kon niet worden opgehaald van AI",
+      "smartEditCouldNotFetchKey": "Kon AI-sleutel niet ophalen",
+      "smartEditDisabled": "AI verbinden in Instellingen",
+      "appflowyAIEditDisabled": "Meld u aan om AI-functies in te schakelen",
+      "discardResponse": "Weet u zeker dat u het AI-antwoord wilt verwijderen?",
+      "createInlineMathEquation": "Maak een vergelijking",
+      "fonts": "Lettertypen",
+      "insertDate": "Datum invoegen",
+      "emoji": "Emoji",
+      "toggleList": "Lijst wisselen",
+      "emptyToggleHeading": "Lege toggle h{}. Klik om inhoud toe te voegen."
     }
   }
 }
