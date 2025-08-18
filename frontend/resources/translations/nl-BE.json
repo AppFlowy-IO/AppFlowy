@@ -1884,7 +1884,19 @@
       "insertDate": "Datum invoegen",
       "emoji": "Emoji",
       "toggleList": "Lijst wisselen",
-      "emptyToggleHeading": "Lege toggle h{}. Klik om inhoud toe te voegen."
+      "emptyToggleHeading": "Lege toggle h{}. Klik om inhoud toe te voegen.",
+      "emptyToggleList": "Lege wissellijst. Klik om inhoud toe te voegen.",
+      "emptyToggleHeadingWeb": "Lege toggle h{level}. Klik om inhoud toe te voegen.",
+      "quoteList": "Quotelijst",
+      "numberedList": "Genummerde lijst",
+      "bulletedList": "Opsommingstekenlijst",
+      "todoList": "Todo-lijst",
+      "callout": "Oproep",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Kleur"
+        }
+      }
     }
   }
 }
