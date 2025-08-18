@@ -1907,8 +1907,13 @@
           "setToPageWidth": "Instellen op paginabreedte",
           "distributeColumnsWidth": "Kolommen gelijkmatig verdelen",
           "duplicateRow": "Rij dupliceren",
-          "duplicateColumn": "Kolom duppliceren"
-        }
+          "duplicateColumn": "Kolom duppliceren",
+          "textColor": "Tekstkleur",
+          "cellBackgroundColor": "Achtergrondkleur van de cel",
+          "duplicateTable": "Tabel duppliceren"
+        },
+        "clickToAddNewRow": "Klik om een nieuwe rij toe te voegen",
+        "clickToAddNewColumn": "Klik om een nieuwe kolom toe te voegen"
       }
     }
   }
