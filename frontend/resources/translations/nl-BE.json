@@ -1894,7 +1894,21 @@
       "callout": "Oproep",
       "simpleTable": {
         "moreActions": {
-          "color": "Kleur"
+          "color": "Kleur",
+          "align": "Uitlijnen",
+          "delete": "Verwijderen",
+          "duplicate": "Dupliceren",
+          "insertLeft": "Links invoegen",
+          "insertRight": "Rechts invoegen",
+          "insertAbove": "Boven invoegen",
+          "insertBelow": "Hieronder invoegen",
+          "headerColumn": "Koptekstkolom",
+          "headerRow": "Koptekstrij",
+          "clearContents": "Inhoud verwijderen",
+          "setToPageWidth": "Instellen op paginabreedte",
+          "distributeColumnsWidth": "Kolommen gelijkmatig verdelen",
+          "duplicateRow": "Rij dupliceren",
+          "duplicateColumn": "Kolom duppliceren"
         }
       }
     }
