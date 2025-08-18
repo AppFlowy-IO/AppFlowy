@@ -1821,7 +1821,10 @@
         "toggleHeading2": "Kop 2 omschakelen",
         "toggleHeading3": "Kop 3 omschakelen",
         "emoji": "Emoji",
-        "aiWriter": "Vraag AI alles"
+        "aiWriter": "Vraag AI alles",
+        "dateOrReminder": "Datum of herinnering",
+        "photoGallery": "Fotogalerij",
+        "file": "Bestand"
       }
     }
   }
