@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
@@ -44,7 +45,7 @@ class CommandPaletteBloc
     on<_UpdateCachedViews>(_onUpdateCachedViews);
 
     _initTrash();
-    _refreshCachedViews();
+    _refreshCachedViews(refreshUntilSuccess: true);
   }
 
   final Debouncer _searchDebouncer = Debouncer(
@@ -53,6 +54,7 @@ class CommandPaletteBloc
   final TrashService _trashService = TrashService();
   final TrashListener _trashListener = TrashListener();
   String? _activeQuery;
+  int askAIId = 0;
 
   @override
   Future<void> close() {
@@ -82,14 +84,28 @@ class CommandPaletteBloc
     );
   }
 
-  Future<void> _refreshCachedViews() async {
+  Future<void> _refreshCachedViews({bool refreshUntilSuccess = false}) async {
     /// Sometimes non-existent views appear in the search results
     /// and the icon data for the search results is empty
     /// Fetching all views can temporarily resolve these issues
-    final repeatedViewPB =
-        (await ViewBackendService.getAllViews()).toNullable();
-    if (repeatedViewPB == null || isClosed) return;
-    add(CommandPaletteEvent.updateCachedViews(views: repeatedViewPB.items));
+    if (isClosed) return;
+    final result = await ViewBackendService.getAllViews();
+    result.fold((v) {
+      if (isClosed) return;
+      add(CommandPaletteEvent.updateCachedViews(views: v.items));
+    }, (e) {
+      Log.error(
+        'command palette bloc gets all views failed: $e${refreshUntilSuccess ? ', retrying...' : ''}',
+      );
+      if (refreshUntilSuccess) {
+        unawaited(
+          Future.delayed(
+            const Duration(seconds: 3),
+            () => _refreshCachedViews(refreshUntilSuccess: true),
+          ),
+        );
+      }
+    });
   }
 
   FutureOr<void> _onRefreshCachedViews(
@@ -319,14 +335,20 @@ class CommandPaletteBloc
     _GoingToAskAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: true, askAISources: event.sources));
+    emit(
+      state.copyWith(
+        askAI: true,
+        askAISources: event.sources,
+        askAIId: '${askAIId++}',
+      ),
+    );
   }
 
   FutureOr<void> _onAskedAI(
     _AskedAI event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(state.copyWith(askAI: false, askAISources: null));
+    emit(state.copyWith(askAI: false, askAISources: null, askAIId: ''));
   }
 
   bool _isActiveSearch(String searchId) =>
@@ -398,6 +420,7 @@ class CommandPaletteState with _$CommandPaletteState {
     required bool searching,
     required bool generatingAIOverview,
     @Default(false) bool askAI,
+    @Default('') String askAIId,
     @Default(null) List<SearchSourcePB>? askAISources,
     @Default([]) List<TrashPB> trash,
     @Default(null) String? searchId,

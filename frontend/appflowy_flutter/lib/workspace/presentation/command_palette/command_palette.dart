@@ -200,69 +200,81 @@ class CommandPaletteModal extends StatelessWidget {
           }
         }
       },
-      child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
-        builder: (context, state) {
-          final theme = AppFlowyTheme.of(context);
-          final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
-          final hasResult = state.combinedResponseItems.isNotEmpty,
-              searching = state.searching;
-          final spaceXl = theme.spacing.xl;
-          return FlowyDialog(
-            backgroundColor: theme.surfaceColorScheme.layer01,
-            alignment: Alignment.topCenter,
-            insetPadding: const EdgeInsets.only(top: 100),
-            constraints: const BoxConstraints(
-              maxHeight: 640,
-              maxWidth: 960,
-              minWidth: 572,
-              minHeight: 640,
-            ),
-            expandHeight: false,
-            child: shortcutBuilder(
-              // Change mainAxisSize to max so Expanded works correctly.
-              Padding(
-                padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
-                child: Column(
-                  children: [
-                    SearchField(query: state.query, isLoading: searching),
-                    if (noQuery)
-                      Flexible(
-                        child: RecentViewsList(
-                          onSelected: () => FlowyOverlay.pop(context),
-                        ),
-                      ),
-                    if (hasResult && hasQuery)
-                      Flexible(
-                        child: SearchResultList(
-                          cachedViews: state.cachedViews,
-                          resultItems:
-                              state.combinedResponseItems.values.toList(),
-                          resultSummaries: state.resultSummaries,
-                        ),
-                      )
-                    // When there are no results and the query is not empty and not loading,
-                    // show the no results message, centered in the available space.
-                    else if (hasQuery && !searching) ...[
-                      if (showAskingAI) SearchAskAiEntrance(),
-                      Expanded(
-                        child: const NoSearchResultsHint(),
-                      ),
-                    ],
-                    if (hasQuery && searching && !hasResult)
-                      // Show a loading indicator when searching
-                      Expanded(
-                        child: Center(
-                          child: Center(
-                            child: CircularProgressIndicator.adaptive(),
+      child: BlocListener<SpaceBloc, SpaceState>(
+        listener: (context, state) {
+          final result = state.createPageResult;
+          final commandPaletteBloc = context.read<CommandPaletteBloc>(),
+              commandPaletteState = commandPaletteBloc.state;
+          if (result != null &&
+              !result.succeed &&
+              result.createId == commandPaletteState.askAIId) {
+            commandPaletteBloc.add(CommandPaletteEvent.askedAI());
+          }
+        },
+        child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
+          builder: (context, state) {
+            final theme = AppFlowyTheme.of(context);
+            final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
+            final hasResult = state.combinedResponseItems.isNotEmpty,
+                searching = state.searching;
+            final spaceXl = theme.spacing.xl;
+            return FlowyDialog(
+              backgroundColor: theme.surfaceColorScheme.layer01,
+              alignment: Alignment.topCenter,
+              insetPadding: const EdgeInsets.only(top: 100),
+              constraints: const BoxConstraints(
+                maxHeight: 640,
+                maxWidth: 960,
+                minWidth: 572,
+                minHeight: 640,
+              ),
+              expandHeight: false,
+              child: shortcutBuilder(
+                // Change mainAxisSize to max so Expanded works correctly.
+                Padding(
+                  padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
+                  child: Column(
+                    children: [
+                      SearchField(query: state.query, isLoading: searching),
+                      if (noQuery)
+                        Flexible(
+                          child: RecentViewsList(
+                            onSelected: () => FlowyOverlay.pop(context),
                           ),
                         ),
-                      ),
-                  ],
+                      if (hasResult && hasQuery)
+                        Flexible(
+                          child: SearchResultList(
+                            cachedViews: state.cachedViews,
+                            resultItems:
+                                state.combinedResponseItems.values.toList(),
+                            resultSummaries: state.resultSummaries,
+                          ),
+                        )
+                      // When there are no results and the query is not empty and not loading,
+                      // show the no results message, centered in the available space.
+                      else if (hasQuery && !searching) ...[
+                        if (showAskingAI) SearchAskAiEntrance(),
+                        Expanded(
+                          child: const NoSearchResultsHint(),
+                        ),
+                      ],
+                      if (hasQuery && searching && !hasResult)
+                        // Show a loading indicator when searching
+                        Expanded(
+                          child: Center(
+                            child: Center(
+                              child: CircularProgressIndicator.adaptive(),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
