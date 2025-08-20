@@ -12,15 +12,28 @@ When compiling for android we need the following pre-requisites:
 - [Download](https://developer.android.com/ndk/downloads/) Android NDK version 24.
 - When downloading Android NDK you can get the compressed version as a standalone from the site.
     Or you can download it through [Android Studio](https://developer.android.com/studio).
-- After downloading the two you need to set the environment variables. For Windows that's a separate process.
-    On macOS and Linux the process is similar.
+- After downloading the two you need to set the environment variables. The process differs by operating system.
 - The variables needed are '$ANDROID_NDK_HOME', this will point to where the NDK is located.
+
+**Setting Environment Variables**
+
+**Windows:**
+```cmd
+set ANDROID_NDK_HOME=C:\Users\%USERNAME%\AppData\Local\Android\Sdk\ndk\24.0.8215888
+```
+Or add to your system environment variables permanently.
+
+**macOS/Linux:**
+```bash
+export ANDROID_NDK_HOME=~/Android/Sdk/ndk/24.0.8215888
+```
 ---
 
 **Cargo Config File**
-This code needs to be written in ~/.cargo/config, this helps cargo know where to locate the android tools(linker and archiver).
-**NB** Keep in mind just replace 'user' with your own user name. Or just point it to the location of where you put the NDK.
+This code needs to be written in `~/.cargo/config` (Linux/macOS) or `%USERPROFILE%\.cargo\config` (Windows). This helps cargo know where to locate the android tools (linker and archiver).
+**NB** Replace the paths with your actual NDK installation location.
 
+**Linux/macOS:**
 ```toml
 [target.aarch64-linux-android]
 ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
@@ -39,26 +52,68 @@ ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86
 linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
 ```
 
-**Clang Fix**
- In order to get clang to work properly with version 24 you need to create this file.
- libgcc.a, then add this one line.
- ```
- INPUT(-lunwind)
- ```
+**Windows:**
+```toml
+[target.aarch64-linux-android]
+ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\aarch64-linux-android29-clang.exe"
 
-**Folder path: 'Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.1/lib/linux'.**
-After that you have to copy this file into three different folders namely aarch64, arm, i386 and x86_64.
-We have to do this so we Android NDK can find clang on our system, if we used NDK 22 we wouldn't have to do this process.
-Though using NDK v22 will not give us a lot of features to work with.
+[target.armv7-linux-androideabi]
+ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\armv7a-linux-androideabi29-clang.exe"
+
+[target.i686-linux-android]
+ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\i686-linux-android29-clang.exe"
+
+[target.x86_64-linux-android]
+ar = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe"
+linker = "C:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk\\ndk\\24.0.8215888\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\x86_64-linux-android29-clang.exe"
+```
+
+**Clang Fix**
+In order to get clang to work properly with version 24 you need to create this file.
+Create a file named `libgcc.a` with this one line:
+```
+INPUT(-lunwind)
+```
+
+**Linux/macOS:**
+Folder path: `Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.1/lib/linux/`
+
+**Windows:**
+Folder path: `Android\Sdk\ndk\24.0.8215888\toolchains\llvm\prebuilt\windows-x86_64\lib64\clang\14.0.1\lib\linux\`
+
+After creating the file, copy it into four different folders: `aarch64`, `arm`, `i386` and `x86_64`.
+We have to do this so the Android NDK can find clang on our system. If we used NDK 22 we wouldn't have to do this process, though using NDK v22 will not give us a lot of features to work with.
 This GitHub [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) explains the reason why we are doing this.
 
  ---
 
- **Android NDK**
+**Android NDK Path Setup**
 
- After installing the NDK tools for android you should export the PATH to your config file
- (.vimrc, .zshrc, .profile, .bashrc file), That way it can be found.
+After installing the NDK tools for Android you should add the NDK path to your system PATH.
 
- ```vim
- export PATH=/home/sean/Android/Sdk/ndk/24.0.8215888
- ```
+**Linux/macOS:**
+Add to your shell config file (.bashrc, .zshrc, .profile):
+```bash
+export PATH=$PATH:~/Android/Sdk/ndk/24.0.8215888
+```
+
+**Windows:**
+Add to your system PATH environment variable or add to PowerShell profile:
+```powershell
+$env:PATH += ";C:\Users\$env:USERNAME\AppData\Local\Android\Sdk\ndk\24.0.8215888"
+```
+
+**Building AppFlowy Android**
+
+Once you have completed the setup above, you can build AppFlowy for Android using:
+
+**All platforms:**
+```bash
+cd frontend
+cargo make appflowy-android
+```
+
+This will use the appropriate build scripts for your platform (Windows, macOS, or Linux).
