@@ -74,6 +74,7 @@
     "defaultName": "Mi espacio de trabajo",
     "create": "Crear espacio de trabajo",
     "new": "Nuevo espacio de trabajo",
+    "importFromNotion": "Importar desde Notion",
     "learnMore": "Más información",
     "reset": "Restablecer espacio de trabajo",
     "renameWorkspace": "Cambiar el nombre del espacio de trabajo",
@@ -113,8 +114,12 @@
     "clipboard": "Copiar al portapapeles",
     "csv": "CSV",
     "copyLink": "Copiar enlace",
+    "publishToTheWeb": "Publicar en la Web",
     "publish": "Publicar",
-    "publishTab": "Publicar"
+    "unPublish": "Anular publicación",
+    "publishTab": "Publicar",
+    "shareTab": "Compartir",
+    "updatePathName": "Actualizar el nombre de la ruta"
   },
   "moreAction": {
     "small": "pequeño",
@@ -128,6 +133,7 @@
     "createdAt": "Creado: {}",
     "deleteView": "Borrar",
     "duplicateView": "Duplicar",
+    "wordCountLabel": "Recuento de palabras: ",
     "createdAtLabel": "Creado: ",
     "syncedAtLabel": "Sincronizado: "
   },
@@ -135,6 +141,7 @@
     "textAndMarkdown": "Texto y Markdown",
     "documentFromV010": "Documento de v0.1.0",
     "databaseFromV010": "Base de datos desde v0.1.0",
+    "notionZip": "Archivo Zip exportado de Notion",
     "csv": "CSV",
     "database": "Base de datos"
   },
@@ -148,6 +155,7 @@
     "moveTo": "Mover a",
     "addToFavorites": "Añadira los favoritos",
     "copyLink": "Copiar Enlace",
+    "changeIcon": "Cambiar icono",
     "move": "Mover"
   },
   "blankPageTitle": "Página en blanco",
@@ -158,6 +166,8 @@
   "newBoardText": "Nuevo tablero",
   "chat": {
     "newChat": "Chat de IA",
+    "inputMessageHint": "Preguntar a la IA @:appName",
+    "inputLocalAIMessageHint": "Pregunte a la IA local @:appName",
     "relatedQuestion": "Relacionado",
     "serverUnavailable": "Servicio temporalmente no disponible. Por favor, inténtelo de nuevo más tarde.",
     "aiServerUnavailable": "🌈 ¡Uh-oh! 🌈. Un unicornio se comió nuestra respuesta. ¡Por favor, intenta de nuevo!",
@@ -382,7 +392,28 @@
   "settings": {
     "title": "Ajustes",
     "popupMenuItem": {
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "members": "Miembros",
+      "trash": "Basura",
+      "helpAndSupport": "Ayuda y soporte"
+    },
+    "sites": {
+      "title": "Sitios",
+      "namespaceTitle": "Espacio de nombres",
+      "namespaceDescription": "Administra tu espacio de nombres y página de inicio",
+      "namespaceHeader": "Espacio de nombres",
+      "homepageHeader": "Página principal",
+      "updateNamespace": "Actualizar espacio de nombres",
+      "removeHomepage": "Eliminar página de inicio",
+      "selectHomePage": "Seleccione una página",
+      "customUrl": "URL personalizada",
+      "namespace": {
+        "redirectToPayment": "Redireccionando a la página de pago..."
+      },
+      "publishedPage": {
+        "page": "Página",
+        "clickToOpenPageInApp": "Abrir página en la aplicación"
+      }
     },
     "accountPage": {
       "menuLabel": "Mi cuenta",
