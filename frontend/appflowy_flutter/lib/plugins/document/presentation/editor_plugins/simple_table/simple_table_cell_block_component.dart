@@ -347,11 +347,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildCellContent(Node childNode) {
-    final alignment = _buildAlignment();
-
-    Widget child = IntrinsicWidth(
-      child: editorState.renderer.build(context, childNode),
-    );
+    Widget child = editorState.renderer.build(context, childNode);
 
     final notSupportAlignmentBlocks = [
       DividerBlockKeys.type,
@@ -368,10 +364,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         child: child,
       );
     } else {
-      child = Align(
-        alignment: alignment,
-        child: child,
-      );
+      child = child;
     }
 
     return child;
@@ -444,16 +437,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       tableNode: tableNode,
       editorState: editorState,
     );
-  }
-
-  Alignment _buildAlignment() {
-    Alignment alignment = Alignment.topLeft;
-    if (node.columnAlign != TableAlign.left) {
-      alignment = node.columnAlign.alignment;
-    } else if (node.rowAlign != TableAlign.left) {
-      alignment = node.rowAlign.alignment;
-    }
-    return alignment;
   }
 
   Decoration _buildDecoration() {
