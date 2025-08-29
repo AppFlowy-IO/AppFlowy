@@ -78,6 +78,7 @@ pub enum NumberFormatPB {
   ArgentinePeso = 34,
   UruguayanPeso = 35,
   Percent = 36,
+  PLN = 37,
 }
 
 impl From<NumberFormat> for NumberFormatPB {
@@ -119,6 +120,7 @@ impl From<NumberFormat> for NumberFormatPB {
       NumberFormat::ArgentinePeso => NumberFormatPB::ArgentinePeso,
       NumberFormat::UruguayanPeso => NumberFormatPB::UruguayanPeso,
       NumberFormat::Percent => NumberFormatPB::Percent,
+      NumberFormat::PLN => NumberFormatPB::PLN,
     }
   }
 }
@@ -162,6 +164,7 @@ impl From<NumberFormatPB> for NumberFormat {
       NumberFormatPB::ArgentinePeso => NumberFormat::ArgentinePeso,
       NumberFormatPB::UruguayanPeso => NumberFormat::UruguayanPeso,
       NumberFormatPB::Percent => NumberFormat::Percent,
+      NumberFormatPB::PLN => NumberFormat::PLN,
     }
   }
 }
