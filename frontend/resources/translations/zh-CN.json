@@ -149,7 +149,7 @@
     "moreOptions": "更多选项",
     "wordCount": "字数:{}",
     "charCount": "字符数:{}",
-    "createdAt": "创建于 :{}",
+    "createdAt": "创建于:{}",
     "deleteView": "删除",
     "duplicateView": "复制",
     "wordCountLabel": "词总数:",
@@ -273,14 +273,14 @@
     "markdown": "Markdown",
     "debug": {
       "name": "调试信息",
-      "success": "将调试信息复制到剪贴板！",
+      "success": "已将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
     },
     "feedback": "反馈",
     "help": "帮助和支持"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "删除、重命名等等...",
+    "moreButtonToolTip": "更多按钮工具",
     "addPageTooltip": "在其中快速添加页面",
     "defaultNewPageName": "未命名页面",
     "renameDialog": "重命名",
@@ -1726,8 +1726,8 @@
   },
   "message": {
     "copy": {
-      "success": "复制了！",
-      "fail": "无法复制"
+      "success": "已复制",
+      "fail": "复制失败"
     }
   },
   "unSupportBlock": "当前版本不支持该块。",
@@ -1736,8 +1736,8 @@
     "deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
   },
   "colors": {
-    "custom": "自定义的",
-    "default": "默认的",
+    "custom": "自定义",
+    "default": "默认",
     "red": "红色",
     "orange": "橙色",
     "yellow": "黄色",
@@ -1754,7 +1754,7 @@
     "noRecent": "没有最近的 Emoji",
     "noEmojiFound": "没有找到 Emoji",
     "filter": "筛选",
-    "random": "随机的",
+    "random": "随机",
     "selectSkinTone": "选择肤色",
     "remove": "移除",
     "categories": {
@@ -1773,9 +1773,9 @@
     "skinTone": {
       "default": "默认",
       "light": "亮",
-      "mediumLight": "中等偏亮",
-      "medium": "中等的",
-      "mediumDark": "中等偏暗",
+      "mediumLight": "偏亮",
+      "medium": "适中",
+      "mediumDark": "偏暗",
       "dark": "暗"
     }
   },
