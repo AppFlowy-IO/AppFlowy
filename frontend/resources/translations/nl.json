@@ -2034,7 +2034,7 @@
         "drag": "Sleuren",
         "toMove": " bewegen",
         "delete": "Verwijderen",
-        "duplicate": "Duplicaat",
+        "duplicate": "Dupliceren",
         "turnInto": "Verander in",
         "moveUp": "Omhoog verplaatsen",
         "moveDown": "Naar beneden verplaatsen",
@@ -2045,7 +2045,7 @@
         "right": "Rechts",
         "defaultColor": "Standaard",
         "depth": "Diepte",
-        "copyLinkToBlock": "Link kopiëren om te blokkeren"
+        "copyLinkToBlock": "Link kopiëren naar block"
       },
       "image": {
         "addAnImage": "Afbeeldingen toevoegen",
@@ -2055,7 +2055,7 @@
         "dropImageToInsert": "Afbeeldingen neerzetten om in te voegen",
         "imageUploadFailed": "Afbeelding uploaden mislukt",
         "imageDownloadFailed": "Het downloaden van de afbeelding is mislukt. Probeer het opnieuw.",
-        "imageDownloadFailedToken": "Het downloaden van de afbeelding is mislukt vanwege een ontbrekende gebruikerstoken. Probeer het opnieuw.",
+        "imageDownloadFailedToken": "Het downloaden van de afbeelding is mislukt vanwege een ontbrekend gebruikerstoken. Probeer het opnieuw.",
         "errorCode": "Foutcode"
       },
       "photoGallery": {

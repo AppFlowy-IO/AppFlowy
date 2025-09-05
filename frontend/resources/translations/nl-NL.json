@@ -1928,7 +1928,82 @@
         "abstract": "Abstract",
         "addCover": "Coverafbeelding toevoegen",
         "addLocalImage": "Lokale afbeelding toevoegen",
-        "invalidImageUrl": "Ongeldige afbeelding-URL"
+        "invalidImageUrl": "Ongeldige afbeelding-URL",
+        "failedToAddImageToGallery": "Het is niet gelukt om een afbeelding aan de galerij toe te voegen",
+        "enterImageUrl": "Voer de URL van de afbeelding in",
+        "add": "Toevoegen",
+        "back": "Terug",
+        "saveToGallery": "Opslaan in galerij",
+        "removeIcon": "Verwijder pictogram",
+        "removeCover": "Coverafbeelding verwijderen",
+        "pasteImageUrl": "Afbeelding-URL plakken",
+        "or": "OF",
+        "pickFromFiles": "Kiezen uit bestanden",
+        "couldNotFetchImage": "Afbeelding kon niet worden opgehaald",
+        "imageSavingFailed": "Opslaan van afbeelding mislukt",
+        "addIcon": "Pictogram toevoegen",
+        "changeIcon": "Pictogram wijzigen",
+        "coverRemoveAlert": "Het wordt uit de cover verwijderd nadat het is verwijderd.",
+        "alertDialogConfirmation": "Weet u zeker dat u wilt doorgaan?"
+      },
+      "mathEquation": {
+        "name": "Wiskundige vergelijking",
+        "addMathEquation": "Voeg een wiskundige vergelijking toe",
+        "editMathEquation": "Bewerk wiskundige vergelijking"
+      },
+      "optionAction": {
+        "click": "Klik",
+        "toOpenMenu": "om het menu te openen",
+        "drag": "Sleuren",
+        "toMove": "bewegen",
+        "delete": "Verwijderen",
+        "duplicate": "Dupliceren",
+        "turnInto": "Verander in",
+        "moveUp": "Omhoog verplaatsen",
+        "moveDown": "Naar beneden verplaatsen",
+        "color": "Kleur",
+        "align": "Uitlijnen",
+        "left": "Links",
+        "center": "Centrum",
+        "right": "Rechts",
+        "defaultColor": "Standaard",
+        "depth": "Diepte",
+        "copyLinkToBlock": "Link kopiëren naar block"
+      },
+      "image": {
+        "addAnImage": "Afbeeldingen toevoegen",
+        "copiedToPasteBoard": "De afbeeldingslink is naar het klembord gekopieerd",
+        "addAnImageDesktop": "Voeg een afbeelding toe",
+        "addAnImageMobile": "Klik om een of meer afbeeldingen toe te voegen",
+        "dropImageToInsert": "Afbeeldingen neerzetten om in te voegen",
+        "imageUploadFailed": "Afbeelding uploaden mislukt",
+        "imageDownloadFailed": "Het downloaden van de afbeelding is mislukt. Probeer het opnieuw.",
+        "imageDownloadFailedToken": "Het downloaden van de afbeelding is mislukt vanwege een ontbrekend gebruikerstoken. Probeer het opnieuw.",
+        "errorCode": "Foutcode"
+      },
+      "photoGallery": {
+        "name": "Fotogalerij",
+        "imageKeyword": "afbeelding",
+        "imageGalleryKeyword": "fotogalerij",
+        "photoKeyword": "foto",
+        "photoBrowserKeyword": "fotobrowser",
+        "galleryKeyword": "galerij",
+        "addImageTooltip": "Afbeelding toevoegen",
+        "changeLayoutTooltip": "Lay-out wijzigen",
+        "browserLayout": "Browser",
+        "gridLayout": "Grid",
+        "deleteBlockTooltip": "Hele galerij verwijderen"
+      },
+      "math": {
+        "copiedToPasteBoard": "De wiskundige vergelijking is naar het klembord gekopieerd"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "De link is gekopieerd naar het klembord",
+        "convertToLink": "Converteren naar embed-link"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Voeg koppen toe om een inhoudsopgave te maken.",
+        "noMatchHeadings": "Er zijn geen overeenkomende koppen gevonden."
       }
     }
   }
