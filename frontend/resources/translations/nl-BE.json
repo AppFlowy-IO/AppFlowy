@@ -2113,7 +2113,24 @@
         "placeholder": "Klik om een afbeelding te uploaden"
       },
       "url": {
-        "label": "Afbeelding-URL"
+        "label": "Afbeelding-URL",
+        "placeholder": "Voer de URL van de afbeelding in"
+      },
+      "ai": {
+        "label": "Genereer een afbeelding van AI",
+        "placeholder": "Vul de prompt in zodat AI een afbeelding kan genereren"
+      },
+      "stability_ai": {
+        "label": "Genereer een afbeelding van Stability AI",
+        "placeholder": "Vul de prompt in zodat Stability AI een afbeelding kan genereren"
+      },
+      "support": "De maximale afbeeldingsgrootte is 5 MB. Ondersteunde formaten: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Ongeldige afbeelding",
+        "invalidImageSize": "De afbeeldingsgrootte moet kleiner zijn dan 5 MB",
+        "invalidImageFormat": "Afbeeldingsformaat wordt niet ondersteund. Ondersteunde formaten: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Ongeldige afbeelding-URL",
+        "noImage": "Bestand of map bestaat niet"
       }
     }
   }
