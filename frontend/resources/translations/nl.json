@@ -2162,8 +2162,8 @@
         "linkPreviewMenu": {
           "toMetion": "Converteren naar Vermelding",
           "toUrl": "Converteren naar URL",
-          "toEmbed": "Converteren naar ingesloten",
-          "toBookmark": "Converteren naar bladwijzer",
+          "toEmbed": "Converteren naar Ingesloten",
+          "toBookmark": "Converteren naar Bladwijzer",
           "copyLink": "Link kopiëren",
           "replace": "Vervangen",
           "reload": "Herladen",

@@ -2005,6 +2005,115 @@
       "outline": {
         "addHeadingToCreateOutline": "Voeg koppen toe om een inhoudsopgave te maken.",
         "noMatchHeadings": "Er zijn geen overeenkomende koppen gevonden."
+      },
+      "table": {
+        "addAfter": "Voeg toe na",
+        "addBefore": "Voeg toe vóór",
+        "delete": "Verwijderen",
+        "clear": "Inhoud verwijderen",
+        "duplicate": "Dupliceren",
+        "bgColor": "Achtergrondkleur"
+      },
+      "contextMenu": {
+        "copy": "Kopiëren",
+        "cut": "Knippen",
+        "paste": "Plakken",
+        "pasteAsPlainText": "Plakken als platte tekst"
+      },
+      "action": "Acties",
+      "database": {
+        "selectDataSource": "Gegevensbron selecteren",
+        "noDataSource": "Geen gegevensbron",
+        "selectADataSource": "Selecteer een gegevensbron",
+        "toContinue": "doorgaan",
+        "newDatabase": "Nieuwe database",
+        "linkToDatabase": "Link naar database"
+      },
+      "date": "Datum",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Voeg een video toe",
+        "placeholder": "Plak de videolink",
+        "copiedToPasteBoard": "De videolink is naar het klembord gekopieerd",
+        "insertVideo": "Video toevoegen",
+        "invalidVideoUrl": "De bron-URL wordt nog niet ondersteund.",
+        "invalidVideoUrlYouTube": "YouTube wordt nog niet ondersteund.",
+        "supportedFormats": "Ondersteunde formaten: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Bestand",
+        "uploadTab": "Uploaden",
+        "uploadMobile": "Kies een bestand",
+        "uploadMobileGallery": "Van fotogalerij",
+        "networkTab": "Link insluiten",
+        "placeholderText": "Een bestand uploaden of insluiten",
+        "placeholderDragging": "Zet het bestand neer om te uploaden",
+        "dropFileToUpload": "Een bestand neerzetten om te uploaden",
+        "fileUploadHint": "Versleep een bestand of klik erop ",
+        "fileUploadHintSuffix": "Bladeren",
+        "networkHint": "Plak een bestandslink",
+        "networkUrlInvalid": "Ongeldige URL. Controleer de URL en probeer het opnieuw.",
+        "networkAction": "Insluiten",
+        "fileTooBigError": "Bestandsgrootte is te groot, upload een bestand met een bestandsgrootte van minder dan 10 MB",
+        "renameFile": {
+          "title": "Bestand hernoemen",
+          "description": "Voer de nieuwe naam voor dit bestand in",
+          "nameEmptyError": "De bestandsnaam mag niet leeg zijn."
+        },
+        "uploadedAt": "Geüpload op {}",
+        "linkedAt": "Link toegevoegd op {}",
+        "failedToOpenMsg": "Kan niet openen, bestand niet gevonden"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (plakken afwerken)",
+        "errors": {
+          "failedDeletePage": "Het is niet gelukt om de pagina te verwijderen",
+          "failedCreatePage": "Het is niet gelukt om de pagina aan te maken",
+          "failedMovePage": "Het is niet gelukt om de pagina naar dit document te verplaatsen",
+          "failedDuplicatePage": "Het is niet gelukt om de pagina te dupliceren",
+          "failedDuplicateFindView": "Het is niet gelukt om de pagina te dupliceren - originele weergave niet gevonden"
+        }
+      },
+      "cannotMoveToItsChildren": "Kan niet naar zijn kinderen verhuizen",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Plakken als",
+          "mention": "Noemen",
+          "URL": "URL",
+          "bookmark": "Bladwijzer",
+          "embed": "Insluiten"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Converteren naar Vermelding",
+          "toUrl": "Converteren naar URL",
+          "toEmbed": "Converteren naar Ingesloten",
+          "toBookmark": "Converteren naar Bladwijzer",
+          "copyLink": "Link kopiëren",
+          "replace": "Vervangen",
+          "reload": "Herladen",
+          "removeLink": "Link verwijderen",
+          "pasteHint": "Plak https://...",
+          "unableToDisplay": "kan niet worden weergegeven"
+        }
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "Inhoudsopgave"
+    },
+    "textBlock": {
+      "placeholder": "Typ '/' voor opdrachten"
+    },
+    "title": {
+      "placeholder": "Zonder titel"
+    },
+    "imageBlock": {
+      "placeholder": "Klik om afbeelding(en) toe te voegen",
+      "upload": {
+        "label": "Uploaden",
+        "placeholder": "Klik om een afbeelding te uploaden"
+      },
+      "url": {
+        "label": "Afbeelding-URL"
       }
     }
   }
