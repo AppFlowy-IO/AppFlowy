@@ -1913,7 +1913,22 @@
           "duplicateTable": "Tabel duppliceren"
         },
         "clickToAddNewRow": "Klik om een nieuwe rij toe te voegen",
-        "clickToAddNewColumn": "Klik om een nieuwe kolom toe te voegen"
+        "clickToAddNewColumn": "Klik om een nieuwe kolom toe te voegen",
+        "clickToAddNewRowAndColumn": "Klik om een nieuwe rij en kolom toe te voegen",
+        "headerName": {
+          "table": "Tabel",
+          "alignText": "Tekst uitlijnen"
+        }
+      },
+      "cover": {
+        "changeCover": "Wijzig coverafbeelding",
+        "colors": "Kleuren",
+        "images": "Afbeeldingen",
+        "clearAll": "Alles wissen",
+        "abstract": "Abstract",
+        "addCover": "Coverafbeelding toevoegen",
+        "addLocalImage": "Lokale afbeelding toevoegen",
+        "invalidImageUrl": "Ongeldige afbeelding-URL"
       }
     }
   }
