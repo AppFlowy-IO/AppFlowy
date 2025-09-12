@@ -18,7 +18,7 @@ class ViewDatabaseButton extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: FlowyIconButton(
-        tooltipText: LocaleKeys.grid_rowPage_openAsFullPage.tr(),
+        tooltipText: LocaleKeys.grid_rowPage_viewDatabase.tr(),
         width: 24,
         height: 24,
         iconPadding: const EdgeInsets.all(3),

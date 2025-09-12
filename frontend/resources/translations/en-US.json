@@ -635,7 +635,7 @@
         "logoutLabel": "Log out"
       },
       "isUpToDate": "@:appName is up to date!",
-      "officialVersion": "Version {version} (Official build)"
+      "officialVersion": "Version {version} (官方構建)"
     },
     "workspacePage": {
       "menuLabel": "Workspace",
@@ -1649,6 +1649,7 @@
         "other": "Hide {count} hidden fields"
       },
       "openAsFullPage": "Open as full page",
+      "viewDatabase": "View the original Database",
       "moreRowActions": "More row actions"
     },
     "sort": {
