@@ -1,4 +1,71 @@
 # Release Notes
+## Version 0.9.9 – 11/09/2025
+### Desktop
+#### New Features
+- Workspace user profile: customize your avatar, about me, and profile card banner
+
+### Mobile
+#### New Features
+- Workspace user profile: customize your avatar, about me, and profile card banner
+- Two new Android widgets: Recent Pages and Favorites
+- A new iOS widget: Quick Page Access
+- iOS Share to AppFlowy: quickly save browser page links with optional notes to a target AppFlowy page
+
+## Version 0.9.8 – 28/08/2025
+### Desktop
+#### New Features
+- Bulk add collaborators with Can view / Can edit permissions via the Share menu
+- Enable setting the start of the week to Monday to control default calendar layouts in the calendar view and date picker
+- Sync date and time formats, language, and week start day across devices under the same user account
+- Offer 10 premium Select-option colors to Pro Plan users
+- Support managing pending members via Settings → Members
+
+### Mobile
+#### New Features
+- Support iOS widgets for quick access to recent and favorite pages
+- Offer 10 premium Select option colors to Pro Plan users
+- Support managing pending members via Settings → Members
+
+## Version 0.9.7 – 13/08/2025
+### Desktop
+#### New Features
+- Mention or assign persons in documents via '@' or '/'
+- Mentioned persons get notified about the mention via email
+- More colors are available for database Select options and page covers
+- Back up your AppFlowy workspace: Export your workspace as a ZIP file and import it back at any time
+- GPT-5 is now available in AppFlowy
+
+### Mobile
+#### New Features
+- Mention or assign persons in documents via '@' or '/'
+- Mentioned persons get notified about the mention via email
+- More colors are available for database Select options and page cover
+
+#### Bug Fixes
+- Fixed login page UI overflow issues on small screen devices
+
+## Version 0.9.6 – 05/08/2025
+
+### Bug Fixes
+- Fixed some syncing issues
+- Improved the Share menu
+- Fixed some UI issues related to database filters and sorts
+
+## Version 0.9.5 – 17/07/2025
+### Desktop
+#### New Features
+- Vault Workspace: A new workspace type, private and offline. AI runs locally with no data transfer. Supports switching embedding models, chatting with files (PDF, Markdown, TXT). Includes RAG search with AI-generated overviews.
+- Revamped color pickers in documents: Expanded palette with support for custom colors
+
+### Mobile
+#### New Features
+- iOS In‑App Sign‑In: Sign in directly within the iOS app
+- New colors: Improved text and background color options
+
+Bug Fixes
+- Add a network connection indicator
+- Fix sync bugs and issues with WebSocket connections.
+
 ## Version 0.9.4 – 02/07/2025
 ### Desktop
 #### New Features
