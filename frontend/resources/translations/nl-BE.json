@@ -1827,7 +1827,8 @@
         "file": "Bestand",
         "twoColumns": "2 kolommen",
         "threeColumns": "3 kolommen",
-        "fourColumns": "4 kolommen"
+        "fourColumns": "4 kolommen",
+        "checkbox": "Selectievakje"
       },
       "subPage": {
         "name": "Document",
