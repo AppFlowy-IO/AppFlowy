@@ -2859,6 +2859,12 @@
     "title": "Ruimtes",
     "defaultSpaceName": "Algemeen",
     "upgradeSpaceTitle": "Ruimtes inschakelen",
-    "upgradeSpaceDescription": "Maak meerdere openbare en privéruimtes om uw werkruimte beter te organiseren."
+    "upgradeSpaceDescription": "Maak meerdere openbare en privéruimtes om uw werkruimte beter te organiseren.",
+    "upgrade": "Update",
+    "upgradeYourSpace": "Meerdere ruimtes creëren",
+    "quicklySwitch": "Snel naar de volgende ruimte schakelen",
+    "duplicate": "Dupliceer ruimte",
+    "movePageToSpace": "Verplaats pagina naar ruimte",
+    "cannotMovePageToDatabase": "Kan pagina niet naar database verplaatsen"
   }
 }
