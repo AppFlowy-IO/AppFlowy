@@ -779,6 +779,9 @@
       "title": "Snelkoppelingen",
       "editBindingHint": "Nieuwe binding invoeren",
       "searchHint": "Zoeken",
+      "actions": {
+        "resetDefault": "Standaardinstellingen herstellen"
+      },
       "errorPage": {
         "message": "Snelkoppelingen laden mislukt: {}",
         "howToFix": "Probeer het opnieuw. Als het probleem zich blijft voordoen, neem dan contact op via GitHub."
