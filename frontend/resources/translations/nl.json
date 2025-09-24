@@ -2811,7 +2811,7 @@
         "setupPassword": "Wachtwoord instellen",
         "error": {
           "currentPasswordIsRequired": "Huidig wachtwoord is vereist",
-          "newPasswordIsRequired": "Nieuw wachtwoord vereist",
+          "newPasswordIsRequired": "Nieuw wachtwoord is vereist",
           "confirmPasswordIsRequired": "Bevestig wachtwoord is vereist",
           "passwordsDoNotMatch": "Wachtwoorden komen niet overeen",
           "newPasswordIsSameAsCurrent": "Het nieuwe wachtwoord is hetzelfde als het huidige wachtwoord",
@@ -2890,7 +2890,7 @@
     "aiOverview": "AI-overzicht",
     "aiOverviewSource": "Referentiebronnen",
     "aiOverviewMoreDetails": "Meer details",
-    "aiAskFollowUp": "Vraag om vervolg",
+    "aiAskFollowUp": "Vraag om follow up",
     "pagePreview": "Inhoudsvoorbeeld",
     "clickToOpenPage": "Klik om de pagina te openen",
     "recentHistory": "Recente geschiedenis",

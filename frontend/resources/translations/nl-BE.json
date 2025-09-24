@@ -2730,8 +2730,96 @@
       },
       "password": {
         "title": "Wachtwoord",
-        "confirmPassword": "Bevestig wachtwoord"
+        "confirmPassword": "Bevestig wachtwoord",
+        "changePassword": "Wachtwoord wijzigen",
+        "currentPassword": "Huidig wachtwoord",
+        "newPassword": "Nieuw wachtwoord",
+        "confirmNewPassword": "Bevestig nieuw wachtwoord",
+        "setupPassword": "Wachtwoord instellen",
+        "error": {
+          "currentPasswordIsRequired": "Huidig wachtwoord is vereist",
+          "newPasswordIsRequired": "Nieuw wachtwoord is vereist",
+          "confirmPasswordIsRequired": "Bevestig wachtwoord is vereist",
+          "passwordsDoNotMatch": "Wachtwoorden komen niet overeen",
+          "newPasswordIsSameAsCurrent": "Het nieuwe wachtwoord is hetzelfde als het huidige wachtwoord",
+          "currentPasswordIsIncorrect": "Huidig wachtwoord is onjuist",
+          "passwordShouldBeAtLeast6Characters": "Het wachtwoord moet minimaal {min} tekens lang zijn",
+          "passwordCannotBeLongerThan72Characters": "Wachtwoord mag niet langer zijn dan {max} tekens"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Wachtwoord succesvol bijgewerkt",
+          "passwordUpdatedFailed": "Het wachtwoord kon niet worden bijgewerkt",
+          "passwordSetupSuccessfully": "Wachtwoord succesvol ingesteld",
+          "passwordSetupFailed": "Het is niet gelukt om een wachtwoord in te stellen"
+        },
+        "hint": {
+          "enterYourPassword": "Voer uw wachtwoord in",
+          "confirmYourPassword": "Bevestig uw wachtwoord",
+          "enterYourCurrentPassword": "Voer uw huidige wachtwoord in",
+          "enterYourNewPassword": "Voer uw nieuwe wachtwoord in",
+          "confirmYourNewPassword": "Bevestig uw nieuwe wachtwoord"
+        }
+      },
+      "myAccount": "Mijn account",
+      "myProfile": "Mijn profiel"
+    },
+    "workplace": {
+      "name": "Werkplek",
+      "title": "Werkplekinstellingen",
+      "subtitle": "Pas het uiterlijk, thema, lettertype, tekstindeling, datum, tijd en taal van uw werkruimte aan.",
+      "workplaceName": "Naam van de werkplek",
+      "workplaceNamePlaceholder": "Voer de naam van de werkplek in",
+      "workplaceIcon": "Werkplekpictogram",
+      "workplaceIconSubtitle": "Upload een afbeelding of gebruik een emoji voor je werkruimte. Het pictogram wordt weergegeven in je zijbalk en meldingen.",
+      "renameError": "Het is niet gelukt om de werkplek te hernoemen",
+      "updateIconError": "Het is niet gelukt om het pictogram bij te werken",
+      "chooseAnIcon": "Kies een pictogram",
+      "appearance": {
+        "name": "Weergave",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Licht",
+          "dark": "Donker"
+        },
+        "language": "Taal"
       }
+    },
+    "syncState": {
+      "syncing": "Synchronisatie",
+      "synced": "Gesynchroniseerd",
+      "noNetworkConnected": "Geen netwerkverbinding"
     }
+  },
+  "pageStyle": {
+    "title": "Paginastijl",
+    "layout": "Indeling",
+    "coverImage": "Omslagafbeelding",
+    "pageIcon": "Pagina-pictogram",
+    "colors": "Kleuren",
+    "gradient": "Verloop",
+    "backgroundImage": "Achtergrondafbeelding",
+    "presets": "Voorinstellingen",
+    "photo": "Foto",
+    "unsplash": "Unsplash",
+    "pageCover": "Pagina omslag",
+    "none": "Geen",
+    "openSettings": "Open Instellingen",
+    "photoPermissionTitle": "@:appName wil toegang tot uw fotobibliotheek",
+    "photoPermissionDescription": "@:appName heeft toegang tot uw foto's nodig om afbeeldingen aan uw documenten toe te kunnen voegen.",
+    "cameraPermissionTitle": "@:appName wil toegang tot uw camera",
+    "cameraPermissionDescription": "@:appName heeft toegang tot uw camera nodig om afbeeldingen van de camera aan uw documenten toe te kunnen voegen.",
+    "doNotAllow": "Niet toestaan",
+    "image": "Afbeelding"
+  },
+  "commandPalette": {
+    "placeholder": "Zoek of stel een vraag...",
+    "bestMatches": "Beste matches",
+    "aiOverview": "AI-overzicht",
+    "aiOverviewSource": "Referentiebronnen",
+    "aiOverviewMoreDetails": "Meer details",
+    "aiAskFollowUp": "Vraag om follow up",
+    "pagePreview": "Inhoudsvoorbeeld",
+    "clickToOpenPage": "Klik om de pagina te openen",
+    "recentHistory": "Recente geschiedenis"
   }
 }
