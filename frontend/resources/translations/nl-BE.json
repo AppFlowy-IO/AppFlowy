@@ -2468,7 +2468,101 @@
       "onDayOfEvent": "Op de dag van het evenement",
       "oneDayBefore": "1 dag ervoor",
       "twoDaysBefore": "2 dagen ervoor",
-      "oneWeekBefore": "1 week ervoor"
+      "oneWeekBefore": "1 week ervoor",
+      "custom": "Aangepast"
     }
+  },
+  "relativeDates": {
+    "yesterday": "Gisteren",
+    "today": "Vandaag",
+    "tomorrow": "Morgen",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Meldingen",
+    "closeNotification": "Melding sluiten",
+    "viewNotifications": "Meldingen bekijken",
+    "noNotifications": "Nog geen meldingen",
+    "mentionedYou": "heeft jou genoemd",
+    "archivedTooltip": "Archiveer deze melding",
+    "unarchiveTooltip": "Deze melding uit het archief halen",
+    "markAsReadTooltip": "Markeer deze melding als gelezen",
+    "markAsArchivedSucceedToast": "Succesvol gearchiveerd",
+    "markAllAsArchivedSucceedToast": "Alles succesvol gearchiveerd",
+    "markAsReadSucceedToast": "Markeer als succesvol gelezen",
+    "markAllAsReadSucceedToast": "Alles als succesvol gelezen markeren",
+    "today": "Vandaag",
+    "older": "Ouder",
+    "mobile": {
+      "title": "Updates"
+    },
+    "emptyTitle": "Alles bij!",
+    "emptyBody": "Geen meldingen of acties in behandeling. Geniet van de rust.",
+    "tabs": {
+      "inbox": "Postvak IN",
+      "upcoming": "Aankomende"
+    },
+    "actions": {
+      "markAllRead": "Alles als gelezen markeren",
+      "showAll": "Alle",
+      "showUnreads": "Ongelezen"
+    },
+    "filters": {
+      "ascending": "Oplopend",
+      "descending": "Aflopend",
+      "groupByDate": "Groeperen op datum",
+      "showUnreadsOnly": "Alleen ongelezen berichten weergeven",
+      "resetToDefault": "Resetten naar standaardinstellingen"
+    }
+  },
+  "reminderNotification": {
+    "title": "Herinnering",
+    "message": "Controleer dit voordat u het vergeet!",
+    "tooltipDelete": "Verwijderen",
+    "tooltipMarkRead": "Markeer als gelezen",
+    "tooltipMarkUnread": "Markeer als ongelezen"
+  },
+  "findAndReplace": {
+    "find": "Zoeken",
+    "previousMatch": "Vorige overeenkomst",
+    "nextMatch": "Volgende overeenkomst",
+    "close": "Sluiten",
+    "replace": "Vervangen",
+    "replaceAll": "Alles vervangen",
+    "noResult": "Geen resultaten",
+    "caseSensitive": "Hoofdlettergevoelig",
+    "searchMore": "Zoek om meer resultaten te vinden"
+  },
+  "error": {
+    "weAreSorry": "Het spijt ons",
+    "loadingViewError": "Er is een probleem met het laden van deze weergave. Controleer je internetverbinding, vernieuw de app en neem gerust contact op met het team als het probleem aanhoudt.",
+    "syncError": "Gegevens worden niet gesynchroniseerd vanaf een ander apparaat",
+    "syncErrorHint": "Open deze pagina opnieuw op het apparaat waarop u deze voor het laatst hebt bewerkt en open de pagina vervolgens opnieuw op het huidige apparaat.",
+    "clickToCopy": "Klik om de foutcode te kopiëren"
+  },
+  "editor": {
+    "bold": "Vetgedrukt",
+    "bulletedList": "Opsommingstekenlijst",
+    "bulletedListShortForm": "Opgesomd",
+    "checkbox": "Selectievakje",
+    "embedCode": "Insluitcode",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Highlight",
+    "color": "Kleur",
+    "image": "Afbeelding",
+    "date": "Datum",
+    "page": "Pagina",
+    "italic": "Cursief",
+    "link": "Link",
+    "numberedList": "Genummerde lijst",
+    "numberedListShortForm": "Genummerd",
+    "toggleHeading1ShortForm": "H1 in/uitschakelen",
+    "toggleHeading2ShortForm": "H2 in/uitschakelen",
+    "toggleHeading3ShortForm": "H3 in/uitschakelen",
+    "quote": "Citaat",
+    "strikethrough": "Doorhalen",
+    "text": "Tekst"
   }
 }

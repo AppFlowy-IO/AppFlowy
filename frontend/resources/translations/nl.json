@@ -2559,7 +2559,7 @@
     "markAsArchivedSucceedToast": "Succesvol gearchiveerd",
     "markAllAsArchivedSucceedToast": "Alles succesvol gearchiveerd",
     "markAsReadSucceedToast": "Markeer als succesvol gelezen",
-    "markAllAsReadSucceedToast": "Alles succesvol als gelezen markeren",
+    "markAllAsReadSucceedToast": "Alles als succesvol gelezen markeren",
     "today": "Vandaag",
     "older": "Ouder",
     "mobile": {
@@ -2596,7 +2596,7 @@
     "tooltipMarkUnread": "Markeer als ongelezen"
   },
   "findAndReplace": {
-    "find": "Vinden",
+    "find": "Zoeken",
     "previousMatch": "Vorige overeenkomst",
     "nextMatch": "Volgende overeenkomst",
     "close": "Sluiten",
@@ -2622,7 +2622,7 @@
     "heading1": "H1",
     "heading2": "H2",
     "heading3": "H3",
-    "highlight": "Onderlijnen",
+    "highlight": "Highlight",
     "color": "Kleur",
     "image": "Afbeelding",
     "date": "Datum",
