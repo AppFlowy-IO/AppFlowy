@@ -1611,7 +1611,7 @@
       "timeFormat": "Tijdformaat",
       "invalidTimeFormat": "Ongeldige opmaak",
       "timeFormatTwelveHour": "12 uur",
-      "timeFormatTwentyFourHour": "24 uur",
+      "timeFormatTwentyFourHour": "24 uren",
       "clearDate": "Datum verwijderen",
       "dateTime": "Datum en tijd",
       "startDateTime": "Startdatum en tijd",
@@ -1626,7 +1626,7 @@
       "optionTitle": "Opties",
       "addOption": "Optie toevoegen",
       "editProperty": "Eigenschap bewerken",
-      "newProperty": "Nieuw eigenschap",
+      "newProperty": "Nieuwe eigenschap",
       "openRowDocument": "Openen als pagina",
       "deleteFieldPromptMessage": "Weet u het zeker? Deze eigenschap en alle bijbehorende gegevens worden verwijderd.",
       "clearFieldPromptMessage": "Weet je het zeker? Alle cellen in deze kolom worden leeggemaakt.",
@@ -1896,7 +1896,7 @@
       "numberedList": "Genummerde lijst",
       "bulletedList": "Opsommingstekenlijst",
       "todoList": "Todo-lijst",
-      "callout": "Oproep",
+      "callout": "Nadruk",
       "simpleTable": {
         "moreActions": {
           "color": "Kleur",
