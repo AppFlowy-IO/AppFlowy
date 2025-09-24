@@ -2297,7 +2297,99 @@
       "tomorrow": "Morgen",
       "lastSevenDays": "Laatste 7 dagen",
       "nextSevenDays": "Volgende 7 dagen",
-      "lastThirtyDays": "Laatste 30 dagen"
+      "lastThirtyDays": "Laatste 30 dagen",
+      "nextThirtyDays": "Volgende 30 dagen"
+    },
+    "noGroup": "Geen groepering per eigenschap",
+    "noGroupDesc": "Voor bordweergaven is een eigenschap nodig waarop gegroepeerd kan worden om ze weer te geven",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "bestanden"
     }
+  },
+  "calendar": {
+    "menuName": "Kalender",
+    "defaultNewCalendarTitle": "Zonder titel",
+    "newEventButtonTooltip": "Een nieuw evenement toevoegen",
+    "navigation": {
+      "today": "Vandaag",
+      "jumpToday": "Ga naar Vandaag",
+      "previousMonth": "Vorige maand",
+      "nextMonth": "Volgende maand",
+      "views": {
+        "day": "Dag",
+        "week": "Week",
+        "month": "Maand",
+        "year": "Jaar"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "Nog geen evenementen",
+      "emptyBody": "Klik op de plusknop om een evenement voor deze dag aan te maken."
+    },
+    "settings": {
+      "showWeekNumbers": "Weeknummers weergeven",
+      "showWeekends": "Toon weekenden",
+      "firstDayOfWeek": "Begin de week op",
+      "layoutDateField": "Kalenderindeling door",
+      "changeLayoutDateField": "Wijzig lay-outveld",
+      "noDateTitle": "Geen datum",
+      "noDateHint": {
+        "zero": "Evenementen zonder datum zullen hier verschijnen",
+        "one": "{count} evenement zonder datum",
+        "other": "{count} evenementen zonder datum"
+      },
+      "unscheduledEventsTitle": "Ongeplande evenementen",
+      "clickToAdd": "Klik om toe te voegen aan de kalender",
+      "name": "Kalenderinstellingen",
+      "clickToOpen": "Klik om het evenement te openen"
+    },
+    "referencedCalendarPrefix": "Zicht van",
+    "quickJumpYear": "Spring naar",
+    "duplicateEvent": "Dupliceer evenement"
+  },
+  "errorDialog": {
+    "title": "@:appName Fout",
+    "howToFixFallback": "Onze excuses voor het ongemak! Meld een probleem op onze GitHub-pagina met een beschrijving van uw fout.",
+    "howToFixFallbackHint1": "Onze excuses voor het ongemak! Meld een probleem op onze ",
+    "howToFixFallbackHint2": "pagina die uw fout beschrijft.",
+    "github": "Bekijk op GitHub"
+  },
+  "search": {
+    "label": "Zoeken",
+    "sidebarSearchIcon": "Zoeken en snel naar een pagina springen",
+    "searchOrAskAI": "Zoek of vraag AI",
+    "searchFieldHint": "Zoek of stel een vraag in {}...",
+    "askAIAnything": "Vraag AI alles",
+    "askAIFor": "Vraag AI",
+    "searching": "Zoeken...",
+    "noResultForSearching": "Geen overeenkomsten gevonden",
+    "noResultForSearchingHint": "Probeer verschillende vragen of trefwoorden.\nSommige pagina's bevinden zich mogelijk in de Prullenbak.",
+    "noResultForSearchingHintWithoutTrash": "Probeer verschillende vragen of trefwoorden\nSommige pagina's kunnen in de ",
+    "bestMatch": "Beste match",
+    "seeMore": "Bekijk meer",
+    "showMore": "Meer weergeven",
+    "somethingWentWrong": "Er is iets misgegaan",
+    "pageNotExist": "Deze pagina bestaat niet",
+    "tryAgainOrLater": "Probeer het later opnieuw",
+    "placeholder": {
+      "actions": "Zoekacties..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Gekopieerd naar klembord",
+      "fail": "Kan niet kopiëren"
+    }
+  },
+  "unSupportBlock": "De huidige versie ondersteunt dit blok niet.",
+  "views": {
+    "deleteContentTitle": "Weet u zeker dat u de {pageType} wilt verwijderen?",
+    "deleteContentCaption": "Als u dit {pageType} verwijdert, kunt u het vanuit de prullenbak herstellen."
+  },
+  "colors": {
+    "custom": "Aangepast",
+    "default": "Standaard",
+    "red": "Rood"
   }
 }

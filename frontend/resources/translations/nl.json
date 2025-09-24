@@ -2407,15 +2407,15 @@
       "layoutDateField": "Kalenderindeling door",
       "changeLayoutDateField": "Wijzig lay-outveld",
       "noDateTitle": "Geen datum",
+      "noDateHint": "Ongeplande evenementen verschijnen hier",
       "unscheduledEventsTitle": "Ongeplande evenementen",
       "clickToAdd": "Klik om toe te voegen aan de kalender",
       "name": "Kalenderinstellingen",
-      "clickToOpen": "Klik om het record te openen",
-      "noDateHint": "Ongeplande evenementen verschijnen hier"
+      "clickToOpen": "Klik om het evenement te openen"
     },
     "referencedCalendarPrefix": "Zicht van",
     "quickJumpYear": "Spring naar",
-    "duplicateEvent": "Dubbele gebeurtenis"
+    "duplicateEvent": "Dupliceer evenement"
   },
   "errorDialog": {
     "title": "@:appName Fout",
@@ -2425,7 +2425,7 @@
     "github": "Bekijk op GitHub"
   },
   "search": {
-    "label": "Zoekopdracht",
+    "label": "Zoeken",
     "sidebarSearchIcon": "Zoeken en snel naar een pagina springen",
     "searchOrAskAI": "Zoek of vraag AI",
     "searchFieldHint": "Zoek of stel een vraag in {}...",
