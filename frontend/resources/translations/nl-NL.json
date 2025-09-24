@@ -2251,7 +2251,53 @@
   },
   "board": {
     "column": {
-      "label": "Kolom"
+      "label": "Kolom",
+      "createNewCard": "Nieuw",
+      "renameGroupTooltip": "Druk om de groep te hernoemen",
+      "createNewColumn": "Een nieuwe groep toevoegen",
+      "addToColumnTopTooltip": "Voeg bovenaan een nieuwe kaart toe",
+      "addToColumnBottomTooltip": "Voeg onderaan een nieuwe kaart toe",
+      "renameColumn": "Hernoemen",
+      "hideColumn": "Verbergen",
+      "newGroup": "Nieuwe groep",
+      "deleteColumn": "Verwijderen",
+      "deleteColumnConfirmation": "Hiermee worden deze groep en alle kaarten erin verwijderd. Weet u zeker dat u wilt doorgaan?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Verborgen groepen",
+      "collapseTooltip": "Verberg de verborgen groepen",
+      "expandTooltip": "Bekijk de verborgen groepen"
+    },
+    "cardDetail": "Kaartdetails",
+    "cardActions": "Kaartacties",
+    "cardDuplicated": "Kaart is gedupliceerd",
+    "cardDeleted": "Kaart is verwijderd",
+    "showOnCard": "Toon kaartdetails",
+    "setting": "Instelling",
+    "propertyName": "Eigenschapsnaam",
+    "menuName": "Bord",
+    "showUngrouped": "Niet-gegroepeerde items weergeven",
+    "ungroupedButtonText": "Niet gegroepeerd",
+    "ungroupedButtonTooltip": "Bevat kaarten die in geen enkele groep thuishoren",
+    "ungroupedItemsTitle": "Klik om toe te voegen aan het bord",
+    "groupBy": "Groeperen op",
+    "groupCondition": "Groepsconditie",
+    "referencedBoardPrefix": "Zicht op",
+    "notesTooltip": "Notities binnenin",
+    "mobile": {
+      "editURL": "URL bewerken",
+      "showGroup": "Groep weergeven",
+      "showGroupContent": "Weet u zeker dat u deze groep op het bord wilt weergeven?",
+      "failedToLoad": "Het laden van de bordweergave is mislukt"
+    },
+    "dateCondition": {
+      "weekOf": "Week van {} - {}",
+      "today": "Vandaag",
+      "yesterday": "Gisteren",
+      "tomorrow": "Morgen",
+      "lastSevenDays": "Laatste 7 dagen",
+      "nextSevenDays": "Volgende 7 dagen",
+      "lastThirtyDays": "Laatste 30 dagen"
     }
   }
 }

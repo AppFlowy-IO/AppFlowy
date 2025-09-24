@@ -2345,7 +2345,7 @@
     "cardActions": "Kaartacties",
     "cardDuplicated": "Kaart is gedupliceerd",
     "cardDeleted": "Kaart is verwijderd",
-    "showOnCard": "Toon op kaartdetails",
+    "showOnCard": "Toon kaartdetails",
     "setting": "Instelling",
     "propertyName": "Eigenschapsnaam",
     "menuName": "Bord",
@@ -2355,7 +2355,7 @@
     "ungroupedItemsTitle": "Klik om toe te voegen aan het bord",
     "groupBy": "Groeperen op",
     "groupCondition": "Groepsconditie",
-    "referencedBoardPrefix": "Uitzicht op",
+    "referencedBoardPrefix": "Zicht op",
     "notesTooltip": "Notities binnenin",
     "mobile": {
       "editURL": "URL bewerken",
