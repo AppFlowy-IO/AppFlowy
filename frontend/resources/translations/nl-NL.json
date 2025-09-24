@@ -2390,6 +2390,85 @@
   "colors": {
     "custom": "Aangepast",
     "default": "Standaard",
-    "red": "Rood"
+    "red": "Rood",
+    "orange": "Oranje",
+    "yellow": "Geel",
+    "green": "Groen",
+    "blue": "Blauw",
+    "purple": "Paars",
+    "pink": "Roze",
+    "brown": "Bruin",
+    "gray": "Grijs"
+  },
+  "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Zoek emoji",
+    "noRecent": "Geen recente emoji",
+    "noEmojiFound": "Geen emoji gevonden",
+    "filter": "Filter",
+    "random": "Willekeurig",
+    "selectSkinTone": "Selecteer huidskleur",
+    "remove": "Emoji verwijderen",
+    "categories": {
+      "smileys": "Smileys en emoji",
+      "people": "mensen",
+      "animals": "natuur",
+      "food": "voedingsmiddelen",
+      "activities": "activiteiten",
+      "places": "plaatsen",
+      "objects": "objecten",
+      "symbols": "symbolen",
+      "flags": "vlaggen",
+      "nature": "natuur",
+      "frequentlyUsed": "vaak gebruikt"
+    },
+    "skinTone": {
+      "default": "Standaard",
+      "light": "Licht",
+      "mediumLight": "Medium-Licht",
+      "medium": "Medium",
+      "mediumDark": "Middeldonker",
+      "dark": "Donker"
+    },
+    "openSourceIconsFrom": "Open source-pictogrammen van"
+  },
+  "inlineActions": {
+    "noResults": "Geen resultaten",
+    "recentPages": "Recente pagina's",
+    "pageReference": "Paginaverwijzing",
+    "docReference": "Documentreferentie",
+    "boardReference": "Bordreferentie",
+    "calReference": "Kalenderreferentie",
+    "gridReference": "Rasterreferentie",
+    "date": "Datum",
+    "reminder": {
+      "groupTitle": "Herinnering",
+      "shortKeyword": "herinneren"
+    },
+    "createPage": "Maak een subpagina \"{}\""
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Wijzig de datum- en tijdnotatie in de instellingen",
+    "dateFormat": "Datumnotatie",
+    "includeTime": "Inclusief tijd",
+    "isRange": "Einddatum",
+    "timeFormat": "Tijdformaat",
+    "clearDate": "Datum verwijderen",
+    "reminderLabel": "Herinnering",
+    "selectReminder": "Selecteer herinnering",
+    "reminderOptions": {
+      "none": "Geen",
+      "atTimeOfEvent": "Tijdstip van de gebeurtenis",
+      "fiveMinsBefore": "5 minuten voor",
+      "tenMinsBefore": "10 minuten voor",
+      "fifteenMinsBefore": "15 minuten voor",
+      "thirtyMinsBefore": "30 minuten voor",
+      "oneHourBefore": "1 uur voor",
+      "twoHoursBefore": "2 uur van tevoren",
+      "onDayOfEvent": "Op de dag van het evenement",
+      "oneDayBefore": "1 dag ervoor",
+      "twoDaysBefore": "2 dagen ervoor",
+      "oneWeekBefore": "1 week ervoor"
+    }
   }
 }
