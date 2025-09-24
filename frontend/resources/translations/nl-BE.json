@@ -2135,8 +2135,55 @@
         "invalidImageSize": "De afbeeldingsgrootte moet kleiner zijn dan 5 MB",
         "invalidImageFormat": "Afbeeldingsformaat wordt niet ondersteund. Ondersteunde formaten: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Ongeldige afbeelding-URL",
-        "noImage": "Bestand of map bestaat niet"
+        "noImage": "Bestand of map bestaat niet",
+        "multipleImagesFailed": "Eén of meer afbeeldingen konden niet worden geüpload. Probeer het opnieuw."
+      },
+      "embedLink": {
+        "label": "Link insluiten",
+        "placeholder": "Plak of typ een afbeeldingslink"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Zoek naar een afbeelding",
+      "pleaseInputYourOpenAIKey": "Voer uw AI-sleutel in op de pagina Instellingen",
+      "saveImageToGallery": "Afbeelding opslaan",
+      "failedToAddImageToGallery": "Afbeelding opslaan mislukt",
+      "successToAddImageToGallery": "Afbeelding opgeslagen in Foto's",
+      "unableToLoadImage": "Afbeelding kan niet worden geladen",
+      "maximumImageSize": "De maximaal ondersteunde upload-afbeeldingsgrootte is 10 MB",
+      "uploadImageErrorImageSizeTooBig": "De afbeeldingsgrootte moet kleiner zijn dan 10 MB",
+      "imageIsUploading": "Afbeelding wordt geüpload",
+      "openFullScreen": "Openen in volledig scherm",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Vorige afbeelding",
+          "nextImageTooltip": "Volgende afbeelding",
+          "zoomOutTooltip": "Uitzoomen",
+          "zoomInTooltip": "Inzoomen",
+          "changeZoomLevelTooltip": "Zoomniveau wijzigen",
+          "openLocalImage": "Open afbeelding",
+          "downloadImage": "Afbeelding downloaden",
+          "closeViewer": "Interactieve viewer sluiten",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Afbeelding verwijderen"
+        }
       }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Taal",
+        "placeholder": "Selecteer taal",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Kopiëren",
+      "searchLanguageHint": "Zoeken naar een taal",
+      "codeCopiedSnackbar": "Code gekopieerd naar klembord!"
+    },
+    "inlineLink": {
+      "placeholder": "Plak of typ een link",
+      "openInNewTab": "Openen in nieuw tabblad",
+      "copyLink": "Link kopiëren"
     }
   }
 }
