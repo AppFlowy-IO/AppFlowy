@@ -2301,7 +2301,7 @@
       "linkInputHint": "Link plakken of pagina's doorzoeken",
       "pageOrURL": "Pagina of URL",
       "linkName": "Linknaam",
-      "linkNameHint": "Naam van invoerlink"
+      "linkNameHint": "Naam van invoerlink invoeren"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "De inhoud van het blok kan niet worden ontleed",

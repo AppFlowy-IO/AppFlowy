@@ -2183,7 +2183,75 @@
     "inlineLink": {
       "placeholder": "Plak of typ een link",
       "openInNewTab": "Openen in nieuw tabblad",
-      "copyLink": "Link kopiëren"
+      "copyLink": "Link kopiëren",
+      "removeLink": "Link verwijderen",
+      "url": {
+        "label": "Link-URL",
+        "placeholder": "Voer de link-URL in"
+      },
+      "title": {
+        "label": "Linktitel",
+        "placeholder": "Voer linktitel in"
+      }
+    },
+    "mention": {
+      "placeholder": "Noem een persoon, een pagina of een datum...",
+      "page": {
+        "label": "Link naar pagina",
+        "tooltip": "Klik om de pagina te openen"
+      },
+      "deleted": "Verwijderd",
+      "deletedContent": "Deze inhoud bestaat niet of is verwijderd",
+      "noAccess": "Geen toegang",
+      "deletedPage": "Verwijderde pagina",
+      "trashHint": " - in de prullenmand",
+      "morePages": "meer pagina's"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Resetten naar standaardinstellingen",
+      "textSize": "Tekstgrootte",
+      "textColor": "Tekstkleur",
+      "h1": "Kop 1",
+      "h2": "Kop 2",
+      "h3": "Kop 3",
+      "alignLeft": "Links uitlijnen",
+      "alignRight": "Rechts uitlijnen",
+      "alignCenter": "Centreren",
+      "link": "Link",
+      "textAlign": "Tekst uitlijnen",
+      "moreOptions": "Meer opties",
+      "font": "Lettertype",
+      "inlineCode": "Inline-code",
+      "suggestions": "Suggesties",
+      "turnInto": "Verander in",
+      "equation": "Vergelijking",
+      "insert": "Invoegen",
+      "linkInputHint": "Link plakken of pagina's doorzoeken",
+      "pageOrURL": "Pagina of URL",
+      "linkName": "Linknaam",
+      "linkNameHint": "Naam van invoerlink invoeren"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "De inhoud van het blok kan niet worden ontleed",
+      "clickToCopyTheBlockContent": "Klik om de blokinhoud te kopiëren",
+      "blockContentHasBeenCopied": "De inhoud van het blok is gekopieerd.",
+      "parseError": "Er is een fout opgetreden bij het parseren van het blok {}.",
+      "copyBlockContent": "Kopieer blokinhoud"
+    },
+    "mobilePageSelector": {
+      "title": "Selecteer pagina",
+      "failedToLoad": "Het laden van de paginalijst is mislukt",
+      "noPagesFound": "Geen pagina's gevonden"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Kies foto",
+      "takePicture": "Maak een foto",
+      "chooseFile": "Kies bestand"
+    }
+  },
+  "board": {
+    "column": {
+      "label": "Kolom"
     }
   }
 }
