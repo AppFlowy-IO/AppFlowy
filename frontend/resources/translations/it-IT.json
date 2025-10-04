@@ -595,7 +595,94 @@
       "error": {
         "failedToGeneratePaymentLink": "Impossibile generare il collegamento di pagamento per il piano Pro",
         "failedToUpdateNamespace": "Impossibile aggiornare il namespace",
-        "proPlanLimitation": "È necessario eseguire l'aggiornamento al piano Pro per aggiornare lo spazio dei nomi"
+        "proPlanLimitation": "È necessario eseguire l'aggiornamento al piano Pro per aggiornare lo spazio dei nomi",
+        "namespaceAlreadyInUse": "Il namespace è già stato preso, provane un altro",
+        "invalidNamespace": "Namespace non valido, provane un altro",
+        "namespaceLengthAtLeast2Characters": "Il namespace deve essere lungo almeno 2 caratteri",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Solo il proprietario dell'area di lavoro può aggiornare il namespace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Solo il proprietario dell'area di lavoro può rimuovere la home page",
+        "setHomepageFailed": "Impossibile impostare la homepage",
+        "namespaceTooLong": "Il namespace è troppo lungo, provane un altro",
+        "namespaceTooShort": "Il namespace è troppo breve, provane un altro",
+        "namespaceIsReserved": "Il namespace è riservato, provane un altro",
+        "updatePathNameFailed": "Impossibile aggiornare il percorso",
+        "removeHomePageFailed": "Impossibile rimuovere la homepage",
+        "publishNameContainsInvalidCharacters": "Il percorso contiene caratteri non validi, provane un altro",
+        "publishNameTooShort": "Il percorso è troppo breve, provane un altro",
+        "publishNameTooLong": "Il percorso è troppo lungo, provane un altro",
+        "publishNameAlreadyInUse": "Il percorso è già in uso, provane un altro",
+        "namespaceContainsInvalidCharacters": "Il namespace contiene caratteri non validi, provane un altro",
+        "publishPermissionDenied": "Solo il proprietario dell'area di lavoro o l'editore della pagina può gestire le impostazioni di pubblicazione",
+        "publishNameCannotBeEmpty": "Il percorso non può essere vuoto, provane un altro"
+      },
+      "success": {
+        "namespaceUpdated": "Namespace aggiornato correttamente",
+        "setHomepageSuccess": "La homepage è stata impostata correttamente",
+        "updatePathNameSuccess": "Percorso aggiornato correttamente",
+        "removeHomePageSuccess": "Homepage rimossa con successo"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "Account e app",
+      "title": "Il mio account",
+      "general": {
+        "title": "Nome dell'account e immagine del profilo",
+        "changeProfilePicture": "Cambia l'immagine del profilo"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Cambia l'email"
+        }
+      },
+      "login": {
+        "title": "Accedi all'account",
+        "loginLabel": "Login",
+        "logoutLabel": "Disconnettiti"
+      },
+      "isUpToDate": "@:appName è aggiornato!",
+      "officialVersion": "Versione {versione} (官方構建)"
+    },
+    "workspacePage": {
+      "menuLabel": "Area di lavoro",
+      "title": "Area di lavoro",
+      "description": "Personalizza l'aspetto, il tema, il carattere, il layout del testo, il formato data/ora e la lingua del tuo spazio di lavoro.",
+      "workspaceName": {
+        "title": "Nome dell'area di lavoro"
+      },
+      "workspaceIcon": {
+        "title": "Icona dell'area di lavoro",
+        "description": "Carica un'immagine o usa un'emoji per il tuo spazio di lavoro. L'icona verrà visualizzata nella barra laterale e nelle notifiche."
+      },
+      "appearance": {
+        "title": "Aspetto",
+        "description": "Personalizza l'aspetto, il tema, il carattere, il layout del testo, la data, l'ora e la lingua del tuo spazio di lavoro.",
+        "options": {
+          "system": "Automatico",
+          "light": "Chiaro",
+          "dark": "Scuro"
+        }
+      },
+      "resetCursorColor": {
+        "title": "Reimposta il colore del cursore del documento",
+        "description": "Vuoi davvero reimpostare il colore del cursore?"
+      },
+      "resetSelectionColor": {
+        "title": "Reimposta il colore di selezione del documento",
+        "description": "Vuoi davvero reimpostare il colore di selezione?"
+      },
+      "resetWidth": {
+        "resetSuccess": "Reimposta correttamente la larghezza del documento"
+      },
+      "theme": {
+        "title": "Tema",
+        "description": "Seleziona un tema preimpostato o carica il tuo tema personalizzato.",
+        "uploadCustomThemeTooltip": "Carica un tema personalizzato",
+        "failedToLoadThemes": "Impossibile caricare i temi, controlla le impostazioni dei permessi in Impostazioni di sistema -> Privacy e sicurezza -> File e cartelle -> @:appName"
+      },
+      "workspaceFont": {
+        "title": "Carattere dell'area di lavoro",
+        "noFontHint": "Nessun font trovato, prova un altro termine."
       }
     },
     "menu": {
