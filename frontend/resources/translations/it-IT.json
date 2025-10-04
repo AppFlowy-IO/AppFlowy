@@ -170,7 +170,13 @@
     "publishOnAppFlowy": "Pubblica su AppFlowy",
     "shareTabTitle": "Invita a collaborare",
     "shareTabDescription": "Per una facile collaborazione con chiunque",
-    "copyLinkSuccess": "Collegamento copiato negli appunti"
+    "copyLinkSuccess": "Collegamento copiato negli appunti",
+    "copyShareLink": "Copia il link di condivisione",
+    "copyLinkFailed": "Impossibile copiare il collegamento negli appunti",
+    "copyLinkToBlockSuccess": "Collegamento al blocco copiato negli appunti",
+    "copyLinkToBlockFailed": "Impossibile copiare il collegamento del blocco negli appunti",
+    "manageAllSites": "Gestisci tutti i siti",
+    "updatePathName": "Aggiorna il nome del percorso"
   },
   "moreAction": {
     "small": "piccolo",
@@ -183,14 +189,30 @@
     "charCount": "Numero di caratteri: {}",
     "createdAt": "Creata: {}",
     "deleteView": "Cancella",
-    "duplicateView": "Duplica"
+    "duplicateView": "Duplica",
+    "wordCountLabel": "Numero di parole: ",
+    "charCountLabel": "Numero di caratteri: ",
+    "createdAtLabel": "Creato: ",
+    "syncedAtLabel": "Sincronizzato: ",
+    "saveAsNewPage": "Aggiungi messaggi alla pagina",
+    "saveAsNewPageDisabled": "Nessun messaggio disponibile"
   },
   "importPanel": {
     "textAndMarkdown": "Testo e markdown",
     "documentFromV010": "Documento dalla v0.1.0",
     "databaseFromV010": "Database dalla v0.1.0",
+    "notionZip": "File zip esportato da Notion",
     "csv": "CSV",
     "database": "Banca dati"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Trascina e rilascia un file, fai clic per ",
+      "placeholderUpload": "Carica",
+      "placeholderRight": "oppure incolla il collegamento di un'immagine.",
+      "dropToUpload": "Trascina un file per caricarlo",
+      "change": "Modifica"
+    }
   },
   "disclosureAction": {
     "rename": "Rinomina",
@@ -203,7 +225,10 @@
     "addToFavorites": "Aggiungi ai preferiti",
     "copyLink": "Copia link",
     "changeIcon": "Cambia icona",
-    "collapseAllPages": "Comprimi le sottopagine"
+    "collapseAllPages": "Comprimi le sottopagine",
+    "movePageTo": "Sposta la pagina in",
+    "move": "Sposta",
+    "lockPage": "Blocca la pagina"
   },
   "blankPageTitle": "Pagina vuota",
   "newPageText": "Nuova pagina",
@@ -219,12 +244,15 @@
     "relatedQuestion": "Correlato",
     "serverUnavailable": "Servizio temporaneamente non disponibile. Per favore, riprova più tardi.",
     "aiServerUnavailable": "🌈 Uh-oh! 🌈. Un unicorno ha mangiato la nostra risposta. Per favore, riprova!",
+    "retry": "Riprova",
     "clickToRetry": "Clicca per riprovare",
     "regenerateAnswer": "Rigenera",
     "question1": "Come usare Kanban per organizzare le attività",
     "question2": "Spiega il metodo GTD",
     "question3": "Perché usare Rust",
     "question4": "Ricetta con cos'è presente nella mia cucina",
+    "question5": "Crea un'illustrazione per la mia pagina",
+    "question6": "Stila una lista di cose da fare per la mia prossima settimana",
     "aiMistakePrompt": "Le IA possono fare errori. Controlla le informazioni importanti.",
     "chatWithFilePrompt": "Vuoi chattare col file?",
     "indexFileSuccess": "Indicizzazione file completata con successo",
@@ -237,7 +265,19 @@
     "clickToMention": "Clicca per menzionare una pagina",
     "uploadFile": "Carica file PDF, MD o TXT con la quale chattare",
     "questionDetail": "Salve {}! Come posso aiutarti oggi?",
-    "indexingFile": "Indicizzazione {}"
+    "indexingFile": "Indicizzazione {}",
+    "generatingResponse": "Sto generando una risposta",
+    "selectSources": "Seleziona fonti",
+    "currentPage": "Pagina corrente",
+    "sourcesLimitReached": "È possibile selezionare solo fino a 3 documenti di livello superiore e i relativi figli",
+    "sourceUnsupported": "Al momento non supportiamo la chat con i database",
+    "regenerate": "Riprova",
+    "addToPageButton": "Aggiungi messaggio alla pagina",
+    "addToPageTitle": "Aggiungi messaggio a...",
+    "addToNewPage": "Crea una nuova pagina",
+    "addToNewPageName": "Messaggi estratti da \"{}\"",
+    "addToNewPageSuccessToast": "Messaggio aggiunto a",
+    "openPagePreviewFailedToast": "Impossibile aprire la pagina"
   },
   "trash": {
     "text": "Cestino",
