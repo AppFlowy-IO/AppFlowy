@@ -958,8 +958,210 @@
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "AI sul dispositivo per Mac",
         "memberProToggle": "Più membri e accesso illimitato all'IA e agli ospiti",
-        "aiMaxToggle": "Intelligenza artificiale illimitata e accesso a modelli avanzati"
+        "aiMaxToggle": "Intelligenza artificiale illimitata e accesso a modelli avanzati",
+        "aiOnDeviceToggle": "Intelligenza artificiale locale per la massima privacy",
+        "aiCredit": {
+          "title": "Aggiungi credito AI @:appName",
+          "price": "{}",
+          "priceDescription": "per 1.000 crediti",
+          "purchase": "Acquista AI",
+          "info": "Aggiungi 1.000 crediti AI per area di lavoro e integra perfettamente l'AI personalizzabile nel tuo flusso di lavoro per risultati più intelligenti e rapidi con un massimo di:",
+          "infoItemOne": "10.000 risposte per database",
+          "infoItemTwo": "1.000 risposte per spazio di lavoro"
+        },
+        "currentPlan": {
+          "bannerLabel": "Piano attuale",
+          "freeTitle": "Gratuito",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfetto per singoli fino a 2 membri per organizzare tutto",
+          "proInfo": "Perfetto per team piccoli e medi fino a 10 membri.",
+          "teamInfo": "Perfetto per tutti i team produttivi e ben organizzati.",
+          "upgrade": "Cambia piano",
+          "canceledInfo": "Il tuo piano è stato annullato e il {} passerà al piano gratuito."
+        },
+        "addons": {
+          "title": "Componenti aggiuntivi",
+          "addLabel": "Aggiungi",
+          "activeLabel": "Aggiunto",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Risposte AI illimitate basate su modelli AI avanzati e 50 immagini AI al mese",
+            "price": "{}",
+            "priceInfo": "Per utente, al mese, fatturato annualmente"
+          },
+          "aiOnDevice": {
+            "title": "AI sul dispositivo per Mac",
+            "description": "Esegui Mistral 7B, LLAMA 3 e altri modelli locali sul tuo computer",
+            "price": "{}",
+            "priceInfo": "Per utente al mese fatturato annualmente",
+            "recommend": "Si consiglia M1 o più recente"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Offerta per il nuovo anno!",
+          "title": "Fai crescere il tuo team!",
+          "info": "Esegui l'upgrade e risparmia il 10% sui piani Pro e Team! Aumenta la produttività del tuo spazio di lavoro con nuove potenti funzionalità, tra cui l'intelligenza artificiale @:appName .",
+          "viewPlans": "Visualizza i piani"
+        }
       }
+    },
+    "billingPage": {
+      "menuLabel": "Fatturazione",
+      "title": "Fatturazione",
+      "plan": {
+        "title": "Piano",
+        "freeLabel": "Gratuito",
+        "proLabel": "Pro",
+        "planButtonLabel": "Cambia piano",
+        "billingPeriod": "Periodo di fatturazione",
+        "periodButtonLabel": "Periodo di modifica"
+      },
+      "paymentDetails": {
+        "title": "Dettagli di pagamento",
+        "methodLabel": "Metodo di pagamento",
+        "methodButtonLabel": "Modifica il metodo"
+      },
+      "addons": {
+        "title": "Componenti aggiuntivi",
+        "addLabel": "Aggiungi",
+        "removeLabel": "Rimuovi",
+        "renewLabel": "Rinnova",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Sblocca IA illimitata e modelli avanzati",
+          "activeDescription": "Prossima fattura in scadenza il {}",
+          "canceledDescription": "AI Max sarà disponibile fino al {}"
+        },
+        "aiOnDevice": {
+          "label": "AI sul dispositivo per Mac",
+          "description": "Sblocca l'intelligenza artificiale illimitata sul tuo dispositivo",
+          "activeDescription": "Prossima fattura in scadenza il {}",
+          "canceledDescription": "AI On-device per Mac sarà disponibile fino al {}"
+        },
+        "removeDialog": {
+          "title": "Rimuovi {}",
+          "description": "Vuoi davvero rimuovere {plan}? Perderai immediatamente l'accesso alle funzionalità e ai vantaggi di {plan}."
+        }
+      },
+      "currentPeriodBadge": "ATTUALE",
+      "changePeriod": "Modifica il periodo",
+      "planPeriod": "{} periodo",
+      "monthlyInterval": "Mensile",
+      "monthlyPriceInfo": "per posto fatturato mensilmente",
+      "annualInterval": "Annualmente",
+      "annualPriceInfo": "per posto fatturato annualmente"
+    },
+    "comparePlanDialog": {
+      "title": "Confronta e seleziona il piano",
+      "planFeatures": "Piano\nCaratteristiche",
+      "current": "Attuale",
+      "actions": {
+        "upgrade": "Aggiorna",
+        "downgrade": "Downgrade",
+        "current": "Attuale"
+      },
+      "freePlan": {
+        "title": "Gratuito",
+        "description": "Per singoli fino a 2 membri per organizzare tutto",
+        "price": "{}",
+        "priceInfo": "Gratuito per sempre"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "Per piccoli team per gestire progetti e conoscenze di squadra",
+        "price": "{}",
+        "priceInfo": "Per utente al mese\nfatturato annualmente<inlang-LineFeed>\n{} fatturato mensilmente"
+      },
+      "planLabels": {
+        "itemOne": "Spazi di lavoro",
+        "itemTwo": "Membri",
+        "itemThree": "Archiviazione",
+        "itemFour": "Collaborazione in tempo reale",
+        "itemFive": "Editor ospiti",
+        "itemSix": "Risposte AI",
+        "itemSeven": "Immagini AI",
+        "itemFileUpload": "Caricamento di file",
+        "customNamespace": "Namespace personalizzato",
+        "tooltipFive": "Collaborare su pagine specifiche con i non membri",
+        "tooltipSix": "Per sempre significa che il numero di risposte non viene mai azzerato",
+        "intelligentSearch": "Ricerca intelligente",
+        "tooltipSeven": "Ti consente di personalizzare parte dell'URL per il tuo spazio di lavoro",
+        "customNamespaceTooltip": "URL del sito pubblicato personalizzato"
+      },
+      "freeLabels": {
+        "itemOne": "Addebitato per spazio di lavoro",
+        "itemTwo": "Fino a 2",
+        "itemThree": "5 GB",
+        "itemFour": "si",
+        "itemFive": "si",
+        "itemSix": "10 a vita",
+        "itemSeven": "2 a vita",
+        "itemFileUpload": "Fino a 7 MB",
+        "intelligentSearch": "Ricerca intelligente"
+      },
+      "proLabels": {
+        "itemOne": "Addebitato per spazio di lavoro",
+        "itemTwo": "Fino a 10",
+        "itemThree": "Illimitato",
+        "itemFour": "si",
+        "itemFive": "Fino a 100",
+        "itemSix": "Illimitato",
+        "itemSeven": "50 immagini al mese",
+        "itemFileUpload": "Illimitato",
+        "intelligentSearch": "Ricerca intelligente"
+      },
+      "paymentSuccess": {
+        "title": "Ora sei sul piano {}!",
+        "description": "Il tuo pagamento è stato elaborato con successo e il tuo piano è stato aggiornato a @:appName {}. Puoi visualizzare i dettagli del tuo piano nella pagina Piano"
+      },
+      "downgradeDialog": {
+        "title": "Sei sicuro di voler effettuare il downgrade del tuo piano?",
+        "description": "Effettuando il downgrade del tuo piano tornerai al piano gratuito. Gli utenti potrebbero perdere l'accesso a questo spazio di lavoro e potresti dover liberare spazio per rispettare i limiti di archiviazione del piano gratuito.",
+        "downgradeLabel": "Effettua il downgrade del piano"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Ci dispiace vederti andare",
+      "description": "Ci dispiace vederti andare via. Ci piacerebbe ricevere il tuo feedback per aiutarci a migliorare @:appName . Ti preghiamo di dedicare un momento per rispondere ad alcune domande.",
+      "commonOther": "Altro",
+      "otherHint": "Scrivi qui la tua risposta",
+      "questionOne": {
+        "question": "Cosa ti ha spinto ad annullare il tuo abbonamento Pro @:appName ?",
+        "answerOne": "Costo troppo alto",
+        "answerTwo": "Le caratteristiche non hanno soddisfatto le aspettative",
+        "answerThree": "Ho trovato un'alternativa migliore",
+        "answerFour": "Non l'ho usato abbastanza per giustificare la spesa",
+        "answerFive": "Problema di servizio o difficoltà tecniche"
+      },
+      "questionTwo": {
+        "question": "Quanto è probabile che in futuro prenderai in considerazione l'idea di riabbonarti a @:appName Pro?",
+        "answerOne": "Molto probabile",
+        "answerTwo": "Abbastanza probabile",
+        "answerThree": "Non so",
+        "answerFour": "Improbabile",
+        "answerFive": "Molto improbabile"
+      },
+      "questionThree": {
+        "question": "Quale funzionalità Pro hai apprezzato di più durante il tuo abbonamento?",
+        "answerOne": "Collaborazione multiutente",
+        "answerTwo": "Cronologia delle versioni più lunghe",
+        "answerThree": "Risposte AI illimitate",
+        "answerFour": "Accesso ai modelli di intelligenza artificiale locali"
+      },
+      "questionFour": {
+        "question": "Come descriveresti la tua esperienza complessiva con @:appName ?",
+        "answerOne": "Eccezionale",
+        "answerTwo": "Buona",
+        "answerThree": "Nella media",
+        "answerFour": "Sotto la media",
+        "answerFive": "Insoddisfatto"
+      }
+    },
+    "common": {
+      "uploadingFile": "Il file è in fase di caricamento. Non uscire dall'app.",
+      "uploadNotionSuccess": "Il tuo file zip Notion è stato caricato correttamente. Una volta completata l'importazione, riceverai un'email di conferma.",
+      "reset": "Reset"
     },
     "menu": {
       "appearance": "Aspetto",
