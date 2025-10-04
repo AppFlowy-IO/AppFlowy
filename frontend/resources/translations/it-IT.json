@@ -683,6 +683,123 @@
       "workspaceFont": {
         "title": "Carattere dell'area di lavoro",
         "noFontHint": "Nessun font trovato, prova un altro termine."
+      },
+      "textDirection": {
+        "title": "Direzione del testo",
+        "leftToRight": "Da sinistra a destra",
+        "rightToLeft": "Da destra a sinistra",
+        "auto": "Auto",
+        "enableRTLItems": "Abilita gli elementi della barra degli strumenti RTL"
+      },
+      "layoutDirection": {
+        "title": "Direzione del layout",
+        "leftToRight": "Da sinistra a destra",
+        "rightToLeft": "Da destra a sinistra"
+      },
+      "dateTime": {
+        "title": "Data e ora",
+        "example": "{} alle {} ({})",
+        "24HourTime": "formato 24 ore",
+        "dateFormat": {
+          "label": "Formato data",
+          "local": "Locale",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Amichevole",
+          "dmy": "G/M/A"
+        }
+      },
+      "language": {
+        "title": "Lingua"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Elimina area di lavoro",
+        "content": "Vuoi davvero eliminare questo spazio di lavoro? Questa azione non può essere annullata e tutte le pagine che hai pubblicato verranno rimosse dalla pubblicazione."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Lascia l'area di lavoro",
+        "content": "Vuoi davvero uscire da questa area di lavoro? Perderai l'accesso a tutte le pagine e ai dati in essa contenuti.",
+        "success": "Hai abbandonato l'area di lavoro con successo.",
+        "fail": "Impossibile uscire dall'area di lavoro."
+      },
+      "manageWorkspace": {
+        "title": "Gestisci l'area di lavoro",
+        "leaveWorkspace": "Lascia l'area di lavoro",
+        "deleteWorkspace": "Elimina area di lavoro"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Gestisci i dati",
+      "title": "Gestisci i dati",
+      "description": "Gestisci l'archiviazione locale dei dati o importa i tuoi dati esistenti in @:appName .",
+      "dataStorage": {
+        "title": "Posizione di archiviazione dei file",
+        "tooltip": "La posizione in cui sono archiviati i tuoi file",
+        "actions": {
+          "change": "Cambia percorso",
+          "open": "Apri cartella",
+          "openTooltip": "Apri la posizione della cartella dati corrente",
+          "copy": "Copia percorso",
+          "copiedHint": "Percorso copiato!",
+          "resetTooltip": "Ripristina la posizione predefinita"
+        },
+        "resetDialog": {
+          "title": "Sei sicuro?",
+          "description": "Reimpostare il percorso alla posizione predefinita dei dati non eliminerà i dati. Se desideri reimportare i dati correnti, devi prima copiare il percorso della posizione corrente."
+        }
+      },
+      "importData": {
+        "title": "Importa dati",
+        "tooltip": "Importa dati da cartelle di backup/dati @:appName",
+        "description": "Copia i dati da una cartella dati esterna @:appName",
+        "action": "Sfoglia file"
+      },
+      "encryption": {
+        "title": "Crittografia",
+        "tooltip": "Gestisci il modo in cui i tuoi dati vengono archiviati e crittografati",
+        "descriptionNoEncryption": "L'attivazione della crittografia crittograferà tutti i dati. Questa operazione non può essere annullata.",
+        "descriptionEncrypted": "I tuoi dati sono crittografati.",
+        "action": "Crittografare i dati",
+        "dialog": {
+          "title": "Vuoi crittografare tutti i tuoi dati?",
+          "description": "La crittografia di tutti i tuoi dati li manterrà al sicuro e protetti. Questa azione NON può essere annullata. Vuoi continuare?"
+        }
+      },
+      "cache": {
+        "title": "Cancella cache",
+        "description": "Aiuta a risolvere problemi come il mancato caricamento delle immagini, pagine mancanti in uno spazio e caratteri non caricati. Questo non influirà sui tuoi dati.",
+        "dialog": {
+          "title": "Cancella cache",
+          "description": "Aiuta a risolvere problemi come il mancato caricamento delle immagini, pagine mancanti in uno spazio e caratteri non caricati. Questo non influirà sui tuoi dati.",
+          "successHint": "Cache svuotata!"
+        }
+      },
+      "data": {
+        "fixYourData": "Correggi i tuoi dati",
+        "fixButton": "Correggi",
+        "fixYourDataDescription": "Se riscontri problemi con i tuoi dati, puoi provare a risolverli qui."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Scorciatoie",
+      "title": "Scorciatoie",
+      "editBindingHint": "Inserisci nuova associazione",
+      "searchHint": "Ricerca",
+      "actions": {
+        "resetDefault": "Ripristina predefinito"
+      },
+      "errorPage": {
+        "message": "Impossibile caricare i collegamenti: {}",
+        "howToFix": "Riprova. Se il problema persiste, contattaci su GitHub."
+      },
+      "resetDialog": {
+        "title": "Reimposta le scorciatoie",
+        "description": "Questa operazione ripristinerà tutte le combinazioni di tasti predefinite; non sarà possibile annullare questa operazione in seguito. Vuoi procedere?",
+        "buttonLabel": "Ripristina"
+      },
+      "conflictDialog": {
+        "title": "{} è attualmente in uso",
+        "descriptionPrefix": "Questa combinazione di tasti è attualmente utilizzata da "
       }
     },
     "menu": {
