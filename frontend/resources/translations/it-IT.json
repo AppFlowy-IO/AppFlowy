@@ -277,11 +277,42 @@
     "addToNewPage": "Crea una nuova pagina",
     "addToNewPageName": "Messaggi estratti da \"{}\"",
     "addToNewPageSuccessToast": "Messaggio aggiunto a",
-    "openPagePreviewFailedToast": "Impossibile aprire la pagina"
+    "openPagePreviewFailedToast": "Impossibile aprire la pagina",
+    "changeFormat": {
+      "actionButton": "Cambia formato",
+      "confirmButton": "Rigenera con questo formato",
+      "textOnly": "Testo",
+      "imageOnly": "Solo immagine",
+      "textAndImage": "Testo e immagine",
+      "text": "Paragrafo",
+      "bullet": "Elenco puntato",
+      "number": "Elenco numerato",
+      "table": "Tavolo",
+      "blankDescription": "Formato risposta",
+      "defaultDescription": "Formato di risposta automatica",
+      "textWithImageDescription": "@:chat .changeFormat.text con immagine",
+      "numberWithImageDescription": "@:chat .changeFormat.number con immagine",
+      "bulletWithImageDescription": "@:chat .changeFormat.bullet con immagine",
+      "tableWithImageDescription": "@:chat .changeFormat.table con immagine"
+    },
+    "switchModel": {
+      "label": "Cambia modello",
+      "localModel": "Modello locale",
+      "cloudModel": "Modello in cloud",
+      "autoModel": "Automatico"
+    },
+    "selectBanner": {
+      "saveButton": "Aggiungi a …",
+      "selectMessages": "Seleziona i messaggi",
+      "nSelected": "{} selezionati",
+      "allSelected": "Tutti selezionati"
+    },
+    "stopTooltip": "Smetti di generare"
   },
   "trash": {
     "text": "Cestino",
     "restoreAll": "Ripristina Tutto",
+    "restore": "Ripristina",
     "deleteAll": "Elimina Tutto",
     "pageHeader": {
       "fileName": "Nome file",
@@ -296,6 +327,10 @@
       "title": "Sei sicuro di ripristinare tutte le pagine nel Cestino?",
       "caption": "Questa azione non può essere annullata."
     },
+    "restorePage": {
+      "title": "Ripristina: {}",
+      "caption": "Sei sicuro di voler ripristinare questa pagina?"
+    },
     "mobile": {
       "actions": "Azioni del cestino",
       "empty": "Il cestino è vuoto",
@@ -308,12 +343,15 @@
   "deletePagePrompt": {
     "text": "Questa pagina è nel Cestino",
     "restore": "Ripristina pagina",
-    "deletePermanent": "Elimina definitivamente"
+    "deletePermanent": "Elimina definitivamente",
+    "deletePermanentDescription": "Vuoi davvero eliminare definitivamente questa pagina? L'operazione è irreversibile."
   },
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
     "shortcuts": "Scorciatoie",
     "whatsNew": "Cosa c'è di nuovo?",
+    "helpAndDocumentation": "Aiuto e documentazione",
+    "getSupport": "Ottieni supporto",
     "markdown": "Markdown",
     "debug": {
       "name": "Informazioni di debug",
@@ -327,7 +365,8 @@
     "moreButtonToolTip": "Rimuovi, rinomina e altro...",
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
     "defaultNewPageName": "Senza titolo",
-    "renameDialog": "Rinomina"
+    "renameDialog": "Rinomina",
+    "pageNameSuffix": "Copia"
   },
   "noPagesInside": "Nessuna pagina all'interno",
   "toolbar": {
@@ -363,8 +402,10 @@
   "sideBar": {
     "closeSidebar": "Close sidebar",
     "openSidebar": "Open sidebar",
+    "expandSidebar": "Espandi a pagina intera",
     "personal": "Personale",
     "private": "Privato",
+    "workspace": "Area di lavoro",
     "favorites": "Preferiti",
     "clickToHidePrivate": "Clicca per nascondere l'area privata\nLe pagine create qui sono visibili solo a te",
     "clickToHideWorkspace": "Clicca per nascondere la workspace\nLe pagine che crei qui sono visibili a ogni membro",
@@ -377,6 +418,7 @@
     "today": "Oggi",
     "thisWeek": "Questa settimana",
     "others": "Preferiti precedenti",
+    "earlier": "Prima",
     "justNow": "poco fa",
     "minutesAgo": "{count} minuti fa",
     "lastViewed": "Visto per ultimo",
@@ -393,8 +435,12 @@
     "upgradeToPro": "Aggiorna a Pro",
     "upgradeToAIMax": "Sblocca AI illimitata",
     "storageLimitDialogTitle": "Hai esaurito lo spazio d'archiviazione gratuito. Aggiorna per avere spazio d'archiviazione illimitato!",
+    "storageLimitDialogTitleIOS": "Hai esaurito lo spazio di archiviazione gratuito.",
     "aiResponseLimitTitle": "Hai esaurito le risposte AI gratuite. Aggiorna al Piano Pro per acquistare un add-on AI per avere risposte illimitate",
-    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto"
+    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto",
+    "aiResponseLimit": "Hai esaurito le risposte AI gratuite.<inlang-LineFeed>\nVai su Impostazioni -> Piano -> Fai clic su AI Max o Pro Plan per ottenere più risposte AI",
+    "askOwnerToUpgradeToPro": "Lo spazio di archiviazione gratuito del tuo spazio di lavoro sta esaurendo. Chiedi al proprietario del tuo spazio di lavoro di passare al piano Pro.",
+    "askOwnerToUpgradeToProIOS": "Lo spazio di archiviazione gratuito nel tuo spazio di lavoro sta esaurendo."
   },
   "notifications": {
     "export": {
