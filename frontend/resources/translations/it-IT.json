@@ -550,6 +550,54 @@
   },
   "settings": {
     "title": "Impostazioni",
+    "popupMenuItem": {
+      "settings": "Impostazioni",
+      "members": "Membri",
+      "trash": "Spazzatura",
+      "helpAndDocumentation": "Aiuto e documentazione",
+      "getSupport": "Ottieni supporto"
+    },
+    "sites": {
+      "title": "Siti",
+      "namespaceTitle": "Namespace",
+      "namespaceDescription": "Gestisci il tuo namespace e la tua homepage",
+      "namespaceHeader": "Namespace",
+      "homepageHeader": "Homepage",
+      "updateNamespace": "Aggiorna il namespace",
+      "removeHomepage": "Rimuovi la homepage",
+      "selectHomePage": "Seleziona una pagina",
+      "clearHomePage": "Cancella la homepage per questo namespace",
+      "customUrl": "URL personalizzato",
+      "homePage": {
+        "upgradeToPro": "Passa al piano Pro per impostare una homepage"
+      },
+      "namespace": {
+        "description": "Questa modifica verrà applicata a tutte le pagine pubblicate in questo namespace",
+        "tooltip": "Ci riserviamo il diritto di rimuovere qualsiasi namespace inappropriato",
+        "updateExistingNamespace": "Aggiorna il namexpace esistente",
+        "upgradeToPro": "Passa al piano Pro per richiedere uno spazio dei nomi personalizzato",
+        "redirectToPayment": "Reindirizzamento alla pagina di pagamento...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Solo il proprietario dell'area di lavoro può impostare una homepage",
+        "pleaseAskOwnerToSetHomePage": "Chiedi al proprietario dell'area di lavoro di passare al piano Pro"
+      },
+      "publishedPage": {
+        "title": "Tutte le pagine pubblicate",
+        "description": "Gestisci le tue pagine pubblicate",
+        "page": "Pagina",
+        "pathName": "Nome del percorso",
+        "date": "Data di pubblicazione",
+        "emptyHinText": "Non hai pagine pubblicate in questo spazio di lavoro",
+        "noPublishedPages": "Nessuna pagina pubblicata",
+        "settings": "Impostazioni di pubblicazione",
+        "clickToOpenPageInApp": "Apri la pagina nell'app",
+        "clickToOpenPageInBrowser": "Apri la pagina nel browser"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Impossibile generare il collegamento di pagamento per il piano Pro",
+        "failedToUpdateNamespace": "Impossibile aggiornare il namespace",
+        "proPlanLimitation": "È necessario eseguire l'aggiornamento al piano Pro per aggiornare lo spazio dei nomi"
+      }
+    },
     "menu": {
       "appearance": "Aspetto",
       "language": "Lingua",
