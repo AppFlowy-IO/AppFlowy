@@ -153,23 +153,32 @@ class _ResetButton extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
-        child: Padding(
+        resetHoverOnRebuild: false,
+        style: HoverStyle(
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+        ),
+        builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
             horizontal: 6,
           ),
           child: Row(
             children: [
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.restore_s,
-                size: Size.square(20),
+                size: const Size.square(20),
+                color: isHovering
+                    ? Theme.of(context).iconTheme.color
+                    : AFThemeExtension.of(context).onBackground,
               ),
               const HSpace(6),
               SizedBox(
                 height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  color: isHovering
+                      ? AFThemeExtension.of(context).strongText
+                      : AFThemeExtension.of(context).onBackground,
                 ),
               ),
             ],
