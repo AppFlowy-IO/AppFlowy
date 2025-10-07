@@ -334,10 +334,10 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const HSpace(8),
               Expanded(
-                flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: FlowyText.regular(
@@ -349,12 +349,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
-                flex: 2, // more space for the keybindings (better than 50/50) as mentioned.
-                child: isEditing
-                    ? _renderKeybindEditor()
-                    : _renderKeybindings(isHovering),
-              ),
+              isEditing
+                  ? _renderKeybindEditor()
+                  : _renderKeybindings(isHovering),
             ],
           ),
         ),
@@ -363,6 +360,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   }
 
   Widget _renderKeybindings(bool isHovering) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
@@ -371,8 +369,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           ] else ...[
             const SizedBox(height: 24),
           ],
-          const Spacer(),
-          if (isHovering)
+          if (isHovering) ...[
+            const HSpace(8),
             GestureDetector(
               onTap: () {
                 if (widget.canStartEditing()) {
@@ -393,7 +391,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                 ),
               ),
             ),
-          const HSpace(8),
+          ],
         ],
       );
 
