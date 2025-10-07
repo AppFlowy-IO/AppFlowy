@@ -328,7 +328,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
             children: [
               const HSpace(8),
               Expanded(
-                flex: 3, // Give more space to the label
+                flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: FlowyText.regular(
@@ -341,7 +341,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                 ),
               ),
               Expanded(
-                flex: 2, // Give less space to keybindings (better than 50/50)
+                flex: 2, // more space for the keybindings (better than 50/50) as mentioned.
                 child: isEditing
                     ? _renderKeybindEditor()
                     : _renderKeybindings(isHovering),
