@@ -14,18 +14,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
-
 class MathEquationBlockKeys {
   const MathEquationBlockKeys._();
-
   static const String type = 'math_equation';
-
   /// The content of a math equation block.
   ///
   /// The value is a String.
   static const String formula = 'formula';
 }
-
 Node mathEquationNode({
   String formula = '',
 }) {
@@ -37,7 +33,6 @@ Node mathEquationNode({
     attributes: attributes,
   );
 }
-
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_mathEquation_name.tr,
@@ -61,12 +56,10 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
     return null;
   },
 );
-
 class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
   MathEquationBlockComponentBuilder({
     super.configuration,
   });
-
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
@@ -85,13 +78,11 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
       ),
     );
   }
-
   @override
   BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
       node.attributes[MathEquationBlockKeys.formula] is String;
 }
-
 class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
   const MathEquationBlockComponentWidget({
     super.key,
@@ -101,35 +92,27 @@ class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
     super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
-
   @override
   State<MathEquationBlockComponentWidget> createState() =>
       MathEquationBlockComponentWidgetState();
 }
-
 class MathEquationBlockComponentWidgetState
     extends State<MathEquationBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
-
   @override
   Node get node => widget.node;
-
   String get formula =>
       widget.node.attributes[MathEquationBlockKeys.formula] as String;
-
   late final editorState = context.read<EditorState>();
   final ValueNotifier<bool> isHover = ValueNotifier(false);
-
   late final controller = TextEditingController(text: formula);
-
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -139,8 +122,40 @@ class MathEquationBlockComponentWidgetState
     );
   }
 
+  String safeLatex(String raw) {
+		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
+			final lines = raw.split(r'\\');
+			final processedLines = lines.map((line) {
+			final trimmed = line.trim();
+		return trimmed.isEmpty ? '' : '& $trimmed'; 
+		}).toList();
+
+		return r'\begin{aligned}' + 
+           processedLines.join(r' \\') + 
+           r'\end{aligned}';
+		}
+		return raw;
+	}
+
   Widget _build(BuildContext context) {
     Widget child = Container(
+
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -222,9 +237,10 @@ class MathEquationBlockComponentWidgetState
+  
       constraints: const BoxConstraints(minHeight: 52),
       decoration: BoxDecoration(
         color: formula.isNotEmpty
@@ -157,7 +172,6 @@ class MathEquationBlockComponentWidgetState
             : _buildMathEquation(context),
       ),
     );
-
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: node,
@@ -166,7 +180,6 @@ class MathEquationBlockComponentWidgetState
         child: child,
       );
     }
-
     if (UniversalPlatform.isMobile) {
       child = MobileBlockActionButtons(
         node: node,
@@ -174,12 +187,10 @@ class MathEquationBlockComponentWidgetState
         child: child,
       );
     }
-
     child = Padding(
       padding: padding,
       child: child,
     );
-
     if (UniversalPlatform.isDesktopOrWeb) {
       child = Stack(
         children: [
@@ -196,10 +207,8 @@ class MathEquationBlockComponentWidgetState
         ],
       );
     }
-
     return child;
   }
-
   Widget _buildPlaceholderWidget(BuildContext context) {
     return SizedBox(
       height: 52,
@@ -222,14 +231,25 @@ class MathEquationBlockComponentWidgetState
   }
 
   Widget _buildMathEquation(BuildContext context) {
+
     return Center(
       child: Math.tex(
-        formula,
+        safeLatex(formula),
         textStyle: const TextStyle(fontSize: 20),
       ),
     );
-  }
 
+    
+          
+            
+    
+
+          
+          Expand Down
+    
+    
+  
+  }
   Widget _buildDeleteButton(BuildContext context) {
     return MenuBlockButton(
       tooltip: LocaleKeys.button_delete.tr(),
@@ -240,7 +260,6 @@ class MathEquationBlockComponentWidgetState
       },
     );
   }
-
   void showEditingDialog() {
     showDialog(
       context: context,
@@ -290,7 +309,6 @@ class MathEquationBlockComponentWidgetState
       },
     );
   }
-
   void updateMathEquation(String mathEquation, BuildContext context) {
     if (mathEquation == formula) {
       dismiss(context);
@@ -306,7 +324,6 @@ class MathEquationBlockComponentWidgetState
     editorState.apply(transaction);
     dismiss(context);
   }
-
   void dismiss(BuildContext context) {
     Navigator.of(context).pop();
   }
