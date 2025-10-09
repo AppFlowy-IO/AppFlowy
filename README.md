@@ -155,3 +155,7 @@ Special thanks to these amazing projects which help power AppFlowy:
 - [cargo-make](https://github.com/sagiegurari/cargo-make)
 - [contrib.rocks](https://contrib.rocks)
 - [flutter_chat_ui](https://pub.dev/packages/flutter_chat_ui)
+
+
+
+> ✅ This project is being improved as part of a GitHub Pull Request demo.
