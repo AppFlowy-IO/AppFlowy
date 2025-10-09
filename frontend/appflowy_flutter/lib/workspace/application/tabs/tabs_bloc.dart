@@ -28,6 +28,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
 
   late final MenuSharedState menuSharedState;
 
+  String? _lastOpenedPluginId;
+  DateTime? _lastOpenTime;
+  static const _deduplicationWindow = Duration(milliseconds: 500);
+
   @override
   Future<void> close() {
     state.dispose();
@@ -73,6 +77,19 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
+            final now = DateTime.now();
+
+            // deduplicate. skip if same plugin was just opened
+            if (_lastOpenedPluginId == plugin.id && _lastOpenTime != null) {
+              final timeSinceLastOpen = now.difference(_lastOpenTime!);
+              if (timeSinceLastOpen < _deduplicationWindow) {
+                return;
+              }
+            }
+
+            _lastOpenedPluginId = plugin.id;
+            _lastOpenTime = now;
+
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
