@@ -1,531 +1,362 @@
-import 'dart:async';
-
-import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/shared/af_user_profile_extension.dart';
-import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/members/invitation/member_http_service.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_result/appflowy_result.dart';
-import 'package:collection/collection.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/invitation/invite_member_by_email.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/invitation/invite_member_by_link.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:protobuf/protobuf.dart';
+import 'package:intl/intl.dart';
 
-part 'workspace_member_bloc.freezed.dart';
-
-// 1. get the workspace members
-// 2. display the content based on the user role
-//  Owner:
-//   - invite member button
-//   - delete member button
-//   - member list
-//  Member:
-//  Guest:
-//   - member list
-class WorkspaceMemberBloc
-    extends Bloc<WorkspaceMemberEvent, WorkspaceMemberState> {
-  WorkspaceMemberBloc({
-    required this.userProfile,
-    String? workspaceId,
-    this.workspace,
-  })  : _userBackendService = UserBackendService(userId: userProfile.id),
-        super(WorkspaceMemberState.initial()) {
-    on<WorkspaceMemberEvent>((event, emit) async {
-      await event.when(
-        initial: () async => _onInitial(emit, workspaceId),
-        getWorkspaceMembers: () async => _onGetWorkspaceMembers(emit),
-        addWorkspaceMember: (email) async => _onAddWorkspaceMember(emit, email),
-        inviteWorkspaceMemberByEmail: (email) async =>
-            _onInviteWorkspaceMemberByEmail(emit, email),
-        removeWorkspaceMemberByEmail: (email) async =>
-            _onRemoveWorkspaceMemberByEmail(emit, email),
-        inviteWorkspaceMemberByLink: (link) async =>
-            _onInviteWorkspaceMemberByLink(emit, link),
-        generateInviteLink: () async => _onGenerateInviteLink(emit),
-        updateWorkspaceMember: (email, role) async =>
-            _onUpdateWorkspaceMember(emit, email, role),
-        updateSubscriptionInfo: (info) async =>
-            _onUpdateSubscriptionInfo(emit, info),
-        upgradePlan: () async => _onUpgradePlan(),
-        getInviteCode: () async => _onGetInviteCode(emit),
-        updateInviteLink: (inviteLink) async => emit(
-          state.copyWith(
-            inviteLink: inviteLink,
-          ),
-        ),
-      );
-    });
-  }
-
-  @override
-  Future<void> close() async {
-    _workspaceId.dispose();
-
-    await super.close();
-  }
-
+class WorkspaceMembersPage extends StatelessWidget {
   final UserProfilePB userProfile;
-  final UserWorkspacePB? workspace;
-  final UserBackendService _userBackendService;
+  final String workspaceId;
 
-  final ValueNotifier<String?> _workspaceId = ValueNotifier<String?>(null);
-  MemberHttpService? _memberHttpService;
-
-  Future<void> _onInitial(
-    Emitter<WorkspaceMemberState> emit,
-    String? workspaceId,
-  ) async {
-    _workspaceId.addListener(() {
-      if (!isClosed) {
-        add(const WorkspaceMemberEvent.getInviteCode());
-      }
-    });
-
-    await _setCurrentWorkspaceId(workspaceId);
-
-    final currentWorkspaceId = _workspaceId.value;
-    if (currentWorkspaceId == null) {
-      Log.error('Failed to get workspace members: workspaceId is null');
-      return;
-    }
-
-    final result =
-        await _userBackendService.getWorkspaceMembers(currentWorkspaceId);
-    final members = result.fold<List<WorkspaceMemberPB>>(
-      (s) => s.items,
-      (e) => [],
-    );
-    final myRole = _getMyRole(members);
-
-    if (myRole.isOwner) {
-      unawaited(_fetchWorkspaceSubscriptionInfo());
-    }
-
-    emit(
-      state.copyWith(
-        members: members,
-        myRole: myRole,
-        isLoading: false,
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.get,
-          result: result,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onGetWorkspaceMembers(
-    Emitter<WorkspaceMemberState> emit,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to get workspace members: workspaceId is null');
-      return;
-    }
-
-    final result = await _userBackendService.getWorkspaceMembers(workspaceId);
-    final members = result.fold<List<WorkspaceMemberPB>>(
-      (s) => s.items,
-      (e) => [],
-    );
-    final myRole = _getMyRole(members);
-    emit(
-      state.copyWith(
-        members: members,
-        myRole: myRole,
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.get,
-          result: result,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onAddWorkspaceMember(
-    Emitter<WorkspaceMemberState> emit,
-    String email,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to add workspace member by email: workspaceId is null');
-      return;
-    }
-
-    final result = await _userBackendService.addWorkspaceMember(
-      workspaceId,
-      email,
-    );
-    emit(
-      state.copyWith(
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.addByEmail,
-          result: result,
-        ),
-      ),
-    );
-    // the addWorkspaceMember doesn't return the updated members,
-    //  so we need to get the members again
-    result.onSuccess((s) {
-      add(const WorkspaceMemberEvent.getWorkspaceMembers());
-    });
-  }
-
-  Future<void> _onInviteWorkspaceMemberByEmail(
-    Emitter<WorkspaceMemberState> emit,
-    String email,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error(
-        'Failed to invite workspace member by email: workspaceId is null',
-      );
-      return;
-    }
-
-    final result = await _userBackendService.inviteWorkspaceMember(
-      workspaceId,
-      email,
-      role: AFRolePB.Member,
-    );
-    emit(
-      state.copyWith(
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.inviteByEmail,
-          result: result,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onRemoveWorkspaceMemberByEmail(
-    Emitter<WorkspaceMemberState> emit,
-    String email,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error(
-        'Failed to remove workspace member by email: workspaceId is null',
-      );
-      return;
-    }
-
-    final result = await _userBackendService.removeWorkspaceMember(
-      workspaceId,
-      email,
-    );
-    final members = result.fold(
-      (s) => state.members.where((e) => e.email != email).toList(),
-      (e) => state.members,
-    );
-    emit(
-      state.copyWith(
-        members: members,
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.removeByEmail,
-          result: result,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onInviteWorkspaceMemberByLink(
-    Emitter<WorkspaceMemberState> emit,
-    String link,
-  ) async {}
-
-  Future<void> _onGenerateInviteLink(
-    Emitter<WorkspaceMemberState> emit,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to generate invite link: workspaceId is null');
-      return;
-    }
-
-    final resetInviteLink = state.inviteLink != null;
-
-    final result = await _memberHttpService?.generateInviteCode(
-      workspaceId: workspaceId,
-    );
-
-    await result?.fold(
-      (s) async {
-        final inviteLink = await _buildInviteLink(inviteCode: s);
-        emit(
-          state.copyWith(
-            inviteLink: inviteLink,
-            actionResult: WorkspaceMemberActionResult(
-              actionType: resetInviteLink
-                  ? WorkspaceMemberActionType.resetInviteLink
-                  : WorkspaceMemberActionType.generateInviteLink,
-              result: result,
-            ),
-          ),
-        );
-      },
-      (e) async {
-        Log.error('Failed to generate invite link: ${e.msg}', e);
-        emit(
-          state.copyWith(
-            actionResult: WorkspaceMemberActionResult(
-              actionType: resetInviteLink
-                  ? WorkspaceMemberActionType.resetInviteLink
-                  : WorkspaceMemberActionType.generateInviteLink,
-              result: result,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _onUpdateWorkspaceMember(
-    Emitter<WorkspaceMemberState> emit,
-    String email,
-    AFRolePB role,
-  ) async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to update workspace member: workspaceId is null');
-      return;
-    }
-
-    final result = await _userBackendService.updateWorkspaceMember(
-      workspaceId,
-      email,
-      role,
-    );
-    final members = result.fold(
-      (s) => state.members.map((e) {
-        if (e.email == email) {
-          e.freeze();
-          return e.rebuild((p0) => p0.role = role);
-        }
-        return e;
-      }).toList(),
-      (e) => state.members,
-    );
-    emit(
-      state.copyWith(
-        members: members,
-        actionResult: WorkspaceMemberActionResult(
-          actionType: WorkspaceMemberActionType.updateRole,
-          result: result,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onUpdateSubscriptionInfo(
-    Emitter<WorkspaceMemberState> emit,
-    WorkspaceSubscriptionInfoPB info,
-  ) async {
-    emit(state.copyWith(subscriptionInfo: info));
-  }
-
-  Future<void> _onUpgradePlan() async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to upgrade plan: workspaceId is null');
-      return;
-    }
-
-    final plan = state.subscriptionInfo?.plan;
-    if (plan == null) {
-      return Log.error('Failed to upgrade plan: plan is null');
-    }
-
-    if (plan == WorkspacePlanPB.FreePlan) {
-      final checkoutLink = await _userBackendService.createSubscription(
-        workspaceId,
-        SubscriptionPlanPB.Pro,
-      );
-
-      checkoutLink.fold(
-        (pl) => afLaunchUrlString(pl.paymentLink),
-        (f) => Log.error('Failed to create subscription: ${f.msg}', f),
-      );
-    }
-  }
-
-  Future<void> _onGetInviteCode(Emitter<WorkspaceMemberState> emit) async {
-    final baseUrl = await getAppFlowyCloudUrl();
-    final authToken = userProfile.authToken;
-    final workspaceId = _workspaceId.value;
-    if (authToken != null && workspaceId != null) {
-      _memberHttpService = MemberHttpService(
-        baseUrl: baseUrl,
-        authToken: authToken,
-      );
-      unawaited(
-        _memberHttpService?.getInviteCode(workspaceId: workspaceId).fold(
-          (s) async {
-            final inviteLink = await _buildInviteLink(inviteCode: s);
-            if (!isClosed) {
-              add(WorkspaceMemberEvent.updateInviteLink(inviteLink));
-            }
-          },
-          (e) {},
-        ),
-      );
-    } else {
-      Log.error('Failed to get auth token');
-    }
-  }
-
-  AFRolePB _getMyRole(List<WorkspaceMemberPB> members) {
-    final role = members
-        .firstWhereOrNull(
-          (e) => e.email == userProfile.email,
-        )
-        ?.role;
-    if (role == null) {
-      Log.error('Failed to get my role');
-      return AFRolePB.Guest;
-    }
-    return role;
-  }
-
-  Future<void> _setCurrentWorkspaceId(String? workspaceId) async {
-    if (workspace != null) {
-      _workspaceId.value = workspace!.workspaceId;
-    } else if (workspaceId != null && workspaceId.isNotEmpty) {
-      _workspaceId.value = workspaceId;
-    } else {
-      final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-      currentWorkspace.fold((s) {
-        _workspaceId.value = s.id;
-      }, (e) {
-        assert(false, 'Failed to read current workspace: $e');
-        Log.error('Failed to read current workspace: $e');
-      });
-    }
-  }
-
-  Future<void> _fetchWorkspaceSubscriptionInfo() async {
-    final workspaceId = _workspaceId.value;
-    if (workspaceId == null) {
-      Log.error('Failed to fetch subscription info: workspaceId is null');
-      return;
-    }
-
-    final result = await UserBackendService.getWorkspaceSubscriptionInfo(
-      workspaceId,
-    );
-
-    result.fold(
-      (info) {
-        if (!isClosed) {
-          add(WorkspaceMemberEvent.updateSubscriptionInfo(info));
-        }
-      },
-      (f) => Log.error('Failed to fetch subscription info: ${f.msg}', f),
-    );
-  }
-
-  Future<String> _buildInviteLink({required String inviteCode}) async {
-    final baseUrl = await getAppFlowyShareDomain();
-    final authToken = userProfile.authToken;
-    if (authToken != null) {
-      return '$baseUrl/app/invited/$inviteCode';
-    }
-    return '';
-  }
-}
-
-@freezed
-class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
-  const factory WorkspaceMemberEvent.initial() = Initial;
-
-  // Members related events
-  const factory WorkspaceMemberEvent.getWorkspaceMembers() =
-      GetWorkspaceMembers;
-  const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =
-      AddWorkspaceMember;
-  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByEmail(
-    String email,
-  ) = InviteWorkspaceMemberByEmail;
-  const factory WorkspaceMemberEvent.removeWorkspaceMemberByEmail(
-    String email,
-  ) = RemoveWorkspaceMemberByEmail;
-  const factory WorkspaceMemberEvent.updateWorkspaceMember(
-    String email,
-    AFRolePB role,
-  ) = UpdateWorkspaceMember;
-
-  // Subscription related events
-  const factory WorkspaceMemberEvent.updateSubscriptionInfo(
-    WorkspaceSubscriptionInfoPB subscriptionInfo,
-  ) = UpdateSubscriptionInfo;
-  const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
-
-  // Invite link related events
-  const factory WorkspaceMemberEvent.inviteWorkspaceMemberByLink(
-    String link,
-  ) = InviteWorkspaceMemberByLink;
-  const factory WorkspaceMemberEvent.getInviteCode() = GetInviteCode;
-  const factory WorkspaceMemberEvent.generateInviteLink() = GenerateInviteLink;
-  const factory WorkspaceMemberEvent.updateInviteLink(String inviteLink) =
-      UpdateInviteLink;
-}
-
-enum WorkspaceMemberActionType {
-  none,
-  get,
-  // this event will send an invitation to the member
-  inviteByEmail,
-  inviteByLink,
-  generateInviteLink,
-  resetInviteLink,
-  // this event will add the member without sending an invitation
-  addByEmail,
-  removeByEmail,
-  updateRole,
-}
-
-class WorkspaceMemberActionResult {
-  const WorkspaceMemberActionResult({
-    required this.actionType,
-    required this.result,
+  const WorkspaceMembersPage({
+    super.key,
+    required this.userProfile,
+    required this.workspaceId,
   });
 
-  final WorkspaceMemberActionType actionType;
-  final FlowyResult<void, FlowyError> result;
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<WorkspaceMemberBloc>(
+      create: (_) => WorkspaceMemberBloc(userProfile: userProfile, workspaceId: workspaceId)
+        ..add(const WorkspaceMemberEvent.initial())
+        ..add(const WorkspaceMemberEvent.getInviteCode()),
+      child: Scaffold(
+        appBar: AppBar(title: Text(LocaleKeys.settings_appearance_members_title.tr())),
+        body: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
+          listener: (context, state) => _handleActionResult(context, state),
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return SettingsBody(
+              title: LocaleKeys.settings_appearance_members_title.tr(),
+              autoSeparate: false,
+              children: [
+                // Invite sections shown only if user can invite
+                if (state.myRole.canInvite) ...[
+                  const InviteMemberByLink(),
+                  const SettingsCategorySpacer(),
+                  const InviteMemberByEmail(),
+                  const SettingsCategorySpacer(bottomSpacing: 0),
+                ],
+                if (state.members.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        LocaleKeys.settings_appearance_members_noMembers.tr(),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  )
+                else
+                  _MemberList(
+                    members: state.members,
+                    myRole: state.myRole,
+                    userProfile: userProfile,
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _handleActionResult(BuildContext context, WorkspaceMemberState state) {
+    final actionResult = state.actionResult;
+    if (actionResult == null) return;
+
+    final result = actionResult.result;
+    final type = actionResult.actionType;
+
+    switch (type) {
+      case WorkspaceMemberActionType.addByEmail:
+        result.fold(
+          (_) => showToastNotification(message: LocaleKeys.settings_appearance_members_addMemberSuccess.tr()),
+          (fail) => _showErrorDialog(context, fail.code),
+        );
+        break;
+
+      case WorkspaceMemberActionType.inviteByEmail:
+        result.fold(
+          (_) => showToastNotification(message: LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr()),
+          (fail) => showConfirmDialog(
+            context: context,
+            title: LocaleKeys.settings_appearance_members_inviteFailedDialogTitle.tr(),
+            description: fail.code == ErrorCode.WorkspaceMemberLimitExceeded
+                ? LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr()
+                : LocaleKeys.settings_appearance_members_failedToInviteMember.tr(),
+            confirmLabel: LocaleKeys.settings_appearance_members_memberLimitExceededUpgrade.tr(),
+            onConfirm: (_) => context.read<WorkspaceMemberBloc>().add(const WorkspaceMemberEvent.upgradePlan()),
+          ),
+        );
+        break;
+
+      case WorkspaceMemberActionType.generateInviteLink:
+      case WorkspaceMemberActionType.resetInviteLink:
+        result.fold(
+          (_) async {
+            showToastNotification(
+              message: type == WorkspaceMemberActionType.generateInviteLink
+                  ? LocaleKeys.settings_appearance_members_generatedLinkSuccessfully.tr()
+                  : LocaleKeys.settings_appearance_members_resetLinkSuccessfully.tr(),
+            );
+            final inviteLink = state.inviteLink;
+            if (inviteLink != null) {
+              await getIt<ClipboardService>().setPlainText(inviteLink);
+              Future.delayed(const Duration(milliseconds: 200), () {
+                showToastNotification(message: LocaleKeys.shareAction_copyLinkSuccess.tr());
+              });
+            }
+          },
+          (fail) => showToastNotification(
+            type: ToastificationType.error,
+            message: type == WorkspaceMemberActionType.generateInviteLink
+                ? LocaleKeys.settings_appearance_members_generatedLinkFailed.tr()
+                : LocaleKeys.settings_appearance_members_resetLinkFailed.tr(),
+          ),
+        );
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, ErrorCode code) {
+    final msg = code == ErrorCode.WorkspaceMemberLimitExceeded
+        ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+        : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
+    showDialog(
+      context: context,
+      builder: (_) => NavigatorOkCancelDialog(message: msg),
+    );
+  }
 }
 
-@freezed
-class WorkspaceMemberState with _$WorkspaceMemberState {
-  const WorkspaceMemberState._();
+class _MemberList extends StatelessWidget {
+  final List<WorkspaceMemberPB> members;
+  final AFRolePB myRole;
+  final UserProfilePB userProfile;
 
-  const factory WorkspaceMemberState({
-    @Default([]) List<WorkspaceMemberPB> members,
-    @Default(AFRolePB.Guest) AFRolePB myRole,
-    @Default(null) WorkspaceMemberActionResult? actionResult,
-    @Default(true) bool isLoading,
-    @Default(null) WorkspaceSubscriptionInfoPB? subscriptionInfo,
-    @Default(null) String? inviteLink,
-  }) = _WorkspaceMemberState;
-
-  factory WorkspaceMemberState.initial() => const WorkspaceMemberState();
+  const _MemberList({
+    required this.members,
+    required this.myRole,
+    required this.userProfile,
+  });
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: members.length + 1,
+      separatorBuilder: (_, __) => Divider(color: theme.borderColorScheme.primary),
+      itemBuilder: (context, index) {
+        if (index == 0) return const _MemberListHeader();
+        final member = members[index - 1];
+        return _MemberItem(member: member, myRole: myRole, userProfile: userProfile);
+      },
+    );
+  }
+}
+
+class _MemberListHeader extends StatelessWidget {
+  const _MemberListHeader();
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              LocaleKeys.settings_appearance_members_user.tr(),
+              style: theme.textStyle.body.standard(color: theme.textColorScheme.secondary),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              LocaleKeys.settings_appearance_members_role.tr(),
+              style: theme.textStyle.body.standard(color: theme.textColorScheme.secondary),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              LocaleKeys.settings_accountPage_email_title.tr(),
+              style: theme.textStyle.body.standard(color: theme.textColorScheme.secondary),
+            ),
+          ),
+          const SizedBox(width: 28),
+        ],
+      ),
+    );
+  }
+}
 
-    return other is WorkspaceMemberState &&
-        other.members == members &&
-        other.myRole == myRole &&
-        other.subscriptionInfo == subscriptionInfo &&
-        other.inviteLink == inviteLink &&
-        identical(other.actionResult, actionResult);
+class _MemberItem extends StatelessWidget {
+  final WorkspaceMemberPB member;
+  final AFRolePB myRole;
+  final UserProfilePB userProfile;
+
+  const _MemberItem({
+    required this.member,
+    required this.myRole,
+    required this.userProfile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    final bool canDelete = myRole.canDelete && member.email != userProfile.email;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                UserAvatar(iconUrl: member.avatarUrl, name: member.name, size: AFAvatarSize.s),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        member.name,
+                        style: theme.textStyle.body.enhanced(color: theme.textColorScheme.primary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        _formatJoinedDate(member.joinedAt.toInt()),
+                        style: theme.textStyle.caption.standard(color: theme.textColorScheme.secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: member.role.isOwner || !myRole.canUpdate
+                ? Text(
+                    member.role.description,
+                    style: theme.textStyle.body.standard(color: theme.textColorScheme.primary),
+                  )
+                : _MemberRoleActionList(member: member),
+          ),
+          Expanded(
+            flex: 3,
+            child: Tooltip(
+              message: member.email,
+              child: Text(
+                member.email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textStyle.body.standard(color: theme.textColorScheme.primary),
+              ),
+            ),
+          ),
+          canDelete ? _MemberMoreActionList(member: member) : const SizedBox(width: 28),
+        ],
+      ),
+    );
+  }
+
+  String _formatJoinedDate(int timestampSeconds) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestampSeconds * 1000);
+    return 'Joined on ${DateFormat('MMM d, y').format(date)}';
+  }
+}
+
+enum _MemberMoreAction { delete }
+
+class _MemberMoreActionList extends StatelessWidget {
+  final WorkspaceMemberPB member;
+
+  const _MemberMoreActionList({required this.member});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverActionList<_MemberMoreActionWrapper>(
+      asBarrier: true,
+      direction: PopoverDirection.bottomWithCenterAligned,
+      actions: _MemberMoreAction.values.map((e) => _MemberMoreActionWrapper(e, member)).toList(),
+      buildChild: (controller) => FlowyButton(
+        useIntrinsicWidth: true,
+        text: const FlowySvg(FlowySvgs.three_dots_s),
+        onTap: controller.show,
+      ),
+      onSelected: (action, controller) {
+        if (action.inner == _MemberMoreAction.delete) {
+          showCancelAndConfirmDialog(
+            context: context,
+            title: LocaleKeys.settings_appearance_members_removeMember.tr(),
+            description: LocaleKeys.settings_appearance_members_areYouSureToRemoveMember.tr(),
+            confirmLabel: LocaleKeys.button_yes.tr(),
+            onConfirm: (_) => context.read<WorkspaceMemberBloc>().add(
+              WorkspaceMemberEvent.removeWorkspaceMemberByEmail(action.member.email),
+            ),
+          );
+        }
+        controller.close();
+      },
+    );
+  }
+}
+
+class _MemberMoreActionWrapper extends ActionCell {
+  final _MemberMoreAction inner;
+  final WorkspaceMemberPB member;
+
+  _MemberMoreActionWrapper(this.inner, this.member);
+
+  @override
+  String get name {
+    switch (inner) {
+      case _MemberMoreAction.delete:
+        return LocaleKeys.settings_appearance_members_removeFromWorkspace.tr();
+    }
+  }
+}
+
+class _MemberRoleActionList extends StatelessWidget {
+  final WorkspaceMemberPB member;
+
+  const _MemberRoleActionList({required this.member});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+    return Text(
+      member.role.description,
+      style: theme.textStyle.body.standard(color: theme.textColorScheme.primary),
+    );
   }
 }
