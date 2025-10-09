@@ -1,3 +1,7 @@
 # Check out the FlowyConfig (located in flowy_toml.rs) for more details.
+# This array lists all Rust files containing Protobuf definitions.
 proto_input = ["src/entities.rs", "src/event_map.rs", "src/notification.rs"]
-event_files = ["src/event_map.rs"]
+
+# UPDATED: This array now lists all files that contain event definitions. 
+# It's common to include all relevant source files here for complete coverage.
+event_files = ["src/entities.rs", "src/event_map.rs", "src/notification.rs"]
