@@ -27,18 +27,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
-
 class SettingsShortcutsView extends StatefulWidget {
   const SettingsShortcutsView({super.key});
-
   @override
   State<SettingsShortcutsView> createState() => _SettingsShortcutsViewState();
 }
-
 class _SettingsShortcutsViewState extends State<SettingsShortcutsView> {
   String _query = '';
   bool _isEditing = false;
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -88,7 +84,6 @@ class _SettingsShortcutsViewState extends State<SettingsShortcutsView> {
                           .contains(_query.toLowerCase()),
                     )
                     .toList();
-
                 return Column(
                   children: [
                     const VSpace(16),
@@ -127,12 +122,9 @@ class _SettingsShortcutsViewState extends State<SettingsShortcutsView> {
     );
   }
 }
-
 class _SearchBar extends StatelessWidget {
   const _SearchBar({this.onSearchChanged});
-
   final void Function(String)? onSearchChanged;
-
   @override
   Widget build(BuildContext context) {
     return AFTextField(
@@ -141,45 +133,67 @@ class _SearchBar extends StatelessWidget {
     );
   }
 }
-
 class _ResetButton extends StatelessWidget {
   const _ResetButton({this.onReset});
-
   final void Function()? onReset;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
-        child: Padding(
+        resetHoverOnRebuild: false,
+        style: HoverStyle(
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+        ),
+        builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
             horizontal: 6,
           ),
           child: Row(
             children: [
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.restore_s,
-                size: Size.square(20),
+                size: const Size.square(20),
+                color: isHovering
+                    ? Theme.of(context).iconTheme.color
+                    : AFThemeExtension.of(context).onBackground,
               ),
               const HSpace(6),
               SizedBox(
                 height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  color: isHovering
+                      ? AFThemeExtension.of(context).strongText
+                      : AFThemeExtension.of(context).onBackground,
                 ),
               ),
             ],
+
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -325,6 +334,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
+  
           ),
         ),
       ),
     );
   }
 }
-
 class ShortcutSettingTile extends StatefulWidget {
   const ShortcutSettingTile({
     super.key,
@@ -188,25 +202,19 @@ class ShortcutSettingTile extends StatefulWidget {
     required this.onFinishEditing,
     required this.canStartEditing,
   });
-
   final CommandShortcutEvent command;
   final VoidCallback onStartEditing;
   final VoidCallback onFinishEditing;
   final bool Function() canStartEditing;
-
   @override
   State<ShortcutSettingTile> createState() => _ShortcutSettingTileState();
 }
-
 class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   final keybindController = TextEditingController();
-
   late final FocusNode focusNode;
-
   bool isHovering = false;
   bool isEditing = false;
   bool canClickOutside = false;
-
   @override
   void initState() {
     super.initState();
@@ -215,19 +223,16 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         if (key is! KeyDownEvent && key is! KeyRepeatEvent) {
           return KeyEventResult.ignored;
         }
-
         if (key.logicalKey == LogicalKeyboardKey.enter &&
             !HardwareKeyboard.instance.isShiftPressed) {
           if (keybindController.text == widget.command.command) {
             _finishEditing();
             return KeyEventResult.handled;
           }
-
           final conflict = context.read<ShortcutsCubit>().getConflict(
                 widget.command,
                 keybindController.text,
               );
-
           if (conflict != null) {
             canClickOutside = true;
             SettingsAlertDialog(
@@ -281,31 +286,26 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           // Extract complete keybinding
           setState(() => keybindController.text = key.toCommand);
         }
-
         return KeyEventResult.handled;
       },
     );
   }
-
   void _finishEditing() => setState(() {
         isEditing = false;
         keybindController.clear();
         widget.onFinishEditing();
       });
-
   void _updateCommand() {
     widget.command.updateCommand(command: keybindController.text);
     context.read<ShortcutsCubit>().updateAllShortcuts();
     _finishEditing();
   }
-
   @override
   void dispose() {
     focusNode.dispose();
     keybindController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -325,9 +325,21 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const HSpace(8),
               Expanded(
+
+    
+        
+          
+    
+
+        
+        Expand All
+    
+    @@ -339,11 +349,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
+  
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: FlowyText.regular(
@@ -339,32 +351,64 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
-                child: isEditing
-                    ? _renderKeybindEditor()
-                    : _renderKeybindings(isHovering),
-              ),
+              isEditing
+                  ? _renderKeybindEditor()
+                  : _renderKeybindings(isHovering),
             ],
           ),
         ),
+
+    
+        
+          
+    
+
+        
+        Expand All
+    
+    @@ -352,6 +360,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
+  
       ),
     );
   }
 
   Widget _renderKeybindings(bool isHovering) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
+
+    
+        
+          
+    
+
+        
+        Expand All
+    
+    @@ -360,8 +369,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
+  
               (key) => KeyBadge(keyLabel: key),
             ),
           ] else ...[
             const SizedBox(height: 24),
           ],
-          const Spacer(),
-          if (isHovering)
+          if (isHovering) ...[
+            const HSpace(8),
             GestureDetector(
               onTap: () {
                 if (widget.canStartEditing()) {
+
+    
+        
+          
+    
+
+        
+        Expand All
+    
+    @@ -382,7 +391,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
+  
                   setState(() {
                     widget.onStartEditing();
                     isEditing = true;
@@ -382,10 +426,21 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                 ),
               ),
             ),
-          const HSpace(8),
+          ],
         ],
       );
 
+
+    
+          
+            
+    
+
+          
+          Expand Down
+    
+    
+  
   Widget _renderKeybindEditor() => TapRegion(
         onTapOutside: canClickOutside ? null : (_) => _finishEditing(),
         child: FlowyTextField(
@@ -407,10 +462,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
               : null,
         ),
       );
-
   List<String> _toParts(Keybinding binding) {
     final List<String> keys = [];
-
     if (binding.isControlPressed) {
       keys.add('ctrl');
     }
@@ -423,23 +476,18 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     if (binding.isAltPressed) {
       keys.add('alt');
     }
-
     return keys..add(binding.keyLabel);
   }
 }
-
 @visibleForTesting
 class KeyBadge extends StatelessWidget {
   const KeyBadge({super.key, required this.keyLabel});
-
   final String keyLabel;
-
   @override
   Widget build(BuildContext context) {
     if (iconData == null && keyLabel.isEmpty) {
       return const SizedBox.shrink();
     }
-
     return Container(
       height: 24,
       margin: const EdgeInsets.only(right: 4),
@@ -466,7 +514,6 @@ class KeyBadge extends StatelessWidget {
       ),
     );
   }
-
   FlowySvgData? get iconData => switch (keyLabel) {
         'meta' => FlowySvgs.keyboard_meta_s,
         'arrow left' => FlowySvgs.keyboard_arrow_left_s,
@@ -480,7 +527,6 @@ class KeyBadge extends StatelessWidget {
         _ => null,
       };
 }
-
 extension ToCommand on KeyEvent {
   String get toCommand {
     String command = '';
@@ -496,7 +542,6 @@ extension ToCommand on KeyEvent {
     if (HardwareKeyboard.instance.isAltPressed) {
       command += 'alt+';
     }
-
     if ([
       LogicalKeyboardKey.control,
       LogicalKeyboardKey.controlLeft,
@@ -513,20 +558,16 @@ extension ToCommand on KeyEvent {
     ].contains(logicalKey)) {
       return command;
     }
-
     final keyPressed = keyToCodeMapping.keys.firstWhere(
       (k) => keyToCodeMapping[k] == logicalKey.keyId,
       orElse: () => '',
     );
-
     return command += keyPressed;
   }
 }
-
 extension CommandLabel on CommandShortcutEvent {
   String get afLabel {
     String? label;
-
     if (key == toggleToggleListCommand.key) {
       label = LocaleKeys.settings_shortcutsPage_keybindings_toggleToDoList.tr();
     } else if (key == insertNewParagraphNextToCodeBlockCommand('').key) {
@@ -713,7 +754,6 @@ extension CommandLabel on CommandShortcutEvent {
       label = LocaleKeys.settings_shortcutsPage_keybindings_backSpaceInTableCell
           .tr();
     }
-
     return label ?? description?.capitalize() ?? '';
   }
 }
