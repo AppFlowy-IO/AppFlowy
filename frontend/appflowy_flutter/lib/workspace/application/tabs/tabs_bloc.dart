@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
@@ -17,9 +16,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 part 'tabs_bloc.freezed.dart';
-
 class TabsBloc extends Bloc<TabsEvent, TabsState> {
   TabsBloc() : super(TabsState()) {
     menuSharedState = getIt<MenuSharedState>();
@@ -28,12 +25,33 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
 
   late final MenuSharedState menuSharedState;
 
+  String? _lastOpenedPluginId;
+  String? _lastOpenedViewId;
+  DateTime? _lastOpenTime;
+  static const _deduplicationWindow = Duration(milliseconds: 500);
+
   @override
   Future<void> close() {
     state.dispose();
+
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -73,6 +78,22 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
+  
     return super.close();
   }
-
   void _dispatch() {
     on<TabsEvent>(
       (event, emit) async {
@@ -53,7 +71,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             if (pm?.isPinned == true) {
               return;
             }
-
             emit(state.closeView(pluginId));
             _setLatestOpenView();
           },
@@ -61,7 +78,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             if (state.currentPageManager.isPinned) {
               return;
             }
-
             emit(state.closeView(state.currentPageManager.plugin.id));
             _setLatestOpenView();
           },
@@ -73,9 +89,36 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
+            final now = DateTime.now();
+
+            // deduplicate. skip if same plugin and view were just opened
+            if (_lastOpenedPluginId == plugin.id &&
+                _lastOpenedViewId == view?.id &&
+                _lastOpenTime != null) {
+              final timeSinceLastOpen = now.difference(_lastOpenTime!);
+              if (timeSinceLastOpen < _deduplicationWindow) {
+                return;
+              }
+            }
+
+            _lastOpenedPluginId = plugin.id;
+            _lastOpenedViewId = view?.id;
+            _lastOpenTime = now;
+
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
+
+    
+          
+            
+    
+
+          
+          Expand Down
+    
+    
+  
             emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
             if (setLatest) {
               // the space view should be filtered out.
@@ -91,7 +134,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
               ...state._pageManagers
                   .where((pm) => pm.plugin.id == pluginId || pm.isPinned),
             ];
-
             int newIndex;
             if (state.currentPageManager.isPinned) {
               // Retain current index if it's already pinned
@@ -101,14 +143,12 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
                   .firstWhereOrNull((pm) => pm.plugin.id == pluginId);
               newIndex = pm != null ? pageManagers.indexOf(pm) : 0;
             }
-
             emit(
               state.copyWith(
                 currentIndex: newIndex,
                 pageManagers: pageManagers,
               ),
             );
-
             _setLatestOpenView();
           },
           togglePin: (String pluginId) {
@@ -116,25 +156,20 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
                 .firstWhereOrNull((pm) => pm.plugin.id == pluginId);
             if (pm != null) {
               final index = state._pageManagers.indexOf(pm);
-
               int newIndex = state.currentIndex;
               if (pm.isPinned) {
                 // Unpinning logic
                 final indexOfFirstUnpinnedTab =
                     state._pageManagers.indexWhere((tab) => !tab.isPinned);
-
                 // Determine the correct insertion point
                 final newUnpinnedIndex = indexOfFirstUnpinnedTab != -1
                     ? indexOfFirstUnpinnedTab // Insert before the first unpinned tab
                     : state._pageManagers
                         .length; // Append at the end if no unpinned tabs exist
-
                 state._pageManagers.removeAt(index);
-
                 final adjustedUnpinnedIndex = newUnpinnedIndex > index
                     ? newUnpinnedIndex - 1
                     : newUnpinnedIndex;
-
                 state._pageManagers.insert(adjustedUnpinnedIndex, pm);
                 newIndex = _adjustCurrentIndex(
                   currentIndex: state.currentIndex,
@@ -146,13 +181,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
                 final indexOfLastPinnedTab =
                     state._pageManagers.lastIndexWhere((tab) => tab.isPinned);
                 final newPinnedIndex = indexOfLastPinnedTab + 1;
-
                 state._pageManagers.removeAt(index);
-
                 final adjustedPinnedIndex = newPinnedIndex > index
                     ? newPinnedIndex - 1
                     : newPinnedIndex;
-
                 state._pageManagers.insert(adjustedPinnedIndex, pm);
                 newIndex = _adjustCurrentIndex(
                   currentIndex: state.currentIndex,
@@ -160,9 +192,7 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
                   newIndex: adjustedPinnedIndex,
                 );
               }
-
               pm.isPinned = !pm.isPinned;
-
               emit(
                 state.copyWith(
                   currentIndex: newIndex,
@@ -189,13 +219,11 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
           },
           switchWorkspace: (workspaceId) {
             final pluginId = state.currentPageManager.plugin.id;
-
             // Close all tabs except current
             final pagesToClose = [
               ...state._pageManagers
                   .where((pm) => pm.plugin.id != pluginId && !pm.isPinned),
             ];
-
             if (pagesToClose.isNotEmpty) {
               final newstate = state;
               for (final pm in pagesToClose) {
@@ -208,7 +236,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       },
     );
   }
-
   void _setLatestOpenView([ViewPB? view]) {
     if (view != null) {
       menuSharedState.latestOpenView = view;
@@ -221,7 +248,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       }
     }
   }
-
   Future<void> _expandAncestors(ViewPB view) async {
     final viewExpanderRegistry = getIt.get<ViewExpanderRegistry>();
     if (viewExpanderRegistry.isViewExpanded(view.parentViewId)) return;
@@ -247,7 +273,6 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       Log.error('expandAncestors error', e);
     }
   }
-
   int _adjustCurrentIndex({
     required int currentIndex,
     required int tabIndex,
@@ -260,14 +285,11 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     } else if (tabIndex == currentIndex) {
       return newIndex; // Tab is the current tab, update to newIndex
     }
-
     return currentIndex;
   }
-
   /// Adds a [TabsEvent.openTab] event for the provided [ViewPB]
   void openTab(ViewPB view) =>
       add(TabsEvent.openTab(plugin: view.plugin(), view: view));
-
   /// Adds a [TabsEvent.openPlugin] event for the provided [ViewPB]
   void openPlugin(
     ViewPB view, {
@@ -281,62 +303,43 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     );
   }
 }
-
 @freezed
 class TabsEvent with _$TabsEvent {
   const factory TabsEvent.moveTab() = _MoveTab;
-
   const factory TabsEvent.closeTab(String pluginId) = _CloseTab;
-
   const factory TabsEvent.closeOtherTabs(String pluginId) = _CloseOtherTabs;
-
   const factory TabsEvent.closeCurrentTab() = _CloseCurrentTab;
-
   const factory TabsEvent.selectTab(int index) = _SelectTab;
-
   const factory TabsEvent.togglePin(String pluginId) = _TogglePin;
-
   const factory TabsEvent.openTab({
     required Plugin plugin,
     required ViewPB view,
   }) = _OpenTab;
-
   const factory TabsEvent.openPlugin({
     required Plugin plugin,
     ViewPB? view,
     @Default(true) bool setLatest,
   }) = _OpenPlugin;
-
   const factory TabsEvent.openSecondaryPlugin({
     required Plugin plugin,
     ViewPB? view,
   }) = _OpenSecondaryPlugin;
-
   const factory TabsEvent.closeSecondaryPlugin() = _CloseSecondaryPlugin;
-
   const factory TabsEvent.expandSecondaryPlugin() = _ExpandSecondaryPlugin;
-
   const factory TabsEvent.switchWorkspace(String workspaceId) =
       _SwitchWorkspace;
 }
-
 class TabsState {
   TabsState({
     this.currentIndex = 0,
     List<PageManager>? pageManagers,
   }) : _pageManagers = pageManagers ?? [PageManager()];
-
   final int currentIndex;
   final List<PageManager> _pageManagers;
-
   int get pages => _pageManagers.length;
-
   PageManager get currentPageManager => _pageManagers[currentIndex];
-
   List<PageManager> get pageManagers => _pageManagers;
-
   bool get isAllPinned => _pageManagers.every((pm) => pm.isPinned);
-
   /// This opens a new tab given a [Plugin].
   ///
   /// If the [Plugin.id] is already associated with an open tab,
@@ -344,27 +347,21 @@ class TabsState {
   ///
   TabsState openView(Plugin plugin) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
-
     if (selectExistingPlugin == null) {
       _pageManagers.add(PageManager()..setPlugin(plugin, true));
-
       return copyWith(
         currentIndex: pages - 1,
         pageManagers: [..._pageManagers],
       );
     }
-
     return selectExistingPlugin;
   }
-
   TabsState closeView(String pluginId) {
     // Avoid closing the only open tab
     if (_pageManagers.length == 1) {
       return this;
     }
-
     _pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
-
     /// If currentIndex is greater than the amount of allowed indices
     /// And the current selected tab isn't the first (index 0)
     ///   as currentIndex cannot be -1
@@ -372,13 +369,11 @@ class TabsState {
     final newIndex = currentIndex > pages - 1 && currentIndex > 0
         ? currentIndex - 1
         : currentIndex;
-
     return copyWith(
       currentIndex: newIndex,
       pageManagers: [..._pageManagers],
     );
   }
-
   /// This opens a plugin in the current selected tab,
   /// due to how Document currently works, only one tab
   /// per plugin can currently be active.
@@ -388,17 +383,13 @@ class TabsState {
   ///
   TabsState openPlugin({required Plugin plugin, bool setLatest = true}) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
-
     if (selectExistingPlugin == null) {
       final pageManagers = [..._pageManagers];
       pageManagers[currentIndex].setPlugin(plugin, setLatest);
-
       return copyWith(pageManagers: pageManagers);
     }
-
     return selectExistingPlugin;
   }
-
   /// Checks if a [Plugin.id] is already associated with an open tab.
   /// Returns a [TabState] with new index if there is a match.
   ///
@@ -406,18 +397,14 @@ class TabsState {
   ///
   TabsState? _selectPluginIfOpen(String id) {
     final index = _pageManagers.indexWhere((pm) => pm.plugin.id == id);
-
     if (index == -1) {
       return null;
     }
-
     if (index == currentIndex) {
       return this;
     }
-
     return copyWith(currentIndex: index);
   }
-
   TabsState copyWith({
     int? currentIndex,
     List<PageManager>? pageManagers,
@@ -426,7 +413,6 @@ class TabsState {
         currentIndex: currentIndex ?? this.currentIndex,
         pageManagers: pageManagers ?? _pageManagers,
       );
-
   void dispose() {
     for (final manager in pageManagers) {
       manager.dispose();
