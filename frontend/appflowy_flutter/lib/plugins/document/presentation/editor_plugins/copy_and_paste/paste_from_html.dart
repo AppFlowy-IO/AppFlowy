@@ -24,41 +24,70 @@ extension PasteFromHtml on EditorState {
   // Convert the html to document nodes.
   // For the google docs table, it will be fallback to the markdown parser.
   List<Node> convertHtmlToNodes(String html) {
-    List<Node> nodes = htmlToDocument(html).root.children.toList();
-
-    // 1. remove the front and back empty line
-    while (nodes.isNotEmpty && nodes.first.delta?.isEmpty == true) {
-      nodes.removeAt(0);
-    }
-    while (nodes.isNotEmpty && nodes.last.delta?.isEmpty == true) {
-      nodes.removeLast();
-    }
-
-    // 2. replace the legacy table nodes with the new simple table nodes
-    for (int i = 0; i < nodes.length; i++) {
-      final node = nodes[i];
-      if (node.type == TableBlockKeys.type) {
-        nodes[i] = _convertTableToSimpleTable(node);
-      }
-    }
-
-    // 3. verify the nodes is empty or contains google table flag
-    // The table from Google Docs will contain the flag 'Google Table'
+    // Check for special cases that need specific handling
     const googleDocsFlag = 'docs-internal-guid-';
     final isPasteFromGoogleDocs = html.contains(googleDocsFlag);
     final isPasteFromAppleNotes = appleNotesRegex.hasMatch(html);
-    final containsTable = nodes.any(
-      (node) =>
-          [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(node.type),
-    );
-    if ((nodes.isEmpty || isPasteFromGoogleDocs || containsTable) &&
-        !isPasteFromAppleNotes) {
-      // fallback to the markdown parser
+
+    // Detect if HTML contains list structures or LaTeX-like content
+    final containsListStructures = html.contains('<ul>') ||
+                                   html.contains('<ol>') ||
+                                   html.contains('<li>');
+    final containsMathContent = html.contains(r'\(') ||
+                               html.contains(r'\[') ||
+        html.contains(r'$$') ||
+                               html.contains(r'\begin') ||
+                               html.contains('math-inline') ||
+                               html.contains('math-display');
+
+    List<Node> nodes = [];
+
+    // Prefer html2md converter for content with lists or math to preserve structure
+    // This is especially important for ChatGPT, Notion, and other rich content sources
+    final shouldUseMarkdownConverter = isPasteFromGoogleDocs ||
+                                       containsListStructures ||
+                                       containsMathContent;
+
+    if (shouldUseMarkdownConverter && !isPasteFromAppleNotes) {
+      // Use markdown parser for better structure preservation
       final markdown = html2md.convert(html);
       nodes = customMarkdownToDocument(markdown, tableWidth: 200)
           .root
           .children
           .toList();
+    } else {
+      // Try htmlToDocument first for simple content
+      nodes = htmlToDocument(html).root.children.toList();
+
+      // 1. remove the front and back empty line
+      while (nodes.isNotEmpty && nodes.first.delta?.isEmpty == true) {
+        nodes.removeAt(0);
+      }
+      while (nodes.isNotEmpty && nodes.last.delta?.isEmpty == true) {
+        nodes.removeLast();
+      }
+
+      // 2. replace the legacy table nodes with the new simple table nodes
+      for (int i = 0; i < nodes.length; i++) {
+        final node = nodes[i];
+        if (node.type == TableBlockKeys.type) {
+          nodes[i] = _convertTableToSimpleTable(node);
+        }
+      }
+
+      // 3. Check if result is empty or contains tables, fallback to markdown
+      final containsTable = nodes.any(
+        (node) =>
+            [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(node.type),
+      );
+      if (nodes.isEmpty || containsTable) {
+        // fallback to the markdown parser
+        final markdown = html2md.convert(html);
+        nodes = customMarkdownToDocument(markdown, tableWidth: 200)
+            .root
+            .children
+            .toList();
+      }
     }
 
     // 4. check if the first node and the last node is bold, because google docs will wrap the table with bold tags
