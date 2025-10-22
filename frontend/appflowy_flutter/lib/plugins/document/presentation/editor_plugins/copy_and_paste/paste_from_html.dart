@@ -21,18 +21,50 @@ extension PasteFromHtml on EditorState {
     return true;
   }
 
-  // Convert the html to document nodes.
-  // For the google docs table, it will be fallback to the markdown parser.
+  /// Convert HTML to document nodes using the appropriate parser.
+  ///
+  /// This method implements a decision tree to choose between two parsing approaches:
+  /// 1. HTML-to-markdown-to-nodes: Better for structured content (lists, math, tables)
+  /// 2. HTML-to-nodes directly: Faster for simple formatted text
+  ///
+  /// **Decision Flow:**
+  /// ```
+  /// ┌─ Detect content type (Google Docs, Apple Notes, lists, math)
+  /// │
+  /// ├─ If (Google Docs OR lists OR math) AND NOT Apple Notes:
+  /// │  └─> Use html2md → customMarkdownToDocument
+  /// │      (Preserves LaTeX equations, list structure, nested formatting)
+  /// │
+  /// └─ Else:
+  ///    ├─> Try htmlToDocument first (faster for simple content)
+  ///    ├─> Clean up empty nodes
+  ///    ├─> Convert legacy tables to simple tables
+  ///    └─> If result is empty OR contains tables:
+  ///        └─> Fallback to html2md → customMarkdownToDocument
+  /// ```
+  ///
+  /// **Why two paths?**
+  /// - Markdown path: Handles LaTeX preprocessing (see markdown_to_document.dart)
+  ///   which fixes line breaks in piecewise functions and converts spacing
+  /// - Direct HTML path: Simpler and faster for plain formatted text
+  /// - Apple Notes exception: Known to work better with direct HTML parsing
+  ///
+  /// For Google Docs tables, it will fallback to the markdown parser.
   List<Node> convertHtmlToNodes(String html) {
-    // Check for special cases that need specific handling
+    // ========== Step 1: Detect content source and type ==========
     const googleDocsFlag = 'docs-internal-guid-';
     final isPasteFromGoogleDocs = html.contains(googleDocsFlag);
     final isPasteFromAppleNotes = appleNotesRegex.hasMatch(html);
 
-    // Detect if HTML contains list structures or LaTeX-like content
+    // Detect if HTML contains list structures
+    // Lists need markdown parser to preserve nesting and ordering
     final containsListStructures = html.contains('<ul>') ||
                                    html.contains('<ol>') ||
                                    html.contains('<li>');
+
+    // Detect LaTeX/math content patterns
+    // Math equations need markdown parser for LaTeX preprocessing
+    // (fixes line breaks, spacing, etc. - see markdown_latex_utils.dart)
     final containsMathContent = html.contains(r'\(') ||
                                html.contains(r'\[') ||
         html.contains(r'$$') ||
@@ -42,24 +74,35 @@ extension PasteFromHtml on EditorState {
 
     List<Node> nodes = [];
 
-    // Prefer html2md converter for content with lists or math to preserve structure
-    // This is especially important for ChatGPT, Notion, and other rich content sources
+    // ========== Step 2: Choose parsing strategy ==========
+    // Use markdown converter when:
+    // - Content is from Google Docs (better structure preservation)
+    // - Content has lists (preserves nesting and ordering)
+    // - Content has math (enables LaTeX preprocessing)
+    // UNLESS it's from Apple Notes (which works better with direct HTML parsing)
     final shouldUseMarkdownConverter = isPasteFromGoogleDocs ||
                                        containsListStructures ||
                                        containsMathContent;
 
     if (shouldUseMarkdownConverter && !isPasteFromAppleNotes) {
-      // Use markdown parser for better structure preservation
+      // ========== Path A: HTML → Markdown → Document ==========
+      // Convert HTML to markdown, then parse to document nodes
+      // This path enables:
+      // - LaTeX preprocessing (line breaks, spacing fixes)
+      // - Better list structure preservation
+      // - Proper handling of nested formatting
       final markdown = html2md.convert(html);
       nodes = customMarkdownToDocument(markdown, tableWidth: 200)
           .root
           .children
           .toList();
     } else {
-      // Try htmlToDocument first for simple content
+      // ========== Path B: HTML → Document (with fallback) ==========
+      // Try direct HTML to document conversion first (faster for simple content)
       nodes = htmlToDocument(html).root.children.toList();
 
-      // 1. remove the front and back empty line
+      // Post-process: Remove leading/trailing empty nodes
+      // (HTML parser sometimes creates empty paragraphs from formatting tags)
       while (nodes.isNotEmpty && nodes.first.delta?.isEmpty == true) {
         nodes.removeAt(0);
       }
@@ -67,7 +110,8 @@ extension PasteFromHtml on EditorState {
         nodes.removeLast();
       }
 
-      // 2. replace the legacy table nodes with the new simple table nodes
+      // Post-process: Convert legacy table format to new simple table format
+      // (Ensures compatibility with newer table implementation)
       for (int i = 0; i < nodes.length; i++) {
         final node = nodes[i];
         if (node.type == TableBlockKeys.type) {
@@ -75,13 +119,14 @@ extension PasteFromHtml on EditorState {
         }
       }
 
-      // 3. Check if result is empty or contains tables, fallback to markdown
+      // Fallback check: If HTML parsing failed or produced tables,
+      // use markdown parser instead (better table handling)
       final containsTable = nodes.any(
         (node) =>
             [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(node.type),
       );
       if (nodes.isEmpty || containsTable) {
-        // fallback to the markdown parser
+        // Fallback to markdown parser for better structure handling
         final markdown = html2md.convert(html);
         nodes = customMarkdownToDocument(markdown, tableWidth: 200)
             .root
