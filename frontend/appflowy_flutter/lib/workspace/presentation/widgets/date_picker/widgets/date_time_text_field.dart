@@ -217,16 +217,18 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
   }
 
   DateTime? parseDateTimeStr(String string) {
+    final trimmedString = string.trim();
+    
     // First try to parse using the configured date format
     try {
-      final result = dateFormat.parseStrict(string.trim());
+      final result = dateFormat.parseStrict(trimmedString);
       if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
         return result;
       }
     } catch (_) {
       // If strict parsing fails, try lenient parsing
       try {
-        final result = dateFormat.parse(string.trim());
+        final result = dateFormat.parse(trimmedString);
         if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
           return result;
         }
@@ -235,10 +237,35 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
       }
     }
 
+    // If the string includes time, try to parse with the combined format
+    if (widget.includeTime && widget.timeFormat != null) {
+      try {
+        final combinedFormat = DateFormat(
+          "${widget.dateFormat.pattern} ${widget.timeFormat!.pattern}",
+        );
+        final result = combinedFormat.parseStrict(trimmedString);
+        if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
+          return result;
+        }
+      } catch (_) {
+        try {
+          final combinedFormat = DateFormat(
+            "${widget.dateFormat.pattern} ${widget.timeFormat!.pattern}",
+          );
+          final result = combinedFormat.parse(trimmedString);
+          if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
+            return result;
+          }
+        } catch (_) {
+          // Continue to fallback parser
+        }
+      }
+    }
+
     // Fallback to locale-based parsing for natural language dates
     final locale = context.locale.toLanguageTag();
     final parser = AnyDate.fromLocale(locale);
-    final result = parser.tryParse(string);
+    final result = parser.tryParse(trimmedString);
     if (result == null ||
         result.isBefore(kFirstDay) ||
         result.isAfter(kLastDay)) {

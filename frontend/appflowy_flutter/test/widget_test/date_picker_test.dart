@@ -836,6 +836,56 @@ void main() {
       expect(mockState.data.endDateTime, end);
     });
 
+    testWidgets('date format is respected when parsing typed dates',
+        (tester) async {
+      // Test DayMonthYear format (dd/MM/y)
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: _MockDatePicker(
+            dateFormat: DateFormatPB.DayMonthYear,
+            data: _DatePickerDataStub.empty(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final dateTextField = find.byKey(const ValueKey('date_time_text_field_date'));
+      expect(dateTextField, findsOneWidget);
+
+      // Enter 2/9/2025 which should be September 2nd in D/M/Y format
+      await tester.enterText(dateTextField, "2/9/2025");
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      final expectedDate = DateTime(2025, 9, 2);
+      final mockState = getMockState(tester);
+      expect(mockState.data.dateTime, expectedDate);
+
+      // Test US format (y/MM/dd)
+      mockState.updateDateFormat(DateFormatPB.US);
+      await tester.pumpAndSettle();
+
+      // Enter 2025/2/9 which should be February 9th in Y/M/D format
+      await tester.enterText(dateTextField, "2025/2/9");
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      final expectedDate2 = DateTime(2025, 2, 9);
+      expect(mockState.data.dateTime, expectedDate2);
+
+      // Test Local format (MM/dd/y)
+      mockState.updateDateFormat(DateFormatPB.Local);
+      await tester.pumpAndSettle();
+
+      // Enter 2/9/2025 which should be February 9th in M/D/Y format
+      await tester.enterText(dateTextField, "2/9/2025");
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      final expectedDate3 = DateTime(2025, 2, 9);
+      expect(mockState.data.dateTime, expectedDate3);
+    });
+
     testWidgets('same as above but enter time', (tester) async {
       final fourteenth = DateTime(2024, 10, 14, 1);
 
