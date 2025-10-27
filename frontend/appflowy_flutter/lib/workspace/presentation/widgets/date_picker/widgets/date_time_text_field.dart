@@ -217,6 +217,25 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
   }
 
   DateTime? parseDateTimeStr(String string) {
+    // First try to parse using the configured date format
+    try {
+      final result = dateFormat.parseStrict(string.trim());
+      if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
+        return result;
+      }
+    } catch (_) {
+      // If strict parsing fails, try lenient parsing
+      try {
+        final result = dateFormat.parse(string.trim());
+        if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
+          return result;
+        }
+      } catch (_) {
+        // Continue to fallback parser
+      }
+    }
+
+    // Fallback to locale-based parsing for natural language dates
     final locale = context.locale.toLanguageTag();
     final parser = AnyDate.fromLocale(locale);
     final result = parser.tryParse(string);
