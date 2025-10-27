@@ -239,19 +239,16 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
 
     // If the string includes time, try to parse with the combined format
     if (widget.includeTime && widget.timeFormat != null) {
+      final combinedFormat = DateFormat(
+        "${widget.dateFormat.pattern} ${widget.timeFormat!.pattern}",
+      );
       try {
-        final combinedFormat = DateFormat(
-          "${widget.dateFormat.pattern} ${widget.timeFormat!.pattern}",
-        );
         final result = combinedFormat.parseStrict(trimmedString);
         if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
           return result;
         }
       } catch (_) {
         try {
-          final combinedFormat = DateFormat(
-            "${widget.dateFormat.pattern} ${widget.timeFormat!.pattern}",
-          );
           final result = combinedFormat.parse(trimmedString);
           if (!result.isBefore(kFirstDay) && !result.isAfter(kLastDay)) {
             return result;
