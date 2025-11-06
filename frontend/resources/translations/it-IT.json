@@ -36,6 +36,9 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Inizia con una sessione anonima",
     "continueAnonymousUser": "Continua con una sessione anonima",
+    "continueWithLocalModel": "Continua con il modello locale",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "Modalità anonima",
     "buttonText": "Accedi",
     "signingInText": "Accesso in corso...",
     "forgotPassword": "Password Dimentica?",
@@ -45,11 +48,14 @@
     "createAccount": "Crea account",
     "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
     "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
+    "passwordMustContain": "La password deve contenere almeno una lettera, un numero e un simbolo.",
     "syncPromptMessage": "La sincronizzazione dei dati potrebbe richiedere del tempo. Per favore, non chiudere questa pagina",
     "or": "O",
     "signInWithGoogle": "Continua con Google",
     "signInWithGithub": "Continua con Github",
     "signInWithDiscord": "Continua con Discord",
+    "signInWithApple": "Continua con Apple",
+    "continueAnotherWay": "Continua in un altro modo",
     "signUpWithGoogle": "Registrati con Google",
     "signUpWithGithub": "Registrati con Github",
     "signUpWithDiscord": "Registrati con Discord",
@@ -66,6 +72,42 @@
     "generalError": "Qualcosa è andato storto. Per favore, riprova più tardi",
     "limitRateError": "Per ragioni di sicurezza, puoi richiedere un link magico ogni 60 secondi",
     "magicLinkSentDescription": "Un Link Magico è stato inviato alla tua email. Clicca il link per completare il tuo accesso. Il link scadrà dopo 5 minuti.",
+    "tokenHasExpiredOrInvalid": "Il codice è scaduto o non è valido. Riprova.",
+    "signingIn": "Accesso in corso...",
+    "checkYourEmail": "Controlla la tua posta elettronica",
+    "temporaryVerificationLinkSent": "È stato inviato un link di verifica temporaneo.\nSi prega di controllare la posta in arrivo di",
+    "temporaryVerificationCodeSent": "È stato inviato un codice di verifica temporaneo.\nSi prega di controllare la posta in arrivo di",
+    "continueToSignIn": "Continua ad accedere",
+    "continueWithLoginCode": "Continua con il codice di accesso",
+    "backToLogin": "Torna al login",
+    "enterCode": "Inserisci il codice",
+    "enterCodeManually": "Inserisci il codice manualmente",
+    "continueWithEmail": "Continua con l'email",
+    "enterPassword": "Inserisci la password",
+    "loginAs": "Accedi come",
+    "invalidVerificationCode": "Inserisci un codice di verifica valido",
+    "tooFrequentVerificationCodeRequest": "Hai effettuato troppe richieste. Riprova più tardi.",
+    "invalidLoginCredentials": "La tua password non è corretta, riprova",
+    "resetPassword": "Reimposta password",
+    "resetPasswordDescription": "Inserisci la tua email per reimpostare la password",
+    "continueToResetPassword": "Continua per reimpostare la password",
+    "resetPasswordSuccess": "Reimpostazione password riuscita",
+    "resetPasswordFailed": "Impossibile reimpostare la password",
+    "resetPasswordLinkSent": "Un link per reimpostare la password è stato inviato alla tua email. Controlla la tua casella di posta all'indirizzo",
+    "resetPasswordLinkExpired": "Il link per reimpostare la password è scaduto. Richiedi un nuovo link.",
+    "resetPasswordLinkInvalid": "Il link per reimpostare la password non è valido. Richiedi un nuovo link.",
+    "enterNewPasswordFor": "Inserisci la nuova password per ",
+    "newPassword": "Nuova password",
+    "enterNewPassword": "Inserisci la nuova password",
+    "confirmPassword": "Conferma password",
+    "confirmNewPassword": "Inserisci la nuova password",
+    "newPasswordCannotBeEmpty": "La nuova password non può essere vuota",
+    "confirmPasswordCannotBeEmpty": "La password di conferma non può essere vuota",
+    "passwordsDoNotMatch": "Le password non corrispondono",
+    "verifying": "Verifica in corso...",
+    "continueWithPassword": "Continua con la password",
+    "youAreInLocalMode": "Sei in modalità locale.",
+    "loginToAppFlowyCloud": "Accedi ad AppFlowy Cloud",
     "LogInWithGoogle": "Accedi con Google",
     "LogInWithGithub": "Accedi con Github",
     "LogInWithDiscord": "Accedi con Discord",
@@ -73,9 +115,14 @@
   },
   "workspace": {
     "chooseWorkspace": "Scegli il tuo spazio di lavoro",
+    "defaultName": "Il mio spazio di lavoro",
     "create": "Crea spazio di lavoro",
+    "new": "Nuovo spazio di lavoro",
+    "importFromNotion": "Importa da Notion",
+    "learnMore": "Per saperne di più",
     "reset": "Ripristina lo spazio di lavoro",
     "renameWorkspace": "Rinomina workspace",
+    "workspaceNameCannotBeEmpty": "Il nome dell'area di lavoro non può essere vuoto",
     "resetWorkspacePrompt": "Il ripristino dello spazio di lavoro eliminerà tutte le pagine e i dati al suo interno. Sei sicuro di voler ripristinare lo spazio di lavoro? In alternativa, puoi contattare il team di supporto per ristabilire lo spazio di lavoro",
     "hint": "spazio di lavoro",
     "notFoundError": "Spazio di lavoro non trovato",
@@ -86,6 +133,7 @@
       "exportLogFiles": "Esporta i file di log",
       "reachOut": "Contattaci su Discord"
     },
+    "menuTitle": "Spazi di lavoro",
     "deleteWorkspaceHintText": "Sei sicuro di voler cancellare la workspace? Questa azione non è reversibile, e ogni pagina che hai pubblicato sarà rimossa.",
     "createSuccess": "Workspace creata con successo",
     "createFailed": "Creazione workspace fallita",
@@ -107,6 +155,7 @@
     "buttonText": "Condividi",
     "workInProgress": "Prossimamente",
     "markdown": "Markdown",
+    "html": "HTML",
     "clipboard": "Copia",
     "csv": "CSV",
     "copyLink": "Copia Link",
@@ -117,7 +166,17 @@
     "visitSite": "Visita sito",
     "exportAsTab": "Esporta come",
     "publishTab": "Pubblica",
-    "shareTab": "Condividi"
+    "shareTab": "Condividi",
+    "publishOnAppFlowy": "Pubblica su AppFlowy",
+    "shareTabTitle": "Invita a collaborare",
+    "shareTabDescription": "Per una facile collaborazione con chiunque",
+    "copyLinkSuccess": "Collegamento copiato negli appunti",
+    "copyShareLink": "Copia il link di condivisione",
+    "copyLinkFailed": "Impossibile copiare il collegamento negli appunti",
+    "copyLinkToBlockSuccess": "Collegamento al blocco copiato negli appunti",
+    "copyLinkToBlockFailed": "Impossibile copiare il collegamento del blocco negli appunti",
+    "manageAllSites": "Gestisci tutti i siti",
+    "updatePathName": "Aggiorna il nome del percorso"
   },
   "moreAction": {
     "small": "piccolo",
@@ -130,14 +189,30 @@
     "charCount": "Numero di caratteri: {}",
     "createdAt": "Creata: {}",
     "deleteView": "Cancella",
-    "duplicateView": "Duplica"
+    "duplicateView": "Duplica",
+    "wordCountLabel": "Numero di parole: ",
+    "charCountLabel": "Numero di caratteri: ",
+    "createdAtLabel": "Creato: ",
+    "syncedAtLabel": "Sincronizzato: ",
+    "saveAsNewPage": "Aggiungi messaggi alla pagina",
+    "saveAsNewPageDisabled": "Nessun messaggio disponibile"
   },
   "importPanel": {
     "textAndMarkdown": "Testo e markdown",
     "documentFromV010": "Documento dalla v0.1.0",
     "databaseFromV010": "Database dalla v0.1.0",
+    "notionZip": "File zip esportato da Notion",
     "csv": "CSV",
     "database": "Banca dati"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Trascina e rilascia un file, fai clic per ",
+      "placeholderUpload": "Carica",
+      "placeholderRight": "oppure incolla il collegamento di un'immagine.",
+      "dropToUpload": "Trascina un file per caricarlo",
+      "change": "Modifica"
+    }
   },
   "disclosureAction": {
     "rename": "Rinomina",
@@ -150,7 +225,10 @@
     "addToFavorites": "Aggiungi ai preferiti",
     "copyLink": "Copia link",
     "changeIcon": "Cambia icona",
-    "collapseAllPages": "Comprimi le sottopagine"
+    "collapseAllPages": "Comprimi le sottopagine",
+    "movePageTo": "Sposta la pagina in",
+    "move": "Sposta",
+    "lockPage": "Blocca la pagina"
   },
   "blankPageTitle": "Pagina vuota",
   "newPageText": "Nuova pagina",
@@ -166,12 +244,15 @@
     "relatedQuestion": "Correlato",
     "serverUnavailable": "Servizio temporaneamente non disponibile. Per favore, riprova più tardi.",
     "aiServerUnavailable": "🌈 Uh-oh! 🌈. Un unicorno ha mangiato la nostra risposta. Per favore, riprova!",
+    "retry": "Riprova",
     "clickToRetry": "Clicca per riprovare",
     "regenerateAnswer": "Rigenera",
     "question1": "Come usare Kanban per organizzare le attività",
     "question2": "Spiega il metodo GTD",
     "question3": "Perché usare Rust",
     "question4": "Ricetta con cos'è presente nella mia cucina",
+    "question5": "Crea un'illustrazione per la mia pagina",
+    "question6": "Stila una lista di cose da fare per la mia prossima settimana",
     "aiMistakePrompt": "Le IA possono fare errori. Controlla le informazioni importanti.",
     "chatWithFilePrompt": "Vuoi chattare col file?",
     "indexFileSuccess": "Indicizzazione file completata con successo",
@@ -184,11 +265,54 @@
     "clickToMention": "Clicca per menzionare una pagina",
     "uploadFile": "Carica file PDF, MD o TXT con la quale chattare",
     "questionDetail": "Salve {}! Come posso aiutarti oggi?",
-    "indexingFile": "Indicizzazione {}"
+    "indexingFile": "Indicizzazione {}",
+    "generatingResponse": "Sto generando una risposta",
+    "selectSources": "Seleziona fonti",
+    "currentPage": "Pagina corrente",
+    "sourcesLimitReached": "È possibile selezionare solo fino a 3 documenti di livello superiore e i relativi figli",
+    "sourceUnsupported": "Al momento non supportiamo la chat con i database",
+    "regenerate": "Riprova",
+    "addToPageButton": "Aggiungi messaggio alla pagina",
+    "addToPageTitle": "Aggiungi messaggio a...",
+    "addToNewPage": "Crea una nuova pagina",
+    "addToNewPageName": "Messaggi estratti da \"{}\"",
+    "addToNewPageSuccessToast": "Messaggio aggiunto a",
+    "openPagePreviewFailedToast": "Impossibile aprire la pagina",
+    "changeFormat": {
+      "actionButton": "Cambia formato",
+      "confirmButton": "Rigenera con questo formato",
+      "textOnly": "Testo",
+      "imageOnly": "Solo immagine",
+      "textAndImage": "Testo e immagine",
+      "text": "Paragrafo",
+      "bullet": "Elenco puntato",
+      "number": "Elenco numerato",
+      "table": "Tavolo",
+      "blankDescription": "Formato risposta",
+      "defaultDescription": "Formato di risposta automatica",
+      "textWithImageDescription": "@:chat .changeFormat.text con immagine",
+      "numberWithImageDescription": "@:chat .changeFormat.number con immagine",
+      "bulletWithImageDescription": "@:chat .changeFormat.bullet con immagine",
+      "tableWithImageDescription": "@:chat .changeFormat.table con immagine"
+    },
+    "switchModel": {
+      "label": "Cambia modello",
+      "localModel": "Modello locale",
+      "cloudModel": "Modello in cloud",
+      "autoModel": "Automatico"
+    },
+    "selectBanner": {
+      "saveButton": "Aggiungi a …",
+      "selectMessages": "Seleziona i messaggi",
+      "nSelected": "{} selezionati",
+      "allSelected": "Tutti selezionati"
+    },
+    "stopTooltip": "Smetti di generare"
   },
   "trash": {
     "text": "Cestino",
     "restoreAll": "Ripristina Tutto",
+    "restore": "Ripristina",
     "deleteAll": "Elimina Tutto",
     "pageHeader": {
       "fileName": "Nome file",
@@ -203,6 +327,10 @@
       "title": "Sei sicuro di ripristinare tutte le pagine nel Cestino?",
       "caption": "Questa azione non può essere annullata."
     },
+    "restorePage": {
+      "title": "Ripristina: {}",
+      "caption": "Sei sicuro di voler ripristinare questa pagina?"
+    },
     "mobile": {
       "actions": "Azioni del cestino",
       "empty": "Il cestino è vuoto",
@@ -215,12 +343,15 @@
   "deletePagePrompt": {
     "text": "Questa pagina è nel Cestino",
     "restore": "Ripristina pagina",
-    "deletePermanent": "Elimina definitivamente"
+    "deletePermanent": "Elimina definitivamente",
+    "deletePermanentDescription": "Vuoi davvero eliminare definitivamente questa pagina? L'operazione è irreversibile."
   },
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
     "shortcuts": "Scorciatoie",
     "whatsNew": "Cosa c'è di nuovo?",
+    "helpAndDocumentation": "Aiuto e documentazione",
+    "getSupport": "Ottieni supporto",
     "markdown": "Markdown",
     "debug": {
       "name": "Informazioni di debug",
@@ -234,7 +365,8 @@
     "moreButtonToolTip": "Rimuovi, rinomina e altro...",
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
     "defaultNewPageName": "Senza titolo",
-    "renameDialog": "Rinomina"
+    "renameDialog": "Rinomina",
+    "pageNameSuffix": "Copia"
   },
   "noPagesInside": "Nessuna pagina all'interno",
   "toolbar": {
@@ -270,8 +402,10 @@
   "sideBar": {
     "closeSidebar": "Close sidebar",
     "openSidebar": "Open sidebar",
+    "expandSidebar": "Espandi a pagina intera",
     "personal": "Personale",
     "private": "Privato",
+    "workspace": "Area di lavoro",
     "favorites": "Preferiti",
     "clickToHidePrivate": "Clicca per nascondere l'area privata\nLe pagine create qui sono visibili solo a te",
     "clickToHideWorkspace": "Clicca per nascondere la workspace\nLe pagine che crei qui sono visibili a ogni membro",
@@ -284,6 +418,7 @@
     "today": "Oggi",
     "thisWeek": "Questa settimana",
     "others": "Preferiti precedenti",
+    "earlier": "Prima",
     "justNow": "poco fa",
     "minutesAgo": "{count} minuti fa",
     "lastViewed": "Visto per ultimo",
@@ -300,8 +435,22 @@
     "upgradeToPro": "Aggiorna a Pro",
     "upgradeToAIMax": "Sblocca AI illimitata",
     "storageLimitDialogTitle": "Hai esaurito lo spazio d'archiviazione gratuito. Aggiorna per avere spazio d'archiviazione illimitato!",
+    "storageLimitDialogTitleIOS": "Hai esaurito lo spazio di archiviazione gratuito.",
     "aiResponseLimitTitle": "Hai esaurito le risposte AI gratuite. Aggiorna al Piano Pro per acquistare un add-on AI per avere risposte illimitate",
-    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto"
+    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto",
+    "aiResponseLimit": "Hai esaurito le risposte AI gratuite.\n\nVai su Impostazioni -> Piano -> Fai clic su AI Max o Pro Plan per ottenere più risposte AI",
+    "askOwnerToUpgradeToPro": "Lo spazio di archiviazione gratuito del tuo spazio di lavoro sta esaurendo. Chiedi al proprietario del tuo spazio di lavoro di passare al piano Pro.",
+    "askOwnerToUpgradeToProIOS": "Lo spazio di archiviazione gratuito nel tuo spazio di lavoro sta esaurendo.",
+    "askOwnerToUpgradeToAIMax": "Il tuo spazio di lavoro ha esaurito le risposte AI gratuite. Chiedi al proprietario del tuo spazio di lavoro di aggiornare il piano o di acquistare componenti aggiuntivi AI.",
+    "askOwnerToUpgradeToAIMaxIOS": "Il tuo spazio di lavoro sta esaurendo le risposte AI gratuite.",
+    "purchaseAIMax": "Il tuo spazio di lavoro ha esaurito le risposte delle immagini AI. Chiedi al proprietario del tuo spazio di lavoro di acquistare AI Max",
+    "aiImageResponseLimit": "Hai esaurito le risposte delle immagini dell'IA.\n\nVai su Impostazioni -> Piano -> Fai clic su AI Max per ottenere più risposte di immagini AI",
+    "purchaseStorageSpace": "Acquista spazio di archiviazione",
+    "singleFileProPlanLimitationDescription": "Hai superato la dimensione massima di caricamento file consentita nel piano gratuito. Passa al piano Pro per caricare file più grandi.",
+    "purchaseAIResponse": "Acquista",
+    "askOwnerToUpgradeToLocalAI": "Chiedi al proprietario dell'area di lavoro di abilitare l'intelligenza artificiale sul dispositivo",
+    "upgradeToAILocal": "Esegui modelli locali sul tuo dispositivo per la massima privacy",
+    "upgradeToAILocalDesc": "Chatta con i PDF, migliora la tua scrittura e compila automaticamente le tabelle utilizzando l'intelligenza artificiale locale"
   },
   "notifications": {
     "export": {
@@ -317,11 +466,13 @@
   },
   "button": {
     "ok": "OK",
+    "confirm": "Conferma",
     "done": "Fatto",
     "cancel": "Annulla",
     "signIn": "Accedi",
     "signOut": "Esci",
     "complete": "Completa",
+    "change": "Modifica",
     "save": "Salva",
     "generate": "creare",
     "esc": "ESC",
@@ -334,18 +485,48 @@
     "upload": "Caricamento",
     "edit": "Modificare",
     "delete": "Eliminare",
+    "copy": "Copia",
     "duplicate": "Duplicare",
     "putback": "Rimettere a posto",
     "update": "Aggiorna",
     "share": "Condividi",
     "removeFromFavorites": "Rimuovi dai preferiti",
+    "removeFromRecent": "Rimuovi da Recenti",
     "addToFavorites": "Aggiungi ai preferiti",
+    "favoriteSuccessfully": "Preferito aggiunto con successo",
+    "unfavoriteSuccessfully": "Preferito rimosso con successo",
+    "duplicateSuccessfully": "Duplicato con successo",
     "rename": "Rinomina",
     "helpCenter": "Centro assistenza",
     "add": "Aggiungi",
     "yes": "SÌ",
+    "no": "No",
+    "clear": "Pulisci",
     "remove": "Rimuovi",
-    "dontRemove": "Non rimuovere"
+    "dontRemove": "Non rimuovere",
+    "copyLink": "Copia collegamento",
+    "align": "Allinea",
+    "login": "Login",
+    "logout": "Disconnettiti",
+    "deleteAccount": "Elimina l'account",
+    "back": "Indietro",
+    "signInGoogle": "Continua con Google",
+    "signInGithub": "Continua con GitHub",
+    "signInDiscord": "Continua con Discord",
+    "more": "Di più",
+    "create": "Creare",
+    "close": "Chiudi",
+    "next": "Prossimo",
+    "previous": "Precedente",
+    "submit": "Invia",
+    "download": "Scarica",
+    "backToHome": "Torna alla Home",
+    "viewing": "Visualizzazione",
+    "editing": "Modifica",
+    "gotIt": "Fatto",
+    "retry": "Riprova",
+    "uploadFailed": "Caricamento non riuscito.",
+    "copyLinkOriginal": "Copia il collegamento all'originale"
   },
   "label": {
     "welcome": "Benvenuto!",
@@ -369,6 +550,619 @@
   },
   "settings": {
     "title": "Impostazioni",
+    "popupMenuItem": {
+      "settings": "Impostazioni",
+      "members": "Membri",
+      "trash": "Spazzatura",
+      "helpAndDocumentation": "Aiuto e documentazione",
+      "getSupport": "Ottieni supporto"
+    },
+    "sites": {
+      "title": "Siti",
+      "namespaceTitle": "Namespace",
+      "namespaceDescription": "Gestisci il tuo namespace e la tua homepage",
+      "namespaceHeader": "Namespace",
+      "homepageHeader": "Homepage",
+      "updateNamespace": "Aggiorna il namespace",
+      "removeHomepage": "Rimuovi la homepage",
+      "selectHomePage": "Seleziona una pagina",
+      "clearHomePage": "Cancella la homepage per questo namespace",
+      "customUrl": "URL personalizzato",
+      "homePage": {
+        "upgradeToPro": "Passa al piano Pro per impostare una homepage"
+      },
+      "namespace": {
+        "description": "Questa modifica verrà applicata a tutte le pagine pubblicate in questo namespace",
+        "tooltip": "Ci riserviamo il diritto di rimuovere qualsiasi namespace inappropriato",
+        "updateExistingNamespace": "Aggiorna il namexpace esistente",
+        "upgradeToPro": "Passa al piano Pro per richiedere uno spazio dei nomi personalizzato",
+        "redirectToPayment": "Reindirizzamento alla pagina di pagamento...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Solo il proprietario dell'area di lavoro può impostare una homepage",
+        "pleaseAskOwnerToSetHomePage": "Chiedi al proprietario dell'area di lavoro di passare al piano Pro"
+      },
+      "publishedPage": {
+        "title": "Tutte le pagine pubblicate",
+        "description": "Gestisci le tue pagine pubblicate",
+        "page": "Pagina",
+        "pathName": "Nome del percorso",
+        "date": "Data di pubblicazione",
+        "emptyHinText": "Non hai pagine pubblicate in questo spazio di lavoro",
+        "noPublishedPages": "Nessuna pagina pubblicata",
+        "settings": "Impostazioni di pubblicazione",
+        "clickToOpenPageInApp": "Apri la pagina nell'app",
+        "clickToOpenPageInBrowser": "Apri la pagina nel browser"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Impossibile generare il collegamento di pagamento per il piano Pro",
+        "failedToUpdateNamespace": "Impossibile aggiornare il namespace",
+        "proPlanLimitation": "È necessario eseguire l'aggiornamento al piano Pro per aggiornare lo spazio dei nomi",
+        "namespaceAlreadyInUse": "Il namespace è già stato preso, provane un altro",
+        "invalidNamespace": "Namespace non valido, provane un altro",
+        "namespaceLengthAtLeast2Characters": "Il namespace deve essere lungo almeno 2 caratteri",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Solo il proprietario dell'area di lavoro può aggiornare il namespace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Solo il proprietario dell'area di lavoro può rimuovere la home page",
+        "setHomepageFailed": "Impossibile impostare la homepage",
+        "namespaceTooLong": "Il namespace è troppo lungo, provane un altro",
+        "namespaceTooShort": "Il namespace è troppo breve, provane un altro",
+        "namespaceIsReserved": "Il namespace è riservato, provane un altro",
+        "updatePathNameFailed": "Impossibile aggiornare il percorso",
+        "removeHomePageFailed": "Impossibile rimuovere la homepage",
+        "publishNameContainsInvalidCharacters": "Il percorso contiene caratteri non validi, provane un altro",
+        "publishNameTooShort": "Il percorso è troppo breve, provane un altro",
+        "publishNameTooLong": "Il percorso è troppo lungo, provane un altro",
+        "publishNameAlreadyInUse": "Il percorso è già in uso, provane un altro",
+        "namespaceContainsInvalidCharacters": "Il namespace contiene caratteri non validi, provane un altro",
+        "publishPermissionDenied": "Solo il proprietario dell'area di lavoro o l'editore della pagina può gestire le impostazioni di pubblicazione",
+        "publishNameCannotBeEmpty": "Il percorso non può essere vuoto, provane un altro"
+      },
+      "success": {
+        "namespaceUpdated": "Namespace aggiornato correttamente",
+        "setHomepageSuccess": "La homepage è stata impostata correttamente",
+        "updatePathNameSuccess": "Percorso aggiornato correttamente",
+        "removeHomePageSuccess": "Homepage rimossa con successo"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "Account e app",
+      "title": "Il mio account",
+      "general": {
+        "title": "Nome dell'account e immagine del profilo",
+        "changeProfilePicture": "Cambia l'immagine del profilo"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Cambia l'email"
+        }
+      },
+      "login": {
+        "title": "Accedi all'account",
+        "loginLabel": "Login",
+        "logoutLabel": "Disconnettiti"
+      },
+      "isUpToDate": "@:appName è aggiornato!",
+      "officialVersion": "Versione {versione} (官方構建)"
+    },
+    "workspacePage": {
+      "menuLabel": "Area di lavoro",
+      "title": "Area di lavoro",
+      "description": "Personalizza l'aspetto, il tema, il carattere, il layout del testo, il formato data/ora e la lingua del tuo spazio di lavoro.",
+      "workspaceName": {
+        "title": "Nome dell'area di lavoro"
+      },
+      "workspaceIcon": {
+        "title": "Icona dell'area di lavoro",
+        "description": "Carica un'immagine o usa un'emoji per il tuo spazio di lavoro. L'icona verrà visualizzata nella barra laterale e nelle notifiche."
+      },
+      "appearance": {
+        "title": "Aspetto",
+        "description": "Personalizza l'aspetto, il tema, il carattere, il layout del testo, la data, l'ora e la lingua del tuo spazio di lavoro.",
+        "options": {
+          "system": "Automatico",
+          "light": "Chiaro",
+          "dark": "Scuro"
+        }
+      },
+      "resetCursorColor": {
+        "title": "Reimposta il colore del cursore del documento",
+        "description": "Vuoi davvero reimpostare il colore del cursore?"
+      },
+      "resetSelectionColor": {
+        "title": "Reimposta il colore di selezione del documento",
+        "description": "Vuoi davvero reimpostare il colore di selezione?"
+      },
+      "resetWidth": {
+        "resetSuccess": "Reimposta correttamente la larghezza del documento"
+      },
+      "theme": {
+        "title": "Tema",
+        "description": "Seleziona un tema preimpostato o carica il tuo tema personalizzato.",
+        "uploadCustomThemeTooltip": "Carica un tema personalizzato",
+        "failedToLoadThemes": "Impossibile caricare i temi, controlla le impostazioni dei permessi in Impostazioni di sistema -> Privacy e sicurezza -> File e cartelle -> @:appName"
+      },
+      "workspaceFont": {
+        "title": "Carattere dell'area di lavoro",
+        "noFontHint": "Nessun font trovato, prova un altro termine."
+      },
+      "textDirection": {
+        "title": "Direzione del testo",
+        "leftToRight": "Da sinistra a destra",
+        "rightToLeft": "Da destra a sinistra",
+        "auto": "Auto",
+        "enableRTLItems": "Abilita gli elementi della barra degli strumenti RTL"
+      },
+      "layoutDirection": {
+        "title": "Direzione del layout",
+        "leftToRight": "Da sinistra a destra",
+        "rightToLeft": "Da destra a sinistra"
+      },
+      "dateTime": {
+        "title": "Data e ora",
+        "example": "{} alle {} ({})",
+        "24HourTime": "formato 24 ore",
+        "dateFormat": {
+          "label": "Formato data",
+          "local": "Locale",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Amichevole",
+          "dmy": "G/M/A"
+        }
+      },
+      "language": {
+        "title": "Lingua"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Elimina area di lavoro",
+        "content": "Vuoi davvero eliminare questo spazio di lavoro? Questa azione non può essere annullata e tutte le pagine che hai pubblicato verranno rimosse dalla pubblicazione."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Lascia l'area di lavoro",
+        "content": "Vuoi davvero uscire da questa area di lavoro? Perderai l'accesso a tutte le pagine e ai dati in essa contenuti.",
+        "success": "Hai abbandonato l'area di lavoro con successo.",
+        "fail": "Impossibile uscire dall'area di lavoro."
+      },
+      "manageWorkspace": {
+        "title": "Gestisci l'area di lavoro",
+        "leaveWorkspace": "Lascia l'area di lavoro",
+        "deleteWorkspace": "Elimina area di lavoro"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Gestisci i dati",
+      "title": "Gestisci i dati",
+      "description": "Gestisci l'archiviazione locale dei dati o importa i tuoi dati esistenti in @:appName .",
+      "dataStorage": {
+        "title": "Posizione di archiviazione dei file",
+        "tooltip": "La posizione in cui sono archiviati i tuoi file",
+        "actions": {
+          "change": "Cambia percorso",
+          "open": "Apri cartella",
+          "openTooltip": "Apri la posizione della cartella dati corrente",
+          "copy": "Copia percorso",
+          "copiedHint": "Percorso copiato!",
+          "resetTooltip": "Ripristina la posizione predefinita"
+        },
+        "resetDialog": {
+          "title": "Sei sicuro?",
+          "description": "Reimpostare il percorso alla posizione predefinita dei dati non eliminerà i dati. Se desideri reimportare i dati correnti, devi prima copiare il percorso della posizione corrente."
+        }
+      },
+      "importData": {
+        "title": "Importa dati",
+        "tooltip": "Importa dati da cartelle di backup/dati @:appName",
+        "description": "Copia i dati da una cartella dati esterna @:appName",
+        "action": "Sfoglia file"
+      },
+      "encryption": {
+        "title": "Crittografia",
+        "tooltip": "Gestisci il modo in cui i tuoi dati vengono archiviati e crittografati",
+        "descriptionNoEncryption": "L'attivazione della crittografia crittograferà tutti i dati. Questa operazione non può essere annullata.",
+        "descriptionEncrypted": "I tuoi dati sono crittografati.",
+        "action": "Crittografare i dati",
+        "dialog": {
+          "title": "Vuoi crittografare tutti i tuoi dati?",
+          "description": "La crittografia di tutti i tuoi dati li manterrà al sicuro e protetti. Questa azione NON può essere annullata. Vuoi continuare?"
+        }
+      },
+      "cache": {
+        "title": "Cancella cache",
+        "description": "Aiuta a risolvere problemi come il mancato caricamento delle immagini, pagine mancanti in uno spazio e caratteri non caricati. Questo non influirà sui tuoi dati.",
+        "dialog": {
+          "title": "Cancella cache",
+          "description": "Aiuta a risolvere problemi come il mancato caricamento delle immagini, pagine mancanti in uno spazio e caratteri non caricati. Questo non influirà sui tuoi dati.",
+          "successHint": "Cache svuotata!"
+        }
+      },
+      "data": {
+        "fixYourData": "Correggi i tuoi dati",
+        "fixButton": "Correggi",
+        "fixYourDataDescription": "Se riscontri problemi con i tuoi dati, puoi provare a risolverli qui."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Scorciatoie",
+      "title": "Scorciatoie",
+      "editBindingHint": "Inserisci nuova associazione",
+      "searchHint": "Ricerca",
+      "actions": {
+        "resetDefault": "Ripristina predefinito"
+      },
+      "errorPage": {
+        "message": "Impossibile caricare i collegamenti: {}",
+        "howToFix": "Riprova. Se il problema persiste, contattaci su GitHub."
+      },
+      "resetDialog": {
+        "title": "Reimposta le scorciatoie",
+        "description": "Questa operazione ripristinerà tutte le combinazioni di tasti predefinite; non sarà possibile annullare questa operazione in seguito. Vuoi procedere?",
+        "buttonLabel": "Ripristina"
+      },
+      "conflictDialog": {
+        "title": "{} è attualmente in uso",
+        "descriptionPrefix": "Questa combinazione di tasti è attualmente utilizzata da ",
+        "descriptionSuffix": ". Se si sostituisce questa combinazione di tasti, questa verrà rimossa da {}.",
+        "confirmLabel": "Continua"
+      },
+      "editTooltip": "Premere per iniziare a modificare la combinazione di tasti",
+      "keybindings": {
+        "toggleToDoList": "Attiva/disattiva l'elenco delle cose da fare",
+        "insertNewParagraphInCodeblock": "Inserisci nuovo paragrafo",
+        "pasteInCodeblock": "Incolla nel blocco di codice",
+        "selectAllCodeblock": "Seleziona tutto",
+        "indentLineCodeblock": "Inserisci due spazi all'inizio della riga",
+        "outdentLineCodeblock": "Elimina due spazi all'inizio della riga",
+        "twoSpacesCursorCodeblock": "Inserisci due spazi al cursore",
+        "copy": "Copia selezione",
+        "paste": "Incolla nel contenuto",
+        "cut": "Taglia la selezione",
+        "alignLeft": "Allinea il testo a sinistra",
+        "alignCenter": "Allinea il testo al centro",
+        "alignRight": "Allinea il testo a destra",
+        "insertInlineMathEquation": "Inserisci equazione matematica in linea",
+        "undo": "Annulla",
+        "redo": "Rifai",
+        "convertToParagraph": "Converti blocco in paragrafo",
+        "backspace": "Elimina",
+        "deleteLeftWord": "Elimina la parola a sinistra",
+        "deleteLeftSentence": "Elimina la frase a sinistra",
+        "delete": "Elimina il carattere corretto",
+        "deleteMacOS": "Elimina il carattere a sinistra",
+        "deleteRightWord": "Elimina la parola a destra",
+        "moveCursorLeft": "Sposta il cursore a sinistra",
+        "moveCursorBeginning": "Sposta il cursore all'inizio",
+        "moveCursorLeftWord": "Sposta il cursore a sinistra di una parola",
+        "moveCursorLeftSelect": "Seleziona e sposta il cursore a sinistra",
+        "moveCursorBeginSelect": "Seleziona e sposta il cursore all'inizio",
+        "moveCursorLeftWordSelect": "Seleziona e sposta il cursore a sinistra di una parola",
+        "moveCursorRight": "Sposta il cursore a destra",
+        "moveCursorEnd": "Sposta il cursore alla fine",
+        "moveCursorRightWord": "Sposta il cursore a destra di una parola",
+        "moveCursorRightSelect": "Seleziona e sposta il cursore a destra",
+        "moveCursorEndSelect": "Seleziona e sposta il cursore alla fine",
+        "moveCursorRightWordSelect": "Seleziona e sposta il cursore a destra di una parola",
+        "moveCursorUp": "Sposta il cursore verso l'alto",
+        "moveCursorTopSelect": "Seleziona e sposta il cursore in alto",
+        "moveCursorTop": "Sposta il cursore in alto",
+        "moveCursorUpSelect": "Seleziona e sposta il cursore verso l'alto",
+        "moveCursorBottomSelect": "Seleziona e sposta il cursore in basso",
+        "moveCursorBottom": "Sposta il cursore in basso",
+        "moveCursorDown": "Sposta il cursore verso il basso",
+        "moveCursorDownSelect": "Seleziona e sposta il cursore verso il basso",
+        "home": "Scorri verso l'alto",
+        "end": "Scorri fino in fondo",
+        "toggleBold": "Attiva/disattiva grassetto",
+        "toggleItalic": "Attiva/disattiva il corsivo",
+        "toggleUnderline": "Attiva/disattiva la sottolineatura",
+        "toggleStrikethrough": "Attiva/disattiva barrato",
+        "toggleCode": "Attiva/disattiva il codice in linea",
+        "toggleHighlight": "Attiva/disattiva l'evidenziazione",
+        "showLinkMenu": "Mostra il menu dei link",
+        "openInlineLink": "Apri collegamento in linea",
+        "openLinks": "Apri tutti i link selezionati",
+        "indent": "Aumenta rientro",
+        "outdent": "Riduci rientro",
+        "exit": "Esci dalla modifica",
+        "pageUp": "Scorri una pagina verso l'alto",
+        "pageDown": "Scorri una pagina verso il basso",
+        "selectAll": "Seleziona tutto",
+        "pasteWithoutFormatting": "Incolla il contenuto senza formattazione",
+        "showEmojiPicker": "Mostra selettore emoji",
+        "enterInTableCell": "Aggiungi interruzione di riga nella tabella",
+        "leftInTableCell": "Sposta a sinistra di una cella nella tabella",
+        "rightInTableCell": "Spostati a destra di una cella nella tabella",
+        "upInTableCell": "Spostarsi su di una cella nella tabella",
+        "downInTableCell": "Spostarsi verso il basso di una cella nella tabella",
+        "tabInTableCell": "Vai alla cella disponibile successiva nella tabella",
+        "shiftTabInTableCell": "Vai alla cella precedentemente disponibile nella tabella",
+        "backSpaceInTableCell": "Fermati all'inizio della cella"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "Inserisci un nuovo paragrafo accanto al blocco di codice",
+        "codeBlockIndentLines": "Inserire due spazi all'inizio della riga nel blocco di codice",
+        "codeBlockOutdentLines": "Elimina due spazi all'inizio della riga nel blocco di codice",
+        "codeBlockAddTwoSpaces": "Inserisci due spazi nella posizione del cursore nel blocco di codice",
+        "codeBlockSelectAll": "Seleziona tutto il contenuto all'interno di un blocco di codice",
+        "codeBlockPasteText": "Incolla il testo nel blocco di codice",
+        "textAlignLeft": "Allinea il testo a sinistra",
+        "textAlignCenter": "Allinea il testo al centro",
+        "textAlignRight": "Allinea il testo a destra"
+      },
+      "couldNotLoadErrorMsg": "Impossibile caricare i collegamenti. Riprova.",
+      "couldNotSaveErrorMsg": "Impossibile salvare i collegamenti. Riprova."
+    },
+    "aiPage": {
+      "title": "Impostazioni AI",
+      "menuLabel": "Impostazioni AI",
+      "keys": {
+        "enableAISearchTitle": "Ricerca AI",
+        "aiSettingsDescription": "Scegli il modello che preferisci per potenziare AppFlowy AI. Ora include GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet e modelli disponibili in Ollama.",
+        "loginToEnableAIFeature": "Le funzionalità di intelligenza artificiale sono abilitate solo dopo aver effettuato l'accesso con @:appName Cloud. Se non hai un @:appName , vai su \"Il mio account\" per registrarti.",
+        "llmModel": "Modello linguistico",
+        "globalLLMModel": "Modello linguistico globale",
+        "readOnlyField": "Questo campo è di sola lettura",
+        "llmModelType": "Tipo di modello linguistico",
+        "downloadLLMPrompt": "Scarica {}",
+        "downloadAppFlowyOfflineAI": "Scaricando il pacchetto AI offline, l'AI potrà essere eseguita sul tuo dispositivo. Vuoi continuare?",
+        "downloadLLMPromptDetail": "Il download del modello locale {} occuperà fino a {} di spazio di archiviazione. Vuoi continuare?",
+        "downloadBigFilePrompt": "Potrebbero essere necessari circa 10 minuti per completare il download",
+        "downloadAIModelButton": "Scarica",
+        "downloadingModel": "Scaricando",
+        "localAILoaded": "Modello AI locale aggiunto correttamente e pronto per l'uso",
+        "localAIStart": "L'intelligenza artificiale locale si sta avviando. Se è lenta, prova a disattivarla e riattivarla.",
+        "localAILoading": "Caricamento del modello di chat AI locale...",
+        "localAIStopped": "L'IA locale si è fermata",
+        "localAIRunning": "L'intelligenza artificiale locale è in esecuzione",
+        "localAINotReadyRetryLater": "L'IA locale è in fase di inizializzazione, riprova più tardi",
+        "localAIDisabled": "Stai utilizzando l'intelligenza artificiale locale, ma è disabilitata. Vai alle impostazioni per abilitarla o prova un modello diverso.",
+        "localAIInitializing": "L'intelligenza artificiale locale è in fase di caricamento. Potrebbero volerci alcuni secondi, a seconda del dispositivo.",
+        "localAINotReadyTextFieldPrompt": "Non è possibile modificare mentre l'IA locale è in fase di caricamento",
+        "localAIDisabledTextFieldPrompt": "Non puoi modificare mentre l'IA locale è disabilitata",
+        "failToLoadLocalAI": "Impossibile avviare l'IA locale.",
+        "restartLocalAI": "Riavvia",
+        "disableLocalAITitle": "Disabilita l'IA locale",
+        "disableLocalAIDescription": "Vuoi disattivare l'IA locale?",
+        "localAIToggleTitle": "AppFlowy IA locale (LAI)",
+        "localAIToggleSubTitle": "Esegui i modelli di intelligenza artificiale locale più avanzati all'interno di AppFlowy per la massima privacy e sicurezza",
+        "offlineAIInstruction1": "Segui l'",
+        "offlineAIInstruction2": "istruzione",
+        "offlineAIInstruction3": "per abilitare l'intelligenza artificiale offline.",
+        "offlineAIDownload1": "Se non hai scaricato AppFlowy AI, per favore",
+        "offlineAIDownload2": "scaricala",
+        "offlineAIDownload3": "prima di tutto",
+        "activeOfflineAI": "Attiva",
+        "downloadOfflineAI": "Scarica",
+        "openModelDirectory": "Apri cartella",
+        "laiNotReady": "L'app Local AI non è stata installata correttamente.",
+        "ollamaNotReady": "Il server Ollama non è pronto.",
+        "pleaseFollowThese": "Per favore segui queste",
+        "instructions": "istruzioni",
+        "installOllamaLai": "per configurare Ollama e AppFlowy Local AI.",
+        "modelsMissing": "Impossibile trovare i modelli richiesti: ",
+        "downloadModel": "per scaricarli."
+      }
+    },
+    "planPage": {
+      "menuLabel": "Piano",
+      "title": "Piano tariffario",
+      "planUsage": {
+        "title": "Riepilogo dell'utilizzo del piano",
+        "storageLabel": "Archiviazione",
+        "storageUsage": "{} di {} GB",
+        "unlimitedStorageLabel": "Spazio di archiviazione illimitato",
+        "collaboratorsLabel": "Membri",
+        "collaboratorsUsage": "{} di {}",
+        "aiResponseLabel": "Risposte IA",
+        "aiResponseUsage": "{} di {}",
+        "unlimitedAILabel": "Risposte illimitate",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI sul dispositivo per Mac",
+        "memberProToggle": "Più membri e accesso illimitato all'IA e agli ospiti",
+        "aiMaxToggle": "Intelligenza artificiale illimitata e accesso a modelli avanzati",
+        "aiOnDeviceToggle": "Intelligenza artificiale locale per la massima privacy",
+        "aiCredit": {
+          "title": "Aggiungi credito AI @:appName",
+          "price": "{}",
+          "priceDescription": "per 1.000 crediti",
+          "purchase": "Acquista AI",
+          "info": "Aggiungi 1.000 crediti AI per area di lavoro e integra perfettamente l'AI personalizzabile nel tuo flusso di lavoro per risultati più intelligenti e rapidi con un massimo di:",
+          "infoItemOne": "10.000 risposte per database",
+          "infoItemTwo": "1.000 risposte per spazio di lavoro"
+        },
+        "currentPlan": {
+          "bannerLabel": "Piano attuale",
+          "freeTitle": "Gratuito",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfetto per singoli fino a 2 membri per organizzare tutto",
+          "proInfo": "Perfetto per team piccoli e medi fino a 10 membri.",
+          "teamInfo": "Perfetto per tutti i team produttivi e ben organizzati.",
+          "upgrade": "Cambia piano",
+          "canceledInfo": "Il tuo piano è stato annullato e il {} passerà al piano gratuito."
+        },
+        "addons": {
+          "title": "Componenti aggiuntivi",
+          "addLabel": "Aggiungi",
+          "activeLabel": "Aggiunto",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Risposte AI illimitate basate su modelli AI avanzati e 50 immagini AI al mese",
+            "price": "{}",
+            "priceInfo": "Per utente, al mese, fatturato annualmente"
+          },
+          "aiOnDevice": {
+            "title": "AI sul dispositivo per Mac",
+            "description": "Esegui Mistral 7B, LLAMA 3 e altri modelli locali sul tuo computer",
+            "price": "{}",
+            "priceInfo": "Per utente al mese fatturato annualmente",
+            "recommend": "Si consiglia M1 o più recente"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Offerta per il nuovo anno!",
+          "title": "Fai crescere il tuo team!",
+          "info": "Esegui l'upgrade e risparmia il 10% sui piani Pro e Team! Aumenta la produttività del tuo spazio di lavoro con nuove potenti funzionalità, tra cui l'intelligenza artificiale @:appName .",
+          "viewPlans": "Visualizza i piani"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Fatturazione",
+      "title": "Fatturazione",
+      "plan": {
+        "title": "Piano",
+        "freeLabel": "Gratuito",
+        "proLabel": "Pro",
+        "planButtonLabel": "Cambia piano",
+        "billingPeriod": "Periodo di fatturazione",
+        "periodButtonLabel": "Periodo di modifica"
+      },
+      "paymentDetails": {
+        "title": "Dettagli di pagamento",
+        "methodLabel": "Metodo di pagamento",
+        "methodButtonLabel": "Modifica il metodo"
+      },
+      "addons": {
+        "title": "Componenti aggiuntivi",
+        "addLabel": "Aggiungi",
+        "removeLabel": "Rimuovi",
+        "renewLabel": "Rinnova",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Sblocca IA illimitata e modelli avanzati",
+          "activeDescription": "Prossima fattura in scadenza il {}",
+          "canceledDescription": "AI Max sarà disponibile fino al {}"
+        },
+        "aiOnDevice": {
+          "label": "AI sul dispositivo per Mac",
+          "description": "Sblocca l'intelligenza artificiale illimitata sul tuo dispositivo",
+          "activeDescription": "Prossima fattura in scadenza il {}",
+          "canceledDescription": "AI On-device per Mac sarà disponibile fino al {}"
+        },
+        "removeDialog": {
+          "title": "Rimuovi {}",
+          "description": "Vuoi davvero rimuovere {plan}? Perderai immediatamente l'accesso alle funzionalità e ai vantaggi di {plan}."
+        }
+      },
+      "currentPeriodBadge": "ATTUALE",
+      "changePeriod": "Modifica il periodo",
+      "planPeriod": "{} periodo",
+      "monthlyInterval": "Mensile",
+      "monthlyPriceInfo": "per posto fatturato mensilmente",
+      "annualInterval": "Annualmente",
+      "annualPriceInfo": "per posto fatturato annualmente"
+    },
+    "comparePlanDialog": {
+      "title": "Confronta e seleziona il piano",
+      "planFeatures": "Piano\nCaratteristiche",
+      "current": "Attuale",
+      "actions": {
+        "upgrade": "Aggiorna",
+        "downgrade": "Downgrade",
+        "current": "Attuale"
+      },
+      "freePlan": {
+        "title": "Gratuito",
+        "description": "Per singoli fino a 2 membri per organizzare tutto",
+        "price": "{}",
+        "priceInfo": "Gratuito per sempre"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "Per piccoli team per gestire progetti e conoscenze di squadra",
+        "price": "{}",
+        "priceInfo": "Per utente al mese\nfatturato annualmente<inlang-LineFeed>\n{} fatturato mensilmente"
+      },
+      "planLabels": {
+        "itemOne": "Spazi di lavoro",
+        "itemTwo": "Membri",
+        "itemThree": "Archiviazione",
+        "itemFour": "Collaborazione in tempo reale",
+        "itemFive": "Editor ospiti",
+        "itemSix": "Risposte AI",
+        "itemSeven": "Immagini AI",
+        "itemFileUpload": "Caricamento di file",
+        "customNamespace": "Namespace personalizzato",
+        "tooltipFive": "Collaborare su pagine specifiche con i non membri",
+        "tooltipSix": "Per sempre significa che il numero di risposte non viene mai azzerato",
+        "intelligentSearch": "Ricerca intelligente",
+        "tooltipSeven": "Ti consente di personalizzare parte dell'URL per il tuo spazio di lavoro",
+        "customNamespaceTooltip": "URL del sito pubblicato personalizzato"
+      },
+      "freeLabels": {
+        "itemOne": "Addebitato per spazio di lavoro",
+        "itemTwo": "Fino a 2",
+        "itemThree": "5 GB",
+        "itemFour": "si",
+        "itemFive": "si",
+        "itemSix": "10 a vita",
+        "itemSeven": "2 a vita",
+        "itemFileUpload": "Fino a 7 MB",
+        "intelligentSearch": "Ricerca intelligente"
+      },
+      "proLabels": {
+        "itemOne": "Addebitato per spazio di lavoro",
+        "itemTwo": "Fino a 10",
+        "itemThree": "Illimitato",
+        "itemFour": "si",
+        "itemFive": "Fino a 100",
+        "itemSix": "Illimitato",
+        "itemSeven": "50 immagini al mese",
+        "itemFileUpload": "Illimitato",
+        "intelligentSearch": "Ricerca intelligente"
+      },
+      "paymentSuccess": {
+        "title": "Ora sei sul piano {}!",
+        "description": "Il tuo pagamento è stato elaborato con successo e il tuo piano è stato aggiornato a @:appName {}. Puoi visualizzare i dettagli del tuo piano nella pagina Piano"
+      },
+      "downgradeDialog": {
+        "title": "Sei sicuro di voler effettuare il downgrade del tuo piano?",
+        "description": "Effettuando il downgrade del tuo piano tornerai al piano gratuito. Gli utenti potrebbero perdere l'accesso a questo spazio di lavoro e potresti dover liberare spazio per rispettare i limiti di archiviazione del piano gratuito.",
+        "downgradeLabel": "Effettua il downgrade del piano"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Ci dispiace vederti andare",
+      "description": "Ci dispiace vederti andare via. Ci piacerebbe ricevere il tuo feedback per aiutarci a migliorare @:appName . Ti preghiamo di dedicare un momento per rispondere ad alcune domande.",
+      "commonOther": "Altro",
+      "otherHint": "Scrivi qui la tua risposta",
+      "questionOne": {
+        "question": "Cosa ti ha spinto ad annullare il tuo abbonamento Pro @:appName ?",
+        "answerOne": "Costo troppo alto",
+        "answerTwo": "Le caratteristiche non hanno soddisfatto le aspettative",
+        "answerThree": "Ho trovato un'alternativa migliore",
+        "answerFour": "Non l'ho usato abbastanza per giustificare la spesa",
+        "answerFive": "Problema di servizio o difficoltà tecniche"
+      },
+      "questionTwo": {
+        "question": "Quanto è probabile che in futuro prenderai in considerazione l'idea di riabbonarti a @:appName Pro?",
+        "answerOne": "Molto probabile",
+        "answerTwo": "Abbastanza probabile",
+        "answerThree": "Non so",
+        "answerFour": "Improbabile",
+        "answerFive": "Molto improbabile"
+      },
+      "questionThree": {
+        "question": "Quale funzionalità Pro hai apprezzato di più durante il tuo abbonamento?",
+        "answerOne": "Collaborazione multiutente",
+        "answerTwo": "Cronologia delle versioni più lunghe",
+        "answerThree": "Risposte AI illimitate",
+        "answerFour": "Accesso ai modelli di intelligenza artificiale locali"
+      },
+      "questionFour": {
+        "question": "Come descriveresti la tua esperienza complessiva con @:appName ?",
+        "answerOne": "Eccezionale",
+        "answerTwo": "Buona",
+        "answerThree": "Nella media",
+        "answerFour": "Sotto la media",
+        "answerFive": "Insoddisfatto"
+      }
+    },
+    "common": {
+      "uploadingFile": "Il file è in fase di caricamento. Non uscire dall'app.",
+      "uploadNotionSuccess": "Il tuo file zip Notion è stato caricato correttamente. Una volta completata l'importazione, riceverai un'email di conferma.",
+      "reset": "Reset"
+    },
     "menu": {
       "appearance": "Aspetto",
       "language": "Lingua",
