@@ -121,7 +121,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
               child: FlowyTextField(
                 key: ThemeFontFamilySetting.textFieldKey,
                 hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
-                autoFocus: false,
+                autoFocus: true,
                 debounceDuration: const Duration(milliseconds: 300),
                 onChanged: (value) {
                   setState(() {
