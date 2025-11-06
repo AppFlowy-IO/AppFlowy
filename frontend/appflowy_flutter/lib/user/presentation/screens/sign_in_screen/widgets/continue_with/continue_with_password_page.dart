@@ -133,6 +133,7 @@ class _ContinueWithPasswordPageState extends State<ContinueWithPasswordPage> {
         hintText: LocaleKeys.signIn_enterPassword.tr(),
         autoFocus: true,
         obscureText: true,
+        autofillHints: const [AutofillHints.password],
         suffixIconConstraints: BoxConstraints.tightFor(
           width: iconSize + theme.spacing.m,
           height: iconSize,
