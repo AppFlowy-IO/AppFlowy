@@ -48,7 +48,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
     - [App Store](https://apps.apple.com/app/appflowy/id6457261352): iPhone
     - [Play Store](https://play.google.com/store/apps/details?id=io.appflowy.appflowy): Android 10 or above; ARMv7 is
       not supported
-- [Self-hosting AppFlowy](https://appflowy.com/docs/self-host-appflowy-overview)
+- [Self-hosting AppFlowy](https://appflowy.com/docs/Step-by-step-Self-Hosting-Guide---From-Zero-to-Production)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
 ## Built With
