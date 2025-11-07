@@ -45,6 +45,9 @@ pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
 
 add_definitions(-DAPPLICATION_ID="${APPLICATION_ID}")
 
+# Include splash screen library configuration
+include("${CMAKE_CURRENT_SOURCE_DIR}/runner/native_splash_screen.cmake")
+
 # Application build
 add_executable(${BINARY_NAME}
   "main.cc"
