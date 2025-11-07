@@ -497,6 +497,23 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   bool isIconPickerOpened = false;
 
+  DateTime? _lastClickTime;
+  static const _clickThrottleDuration = Duration(milliseconds: 200);
+
+  void _handleViewTap() {
+    final now = DateTime.now();
+
+    if (_lastClickTime != null) {
+      final timeSinceLastClick = now.difference(_lastClickTime!);
+      if (timeSinceLastClick < _clickThrottleDuration) {
+        return;
+      }
+    }
+
+    _lastClickTime = now;
+    widget.onSelected(context, widget.view);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isSelected = widget.isSelected;
@@ -586,7 +603,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
     final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.onSelected(context, widget.view),
+      onTap: _handleViewTap,
       onTertiaryTapDown: (_) =>
           widget.onTertiarySelected?.call(context, widget.view),
       child: SizedBox(
