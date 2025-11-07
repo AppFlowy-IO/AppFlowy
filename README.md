@@ -63,8 +63,9 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 
 ## Getting Started with development
 
-Please view the [documentation](https://docs.appflowy.io/docs/documentation/appflowy/from-source) for OS specific
-development instructions
+Please view our comprehensive [build from source guide](doc/BUILD_FROM_SOURCE.md) for detailed OS-specific development instructions, including desktop and mobile platform support.
+
+For additional documentation, visit [docs.appflowy.io](https://docs.appflowy.io/docs/documentation/appflowy/from-source).
 
 ## Roadmap
 
