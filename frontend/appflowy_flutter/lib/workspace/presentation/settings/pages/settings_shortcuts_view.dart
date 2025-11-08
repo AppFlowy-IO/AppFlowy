@@ -153,23 +153,32 @@ class _ResetButton extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
-        child: Padding(
+        resetHoverOnRebuild: false,
+        style: HoverStyle(
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+        ),
+        builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
             horizontal: 6,
           ),
           child: Row(
             children: [
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.restore_s,
-                size: Size.square(20),
+                size: const Size.square(20),
+                color: isHovering
+                    ? Theme.of(context).iconTheme.color
+                    : AFThemeExtension.of(context).onBackground,
               ),
               const HSpace(6),
               SizedBox(
                 height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  color: isHovering
+                      ? AFThemeExtension.of(context).strongText
+                      : AFThemeExtension.of(context).onBackground,
                 ),
               ),
             ],
@@ -325,6 +334,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const HSpace(8),
               Expanded(
@@ -339,11 +349,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
-                child: isEditing
-                    ? _renderKeybindEditor()
-                    : _renderKeybindings(isHovering),
-              ),
+              isEditing
+                  ? _renderKeybindEditor()
+                  : _renderKeybindings(isHovering),
             ],
           ),
         ),
@@ -352,6 +360,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   }
 
   Widget _renderKeybindings(bool isHovering) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
@@ -360,8 +369,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           ] else ...[
             const SizedBox(height: 24),
           ],
-          const Spacer(),
-          if (isHovering)
+          if (isHovering) ...[
+            const HSpace(8),
             GestureDetector(
               onTap: () {
                 if (widget.canStartEditing()) {
@@ -382,7 +391,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                 ),
               ),
             ),
-          const HSpace(8),
+          ],
         ],
       );
 
