@@ -95,6 +95,8 @@ extension NumberFormatExtension on NumberFormatPB {
         return "Percent";
       case NumberFormatPB.PhilippinePeso:
         return "Philippine peso";
+      case NumberFormatPB.PLN:
+        return "Polish złoty";
       case NumberFormatPB.Pound:
         return "Pound";
       case NumberFormatPB.Rand:
@@ -174,6 +176,8 @@ extension NumberFormatExtension on NumberFormatPB {
         return "%";
       case NumberFormatPB.PhilippinePeso:
         return "₱";
+      case NumberFormatPB.PLN:
+        return "zł";
       case NumberFormatPB.Pound:
         return "£";
       case NumberFormatPB.Rand:
