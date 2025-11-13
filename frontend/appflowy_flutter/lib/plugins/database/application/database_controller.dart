@@ -207,13 +207,14 @@ class DatabaseController {
   }
 
   Future<FlowyResult<void, FlowyError>> moveGroupRow({
-    required RowMetaPB fromRow,
+    required List<RowMetaPB> fromRow,
     required String fromGroupId,
     required String toGroupId,
     RowMetaPB? toRow,
   }) {
+    final fromRowIds = fromRow.map((element) => element.id).toList();
     return _databaseViewBackendSvc.moveGroupRow(
-      fromRowId: fromRow.id,
+      fromRowIds: fromRowIds,
       fromGroupId: fromGroupId,
       toGroupId: toGroupId,
       toRowId: toRow?.id,

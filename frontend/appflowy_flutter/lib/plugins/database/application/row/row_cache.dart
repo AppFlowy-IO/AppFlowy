@@ -78,6 +78,17 @@ class RowCache {
     return _rowList.get(rowId);
   }
 
+  List<RowInfo> getRows(List<RowId> rowIds) {
+    final rowInfos = <RowInfo>[];
+    for (final rowId in rowIds) {
+      final rowInfo = _rowList.get(rowId);
+      if (rowInfo != null) {
+        rowInfos.add(rowInfo);
+      }
+    }
+    return rowInfos;
+  }
+
   void setInitialRows(List<RowMetaPB> rows) {
     for (final row in rows) {
       final rowInfo = buildGridRow(row);
