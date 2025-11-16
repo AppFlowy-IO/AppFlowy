@@ -200,6 +200,59 @@ class ButtonsPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 32),
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(
+                    "https://images.unsplash.com/photo-1493612276216-ee3925520721?q=80&w=1528&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            padding: EdgeInsets.all(8),
+            child: _buildSection(
+              'Overlay Buttons',
+              [
+                AFOverlayButton.normal(
+                  onTap: () {},
+                  builder: (context, isHovering, disabled) {
+                    return Text(
+                      "Overlay Button",
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+                AFOverlayTextButton.primary(
+                  text: 'Overlay Primary Text Button',
+                  onTap: () {},
+                ),
+                const SizedBox(width: 16),
+                AFOverlayIconButton.primary(
+                  onTap: () {},
+                  iconBuilder: (context, isHovering, disabled) {
+                    return Icon(
+                      Icons.delete,
+                      size: 20,
+                      color: AppFlowyTheme.of(context).textColorScheme.primary,
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+                AFOverlayIconButton.disabled(
+                  iconBuilder: (context, isHovering, disabled) {
+                    return Icon(
+                      Icons.block,
+                      size: 20,
+                      color: AppFlowyTheme.of(context).textColorScheme.tertiary,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
           _buildSection(
             'Button with alignment',
             [
