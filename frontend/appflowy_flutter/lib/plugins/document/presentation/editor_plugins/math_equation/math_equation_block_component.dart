@@ -138,6 +138,21 @@ class MathEquationBlockComponentWidgetState
       child: _build(context),
     );
   }
+  
+  String safeLatex(String raw) {
+		if (raw.contains(r'\\') && !raw.contains(r'\begin{')) {
+			final lines = raw.split(r'\\');
+			final processedLines = lines.map((line) {
+			final trimmed = line.trim();
+		return trimmed.isEmpty ? '' : '& $trimmed'; 
+		}).toList();
+
+		return r'\begin{aligned}' + 
+           processedLines.join(r' \\') + 
+           r'\end{aligned}';
+		}
+		return raw;
+	}
 
   Widget _build(BuildContext context) {
     Widget child = Container(
@@ -222,9 +237,10 @@ class MathEquationBlockComponentWidgetState
   }
 
   Widget _buildMathEquation(BuildContext context) {
+	
     return Center(
       child: Math.tex(
-        formula,
+        safeLatex(formula),
         textStyle: const TextStyle(fontSize: 20),
       ),
     );
