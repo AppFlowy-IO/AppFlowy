@@ -41,7 +41,7 @@ runs:
       id: flutter
       uses: subosito/flutter-action@v2
       with:
-        channel: "stable"
+        channel: "master"
         flutter-version: ${{ inputs.flutter_version }}
         cache: true
 
