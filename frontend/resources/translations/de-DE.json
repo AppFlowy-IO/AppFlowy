@@ -2508,6 +2508,7 @@
       "accountLogin": "Benutzerkonto Login",
       "updateNameError": "Namensaktualisierung fehlgeschlagen!",
       "updateIconError": "Symbol konnte nicht aktualisiert werden!",
+      "aboutAppFlowy": "Über @:appName",
       "deleteAccount": {
         "title": "Benutzerkonto löschen",
         "subtitle": "Benutzerkonto inkl. deiner persönlicher Daten unwiderruflich löschen.",

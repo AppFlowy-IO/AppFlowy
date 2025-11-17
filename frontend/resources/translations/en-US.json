@@ -130,7 +130,7 @@
       "reachOut": "Reach out on Discord"
     },
     "menuTitle": "Workspaces",
-    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
+    "deleteWorkspaceHintText": "Reach out on Discord",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
