@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:native_splash_screen/native_splash_screen.dart' as nss;
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
   InitAppWindowTask({this.title = 'AppFlowy'});
@@ -61,6 +62,8 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
           appWindow.position = position;
         }
 
+        await nss.close(animation: nss.CloseAnimation.fade);
+
         /// on Windows we maximize the window if it was previously closed
         /// from a maximized state.
         final isMaximized = await windowSizeManager.getWindowMaximized();
@@ -72,6 +75,9 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
+        if (UniversalPlatform.isLinux || UniversalPlatform.isMacOS) {
+          await nss.close(animation: nss.CloseAnimation.fade);
+        }
 
         if (position != null) {
           await windowManager.setPosition(position);

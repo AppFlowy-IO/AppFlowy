@@ -28,6 +28,8 @@ PODS:
     - FlutterMacOS
   - local_notifier (0.1.0):
     - FlutterMacOS
+  - native_splash_screen_macos (2.0.0):
+    - FlutterMacOS
   - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
@@ -69,6 +71,7 @@ DEPENDENCIES:
   - hotkey_manager (from `Flutter/ephemeral/.symlinks/plugins/hotkey_manager/macos`)
   - irondash_engine_context (from `Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos`)
   - local_notifier (from `Flutter/ephemeral/.symlinks/plugins/local_notifier/macos`)
+  - native_splash_screen_macos (from `Flutter/ephemeral/.symlinks/plugins/native_splash_screen_macos/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - screen_retriever_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever_macos/macos`)
@@ -113,6 +116,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos
   local_notifier:
     :path: Flutter/ephemeral/.symlinks/plugins/local_notifier/macos
+  native_splash_screen_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/native_splash_screen_macos/macos
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
@@ -149,6 +154,7 @@ SPEC CHECKSUMS:
   hotkey_manager: b443f35f4d772162937aa73fd8995e579f8ac4e2
   irondash_engine_context: 893c7d96d20ce361d7e996f39d360c4c2f9869ba
   local_notifier: ebf072651e35ae5e47280ad52e2707375cb2ae4e
+  native_splash_screen_macos: d31039fdc6a1177e3923c938afa107e6a269423e
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda

@@ -58,7 +58,7 @@ class TestWorkspaceService {
   Future<void> setUp() async {
     final inputStream =
         InputFileStream(await workspace.zip.then((value) => value.path));
-    final archive = ZipDecoder().decodeBuffer(inputStream);
+    final archive = ZipDecoder().decodeBytes(inputStream.file.buffer);
     await extractArchiveToDisk(
       archive,
       await TestWorkspace._parent.then((value) => value.path),
