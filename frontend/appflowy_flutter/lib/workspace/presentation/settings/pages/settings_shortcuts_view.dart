@@ -153,23 +153,28 @@ class _ResetButton extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
-        child: Padding(
+        builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
             horizontal: 6,
           ),
           child: Row(
             children: [
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.restore_s,
-                size: Size.square(20),
+                size: const Size.square(20),
+                color: isHovering
+                    ? Theme.of(context).colorScheme.primary
+                    : AFThemeExtension.of(context).strongText,
               ),
               const HSpace(6),
               SizedBox(
                 height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  color: isHovering
+                      ? Theme.of(context).colorScheme.primary
+                      : AFThemeExtension.of(context).strongText,
                 ),
               ),
             ],
@@ -327,7 +332,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           child: Row(
             children: [
               const HSpace(8),
-              Expanded(
+              Flexible(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: FlowyText.regular(
@@ -339,7 +344,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
+              Flexible(
                 child: isEditing
                     ? _renderKeybindEditor()
                     : _renderKeybindings(isHovering),
