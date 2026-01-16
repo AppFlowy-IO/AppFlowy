@@ -153,6 +153,10 @@ class _ResetButton extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
+        style: HoverStyle(
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: Corners.s6Border,
+        ),
         builder: (context, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
@@ -344,7 +348,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Flexible(
+              Expanded(
                 child: isEditing
                     ? _renderKeybindEditor()
                     : _renderKeybindings(isHovering),
