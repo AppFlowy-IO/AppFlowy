@@ -414,12 +414,14 @@ class _MobileToolbarState extends State<_MobileToolbar>
                   keyboardHeight = viewInsetsBottom;
                 } else {
                   // Use cached height when keyboard is hiding
-                  keyboardHeight = max(keyboardHeight, viewInsetsBottom);
+                  keyboardHeight = max(keyboardHeight, _globalCachedKeyboardHeight);
                 }
               }
             }
             if (keyboardHeight > 0) {
+              // Only cache the raw height without safety padding
               _globalCachedKeyboardHeight = keyboardHeight;
+              
               // Add small safety margin on Android to account for keyboard toolbar
               if (defaultTargetPlatform == TargetPlatform.android) {
                 keyboardHeight += 8.0;
