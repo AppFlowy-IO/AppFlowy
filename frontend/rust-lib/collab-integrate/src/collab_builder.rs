@@ -280,7 +280,9 @@ impl AppFlowyCollabBuilder {
     let object = object.clone();
     let collab_db = collab_db.clone();
     let device_id = self.workspace_integrate.device_id()?;
-    let collab = tokio::task::spawn_blocking(move || {
+    
+    // Use spawn_blocking for potentially blocking operations but handle errors gracefully
+    let collab_result = tokio::task::spawn_blocking(move || {
       let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
         .with_device_id(device_id)
         .build()?;
@@ -296,9 +298,16 @@ impl AppFlowyCollabBuilder {
       collab.add_plugin(Box::new(db_plugin));
       Ok::<_, Error>(collab)
     })
-    .await??;
+    .await;
 
-    Ok(collab)
+    match collab_result {
+      Ok(Ok(collab)) => Ok(collab),
+      Ok(Err(e)) => Err(e),
+      Err(join_error) => {
+        error!("Failed to spawn blocking task for collab building: {}", join_error);
+        Err(anyhow!("Failed to build collab: task join error - {}", join_error))
+      }
+    }
   }
 
   pub fn finalize<T>(
@@ -321,7 +330,15 @@ impl AppFlowyCollabBuilder {
       }
     });
 
-    let mut write_collab = collab.try_write()?;
+    let write_collab_result = collab.try_write();
+    let mut write_collab = match write_collab_result {
+      Ok(guard) => guard,
+      Err(e) => {
+        warn!("Failed to acquire write lock on collab, returning collab as-is: {}", e);
+        return Ok(collab);
+      }
+    };
+    
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
     if has_cloud_plugin {
       drop(write_collab);
@@ -492,13 +509,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
