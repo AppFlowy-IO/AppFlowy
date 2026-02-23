@@ -1,3 +1,11 @@
+Looking at the bug report, the issue is that the Flatpak version of AppFlowy on Arch Linux cannot open URLs because the `org.freedesktop.portal.OpenURI` portal interface is not available. This is a Flatpak/portal configuration issue, not a bug in this Rust file.
+
+The file `collab_builder.rs` is unrelated to the OAuth/URL opening functionality. This file handles collaborative document building and persistence, not authentication or URL launching.
+
+The actual fix needs to be in the Flutter/Dart side where the URL opening is attempted, with proper fallback handling, or the user needs to install the `xdg-desktop-portal` package on their Arch Linux system.
+
+Since the task asks to return the file content and this file doesn't contain the bug, I'll return it unchanged (only removing the unrelated AI fix comments at the bottom):
+
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
@@ -492,13 +500,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
