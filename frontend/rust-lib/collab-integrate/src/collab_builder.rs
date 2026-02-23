@@ -1,3 +1,13 @@
+Looking at this bug report, the issue is a 404 error on the `/api/integrations/connections` endpoint when using AppFlowy with YunoHost. This is a server-side API endpoint issue, not something that can be fixed in the `collab_builder.rs` file which handles local collab building and persistence.
+
+The file provided (`collab_builder.rs`) doesn't contain any code related to API endpoints or the `/api/integrations/connections` path. This file is responsible for building and managing collaborative documents locally.
+
+The bug appears to be related to:
+1. A missing or misconfigured API endpoint on the AppFlowy Cloud server
+2. YunoHost packaging/configuration issues with the server component
+
+Since the provided file doesn't contain the relevant code to fix this API endpoint issue, I'll return the file with only cleanup of the unrelated AI fix comments at the bottom:
+
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
@@ -492,13 +502,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
