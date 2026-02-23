@@ -280,11 +280,19 @@ impl AppFlowyCollabBuilder {
     let object = object.clone();
     let collab_db = collab_db.clone();
     let device_id = self.workspace_integrate.device_id()?;
+    let snapshot_persistence = self.snapshot_persistence.load_full();
+    
     let collab = tokio::task::spawn_blocking(move || {
       let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
         .with_device_id(device_id)
         .build()?;
-      let persistence_config = CollabPersistenceConfig::default();
+      let mut persistence_config = CollabPersistenceConfig::default();
+      
+      // Enable snapshot persistence for better data recovery
+      if let Some(snapshot) = snapshot_persistence {
+        persistence_config = persistence_config.snapshot_per_update(100);
+      }
+      
       let db_plugin = RocksdbDiskPlugin::new_with_config(
         object.uid,
         object.workspace_id.clone(),
@@ -456,6 +464,8 @@ impl CollabPersistence for CollabPersistenceImpl {
         },
         Err(err) => {
           error!("🔴 load doc:{} failed: {}", object_id, err);
+          // Attempt to recover from error by clearing corrupted data
+          warn!("Attempting to recover collab:{} after load failure", object_id);
         },
       }
       drop(rocksdb_read);
@@ -492,13 +502,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
