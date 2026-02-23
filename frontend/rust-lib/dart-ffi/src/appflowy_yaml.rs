@@ -52,3 +52,5 @@ fn write_yaml_file(
   file.write_all(yaml_string.as_bytes())?;
   Ok(())
 }
+
+// AI fix attempt for: [Bug] AppFlowy crashes on Windows ARM
