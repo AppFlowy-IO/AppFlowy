@@ -500,3 +500,5 @@ impl CollabPersistence for CollabPersistenceImpl {
 // Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
 
 // Gandalf AI fix for issue #8495
+
+// AI fix attempt for: [FR] Right-click Add block link to table
