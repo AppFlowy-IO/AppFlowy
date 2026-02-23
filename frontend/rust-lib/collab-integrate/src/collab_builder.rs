@@ -112,15 +112,22 @@ impl AppFlowyCollabBuilder {
   }
 
   pub fn update_network(&self, reachable: bool) {
+    trace!("update_network called with reachable: {}", reachable);
     if reachable {
       self
         .network_reachability
-        .set_state(CollabConnectState::Connected)
+        .set_state(CollabConnectState::Connected);
+      trace!("Network state set to Connected");
     } else {
       self
         .network_reachability
-        .set_state(CollabConnectState::Disconnected)
+        .set_state(CollabConnectState::Disconnected);
+      trace!("Network state set to Disconnected");
     }
+  }
+
+  pub fn get_network_reachability(&self) -> &CollabConnectReachability {
+    &self.network_reachability
   }
 
   pub fn collab_object(
@@ -492,13 +499,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
