@@ -19,4 +19,11 @@ pub trait SearchCloudService: Send + Sync + 'static {
     query: String,
     search_results: Vec<SearchResult>,
   ) -> Result<SearchSummaryResult, FlowyError>;
+
+  async fn index_document(
+    &self,
+    workspace_id: &Uuid,
+    document_id: &str,
+    content: String,
+  ) -> Result<(), FlowyError>;
 }
