@@ -1,3 +1,17 @@
+Looking at this bug report, it's about TLS 1.3 compatibility issues with Firefox and iOS when connecting to a self-hosted AppFlowy Cloud behind nginx. However, the file provided (`collab_builder.rs`) is a Rust file for collab building functionality and has nothing to do with TLS/SSL configuration or network protocols.
+
+The bug is related to:
+1. Server-side nginx TLS configuration
+2. Client-side TLS handshake behavior
+
+This isn't something that can be fixed in the `collab_builder.rs` file - it's a deployment/configuration issue or potentially an issue in the network/HTTP client code.
+
+The file provided doesn't contain any TLS-related code. The actual fix would need to be in:
+1. The nginx configuration (server-side)
+2. The HTTP client configuration in the app (if there's a client-side TLS version restriction)
+
+Since I cannot fix a TLS configuration issue by modifying this unrelated Rust file, I'll return the file with the garbage comments at the bottom removed (as they appear to be erroneous):
+
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
@@ -492,13 +506,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
