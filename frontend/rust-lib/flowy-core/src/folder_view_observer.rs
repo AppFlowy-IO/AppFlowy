@@ -1,3 +1,9 @@
+Looking at the issue, the user is reporting that they can no longer connect to a self-hosted server from the mobile app. However, the file provided (`folder_view_observer.rs`) is related to folder view observation and document indexing, not server connection functionality.
+
+This file doesn't contain any code related to server connection, login, or self-hosted server configuration. The bug described is about the mobile app's login/connection UI and API endpoint handling, which would be in different files (likely in the authentication/user management or network configuration modules).
+
+Since this file doesn't relate to the reported bug, I'll return it unchanged:
+
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::ViewIndexContent;
 use flowy_search_pub::entities::FolderViewObserver;
