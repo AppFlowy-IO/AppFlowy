@@ -492,13 +492,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
