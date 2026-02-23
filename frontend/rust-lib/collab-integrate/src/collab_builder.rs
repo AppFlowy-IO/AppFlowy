@@ -73,6 +73,35 @@ pub trait WorkspaceCollabIntegrate: Send + Sync {
   fn device_id(&self) -> Result<String, FlowyError>;
 }
 
+/// Represents a block link that can be added to a database table
+#[derive(Clone, Debug)]
+pub struct BlockLink {
+  /// The unique identifier of the source block
+  pub block_id: String,
+  /// The document ID where the block resides
+  pub document_id: String,
+  /// The target database/table ID to link to
+  pub database_id: String,
+  /// Optional row ID if linking to a specific row
+  pub row_id: Option<String>,
+}
+
+impl BlockLink {
+  pub fn new(block_id: String, document_id: String, database_id: String) -> Self {
+    Self {
+      block_id,
+      document_id,
+      database_id,
+      row_id: None,
+    }
+  }
+
+  pub fn with_row(mut self, row_id: String) -> Self {
+    self.row_id = Some(row_id);
+    self
+  }
+}
+
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
   plugin_provider: ArcSwap<Arc<dyn CollabCloudPluginProvider>>,
@@ -492,13 +521,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
