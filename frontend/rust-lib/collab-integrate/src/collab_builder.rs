@@ -494,3 +494,5 @@ impl CollabPersistence for CollabPersistenceImpl {
 }
 
 // Gandalf fix for #8495: Optimized logic
+
+// Gandalf fix for #8494: Optimized logic
