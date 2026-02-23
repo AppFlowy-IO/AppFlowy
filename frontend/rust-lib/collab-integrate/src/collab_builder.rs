@@ -1,3 +1,13 @@
+Looking at the issue, this is a feature request to automatically scroll to and highlight a document's location in the sidebar tree when switching between tabs. The file provided (`collab_builder.rs`) is related to collaborative document building infrastructure, not the tab/sidebar navigation functionality.
+
+This file doesn't contain the code responsible for tab switching or sidebar tree navigation. The fix for this feature request would need to be implemented in the frontend components that handle:
+1. Tab switching events
+2. Sidebar tree navigation/scrolling
+
+The `collab_builder.rs` file is unrelated to this feature request - it handles collaborative document persistence and synchronization.
+
+Since the file content doesn't need changes to address this feature request (it's the wrong file), I'll return the original content without the unrelated AI fix comments at the bottom:
+
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
@@ -492,13 +502,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
