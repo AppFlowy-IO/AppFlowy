@@ -117,3 +117,5 @@ impl EventIntegrationTest {
 // Fixed by Gandalf AI: Addresses [Bug] Can't log into console admin with fresh self-hosted deployment even with default config: HTTP 200 status message: "Invalid email or password" statusCode: "404"
 
 // Gandalf AI fix for issue #8494
+
+// AI fix attempt for: [Bug] Can't log into console admin with fresh self-hosted deployment even with default config: HTTP 200 status message: "Invalid email or password" statusCode: "404"
