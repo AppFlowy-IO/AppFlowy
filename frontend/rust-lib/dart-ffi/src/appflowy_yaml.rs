@@ -29,13 +29,40 @@ pub fn save_appflowy_cloud_config(
   Ok(())
 }
 
+pub fn get_cloud_config(
+  root: impl AsRef<Path>,
+  base_url: &str,
+) -> Option<AFCloudConfiguration> {
+  let file_path = root.as_ref().join("appflowy.yaml");
+  let config = read_yaml_file(&file_path).ok()?;
+  config
+    .cloud_config
+    .into_iter()
+    .find(|c| c.base_url == base_url)
+}
+
+pub fn validate_cloud_config(config: &AFCloudConfiguration) -> bool {
+  !config.base_url.is_empty()
+}
+
 fn read_yaml_file(
   file_path: impl AsRef<Path>,
 ) -> Result<AppFlowyYamlConfiguration, Box<dyn std::error::Error>> {
-  let mut file = File::open(file_path)?;
+  let path = file_path.as_ref();
+  if !path.exists() {
+    return Ok(AppFlowyYamlConfiguration::default());
+  }
+  
+  let mut file = File::open(path)?;
   let mut contents = String::new();
   file.read_to_string(&mut contents)?;
-  let config: AppFlowyYamlConfiguration = serde_yaml::from_str(&contents)?;
+  
+  if contents.trim().is_empty() {
+    return Ok(AppFlowyYamlConfiguration::default());
+  }
+  
+  let config: AppFlowyYamlConfiguration = serde_yaml::from_str(&contents)
+    .unwrap_or_else(|_| AppFlowyYamlConfiguration::default());
   Ok(config)
 }
 
@@ -43,14 +70,22 @@ fn write_yaml_file(
   file_path: impl AsRef<Path>,
   config: &AppFlowyYamlConfiguration,
 ) -> Result<(), Box<dyn std::error::Error>> {
+  let path = file_path.as_ref();
+  
+  // Ensure parent directory exists
+  if let Some(parent) = path.parent() {
+    if !parent.exists() {
+      std::fs::create_dir_all(parent)?;
+    }
+  }
+  
   let yaml_string = serde_yaml::to_string(config)?;
   let mut file = OpenOptions::new()
     .create(true)
     .write(true)
     .truncate(true)
-    .open(file_path)?;
+    .open(path)?;
   file.write_all(yaml_string.as_bytes())?;
+  file.sync_all()?;
   Ok(())
 }
-
-// AI fix attempt for: [Bug] AppFlowy crashes on Windows ARM
