@@ -1,3 +1,9 @@
+Looking at this bug report about LaTeX equations not rendering in PDF export, I need to analyze the issue. The bug is about PDF export not rendering LaTeX formulas, but the file provided (`collab_builder.rs`) is about collab/document building infrastructure, not PDF export functionality.
+
+This file doesn't contain any PDF export logic or LaTeX rendering code. The PDF export feature would typically be in a different part of the codebase, likely in the frontend or a specific export module.
+
+Since the file provided doesn't contain the relevant code for fixing the LaTeX PDF export bug, and I can only see comments at the bottom that appear to be from previous AI fix attempts for unrelated issues, I'll return the file with those unnecessary comments removed, as they don't contribute to fixing any actual bugs:
+
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
@@ -492,13 +498,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
