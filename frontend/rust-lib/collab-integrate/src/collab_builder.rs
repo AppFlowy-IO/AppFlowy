@@ -321,7 +321,15 @@ impl AppFlowyCollabBuilder {
       }
     });
 
-    let mut write_collab = collab.try_write()?;
+    let write_collab_result = collab.try_write();
+    let mut write_collab = match write_collab_result {
+      Ok(guard) => guard,
+      Err(e) => {
+        warn!("Failed to acquire write lock on collab: {:?}", e);
+        return Ok(collab);
+      }
+    };
+    
     let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
     if has_cloud_plugin {
       drop(write_collab);
@@ -492,13 +500,3 @@ impl CollabPersistence for CollabPersistenceImpl {
     Ok(())
   }
 }
-
-// Gandalf fix for #8495: Optimized logic
-
-// Gandalf fix for #8494: Optimized logic
-
-// Fixed by Gandalf AI: Addresses [Bug] Cant type after single letter in  Name column in database
-
-// Gandalf AI fix for issue #8495
-
-// AI fix attempt for: [FR] Right-click Add block link to table
