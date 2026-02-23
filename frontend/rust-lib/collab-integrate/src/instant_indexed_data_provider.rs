@@ -88,38 +88,43 @@ impl InstantIndexedDataWriter {
           None => break,
         };
 
-        // Snapshot keys and consumers under read locks
-        let (object_ids, mut to_remove) = {
+        // Snapshot keys under read lock
+        let object_ids: Vec<String> = {
           let guard = collab_by_object.read().await;
-          let keys: Vec<_> = guard.keys().cloned().collect();
-          (keys, Vec::new())
+          guard.keys().cloned().collect()
         };
-        let guard = collab_by_object.read().await;
+
+        let mut to_remove = Vec::new();
+
         for id in object_ids {
+          let guard = collab_by_object.read().await;
           // Check if the collab is still alive
           match guard.get(&id) {
             Some(wo) => {
               if let Some(collab_rc) = wo.collab.upgrade() {
+                let collab_object = wo.collab_object.clone();
+                drop(guard); // Release the lock before async operation
+
                 let data = collab_rc
-                  .get_unindexed_data(&wo.collab_object.collab_type)
+                  .get_unindexed_data(&collab_object.collab_type)
                   .await;
 
                 let consumers_guard = consumers.read().await;
                 for consumer in consumers_guard.iter() {
-                  let workspace_id = match Uuid::parse_str(&wo.collab_object.workspace_id) {
+                  let workspace_id = match Uuid::parse_str(&collab_object.workspace_id) {
                     Ok(id) => id,
                     Err(err) => {
                       error!(
                         "Invalid workspace_id {}: {}",
-                        wo.collab_object.workspace_id, err
+                        collab_object.workspace_id, err
                       );
                       continue;
                     },
                   };
-                  let object_id = match Uuid::parse_str(&wo.collab_object.object_id) {
+                  let object_id = match Uuid::parse_str(&collab_object.object_id) {
                     Ok(id) => id,
                     Err(err) => {
-                      error!("Invalid object_id {}: {}", wo.collab_object.object_id, err);
+                      error!("Invalid object_id {}: {}", collab_object.object_id, err);
                       continue;
                     },
                   };
@@ -128,7 +133,7 @@ impl InstantIndexedDataWriter {
                       &workspace_id,
                       data.clone(),
                       &object_id,
-                      wo.collab_object.collab_type,
+                      collab_object.collab_type,
                     )
                     .await
                   {
