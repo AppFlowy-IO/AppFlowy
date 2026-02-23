@@ -89,12 +89,10 @@ impl InstantIndexedDataWriter {
         };
 
         // Snapshot keys and consumers under read locks
-        let (object_ids, mut to_remove) = {
-          let guard = collab_by_object.read().await;
-          let keys: Vec<_> = guard.keys().cloned().collect();
-          (keys, Vec::new())
-        };
+        let mut to_remove = Vec::new();
         let guard = collab_by_object.read().await;
+        let object_ids: Vec<_> = guard.keys().cloned().collect();
+        
         for id in object_ids {
           // Check if the collab is still alive
           match guard.get(&id) {
@@ -155,6 +153,9 @@ impl InstantIndexedDataWriter {
             None => continue,
           }
         }
+        
+        // Drop the read guard before acquiring write guard
+        drop(guard);
 
         if !to_remove.is_empty() {
           let mut guard = collab_by_object.write().await;
