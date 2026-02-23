@@ -275,15 +275,11 @@ impl FileUploaderRunner {
             break;
           },
           Signal::Proceed => {
-            tokio::spawn(async move {
-              uploader.process_next().await;
-            });
+            uploader.process_next().await;
           },
           Signal::ProceedAfterSecs(secs) => {
             tokio::time::sleep(Duration::from_secs(secs)).await;
-            tokio::spawn(async move {
-              uploader.process_next().await;
-            });
+            uploader.process_next().await;
           },
         }
       } else {
