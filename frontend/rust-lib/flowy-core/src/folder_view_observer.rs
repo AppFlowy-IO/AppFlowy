@@ -1,3 +1,15 @@
+Looking at the bug report, the issue is that users can no longer connect to self-hosted servers on the mobile app. However, the file provided (`folder_view_observer.rs`) is related to folder view indexing and document search functionality - it has nothing to do with server connection or authentication.
+
+This file doesn't contain any code related to:
+- Server URL configuration
+- Login/authentication flow
+- Self-hosted server options
+- API endpoint connections
+
+The bug described is about the mobile app's login screen not showing the self-hosted server option, which would be in UI code (likely Flutter/Dart for the mobile app) or in authentication/configuration related Rust code, not in this search indexing observer file.
+
+Since this file is unrelated to the reported bug and contains no issues that would cause the described problem, I'll return the file unchanged:
+
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::ViewIndexContent;
 use flowy_search_pub::entities::FolderViewObserver;
