@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "أنا",
-  "welcomeText": "مرحبًا بك في @: appName",
+  "welcomeText": "مرحبًا بك في @:appName",
   "welcomeTo": "مرحبا بكم في",
   "githubStarText": "نجمة على GitHub",
   "subscribeNewsletterText": "اشترك في النشرة الإخبارية",
@@ -20,7 +20,7 @@
   },
   "signUp": {
     "buttonText": "اشتراك",
-    "title": "قم بالتسجيل في @: appName",
+    "title": "قم بالتسجيل في @:appName",
     "getStartedText": "البدء",
     "emptyPasswordError": "لا يمكن أن تكون كلمة المرور فارغة",
     "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
@@ -32,7 +32,7 @@
     "signUpWith": "انشئ حساب باستخدام:"
   },
   "signIn": {
-    "loginTitle": "تسجيل الدخول إلى @: appName",
+    "loginTitle": "تسجيل الدخول إلى @:appName",
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
@@ -229,7 +229,7 @@
     "collapseAllPages": "طي جميع الصفحات الفرعية",
     "movePageTo": "تحريك الصفحة إلى",
     "move": "تحريك",
-    "lockPage": "إلغاء تأمين الصفحة"
+    "lockPage": "قفل الصفحة"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
@@ -243,8 +243,8 @@
     "inputLocalAIMessageHint": "اسأل @:appName Local AI",
     "unsupportedCloudPrompt": "هذه الميزة متوفرة فقط عند استخدام @:appName Cloud",
     "relatedQuestion": "ذات صلة",
-    "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
-    "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
+    "serverUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
+    "aiServerUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
     "retry": "إعادة المحاولة",
     "clickToRetry": "انقر لإعادة المحاولة",
     "regenerateAnswer": "إعادة توليد",
@@ -335,7 +335,7 @@
     "mobile": {
       "actions": "إجراءات سلة المهملات",
       "empty": "سلة المهملات فارغة",
-      "emptyDescription": "ليس لديك أي ملفات محذوفة",
+      "emptyDescription": "انقل الأشياء التي لا تحتاجها إلى سلة المهملات.",
       "isDeleted": "محذوف",
       "isRestored": "تمت استعادته"
     },
@@ -371,7 +371,7 @@
   },
   "noPagesInside": "لا توجد صفحات في الداخل",
   "toolbar": {
-    "undo": "الغاء التحميل",
+    "undo": "تراجع",
     "redo": "إعادة",
     "bold": "عريض",
     "italic": "مائل",
@@ -473,6 +473,7 @@
     "signIn": "تسجيل الدخول",
     "signOut": "خروج",
     "complete": "مكتمل",
+    "change": "تغيير",
     "save": "حفظ",
     "generate": "يولد",
     "esc": "خروج",
@@ -577,7 +578,7 @@
         "description": "سيتم تطبيق هذا التغيير على جميع الصفحات المنشورة الموجودة على مساحة الاسم هذه بشكل فوري",
         "tooltip": "نحن نحتفظ بالحق في إزالة أي مساحات أسماء غير مناسبة",
         "updateExistingNamespace": "تحديث مساحة الاسم الحالية",
-        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية لتعيين الصفحة الرئيسية",
+        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية للحصول على نطاق مخصص",
         "redirectToPayment": "إعادة التوجيه إلى صفحة الدفع...",
         "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
         "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
@@ -910,7 +911,7 @@
         "downloadAIModelButton": "تنزيل",
         "downloadingModel": "جاري التنزيل",
         "localAILoaded": "تمت إضافة نموذج الذكاء الاصطناعي المحلي بنجاح وهو جاهز للاستخدام",
-        "localAIStart": "بدأت الدردشة المحلية بالذكاء الاصطناعي...",
+        "localAIStart": "يبدأ الذكاء الاصطناعي المحلي. إذا كان بطيئًا، حاول إيقاف تشغيله وإعادة تشغيله.",
         "localAILoading": "جاري تحميل نموذج الدردشة المحلية للذكاء الاصطناعي...",
         "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
         "localAIRunning": "الذكاء الاصطناعي المحلي قيد التشغيل",
@@ -1015,7 +1016,7 @@
       "plan": {
         "title": "الخطة",
         "freeLabel": "مجاني",
-        "proLabel": "مجاني",
+        "proLabel": "احترافي",
         "planButtonLabel": "تغيير الخطة",
         "billingPeriod": "فترة الفوترة",
         "periodButtonLabel": "تعديل الفترة"
@@ -1081,7 +1082,7 @@
         "itemTwo": "الأعضاء",
         "itemThree": "التخزين",
         "itemFour": "التعاون في الزمن الحقيقي",
-        "itemFive": "تطبيق الجوال",
+        "itemFive": "محررو الضيوف",
         "itemSix": "استجابات الذكاء الاصطناعي",
         "itemSeven": "صور الذكاء الاصطناعي",
         "itemFileUpload": "رفع الملفات",
@@ -1110,7 +1111,7 @@
         "itemFour": "نعم",
         "itemFive": "نعم",
         "itemSix": "غير محدود",
-        "itemSeven": "10 صور شهريا",
+        "itemSeven": "50 صورة شهريًا",
         "itemFileUpload": "غير محدود",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1372,7 +1373,7 @@
           "one": "{} العضو",
           "other": "{} الأعضاء"
         },
-        "inviteFailedDialogTitle": "فشل في إرسال الدعوة",
+        "inviteFailedDialogTitle": "الترقية إلى الخطة الاحترافية",
         "inviteFailedMemberLimit": "لقد تم الوصول إلى الحد الأقصى للأعضاء، يرجى الترقية لدعوة المزيد من الأعضاء.",
         "inviteFailedMemberLimitMobile": "لقد وصلت مساحة العمل الخاصة بك إلى الحد الأقصى للأعضاء.",
         "memberLimitExceeded": "تم الوصول إلى الحد الأقصى للأعضاء، لدعوة المزيد من الأعضاء، يرجى ",
@@ -2276,10 +2277,6 @@
       "choosePhoto": "اختر الصورة",
       "takePicture": "التقط صورة",
       "chooseFile": "اختر الملف"
-    },
-    "data": {
-      "timeHintTextInTwelveHour": "اثنا عشر ساعة",
-      "timeHintTextInTwentyFourHour": "أربع و عشرون ساعة"
     }
   },
   "board": {
@@ -2368,11 +2365,15 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": {
+        "zero": "ستظهر الأحداث غير المجدولة هنا",
+        "one": "{count} حدث غير مجدول",
+        "other": "{count} أحداث غير مجدولة"
+      },
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
@@ -2389,11 +2390,15 @@
     "label": "يبحث",
     "sidebarSearchIcon": "ابحث وانتقل بسرعة إلى الصفحة",
     "searchOrAskAI": "ابحث أو اسأل الذكاء الاصطناعي",
+    "searchFieldHint": "ابحث أو اطرح سؤالًا في {}...",
     "askAIAnything": "اسأل الذكاء الاصطناعي عن أي شيء",
     "askAIFor": "اسأل الذكاء الاصطناعي",
+    "searching": "جارٍ البحث...",
     "noResultForSearching": "لم يتم العثور على أي تطابقات",
     "noResultForSearchingHint": "حاول استخدام أسئلة أو كلمات رئيسية مختلفة.\nقد تكون بعض الصفحات في سلة المهملات.",
+    "noResultForSearchingHintWithoutTrash": "جرّب كلمات أو أسئلة مختلفة\n بعض الصفحات قد تكون في ",
     "bestMatch": "أفضل تطابق",
+    "seeMore": "عرض المزيد",
     "showMore": "إظهار المزيد",
     "somethingWentWrong": "لقد حدث خطأ ما",
     "pageNotExist": "هذه الصفحة غير موجودة",
@@ -2738,7 +2743,7 @@
       "accountLogin": "تسجيل الدخول إلى الحساب",
       "updateNameError": "فشل في تحديث الاسم",
       "updateIconError": "فشل في تحديث الأيقونة",
-      "aboutAppFlowy": "حول appName",
+      "aboutAppFlowy": "حول @:appName",
       "deleteAccount": {
         "title": "حذف الحساب",
         "subtitle": "احذف حسابك وجميع بياناتك بشكل دائم.",
@@ -2844,6 +2849,7 @@
     "aiOverview": "نظرة عامة على الذكاء الاصطناعي",
     "aiOverviewSource": "مصادر مرجعية",
     "aiOverviewMoreDetails": "مزيد من التفاصيل",
+    "aiAskFollowUp": "اطرح سؤالًا متابعة",
     "pagePreview": "معاينة المحتوى",
     "clickToOpenPage": "انقر لفتح الصفحة",
     "recentHistory": "التاريخ الحديث",
@@ -3372,7 +3378,21 @@
       "browsePrompts": "تصفح المطالبات",
       "usePrompt": "استخدم المطالبة",
       "featured": "مميز",
+      "custom": "مخصص",
+      "customPrompt": "مطالبات مخصصة",
+      "databasePrompts": "تحميل المطالبات من قاعدة بياناتك الخاصة",
+      "selectDatabase": "اختر قاعدة البيانات",
+      "promptDatabase": "قاعدة بيانات المطالبات",
+      "configureDatabase": "تهيئة قاعدة البيانات",
+      "title": "العنوان",
+      "content": "المحتوى",
       "example": "مثال المطالبة",
+      "category": "الفئة",
+      "selectField": "اختر الحقل",
+      "loading": "جارٍ التحميل",
+      "invalidDatabase": "قاعدة بيانات غير صالحة",
+      "invalidDatabaseHelp": "تأكد من أن قاعدة البيانات تحتوي على خاصيتين نصيتين على الأقل:\n ◦ إحداهما لاسم المطالبة\n ◦ والأخرى لمحتوى المطالبة\nيمكنك أيضًا إضافة خصائص اختيارية لمثال المطالبة والفئة.",
+      "noResults": "لم يتم العثور على مطالبات",
       "all": "الجميع",
       "development": "التطوير",
       "writing": "الكتابة",
@@ -3382,6 +3402,7 @@
       "travel": "السفر",
       "others": "آخر",
       "prompt": "المطالبة",
+      "promptExample": "مثال على المطالبة",
       "sampleOutput": "عينة الإخراج",
       "contentSeo": "المحتوى/ت.م.ب",
       "emailMarketing": "التسويق عبر البريد الإلكتروني",
@@ -3427,5 +3448,54 @@
     "tryAgain": "حاول ثانية",
     "rewrite": "إعادة كتابة",
     "insertBelow": "أدخل أدناه"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "عرض",
+      "comment": "تعليق",
+      "edit": "تعديل",
+      "fullAccess": "وصول كامل"
+    },
+    "inviteByEmail": "دعوة عبر البريد الإلكتروني",
+    "invite": "دعوة",
+    "anyoneAtWorkspace": "أي شخص في {workspace}",
+    "anyoneInGroupWithLinkCanEdit": "أي شخص في هذه المجموعة لديه الرابط يمكنه التعديل",
+    "copyLink": "نسخ الرابط",
+    "copiedLinkToClipboard": "تم نسخ الرابط إلى الحافظة",
+    "removeAccess": "إزالة الوصول",
+    "turnIntoMember": "تحويل إلى عضو",
+    "you": "(أنت)",
+    "guest": "ضيف",
+    "onlyFullAccessCanInvite": "فقط المستخدم الذي لديه وصول كامل يمكنه دعوة الآخرين",
+    "invitationSent": "تم إرسال الدعوة",
+    "emailAlreadyInList": "البريد الإلكتروني موجود بالفعل في القائمة",
+    "upgradeToProToInviteGuests": "يرجى الترقية إلى خطة Pro لدعوة المزيد من الضيوف",
+    "maxGuestsReached": "لقد وصلت إلى الحد الأقصى لعدد الضيوف",
+    "removedGuestSuccessfully": "تمت إزالة الضيف بنجاح",
+    "updatedAccessLevelSuccessfully": "تم تحديث مستوى الوصول بنجاح",
+    "turnedIntoMemberSuccessfully": "تم التحويل إلى عضو بنجاح",
+    "peopleAboveCanAccessWithLink": "يمكن للأشخاص أعلاه الوصول بالرابط",
+    "cantMakeChanges": "لا يمكن إجراء تغييرات",
+    "canMakeAnyChanges": "يمكن إجراء أي تغييرات",
+    "generalAccess": "الوصول العام",
+    "peopleWithAccess": "الأشخاص الذين لديهم وصول",
+    "peopleAboveCanAccessWithTheLink": "يمكن للأشخاص أعلاه الوصول بالرابط",
+    "upgrade": "ترقية",
+    "toProPlanToInviteGuests": " إلى خطة Pro لدعوة الضيوف إلى هذه الصفحة",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "ترقية لدعوة ضيف",
+        "member": "ترقية لدعوة ضيف",
+        "guest": "ترقية لدعوة ضيف"
+      },
+      "description": {
+        "owner": "مساحة العمل الخاصة بك تعمل حاليًا على الخطة المجانية. قم بالترقية إلى خطة Pro للسماح للمستخدمين الخارجيين بالوصول إلى هذه الصفحة كضيوف.",
+        "member": "بعض المدعوين خارج مساحة العمل الخاصة بك. لدعوتهم كضيوف، يرجى التواصل مع مالك مساحة العمل للترقية إلى خطة Pro.",
+        "guest": "بعض المدعوين خارج مساحة العمل الخاصة بك. لدعوتهم كضيوف، يرجى التواصل مع مالك مساحة العمل للترقية إلى خطة Pro."
+      }
+    }
+  },
+  "shareSection": {
+    "shared": "مشارك معي"
   }
 }
