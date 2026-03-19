@@ -34,6 +34,7 @@ class AFTextField extends StatefulWidget {
     this.focusNode,
     this.readOnly = false,
     this.maxLength,
+    this.autofillHints,
   });
 
   /// The hint text to display when the text field is empty.
@@ -86,6 +87,8 @@ class AFTextField extends StatefulWidget {
 
   /// The maximum length of the text field.
   final int? maxLength;
+
+  final Iterable<String>? autofillHints;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();

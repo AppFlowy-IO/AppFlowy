@@ -139,13 +139,39 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     );
 
     startOffset = widget.editorState.selection?.endIndex ?? 0;
+    widget.editorState.selectionNotifier.addListener(_onSelectionChanged);
   }
 
   @override
   void dispose() {
+    widget.editorState.selectionNotifier.removeListener(_onSelectionChanged);
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onSelectionChanged() {
+    final selection = widget.editorState.selection;
+    if (selection == null || !selection.isCollapsed) return;
+    final path = selection.end.path;
+    final node = widget.editorState.getNodeAtPath(path);
+    final text = node?.delta?.toPlainText() ?? "";
+    if (text.isEmpty) return;
+
+    if (selection.endIndex < startOffset - widget.startCharAmount) {
+      widget.onDismiss();
+      return;
+    }
+    final currentSearch = text.substring(
+      startOffset,
+      selection.endIndex,
+    );
+
+    if (currentSearch != _search) {
+      setState(() {
+        search = currentSearch;
+      });
+    }
   }
 
   @override
@@ -222,7 +248,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     if (event is! KeyDownEvent) {
       return KeyEventResult.ignored;
     }
-
     const moveKeys = [
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
@@ -276,7 +301,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       } else {
         widget.onSelectionUpdate();
         widget.editorState.deleteBackward();
-        _deleteCharacterAtSelection();
       }
 
       return KeyEventResult.handled;
@@ -336,26 +360,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
   void _insertCharacter(String character) {
     widget.editorState.insertTextAtCurrentSelection(character);
-
-    final selection = widget.editorState.selection;
-    if (selection == null || !selection.isCollapsed) {
-      return;
-    }
-
-    final delta = widget.editorState.getNodeAtPath(selection.end.path)?.delta;
-    if (delta == null) {
-      return;
-    }
-
-    search = widget.editorState
-        .getTextInSelection(
-          selection.copyWith(
-            start: selection.start.copyWith(offset: startOffset),
-            end: selection.start
-                .copyWith(offset: startOffset + _search.length + 1),
-          ),
-        )
-        .join();
   }
 
   void _moveSelection(LogicalKeyboardKey key) {

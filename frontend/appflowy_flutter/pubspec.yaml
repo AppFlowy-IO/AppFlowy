@@ -76,7 +76,10 @@ dependencies:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
       ref: "355aa56"
-  flutter_math_fork: ^0.7.3
+  flutter_math_fork: 
+    git:
+      url: https://github.com/simpleclub/flutter_math.git
+      ref: "6e84b607c5c0e00dd1f3d4bd30ef3f1628053328"
   flutter_slidable: ^3.0.0
 
   flutter_staggered_grid_view: ^0.7.0
