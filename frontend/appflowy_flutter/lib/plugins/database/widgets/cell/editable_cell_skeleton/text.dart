@@ -68,7 +68,11 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
         TextEditingController(text: cellBloc.state.content);
     focusNode.onKeyEvent = (node, event) {
       if (event is KeyDownEvent &&
-          event.logicalKey == LogicalKeyboardKey.space) {
+          event.logicalKey == LogicalKeyboardKey.space &&
+          !HardwareKeyboard.instance.isShiftPressed &&
+          !HardwareKeyboard.instance.isControlPressed &&
+          !HardwareKeyboard.instance.isAltPressed &&
+          !HardwareKeyboard.instance.isMetaPressed) {
         return KeyEventResult.skipRemainingHandlers;
       }
       return KeyEventResult.ignored;
