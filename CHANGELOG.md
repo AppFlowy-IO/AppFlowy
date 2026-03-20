@@ -1,4 +1,242 @@
 # Release Notes
+## Version 0.11.4 – 09/03/2026
+### Desktop
+#### New Features
+- Notification System: In-app notification center to track mentions, reminders, and activity updates
+- Revamped Slash Menu: Redesigned `/` command menu with improved layout and discoverability
+- Editor Block Spacing: Optimize spacing between blocks in the document editor
+
+#### Bug Fixes
+- Fixed row document issues
+- Fixed bulk delete not working correctly
+- Fixed connection check causing unnecessary errors
+
+### Mobile
+#### New Features
+- Notification System: In-app notification center to track mentions, reminders, and activity updates
+- Revamped Slash Menu: Redesigned `/` command menu with improved layout and discoverability
+- Editor Block Spacing: Optimize spacing between blocks in the document editor
+
+#### Bug Fixes
+- Fixed mobile block selection disappearing
+- Fixed select-all behavior with Gboard on Android
+- Fixed duplicate column names when creating board groups
+
+## Version 0.11.3 – 25/02/2026
+### Desktop
+#### Bug Fixes
+- Fixed the space dropdown menu not displaying correctly
+- Fixed relation filter not applying correctly in advanced filter scenarios
+- Fixed the disconnect banner not refreshing properly
+
+### Mobile
+#### Bug Fixes
+- Fixed losing focus after typing the first character in a text cell
+- Fixed FCM blocking the main app on startup
+
+## Version 0.11.2 – 14/02/2026
+### Desktop
+#### New Features
+- New Database View: Feed view
+- AI Transcript & Meeting Blocks: Automatic speaker name guessing, referenced AI summaries, and meeting detection from Google Meet and Slack
+- Google Drive Block: Embed and select Google Drive files via link or connected account
+
+#### Bug Fixes
+- File Block: Display upload progress during file uploads
+- Image Upload: Improved upload indicator and instant image caching
+- Unsplash Cover Image: Improved preview and keyboard navigation
+
+### Mobile
+#### New Features
+- New Database View: Feed view
+- Google Drive Block: Embed and select Google Drive files via link or connected account
+
+#### Bug Fixes
+- File Block: Display upload progress during file uploads
+- Image Upload: Improved upload indicator and instant image caching
+
+## Version 0.11.1 – 28/01/2026
+### Desktop
+#### New Features
+- New Database Views: Gallery, List, and Chart views
+- Grouping in a Grid (Table) view: Group by allows you to organize database entries into collapsible sections based on property values (e.g., Status, Priority)
+- Multi-row actions: Allows for powerful multi-row (bulk) actions within databases to edit, delete, or duplicate all at once
+- Database advanced filters: Useful when combining AND logic and OR logic in your filter
+- Number property new formats: Comma separated and percent
+- Export as PDF: Export a single page as .PDF
+- Database Cover Images: Added support for cover images to enhance visual representation
+- AI Transcript & Meeting Notes: Use the mention person type for task assignees in the action items of the AI summary
+
+#### Bug Fixes
+- Enhanced playback experience for video blocks
+- Resolved issue with inline mention styles not matching block text styles
+
+### Mobile
+#### New Features
+- New Database Views: Gallery, List, and Chart views
+
+#### Bug Fixes
+- Improved playback experience for video blocks
+- Fixed issue with inline mention styles not matching block text styles
+
+## Version 0.11.0 – 12/01/2026
+### Desktop
+#### Bug Fixes
+- Fixed row detail page button style not following theme changes
+- Fixed target limit not being removed when creating two-way relation field
+- Improved speaker selector menu UI style in the transcript tab of AI meeting block
+
+## Version 0.10.9 – 09/01/2026
+### Desktop
+#### New Features
+- Database Rollup: A powerful property used to retrieve and aggregate information from items in a related database
+- Database search: Search names of database pages, as well as property values (such as a status of "In progress") and content inside database pages
+- AI Transcript with auto speaker identification: Upload an audio file to generate transcriptions with speaker labels. You can assign or change speaker names
+- AI Meeting Notes with auto speaker identification: Real-time transcription during meetings with automatic speaker label detection after recording stops. You can assign or change speaker names
+- Mermaid diagram support: Add diagrams directly in Code blocks with split, preview, and code display modes, plus an expandable view
+- Top nav bar breadcrumb revamp: Refreshed design with improved layout
+- Document and database cover reposition: Reposition cover images for the best display
+
+#### Bug Fixes
+- Fixed various database issues to improve stability and performance
+
+### Mobile
+#### New Features
+- AI Transcript with auto speaker identification: Upload an audio file to generate transcriptions with speaker labels. You can assign or change speaker names
+- Mermaid diagram support: Add diagrams directly in Code blocks with split, preview, and code display modes, plus an expandable view
+
+#### Bug Fixes
+- Fixed various database issues to improve stability and performance
+
+## Version 0.10.8 – 22/12/2025
+### Desktop
+#### Bug Fixes
+- Grid sort order preserved after edits — Editing a row no longer moves it to the bottom of a sorted Grid
+- Delete banner for databases — Grid, Board, and Calendar now show restore/delete banner when deleted
+- Timestamp field conversion — Converting Created time or Last modified to Text/Date no longer loses values
+- Unicode string sorting — Sorting now handles accented characters and special symbols correctly
+- Kanban filter fix — Filters now apply correctly to items added after view creation
+
+### Mobile
+#### Bug Fixes
+- Grid sort order preserved after edits — Editing a row no longer moves it to the bottom of a sorted Grid
+- Timestamp field conversion — Converting Created time or Last modified to Text/Date no longer loses values
+- Unicode string sorting — Sorting now handles accented characters and special symbols correctly
+- Kanban filter fix — Filters now apply correctly to items added after view creation
+
+## Version 0.10.7 – 19/12/2025
+### Desktop
+#### New Features
+- AI Meeting Notes Block: Supports real-time transcription on macOS and Windows. AI will turn everything into a clean, share-ready summary
+- Database Two-way Relations: Automatically sync connected data between databases, ensuring that information added in one place instantly appears in the other
+- Video Block: Upload or embed video files, then view and interact with them directly inside your document
+- Audio Block: Upload or embed audio files, then view and interact with them directly inside your document
+- Callout Block: Supports removing the callout icon
+- Table of Contents Block: Supports collapsing/uncollapsing the content
+
+#### Bug Fixes
+- Fixed various issues related to database views, including sorting, filtering, counting, syncing, and layouts
+- Fixed various issues related to the linked views of databases
+- Fixed database issues related to date formats, file name display, view tabs, horizontal scroll, and Relation property performance
+
+### Mobile
+#### New Features
+- Video Block: Upload or embed video files, then view and interact with them directly inside your document
+- Audio Block: Upload or embed audio files, then view and interact with them directly inside your document
+- Callout Block: Supports removing the callout icon
+- Table of Contents Block: Supports collapsing/uncollapsing the content
+
+#### Bug Fixes
+- Fixed various issues related to database views, including sorting, filtering, counting, syncing, and layouts
+- Fixed various issues related to the linked views of databases
+- Fixed database issues related to date formats, file name display, view tabs, horizontal scroll, and Relation property performance
+
+## Version 0.10.6 – 05/12/2025
+### Desktop
+#### Bug Fixes
+- Fixed issues related to the duplicated databases
+- Fixed an issue where the Chinese (Simplified) and Chinese (Traditional) language options were not being saved properly in the summary language of the AI meeting block
+
+### Mobile
+#### Bug Fixes
+- Fixed issues related to the duplicated databases
+
+## Version 0.10.5 – 02/12/2025
+### Desktop
+#### New Features
+- AI Transcript Block: Turn audio and video recordings into ready-to-share notes with AI Transcribe. Easily use our rich-text editing features to refine both the AI transcription and summary. Perfect for work, school, or personal projects
+- PDF Block: Upload or embed PDF files, then view and interact with them directly inside your document
+- Improved Image Block: Supported new features such as captions, embedded external or page links, saving images, and replacing images with more polished visuals and interactions
+- Self-hosted: Enabled custom namespaces, fixed issues with inviting members via link, and removed Pro plan banners that were intended for the managed cloud version
+
+### Mobile
+#### New Features
+- PDF Block: Upload or embed PDF files, then view and interact with them directly inside your document
+- Improved Image Block: Supported new features such as captions, embedded external or page links, saving images, and replacing images—with more polished visuals and interactions
+- Self-hosted: Fixed issues with inviting members via link, and removed Pro plan banners that were intended for the managed cloud version
+
+## Version 0.10.4 – 14/11/2025
+### Desktop
+#### New Features
+- Revamped the Math Equation block with an easier-to-use UX and new features: multiline equations, more environment variables, inline math equation markdown support, and Ask AI
+- Revamped the Toggle List block with an improved UI and bug fixes
+- Revamped the right-click Context Menu with a more polished UI and new features: Paste as plain text and Ask AI
+
+#### Bug Fixes
+- Fixed issues related to the Math Equation and Toggle List blocks
+- Fixed issues related to the right-click Context Menu
+
+### Mobile
+#### New Features
+- Revamped the Math Equation and Toggle List blocks with improved UIs and new features
+
+#### Bug Fixes
+- Fixed issues related to the Math Equation and Toggle List blocks
+
+## Version 0.10.3 – 31/10/2025
+### Desktop
+#### New Features
+- Revamped the Code block with new features: pin language, caption, Ask AI, and Turn Text into Code
+- Revamped the Callout block with an improved UI and quick styles
+- Revamped the Outline block with a more polished UI and custom background colors
+- Notification Settings: enable or disable mobile push notifications
+
+#### Bug Fixes
+- Fixed issues related to the Code and Callout blocks
+
+### Mobile
+#### New Features
+- Supported mobile push notifications: you'll receive a push message when you're mentioned, invited to a page, or when page permissions change
+- Revamped the Code, Callout, and Outline blocks with improved UIs and new features
+
+## Version 0.10.2 – 24/10/2025
+### Desktop
+#### Bug Fixes
+- Fixed inability to import Notion zip file
+
+## Version 0.10.1 – 16/10/2025
+### Desktop
+#### Bug Fixes
+- Fixed potential login token expired issue
+- Fixed inability to create Vault workspace on self-hosted servers with commercial plans
+- Fixed switching page rapidly caused the page flash
+
+### Mobile
+#### Bug Fixes
+- Fixed potential login token expired issue
+
+## Version 0.10.0 – 29/09/2025
+### Desktop
+#### New Features
+- Person, a new database property, lets you assign a row to one or more collaborators
+
+### Mobile
+#### New Features
+- Person, a new database property, lets you assign a row to one or more collaborators
+- iOS Share to AppFlowy: quickly save a web page with optional notes to a target AppFlowy page or database
+- Android Share to AppFlowy: quickly save a web page with optional notes to a target AppFlowy page or database
+- A new Android widget: Quick Page Access
+
 ## Version 0.9.9 – 11/09/2025
 ### Desktop
 #### New Features
