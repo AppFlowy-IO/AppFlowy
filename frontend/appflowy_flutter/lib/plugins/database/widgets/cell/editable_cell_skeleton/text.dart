@@ -66,6 +66,13 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
     super.initState();
     _textEditingController =
         TextEditingController(text: cellBloc.state.content);
+    focusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent &&
+          event.logicalKey == LogicalKeyboardKey.space) {
+        return KeyEventResult.skipRemainingHandlers;
+      }
+      return KeyEventResult.ignored;
+    };
   }
 
   @override
