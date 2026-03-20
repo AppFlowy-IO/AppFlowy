@@ -45,7 +45,7 @@ class ShareTabBloc extends Bloc<ShareTabEvent, ShareTabState> {
 
   @override
   Future<void> close() async {
-      await _folderNotificationListener?.stop();
+    await _folderNotificationListener?.stop();
     await super.close();
   }
 

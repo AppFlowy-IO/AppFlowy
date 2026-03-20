@@ -345,7 +345,7 @@ class OutlineItemWidget extends StatelessWidget {
             ),
           ),
         );
-    } else {
+      } else {
         children.add(
           TextSpan(
             text: text,
