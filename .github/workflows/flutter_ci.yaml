@@ -141,7 +141,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: ${{ matrix.target }}
@@ -150,20 +150,20 @@ jobs:
 
       - name: Install flutter
         id: flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
         with:
           prefix-key: ${{ matrix.os }}
           workspaces: |
             frontend/rust-lib
           cache-all-crates: true
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2
         with:
           tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
@@ -292,13 +292,13 @@ jobs:
 
       - name: Install flutter
         id: flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2
         with:
           tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
 
