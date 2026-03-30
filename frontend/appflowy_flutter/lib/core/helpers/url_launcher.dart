@@ -39,6 +39,14 @@ Future<bool> afLaunchUri(
     );
   }
 
+  // Security: Prevent execution of dangerous URI schemes (XSS)
+  final validSchemes = ['http', 'https', 'mailto', 'tel', 'sms'];
+  if (uri.scheme.isNotEmpty && !validSchemes.contains(uri.scheme.toLowerCase())) {
+    Log.error('Blocked attempt to launch unsafe URI scheme: ${uri.scheme}');
+    return false;
+  }
+
+
   // on Linux or Android or Windows, add http scheme to the url if it is not present
   if ((UniversalPlatform.isLinux ||
           UniversalPlatform.isAndroid ||
