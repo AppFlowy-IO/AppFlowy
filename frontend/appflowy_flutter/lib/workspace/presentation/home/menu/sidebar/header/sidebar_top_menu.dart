@@ -89,7 +89,7 @@ class SidebarTopMenu extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: isSidebarOnHover,
       builder: (_, value, ___) => Opacity(
-        opacity: value ? 1 : 0,
+        opacity: value ? 1 : 0.7,
         child: Padding(
           padding: const EdgeInsets.only(top: 12.0, right: 6.0),
           child: FlowyTooltip(
