@@ -1401,14 +1401,31 @@ class _UIScaleFactorDisplay extends StatefulWidget {
   State<_UIScaleFactorDisplay> createState() => _UIScaleFactorDisplayState();
 }
 
-class _UIScaleFactorDisplayState extends State<_UIScaleFactorDisplay> {
+class _UIScaleFactorDisplayState extends State<_UIScaleFactorDisplay>
+    with WidgetsBindingObserver {
   final WindowSizeManager _windowSizeManager = WindowSizeManager();
   double _scaleFactor = 1.0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadScaleFactor();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Reload scale factor when the app regains focus, in case it was
+    // changed via keyboard shortcuts while the settings page was open.
+    if (state == AppLifecycleState.resumed) {
+      _loadScaleFactor();
+    }
   }
 
   Future<void> _loadScaleFactor() async {
@@ -1423,6 +1440,7 @@ class _UIScaleFactorDisplayState extends State<_UIScaleFactorDisplay> {
     final percentage = (_scaleFactor * 100).round();
     final modifierKey =
         Theme.of(context).platform == TargetPlatform.macOS ? '⌘' : 'Ctrl';
+    // TODO: move these strings to LocaleKeys for localization
     return SettingsCategory(
       title: 'UI Scale',
       description:
