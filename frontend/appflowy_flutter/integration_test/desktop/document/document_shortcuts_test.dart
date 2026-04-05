@@ -136,5 +136,120 @@ void main() {
         equals(text1),
       );
     });
+
+    testWidgets('custom duplicate block command - duplicate current block', (
+      tester,
+    ) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      const pageName = 'Test Duplicate Block Shortcut';
+      await tester.createNewPageWithNameUnderParent(name: pageName);
+
+      await tester.tap(find.byType(AppFlowyEditor));
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final transaction = editorState.transaction;
+      const text1 = 'First block';
+      const text2 = 'Second block';
+      transaction.insertNodes(
+        [0],
+        [
+          paragraphNode(text: text1),
+          paragraphNode(text: text2),
+        ],
+      );
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      await tester.editor.updateSelection(
+        Selection.collapsed(
+          Position(path: [0], offset: text1.length),
+        ),
+      );
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyD,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.editor.getNodeAtPath([0]).delta?.toPlainText(),
+        equals(text1),
+      );
+      expect(
+        tester.editor.getNodeAtPath([1]).delta?.toPlainText(),
+        equals(text1),
+      );
+      expect(
+        tester.editor.getNodeAtPath([2]).delta?.toPlainText(),
+        equals(text2),
+      );
+    });
+
+    testWidgets(
+        'custom duplicate block command - duplicate multi-block selection', (
+      tester,
+    ) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      const pageName = 'Test Duplicate Multi Block Shortcut';
+      await tester.createNewPageWithNameUnderParent(name: pageName);
+
+      await tester.tap(find.byType(AppFlowyEditor));
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final transaction = editorState.transaction;
+      const text1 = 'First block';
+      const text2 = 'Second block';
+      const text3 = 'Third block';
+      transaction.insertNodes(
+        [0],
+        [
+          paragraphNode(text: text1),
+          paragraphNode(text: text2),
+          paragraphNode(text: text3),
+        ],
+      );
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      editorState.selection = Selection(
+        start: Position(path: [0]),
+        end: Position(path: [1], offset: text2.length),
+      );
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyD,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      expect(editorState.document.root.children, hasLength(5));
+      expect(
+        tester.editor.getNodeAtPath([0]).delta?.toPlainText(),
+        equals(text1),
+      );
+      expect(
+        tester.editor.getNodeAtPath([1]).delta?.toPlainText(),
+        equals(text2),
+      );
+      expect(
+        tester.editor.getNodeAtPath([2]).delta?.toPlainText(),
+        equals(text1),
+      );
+      expect(
+        tester.editor.getNodeAtPath([3]).delta?.toPlainText(),
+        equals(text2),
+      );
+      expect(
+        tester.editor.getNodeAtPath([4]).delta?.toPlainText(),
+        equals(text3),
+      );
+    });
   });
 }
