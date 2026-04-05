@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/align_tool
 import 'package:appflowy/plugins/document/presentation/editor_plugins/math_equation/math_equation_shortcut.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/custom_delete_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/custom_duplicate_block_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/undo_redo/custom_undo_redo_commands.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -39,6 +40,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
 
   ...customTextAlignCommands,
 
+  customDuplicateBlockCommand,
   customDeleteCommand,
   insertInlineMathEquationCommand,
 
