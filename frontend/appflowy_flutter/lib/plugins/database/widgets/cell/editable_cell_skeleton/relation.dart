@@ -93,4 +93,12 @@ class _RelationCellState extends GridCellState<EditableRelationCell> {
 
   @override
   String? onCopy() => "";
+
+  @override
+  void onDelete() {
+    final rows = cellBloc.state.rows;
+    for (final row in rows) {
+      cellBloc.add(RelationCellEvent.selectRow(row.rowId));
+    }
+  }
 }

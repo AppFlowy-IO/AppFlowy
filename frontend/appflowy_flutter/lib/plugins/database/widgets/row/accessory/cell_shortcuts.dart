@@ -8,6 +8,9 @@ typedef CellKeyboardAction = dynamic Function();
 enum CellKeyboardKey {
   onEnter,
   onCopy,
+  onCut,
+  onPaste,
+  onDelete,
   onInsert,
 }
 
@@ -43,6 +46,24 @@ class GridCellShortcuts extends StatelessWidget {
                 : LogicalKeyboardKey.control,
             LogicalKeyboardKey.keyC,
           ): const GridCellCopyIntent(),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onCut))
+          LogicalKeySet(
+            Platform.isMacOS
+                ? LogicalKeyboardKey.meta
+                : LogicalKeyboardKey.control,
+            LogicalKeyboardKey.keyX,
+          ): const GridCellCutIntent(),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onPaste))
+          LogicalKeySet(
+            Platform.isMacOS
+                ? LogicalKeyboardKey.meta
+                : LogicalKeyboardKey.control,
+            LogicalKeyboardKey.keyV,
+          ): const GridCellPasteIntent(),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onDelete))
+          LogicalKeySet(LogicalKeyboardKey.delete): const GridCellDeleteIntent(),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onDelete))
+          LogicalKeySet(LogicalKeyboardKey.backspace): const GridCellDeleteIntent(),
       };
 
   Map<Type, Action<Intent>> get actions => {
@@ -50,6 +71,12 @@ class GridCellShortcuts extends StatelessWidget {
           GridCellEnterIdent: GridCellEnterAction(child: child),
         if (shouldAddKeyboardKey(CellKeyboardKey.onCopy))
           GridCellCopyIntent: GridCellCopyAction(child: child),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onCut))
+          GridCellCutIntent: GridCellCutAction(child: child),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onPaste))
+          GridCellPasteIntent: GridCellPasteAction(child: child),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onDelete))
+          GridCellDeleteIntent: GridCellDeleteAction(child: child),
       };
 
   bool shouldAddKeyboardKey(CellKeyboardKey key) =>
@@ -86,13 +113,54 @@ class GridCellCopyAction extends Action<GridCellCopyIntent> {
   @override
   void invoke(covariant GridCellCopyIntent intent) {
     final callback = child.shortcutHandlers[CellKeyboardKey.onCopy];
-    if (callback == null) {
-      return;
-    }
+    if (callback != null) callback();
+  }
+}
 
-    final s = callback();
-    if (s is String) {
-      Clipboard.setData(ClipboardData(text: s));
-    }
+class GridCellCutIntent extends Intent {
+  const GridCellCutIntent();
+}
+
+class GridCellCutAction extends Action<GridCellCutIntent> {
+  GridCellCutAction({required this.child});
+
+  final CellShortcuts child;
+
+  @override
+  void invoke(covariant GridCellCutIntent intent) {
+    final callback = child.shortcutHandlers[CellKeyboardKey.onCut];
+    if (callback != null) callback();
+  }
+}
+
+class GridCellPasteIntent extends Intent {
+  const GridCellPasteIntent();
+}
+
+class GridCellPasteAction extends Action<GridCellPasteIntent> {
+  GridCellPasteAction({required this.child});
+
+  final CellShortcuts child;
+
+  @override
+  Future<void> invoke(covariant GridCellPasteIntent intent) async {
+    final callback = child.shortcutHandlers[CellKeyboardKey.onPaste];
+    if (callback != null) await callback();
+  }
+}
+
+class GridCellDeleteIntent extends Intent {
+  const GridCellDeleteIntent();
+}
+
+class GridCellDeleteAction extends Action<GridCellDeleteIntent> {
+  GridCellDeleteAction({required this.child});
+
+  final CellShortcuts child;
+
+  @override
+  void invoke(covariant GridCellDeleteIntent intent) {
+    final callback = child.shortcutHandlers[CellKeyboardKey.onDelete];
+    if (callback != null) callback();
   }
 }

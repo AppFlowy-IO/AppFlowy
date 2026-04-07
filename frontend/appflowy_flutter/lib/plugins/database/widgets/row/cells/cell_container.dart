@@ -77,7 +77,8 @@ class _CellContainerState extends State<CellContainer> {
             }
           }
 
-          final isSelectedOrEditing = isChildFocus || _focusNode.hasFocus;
+          final isSelected = _focusNode.hasFocus;
+          final isEditing = isChildFocus;
 
           return Focus(
             focusNode: _focusNode,
@@ -93,22 +94,22 @@ class _CellContainerState extends State<CellContainer> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                if (!isChildFocus) {
-                  if (!_focusNode.hasFocus) {
-                    _focusNode.requestFocus();
-                  } else {
-                    widget.child.requestFocus.notify();
-                  }
+                if (!isEditing) {
+                  _focusNode.requestFocus();
                 }
               },
               onDoubleTap: () {
-                if (!isChildFocus) {
+                if (!isEditing) {
                   widget.child.requestFocus.notify();
                 }
               },
               child: Container(
                 constraints: BoxConstraints(maxWidth: widget.width, minHeight: 32),
-                decoration: _makeBoxDecoration(context, isSelectedOrEditing),
+                decoration: _makeBoxDecoration(
+                  context,
+                  isSelected: isSelected,
+                  isEditing: isEditing,
+                ),
                 child: container,
               ),
             ),
@@ -118,13 +119,24 @@ class _CellContainerState extends State<CellContainer> {
     );
   }
 
-  BoxDecoration _makeBoxDecoration(BuildContext context, bool isFocus) {
-    if (isFocus) {
+  BoxDecoration _makeBoxDecoration(
+    BuildContext context, {
+    required bool isSelected,
+    required bool isEditing,
+  }) {
+    if (isEditing) {
       final borderSide = BorderSide(
         color: Theme.of(context).colorScheme.primary,
         width: 1.5,
       );
+      return BoxDecoration(border: Border.fromBorderSide(borderSide));
+    }
 
+    if (isSelected) {
+      final borderSide = BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.5,
+      );
       return BoxDecoration(border: Border.fromBorderSide(borderSide));
     }
 

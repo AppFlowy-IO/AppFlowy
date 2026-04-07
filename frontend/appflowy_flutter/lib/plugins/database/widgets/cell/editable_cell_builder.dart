@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -284,6 +285,24 @@ abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   void initState() {
     super.initState();
     widget.requestFocus.addListener(onRequestFocus);
+    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () {
+      final s = onCopy();
+      if (s != null) {
+        Clipboard.setData(ClipboardData(text: s));
+      }
+    };
+    widget.shortcutHandlers[CellKeyboardKey.onCut] = () {
+      final s = onCut();
+      if (s != null) {
+        Clipboard.setData(ClipboardData(text: s));
+      }
+    };
+    widget.shortcutHandlers[CellKeyboardKey.onPaste] = () async {
+      await onPaste();
+    };
+    widget.shortcutHandlers[CellKeyboardKey.onDelete] = () {
+      onDelete();
+    };
   }
 
   @override
@@ -306,6 +325,9 @@ abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   void onRequestFocus();
 
   String? onCopy() => null;
+  String? onCut() => null;
+  Future<void> onPaste() async {}
+  void onDelete() {}
 }
 
 abstract class GridEditableTextCell<T extends EditableCellWidget>
