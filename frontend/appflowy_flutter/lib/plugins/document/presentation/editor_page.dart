@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/edito
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/all_members_notification.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
@@ -83,6 +84,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       if (FeatureFlag.inlineSubPageMention.isOn)
         InlineChildPageService(currentViewId: documentBloc.documentId),
       InlinePageReferenceService(currentViewId: documentBloc.documentId),
+      AllMembersNotificationService(context),
       DateReferenceService(context),
       ReminderReferenceService(context),
     ],

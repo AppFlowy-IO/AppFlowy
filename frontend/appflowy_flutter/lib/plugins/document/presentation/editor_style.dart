@@ -399,8 +399,9 @@ class EditorStyleCustomizer {
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
-              MentionType.page => mention[MentionBlockKeys.pageId],
-              MentionType.date => mention[MentionBlockKeys.date],
+              'page' => mention[MentionBlockKeys.pageId],
+              'date' => mention[MentionBlockKeys.date],
+              'allMembers' => mention[MentionBlockKeys.label],
               _ => MentionBlockKeys.mention,
             },
           ),
