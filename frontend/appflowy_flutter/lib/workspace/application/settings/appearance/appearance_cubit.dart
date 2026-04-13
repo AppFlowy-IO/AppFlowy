@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show AppFlowyEditorLocalizations;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/plugins/service/plugin_service.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,10 +71,15 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
           ),
         ) {
     readTextScaleFactor();
+    _startWatchingTheme(appTheme);
   }
 
   final AppearanceSettingsPB _appearanceSettings;
   final DateTimeSettingsPB _dateTimeSettings;
+
+  StreamSubscription<FileSystemEvent>? _themeWatcher;
+  Timer? _themeReloadDebounce;
+  int _watchGeneration = 0;
 
   Future<void> setTextScaleFactor(double textScaleFactor) async {
     // only saved in local storage, this value is not synced across devices
@@ -102,6 +109,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     unawaited(_saveAppearanceSettings());
     try {
       final theme = await AppTheme.fromName(themeName);
+      _startWatchingTheme(theme);
       emit(state.copyWith(appTheme: theme));
     } catch (e) {
       Log.error("Error setting theme: $e");
@@ -302,6 +310,58 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
       (l) => null,
       (error) => Log.error(error),
     );
+  }
+
+  /// Watches the on-disk source of [theme] and reloads it on changes.
+  void _startWatchingTheme(AppTheme theme) {
+    _stopWatchingTheme();
+    if (theme.builtIn) return;
+    final generation = ++_watchGeneration;
+    _watchThemeByName(theme.themeName, generation);
+  }
+
+  Future<void> _watchThemeByName(String themeName, int generation) async {
+    final plugin =
+        await FlowyPluginService.instance.lookup(name: themeName);
+    if (generation != _watchGeneration) return;
+    if (plugin == null || !plugin.source.existsSync()) return;
+
+    _themeWatcher = plugin.source.watch(recursive: true).listen(
+      (_) {
+        _themeReloadDebounce?.cancel();
+        _themeReloadDebounce = Timer(
+          const Duration(milliseconds: 500),
+          _reloadCurrentTheme,
+        );
+      },
+      onError: (_) {},
+    );
+  }
+
+  Future<void> _reloadCurrentTheme() async {
+    final currentName = state.appTheme.themeName;
+    if (state.appTheme.builtIn) return;
+    try {
+      final theme = await AppTheme.fromName(currentName);
+      if (!isClosed) {
+        emit(state.copyWith(appTheme: theme));
+      }
+    } catch (e) {
+      Log.error('Error reloading theme "$currentName": $e');
+    }
+  }
+
+  void _stopWatchingTheme() {
+    _themeReloadDebounce?.cancel();
+    _themeReloadDebounce = null;
+    _themeWatcher?.cancel();
+    _themeWatcher = null;
+  }
+
+  @override
+  Future<void> close() {
+    _stopWatchingTheme();
+    return super.close();
   }
 }
 
