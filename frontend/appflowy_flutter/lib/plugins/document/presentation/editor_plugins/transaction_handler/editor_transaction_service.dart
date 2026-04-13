@@ -10,6 +10,7 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/hashtag/hashtag_transaction_handler.dart';
 
 import 'mention_transaction_handler.dart';
 
@@ -19,6 +20,7 @@ final _transactionHandlers = <EditorTransactionHandler>[
     ChildPageTransactionHandler(),
   ],
   DateTransactionHandler(),
+  HashtagTransactionHandler(),
 ];
 
 /// Handles delegating transactions to appropriate handlers.

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/hashtag/hashtag_block_keys.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -22,13 +23,14 @@ extension TextDeltaExtension on Delta {
     while (ops.moveNext()) {
       final op = ops.current;
       final attributes = op.attributes;
+
       if (op is TextInsert) {
-        // if the text is '\$', it means the block text is empty,
-        //  the real data is in the attributes
+        // Mentions
         if (op.text == MentionBlockKeys.mentionChar) {
           final mention = attributes?[MentionBlockKeys.mention];
           final mentionPageId = mention?[MentionBlockKeys.pageId];
           final mentionType = mention?[MentionBlockKeys.type];
+
           if (mentionPageId != null) {
             text += await getMentionPageName(mentionPageId);
             continue;
@@ -40,10 +42,19 @@ extension TextDeltaExtension on Delta {
           }
         }
 
+        // Hashtags
+        if (op.text == HashtagBlockKeys.hashtagChar) {
+          final hashtag = attributes?[HashtagBlockKeys.hashtag];
+          final name = hashtag?[HashtagBlockKeys.name];
+
+          if (name is String && name.isNotEmpty) {
+            text += '#$name';
+            continue;
+          }
+        }
+
         text += op.text;
       } else {
-        // if the delta contains other types of operations,
-        // return the default plain text
         return defaultPlainText;
       }
     }
