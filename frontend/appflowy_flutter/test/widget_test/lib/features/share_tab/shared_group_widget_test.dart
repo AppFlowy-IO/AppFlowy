@@ -26,7 +26,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text(LocaleKeys.shareTab_anyoneInGroupWithLinkCanEdit.tr()),
+        find.text(LocaleKeys.shareTab_anyoneInGroupWithLinkHasFullAccess.tr()),
         findsOneWidget,
       );
       // Trailing widget: EditAccessLevelWidget (disabled)

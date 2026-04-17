@@ -285,7 +285,7 @@ class _LackOfResource extends StatelessWidget {
       ),
       TextSpan(text: ' ', style: textStyle),
       TextSpan(
-        text: LocaleKeys.settings_aiPage_keys_installOllamaLai.tr(),
+        text: LocaleKeys.settings_aiPage_keys_installOllama.tr(),
         style: textStyle,
       ),
     ];

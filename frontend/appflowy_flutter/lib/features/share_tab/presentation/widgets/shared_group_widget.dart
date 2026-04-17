@@ -77,7 +77,7 @@ class SharedGroupWidget extends StatelessWidget {
   Widget _buildSubtitle(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     return Text(
-      LocaleKeys.shareTab_anyoneInGroupWithLinkCanEdit.tr(),
+      LocaleKeys.shareTab_anyoneInGroupWithLinkHasFullAccess.tr(),
       textAlign: TextAlign.left,
       style: theme.textStyle.caption.standard(
         color: theme.textColorScheme.secondary,

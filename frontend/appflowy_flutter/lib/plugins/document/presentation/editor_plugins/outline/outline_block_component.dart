@@ -222,7 +222,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
           textDirection: textDirection,
           children: [
             Text(
-              LocaleKeys.document_outlineBlock_placeholder.tr(),
+              LocaleKeys.document_plugins_outline_outlineBlock.tr(),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const VSpace(8.0),
@@ -345,7 +345,7 @@ class OutlineItemWidget extends StatelessWidget {
             ),
           ),
         );
-    } else {
+      } else {
         children.add(
           TextSpan(
             text: text,

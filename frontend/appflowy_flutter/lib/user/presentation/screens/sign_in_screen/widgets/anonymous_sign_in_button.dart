@@ -29,7 +29,7 @@ class SignInAnonymousButtonV3 extends StatelessWidget {
             },
             child: BlocBuilder<AnonUserBloc, AnonUserState>(
               builder: (context, state) {
-                final text = LocaleKeys.signIn_continueWithLocalModel.tr();
+                final text = LocaleKeys.signIn_continueAnonymousUser.tr();
                 final onTap = state.anonUsers.isEmpty
                     ? () {
                         context
