@@ -9,7 +9,8 @@
   "youCanAlso": "Zuk ere egin dezakezu",
   "and": "eta",
   "blockActions": {
-    "addBelowTooltip": "Egin klik behean gehitzeko",
+    "addBelowCmd": "Egin klik",
+    "addBelowTooltip": "behean gehitzeko",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Aukera+klik",
     "addAboveTooltip": "goian gehitzeko"
@@ -377,7 +378,7 @@
       "textPlaceholder": "Hutsik",
       "copyProperty": "Propietatea arbelean kopiatu da",
       "count": "Kontatu",
-      "newRow": "Errenkada berria",
+      "newRow": "Orrialde berria",
       "action": "Ekintza"
     },
     "selectOption": {

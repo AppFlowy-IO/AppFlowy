@@ -11,7 +11,8 @@
   "and": "και",
   "failedToOpenUrl": "Αποτυχία ανοίγματος διεύθυνσης url: {}",
   "blockActions": {
-    "addBelowTooltip": "Κάντε κλικ για να προσθέσετε παρακάτω",
+    "addBelowCmd": "Κάντε κλικ",
+    "addBelowTooltip": "για να προσθέσετε παρακάτω",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "για να προσθέσετε παραπάνω",
@@ -82,7 +83,7 @@
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
     "csv": "CSV",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy link"
   },
   "moreAction": {
     "small": "small",
@@ -685,7 +686,7 @@
       "textPlaceholder": "Άδειο",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "Νέα γραμμή",
+      "newRow": "Νέα σελίδα",
       "action": "Action",
       "add": "Click add to below",
       "drag": "Σύρετε για μετακίνηση",
@@ -865,6 +866,7 @@
         "convertToLink": "Convert to embed link"
       },
       "outline": {
+        "outlineBlock": "Table of Contents",
         "addHeadingToCreateOutline": "Add headings to create a table of contents.",
         "noMatchHeadings": "No matching headings found."
       },
@@ -892,9 +894,6 @@
       },
       "date": "Date",
       "emoji": "Emoji"
-    },
-    "outlineBlock": {
-      "placeholder": "Table of Contents"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -1388,7 +1387,7 @@
       "workplaceName": "Workplace name",
       "workplaceNamePlaceholder": "Enter workplace name",
       "workplaceIcon": "Workplace icon",
-      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "workplaceIconSubtitle": "Use an emoji for your workspace. Icon will show in your sidebar and notifications",
       "renameError": "Failed to rename workplace",
       "updateIconError": "Failed to update icon",
       "appearance": {

@@ -9,7 +9,8 @@
   "youCanAlso": "Você também pode",
   "and": "e",
   "blockActions": {
-    "addBelowTooltip": "Clique para adicionar abaixo",
+    "addBelowCmd": "Clique",
+    "addBelowTooltip": "para adicionar abaixo",
     "addAboveCmd": "Alt+clique",
     "addAboveMacCmd": "Opção+clique",
     "addAboveTooltip": "para adicionar acima",
@@ -500,7 +501,7 @@
       "textPlaceholder": "Vazio",
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contar",
-      "newRow": "Nova linha",
+      "newRow": "Nova página",
       "action": "Ação",
       "add": "Clique em adicionar abaixo",
       "drag": "Arraste para mover"

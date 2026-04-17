@@ -11,7 +11,8 @@
   "and": "と",
   "failedToOpenUrl": "URLを開けませんでした: {}",
   "blockActions": {
-    "addBelowTooltip": "クリックして下に追加してください",
+    "addBelowCmd": "クリックして",
+    "addBelowTooltip": "下に追加してください",
     "addAboveCmd": "Alt+クリック",
     "addAboveMacCmd": "Option+クリック",
     "addAboveTooltip": "上に追加する",
@@ -792,7 +793,7 @@
       "menuLabel": "AI設定",
       "keys": {
         "enableAISearchTitle": "AI検索",
-        "aiSettingsDescription": "AppFlowy AIを駆動するモデルを選択します。GPT 4-o、Claude 3.5、Llama 3.1、Mistral 7Bが含まれます。",
+        "aiSettingsDescription": "AppFlowy AIを駆動するモデルを選択します。",
         "loginToEnableAIFeature": "AI機能は@:appName Cloudにログインした後に有効になります。@:appNameアカウントがない場合は、「マイアカウント」でサインアップしてください。",
         "llmModel": "言語モデル",
         "llmModelType": "言語モデルのタイプ",
@@ -856,7 +857,7 @@
           "proTitle": "プロ",
           "teamTitle": "チーム",
           "freeInfo": "個人や2名までのメンバーに最適",
-          "proInfo": "小規模・中規模チームに最適（最大10名）",
+          "proInfo": "小規模・中規模チームに最適（最大50名）",
           "teamInfo": "生産的かつ整理されたチームに最適",
           "upgrade": "プランを変更",
           "canceledInfo": "プランはキャンセルされました。{}に無料プランにダウングレードされます。"
@@ -955,32 +956,36 @@
         "priceInfo": "1ユーザーあたり月額 \n年間請求\n\n{} 毎月請求"
       },
       "planLabels": {
-        "itemOne": "ワークスペース",
-        "itemTwo": "メンバー",
-        "itemThree": "ストレージ",
-        "itemFour": "リアルタイムコラボレーション",
-        "itemFive": "モバイルアプリ",
-        "itemSix": "AIレスポンス",
-        "itemFileUpload": "ファイルアップロード",
-        "customNamespace": "カスタム名前空間",
-        "tooltipSix": "ライフタイムはレスポンスの数がリセットされないことを意味します",
-        "intelligentSearch": "インテリジェント検索",
-        "tooltipSeven": "ワークスペースのURLの一部をカスタマイズできます",
-        "customNamespaceTooltip": "カスタム公開サイト URL"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "ワークスペースごとの料金",
-        "itemTwo": "最大2名",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "はい",
-        "itemFive": "はい",
-        "itemSix": "10回のライフタイムレスポンス",
-        "itemFileUpload": "最大7 MB",
-        "intelligentSearch": "インテリジェント検索"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "ワークスペースごとの料金",
-        "itemTwo": "最大10名",
+        "itemTwo": "最大50名",
         "itemThree": "無制限",
         "itemFour": "はい",
         "itemFive": "はい",
@@ -1531,7 +1536,7 @@
       "textPlaceholder": "空",
       "copyProperty": "プロパティをクリップボードにコピー",
       "count": "カウント",
-      "newRow": "新しい行",
+      "newRow": "新しいページ",
       "loadMore": "さらに読み込む",
       "action": "アクション",
       "add": "下に追加をクリック",
@@ -1847,6 +1852,7 @@
         "convertToLink": "埋め込みリンクに変換"
       },
       "outline": {
+        "outlineBlock": "目次",
         "addHeadingToCreateOutline": "目次を作成するには見出しを追加してください。",
         "noMatchHeadings": "一致する見出しが見つかりませんでした。"
       },
@@ -1919,9 +1925,6 @@
         }
       },
       "cannotMoveToItsChildren": "子に移動できません"
-    },
-    "outlineBlock": {
-      "placeholder": "目次"
     },
     "textBlock": {
       "placeholder": "'/' を入力してコマンドを使用"
@@ -3003,7 +3006,7 @@
     },
     "proPoints": {
       "first": "無制限のストレージ",
-      "second": "ワークスペースメンバー最大10人",
+      "second": "ワークスペースメンバー最大50人",
       "three": "無制限のAI応答",
       "four": "無制限のファイルアップロード",
       "five": "カスタム名前空間"

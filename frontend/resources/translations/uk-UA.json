@@ -11,7 +11,8 @@
   "and": "та",
   "failedToOpenUrl": "Не вдалося відкрити URL-адресу: {}",
   "blockActions": {
-    "addBelowTooltip": "Клацніть, щоб додати нижче",
+    "addBelowCmd": "Клацніть",
+    "addBelowTooltip": "щоб додати нижче",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Виберіть варіант та натисніть",
     "addAboveTooltip": "додати вище",
@@ -739,7 +740,7 @@
           "proTitle": "Pro",
           "teamTitle": "Команда",
           "freeInfo": "Ідеально підходить для окремих осіб до 2 учасників, щоб організувати все",
-          "proInfo": "Ідеально підходить для малих і середніх команд до 10 учасників.",
+          "proInfo": "Ідеально підходить для малих і середніх команд до 50 учасників.",
           "teamInfo": "Ідеально підходить для всіх продуктивних і добре організованих команд.",
           "upgrade": "Змінити план",
           "canceledInfo": "Ваш план скасовано, вас буде переведено на безкоштовний план {}."
@@ -840,31 +841,36 @@
         "priceInfo": "на користувача на місяць\nвиставляється щорічно<inlang-LineFeed>\n{} виставляється щомісяця"
       },
       "planLabels": {
-        "itemOne": "Робочі області",
-        "itemTwo": "Члени",
-        "itemThree": "Зберігання",
-        "itemFour": "Співпраця в реальному часі",
-        "itemFive": "Мобільний додаток",
-        "itemSix": "Відповіді ШІ",
-        "itemSeven": "Спеціальний простір імен",
-        "itemFileUpload": "Завантаження файлів",
-        "tooltipSix": "Термін служби означає кількість відповідей, які ніколи не скидаються",
-        "intelligentSearch": "Інтелектуальний пошук",
-        "tooltipSeven": "Дозволяє налаштувати частину URL-адреси для вашої робочої області"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "сплачується за робоче місце",
-        "itemTwo": "До 2",
-        "itemThree": "5 ГБ",
-        "itemFour": "так",
-        "itemFive": "так",
-        "itemSix": "10 років життя",
-        "itemFileUpload": "До 7 Мб",
-        "intelligentSearch": "Інтелектуальний пошук"
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "Оплата за робоче місце",
-        "itemTwo": "До 10",
+        "itemTwo": "До 50",
         "itemThree": "Необмежений",
         "itemFour": "так",
         "itemFive": "так",
@@ -1403,7 +1409,7 @@
       "textPlaceholder": "Порожньо",
       "copyProperty": "Скопійовано властивість в буфер обміну",
       "count": "Кількість",
-      "newRow": "Новий рядок",
+      "newRow": "Нова сторінка",
       "action": "Дія",
       "add": "Клацніть, щоб додати нижче",
       "drag": "Перетягніть для переміщення",
@@ -1645,6 +1651,7 @@
         "convertToLink": "Перетворити на вбудоване посилання"
       },
       "outline": {
+        "outlineBlock": "Зміст",
         "addHeadingToCreateOutline": "Додайте заголовки, щоб створити зміст.",
         "noMatchHeadings": "Відповідних заголовків не знайдено."
       },
@@ -1701,9 +1708,6 @@
         "uploadedAt": "Завантажено {}",
         "linkedAt": "Посилання додано {}"
       }
-    },
-    "outlineBlock": {
-      "placeholder": "Зміст"
     },
     "textBlock": {
       "placeholder": "Тип '/' для команд"

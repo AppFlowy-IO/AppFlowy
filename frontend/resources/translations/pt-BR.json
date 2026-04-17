@@ -11,7 +11,8 @@
   "and": "e",
   "failedToOpenUrl": "Falha ao abrir url: {}",
   "blockActions": {
-    "addBelowTooltip": "Clique para adicionar abaixo",
+    "addBelowCmd": "Clique",
+    "addBelowTooltip": "para adicionar abaixo",
     "addAboveCmd": "Alt+clique",
     "addAboveMacCmd": "Opção+clique",
     "addAboveTooltip": "para adicionar acima",
@@ -941,7 +942,7 @@
       "textPlaceholder": "Vazio",
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contagem",
-      "newRow": "Nova linha",
+      "newRow": "Nova página",
       "action": "Ação",
       "add": "Clique em adicionar abaixo",
       "drag": "Arraste para mover",

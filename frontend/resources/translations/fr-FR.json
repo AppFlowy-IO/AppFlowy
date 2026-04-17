@@ -11,7 +11,8 @@
   "and": "et",
   "failedToOpenUrl": "Échec de l'ouverture de l'URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
+    "addBelowCmd": "Cliquez",
+    "addBelowTooltip": "pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Option+clic",
     "addAboveTooltip": "à ajouter au dessus",
@@ -36,7 +37,7 @@
     "loginButtonText": "Connexion",
     "loginStartWithAnonymous": "Lancer avec une session anonyme",
     "continueAnonymousUser": "Continuer avec une session anonyme",
-    "continueWithLocalModel": "Continuer avec le modèle local",
+    "continue": "Continuer",
     "switchToAppFlowyCloud": "AppFlowy Cloud",
     "anonymousMode": "Mode anonyme",
     "buttonText": "Se connecter",
@@ -48,7 +49,6 @@
     "createAccount": "Créer un compte",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
-    "passwordMustContain": "Votre mot de passe doit contenir au moins une lettre, un chiffre et un symbole",
     "syncPromptMessage": "La synchronisation des données peut prendre un certain temps. Merci de ne pas fermer pas cette page.",
     "or": "OU",
     "signInWithGoogle": "Continuer avec Google",
@@ -78,7 +78,6 @@
     "temporaryVerificationLinkSent": "Un lien de vérification temporaire a été envoyé.\nVeuillez vérifier votre boîte de réception sur",
     "temporaryVerificationCodeSent": "Un code de vérification temporaire a été envoyé.\nVeuillez vérifier votre boîte de réception sur",
     "continueToSignIn": "Continuer à se connecter",
-    "continueWithLoginCode": "Continuer avec vos identifiants",
     "backToLogin": "Retour à la connexion",
     "enterCode": "Entrez le code",
     "enterCodeManually": "Entrez le code manuellement",
@@ -88,25 +87,6 @@
     "invalidVerificationCode": "Veuillez saisir un code de vérification valide",
     "tooFrequentVerificationCodeRequest": "Vous avez fait trop de demandes. Veuillez réessayer plus tard.",
     "invalidLoginCredentials": "Votre mot de passe est incorrect, veuillez réessayer",
-    "resetPassword": "Réinitialiser le mot de passe",
-    "resetPasswordDescription": "Entrer votre courriel pour réinitialiser votre mot de passe",
-    "continueToResetPassword": "Continuer pour réinitialiser le mot de passe",
-    "resetPasswordSuccess": "Le mot de passe a été réinitialisé avec succès",
-    "resetPasswordFailed": "Échec de la réinitialisation du mot de passe",
-    "resetPasswordLinkSent": "Un mail permettant de réinitialiser le mot de passe a été envoyé à votre adresse.",
-    "resetPasswordLinkExpired": "Ce lien de renouvellement de mot de passe est obsolète. Veuillez redemander un lien de réinitialisation.",
-    "resetPasswordLinkInvalid": "Ce lien de renouvellement de mot de passe est erroné. Veuillez redemander un lien de réinitialisation.",
-    "enterNewPasswordFor": "Entrez votre nouveau mot de passe",
-    "newPassword": "Nouveau mot de passe",
-    "enterNewPassword": "Entrer votre nouveau mot de passe",
-    "confirmPassword": "Confirmer votre mot de passe",
-    "confirmNewPassword": "Confirmer votre nouveau mot de passe",
-    "newPasswordCannotBeEmpty": "Le champ \"nouveau mot de passe\" ne peut pas être laissé vide.",
-    "confirmPasswordCannotBeEmpty": "Le champ \"confirmation du nouveau mot de passe\" ne peut pas être laissé vide.",
-    "passwordsDoNotMatch": "Le mot de passe et sa confirmation ne correspondent pas.",
-    "verifying": "En cours de vérification",
-    "youAreInLocalMode": "Vous êtes en mode local",
-    "loginToAppFlowyCloud": "Connexion au nuage d'AppFlowy",
     "anonymous": "Anonyme",
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
@@ -573,9 +553,6 @@
       "selectHomePage": "Sélectionnez une page",
       "clearHomePage": "Effacer la page d'accueil pour cet espace",
       "customUrl": "URL personnalisée",
-      "homePage": {
-        "upgradeToPro": "Passez à la formule pro pour désigner une page d'accueil"
-      },
       "namespace": {
         "description": "Ce changement s'appliquera à toutes les pages publiées en direct sur cet espace",
         "tooltip": "Nous nous réservons le droit de supprimer tout espace inapproprié",
@@ -901,10 +878,9 @@
       "menuLabel": "Paramètres IA",
       "keys": {
         "enableAISearchTitle": "Recherche IA",
-        "aiSettingsDescription": "Choisissez votre modèle préféré pour alimenter AppFlowy AI. Inclut désormais GPT 4-o, Claude 3,5, Llama 3.1 et Mistral 7B",
+        "aiSettingsDescription": "Choisissez votre modèle préféré pour alimenter AppFlowy AI.",
         "loginToEnableAIFeature": "Les fonctionnalités d'IA sont accessibles uniquement après s'être connecté avec @:appName Cloud. Pour créer un compte @:appName, voir dans la rubrique 'Mon Compte'.",
         "llmModel": "Modèle de langage",
-        "readOnlyField": "Ce champ est en lecture seule",
         "llmModelType": "Type de modèle de langue",
         "downloadLLMPrompt": "Télécharger {}",
         "downloadAppFlowyOfflineAI": "Le téléchargement du package hors ligne AI permettra à AI de fonctionner sur votre appareil. Voulez-vous continuer ?",
@@ -941,7 +917,7 @@
         "ollamaNotReady": "Le serveur Ollama n'est pas prêt.",
         "pleaseFollowThese": "Veuillez suivre ces",
         "instructions": "instructions",
-        "installOllamaLai": "pour configurer Ollama et AppFlowy Local AI.",
+        "installOllama": "pour configurer Ollama",
         "modelsMissing": "Impossible de trouver les modèles requis : ",
         "downloadModel": "pour les télécharger."
       }
@@ -980,7 +956,7 @@
           "proTitle": "Pro",
           "teamTitle": "Équipe",
           "freeInfo": "Idéal pour les particuliers jusqu'à 2 membres pour tout organiser",
-          "proInfo": "Idéal pour les petites et moyennes équipes jusqu'à 10 membres.",
+          "proInfo": "Idéal pour les petites et moyennes équipes jusqu'à 50 membres.",
           "teamInfo": "Parfait pour toutes les équipes productives et bien organisées.",
           "upgrade": "Changer de plan",
           "canceledInfo": "Votre forfait est annulé, vous serez rétrogradé au plan gratuit le {}."
@@ -1079,35 +1055,36 @@
         "priceInfo": "par utilisateur et par mois\nfacturé annuellement\n\n{} facturé mensuellement"
       },
       "planLabels": {
-        "itemOne": "Espaces de travail",
-        "itemTwo": "Membres",
-        "itemThree": "Stockage",
-        "itemFour": "Collaboration en temps réel",
-        "itemFive": "Application mobile",
-        "itemSix": "Réponses de l'IA",
-        "itemSeven": "Images IA",
-        "itemFileUpload": "Téléchargements de fichiers",
-        "customNamespace": "Nom d'espace personnalisé",
-        "tooltipFive": "Collaborer sur des pages spécifiques avec des personnes qui ne sont pas membres",
-        "tooltipSix": "La durée de vie signifie que le nombre de réponses n'est jamais réinitialisé",
-        "intelligentSearch": "Recherche intelligente",
-        "tooltipSeven": "Vous permet de personnaliser une partie de l'URL de votre espace de travail",
-        "customNamespaceTooltip": "URL de site publiée personnalisée"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "facturé par espace de travail",
-        "itemTwo": "jusqu'à 2",
-        "itemThree": "5 Go",
-        "itemFour": "Oui",
-        "itemFive": "Oui",
-        "itemSix": "10 à vie",
-        "itemSeven": "à vie",
-        "itemFileUpload": "Jusqu'à 7 Mo",
-        "intelligentSearch": "Recherche intelligente"
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "facturé par espace de travail",
-        "itemTwo": "jusqu'à 10",
+        "itemTwo": "jusqu'à 50",
         "itemThree": "illimité",
         "itemFour": "Oui",
         "itemFive": "Oui",
@@ -1402,11 +1379,7 @@
         "resetInviteLinkFailed": "Échec de la réinitialisation du lien d'invitation",
         "resetInviteLinkFailedDescription": "Veuillez réessayer plus tard",
         "memberPageDescription1": "Accéder au",
-        "memberPageDescription2": "pour la gestion des invités et des utilisateurs avancés.",
-        "noInviteLink": "Vous n'avez pas généré de lien d'invitation pour le moment",
-        "copyLink": "Copier le lien",
-        "generatedLinkSuccessfully": "Lien généré avec succès",
-        "generatedLinkFailed": "Échec de génération du lien"
+        "memberPageDescription2": "pour la gestion des invités et des utilisateurs avancés."
       }
     },
     "files": {
@@ -1517,6 +1490,7 @@
       "layout": "Mise en page",
       "compactMode": "Mode compact",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1524,8 +1498,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "filter": {
       "empty": "Aucun filtre actif",
@@ -1701,7 +1674,7 @@
       "textPlaceholder": "Vide",
       "copyProperty": "Copie de la propriété dans le presse-papiers",
       "count": "Compte",
-      "newRow": "Nouvelle ligne",
+      "newRow": "Nouvelle page",
       "loadMore": "Charger plus",
       "action": "Action",
       "add": "Cliquez sur ajouter ci-dessous",
@@ -1815,7 +1788,105 @@
         "createANewCalendar": "Créer un nouveau calendrier"
       },
       "document": {
-        "selectADocumentToLinkTo": "Sélectionnez un Document vers lequel créer un lien"
+        "selectADocumentToLinkTo": "Sélectionnez un Document vers lequel créer un lien",
+        "basicBlocks": {
+          "name": "Blocs de base",
+          "text": "Texte",
+          "heading1": "Titre 1",
+          "heading2": "Titre 2",
+          "heading3": "Titre 3",
+          "bulletedList": "Liste à puces",
+          "numberedList": "Liste numérotée",
+          "todoList": "Liste de tâches",
+          "toggleList": "Liste pliable",
+          "document": "Document",
+          "callout": "Encadré",
+          "quote": "Citation",
+          "code": "Code",
+          "simpleTable": "Tableau simple",
+          "divider": "Diviseur",
+          "linkToPage": "Lien vers la page"
+        },
+        "appflowyAi": {
+          "name": "AppFlowy IA",
+          "aiWriter": "Demander à l'IA",
+          "continueWriting": "Continuer à écrire",
+          "summarize": "Résumer",
+          "aiMeetingNote": "Notes de réunion IA",
+          "aiTranscript": "Transcription IA"
+        },
+        "media": {
+          "name": "Médias",
+          "image": "Image",
+          "photoGallery": "Galerie de photos",
+          "file": "Fichier",
+          "pdfEmbeds": "Intégration PDF",
+          "video": "Vidéo",
+          "audio": "Audio",
+          "googleDriveEmbed": "Intégration Google Drive",
+          "webBookmark": "Signet web"
+        },
+        "database": {
+          "name": "Base de données",
+          "databaseInline": "Grille - En ligne",
+          "databaseFullPage": "Grille - Pleine page",
+          "linkedView": "Vue liée de la grille",
+          "kanbanInline": "Kanban - En ligne",
+          "kanbanFullPage": "Kanban - Pleine page",
+          "linkedKanban": "Vue liée du Kanban",
+          "calendarInline": "Calendrier - En ligne",
+          "calendarFullPage": "Calendrier - Pleine page",
+          "linkedCalendar": "Vue liée du calendrier",
+          "list": "Liste - En ligne",
+          "fullPageList": "Liste - Pleine page",
+          "linkedList": "Vue liée de la liste",
+          "gallery": "Galerie - En ligne",
+          "fullPageGallery": "Galerie - Pleine page",
+          "linkedGallery": "Vue liée de la galerie",
+          "chart": "Graphique - En ligne",
+          "fullPageChart": "Graphique - Pleine page",
+          "linkedChart": "Vue liée du graphique",
+          "feed": "Flux - En ligne",
+          "fullPageFeed": "Flux - Pleine page",
+          "linkedFeed": "Vue liée du flux"
+        },
+        "advancedBlock": {
+          "name": "Bloc avancé",
+          "tableOfContents": "Table des matières",
+          "blockEquation": "Équation de bloc",
+          "breadcrumb": "Fil d'Ariane",
+          "toggleH1": "Basculer H1",
+          "toggleH2": "Basculer H2",
+          "toggleH3": "Basculer H3",
+          "twoColumns": "2 colonnes",
+          "threeColumns": "3 colonnes",
+          "fourColumns": "4 colonnes",
+          "fiveColumns": "5 colonnes",
+          "codeMermaid": "Code - Mermaid",
+          "aiBlock": "Bloc IA"
+        },
+        "inline": {
+          "name": "En ligne",
+          "mentionPerson": "Mentionner une personne",
+          "mentionPage": "Mentionner une page",
+          "dataReminder": "Date et rappel",
+          "emoji": "Émoji",
+          "inlineEquation": "Équation en ligne"
+        },
+        "color": {
+          "name": "Couleur",
+          "textColor": "Couleur du texte",
+          "backgroundColor": "Couleur d'arrière-plan"
+        }
+      },
+      "category": {
+        "basicBlocks": "Blocs de base",
+        "appflowyAi": "AppFlowy IA",
+        "media": "Médias",
+        "database": "Base de données",
+        "advancedBlock": "Bloc avancé",
+        "inline": "En ligne",
+        "color": "Couleur"
       },
       "name": {
         "textStyle": "Style de texte",
@@ -1837,15 +1908,24 @@
         "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
+        "fullPageGrid": "Grille pleine page",
         "linkedGrid": "Grille liée",
         "kanban": "Kanban",
+        "fullPageKanban": "Kanban pleine page",
         "linkedKanban": "Kanban lié",
         "calendar": "Calendrier",
+        "fullPageCalendar": "Calendrier pleine page",
         "linkedCalendar": "Calendrier lié",
+        "list_": "Liste",
+        "linkedList": "Liste liée",
+        "gallery": "Galerie",
+        "linkedGallery": "Galerie liée",
+        "chart": "Graphique",
+        "linkedChart": "Graphique lié",
         "quote": "Citation",
         "divider": "Diviseur",
         "table": "Tableau",
-        "callout": "Appeler",
+        "callout": "Encadré",
         "outline": "Table des matières",
         "mathEquation": "Équation mathématique",
         "code": "Code",
@@ -1855,12 +1935,17 @@
         "toggleHeading3": "Basculer en titre 3",
         "emoji": "Émoji",
         "aiWriter": "Rédacteur IA",
+        "aiMeetingNote": "Notes de réunion IA",
+        "aiTranscript": "Transcription IA",
         "dateOrReminder": "Date ou rappel",
         "photoGallery": "Galerie de photos",
         "file": "Fichier",
         "twoColumns": "2 colonnes",
         "threeColumns": "3 colonnes",
         "fourColumns": "4 colonnes",
+        "fiveColumns": "5 colonnes",
+        "textColor": "Couleur du texte",
+        "backgroundColor": "Couleur d'arrière-plan",
         "checkbox": "Case à cocher"
       },
       "subPage": {
@@ -1877,7 +1962,8 @@
     },
     "selectionMenu": {
       "outline": "Contour",
-      "codeBlock": "Bloc de code"
+      "codeBlock": "Bloc de code",
+      "new": "Nouveau"
     },
     "plugins": {
       "referencedBoard": "Tableau référencé",
@@ -1925,7 +2011,25 @@
       "numberedList": "Liste numérotée",
       "bulletedList": "Liste à puces",
       "todoList": "Liste de tâches",
-      "callout": "Encadré",
+      "callout": {
+        "callout": "Encadré",
+        "calloutBlock": "Bloc d'encadré",
+        "placeholder": "Écrire quelque chose",
+        "quickStyle": "Style rapide",
+        "suggestedStyles": "Styles suggérés",
+        "moreStyles": "Plus de styles",
+        "icon": "Icône",
+        "basic": "Basique",
+        "info": "Info",
+        "tip": "Astuce",
+        "warning": "Avertissement",
+        "alert": "Alerte",
+        "insight": "Aperçu",
+        "idea": "Idée",
+        "spark": "Étincelle",
+        "context": "Contexte",
+        "note": "Note"
+      },
       "simpleTable": {
         "moreActions": {
           "color": "Couleur",
@@ -2037,6 +2141,7 @@
         "convertToLink": "Convertir en lien intégré"
       },
       "outline": {
+        "outlineBlock": "Table de contenu",
         "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières.",
         "noMatchHeadings": "Aucune rubrique correspondante trouvée."
       },
@@ -2098,6 +2203,17 @@
         "linkedAt": "Lien ajouté le {}",
         "failedToOpenMsg": "Impossible d'ouvrir, fichier non trouvé"
       },
+      "mermaid": {
+        "label": "Mermaid",
+        "display": "Affichage",
+        "code": "Code",
+        "preview": "Aperçu",
+        "spilt": "Diviser",
+        "language": "Langue",
+        "expandDiagram": "Agrandir le diagramme",
+        "download": "Télécharger le diagramme",
+        "placeholder": "Saisissez la syntaxe Mermaid pour voir un aperçu"
+      },
       "subPage": {
         "errors": {
           "failedDeletePage": "Impossible de supprimer la page",
@@ -2114,7 +2230,11 @@
           "mention": "Mention",
           "URL": "URL",
           "bookmark": "Signet",
-          "embed": "Intégrer"
+          "embed": "Intégrer",
+          "pdfEmbed": "Intégration PDF",
+          "videoEmbed": "Intégration vidéo",
+          "audioEmbed": "Intégration audio",
+          "googleDriveEmbed": "Intégration Google Drive"
         },
         "linkPreviewMenu": {
           "toMetion": "Convertir en mention",
@@ -2129,9 +2249,6 @@
           "unableToDisplay": "impossible d'afficher"
         }
       }
-    },
-    "outlineBlock": {
-      "placeholder": "Table de contenu"
     },
     "textBlock": {
       "placeholder": "Tapez '/' pour les commandes"
@@ -2235,6 +2352,9 @@
       "deletedPage": "Page supprimée",
       "trashHint": " - à la corbeille",
       "morePages": "plus de pages"
+    },
+    "mentionMenu": {
+      "mentionAPerson": "Mentionner une personne"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut",
@@ -2364,11 +2484,11 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
-      "clickToOpen": "Cliquez pour ouvrir l'évènement",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "clickToOpen": "Cliquez pour ouvrir l'évènement"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -2502,7 +2622,11 @@
     "viewNotifications": "Afficher les notifications",
     "noNotifications": "Aucune notification pour le moment",
     "mentionedYou": "vous a mentionné",
+    "archievedTooltip": "Archiver cette notification",
+    "unarchievedTooltip": "Cette notification n'a pas été archivée.",
     "markAsReadTooltip": "Marquer comme lu cette notification",
+    "markAsArchievedSucceedToast": "Archivage réussi",
+    "markAllAsArchievedSucceedToast": "Tout archiver avec succès",
     "markAsReadSucceedToast": "Marquer comme lu avec succès",
     "markAllAsReadSucceedToast": "Tout marquer comme lu avec succès",
     "today": "Aujourd'hui",
@@ -2527,11 +2651,7 @@
       "groupByDate": "Regrouper par date",
       "showUnreadsOnly": "Afficher uniquement les éléments non lus",
       "resetToDefault": "Réinitialiser aux valeurs par défaut"
-    },
-    "archievedTooltip": "Archiver cette notification",
-    "unarchievedTooltip": "Cette notification n'a pas été archivée.",
-    "markAsArchievedSucceedToast": "Archivage réussi",
-    "markAllAsArchievedSucceedToast": "Tout archiver avec succès"
+    }
   },
   "reminderNotification": {
     "title": "Rappel",
@@ -3286,7 +3406,7 @@
     },
     "proPoints": {
       "first": "Stockage illimité",
-      "second": "Jusqu'à 10 membres de l'espace de travail",
+      "second": "Jusqu'à 50 membres de l'espace de travail",
       "three": "Réponses IA illimitées",
       "four": "Téléchargements de fichiers illimités",
       "five": "Espace de noms personnalisé"
@@ -3352,15 +3472,16 @@
       "browsePrompts": "Parcourir les invites",
       "usePrompt": "Utiliser l'invite",
       "featured": "En vedette",
-      "example": "Exemple",
       "all": "Tous",
       "development": "Développement",
       "writing": "En écrivant",
       "healthAndFitness": "Santé et forme physique",
       "business": "Entreprise",
       "marketing": "Commercialisation",
+      "learning": "Apprentissage",
       "travel": "Voyage",
       "others": "Autre",
+      "example": "Exemple",
       "sampleOutput": "Exemple de sortie",
       "contentSeo": "Contenu/SEO",
       "emailMarketing": "Marketing par e-mail",
@@ -3371,8 +3492,7 @@
       "socialMedia": "Réseaux sociaux",
       "strategy": "Stratégie",
       "caseStudies": "Études de cas",
-      "salesCopy": "Texte de vente",
-      "learning": "Apprentissage"
+      "salesCopy": "Texte de vente"
     }
   },
   "autoUpdate": {

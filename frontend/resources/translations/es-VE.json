@@ -11,7 +11,8 @@
   "and": "y",
   "failedToOpenUrl": "No se pudo abrir la URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Haga clic para agregar a continuación",
+    "addBelowCmd": "Haga clic",
+    "addBelowTooltip": "para agregar a continuación",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opción+clic",
     "addAboveTooltip": "para agregar arriba",
@@ -827,7 +828,7 @@
       "textPlaceholder": "Vacío",
       "copyProperty": "Propiedad copiada al portapapeles",
       "count": "Contar",
-      "newRow": "Nueva fila",
+      "newRow": "Nueva pagina",
       "action": "Acción",
       "add": "Haga clic en agregar a continuación",
       "drag": "Arrastre para mover",
@@ -1011,6 +1012,7 @@
         "convertToLink": "Convertir en enlace incrustado"
       },
       "outline": {
+        "outlineBlock": "Tabla de contenidos",
         "addHeadingToCreateOutline": "Agregue encabezados para crear una tabla de contenido.",
         "noMatchHeadings": "No se han encontrado títulos coincidentes."
       },
@@ -1038,9 +1040,6 @@
       },
       "date": "Fecha",
       "openAI": "IA abierta"
-    },
-    "outlineBlock": {
-      "placeholder": "Tabla de contenidos"
     },
     "textBlock": {
       "placeholder": "Escriba '/' para comandos"

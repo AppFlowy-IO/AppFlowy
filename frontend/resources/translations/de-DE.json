@@ -11,7 +11,8 @@
   "and": "und",
   "failedToOpenUrl": "URL konnte nicht geöffnet werden: {}",
   "blockActions": {
-    "addBelowTooltip": "Unten klicken um etwas hinzuzufügen",
+    "addBelowCmd": "Klicken",
+    "addBelowTooltip": "um unten etwas hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
     "addAboveMacCmd": "Option+Klick",
     "addAboveTooltip": "oben hinzufügen",
@@ -853,7 +854,7 @@
           "proTitle": "Pro",
           "teamTitle": "Team",
           "freeInfo": "Perfekt für Einzelpersonen oder kleine Teams mit bis zu 2 Mitgliedern.",
-          "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
+          "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 50 Mitgliedern.",
           "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
           "upgrade": "Vergleichen &\n Upgraden",
           "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft.",
@@ -973,39 +974,36 @@
         "priceInfo": "jährlich abgerechnet"
       },
       "planLabels": {
-        "itemOne": "Arbeitsbereiche",
-        "itemTwo": "Mitglieder",
-        "itemThree": "Gäste",
-        "itemFour": "Gäste",
-        "itemFive": "Speicher",
-        "itemSix": "Zusammenarbeit in Echtzeit",
-        "itemSeven": "Mobile App",
-        "itemFileUpload": "Datei-Uploads",
-        "customNamespace": "Benutzerdefinierter Namensraum",
-        "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
-        "intelligentSearch": "Intelligente Suche",
-        "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
-        "customNamespaceTooltip": "Benutzerdefinierte veröffentlichte Seiten-URL",
-        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
-        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
-        "itemEight": "AI-Antworten",
-        "tooltipEight": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird."
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "pro Arbeitsbereich berechnet",
-        "itemTwo": "3",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "0",
-        "itemFive": "5 GB",
-        "itemSix": "10 Lebenszeiten",
-        "itemSeven": "ja",
-        "itemFileUpload": "Bis zu 7 MB",
-        "intelligentSearch": "Intelligente Suche",
-        "itemEight": "1.000 lebenslang"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "pro Arbeitsbereich berechnet",
-        "itemTwo": "bis zu 10",
+        "itemTwo": "bis zu 50",
         "itemThree": "unbegrenzt",
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
@@ -1579,7 +1577,7 @@
       "textPlaceholder": "Leer",
       "copyProperty": "Eigenschaft in die Zwischenablage kopiert",
       "count": "Zählen",
-      "newRow": "Neue Zeile",
+      "newRow": "Neue Seite",
       "loadMore": "Mehr laden",
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
@@ -1884,6 +1882,7 @@
         "convertToLink": "Konvertieren zum eingebetteten Link"
       },
       "outline": {
+        "outlineBlock": "Inhaltsverzeichnis",
         "addHeadingToCreateOutline": "Füge Überschriften hinzu, um ein Inhaltsverzeichnis zu erstellen.",
         "noMatchHeadings": "Keine passenden Überschriften gefunden."
       },
@@ -1954,9 +1953,6 @@
           "failedDuplicateFindView": "Seite konnte nicht dupliziert werden - Originalansicht nicht gefunden"
         }
       }
-    },
-    "outlineBlock": {
-      "placeholder": "Inhaltsverzeichnis"
     },
     "textBlock": {
       "placeholder": "Gebe „/“ für Inhaltsblöcke ein"

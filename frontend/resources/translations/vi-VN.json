@@ -11,7 +11,8 @@
   "and": "và",
   "failedToOpenUrl": "Không mở được url: {}",
   "blockActions": {
-    "addBelowTooltip": "Nhấn để thêm vào bên dưới",
+    "addBelowCmd": "Nhấn",
+    "addBelowTooltip": "để thêm vào bên dưới",
     "addAboveCmd": "Alt+nhấp chuột",
     "addAboveMacCmd": "Option+nhấp chuột",
     "addAboveTooltip": "để thêm ở trên",
@@ -680,7 +681,7 @@
       "menuLabel": "Cài đặt AI",
       "keys": {
         "enableAISearchTitle": "Tìm kiếm AI",
-        "aiSettingsDescription": "Chọn mô hình ưa thích của bạn để hỗ trợ AppFlowy AI. Bây giờ bao gồm GPT 4-o, Claude 3,5, Llama 3.1 và Mistral 7B",
+        "aiSettingsDescription": "Chọn mô hình ưa thích của bạn để hỗ trợ AppFlowy AI.",
         "loginToEnableAIFeature": "Các tính năng AI chỉ được bật sau khi đăng nhập bằng @:appName Cloud. Nếu bạn không có tài khoản @:appName , hãy vào 'Tài khoản của tôi' để đăng ký",
         "llmModel": "Mô hình ngôn ngữ",
         "llmModelType": "Kiểu mô hình ngôn ngữ",
@@ -744,7 +745,7 @@
           "proTitle": "Pro",
           "teamTitle": "Nhóm",
           "freeInfo": "Hoàn hảo cho cá nhân có tối đa 2 thành viên để sắp xếp mọi thứ",
-          "proInfo": "Hoàn hảo cho các nhóm vừa và nhỏ có tối đa 10 thành viên.",
+          "proInfo": "Hoàn hảo cho các nhóm vừa và nhỏ có tối đa 50 thành viên.",
           "teamInfo": "Hoàn hảo cho tất cả các nhóm làm việc hiệu quả và có tổ chức tốt.",
           "upgrade": "Thay đổi gói đăng ký",
           "canceledInfo": "Gói đăng ký của bạn đã bị hủy, bạn sẽ được hạ cấp xuống gói Miễn phí vào ngày {}."
@@ -843,30 +844,36 @@
         "priceInfo": "cho mỗi người dùng mỗi tháng\nđược thanh toán hàng năm\n\n{} được thanh toán hàng tháng"
       },
       "planLabels": {
-        "itemOne": "Không gian làm việc",
-        "itemTwo": "Thành viên",
-        "itemThree": "Kho",
-        "itemFour": "Chỉnh sửa thời gian thực",
-        "itemFive": "Ứng dụng di động",
-        "itemSix": "Phản hồi của AI",
-        "itemFileUpload": "Tải tập tin lên",
-        "tooltipSix": "Trọn đời có nghĩa là số lượng phản hồi không bao giờ được thiết lập lại",
-        "intelligentSearch": "Tìm kiếm thông minh",
-        "tooltipSeven": "Cho phép bạn tùy chỉnh một phần URL cho không gian làm việc của bạn"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "tính phí theo không gian làm việc",
-        "itemTwo": "lên đến 2",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "Đúng",
-        "itemFive": "Đúng",
-        "itemSix": "10 trọn đời",
-        "itemFileUpload": "Lên đến 7 MB",
-        "intelligentSearch": "Tìm kiếm thông minh"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "tính phí theo không gian làm việc",
-        "itemTwo": "lên đến 10",
+        "itemTwo": "lên đến 50",
         "itemThree": "không giới hạn",
         "itemFour": "Đúng",
         "itemFive": "Đúng",
@@ -1397,7 +1404,7 @@
       "textPlaceholder": "Rỗng",
       "copyProperty": "Đã sao chép thuộc tính",
       "count": "Số lượng",
-      "newRow": "Hàng mới",
+      "newRow": "Trang mới",
       "action": "Hành động",
       "add": "Nhấp vào thêm vào bên dưới",
       "drag": "Kéo để di chuyển",
@@ -1656,6 +1663,7 @@
         "convertToLink": "Chuyển đổi thành liên kết nhúng"
       },
       "outline": {
+        "outlineBlock": "Mục lục",
         "addHeadingToCreateOutline": "Thêm tiêu đề để tạo mục lục.",
         "noMatchHeadings": "Không tìm thấy tiêu đề phù hợp."
       },
@@ -1714,9 +1722,6 @@
         "linkedAt": "Liên kết đã được thêm vào {}",
         "failedToOpenMsg": "Không mở được, không tìm thấy tệp"
       }
-    },
-    "outlineBlock": {
-      "placeholder": "Mục lục"
     },
     "textBlock": {
       "placeholder": "Gõ '/' cho lệnh"

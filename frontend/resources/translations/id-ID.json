@@ -11,7 +11,8 @@
   "and": "Dan",
   "failedToOpenUrl": "Gagal membuka url: {}",
   "blockActions": {
-    "addBelowTooltip": "Klik untuk menambahkan di bawah",
+    "addBelowCmd": "Klik",
+    "addBelowTooltip": "untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Opsi+klik",
     "addAboveTooltip": "menambahkan di atas",
@@ -118,7 +119,7 @@
     "openNewTab": "Buka di tab baru",
     "moveTo": "Pindahkan ke",
     "addToFavorites": "Masukkan ke Favorit",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy link"
   },
   "blankPageTitle": "Halaman kosong",
   "newPageText": "Halaman baru",
@@ -549,7 +550,7 @@
       "textPlaceholder": "Kosong",
       "copyProperty": "Salin properti ke papan klip",
       "count": "Menghitung",
-      "newRow": "Baris baru",
+      "newRow": "Lembaran baru",
       "action": "Tindakan",
       "add": "Klik tambah ke bawah",
       "drag": "Seret untuk pindah"

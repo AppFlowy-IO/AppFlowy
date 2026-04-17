@@ -9,7 +9,8 @@
   "youCanAlso": "आप भी कर सकते हैं",
   "and": "और",
   "blockActions": {
-    "addBelowTooltip": "नीचे जोड़ने के लिए क्लिक करें",
+    "addBelowCmd": "क्लिक करें",
+    "addBelowTooltip": "नीचे जोड़ने के लिए",
     "addAboveCmd": "Alt+click ",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "ऊपर जोड़ने के लिए",
@@ -455,7 +456,7 @@
       "textPlaceholder": "रिक्त",
       "copyProperty": "डेटा के प्रकार को क्लिपबोर्ड पर कॉपी किया गया",
       "count": "गिनती",
-      "newRow": "नई पंक्ति",
+      "newRow": "नया पेज",
       "action": "कार्रवाई",
       "add": "नीचे जोड़ें पर क्लिक करें",
       "drag": "स्थानांतरित करने के लिए खींचें"
