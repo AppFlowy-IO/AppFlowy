@@ -1078,7 +1078,7 @@ packages:
     source: hosted
     version: "0.1.8"
   html:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: html
       sha256: "1fc58edeaec4307368c60d59b7e15b9d658b57d7f3125098b6294153c75337ec"

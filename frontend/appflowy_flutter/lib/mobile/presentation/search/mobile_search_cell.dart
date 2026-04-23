@@ -78,7 +78,7 @@ class MobileSearchResultCell extends StatelessWidget {
       child: BlocBuilder<ViewAncestorBloc, ViewAncestorState>(
         builder: (context, state) {
           final ancestors = state.ancestor.ancestors;
-          if(ancestors.isEmpty) return const SizedBox.shrink();
+          if (ancestors.isEmpty) return const SizedBox.shrink();
           List<String> displayPath = ancestors.map((e) => e.name).toList();
           if (ancestors.length > 2) {
             displayPath = [ancestors.first.name, '...', ancestors.last.name];

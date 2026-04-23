@@ -88,7 +88,7 @@ class AFTextField extends StatefulWidget {
   /// The maximum length of the text field.
   final int? maxLength;
 
-  /// Autofill hints passed to the underlying TextField.
+  /// The autofill hints for password managers.
   final Iterable<String>? autofillHints;
 
   @override
@@ -210,6 +210,7 @@ class _AFTextFieldState extends AFTextFieldState {
         suffixIcon: widget.suffixIconBuilder?.call(context, isObscured),
         suffixIconConstraints: widget.suffixIconConstraints,
       ),
+      autofillHints: widget.autofillHints,
     );
 
     if (hasError && errorText.isNotEmpty) {
