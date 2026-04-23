@@ -11,7 +11,8 @@
   "and": "และ",
   "failedToOpenUrl": "ไม่สามารถเปิด url ได้: {}",
   "blockActions": {
-    "addBelowTooltip": "คลิกเพื่อเพิ่มด้านล่าง",
+    "addBelowCmd": "คลิก",
+    "addBelowTooltip": "เพื่อเพิ่มด้านล่าง",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "เพื่อเพิ่มด้านบน",
@@ -841,7 +842,7 @@
           "proTitle": "Pro",
           "teamTitle": "Team",
           "freeInfo": "เหมาะสำหรับบุคคลที่มีสมาชิกสูงสุด 2 คน เพื่อจัดระเบียบทุกอย่าง",
-          "proInfo": "เหมาะสำหรับทีมขนาดเล็ก และขนาดกลางที่มีสมาชิกไม่เกิน 10 คน",
+          "proInfo": "เหมาะสำหรับทีมขนาดเล็ก และขนาดกลางที่มีสมาชิกไม่เกิน 50 คน",
           "teamInfo": "เหมาะสำหรับทีมที่มีประสิทธิภาพ และการจัดระเบียบที่ดี",
           "upgrade": "เปลี่ยนแผน",
           "canceledInfo": "แผนของคุณถูกยกเลิก คุณจะถูกปรับลดเป็นแผน Free ในวันที่ {}"
@@ -940,32 +941,36 @@
         "priceInfo": "ต่อผู้ใช้ ต่อเดือน\nเรียกเก็บค่าบริการรายปี\n{} เรียกเก็บค่าบริการรายเดือน"
       },
       "planLabels": {
-        "itemOne": "พื้นที่ทำงาน",
-        "itemTwo": "สมาชิก",
-        "itemThree": "พื้นที่จัดเก็บ",
-        "itemFour": "การทำงานร่วมกันแบบเรียลไทม์",
-        "itemFive": "แอพมือถือ",
-        "itemSix": "การตอบกลับของ AI",
-        "itemFileUpload": "การอัพโหลดไฟล์",
-        "customNamespace": "เนมสเปซที่กำหนดเอง",
-        "tooltipSix": "ตลอดอายุการใช้งาน หมายถึง จำนวนการตอบกลับที่ไม่รีเซ็ต",
-        "intelligentSearch": "การค้นหาอัจฉริยะ",
-        "tooltipSeven": "อนุญาตให้คุณปรับแต่งส่วนหนึ่งของ URL สำหรับพื้นที่ทำงานของคุณ",
-        "customNamespaceTooltip": "URL ของไซต์ที่เผยแพร่แบบกำหนดเอง"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "คิดค่าบริการตามพื้นที่ทำงาน",
-        "itemTwo": "สูงสุด 2",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "ใช่",
-        "itemFive": "ใช่",
-        "itemSix": "10 ตลอดอายุการใช้งาน",
-        "itemFileUpload": "ไม่เกิน 7 MB",
-        "intelligentSearch": "การค้นหาอัจฉริยะ"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "คิดค่าบริการตามพื้นที่ทำงาน",
-        "itemTwo": "สูงถึง 10",
+        "itemTwo": "สูงถึง 50",
         "itemThree": "ไม่จำกัด",
         "itemFour": "ใช่",
         "itemFive": "ใช่",
@@ -1525,7 +1530,7 @@
       "textPlaceholder": "ว่างเปล่า",
       "copyProperty": "คัดลอกคุณสมบัติไปยังคลิปบอร์ด",
       "count": "จำนวน",
-      "newRow": "แถวใหม่",
+      "newRow": "หน้าใหม่",
       "action": "การดำเนินการ",
       "add": "คลิกเพิ่มด้านล่าง",
       "drag": "ลากเพื่อย้าย",
@@ -1825,6 +1830,7 @@
         "convertToLink": "แปลงเป็นลิงค์ฝัง"
       },
       "outline": {
+        "outlineBlock": "สารบัญ",
         "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ",
         "noMatchHeadings": "ไม่พบหัวข้อที่ตรงกัน"
       },
@@ -1896,9 +1902,6 @@
         }
       },
       "cannotMoveToItsChildren": "ไม่สามารถย้ายไปยังหน้าย่อยได้"
-    },
-    "outlineBlock": {
-      "placeholder": "สารบัญ"
     },
     "textBlock": {
       "placeholder": "พิมพ์ '/' เพื่อดูคำสั่ง"

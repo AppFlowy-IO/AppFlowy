@@ -11,7 +11,8 @@
   "and": "och",
   "failedToOpenUrl": "Det gick inte att öppna webbadressen: {}",
   "blockActions": {
-    "addBelowTooltip": "Klicka för att lägga till nedan",
+    "addBelowCmd": "Klicka",
+    "addBelowTooltip": "för att lägga till nedan",
     "addAboveCmd": "Alt+klicka",
     "addAboveMacCmd": "Alternativ+klicka",
     "addAboveTooltip": "att lägga till ovan",
@@ -443,7 +444,7 @@
       "textPlaceholder": "Tom",
       "copyProperty": "Kopierade egenskap till urklipp",
       "count": "Antal",
-      "newRow": "Ny rad",
+      "newRow": "Ny sida",
       "action": "Handling"
     },
     "selectOption": {

@@ -11,7 +11,8 @@
   "and": "و",
   "failedToOpenUrl": "خطا در بازکردن نشانی وب: {}",
   "blockActions": {
-    "addBelowTooltip": "برای افزودن در زیر کلیک کنید",
+    "addBelowCmd": "کلیک کنید",
+    "addBelowTooltip": "برای افزودن در زیر",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "برای افزودن در بالا",
@@ -443,7 +444,7 @@
       "textPlaceholder": "خالی",
       "copyProperty": "ویژگی در کلیپ‌بورد کپی شد.",
       "count": "شمارش",
-      "newRow": "سطر جدید",
+      "newRow": "صفحه جدید",
       "action": "اعمال"
     },
     "selectOption": {

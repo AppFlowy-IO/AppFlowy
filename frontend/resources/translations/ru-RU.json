@@ -11,7 +11,8 @@
   "and": "и",
   "failedToOpenUrl": "Не удалось открыть URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
+    "addBelowCmd": "Нажмите",
+    "addBelowTooltip": "чтобы добавить ниже",
     "addAboveCmd": "Alt+клик",
     "addAboveMacCmd": "Option+клик",
     "addAboveTooltip": "чтобы добавить выше",
@@ -36,7 +37,7 @@
     "loginButtonText": "Войти",
     "loginStartWithAnonymous": "Продолжить в анонимной сессии",
     "continueAnonymousUser": "Продолжить в анонимной сессии",
-    "continueWithLocalModel": "Продолжить с локальной моделью",
+    "continue": "Продолжить",
     "switchToAppFlowyCloud": "AppFlowy Cloud",
     "anonymousMode": "Анонимный режим",
     "buttonText": "Войти",
@@ -863,7 +864,7 @@
       "menuLabel": "Настройки AI",
       "keys": {
         "enableAISearchTitle": "Поиск AI",
-        "aiSettingsDescription": "Выберите предпочтительную модель для работы AppFlowy AI. Включает GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet и модели, доступные в Ollama",
+        "aiSettingsDescription": "Выберите предпочтительную модель для работы AppFlowy AI.",
         "loginToEnableAIFeature": "Функции AI включены только после входа с AppFlowy Cloud. Если у вас нет учетной записи AppFlowy, перейдите в 'Мой аккаунт' для регистрации",
         "llmModel": "Языковая модель",
         "llmModelType": "Тип языковой модели",
@@ -887,7 +888,7 @@
         "restartLocalAI": "Перезапустить",
         "disableLocalAITitle": "Отключить локальный AI",
         "disableLocalAIDescription": "Вы хотите отключить локальный AI?",
-        "localAIToggleTitle": "AppFlowy Локальный AI (LAI)",
+        "localAIToggleTitle": "AppFlowy Локальный AI",
         "localAIToggleSubTitle": "Запускайте самые продвинутые локальные модели AI в AppFlowy для максимальной конфиденциальности и безопасности",
         "offlineAIInstruction1": "Следуйте",
         "offlineAIInstruction2": "инструкции",
@@ -902,7 +903,7 @@
         "ollamaNotReady": "Сервер Ollama не готов.",
         "pleaseFollowThese": "Пожалуйста, следуйте этим",
         "instructions": "инструкциям",
-        "installOllamaLai": "для настройки Ollama и AppFlowy Local AI.",
+        "installOllama": "для настройки Ollama",
         "modelsMissing": "Не удалось найти необходимые модели: ",
         "downloadModel": "чтобы скачать их."
       }
@@ -941,7 +942,7 @@
           "proTitle": "Pro",
           "teamTitle": "Команда",
           "freeInfo": "Идеально подходит для индивидуального использования до 2 участников для организации всего",
-          "proInfo": "Идеально подходит для небольших и средних команд до 10 участников.",
+          "proInfo": "Идеально подходит для небольших и средних команд до 50 участников.",
           "teamInfo": "Идеально подходит для всех продуктивных и хорошо организованных команд.",
           "upgrade": "Изменить план",
           "canceledInfo": "Ваш план отменен, вы будете переведены на бесплатный план {}."
@@ -1040,34 +1041,36 @@
         "priceInfo": "За пользователя в месяц\nпри ежегодной оплате\n\n{} при ежемесячной оплате"
       },
       "planLabels": {
-        "itemOne": "Рабочие пространства",
-        "itemTwo": "Участники",
-        "itemThree": "Хранилище",
-        "itemFour": "Совместная работа в реальном времени",
-        "itemFive": "Мобильное приложение",
-        "itemSix": "Ответы AI",
-        "itemSeven": "Изображения AI",
-        "itemFileUpload": "Загрузка файлов",
-        "customNamespace": "Пользовательское пространство имен",
-        "tooltipSix": "Пожизненно означает, что количество ответов никогда не сбрасывается",
-        "intelligentSearch": "Интеллектуальный поиск",
-        "tooltipSeven": "Позволяет настроить часть URL для вашего рабочего пространства",
-        "customNamespaceTooltip": "Пользовательский URL опубликованного сайта"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "Оплата за рабочее пространство",
-        "itemTwo": "До 2",
-        "itemThree": "5 ГБ",
-        "itemFour": "да",
-        "itemFive": "да",
-        "itemSix": "10 пожизненно",
-        "itemSeven": "2 пожизненно",
-        "itemFileUpload": "До 7 МБ",
-        "intelligentSearch": "Интеллектуальный поиск"
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "Оплата за рабочее пространство",
-        "itemTwo": "До 10",
+        "itemTwo": "До 50",
         "itemThree": "Неограниченно",
         "itemFour": "да",
         "itemFive": "да",
@@ -1638,7 +1641,7 @@
       "textPlaceholder": "Пусто",
       "copyProperty": "Свойство скопировано в буфер обмена",
       "count": "Количество",
-      "newRow": "Новая строка",
+      "newRow": "Новая страница",
       "loadMore": "Загрузить еще",
       "action": "Действие",
       "add": "Нажмите, чтобы добавить ниже",
@@ -1797,7 +1800,8 @@
         "file": "Файл",
         "twoColumns": "2 столбца",
         "threeColumns": "3 столбца",
-        "fourColumns": "4 столбца"
+        "fourColumns": "4 столбца",
+        "fiveColumns": "5 столбца"
       },
       "subPage": {
         "name": "Документ",
@@ -2010,6 +2014,7 @@
         "convertToLink": "Преобразовать в ссылку для встраивания"
       },
       "outline": {
+        "outlineBlock": "Содержание",
         "addHeadingToCreateOutline": "Добавьте заголовки для создания оглавления.",
         "noMatchHeadings": "Не найдено соответствующих заголовков."
       },
@@ -2103,9 +2108,6 @@
           "unableToDisplay": "невозможно отобразить"
         }
       }
-    },
-    "outlineBlock": {
-      "placeholder": "Содержание"
     },
     "textBlock": {
       "placeholder": "Введите '/' для команд"
@@ -2478,7 +2480,11 @@
     "viewNotifications": "Просмотреть уведомления",
     "noNotifications": "Уведомлений пока нет",
     "mentionedYou": "Упомянул(а) вас",
+    "archievedTooltip": "Архивировать это уведомление",
+    "unarchievedTooltip": "Разархивировать это уведомление",
     "markAsReadTooltip": "Отметить это уведомление как прочитанное",
+    "markAsArchievedSucceedToast": "Успешно заархивировано",
+    "markAllAsArchievedSucceedToast": "Все успешно заархивировано",
     "markAsReadSucceedToast": "Отмечено как прочитанное успешно",
     "markAllAsReadSucceedToast": "Все успешно отмечено как прочитанное",
     "today": "Сегодня",
@@ -2503,11 +2509,7 @@
       "groupByDate": "Группировать по дате",
       "showUnreadsOnly": "Показать только непрочитанные",
       "resetToDefault": "Сбросить до значений по умолчанию"
-    },
-    "archievedTooltip": "Архивировать это уведомление",
-    "unarchievedTooltip": "Разархивировать это уведомление",
-    "markAsArchievedSucceedToast": "Успешно заархивировано",
-    "markAllAsArchievedSucceedToast": "Все успешно заархивировано"
+    }
   },
   "reminderNotification": {
     "title": "Напоминание",
@@ -3267,7 +3269,7 @@
     },
     "proPoints": {
       "first": "Неограниченное хранилище",
-      "second": "До 10 участников рабочего пространства",
+      "second": "До 50 участников рабочего пространства",
       "three": "Неограниченные ответы AI",
       "four": "Неограниченная загрузка файлов",
       "five": "Пользовательское пространство имен"
@@ -3333,16 +3335,17 @@
       "browsePrompts": "Обзор запросов",
       "usePrompt": "Использовать запрос",
       "featured": "Рекомендуемые",
-      "example": "Пример",
       "all": "Все",
       "development": "Разработка",
       "writing": "Написание",
       "healthAndFitness": "Здоровье и фитнес",
       "business": "Бизнес",
       "marketing": "Маркетинг",
+      "learning": "Обучение",
       "travel": "Путешествия",
       "others": "Другое",
       "prompt": "Запрос",
+      "example": "Пример",
       "sampleOutput": "Пример вывода",
       "contentSeo": "Контент/SEO",
       "emailMarketing": "Email маркетинг",
@@ -3353,8 +3356,7 @@
       "socialMedia": "Социальные сети",
       "strategy": "Стратегия",
       "caseStudies": "Кейсы",
-      "salesCopy": "Продающий текст",
-      "learning": "Обучение"
+      "salesCopy": "Продающий текст"
     }
   },
   "autoUpdate": {

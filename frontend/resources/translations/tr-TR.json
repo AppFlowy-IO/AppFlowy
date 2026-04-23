@@ -11,7 +11,8 @@
   "and": "ve",
   "failedToOpenUrl": "URL açılamadı: {}",
   "blockActions": {
-    "addBelowTooltip": "Altına eklemek için tıklayın",
+    "addBelowCmd": "Tıklayın",
+    "addBelowTooltip": "altına eklemek için",
     "addAboveCmd": "Alt+tıklama",
     "addAboveMacCmd": "Option+tıklama",
     "addAboveTooltip": "Üstüne eklemek için",
@@ -822,7 +823,7 @@
       "menuLabel": "Yapay Zeka Ayarları",
       "keys": {
         "enableAISearchTitle": "Yapay Zeka Arama",
-        "aiSettingsDescription": "AppFlowy Yapay Zeka'yı güçlendirmek için tercih ettiğiniz modeli seçin. Şu anda GPT 4-o, Claude 3,5, Llama 3.1 ve Mistral 7B içerir",
+        "aiSettingsDescription": "AppFlowy Yapay Zeka'yı güçlendirmek için tercih ettiğiniz modeli seçin.",
         "loginToEnableAIFeature": "Yapay Zeka özellikleri yalnızca @:appName Cloud ile giriş yaptıktan sonra etkinleştirilir. Bir @:appName hesabınız yoksa, kaydolmak için 'Hesabım'a gidin",
         "llmModel": "Dil Modeli",
         "llmModelType": "Dil Modeli Türü",
@@ -886,7 +887,7 @@
           "proTitle": "Pro",
           "teamTitle": "Takım",
           "freeInfo": "2 üyeye kadar bireyler için her şeyi düzenlemek için mükemmel",
-          "proInfo": "10 üyeye kadar küçük ve orta ölçekli takımlar için mükemmel.",
+          "proInfo": "50 üyeye kadar küçük ve orta ölçekli takımlar için mükemmel.",
           "teamInfo": "Tüm üretken ve iyi organize edilmiş takımlar için mükemmel.",
           "upgrade": "Planı değiştir",
           "canceledInfo": "Planınız iptal edildi, {} tarihinde Ücretsiz plana düşürüleceksiniz."
@@ -985,32 +986,36 @@
         "priceInfo": "Kullanıcı başına aylık \nyıllık faturalandırma\n\n{} aylık faturalandırma"
       },
       "planLabels": {
-        "itemOne": "Çalışma Alanları",
-        "itemTwo": "Üyeler",
-        "itemThree": "Depolama",
-        "itemFour": "Gerçek zamanlı işbirliği",
-        "itemFive": "Mobil uygulama",
-        "itemSix": "Yapay Zeka Yanıtları",
-        "itemFileUpload": "Dosya yüklemeleri",
-        "customNamespace": "Özel alan adı",
-        "tooltipSix": "Ömür boyu demek, yanıt sayısının asla sıfırlanmayacağı anlamına gelir",
-        "intelligentSearch": "Akıllı arama",
-        "tooltipSeven": "Çalışma alanınızın URL'sinin bir kısmını özelleştirmenize olanak tanır",
-        "customNamespaceTooltip": "Özel yayınlanmış site URL'si"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "Çalışma alanı başına ücretlendirilir",
-        "itemTwo": "2'ye kadar",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "evet",
-        "itemFive": "evet",
-        "itemSix": "10 ömür boyu",
-        "itemFileUpload": "7 MB'a kadar",
-        "intelligentSearch": "Akıllı arama"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "Çalışma alanı başına ücretlendirilir",
-        "itemTwo": "10'a kadar",
+        "itemTwo": "50'ye kadar",
         "itemThree": "Sınırsız",
         "itemFour": "evet",
         "itemFive": "evet",
@@ -1562,7 +1567,7 @@
       "textPlaceholder": "Boş",
       "copyProperty": "Özellik panoya kopyalandı",
       "count": "Sayı",
-      "newRow": "Yeni satır",
+      "newRow": "Yeni sayfa",
       "loadMore": "Daha fazla yükle",
       "action": "İşlem",
       "add": "Aşağıya eklemek için tıklayın",
@@ -1876,6 +1881,7 @@
         "convertToLink": "Yerleşik bağlantıya dönüştür"
       },
       "outline": {
+        "outlineBlock": "İçindekiler",
         "addHeadingToCreateOutline": "İçindekiler tablosu oluşturmak için başlıklar ekleyin.",
         "noMatchHeadings": "Eşleşen başlık bulunamadı."
       },
@@ -1948,9 +1954,6 @@
         }
       },
       "cannotMoveToItsChildren": "Alt öğelerine taşınamaz"
-    },
-    "outlineBlock": {
-      "placeholder": "İçindekiler"
     },
     "textBlock": {
       "placeholder": "Komutlar için '/' yazın"
@@ -3033,7 +3036,7 @@
     },
     "proPoints": {
       "first": "Sınırsız depolama",
-      "second": "10 çalışma alanı üyesine kadar",
+      "second": "50 çalışma alanı üyesine kadar",
       "three": "Sınırsız yapay zeka yanıtı",
       "four": "Sınırsız dosya yükleme",
       "five": "Özel alan adı"

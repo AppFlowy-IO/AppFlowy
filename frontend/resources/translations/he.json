@@ -11,7 +11,8 @@
   "and": "וגם",
   "failedToOpenUrl": "פתיחת הכתובת נכשלה: {}",
   "blockActions": {
-    "addBelowTooltip": "יש ללחוץ כדי להוסיף להלן",
+    "addBelowCmd": "יש ללחוץ",
+    "addBelowTooltip": "כדי להוסיף להלן",
     "addAboveCmd": "Alt+לחיצה",
     "addAboveMacCmd": "Option+לחיצה",
     "addAboveTooltip": "כדי להוסיף מעל",
@@ -669,7 +670,7 @@
           "proTitle": "פרו",
           "teamTitle": "צוות",
           "freeInfo": "מעולה לעצמאיים או צוותים קטנים של עד 2 חברים.",
-          "proInfo": "מעולה לצוות קטנים ובינוניים עד 10 חברים.",
+          "proInfo": "מעולה לצוות קטנים ובינוניים עד 50 חברים.",
           "teamInfo": "מעולה לכל סוג של צוות משימתי שמאורגן היטב.",
           "upgrade": "השוואה\n ושדרוג",
           "canceledInfo": "התוכנית שלך בוטלה, יבוצע שנמוך לתוכנית החופשית ב־{}.",
@@ -740,30 +741,36 @@
         "priceInfo": "בחיוב שנתי"
       },
       "planLabels": {
-        "itemOne": "מרחבי עבודה",
-        "itemTwo": "חברים",
-        "itemThree": "אורחים",
-        "itemFour": "משתתפי אורח",
-        "itemFive": "אחסון",
-        "itemSix": "שיתוף בזמן אמת",
-        "itemSeven": "יישומון לניידים",
-        "tooltipThree": "לאורחים יש הרשאות לקריאה בלבד לתוכן המסוים ששותף",
-        "tooltipFour": "משתתפי אורח מחויבים כמושב אחד",
-        "itemEight": "תגובות בינה מלאכותית",
-        "tooltipEight": "הכוונה בביטוי „לכל החיים” כלומר שמספר התגובות לעולם לא יתאפס"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "חיוב לפני מרחבי עבודה",
-        "itemTwo": "3",
-        "itemFour": "0",
-        "itemFive": "5 ג״ב",
-        "itemSix": "כן",
-        "itemSeven": "כן",
-        "itemEight": "1,000 לכל החיים"
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "מחויב לפי מרחב עבודה",
-        "itemTwo": "עד 10",
+        "itemTwo": "עד 50",
         "itemFour": "10 אורחים חויבו כמושב אחד",
         "itemFive": "ללא הגבלה",
         "itemSix": "כן",
@@ -1201,7 +1208,7 @@
       "textPlaceholder": "ריק",
       "copyProperty": "המאפיין הועתק ללוח הגזירים",
       "count": "ספירה",
-      "newRow": "שורה חדשה",
+      "newRow": "עמוד חדש",
       "action": "פעולה",
       "add": "לחיצה תוסיף להלן",
       "drag": "גרירה להזזה",
@@ -1392,6 +1399,7 @@
         "convertToLink": "המרה לקישור להטמעה"
       },
       "outline": {
+        "outlineBlock": "תוכן עניינים",
         "addHeadingToCreateOutline": "יש להוסיף כותרות ראשיות כדי ליצור תוכן עניינים.",
         "noMatchHeadings": "לא נמצאו כותרות ראשויות תואמות."
       },
@@ -1429,9 +1437,6 @@
         "supportedFormats": "סוגים נתמכים: MP4,‏ WebM,‏ MOV,‏ AVI,‏ FLV,‏ MPEG/M4V,‏ H.264"
       },
       "openAI": "OpenAI"
-    },
-    "outlineBlock": {
-      "placeholder": "תוכן עניינים"
     },
     "textBlock": {
       "placeholder": "נא להקליד ‚/’ לקבלת פקודות"

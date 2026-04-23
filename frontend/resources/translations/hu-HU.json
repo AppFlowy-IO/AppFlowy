@@ -9,7 +9,8 @@
   "youCanAlso": "Te is",
   "and": "és",
   "blockActions": {
-    "addBelowTooltip": "Kattintson a hozzáadáshoz lent",
+    "addBelowCmd": "Kattintson",
+    "addBelowTooltip": "a hozzáadáshoz lent",
     "addAboveCmd": "Alt+kattintás",
     "addAboveMacCmd": "Option+kattintás",
     "addAboveTooltip": "a fentiek hozzáadásához"
@@ -379,7 +380,7 @@
       "textPlaceholder": "Üres",
       "copyProperty": "Tulajdonság a vágólapra másolva",
       "count": "Számol",
-      "newRow": "Új sor",
+      "newRow": "Új oldal",
       "action": "Akció"
     },
     "selectOption": {

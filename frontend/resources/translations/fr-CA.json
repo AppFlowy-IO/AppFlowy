@@ -11,7 +11,8 @@
   "and": "et",
   "failedToOpenUrl": "Échec de l'ouverture de l'URL : {}",
   "blockActions": {
-    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
+    "addBelowCmd": "Cliquez",
+    "addBelowTooltip": "pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Option+clic",
     "addAboveTooltip": "à ajouter au dessus",
@@ -668,7 +669,7 @@
       "textPlaceholder": "Vide",
       "copyProperty": "Propriété copiée dans le presse-papiers",
       "count": "Compte",
-      "newRow": "Nouvelle ligne",
+      "newRow": "Nouvelle page",
       "action": "Action",
       "add": "Cliquez sur ajouter ci-dessous",
       "drag": "Glisser pour déplacer",

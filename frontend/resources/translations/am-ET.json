@@ -9,7 +9,8 @@
   "youCanAlso": "እርስዎም ይችላሉ",
   "and": "እና",
   "blockActions": {
-    "addBelowTooltip": "ከዚህ በታች ለመጨመር ጠቅ ያድርጉ",
+    "addBelowCmd": "ጠቅ ያድርጉ",
+    "addBelowTooltip": "ከዚህ በታች ለመጨመር",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "ከላይ ለመጨመር",
@@ -496,7 +497,7 @@
       "textPlaceholder": "ተጠናቅቋል",
       "copyProperty": "ያልተሟላ ነው",
       "count": "ደብቅ",
-      "newRow": "አሳይ",
+      "newRow": "አዲስ ገጽ",
       "action": "ግራ ያስገቡ",
       "add": "ቀኝ ያስገቡ",
       "drag": "የተባዛ"

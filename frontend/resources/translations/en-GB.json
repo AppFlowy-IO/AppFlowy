@@ -11,7 +11,8 @@
   "and": "and",
   "failedToOpenUrl": "Failed to open url: {}",
   "blockActions": {
-    "addBelowTooltip": "Click to add below",
+    "addBelowCmd": "Click",
+    "addBelowTooltip": "to add below",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "to add above",
@@ -36,6 +37,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
+    "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -67,8 +69,7 @@
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes.",
-    "anonymous": "Anonymous"
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -458,7 +459,7 @@
     "clear": "Clear",
     "remove": "Remove",
     "dontRemove": "Don't remove",
-    "copyLink": "Copy Link",
+    "copyLink": "Copy link",
     "align": "Align",
     "login": "Login",
     "logout": "Log out",
@@ -603,7 +604,7 @@
       },
       "workspaceIcon": {
         "title": "Workspace icon",
-        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
+        "description": "Use an emoji for your workspace. Icon will show in your sidebar and notifications."
       },
       "appearance": {
         "title": "Appearance",
@@ -845,7 +846,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
+        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI.",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
@@ -868,7 +869,7 @@
         "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
         "disableLocalAIDescription": "Do you want to disable local AI?",
-        "localAIToggleTitle": "AppFlowy Local AI (LAI)",
+        "localAIToggleTitle": "AppFlowy Local AI",
         "localAIToggleSubTitle": "Run the most advanced local AI models within AppFlowy for ultimate privacy and security",
         "offlineAIInstruction1": "Follow the",
         "offlineAIInstruction2": "instruction",
@@ -881,9 +882,11 @@
         "openModelDirectory": "Open folder",
         "laiNotReady": "The Local AI app was not installed correctly.",
         "ollamaNotReady": "The Ollama server is not ready.",
+        "serverNotReady": "The AI server is not ready.",
         "pleaseFollowThese": "Please follow these",
         "instructions": "instructions",
-        "installOllamaLai": "to set up Ollama and AppFlowy Local AI.",
+        "installOllama": "to set up Ollama.",
+        "setupLocalAI": "to set up your local AI server.",
         "modelsMissing": "Cannot find the required models.",
         "downloadModel": "to download them."
       }
@@ -922,7 +925,7 @@
           "proTitle": "Pro",
           "teamTitle": "Team",
           "freeInfo": "Perfect for individuals up to 2 members to organise everything",
-          "proInfo": "Perfect for small and medium teams up to 10 members.",
+          "proInfo": "Perfect for small and medium teams up to 50 members.",
           "teamInfo": "Perfect for all productive and well-organised teams..",
           "upgrade": "Change plan",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
@@ -1025,15 +1028,17 @@
         "itemTwo": "Members",
         "itemThree": "Storage",
         "itemFour": "Real-time collaboration",
-        "itemFive": "Mobile app",
-        "itemSix": "AI Responses",
-        "itemSeven": "AI Images",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "tooltipSeven": "Allows you to customise part of the URL for your workspace",
-        "customNamespaceTooltip": "Custom published site URL"
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
         "itemOne": "Charged per workspace",
@@ -1048,7 +1053,7 @@
       },
       "proLabels": {
         "itemOne": "Charged per workspace",
-        "itemTwo": "Up to 10",
+        "itemTwo": "Up to 50",
         "itemThree": "Unlimited",
         "itemFour": "yes",
         "itemFive": "yes",
@@ -1062,7 +1067,7 @@
         "description": "Your payment has been successfully processed and your plan is upgraded to @:appName {}. You can view your plan details on the Plan page"
       },
       "downgradeDialog": {
-        "title": "Are you sure you want to downgrade your plan?",
+        "title": "Downgrade Plan",
         "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
       }
@@ -1317,7 +1322,7 @@
         "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
         "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
-        "memberLimitExceededUpgrade": "upgrade",
+        "memberLimitExceededUpgrade": "Upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
         "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "Failed to add member",
@@ -1602,7 +1607,7 @@
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "New row",
+      "newRow": "New page",
       "loadMore": "Load more",
       "action": "Action",
       "add": "Click add to below",
@@ -1660,6 +1665,21 @@
       "emptySearchResult": "No records found",
       "linkedRowListLabel": "{count} linked rows",
       "unlinkedRowListLabel": "Link another row"
+    },
+    "rollup": {
+      "relation": "Relation",
+      "property": "Property",
+      "calculation": "Calculation",
+      "showAs": "Show as",
+      "value": "Value",
+      "selectRelationField": "Select a relation field",
+      "selectRelationFirst": "Select a relation first",
+      "selectProperty": "Select a property",
+      "selectOption": "Select an option",
+      "displayModeCalculated": "Calculated",
+      "displayModeOriginal": "Show original",
+      "displayModeUnique": "Show unique",
+      "loading": "Loading..."
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -1762,7 +1782,8 @@
         "file": "File",
         "twoColumns": "2 Columns",
         "threeColumns": "3 Columns",
-        "fourColumns": "4 Columns"
+        "fourColumns": "4 Columns",
+        "fiveColumns": "5 Columns"
       },
       "subPage": {
         "name": "Document",
@@ -1938,6 +1959,7 @@
         "convertToLink": "Convert to embed link"
       },
       "outline": {
+        "outlineBlock": "Table of Contents",
         "addHeadingToCreateOutline": "Add headings to create a table of contents.",
         "noMatchHeadings": "No matching headings found."
       },
@@ -1968,12 +1990,14 @@
       "video": {
         "label": "Video",
         "emptyLabel": "Add a video",
-        "placeholder": "Paste the video link",
+        "placeholder": "Upload or embed a video",
         "copiedToPasteBoard": "The video link has been copied to the clipboard",
         "insertVideo": "Add video",
         "invalidVideoUrl": "The source URL is not supported yet.",
         "invalidVideoUrlYouTube": "YouTube is not supported yet.",
-        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264",
+        "openFullScreen": "Open in full screen",
+        "exitFullScreen": "Exit full screen"
       },
       "file": {
         "name": "File",
@@ -2010,9 +2034,6 @@
         }
       },
       "cannotMoveToItsChildren": "Cannot move to its children"
-    },
-    "outlineBlock": {
-      "placeholder": "Table of Contents"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -2156,6 +2177,10 @@
       "choosePhoto": "Choose photo",
       "takePicture": "Take a picture",
       "chooseFile": "Choose file"
+    },
+    "revertDialog": {
+      "title": "Document Reverted",
+      "description": "This document has been reverted to a previous version."
     }
   },
   "board": {
@@ -2561,7 +2586,8 @@
     "addToSidebar": "Pin to sidebar"
   },
   "cardDetails": {
-    "notesPlaceholder": "Enter a / to insert a block, or start typing"
+    "notesPlaceholder": "Enter a / to insert a block, or start typing",
+    "rowDocumentSyncNotice": "Row document is still syncing. Editing is disabled until content arrives."
   },
   "blockPlaceholders": {
     "todoList": "To-do",
@@ -2697,7 +2723,7 @@
     "title": "Spaces",
     "defaultSpaceName": "General",
     "upgradeSpaceTitle": "Enable Spaces",
-    "upgradeSpaceDescription": "Create multiple public and private Spaces to better organise your workspace.",
+    "upgradeSpaceDescription": "Create multiple spaces to better organise your workspace.",
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
@@ -3118,7 +3144,7 @@
     },
     "proPoints": {
       "first": "Unlimited storage",
-      "second": "Up to 10 workspace members",
+      "second": "Up to 50 workspace members",
       "three": "Unlimited AI responses",
       "four": "Unlimited file uploads",
       "five": "Custom namespace"
@@ -3208,5 +3234,22 @@
     "tryAgain": "Try again",
     "rewrite": "Rewrite",
     "insertBelow": "Insert below"
+  },
+  "versionHistory": {
+    "versionHistory": "Version History",
+    "all": "All",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days",
+    "last60Days": "Last 60 days",
+    "onlyYours": "Only yours",
+    "restore": "Restore",
+    "currentVersion": "Current version",
+    "restoredFrom": "Restored from {}",
+    "more": "More...",
+    "upgrade": "Upgrade",
+    "forLongerVersionHistory": "for longer version history",
+    "previewFailedToLoad": "Failed to load preview.",
+    "selectVersionToPreview": "Select a version to preview",
+    "errorFetchingHistory": "An error occurred whilst fetching version history."
   }
 }

@@ -11,7 +11,8 @@
   "and": "그리고",
   "failedToOpenUrl": "URL을 열지 못했습니다: {}",
   "blockActions": {
-    "addBelowTooltip": "아래에 추가하려면 클릭",
+    "addBelowCmd": "클릭",
+    "addBelowTooltip": "아래에 추가하려면",
     "addAboveCmd": "Alt+클릭",
     "addAboveMacCmd": "Option+클릭",
     "addAboveTooltip": "위에 추가하려면",
@@ -837,7 +838,7 @@
       "menuLabel": "AI 설정",
       "keys": {
         "enableAISearchTitle": "AI 검색",
-        "aiSettingsDescription": "선호하는 모델을 선택하여 AppFlowy AI를 구동하세요. 이제 GPT 4-o, Claude 3,5, Llama 3.1 및 Mistral 7B를 포함합니다",
+        "aiSettingsDescription": "선호하는 모델을 선택하여 AppFlowy AI를 구동하세요.",
         "loginToEnableAIFeature": "AI 기능은 @:appName Cloud에 로그인한 후에만 활성화됩니다. @:appName 계정이 없는 경우 '내 계정'에서 가입하세요",
         "llmModel": "언어 모델",
         "llmModelType": "언어 모델 유형",
@@ -870,7 +871,7 @@
         "openModelDirectory": "폴더 열기",
         "pleaseFollowThese": "지침",
         "instructions": "이 지침을 따르세요",
-        "installOllamaLai": "Ollama 및 AppFlowy 로컬 AI를 설정합니다. 이미 설정한 경우 건너뛰세요",
+        "installOllama": "Ollama 설정합니다. 이미 설정한 경우 건너뛰세요",
         "startLocalAI": "로컬 AI를 시작하는 데 몇 초가 소요될 수 있습니다"
       }
     },
@@ -908,7 +909,7 @@
           "proTitle": "Pro",
           "teamTitle": "팀",
           "freeInfo": "모든 것을 정리하기 위한 최대 2명의 개인용",
-          "proInfo": "최대 10명의 소규모 팀을 위한 완벽한 솔루션.",
+          "proInfo": "최대 50명의 소규모 팀을 위한 완벽한 솔루션.",
           "teamInfo": "모든 생산적이고 잘 조직된 팀을 위한 완벽한 솔루션.",
           "upgrade": "플랜 변경",
           "canceledInfo": "플랜이 취소되었습니다. {}에 무료 플랜으로 다운그레이드됩니다."
@@ -1007,34 +1008,36 @@
         "priceInfo": "연간 청구되는 사용자당 월별\n\n{} 월별 청구"
       },
       "planLabels": {
-        "itemOne": "작업 공간",
-        "itemTwo": "멤버",
-        "itemThree": "저장 공간",
-        "itemFour": "실시간 협업",
-        "itemFive": "모바일 앱",
-        "itemSix": "AI 응답",
-        "itemSeven": "AI 이미지",
-        "itemFileUpload": "파일 업로드",
-        "customNamespace": "맞춤 네임스페이스",
-        "tooltipSix": "평생 동안 응답 수는 재설정되지 않습니다",
-        "intelligentSearch": "지능형 검색",
-        "tooltipSeven": "작업 공간의 URL 일부를 사용자 정의할 수 있습니다",
-        "customNamespaceTooltip": "맞춤 게시 사이트 URL"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "작업 공간당 청구",
-        "itemTwo": "최대 2명",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
-        "itemFour": "예",
-        "itemFive": "예",
-        "itemSix": "평생 10회",
-        "itemSeven": "평생 2회",
-        "itemFileUpload": "최대 7 MB",
-        "intelligentSearch": "지능형 검색"
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "작업 공간당 청구",
-        "itemTwo": "최대 10명",
+        "itemTwo": "최대 50명",
         "itemThree": "무제한",
         "itemFour": "예",
         "itemFive": "예",
@@ -1588,7 +1591,7 @@
       "textPlaceholder": "비어 있음",
       "copyProperty": "속성이 클립보드에 복사되었습니다",
       "count": "개수",
-      "newRow": "새 행",
+      "newRow": "새 페이지",
       "loadMore": "더 로드",
       "action": "작업",
       "add": "아래에 추가하려면 클릭",
@@ -1747,7 +1750,8 @@
         "file": "파일",
         "twoColumns": "2열",
         "threeColumns": "3열",
-        "fourColumns": "4열"
+        "fourColumns": "4열",
+        "fiveColumns": "5열"
       },
       "subPage": {
         "name": "문서",
@@ -1923,6 +1927,7 @@
         "convertToLink": "링크로 변환"
       },
       "outline": {
+        "outlineBlock": "목차",
         "addHeadingToCreateOutline": "목차를 만들려면 헤딩을 추가하세요.",
         "noMatchHeadings": "일치하는 헤딩이 없습니다."
       },
@@ -1995,9 +2000,6 @@
         }
       },
       "cannotMoveToItsChildren": "자식으로 이동할 수 없습니다"
-    },
-    "outlineBlock": {
-      "placeholder": "목차"
     },
     "textBlock": {
       "placeholder": "명령어를 입력하려면 '/'를 입력하세요"
@@ -3094,7 +3096,7 @@
     },
     "proPoints": {
       "first": "무제한 저장 공간",
-      "second": "최대 10명의 작업 공간 멤버",
+      "second": "최대 50명의 작업 공간 멤버",
       "three": "무제한 AI 응답",
       "four": "무제한 파일 업로드",
       "five": "맞춤 네임스페이스"

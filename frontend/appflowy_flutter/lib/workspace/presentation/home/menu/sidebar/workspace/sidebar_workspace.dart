@@ -142,7 +142,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
       showDialog(
         context: context,
         builder: (context) => NavigatorOkCancelDialog(
-          message: LocaleKeys.workspace_createLimitExceeded.tr(),
+          message: LocaleKeys.workspace_createLimitExceededDesc.tr(),
         ),
       );
       return;

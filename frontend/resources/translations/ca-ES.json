@@ -10,7 +10,8 @@
   "youCanAlso": "Tu pots també",
   "and": "i",
   "blockActions": {
-    "addBelowTooltip": "Feu clic per afegir a continuació",
+    "addBelowCmd": "Feu clic",
+    "addBelowTooltip": "per afegir a continuació",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opció+clic",
     "addAboveTooltip": "afegir a dalt",
@@ -542,7 +543,7 @@
       "textPlaceholder": "Buit",
       "copyProperty": "S'ha copiat la propietat al porta-retalls",
       "count": "Compte",
-      "newRow": "Nova fila",
+      "newRow": "Pàgina nova",
       "action": "Acció",
       "drag": "Arrossegueu per moure's"
     },

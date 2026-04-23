@@ -11,7 +11,8 @@
   "and": "وە",
   "failedToOpenUrl": "شکستی هێنا لە کردنەوەی url: {}",
   "blockActions": {
-    "addBelowTooltip": "بۆ زیادکردن لە خوارەوە کلیک بکە",
+    "addBelowCmd": "کلیک بکە",
+    "addBelowTooltip": "بۆ زیادکردن لە خوارەوە",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "بۆ زیادکردنی سەرەوە",
@@ -640,7 +641,7 @@
       "textPlaceholder": "بەتاڵ",
       "copyProperty": "تایبەتمەندی کۆپی کرا بۆ کلیپبۆرد",
       "count": "سەرژمێرکردن",
-      "newRow": "ڕیزی نوێ",
+      "newRow": "Rûpela nû",
       "action": "کردەوە",
       "drag": "ڕاکێشان بۆ جوڵە",
       "dragAndClick": "بۆ جوڵاندن ڕابکێشە، کلیک بکە بۆ کردنەوەی مێنۆ"

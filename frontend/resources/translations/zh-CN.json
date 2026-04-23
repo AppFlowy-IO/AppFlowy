@@ -11,7 +11,8 @@
   "and": "以及",
   "failedToOpenUrl": "打开 url:{}失败",
   "blockActions": {
-    "addBelowTooltip": "点击下方添加",
+    "addBelowCmd": "点击",
+    "addBelowTooltip": "以在下方添加",
     "addAboveCmd": "Alt+单击",
     "addAboveMacCmd": "+单击",
     "addAboveTooltip": "添加上面",
@@ -273,14 +274,14 @@
     "markdown": "Markdown",
     "debug": {
       "name": "调试信息",
-      "success": "已将调试信息复制到剪贴板！",
+      "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
     },
     "feedback": "反馈",
     "help": "帮助和支持"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "更多按钮工具",
+    "moreButtonToolTip": "删除、重命名等等...",
     "addPageTooltip": "在其中快速添加页面",
     "defaultNewPageName": "未命名页面",
     "renameDialog": "重命名",
@@ -735,7 +736,7 @@
       "menuLabel": "AI 设置",
       "keys": {
         "enableAISearchTitle": "AI 搜索",
-        "aiSettingsDescription": "选择你偏好的模型来赋能 AppFlowy AI。目前可以使用 GPT 4-o、Claude 3,5、Llama 3.1 与 Mistral 7B",
+        "aiSettingsDescription": "选择你偏好的模型来赋能 AppFlowy AI。",
         "llmModel": "语言模型",
         "llmModelType": "语言模型类别"
       }
@@ -748,6 +749,34 @@
       }
     },
     "comparePlanDialog": {
+      "planLabels": {
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
+      },
+      "freeLabels": {
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
+      },
       "proLabels": {
         "itemTwo": "最多十个",
         "itemThree": "无限",
@@ -1230,7 +1259,7 @@
       "textPlaceholder": "空",
       "copyProperty": "复制列",
       "count": "数量",
-      "newRow": "添加一行",
+      "newRow": "新页面",
       "action": "执行",
       "add": "点击添加到下方",
       "drag": "拖动以移动",
@@ -1370,7 +1399,16 @@
         "file": "文件",
         "twoColumns": "两列",
         "threeColumns": "三列",
-        "fourColumns": "四列"
+        "fourColumns": "四列",
+        "fiveColumns": "五列",
+        "list_": "列表",
+        "linkedList": "关联列表",
+        "gallery": "图库",
+        "linkedGallery": "关联图库",
+        "chart": "图表",
+        "linkedChart": "关联图表",
+        "textColor": "文字颜色",
+        "backgroundColor": "背景颜色"
       },
       "subPage": {
         "name": "文档",
@@ -1382,6 +1420,15 @@
         "keyword6": "新页面",
         "keyword7": "创建页面",
         "keyword8": "文档"
+      },
+      "category": {
+        "basicBlocks": "基础块",
+        "appflowyAi": "AppFlowy AI",
+        "media": "媒体",
+        "database": "数据库",
+        "advancedBlock": "高级块",
+        "inline": "内联",
+        "color": "颜色"
       }
     },
     "selectionMenu": {
@@ -1486,6 +1533,7 @@
         "copiedToPasteBoard": "链接已复制到剪贴板"
       },
       "outline": {
+        "outlineBlock": "目录",
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       },
       "table": {
@@ -1539,9 +1587,6 @@
           "unableToDisplay": "无法显示"
         }
       }
-    },
-    "outlineBlock": {
-      "placeholder": "目录"
     },
     "textBlock": {
       "placeholder": "输入 “/” 作为命令"
@@ -1726,8 +1771,8 @@
   },
   "message": {
     "copy": {
-      "success": "已复制",
-      "fail": "复制失败"
+      "success": "复制了！",
+      "fail": "无法复制"
     }
   },
   "unSupportBlock": "当前版本不支持该块。",
@@ -1736,8 +1781,8 @@
     "deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
   },
   "colors": {
-    "custom": "自定义",
-    "default": "默认",
+    "custom": "自定义的",
+    "default": "默认的",
     "red": "红色",
     "orange": "橙色",
     "yellow": "黄色",
@@ -1754,7 +1799,7 @@
     "noRecent": "没有最近的 Emoji",
     "noEmojiFound": "没有找到 Emoji",
     "filter": "筛选",
-    "random": "随机",
+    "random": "随机的",
     "selectSkinTone": "选择肤色",
     "remove": "移除",
     "categories": {
@@ -1773,9 +1818,9 @@
     "skinTone": {
       "default": "默认",
       "light": "亮",
-      "mediumLight": "偏亮",
-      "medium": "适中",
-      "mediumDark": "偏暗",
+      "mediumLight": "中等偏亮",
+      "medium": "中等的",
+      "mediumDark": "中等偏暗",
       "dark": "暗"
     }
   },

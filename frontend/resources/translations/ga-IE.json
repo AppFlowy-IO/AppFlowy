@@ -11,7 +11,8 @@
   "and": "agus",
   "failedToOpenUrl": "Theip ar oscailt an url: {}",
   "blockActions": {
-    "addBelowTooltip": "Cliceáil chun cur leis thíos",
+    "addBelowCmd": "Cliceáil",
+    "addBelowTooltip": "chun cur leis thíos",
     "addAboveCmd": "Alt+cliceáil",
     "addAboveMacCmd": "Option+cliceáil",
     "addAboveTooltip": "a chur thuas",

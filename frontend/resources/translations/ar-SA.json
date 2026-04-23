@@ -11,7 +11,8 @@
   "and": "و",
   "failedToOpenUrl": "فشل في فتح الرابط: {}",
   "blockActions": {
-    "addBelowTooltip": "انقر للإضافة أدناه",
+    "addBelowCmd": "انقر",
+    "addBelowTooltip": "للإضافة أدناه",
     "addAboveCmd": "Alt + انقر",
     "addAboveMacCmd": "Option + انقر",
     "addAboveTooltip": "لإضافة أعلاه",
@@ -36,7 +37,7 @@
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
-    "continueWithLocalModel": "الاستمرار بالنموذج المحلي",
+    "continue": "استمرار",
     "switchToAppFlowyCloud": "AppFlowy السحابي",
     "anonymousMode": "الوضع المجهول",
     "buttonText": "تسجيل الدخول",
@@ -897,11 +898,10 @@
       "menuLabel": "إعدادات الذكاء الاصطناعي",
       "keys": {
         "enableAISearchTitle": "بحث الذكاء الاصطناعي",
-        "aiSettingsDescription": "اختر النموذج المفضل لديك لتشغيل AppFlowy AI. يتضمن الآن GPT 4-o وClaude 3,5 وLlama 3.1 وMistral 7B",
+        "aiSettingsDescription": "اختر النموذج المفضل لديك لتشغيل AppFlowy AI.",
         "loginToEnableAIFeature": "لا يتم تمكين ميزات الذكاء الاصطناعي إلا بعد تسجيل الدخول باستخدام @:appName Cloud. إذا لم يكن لديك حساب @:appName ، فانتقل إلى \"حسابي\" للتسجيل",
         "llmModel": "نموذج اللغة",
         "globalLLMModel": "نموذج اللغة العام",
-        "readOnlyField": "هذا الحقل للقراءة فقط",
         "llmModelType": "نوع نموذج اللغة",
         "downloadLLMPrompt": "تنزيل {}",
         "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟",
@@ -938,7 +938,7 @@
         "ollamaNotReady": "خادم Ollama غير جاهز.",
         "pleaseFollowThese": "اتبع هؤلاء",
         "instructions": "التعليمات",
-        "installOllamaLai": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
+        "installOllama": "لإعداد Ollama. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
         "modelsMissing": "لم يتم العثور على النماذج المطلوبة.",
         "downloadModel": "لتنزيلها.",
         "startLocalAI": "قد يستغرق الأمر بضع ثوانٍ لبدء تشغيل الذكاء الاصطناعي المحلي"
@@ -978,7 +978,7 @@
           "proTitle": "محترف",
           "teamTitle": "فريق",
           "freeInfo": "مثالي للأفراد حتى عضوين لتنظيم كل شيء",
-          "proInfo": "مثالي للفرق الصغيرة والمتوسطة التي يصل عددها إلى 10 أعضاء.",
+          "proInfo": "مثالي للفرق الصغيرة والمتوسطة التي يصل عددها إلى 50 أعضاء.",
           "teamInfo": "مثالي لجميع الفرق المنتجة والمنظمة جيدًا.",
           "upgrade": "تغيير الخطة",
           "canceledInfo": "لقد تم إلغاء خطتك، وسيتم تخفيض مستوى خطتك إلى الخطة المجانية في {}."
@@ -1077,35 +1077,36 @@
         "priceInfo": "لكل مستخدم شهريا\nيتم فوترتها سنويا\n\n{} يتم الفوترتها شهريًا"
       },
       "planLabels": {
-        "itemOne": "مساحات العمل",
-        "itemTwo": "الأعضاء",
-        "itemThree": "التخزين",
-        "itemFour": "التعاون في الزمن الحقيقي",
-        "itemFive": "تطبيق الجوال",
-        "itemSix": "استجابات الذكاء الاصطناعي",
-        "itemSeven": "صور الذكاء الاصطناعي",
-        "itemFileUpload": "رفع الملفات",
-        "customNamespace": "مساحة اسم مخصصة",
-        "tooltipFive": "تعاون في صفحات محددة مع غير الأعضاء",
-        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا",
-        "intelligentSearch": "البحث الذكي",
-        "tooltipSeven": "يتيح لك تخصيص جزء من عنوان URL لمساحة العمل الخاصة بك",
-        "customNamespaceTooltip": "عنوان URL للموقع المنشور المخصص"
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Guest editors",
+        "itemSix": "AI responses",
+        "itemSeven": "AI images",
+        "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
+        "tooltipFive": "Collaborate on specific pages with non-members",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL",
+        "expandedColors": "Expanded colors"
       },
       "freeLabels": {
-        "itemOne": "يتم فرض رسوم على كل مساحة عمل",
-        "itemTwo": "حتى 2",
-        "itemThree": "5 جيجا بايت",
-        "itemFour": "نعم",
-        "itemFive": "نعم",
-        "itemSix": "10 مدى الحياة",
-        "itemSeven": "2 مدى الحياة",
-        "itemFileUpload": "حتى 7 ميجا بايت",
-        "intelligentSearch": "البحث الذكي"
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "تتم الفوترة على كل مساحة عمل",
-        "itemTwo": "حتى 10",
+        "itemTwo": "حتى 50",
         "itemThree": "غير محدود",
         "itemFour": "نعم",
         "itemFive": "نعم",
@@ -1676,7 +1677,6 @@
         "other": "إخفاء {count} الحقول المخفية"
       },
       "openAsFullPage": "افتح كصفحة كاملة",
-      "viewDatabase": "عرض قاعدة البيانات الأصلية",
       "moreRowActions": "مزيد من إجراءات الصف"
     },
     "sort": {
@@ -1700,7 +1700,7 @@
       "textPlaceholder": "فارغ",
       "copyProperty": "نسخ الممتلكات إلى الحافظة",
       "count": "عدد",
-      "newRow": "صف جديد",
+      "newRow": "صفحة جديدة",
       "loadMore": "تحميل المزيد",
       "action": "فعل",
       "add": "انقر فوق إضافة إلى أدناه",
@@ -1859,7 +1859,8 @@
         "file": "الملف",
         "twoColumns": "عمودين",
         "threeColumns": "3 أعمدة",
-        "fourColumns": "4 أعمدة"
+        "fourColumns": "4 أعمدة",
+        "fiveColumns": "5 أعمدة"
       },
       "subPage": {
         "name": "المستند",
@@ -2035,6 +2036,7 @@
         "convertToLink": "تحويل إلى رابط التضمين"
       },
       "outline": {
+        "outlineBlock": "جدول المحتويات",
         "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات.",
         "noMatchHeadings": "لم يتم العثور على عناوين مطابقة."
       },
@@ -2129,9 +2131,6 @@
         }
       },
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
-    },
-    "outlineBlock": {
-      "placeholder": "جدول المحتويات"
     },
     "textBlock": {
       "placeholder": "اكتب \"/\" للأوامر"
@@ -2394,10 +2393,6 @@
     "noResultForSearching": "لم يتم العثور على أي تطابقات",
     "noResultForSearchingHint": "حاول استخدام أسئلة أو كلمات رئيسية مختلفة.\nقد تكون بعض الصفحات في سلة المهملات.",
     "bestMatch": "أفضل تطابق",
-    "showMore": "إظهار المزيد",
-    "somethingWentWrong": "لقد حدث خطأ ما",
-    "pageNotExist": "هذه الصفحة غير موجودة",
-    "tryAgainOrLater": "الرجاء المحاولة مرة أخرى لاحقًا",
     "placeholder": {
       "actions": "إجراءات البحث ..."
     }
@@ -2853,10 +2848,7 @@
     "betaTooltip": "نحن ندعم حاليًا البحث عن الصفحات والمحتوى في المستندات فقط",
     "fromTrashHint": "من سلة المحذوفات",
     "noResultsHint": "لم نعثر على ما تبحث عنه، حاول البحث عن مصطلح آخر.",
-    "clearSearchTooltip": "مسح حقل البحث",
-    "location": "موقع",
-    "created": "تم الإنشاء",
-    "edited": "تم التعديل"
+    "clearSearchTooltip": "مسح حقل البحث"
   },
   "space": {
     "delete": "حذف",
@@ -3306,7 +3298,7 @@
     },
     "proPoints": {
       "first": "تخزين غير محدود",
-      "second": "ما يصل إلى 10 أعضاء في مساحة العمل",
+      "second": "ما يصل إلى 50 أعضاء في مساحة العمل",
       "three": "استجابات الذكاء الاصطناعي غير المحدودة",
       "four": "رفع ملفات غير محدودة",
       "five": "مساحة اسم مخصصة"
@@ -3372,7 +3364,6 @@
       "browsePrompts": "تصفح المطالبات",
       "usePrompt": "استخدم المطالبة",
       "featured": "مميز",
-      "example": "مثال المطالبة",
       "all": "الجميع",
       "development": "التطوير",
       "writing": "الكتابة",
@@ -3382,6 +3373,7 @@
       "travel": "السفر",
       "others": "آخر",
       "prompt": "المطالبة",
+      "example": "مثال المطالبة",
       "sampleOutput": "عينة الإخراج",
       "contentSeo": "المحتوى/ت.م.ب",
       "emailMarketing": "التسويق عبر البريد الإلكتروني",

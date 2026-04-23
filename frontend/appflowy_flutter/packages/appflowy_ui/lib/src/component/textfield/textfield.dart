@@ -192,6 +192,7 @@ class _AFTextFieldState extends AFTextFieldState {
       autofocus: widget.autoFocus ?? false,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
+      autofillHints: widget.autofillHints,
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: theme.textStyle.body.standard(

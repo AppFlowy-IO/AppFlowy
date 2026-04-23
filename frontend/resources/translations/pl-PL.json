@@ -11,7 +11,8 @@
   "and": "i",
   "failedToOpenUrl": "Nie udało się otworzyć adresu URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Kliknij, aby dodać poniżej",
+    "addBelowCmd": "Kliknij",
+    "addBelowTooltip": "aby dodać poniżej",
     "addAboveCmd": "Alt+kliknięcie",
     "addAboveMacCmd": "Opcja + kliknięcie",
     "addAboveTooltip": "aby dodać powyżej",
@@ -597,7 +598,7 @@
       "textPlaceholder": "Pusty",
       "copyProperty": "Skopiowano właściwość do schowka",
       "count": "Liczba",
-      "newRow": "Nowy rząd",
+      "newRow": "Nowa strona",
       "action": "Akcja",
       "add": "Kliknij by dodać poniżej",
       "drag": "Przeciągnij aby przenieść",
