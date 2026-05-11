@@ -74,6 +74,11 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
           type: ThirdPartySignInButtonType.apple,
           onTap: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
         ),
+        VSpace(theme.spacing.l),
+        DesktopThirdPartySignInButton(
+          type: ThirdPartySignInButtonType.sso,
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
+        ),
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
     );
@@ -160,6 +165,11 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
           key: signInWithGoogleButtonKey,
           type: ThirdPartySignInButtonType.google,
           onTap: () => widget.onSignIn(ThirdPartySignInButtonType.google),
+        ),
+        const VSpace(padding),
+        MobileThirdPartySignInButton(
+          type: ThirdPartySignInButtonType.sso,
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
         ),
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],

@@ -192,6 +192,8 @@ pub enum ProviderTypePB {
   Email = 18,
   Phone = 19,
   Zoom = 20,
+  Saml = 21,
+  Oidc = 22,
 }
 
 impl ProviderTypePB {
@@ -218,6 +220,8 @@ impl ProviderTypePB {
       ProviderTypePB::Email => "email",
       ProviderTypePB::Phone => "phone",
       ProviderTypePB::Zoom => "zoom",
+      ProviderTypePB::Saml => "saml",
+      ProviderTypePB::Oidc => "oidc",
     }
   }
 }

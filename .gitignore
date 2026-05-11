@@ -42,3 +42,6 @@ frontend/*.deb
 **/Cargo.toml.bak
 
 **/.cargo/**
+
+# ignore custom build scripts
+build_dockers.sh

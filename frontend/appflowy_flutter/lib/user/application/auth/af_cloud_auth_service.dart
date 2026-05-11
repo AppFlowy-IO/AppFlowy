@@ -139,6 +139,8 @@ extension ProviderTypePBExtension on ProviderTypePB {
         return ProviderTypePB.Discord;
       case 'apple':
         return ProviderTypePB.Apple;
+      case 'sso':
+        return ProviderTypePB.Oidc;
       default:
         throw UnimplementedError();
     }

@@ -9,6 +9,7 @@ enum ThirdPartySignInButtonType {
   google,
   github,
   discord,
+  sso,
   anonymous;
 
   String get provider {
@@ -21,6 +22,8 @@ enum ThirdPartySignInButtonType {
         return 'github';
       case ThirdPartySignInButtonType.discord:
         return 'discord';
+      case ThirdPartySignInButtonType.sso:
+        return 'sso';
       case ThirdPartySignInButtonType.anonymous:
         throw UnsupportedError('Anonymous session does not have a provider');
     }
@@ -36,6 +39,8 @@ enum ThirdPartySignInButtonType {
         return FlowySvgs.m_github_icon_xl;
       case ThirdPartySignInButtonType.discord:
         return FlowySvgs.m_discord_icon_xl;
+      case ThirdPartySignInButtonType.sso:
+        return FlowySvgs.shield_check_s;
       case ThirdPartySignInButtonType.anonymous:
         return FlowySvgs.m_discord_icon_xl;
     }
@@ -51,6 +56,8 @@ enum ThirdPartySignInButtonType {
         return LocaleKeys.signIn_signInWithGithub.tr();
       case ThirdPartySignInButtonType.discord:
         return LocaleKeys.signIn_signInWithDiscord.tr();
+      case ThirdPartySignInButtonType.sso:
+        return 'Enterprise Login (SSO)';
       case ThirdPartySignInButtonType.anonymous:
         return 'Anonymous session';
     }
@@ -65,6 +72,7 @@ enum ThirdPartySignInButtonType {
       case ThirdPartySignInButtonType.google:
       case ThirdPartySignInButtonType.github:
       case ThirdPartySignInButtonType.discord:
+      case ThirdPartySignInButtonType.sso:
       case ThirdPartySignInButtonType.anonymous:
         return isDarkMode ? Colors.black : Colors.grey.shade100;
     }
@@ -78,6 +86,7 @@ enum ThirdPartySignInButtonType {
       case ThirdPartySignInButtonType.google:
       case ThirdPartySignInButtonType.github:
       case ThirdPartySignInButtonType.discord:
+      case ThirdPartySignInButtonType.sso:
       case ThirdPartySignInButtonType.anonymous:
         return isDarkMode ? Colors.white : Colors.black;
     }
