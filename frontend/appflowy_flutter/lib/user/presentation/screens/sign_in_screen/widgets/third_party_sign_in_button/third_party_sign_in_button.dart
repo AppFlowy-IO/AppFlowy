@@ -57,7 +57,7 @@ enum ThirdPartySignInButtonType {
       case ThirdPartySignInButtonType.discord:
         return LocaleKeys.signIn_signInWithDiscord.tr();
       case ThirdPartySignInButtonType.sso:
-        return 'Enterprise Login (SSO)';
+        return LocaleKeys.signIn_signInWithSSO.tr();
       case ThirdPartySignInButtonType.anonymous:
         return 'Anonymous session';
     }

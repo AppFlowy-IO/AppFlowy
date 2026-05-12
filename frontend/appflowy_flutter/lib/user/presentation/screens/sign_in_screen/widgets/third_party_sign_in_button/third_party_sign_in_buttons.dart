@@ -19,19 +19,26 @@ class ThirdPartySignInButtons extends StatelessWidget {
   const ThirdPartySignInButtons({
     super.key,
     this.expanded = false,
+    this.showSSO = false,
   });
 
   final bool expanded;
+
+  /// Whether to show the Enterprise Login (SSO) button.
+  /// Set to true only in deployments that have OIDC/SAML configured.
+  final bool showSSO;
 
   @override
   Widget build(BuildContext context) {
     if (UniversalPlatform.isDesktopOrWeb) {
       return _DesktopThirdPartySignIn(
+        showSSO: showSSO,
         onSignIn: (type) => _signIn(context, type.provider),
       );
     } else {
       return _MobileThirdPartySignIn(
         isExpanded: expanded,
+        showSSO: showSSO,
         onSignIn: (type) => _signIn(context, type.provider),
       );
     }
@@ -47,9 +54,11 @@ class ThirdPartySignInButtons extends StatelessWidget {
 class _DesktopThirdPartySignIn extends StatefulWidget {
   const _DesktopThirdPartySignIn({
     required this.onSignIn,
+    this.showSSO = false,
   });
 
   final _SignInCallback onSignIn;
+  final bool showSSO;
 
   @override
   State<_DesktopThirdPartySignIn> createState() =>
@@ -74,11 +83,13 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
           type: ThirdPartySignInButtonType.apple,
           onTap: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
         ),
-        VSpace(theme.spacing.l),
-        DesktopThirdPartySignInButton(
-          type: ThirdPartySignInButtonType.sso,
-          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
-        ),
+        if (widget.showSSO) ...[
+          VSpace(theme.spacing.l),
+          DesktopThirdPartySignInButton(
+            type: ThirdPartySignInButtonType.sso,
+            onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
+          ),
+        ],
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
     );
@@ -127,10 +138,12 @@ class _MobileThirdPartySignIn extends StatefulWidget {
   const _MobileThirdPartySignIn({
     required this.isExpanded,
     required this.onSignIn,
+    this.showSSO = false,
   });
 
   final bool isExpanded;
   final _SignInCallback onSignIn;
+  final bool showSSO;
 
   @override
   State<_MobileThirdPartySignIn> createState() =>
@@ -166,11 +179,13 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
           type: ThirdPartySignInButtonType.google,
           onTap: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),
-        const VSpace(padding),
-        MobileThirdPartySignInButton(
-          type: ThirdPartySignInButtonType.sso,
-          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
-        ),
+        if (widget.showSSO) ...[
+          const VSpace(padding),
+          MobileThirdPartySignInButton(
+            type: ThirdPartySignInButtonType.sso,
+            onTap: () => widget.onSignIn(ThirdPartySignInButtonType.sso),
+          ),
+        ],
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
     );
