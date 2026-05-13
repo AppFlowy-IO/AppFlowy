@@ -34,10 +34,14 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/note_creation_notifier.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:collection/collection.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -311,10 +315,14 @@ class _SidebarState extends State<_Sidebar> {
   // mute the update button during the current application lifecycle.
   final _muteUpdateButton = ValueNotifier(false);
 
+  int _noteCreationRetryCount = 0;
+  static const int _maxNoteCreationRetries = 5;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScrollChanged);
+    createNoteNotifier.addListener(_handleCreateNoteDeepLink);
   }
 
   @override
@@ -324,7 +332,108 @@ class _SidebarState extends State<_Sidebar> {
     _scrollController.dispose();
     _scrollOffset.dispose();
     _isHovered.dispose();
+    createNoteNotifier.removeListener(_handleCreateNoteDeepLink);
     super.dispose();
+  }
+
+  // ── Deep-link: create new note ──────────────────────────────────────────
+
+  void _handleCreateNoteDeepLink() {
+    final params = createNoteNotifier.value;
+    if (params == null) return;
+
+    if (!mounted) return;
+
+    final workspaceBloc = context.read<UserWorkspaceBloc>();
+    final currentWorkspaceId =
+        workspaceBloc.state.currentWorkspace?.workspaceId;
+
+    // If a specific workspace is requested and it isn't the current one,
+    // switch to it first and retry once it is ready.
+    if (params.workspaceId != null &&
+        params.workspaceId != currentWorkspaceId) {
+      if (_noteCreationRetryCount >= _maxNoteCreationRetries) {
+        Log.error(
+          'NewNoteDeepLink: giving up after $_maxNoteCreationRetries retries '
+          '(workspace ${params.workspaceId} never became current)',
+        );
+        createNoteNotifier.value = null;
+        _noteCreationRetryCount = 0;
+        return;
+      }
+
+      final targetWorkspace = workspaceBloc.state.workspaces.firstWhereOrNull(
+        (w) => w.workspaceId == params.workspaceId,
+      );
+
+      if (targetWorkspace == null) {
+        workspaceBloc.add(
+          UserWorkspaceEvent.fetchWorkspaces(
+            initialWorkspaceId: params.workspaceId,
+          ),
+        );
+      } else {
+        workspaceBloc.add(
+          UserWorkspaceEvent.openWorkspace(
+            workspaceId: params.workspaceId!,
+            workspaceType: targetWorkspace.workspaceType,
+          ),
+        );
+      }
+
+      _noteCreationRetryCount++;
+      Future.delayed(
+        Duration(milliseconds: 300 + _noteCreationRetryCount * 200),
+        _handleCreateNoteDeepLink,
+      );
+      return;
+    }
+
+    _noteCreationRetryCount = 0;
+    _createNoteFromDeepLink(params);
+  }
+
+  Future<void> _createNoteFromDeepLink(CreateNoteParams params) async {
+    // Consume the notifier immediately to prevent duplicate creation.
+    createNoteNotifier.value = null;
+
+    final parentViewId = params.parentViewId?.isNotEmpty == true
+        ? params.parentViewId!
+        : context.read<SpaceBloc>().state.currentSpace?.id ?? '';
+
+    if (parentViewId.isEmpty) {
+      Log.error('NewNoteDeepLink: no parentViewId available, aborting');
+      return;
+    }
+
+    // Convert Markdown to DocumentDataPB bytes if content is provided.
+    List<int>? initialDataBytes;
+    final content = params.content;
+    if (content != null && content.isNotEmpty) {
+      final document = customMarkdownToDocument(content);
+      initialDataBytes =
+          DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+    }
+
+    final result = await ViewBackendService.createView(
+      layoutType: ViewLayoutPB.Document,
+      parentViewId: parentViewId,
+      name: params.name,
+      openAfterCreate: true,
+      initialDataBytes: initialDataBytes,
+    );
+
+    result.fold(
+      (view) {
+        Log.info(
+          'NewNoteDeepLink: created "${view.name}" (${view.id})',
+        );
+        if (mounted) {
+          context.read<TabsBloc>().openPlugin(view);
+        }
+      },
+      (error) => Log.error('NewNoteDeepLink: failed to create note – $error'),
+    );
   }
 
   @override
