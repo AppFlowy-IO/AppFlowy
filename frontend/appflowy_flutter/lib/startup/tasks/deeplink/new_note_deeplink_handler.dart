@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/note_creation_notifier.dart';
 import 'package:appflowy_backend/log.dart';
@@ -11,16 +12,22 @@ import 'package:flutter/services.dart';
 ///
 /// ```
 /// appflowy-flutter://new
-///   ?workspace_id=<uuid>          (optional – switches workspace first)
-///   &parent_view_id=<uuid>        (optional – target space / folder)
-///   &name=<title>                 (optional – defaults to "New Note")
+///   ?workspace_id=<uuid>             (optional – switches workspace first)
+///   &parent_view_id=<uuid>           (optional – target space / folder)
+///   &name=<title>                    (optional – defaults to "New Note")
 ///   &content=<url-encoded-markdown>  (optional)
-///   &clipboard                    (optional – read content from clipboard)
+///   &clipboard                       (optional – read content from clipboard)
 /// ```
 ///
 /// Either `content` or `clipboard` can supply the initial Markdown body.
-/// If both are present, `clipboard` takes precedence.
+/// When both are present, `clipboard` takes precedence.
 class NewNoteDeepLinkHandler extends DeepLinkHandler<void> {
+  /// [service] is injected for testability; defaults to the [getIt] singleton.
+  NewNoteDeepLinkHandler({CreateNoteService? service})
+      : _service = service ?? getIt<CreateNoteService>();
+
+  final CreateNoteService _service;
+
   static const _host = 'new';
   static const _workspaceIdKey = 'workspace_id';
   static const _parentViewIdKey = 'parent_view_id';
@@ -53,11 +60,13 @@ class NewNoteDeepLinkHandler extends DeepLinkHandler<void> {
       content = uri.queryParameters[_contentKey];
     }
 
-    createNoteNotifier.value = CreateNoteParams(
-      workspaceId: uri.queryParameters[_workspaceIdKey],
-      parentViewId: uri.queryParameters[_parentViewIdKey],
-      name: effectiveName,
-      content: content,
+    _service.request(
+      CreateNoteParams(
+        workspaceId: uri.queryParameters[_workspaceIdKey],
+        parentViewId: uri.queryParameters[_parentViewIdKey],
+        name: effectiveName,
+        content: content,
+      ),
     );
 
     Log.info(

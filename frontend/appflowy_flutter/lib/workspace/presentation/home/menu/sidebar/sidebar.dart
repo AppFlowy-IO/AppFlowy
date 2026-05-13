@@ -315,87 +315,99 @@ class _SidebarState extends State<_Sidebar> {
   // mute the update button during the current application lifecycle.
   final _muteUpdateButton = ValueNotifier(false);
 
-  int _noteCreationRetryCount = 0;
-  static const int _maxNoteCreationRetries = 5;
+  /// Subscription to workspace bloc state changes used for the event-driven
+  /// workspace-switch step before note creation.
+  StreamSubscription<UserWorkspaceState>? _workspaceSubscription;
+
+  /// Guards against dispatching the same workspace-switch event multiple times
+  /// while the switch is still in progress.
+  String? _pendingWorkspaceSwitchId;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScrollChanged);
-    createNoteNotifier.addListener(_handleCreateNoteDeepLink);
+    getIt<CreateNoteService>().addListener(_onCreateNoteRequested);
+    _workspaceSubscription = context
+        .read<UserWorkspaceBloc>()
+        .stream
+        .listen(_onWorkspaceStateChanged);
   }
 
   @override
   void dispose() {
+    _workspaceSubscription?.cancel();
+    getIt<CreateNoteService>().removeListener(_onCreateNoteRequested);
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
     _scrollOffset.dispose();
     _isHovered.dispose();
-    createNoteNotifier.removeListener(_handleCreateNoteDeepLink);
     super.dispose();
   }
 
   // ── Deep-link: create new note ──────────────────────────────────────────
 
-  void _handleCreateNoteDeepLink() {
-    final params = createNoteNotifier.value;
-    if (params == null) return;
-
+  /// Called when [CreateNoteService] notifies a new pending request.
+  void _onCreateNoteRequested() {
     if (!mounted) return;
+    final params = getIt<CreateNoteService>().pending;
+    if (params == null) return;
+    _maybeCreateNote(params);
+  }
 
-    final workspaceBloc = context.read<UserWorkspaceBloc>();
+  /// Called on every [UserWorkspaceBloc] state change so a pending
+  /// workspace-switch can be completed without any polling timer.
+  void _onWorkspaceStateChanged(UserWorkspaceState _) {
+    if (!mounted) return;
+    final params = getIt<CreateNoteService>().pending;
+    if (params == null) return;
+    _maybeCreateNote(params);
+  }
+
+  /// Checks whether the correct workspace is active; if not, dispatches a
+  /// workspace switch exactly once and returns – [_onWorkspaceStateChanged]
+  /// will re-invoke this method when the switch completes.
+  void _maybeCreateNote(CreateNoteParams params) {
     final currentWorkspaceId =
-        workspaceBloc.state.currentWorkspace?.workspaceId;
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
 
-    // If a specific workspace is requested and it isn't the current one,
-    // switch to it first and retry once it is ready.
     if (params.workspaceId != null &&
         params.workspaceId != currentWorkspaceId) {
-      if (_noteCreationRetryCount >= _maxNoteCreationRetries) {
-        Log.error(
-          'NewNoteDeepLink: giving up after $_maxNoteCreationRetries retries '
-          '(workspace ${params.workspaceId} never became current)',
-        );
-        createNoteNotifier.value = null;
-        _noteCreationRetryCount = 0;
-        return;
+      if (_pendingWorkspaceSwitchId != params.workspaceId) {
+        _pendingWorkspaceSwitchId = params.workspaceId;
+        _switchToWorkspace(params.workspaceId!);
       }
-
-      final targetWorkspace = workspaceBloc.state.workspaces.firstWhereOrNull(
-        (w) => w.workspaceId == params.workspaceId,
-      );
-
-      if (targetWorkspace == null) {
-        workspaceBloc.add(
-          UserWorkspaceEvent.fetchWorkspaces(
-            initialWorkspaceId: params.workspaceId,
-          ),
-        );
-      } else {
-        workspaceBloc.add(
-          UserWorkspaceEvent.openWorkspace(
-            workspaceId: params.workspaceId!,
-            workspaceType: targetWorkspace.workspaceType,
-          ),
-        );
-      }
-
-      _noteCreationRetryCount++;
-      Future.delayed(
-        Duration(milliseconds: 300 + _noteCreationRetryCount * 200),
-        _handleCreateNoteDeepLink,
-      );
       return;
     }
 
-    _noteCreationRetryCount = 0;
-    _createNoteFromDeepLink(params);
+    _pendingWorkspaceSwitchId = null;
+    _createNoteFromParams(params);
   }
 
-  Future<void> _createNoteFromDeepLink(CreateNoteParams params) async {
-    // Consume the notifier immediately to prevent duplicate creation.
-    createNoteNotifier.value = null;
+  void _switchToWorkspace(String workspaceId) {
+    final workspaceBloc = context.read<UserWorkspaceBloc>();
+    final target = workspaceBloc.state.workspaces.firstWhereOrNull(
+      (w) => w.workspaceId == workspaceId,
+    );
+    if (target == null) {
+      workspaceBloc.add(
+        UserWorkspaceEvent.fetchWorkspaces(initialWorkspaceId: workspaceId),
+      );
+    } else {
+      workspaceBloc.add(
+        UserWorkspaceEvent.openWorkspace(
+          workspaceId: workspaceId,
+          workspaceType: target.workspaceType,
+        ),
+      );
+    }
+  }
+
+  Future<void> _createNoteFromParams(CreateNoteParams params) async {
+    // Consume immediately to prevent duplicate creation if the bloc fires
+    // another state change before the async call completes.
+    getIt<CreateNoteService>().consume();
 
     final parentViewId = params.parentViewId?.isNotEmpty == true
         ? params.parentViewId!
@@ -406,13 +418,21 @@ class _SidebarState extends State<_Sidebar> {
       return;
     }
 
-    // Convert Markdown to DocumentDataPB bytes if content is provided.
+    // Convert Markdown → DocumentDataPB bytes. A malformed payload must not
+    // block note creation; fall back to an empty document instead.
     List<int>? initialDataBytes;
     final content = params.content;
     if (content != null && content.isNotEmpty) {
-      final document = customMarkdownToDocument(content);
-      initialDataBytes =
-          DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+      try {
+        final document = customMarkdownToDocument(content);
+        initialDataBytes =
+            DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+      } catch (e) {
+        Log.warn(
+          'NewNoteDeepLink: Markdown conversion failed, '
+          'creating empty note – $e',
+        );
+      }
     }
 
     final result = await ViewBackendService.createView(
@@ -425,12 +445,8 @@ class _SidebarState extends State<_Sidebar> {
 
     result.fold(
       (view) {
-        Log.info(
-          'NewNoteDeepLink: created "${view.name}" (${view.id})',
-        );
-        if (mounted) {
-          context.read<TabsBloc>().openPlugin(view);
-        }
+        Log.info('NewNoteDeepLink: created "${view.name}" (${view.id})');
+        if (mounted) context.read<TabsBloc>().openPlugin(view);
       },
       (error) => Log.error('NewNoteDeepLink: failed to create note – $error'),
     );
