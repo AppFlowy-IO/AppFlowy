@@ -1,2 +1,0 @@
-mod script;
-mod test;

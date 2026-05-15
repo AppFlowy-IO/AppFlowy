@@ -1,5 +1,0 @@
-analyzer:
-  exclude:
-    - "**/*.g.dart"
-    - "**/*.pb.dart"
-    - "**/*.freezed.dart"
