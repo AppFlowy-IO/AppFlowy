@@ -3,6 +3,22 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 export 'package:flutter_svg/flutter_svg.dart';
 
+// Simple in-memory cache for pre-parsed SvgPicture instances. Keys are
+// composed from asset path and size to allow reuse for identical requests.
+final Map<String, SvgPicture> _svgCache = <String, SvgPicture>{};
+
+SvgPicture _getOrCreateCachedSvg(String path, Size? size) {
+  final key = '${path}|${size?.width ?? ''}|${size?.height ?? ''}';
+  return _svgCache.putIfAbsent(
+    key,
+    () => SvgPicture.asset(
+      path,
+      width: size?.width,
+      height: size?.height,
+    ),
+  );
+}
+
 /// The class for FlowySvgData that the code generator will implement
 class FlowySvgData {
   /// The svg data
@@ -89,6 +105,11 @@ class FlowySvg extends StatelessWidget {
 
     final Widget svg;
 
+    // Simple in-memory cache for asset-based SVGs keyed by normalized path.
+    // Caches SvgPicture widgets for the common case where no color filter
+    // is applied. When a color filter is requested we fall back to creating
+    // a new SvgPicture so color can be applied.
+
     if (svgString != null) {
       svg = SvgPicture.string(
         svgString!,
@@ -102,17 +123,21 @@ class FlowySvg extends StatelessWidget {
             : null,
       );
     } else {
-      svg = SvgPicture.asset(
-        _normalized(),
-        width: size?.width,
-        height: size?.height,
-        colorFilter: iconColor != null && blendMode != null
-            ? ColorFilter.mode(
-                iconColor,
-                blendMode!,
-              )
-            : null,
-      );
+      final path = _normalized();
+      final useCache = iconColor == null || blendMode == null;
+      if (useCache) {
+        // Use a simple static cache stored in a const-like holder to avoid
+        // reinitializing the map on every build. We intentionally keep this
+        // simple; callers that need color filters will bypass the cache.
+        svg = _getOrCreateCachedSvg(path, size);
+      } else {
+        svg = SvgPicture.asset(
+          path,
+          width: size?.width,
+          height: size?.height,
+          colorFilter: ColorFilter.mode(iconColor, blendMode!),
+        );
+      }
     }
 
     return Transform.scale(
