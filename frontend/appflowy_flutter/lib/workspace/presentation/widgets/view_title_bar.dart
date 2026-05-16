@@ -113,17 +113,41 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
                 _cachedKey = currentKey;
               }
 
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  height: 24,
-                  child: Row(
-                    children: [
-                      ..._cachedBreadcrumbs,
-                      HSpace(theme.spacing.m),
-                      _buildLockPageStatus(context),
-                    ],
-                  ),
+              // Use a horizontally scrolling lazy ListView to avoid building the
+              // entire breadcrumb list eagerly when the viewport only needs a
+              // windowed subset of items.
+              return SizedBox(
+                height: 24,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.zero,
+                  itemCount: ancestors.length - 1, // skip workspace root at index 0
+                  separatorBuilder: (context, index) => const FlowySvg(FlowySvgs.title_bar_divider_s),
+                  itemBuilder: (context, index) {
+                    final i = index + 1; // align with original loop starting at 1
+                    final view = ancestors[i];
+                    final isLast = i == ancestors.length - 1;
+                    if (state.isDeleted && i == ancestors.length - 1) {
+                      // When deleted, fall back to the deleted title builder
+                      return Row(children: _buildDeletedTitle(context, ancestors.last));
+                    }
+
+                    return FlowyTooltip(
+                      key: ValueKey(view.id),
+                      message: view.name,
+                      child: ViewTitle(
+                        view: view,
+                        behavior: isLast && !view.isLocked && pageAccessLevelState.isEditable
+                            ? ViewTitleBehavior.editable
+                            : ViewTitleBehavior.uneditable,
+                        onUpdated: () {
+                          if (context.mounted) {
+                            context.read<ViewTitleBarBloc>().add(const ViewTitleBarEvent.reload());
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               );
             },
