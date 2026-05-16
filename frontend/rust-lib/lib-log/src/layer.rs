@@ -142,11 +142,13 @@ fn format_span_context<'b, S: Subscriber + for<'a> tracing_subscriber::registry:
   ty: Type,
   _: &Context<'_, S>,
 ) -> String {
+  let mut out = String::new();
   if matches!(ty, Type::EnterSpan) {
-    format!("[🟢 {} - {}]", span.metadata().name().to_uppercase(), ty)
+    write!(out, "[🟢 {} - {}]", span.metadata().name().to_uppercase(), ty).ok();
   } else {
-    format!("[{} - {}]", span.metadata().name().to_uppercase(), ty)
+    write!(out, "[{} - {}]", span.metadata().name().to_uppercase(), ty).ok();
   }
+  out
 }
 
 fn format_event_message<S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(
@@ -167,13 +169,12 @@ fn format_event_message<S: Subscriber + for<'a> tracing_subscriber::registry::Lo
     .to_owned();
 
   // If the event is in the context of a span, prepend the span name to the
-  // message.
+  // message using `write!` to avoid nested `format!` allocations.
   if let Some(span) = &current_span {
-    message = format!(
-      "{} {}",
-      format_span_context(span, Type::Event, context),
-      message
-    );
+    let span_ctx = format_span_context(span, Type::Event, context);
+    let mut combined = String::with_capacity(span_ctx.len() + 1 + message.len());
+    write!(combined, "{} {}", span_ctx, message).ok();
+    message = combined;
   }
 
   message
@@ -244,9 +245,7 @@ where
     if !self.should_log(span.metadata()) {
       return;
     }
-    if let Ok(serialized) = self.serialize_span(&span, Type::EnterSpan, &ctx) {
-      let _ = self.emit(serialized);
-    }
+    let _ = self.serialize_span(&span, Type::EnterSpan, &ctx);
   }
 
   fn on_close(&self, id: Id, ctx: Context<'_, S>) {
@@ -254,8 +253,6 @@ where
     if !self.should_log(span.metadata()) {
       return;
     }
-    if let Ok(serialized) = self.serialize_span(&span, Type::ExitSpan, &ctx) {
-      let _ = self.emit(serialized);
-    }
+    let _ = self.serialize_span(&span, Type::ExitSpan, &ctx);
   }
 }
