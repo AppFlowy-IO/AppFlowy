@@ -1,5 +1,6 @@
 use chrono::Local;
 use std::{cell::RefCell, fmt, io::Write};
+use std::fmt::Write as FmtWrite;
 
 use serde::ser::{SerializeMap, Serializer};
 use serde_json::Value;
