@@ -1,0 +1,3388 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Я",
+  "welcomeText": "Добро пожаловать в @:appName",
+  "welcomeTo": "Добро пожаловать в",
+  "githubStarText": "Поставить звезду на GitHub",
+  "subscribeNewsletterText": "Подписаться на рассылку",
+  "letsGoButtonText": "Быстрый старт",
+  "title": "Заголовок",
+  "youCanAlso": "Вы также можете",
+  "and": "и",
+  "failedToOpenUrl": "Не удалось открыть URL: {}",
+  "blockActions": {
+    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
+    "addAboveCmd": "Alt+клик",
+    "addAboveMacCmd": "Option+клик",
+    "addAboveTooltip": "чтобы добавить выше",
+    "dragTooltip": "Перетащите, чтобы переместить",
+    "openMenuTooltip": "Нажмите, чтобы открыть меню"
+  },
+  "signUp": {
+    "buttonText": "Зарегистрироваться",
+    "title": "Зарегистрироваться в @:appName",
+    "getStartedText": "Начать",
+    "emptyPasswordError": "Пароль не может быть пустым",
+    "repeatPasswordEmptyError": "Повторный пароль не может быть пустым",
+    "unmatchedPasswordError": "Повторный пароль не совпадает с паролем",
+    "alreadyHaveAnAccount": "Уже есть аккаунт?",
+    "emailHint": "Email",
+    "passwordHint": "Пароль",
+    "repeatPasswordHint": "Повторить пароль",
+    "signUpWith": "Зарегистрироваться с помощью:"
+  },
+  "signIn": {
+    "loginTitle": "Войти в @:appName",
+    "loginButtonText": "Войти",
+    "loginStartWithAnonymous": "Продолжить в анонимной сессии",
+    "continueAnonymousUser": "Продолжить в анонимной сессии",
+    "continueWithLocalModel": "Продолжить с локальной моделью",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "Анонимный режим",
+    "buttonText": "Войти",
+    "signingInText": "Выполняется вход...",
+    "forgotPassword": "Забыли пароль?",
+    "emailHint": "Email",
+    "passwordHint": "Пароль",
+    "dontHaveAnAccount": "Нет аккаунта?",
+    "createAccount": "Создать аккаунт",
+    "repeatPasswordEmptyError": "Повторный пароль не может быть пустым",
+    "unmatchedPasswordError": "Повторный пароль не совпадает с паролем",
+    "syncPromptMessage": "Синхронизация данных может занять некоторое время. Пожалуйста, не закрывайте эту страницу",
+    "or": "или",
+    "signInWithGoogle": "Продолжить с Google",
+    "signInWithGithub": "Продолжить с GitHub",
+    "signInWithDiscord": "Продолжить с Discord",
+    "signInWithApple": "Продолжить с Apple",
+    "continueAnotherWay": "Продолжить другим способом",
+    "signUpWithGoogle": "Зарегистрироваться с Google",
+    "signUpWithGithub": "Зарегистрироваться с Github",
+    "signUpWithDiscord": "Зарегистрироваться с Discord",
+    "signInWith": "Продолжить с помощью:",
+    "signInWithEmail": "Продолжить с Email",
+    "signInWithMagicLink": "Продолжить",
+    "signUpWithMagicLink": "Зарегистрироваться с Magic Link",
+    "pleaseInputYourEmail": "Пожалуйста, введите ваш адрес электронной почты",
+    "settings": "Настройки",
+    "magicLinkSent": "Magic Link отправлен!",
+    "invalidEmail": "Пожалуйста, введите действительный адрес электронной почты",
+    "alreadyHaveAnAccount": "Уже есть аккаунт?",
+    "logIn": "Войти",
+    "generalError": "Что-то пошло не так. Пожалуйста, попробуйте позже",
+    "limitRateError": "По соображениям безопасности вы можете запрашивать magic link только раз в 60 секунд",
+    "magicLinkSentDescription": "Magic Link был отправлен на вашу электронную почту. Нажмите на ссылку, чтобы завершить вход. Ссылка истекает через 5 минут.",
+    "tokenHasExpiredOrInvalid": "Код истек или недействителен. Пожалуйста, попробуйте снова.",
+    "signingIn": "Выполняется вход...",
+    "checkYourEmail": "Проверьте свою почту",
+    "temporaryVerificationLinkSent": "Временная ссылка для верификации отправлена.\nПожалуйста, проверьте свой почтовый ящик по адресу",
+    "temporaryVerificationCodeSent": "Временный код верификации отправлен.\nПожалуйста, проверьте свой почтовый ящик по адресу",
+    "continueToSignIn": "Продолжить вход",
+    "backToLogin": "Назад ко входу",
+    "enterCode": "Введите код",
+    "enterCodeManually": "Ввести код вручную",
+    "continueWithEmail": "Продолжить с email",
+    "enterPassword": "Введите пароль",
+    "loginAs": "Войти как",
+    "invalidVerificationCode": "Пожалуйста, введите действительный код верификации",
+    "tooFrequentVerificationCodeRequest": "Вы сделали слишком много запросов. Пожалуйста, попробуйте позже.",
+    "invalidLoginCredentials": "Ваш пароль неверный, пожалуйста, попробуйте снова"
+  },
+  "workspace": {
+    "chooseWorkspace": "Выберите ваше рабочее пространство",
+    "defaultName": "Мое рабочее пространство",
+    "create": "Создать рабочее пространство",
+    "new": "Новое рабочее пространство",
+    "importFromNotion": "Импорт из Notion",
+    "learnMore": "Узнать больше",
+    "reset": "Сбросить рабочее пространство",
+    "renameWorkspace": "Переименовать рабочее пространство",
+    "workspaceNameCannotBeEmpty": "Имя рабочего пространства не может быть пустым",
+    "resetWorkspacePrompt": "Сброс рабочего пространства приведет к удалению всех страниц и данных в нем. Вы уверены, что хотите сбросить рабочее пространство? Как вариант, вы можете связаться со службой поддержки для восстановления рабочего пространства",
+    "hint": "рабочее пространство",
+    "notFoundError": "Рабочее пространство не найдено",
+    "failedToLoad": "Что-то пошло не так! Не удалось загрузить рабочее пространство. Попробуйте закрыть все открытые экземпляры @:appName и повторить попытку.",
+    "errorActions": {
+      "reportIssue": "Сообщить о проблеме",
+      "reportIssueOnGithub": "Сообщить о проблеме на Github",
+      "exportLogFiles": "Экспортировать файлы логов",
+      "reachOut": "Связаться через Discord"
+    },
+    "menuTitle": "Рабочие пространства",
+    "deleteWorkspaceHintText": "Вы уверены, что хотите удалить рабочее пространство? Это действие нельзя отменить, и все опубликованные вами страницы будут сняты с публикации.",
+    "createSuccess": "Рабочее пространство успешно создано",
+    "createFailed": "Не удалось создать рабочее пространство",
+    "createLimitExceeded": "Вы достигли максимального лимита рабочих пространств для вашей учетной записи. Если вам нужно больше рабочих пространств для продолжения работы, пожалуйста, запросите это на Github",
+    "deleteSuccess": "Рабочее пространство успешно удалено",
+    "deleteFailed": "Не удалось удалить рабочее пространство",
+    "openSuccess": "Рабочее пространство успешно открыто",
+    "openFailed": "Не удалось открыть рабочее пространство",
+    "renameSuccess": "Рабочее пространство успешно переименовано",
+    "renameFailed": "Не удалось переименовать рабочее пространство",
+    "updateIconSuccess": "Иконка рабочего пространства успешно обновлена",
+    "updateIconFailed": "Не удалось обновить иконку рабочего пространства",
+    "cannotDeleteTheOnlyWorkspace": "Нельзя удалить единственное рабочее пространство",
+    "fetchWorkspacesFailed": "Не удалось получить список рабочих пространств",
+    "leaveCurrentWorkspace": "Покинуть рабочее пространство",
+    "leaveCurrentWorkspacePrompt": "Вы уверены, что хотите покинуть текущее рабочее пространство?"
+  },
+  "shareAction": {
+    "buttonText": "Поделиться",
+    "workInProgress": "Скоро будет доступно",
+    "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Скопировать в буфер обмена",
+    "csv": "CSV",
+    "copyLink": "Скопировать ссылку",
+    "publishToTheWeb": "Опубликовать в Интернете",
+    "publishToTheWebHint": "Создать сайт с помощью AppFlowy",
+    "publish": "Опубликовать",
+    "unPublish": "Снять с публикации",
+    "visitSite": "Посетить сайт",
+    "exportAsTab": "Экспортировать как",
+    "publishTab": "Опубликовать",
+    "shareTab": "Поделиться",
+    "publishOnAppFlowy": "Опубликовать на AppFlowy",
+    "shareTabTitle": "Пригласить к совместной работе",
+    "shareTabDescription": "Для простой совместной работы с кем угодно",
+    "copyLinkSuccess": "Ссылка скопирована в буфер обмена",
+    "copyShareLink": "Скопировать ссылку для доступа",
+    "copyLinkFailed": "Не удалось скопировать ссылку в буфер обмена",
+    "copyLinkToBlockSuccess": "Ссылка на блок скопирована в буфер обмена",
+    "copyLinkToBlockFailed": "Не удалось скопировать ссылку на блок в буфер обмена",
+    "manageAllSites": "Управление всеми сайтами",
+    "updatePathName": "Обновить имя пути"
+  },
+  "moreAction": {
+    "small": "маленький",
+    "medium": "средний",
+    "large": "большой",
+    "fontSize": "Размер шрифта",
+    "import": "Импорт",
+    "moreOptions": "Больше опций",
+    "wordCount": "Количество слов: {}",
+    "charCount": "Количество символов: {}",
+    "createdAt": "Создано: {}",
+    "deleteView": "Удалить",
+    "duplicateView": "Дублировать",
+    "wordCountLabel": "Количество слов: ",
+    "charCountLabel": "Количество символов: ",
+    "createdAtLabel": "Создано: ",
+    "syncedAtLabel": "Синхронизировано: ",
+    "saveAsNewPage": "Добавить сообщения на страницу",
+    "saveAsNewPageDisabled": "Нет доступных сообщений"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Текст и Markdown",
+    "documentFromV010": "Документ из v0.1.0",
+    "databaseFromV010": "База данных из v0.1.0",
+    "notionZip": "Экспортированный Zip-файл Notion",
+    "csv": "CSV",
+    "database": "База данных"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Перетащите файл, нажмите, чтобы ",
+      "placeholderUpload": "Загрузить",
+      "placeholderRight": ", или вставьте ссылку на изображение.",
+      "dropToUpload": "Перетащите файл для загрузки",
+      "change": "Изменить"
+    }
+  },
+  "disclosureAction": {
+    "rename": "Переименовать",
+    "delete": "Удалить",
+    "duplicate": "Дублировать",
+    "unfavorite": "Удалить из избранного",
+    "favorite": "Добавить в избранное",
+    "openNewTab": "Открыть в новой вкладке",
+    "moveTo": "Переместить в",
+    "addToFavorites": "Добавить в избранное",
+    "copyLink": "Скопировать ссылку",
+    "changeIcon": "Изменить иконку",
+    "collapseAllPages": "Свернуть все подстраницы",
+    "movePageTo": "Переместить страницу в",
+    "move": "Переместить",
+    "lockPage": "Заблокировать страницу"
+  },
+  "blankPageTitle": "Пустая страница",
+  "newPageText": "Новая страница",
+  "newDocumentText": "Новый документ",
+  "newGridText": "Новая таблица",
+  "newCalendarText": "Новый календарь",
+  "newBoardText": "Новая доска",
+  "chat": {
+    "newChat": "AI Чат",
+    "inputMessageHint": "Спросить AI @:appName",
+    "inputLocalAIMessageHint": "Спросить локальный AI @:appName",
+    "unsupportedCloudPrompt": "Эта функция доступна только при использовании AppFlowy Cloud",
+    "relatedQuestion": "Предложенные",
+    "serverUnavailable": "Соединение потеряно. Пожалуйста, проверьте интернет и",
+    "aiServerUnavailable": "Служба AI временно недоступна. Пожалуйста, попробуйте позже.",
+    "retry": "Повторить",
+    "clickToRetry": "Нажмите, чтобы повторить",
+    "regenerateAnswer": "Перегенерировать",
+    "question1": "Как использовать Kanban для управления задачами",
+    "question2": "Объясните метод GTD",
+    "question3": "Зачем использовать Rust",
+    "question4": "Рецепт из того, что есть на кухне",
+    "question5": "Создать иллюстрацию для моей страницы",
+    "question6": "Составить список дел на следующую неделю",
+    "aiMistakePrompt": "AI может совершать ошибки. Проверяйте важную информацию.",
+    "chatWithFilePrompt": "Хотите пообщаться с файлом?",
+    "indexFileSuccess": "Файл успешно проиндексирован",
+    "inputActionNoPages": "Нет результатов по страницам",
+    "referenceSource": {
+      "zero": "Найдено 0 источников",
+      "one": "Найден {count} источник",
+      "other": "Найдено {count} источников"
+    },
+    "clickToMention": "Упомянуть страницу",
+    "uploadFile": "Прикрепить PDF, текстовые файлы или файлы markdown",
+    "questionDetail": "Привет, {}! Чем могу помочь сегодня?",
+    "indexingFile": "Индексация {}",
+    "generatingResponse": "Генерация ответа",
+    "selectSources": "Выбрать источники",
+    "currentPage": "Текущая страница",
+    "sourcesLimitReached": "Вы можете выбрать до 3 документов верхнего уровня и их дочерние элементы",
+    "sourceUnsupported": "Мы пока не поддерживаем общение с базами данных",
+    "regenerate": "Попробовать снова",
+    "addToPageButton": "Добавить сообщение на страницу",
+    "addToPageTitle": "Добавить сообщение в...",
+    "addToNewPage": "Создать новую страницу",
+    "addToNewPageName": "Сообщения, извлеченные из \"{}\"",
+    "addToNewPageSuccessToast": "Сообщение добавлено на",
+    "openPagePreviewFailedToast": "Не удалось открыть страницу",
+    "changeFormat": {
+      "actionButton": "Изменить формат",
+      "confirmButton": "Перегенерировать в этом формате",
+      "textOnly": "Только текст",
+      "imageOnly": "Только изображение",
+      "textAndImage": "Текст и изображение",
+      "text": "Параграф",
+      "bullet": "Маркированный список",
+      "number": "Нумерованный список",
+      "table": "Таблица",
+      "blankDescription": "Формат ответа",
+      "defaultDescription": "Автоматический формат ответа",
+      "textWithImageDescription": "@:chat.changeFormat.text с изображением",
+      "numberWithImageDescription": "@:chat.changeFormat.number с изображением",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet с изображением",
+      "tableWithImageDescription": "@:chat.changeFormat.table с изображением"
+    },
+    "switchModel": {
+      "label": "Сменить модель",
+      "localModel": "Локальная модель",
+      "cloudModel": "Облачная модель",
+      "autoModel": "Авто"
+    },
+    "selectBanner": {
+      "saveButton": "Добавить в…",
+      "selectMessages": "Выбрать сообщения",
+      "nSelected": "Выбрано {}",
+      "allSelected": "Все выбраны"
+    },
+    "stopTooltip": "Остановить генерацию"
+  },
+  "trash": {
+    "text": "Корзина",
+    "restoreAll": "Восстановить все",
+    "restore": "Восстановить",
+    "deleteAll": "Удалить все",
+    "pageHeader": {
+      "fileName": "Имя файла",
+      "lastModified": "Последнее изменение",
+      "created": "Создано"
+    },
+    "confirmDeleteAll": {
+      "title": "Все страницы в корзине",
+      "caption": "Вы уверены, что хотите удалить все в Корзине? Это действие нельзя отменить."
+    },
+    "confirmRestoreAll": {
+      "title": "Восстановить все страницы в корзине",
+      "caption": "Это действие нельзя отменить."
+    },
+    "restorePage": {
+      "title": "Восстановить: {}",
+      "caption": "Вы уверены, что хотите восстановить эту страницу?"
+    },
+    "mobile": {
+      "actions": "Действия с корзиной",
+      "empty": "Нет страниц или пространств в Корзине",
+      "emptyDescription": "Перемещайте ненужные вещи в Корзину.",
+      "isDeleted": "удалено",
+      "isRestored": "восстановлено"
+    },
+    "confirmDeleteTitle": "Вы уверены, что хотите удалить эту страницу навсегда?"
+  },
+  "deletePagePrompt": {
+    "text": "Эта страница в Корзине",
+    "restore": "Восстановить страницу",
+    "deletePermanent": "Удалить навсегда",
+    "deletePermanentDescription": "Вы уверены, что хотите удалить эту страницу навсегда? Это необратимо."
+  },
+  "dialogCreatePageNameHint": "Название страницы",
+  "questionBubble": {
+    "shortcuts": "Быстрые клавиши",
+    "whatsNew": "Что нового?",
+    "helpAndDocumentation": "Помощь и документация",
+    "getSupport": "Получить поддержку",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Отладочная информация",
+      "success": "Отладочная информация скопирована в буфер обмена!",
+      "fail": "Не удалось скопировать отладочную информацию в буфер обмена"
+    },
+    "feedback": "Обратная связь"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Удалить, переименовать и другое...",
+    "addPageTooltip": "Быстро добавить страницу внутри",
+    "defaultNewPageName": "Без названия",
+    "renameDialog": "Переименовать",
+    "pageNameSuffix": "Копия"
+  },
+  "noPagesInside": "Нет страниц внутри",
+  "toolbar": {
+    "undo": "Отменить",
+    "redo": "Повторить",
+    "bold": "Жирный",
+    "italic": "Курсив",
+    "underline": "Подчеркнутый",
+    "strike": "Зачеркнутый",
+    "numList": "Нумерованный список",
+    "bulletList": "Маркированный список",
+    "checkList": "Список задач",
+    "inlineCode": "Встроенный код",
+    "quote": "Блок цитаты",
+    "header": "Заголовок",
+    "highlight": "Выделить",
+    "color": "Цвет",
+    "addLink": "Добавить ссылку"
+  },
+  "tooltip": {
+    "lightMode": "Переключиться в светлый режим",
+    "darkMode": "Переключиться в темный режим",
+    "openAsPage": "Открыть как страницу",
+    "addNewRow": "Добавить новую строку",
+    "openMenu": "Нажмите, чтобы открыть меню",
+    "dragRow": "Перетащите, чтобы изменить порядок строк",
+    "viewDataBase": "Просмотр базы данных",
+    "referencePage": "На эту {name} есть ссылки",
+    "addBlockBelow": "Добавить блок ниже",
+    "aiGenerate": "Сгенерировать"
+  },
+  "sideBar": {
+    "closeSidebar": "Закрыть боковую панель",
+    "openSidebar": "Открыть боковую панель",
+    "expandSidebar": "Развернуть на всю страницу",
+    "personal": "Личное",
+    "private": "Приватное",
+    "workspace": "Рабочее пространство",
+    "favorites": "Избранное",
+    "clickToHidePrivate": "Нажмите, чтобы скрыть приватное пространство\nСтраницы, созданные здесь, видны только вам",
+    "clickToHideWorkspace": "Нажмите, чтобы скрыть рабочее пространство\nСтраницы, созданные здесь, видны всем участникам",
+    "clickToHidePersonal": "Нажмите, чтобы скрыть личное пространство",
+    "clickToHideFavorites": "Нажмите, чтобы скрыть избранное",
+    "addAPage": "Добавить новую страницу",
+    "addAPageToPrivate": "Добавить страницу в приватное пространство",
+    "addAPageToWorkspace": "Добавить страницу в рабочее пространство",
+    "recent": "Последние",
+    "today": "Сегодня",
+    "thisWeek": "На этой неделе",
+    "others": "Более раннее избранное",
+    "earlier": "Раньше",
+    "justNow": "только что",
+    "minutesAgo": "{count} мин назад",
+    "lastViewed": "Последний просмотр",
+    "favoriteAt": "Добавлено в избранное",
+    "emptyRecent": "Нет последних страниц",
+    "emptyRecentDescription": "При просмотре страниц они будут появляться здесь для быстрого доступа.",
+    "emptyFavorite": "Нет избранных страниц",
+    "emptyFavoriteDescription": "Отмечайте страницы как избранные — они будут перечислены здесь для быстрого доступа!",
+    "removePageFromRecent": "Удалить эту страницу из последних?",
+    "removeSuccess": "Успешно удалено",
+    "favoriteSpace": "Избранное",
+    "RecentSpace": "Последние",
+    "Spaces": "Пространства",
+    "upgradeToPro": "Обновиться до Pro",
+    "upgradeToAIMax": "Разблокировать неограниченный AI",
+    "storageLimitDialogTitle": "У вас закончилось свободное хранилище. Обновитесь, чтобы разблокировать неограниченное хранилище",
+    "storageLimitDialogTitleIOS": "У вас закончилось свободное хранилище.",
+    "aiResponseLimitTitle": "У вас закончились бесплатные ответы AI. Обновитесь до плана Pro или купите дополнение AI, чтобы разблокировать неограниченные ответы",
+    "aiResponseLimitDialogTitle": "Достигнут лимит ответов AI",
+    "aiResponseLimit": "У вас закончились бесплатные ответы AI.\n\nПерейдите в Настройки -> План -> Нажмите AI Max или план Pro, чтобы получить больше ответов AI",
+    "askOwnerToUpgradeToPro": "В вашем рабочем пространстве заканчивается свободное хранилище. Пожалуйста, попросите владельца рабочего пространства обновиться до плана Pro",
+    "askOwnerToUpgradeToProIOS": "В вашем рабочем пространстве заканчивается свободное хранилище.",
+    "askOwnerToUpgradeToAIMax": "В вашем рабочем пространстве закончились бесплатные ответы AI. Пожалуйста, попросите владельца рабочего пространства обновить план или приобрести дополнения AI",
+    "askOwnerToUpgradeToAIMaxIOS": "В вашем рабочем пространстве заканчиваются бесплатные ответы AI.",
+    "purchaseAIMax": "В вашем рабочем пространстве закончились ответы AI Image. Пожалуйста, попросите владельца рабочего пространства приобрести AI Max",
+    "aiImageResponseLimit": "У вас закончились ответы AI image.\n\nПерейдите в Настройки -> План -> Нажмите AI Max, чтобы получить больше ответов AI image",
+    "purchaseStorageSpace": "Купить место для хранения",
+    "singleFileProPlanLimitationDescription": "Вы превысили максимальный размер файла, разрешенный в бесплатном плане. Пожалуйста, обновитесь до плана Pro, чтобы загружать файлы большего размера",
+    "purchaseAIResponse": "Купить",
+    "askOwnerToUpgradeToLocalAI": "Попросите владельца рабочего пространства включить AI на устройстве",
+    "upgradeToAILocal": "Запускайте локальные модели на вашем устройстве для максимальной конфиденциальности",
+    "upgradeToAILocalDesc": "Общайтесь с PDF, улучшайте свое письмо и автоматически заполняйте таблицы с помощью локального AI"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Заметка экспортирована в Markdown",
+      "path": "Документы/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Контакты",
+    "whatsHappening": "Что происходит на этой неделе?",
+    "addContact": "Добавить контакт",
+    "editContact": "Редактировать контакт"
+  },
+  "button": {
+    "ok": "Ок",
+    "confirm": "Подтвердить",
+    "done": "Готово",
+    "cancel": "Отмена",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "complete": "Готово",
+    "save": "Сохранить",
+    "generate": "Сгенерировать",
+    "esc": "ESC",
+    "keep": "Сохранить",
+    "tryAgain": "Попробовать снова",
+    "discard": "Отменить",
+    "replace": "Заменить",
+    "insertBelow": "Вставить ниже",
+    "insertAbove": "Вставить выше",
+    "upload": "Загрузить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "copy": "Копировать",
+    "duplicate": "Дублировать",
+    "putback": "Вернуть",
+    "update": "Обновить",
+    "share": "Поделиться",
+    "removeFromFavorites": "Удалить из избранного",
+    "removeFromRecent": "Удалить из последних",
+    "addToFavorites": "Добавить в избранное",
+    "favoriteSuccessfully": "Успешно добавлено в избранное",
+    "unfavoriteSuccessfully": "Успешно удалено из избранного",
+    "duplicateSuccessfully": "Успешно дублировано",
+    "rename": "Переименовать",
+    "helpCenter": "Справочный центр",
+    "add": "Добавить",
+    "yes": "Да",
+    "no": "Нет",
+    "clear": "Очистить",
+    "remove": "Удалить",
+    "dontRemove": "Не удалять",
+    "copyLink": "Скопировать ссылку",
+    "align": "Выровнять",
+    "login": "Вход",
+    "logout": "Выход",
+    "deleteAccount": "Удалить аккаунт",
+    "back": "Назад",
+    "signInGoogle": "Продолжить с Google",
+    "signInGithub": "Продолжить с GitHub",
+    "signInDiscord": "Продолжить с Discord",
+    "more": "Еще",
+    "create": "Создать",
+    "close": "Закрыть",
+    "next": "Далее",
+    "previous": "Назад",
+    "submit": "Отправить",
+    "download": "Скачать",
+    "backToHome": "На главную",
+    "viewing": "Просмотр",
+    "editing": "Редактирование",
+    "gotIt": "Понял",
+    "retry": "Повторить",
+    "uploadFailed": "Загрузка не удалась.",
+    "copyLinkOriginal": "Скопировать ссылку на оригинал"
+  },
+  "label": {
+    "welcome": "Добро пожаловать!",
+    "firstName": "Имя",
+    "middleName": "Отчество",
+    "lastName": "Фамилия",
+    "stepX": "Шаг {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Не удалось подключиться к вашей учетной записи.",
+      "failedMsg": "Пожалуйста, убедитесь, что вы завершили процесс входа в браузере."
+    },
+    "google": {
+      "title": "ВХОД ЧЕРЕЗ GOOGLE",
+      "instruction1": "Для импорта контактов Google вам необходимо авторизовать это приложение через веб-браузер.",
+      "instruction2": "Скопируйте этот код в буфер обмена, нажав на значок или выделив текст:",
+      "instruction3": "Перейдите по следующей ссылке в браузере и введите указанный выше код:",
+      "instruction4": "Нажмите кнопку ниже, когда завершите регистрацию:"
+    }
+  },
+  "settings": {
+    "title": "Настройки",
+    "popupMenuItem": {
+      "settings": "Настройки",
+      "members": "Участники",
+      "trash": "Корзина",
+      "helpAndDocumentation": "Помощь и документация",
+      "getSupport": "Получить поддержку"
+    },
+    "sites": {
+      "title": "Сайты",
+      "namespaceTitle": "Пространство имен",
+      "namespaceDescription": "Управляйте своим пространством имен и домашней страницей",
+      "namespaceHeader": "Пространство имен",
+      "homepageHeader": "Домашняя страница",
+      "updateNamespace": "Обновить пространство имен",
+      "removeHomepage": "Удалить домашнюю страницу",
+      "selectHomePage": "Выбрать страницу",
+      "clearHomePage": "Очистить домашнюю страницу для этого пространства имен",
+      "customUrl": "Пользовательский URL",
+      "namespace": {
+        "description": "Это изменение будет применено ко всем опубликованным страницам в этом пространстве имен",
+        "tooltip": "Мы оставляем за собой право удалять любые неприемлемые пространства имен",
+        "updateExistingNamespace": "Обновить существующее пространство имен",
+        "upgradeToPro": "Обновитесь до плана Pro, чтобы установить домашнюю страницу",
+        "redirectToPayment": "Перенаправление на страницу оплаты...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Только владелец рабочего пространства может установить домашнюю страницу",
+        "pleaseAskOwnerToSetHomePage": "Пожалуйста, попросите владельца рабочего пространства обновиться до плана Pro"
+      },
+      "publishedPage": {
+        "title": "Все опубликованные страницы",
+        "description": "Управляйте своими опубликованными страницами",
+        "page": "Страница",
+        "pathName": "Имя пути",
+        "date": "Дата публикации",
+        "emptyHinText": "У вас нет опубликованных страниц в этом рабочем пространстве",
+        "noPublishedPages": "Нет опубликованных страниц",
+        "settings": "Настройки публикации",
+        "clickToOpenPageInApp": "Открыть страницу в приложении",
+        "clickToOpenPageInBrowser": "Открыть страницу в браузере"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Не удалось сгенерировать ссылку для оплаты плана Pro",
+        "failedToUpdateNamespace": "Не удалось обновить пространство имен",
+        "proPlanLimitation": "Для обновления пространства имен вам нужно обновиться до плана Pro",
+        "namespaceAlreadyInUse": "Пространство имен уже используется, пожалуйста, попробуйте другое",
+        "invalidNamespace": "Недействительное пространство имен, пожалуйста, попробуйте другое",
+        "namespaceLengthAtLeast2Characters": "Длина пространства имен должна быть не менее 2 символов",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Только владелец рабочего пространства может обновить пространство имен",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Только владелец рабочего пространства может удалить домашнюю страницу",
+        "setHomepageFailed": "Не удалось установить домашнюю страницу",
+        "namespaceTooLong": "Имя пространства слишком длинное, пожалуйста, попробуйте другое",
+        "namespaceTooShort": "Имя пространства слишком короткое, пожалуйста, попробуйте другое",
+        "namespaceIsReserved": "Пространство имен зарезервировано, пожалуйста, попробуйте другое",
+        "updatePathNameFailed": "Не удалось обновить имя пути",
+        "removeHomePageFailed": "Не удалось удалить домашнюю страницу",
+        "publishNameContainsInvalidCharacters": "Имя пути содержит недопустимые символы, пожалуйста, попробуйте другое",
+        "publishNameTooShort": "Имя пути слишком короткое, пожалуйста, попробуйте другое",
+        "publishNameTooLong": "Имя пути слишком длинное, пожалуйста, попробуйте другое",
+        "publishNameAlreadyInUse": "Имя пути уже используется, пожалуйста, попробуйте другое",
+        "namespaceContainsInvalidCharacters": "Пространство имен содержит недопустимые символы, пожалуйста, попробуйте другое",
+        "publishPermissionDenied": "Только владелец рабочего пространства или издатель страницы может управлять настройками публикации",
+        "publishNameCannotBeEmpty": "Имя пути не может быть пустым, пожалуйста, попробуйте другое"
+      },
+      "success": {
+        "namespaceUpdated": "Пространство имен успешно обновлено",
+        "setHomepageSuccess": "Домашняя страница успешно установлена",
+        "updatePathNameSuccess": "Имя пути успешно обновлено",
+        "removeHomePageSuccess": "Домашняя страница успешно удалена"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "Аккаунт и Приложение",
+      "title": "Мой аккаунт",
+      "general": {
+        "title": "Имя аккаунта и изображение профиля",
+        "changeProfilePicture": "Изменить фото профиля"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Изменить email"
+        }
+      },
+      "login": {
+        "title": "Вход в аккаунт",
+        "loginLabel": "Войти",
+        "logoutLabel": "Выйти"
+      },
+      "isUpToDate": "@:appName обновлен!",
+      "officialVersion": "Версия {version} (Официальная сборка)"
+    },
+    "workspacePage": {
+      "menuLabel": "Рабочее пространство",
+      "title": "Рабочее пространство",
+      "description": "Настройте внешний вид рабочего пространства, тему, шрифт, макет текста, формат даты/времени и язык.",
+      "workspaceName": {
+        "title": "Название рабочего пространства"
+      },
+      "workspaceIcon": {
+        "title": "Иконка рабочего пространства",
+        "description": "Загрузите изображение или используйте эмодзи для вашего рабочего пространства. Иконка будет отображаться в боковой панели и уведомлениях."
+      },
+      "appearance": {
+        "title": "Внешний вид",
+        "description": "Настройте внешний вид рабочего пространства, тему, шрифт, макет текста, дату, время и язык.",
+        "options": {
+          "system": "Авто",
+          "light": "Светлая",
+          "dark": "Темная"
+        }
+      },
+      "resetCursorColor": {
+        "title": "Сбросить цвет курсора документа",
+        "description": "Вы уверены, что хотите сбросить цвет курсора?"
+      },
+      "resetSelectionColor": {
+        "title": "Сбросить цвет выделения документа",
+        "description": "Вы уверены, что хотите сбросить цвет выделения?"
+      },
+      "resetWidth": {
+        "resetSuccess": "Ширина документа успешно сброшена"
+      },
+      "theme": {
+        "title": "Тема",
+        "description": "Выберите предустановленную тему или загрузите свою пользовательскую тему.",
+        "uploadCustomThemeTooltip": "Загрузить пользовательскую тему",
+        "failedToLoadThemes": "Не удалось загрузить темы, пожалуйста, проверьте настройки разрешений в Системные настройки > Конфиденциальность и безопасность > Файлы и папки > @:appName"
+      },
+      "workspaceFont": {
+        "title": "Шрифт рабочего пространства",
+        "noFontHint": "Шрифт не найден, попробуйте другой запрос."
+      },
+      "textDirection": {
+        "title": "Направление текста",
+        "leftToRight": "Слева направо",
+        "rightToLeft": "Справа налево",
+        "auto": "Авто",
+        "enableRTLItems": "Включить элементы панели инструментов RTL"
+      },
+      "layoutDirection": {
+        "title": "Направление макета",
+        "leftToRight": "Слева направо",
+        "rightToLeft": "Справа налево"
+      },
+      "dateTime": {
+        "title": "Дата и время",
+        "example": "{} в {} ({})",
+        "24HourTime": "24-часовой формат",
+        "dateFormat": {
+          "label": "Формат даты",
+          "local": "Локальный",
+          "us": "США",
+          "iso": "ISO",
+          "friendly": "Удобный",
+          "dmy": "Д/М/Г"
+        }
+      },
+      "language": {
+        "title": "Язык"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Удалить рабочее пространство",
+        "content": "Вы уверены, что хотите удалить это рабочее пространство? Это действие нельзя отменить, и все опубликованные вами страницы будут сняты с публикации."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Покинуть рабочее пространство",
+        "content": "Вы уверены, что хотите покинуть это рабочее пространство? Вы потеряете доступ ко всем страницам и данным в нем.",
+        "success": "Вы успешно покинули рабочее пространство.",
+        "fail": "Не удалось покинуть рабочее пространство."
+      },
+      "manageWorkspace": {
+        "title": "Управление рабочим пространством",
+        "leaveWorkspace": "Покинуть рабочее пространство",
+        "deleteWorkspace": "Удалить рабочее пространство"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Управление данными",
+      "title": "Управление данными",
+      "description": "Управление локальным хранилищем данных или импорт существующих данных в @:appName.",
+      "dataStorage": {
+        "title": "Местоположение хранилища файлов",
+        "tooltip": "Место, где хранятся ваши файлы",
+        "actions": {
+          "change": "Изменить путь",
+          "open": "Открыть папку",
+          "openTooltip": "Открыть текущее местоположение папки с данными",
+          "copy": "Скопировать путь",
+          "copiedHint": "Путь скопирован!",
+          "resetTooltip": "Сбросить до местоположения по умолчанию"
+        },
+        "resetDialog": {
+          "title": "Вы уверены?",
+          "description": "Сброс пути к местоположению данных по умолчанию не приведет к удалению ваших данных. Если вы хотите повторно импортировать текущие данные, сначала скопируйте путь к текущему местоположению."
+        }
+      },
+      "importData": {
+        "title": "Импорт данных",
+        "tooltip": "Импорт данных из резервных копий/папок данных @:appName",
+        "description": "Скопировать данные из внешней папки данных @:appName",
+        "action": "Обзор файлов"
+      },
+      "encryption": {
+        "title": "Шифрование",
+        "tooltip": "Управление способом хранения и шифрования ваших данных",
+        "descriptionNoEncryption": "Включение шифрования зашифрует все данные. Это нельзя отменить.",
+        "descriptionEncrypted": "Ваши данные зашифрованы.",
+        "action": "Зашифровать данные",
+        "dialog": {
+          "title": "Зашифровать все ваши данные?",
+          "description": "Шифрование всех ваших данных обеспечит их безопасность и защиту. Это действие НЕЛЬЗЯ отменить. Вы уверены, что хотите продолжить?"
+        }
+      },
+      "cache": {
+        "title": "Очистить кеш",
+        "description": "Помогает решить проблемы, такие как незагружающиеся изображения, отсутствующие страницы в пространстве и незагружающиеся шрифты. Это не повлияет на ваши данные.",
+        "dialog": {
+          "title": "Очистить кеш",
+          "description": "Помогает решить проблемы, такие как незагружающиеся изображения, отсутствующие страницы в пространстве и незагружающиеся шрифты. Это не повлияет на ваши данные.",
+          "successHint": "Кеш очищен!"
+        }
+      },
+      "data": {
+        "fixYourData": "Исправить ваши данные",
+        "fixButton": "Исправить",
+        "fixYourDataDescription": "Если у вас возникли проблемы с данными, вы можете попробовать исправить их здесь."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Быстрые клавиши",
+      "title": "Быстрые клавиши",
+      "editBindingHint": "Введите новую привязку",
+      "searchHint": "Поиск",
+      "actions": {
+        "resetDefault": "Сбросить до значений по умолчанию"
+      },
+      "errorPage": {
+        "message": "Не удалось загрузить быстрые клавиши: {}",
+        "howToFix": "Попробуйте снова, если проблема сохраняется, пожалуйста, свяжитесь с нами на GitHub."
+      },
+      "resetDialog": {
+        "title": "Сбросить быстрые клавиши",
+        "description": "Это сбросит все ваши привязки клавиш до значений по умолчанию, вы не сможете отменить это позже, вы уверены, что хотите продолжить?",
+        "buttonLabel": "Сбросить"
+      },
+      "conflictDialog": {
+        "title": "{} используется",
+        "descriptionPrefix": "Эта привязка клавиш в настоящее время используется ",
+        "descriptionSuffix": ". Если вы замените эту привязку, она будет удалена из {}.",
+        "confirmLabel": "Продолжить"
+      },
+      "editTooltip": "Нажмите, чтобы начать редактирование привязки клавиш",
+      "keybindings": {
+        "toggleToDoList": "Переключить список задач",
+        "insertNewParagraphInCodeblock": "Вставить новый абзац",
+        "pasteInCodeblock": "Вставить в блок кода",
+        "selectAllCodeblock": "Выбрать все",
+        "indentLineCodeblock": "Вставить два пробела в начале строки",
+        "outdentLineCodeblock": "Удалить два пробела в начале строки",
+        "twoSpacesCursorCodeblock": "Вставить два пробела у курсора",
+        "copy": "Копировать выделенное",
+        "paste": "Вставить содержимое",
+        "cut": "Вырезать выделенное",
+        "alignLeft": "Выровнять текст по левому краю",
+        "alignCenter": "Выровнять текст по центру",
+        "alignRight": "Выровнять текст по правому краю",
+        "insertInlineMathEquation": "Вставить встроенное математическое уравнение",
+        "undo": "Отменить",
+        "redo": "Повторить",
+        "convertToParagraph": "Преобразовать блок в абзац",
+        "backspace": "Удалить",
+        "deleteLeftWord": "Удалить слово слева",
+        "deleteLeftSentence": "Удалить предложение слева",
+        "delete": "Удалить символ справа",
+        "deleteMacOS": "Удалить символ слева",
+        "deleteRightWord": "Удалить слово справа",
+        "moveCursorLeft": "Переместить курсор влево",
+        "moveCursorBeginning": "Переместить курсор в начало",
+        "moveCursorLeftWord": "Переместить курсор на одно слово влево",
+        "moveCursorLeftSelect": "Выделить и переместить курсор влево",
+        "moveCursorBeginSelect": "Выделить и переместить курсор в начало",
+        "moveCursorLeftWordSelect": "Выделить и переместить курсор на одно слово влево",
+        "moveCursorRight": "Переместить курсор вправо",
+        "moveCursorEnd": "Переместить курсор в конец",
+        "moveCursorRightWord": "Переместить курсор на одно слово вправо",
+        "moveCursorRightSelect": "Выделить и переместить курсор вправо",
+        "moveCursorEndSelect": "Выделить и переместить курсор в конец",
+        "moveCursorRightWordSelect": "Выделить и переместить курсор на одно слово вправо",
+        "moveCursorUp": "Переместить курсор вверх",
+        "moveCursorTopSelect": "Выделить и переместить курсор вверх",
+        "moveCursorTop": "Переместить курсор вверх",
+        "moveCursorUpSelect": "Выделить и переместить курсор вверх",
+        "moveCursorBottomSelect": "Выделить и переместить курсор вниз",
+        "moveCursorBottom": "Переместить курсор вниз",
+        "moveCursorDown": "Переместить курсор вниз",
+        "moveCursorDownSelect": "Выделить и переместить курсор вниз",
+        "home": "Прокрутить вверх",
+        "end": "Прокрутить вниз",
+        "toggleBold": "Переключить жирный",
+        "toggleItalic": "Переключить курсив",
+        "toggleUnderline": "Переключить подчеркнутый",
+        "toggleStrikethrough": "Переключить зачеркнутый",
+        "toggleCode": "Переключить встроенный код",
+        "toggleHighlight": "Переключить выделение",
+        "showLinkMenu": "Показать меню ссылок",
+        "openInlineLink": "Открыть встроенную ссылку",
+        "openLinks": "Открыть все выделенные ссылки",
+        "indent": "Сделать отступ",
+        "outdent": "Убрать отступ",
+        "exit": "Выйти из редактирования",
+        "pageUp": "Прокрутить на одну страницу вверх",
+        "pageDown": "Прокрутить на одну страницу вниз",
+        "selectAll": "Выбрать все",
+        "pasteWithoutFormatting": "Вставить содержимое без форматирования",
+        "showEmojiPicker": "Показать выбор эмодзи",
+        "enterInTableCell": "Добавить перенос строки в ячейке таблицы",
+        "leftInTableCell": "Переместить влево на одну ячейку в таблице",
+        "rightInTableCell": "Переместить вправо на одну ячейку в таблице",
+        "upInTableCell": "Переместить вверх на одну ячейку в таблице",
+        "downInTableCell": "Переместить вниз на одну ячейку в таблице",
+        "tabInTableCell": "Перейти к следующей доступной ячейке в таблице",
+        "shiftTabInTableCell": "Перейти к предыдущей доступной ячейке в таблице",
+        "backSpaceInTableCell": "Остановиться в начале ячейки"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "Вставить новый абзац рядом с блоком кода",
+        "codeBlockIndentLines": "Вставить два пробела в начале строки в блоке кода",
+        "codeBlockOutdentLines": "Удалить два пробела в начале строки в блоке кода",
+        "codeBlockAddTwoSpaces": "Вставить два пробела в позиции курсора в блоке кода",
+        "codeBlockSelectAll": "Выбрать все содержимое блока кода",
+        "codeBlockPasteText": "Вставить текст в блок кода",
+        "textAlignLeft": "Выровнять текст по левому краю",
+        "textAlignCenter": "Выровнять текст по центру",
+        "textAlignRight": "Выровнять текст по правому краю"
+      },
+      "couldNotLoadErrorMsg": "Не удалось загрузить быстрые клавиши, попробуйте снова",
+      "couldNotSaveErrorMsg": "Не удалось сохранить быстрые клавиши, попробуйте снова"
+    },
+    "aiPage": {
+      "title": "Настройки AI",
+      "menuLabel": "Настройки AI",
+      "keys": {
+        "enableAISearchTitle": "Поиск AI",
+        "aiSettingsDescription": "Выберите предпочтительную модель для работы AppFlowy AI. Включает GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet и модели, доступные в Ollama",
+        "loginToEnableAIFeature": "Функции AI включены только после входа с AppFlowy Cloud. Если у вас нет учетной записи AppFlowy, перейдите в 'Мой аккаунт' для регистрации",
+        "llmModel": "Языковая модель",
+        "llmModelType": "Тип языковой модели",
+        "downloadLLMPrompt": "Загрузить {}",
+        "downloadAppFlowyOfflineAI": "Загрузка офлайн-пакета AI позволит AI работать на вашем устройстве. Вы хотите продолжить?",
+        "downloadLLMPromptDetail": "Загрузка локальной модели {} займет до {} места на диске. Вы хотите продолжить?",
+        "downloadBigFilePrompt": "Загрузка может занять около 10 минут",
+        "downloadAIModelButton": "Загрузить",
+        "downloadingModel": "Загрузка",
+        "localAILoaded": "Локальная модель AI успешно добавлена и готова к использованию",
+        "localAIStart": "Локальный AI запускается. Если работает медленно, попробуйте выключить и включить его",
+        "localAILoading": "Загружается локальная модель AI Chat...",
+        "localAIStopped": "Локальный AI остановлен",
+        "localAIRunning": "Локальный AI запущен",
+        "localAINotReadyRetryLater": "Локальный AI инициализируется, пожалуйста, попробуйте позже",
+        "localAIDisabled": "Вы используете локальный AI, но он отключен. Пожалуйста, перейдите в настройки, чтобы включить его или попробуйте другую модель",
+        "localAIInitializing": "Локальный AI загружается. Это может занять несколько секунд в зависимости от вашего устройства",
+        "localAINotReadyTextFieldPrompt": "Вы не можете редактировать, пока загружается локальный AI",
+        "localAIDisabledTextFieldPrompt": "Вы не можете редактировать, пока локальный AI отключен",
+        "failToLoadLocalAI": "Не удалось запустить локальный AI.",
+        "restartLocalAI": "Перезапустить",
+        "disableLocalAITitle": "Отключить локальный AI",
+        "disableLocalAIDescription": "Вы хотите отключить локальный AI?",
+        "localAIToggleTitle": "AppFlowy Локальный AI (LAI)",
+        "localAIToggleSubTitle": "Запускайте самые продвинутые локальные модели AI в AppFlowy для максимальной конфиденциальности и безопасности",
+        "offlineAIInstruction1": "Следуйте",
+        "offlineAIInstruction2": "инструкции",
+        "offlineAIInstruction3": "чтобы включить офлайн-AI.",
+        "offlineAIDownload1": "Если вы еще не скачали AppFlowy AI, пожалуйста, ",
+        "offlineAIDownload2": "скачайте",
+        "offlineAIDownload3": "его сначала",
+        "activeOfflineAI": "Активно",
+        "downloadOfflineAI": "Скачать",
+        "openModelDirectory": "Открыть папку",
+        "laiNotReady": "Приложение Local AI не установлено корректно.",
+        "ollamaNotReady": "Сервер Ollama не готов.",
+        "pleaseFollowThese": "Пожалуйста, следуйте этим",
+        "instructions": "инструкциям",
+        "installOllamaLai": "для настройки Ollama и AppFlowy Local AI.",
+        "modelsMissing": "Не удалось найти необходимые модели: ",
+        "downloadModel": "чтобы скачать их."
+      }
+    },
+    "planPage": {
+      "menuLabel": "План",
+      "title": "Тарифный план",
+      "planUsage": {
+        "title": "Сводка использования плана",
+        "storageLabel": "Хранилище",
+        "storageUsage": "{} из {} ГБ",
+        "unlimitedStorageLabel": "Неограниченное хранилище",
+        "collaboratorsLabel": "Участники",
+        "collaboratorsUsage": "{} из {}",
+        "aiResponseLabel": "Ответы AI",
+        "aiResponseUsage": "{} из {}",
+        "unlimitedAILabel": "Неограниченные ответы",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI на устройстве для Mac",
+        "memberProToggle": "Больше участников и неограниченный AI",
+        "aiMaxToggle": "Неограниченный AI и доступ к продвинутым моделям",
+        "aiOnDeviceToggle": "Локальный AI для максимальной конфиденциальности",
+        "aiCredit": {
+          "title": "Добавить кредиты AI @:appName",
+          "price": "{}",
+          "priceDescription": "за 1000 кредитов",
+          "purchase": "Купить AI",
+          "info": "Добавьте 1000 кредитов AI на каждое рабочее пространство и легко интегрируйте настраиваемый AI в свой рабочий процесс для получения более умных и быстрых результатов с помощью:",
+          "infoItemOne": "10 000 ответов на базу данных",
+          "infoItemTwo": "1 000 ответов на рабочее пространство"
+        },
+        "currentPlan": {
+          "bannerLabel": "Текущий план",
+          "freeTitle": "Бесплатно",
+          "proTitle": "Pro",
+          "teamTitle": "Команда",
+          "freeInfo": "Идеально подходит для индивидуального использования до 2 участников для организации всего",
+          "proInfo": "Идеально подходит для небольших и средних команд до 10 участников.",
+          "teamInfo": "Идеально подходит для всех продуктивных и хорошо организованных команд.",
+          "upgrade": "Изменить план",
+          "canceledInfo": "Ваш план отменен, вы будете переведены на бесплатный план {}."
+        },
+        "addons": {
+          "title": "Дополнения",
+          "addLabel": "Добавить",
+          "activeLabel": "Добавлено",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Неограниченные ответы AI на базе продвинутых моделей AI и 50 изображений AI в месяц",
+            "price": "{}",
+            "priceInfo": "За пользователя в месяц при ежегодной оплате"
+          },
+          "aiOnDevice": {
+            "title": "AI на устройстве для Mac",
+            "description": "Запускайте Mistral 7B, LLAMA 3 и другие локальные модели на вашем компьютере",
+            "price": "{}",
+            "priceInfo": "За пользователя в месяц при ежегодной оплате",
+            "recommend": "Рекомендуется M1 или новее"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Предложение Нового года!",
+          "title": "Развивайте свою команду!",
+          "info": "Обновитесь и сэкономьте 10% на планах Pro и Team! Повысьте продуктивность своего рабочего пространства с помощью новых мощных функций, включая AppFlowy AI.",
+          "viewPlans": "Посмотреть планы"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Оплата",
+      "title": "Оплата",
+      "plan": {
+        "title": "План",
+        "freeLabel": "Бесплатно",
+        "proLabel": "Pro",
+        "planButtonLabel": "Изменить план",
+        "billingPeriod": "Платежный период",
+        "periodButtonLabel": "Редактировать период"
+      },
+      "paymentDetails": {
+        "title": "Реквизиты платежа",
+        "methodLabel": "Способ оплаты",
+        "methodButtonLabel": "Редактировать способ"
+      },
+      "addons": {
+        "title": "Дополнения",
+        "addLabel": "Добавить",
+        "removeLabel": "Удалить",
+        "renewLabel": "Продлить",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Разблокируйте неограниченный AI и продвинутые модели",
+          "activeDescription": "Следующий счет оплачивается {}",
+          "canceledDescription": "AI Max будет доступен до {}"
+        },
+        "aiOnDevice": {
+          "label": "AI на устройстве для Mac",
+          "description": "Разблокируйте неограниченный AI на вашем устройстве",
+          "activeDescription": "Следующий счет оплачивается {}",
+          "canceledDescription": "AI на устройстве для Mac будет доступен до {}"
+        },
+        "removeDialog": {
+          "title": "Удалить {}",
+          "description": "Вы уверены, что хотите удалить {plan}? Вы сразу же потеряете доступ к функциям и преимуществам {plan}."
+        }
+      },
+      "currentPeriodBadge": "ТЕКУЩИЙ",
+      "changePeriod": "Изменить период",
+      "planPeriod": "{} период",
+      "monthlyInterval": "Ежемесячно",
+      "monthlyPriceInfo": "за место ежемесячно",
+      "annualInterval": "Ежегодно",
+      "annualPriceInfo": "за место ежегодно"
+    },
+    "comparePlanDialog": {
+      "title": "Сравнить и выбрать план",
+      "planFeatures": "План\nФункции",
+      "current": "Текущий",
+      "actions": {
+        "upgrade": "Обновить",
+        "downgrade": "Понизить",
+        "current": "Текущий"
+      },
+      "freePlan": {
+        "title": "Бесплатно",
+        "description": "Для индивидуального использования до 2 участников для организации всего",
+        "price": "{}",
+        "priceInfo": "Бесплатно навсегда"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "Для небольших команд для управления проектами и знаниями команды",
+        "price": "{}",
+        "priceInfo": "За пользователя в месяц\nпри ежегодной оплате\n\n{} при ежемесячной оплате"
+      },
+      "planLabels": {
+        "itemOne": "Рабочие пространства",
+        "itemTwo": "Участники",
+        "itemThree": "Хранилище",
+        "itemFour": "Совместная работа в реальном времени",
+        "itemFive": "Мобильное приложение",
+        "itemSix": "Ответы AI",
+        "itemSeven": "Изображения AI",
+        "itemFileUpload": "Загрузка файлов",
+        "customNamespace": "Пользовательское пространство имен",
+        "tooltipSix": "Пожизненно означает, что количество ответов никогда не сбрасывается",
+        "intelligentSearch": "Интеллектуальный поиск",
+        "tooltipSeven": "Позволяет настроить часть URL для вашего рабочего пространства",
+        "customNamespaceTooltip": "Пользовательский URL опубликованного сайта"
+      },
+      "freeLabels": {
+        "itemOne": "Оплата за рабочее пространство",
+        "itemTwo": "До 2",
+        "itemThree": "5 ГБ",
+        "itemFour": "да",
+        "itemFive": "да",
+        "itemSix": "10 пожизненно",
+        "itemSeven": "2 пожизненно",
+        "itemFileUpload": "До 7 МБ",
+        "intelligentSearch": "Интеллектуальный поиск"
+      },
+      "proLabels": {
+        "itemOne": "Оплата за рабочее пространство",
+        "itemTwo": "До 10",
+        "itemThree": "Неограниченно",
+        "itemFour": "да",
+        "itemFive": "да",
+        "itemSix": "Неограниченно",
+        "itemSeven": "10 изображений в месяц",
+        "itemFileUpload": "Неограниченно",
+        "intelligentSearch": "Интеллектуальный поиск"
+      },
+      "paymentSuccess": {
+        "title": "Вы теперь на плане {}!",
+        "description": "Ваш платеж успешно обработан, и ваш план обновлен до AppFlowy {}. Вы можете просмотреть детали вашего плана на странице Плана"
+      },
+      "downgradeDialog": {
+        "title": "Вы уверены, что хотите понизить план?",
+        "description": "Понижение плана приведет вас обратно к бесплатному плану. Участники могут потерять доступ к этому рабочему пространству, и вам может потребоваться освободить место, чтобы соответствовать лимитам хранилища бесплатного плана.",
+        "downgradeLabel": "Понизить план"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Жаль видеть, что вы уходите",
+      "description": "Нам жаль, что вы уходите. Мы будем рады услышать ваш отзыв, чтобы помочь нам улучшить @:appName. Пожалуйста, уделите минутку, чтобы ответить на несколько вопросов.",
+      "commonOther": "Другое",
+      "otherHint": "Напишите свой ответ здесь",
+      "questionOne": {
+        "question": "Что побудило вас отменить подписку на @:appName Pro?",
+        "answerOne": "Слишком высокая стоимость",
+        "answerTwo": "Функции не соответствовали ожиданиям",
+        "answerThree": "Нашел лучшую альтернативу",
+        "answerFour": "Использовал недостаточно для оправдания расходов",
+        "answerFive": "Проблема с сервисом или технические трудности"
+      },
+      "questionTwo": {
+        "question": "Насколько вероятно, что вы рассмотрите возможность повторной подписки на @:appName Pro в будущем?",
+        "answerOne": "Очень вероятно",
+        "answerTwo": "Несколько вероятно",
+        "answerThree": "Не уверен",
+        "answerFour": "Маловероятно",
+        "answerFive": "Очень маловероятно"
+      },
+      "questionThree": {
+        "question": "Какую функцию Pro вы ценили больше всего во время подписки?",
+        "answerOne": "Совместная работа нескольких пользователей",
+        "answerTwo": "Более долгая история версий",
+        "answerThree": "Неограниченные ответы AI",
+        "answerFour": "Доступ к локальным моделям AI"
+      },
+      "questionFour": {
+        "question": "Как бы вы описали свой общий опыт использования @:appName?",
+        "answerOne": "Отлично",
+        "answerTwo": "Хорошо",
+        "answerThree": "Средне",
+        "answerFour": "Ниже среднего",
+        "answerFive": "Недоволен"
+      }
+    },
+    "common": {
+      "uploadingFile": "Файл загружается. Пожалуйста, не закрывайте приложение",
+      "uploadNotionSuccess": "Ваш zip-файл Notion успешно загружен. Как только импорт завершится, вы получите письмо с подтверждением",
+      "reset": "Сбросить"
+    },
+    "menu": {
+      "appearance": "Внешний вид",
+      "language": "Язык",
+      "user": "Пользователь",
+      "files": "Файлы",
+      "notifications": "Уведомления",
+      "open": "Открыть настройки",
+      "logout": "Выйти",
+      "logoutPrompt": "Вы уверены, что хотите выйти?",
+      "selfEncryptionLogoutPrompt": "Вы уверены, что хотите выйти? Пожалуйста, убедитесь, что вы скопировали секрет шифрования",
+      "syncSetting": "Настройки синхронизации",
+      "cloudSettings": "Настройки облака",
+      "enableSync": "Включить синхронизацию",
+      "enableSyncLog": "Включить логирование синхронизации",
+      "enableSyncLogWarning": "Спасибо за помощь в диагностике проблем синхронизации. Это будет записывать ваши изменения документов в локальный файл. Пожалуйста, закройте и снова откройте приложение после включения",
+      "enableEncrypt": "Зашифровать данные",
+      "cloudURL": "Базовый URL",
+      "webURL": "Веб URL",
+      "invalidCloudURLScheme": "Недействительная схема",
+      "cloudServerType": "Тип облачного сервера",
+      "cloudServerTypeTip": "Обратите внимание, что после смены облачного сервера может потребоваться выход из текущей учетной записи",
+      "cloudLocal": "Локальный",
+      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "URL облака не может быть пустым",
+      "clickToCopy": "Скопировать в буфер обмена",
+      "selfHostStart": "Если у вас нет сервера, пожалуйста, обратитесь к",
+      "selfHostContent": "документации",
+      "selfHostEnd": "для руководства по самостоятельному размещению своего сервера",
+      "pleaseInputValidURL": "Пожалуйста, введите действительный URL",
+      "changeUrl": "Изменить URL самостоятельного хостинга на {}",
+      "cloudURLHint": "Введите базовый URL вашего сервера",
+      "webURLHint": "Введите базовый URL вашего веб-сервера",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Введите адрес websocket вашего сервера",
+      "restartApp": "Перезапустить",
+      "restartAppTip": "Перезапустите приложение, чтобы изменения вступили в силу. Обратите внимание, что это может привести к выходу из текущей учетной записи.",
+      "changeServerTip": "После смены сервера необходимо нажать кнопку перезапуска, чтобы изменения вступили в силу",
+      "enableEncryptPrompt": "Активируйте шифрование для защиты ваших данных с помощью этого секрета. Храните его в надежном месте; после включения его нельзя отключить. В случае потери ваши данные станут недоступными. Нажмите, чтобы скопировать",
+      "inputEncryptPrompt": "Пожалуйста, введите секрет шифрования для",
+      "clickToCopySecret": "Нажмите, чтобы скопировать секрет",
+      "configServerSetting": "Настройте параметры вашего сервера",
+      "configServerGuide": "После выбора «Быстрый старт», перейдите в «Настройки», затем «Настройки облака», чтобы настроить свой самостоятельно размещенный сервер.",
+      "inputTextFieldHint": "Ваш секрет",
+      "historicalUserList": "История входов пользователей",
+      "historicalUserListTooltip": "Этот список отображает ваши анонимные учетные записи. Вы можете нажать на учетную запись, чтобы просмотреть ее детали. Анонимные учетные записи создаются при нажатии кнопки «Начать»",
+      "openHistoricalUser": "Нажмите, чтобы открыть анонимную учетную запись",
+      "customPathPrompt": "Хранение папки данных @:appName в облачной синхронизируемой папке, такой как Google Drive, может представлять риски. Если доступ к базе данных в этой папке или ее изменение осуществляется из нескольких мест одновременно, это может привести к конфликтам синхронизации и потенциальному повреждению данных.",
+      "importAppFlowyData": "Импорт данных из внешней папки @:appName",
+      "importingAppFlowyDataTip": "Идет импорт данных. Пожалуйста, не закрывайте приложение",
+      "importAppFlowyDataDescription": "Копирование данных из внешней папки данных @:appName и импорт их в текущую папку данных AppFlowy",
+      "importSuccess": "Папка данных @:appName успешно импортирована",
+      "importFailed": "Не удалось импортировать папку данных @:appName",
+      "importGuide": "Для получения более подробной информации, пожалуйста, ознакомьтесь с указанным документом"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Включить уведомления",
+        "hint": "Отключите, чтобы остановить появление локальных уведомлений."
+      },
+      "showNotificationsIcon": {
+        "label": "Показать значок уведомлений",
+        "hint": "Отключите, чтобы скрыть значок уведомлений на боковой панели."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Все уведомления успешно заархивированы",
+        "success": "Уведомление успешно заархивировано"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Все отмечены как прочитанные успешно",
+        "success": "Отмечено как прочитанное успешно"
+      },
+      "action": {
+        "markAsRead": "Отметить как прочитанное",
+        "multipleChoice": "Выбрать больше",
+        "archive": "Архивировать"
+      },
+      "settings": {
+        "settings": "Настройки",
+        "markAllAsRead": "Отметить все как прочитанное",
+        "archiveAll": "Архивировать все"
+      },
+      "emptyInbox": {
+        "title": "Ящик пуст!",
+        "description": "Установите напоминания, чтобы получать уведомления здесь."
+      },
+      "emptyUnread": {
+        "title": "Нет непрочитанных уведомлений",
+        "description": "Вы все прочитали!"
+      },
+      "emptyArchived": {
+        "title": "Нет заархивированных",
+        "description": "Заархивированные уведомления появятся здесь."
+      },
+      "tabs": {
+        "inbox": "Входящие",
+        "unread": "Непрочитанные",
+        "archived": "Архивированные"
+      },
+      "refreshSuccess": "Уведомления успешно обновлены",
+      "titles": {
+        "notifications": "Уведомления",
+        "reminder": "Напоминание"
+      }
+    },
+    "appearance": {
+      "resetSetting": "Сбросить",
+      "fontFamily": {
+        "label": "Семейство шрифтов",
+        "search": "Поиск",
+        "defaultFont": "Системный"
+      },
+      "themeMode": {
+        "label": "Режим темы",
+        "light": "Светлый режим",
+        "dark": "Темный режим",
+        "system": "Адаптироваться к системе"
+      },
+      "fontScaleFactor": "Коэффициент масштабирования шрифта",
+      "displaySize": "Размер отображения",
+      "documentSettings": {
+        "cursorColor": "Цвет курсора документа",
+        "selectionColor": "Цвет выделения документа",
+        "width": "Ширина документа",
+        "changeWidth": "Изменить",
+        "pickColor": "Выберите цвет",
+        "colorShade": "Оттенок цвета",
+        "opacity": "Непрозрачность",
+        "hexEmptyError": "Значение Hex не может быть пустым",
+        "hexLengthError": "Значение Hex должно состоять из 6 цифр",
+        "hexInvalidError": "Недопустимое значение Hex",
+        "opacityEmptyError": "Непрозрачность не может быть пустой",
+        "opacityRangeError": "Непрозрачность должна быть от 1 до 100",
+        "app": "Приложение",
+        "flowy": "Flowy",
+        "apply": "Применить"
+      },
+      "layoutDirection": {
+        "label": "Направление макета",
+        "hint": "Управляйте потоком контента на экране, слева направо или справа налево.",
+        "ltr": "Слева направо",
+        "rtl": "Справа налево"
+      },
+      "textDirection": {
+        "label": "Направление текста по умолчанию",
+        "hint": "Укажите, должно ли текст начинаться слева или справа по умолчанию.",
+        "ltr": "Слева направо",
+        "rtl": "Справа налево",
+        "auto": "АВТО",
+        "fallback": "Как направление макета"
+      },
+      "themeUpload": {
+        "button": "Загрузить",
+        "uploadTheme": "Загрузить тему",
+        "description": "Загрузите свою собственную тему @:appName, используя кнопку ниже.",
+        "loading": "Пожалуйста, подождите, пока мы проверим и загрузим вашу тему...",
+        "uploadSuccess": "Ваша тема успешно загружена",
+        "deletionFailure": "Не удалось удалить тему. Попробуйте удалить ее вручную.",
+        "filePickerDialogTitle": "Выберите файл .flowy_plugin",
+        "urlUploadFailure": "Не удалось открыть url: {}"
+      },
+      "theme": "Тема",
+      "builtInsLabel": "Встроенные темы",
+      "pluginsLabel": "Плагины",
+      "dateFormat": {
+        "label": "Формат даты",
+        "local": "Локальный",
+        "us": "США",
+        "iso": "ISO",
+        "friendly": "Удобный",
+        "dmy": "Д/М/Г"
+      },
+      "timeFormat": {
+        "label": "Формат времени",
+        "twelveHour": "12-часовой",
+        "twentyFourHour": "24-часовой"
+      },
+      "showNamingDialogWhenCreatingPage": "Показывать диалог именования при создании страницы",
+      "enableRTLToolbarItems": "Включить элементы панели инструментов RTL",
+      "members": {
+        "title": "Участники",
+        "inviteMembers": "Пригласить участников",
+        "inviteHint": "Пригласить по email",
+        "sendInvite": "Пригласить",
+        "copyInviteLink": "Скопировать ссылку для приглашения",
+        "label": "Участники",
+        "user": "Пользователь",
+        "role": "Роль",
+        "removeFromWorkspace": "Удалить из рабочего пространства",
+        "removeFromWorkspaceSuccess": "Успешно удалено из рабочего пространства",
+        "removeFromWorkspaceFailed": "Не удалось удалить из рабочего пространства",
+        "owner": "Владелец",
+        "guest": "Гость",
+        "member": "Участник",
+        "memberHintText": "Участник может читать и редактировать страницы",
+        "guestHintText": "Гость может читать, реагировать, комментировать и редактировать определенные страницы с разрешением.",
+        "emailInvalidError": "Недействительный email, пожалуйста, проверьте и попробуйте снова",
+        "emailSent": "Email отправлен, пожалуйста, проверьте входящие",
+        "members": "участников",
+        "membersCount": {
+          "zero": "{} участников",
+          "one": "{} участник",
+          "other": "{} участников"
+        },
+        "inviteFailedDialogTitle": "Не удалось отправить приглашение",
+        "inviteFailedMemberLimit": "Достигнут лимит участников, пожалуйста, обновитесь, чтобы пригласить больше.",
+        "inviteFailedMemberLimitMobile": "Ваше рабочее пространство достигло лимита участников.",
+        "memberLimitExceeded": "Достигнут лимит участников, чтобы пригласить больше, пожалуйста,",
+        "memberLimitExceededUpgrade": "обновитесь",
+        "memberLimitExceededPro": "Достигнут лимит участников, если вам нужно больше участников, свяжитесь с",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "failedToAddMember": "Не удалось добавить участника",
+        "addMemberSuccess": "Участник успешно добавлен",
+        "removeMember": "Удалить участника",
+        "areYouSureToRemoveMember": "Вы уверены, что хотите удалить этого участника?",
+        "inviteMemberSuccess": "Приглашение успешно отправлено",
+        "failedToInviteMember": "Не удалось пригласить участника",
+        "workspaceMembersError": "Ой, что-то пошло не так",
+        "workspaceMembersErrorDescription": "Не удалось загрузить список участников сейчас. Пожалуйста, попробуйте позже",
+        "inviteLinkToAddMember": "Ссылка для приглашения участника",
+        "clickToCopyLink": "Нажмите, чтобы скопировать ссылку",
+        "or": "или",
+        "generateANewLink": "сгенерировать новую ссылку",
+        "inviteMemberByEmail": "Пригласить участника по email",
+        "inviteMemberHintText": "Пригласить по email",
+        "resetInviteLink": "Сбросить ссылку для приглашения?",
+        "resetInviteLinkDescription": "Сброс деактивирует текущую ссылку для всех участников пространства и сгенерирует новую. Старая ссылка больше не будет доступна.",
+        "adminPanel": "Панель администратора",
+        "reset": "Сбросить",
+        "resetInviteLinkSuccess": "Ссылка для приглашения успешно сброшена",
+        "resetInviteLinkFailed": "Не удалось сбросить ссылку для приглашения",
+        "resetInviteLinkFailedDescription": "Пожалуйста, попробуйте позже",
+        "memberPageDescription1": "Доступ к",
+        "memberPageDescription2": "для управления гостями и продвинутыми пользователями.",
+        "noInviteLink": "Вы еще не сгенерировали ссылку для приглашения.",
+        "copyLink": "Скопировать ссылку"
+      }
+    },
+    "files": {
+      "copy": "Копировать",
+      "defaultLocation": "Местоположение хранилища файлов и данных",
+      "exportData": "Экспортировать ваши данные",
+      "doubleTapToCopy": "Дважды коснитесь, чтобы скопировать путь",
+      "restoreLocation": "Восстановить путь по умолчанию @:appName",
+      "customizeLocation": "Открыть другую папку",
+      "restartApp": "Пожалуйста, перезапустите приложение, чтобы изменения вступили в силу.",
+      "exportDatabase": "Экспортировать базу данных",
+      "selectFiles": "Выберите файлы для экспорта",
+      "selectAll": "Выбрать все",
+      "deselectAll": "Отменить выбор всех",
+      "createNewFolder": "Создать новую папку",
+      "createNewFolderDesc": "Укажите, где вы хотите хранить свои данные",
+      "defineWhereYourDataIsStored": "Определите, где хранятся ваши данные",
+      "open": "Открыть",
+      "openFolder": "Открыть существующую папку",
+      "openFolderDesc": "Читать и записывать в существующую папку @:appName",
+      "folderHintText": "название папки",
+      "location": "Создание новой папки",
+      "locationDesc": "Выберите имя для папки данных @:appName",
+      "browser": "Обзор",
+      "create": "Создать",
+      "set": "Установить",
+      "folderPath": "Путь для хранения вашей папки",
+      "locationCannotBeEmpty": "Путь не может быть пустым",
+      "pathCopiedSnackbar": "Путь к хранилищу файлов скопирован в буфер обмена!",
+      "changeLocationTooltips": "Изменить каталог данных",
+      "change": "Изменить",
+      "openLocationTooltips": "Открыть другой каталог данных",
+      "openCurrentDataFolder": "Открыть текущий каталог данных",
+      "recoverLocationTooltips": "Сбросить до каталога данных по умолчанию @:appName",
+      "exportFileSuccess": "Файл успешно экспортирован!",
+      "exportFileFail": "Экспорт файла не удался!",
+      "export": "Экспорт",
+      "clearCache": "Очистить кеш",
+      "clearCacheDesc": "Если вы столкнулись с проблемами загрузки изображений или отображения шрифтов, попробуйте очистить кеш. Это действие не приведет к удалению ваших пользовательских данных.",
+      "areYouSureToClearCache": "Вы уверены, что хотите очистить кеш?",
+      "clearCacheSuccess": "Кеш успешно очищен!"
+    },
+    "user": {
+      "name": "Имя",
+      "email": "Email",
+      "tooltipSelectIcon": "Выбрать иконку",
+      "selectAnIcon": "Выберите иконку",
+      "pleaseInputYourOpenAIKey": "пожалуйста, введите ваш ключ AI",
+      "clickToLogout": "Нажмите, чтобы выйти из текущей учетной записи"
+    },
+    "mobile": {
+      "personalInfo": "Личная информация",
+      "username": "Имя пользователя",
+      "usernameEmptyError": "Имя пользователя не может быть пустым",
+      "about": "О программе",
+      "pushNotifications": "Push-уведомления",
+      "support": "Поддержка",
+      "joinDiscord": "Присоединяйтесь к нам в Discord",
+      "privacyPolicy": "Политика конфиденциальности",
+      "userAgreement": "Пользовательское соглашение",
+      "termsAndConditions": "Правила и условия",
+      "userprofileError": "Не удалось загрузить профиль пользователя",
+      "userprofileErrorDescription": "Пожалуйста, попробуйте выйти и снова войти, чтобы проверить, сохраняется ли проблема.",
+      "selectLayout": "Выбрать макет",
+      "selectStartingDay": "Выбрать день начала",
+      "version": "Версия"
+    }
+  },
+  "grid": {
+    "deleteView": "Вы уверены, что хотите удалить этот вид?",
+    "createView": "Новый",
+    "title": {
+      "placeholder": "Без названия"
+    },
+    "settings": {
+      "filter": "Фильтр",
+      "sort": "Сортировка",
+      "sortBy": "Сортировать по",
+      "properties": "Свойства",
+      "reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств",
+      "group": "Группировать",
+      "addFilter": "Добавить фильтр",
+      "deleteFilter": "Удалить фильтр",
+      "filterBy": "Фильтровать по",
+      "typeAValue": "Введите значение...",
+      "layout": "Макет",
+      "compactMode": "Компактный режим",
+      "databaseLayout": "Макет",
+      "viewList": {
+        "zero": "0 видов",
+        "one": "{count} вид",
+        "other": "{count} видов"
+      },
+      "editView": "Редактировать вид",
+      "boardSettings": "Настройки доски",
+      "calendarSettings": "Настройки календаря",
+      "createView": "Новый вид",
+      "duplicateView": "Дублировать вид",
+      "deleteView": "Удалить вид",
+      "numberOfVisibleFields": "{} показано"
+    },
+    "filter": {
+      "empty": "Нет активных фильтров",
+      "addFilter": "Добавить фильтр",
+      "cannotFindCreatableField": "Не удалось найти подходящее поле для фильтрации",
+      "conditon": "Условие",
+      "where": "Где"
+    },
+    "textFilter": {
+      "contains": "Содержит",
+      "doesNotContain": "Не содержит",
+      "endsWith": "Заканчивается на",
+      "startWith": "Начинается с",
+      "is": "Есть",
+      "isNot": "Нет",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто",
+      "choicechipPrefix": {
+        "isNot": "Не",
+        "startWith": "Начинается с",
+        "endWith": "Заканчивается на",
+        "isEmpty": "пусто",
+        "isNotEmpty": "не пусто"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Отмечено",
+      "isUnchecked": "Не отмечено",
+      "choicechipPrefix": {
+        "is": "есть"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "Завершено",
+      "isIncomplted": "Не завершено"
+    },
+    "selectOptionFilter": {
+      "is": "Есть",
+      "isNot": "Нет",
+      "contains": "Содержит",
+      "doesNotContain": "Не содержит",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто"
+    },
+    "dateFilter": {
+      "is": "Приходится на",
+      "before": "До",
+      "after": "После",
+      "onOrBefore": "Приходится на или до",
+      "onOrAfter": "Приходится на или после",
+      "between": "Между",
+      "empty": "Пусто",
+      "notEmpty": "Не пусто",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "choicechipPrefix": {
+        "before": "До",
+        "after": "После",
+        "between": "Между",
+        "onOrBefore": "На или до",
+        "onOrAfter": "На или после",
+        "isEmpty": "Пусто",
+        "isNotEmpty": "Не пусто"
+      }
+    },
+    "numberFilter": {
+      "equal": "Равно",
+      "notEqual": "Не равно",
+      "lessThan": "Меньше чем",
+      "greaterThan": "Больше чем",
+      "lessThanOrEqualTo": "Меньше или равно",
+      "greaterThanOrEqualTo": "Больше или равно",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто"
+    },
+    "field": {
+      "label": "Свойство",
+      "hide": "Скрыть свойство",
+      "show": "Показать свойство",
+      "insertLeft": "Вставить слева",
+      "insertRight": "Вставить справа",
+      "duplicate": "Дублировать",
+      "delete": "Удалить",
+      "wrapCellContent": "Переносить текст",
+      "clear": "Очистить ячейки",
+      "switchPrimaryFieldTooltip": "Невозможно изменить тип первичного поля",
+      "textFieldName": "Текст",
+      "checkboxFieldName": "Чекбокс",
+      "dateFieldName": "Дата",
+      "updatedAtFieldName": "Последнее изменение",
+      "createdAtFieldName": "Дата создания",
+      "numberFieldName": "Числа",
+      "singleSelectFieldName": "Выбор",
+      "multiSelectFieldName": "Множественный выбор",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Список задач",
+      "relationFieldName": "Связь",
+      "summaryFieldName": "AI Сводка",
+      "timeFieldName": "Время",
+      "mediaFieldName": "Файлы и медиа",
+      "translateFieldName": "AI Перевод",
+      "translateTo": "Перевести на",
+      "numberFormat": "Формат чисел",
+      "dateFormat": "Формат даты",
+      "includeTime": "Включать время",
+      "isRange": "Дата окончания",
+      "dateFormatFriendly": "Месяц День, Год",
+      "dateFormatISO": "Год-Месяц-День",
+      "dateFormatLocal": "Месяц/День/Год",
+      "dateFormatUS": "Год/Месяц/День",
+      "dateFormatDayMonthYear": "День/Месяц/Год",
+      "timeFormat": "Формат времени",
+      "invalidTimeFormat": "Неверный формат",
+      "timeFormatTwelveHour": "12 часов",
+      "timeFormatTwentyFourHour": "24 часа",
+      "clearDate": "Очистить дату",
+      "dateTime": "Дата время",
+      "startDateTime": "Дата и время начала",
+      "endDateTime": "Дата и время окончания",
+      "failedToLoadDate": "Не удалось загрузить значение даты",
+      "selectTime": "Выберите время",
+      "selectDate": "Выберите дату",
+      "visibility": "Видимость",
+      "propertyType": "Тип свойства",
+      "addSelectOption": "Добавить вариант",
+      "typeANewOption": "Введите новый вариант",
+      "optionTitle": "Варианты",
+      "addOption": "Добавить вариант",
+      "editProperty": "Редактировать свойство",
+      "newProperty": "Новое свойство",
+      "openRowDocument": "Открыть как страницу",
+      "deleteFieldPromptMessage": "Вы уверены? Это свойство и все его данные будут удалены",
+      "clearFieldPromptMessage": "Вы уверены? Все ячейки в этом столбце будут очищены",
+      "newColumn": "Новый столбец",
+      "format": "Формат",
+      "reminderOnDateTooltip": "Эта ячейка имеет запланированное напоминание",
+      "optionAlreadyExist": "Вариант уже существует"
+    },
+    "rowPage": {
+      "newField": "Добавить новое поле",
+      "fieldDragElementTooltip": "Нажмите, чтобы открыть меню",
+      "showHiddenFields": {
+        "one": "Показать {count} скрытое поле",
+        "many": "Показать {count} скрытых полей",
+        "other": "Показать {count} скрытых полей"
+      },
+      "hideHiddenFields": {
+        "one": "Скрыть {count} скрытое поле",
+        "many": "Скрыть {count} скрытых полей",
+        "other": "Скрыть {count} скрытых полей"
+      },
+      "openAsFullPage": "Открыть как полную страницу",
+      "moreRowActions": "Больше действий со строкой"
+    },
+    "sort": {
+      "ascending": "По возрастанию",
+      "descending": "По убыванию",
+      "by": "По",
+      "empty": "Нет активных сортировок",
+      "cannotFindCreatableField": "Не удалось найти подходящее поле для сортировки",
+      "deleteAllSorts": "Удалить все сортировки",
+      "addSort": "Добавить сортировку",
+      "sortsActive": "Невозможно {intention} при сортировке",
+      "removeSorting": "Вы хотите удалить все сортировки в этом виде и продолжить?",
+      "fieldInUse": "Вы уже сортируете по этому полю"
+    },
+    "row": {
+      "label": "Строка",
+      "duplicate": "Дублировать",
+      "delete": "Удалить",
+      "titlePlaceholder": "Без названия",
+      "textPlaceholder": "Пусто",
+      "copyProperty": "Свойство скопировано в буфер обмена",
+      "count": "Количество",
+      "newRow": "Новая строка",
+      "loadMore": "Загрузить еще",
+      "action": "Действие",
+      "add": "Нажмите, чтобы добавить ниже",
+      "drag": "Перетащите, чтобы переместить",
+      "deleteRowPrompt": "Вы уверены, что хотите удалить эту строку? Это действие нельзя отменить.",
+      "deleteCardPrompt": "Вы уверены, что хотите удалить эту карточку? Это действие нельзя отменить.",
+      "dragAndClick": "Перетащите, чтобы переместить, нажмите, чтобы открыть меню",
+      "insertRecordAbove": "Вставить запись выше",
+      "insertRecordBelow": "Вставить запись ниже",
+      "noContent": "Нет содержимого",
+      "reorderRowDescription": "изменить порядок строки",
+      "createRowAboveDescription": "создать строку выше",
+      "createRowBelowDescription": "вставить строку ниже"
+    },
+    "selectOption": {
+      "create": "Создать",
+      "purpleColor": "Фиолетовый",
+      "pinkColor": "Розовый",
+      "lightPinkColor": "Светло-розовый",
+      "orangeColor": "Оранжевый",
+      "yellowColor": "Желтый",
+      "limeColor": "Лайм",
+      "greenColor": "Зеленый",
+      "aquaColor": "Аква",
+      "blueColor": "Синий",
+      "deleteTag": "Удалить тег",
+      "colorPanelTitle": "Цвет",
+      "panelTitle": "Выберите вариант или создайте новый",
+      "searchOption": "Поиск варианта",
+      "searchOrCreateOption": "Поиск варианта или создание нового",
+      "createNew": "Создать новый",
+      "orSelectOne": "Или выберите вариант",
+      "typeANewOption": "Введите новый вариант",
+      "tagName": "Название тега"
+    },
+    "checklist": {
+      "taskHint": "Описание задачи",
+      "addNew": "Добавить новую задачу",
+      "submitNewTask": "Создать",
+      "hideComplete": "Скрыть выполненные задачи",
+      "showComplete": "Показать все задачи"
+    },
+    "url": {
+      "launch": "Открыть ссылку в браузере",
+      "copy": "Скопировать ссылку в буфер обмена",
+      "textFieldHint": "Введите URL"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Связанная база данных",
+      "relatedDatabasePlaceholder": "Нет",
+      "inRelatedDatabase": "В",
+      "rowSearchTextFieldPlaceholder": "Поиск",
+      "noDatabaseSelected": "База данных не выбрана, пожалуйста, выберите ее из списка ниже:",
+      "emptySearchResult": "Результаты не найдены",
+      "linkedRowListLabel": "{count} связанных строк",
+      "unlinkedRowListLabel": "Связать другую строку"
+    },
+    "menuName": "Таблица",
+    "referencedGridPrefix": "Вид",
+    "calculate": "Вычислить",
+    "calculationTypeLabel": {
+      "none": "Нет",
+      "average": "Среднее",
+      "max": "Макс.",
+      "median": "Медиана",
+      "min": "Мин.",
+      "sum": "Сумма",
+      "count": "Количество",
+      "countEmpty": "Количество пустых",
+      "countEmptyShort": "ПУСТО",
+      "countNonEmpty": "Количество не пустых",
+      "countNonEmptyShort": "ЗАПОЛНЕНО"
+    },
+    "media": {
+      "rename": "Переименовать",
+      "download": "Скачать",
+      "expand": "Развернуть",
+      "delete": "Удалить",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Добавить файл или ссылку",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Добавить файл",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Вы уверены, что хотите удалить этот файл? Это действие необратимо.",
+      "showFileNames": "Показать имена файлов",
+      "downloadSuccess": "Файл скачан",
+      "downloadFailedToken": "Не удалось скачать файл, токен пользователя недоступен",
+      "setAsCover": "Установить как обложку",
+      "openInBrowser": "Открыть в браузере",
+      "embedLink": "Встроить ссылку на файл"
+    }
+  },
+  "document": {
+    "menuName": "Документ",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "creating": "Создается...",
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Выберите доску для ссылки",
+        "createANewBoard": "Создать новую доску"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Выберите таблицу для ссылки",
+        "createANewGrid": "Создать новую таблицу"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Выберите календарь для ссылки",
+        "createANewCalendar": "Создать новый календарь"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Выберите документ для ссылки"
+      },
+      "name": {
+        "textStyle": "Стиль текста",
+        "list": "Список",
+        "toggle": "Переключатель",
+        "fileAndMedia": "Файл и медиа",
+        "simpleTable": "Простая таблица",
+        "visuals": "Визуальные элементы",
+        "document": "Документ",
+        "advanced": "Дополнительно",
+        "text": "Текст",
+        "heading1": "Заголовок 1",
+        "heading2": "Заголовок 2",
+        "heading3": "Заголовок 3",
+        "image": "Изображение",
+        "bulletedList": "Маркированный список",
+        "numberedList": "Нумерованный список",
+        "todoList": "Список дел",
+        "doc": "Документ",
+        "linkedDoc": "Ссылка на страницу",
+        "grid": "Таблица",
+        "linkedGrid": "Связанная таблица",
+        "kanban": "Канбан",
+        "linkedKanban": "Связанный Канбан",
+        "calendar": "Календарь",
+        "linkedCalendar": "Связанный календарь",
+        "quote": "Цитата",
+        "divider": "Разделитель",
+        "table": "Таблица",
+        "callout": "Врезка",
+        "outline": "Структура",
+        "mathEquation": "Математическое уравнение",
+        "code": "Код",
+        "toggleList": "Список-переключатель",
+        "toggleHeading1": "Переключатель заголовка 1",
+        "toggleHeading2": "Переключатель заголовка 2",
+        "toggleHeading3": "Переключатель заголовка 3",
+        "emoji": "Эмодзи",
+        "aiWriter": "Спросить AI что угодно",
+        "dateOrReminder": "Дата или напоминание",
+        "photoGallery": "Фотогалерея",
+        "file": "Файл",
+        "twoColumns": "2 столбца",
+        "threeColumns": "3 столбца",
+        "fourColumns": "4 столбца"
+      },
+      "subPage": {
+        "name": "Документ",
+        "keyword1": "подстраница",
+        "keyword2": "страница",
+        "keyword3": "дочерняя страница",
+        "keyword4": "вставить страницу",
+        "keyword5": "встроить страницу",
+        "keyword6": "новая страница",
+        "keyword7": "создать страницу",
+        "keyword8": "документ"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Структура",
+      "codeBlock": "Блок кода"
+    },
+    "plugins": {
+      "referencedBoard": "Связанная доска",
+      "referencedGrid": "Связанная таблица",
+      "referencedCalendar": "Связанный календарь",
+      "referencedDocument": "Связанный документ",
+      "aiWriter": {
+        "userQuestion": "Спросить AI что угодно",
+        "continueWriting": "Продолжить писать",
+        "fixSpelling": "Исправить орфографию и грамматику",
+        "improveWriting": "Улучшить написание",
+        "summarize": "Сводка",
+        "explain": "Объяснить",
+        "makeShorter": "Сделать короче",
+        "makeLonger": "Сделать длиннее"
+      },
+      "autoGeneratorMenuItemName": "AI Писатель",
+      "autoGeneratorTitleName": "AI: Попросить AI написать что угодно...",
+      "autoGeneratorLearnMore": "Узнать больше",
+      "autoGeneratorGenerate": "Сгенерировать",
+      "autoGeneratorHintText": "Спросить AI...",
+      "autoGeneratorCantGetOpenAIKey": "Не удается получить ключ AI",
+      "autoGeneratorRewrite": "Переписать",
+      "smartEdit": "Спросить AI",
+      "aI": "AI",
+      "smartEditFixSpelling": "Исправить орфографию и грамматику",
+      "warning": "⚠️ Ответы AI могут быть неточными или вводящими в заблуждение.",
+      "smartEditSummarize": "Сводка",
+      "smartEditImproveWriting": "Улучшить написание",
+      "smartEditMakeLonger": "Сделать длиннее",
+      "smartEditCouldNotFetchResult": "Не удалось получить результат от AI",
+      "smartEditCouldNotFetchKey": "Не удалось получить ключ AI",
+      "smartEditDisabled": "Подключить AI в настройках",
+      "appflowyAIEditDisabled": "Войдите, чтобы включить функции AI",
+      "discardResponse": "Вы уверены, что хотите отменить ответ AI?",
+      "createInlineMathEquation": "Создать уравнение",
+      "fonts": "Шрифты",
+      "insertDate": "Вставить дату",
+      "emoji": "Эмодзи",
+      "toggleList": "Список-переключатель",
+      "emptyToggleHeading": "Пустой заголовок-переключатель h{}. Нажмите, чтобы добавить содержимое.",
+      "emptyToggleList": "Пустой список-переключатель. Нажмите, чтобы добавить содержимое.",
+      "emptyToggleHeadingWeb": "Пустой заголовок-переключатель h{level}. Нажмите, чтобы добавить содержимое",
+      "quoteList": "Список цитат",
+      "numberedList": "Нумерованный список",
+      "bulletedList": "Маркированный список",
+      "todoList": "Список дел",
+      "callout": "Врезка",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Цвет",
+          "align": "Выровнять",
+          "delete": "Удалить",
+          "duplicate": "Дублировать",
+          "insertLeft": "Вставить слева",
+          "insertRight": "Вставить справа",
+          "insertAbove": "Вставить выше",
+          "insertBelow": "Вставить ниже",
+          "headerColumn": "Столбец заголовка",
+          "headerRow": "Строка заголовка",
+          "clearContents": "Очистить содержимое",
+          "setToPageWidth": "Установить ширину страницы",
+          "distributeColumnsWidth": "Распределить ширину столбцов равномерно",
+          "duplicateRow": "Дублировать строку",
+          "duplicateColumn": "Дублировать столбец",
+          "textColor": "Цвет текста",
+          "cellBackgroundColor": "Цвет фона ячейки",
+          "duplicateTable": "Дублировать таблицу"
+        },
+        "clickToAddNewRow": "Нажмите, чтобы добавить новую строку",
+        "clickToAddNewColumn": "Нажмите, чтобы добавить новый столбец",
+        "clickToAddNewRowAndColumn": "Нажмите, чтобы добавить новую строку и столбец",
+        "headerName": {
+          "table": "Таблица",
+          "alignText": "Выровнять текст"
+        }
+      },
+      "cover": {
+        "changeCover": "Сменить обложку",
+        "colors": "Цвета",
+        "images": "Изображения",
+        "clearAll": "Очистить все",
+        "abstract": "Абстракция",
+        "addCover": "Добавить обложку",
+        "addLocalImage": "Добавить локальное изображение",
+        "invalidImageUrl": "Недействительный URL изображения",
+        "failedToAddImageToGallery": "Не удалось добавить изображение в галерею",
+        "enterImageUrl": "Введите URL изображения",
+        "add": "Добавить",
+        "back": "Назад",
+        "saveToGallery": "Сохранить в галерею",
+        "removeIcon": "Удалить иконку",
+        "removeCover": "Удалить обложку",
+        "pasteImageUrl": "Вставьте URL изображения",
+        "or": "ИЛИ",
+        "pickFromFiles": "Выбрать из файлов",
+        "couldNotFetchImage": "Не удалось загрузить изображение",
+        "imageSavingFailed": "Не удалось сохранить изображение",
+        "addIcon": "Добавить иконку",
+        "changeIcon": "Изменить иконку",
+        "coverRemoveAlert": "Изображение будет удалено с обложки после удаления.",
+        "alertDialogConfirmation": "Вы уверены, что хотите продолжить?"
+      },
+      "mathEquation": {
+        "name": "Математическое уравнение",
+        "addMathEquation": "Добавить уравнение TeX",
+        "editMathEquation": "Редактировать математическое уравнение"
+      },
+      "optionAction": {
+        "click": "Нажмите",
+        "toOpenMenu": "чтобы открыть меню",
+        "drag": "Перетащите",
+        "toMove": "чтобы переместить",
+        "delete": "Удалить",
+        "duplicate": "Дублировать",
+        "turnInto": "Превратить в",
+        "moveUp": "Переместить вверх",
+        "moveDown": "Переместить вниз",
+        "color": "Цвет",
+        "align": "Выровнять",
+        "left": "По левому краю",
+        "center": "По центру",
+        "right": "По правому краю",
+        "defaultColor": "По умолчанию",
+        "depth": "Глубина",
+        "copyLinkToBlock": "Скопировать ссылку на блок"
+      },
+      "image": {
+        "addAnImage": "Добавить изображения",
+        "copiedToPasteBoard": "Ссылка на изображение скопирована в буфер обмена",
+        "addAnImageDesktop": "Добавить изображение",
+        "addAnImageMobile": "Нажмите, чтобы добавить одно или несколько изображений",
+        "dropImageToInsert": "Перетащите изображения для вставки",
+        "imageUploadFailed": "Не удалось загрузить изображение",
+        "imageDownloadFailed": "Не удалось загрузить изображение, пожалуйста, попробуйте снова",
+        "imageDownloadFailedToken": "Не удалось загрузить изображение из-за отсутствия токена пользователя, пожалуйста, попробуйте снова",
+        "errorCode": "Код ошибки",
+        "invalidImage": "Недействительное изображение",
+        "invalidImageSize": "Размер изображения должен быть менее 5 МБ",
+        "invalidImageFormat": "Формат изображения не поддерживается. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Недействительный URL изображения",
+        "noImage": "Нет такого файла или каталога",
+        "multipleImagesFailed": "Не удалось загрузить одно или несколько изображений, пожалуйста, попробуйте снова",
+        "embedLink": {
+          "label": "Встроить ссылку",
+          "placeholder": "Вставьте или введите ссылку на изображение"
+        },
+        "unsplash": {
+          "label": "Unsplash"
+        },
+        "searchForAnImage": "Поиск изображения",
+        "pleaseInputYourOpenAIKey": "пожалуйста, введите ваш ключ AI на странице настроек",
+        "saveImageToGallery": "Сохранить изображение",
+        "failedToAddImageToGallery": "Не удалось сохранить изображение",
+        "successToAddImageToGallery": "Изображение сохранено в Фото",
+        "unableToLoadImage": "Невозможно загрузить изображение",
+        "maximumImageSize": "Максимальный поддерживаемый размер загружаемого изображения - 10 МБ",
+        "uploadImageErrorImageSizeTooBig": "Размер изображения должен быть меньше 10 МБ",
+        "imageIsUploading": "Изображение загружается",
+        "openFullScreen": "Открыть на весь экран",
+        "interactiveViewer": {
+          "toolbar": {
+            "previousImageTooltip": "Предыдущее изображение",
+            "nextImageTooltip": "Следующее изображение",
+            "zoomOutTooltip": "Уменьшить",
+            "zoomInTooltip": "Увеличить",
+            "changeZoomLevelTooltip": "Изменить уровень масштабирования",
+            "openLocalImage": "Открыть изображение",
+            "downloadImage": "Скачать изображение",
+            "closeViewer": "Закрыть интерактивный просмотрщик",
+            "scalePercentage": "{}%",
+            "deleteImageTooltip": "Удалить изображение"
+          }
+        }
+      },
+      "photoGallery": {
+        "name": "Фотогалерея",
+        "imageKeyword": "изображение",
+        "imageGalleryKeyword": "галерея изображений",
+        "photoKeyword": "фото",
+        "photoBrowserKeyword": "фотобраузер",
+        "galleryKeyword": "галерея",
+        "addImageTooltip": "Добавить изображение",
+        "changeLayoutTooltip": "Изменить макет",
+        "browserLayout": "Браузер",
+        "gridLayout": "Сетка",
+        "deleteBlockTooltip": "Удалить всю галерею"
+      },
+      "math": {
+        "copiedToPasteBoard": "Математическое уравнение скопировано в буфер обмена"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "Ссылка скопирована в буфер обмена",
+        "convertToLink": "Преобразовать в ссылку для встраивания"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Добавьте заголовки для создания оглавления.",
+        "noMatchHeadings": "Не найдено соответствующих заголовков."
+      },
+      "table": {
+        "addAfter": "Добавить после",
+        "addBefore": "Добавить до",
+        "delete": "Удалить",
+        "clear": "Очистить содержимое",
+        "duplicate": "Дублировать",
+        "bgColor": "Цвет фона"
+      },
+      "contextMenu": {
+        "copy": "Копировать",
+        "cut": "Вырезать",
+        "paste": "Вставить",
+        "pasteAsPlainText": "Вставить как обычный текст"
+      },
+      "action": "Действия",
+      "database": {
+        "selectDataSource": "Выбрать источник данных",
+        "noDataSource": "Нет источника данных",
+        "selectADataSource": "Выберите источник данных",
+        "toContinue": "для продолжения",
+        "newDatabase": "Новая база данных",
+        "linkToDatabase": "Ссылка на базу данных"
+      },
+      "date": "Дата",
+      "video": {
+        "label": "Видео",
+        "emptyLabel": "Добавить видео",
+        "placeholder": "Вставьте ссылку на видео",
+        "copiedToPasteBoard": "Ссылка на видео скопирована в буфер обмена",
+        "insertVideo": "Добавить видео",
+        "invalidVideoUrl": "Источник URL пока не поддерживается.",
+        "invalidVideoUrlYouTube": "YouTube пока не поддерживается.",
+        "supportedFormats": "Поддерживаемые форматы: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Файл",
+        "uploadTab": "Загрузить",
+        "uploadMobile": "Выберите файл",
+        "uploadMobileGallery": "Из фотогалереи",
+        "networkTab": "Встроить ссылку",
+        "placeholderText": "Загрузить или встроить файл",
+        "placeholderDragging": "Перетащите файл для загрузки",
+        "dropFileToUpload": "Перетащите файл для загрузки",
+        "fileUploadHint": "Перетащите файл или нажмите, чтобы ",
+        "fileUploadHintSuffix": "Обзор",
+        "networkHint": "Вставьте ссылку на файл",
+        "networkUrlInvalid": "Недействительный URL. Проверьте URL и попробуйте снова.",
+        "networkAction": "Встроить",
+        "fileTooBigError": "Размер файла слишком большой, пожалуйста, загрузите файл размером менее 10 МБ",
+        "renameFile": {
+          "title": "Переименовать файл",
+          "description": "Введите новое имя для этого файла",
+          "nameEmptyError": "Имя файла не может быть пустым."
+        },
+        "uploadedAt": "Загружено {}",
+        "linkedAt": "Ссылка добавлена {}",
+        "failedToOpenMsg": "Не удалось открыть, файл не найден"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (обработка вставки)",
+        "errors": {
+          "failedDeletePage": "Не удалось удалить страницу",
+          "failedCreatePage": "Не удалось создать страницу",
+          "failedMovePage": "Не удалось переместить страницу в этот документ",
+          "failedDuplicatePage": "Не удалось дублировать страницу",
+          "failedDuplicateFindView": "Не удалось дублировать страницу - оригинальный вид не найден"
+        }
+      },
+      "cannotMoveToItsChildren": "Невозможно переместить в его дочерние элементы",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Вставить как",
+          "mention": "Упоминание",
+          "URL": "URL",
+          "bookmark": "Закладка",
+          "embed": "Встроить"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Преобразовать в упоминание",
+          "toUrl": "Преобразовать в URL",
+          "toEmbed": "Преобразовать во встраивание",
+          "toBookmark": "Преобразовать в закладку",
+          "copyLink": "Скопировать ссылку",
+          "replace": "Заменить",
+          "reload": "Перезагрузить",
+          "removeLink": "Удалить ссылку",
+          "pasteHint": "Вставить https://...",
+          "unableToDisplay": "невозможно отобразить"
+        }
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "Содержание"
+    },
+    "textBlock": {
+      "placeholder": "Введите '/' для команд"
+    },
+    "title": {
+      "placeholder": "Без названия"
+    },
+    "imageBlock": {
+      "placeholder": "Нажмите, чтобы добавить изображение(я)",
+      "upload": {
+        "label": "Загрузить",
+        "placeholder": "Нажмите, чтобы загрузить изображение"
+      },
+      "url": {
+        "label": "URL изображения",
+        "placeholder": "Введите URL изображения"
+      },
+      "ai": {
+        "label": "Сгенерировать изображение с помощью AI",
+        "placeholder": "Пожалуйста, введите запрос для AI для генерации изображения"
+      },
+      "stability_ai": {
+        "label": "Сгенерировать изображение с помощью Stability AI",
+        "placeholder": "Пожалуйста, введите запрос для Stability AI для генерации изображения"
+      },
+      "support": "Размер изображения ограничен 5 МБ. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Недействительное изображение",
+        "invalidImageSize": "Размер изображения должен быть меньше 5 МБ",
+        "invalidImageFormat": "Формат изображения не поддерживается. Поддерживаемые форматы: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Недействительный URL изображения",
+        "noImage": "Нет такого файла или каталога",
+        "multipleImagesFailed": "Одно или несколько изображений не удалось загрузить, пожалуйста, попробуйте снова"
+      },
+      "embedLink": {
+        "label": "Встроить ссылку",
+        "placeholder": "Вставьте или введите ссылку на изображение"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Поиск изображения",
+      "pleaseInputYourOpenAIKey": "пожалуйста, введите ваш ключ AI на странице настроек",
+      "saveImageToGallery": "Сохранить изображение",
+      "failedToAddImageToGallery": "Не удалось сохранить изображение",
+      "successToAddImageToGallery": "Изображение сохранено в Фото",
+      "unableToLoadImage": "Невозможно загрузить изображение",
+      "maximumImageSize": "Максимальный поддерживаемый размер загружаемого изображения - 10 МБ",
+      "uploadImageErrorImageSizeTooBig": "Размер изображения должен быть меньше 10 МБ",
+      "imageIsUploading": "Изображение загружается",
+      "openFullScreen": "Открыть на весь экран",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Предыдущее изображение",
+          "nextImageTooltip": "Следующее изображение",
+          "zoomOutTooltip": "Уменьшить",
+          "zoomInTooltip": "Увеличить",
+          "changeZoomLevelTooltip": "Изменить уровень масштабирования",
+          "openLocalImage": "Открыть изображение",
+          "downloadImage": "Скачать изображение",
+          "closeViewer": "Закрыть интерактивный просмотрщик",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Удалить изображение"
+        }
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Язык",
+        "placeholder": "Выбрать язык",
+        "auto": "Авто"
+      },
+      "copyTooltip": "Копировать",
+      "searchLanguageHint": "Поиск языка",
+      "codeCopiedSnackbar": "Код скопирован в буфер обмена!"
+    },
+    "inlineLink": {
+      "placeholder": "Вставьте или введите ссылку",
+      "openInNewTab": "Открыть в новой вкладке",
+      "copyLink": "Скопировать ссылку",
+      "removeLink": "Удалить ссылку",
+      "url": {
+        "label": "URL ссылки",
+        "placeholder": "Введите URL ссылки"
+      },
+      "title": {
+        "label": "Название ссылки",
+        "placeholder": "Введите название ссылки"
+      }
+    },
+    "mention": {
+      "placeholder": "Упомянуть человека или страницу или дату...",
+      "page": {
+        "label": "Ссылка на страницу",
+        "tooltip": "Нажмите, чтобы открыть страницу"
+      },
+      "deleted": "Удалено",
+      "deletedContent": "Этот контент не существует или был удален",
+      "noAccess": "Нет доступа",
+      "deletedPage": "Удаленная страница",
+      "trashHint": " - в корзине",
+      "morePages": "больше страниц"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Сбросить до шрифта по умолчанию",
+      "textSize": "Размер текста",
+      "textColor": "Цвет текста",
+      "h1": "Заголовок 1",
+      "h2": "Заголовок 2",
+      "h3": "Заголовок 3",
+      "alignLeft": "Выровнять по левому краю",
+      "alignRight": "Выровнять по правому краю",
+      "alignCenter": "Выровнять по центру",
+      "link": "Ссылка",
+      "textAlign": "Выравнивание текста",
+      "moreOptions": "Больше опций",
+      "font": "Шрифт",
+      "inlineCode": "Встроенный код",
+      "suggestions": "Предложения",
+      "turnInto": "Превратить в",
+      "equation": "Уравнение",
+      "insert": "Вставить",
+      "linkInputHint": "Вставьте ссылку или поиск по страницам",
+      "pageOrURL": "Страница или URL",
+      "linkName": "Название ссылки",
+      "linkNameHint": "Введите название ссылки"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "Не удалось разобрать содержимое блока",
+      "clickToCopyTheBlockContent": "Нажмите, чтобы скопировать содержимое блока",
+      "blockContentHasBeenCopied": "Содержимое блока скопировано.",
+      "parseError": "Произошла ошибка при разборе блока {}.",
+      "copyBlockContent": "Скопировать содержимое блока"
+    },
+    "mobilePageSelector": {
+      "title": "Выбрать страницу",
+      "failedToLoad": "Не удалось загрузить список страниц",
+      "noPagesFound": "Страницы не найдены"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Выбрать фото",
+      "takePicture": "Сделать снимок",
+      "chooseFile": "Выбрать файл"
+    }
+  },
+  "board": {
+    "column": {
+      "label": "Столбец",
+      "createNewCard": "Новый",
+      "renameGroupTooltip": "Нажмите, чтобы переименовать группу",
+      "createNewColumn": "Добавить новую группу",
+      "addToColumnTopTooltip": "Добавить новую карточку в начало",
+      "addToColumnBottomTooltip": "Добавить новую карточку в конец",
+      "renameColumn": "Переименовать",
+      "hideColumn": "Скрыть",
+      "newGroup": "Новая группа",
+      "deleteColumn": "Удалить",
+      "deleteColumnConfirmation": "Это приведет к удалению этой группы и всех карточек в ней. Вы уверены, что хотите продолжить?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Скрытые группы",
+      "collapseTooltip": "Скрыть скрытые группы",
+      "expandTooltip": "Просмотреть скрытые группы"
+    },
+    "cardDetail": "Детали карточки",
+    "cardActions": "Действия с карточкой",
+    "cardDuplicated": "Карточка дублирована",
+    "cardDeleted": "Карточка удалена",
+    "showOnCard": "Показать на карточке",
+    "setting": "Настройки",
+    "propertyName": "Название свойства",
+    "menuName": "Доска",
+    "showUngrouped": "Показать негруппированные элементы",
+    "ungroupedButtonText": "Негруппированные",
+    "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни одной группе",
+    "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
+    "groupBy": "Группировать по",
+    "groupCondition": "Условие группировки",
+    "referencedBoardPrefix": "Вид",
+    "notesTooltip": "Заметки внутри",
+    "mobile": {
+      "editURL": "Редактировать URL",
+      "showGroup": "Показать группу",
+      "showGroupContent": "Вы уверены, что хотите показать эту группу на доске?",
+      "failedToLoad": "Не удалось загрузить вид доски"
+    },
+    "dateCondition": {
+      "weekOf": "Неделя с {} по {}",
+      "today": "Сегодня",
+      "yesterday": "Вчера",
+      "tomorrow": "Завтра",
+      "lastSevenDays": "Последние 7 дней",
+      "nextSevenDays": "Следующие 7 дней",
+      "lastThirtyDays": "Последние 30 дней",
+      "nextThirtyDays": "Следующие 30 дней"
+    },
+    "noGroup": "Нет свойства для группировки",
+    "noGroupDesc": "Виды доски требуют свойства для группировки для отображения",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "файлы"
+    }
+  },
+  "calendar": {
+    "menuName": "Календарь",
+    "defaultNewCalendarTitle": "Без названия",
+    "newEventButtonTooltip": "Добавить новое событие",
+    "navigation": {
+      "today": "Сегодня",
+      "jumpToday": "Перейти на сегодня",
+      "previousMonth": "Предыдущий месяц",
+      "nextMonth": "Следующий месяц",
+      "views": {
+        "day": "День",
+        "week": "Неделя",
+        "month": "Месяц",
+        "year": "Год"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "Событий пока нет",
+      "emptyBody": "Нажмите кнопку плюса, чтобы создать событие в этот день."
+    },
+    "settings": {
+      "showWeekNumbers": "Показать номера недель",
+      "showWeekends": "Показать выходные",
+      "firstDayOfWeek": "Начать неделю с",
+      "layoutDateField": "Разместить календарь по",
+      "changeLayoutDateField": "Изменить поле макета",
+      "noDateTitle": "Нет даты",
+      "noDateHint": {
+        "zero": "Незапланированные события появятся здесь",
+        "one": "{count} незапланированное событие",
+        "other": "{count} незапланированных событий"
+      },
+      "unscheduledEventsTitle": "Незапланированные события",
+      "clickToAdd": "Нажмите, чтобы добавить в календарь",
+      "name": "Настройки календаря",
+      "clickToOpen": "Нажмите, чтобы открыть запись"
+    },
+    "referencedCalendarPrefix": "Вид",
+    "quickJumpYear": "Перейти на",
+    "duplicateEvent": "Дублировать событие"
+  },
+  "errorDialog": {
+    "title": "Ошибка @:appName",
+    "howToFixFallback": "Нам очень жаль! Сообщите о проблеме на нашей странице GitHub с описанием вашей ошибки.",
+    "howToFixFallbackHint1": "Нам очень жаль! Сообщите о проблеме на нашей ",
+    "howToFixFallbackHint2": " странице с описанием вашей ошибки.",
+    "github": "Просмотреть на GitHub"
+  },
+  "search": {
+    "label": "Поиск",
+    "sidebarSearchIcon": "Поиск и быстрый переход на страницу",
+    "searchOrAskAI": "Поиск или спросить AI",
+    "askAIAnything": "Спросить AI что угодно",
+    "askAIFor": "Спросить AI",
+    "noResultForSearching": "Нет результатов для \"{}\"",
+    "noResultForSearchingHint": "Некоторые результаты могут находиться в удаленных страницах",
+    "bestMatch": "Наилучшее соответствие",
+    "placeholder": {
+      "actions": "Поиск действий..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Скопировано в буфер обмена",
+      "fail": "Невозможно скопировать"
+    }
+  },
+  "unSupportBlock": "Текущая версия не поддерживает этот блок.",
+  "views": {
+    "deleteContentTitle": "Вы уверены, что хотите удалить {pageType}?",
+    "deleteContentCaption": "если вы удалите этот {pageType}, вы сможете восстановить его из корзины."
+  },
+  "colors": {
+    "custom": "Пользовательский",
+    "default": "По умолчанию",
+    "red": "Красный",
+    "orange": "Оранжевый",
+    "yellow": "Желтый",
+    "green": "Зеленый",
+    "blue": "Синий",
+    "purple": "Фиолетовый",
+    "pink": "Розовый",
+    "brown": "Коричневый",
+    "gray": "Серый"
+  },
+  "emoji": {
+    "emojiTab": "Эмодзи",
+    "search": "Поиск эмодзи",
+    "noRecent": "Нет последних эмодзи",
+    "noEmojiFound": "Эмодзи не найдено",
+    "filter": "Фильтр",
+    "random": "Случайно",
+    "selectSkinTone": "Выбрать оттенок кожи",
+    "remove": "Удалить эмодзи",
+    "categories": {
+      "smileys": "Смайлики и эмоции",
+      "people": "люди",
+      "animals": "природа",
+      "food": "еда",
+      "activities": "занятия",
+      "places": "места",
+      "objects": "объекты",
+      "symbols": "символы",
+      "flags": "флаги",
+      "nature": "природа",
+      "frequentlyUsed": "часто используемые"
+    },
+    "skinTone": {
+      "default": "По умолчанию",
+      "light": "Светлый",
+      "mediumLight": "Средне-светлый",
+      "medium": "Средний",
+      "mediumDark": "Средне-темный",
+      "dark": "Темный"
+    },
+    "openSourceIconsFrom": "Иконки с открытым исходным кодом из"
+  },
+  "inlineActions": {
+    "noResults": "Нет результатов",
+    "recentPages": "Последние страницы",
+    "pageReference": "Ссылка на страницу",
+    "docReference": "Ссылка на документ",
+    "boardReference": "Ссылка на доску",
+    "calReference": "Ссылка на календарь",
+    "gridReference": "Ссылка на таблицу",
+    "date": "Дата",
+    "reminder": {
+      "groupTitle": "Напоминание",
+      "shortKeyword": "напомнить"
+    },
+    "createPage": "Создать подстраницу \"{}\""
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Изменить формат даты и времени в настройках",
+    "dateFormat": "Формат даты",
+    "includeTime": "Включать время",
+    "isRange": "Дата окончания",
+    "timeFormat": "Формат времени",
+    "clearDate": "Очистить дату",
+    "reminderLabel": "Напоминание",
+    "selectReminder": "Выбрать напоминание",
+    "reminderOptions": {
+      "none": "Нет",
+      "atTimeOfEvent": "Время события",
+      "fiveMinsBefore": "За 5 минут до",
+      "tenMinsBefore": "За 10 минут до",
+      "fifteenMinsBefore": "За 15 минут до",
+      "thirtyMinsBefore": "За 30 минут до",
+      "oneHourBefore": "За 1 час до",
+      "twoHoursBefore": "За 2 часа до",
+      "onDayOfEvent": "В день события",
+      "oneDayBefore": "За 1 день до",
+      "twoDaysBefore": "За 2 дня до",
+      "oneWeekBefore": "За 1 неделю до",
+      "custom": "Пользовательский"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Вчера",
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "oneWeek": "1 неделя"
+  },
+  "notificationHub": {
+    "title": "Уведомления",
+    "closeNotification": "Закрыть уведомление",
+    "viewNotifications": "Просмотреть уведомления",
+    "noNotifications": "Уведомлений пока нет",
+    "mentionedYou": "Упомянул(а) вас",
+    "markAsReadTooltip": "Отметить это уведомление как прочитанное",
+    "markAsReadSucceedToast": "Отмечено как прочитанное успешно",
+    "markAllAsReadSucceedToast": "Все успешно отмечено как прочитанное",
+    "today": "Сегодня",
+    "older": "Старше",
+    "mobile": {
+      "title": "Обновления"
+    },
+    "emptyTitle": "Все прочитано!",
+    "emptyBody": "Нет ожидающих уведомлений или действий. Наслаждайтесь спокойствием.",
+    "tabs": {
+      "inbox": "Входящие",
+      "upcoming": "Предстоящие"
+    },
+    "actions": {
+      "markAllRead": "Отметить все как прочитанное",
+      "showAll": "Все",
+      "showUnreads": "Непрочитанные"
+    },
+    "filters": {
+      "ascending": "По возрастанию",
+      "descending": "По убыванию",
+      "groupByDate": "Группировать по дате",
+      "showUnreadsOnly": "Показать только непрочитанные",
+      "resetToDefault": "Сбросить до значений по умолчанию"
+    },
+    "archievedTooltip": "Архивировать это уведомление",
+    "unarchievedTooltip": "Разархивировать это уведомление",
+    "markAsArchievedSucceedToast": "Успешно заархивировано",
+    "markAllAsArchievedSucceedToast": "Все успешно заархивировано"
+  },
+  "reminderNotification": {
+    "title": "Напоминание",
+    "message": "Не забудьте проверить это, прежде чем забудете!",
+    "tooltipDelete": "Удалить",
+    "tooltipMarkRead": "Отметить как прочитанное",
+    "tooltipMarkUnread": "Отметить как непрочитанное"
+  },
+  "findAndReplace": {
+    "find": "Найти",
+    "previousMatch": "Предыдущее совпадение",
+    "nextMatch": "Следующее совпадение",
+    "close": "Закрыть",
+    "replace": "Заменить",
+    "replaceAll": "Заменить все",
+    "noResult": "Нет результатов",
+    "caseSensitive": "Учитывать регистр",
+    "searchMore": "Ищите, чтобы найти больше результатов"
+  },
+  "error": {
+    "weAreSorry": "Просим прощения",
+    "loadingViewError": "У нас возникли проблемы с загрузкой этого вида. Пожалуйста, проверьте подключение к интернету, обновите приложение и не стесняйтесь обратиться к команде, если проблема сохранится.",
+    "syncError": "Данные не синхронизированы с другого устройства",
+    "syncErrorHint": "Пожалуйста, откройте эту страницу на устройстве, где она была последний раз отредактирована, затем снова откройте ее на текущем устройстве.",
+    "clickToCopy": "Нажмите, чтобы скопировать код ошибки"
+  },
+  "editor": {
+    "bold": "Жирный",
+    "bulletedList": "Маркированный список",
+    "bulletedListShortForm": "Маркированный",
+    "checkbox": "Чекбокс",
+    "embedCode": "Встроить код",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Выделить",
+    "color": "Цвет",
+    "image": "Изображение",
+    "date": "Дата",
+    "page": "Страница",
+    "italic": "Курсив",
+    "link": "Ссылка",
+    "numberedList": "Нумерованный список",
+    "numberedListShortForm": "Нумерованный",
+    "toggleHeading1ShortForm": "Переключить H1",
+    "toggleHeading2ShortForm": "Переключить H2",
+    "toggleHeading3ShortForm": "Переключить H3",
+    "quote": "Цитата",
+    "strikethrough": "Зачеркнутый",
+    "text": "Текст",
+    "underline": "Подчеркнутый",
+    "fontColorDefault": "По умолчанию",
+    "fontColorGray": "Серый",
+    "fontColorBrown": "Коричневый",
+    "fontColorOrange": "Оранжевый",
+    "fontColorYellow": "Желтый",
+    "fontColorGreen": "Зеленый",
+    "fontColorBlue": "Синий",
+    "fontColorPurple": "Фиолетовый",
+    "fontColorPink": "Розовый",
+    "fontColorRed": "Красный",
+    "backgroundColorDefault": "Фон по умолчанию",
+    "backgroundColorGray": "Серый фон",
+    "backgroundColorBrown": "Коричневый фон",
+    "backgroundColorOrange": "Оранжевый фон",
+    "backgroundColorYellow": "Желтый фон",
+    "backgroundColorGreen": "Зеленый фон",
+    "backgroundColorBlue": "Синий фон",
+    "backgroundColorPurple": "Фиолетовый фон",
+    "backgroundColorPink": "Розовый фон",
+    "backgroundColorRed": "Красный фон",
+    "backgroundColorLime": "Фон лайм",
+    "backgroundColorAqua": "Фон аква",
+    "done": "Готово",
+    "cancel": "Отмена",
+    "tint1": "Оттенок 1",
+    "tint2": "Оттенок 2",
+    "tint3": "Оттенок 3",
+    "tint4": "Оттенок 4",
+    "tint5": "Оттенок 5",
+    "tint6": "Оттенок 6",
+    "tint7": "Оттенок 7",
+    "tint8": "Оттенок 8",
+    "tint9": "Оттенок 9",
+    "lightLightTint1": "Фиолетовый",
+    "lightLightTint2": "Розовый",
+    "lightLightTint3": "Светло-розовый",
+    "lightLightTint4": "Оранжевый",
+    "lightLightTint5": "Желтый",
+    "lightLightTint6": "Лайм",
+    "lightLightTint7": "Зеленый",
+    "lightLightTint8": "Аква",
+    "lightLightTint9": "Синий",
+    "urlHint": "URL",
+    "mobileHeading1": "Заголовок 1",
+    "mobileHeading2": "Заголовок 2",
+    "mobileHeading3": "Заголовок 3",
+    "mobileHeading4": "Заголовок 4",
+    "mobileHeading5": "Заголовок 5",
+    "mobileHeading6": "Заголовок 6",
+    "textColor": "Цвет текста",
+    "backgroundColor": "Цвет фона",
+    "addYourLink": "Добавьте свою ссылку",
+    "openLink": "Открыть ссылку",
+    "copyLink": "Скопировать ссылку",
+    "removeLink": "Удалить ссылку",
+    "editLink": "Редактировать ссылку",
+    "convertTo": "Преобразовать в",
+    "linkText": "Текст",
+    "linkTextHint": "Пожалуйста, введите текст",
+    "linkAddressHint": "Пожалуйста, введите URL",
+    "highlightColor": "Цвет выделения",
+    "clearHighlightColor": "Очистить цвет выделения",
+    "customColor": "Пользовательский цвет",
+    "hexValue": "Значение Hex",
+    "opacity": "Непрозрачность",
+    "resetToDefaultColor": "Сбросить до цвета по умолчанию",
+    "ltr": "Слева направо",
+    "rtl": "Справа налево",
+    "auto": "Авто",
+    "cut": "Вырезать",
+    "copy": "Копировать",
+    "paste": "Вставить",
+    "find": "Найти",
+    "select": "Выбрать",
+    "selectAll": "Выбрать все",
+    "previousMatch": "Предыдущее совпадение",
+    "nextMatch": "Следующее совпадение",
+    "closeFind": "Закрыть",
+    "replace": "Заменить",
+    "replaceAll": "Заменить все",
+    "regex": "Регулярное выражение",
+    "caseSensitive": "Учитывать регистр",
+    "uploadImage": "Загрузить изображение",
+    "urlImage": "Изображение по URL",
+    "incorrectLink": "Неверная ссылка",
+    "upload": "Загрузить",
+    "chooseImage": "Выберите изображение",
+    "loading": "Загрузка",
+    "imageLoadFailed": "Не удалось загрузить изображение",
+    "divider": "Разделитель",
+    "table": "Таблица",
+    "colAddBefore": "Добавить до",
+    "rowAddBefore": "Добавить до",
+    "colAddAfter": "Добавить после",
+    "rowAddAfter": "Добавить после",
+    "colRemove": "Удалить",
+    "rowRemove": "Удалить",
+    "colDuplicate": "Дублировать",
+    "rowDuplicate": "Дублировать",
+    "colClear": "Очистить содержимое",
+    "rowClear": "Очистить содержимое",
+    "slashPlaceHolder": "Введите '/', чтобы вставить блок, или начните печатать",
+    "typeSomething": "Введите что-нибудь...",
+    "toggleListShortForm": "Переключить",
+    "quoteListShortForm": "Цитата",
+    "mathEquationShortForm": "Формула",
+    "codeBlockShortForm": "Код"
+  },
+  "favorite": {
+    "noFavorite": "Нет избранных страниц",
+    "noFavoriteHintText": "Смахните страницу влево, чтобы добавить ее в избранное",
+    "removeFromSidebar": "Удалить из боковой панели",
+    "addToSidebar": "Закрепить на боковой панели"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Введите / для вставки блока, или начните печатать"
+  },
+  "blockPlaceholders": {
+    "todoList": "Список дел",
+    "bulletList": "Список",
+    "numberList": "Список",
+    "quote": "Цитата",
+    "heading": "Заголовок {}"
+  },
+  "titleBar": {
+    "pageIcon": "Иконка страницы",
+    "language": "Язык",
+    "font": "Шрифт",
+    "actions": "Действия",
+    "date": "Дата",
+    "addField": "Добавить поле",
+    "userIcon": "Иконка пользователя"
+  },
+  "noLogFiles": "Нет файлов логов",
+  "newSettings": {
+    "myAccount": {
+      "title": "Аккаунт и Приложение",
+      "subtitle": "Настройте свой профиль, управляйте безопасностью аккаунта, ключами AI или войдите в свой аккаунт.",
+      "profileLabel": "Имя аккаунта и фото профиля",
+      "profileNamePlaceholder": "Введите ваше имя",
+      "accountSecurity": "Безопасность аккаунта",
+      "2FA": "Двухфакторная аутентификация",
+      "aiKeys": "Ключи AI",
+      "accountLogin": "Вход в аккаунт",
+      "updateNameError": "Не удалось обновить имя",
+      "updateIconError": "Не удалось обновить иконку",
+      "aboutAppFlowy": "О @:appName",
+      "deleteAccount": {
+        "title": "Удалить аккаунт",
+        "subtitle": "Окончательно удалить ваш аккаунт и все ваши данные.",
+        "description": "Окончательно удалить ваш аккаунт и удалить доступ из всех рабочих пространств.",
+        "deleteMyAccount": "Удалить мой аккаунт",
+        "dialogTitle": "Удалить аккаунт",
+        "dialogContent1": "Вы уверены, что хотите окончательно удалить свой аккаунт?",
+        "dialogContent2": "Это действие нельзя отменить, и оно удалит доступ из всех рабочих пространств, стерев весь ваш аккаунт, включая приватные рабочие пространства, и удалив вас из всех общих рабочих пространств.",
+        "confirmHint1": "Пожалуйста, введите \"@:newSettings.myAccount.deleteAccount.confirmHint3\" для подтверждения.",
+        "confirmHint2": "Я понимаю, что это действие необратимо и навсегда удалит мой аккаунт и все связанные данные.",
+        "confirmHint3": "УДАЛИТЬ МОЙ АККАУНТ",
+        "checkToConfirmError": "Вы должны отметить галочкой для подтверждения удаления",
+        "failedToGetCurrentUser": "Не удалось получить email текущего пользователя",
+        "confirmTextValidationFailed": "Ваш текст подтверждения не совпадает с \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
+        "deleteAccountSuccess": "Аккаунт успешно удален"
+      },
+      "password": {
+        "title": "Пароль",
+        "confirmPassword": "Подтвердить пароль",
+        "changePassword": "Изменить пароль",
+        "currentPassword": "Текущий пароль",
+        "newPassword": "Новый пароль",
+        "confirmNewPassword": "Подтвердить новый пароль",
+        "setupPassword": "Установить пароль",
+        "error": {
+          "currentPasswordIsRequired": "Текущий пароль обязателен",
+          "newPasswordIsRequired": "Новый пароль обязателен",
+          "confirmPasswordIsRequired": "Подтверждение пароля обязательно",
+          "passwordsDoNotMatch": "Пароли не совпадают",
+          "newPasswordIsSameAsCurrent": "Новый пароль совпадает с текущим"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Пароль успешно обновлен",
+          "passwordUpdatedFailed": "Не удалось обновить пароль",
+          "passwordSetupSuccessfully": "Пароль успешно установлен",
+          "passwordSetupFailed": "Не удалось установить пароль"
+        },
+        "hint": {
+          "enterYourPassword": "Введите ваш пароль",
+          "confirmYourPassword": "Подтвердите ваш пароль",
+          "enterYourCurrentPassword": "Введите ваш текущий пароль",
+          "enterYourNewPassword": "Введите ваш новый пароль",
+          "confirmYourNewPassword": "Подтвердите ваш новый пароль"
+        }
+      },
+      "myAccount": "Мой аккаунт",
+      "myProfile": "Мой профиль"
+    },
+    "workplace": {
+      "name": "Рабочее место",
+      "title": "Настройки рабочего места",
+      "subtitle": "Настройте внешний вид рабочего пространства, тему, шрифт, макет текста, дату, время и язык.",
+      "workplaceName": "Название рабочего места",
+      "workplaceNamePlaceholder": "Введите название рабочего места",
+      "workplaceIcon": "Иконка рабочего места",
+      "workplaceIconSubtitle": "Загрузите изображение или используйте эмодзи для вашего рабочего пространства. Иконка будет отображаться в боковой панели и уведомлениях.",
+      "renameError": "Не удалось переименовать рабочее место",
+      "updateIconError": "Не удалось обновить иконку",
+      "chooseAnIcon": "Выберите иконку",
+      "appearance": {
+        "name": "Внешний вид",
+        "themeMode": {
+          "auto": "Авто",
+          "light": "Светлая",
+          "dark": "Темная"
+        },
+        "language": "Язык"
+      }
+    },
+    "syncState": {
+      "syncing": "Синхронизация",
+      "synced": "Синхронизировано",
+      "noNetworkConnected": "Нет подключения к сети"
+    }
+  },
+  "pageStyle": {
+    "title": "Стиль страницы",
+    "layout": "Макет",
+    "coverImage": "Обложка",
+    "pageIcon": "Иконка страницы",
+    "colors": "Цвета",
+    "gradient": "Градиент",
+    "backgroundImage": "Фоновое изображение",
+    "presets": "Пресеты",
+    "photo": "Фото",
+    "unsplash": "Unsplash",
+    "pageCover": "Обложка страницы",
+    "none": "Нет",
+    "openSettings": "Открыть настройки",
+    "photoPermissionTitle": "@:appName хочет получить доступ к вашей фотогалерее",
+    "photoPermissionDescription": "@:appName нужен доступ к вашим фото, чтобы вы могли добавлять изображения в документы",
+    "cameraPermissionTitle": "@:appName хочет получить доступ к вашей камере",
+    "cameraPermissionDescription": "@:appName нужен доступ к вашей камере, чтобы вы могли добавлять изображения в документы с камеры",
+    "doNotAllow": "Не разрешать",
+    "image": "Изображение"
+  },
+  "commandPalette": {
+    "placeholder": "Поиск или задать вопрос...",
+    "bestMatches": "Лучшие совпадения",
+    "aiOverview": "Обзор AI",
+    "aiOverviewSource": "Источники ссылок",
+    "aiOverviewMoreDetails": "Подробнее",
+    "pagePreview": "Предпросмотр содержимого",
+    "clickToOpenPage": "Нажмите, чтобы открыть страницу",
+    "recentHistory": "Недавняя история",
+    "navigateHint": "для навигации",
+    "loadingTooltip": "Идет поиск результатов...",
+    "betaLabel": "БЕТА",
+    "betaTooltip": "В настоящее время поддерживается поиск только страниц и содержимого документов",
+    "fromTrashHint": "Из корзины",
+    "noResultsHint": "Мы не нашли то, что вы ищете, попробуйте поискать другой запрос.",
+    "clearSearchTooltip": "Очистить поле поиска"
+  },
+  "space": {
+    "delete": "Удалить",
+    "deleteConfirmation": "Удалить: ",
+    "deleteConfirmationDescription": "Все страницы в этом пространстве будут удалены и перемещены в корзину, а все опубликованные страницы будут сняты с публикации.",
+    "rename": "Переименовать пространство",
+    "changeIcon": "Изменить иконку",
+    "manage": "Управлять пространством",
+    "addNewSpace": "Создать пространство",
+    "collapseAllSubPages": "Свернуть все подстраницы",
+    "createNewSpace": "Создать новое пространство",
+    "createSpaceDescription": "Создавайте несколько публичных и приватных пространств для лучшей организации работы.",
+    "spaceName": "Название пространства",
+    "spaceNamePlaceholder": "например, Маркетинг, Разработка, HR",
+    "permission": "Разрешение пространства",
+    "publicPermission": "Публичное",
+    "publicPermissionDescription": "Всем участникам рабочего пространства с полным доступом",
+    "privatePermission": "Приватное",
+    "privatePermissionDescription": "Только вы можете получить доступ к этому пространству",
+    "spaceIconBackground": "Цвет фона",
+    "spaceIcon": "Иконка",
+    "dangerZone": "Опасная зона",
+    "unableToDeleteLastSpace": "Не удалось удалить последнее пространство",
+    "unableToDeleteSpaceNotCreatedByYou": "Невозможно удалить пространства, созданные не вами",
+    "enableSpacesForYourWorkspace": "Включить пространства для вашего рабочего пространства",
+    "title": "Пространства",
+    "defaultSpaceName": "Общее",
+    "upgradeSpaceTitle": "Включить пространства",
+    "upgradeSpaceDescription": "Создавайте несколько публичных и приватных пространств для лучшей организации вашего рабочего пространства.",
+    "upgrade": "Обновить",
+    "upgradeYourSpace": "Создайте несколько пространств",
+    "quicklySwitch": "Быстро переключиться на следующее пространство",
+    "duplicate": "Дублировать пространство",
+    "movePageToSpace": "Переместить страницу в пространство",
+    "cannotMovePageToDatabase": "Невозможно переместить страницу в базу данных",
+    "switchSpace": "Переключить пространство",
+    "spaceNameCannotBeEmpty": "Имя пространства не может быть пустым",
+    "success": {
+      "deleteSpace": "Пространство успешно удалено",
+      "renameSpace": "Пространство успешно переименовано",
+      "duplicateSpace": "Пространство успешно дублировано",
+      "updateSpace": "Пространство успешно обновлено"
+    },
+    "error": {
+      "deleteSpace": "Не удалось удалить пространство",
+      "renameSpace": "Не удалось переименовать пространство",
+      "duplicateSpace": "Не удалось дублировать пространство",
+      "updateSpace": "Не удалось обновить пространство"
+    },
+    "createSpace": "Создать пространство",
+    "manageSpace": "Управлять пространством",
+    "renameSpace": "Переименовать пространство",
+    "mSpaceIconColor": "Цвет иконки пространства",
+    "mSpaceIcon": "Иконка пространства"
+  },
+  "publish": {
+    "hasNotBeenPublished": "Эта страница еще не опубликована",
+    "spaceHasNotBeenPublished": "Публикация пространства пока не поддерживается",
+    "reportPage": "Пожаловаться на страницу",
+    "databaseHasNotBeenPublished": "Публикация базы данных пока не поддерживается.",
+    "createdWith": "Создано с помощью",
+    "downloadApp": "Скачать AppFlowy",
+    "copy": {
+      "codeBlock": "Содержимое блока кода скопировано в буфер обмена",
+      "imageBlock": "Ссылка на изображение скопирована в буфер обмена",
+      "mathBlock": "Математическое уравнение скопировано в буфер обмена",
+      "fileBlock": "Ссылка на файл скопирована в буфер обмена"
+    },
+    "containsPublishedPage": "Эта страница содержит одну или несколько опубликованных страниц. Если вы продолжите, они будут сняты с публикации. Вы хотите продолжить удаление?",
+    "publishSuccessfully": "Успешно опубликовано",
+    "unpublishSuccessfully": "Успешно снято с публикации",
+    "publishFailed": "Не удалось опубликовать",
+    "unpublishFailed": "Не удалось снять с публикации",
+    "noAccessToVisit": "Нет доступа к этой странице...",
+    "createWithAppFlowy": "Создать сайт с помощью AppFlowy",
+    "fastWithAI": "Быстро и легко с помощью AI.",
+    "tryItNow": "Попробуйте сейчас",
+    "onlyGridViewCanBePublished": "Может быть опубликован только вид Таблица",
+    "database": {
+      "zero": "Опубликовать {} выбранных видов",
+      "one": "Опубликовать {} выбранный вид",
+      "many": "Опубликовать {} выбранных видов",
+      "other": "Опубликовать {} выбранных видов"
+    },
+    "mustSelectPrimaryDatabase": "Необходимо выбрать основной вид",
+    "noDatabaseSelected": "База данных не выбрана, выберите хотя бы одну.",
+    "unableToDeselectPrimaryDatabase": "Невозможно отменить выбор основной базы данных",
+    "saveThisPage": "Начать с этого шаблона",
+    "duplicateTitle": "Куда вы хотите добавить",
+    "selectWorkspace": "Выберите рабочее пространство",
+    "addTo": "Добавить в",
+    "duplicateSuccessfully": "Добавлено в ваше рабочее пространство",
+    "duplicateSuccessfullyDescription": "Не установлен AppFlowy? Загрузка начнется автоматически после нажатия 'Скачать'.",
+    "downloadIt": "Скачать",
+    "openApp": "Открыть в приложении",
+    "duplicateFailed": "Дублирование не удалось",
+    "membersCount": {
+      "zero": "Нет участников",
+      "one": "1 участник",
+      "many": "{count} участников",
+      "other": "{count} участников"
+    },
+    "useThisTemplate": "Использовать этот шаблон"
+  },
+  "web": {
+    "continue": "Продолжить",
+    "or": "или",
+    "continueWithGoogle": "Продолжить с Google",
+    "continueWithGithub": "Продолжить с GitHub",
+    "continueWithDiscord": "Продолжить с Discord",
+    "continueWithApple": "Продолжить с Apple",
+    "moreOptions": "Больше опций",
+    "collapse": "Свернуть",
+    "signInAgreement": "Нажимая «Продолжить» выше, вы соглашаетесь с \n@:appName ",
+    "signInLocalAgreement": "Нажимая «Начать» выше, вы соглашаетесь с \n@:appName ",
+    "and": "и",
+    "termOfUse": "Условиями использования",
+    "privacyPolicy": "Политикой конфиденциальности",
+    "signInError": "Ошибка входа",
+    "login": "Зарегистрироваться или войти",
+    "fileBlock": {
+      "uploadedAt": "Загружено {time}",
+      "linkedAt": "Ссылка добавлена {time}",
+      "empty": "Загрузить или встроить файл",
+      "uploadFailed": "Загрузка не удалась, пожалуйста, попробуйте снова",
+      "retry": "Повторить"
+    },
+    "importNotion": "Импорт из Notion",
+    "import": "Импорт",
+    "importSuccess": "Загружено успешно",
+    "importSuccessMessage": "Мы уведомим вас, когда импорт завершится. После этого вы сможете просмотреть импортированные страницы в боковой панели.",
+    "importFailed": "Импорт не удался, пожалуйста, проверьте формат файла",
+    "dropNotionFile": "Перетащите сюда ваш zip-файл Notion для загрузки или нажмите для обзора",
+    "error": {
+      "pageNameIsEmpty": "Имя страницы пусто, пожалуйста, попробуйте другое"
+    }
+  },
+  "globalComment": {
+    "comments": "Комментарии",
+    "addComment": "Добавить комментарий",
+    "reactedBy": "отреагировали:",
+    "addReaction": "Добавить реакцию",
+    "reactedByMore": "и еще {count}",
+    "showSeconds": {
+      "one": "1 секунду назад",
+      "other": "{count} секунд назад",
+      "zero": "Только что",
+      "many": "{count} секунд назад"
+    },
+    "showMinutes": {
+      "one": "1 минуту назад",
+      "other": "{count} минут назад",
+      "many": "{count} минут назад"
+    },
+    "showHours": {
+      "one": "1 час назад",
+      "other": "{count} часов назад",
+      "many": "{count} часов назад"
+    },
+    "showDays": {
+      "one": "1 день назад",
+      "other": "{count} дней назад",
+      "many": "{count} дней назад"
+    },
+    "showMonths": {
+      "one": "1 месяц назад",
+      "other": "{count} месяцев назад",
+      "many": "{count} месяцев назад"
+    },
+    "showYears": {
+      "one": "1 год назад",
+      "other": "{count} лет назад",
+      "many": "{count} лет назад"
+    },
+    "reply": "Ответить",
+    "deleteComment": "Удалить комментарий",
+    "youAreNotOwner": "Вы не владелец этого комментария",
+    "confirmDeleteDescription": "Вы уверены, что хотите удалить этот комментарий?",
+    "hasBeenDeleted": "Удалено",
+    "replyingTo": "Ответ на",
+    "noAccessDeleteComment": "Вам не разрешено удалять этот комментарий",
+    "collapse": "Свернуть",
+    "readMore": "Читать далее",
+    "failedToAddComment": "Не удалось добавить комментарий",
+    "commentAddedSuccessfully": "Комментарий успешно добавлен.",
+    "commentAddedSuccessTip": "Вы только что добавили или ответили на комментарий. Хотите перейти вверх, чтобы увидеть последние комментарии?"
+  },
+  "template": {
+    "asTemplate": "Сохранить как шаблон",
+    "name": "Название шаблона",
+    "description": "Описание шаблона",
+    "about": "О шаблоне",
+    "deleteFromTemplate": "Удалить из шаблонов",
+    "preview": "Предпросмотр шаблона",
+    "categories": "Категории шаблонов",
+    "isNewTemplate": "ЗАКРЕПИТЬ в Новые шаблоны",
+    "featured": "ЗАКРЕПИТЬ в Рекомендуемые",
+    "relatedTemplates": "Связанные шаблоны",
+    "requiredField": "{field} обязателен",
+    "addCategory": "Добавить \"{category}\"",
+    "addNewCategory": "Добавить новую категорию",
+    "addNewCreator": "Добавить нового автора",
+    "deleteCategory": "Удалить категорию",
+    "editCategory": "Редактировать категорию",
+    "editCreator": "Редактировать автора",
+    "category": {
+      "name": "Название категории",
+      "icon": "Иконка категории",
+      "bgColor": "Цвет фона категории",
+      "priority": "Приоритет категории",
+      "desc": "Описание категории",
+      "type": "Тип категории",
+      "icons": "Иконки категорий",
+      "colors": "Цвета категорий",
+      "byUseCase": "По варианту использования",
+      "byFeature": "По функции",
+      "deleteCategory": "Удалить категорию",
+      "deleteCategoryDescription": "Вы уверены, что хотите удалить эту категорию?",
+      "typeToSearch": "Введите для поиска категорий..."
+    },
+    "creator": {
+      "label": "Автор шаблона",
+      "name": "Имя автора",
+      "avatar": "Аватар автора",
+      "accountLinks": "Ссылки на аккаунт автора",
+      "uploadAvatar": "Нажмите, чтобы загрузить аватар",
+      "deleteCreator": "Удалить автора",
+      "deleteCreatorDescription": "Вы уверены, что хотите удалить этого автора?",
+      "typeToSearch": "Введите для поиска авторов..."
+    },
+    "uploadSuccess": "Шаблон успешно загружен",
+    "uploadSuccessDescription": "Ваш шаблон успешно загружен. Теперь вы можете просмотреть его в галерее шаблонов.",
+    "viewTemplate": "Просмотреть шаблон",
+    "deleteTemplate": "Удалить шаблон",
+    "deleteSuccess": "Шаблон успешно удален",
+    "deleteTemplateDescription": "Это не повлияет на текущую страницу или статус публикации. Вы уверены, что хотите удалить этот шаблон?",
+    "addRelatedTemplate": "Добавить связанный шаблон",
+    "removeRelatedTemplate": "Удалить связанный шаблон",
+    "uploadAvatar": "Загрузить аватар",
+    "searchInCategory": "Поиск в {category}",
+    "label": "Шаблоны"
+  },
+  "fileDropzone": {
+    "dropFile": "Нажмите или перетащите файл в эту область для загрузки",
+    "uploading": "Загрузка...",
+    "uploadFailed": "Загрузка не удалась",
+    "uploadSuccess": "Загрузка успешно",
+    "uploadSuccessDescription": "Файл успешно загружен",
+    "uploadFailedDescription": "Загрузка файла не удалась",
+    "uploadingDescription": "Файл загружается"
+  },
+  "gallery": {
+    "preview": "Открыть на весь экран",
+    "copy": "Копировать",
+    "download": "Скачать",
+    "prev": "Предыдущий",
+    "next": "Следующий",
+    "resetZoom": "Сбросить масштаб",
+    "zoomIn": "Увеличить",
+    "zoomOut": "Уменьшить"
+  },
+  "invitation": {
+    "join": "Присоединиться",
+    "on": "в",
+    "invitedBy": "Приглашен(а)",
+    "membersCount": {
+      "zero": "{count} участников",
+      "one": "{count} участник",
+      "many": "{count} участников",
+      "other": "{count} участников"
+    },
+    "tip": "Вас пригласили присоединиться к этому рабочему пространству, используя указанную ниже контактную информацию. Если это неверно, свяжитесь с администратором, чтобы отправить приглашение повторно.",
+    "joinWorkspace": "Присоединиться к рабочему пространству",
+    "success": "Вы успешно присоединились к рабочему пространству",
+    "successMessage": "Теперь у вас есть доступ ко всем страницам и рабочим пространствам в нем.",
+    "openWorkspace": "Открыть AppFlowy",
+    "alreadyAccepted": "Вы уже приняли приглашение",
+    "errorModal": {
+      "title": "Что-то пошло не так",
+      "description": "Ваш текущий аккаунт {email} может не иметь доступа к этому рабочему пространству. Пожалуйста, войдите с правильным аккаунтом или свяжитесь с владельцем рабочего пространства за помощью.",
+      "contactOwner": "Связаться с владельцем",
+      "close": "Назад на главную",
+      "changeAccount": "Сменить аккаунт"
+    }
+  },
+  "requestAccess": {
+    "title": "Нет доступа к этой странице",
+    "subtitle": "Вы можете запросить доступ у владельца этой страницы. После одобрения вы сможете просмотреть страницу.",
+    "requestAccess": "Запросить доступ",
+    "backToHome": "Назад на главную",
+    "tip": "Вы вошли как <link/>.",
+    "mightBe": "Возможно, вам нужно <login/> с другой учетной записью.",
+    "successful": "Запрос успешно отправлен",
+    "successfulMessage": "Вы будете уведомлены, как только владелец одобрит ваш запрос.",
+    "requestError": "Не удалось запросить доступ",
+    "repeatRequestError": "Вы уже запросили доступ к этой странице"
+  },
+  "approveAccess": {
+    "title": "Одобрить запрос на присоединение к рабочему пространству",
+    "requestSummary": "<user/> запрашивает присоединение к <workspace/> и доступ к <page/>",
+    "upgrade": "обновиться",
+    "downloadApp": "Скачать AppFlowy",
+    "approveButton": "Одобрить",
+    "approveSuccess": "Успешно одобрено",
+    "approveError": "Не удалось одобрить, убедитесь, что лимит плана рабочего пространства не превышен",
+    "getRequestInfoError": "Не удалось получить информацию о запросе",
+    "memberCount": {
+      "zero": "Нет участников",
+      "one": "1 участник",
+      "many": "{count} участников",
+      "other": "{count} участников"
+    },
+    "alreadyProTitle": "Вы достигли лимита плана рабочего пространства",
+    "alreadyProMessage": "Попросите их связаться с <email/>, чтобы разблокировать больше участников",
+    "repeatApproveError": "Вы уже одобрили этот запрос",
+    "ensurePlanLimit": "Убедитесь, что лимит плана рабочего пространства не превышен. Если лимит превышен, рассмотрите возможность <upgrade/> плана рабочего пространства или <download/>.",
+    "requestToJoin": "запросил(а) присоединиться",
+    "asMember": "как участник"
+  },
+  "upgradePlanModal": {
+    "title": "Обновиться до Pro",
+    "message": "{name} достиг бесплатного лимита участников. Обновитесь до плана Pro, чтобы пригласить больше участников.",
+    "upgradeSteps": "Как обновить план в AppFlowy:",
+    "step1": "1. Перейдите в Настройки",
+    "step2": "2. Нажмите на 'План'",
+    "step3": "3. Выберите 'Изменить план'",
+    "appNote": "Примечание: ",
+    "actionButton": "Обновить",
+    "downloadLink": "Скачать приложение",
+    "laterButton": "Позже",
+    "refreshNote": "После успешного обновления нажмите <refresh/>, чтобы активировать новые функции.",
+    "refresh": "здесь"
+  },
+  "breadcrumbs": {
+    "label": "Хлебные крошки"
+  },
+  "time": {
+    "justNow": "Только что",
+    "seconds": {
+      "one": "1 секунда",
+      "other": "{count} секунд"
+    },
+    "minutes": {
+      "one": "1 минута",
+      "other": "{count} минут"
+    },
+    "hours": {
+      "one": "1 час",
+      "other": "{count} часов"
+    },
+    "days": {
+      "one": "1 день",
+      "other": "{count} дней"
+    },
+    "weeks": {
+      "one": "1 неделя",
+      "other": "{count} недель"
+    },
+    "months": {
+      "one": "1 месяц",
+      "other": "{count} месяцев"
+    },
+    "years": {
+      "one": "1 год",
+      "other": "{count} лет"
+    },
+    "ago": "назад",
+    "yesterday": "Вчера",
+    "today": "Сегодня"
+  },
+  "members": {
+    "zero": "Нет участников",
+    "one": "1 участник",
+    "many": "{count} участников",
+    "other": "{count} участников"
+  },
+  "tabMenu": {
+    "close": "Закрыть",
+    "closeDisabledHint": "Нельзя закрыть закрепленную вкладку, сначала открепите",
+    "closeOthers": "Закрыть другие вкладки",
+    "closeOthersHint": "Это закроет все незакрепленные вкладки, кроме этой",
+    "closeOthersDisabledHint": "Все вкладки закреплены, нет вкладок для закрытия",
+    "favorite": "Избранное",
+    "unfavorite": "Удалить из избранного",
+    "favoriteDisabledHint": "Невозможно добавить этот вид в избранное",
+    "pinTab": "Закрепить",
+    "unpinTab": "Открепить"
+  },
+  "openFileMessage": {
+    "success": "Файл успешно открыт",
+    "fileNotFound": "Файл не найден",
+    "noAppToOpenFile": "Нет приложения для открытия этого файла",
+    "permissionDenied": "Нет разрешения на открытие этого файла",
+    "unknownError": "Ошибка открытия файла"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "Пригласить в рабочее пространство",
+    "inviteFailedMemberLimit": "Достигнут лимит участников, пожалуйста, ",
+    "upgrade": "обновитесь",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "Отправить приглашения",
+    "inviteAlready": "Вы уже приглашали этот email: {email}",
+    "inviteSuccess": "Приглашение успешно отправлено",
+    "description": "Введите адреса электронной почты ниже через запятую. Плата рассчитывается исходя из количества участников.",
+    "emails": "Email"
+  },
+  "quickNote": {
+    "label": "Быстрая заметка",
+    "quickNotes": "Быстрые заметки",
+    "search": "Поиск быстрых заметок",
+    "collapseFullView": "Свернуть полный вид",
+    "expandFullView": "Развернуть полный вид",
+    "createFailed": "Не удалось создать быструю заметку",
+    "quickNotesEmpty": "Нет быстрых заметок",
+    "emptyNote": "Пустая заметка",
+    "deleteNotePrompt": "Выбранная заметка будет удалена навсегда. Вы уверены, что хотите ее удалить?",
+    "addNote": "Новая заметка",
+    "noAdditionalText": "Нет дополнительного текста"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "Сравнить и выбрать план",
+    "yearly": "Ежегодно",
+    "save": "Сэкономить {discount}%",
+    "monthly": "Ежемесячно",
+    "priceIn": "Цена в ",
+    "free": "Бесплатно",
+    "pro": "Pro",
+    "freeDescription": "Для индивидуального использования до 2 участников для организации всего",
+    "proDescription": "Для небольших команд для управления проектами и знаниями команды",
+    "proDuration": {
+      "monthly": "за участника в месяц\nежемесячно",
+      "yearly": "за участника в месяц\nежегодно"
+    },
+    "cancel": "Понизить",
+    "changePlan": "Обновить до плана Pro",
+    "everythingInFree": "Все в бесплатном плане +",
+    "currentPlan": "Текущий",
+    "freeDuration": "навсегда",
+    "freePoints": {
+      "first": "1 совместное рабочее пространство до 2 участников",
+      "second": "Неограниченное количество страниц и блоков",
+      "three": "5 ГБ хранилища",
+      "four": "Интеллектуальный поиск",
+      "five": "20 ответов AI",
+      "six": "Мобильное приложение",
+      "seven": "Совместная работа в реальном времени"
+    },
+    "proPoints": {
+      "first": "Неограниченное хранилище",
+      "second": "До 10 участников рабочего пространства",
+      "three": "Неограниченные ответы AI",
+      "four": "Неограниченная загрузка файлов",
+      "five": "Пользовательское пространство имен"
+    },
+    "cancelPlan": {
+      "title": "Жаль видеть, что вы уходите",
+      "success": "Ваша подписка успешно отменена",
+      "description": "Нам жаль, что вы уходите. Мы будем рады услышать ваш отзыв, чтобы помочь нам улучшить AppFlowy. Пожалуйста, уделите минутку, чтобы ответить на несколько вопросов.",
+      "commonOther": "Другое",
+      "otherHint": "Напишите свой ответ здесь",
+      "questionOne": {
+        "question": "Что побудило вас отменить подписку на AppFlowy Pro?",
+        "answerOne": "Слишком высокая стоимость",
+        "answerTwo": "Функции не соответствовали ожиданиям",
+        "answerThree": "Нашел лучшую альтернативу",
+        "answerFour": "Использовал недостаточно для оправдания расходов",
+        "answerFive": "Проблема с сервисом или технические трудности"
+      },
+      "questionTwo": {
+        "question": "Насколько вероятно, что вы рассмотрите возможность повторной подписки на AppFlowy Pro в будущем?",
+        "answerOne": "Очень вероятно",
+        "answerTwo": "Несколько вероятно",
+        "answerThree": "Не уверен",
+        "answerFour": "Маловероятно",
+        "answerFive": "Очень маловероятно"
+      },
+      "questionThree": {
+        "question": "Какую функцию Pro вы ценили больше всего во время подписки?",
+        "answerOne": "Совместная работа нескольких пользователей",
+        "answerTwo": "Более долгая история версий",
+        "answerThree": "Неограниченные ответы AI",
+        "answerFour": "Доступ к локальным моделям AI"
+      },
+      "questionFour": {
+        "question": "Как бы вы описали свой общий опыт использования AppFlowy?",
+        "answerOne": "Отлично",
+        "answerTwo": "Хорошо",
+        "answerThree": "Средне",
+        "answerFour": "Ниже среднего",
+        "answerFive": "Недоволен"
+      }
+    }
+  },
+  "ai": {
+    "contentPolicyViolation": "Не удалось сгенерировать изображение из-за конфиденциального содержимого. Пожалуйста, переформулируйте запрос и попробуйте снова",
+    "textLimitReachedDescription": "В вашем рабочем пространстве закончились бесплатные ответы AI. Обновитесь до плана Pro или купите дополнение AI, чтобы разблокировать неограниченные ответы",
+    "imageLimitReachedDescription": "Вы использовали квоту на бесплатные изображения AI. Обновитесь до плана Pro или купите дополнение AI, чтобы разблокировать неограниченные ответы",
+    "limitReachedAction": {
+      "textDescription": "В вашем рабочем пространстве закончились бесплатные ответы AI. Чтобы получить больше ответов, пожалуйста, ",
+      "imageDescription": "Вы использовали квоту на бесплатные изображения AI. Пожалуйста, ",
+      "upgrade": "обновитесь",
+      "toThe": "до",
+      "proPlan": "плана Pro",
+      "orPurchaseAn": "или купите",
+      "aiAddon": "дополнение AI"
+    },
+    "editing": "Редактирование",
+    "analyzing": "Анализ",
+    "continueWritingEmptyDocumentTitle": "Ошибка продолжения написания",
+    "continueWritingEmptyDocumentDescription": "У нас возникли проблемы с продолжением контента в вашем документе. Напишите небольшое введение, и мы сможем продолжить с него!",
+    "more": "Еще",
+    "customPrompt": {
+      "browsePrompts": "Обзор запросов",
+      "usePrompt": "Использовать запрос",
+      "featured": "Рекомендуемые",
+      "example": "Пример",
+      "all": "Все",
+      "development": "Разработка",
+      "writing": "Написание",
+      "healthAndFitness": "Здоровье и фитнес",
+      "business": "Бизнес",
+      "marketing": "Маркетинг",
+      "travel": "Путешествия",
+      "others": "Другое",
+      "prompt": "Запрос",
+      "sampleOutput": "Пример вывода",
+      "contentSeo": "Контент/SEO",
+      "emailMarketing": "Email маркетинг",
+      "paidAds": "Платная реклама",
+      "prCommunication": "PR/Коммуникации",
+      "recruiting": "Подбор персонала",
+      "sales": "Продажи",
+      "socialMedia": "Социальные сети",
+      "strategy": "Стратегия",
+      "caseStudies": "Кейсы",
+      "salesCopy": "Продающий текст",
+      "learning": "Обучение"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Требуется обновление для продолжения",
+    "criticalUpdateDescription": "Мы внесли улучшения для повышения удобства использования! Пожалуйста, обновите с {currentVersion} до {newVersion}, чтобы продолжить использовать приложение.",
+    "criticalUpdateButton": "Обновить",
+    "bannerUpdateTitle": "Доступна новая версия!",
+    "bannerUpdateDescription": "Получите последние функции и исправления. Нажмите \"Обновить\" для установки сейчас",
+    "bannerUpdateButton": "Обновить",
+    "settingsUpdateTitle": "Доступна новая версия ({newVersion})!",
+    "settingsUpdateDescription": "Текущая версия: {currentVersion} (Официальная сборка) → {newVersion}",
+    "settingsUpdateButton": "Обновить",
+    "settingsUpdateWhatsNew": "Что нового"
+  },
+  "lockPage": {
+    "lockPage": "Заблокировано",
+    "reLockPage": "Переблокировать",
+    "lockTooltip": "Страница заблокирована для предотвращения случайного редактирования. Нажмите, чтобы разблокировать.",
+    "pageLockedToast": "Страница заблокирована. Редактирование отключено, пока кто-нибудь не разблокирует.",
+    "lockedOperationTooltip": "Страница заблокирована для предотвращения случайного редактирования."
+  },
+  "suggestion": {
+    "accept": "Принять",
+    "keep": "Сохранить",
+    "discard": "Отменить",
+    "close": "Закрыть",
+    "tryAgain": "Попробовать снова",
+    "rewrite": "Переписать",
+    "insertBelow": "Вставить ниже"
+  }
+}

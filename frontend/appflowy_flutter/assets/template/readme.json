@@ -1,0 +1,254 @@
+{
+    "document": {
+      "type": "editor",
+      "children": [
+        { "type": "cover" },
+        {
+          "type": "text",
+          "attributes": { "subtype": "heading", "heading": "h1" },
+          "delta": [{ "insert": "Welcome to AppFlowy!" }]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "heading", "heading": "h2" },
+          "delta": [{ "insert": "Here are the basics" }]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": null },
+          "delta": [{ "insert": "Click anywhere and just start typing." }]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": false },
+          "delta": [
+            {
+              "insert": "Highlight ",
+              "attributes": { "backgroundColor": "0x4dffeb3b" }
+            },
+            { "insert": "any text, and use the editing menu to " },
+            { "insert": "style", "attributes": { "italic": true } },
+            { "insert": " " },
+            { "insert": "your", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "writing", "attributes": { "underline": true } },
+            { "insert": " " },
+            { "insert": "however", "attributes": { "code": true } },
+            { "insert": " you " },
+            { "insert": "like.", "attributes": { "strikethrough": true } }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": null },
+          "delta": [
+            { "insert": "As soon as you type " },
+            {
+              "insert": "/",
+              "attributes": { "code": true, "color": "0xff00b5ff" }
+            },
+            { "insert": " a menu will pop up. Select " },
+            {
+              "insert": "different types",
+              "attributes": { "backgroundColor": "0x4d9c27b0" }
+            },
+            { "insert": " of content blocks you can add." }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": null },
+          "delta": [
+            { "insert": "Type " },
+            { "insert": "/", "attributes": { "code": true } },
+            { "insert": " followed by " },
+            { "insert": "/bullet", "attributes": { "code": true } },
+            { "insert": " or " },
+            { "insert": "/num", "attributes": { "code": true } },
+            { "insert": " to create a list.", "attributes": { "code": false } }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": true },
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "+ New Page", "attributes": { "code": true } },
+            {
+              "insert": " button at the bottom of your sidebar to add a new page."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "checkbox", "checkbox": null },
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "+", "attributes": { "code": true } },
+            { "insert": " next to any page title in the sidebar to " },
+            { "insert": "quickly", "attributes": { "color": "0xff8427e0" } },
+            { "insert": " add a new subpage, " },
+            { "insert": "Document", "attributes": { "code": true } },
+            { "insert": ", ", "attributes": { "code": false } },
+            { "insert": "Grid", "attributes": { "code": true } },
+            { "insert": ", or ", "attributes": { "code": false } },
+            { "insert": "Kanban Board", "attributes": { "code": true } },
+            { "insert": ".", "attributes": { "code": false } }
+          ]
+        },
+        { "type": "text", "delta": [] },
+        { "type": "divider" },
+        { "type": "text", "attributes": { "checkbox": null }, "delta": [] },
+        {
+          "type": "text",
+          "attributes": {
+            "subtype": "heading",
+            "checkbox": null,
+            "heading": "h2"
+          },
+          "delta": [{ "insert": "Keyboard shortcuts, markdown, and code block" }]
+        },
+        {
+          "type": "text",
+          "attributes": {
+            "subtype": "number-list",
+            "number": 1,
+            "heading": null
+          },
+          "delta": [
+            { "insert": "Keyboard shortcuts " },
+            {
+              "insert": "guide",
+              "attributes": {
+                "href": "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts"
+              }
+            },
+            { "retain": 1, "attributes": { "strikethrough": true } }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": {
+            "subtype": "number-list",
+            "number": 2,
+            "heading": null
+          },
+          "delta": [
+            { "insert": "Markdown " },
+            {
+              "insert": "reference",
+              "attributes": {
+                "href": "https://appflowy.gitbook.io/docs/essential-documentation/markdown"
+              }
+            },
+            { "retain": 1, "attributes": { "strikethrough": true } }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": { "number": 3, "subtype": "number-list" },
+          "delta": [
+            { "insert": "Type " },
+            { "insert": "/code", "attributes": { "code": true } },
+            {
+              "insert": " to insert a code block",
+              "attributes": { "code": false }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "attributes": {
+            "subtype": "code_block",
+            "number": 3,
+            "heading": null,
+            "number-list": null,
+            "theme": "vs",
+            "language": "rust"
+          },
+          "delta": [
+            {
+              "insert": "// This is the main function.\nfn main() {\n    // Print text to the console.\n    println!(\"Hello World!\");\n}"
+            },
+            { "retain": 1, "attributes": { "strikethrough": true } }
+          ]
+        },
+        { "type": "text", "attributes": { "checkbox": null }, "delta": [] },
+        {
+          "type": "text",
+          "attributes": {
+            "subtype": "heading",
+            "checkbox": null,
+            "heading": "h2"
+          },
+          "delta": [{ "insert": "Have a question❓" }]
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": "quote" },
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "?", "attributes": { "code": true } },
+            { "insert": " at the bottom right for help and support." }
+          ]
+        },
+        { "type": "text", "delta": [] },
+        {
+          "type": "callout",
+          "children": [
+            { "type": "text", "delta": [] },
+            {
+              "type": "text",
+              "attributes": { "subtype": "heading", "heading": "h2" },
+              "delta": [{ "insert": "Like AppFlowy? Follow us:" }]
+            },
+            {
+              "type": "text",
+              "attributes": { "subtype": "bulleted-list" },
+              "delta": [
+                {
+                  "insert": "GitHub",
+                  "attributes": {
+                    "href": "https://github.com/AppFlowy-IO/AppFlowy"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "attributes": { "subtype": "bulleted-list" },
+              "delta": [
+                {
+                  "insert": "Twitter",
+                  "attributes": { "href": "https://twitter.com/appflowy" }
+                },
+                { "insert": ": @appflowy" }
+              ]
+            },
+            {
+              "type": "text",
+              "attributes": { "subtype": "bulleted-list" },
+              "delta": [
+                {
+                  "insert": "Newsletter",
+                  "attributes": { "href": "https://blog-appflowy.ghost.io/" }
+                }
+              ]
+            }
+          ],
+          "attributes": { "emoji": "😀" }
+        },
+        { "type": "text", "delta": [] },
+        {
+          "type": "text",
+          "attributes": { "subtype": null, "heading": null },
+          "delta": []
+        },
+        {
+          "type": "text",
+          "attributes": { "subtype": null, "heading": null },
+          "delta": []
+        }
+      ]
+    }
+  }

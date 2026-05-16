@@ -1,0 +1,46 @@
+
+[tasks.tauri_dev]
+env = { RUST_LOG = "debug" }
+script = ["""
+    cd appflowy_tauri
+    npm run tauri:dev
+    """]
+script_runner = "@shell"
+
+[tasks.tauri_clean]
+description = "Remove all the building artifacts"
+run_task = { name = [
+  "rust_lib_clean",
+  "rm_macro_build_cache",
+  "rm_rust_generated_files",
+  "rm_tauri_generated_protobuf_files",
+  "rm_tauri_generated_event_files",
+] }
+
+[tasks.rm_tauri_generated_protobuf_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${TAURI_BACKEND_SERVICE_PATH}/models
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
+
+[tasks.rm_tauri_generated_event_files]
+private = true
+script = ["""
+  event_file_paths = glob_array ${TAURI_BACKEND_SERVICE_PATH}/events
+  if not array_is_empty ${event_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${event_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"

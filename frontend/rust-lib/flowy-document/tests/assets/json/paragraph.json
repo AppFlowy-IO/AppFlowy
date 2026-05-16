@@ -1,0 +1,59 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "paragraph",
+      "data": { "delta": [
+        { "insert": "\nLike AppFlowy? Follow us:\n" },
+        {
+          "attributes": {
+            "href": "https://github.com/AppFlowy-IO/AppFlowy"
+          },
+          "insert": "GitHub"
+        },
+        { "insert": "\n" },
+        {
+          "attributes": { "href": "https://twitter.com/appflowy" },
+          "insert": "Twitter"
+        },
+        { "insert": ": @appflowy\n" },
+        {
+          "attributes": { "href": "https://blog-appflowy.ghost.io/" },
+          "insert": "Newsletter"
+        },
+        { "insert": "\n" }
+      ]},
+      "children": [{
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            { "insert": "Click " },
+            { "attributes": { "code": true }, "insert": "?" },
+            { "insert": " at the bottom right for help and support." }
+          ]
+        }
+      }]
+    },
+    {
+      "type": "paragraph",
+      "data": { "delta": [
+        {
+          "attributes": { "bg_color": "0x4dffeb3b" },
+          "insert": "Highlight "
+        },
+        { "insert": "any text, and use the editing menu to " },
+        { "attributes": { "italic": true }, "insert": "style" },
+        { "insert": " " },
+        { "attributes": { "bold": true }, "insert": "your" },
+        { "insert": " " },
+        { "attributes": { "underline": true }, "insert": "writing" },
+        { "insert": " " },
+        { "attributes": { "code": true }, "insert": "however" },
+        { "insert": " you ", "attributes": { "font_color": "0x4dffeb3b" } },
+        { "attributes": { "strikethrough": true }, "insert": "like." },
+        { "attributes": { "formula": true }, "insert": "1+1=2" }
+      ] }
+    }
+  ]
+}

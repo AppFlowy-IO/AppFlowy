@@ -1,0 +1,33 @@
+[package]
+name = "collab-integrate"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+collab = { workspace = true }
+collab-plugins = { workspace = true }
+collab-entity = { workspace = true }
+collab-document = { workspace = true }
+collab-folder = { workspace = true }
+collab-user = { workspace = true }
+collab-database = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+lib-infra = { workspace = true }
+arc-swap = "1.7"
+flowy-error.workspace = true
+uuid.workspace = true
+flowy-ai-pub.workspace = true
+
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+
+[features]
+default = []

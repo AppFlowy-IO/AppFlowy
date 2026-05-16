@@ -1,0 +1,731 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "میں",
+    "welcomeText": "میں خوش آمدید @:appName",
+    "githubStarText": "GitHub پر ستارہ دیں",
+    "subscribeNewsletterText": "نیوزلیٹر سبسکرائب کریں",
+    "letsGoButtonText": "چلو",
+    "title": "عنوان",
+    "youCanAlso": "پ یہ بھی کر سکتے ہیں",
+    "and": "اور",
+    "blockActions": {
+        "addBelowTooltip": "نیچے شامل کرنے کے لیے کلک کریں",
+        "addAboveCmd": "Alt+click",
+        "addAboveMacCmd": "Option+click",
+        "addAboveTooltip": "اوپر شامل کرنے کے لیے",
+        "dragTooltip": "منتقل کرنے کے لیے ڈریگ کریں",
+        "openMenuTooltip": "Click to open menu"
+    },
+    "signUp": {
+        "buttonText": "سائن اپ کریں",
+        "title": "@:appName پر سائن اپ کریں",
+        "getStartedText": "شروع کریں",
+        "emptyPasswordError": "پاس ورڈ خالی نہیں ہونا چاہیے",
+        "repeatPasswordEmptyError": "دہرائیں پاس ورڈ خالی نہیں ہونا چاہیے",
+        "unmatchedPasswordError": "دہرائیں پاس ورڈ پاس ورڈ سے مماثل نہیں ہے",
+        "alreadyHaveAnAccount": "پہلے ہی اکاؤنٹ ہے؟",
+        "emailHint": "ای میل",
+        "passwordHint": "پاس ورڈ",
+        "repeatPasswordHint": "دہرائیں پاس ورڈ",
+        "signUpWith": "اس کے ساتھ سائن اپ کریں:"
+    },
+    "signIn": {
+        "loginTitle": "@:appName پر لاگ ان کریں",
+        "loginButtonText": "لاگ ان کریں",
+        "loginStartWithAnonymous": "ایک ناشناس سیشن سے شروع کریں",
+        "continueAnonymousUser": "ایک ناشناس سیشن کے ساتھ جاری رکھیں",
+        "buttonText": "سائن ان کریں",
+        "forgotPassword": "پاس ورڈ بھول گئے؟",
+        "emailHint": "ای میل",
+        "passwordHint": "پاس ورڈ",
+        "dontHaveAnAccount": "اکاؤنٹ نہیں ہے؟",
+        "repeatPasswordEmptyError": "دہرائیں پاس ورڈ خالی نہیں ہونا چاہیے",
+        "unmatchedPasswordError": "دہرائیں پاس ورڈ پاس ورڈ سے مماثل نہیں ہے",
+        "syncPromptMessage": "ڈیٹا کو ہمگام بنانے میں کچھ وقت لگ سکتا ہے۔ براہ کرم یہ صفحہ بند نہ کریں۔",
+        "or": "یا",
+        "LogInWithGoogle": "Google کے ساتھ لاگ ان کریں",
+        "LogInWithGithub": "Github کے ساتھ لاگ ان کریں",
+        "LogInWithDiscord": "Discord کے ساتھ لاگ ان کریں",
+        "signInWith": "اس کے ساتھ سائن ان کریں:"
+    },
+    "workspace": {
+        "chooseWorkspace": "اپنا ورک اسپیس منتخب کریں",
+        "create": "ورک اسپیس بنائیں",
+        "reset": "ورک اسپیس ری سیٹ کریں",
+        "resetWorkspacePrompt": "ورک اسپیس کو ری سیٹ کرنے سے اس کے اندر تمام صفحات اور ڈیٹا حذف ہو جائے گا۔ کیا آپ یقینی طور پر ورک اسپیس کو ری سیٹ کرنا چاہتے ہیں؟ متبادل طور پر، آپ ورک اسپیس کو بحال کرنے کے لیے سپورٹ ٹیم سے رابطہ کر سکتے ہیں۔",
+        "hint": "ورک اسپیس",
+        "notFoundError": "ورک اسپیس نہیں ملا"
+    },
+    "shareAction": {
+        "buttonText": "اشتراک کریں",
+        "workInProgress": "جلد آرہا ہے",
+        "markdown": "مارک ڈاؤن",
+        "csv": "CSV",
+        "copyLink": "لنک کاپی کریں"
+    },
+    "moreAction": {
+        "small": "چھوٹا",
+        "medium": "متوسط",
+        "large": "بڑا",
+        "fontSize": "فونٹ کا سائز",
+        "import": " درآمد کریں",
+        "moreOptions": "مزید اختیارات"
+    },
+    "importPanel": {
+        "textAndMarkdown": "ٹیکسٹ اور مارک ڈاؤن",
+        "documentFromV010": "v0.1.0 سے دستاویز",
+        "databaseFromV010": "v0.1.0 سے ڈیٹابیس",
+        "csv": "CSV",
+        "database": "ڈیٹابیس"
+    },
+    "disclosureAction": {
+        "rename": "نام بدلیں",
+        "delete": "حذف کریں",
+        "duplicate": "نقل کریں",
+        "unfavorite": "پسندیدہ سے ہٹائیں",
+        "favorite": "پسندیدہ میں شامل کریں",
+        "openNewTab": "نئے ٹیب میں کھولیں",
+        "moveTo": "منتقل کریں",
+        "addToFavorites": "پسندیدہ میں شامل کریں",
+        "copyLink": "لنک کاپی کریں"
+    },
+    "blankPageTitle": "خالی صفحہ",
+    "newPageText": "نیا صفحہ",
+    "newDocumentText": "نیا دستاویز",
+    "newGridText": "نیا گرڈ",
+    "newCalendarText": "نیا کیلنڈر",
+    "newBoardText": "نیا بورڈ",
+    "trash": {
+        "text": "ٹوکری",
+        "restoreAll": "تمام بحال کریں",
+        "deleteAll": "تمام حذف کریں",
+        "pageHeader": {
+            "fileName": "فائل کا نام",
+            "lastModified": "آخری بار ترمیم کیا گیا",
+            "created": "بنائی گئی"
+        },
+        "confirmDeleteAll": {
+            "title": "کیا آپ ٹوکری میں تمام صفحات حذف کرنا چاہتے ہیں؟",
+            "caption": "اس کارروائی کو کالعدم نہیں کیا جا سکتا۔"
+        },
+        "confirmRestoreAll": {
+            "title": "کیا آپ ٹوکری میں تمام صفحات بحال کرنا چاہتے ہیں؟",
+            "caption": "اس کارروائی کو کالعدم نہیں کیا جا سکتا۔"
+        }
+    },
+    "deletePagePrompt": {
+        "text": "یہ صفحہ ٹوکری میں ہے",
+        "restore": "صفحہ بحال کریں",
+        "deletePermanent": "مستقل طور پر حذف کریں"
+    },
+    "dialogCreatePageNameHint": "صفحہ کا نام",
+    "questionBubble": {
+        "shortcuts": "شارٹ کٹس",
+        "whatsNew": "کیا نیا ہے؟",
+        "help": "مدد اور سپورٹ",
+        "markdown": "مارک ڈاؤن",
+        "debug": {
+            "name": "ڈیبگ معلومات",
+            "success": "ڈیبگ معلومات کلپ بورڈ پر کاپی ہو گئیں!",
+            "fail": "ڈیبگ معلومات کلپ بورڈ پر کاپی نہیں کی جا سکیں"
+        },
+        "feedback": "تاثرات"
+    },
+    "menuAppHeader": {
+        "moreButtonToolTip": "حذف کریں، نام بدلیں، اور مزید...",
+        "addPageTooltip": "اندر جلد از جلد ایک صفحہ شامل کریں۔",
+        "defaultNewPageName": "بغیر عنوان",
+        "renameDialog": "نام بدلیں"
+    },
+    "toolbar": {
+        "undo": "واپس لو",
+        "redo": "دوبارہ کرنا",
+        "bold": "موٹا",
+        "italic": "ترچھی",
+        "underline": "اندرونی خط",
+        "strike": "لائن کے ذریعے",
+        "numList": "نمبر والی فہرست",
+        "bulletList": "بلیٹ والی فہرست",
+        "checkList": "چیک لسٹ",
+        "inlineCode": "ان لائن کوڈ",
+        "quote": "اقتباس بلاک",
+        "header": "ہیڈر",
+        "highlight": "ہائی لائٹ",
+        "color": "رنگ",
+        "addLink": "لنک شامل کریں",
+        "link": "لنک"
+    },
+    "tooltip": {
+        "lightMode": "لائٹ موڈ پر سوئچ کریں",
+        "darkMode": "ڈارک موڈ پر سوئچ کریں",
+        "openAsPage": "ایک صفحہ کے طور پر کھولیں",
+        "addNewRow": "ایک نئی قطار شامل کریں",
+        "openMenu": "مینو کھولنے کے لیے کلک کریں۔",
+        "dragRow": "قطار کو دوبارہ ترتیب دینے کے لیے طویل پریس کریں۔",
+        "viewDataBase": "ڈیٹابیس دیکھیں",
+        "referencePage": "اس {name} کا حوالہ دیا گیا ہے",
+        "addBlockBelow": "نیچے ایک بلاک شامل کریں"
+    },
+    "sideBar": {
+        "closeSidebar": "سائیڈ بار بند کریں",
+        "openSidebar": "سائیڈ بار کھولیں",
+        "personal": "ذاتی",
+        "favorites": "پسندیدہ",
+        "clickToHidePersonal": "ذاتی سیکشن چھپانے کے لیے کلک کریں۔",
+        "clickToHideFavorites": "پسندیدہ سیکشن چھپانے کے لیے کلک کریں۔",
+        "addAPage": "صفحہ شامل کریں"
+    },
+    "notifications": {
+        "export": {
+            "markdown": "مارک ڈاؤن کو نوٹ برآمد کریں",
+            "path": "دستخط/flowy"
+        }
+    },
+    "contactsPage": {
+        "title": "رابطے",
+        "whatsHappening": "اس ہفتے کیا ہو رہا ہے؟",
+        "addContact": "رابطہ شامل کریں",
+        "editContact": "رابطہ ایڈیٹ کریں"
+    },
+    "button": {
+        "ok": "ٹھیک ہے",
+        "cancel": "منسوخ کریں",
+        "signIn": "سائن ان کریں",
+        "signOut": "سائن آؤٹ کریں",
+        "complete": "مکمل",
+        "save": "محفوظ کریں",
+        "generate": "جنریٹ کریں",
+        "esc": "ESC",
+        "keep": "رکھیں",
+        "tryAgain": "دوبارہ کوشش کریں",
+        "discard": "چھوڑ دیں",
+        "replace": "تبدیل کریں",
+        "insertBelow": "نیچے داخل کریں",
+        "upload": "اپ لوڈ کریں",
+        "edit": "تبدیل کریں",
+        "delete": "حذف کریں",
+        "duplicate": "نقل کریں",
+        "done": "ہو گیا",
+        "putback": "واپس رکھیں"
+    },
+    "label": {
+        "welcome": "خیر مقدم ہے!",
+        "firstName": "پہلا نام",
+        "middleName": "وسطی نام",
+        "lastName": "آخری نام",
+        "stepX": "مرحلہ {X}"
+    },
+    "oAuth": {
+        "err": {
+            "failedTitle": "آپ کے اکاؤنٹ سے کنیکٹ نہیں ہو سکا۔",
+            "failedMsg": "براہ کرم یقینی بنائیں کہ آپ نے اپنے ویب براؤزر میں سائن ان کا عمل مکمل کر لیا ہے۔"
+        },
+        "google": {
+            "title": "گوگل سائن ان کریں",
+            "instruction1": "اپنے گوگل رابطے درآمد کرنے کے لیے، آپ کو اپنے ویب براؤزر کا استعمال کرتے ہوئے اس ایپلی کیشن کو مجاز کرنا ہوگا۔",
+            "instruction2": "آئیکن پر کلک کرکے یا متن منتخب کرکے اس کوڈ کو اپنے کلپ بورڈ پر کاپی کریں:",
+            "instruction3": "اپنے ویب براؤزر میں مندرجہ ذیل لنک پر جائیں اور اوپر دیا گیا کوڈ درج کریں:",
+            "instruction4": "جب آپ سائن اپ مکمل کر لیں تو نیچے دیا گیا بٹن دبائیں:"
+        }
+    },
+    "settings": {
+        "title": "ترتیبات",
+        "menu": {
+            "appearance": "ظہور",
+            "language": "زبان",
+            "user": "صارف",
+            "files": "فائلیں",
+            "open": "ترتیبات کھولیں",
+            "logout": "لاگ آؤٹ کریں",
+            "logoutPrompt": "کیا آپ یقینی طور پر لاگ آؤٹ کرنا چاہتے ہیں؟",
+            "selfEncryptionLogoutPrompt": "کیا آپ یقینی طور پر لاگ آؤٹ کرنا چاہتے ہیں؟ براہ کرم یقینی بنائیں کہ آپ نے انکرپشن راز کاپی کر لیا ہے",
+            "syncSetting": "ترتیبات کو ہم وقت کریں",
+            "enableSync": "ہم وقت سازی کو فعال کریں",
+            "enableEncrypt": "ڈیٹا کو انکرپٹ کریں",
+            "enableEncryptPrompt": "اپنے ڈیٹا کو اس راز کے ساتھ محفوظ کرنے کے لیے انکرپشن کو فعال کریں۔ اسے محفوظ طریقے سے ذخیرہ کریں؛ ایک بار فعال ہونے کے بعد، اسے بند نہیں کیا جا سکتا۔ اگر کھو جائے تو، آپ کا ڈیٹا ناقابل بازیافت ہو جاتا ہے۔ کاپی کرنے کے لیے کلک کریں",
+            "inputEncryptPrompt": "براہ کرم کے لیے اپنا انکرپشن راز درج کریں",
+            "clickToCopySecret": "راز کاپی کرنے کے لیے کلک کریں",
+            "inputTextFieldHint": "آپ کا راز",
+            "historicalUserList": "صارف لاگ ان کی تاریخ",
+            "historicalUserListTooltip": "یہ فہرست آپ کے گمنام اکاؤنٹس دکھاتی ہے۔ آپ اکاؤنٹ پر اس کی تفصیلات دیکھنے کے لیے کلک کر سکتے ہیں۔ گمنام اکاؤنٹ 'شروع کریں' بٹن پر کلک کرنے سے بنائے جاتے ہیں",
+            "openHistoricalUser": "گمنام اکاؤنٹ کھولنے کے لیے کلک کریں"
+        },
+        "appearance": {
+            "resetSetting": "اس ترتیب کو ری سیٹ کریں",
+            "fontFamily": {
+                "label": "فونٹ فیملی",
+                "search": "تلاش کریں"
+            },
+            "themeMode": {
+                "label": "تھیم موڈ",
+                "light": "لائٹ موڈ",
+                "dark": "ڈارک موڈ",
+                "system": "سسٹم کے ساتھ موافقت کریں"
+            },
+            "layoutDirection": {
+                "label": "لے آؤٹ کی سمت",
+                "hint": "اسکرین کے بائیں یا دائیں طرف سے عناصر کو ترتیب دینا شروع کرنے کے لیے۔",
+                "ltr": "ltr",
+                "rtl": "rtl"
+            },
+            "textDirection": {
+                "label": "ڈیفالٹ ٹیکسٹ سمت",
+                "hint": "جب عنصر پر ٹیکسٹ سمت سیٹ نہیں ہو تو ڈیفالٹ ٹیکسٹ سمت۔",
+                "ltr": "LTR",
+                "rtl": "RTL",
+                "auto": "خودکار",
+                "fallback": "لے آؤٹ کی سمت کے مطابق"
+            },
+            "themeUpload": {
+                "button": "اپ لوڈ کریں",
+                "description": "نیچے دیے گئے بٹن کا استعمال کرتے ہوئے اپنا اپنا AppFlowy تھیم اپ لوڈ کریں۔",
+                "failure": "اپ لوڈ کیا گیا تھیم ایک غیر معتبر فارمیٹ میں تھا۔",
+                "loading": "براہ کرم انتظار کریں جب ہم آپ کے تھیم کو تصدیق اور اپ لوڈ کرتے ہیں۔...",
+                "uploadSuccess": "آپ کا تھیم کامیابی کے ساتھ اپ لوڈ کر دیا گیا",
+                "deletionFailure": "تھیم حذف کرنے میں ناکام ہو گیا۔ اسے دستی طور پر حذف کرنے کی کوشش کریں۔",
+                "filePickerDialogTitle": ".flowy_plugin فائل منتخب کریں",
+                "urlUploadFailure": "url کھولنے میں ناکام: {}"
+            },
+            "theme": "تھیم",
+            "builtInsLabel": "بلٹ ان تھیمز",
+            "pluginsLabel": "پلگ انز",
+            "showNamingDialogWhenCreatingPage": "صفحہ بناتے وقت نامزدگی کا مکالمہ دکھائیں"
+        },
+        "files": {
+            "copy": "کاپی کریں",
+            "defaultLocation": "فائلیں اور ڈیٹا اسٹوریج کی جگہ پڑھیں",
+            "exportData": "اپنے ڈیٹا کو برآمد کریں",
+            "doubleTapToCopy": "راستہ کاپی کرنے کے لیے دو بار ٹیپ کریں",
+            "restoreLocation": "AppFlowy ڈیفالٹ راستے پر بحال کریں",
+            "customizeLocation": "دوسرا فولڈر کھولیں",
+            "restartApp": "تبدیلیوں کو لاگو کرنے کے لیے براہ کرم ایپ کو دوبارہ شروع کریں۔",
+            "exportDatabase": "ڈیٹابیس برآمد کریں",
+            "selectFiles": "ان فائلوں کو منتخب کریں جنہیں برآمد کرنے کی ضرورت ہے",
+            "selectAll": "تمام کا انتخاب کریں",
+            "deselectAll": "تمام کو غیر منتخب کریں",
+            "createNewFolder": "نیا فولڈر بنائیں",
+            "createNewFolderDesc": "ہمیں بتائیں کہ آپ اپنا ڈیٹا کہاں ذخیرہ کرنا چاہتے ہیں",
+            "defineWhereYourDataIsStored": "تعریف کریں کہ آپ کا ڈیٹا کہاں ذخیرہ کیا گیا ہے",
+            "open": "کھولیں",
+            "openFolder": "موجودہ فولڈر کھولیں",
+            "openFolderDesc": "اسے پڑھیں اور اپنے موجودہ AppFlowy فولڈر میں لکھیں",
+            "folderHintText": "فولڈر کا نام",
+            "location": "نیا فولڈر بنانا",
+            "locationDesc": "اپنے AppFlowy ڈیٹا فولڈر کے لیے نام منتخب کریں",
+            "browser": "براؤز کریں",
+            "create": "بنائیں",
+            "set": "سیٹ کریں",
+            "folderPath": "اپنا فولڈر ذخیرہ کرنے کا راستہ",
+            "locationCannotBeEmpty": "راستہ خالی نہیں ہو سکتا",
+            "pathCopiedSnackbar": "فائل اسٹوریج کا راستہ کلپ بورڈ پر کاپی ہو گیا!",
+            "changeLocationTooltips": "ڈیٹا ڈائرکٹری تبدیل کریں",
+            "change": "تبدیل کریں",
+            "openLocationTooltips": "دوسرا ڈیٹا ڈائرکٹری کھولیں",
+            "openCurrentDataFolder": "موجودہ ڈیٹا ڈائرکٹری کھولیں",
+            "recoverLocationTooltips": "AppFlowy کی ڈیفالٹ ڈیٹا ڈائرکٹری پر ری سیٹ کریں",
+            "exportFileSuccess": "فائل کو کامیابی کے ساتھ برآمد کیا!",
+            "exportFileFail": "فائل برآمد کرنے میں ناکام ہو گیا!",
+            "export": "برآمد کریں"
+        },
+        "user": {
+            "name": "نام",
+            "email": "ای میل",
+            "selectAnIcon": "آئیکن منتخب کریں",
+            "pleaseInputYourOpenAIKey": "براہ کرم اپنی AI کی درج کریں",
+            "clickToLogout": "موجودہ صارف سے لاگ آؤٹ کرنے کے لیے کلک کریں"
+        },
+        "shortcuts": {
+            "shortcutsLabel": "شارٹ کٹس",
+            "command": "کمانڈ",
+            "keyBinding": "کی بائنڈنگ",
+            "addNewCommand": "نیا کمانڈ شامل کریں",
+            "updateShortcutStep": "مطلوبہ کی مجموعہ دبائیں اور ENTER دبائیں",
+            "shortcutIsAlreadyUsed": "یہ شارٹ کٹ پہلے ہی اس کے لیے استعمال ہو چکا ہے: {conflict}",
+            "resetToDefault": "ڈیفالٹ کی بائنڈنگ پر ری سیٹ کریں",
+            "couldNotLoadErrorMsg": "شارٹ کٹس لوڈ نہیں کر سکا، دوبارہ کوشش کریں",
+            "couldNotSaveErrorMsg": "شارٹ کٹس محفوظ نہیں کر سکا، دوبارہ کوشش کریں"
+        }
+    },
+    "grid": {
+        "deleteView": "کیا آپ یقینی طور پر اس نظارے کو حذف کرنا چاہتے ہیں؟",
+        "createView": "نیا",
+        "settings": {
+            "filter": "فلٹر",
+            "sort": "مرتب کریں",
+            "sortBy": "مرتب کریں",
+            "properties": "خصوصیات",
+            "reorderPropertiesTooltip": "خصوصیات کو دوبارہ ترتیب دینے کے لیے ڈریگ کریں",
+            "group": "گروپ",
+            "addFilter": "فلٹر شامل کریں",
+            "deleteFilter": "فلٹر حذف کریں",
+            "filterBy": "فلٹر کریں...",
+            "typeAValue": "کوئی قیمت ٹائپ کریں...",
+            "layout": "لے آؤٹ",
+            "databaseLayout": "لے آؤٹ"
+        },
+        "textFilter": {
+            "contains": "شامل ہے",
+            "doesNotContain": "شامل نہیں ہے",
+            "endsWith": "ختم ہوتا ہے",
+            "startWith": "شروع ہوتا ہے",
+            "is": "ہے",
+            "isNot": "نہیں ہے",
+            "isEmpty": "خالی ہے",
+            "isNotEmpty": "خالی نہیں ہے",
+            "choicechipPrefix": {
+                "isNot": "نہیں",
+                "startWith": "شروع ہوتا ہے",
+                "endWith": "ختم ہوتا ہے",
+                "isEmpty": "خالی ہے",
+                "isNotEmpty": "خالی نہیں ہے"
+            }
+        },
+        "checkboxFilter": {
+            "isChecked": "چیک شدہ",
+            "isUnchecked": "غیر چیک شدہ",
+            "choicechipPrefix": {
+                "is": "ہے"
+            }
+        },
+        "checklistFilter": {
+            "isComplete": "مکمل ہے",
+            "isIncomplted": "نامکمل ہے"
+        },
+        "selectOptionFilter": {
+            "is": "ہے",
+            "isNot": "نہیں ہے",
+            "isEmpty": "خالی ہے",
+            "isNotEmpty": "خالی نہیں ہے"
+        },
+        "multiSelectOptionFilter": {
+            "contains": "شامل ہے",
+            "doesNotContain": "شامل نہیں ہے",
+            "isEmpty": "خالی ہے",
+            "isNotEmpty": "خالی نہیں ہے"
+        },
+        "field": {
+            "hide": "چھپائیں",
+            "insertLeft": "بائیں طرف درج کریں",
+            "insertRight": "دائیں طرف درج کریں",
+            "duplicate": "ڈپلیکیٹ کریں",
+            "delete": "حذف کریں",
+            "textFieldName": "متن",
+            "checkboxFieldName": "چیک باکس",
+            "dateFieldName": "تاریخ",
+            "updatedAtFieldName": "آخری بار ترمیم کا وقت",
+            "createdAtFieldName": "بنائے جانے کا وقت",
+            "numberFieldName": "اعداد",
+            "singleSelectFieldName": "منتخب کریں",
+            "multiSelectFieldName": "ملٹی سلیکٹ",
+            "urlFieldName": "URL",
+            "checklistFieldName": "چیک لسٹ",
+            "numberFormat": "نمبر فارمیٹ",
+            "dateFormat": "تاریخ کا فارمیٹ",
+            "includeTime": "وقت شامل کریں",
+            "dateFormatFriendly": "مہینہ دن، سال",
+            "dateFormatISO": "سال-مہینہ-دن",
+            "dateFormatLocal": "مہینہ/دن/سال",
+            "dateFormatUS": "سال/مہینہ/دن",
+            "dateFormatDayMonthYear": "دن/مہینہ/سال",
+            "timeFormat": "وقت کا فارمیٹ",
+            "invalidTimeFormat": "غلط فارمیٹ",
+            "timeFormatTwelveHour": "12 گھنٹے",
+            "timeFormatTwentyFourHour": "24 گھنٹے",
+            "clearDate": "تاریخ صاف کریں",
+            "addSelectOption": "ایک آپشن شامل کریں",
+            "optionTitle": "آپشنز",
+            "addOption": "آپشن شامل کریں",
+            "editProperty": "خاصیت میں ترمیم کریں",
+            "newProperty": "نیا پراپرٹی",
+            "deleteFieldPromptMessage": "کیا آپ یقینی ہیں؟ یہ پراپرٹی حذف کر دی جائے گی",
+            "newColumn": "نیا کالم"
+        },
+        "sort": {
+            "ascending": "چڑھائی",
+            "descending": "اترائی",
+            "deleteAllSorts": "تمام ترتیب کو حذف کریں",
+            "addSort": "ترتیب شامل کریں"
+        },
+        "row": {
+            "duplicate": "ڈپلیکیٹ کریں",
+            "delete": "حذف کریں",
+            "titlePlaceholder": "عنوان",
+            "textPlaceholder": "خالی",
+            "copyProperty": "خاصیت کو کلپ بورڈ پر کاپی کر دیا گیا",
+            "count": "گِنتی",
+            "newRow": "نیا سطر",
+            "action": "عمل"
+        },
+        "selectOption": {
+            "create": "بنائیں",
+            "purpleColor": "جامنی",
+            "pinkColor": "گلابی",
+            "lightPinkColor": "ہلکا گلابی",
+            "orangeColor": "سنتری",
+            "yellowColor": "پیلا",
+            "limeColor": "چونا",
+            "greenColor": "سبز",
+            "aquaColor": "کوا",
+            "blueColor": "نیلا",
+            "deleteTag": "ٹैग حذف کریں",
+            "colorPanelTitle": "رنگ",
+            "panelTitle": "کوئی آپشن منتخب کریں یا بنائیں",
+            "searchOption": "آپشن تلاش کریں",
+            "searchOrCreateOption": "آپشن تلاش کریں یا بنائیں...",
+            "createNew": "نیا بنائیں",
+            "orSelectOne": "یا کوئی آپشن منتخب کریں"
+        },
+        "checklist": {
+            "taskHint": "ٹاسک کی وضاحت",
+            "addNew": "نیا ٹاسک شامل کریں",
+            "submitNewTask": "بنائیں"
+        },
+        "menuName": "گرِڈ",
+        "referencedGridPrefix": "کا نظارہ"
+    },
+    "document": {
+        "menuName": "دستایز",
+        "date": {
+            "timeHintTextInTwelveHour": "01:00 PM",
+            "timeHintTextInTwentyFourHour": "13:00"
+        },
+        "slashMenu": {
+            "board": {
+                "selectABoardToLinkTo": "جس بورڈ سے لنک کرنا چاہتے ہیں اسے منتخب کریں",
+                "createANewBoard": "نیا بورڈ بنائیں"
+            },
+            "grid": {
+                "selectAGridToLinkTo": "جس گرِڈ سے لنک کرنا چاہتے ہیں اسے منتخب کریں",
+                "createANewGrid": "نیا گرِڈ بنائیں"
+            },
+            "calendar": {
+                "selectACalendarToLinkTo": "جس کیلنڈر سے لنک کرنا چاہتے ہیں اسے منتخب کریں",
+                "createANewCalendar": "نیا کیلنڈر بنائیں"
+            }
+        },
+        "selectionMenu": {
+            "outline": "آؤٹ لائن",
+            "codeBlock": "کوڈ بلاک"
+        },
+        "plugins": {
+            "referencedBoard": "حوالہ شدہ بورڈ",
+            "referencedGrid": "حوالہ شدہ گرِڈ",
+            "referencedCalendar": "حوالہ شدہ کیلنڈر",
+            "autoGeneratorMenuItemName": "AI رائٹر",
+            "autoGeneratorTitleName": "AI: AI سے کچھ بھی لکھنے کے لیے کہیں...",
+            "autoGeneratorLearnMore": "مزید جانئے",
+            "autoGeneratorGenerate": "جنریٹ کریں",
+            "autoGeneratorHintText": "AI سے پوچھیں...",
+            "autoGeneratorCantGetOpenAIKey": "AI کی حاصل نہیں کر سکتا",
+            "autoGeneratorRewrite": "دوبارہ لکھیں",
+            "smartEdit": "AI اسسٹنٹ",
+            "aI": "AI",
+            "smartEditFixSpelling": "املا درست کریں",
+            "warning": "⚠️ AI کی پاسخیں غلط یا گمراہ کن ہو سکتی ہیں۔",
+            "smartEditSummarize": "سارے لکھیں",
+            "smartEditImproveWriting": "تحریر بہتر بنائیں",
+            "smartEditMakeLonger": "طویل تر بنائیں",
+            "smartEditCouldNotFetchResult": "AI سے نتیجہ حاصل نہیں کر سکا",
+            "smartEditCouldNotFetchKey": "AI کی حاصل نہیں کر سکا",
+            "smartEditDisabled": "Settings میں AI سے منسلک کریں",
+            "discardResponse": "کیا آپ AI کی پاسخیں حذف کرنا چاہتے ہیں؟",
+            "createInlineMathEquation": "مساوات بنائیں",
+            "toggleList": "فہرست ٹوگل کریں",
+            "cover": {
+                "changeCover": "سرورق تبدیل کریں",
+                "colors": "رنگ",
+                "images": "تصاویر",
+                "clearAll": "تمام کو صاف کریں",
+                "abstract": "خلاصہ",
+                "addCover": "سرورق شامل کریں",
+                "addLocalImage": "مقامی تصویر شامل کریں",
+                "invalidImageUrl": "غلط تصویر URL",
+                "failedToAddImageToGallery": "تصویر کو گیلری میں شامل کرنے میں ناکام",
+                "enterImageUrl": "تصویر URL درج کریں",
+                "add": "شامل کریں",
+                "back": "پیچھے",
+                "saveToGallery": "گیلری میں محفوظ کریں",
+                "removeIcon": "آئیکن کو ہٹائیں",
+                "pasteImageUrl": "تصویر URL پیسٹ کریں",
+                "or": "یا",
+                "pickFromFiles": "فائلوں سے منتخب کریں",
+                "couldNotFetchImage": "تصویر حاصل نہیں کر سکا",
+                "imageSavingFailed": "تصویر محفوظ کرنے میں ناکام",
+                "addIcon": "آئیکن شامل کریں",
+                "coverRemoveAlert": "اسے ہٹانے کے بعد اسے سرورق سے ہٹا دیا جائے گا۔",
+                "alertDialogConfirmation": "کیا آپ یقینی ہیں کہ آپ جاری رکھنا چاہتے ہیں؟"
+            },
+            "mathEquation": {
+                "addMathEquation": "ریاضی کی مساوات شامل کریں",
+                "editMathEquation": "ریاضی کی مساوات میں ترمیم کریں"
+            },
+            "optionAction": {
+                "click": "کلک کریں",
+                "toOpenMenu": " مینو کھولنے کے لیے",
+                "delete": "حذف کریں",
+                "duplicate": "ڈپلیکیٹ کریں",
+                "turnInto": "میں تبدیل کریں",
+                "moveUp": "اوپر منتقل کریں",
+                "moveDown": "نیچے منتقل کریں",
+                "color": "رنگ",
+                "align": "ترتیب دیں",
+                "left": "بائیں",
+                "center": "وسط",
+                "right": "دائیں",
+                "defaultColor": "ڈیفالٹ"
+            },
+            "image": {
+                "copiedToPasteBoard": "تصویری لنک کو کلپ بورڈ پر کاپی کر دیا گیا ہے"
+            },
+            "outline": {
+                "addHeadingToCreateOutline": "目次 بنانے کے لیے عنوانات شامل کریں۔"
+            },
+            "table": {
+                "addAfter": "بعد میں شامل کریں",
+                "addBefore": "پہلے شامل کریں",
+                "delete": "حذف کریں",
+                "clear": "محتاجات کو صاف کریں",
+                "duplicate": "ڈپلیکیٹ کریں",
+                "bgColor": "پس منظر کا رنگ"
+            },
+            "contextMenu": {
+                "copy": "کاپی کریں",
+                "cut": "کاٹیں",
+                "paste": "چسپاں کریں"
+            }
+        },
+        "textBlock": {
+            "placeholder": "کمانڈز کے لیے '/' ٹائپ کریں"
+        },
+        "title": {
+            "placeholder": "بغیر عنوان"
+        },
+        "imageBlock": {
+            "placeholder": "تصویریں شامل کرنے کے لیے کلک کریں",
+            "upload": {
+                "label": "اپ لوڈ کریں",
+                "placeholder": "تصویریں اپ لوڈ کرنے کے لیے کلک کریں"
+            },
+            "url": {
+                "label": "تصویری URL",
+                "placeholder": "تصویری URL درج کریں"
+            },
+            "support": "تصویری سائز کی حد 5MB ہے۔ سپورٹڈ فارمیٹس: JPEG، PNG، GIF، SVG",
+            "error": {
+                "invalidImage": "غلط تصویر",
+                "invalidImageSize": "تصویری سائز 5MB سے کم ہونا چاہیے",
+                "invalidImageFormat": "تصویری فارمیٹ سپورٹڈ نہیں ہے۔ سپورٹڈ فارمیٹس: JPEG، PNG، GIF، SVG",
+                "invalidImageUrl": "غلط تصویری URL"
+            }
+        },
+        "codeBlock": {
+            "language": {
+                "label": "زبان",
+                "placeholder": "زبان منتخب کریں"
+            }
+        },
+        "inlineLink": {
+            "placeholder": "لنک پیسٹ یا ٹائپ کریں",
+            "openInNewTab": "نیا ٹیب میں کھولیں",
+            "copyLink": "لنک کاپی کریں",
+            "removeLink": "لنک ہٹائیں",
+            "url": {
+                "label": "لنک URL",
+                "placeholder": "لنک URL درج کریں"
+            },
+            "title": {
+                "label": "لنک کا عنوان",
+                "placeholder": "لنک کا عنوان درج کریں"
+            }
+        },
+        "mention": {
+            "placeholder": "کسی شخص، صفحے یا تاریخ کا ذکر کریں...",
+            "page": {
+                "label": "صفحے سے لنک کریں",
+                "tooltip": "صفحہ کھولنے کے لیے کلک کریں"
+            }
+        }
+    },
+    "board": {
+        "column": {
+            "createNewCard": "نواں"
+        },
+        "menuName": "بورڈ",
+        "referencedBoardPrefix": "کے نظارہ"
+    },
+    "calendar": {
+        "menuName": "کیلنڈر",
+        "defaultNewCalendarTitle": "بغیر عنوان",
+        "navigation": {
+            "today": "آج",
+            "jumpToday": "آج پر جائیں",
+            "previousMonth": "پچھلا مہینہ",
+            "nextMonth": "اگلا مہینہ"
+        },
+        "settings": {
+            "showWeekNumbers": "ہفتے کے نمبر دکھائیں",
+            "showWeekends": "ہفتے کے آخر میں دکھائیں",
+            "firstDayOfWeek": "ہفتہ شروع کریں",
+            "layoutDateField": "کیلنڈر کی ترتیب دیں",
+            "noDateTitle": "کوئی تاریخ نہیں",
+            "noDateHint": "غیر شیڈول شدہ واقعات یہاں دکھائے جائیں گے",
+            "clickToAdd": "کیلنڈر میں شامل کرنے کے لیے کلک کریں",
+            "name": "کیلنڈر کا ترتیب"
+        },
+        "referencedCalendarPrefix": "کے نظارہ"
+    },
+    "errorDialog": {
+        "title": "AppFlowy کی غلطی",
+        "howToFixFallback": "اس پریشانی کے لیے معذرت چاہتے ہیں! اپنی غلطی کی وضاحت کرنے والا ایک ایشو ہماری گٹ ہب پیج پر جمع کریں۔",
+        "github": "گٹ ہب پر دیکھیں"
+    },
+    "search": {
+        "label": "تلاش کریں",
+        "placeholder": {
+            "actions": "کارروائیاں تلاش کریں..."
+        }
+    },
+    "message": {
+        "copy": {
+            "success": "کاپی ہو چکا ہے!",
+            "fail": "کاپی نہیں کر سکے"
+        }
+    },
+    "unSupportBlock": "موجودہ ورژن اس بلاک کی حمایت نہیں کرتا۔",
+    "views": {
+        "deleteContentTitle": "کیا آپ یقینی طور پر {pageType} کو حذف کرنا چاہتے ہیں؟",
+        "deleteContentCaption": "اگر آپ اس {pageType} کو حذف کرتے ہیں، تو آپ اسے ٹریش سے بحال کر سکتے ہیں۔"
+    },
+    "colors": {
+        "custom": "اپنی مرضی کے مطابق",
+        "default": "ڈیفالٹ",
+        "red": "سرخ",
+        "orange": "سنتری",
+        "yellow": "پیلا",
+        "green": "سبز",
+        "blue": "نیلا",
+        "purple": "جامنی",
+        "pink": "گلابی",
+        "brown": "براؤن",
+        "gray": "سرمئی"
+    },
+    "emoji": {
+        "filter": "فلٹر",
+        "random": "رینڈم",
+        "selectSkinTone": "جلد کا رنگ منتخب کریں",
+        "remove": "ایموجی کو ہٹائیں",
+        "categories": {
+            "smileys": "مسکراہٹیں اور جذبات",
+            "people": "لوگ اور جسم",
+            "animals": "جانور اور فطرت",
+            "food": "کھانا اور پینا",
+            "activities": "سرگرمیاں",
+            "places": "سفر اور مقامات",
+            "objects": "آब्جیکٹس",
+            "symbols": "علامات",
+            "flags": "پرچم",
+            "nature": "فطرت",
+            "frequentlyUsed": "کثرت سے استعمال ہونے والے"
+        }
+    }
+}

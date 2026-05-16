@@ -1,0 +1,188 @@
+[tasks.env_check]
+dependencies = ["echo_env", "install_flutter_protobuf"]
+condition = { env_set = [
+  "BUILD_FLAG",
+  "RUST_COMPILE_TARGET",
+  "CRATE_TYPE",
+  "TARGET_OS",
+], channels = [
+  "stable",
+] }
+
+[tasks.appflowy-core-dev]
+mac_alias = "appflowy-core-dev-macos"
+windows_alias = "appflowy-core-dev-windows"
+linux_alias = "appflowy-core-dev-linux"
+
+[tasks.appflowy-core-dev-macos]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-dev-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
+
+[tasks.appflowy-core-dev-windows]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-dev-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
+
+[tasks.appflowy-core-dev-linux]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-dev-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
+
+#
+[tasks.sdk-dev-build]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-dev-build.mac]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+    RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-dev-build.windows]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib
+    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ..
+  """,
+]
+script_runner = "@duckscript"
+
+#
+[tasks.appflowy-core-release]
+description = "Build flowy sdk in release mode"
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-release-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
+
+#
+[tasks.sdk-release-build]
+dependencies = ["set-app-version"]
+script = [
+  """
+    cd rust-lib/
+    cargo build --profile ${CARGO_PROFILE} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-release-build.mac]
+dependencies = ["set-app-version"]
+script = [
+  """
+    cd rust-lib/
+    cargo build --profile ${CARGO_PROFILE} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+#
+[tasks.post-desktop]
+mac_alias = "post-desktop-macos"
+windows_alias = "post-desktop-windows"
+linux_alias = "post-desktop-linux"
+
+[tasks.post-desktop-macos]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
+
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.post-desktop-windows]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/windows/flutter/dart_ffi
+    lib = set ${LIB_NAME}.${LIB_EXT}
+
+    # copy dll
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
+
+    # copy binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.post-desktop-linux]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/linux/flutter/dart_ffi
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    # copy dll
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
+
+    # copy binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.set-app-version]
+script = ["""
+  if is_empty ${APP_VERSION}
+    APP_VERSION = set ${APPFLOWY_VERSION}
+    set_env APP_VERSION ${APPFLOWY_VERSION}
+  end
+  echo APP_VERSION: ${APP_VERSION}
+  """]
+script_runner = "@duckscript"

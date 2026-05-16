@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AppFlowy
+Icon=/usr/share/icons/hicolor/scalable/apps/appflowy.svg
+Exec=/usr/bin/AppFlowy %U
+Categories=Network;Productivity;
+Keywords=Notes
+Terminal=false
+MimeType=x-scheme-handler/appflowy-flutter;

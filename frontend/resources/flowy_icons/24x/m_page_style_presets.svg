@@ -1,0 +1,14 @@
+<svg width="29" height="28" viewBox="0 0 29 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="money">
+<g id="Group 1686556227">
+<path id="Vector" d="M20.167 24H8.16699C4.56699 24 2.16699 22.2353 2.16699 18.1176V9.88235C2.16699 5.76471 4.56699 4 8.16699 4H20.167C23.767 4 26.167 5.76471 26.167 9.88235V18.1176C26.167 22.2353 23.767 24 20.167 24Z" stroke="#1E2022" stroke-width="1.4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M19.167 22H9.16699C6.16699 22 4.16699 20.5882 4.16699 17.2941V10.7059C4.16699 7.41176 6.16699 6 9.16699 6H19.167C22.167 6 24.167 7.41176 24.167 10.7059V17.2941C24.167 20.5882 22.167 22 19.167 22Z" fill="url(#paint0_linear_2255_30766)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2255_30766" x1="14.167" y1="6" x2="14.167" y2="22" gradientUnits="userSpaceOnUse">
+<stop stop-color="#DE11D8"/>
+<stop offset="1" stop-color="#2FB1D4"/>
+</linearGradient>
+</defs>
+</svg>

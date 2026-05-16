@@ -1,0 +1,37 @@
+{
+  "type": "page",
+  "children": [
+    {
+      "type": "numbered_list",
+      "data": {
+        "delta": [
+          {
+            "insert": "Highlight"
+          }
+        ]
+      },
+      "children": [
+        {
+          "type": "paragraph",
+          "data": {
+            "delta": [
+              {
+                "insert": "You can also"
+              }
+            ]
+          }
+        },
+        {
+          "type": "numbered_list",
+          "data": {
+            "delta": [
+              {
+                "insert": "nest"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

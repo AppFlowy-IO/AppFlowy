@@ -1,0 +1,39 @@
+[package]
+name = "flowy-storage"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+lib-dispatch = { workspace = true }
+flowy-storage-pub.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
+lib-infra = { workspace = true }
+url = "2.2.2"
+flowy-error = { workspace = true, features = ["impl_from_reqwest", "impl_from_sqlite"] }
+tokio = { workspace = true, features = ["sync", "io-util"] }
+tracing.workspace = true
+flowy-sqlite.workspace = true
+mime_guess = "2.0.4"
+chrono = "0.4.33"
+flowy-notification = { workspace = true }
+flowy-derive.workspace = true
+protobuf = { workspace = true }
+dashmap.workspace = true
+strum_macros = "0.25.2"
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+collab-importer = { workspace = true }
+uuid.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+uuid = "1.6.1"
+rand = { version = "0.8", features = ["std_rng"] }
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+
+[build-dependencies]
+flowy-codegen.workspace = true

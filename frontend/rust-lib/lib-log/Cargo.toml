@@ -1,0 +1,18 @@
+[package]
+name = "lib-log"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tracing-subscriber = { version = "0.3.19", features = ["registry", "env-filter", "ansi", "json"] }
+tracing-bunyan-formatter = "0.3.10"
+tracing-appender = "0.2.3"
+tracing-core = "0.1"
+tracing.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+chrono = "0.4"
+lazy_static = "1.4.0"
+lib-infra.workspace = true

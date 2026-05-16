@@ -62,7 +62,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
       providers: [
         BlocProvider(
           create: (_) => ViewTitleBarBloc(
-            view: view,
+            view: widget.view,
           ),
         ),
       ],

@@ -1,0 +1,75 @@
+[package]
+name = "flowy-ai"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive.workspace = true
+flowy-notification = { workspace = true }
+flowy-error = { path = "../flowy-error", features = [
+  "impl_from_dispatch_error",
+  "impl_from_collab_folder",
+  "impl_from_sqlite",
+  "impl_from_appflowy_cloud",
+] }
+lib-dispatch = { workspace = true }
+tracing.workspace = true
+uuid.workspace = true
+strum_macros = "0.21"
+protobuf.workspace = true
+bytes.workspace = true
+arc-swap.workspace = true
+validator = { workspace = true, features = ["derive"] }
+lib-infra = { workspace = true, features = ["isolate_flutter"] }
+flowy-ai-pub.workspace = true
+dashmap.workspace = true
+flowy-sqlite = { workspace = true }
+tokio.workspace = true
+futures.workspace = true
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+log = "0.4.21"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = "1.0.86"
+tokio-stream.workspace = true
+tokio-util = { workspace = true, features = ["full"] }
+reqwest = { version = "0.11.27", features = ["json"] }
+sha2 = "0.10.7"
+base64 = "0.21.5"
+futures-util = "0.3.30"
+flowy-storage-pub = { workspace = true }
+ollama-rs.workspace = true
+schemars = "0.8.22"
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+async-trait.workspace = true
+async-stream = "0.3.6"
+flowy-database-pub = { workspace = true }
+langchain-rust = { version = "4.6.0", features = ["ollama"] }
+text-splitter = { version = "0.25.1" }
+flowy-sqlite-vec.workspace = true
+
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
+notify = "6.1.1"
+lopdf = { version = "0.36.0", optional = true }
+pulldown-cmark = { version = "0.13.0", optional = true }
+
+
+[dev-dependencies]
+uuid.workspace = true
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tempfile = "3.8.1"
+
+
+[build-dependencies]
+flowy-codegen.workspace = true
+tempdir = "0.3.7"
+
+
+[features]
+default = []
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+local_ai = []
+file_reader = ["lopdf", "pulldown-cmark"]
+ai-tool = []

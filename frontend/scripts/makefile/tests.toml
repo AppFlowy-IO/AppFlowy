@@ -1,0 +1,347 @@
+# If you want to test a single file with single case, you can try this command:
+# RUST_LOG="debug" flutter test -d macOS -j, 'path to the file' --name 'test case name'
+[tasks.flutter_test]
+description = "Run flutter test with single case in single file. Input: cargo make flutter_test 'path to the file' --name 'test case name'"
+script = '''
+cd appflowy_flutter
+flutter test -j, --concurrency=1 "${@}"
+'''
+script_runner = "@shell"
+
+[tasks.dart_unit_test]
+script = '''
+cargo make --profile test-macos-$(uname -m) run_dart_unit_test
+'''
+script_runner = "@shell"
+
+[tasks.dart_unit_test.windows]
+script = '''
+cargo make --profile test-windows run_dart_unit_test
+'''
+script_runner = "@shell"
+
+[tasks.dart_unit_test.linux]
+script = '''
+cargo make --profile test-linux run_dart_unit_test
+'''
+script_runner = "@shell"
+
+[tasks.run_dart_unit_test]
+env = { RUST_LOG = "info" }
+dependencies = ["inner_build_test_backend"]
+description = "Run flutter unit tests"
+script = '''
+cd appflowy_flutter
+flutter test  -j, --concurrency=1 --coverage
+'''
+
+[tasks.dart_unit_test_no_build]
+script = '''
+cargo make --profile test-macos-$(uname -m) run_dart_unit_test_no_build
+'''
+
+[tasks.dart_unit_test_no_build.windows]
+script = '''
+cargo make --profile test-windows run_dart_unit_test_no_build
+'''
+
+[tasks.dart_unit_test_no_build.linux]
+script = '''
+cargo make --profile test-linux run_dart_unit_test_no_build
+'''
+
+[tasks.run_dart_unit_test_no_build]
+env = { RUST_LOG = "info" }
+dependencies = ["copy-from-build-to-sandbox-folder"]
+description = "Run flutter unit tests"
+script = '''
+cd appflowy_flutter
+flutter test -j, --concurrency=1 --coverage
+'''
+script_runner = "@shell"
+
+[tasks.rust_unit_test]
+run_task = { name = ["rust_lib_unit_test"] }
+
+[tasks.supabase_unit_test]
+env = { RUST_LOG = "info" }
+description = "Run cloud unit tests"
+script = '''
+cd rust-lib/event-integration-test
+RUST_BACKTRACE=1 cargo test supabase_ --features "cloud_test"
+'''
+
+[tasks.rust_lib_unit_test]
+env = { RUST_LOG = "info" }
+description = "Run rust-lib unit tests"
+script = '''
+cd rust-lib
+RUST_LOG=info DISABLE_CI_TEST_LOG="true" RUST_BACKTRACE=1 cargo test --no-default-features
+'''
+
+
+[tasks.check_grcov]
+description = "Check if `grcov` is installled"
+script_runner = "@shell"
+script = '''
+export PATH=$PATH:"$HOME/.cargo/bin/"
+if command -v grcov > /dev/null; then
+  echo "Found 'grcov' executable."
+else
+  echo "[!] Could not find 'grcov' executable."
+  echo "[!] Please install 'grcov' by running 'cargo install grcov'."
+  echo "[!] You may also need to install 'llvm-tools-preview' using 'rustup component add llvm-tools-preview'."
+  echo "[!] If installed, check if 'grcov' is in PATH."
+  echo "[!] Exiting..."
+  exit -1
+fi
+'''
+
+[tasks.clean_profraw_files]
+description = "Cleans profraw files that are created by `cargo test`"
+script_runner = "@duckscript"
+script = ["""
+  rust_lib_profs = glob_array ./rust-lib/**/*.profraw
+  for prof in ${rust_lib_profs}
+    full_path = canonicalize ${prof}
+    rm ${full_path}
+  end
+
+  shared_lib_profs = glob_array ./rust-lib/build-tool/**/*.profraw
+  for prof in ${shared_lib_profs}
+    full_path = canonicalize ${prof}
+    rm ${full_path}
+  end
+
+  """]
+
+[tasks.run_rustlib_coverage_tests]
+description = "Run tests with coverage instrumentation"
+script_runner = "@shell"
+script = ["""
+  echo --- Running coverage tests ---
+  cd rust-lib/
+
+  CARGO_INCREMENTAL=0 \
+  RUSTFLAGS='-C instrument-coverage' \
+  LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
+  cargo test --no-default-features
+  """]
+
+[tasks.run_sharedlib_coverage_tests]
+description = "Run tests with coverage instrumentation"
+script_runner = "@shell"
+script = ["""
+  echo --- Running coverage tests ---
+  cd ../shared-lib
+
+  CARGO_INCREMENTAL=0 \
+  RUSTFLAGS='-C instrument-coverage' \
+  LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
+  cargo test --no-default-features
+
+  """]
+
+[tasks.get_rustlib_grcov_report]
+description = "Get `grcov` HTML report for test coverage for rust-lib"
+script_runner = "@shell"
+script = [
+    """
+    echo --- Getting 'grcov' results for 'rust-lib' ---
+    cd rust-lib/
+
+    grcov . \
+    --binary-path target/debug/deps \
+    --source-dir . \
+    --output-type html \
+    --branch \
+    --ignore-not-existing \
+    --log-level WARN \
+    --output-path target/coverage-html
+
+    echo "--- Done! Generated HTML report under 'target/coverage-html' for rustlib."
+    """,
+]
+
+[tasks.get_grcov_report]
+description = "Get `grcov` HTML report for test coverage"
+run_task = { name = [
+    "get_rustlib_grcov_report",
+], parallel = true }
+
+[tasks.get_rustlib_lcov_report]
+description = "Generates `lcov` report for `rust-lib`"
+script_runner = "@shell"
+script = ["""
+  echo Getting 'lcov' results for 'rust-lib'
+
+  cd rust-lib/
+
+  grcov . \
+  --binary-path target/debug/deps \
+  --source-dir . \
+  --output-type lcov \
+  --branch \
+  --ignore-not-existing \
+  --log-level WARN \
+  --output-path target/coverage.lcov
+
+  echo "--- Done! Generated 'target/coverage.lcov' for rustlib."
+  """]
+
+[tasks.get_lcov_report]
+description = "Get `lcov` reports for test coverage"
+run_task = { name = [
+    "get_rustlib_lcov_report",
+], parallel = true }
+
+[tasks.rust_unit_test_with_coverage]
+description = "Run rust unit test with code coverage"
+run_task = { name = [
+    "check_grcov",
+    'appflowy-flutter-deps-tools',
+    "run_rustlib_coverage_tests",
+    "run_sharedlib_coverage_tests",
+    "get_lcov_report",
+    "clean_profraw_files",
+] }
+
+
+[tasks.build_test_backend]
+env = { RUST_LOG = "trace" }
+script = '''
+cargo make --profile test-macos-$(uname -m) inner_build_test_backend
+'''
+script_runner = "@shell"
+
+[tasks.build_test_backend.windows]
+script = '''
+cargo make --profile test-windows inner_build_test_backend
+'''
+script_runner = "@shell"
+
+[tasks.build_test_backend.linux]
+script = '''
+cargo make --profile test-linux inner_build_test_backend
+'''
+script_runner = "@shell"
+
+[tasks.inner_build_test_backend]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+    "setup-test-crate-type",
+    "compile_test_backend",
+    "copy-to-sandbox-folder",
+    "restore-test-crate-type",
+] }
+
+[tasks.compile_test_backend]
+mac_alias = "compile_test_backend_default"
+windows_alias = "compile_test_backend_windows"
+linux_alias = "compile_test_backend_default"
+
+[tasks.compile_test_backend_default]
+env = { RUST_LOG = "trace" }
+private = true
+script = [
+    """
+      cd rust-lib/
+      rustup show
+      echo RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+      RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+      cd ../
+    """,
+]
+script_runner = "@shell"
+
+[tasks.compile_test_backend_windows]
+private = true
+script = [
+    """
+      cd rust-lib/
+      rustup show
+      echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+      RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+      cd ../
+    """,
+]
+script_runner = "@shell"
+
+[tasks.copy-to-sandbox-folder]
+mac_alias = "copy-to-sandbox-folder-default"
+windows_alias = "copy-to-sandbox-folder-windows"
+linux_alias = "copy-to-sandbox-folder-default"
+
+[tasks.copy-to-sandbox-folder-windows]
+private = true
+script = [
+    """
+      # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+      lib = set ${LIB_NAME}.${TEST_LIB_EXT}
+      dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+      rm ${dest}
+      cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${TEST_COMPILE_TARGET}/${TEST_BUILD_FLAG}/${lib} \
+      ${dest}
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-to-sandbox-folder-default]
+private = true
+script = [
+    """
+      # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+      lib = set lib${LIB_NAME}.${TEST_LIB_EXT}
+      dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+      rm ${dest}
+      cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${TEST_COMPILE_TARGET}/${TEST_BUILD_FLAG}/${lib} \
+      ${dest}
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder]
+mac_alias = "copy-from-build-to-sandbox-folder-macos"
+windows_alias = "copy-from-build-to-sandbox-folder-windows"
+linux_alias = "copy-from-build-to-sandbox-folder-linux"
+
+[tasks.copy-from-build-to-sandbox-folder-windows]
+private = true
+script = [
+    """
+      # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+      lib = set ${LIB_NAME}.${TEST_LIB_EXT}
+      dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+      dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/windows/flutter/dart_ffi
+      rm ${dest}
+
+      cp ${dart_ffi_dir}/${lib} ${dest}
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder-macos]
+private = true
+script = [
+    """
+      echo "This is not possible for mac because the tests wont work with .a lib"
+      exit 127
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.copy-from-build-to-sandbox-folder-linux]
+private = true
+script = [
+    """
+      # Copy the appflowy_backend lib to system temp directory for flutter unit test.
+      lib = set lib${LIB_NAME}.${TEST_LIB_EXT}
+      dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
+      dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/linux/flutter/dart_ffi
+      rm ${dest}
+
+      cp ${dart_ffi_dir}/${lib} ${dest}
+    """,
+]
+script_runner = "@duckscript"

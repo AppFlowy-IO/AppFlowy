@@ -1,0 +1,18 @@
+name: Translation Notify
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "frontend/appflowy_flutter/assets/translations/en.json"
+
+jobs:
+  Discord-Notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            @appflowytranslators English UI strings has been updated.
+            Link to changes: ${{github.event.compare}}

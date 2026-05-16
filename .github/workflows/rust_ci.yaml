@@ -1,0 +1,128 @@
+name: Rust-CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+      - ".github/workflows/rust_ci.yaml"
+
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+
+env:
+  CARGO_TERM_COLOR: always
+  CLOUD_VERSION: 0.9.49-amd64
+  RUST_TOOLCHAIN: "1.85.0"
+
+jobs:
+  ubuntu-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set timezone for action
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "US/Pacific"
+
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rustfmt, clippy
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ runner.os }}
+          cache-on-failure: true
+          workspaces: |
+            frontend/rust-lib
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Ensure AppFlowy-Cloud is Running with Correct Version
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
+        run: |
+          # Remove all containers if any exist
+          if [ "$(docker ps -aq)" ]; then
+            docker rm -f $(docker ps -aq)
+          else
+            echo "No containers to remove."
+          fi
+
+          # Remove all volumes if any exist
+          if [ "$(docker volume ls -q)" ]; then
+            docker volume rm $(docker volume ls -q)
+          else
+            echo "No volumes to remove."
+          fi
+
+          docker compose pull
+          docker compose up -d
+          echo "Waiting for the container to be ready..."
+          sleep 10
+          docker ps -a
+          docker compose logs
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart" -- --skip local_ollama_test
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: frontend/rust-lib
+
+      - name: "Debug: show Appflowy-Cloud container logs"
+        if: failure()
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker compose logs appflowy_cloud
+
+      - name: Clean up Docker images
+        run: |
+          docker image prune -af
+          docker volume prune -f

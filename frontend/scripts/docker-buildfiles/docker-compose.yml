@@ -1,0 +1,27 @@
+version: "3"
+
+# NOTE: Docker should be allowed to connect to the X server in your host prior
+# to running `docker compose up`. Run `xhost local:docker` in the host to allow
+# for those connections, otherwise the following error will occur:
+#         Gtk-WARNING **: cannot open display: :0
+# See https://stackoverflow.com/a/34586732/8401696 for more context.
+
+services:
+  app:
+    build:
+      context: ../../..
+      dockerfile: ./frontend/scripts/docker-buildfiles/Dockerfile
+    image: appflowy/appflowy:latest
+    stdin_open: true
+    # tty: true
+    devices:
+      - /dev/dri:/dev/dri # fixes MESA-LOADER error
+    environment:
+      - DISPLAY=$DISPLAY
+      - NO_AT_BRIDGE=1 # fixes dbind-WARNING
+    volumes:
+      - $HOME/.Xauthority:/root/.Xauthority:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/dri:/dev/dri
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+    network_mode: host

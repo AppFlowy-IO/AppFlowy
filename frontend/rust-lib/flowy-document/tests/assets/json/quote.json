@@ -1,0 +1,25 @@
+{
+  "type": "page",
+  "children": [
+    {
+      "type": "quote",
+      "data": {
+        "delta": [
+          {
+            "insert": "This is a quote"
+          }
+        ]
+      },
+      "children": [{
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "This is a paragraph"
+            }
+          ]
+        }
+      }]
+    }
+  ]
+}

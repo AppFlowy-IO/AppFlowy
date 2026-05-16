@@ -1,0 +1,859 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Me",
+  "welcomeText": "እንኳን በደህና መጡ @:appName መተግበሪያ ስም",
+  "githubStarText": "በ Github ላይ ኮከብ",
+  "subscribeNewsletterText": "ለዜና ጽሑፍ ይመዝገቡ",
+  "letsGoButtonText": "ፈጣን ጅምር",
+  "title": "ርዕስ",
+  "youCanAlso": "እርስዎም ይችላሉ",
+  "and": "እና",
+  "blockActions": {
+    "addBelowTooltip": "ከዚህ በታች ለመጨመር ጠቅ ያድርጉ",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "ከላይ ለመጨመር",
+    "dragTooltip": "ለመንቀሳቀስ ጎትት",
+    "openMenuTooltip": "ምናሌን ለመክፈት ጠቅ ያድርጉ"
+  },
+  "signUp": {
+    "buttonText": "ተመዝገቢ",
+    "title": "ይመዝገቡ @:appName",
+    "getStartedText": "እንጀምር",
+    "emptyPasswordError": "የይለፍ ቃል ባዶ ሊሆን አይችልም",
+    "repeatPasswordEmptyError": "ይድገሙ የይለፍ ቃል ባዶ ሊሆን አይችልም",
+    "unmatchedPasswordError": "ይድገሙ የይለፍ ቃል እንደ የይለፍ ቃል አንድ አይነት አይደለም",
+    "alreadyHaveAnAccount": "ቀድሞውኑ መለያ አለዎት?",
+    "emailHint": "ኢሜል",
+    "passwordHint": "የይለፍ ቃል",
+    "repeatPasswordHint": "የማለፊያ ቃልዎን ይድገሙ",
+    "signUpWith": "ይመዝገቡ"
+  },
+  "signIn": {
+    "loginTitle": "ወደ @:appName ይግቡ",
+    "loginButtonText": "ግባ",
+    "loginStartWithAnonymous": "ስም-አልባ ክፍለ ጊዜ ይጀምሩ",
+    "continueAnonymousUser": "ስም-አልባ ክፍለ ጊዜን ይቀጥሉ",
+    "buttonText": "ግባ",
+    "forgotPassword": "የይለፍ ቃሉን ረሳኽው?",
+    "emailHint": "ኢሜል",
+    "passwordHint": "የይለፍ ቃል",
+    "dontHaveAnAccount": "መለያ የለዎትም?",
+    "repeatPasswordEmptyError": "ይድገሙ የይለፍ ቃል ባዶ ሊሆን አይችልም",
+    "unmatchedPasswordError": "ይድገሙ የይለፍ ቃል እንደ የይለፍ ቃል አንድ አይነት አይደለም",
+    "syncPromptMessage": "ውሂቡን ማመሳሰል የተወሰነ ጊዜ ሊወስድ ይችላል.እባክዎን ይህንን ገጽ አይዝጉ",
+    "or": "ወይም",
+    "LogInWithGoogle": "በ Google ይግቡ",
+    "LogInWithGithub": "በ Github ይግቡ",
+    "LogInWithDiscord": "በ Discord ይግቡ",
+    "signInWith": "በመለያ ይግቡ:"
+  },
+  "workspace": {
+    "chooseWorkspace": "የስራ ቦታዎን ይምረጡ",
+    "create": "የስራ ቦታ ፍጠር",
+    "reset": "የስራ ቦታን ዳግም ያስጀምሩ",
+    "resetWorkspacePrompt": "የስራ ቦታን ዳግም ማስጀመር በውስጡ ያሉትን ገጾች እና መረጃዎችን ያጠፋል። እርግጠኛ ነዎት የስራ ቦታውን እንደገና ማስጀመር ይፈልጋሉ? ወይም የስራ ቦታውን ለማደስ የድጋፍ ቡድኑን ማነጋገር ይችላሉ",
+    "hint": "የስራ ቦታ",
+    "notFoundError": "የስራ ቦታ አልተገኘም",
+    "failedToLoad": "የሆነ ስህተት ተከስቷል! የስራ ቦታውን መጫን አልተሳካም። ማንኛውንም የተከፈተ የአፕሊኬሽንን ምሳሌ ለመዝጋት ይሞክሩ ከዛ እንደገና ይሞክሩ።",
+    "errorActions": {
+      "reportIssue": "ችግር ሪፖርት ያድርጉ",
+      "reachOut": "Discord ላይ ያግኙን"
+    }
+  },
+  "shareAction": {
+    "buttonText": "አጋራ",
+    "workInProgress": "በቅርብ ቀን",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "አገናኝ ቅዳ"
+  },
+  "moreAction": {
+    "small": "ትንሽ",
+    "medium": "መካከለኛ",
+    "large": "ትልቅ",
+    "fontSize": "የቅርጸ-ቁምፊ መጠን",
+    "import": "ማስመጣት",
+    "moreOptions": "ተጨማሪ አማራጮች"
+  },
+  "importPanel": {
+    "textAndMarkdown": "ጽሑፍ እና Markdown",
+    "documentFromV010": "ሰነድ ከ v0.1.0",
+    "databaseFromV010": "የመረጃ ቋት ከ v0.1.0",
+    "csv": "CSV",
+    "database": "የመረጃ ቋት"
+  },
+  "disclosureAction": {
+    "rename": "እንደገና ይሰይሙ",
+    "delete": "ሰርዝ",
+    "duplicate": "አባዛ",
+    "unfavorite": "ከተወዳጅዎች ያስወግዱ",
+    "favorite": "ወደ ተወዳጆች ያክሉ",
+    "openNewTab": "በአዲስ ትር ውስጥ ይክፈቱ",
+    "moveTo": "ወደ ይሂዱ",
+    "addToFavorites": "ወደ ተወዳጆች ያክሉ",
+    "copyLink": "አገናኝ ቅዳ"
+  },
+  "blankPageTitle": "ባዶ ገጽ",
+  "newPageText": "አዲስ ገጽ",
+  "newDocumentText": "አዲስ ሰነድ",
+  "newGridText": "አዲስ ፍርግርግ",
+  "newCalendarText": "አዲስ የቀን መቁጠሪያ",
+  "newBoardText": "አዲስ ቦርድ",
+  "trash": {
+    "text": "መጣያ",
+    "restoreAll": "ሁሉንም ወደነበረበት መመለስ",
+    "deleteAll": "ሁሉንም ሰርዝ",
+    "pageHeader": {
+      "fileName": "የመዝገብ ስም",
+      "lastModified": "ለመጨረሻ ጊዜ የተሻሻለው",
+      "created": "ተፈጠረ"
+    },
+    "confirmDeleteAll": {
+      "title": "ሁሉም ገጾችን በቆሻሻ መጣያ ውስጥ ለመሰረዝ እርግጠኛ ነዎት?",
+      "caption": "ይህ እርምጃ ሊቀለበስ አይችልም።"
+    },
+    "confirmRestoreAll": {
+      "title": "ሁሉንም ገጾች በቆሻሻ መጣያ ውስጥ እንደገና መመልስዎን እርግጠኛ ነዎት?",
+      "caption": "ይህ እርምጃ ሊቀለበስ አይችልም።"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "ይህ ገጽ በቆሻሻ መጣያ ውስጥ ነው",
+    "restore": "መልሶ መመለስ",
+    "deletePermanent": "በቋሚነት ሰርዝ"
+  },
+  "dialogCreatePageNameHint": "ገጽ ስም",
+  "questionBubble": {
+    "shortcuts": "አቋራጮች",
+    "whatsNew": "ምን አዲስ ነገር አለ?",
+    "help": "እገዛ እና ድጋፍ",
+    "markdown": "ምልክት ተደርጎበታል",
+    "debug": {
+      "name": "ማረም መረጃ",
+      "success": "የተገለበጠ የአድራሻ መረጃ ወደ ቅንጥብ ሰሌዳ!",
+      "fail": "የማረም መረጃ ወደ ቅንጥብ ሰሌዳ መቅዳት አልተቻለም"
+    },
+    "feedback": "ግብረመልስ"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "ያስወግዱ፣ እንደገና ይሰይሙ እና ተጨማሪ ...",
+    "addPageTooltip": "በፍጥነት አንድ ገጽ ውስጥ ያክሉ",
+    "defaultNewPageName": "ላልተሰራ",
+    "renameDialog": "እንደገና ይሰይሙ"
+  },
+  "toolbar": {
+    "undo": "መቀልበስ",
+    "redo": "ድጋሚ",
+    "bold": "ደፋር",
+    "italic": "ጣዕሙ",
+    "underline": "ከመስመር ውጭ",
+    "strike": "ቀሚስ",
+    "numList": "ቁጥሩ ዝርዝር",
+    "bulletList": "ጉልበተኛ ዝርዝር",
+    "checkList": "ዝርዝርን ይመልከቱ",
+    "inlineCode": "የውስጥ ኮድ",
+    "quote": "ጥቅስ",
+    "header": "አርዕስት",
+    "highlight": "ያድጉ",
+    "color": "ቀለም",
+    "addLink": "አገናኝን ያክሉ",
+    "link": "አገናኝ"
+  },
+  "tooltip": {
+    "lightMode": "ወደ ቀላል ሁኔታ ቀይር",
+    "darkMode": "ወደ ጨለማ ሁኔታ ቀይር",
+    "openAsPage": "እንደ ገጽ ይክፈቱ",
+    "addNewRow": "አዲስ ረድፍ ያክሉ",
+    "openMenu": "ምናሌን ለመክፈት ጠቅ ያድርጉ",
+    "dragRow": "ረድፉን እንደገና ለማዳበር ረዥም ፕሬስ",
+    "viewDataBase": "የመረጃ ቋት ይመልከቱ",
+    "referencePage": "ይህ {name} የተጠቀሰ ነው",
+    "addBlockBelow": "ከዚህ በታች የሆነ አግድ ያክሉ"
+  },
+  "sideBar": {
+    "closeSidebar": "የጎን አሞሌ ይዝጉ",
+    "openSidebar": "የተከፈተ የጎን አሞሌ",
+    "personal": "የግል",
+    "favorites": "ተወዳጆች",
+    "clickToHidePersonal": "የግል ክፍልን ለመደበቅ ጠቅ ያድርጉ",
+    "clickToHideFavorites": "የሚወዱትን ክፍል ለመደበቅ ጠቅ ያድርጉ",
+    "addAPage": "አንድ ገጽ ያክሉ"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "ለመላክ የተላከው ማስታወሻ",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "እውቂያዎች",
+    "whatsHappening": "በዚህ ሳምንት ምን እየሆነ ነው?",
+    "addContact": "እውቂያ ይጨምሩ",
+    "editContact": "እውቂያ ያርትዑ"
+  },
+  "button": {
+    "ok": "እሺ",
+    "cancel": "ይቅር",
+    "signIn": "ይግቡ",
+    "signOut": "ዘግተው ውጣ",
+    "complete": "ተጠናቀቀ",
+    "save": "አስቀምጥ",
+    "generate": "ማመንጨት",
+    "esc": "Esc",
+    "keep": "ጠብቅ",
+    "tryAgain": "እንደገና ሞክር",
+    "discard": "መጣል",
+    "replace": "ይተኩ",
+    "insertBelow": "ከዚህ በታች ያስገቡ",
+    "upload": "ይስቀሉ",
+    "edit": "አርትዕ",
+    "delete": "ሰርዝ",
+    "duplicate": "የተባዛ",
+    "done": "ተከናውኗል",
+    "putback": "ይቅር"
+  },
+  "label": {
+    "welcome": "እንኳን ደና መጡ!",
+    "firstName": "የመጀመሪያ ስም",
+    "middleName": "የአባት ስም",
+    "lastName": "የአያት ስም",
+    "stepX": "ደረጃ {x}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "ከመለያዎ ጋር መገናኘት አልተቻለም።",
+      "failedMsg": "እባክዎን በአሳሽዎ ውስጥ የመግቢያ ሂደቱን ማጠናቀቁዎን ያረጋግጡ።"
+    },
+    "google": {
+      "title": "ጉግል መግቢያ",
+      "instruction1": "የ Google እውቂያዎችዎን ለማስመጣት ይህንን መተግበሪያ የድር አሳሽንዎን በመጠቀም ይህንን መተግበሪያ መፍቀድ ያስፈልግዎታል።",
+      "instruction2": "ጽሑፉን አዶን ጠቅ በማድረግ ወይም መምረጥ ወይም መምረጥ ይህንን ኮድ ወደ ቅንጥብ ሰሌዳዎ ይቅዱ።",
+      "instruction3": "በድር አሳሽዎ ውስጥ ወደሚከተለው አገናኝ ይሂዱ እና ከላይ ያለውን ኮድ ያስገቡ",
+      "instruction4": "ምዝገባ ሲያጠናቅቁ ከዚህ በታች ያለውን ቁልፍ ተጫን"
+    }
+  },
+  "settings": {
+    "title": "ቅንብሮች",
+    "menu": {
+      "appearance": "መልክ",
+      "language": "ቋንቋ",
+      "user": "ተጠቃሚ",
+      "files": "ፋይሎች",
+      "notifications": "ማሳወቂያዎች",
+      "open": "ክፍት ቅንብሮች",
+      "logout": "ውጣ",
+      "logoutPrompt": "እርግጠኛ ነዎት ረጃጁን ማውጣት ይፈልጋሉ?",
+      "selfEncryptionLogoutPrompt": "እርግጠኛ ነዎት ዘግተው መውጣት ይፈልጋሉ? እባክዎን የምስጢር ምስጢሩን እንደገለበጡ ያረጋግጡ",
+      "syncSetting": "ቅንብሮችን አመሳስል",
+      "enableSync": "ማመሳሰልን አንቃ",
+      "enableEncrypt": "ውሂብን ኢንክሪፕት ማድረግ",
+      "enableEncryptPrompt": "በዚህ ምስጢር ውሂብዎን ለማስጠበቅ ምስጠራን ያግብሩ። በደህና ያከማቹ; አንዴ ከነቃ, ሊጠፋ አይችልም። ከጠፋ, የእርስዎ ውሂብ እየተስተካከለ ይሆናል። ለመቅዳት ጠቅ ያድርጉ",
+      "inputEncryptPrompt": "እባክዎ የምስጠራ ምስጢርዎን ያስገቡ ለ",
+      "clickToCopySecret": "ምስጢር ለመቅዳት ጠቅ ያድርጉ",
+      "inputTextFieldHint": "ምስጢርዎ",
+      "historicalUserList": "የተጠቃሚ የመግቢያ ታሪክ",
+      "historicalUserListTooltip": "ይህ ዝርዝር ስም-አልባ መለያዎችዎን ያሳያል። ዝርዝሩን ለማየት መለያ ላይ ጠቅ ማድረግ ይችላሉ። ያልታወቁ መለያዎች 'የተጀመሩ' ቁልፍን ጠቅ በማድረግ የተፈጠሩ ናቸው",
+      "openHistoricalUser": "ማንነቱ ያልታሰበ መለያ ለመክፈት ጠቅ ያድርጉ"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "ማሳወቂያዎችን አንቃ",
+        "hint": "የአካባቢያዊ ማሳወቂያዎችን ከማየት ለማቆም ያጥፉ."
+      }
+    },
+    "appearance": {
+      "resetSetting": "ይህንን ቅንብር እንደገና ያስጀምሩ",
+      "fontFamily": {
+        "label": "የቅርጸ-ቁምፊ ቤተሰብ",
+        "search": "ፍለጋ"
+      },
+      "themeMode": {
+        "label": "ጭብጥ ሁኔታ",
+        "light": "ቀላል ሁኔታ",
+        "dark": "ጨለማ ሁነታን",
+        "system": "ከስርዓት ጋር መላመድ"
+      },
+      "layoutDirection": {
+        "label": "አቀማመጥ አቅጣጫ",
+        "hint": "ከግራ ወደ ቀኝ ወይም ወደ ግራ ወይም ወደ ቀኝ በማያ ገጽዎ ላይ ያለውን የይዘት ፍሰት ይቆጣጠሩ።",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "ነባሪ የጽሑፍ አቅጣጫ",
+        "hint": "ጽሑፉ ከግራ ወይም ከቀኝ እንደ ነባሪው መጀመር እንዳለበት ይግለጹ።",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "ራስ-ሰር",
+        "fallback": "እንደ አቀማመጥ አቅጣጫ ተመሳሳይ ነው"
+      },
+      "themeUpload": {
+        "button": "ይስቀሉ",
+        "uploadTheme": "ጭብጥ ይስቀሉ",
+        "description": "ከዚህ በታች ያለውን አዝራር በመጠቀም የራስዎን የአፕልሎሎሪያ ገጽ ጭብጥ ይስቀሉ።",
+        "failure": "የተሰቀሉት ጭብጥ ልክ ያልሆነ ቅርጸት ነበረው።",
+        "loading": "እባክዎ ጭብጥዎን በማረጋገጥ እና ሲሰቅል እባክዎ ይጠብቁ ...",
+        "uploadSuccess": "ጭብጥዎ በተሳካ ሁኔታ ተሰቅሏል",
+        "deletionFailure": "ጭብጡን መሰረዝ አልተቻለም.እሱን እራስዎ ለመሰረዝ ይሞክሩ።",
+        "filePickerDialogTitle": "የ .flowy_plugin ፋይል ይምረጡ",
+        "urlUploadFailure": "URL ን መክፈት አልተሳካም: {}"
+      },
+      "theme": "ጭብጥ",
+      "builtInsLabel": "የተገነቡ ገጽታዎች",
+      "pluginsLabel": "ተሰኪዎች",
+      "dateFormat": {
+        "label": "የቀን ቅርጸት",
+        "local": "አካባቢያዊ",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "ተስማሚ",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "የጊዜ ቅርጸት",
+        "twelveHour": "አሥራ ሁለት ሰዓት",
+        "twentyFourHour": "ሀያ አራት ሰዓት"
+      },
+      "showNamingDialogWhenCreatingPage": "አንድን ገጽ በሚፈጥርበት ጊዜ የ ስምምነቱን ንግግር ያሳዩ"
+    },
+    "files": {
+      "copy": "ቅጂ",
+      "defaultLocation": "ፋይሎችን እና የውሂብ ማከማቻ ቦታን ያንብቡ",
+      "exportData": "ውሂብዎን ወደ ውጭ ይላኩ",
+      "doubleTapToCopy": "መንገዱን ለመቅዳት ሁለቴ መታ ያድርጉ",
+      "restoreLocation": "ወደ APPFOFLAY ነባሪ ጎዳና ወደነበረበት መመለስ",
+      "customizeLocation": "ሌላ አቃፊ ይክፈቱ",
+      "restartApp": "ተግባራዊ ለሆኑ ለውጦች መተግበሪያን እንደገና ያስጀምሩ።",
+      "exportDatabase": "የመረጃ ቋት የመረጃ ቋት",
+      "selectFiles": "ወደ ውጭ ለመላክ የሚያስፈልጉትን ፋይሎች ይምረጡ",
+      "selectAll": "ሁሉንም ምረጥ",
+      "deselectAll": "ሁሉንም አይምረጡ",
+      "createNewFolder": "አዲስ አቃፊ ይፍጠሩ",
+      "createNewFolderDesc": "ውሂብዎን ማከማቸት እንደሚፈልጉ ይንገሩን",
+      "defineWhereYourDataIsStored": "ውሂብዎ የት እንደተከማቸ ይግለጹ",
+      "open": "ክፈት",
+      "openFolder": "አሁን ያለውን አቃፊ ይክፈቱ",
+      "openFolderDesc": "አሁን ባለው የ Appflowy አቃፊዎ ውስጥ ያንብቡ እና ይፃፉ",
+      "folderHintText": "አቃፊ ስም",
+      "location": "አዲስ አቃፊ መፍጠር",
+      "locationDesc": "ለ Appflowy ውሂብ አቃፊዎ ስም ይምረጡ",
+      "browser": "ያስሱ",
+      "create": "ፍጠር",
+      "set": "አዘጋጅ",
+      "folderPath": "አቃፊዎን ለማከማቸት መንገድ",
+      "locationCannotBeEmpty": "መንገድ ባዶ ሊሆን አይችልም",
+      "pathCopiedSnackbar": "የፋይል ማከማቻ መንገድ ወደ ቅንጥብ ሰሌዳው ተቀብሏል!",
+      "changeLocationTooltips": "የውሂብ ማውጫውን ይለውጡ",
+      "change": "ለውጥ",
+      "openLocationTooltips": "ሌላ የውሂብ ማውጫ ይክፈቱ",
+      "openCurrentDataFolder": "የአሁኑን የውሂብ ማውጫ ይክፈቱ",
+      "recoverLocationTooltips": "ወደ Appflowy ነባሪ የውሂብ ማውጫ ዳግም ያስጀምሩ",
+      "exportFileSuccess": "ወደ ውጭ የመላክ ፋይል በተሳካ ሁኔታ!",
+      "exportFileFail": "ወደ ውጭ የመላክ ፋይል አልተሳካም!",
+      "export": "ወደ ውጭ ይላኩ"
+    },
+    "user": {
+      "name": "ስም",
+      "email": "ኢሜል",
+      "tooltipSelectIcon": "አዶን ይምረጡ",
+      "selectAnIcon": "አዶን ይምረጡ",
+      "pleaseInputYourOpenAIKey": "እባክዎን AI ቁልፍዎን ያስገቡ",
+      "pleaseInputYourStabilityAIKey": "እባክዎ Stability AI ቁልፍን ያስገቡ",
+      "clickToLogout": "የአሁኑን ተጠቃሚ ለመግባት ጠቅ ያድርጉ"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "አቋራጮች",
+      "command": "ትእዛዝ",
+      "keyBinding": "የቁልፍ ሰሌዳ",
+      "addNewCommand": "አዲስ ትዕዛዝ ያክሉ",
+      "updateShortcutStep": "የሚፈለገውን ቁልፍ ጥምረት እና አስገባን ይጫኑ",
+      "shortcutIsAlreadyUsed": "ይህ አቋራጭ አስቀድሞ ጥቅም ላይ ውሏል- {conflict}",
+      "resetToDefault": "ወደ ነባሪ የቁልፍ ማያያዣዎች ዳግም ያስጀምሩ",
+      "couldNotLoadErrorMsg": "አቋራጮችን መጫን አልተቻለም, እንደገና ይሞክሩ",
+      "couldNotSaveErrorMsg": "አቋራጮችን ማስቀመጥ አልተቻለም, እንደገና ይሞክሩ"
+    }
+  },
+  "grid": {
+    "deleteView": "እርግጠኛ ነዎት ይህንን አመለካከት መሰረዝ ይፈልጋሉ?",
+    "createView": "አዲስ",
+    "title": {
+      "placeholder": "ላልተሰራ"
+    },
+    "settings": {
+      "filter": "ማጣሪያ",
+      "sort": "ደርድር",
+      "sortBy": "ቅደምተከተሉ የተስተካከለው",
+      "properties": "ንብረቶች",
+      "reorderPropertiesTooltip": "ለመደናቀፊያዎች ንድፍ ለመጎተት ይጎትቱ",
+      "group": "ቡድን",
+      "addFilter": "ማጣሪያ ያክሉ",
+      "deleteFilter": "ማጣሪያ ሰርዝ",
+      "filterBy": "ማጣሪያ በ ...",
+      "typeAValue": "እሴት ይተይቡ ...",
+      "layout": "አቀማመጥ",
+      "databaseLayout": "አቀማመጥ"
+    },
+    "textFilter": {
+      "contains": "ይይዛል",
+      "doesNotContain": "አይይዝም",
+      "endsWith": "ከ ጋር ያበቃል",
+      "startWith": "ይጀምራል",
+      "is": "ነው",
+      "isNot": "አይደለም",
+      "isEmpty": "ባዶ ነው",
+      "isNotEmpty": "ባዶ አይደለም",
+      "choicechipPrefix": {
+        "isNot": "አይደለም",
+        "startWith": "ይጀምራል",
+        "endWith": "ከ ጋር ያበቃል",
+        "isEmpty": "ይጀምራል",
+        "isNotEmpty": "ነው"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "አይደለም",
+      "isUnchecked": "ባዶ ነው",
+      "choicechipPrefix": {
+        "is": "ባዶ አይደለም"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "አይደለም",
+      "isIncomplted": "ባዶ ነው"
+    },
+    "selectOptionFilter": {
+      "is": "ነው",
+      "isNot": "አይደለም",
+      "contains": "ይይዛል",
+      "doesNotContain": "አይይዝም",
+      "isEmpty": "ባዶ ነው",
+      "isNotEmpty": "ባዶ አይደለም"
+    },
+    "field": {
+      "hide": "አይደለም",
+      "show": "ባዶ ነው",
+      "insertLeft": "ባዶ አይደለም",
+      "insertRight": "ምልክት ተደርጎበታል",
+      "duplicate": "ቁጥጥር ካልተደረገበት",
+      "delete": "ነው",
+      "textFieldName": "ተጠናቅቋል",
+      "checkboxFieldName": "ያልተሟላ ነው",
+      "dateFieldName": "ደብቅ",
+      "updatedAtFieldName": "አሳይ",
+      "createdAtFieldName": "ግራ ያስገቡ",
+      "numberFieldName": "ቀኝ ያስገቡ",
+      "singleSelectFieldName": "የተባዛ",
+      "multiSelectFieldName": "ሰርዝ",
+      "urlFieldName": "ጽሑፍ",
+      "checklistFieldName": "አመልካች ሳጥን",
+      "numberFormat": "ቀን",
+      "dateFormat": "ለመጨረሻ ጊዜ የተስተካከለ ጊዜ",
+      "includeTime": "የተፈጠረ ጊዜ",
+      "isRange": "ቁጥሮች",
+      "dateFormatFriendly": "ይምረጡ",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Day/Year",
+      "dateFormatUS": "Year/Month/Day",
+      "dateFormatDayMonthYear": "Day/Month/Year",
+      "timeFormat": "ልዩ መልሶች",
+      "invalidTimeFormat": "ዩ አር ኤል",
+      "timeFormatTwelveHour": "የማረጋገጫ ዝርዝር",
+      "timeFormatTwentyFourHour": "የቁጥር ቅርጸት",
+      "clearDate": "የቀን ቅርጸት",
+      "addSelectOption": "ጊዜን ያካትቱ",
+      "optionTitle": "ቀኑ ቀኑ",
+      "addOption": "ወር ቀን, ዓመት",
+      "editProperty": "የጊዜ ቅርጸት",
+      "newProperty": "የተሳሳተ ቅርጸት",
+      "deleteFieldPromptMessage": "12 ሰዓት",
+      "newColumn": "24 ሰዓት"
+    },
+    "rowPage": {
+      "newField": "ግልጽ ቀን",
+      "fieldDragElementTooltip": "አንድ አማራጭ ያክሉ",
+      "showHiddenFields": {
+        "one": "የተደበቁ {} ፊልዶችን ያሳዩ",
+        "many": "የተደበቁ {} ፊልዶችን ያሳዩ",
+        "other": "የተደበቁ {} ፊልዶችን ያሳዩ"
+      },
+      "hideHiddenFields": {
+        "one": "የተደበቁ {} ፊልዶችን ይደብቁ",
+        "many": "የተደበቁ {} ፊልዶችን ይደብቁ",
+        "other": "የተደበቁ {} ፊልዶችን ይደብቁ"
+      }
+    },
+    "sort": {
+      "ascending": "ኧረይህ ንብረት ይሰረዛል",
+      "descending": "አዲስ አምድ",
+      "deleteAllSorts": "አዲስ መስክ ያክሉ",
+      "addSort": "ምናሌን ለመክፈት ጠቅ ያድርጉ"
+    },
+    "row": {
+      "duplicate": "ቁጥጥር ካልተደረገበት",
+      "delete": "ነው",
+      "titlePlaceholder": "ላልተሰራ",
+      "textPlaceholder": "ተጠናቅቋል",
+      "copyProperty": "ያልተሟላ ነው",
+      "count": "ደብቅ",
+      "newRow": "አሳይ",
+      "action": "ግራ ያስገቡ",
+      "add": "ቀኝ ያስገቡ",
+      "drag": "የተባዛ"
+    },
+    "selectOption": {
+      "create": "ሰርዝ",
+      "purpleColor": "ጽሑፍ",
+      "pinkColor": "አመልካች ሳጥን",
+      "lightPinkColor": "ቀን",
+      "orangeColor": "ለመጨረሻ ጊዜ የተስተካከለ ጊዜ",
+      "yellowColor": "የተፈጠረ ጊዜ",
+      "limeColor": "ቁጥሮች",
+      "greenColor": "ይምረጡ",
+      "aquaColor": "ልዩ መልሶች",
+      "blueColor": "ዩ አር ኤል",
+      "deleteTag": "የማረጋገጫ ዝርዝር",
+      "colorPanelTitle": "የቁጥር ቅርጸት",
+      "panelTitle": "የቀን ቅርጸት",
+      "searchOption": "ጊዜን ያካትቱ",
+      "searchOrCreateOption": "ቀኑ ቀኑ",
+      "createNew": "ወር ቀን, ዓመት",
+      "orSelectOne": "የጊዜ ቅርጸት"
+    },
+    "checklist": {
+      "taskHint": "የተሳሳተ ቅርጸት",
+      "addNew": "12 ሰዓት",
+      "submitNewTask": "ሰርዝ"
+    },
+    "menuName": "ጽሑፍ",
+    "referencedGridPrefix": "አመልካች ሳጥን"
+  },
+  "document": {
+    "menuName": "ሰነድ",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "ለማገናኘት ቦርድ ይምረጡ",
+        "createANewBoard": "አዲስ ቦርድ ይፍጠሩ"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "ለማገናኘት ፍርግርግ ይምረጡ",
+        "createANewGrid": "አዲስ ፍርግርግ ይፍጠሩ"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "ለማገናኘት የቀን መቁጠሪያ ይምረጡ",
+        "createANewCalendar": "አዲስ የቀን መቁጠሪያ ይፍጠሩ"
+      }
+    },
+    "selectionMenu": {
+      "outline": "ዝርዝር",
+      "codeBlock": "ኮድ ብሎክ"
+    },
+    "plugins": {
+      "referencedBoard": "ማጣቀሻ ቦርድ",
+      "referencedGrid": "ማጣቀሻ ፍርግርግ",
+      "referencedCalendar": "የቀን ቀን መቁጠሪያ",
+      "autoGeneratorMenuItemName": "AI ጸሐፊ",
+      "autoGeneratorTitleName": "AI ማንኛውንም ነገር እንዲጽፉ ይጠይቁ ...",
+      "autoGeneratorLearnMore": "ተጨማሪ እወቅ",
+      "autoGeneratorGenerate": "ማመንጨት",
+      "autoGeneratorHintText": "AI ይጠይቁ ...",
+      "autoGeneratorCantGetOpenAIKey": "የ AI ቁልፍ ማግኘት አልተቻለም",
+      "autoGeneratorRewrite": "እንደገና ይፃፉ",
+      "smartEdit": "ረዳቶች",
+      "openAI": "ኦፔና",
+      "smartEditFixSpelling": "የፊደል አጻጻፍ",
+      "warning": "⚠️ የAI ምላሾች ትክክል ያልሆኑ ወይም አሳሳች ሊሆኑ ይችላሉ.",
+      "smartEditSummarize": "ማጠቃለል",
+      "smartEditImproveWriting": "ጽሑፍን ማሻሻል",
+      "smartEditMakeLonger": "ረዘም ላለ ጊዜ ያድርጉ",
+      "smartEditCouldNotFetchResult": "ከOpenAI ውጤት ማምለጥ አልተቻለም",
+      "smartEditCouldNotFetchKey": "ኦፕናይ ቁልፍን ማጣት አልተቻለም",
+      "smartEditDisabled": "በቅንብሮች ውስጥ AI ያገናኙ",
+      "discardResponse": "የ AI ምላሾችን መጣል ይፈልጋሉ?",
+      "createInlineMathEquation": "እኩልነት ይፍጠሩ",
+      "toggleList": "የተስተካከለ ዝርዝር",
+      "cover": {
+        "changeCover": "ሽፋን",
+        "colors": "ቀለሞች",
+        "images": "ምስሎች",
+        "clearAll": "ሁሉንም ያፅዱ",
+        "abstract": "ረቂቅ",
+        "addCover": "ሽፋን ጨምር",
+        "addLocalImage": "የአከባቢ ምስል ያክሉ",
+        "invalidImageUrl": "ልክ ያልሆነ ምስል ዩአርኤል",
+        "failedToAddImageToGallery": "ወደ ማዕከለ-ስዕላት ምስልን ማከል አልተሳካም",
+        "enterImageUrl": "የምስል ዩአርኤል ያስገቡ",
+        "add": "ጨምር",
+        "back": "ተመለስ",
+        "saveToGallery": "ወደ ማዕከለ-ስዕላት ይቆጥቡ",
+        "removeIcon": "አዶ ያስወግዱ",
+        "pasteImageUrl": "የመለጠጥ ምስል ዩ አር ኤል",
+        "or": "ወይም",
+        "pickFromFiles": "ከፋይሎች ይምረጡ",
+        "couldNotFetchImage": "ምስልን ማምጣት አልተቻለም",
+        "imageSavingFailed": "ምስል ቁጠባ አልተሳካም",
+        "addIcon": "አዶን ያክሉ",
+        "coverRemoveAlert": "ከተሰረዘ በኋላ ከሽፋን ይወገዳል።",
+        "alertDialogConfirmation": "እርግጠኛ ነዎት ለመቀጠል ይፈልጋሉ?"
+      },
+      "mathEquation": {
+        "addMathEquation": "የሂሳብ እኩልታን ያክሉ",
+        "editMathEquation": "የሂሳብ እኩልትን ያርትዑ"
+      },
+      "optionAction": {
+        "click": "ጠቅ ያድርጉ",
+        "toOpenMenu": " ምናሌን ለመክፈት",
+        "delete": "ሰርዝ",
+        "duplicate": "የተባዛ",
+        "turnInto": "መለወጥ",
+        "moveUp": "ተንቀሳቀሱ",
+        "moveDown": "ውረድ",
+        "color": "ቀለም",
+        "align": "ስልጣን",
+        "left": "ግራ",
+        "center": "ማዕከል",
+        "right": "ቀኝ",
+        "defaultColor": "ነባሪ"
+      },
+      "image": {
+        "copiedToPasteBoard": "የምስል አገናኝ ወደ ቅንጥብ ሰሌዳው ተቀድቷል",
+        "addAnImage": "ምስል ያክሉ"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "የርዕስ ማውጫ ለመፍጠር የርዕስ ማውጫዎችን ለማክበር ያክሉ."
+      },
+      "table": {
+        "addAfter": "በኋላ ያክሉ",
+        "addBefore": "ከዚህ በፊት ያክሉ",
+        "delete": "ሰርዝ",
+        "clear": "የተባዛ",
+        "duplicate": "የተባዛ",
+        "bgColor": "መለወጥ"
+      },
+      "contextMenu": {
+        "copy": "ተንቀሳቀሱ",
+        "cut": "ውረድ",
+        "paste": "ቀለም"
+      }
+    },
+    "textBlock": {
+      "placeholder": "ለትዛዞች '/' ይጻፉ"
+    },
+    "title": {
+      "placeholder": "ያልተሰየመ"
+    },
+    "imageBlock": {
+      "placeholder": "ምስልን ለማከል ጠቅ ያድርጉ",
+      "upload": {
+        "label": "ይስቀሉ",
+        "placeholder": "ምስልን ለመስቀል ጠቅ ያድርጉ"
+      },
+      "url": {
+        "label": "የምስል ዩአርኤል",
+        "placeholder": "የምስል ዩአርኤል ያስገቡ"
+      },
+      "ai": {
+        "label": "ምስል AI ውስጥ ምስልን ማመንጨት",
+        "placeholder": "ምስልን ለማመንጨት እባክዎን ለ AI ይጠይቁ"
+      },
+      "stability_ai": {
+        "label": "ምስልን Stability AI ያመነጫል",
+        "placeholder": "እባክዎን ምስሉን ለማመንጨት እባክዎ Stability AI አጥነት ያስገቡ"
+      },
+      "support": "የምስል መጠን ወሰን 5 ሜባ ነው.የሚደገፉ ቅርፀቶች: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "ልክ ያልሆነ ምስል",
+        "invalidImageSize": "የምስል መጠን ከ 5 ሜባ በታች መሆን አለበት",
+        "invalidImageFormat": "የምስል ቅርጸት አይደገፍም.የሚደገፉ ቅርፀቶች: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "ልክ ያልሆነ ምስል ዩአርኤል"
+      },
+      "embedLink": {
+        "label": "አገናኝ",
+        "placeholder": "የመለጠጥ ወይም የምስል አገናኝን ይለዩ"
+      },
+      "searchForAnImage": "ምስልን ይፈልጉ",
+      "pleaseInputYourOpenAIKey": "እባክዎ በቅንብሮች ገጽ ውስጥ የኦፕሬና ቁልፍዎን ያስገቡ",
+      "pleaseInputYourStabilityAIKey": "በቅንብሮች ገጽ ውስጥ የመረጋጋት Stability AI ቁልፍን ያስገቡ"
+    },
+    "codeBlock": {
+      "language": {
+        "label": "ቋንቋ",
+        "placeholder": "ቋንቋ ይምረጡ"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "መለጠፍ ወይም አገናኝ ይተይቡ",
+      "openInNewTab": "በአዲስ ትር ክፈት",
+      "copyLink": "አገናኝ ቅዳ",
+      "removeLink": "አገናኝን ያስወግዱ",
+      "url": {
+        "label": "አገናኝ ዩአርኤል",
+        "placeholder": "አገናኝ ዩአርኤል ያስገቡ"
+      },
+      "title": {
+        "label": "አገናኝ ርዕስ",
+        "placeholder": "የአገናኝ ርዕስ ያስገቡ"
+      }
+    },
+    "mention": {
+      "placeholder": "አንድን ሰው ወይም አንድ ገጽ ወይም ቀን ጥቀስ ...",
+      "page": {
+        "label": "ወደ ገጽ አገናኝ",
+        "tooltip": "ገጽ ለመክፈት ጠቅ ያድርጉ"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "ወደ ነባሪ ዳግም ያስጀምሩ"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "የአሁኑ ስሪት ይህንን ብሎክ አይደግፍም።",
+      "blockContentHasBeenCopied": "ብሎክ ይዘቱ ተቀብሏል።"
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "አዲስ"
+    },
+    "menuName": "ቦርድ",
+    "referencedBoardPrefix": "እይታ"
+  },
+  "calendar": {
+    "menuName": "የቀን መቁጠሪያ",
+    "defaultNewCalendarTitle": "ላልተሰራ",
+    "newEventButtonTooltip": "አዲስ ክስተት ያክሉ",
+    "navigation": {
+      "today": "ዛሬ",
+      "jumpToday": "እስከ ዛሬ ድረስ ዝለል",
+      "previousMonth": "ያለፈው ወር",
+      "nextMonth": "በሚቀጥለው ወር"
+    },
+    "settings": {
+      "showWeekNumbers": "የሳምንቱ ቁጥሮች ያሳዩ",
+      "showWeekends": "ቅዳሜና እሁድን ያሳዩ",
+      "firstDayOfWeek": "ሳምንት ይጀምሩ",
+      "layoutDateField": "የቀን ቀን መቁጠሪያ በ",
+      "noDateTitle": "ቀን የለም",
+      "noDateHint": "ያልተስተካከሉ ክስተቶች እዚህ ይታያሉ",
+      "clickToAdd": "ወደ የቀን መቁጠሪያው ለማከል ጠቅ ያድርጉ",
+      "name": "የቀን መቁጠሪያ አቀማመጥ"
+    },
+    "referencedCalendarPrefix": "View of"
+  },
+  "errorDialog": {
+    "title": "Appflowy ስህተት",
+    "howToFixFallback": "ለተፈጠረው ችግር ይቅርታ እንጠይቃለን!ስህተትዎን በሚገልፅ የእኛ የ Gitubub ገጽ ላይ አንድ ጉዳይ ያስገቡ.",
+    "github": "በ Github ላይ ይመልከቱ"
+  },
+  "search": {
+    "label": "ፍለጋ",
+    "placeholder": {
+      "actions": "የፍለጋ እርምጃዎች ..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Copied!",
+      "fail": "መቅዳት አልተቻለም"
+    }
+  },
+  "unSupportBlock": "የአሁኑ ስሪት ይህንን ብሎክ አይደግፍም።",
+  "views": {
+    "deleteContentTitle": "እርግጠኛ ነዎት {pageType} መሰረዝ ይፈልጋሉ?",
+    "deleteContentCaption": "ይህን {pageType} ከሆነ, ከቆሻሻ መጣያ መመለስ ይችላሉ።"
+  },
+  "colors": {
+    "custom": "ብጁ",
+    "default": "ነባሪ",
+    "red": "ቀይ",
+    "orange": "ብርቱካናማ",
+    "yellow": "ቢጫ",
+    "green": "አረንጓዴ",
+    "blue": "ሰማያዊ",
+    "purple": "ሐምራዊ",
+    "pink": "ሐምራዊ",
+    "brown": "ብናማ",
+    "gray": "ግራጫ"
+  },
+  "emoji": {
+    "search": "ፈልግ ኢሞጂዲ",
+    "noRecent": "ምንም የቅርብ ጊዜ ኢሞጂ የለም",
+    "noEmojiFound": "ምንም ኢሞጂ አልተገኘም",
+    "filter": "ማጣሪያ",
+    "random": "የዘፈቀደ",
+    "selectSkinTone": "የቆዳ ድምጽ ይምረጡ",
+    "remove": "ኢሞጂን ያስወግዱ",
+    "categories": {
+      "smileys": "ፈገግታ እና ስሜቶች",
+      "people": "ሰዎች እና አካል",
+      "animals": "እንስሳት እና ተፈጥሮ",
+      "food": "ምግብ እና መጠጥ",
+      "activities": "እንቅስቃሴዎች",
+      "places": "ጉዞ እና ቦታዎች",
+      "objects": "ነገሮች",
+      "symbols": "ምልክቶች",
+      "flags": "ባንዲራዎች",
+      "nature": "ተፈጥሮ",
+      "frequentlyUsed": "ብዙ ጊዜ ጥቅም ላይ ውሏል"
+    }
+  },
+  "inlineActions": {
+    "noResults": "ምንም ውጤቶች የሉም",
+    "pageReference": "ገጽ ማጣቀሻ",
+    "date": "ቀን",
+    "reminder": {
+      "groupTitle": "አስታዋሽ",
+      "shortKeyword": "አስታውስ"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "በቅንብሮች ውስጥ ያለውን ቀን እና የጊዜ ቅርጸት ይለውጡ"
+  },
+  "relativeDates": {
+    "yesterday": "ትናንት",
+    "today": "ዛሬ",
+    "tomorrow": "ነገ",
+    "oneWeek": "1 ሳምንት"
+  },
+  "notificationHub": {
+    "title": "ማሳወቂያዎች",
+    "emptyTitle": "ሁሉም ተነሱ!",
+    "emptyBody": "ምንም የማሳወቂያዎች ወይም እርምጃዎች የለም.በተረጋጋና ይደሰቱ.",
+    "tabs": {
+      "inbox": "የገቢ መልእክት ሳጥን",
+      "upcoming": "መጪ"
+    },
+    "actions": {
+      "markAllRead": "ሁሉንም እንደ ንባብ ምልክት ያድርጉበት",
+      "showAll": "ሁሉም",
+      "showUnreads": "ያልተነበበ"
+    },
+    "filters": {
+      "ascending": "መውጣት",
+      "descending": "መውረድ",
+      "groupByDate": "ቀን",
+      "showUnreadsOnly": "ያልተነበቡ ቃላቶችን ብቻ ያሳዩ",
+      "resetToDefault": "ወደ ነባሪ ዳግም ያስጀምሩ"
+    }
+  },
+  "reminderNotification": {
+    "title": "አስታዋሽ",
+    "message": "አስታውስ",
+    "tooltipDelete": "በቅንብሮች ውስጥ ያለውን ቀን እና የጊዜ ቅርጸት ይለውጡ",
+    "tooltipMarkRead": "ትናንት",
+    "tooltipMarkUnread": "ዛሬ"
+  },
+  "findAndReplace": {
+    "find": "ነገ",
+    "previousMatch": "1 ሳምንት",
+    "nextMatch": "ማሳወቂያዎች",
+    "close": "ሁሉም ተነሱ!",
+    "replace": "ምንም የማሳወቂያዎች ወይም እርምጃዎች የለም.በተረጋጋና ይደሰቱ.",
+    "replaceAll": "የገቢ መልእክት ሳጥን",
+    "noResult": "ምንም ውጤቶች የሉም",
+    "caseSensitive": "መጪ"
+  }
+}

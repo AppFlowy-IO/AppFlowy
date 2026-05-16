@@ -1,0 +1,14 @@
+[package]
+name = "flowy-database-pub"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-infra = { workspace = true }
+collab-entity = { workspace = true }
+collab = { workspace = true }
+client-api = { workspace = true }
+flowy-error = { workspace = true }
+uuid.workspace = true

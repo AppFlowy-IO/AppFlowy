@@ -1,0 +1,8 @@
+Package: AppFlowy
+Version: [CHANGE_THIS]
+Depends: libkeybinder-3.0-0
+Architecture: amd64
+Essential: no
+Priority: optional
+Maintainer: AppFlowy
+Description: An Open Source Alternative to Notion

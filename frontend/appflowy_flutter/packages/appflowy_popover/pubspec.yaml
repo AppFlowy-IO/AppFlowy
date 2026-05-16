@@ -1,0 +1,17 @@
+name: appflowy_popover
+description: A new Flutter package project.
+version: 0.0.1
+homepage: https://appflowy.io
+
+environment:
+  flutter: ">=3.22.0"
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0

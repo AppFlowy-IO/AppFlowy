@@ -1,0 +1,310 @@
+#https://github.com/sagiegurari/cargo-make
+
+extend = [
+  { path = "scripts/makefile/desktop.toml" },
+  { path = "scripts/makefile/mobile.toml" },
+  { path = "scripts/makefile/protobuf.toml" },
+  { path = "scripts/makefile/tests.toml" },
+  { path = "scripts/makefile/docker.toml" },
+  { path = "scripts/makefile/env.toml" },
+  { path = "scripts/makefile/flutter.toml" },
+  { path = "scripts/makefile/tool.toml" },
+  { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
+]
+
+[config]
+on_error_task = "catch"
+
+[tasks.catch]
+run_task = { name = ["restore-crate-type"] }
+
+[env]
+RUST_LOG = "info"
+CARGO_PROFILE = "dev"
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
+CARGO_MAKE_CRATE_NAME = "dart-ffi"
+LIB_NAME = "dart_ffi"
+APPFLOWY_VERSION = "0.11.4"
+FLUTTER_DESKTOP_FEATURES = "dart"
+PRODUCT_NAME = "AppFlowy"
+MACOSX_DEPLOYMENT_TARGET = "11.0"
+# CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
+# If you update the macOS's CRATE_TYPE, don't forget to update the
+# appflowy_backend.podspec
+#   for staticlib:
+#        s.static_framework = true
+#        s.vendored_libraries = "libdart_ffi.a"
+#   for cdylib:
+#        s.vendored_libraries = "libdart_ffi.dylib"
+#
+# Remember to update the ffi.dart:
+#   for staticlib:
+#       if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
+#   for cdylib:
+#       if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
+CRATE_TYPE = "staticlib"
+LIB_EXT = "a"
+APP_ENVIRONMENT = "local"
+FLUTTER_FLOWY_SDK_PATH = "appflowy_flutter/packages/appflowy_backend"
+TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
+WEB_BACKEND_SERVICE_PATH = "appflowy_web/src/services/backend"
+TAURI_APP_BACKEND_SERVICE_PATH = "appflowy_web_app/src/application/services/tauri-services/backend"
+# Test default config
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+TEST_BUILD_FLAG = "debug"
+TEST_COMPILE_TARGET = "x86_64-apple-darwin"
+
+[env.development-mac-arm64]
+RUST_LOG = "info"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "aarch64-apple-darwin"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "app"
+BUILD_ARCHS = "arm64"
+BUILD_ACTIVE_ARCHS_ONLY = true
+CRATE_TYPE = "staticlib"
+
+[env.development-mac-x86_64]
+RUST_LOG = "info"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "x86_64-apple-darwin"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "app"
+BUILD_ARCHS = "x86_64"
+BUILD_ACTIVE_ARCHS_ONLY = true
+CRATE_TYPE = "staticlib"
+
+[env.production-mac-arm64]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "aarch64-apple-darwin"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "app"
+APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "arm64"
+BUILD_ACTIVE_ARCHS_ONLY = false
+CRATE_TYPE = "staticlib"
+
+[env.production-mac-x86_64]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "x86_64-apple-darwin"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "app"
+APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "x86_64"
+BUILD_ACTIVE_ARCHS_ONLY = false
+CRATE_TYPE = "staticlib"
+
+[env.production-mac-universal]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "macos"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "app"
+BUILD_ACTIVE_ARCHS_ONLY = false
+APP_ENVIRONMENT = "production"
+
+[env.development-windows-x86]
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "exe"
+CRATE_TYPE = "cdylib"
+LIB_EXT = "dll"
+
+[env.production-windows-x86]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "exe"
+CRATE_TYPE = "cdylib"
+LIB_EXT = "dll"
+BUILD_ARCHS = "x64"
+APP_ENVIRONMENT = "production"
+
+[env.development-linux-x86_64]
+TARGET_OS = "linux"
+RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
+BUILD_FLAG = "debug"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Debug"
+LIB_EXT = "so"
+LINUX_ARCH = "x64"
+
+[env.production-linux-x86_64]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "linux"
+RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+LIB_EXT = "so"
+LINUX_ARCH = "x64"
+APP_ENVIRONMENT = "production"
+
+[env.development-linux-aarch64]
+TARGET_OS = "linux"
+RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
+BUILD_FLAG = "debug"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Debug"
+LIB_EXT = "so"
+LINUX_ARCH = "arm64"
+FLUTTER_DESKTOP_FEATURES = "dart,openssl_vendored"
+
+[env.production-linux-aarch64]
+CARGO_PROFILE = "release"
+BUILD_FLAG = "release"
+TARGET_OS = "linux"
+RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+LIB_EXT = "so"
+LINUX_ARCH = "arm64"
+APP_ENVIRONMENT = "production"
+FLUTTER_DESKTOP_FEATURES = "dart,openssl_vendored"
+
+[env.development-ios-arm64-sim]
+BUILD_FLAG = "debug"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Debug"
+RUST_COMPILE_TARGET = "aarch64-apple-ios-sim"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
+[env.development-ios-arm64]
+BUILD_FLAG = "debug"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Debug"
+RUST_COMPILE_TARGET = "aarch64-apple-ios"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
+[env.production-ios-arm64]
+BUILD_FLAG = "release"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Release"
+RUST_COMPILE_TARGET = "aarch64-apple-ios"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
+[env.development-android]
+BUILD_FLAG = "debug"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Debug"
+LIB_EXT = "so"
+PRODUCT_EXT = "apk"
+FLUTTER_DESKTOP_FEATURES = "dart,openssl_vendored"
+
+[env.production-android]
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "apk"
+LIB_EXT = "so"
+
+[tasks.echo_env]
+script = ['''
+    echo "-------- Env Parameters --------"
+    echo CRATE_TYPE: ${CRATE_TYPE}
+    echo BUILD_FLAG: ${BUILD_FLAG}
+    echo TARGET_OS: ${TARGET_OS}
+    echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
+    echo FEATURES: ${FLUTTER_DESKTOP_FEATURES}
+    echo PRODUCT_EXT: ${PRODUCT_EXT}
+    echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
+    echo BUILD_ARCHS: ${BUILD_ARCHS}
+    echo BUILD_VERSION: ${BUILD_VERSION}
+    echo RUST_VERSION: "$(rustc --version)"
+    ''']
+script_runner = "@shell"
+
+[tasks.setup-crate-type]
+private = true
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "staticlib" ${CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+[tasks.restore-crate-type]
+private = true
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} ${CRATE_TYPE} "staticlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+[env.test-macos-x86_64]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+# For the moment, the DynamicLibrary only supports open x86_64 architectures binary.
+TEST_COMPILE_TARGET = "x86_64-apple-darwin"
+
+[env.test-macos-arm64]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+TEST_COMPILE_TARGET = "aarch64-apple-darwin"
+
+[env.test-linux]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "so"
+TEST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
+
+[env.test-windows]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dll"
+TEST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
+
+[tasks.setup-test-crate-type]
+private = true
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "staticlib" ${TEST_CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+[tasks.restore-test-crate-type]
+private = true
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} ${TEST_CRATE_TYPE} "staticlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+[tasks.test-build]
+condition = { env_set = ["FLUTTER_FLOWY_SDK_PATH"] }
+script = ["""
+      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-net
+      cargo build -vv --features=dart
+      """]
+script_runner = "@shell"

@@ -1,0 +1,5 @@
+-- Your SQL goes here
+ALTER TABLE chat_table
+    ADD COLUMN is_sync BOOLEAN DEFAULT TRUE NOT NULL;
+ALTER TABLE chat_message_table
+    ADD COLUMN is_sync BOOLEAN DEFAULT TRUE NOT NULL;

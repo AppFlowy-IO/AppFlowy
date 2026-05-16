@@ -1,0 +1,70 @@
+
+[tasks.install_web_protobuf.windows]
+script = """
+npm install -g protoc-gen-ts typescript@4.9.5
+"""
+script_runner = "@shell"
+
+[tasks.install_web_protobuf.mac]
+script = """
+sudo npm install -g protoc-gen-ts typescript@4.9.5
+"""
+script_runner = "@shell"
+
+[tasks.install_web_protobuf.linux]
+script = """
+sudo npm install -g protoc-gen-ts typescript@4.9.5
+"""
+script_runner = "@shell"
+
+[tasks.install_flutter_protobuf]
+mac_alias = "install-protobuf"
+windows_alias = "install-protobuf-windows"
+linux_alias = "install-protobuf"
+
+[tasks.install-protobuf]
+condition_script = ["""
+    if ! command -v protoc-gen-dart
+    then
+        exit 0
+    fi
+
+    # installed
+    exit 1
+    """]
+run_task = { name = ["install_flutter_protobuf_compiler"] }
+
+[tasks.install-protobuf-windows]
+script = """
+ret = which dart
+if is_empty ${ret}
+    echo Please make sure flutter/dart is properly installed and in PATH env var
+    exit -1
+end
+ret = which protoc-gen-dart
+if is_empty ${ret}
+    exec cmd.exe /c dart pub global activate protoc_plugin 21.1.2
+end
+ret = which protoc-gen-dart
+if is_empty ${ret}
+    home_dir = get_home_dir
+    echo Please add '${home_dir}\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\bin' into PATH env var
+    exit -1
+end
+"""
+script_runner = "@duckscript"
+
+
+[tasks.install_flutter_protobuf_compiler]
+script = """
+echo "Install protoc_plugin (Dart)"
+dart pub global activate protoc_plugin 21.1.2
+"""
+script_runner = "@shell"
+
+[tasks.install_flutter_protobuf_compiler.linux]
+script = """
+echo "Install protoc_plugin (Dart)"
+dart pub global activate protoc_plugin 21.1.2
+"""
+script_runner = "@shell"

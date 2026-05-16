@@ -1,0 +1,61 @@
+name: Rust code coverage
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.27.4"
+  RUST_TOOLCHAIN: "1.85.0"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.job.target }}
+          override: true
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Install code-coverage tools
+        working-directory: frontend
+        run: |
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo apt-get update
+          sudo apt-get install keybinder-3.0
+          cargo install grcov
+          rustup component add llvm-tools-preview
+
+      - name: Run tests
+        working-directory: frontend
+        run: cargo make rust_unit_test_with_coverage

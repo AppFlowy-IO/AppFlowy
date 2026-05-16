@@ -1,0 +1,36 @@
+display_name: AppFlowy
+package_name: appflowy
+
+maintainer:
+  name: AppFlowy
+  email: support@appflowy.io
+
+keywords:
+  - AppFlowy
+  - Office
+  - Document
+  - Database
+  - Note
+  - Kanban
+  - Note
+
+installed_size: 100000
+icon: linux/packaging/assets/logo.png
+
+generic_name: AppFlowy
+
+categories:
+  - Office
+  - Productivity
+
+startup_notify: true
+essential: false
+
+section: x11
+priority: optional
+
+supportedMimeType: x-scheme-handler/appflowy-flutter
+
+dependencies:
+  - libnotify-bin
+  - libkeybinder-3.0-0

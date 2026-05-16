@@ -1,0 +1,22 @@
+PODS:
+  - flowy_infra_ui (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - flowy_infra_ui (from `.symlinks/plugins/flowy_infra_ui/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  flowy_infra_ui:
+    :path: ".symlinks/plugins/flowy_infra_ui/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  flowy_infra_ui: 146c88346fd55d2ee6a41ae35059a5bf095cfbb3
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.9.3

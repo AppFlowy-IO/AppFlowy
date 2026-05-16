@@ -1,0 +1,111 @@
+[tasks.flutter_clean]
+run_task = { name = [
+  "rust_lib_clean",
+  "rm_macro_build_cache",
+  "rm_rust_generated_files",
+  "rm_dart_generated_files",
+] }
+
+[tasks.rust_lib_clean]
+script = ["""
+    cd rust-lib
+    cargo clean -q
+
+    cd ./build-tool
+    cargo clean -q
+  """]
+script_runner = "@shell"
+
+
+[tasks.rm_macro_build_cache]
+script = ["""
+    path = canonicalize ../frontend/rust-lib/flowy-codegen/.cache
+    if is_path_exists ${path}
+      rm -rf ${path}
+    end
+  """]
+script_runner = "@duckscript"
+
+#Rust Clean
+[tasks.rm_rust_generated_files]
+run_task = { name = [
+  "rm_rust_lib_generated_protobuf_files",
+  "rm_shared_lib_generated_protobuf_files",
+] }
+
+[tasks.rm_rust_lib_generated_protobuf_files]
+private = true
+env = { "rm_proto_path" = "./rust-lib/**/resources/proto", "rm_protobuf_path" = "./rust-lib/**/protobuf" }
+run_task = { name = "remove_files_with_pattern" }
+
+[tasks.rm_shared_lib_generated_protobuf_files]
+private = true
+env = { "rm_proto_path" = "./rust-lib/build-tool/**/resources/proto", "rm_protobuf_path" = "./rust-lib/build-tool/**/protobuf" }
+run_task = { name = "remove_files_with_pattern" }
+
+
+#Dart Clean
+[tasks.rm_dart_generated_files]
+env = { "dart_flowy_sdk_path" = "./appflowy_flutter/packages/appflowy_backend/" }
+run_task = { name = [
+  "rm_dart_generated_protobuf_files",
+  "rm_dart_generated_event_files",
+] }
+
+[tasks.rm_dart_generated_protobuf_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${dart_flowy_sdk_path}/lib/protobuf
+
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
+
+
+[tasks.rm_dart_generated_event_files]
+private = true
+script = ["""
+  dart_event_folder = glob_array ${dart_flowy_sdk_path}/lib/dispatch/dart_event
+
+  if not array_is_empty ${dart_event_folder}
+    echo Remove generated dart event files:
+    for path in ${dart_event_folder}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
+
+
+[tasks.remove_files_with_pattern]
+private = true
+script = ["""
+  proto_file_paths = glob_array ${rm_proto_path}
+  is_proto_file_paths_empty = array_is_empty ${proto_file_paths}
+  if not ${is_proto_file_paths_empty}
+    echo Remove generated proto files:
+    for path in ${proto_file_paths}
+      echo remove ${path}
+      rm -rf ${path}
+    end
+  end
+
+  protobuf_file_paths = glob_array ${rm_protobuf_path}
+  is_protobuf_file_paths_empty = array_is_empty ${protobuf_file_paths}
+  if not ${is_protobuf_file_paths_empty}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+      echo remove ${path}
+      rm -rf ${path}
+    end
+  end
+
+  """]
+script_runner = "@duckscript"

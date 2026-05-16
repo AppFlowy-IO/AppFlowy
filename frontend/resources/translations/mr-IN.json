@@ -1,0 +1,3210 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "मी",
+  "welcomeText": "@:appName मध्ये आ पले स्वागत आहे.",
+  "welcomeTo": "मध्ये आ पले स्वागत आ हे",
+  "githubStarText": "GitHub वर स्टार करा",
+  "subscribeNewsletterText": "वृत्तपत्राची सदस्यता घ्या",
+  "letsGoButtonText": "क्विक स्टार्ट",
+  "title": "Title",
+  "youCanAlso": "तुम्ही देखील",
+  "and": "आ णि",
+  "failedToOpenUrl": "URL उघडण्यात अयशस्वी: {}",
+  "blockActions": {
+    "addBelowTooltip": "खाली जोडण्यासाठी क्लिक करा",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "वर जोडण्यासाठी",
+    "dragTooltip": "Drag to move",
+    "openMenuTooltip": "मेनू उघडण्यासाठी क्लिक करा"
+  },
+  "signUp": {
+    "buttonText": "साइन अप",
+    "title": "साइन अप to @:appName",
+    "getStartedText": "सुरुवात करा",
+    "emptyPasswordError": "पासवर्ड रिकामा असू शकत नाही",
+    "repeatPasswordEmptyError": "Repeat पासवर्ड रिकामा असू शकत नाही",
+    "unmatchedPasswordError": "पुन्हा लिहिलेला पासवर्ड मूळ पासवर्डशी जुळत नाही",
+    "alreadyHaveAnAccount": "आधीच खाते आहे?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "repeatPasswordHint": "पासवर्ड पुन्हा लिहा",
+    "signUpWith": "यामध्ये साइन अप करा:"
+  },
+  "signIn": {
+  "loginTitle": "@:appName मध्ये लॉगिन करा",
+  "loginButtonText": "लॉगिन",
+  "loginStartWithAnonymous": "अनामिक सत्रासह पुढे जा",
+  "continueAnonymousUser": "अनामिक सत्रासह पुढे जा",
+  "anonymous": "अनामिक",
+  "buttonText": "साइन इन",
+  "signingInText": "साइन इन होत आहे...",
+  "forgotPassword": "पासवर्ड विसरलात?",
+  "emailHint": "ईमेल",
+  "passwordHint": "पासवर्ड",
+  "dontHaveAnAccount": "तुमचं खाते नाही?",
+  "createAccount": "खाते तयार करा",
+  "repeatPasswordEmptyError": "पुन्हा पासवर्ड रिकामा असू शकत नाही",
+  "unmatchedPasswordError": "पुन्हा लिहिलेला पासवर्ड मूळ पासवर्डशी जुळत नाही",
+  "syncPromptMessage": "डेटा सिंक होण्यास थोडा वेळ लागू शकतो. कृपया हे पृष्ठ बंद करू नका",
+  "or": "किंवा",
+  "signInWithGoogle": "Google सह पुढे जा",
+  "signInWithGithub": "GitHub सह पुढे जा",
+  "signInWithDiscord": "Discord सह पुढे जा",
+  "signInWithApple": "Apple सह पुढे जा",
+  "continueAnotherWay": "इतर पर्यायांनी पुढे जा",
+  "signUpWithGoogle": "Google सह साइन अप करा",
+  "signUpWithGithub": "GitHub सह साइन अप करा",
+  "signUpWithDiscord": "Discord सह साइन अप करा",
+  "signInWith": "यासह पुढे जा:",
+  "signInWithEmail": "ईमेलसह पुढे जा",
+  "signInWithMagicLink": "पुढे जा",
+  "signUpWithMagicLink": "Magic Link सह साइन अप करा",
+  "pleaseInputYourEmail": "कृपया तुमचा ईमेल पत्ता टाका",
+  "settings": "सेटिंग्ज",
+  "magicLinkSent": "Magic Link पाठवण्यात आली आहे!",
+  "invalidEmail": "कृपया वैध ईमेल पत्ता टाका",
+  "alreadyHaveAnAccount": "आधीच खाते आहे?",
+  "logIn": "लॉगिन",
+  "generalError": "काहीतरी चुकलं. कृपया नंतर प्रयत्न करा",
+  "limitRateError": "सुरक्षेच्या कारणास्तव, तुम्ही दर ६० सेकंदांतून एकदाच Magic Link मागवू शकता",
+  "magicLinkSentDescription": "तुमच्या ईमेलवर Magic Link पाठवण्यात आली आहे. लॉगिन पूर्ण करण्यासाठी लिंकवर क्लिक करा. ही लिंक ५ मिनिटांत कालबाह्य होईल."
+  },
+  "workspace": {
+    "chooseWorkspace": "तुमचे workspace निवडा",
+    "defaultName": "माझे Workspace",
+    "create": "नवीन workspace तयार करा",
+    "new": "नवीन workspace",
+    "importFromNotion": "Notion मधून आयात करा",
+    "learnMore": "अधिक जाणून घ्या",
+    "reset": "workspace रीसेट करा",
+    "renameWorkspace": "workspace चे नाव बदला",
+    "workspaceNameCannotBeEmpty": "workspace चे नाव रिकामे असू शकत नाही",
+    "resetWorkspacePrompt": "workspace रीसेट केल्यास त्यातील सर्व पृष्ठे आणि डेटा हटवले जातील. तुम्हाला workspace रीसेट करायचे आहे का? पर्यायी म्हणून तुम्ही सपोर्ट टीमशी संपर्क करू शकता.",
+    "hint": "workspace",
+    "notFoundError": "workspace सापडले नाही",
+    "failedToLoad": "काहीतरी चूक झाली! workspace लोड होण्यात अयशस्वी. कृपया @:appName चे कोणतेही उघडे instance बंद करा आणि पुन्हा प्रयत्न करा.",
+    "errorActions": {
+      "reportIssue": "समस्या नोंदवा",
+      "reportIssueOnGithub": "Github वर समस्या नोंदवा",
+      "exportLogFiles": "लॉग फाइल्स निर्यात करा",
+      "reachOut": "Discord वर संपर्क करा"
+    },
+    "menuTitle": "कार्यक्षेत्रे",
+  "deleteWorkspaceHintText": "तुम्हाला हे कार्यक्षेत्र हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही आणि तुम्ही प्रकाशित केलेली कोणतीही पृष्ठे अप्रकाशित होतील.",
+  "createSuccess": "कार्यक्षेत्र यशस्वीरित्या तयार झाले",
+  "createFailed": "कार्यक्षेत्र तयार करण्यात अयशस्वी",
+  "createLimitExceeded": "तुम्ही तुमच्या खात्यासाठी परवानगी दिलेल्या कार्यक्षेत्र मर्यादेपर्यंत पोहोचलात. अधिक कार्यक्षेत्रासाठी GitHub वर विनंती करा.",
+  "deleteSuccess": "कार्यक्षेत्र यशस्वीरित्या हटवले गेले",
+  "deleteFailed": "कार्यक्षेत्र हटवण्यात अयशस्वी",
+  "openSuccess": "कार्यक्षेत्र यशस्वीरित्या उघडले",
+  "openFailed": "कार्यक्षेत्र उघडण्यात अयशस्वी",
+  "renameSuccess": "कार्यक्षेत्राचे नाव यशस्वीरित्या बदलले",
+  "renameFailed": "कार्यक्षेत्राचे नाव बदलण्यात अयशस्वी",
+  "updateIconSuccess": "कार्यक्षेत्राचे चिन्ह यशस्वीरित्या अद्यतनित केले",
+  "updateIconFailed": "कार्यक्षेत्राचे चिन्ह अद्यतनित करण्यात अयशस्वी",
+  "cannotDeleteTheOnlyWorkspace": "फक्त एकच कार्यक्षेत्र असल्यास ते हटवता येत नाही",
+  "fetchWorkspacesFailed": "कार्यक्षेत्रे मिळवण्यात अयशस्वी",
+  "leaveCurrentWorkspace": "कार्यक्षेत्र सोडा",
+  "leaveCurrentWorkspacePrompt": "तुम्हाला हे कार्यक्षेत्र सोडायचे आहे का?"
+  },
+  "shareAction": {
+  "buttonText": "शेअर करा",
+  "workInProgress": "लवकरच येत आहे",
+  "markdown": "Markdown",
+  "html": "HTML",
+  "clipboard": "क्लिपबोर्डवर कॉपी करा",
+  "csv": "CSV",
+  "copyLink": "लिंक कॉपी करा",
+  "publishToTheWeb": "वेबवर प्रकाशित करा",
+  "publishToTheWebHint": "AppFlowy सह वेबसाइट तयार करा",
+  "publish": "प्रकाशित करा",
+  "unPublish": "अप्रकाशित करा",
+  "visitSite": "साइटला भेट द्या",
+  "exportAsTab": "या स्वरूपात निर्यात करा",
+  "publishTab": "प्रकाशित करा",
+  "shareTab": "शेअर करा",
+  "publishOnAppFlowy": "AppFlowy वर प्रकाशित करा",
+  "shareTabTitle": "सहकार्य करण्यासाठी आमंत्रित करा",
+  "shareTabDescription": "कोणासही सहज सहकार्य करण्यासाठी",
+  "copyLinkSuccess": "लिंक क्लिपबोर्डवर कॉपी केली",
+  "copyShareLink": "शेअर लिंक कॉपी करा",
+  "copyLinkFailed": "लिंक क्लिपबोर्डवर कॉपी करण्यात अयशस्वी",
+  "copyLinkToBlockSuccess": "ब्लॉकची लिंक क्लिपबोर्डवर कॉपी केली",
+  "copyLinkToBlockFailed": "ब्लॉकची लिंक क्लिपबोर्डवर कॉपी करण्यात अयशस्वी",
+  "manageAllSites": "सर्व साइट्स व्यवस्थापित करा",
+  "updatePathName": "पथाचे नाव अपडेट करा"
+  },
+  "moreAction": {
+    "small": "लहान",
+    "medium": "मध्यम",
+    "large": "मोठा",
+    "fontSize": "फॉन्ट आकार",
+    "import": "Import",
+    "moreOptions": "अधिक पर्याय",
+    "wordCount": "शब्द संख्या: {}",
+    "charCount": "अक्षर संख्या: {}",
+    "createdAt": "निर्मिती: {}",
+    "deleteView": "हटवा",
+    "duplicateView": "प्रत बनवा",
+    "wordCountLabel": "शब्द संख्या: ",
+    "charCountLabel": "अक्षर संख्या: ",
+    "createdAtLabel": "निर्मिती: ",
+    "syncedAtLabel": "सिंक केले: ",
+    "saveAsNewPage": "संदेश पृष्ठात जोडा",
+    "saveAsNewPageDisabled": "उपलब्ध संदेश नाहीत"
+  },
+  "importPanel": {
+  "textAndMarkdown": "मजकूर आणि Markdown",
+  "documentFromV010": "v0.1.0 पासून दस्तऐवज",
+  "databaseFromV010": "v0.1.0 पासून डेटाबेस",
+  "notionZip": "Notion निर्यात केलेली Zip फाईल",
+  "csv": "CSV",
+  "database": "डेटाबेस"
+  },
+  "emojiIconPicker": {
+  "iconUploader": {
+    "placeholderLeft": "फाईल ड्रॅग आणि ड्रॉप करा, क्लिक करा ",
+    "placeholderUpload": "अपलोड",
+    "placeholderRight": ", किंवा इमेज लिंक पेस्ट करा.",
+    "dropToUpload": "अपलोडसाठी फाईल ड्रॉप करा",
+    "change": "बदला"
+   }
+  },
+  "disclosureAction": {
+  "rename": "नाव बदला",
+  "delete": "हटवा",
+  "duplicate": "प्रत बनवा",
+  "unfavorite": "आवडतीतून काढा",
+  "favorite": "आवडतीत जोडा",
+  "openNewTab": "नवीन टॅबमध्ये उघडा",
+  "moveTo": "या ठिकाणी हलवा",
+  "addToFavorites": "आवडतीत जोडा",
+  "copyLink": "लिंक कॉपी करा",
+  "changeIcon": "आयकॉन बदला",
+  "collapseAllPages": "सर्व उपपृष्ठे संकुचित करा",
+  "movePageTo": "पृष्ठ हलवा",
+  "move": "हलवा",
+  "lockPage": "पृष्ठ लॉक करा"
+  },
+  "blankPageTitle": "रिक्त पृष्ठ",
+  "newPageText": "नवीन पृष्ठ",
+  "newDocumentText": "नवीन दस्तऐवज",
+  "newGridText": "नवीन ग्रिड",
+  "newCalendarText": "नवीन कॅलेंडर",
+  "newBoardText": "नवीन बोर्ड",
+  "chat": {
+    "newChat": "AI गप्पा",
+    "inputMessageHint": "@:appName AI ला विचार करा",
+    "inputLocalAIMessageHint": "@:appName लोकल AI ला विचार करा",
+    "unsupportedCloudPrompt": "ही सुविधा फक्त @:appName Cloud वापरताना उपलब्ध आहे",
+    "relatedQuestion": "सूचवलेले",
+    "serverUnavailable": "कनेक्शन गमावले. कृपया तुमचे इंटरनेट तपासा आणि पुन्हा प्रयत्न करा",
+    "aiServerUnavailable": "AI सेवा सध्या अनुपलब्ध आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+    "retry": "पुन्हा प्रयत्न करा",
+    "clickToRetry": "पुन्हा प्रयत्न करण्यासाठी क्लिक करा",
+    "regenerateAnswer": "उत्तर पुन्हा तयार करा",
+    "question1": "Kanban वापरून कामे कशी व्यवस्थापित करायची",
+    "question2": "GTD पद्धत समजावून सांगा",
+    "question3": "Rust का वापरावा",
+    "question4": "माझ्या स्वयंपाकघरात असलेल्या वस्तूंनी रेसिपी",
+    "question5": "माझ्या पृष्ठासाठी एक चित्र तयार करा",
+    "question6": "या आठवड्याची माझी कामांची यादी तयार करा",
+    "aiMistakePrompt": "AI चुकू शकतो. महत्त्वाची माहिती तपासा.",
+    "chatWithFilePrompt": "तुम्हाला फाइलसोबत गप्पा मारायच्या आहेत का?",
+    "indexFileSuccess": "फाईल यशस्वीरित्या अनुक्रमित केली गेली",
+    "inputActionNoPages": "काहीही पृष्ठे सापडली नाहीत",
+    "referenceSource": {
+    "zero": "0 स्रोत सापडले",
+    "one": "{count} स्रोत सापडला",
+    "other": "{count} स्रोत सापडले"
+    }
+  },
+    "clickToMention": "पृष्ठाचा उल्लेख करा",
+    "uploadFile": "PDFs, मजकूर किंवा markdown फाइल्स जोडा",
+    "questionDetail": "नमस्कार {}! मी तुम्हाला कशी मदत करू शकतो?",
+    "indexingFile": "{} अनुक्रमित करत आहे",
+    "generatingResponse": "उत्तर तयार होत आहे",
+    "selectSources": "स्रोत निवडा",
+    "currentPage": "सध्याचे पृष्ठ",
+    "sourcesLimitReached": "तुम्ही फक्त ३ मुख्य दस्तऐवज आणि त्यांची उपदस्तऐवज निवडू शकता",
+    "sourceUnsupported": "सध्या डेटाबेससह चॅटिंगसाठी आम्ही समर्थन करत नाही",
+    "regenerate": "पुन्हा प्रयत्न करा",
+    "addToPageButton": "संदेश पृष्ठावर जोडा",
+    "addToPageTitle": "या पृष्ठात संदेश जोडा...",
+    "addToNewPage": "नवीन पृष्ठ तयार करा",
+    "addToNewPageName": "\"{}\" मधून काढलेले संदेश",
+    "addToNewPageSuccessToast": "संदेश जोडण्यात आला",
+    "openPagePreviewFailedToast": "पृष्ठ उघडण्यात अयशस्वी",
+    "changeFormat": {
+      "actionButton": "फॉरमॅट बदला",
+      "confirmButton": "या फॉरमॅटसह पुन्हा तयार करा",
+      "textOnly": "मजकूर",
+      "imageOnly": "फक्त प्रतिमा",
+      "textAndImage": "मजकूर आणि प्रतिमा",
+      "text": "परिच्छेद",
+      "bullet": "बुलेट यादी",
+      "number": "क्रमांकित यादी",
+      "table": "सारणी",
+      "blankDescription": "उत्तराचे फॉरमॅट ठरवा",
+      "defaultDescription": "स्वयंचलित उत्तर फॉरमॅट",
+      "textWithImageDescription": "@:chat.changeFormat.text प्रतिमेसह",
+      "numberWithImageDescription": "@:chat.changeFormat.number प्रतिमेसह",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet प्रतिमेसह",
+  "   tableWithImageDescription": "@:chat.changeFormat.table प्रतिमेसह"
+  },
+    "switchModel": {
+    "label": "मॉडेल बदला",
+    "localModel": "स्थानिक मॉडेल",
+    "cloudModel": "क्लाऊड मॉडेल",
+    "autoModel": "स्वयंचलित"
+  },
+    "selectBanner": {
+    "saveButton": "… मध्ये जोडा",
+    "selectMessages": "संदेश निवडा",
+    "nSelected": "{} निवडले गेले",
+    "allSelected": "सर्व निवडले गेले"
+  },
+    "stopTooltip": "उत्पन्न करणे थांबवा",
+    "trash": {
+    "text": "कचरा",
+    "restoreAll": "सर्व पुनर्संचयित करा",
+    "restore": "पुनर्संचयित करा",
+    "deleteAll": "सर्व हटवा",
+    "pageHeader": {
+    "fileName": "फाईलचे नाव",
+    "lastModified": "शेवटचा बदल",
+    "created": "निर्मिती"
+    }
+  },
+    "confirmDeleteAll": {
+    "title": "कचरापेटीतील सर्व पृष्ठे",
+    "caption": "तुम्हाला कचरापेटीतील सर्व काही हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+    "confirmRestoreAll": {
+    "title": "कचरापेटीतील सर्व पृष्ठे पुनर्संचयित करा",
+    "caption": "ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+    "restorePage": {
+    "title": "पुनर्संचयित करा: {}",
+    "caption": "तुम्हाला हे पृष्ठ पुनर्संचयित करायचे आहे का?"
+  },
+    "mobile": {
+    "actions": "कचरा क्रिया",
+    "empty": "कचरापेटीत कोणतीही पृष्ठे किंवा जागा नाहीत",
+    "emptyDescription": "जे आवश्यक नाही ते कचरापेटीत हलवा.",
+    "isDeleted": "हटवले गेले आहे",
+    "isRestored": "पुनर्संचयित केले गेले आहे"
+  },
+    "confirmDeleteTitle": "तुम्हाला हे पृष्ठ कायमचे हटवायचे आहे का?",
+    "deletePagePrompt": {
+    "text": "हे पृष्ठ कचरापेटीत आहे",
+    "restore": "पृष्ठ पुनर्संचयित करा",
+    "deletePermanent": "कायमचे हटवा",
+    "deletePermanentDescription": "तुम्हाला हे पृष्ठ कायमचे हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+  "dialogCreatePageNameHint": "पृष्ठाचे नाव",
+    "questionBubble": {
+    "shortcuts": "शॉर्टकट्स",
+    "whatsNew": "नवीन काय आहे?",
+    "help": "मदत आणि समर्थन",
+    "markdown": "Markdown",
+    "debug": {
+    "name": "डीबग माहिती",
+    "success": "डीबग माहिती क्लिपबोर्डवर कॉपी केली!",
+    "fail": "डीबग माहिती कॉपी करता आली नाही"
+   },
+   "feedback": "अभिप्राय"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "हटवा, नाव बदला आणि अधिक...",
+    "addPageTooltip": "तत्काळ एक पृष्ठ जोडा",
+    "defaultNewPageName": "शीर्षक नसलेले",
+    "renameDialog": "नाव बदला",
+    "pageNameSuffix": "प्रत"
+  },
+  "noPagesInside": "अंदर कोणतीही पृष्ठे नाहीत",
+    "toolbar": {
+    "undo": "पूर्ववत करा",
+    "redo": "पुन्हा करा",
+    "bold": "ठळक",
+    "italic": "तिरकस",
+    "underline": "अधोरेखित",
+    "strike": "मागे ओढलेले",
+    "numList": "क्रमांकित यादी",
+    "bulletList": "बुलेट यादी",
+    "checkList": "चेक यादी",
+    "inlineCode": "इनलाइन कोड",
+    "quote": "उद्धरण ब्लॉक",
+    "header": "शीर्षक",
+    "highlight": "हायलाइट",
+    "color": "रंग",
+    "addLink": "लिंक जोडा"
+  },
+  "tooltip": {
+    "lightMode": "लाइट मोडमध्ये स्विच करा",
+    "darkMode": "डार्क मोडमध्ये स्विच करा",
+    "openAsPage": "पृष्ठ म्हणून उघडा",
+    "addNewRow": "नवीन पंक्ती जोडा",
+    "openMenu": "मेनू उघडण्यासाठी क्लिक करा",
+    "dragRow": "पंक्तीचे स्थान बदलण्यासाठी ड्रॅग करा",
+    "viewDataBase": "डेटाबेस पहा",
+    "referencePage": "हे {name} संदर्भित आहे",
+    "addBlockBelow": "खाली एक ब्लॉक जोडा",
+    "aiGenerate": "निर्मिती करा"
+  },
+  "sideBar": {
+  "closeSidebar": "साइडबार बंद करा",
+  "openSidebar": "साइडबार उघडा",
+  "expandSidebar": "पूर्ण पृष्ठावर विस्तारित करा",
+  "personal": "वैयक्तिक",
+  "private": "खाजगी",
+  "workspace": "कार्यक्षेत्र",
+  "favorites": "आवडती",
+  "clickToHidePrivate": "खाजगी जागा लपवण्यासाठी क्लिक करा\nयेथे तयार केलेली पाने फक्त तुम्हाला दिसतील",
+  "clickToHideWorkspace": "कार्यक्षेत्र लपवण्यासाठी क्लिक करा\nयेथे तयार केलेली पाने सर्व सदस्यांना दिसतील",
+  "clickToHidePersonal": "वैयक्तिक जागा लपवण्यासाठी क्लिक करा",
+  "clickToHideFavorites": "आवडती जागा लपवण्यासाठी क्लिक करा",
+  "addAPage": "नवीन पृष्ठ जोडा",
+  "addAPageToPrivate": "खाजगी जागेत पृष्ठ जोडा",
+  "addAPageToWorkspace": "कार्यक्षेत्रात पृष्ठ जोडा",
+  "recent": "अलीकडील",
+  "today": "आज",
+  "thisWeek": "या आठवड्यात",
+  "others": "पूर्वीच्या आवडती",
+  "earlier": "पूर्वीचे",
+  "justNow": "आत्ताच",
+  "minutesAgo": "{count} मिनिटांपूर्वी",
+  "lastViewed": "शेवटी पाहिलेले",
+  "favoriteAt": "आवडते म्हणून चिन्हांकित",
+  "emptyRecent": "अलीकडील पृष्ठे नाहीत",
+  "emptyRecentDescription": "तुम्ही पाहिलेली पृष्ठे येथे सहज पुन्हा मिळवण्यासाठी दिसतील.",
+  "emptyFavorite": "आवडती पृष्ठे नाहीत",
+  "emptyFavoriteDescription": "पृष्ठांना आवडते म्हणून चिन्हांकित करा—ते येथे झपाट्याने प्रवेशासाठी दिसतील!",
+  "removePageFromRecent": "हे पृष्ठ अलीकडील यादीतून काढायचे?",
+  "removeSuccess": "यशस्वीरित्या काढले गेले",
+  "favoriteSpace": "आवडती",
+  "RecentSpace": "अलीकडील",
+  "Spaces": "जागा",
+  "upgradeToPro": "Pro मध्ये अपग्रेड करा",
+  "upgradeToAIMax": "अमर्यादित AI अनलॉक करा",
+  "storageLimitDialogTitle": "तुमचा मोफत स्टोरेज संपला आहे. अमर्यादित स्टोरेजसाठी अपग्रेड करा",
+  "storageLimitDialogTitleIOS": "तुमचा मोफत स्टोरेज संपला आहे.",
+  "aiResponseLimitTitle": "तुमचे मोफत AI प्रतिसाद संपले आहेत. कृपया Pro प्लॅनला अपग्रेड करा किंवा AI add-on खरेदी करा",
+  "aiResponseLimitDialogTitle": "AI प्रतिसाद मर्यादा गाठली आहे",
+  "aiResponseLimit": "तुमचे मोफत AI प्रतिसाद संपले आहेत.\n\nसेटिंग्ज -> प्लॅन -> AI Max किंवा Pro प्लॅन क्लिक करा",
+  "askOwnerToUpgradeToPro": "तुमच्या कार्यक्षेत्राचे मोफत स्टोरेज संपत चालले आहे. कृपया कार्यक्षेत्र मालकाला Pro प्लॅनमध्ये अपग्रेड करण्यास सांगा",
+  "askOwnerToUpgradeToProIOS": "तुमच्या कार्यक्षेत्राचे मोफत स्टोरेज संपत चालले आहे.",
+  "askOwnerToUpgradeToAIMax": "तुमच्या कार्यक्षेत्राचे मोफत AI प्रतिसाद संपले आहेत. कृपया कार्यक्षेत्र मालकाला प्लॅन अपग्रेड किंवा AI add-ons खरेदी करण्यास सांगा",
+  "askOwnerToUpgradeToAIMaxIOS": "तुमच्या कार्यक्षेत्राचे मोफत AI प्रतिसाद संपले आहेत.",
+  "purchaseAIMax": "तुमच्या कार्यक्षेत्राचे AI प्रतिमा प्रतिसाद संपले आहेत. कृपया कार्यक्षेत्र मालकाला AI Max खरेदी करण्यास सांगा",
+  "aiImageResponseLimit": "तुमचे AI प्रतिमा प्रतिसाद संपले आहेत.\n\nसेटिंग्ज -> प्लॅन -> AI Max क्लिक करा",
+  "purchaseStorageSpace": "स्टोरेज स्पेस खरेदी करा",
+  "singleFileProPlanLimitationDescription": "तुम्ही मोफत प्लॅनमध्ये परवानगी दिलेल्या फाइल अपलोड आकाराची मर्यादा ओलांडली आहे. कृपया Pro प्लॅनमध्ये अपग्रेड करा",
+  "purchaseAIResponse": "AI प्रतिसाद खरेदी करा",
+  "askOwnerToUpgradeToLocalAI": "कार्यक्षेत्र मालकाला ऑन-डिव्हाइस AI सक्षम करण्यास सांगा",
+  "upgradeToAILocal": "अत्याधिक गोपनीयतेसाठी तुमच्या डिव्हाइसवर लोकल मॉडेल चालवा",
+  "upgradeToAILocalDesc": "PDFs सोबत गप्पा मारा, तुमचे लेखन सुधारा आणि लोकल AI वापरून टेबल्स आपोआप भरा"
+},
+  "notifications": {
+    "export": {
+    "markdown": "टीप Markdown मध्ये निर्यात केली",
+    "path": "Documents/flowy"
+    }
+  },
+    "contactsPage": {
+    "title": "संपर्क",
+    "whatsHappening": "या आठवड्यात काय घडत आहे?",
+    "addContact": "संपर्क जोडा",
+    "editContact": "संपर्क संपादित करा"
+  },
+  "button": {
+    "ok": "ठीक आहे",
+    "confirm": "खात्री करा",
+    "done": "पूर्ण",
+    "cancel": "रद्द करा",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट",
+    "complete": "पूर्ण करा",
+    "save": "जतन करा",
+    "generate": "निर्माण करा",
+    "esc": "ESC",
+    "keep": "ठेवा",
+    "tryAgain": "पुन्हा प्रयत्न करा",
+    "discard": "टाका",
+    "replace": "बदला",
+    "insertBelow": "खाली घाला",
+    "insertAbove": "वर घाला",
+    "upload": "अपलोड करा",
+    "edit": "संपादित करा",
+    "delete": "हटवा",
+    "copy": "कॉपी करा",
+    "duplicate": "प्रत बनवा",
+    "putback": "परत ठेवा",
+    "update": "अद्यतनित करा",
+    "share": "शेअर करा",
+    "removeFromFavorites": "आवडतीतून काढा",
+    "removeFromRecent": "अलीकडील यादीतून काढा",
+    "addToFavorites": "आवडतीत जोडा",
+    "favoriteSuccessfully": "आवडतीत यशस्वीरित्या जोडले",
+    "unfavoriteSuccessfully": "आवडतीतून यशस्वीरित्या काढले",
+    "duplicateSuccessfully": "प्रत यशस्वीरित्या तयार झाली",
+    "rename": "नाव बदला",
+    "helpCenter": "मदत केंद्र",
+    "add": "जोड़ा",
+    "yes": "होय",
+    "no": "नाही",
+    "clear": "साफ करा",
+    "remove": "काढा",
+    "dontRemove": "काढू नका",
+    "copyLink": "लिंक कॉपी करा",
+    "align": "जुळवा",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "deleteAccount": "खाते हटवा",
+    "back": "मागे",
+    "signInGoogle": "Google सह पुढे जा",
+    "signInGithub": "GitHub सह पुढे जा",
+    "signInDiscord": "Discord सह पुढे जा",
+    "more": "अधिक",
+    "create": "तयार करा",
+    "close": "बंद करा",
+    "next": "पुढे",
+    "previous": "मागील",
+    "submit": "सबमिट करा",
+    "download": "डाउनलोड करा",
+    "backToHome": "मुख्यपृष्ठावर परत जा",
+    "viewing": "पाहत आहात",
+    "editing": "संपादन करत आहात",
+    "gotIt": "समजले",
+    "retry": "पुन्हा प्रयत्न करा",
+    "uploadFailed": "अपलोड अयशस्वी.",
+    "copyLinkOriginal": "मूळ दुव्याची कॉपी करा"
+  },
+  "label": {
+    "welcome": "स्वागत आहे!",
+    "firstName": "पहिले नाव",
+    "middleName": "मधले नाव",
+    "lastName": "आडनाव",
+    "stepX": "पायरी {X}"
+  },
+  "oAuth": {
+  "err": {
+    "failedTitle": "तुमच्या खात्याशी कनेक्ट होता आले नाही.",
+    "failedMsg": "कृपया खात्री करा की तुम्ही ब्राउझरमध्ये साइन-इन प्रक्रिया पूर्ण केली आहे."
+  },
+  "google": {
+    "title": "GOOGLE साइन-इन",
+    "instruction1": "तुमचे Google Contacts आयात करण्यासाठी, तुम्हाला तुमच्या वेब ब्राउझरचा वापर करून या अ‍ॅप्लिकेशनला अधिकृत करणे आवश्यक आहे.",
+    "instruction2": "ही कोड आयकॉनवर क्लिक करून किंवा मजकूर निवडून क्लिपबोर्डवर कॉपी करा:",
+    "instruction3": "तुमच्या वेब ब्राउझरमध्ये खालील दुव्यावर जा आणि वरील कोड टाका:",
+    "instruction4": "साइनअप पूर्ण झाल्यावर खालील बटण क्लिक करा:"
+    }
+  },
+  "settings": {
+  "title": "सेटिंग्ज",
+  "popupMenuItem": {
+    "settings": "सेटिंग्ज",
+    "members": "सदस्य",
+    "trash": "कचरा",
+    "helpAndSupport": "मदत आणि समर्थन"
+  },
+  "sites": {
+      "title": "साइट्स",
+      "namespaceTitle": "नेमस्पेस",
+      "namespaceDescription": "तुमचा नेमस्पेस आणि मुख्यपृष्ठ व्यवस्थापित करा",
+      "namespaceHeader": "नेमस्पेस",
+      "homepageHeader": "मुख्यपृष्ठ",
+      "updateNamespace": "नेमस्पेस अद्यतनित करा",
+      "removeHomepage": "मुख्यपृष्ठ हटवा",
+      "selectHomePage": "एक पृष्ठ निवडा",
+      "clearHomePage": "या नेमस्पेससाठी मुख्यपृष्ठ साफ करा",
+      "customUrl": "स्वतःची URL",
+      "namespace": {
+      "description": "हे बदल सर्व प्रकाशित पृष्ठांवर लागू होतील जे या नेमस्पेसवर चालू आहेत",
+      "tooltip": "कोणताही अनुचित नेमस्पेस आम्ही काढून टाकण्याचा अधिकार राखून ठेवतो",
+      "updateExistingNamespace": "विद्यमान नेमस्पेस अद्यतनित करा",
+      "upgradeToPro": "मुख्यपृष्ठ सेट करण्यासाठी Pro प्लॅनमध्ये अपग्रेड करा",
+      "redirectToPayment": "पेमेंट पृष्ठावर वळवत आहे...",
+      "onlyWorkspaceOwnerCanSetHomePage": "फक्त कार्यक्षेत्र मालकच मुख्यपृष्ठ सेट करू शकतो",
+      "pleaseAskOwnerToSetHomePage": "कृपया कार्यक्षेत्र मालकाला Pro प्लॅनमध्ये अपग्रेड करण्यास सांगा"
+      },
+      "publishedPage": {
+      "title": "सर्व प्रकाशित पृष्ठे",
+      "description": "तुमची प्रकाशित पृष्ठे व्यवस्थापित करा",
+      "page": "पृष्ठ",
+      "pathName": "पथाचे नाव",
+      "date": "प्रकाशन तारीख",
+      "emptyHinText": "या कार्यक्षेत्रात तुमच्याकडे कोणतीही प्रकाशित पृष्ठे नाहीत",
+      "noPublishedPages": "प्रकाशित पृष्ठे नाहीत",
+      "settings": "प्रकाशन सेटिंग्ज",
+      "clickToOpenPageInApp": "पृष्ठ अ‍ॅपमध्ये उघडा",
+      "clickToOpenPageInBrowser": "पृष्ठ ब्राउझरमध्ये उघडा"
+      }
+    }
+  },
+    "error": {
+    "failedToGeneratePaymentLink": "Pro प्लॅनसाठी पेमेंट लिंक तयार करण्यात अयशस्वी",
+    "failedToUpdateNamespace": "नेमस्पेस अद्यतनित करण्यात अयशस्वी",
+    "proPlanLimitation": "नेमस्पेस अद्यतनित करण्यासाठी तुम्हाला Pro प्लॅनमध्ये अपग्रेड करणे आवश्यक आहे",
+    "namespaceAlreadyInUse": "नेमस्पेस आधीच वापरात आहे, कृपया दुसरे प्रयत्न करा",
+    "invalidNamespace": "अवैध नेमस्पेस, कृपया दुसरे प्रयत्न करा",
+    "namespaceLengthAtLeast2Characters": "नेमस्पेस किमान २ अक्षरे लांब असावे",
+    "onlyWorkspaceOwnerCanUpdateNamespace": "फक्त कार्यक्षेत्र मालकच नेमस्पेस अद्यतनित करू शकतो",
+    "onlyWorkspaceOwnerCanRemoveHomepage": "फक्त कार्यक्षेत्र मालकच मुख्यपृष्ठ हटवू शकतो",
+    "setHomepageFailed": "मुख्यपृष्ठ सेट करण्यात अयशस्वी",
+    "namespaceTooLong": "नेमस्पेस खूप लांब आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceTooShort": "नेमस्पेस खूप लहान आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceIsReserved": "हा नेमस्पेस राखीव आहे, कृपया दुसरे प्रयत्न करा",
+    "updatePathNameFailed": "पथाचे नाव अद्यतनित करण्यात अयशस्वी",
+    "removeHomePageFailed": "मुख्यपृष्ठ हटवण्यात अयशस्वी",
+    "publishNameContainsInvalidCharacters": "पथाच्या नावामध्ये अवैध अक्षरे आहेत, कृपया दुसरे प्रयत्न करा",
+    "publishNameTooShort": "पथाचे नाव खूप लहान आहे, कृपया दुसरे प्रयत्न करा",
+    "publishNameTooLong": "पथाचे नाव खूप लांब आहे, कृपया दुसरे प्रयत्न करा",
+    "publishNameAlreadyInUse": "हे पथाचे नाव आधीच वापरले गेले आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceContainsInvalidCharacters": "नेमस्पेसमध्ये अवैध अक्षरे आहेत, कृपया दुसरे प्रयत्न करा",
+    "publishPermissionDenied": "फक्त कार्यक्षेत्र मालक किंवा पृष्ठ प्रकाशकच प्रकाशन सेटिंग्ज व्यवस्थापित करू शकतो",
+    "publishNameCannotBeEmpty": "पथाचे नाव रिकामे असू शकत नाही, कृपया दुसरे प्रयत्न करा"
+  },
+      "success": {
+    "namespaceUpdated": "नेमस्पेस यशस्वीरित्या अद्यतनित केला",
+    "setHomepageSuccess": "मुख्यपृष्ठ यशस्वीरित्या सेट केले",
+    "updatePathNameSuccess": "पथाचे नाव यशस्वीरित्या अद्यतनित केले",
+    "removeHomePageSuccess": "मुख्यपृष्ठ यशस्वीरित्या हटवले"
+  },
+    "accountPage": {
+    "menuLabel": "खाते आणि अ‍ॅप",
+    "title": "माझे खाते",
+    "general": {
+    "title": "खात्याचे नाव आणि प्रोफाइल प्रतिमा",
+    "changeProfilePicture": "प्रोफाइल प्रतिमा बदला"
+  },
+  "email": {
+    "title": "ईमेल",
+    "actions": {
+      "change": "ईमेल बदला"
+    }
+  },
+  "login": {
+    "title": "खाते लॉगिन",
+    "loginLabel": "लॉगिन",
+    "logoutLabel": "लॉगआउट"
+  },
+  "isUpToDate": "@:appName अद्ययावत आहे!",
+  "officialVersion": "आवृत्ती {version} (अधिकृत बिल्ड)"
+},
+    "workspacePage": {
+  "menuLabel": "कार्यक्षेत्र",
+  "title": "कार्यक्षेत्र",
+  "description": "तुमचे कार्यक्षेत्र स्वरूप, थीम, फॉन्ट, मजकूर रचना, दिनांक/वेळ फॉरमॅट आणि भाषा सानुकूलित करा.",
+  "workspaceName": {
+    "title": "कार्यक्षेत्राचे नाव"
+  },
+  "workspaceIcon": {
+    "title": "कार्यक्षेत्राचे चिन्ह",
+    "description": "तुमच्या कार्यक्षेत्रासाठी प्रतिमा अपलोड करा किंवा इमोजी वापरा. हे चिन्ह साइडबार आणि सूचना मध्ये दिसेल."
+  },
+  "appearance": {
+    "title": "दृश्यरूप",
+    "description": "कार्यक्षेत्राचे दृश्यरूप, थीम, फॉन्ट, मजकूर रचना, दिनांक, वेळ आणि भाषा सानुकूलित करा.",
+    "options": {
+      "system": "स्वयंचलित",
+      "light": "लाइट",
+      "dark": "डार्क"
+      }
+    }
+  },
+  "resetCursorColor": {
+  "title": "दस्तऐवज कर्सरचा रंग रीसेट करा",
+  "description": "तुम्हाला कर्सरचा रंग रीसेट करायचा आहे का?"
+  },
+  "resetSelectionColor": {
+  "title": "दस्तऐवज निवडीचा रंग रीसेट करा",
+  "description": "तुम्हाला निवडीचा रंग रीसेट करायचा आहे का?"
+  },
+  "resetWidth": {
+  "resetSuccess": "दस्तऐवजाची रुंदी यशस्वीरित्या रीसेट केली"
+  },
+    "theme": {
+    "title": "थीम",
+    "description": "पूर्व-निर्धारित थीम निवडा किंवा तुमची स्वतःची थीम अपलोड करा.",
+    "uploadCustomThemeTooltip": "स्वतःची थीम अपलोड करा"
+  },
+    "workspaceFont": {
+    "title": "कार्यक्षेत्र फॉन्ट",
+    "noFontHint": "कोणताही फॉन्ट सापडला नाही, कृपया दुसरा शब्द वापरून पहा."
+  },
+      "textDirection": {
+     "title": "मजकूर दिशा",
+    "leftToRight": "डावीकडून उजवीकडे",
+    "rightToLeft": "उजवीकडून डावीकडे",
+    "auto": "स्वयंचलित",
+    "enableRTLItems": "RTL टूलबार घटक सक्षम करा"
+  },
+      "layoutDirection": {
+    "title": "लेआउट दिशा",
+    "leftToRight": "डावीकडून उजवीकडे",
+    "rightToLeft": "उजवीकडून डावीकडे"
+  },
+      "dateTime": {
+    "title": "दिनांक आणि वेळ",
+    "example": "{} वाजता {} ({})",
+    "24HourTime": "२४-तास वेळ",
+    "dateFormat": {
+    "label": "दिनांक फॉरमॅट",
+    "local": "स्थानिक",
+    "us": "US",
+    "iso": "ISO",
+    "friendly": "सुलभ",
+    "dmy": "D/M/Y"
+    }
+  },
+    "language": {
+    "title": "भाषा"
+  },
+    "deleteWorkspacePrompt": {
+    "title": "कार्यक्षेत्र हटवा",
+    "content": "तुम्हाला हे कार्यक्षेत्र हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही, आणि तुम्ही प्रकाशित केलेली कोणतीही पृष्ठे अप्रकाशित होतील."
+  },
+    "leaveWorkspacePrompt": {
+    "title": "कार्यक्षेत्र सोडा",
+    "content": "तुम्हाला हे कार्यक्षेत्र सोडायचे आहे का? यानंतर तुम्हाला यामधील सर्व पृष्ठे आणि डेटावर प्रवेश मिळणार नाही.",
+    "success": "तुम्ही कार्यक्षेत्र यशस्वीरित्या सोडले.",
+    "fail": "कार्यक्षेत्र सोडण्यात अयशस्वी."
+  },
+      "manageWorkspace": {
+    "title": "कार्यक्षेत्र व्यवस्थापित करा",
+    "leaveWorkspace": "कार्यक्षेत्र सोडा",
+    "deleteWorkspace": "कार्यक्षेत्र हटवा"
+  },
+    "manageDataPage": {
+  "menuLabel": "डेटा व्यवस्थापित करा",
+  "title": "डेटा व्यवस्थापन",
+  "description": "@:appName मध्ये स्थानिक डेटा संचयन व्यवस्थापित करा किंवा तुमचा विद्यमान डेटा आयात करा.",
+  "dataStorage": {
+    "title": "फाइल संचयन स्थान",
+    "tooltip": "जिथे तुमच्या फाइल्स संग्रहित आहेत ते स्थान",
+    "actions": {
+      "change": "मार्ग बदला",
+      "open": "फोल्डर उघडा",
+      "openTooltip": "सध्याच्या डेटा फोल्डरचे स्थान उघडा",
+      "copy": "मार्ग कॉपी करा",
+      "copiedHint": "मार्ग कॉपी केला!",
+      "resetTooltip": "मूलभूत स्थानावर रीसेट करा"
+    },
+    "resetDialog": {
+      "title": "तुम्हाला खात्री आहे का?",
+      "description": "पथ मूलभूत डेटा स्थानावर रीसेट केल्याने तुमचा डेटा हटवला जाणार नाही. तुम्हाला सध्याचा डेटा पुन्हा आयात करायचा असल्यास, कृपया आधी त्याचा पथ कॉपी करा."
+    }
+  },
+  "importData": {
+    "title": "डेटा आयात करा",
+    "tooltip": "@:appName बॅकअप/डेटा फोल्डरमधून डेटा आयात करा",
+    "description": "बाह्य @:appName डेटा फोल्डरमधून डेटा कॉपी करा",
+    "action": "फाइल निवडा"
+  },
+  "encryption": {
+    "title": "एनक्रिप्शन",
+    "tooltip": "तुमचा डेटा कसा संग्रहित आणि एनक्रिप्ट केला जातो ते व्यवस्थापित करा",
+    "descriptionNoEncryption": "एनक्रिप्शन चालू केल्याने सर्व डेटा एनक्रिप्ट केला जाईल. ही क्रिया पूर्ववत केली जाऊ शकत नाही.",
+    "descriptionEncrypted": "तुमचा डेटा एनक्रिप्टेड आहे.",
+    "action": "डेटा एनक्रिप्ट करा",
+    "dialog": {
+      "title": "संपूर्ण डेटा एनक्रिप्ट करायचा?",
+      "description": "तुमचा संपूर्ण डेटा एनक्रिप्ट केल्याने तो सुरक्षित राहील. ही क्रिया पूर्ववत केली जाऊ शकत नाही. तुम्हाला पुढे जायचे आहे का?"
+    }
+  },
+  "cache": {
+    "title": "कॅशे साफ करा",
+    "description": "प्रतिमा न दिसणे, पृष्ठे हरवणे, फॉन्ट लोड न होणे अशा समस्यांचे निराकरण करण्यासाठी मदत करा. याचा तुमच्या डेटावर परिणाम होणार नाही.",
+    "dialog": {
+      "title": "कॅशे साफ करा",
+      "description": "प्रतिमा न दिसणे, पृष्ठे हरवणे, फॉन्ट लोड न होणे अशा समस्यांचे निराकरण करण्यासाठी मदत करा. याचा तुमच्या डेटावर परिणाम होणार नाही.",
+      "successHint": "कॅशे साफ झाली!"
+    }
+  },
+  "data": {
+    "fixYourData": "तुमचा डेटा सुधारा",
+    "fixButton": "सुधारा",
+    "fixYourDataDescription": "तुमच्या डेटामध्ये काही अडचण येत असल्यास, तुम्ही येथे ती सुधारू शकता."
+    }
+  },
+    "shortcutsPage": {
+  "menuLabel": "शॉर्टकट्स",
+  "title": "शॉर्टकट्स",
+  "editBindingHint": "नवीन बाइंडिंग टाका",
+  "searchHint": "शोधा",
+  "actions": {
+    "resetDefault": "मूलभूत रीसेट करा"
+  },
+  "errorPage": {
+    "message": "शॉर्टकट्स लोड करण्यात अयशस्वी: {}",
+    "howToFix": "कृपया पुन्हा प्रयत्न करा. समस्या कायम राहिल्यास GitHub वर संपर्क साधा."
+  },
+  "resetDialog": {
+    "title": "शॉर्टकट्स रीसेट करा",
+    "description": "हे सर्व कीबाइंडिंग्जना मूळ स्थितीत रीसेट करेल. ही क्रिया पूर्ववत करता येणार नाही. तुम्हाला खात्री आहे का?",
+    "buttonLabel": "रीसेट करा"
+  },
+  "conflictDialog": {
+    "title": "{} आधीच वापरले जात आहे",
+    "descriptionPrefix": "हे कीबाइंडिंग सध्या ",
+    "descriptionSuffix": " यामध्ये वापरले जात आहे. तुम्ही हे कीबाइंडिंग बदलल्यास, ते {} मधून काढले जाईल.",
+    "confirmLabel": "पुढे जा"
+  },
+  "editTooltip": "कीबाइंडिंग संपादित करण्यासाठी क्लिक करा",
+  "keybindings": {
+    "toggleToDoList": "टू-डू सूची चालू/बंद करा",
+    "insertNewParagraphInCodeblock": "नवीन परिच्छेद टाका",
+    "pasteInCodeblock": "कोडब्लॉकमध्ये पेस्ट करा",
+    "selectAllCodeblock": "सर्व निवडा",
+    "indentLineCodeblock": "ओळीच्या सुरुवातीला दोन स्पेस टाका",
+    "outdentLineCodeblock": "ओळीच्या सुरुवातीची दोन स्पेस काढा",
+    "twoSpacesCursorCodeblock": "कर्सरवर दोन स्पेस टाका",
+    "copy": "निवड कॉपी करा",
+    "paste": "मजकुरात पेस्ट करा",
+    "cut": "निवड कट करा",
+    "alignLeft": "मजकूर डावीकडे संरेखित करा",
+    "alignCenter": "मजकूर मधोमध संरेखित करा",
+    "alignRight": "मजकूर उजवीकडे संरेखित करा",
+    "insertInlineMathEquation": "इनलाइन गणितीय सूत्र टाका",
+    "undo": "पूर्ववत करा",
+    "redo": "पुन्हा करा",
+    "convertToParagraph": "ब्लॉक परिच्छेदात रूपांतरित करा",
+    "backspace": "हटवा",
+    "deleteLeftWord": "डावीकडील शब्द हटवा",
+    "deleteLeftSentence": "डावीकडील वाक्य हटवा",
+    "delete": "उजवीकडील अक्षर हटवा",
+    "deleteMacOS": "डावीकडील अक्षर हटवा",
+    "deleteRightWord": "उजवीकडील शब्द हटवा",
+    "moveCursorLeft": "कर्सर डावीकडे हलवा",
+    "moveCursorBeginning": "कर्सर सुरुवातीला हलवा",
+    "moveCursorLeftWord": "कर्सर एक शब्द डावीकडे हलवा",
+    "moveCursorLeftSelect": "निवडा आणि कर्सर डावीकडे हलवा",
+    "moveCursorBeginSelect": "निवडा आणि कर्सर सुरुवातीला हलवा",
+    "moveCursorLeftWordSelect": "निवडा आणि कर्सर एक शब्द डावीकडे हलवा",
+    "moveCursorRight": "कर्सर उजवीकडे हलवा",
+    "moveCursorEnd": "कर्सर शेवटी हलवा",
+    "moveCursorRightWord": "कर्सर एक शब्द उजवीकडे हलवा",
+    "moveCursorRightSelect": "निवडा आणि कर्सर उजवीकडे हलवा",
+    "moveCursorEndSelect": "निवडा आणि कर्सर शेवटी हलवा",
+    "moveCursorRightWordSelect": "निवडा आणि कर्सर एक शब्द उजवीकडे हलवा",
+    "moveCursorUp": "कर्सर वर हलवा",
+    "moveCursorTopSelect": "निवडा आणि कर्सर वर हलवा",
+    "moveCursorTop": "कर्सर वर हलवा",
+    "moveCursorUpSelect": "निवडा आणि कर्सर वर हलवा",
+    "moveCursorBottomSelect": "निवडा आणि कर्सर खाली हलवा",
+    "moveCursorBottom": "कर्सर खाली हलवा",
+    "moveCursorDown": "कर्सर खाली हलवा",
+    "moveCursorDownSelect": "निवडा आणि कर्सर खाली हलवा",
+    "home": "वर स्क्रोल करा",
+    "end": "खाली स्क्रोल करा",
+    "toggleBold": "बोल्ड चालू/बंद करा",
+    "toggleItalic": "इटालिक चालू/बंद करा",
+    "toggleUnderline": "अधोरेखित चालू/बंद करा",
+    "toggleStrikethrough": "स्ट्राईकथ्रू चालू/बंद करा",
+    "toggleCode": "इनलाइन कोड चालू/बंद करा",
+    "toggleHighlight": "हायलाईट चालू/बंद करा",
+    "showLinkMenu": "लिंक मेनू दाखवा",
+    "openInlineLink": "इनलाइन लिंक उघडा",
+    "openLinks": "सर्व निवडलेले लिंक उघडा",
+    "indent": "इंडेंट",
+    "outdent": "आउटडेंट",
+    "exit": "संपादनातून बाहेर पडा",
+    "pageUp": "एक पृष्ठ वर स्क्रोल करा",
+    "pageDown": "एक पृष्ठ खाली स्क्रोल करा",
+    "selectAll": "सर्व निवडा",
+    "pasteWithoutFormatting": "फॉरमॅटिंगशिवाय पेस्ट करा",
+    "showEmojiPicker": "इमोजी निवडकर्ता दाखवा",
+    "enterInTableCell": "टेबलमध्ये नवीन ओळ जोडा",
+    "leftInTableCell": "टेबलमध्ये डावीकडील सेलमध्ये जा",
+    "rightInTableCell": "टेबलमध्ये उजवीकडील सेलमध्ये जा",
+    "upInTableCell": "टेबलमध्ये वरील सेलमध्ये जा",
+    "downInTableCell": "टेबलमध्ये खालील सेलमध्ये जा",
+    "tabInTableCell": "टेबलमध्ये पुढील सेलमध्ये जा",
+    "shiftTabInTableCell": "टेबलमध्ये मागील सेलमध्ये जा",
+    "backSpaceInTableCell": "सेलच्या सुरुवातीला थांबा"
+  },
+  "commands": {
+    "codeBlockNewParagraph": "कोडब्लॉकच्या शेजारी नवीन परिच्छेद टाका",
+    "codeBlockIndentLines": "कोडब्लॉकमध्ये ओळीच्या सुरुवातीला दोन स्पेस टाका",
+    "codeBlockOutdentLines": "कोडब्लॉकमध्ये ओळीच्या सुरुवातीची दोन स्पेस काढा",
+    "codeBlockAddTwoSpaces": "कोडब्लॉकमध्ये कर्सरच्या ठिकाणी दोन स्पेस टाका",
+    "codeBlockSelectAll": "कोडब्लॉकमधील सर्व मजकूर निवडा",
+    "codeBlockPasteText": "कोडब्लॉकमध्ये मजकूर पेस्ट करा",
+    "textAlignLeft": "मजकूर डावीकडे संरेखित करा",
+    "textAlignCenter": "मजकूर मधोमध संरेखित करा",
+    "textAlignRight": "मजकूर उजवीकडे संरेखित करा"
+  },
+  "couldNotLoadErrorMsg": "शॉर्टकट लोड करता आले नाहीत. पुन्हा प्रयत्न करा",
+  "couldNotSaveErrorMsg": "शॉर्टकट सेव्ह करता आले नाहीत. पुन्हा प्रयत्न करा"
+},
+    "aiPage": {
+  "title": "AI सेटिंग्ज",
+  "menuLabel": "AI सेटिंग्ज",
+  "keys": {
+    "enableAISearchTitle": "AI शोध",
+    "aiSettingsDescription": "AppFlowy AI चालवण्यासाठी तुमचा पसंतीचा मॉडेल निवडा. आता GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet आणि Ollama मधील मॉडेल्सचा समावेश आहे.",
+    "loginToEnableAIFeature": "AI वैशिष्ट्ये फक्त @:appName Cloud मध्ये लॉगिन केल्यानंतरच सक्षम होतात. तुमच्याकडे @:appName खाते नसेल तर 'माय अकाउंट' मध्ये जाऊन साइन अप करा.",
+    "llmModel": "भाषा मॉडेल",
+    "llmModelType": "भाषा मॉडेल प्रकार",
+    "downloadLLMPrompt": "{} डाउनलोड करा",
+    "downloadAppFlowyOfflineAI": "AI ऑफलाइन पॅकेज डाउनलोड केल्याने तुमच्या डिव्हाइसवर AI चालवता येईल. तुम्हाला पुढे जायचे आहे का?",
+    "downloadLLMPromptDetail": "{} स्थानिक मॉडेल डाउनलोड करण्यासाठी सुमारे {} संचयन लागेल. तुम्हाला पुढे जायचे आहे का?",
+    "downloadBigFilePrompt": "डाउनलोड पूर्ण होण्यासाठी सुमारे १० मिनिटे लागू शकतात",
+    "downloadAIModelButton": "डाउनलोड करा",
+    "downloadingModel": "डाउनलोड करत आहे",
+    "localAILoaded": "स्थानिक AI मॉडेल यशस्वीरित्या जोडले गेले आणि वापरण्यास सज्ज आहे",
+    "localAIStart": "स्थानिक AI सुरू होत आहे. जर हळू वाटत असेल, तर ते बंद करून पुन्हा सुरू करून पहा",
+    "localAILoading": "स्थानिक AI Chat मॉडेल लोड होत आहे...",
+    "localAIStopped": "स्थानिक AI थांबले आहे",
+    "localAIRunning": "स्थानिक AI चालू आहे",
+    "localAINotReadyRetryLater": "स्थानिक AI सुरू होत आहे, कृपया नंतर पुन्हा प्रयत्न करा",
+    "localAIDisabled": "तुम्ही स्थानिक AI वापरत आहात, पण ते अकार्यक्षम आहे. कृपया सेटिंग्जमध्ये जाऊन ते सक्षम करा किंवा दुसरे मॉडेल वापरून पहा",
+    "localAIInitializing": "स्थानिक AI लोड होत आहे. तुमच्या डिव्हाइसवर अवलंबून याला काही मिनिटे लागू शकतात",
+    "localAINotReadyTextFieldPrompt": "स्थानिक AI लोड होत असताना संपादन करता येणार नाही",
+    "failToLoadLocalAI": "स्थानिक AI सुरू करण्यात अयशस्वी.",
+    "restartLocalAI": "पुन्हा सुरू करा",
+    "disableLocalAITitle": "स्थानिक AI अकार्यक्षम करा",
+    "disableLocalAIDescription": "तुम्हाला स्थानिक AI अकार्यक्षम करायचा आहे का?",
+    "localAIToggleTitle": "AppFlowy स्थानिक AI (LAI)",
+    "localAIToggleSubTitle": "AppFlowy मध्ये अत्याधुनिक स्थानिक AI मॉडेल्स वापरून गोपनीयता आणि सुरक्षा सुनिश्चित करा",
+    "offlineAIInstruction1": "हे अनुसरा",
+    "offlineAIInstruction2": "सूचना",
+    "offlineAIInstruction3": "ऑफलाइन AI सक्षम करण्यासाठी.",
+    "offlineAIDownload1": "जर तुम्ही AppFlowy AI डाउनलोड केले नसेल, तर कृपया",
+    "offlineAIDownload2": "डाउनलोड",
+    "offlineAIDownload3": "करा",
+    "activeOfflineAI": "सक्रिय",
+    "downloadOfflineAI": "डाउनलोड करा",
+    "openModelDirectory": "फोल्डर उघडा",
+    "laiNotReady": "स्थानिक AI अ‍ॅप योग्य प्रकारे इन्स्टॉल झालेले नाही.",
+    "ollamaNotReady": "Ollama सर्व्हर तयार नाही.",
+    "pleaseFollowThese": "कृपया हे अनुसरा",
+    "instructions": "सूचना",
+    "installOllamaLai": "Ollama आणि AppFlowy स्थानिक AI सेटअप करण्यासाठी.",
+    "modelsMissing": "आवश्यक मॉडेल्स सापडत नाहीत.",
+    "downloadModel": "त्यांना डाउनलोड करण्यासाठी."
+  }
+},
+    "planPage": {
+  "menuLabel": "योजना",
+  "title": "दर योजना",
+  "planUsage": {
+    "title": "योजनेचा वापर सारांश",
+    "storageLabel": "स्टोरेज",
+    "storageUsage": "{} पैकी {} GB",
+    "unlimitedStorageLabel": "अमर्यादित स्टोरेज",
+    "collaboratorsLabel": "सदस्य",
+    "collaboratorsUsage": "{} पैकी {}",
+    "aiResponseLabel": "AI प्रतिसाद",
+    "aiResponseUsage": "{} पैकी {}",
+    "unlimitedAILabel": "अमर्यादित AI प्रतिसाद",
+    "proBadge": "प्रो",
+    "aiMaxBadge": "AI Max",
+    "aiOnDeviceBadge": "मॅकसाठी ऑन-डिव्हाइस AI",
+    "memberProToggle": "अधिक सदस्य आणि अमर्यादित AI",
+    "aiMaxToggle": "अमर्यादित AI आणि प्रगत मॉडेल्सचा प्रवेश",
+    "aiOnDeviceToggle": "जास्त गोपनीयतेसाठी स्थानिक AI",
+    "aiCredit": {
+      "title": "@:appName AI क्रेडिट जोडा",
+      "price": "{}",
+      "priceDescription": "1,000 क्रेडिट्ससाठी",
+      "purchase": "AI खरेदी करा",
+      "info": "प्रत्येक कार्यक्षेत्रासाठी 1,000 AI क्रेडिट्स जोडा आणि आपल्या कामाच्या प्रवाहात सानुकूलनीय AI सहजपणे एकत्र करा — अधिक स्मार्ट आणि जलद निकालांसाठी:",
+      "infoItemOne": "प्रत्येक डेटाबेससाठी 10,000 प्रतिसाद",
+      "infoItemTwo": "प्रत्येक कार्यक्षेत्रासाठी 1,000 प्रतिसाद"
+    },
+    "currentPlan": {
+      "bannerLabel": "सद्य योजना",
+      "freeTitle": "फ्री",
+      "proTitle": "प्रो",
+      "teamTitle": "टीम",
+      "freeInfo": "2 सदस्यांपर्यंत वैयक्तिक वापरासाठी उत्तम",
+      "proInfo": "10 सदस्यांपर्यंत लहान आणि मध्यम टीमसाठी योग्य",
+      "teamInfo": "सर्व उत्पादनक्षम आणि सुव्यवस्थित टीमसाठी योग्य",
+      "upgrade": "योजना बदला",
+      "canceledInfo": "तुमची योजना रद्द करण्यात आली आहे, {} रोजी तुम्हाला फ्री योजनेवर डाऊनग्रेड केले जाईल."
+    },
+    "addons": {
+      "title": "ऍड-ऑन्स",
+      "addLabel": "जोडा",
+      "activeLabel": "जोडले गेले",
+      "aiMax": {
+        "title": "AI Max",
+        "description": "प्रगत AI मॉडेल्ससह अमर्यादित AI प्रतिसाद आणि दरमहा 50 AI प्रतिमा",
+        "price": "{}",
+        "priceInfo": "प्रति वापरकर्ता प्रति महिना (वार्षिक बिलिंग)"
+      },
+      "aiOnDevice": {
+        "title": "मॅकसाठी ऑन-डिव्हाइस AI",
+        "description": "तुमच्या डिव्हाइसवर Mistral 7B, LLAMA 3 आणि अधिक स्थानिक मॉडेल्स चालवा",
+        "price": "{}",
+        "priceInfo": "प्रति वापरकर्ता प्रति महिना (वार्षिक बिलिंग)",
+        "recommend": "M1 किंवा नवीनतम शिफारस केली जाते"
+      }
+    },
+    "deal": {
+      "bannerLabel": "नववर्षाचे विशेष ऑफर!",
+      "title": "तुमची टीम वाढवा!",
+      "info": "Pro आणि Team योजनांवर 10% सूट मिळवा! @:appName AI सह शक्तिशाली नवीन वैशिष्ट्यांसह तुमचे कार्यक्षेत्र अधिक कार्यक्षम बनवा.",
+      "viewPlans": "योजना पहा"
+    }
+  }
+},
+    "billingPage": {
+  "menuLabel": "बिलिंग",
+  "title": "बिलिंग",
+  "plan": {
+    "title": "योजना",
+    "freeLabel": "फ्री",
+    "proLabel": "प्रो",
+    "planButtonLabel": "योजना बदला",
+    "billingPeriod": "बिलिंग कालावधी",
+    "periodButtonLabel": "कालावधी संपादित करा"
+  },
+  "paymentDetails": {
+    "title": "पेमेंट तपशील",
+    "methodLabel": "पेमेंट पद्धत",
+    "methodButtonLabel": "पद्धत संपादित करा"
+  },
+  "addons": {
+    "title": "ऍड-ऑन्स",
+    "addLabel": "जोडा",
+    "removeLabel": "काढा",
+    "renewLabel": "नवीन करा",
+    "aiMax": {
+      "label": "AI Max",
+      "description": "अमर्यादित AI आणि प्रगत मॉडेल्स अनलॉक करा",
+      "activeDescription": "पुढील बिलिंग तारीख {} आहे",
+      "canceledDescription": "AI Max {} पर्यंत उपलब्ध असेल"
+    },
+    "aiOnDevice": {
+      "label": "मॅकसाठी ऑन-डिव्हाइस AI",
+      "description": "तुमच्या डिव्हाइसवर अमर्यादित ऑन-डिव्हाइस AI अनलॉक करा",
+      "activeDescription": "पुढील बिलिंग तारीख {} आहे",
+      "canceledDescription": "मॅकसाठी ऑन-डिव्हाइस AI {} पर्यंत उपलब्ध असेल"
+    },
+    "removeDialog": {
+      "title": "{} काढा",
+      "description": "तुम्हाला {plan} काढायचे आहे का? तुम्हाला तत्काळ {plan} चे सर्व फिचर्स आणि फायदे वापरण्याचा अधिकार गमावावा लागेल."
+    }
+  },
+  "currentPeriodBadge": "सद्य कालावधी",
+  "changePeriod": "कालावधी बदला",
+  "planPeriod": "{} कालावधी",
+  "monthlyInterval": "मासिक",
+  "monthlyPriceInfo": "प्रति सदस्य, मासिक बिलिंग",
+  "annualInterval": "वार्षिक",
+  "annualPriceInfo": "प्रति सदस्य, वार्षिक बिलिंग"
+},
+    "comparePlanDialog": {
+  "title": "योजना तुलना आणि निवड",
+  "planFeatures": "योजनेची\nवैशिष्ट्ये",
+  "current": "सध्याची",
+  "actions": {
+    "upgrade": "अपग्रेड करा",
+    "downgrade": "डाऊनग्रेड करा",
+    "current": "सध्याची"
+  },
+  "freePlan": {
+    "title": "फ्री",
+    "description": "२ सदस्यांपर्यंत व्यक्तींसाठी सर्व काही व्यवस्थित करण्यासाठी",
+    "price": "{}",
+    "priceInfo": "सदैव फ्री"
+  },
+  "proPlan": {
+    "title": "प्रो",
+    "description": "लहान टीम्ससाठी प्रोजेक्ट्स व ज्ञान व्यवस्थापनासाठी",
+    "price": "{}",
+    "priceInfo": "प्रति सदस्य प्रति महिना\nवार्षिक बिलिंग\n\n{} मासिक बिलिंगसाठी"
+  },
+  "planLabels": {
+    "itemOne": "वर्कस्पेसेस",
+    "itemTwo": "सदस्य",
+    "itemThree": "स्टोरेज",
+    "itemFour": "रिअल-टाइम सहकार्य",
+    "itemFive": "मोबाईल अ‍ॅप",
+    "itemSix": "AI प्रतिसाद",
+    "itemSeven": "AI प्रतिमा",
+    "itemFileUpload": "फाइल अपलोड",
+    "customNamespace": "सानुकूल नेमस्पेस",
+    "tooltipSix": "‘Lifetime’ म्हणजे या प्रतिसादांची मर्यादा कधीही रीसेट केली जात नाही",
+    "intelligentSearch": "स्मार्ट शोध",
+    "tooltipSeven": "तुमच्या कार्यक्षेत्रासाठी URL चा भाग सानुकूलित करू देते",
+    "customNamespaceTooltip": "सानुकूल प्रकाशित साइट URL"
+  },
+  "freeLabels": {
+    "itemOne": "प्रत्येक वर्कस्पेसवर शुल्क",
+    "itemTwo": "२ पर्यंत",
+    "itemThree": "५ GB",
+    "itemFour": "होय",
+    "itemFive": "होय",
+    "itemSix": "१० कायमस्वरूपी",
+    "itemSeven": "२ कायमस्वरूपी",
+    "itemFileUpload": "७ MB पर्यंत",
+    "intelligentSearch": "स्मार्ट शोध"
+  },
+  "proLabels": {
+    "itemOne": "प्रत्येक वर्कस्पेसवर शुल्क",
+    "itemTwo": "१० पर्यंत",
+    "itemThree": "अमर्यादित",
+    "itemFour": "होय",
+    "itemFive": "होय",
+    "itemSix": "अमर्यादित",
+    "itemSeven": "दर महिन्याला १० प्रतिमा",
+    "itemFileUpload": "अमर्यादित",
+    "intelligentSearch": "स्मार्ट शोध"
+  },
+  "paymentSuccess": {
+    "title": "तुम्ही आता {} योजनेवर आहात!",
+    "description": "तुमचे पेमेंट यशस्वीरित्या पूर्ण झाले असून तुमची योजना @:appName {} मध्ये अपग्रेड झाली आहे. तुम्ही 'योजना' पृष्ठावर तपशील पाहू शकता."
+  },
+  "downgradeDialog": {
+    "title": "तुम्हाला योजना डाऊनग्रेड करायची आहे का?",
+    "description": "तुमची योजना डाऊनग्रेड केल्यास तुम्ही फ्री योजनेवर परत जाल. काही सदस्यांना या कार्यक्षेत्राचा प्रवेश मिळणार नाही आणि तुम्हाला स्टोरेज मर्यादेप्रमाणे जागा रिकामी करावी लागू शकते.",
+    "downgradeLabel": "योजना डाऊनग्रेड करा"
+  }
+},
+    "cancelSurveyDialog": {
+  "title": "तुम्ही जात आहात याचे दुःख आहे",
+  "description": "तुम्ही जात आहात याचे आम्हाला खरोखरच दुःख वाटते. @:appName सुधारण्यासाठी तुमचा अभिप्राय आम्हाला महत्त्वाचा वाटतो. कृपया काही क्षण घेऊन काही प्रश्नांची उत्तरे द्या.",
+  "commonOther": "इतर",
+  "otherHint": "तुमचे उत्तर येथे लिहा",
+  "questionOne": {
+    "question": "तुम्ही तुमची @:appName Pro सदस्यता का रद्द केली?",
+    "answerOne": "खर्च खूप जास्त आहे",
+    "answerTwo": "वैशिष्ट्ये अपेक्षांनुसार नव्हती",
+    "answerThree": "यापेक्षा चांगला पर्याय सापडला",
+    "answerFour": "वापर फारसा केला नाही, त्यामुळे खर्च योग्य वाटला नाही",
+    "answerFive": "सेवा समस्या किंवा तांत्रिक अडचणी"
+  },
+  "questionTwo": {
+    "question": "भविष्यात @:appName Pro सदस्यता पुन्हा घेण्याची शक्यता किती आहे?",
+    "answerOne": "खूप शक्यता आहे",
+    "answerTwo": "काहीशी शक्यता आहे",
+    "answerThree": "निश्चित नाही",
+    "answerFour": "अल्प शक्यता",
+    "answerFive": "एकदम कमी शक्यता"
+  },
+  "questionThree": {
+    "question": "तुमच्या सदस्यत्वादरम्यान कोणते Pro वैशिष्ट्य सर्वात उपयुक्त वाटले?",
+    "answerOne": "अनेक वापरकर्त्यांशी सहकार्य",
+    "answerTwo": "लांब कालावधीची आवृत्ती इतिहास",
+    "answerThree": "अमर्यादित AI प्रतिसाद",
+    "answerFour": "स्थानिक AI मॉडेल्सचा प्रवेश"
+  },
+  "questionFour": {
+    "question": "@:appName वापरण्याचा तुमचा एकूण अनुभव कसा होता?",
+    "answerOne": "खूप छान",
+    "answerTwo": "चांगला",
+    "answerThree": "सरासरी",
+    "answerFour": "सरासरीपेक्षा कमी",
+    "answerFive": "असंतोषजनक"
+  }
+},
+    "common": {
+  "uploadingFile": "फाईल अपलोड होत आहे. कृपया अ‍ॅप बंद करू नका",
+  "uploadNotionSuccess": "तुमची Notion zip फाईल यशस्वीरित्या अपलोड झाली आहे. आयात पूर्ण झाल्यानंतर तुम्हाला पुष्टीकरण ईमेल मिळेल",
+  "reset": "रीसेट करा"
+},
+    "menu": {
+  "appearance": "दृश्यरूप",
+  "language": "भाषा",
+  "user": "वापरकर्ता",
+  "files": "फाईल्स",
+  "notifications": "सूचना",
+  "open": "सेटिंग्ज उघडा",
+  "logout": "लॉगआउट",
+  "logoutPrompt": "तुम्हाला नक्की लॉगआउट करायचे आहे का?",
+  "selfEncryptionLogoutPrompt": "तुम्हाला खात्रीने लॉगआउट करायचे आहे का? कृपया खात्री करा की तुम्ही एनक्रिप्शन गुप्तकी कॉपी केली आहे",
+  "syncSetting": "सिंक्रोनायझेशन सेटिंग",
+  "cloudSettings": "क्लाऊड सेटिंग्ज",
+  "enableSync": "सिंक्रोनायझेशन सक्षम करा",
+  "enableSyncLog": "सिंक लॉगिंग सक्षम करा",
+  "enableSyncLogWarning": "सिंक समस्यांचे निदान करण्यात मदतीसाठी धन्यवाद. हे तुमचे डॉक्युमेंट संपादन स्थानिक फाईलमध्ये लॉग करेल. कृपया सक्षम केल्यानंतर अ‍ॅप बंद करून पुन्हा उघडा",
+  "enableEncrypt": "डेटा एन्क्रिप्ट करा",
+  "cloudURL": "बेस URL",
+  "webURL": "वेब URL",
+  "invalidCloudURLScheme": "अवैध स्कीम",
+  "cloudServerType": "क्लाऊड सर्व्हर",
+  "cloudServerTypeTip": "कृपया लक्षात घ्या की क्लाऊड सर्व्हर बदलल्यास तुम्ही सध्या लॉगिन केलेले खाते लॉगआउट होऊ शकते",
+  "cloudLocal": "स्थानिक",
+  "cloudAppFlowy": "@:appName Cloud",
+  "cloudAppFlowySelfHost": "@:appName क्लाऊड सेल्फ-होस्टेड",
+  "appFlowyCloudUrlCanNotBeEmpty": "क्लाऊड URL रिकामा असू शकत नाही",
+  "clickToCopy": "क्लिपबोर्डवर कॉपी करा",
+  "selfHostStart": "जर तुमच्याकडे सर्व्हर नसेल, तर कृपया हे पाहा",
+  "selfHostContent": "दस्तऐवज",
+  "selfHostEnd": "तुमचा स्वतःचा सर्व्हर कसा होस्ट करावा यासाठी मार्गदर्शनासाठी",
+  "pleaseInputValidURL": "कृपया वैध URL टाका",
+  "changeUrl": "सेल्फ-होस्टेड URL {} मध्ये बदला",
+  "cloudURLHint": "तुमच्या सर्व्हरचा बेस URL टाका",
+  "webURLHint": "तुमच्या वेब सर्व्हरचा बेस URL टाका",
+  "cloudWSURL": "वेबसॉकेट URL",
+  "cloudWSURLHint": "तुमच्या सर्व्हरचा वेबसॉकेट पत्ता टाका",
+  "restartApp": "अ‍ॅप रीस्टार्ट करा",
+  "restartAppTip": "बदल प्रभावी होण्यासाठी अ‍ॅप रीस्टार्ट करा. कृपया लक्षात घ्या की यामुळे सध्याचे खाते लॉगआउट होऊ शकते.",
+  "changeServerTip": "सर्व्हर बदलल्यानंतर, बदल लागू करण्यासाठी तुम्हाला 'रीस्टार्ट' बटणावर क्लिक करणे आवश्यक आहे",
+  "enableEncryptPrompt": "तुमचा डेटा सुरक्षित करण्यासाठी एन्क्रिप्शन सक्रिय करा. ही गुप्तकी सुरक्षित ठेवा; एकदा सक्षम केल्यावर ती बंद करता येणार नाही. जर हरवली तर तुमचा डेटा पुन्हा मिळवता येणार नाही. कॉपी करण्यासाठी क्लिक करा",
+  "inputEncryptPrompt": "कृपया खालीलसाठी तुमची एनक्रिप्शन गुप्तकी टाका:",
+  "clickToCopySecret": "गुप्तकी कॉपी करण्यासाठी क्लिक करा",
+  "configServerSetting": "तुमच्या सर्व्हर सेटिंग्ज कॉन्फिगर करा",
+  "configServerGuide": "`Quick Start` निवडल्यानंतर, `Settings` → \"Cloud Settings\" मध्ये जा आणि तुमचा सेल्फ-होस्टेड सर्व्हर कॉन्फिगर करा.",
+  "inputTextFieldHint": "तुमची गुप्तकी",
+  "historicalUserList": "वापरकर्ता लॉगिन इतिहास",
+  "historicalUserListTooltip": "ही यादी तुमची अनामिक खाती दर्शवते. तपशील पाहण्यासाठी खात्यावर क्लिक करा. अनामिक खाती 'सुरुवात करा' बटणावर क्लिक करून तयार केली जातात",
+  "openHistoricalUser": "अनामिक खाते उघडण्यासाठी क्लिक करा",
+  "customPathPrompt": "@:appName डेटा फोल्डर Google Drive सारख्या क्लाऊड-सिंक फोल्डरमध्ये साठवणे धोकादायक ठरू शकते. फोल्डरमधील डेटाबेस अनेक ठिकाणांवरून एकाच वेळी ऍक्सेस/संपादित केल्यास डेटा सिंक समस्या किंवा भ्रष्ट होण्याची शक्यता असते.",
+  "importAppFlowyData": "बाह्य @:appName फोल्डरमधून डेटा आयात करा",
+  "importingAppFlowyDataTip": "डेटा आयात सुरू आहे. कृपया अ‍ॅप बंद करू नका",
+  "importAppFlowyDataDescription": "बाह्य @:appName फोल्डरमधून डेटा कॉपी करून सध्याच्या AppFlowy डेटा फोल्डरमध्ये आयात करा",
+  "importSuccess": "@:appName डेटा फोल्डर यशस्वीरित्या आयात झाला",
+  "importFailed": "@:appName डेटा फोल्डर आयात करण्यात अयशस्वी",
+  "importGuide": "अधिक माहितीसाठी, कृपया संदर्भित दस्तऐवज पहा"
+},
+  "notifications": {
+  "enableNotifications": {
+    "label": "सूचना सक्षम करा",
+    "hint": "स्थानिक सूचना दिसू नयेत यासाठी बंद करा."
+  },
+  "showNotificationsIcon": {
+    "label": "सूचना चिन्ह दाखवा",
+    "hint": "साइडबारमध्ये सूचना चिन्ह लपवण्यासाठी बंद करा."
+  },
+  "archiveNotifications": {
+    "allSuccess": "सर्व सूचना यशस्वीरित्या संग्रहित केल्या",
+    "success": "सूचना यशस्वीरित्या संग्रहित केली"
+  },
+  "markAsReadNotifications": {
+    "allSuccess": "सर्व वाचलेल्या म्हणून चिन्हांकित केल्या",
+    "success": "वाचलेले म्हणून चिन्हांकित केले"
+  },
+  "action": {
+    "markAsRead": "वाचलेले म्हणून चिन्हांकित करा",
+    "multipleChoice": "अधिक निवडा",
+    "archive": "संग्रहित करा"
+  },
+  "settings": {
+    "settings": "सेटिंग्ज",
+    "markAllAsRead": "सर्व वाचलेले म्हणून चिन्हांकित करा",
+    "archiveAll": "सर्व संग्रहित करा"
+  },
+  "emptyInbox": {
+    "title": "इनबॉक्स झिरो!",
+    "description": "इथे सूचना मिळवण्यासाठी रिमाइंडर सेट करा."
+  },
+  "emptyUnread": {
+    "title": "कोणतीही न वाचलेली सूचना नाही",
+    "description": "तुम्ही सर्व वाचले आहे!"
+  },
+  "emptyArchived": {
+    "title": "कोणतीही संग्रहित सूचना नाही",
+    "description": "संग्रहित सूचना इथे दिसतील."
+  },
+  "tabs": {
+    "inbox": "इनबॉक्स",
+    "unread": "न वाचलेले",
+    "archived": "संग्रहित"
+  },
+  "refreshSuccess": "सूचना यशस्वीरित्या रीफ्रेश केल्या",
+  "titles": {
+    "notifications": "सूचना",
+    "reminder": "रिमाइंडर"
+  }
+},
+    "appearance": {
+  "resetSetting": "रीसेट",
+  "fontFamily": {
+    "label": "फॉन्ट फॅमिली",
+    "search": "शोध",
+    "defaultFont": "सिस्टम"
+  },
+  "themeMode": {
+    "label": "थीम मोड",
+    "light": "लाइट मोड",
+    "dark": "डार्क मोड",
+    "system": "सिस्टमशी जुळवा"
+  },
+  "fontScaleFactor": "फॉन्ट स्केल घटक",
+  "displaySize": "डिस्प्ले आकार",
+  "documentSettings": {
+    "cursorColor": "डॉक्युमेंट कर्सरचा रंग",
+    "selectionColor": "डॉक्युमेंट निवडीचा रंग",
+    "width": "डॉक्युमेंटची रुंदी",
+    "changeWidth": "बदला",
+    "pickColor": "रंग निवडा",
+    "colorShade": "रंगाची छटा",
+    "opacity": "अपारदर्शकता",
+    "hexEmptyError": "Hex रंग रिकामा असू शकत नाही",
+    "hexLengthError": "Hex व्हॅल्यू 6 अंकांची असावी",
+    "hexInvalidError": "अवैध Hex व्हॅल्यू",
+    "opacityEmptyError": "अपारदर्शकता रिकामी असू शकत नाही",
+    "opacityRangeError": "अपारदर्शकता 1 ते 100 दरम्यान असावी",
+    "app": "अ‍ॅप",
+    "flowy": "Flowy",
+    "apply": "लागू करा"
+  },
+  "layoutDirection": {
+    "label": "लेआउट दिशा",
+    "hint": "तुमच्या स्क्रीनवरील कंटेंटचा प्रवाह नियंत्रित करा — डावीकडून उजवीकडे किंवा उजवीकडून डावीकडे.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "textDirection": {
+    "label": "मूलभूत मजकूर दिशा",
+    "hint": "मजकूर डावीकडून सुरू व्हावा की उजवीकडून याचे पूर्वनिर्धारित निर्धारण करा.",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "स्वयं",
+    "fallback": "लेआउट दिशेशी जुळवा"
+  },
+  "themeUpload": {
+    "button": "अपलोड",
+    "uploadTheme": "थीम अपलोड करा",
+    "description": "खालील बटण वापरून तुमची स्वतःची @:appName थीम अपलोड करा.",
+    "loading": "कृपया प्रतीक्षा करा. आम्ही तुमची थीम पडताळत आहोत आणि अपलोड करत आहोत...",
+    "uploadSuccess": "तुमची थीम यशस्वीरित्या अपलोड झाली आहे",
+    "deletionFailure": "थीम हटवण्यात अयशस्वी. कृपया ती मॅन्युअली हटवून पाहा.",
+    "filePickerDialogTitle": ".flowy_plugin फाईल निवडा",
+    "urlUploadFailure": "URL उघडण्यात अयशस्वी: {}"
+  },
+  "theme": "थीम",
+  "builtInsLabel": "अंतर्गत थीम्स",
+  "pluginsLabel": "प्लगइन्स",
+  "dateFormat": {
+    "label": "दिनांक फॉरमॅट",
+    "local": "स्थानिक",
+    "us": "US",
+    "iso": "ISO",
+    "friendly": "अनौपचारिक",
+    "dmy": "D/M/Y"
+  },
+  "timeFormat": {
+    "label": "वेळ फॉरमॅट",
+    "twelveHour": "१२ तास",
+    "twentyFourHour": "२४ तास"
+  },
+  "showNamingDialogWhenCreatingPage": "पृष्ठ तयार करताना नाव विचारणारा डायलॉग दाखवा",
+  "enableRTLToolbarItems": "RTL टूलबार आयटम्स सक्षम करा",
+  "members": {
+    "title": "सदस्य सेटिंग्ज",
+    "inviteMembers": "सदस्यांना आमंत्रण द्या",
+    "inviteHint": "ईमेलद्वारे आमंत्रण द्या",
+    "sendInvite": "आमंत्रण पाठवा",
+    "copyInviteLink": "आमंत्रण दुवा कॉपी करा",
+    "label": "सदस्य",
+    "user": "वापरकर्ता",
+    "role": "भूमिका",
+    "removeFromWorkspace": "वर्कस्पेसमधून काढा",
+    "removeFromWorkspaceSuccess": "वर्कस्पेसमधून यशस्वीरित्या काढले",
+    "removeFromWorkspaceFailed": "वर्कस्पेसमधून काढण्यात अयशस्वी",
+    "owner": "मालक",
+    "guest": "अतिथी",
+    "member": "सदस्य",
+    "memberHintText": "सदस्य पृष्ठे वाचू व संपादित करू शकतो",
+    "guestHintText": "अतिथी पृष्ठे वाचू शकतो, प्रतिक्रिया देऊ शकतो, टिप्पणी करू शकतो, आणि परवानगी असल्यास काही पृष्ठे संपादित करू शकतो.",
+    "emailInvalidError": "अवैध ईमेल, कृपया तपासा व पुन्हा प्रयत्न करा",
+    "emailSent": "ईमेल पाठवला गेला आहे, कृपया इनबॉक्स तपासा",
+    "members": "सदस्य",
+    "membersCount": {
+      "zero": "{} सदस्य",
+      "one": "{} सदस्य",
+      "other": "{} सदस्य"
+    },
+    "inviteFailedDialogTitle": "आमंत्रण पाठवण्यात अयशस्वी",
+    "inviteFailedMemberLimit": "सदस्य मर्यादा गाठली आहे, अधिक सदस्यांसाठी कृपया अपग्रेड करा.",
+    "inviteFailedMemberLimitMobile": "तुमच्या वर्कस्पेसने सदस्य मर्यादा गाठली आहे.",
+    "memberLimitExceeded": "सदस्य मर्यादा गाठली आहे, अधिक सदस्य आमंत्रित करण्यासाठी कृपया ",
+    "memberLimitExceededUpgrade": "अपग्रेड करा",
+    "memberLimitExceededPro": "सदस्य मर्यादा गाठली आहे, अधिक सदस्य आवश्यक असल्यास संपर्क करा",
+    "memberLimitExceededProContact": "support@appflowy.io",
+    "failedToAddMember": "सदस्य जोडण्यात अयशस्वी",
+    "addMemberSuccess": "सदस्य यशस्वीरित्या जोडला गेला",
+    "removeMember": "सदस्य काढा",
+    "areYouSureToRemoveMember": "तुम्हाला हा सदस्य काढायचा आहे का?",
+    "inviteMemberSuccess": "आमंत्रण यशस्वीरित्या पाठवले गेले",
+    "failedToInviteMember": "सदस्य आमंत्रित करण्यात अयशस्वी",
+    "workspaceMembersError": "अरे! काहीतरी चूक झाली आहे",
+    "workspaceMembersErrorDescription": "आम्ही सध्या सदस्यांची यादी लोड करू शकत नाही. कृपया नंतर पुन्हा प्रयत्न करा"
+  }
+},
+    "files": {
+  "copy": "कॉपी करा",
+  "defaultLocation": "फाईल्स आणि डेटाचा संचय स्थान",
+  "exportData": "तुमचा डेटा निर्यात करा",
+  "doubleTapToCopy": "पथ कॉपी करण्यासाठी दोनदा टॅप करा",
+  "restoreLocation": "@:appName चे मूळ स्थान पुनर्संचयित करा",
+  "customizeLocation": "इतर फोल्डर उघडा",
+  "restartApp": "बदल लागू करण्यासाठी कृपया अ‍ॅप रीस्टार्ट करा.",
+  "exportDatabase": "डेटाबेस निर्यात करा",
+  "selectFiles": "निर्यात करण्यासाठी फाईल्स निवडा",
+  "selectAll": "सर्व निवडा",
+  "deselectAll": "सर्व निवड रद्द करा",
+  "createNewFolder": "नवीन फोल्डर तयार करा",
+  "createNewFolderDesc": "तुमचा डेटा कुठे साठवायचा हे सांगा",
+  "defineWhereYourDataIsStored": "तुमचा डेटा कुठे साठवला जातो हे ठरवा",
+  "open": "उघडा",
+  "openFolder": "आधीक फोल्डर उघडा",
+  "openFolderDesc": "तुमच्या विद्यमान @:appName फोल्डरमध्ये वाचन व लेखन करा",
+  "folderHintText": "फोल्डरचे नाव",
+  "location": "नवीन फोल्डर तयार करत आहे",
+  "locationDesc": "तुमच्या @:appName डेटासाठी नाव निवडा",
+  "browser": "ब्राउझ करा",
+  "create": "तयार करा",
+  "set": "सेट करा",
+  "folderPath": "फोल्डर साठवण्याचा मार्ग",
+  "locationCannotBeEmpty": "मार्ग रिकामा असू शकत नाही",
+  "pathCopiedSnackbar": "फाईल संचय मार्ग क्लिपबोर्डवर कॉपी केला!",
+  "changeLocationTooltips": "डेटा डिरेक्टरी बदला",
+  "change": "बदला",
+  "openLocationTooltips": "इतर डेटा डिरेक्टरी उघडा",
+  "openCurrentDataFolder": "सध्याची डेटा डिरेक्टरी उघडा",
+  "recoverLocationTooltips": "@:appName च्या मूळ डेटा डिरेक्टरीवर रीसेट करा",
+  "exportFileSuccess": "फाईल यशस्वीरित्या निर्यात झाली!",
+  "exportFileFail": "फाईल निर्यात करण्यात अयशस्वी!",
+  "export": "निर्यात करा",
+  "clearCache": "कॅशे साफ करा",
+  "clearCacheDesc": "प्रतिमा लोड होत नाहीत किंवा फॉन्ट अयोग्यरित्या दिसत असल्यास, कॅशे साफ करून पाहा. ही क्रिया तुमचा वापरकर्ता डेटा हटवणार नाही.",
+  "areYouSureToClearCache": "तुम्हाला नक्की कॅशे साफ करायची आहे का?",
+  "clearCacheSuccess": "कॅशे यशस्वीरित्या साफ झाली!"
+},
+    "user": {
+  "name": "नाव",
+  "email": "ईमेल",
+  "tooltipSelectIcon": "चिन्ह निवडा",
+  "selectAnIcon": "चिन्ह निवडा",
+  "pleaseInputYourOpenAIKey": "कृपया तुमची AI की टाका",
+  "clickToLogout": "सध्याचा वापरकर्ता लॉगआउट करण्यासाठी क्लिक करा"
+},
+    "mobile": {
+  "personalInfo": "वैयक्तिक माहिती",
+  "username": "वापरकर्तानाव",
+  "usernameEmptyError": "वापरकर्तानाव रिकामे असू शकत नाही",
+  "about": "विषयी",
+  "pushNotifications": "पुश सूचना",
+  "support": "सपोर्ट",
+  "joinDiscord": "Discord मध्ये सहभागी व्हा",
+  "privacyPolicy": "गोपनीयता धोरण",
+  "userAgreement": "वापरकर्ता करार",
+  "termsAndConditions": "अटी व शर्ती",
+  "userprofileError": "वापरकर्ता प्रोफाइल लोड करण्यात अयशस्वी",
+  "userprofileErrorDescription": "कृपया लॉगआउट करून पुन्हा लॉगिन करा आणि त्रुटी अजूनही येते का ते पहा.",
+  "selectLayout": "लेआउट निवडा",
+  "selectStartingDay": "सप्ताहाचा प्रारंभ दिवस निवडा",
+  "version": "आवृत्ती"
+},
+  "grid": {
+  "deleteView": "तुम्हाला हे दृश्य हटवायचे आहे का?",
+  "createView": "नवीन",
+  "title": {
+    "placeholder": "नाव नाही"
+  },
+  "settings": {
+    "filter": "फिल्टर",
+    "sort": "क्रमवारी",
+    "sortBy": "यावरून क्रमवारी लावा",
+    "properties": "गुणधर्म",
+    "reorderPropertiesTooltip": "गुणधर्मांचे स्थान बदला",
+    "group": "समूह",
+    "addFilter": "फिल्टर जोडा",
+    "deleteFilter": "फिल्टर हटवा",
+    "filterBy": "यावरून फिल्टर करा",
+    "typeAValue": "मूल्य लिहा...",
+    "layout": "लेआउट",
+    "compactMode": "कॉम्पॅक्ट मोड",
+    "databaseLayout": "लेआउट",
+    "viewList": {
+      "zero": "० दृश्ये",
+      "one": "{count} दृश्य",
+      "other": "{count} दृश्ये"
+    },
+    "editView": "दृश्य संपादित करा",
+    "boardSettings": "बोर्ड सेटिंग",
+    "calendarSettings": "कॅलेंडर सेटिंग",
+    "createView": "नवीन दृश्य",
+    "duplicateView": "दृश्याची प्रत बनवा",
+    "deleteView": "दृश्य हटवा",
+    "numberOfVisibleFields": "{} दर्शविले"
+  },
+  "filter": {
+    "empty": "कोणतेही सक्रिय फिल्टर नाहीत",
+    "addFilter": "फिल्टर जोडा",
+    "cannotFindCreatableField": "फिल्टर करण्यासाठी योग्य फील्ड सापडले नाही",
+    "conditon": "अट",
+    "where": "जिथे"
+  },
+  "textFilter": {
+    "contains": "अंतर्भूत आहे",
+    "doesNotContain": "अंतर्भूत नाही",
+    "endsWith": "याने समाप्त होते",
+    "startWith": "याने सुरू होते",
+    "is": "आहे",
+    "isNot": "नाही",
+    "isEmpty": "रिकामे आहे",
+    "isNotEmpty": "रिकामे नाही",
+    "choicechipPrefix": {
+      "isNot": "नाही",
+      "startWith": "याने सुरू होते",
+      "endWith": "याने समाप्त होते",
+      "isEmpty": "रिकामे आहे",
+      "isNotEmpty": "रिकामे नाही"
+    }
+  },
+  "checkboxFilter": {
+    "isChecked": "निवडलेले आहे",
+    "isUnchecked": "निवडलेले नाही",
+    "choicechipPrefix": {
+      "is": "आहे"
+    }
+  },
+  "checklistFilter": {
+    "isComplete": "पूर्ण झाले आहे",
+    "isIncomplted": "अपूर्ण आहे"
+  },
+    "selectOptionFilter": {
+  "is": "आहे",
+  "isNot": "नाही",
+  "contains": "अंतर्भूत आहे",
+  "doesNotContain": "अंतर्भूत नाही",
+  "isEmpty": "रिकामे आहे",
+  "isNotEmpty": "रिकामे नाही"
+},
+"dateFilter": {
+  "is": "या दिवशी आहे",
+  "before": "पूर्वी आहे",
+  "after": "नंतर आहे",
+  "onOrBefore": "या दिवशी किंवा त्याआधी आहे",
+  "onOrAfter": "या दिवशी किंवा त्यानंतर आहे",
+  "between": "दरम्यान आहे",
+  "empty": "रिकामे आहे",
+  "notEmpty": "रिकामे नाही",
+  "startDate": "सुरुवातीची तारीख",
+  "endDate": "शेवटची तारीख",
+  "choicechipPrefix": {
+    "before": "पूर्वी",
+    "after": "नंतर",
+    "between": "दरम्यान",
+    "onOrBefore": "या दिवशी किंवा त्याआधी",
+    "onOrAfter": "या दिवशी किंवा त्यानंतर",
+    "isEmpty": "रिकामे आहे",
+    "isNotEmpty": "रिकामे नाही"
+  }
+},
+"numberFilter": {
+  "equal": "बरोबर आहे",
+  "notEqual": "बरोबर नाही",
+  "lessThan": "पेक्षा कमी आहे",
+  "greaterThan": "पेक्षा जास्त आहे",
+  "lessThanOrEqualTo": "किंवा कमी आहे",
+  "greaterThanOrEqualTo": "किंवा जास्त आहे",
+  "isEmpty": "रिकामे आहे",
+  "isNotEmpty": "रिकामे नाही"
+},
+"field": {
+  "label": "गुणधर्म",
+  "hide": "गुणधर्म लपवा",
+  "show": "गुणधर्म दर्शवा",
+  "insertLeft": "डावीकडे जोडा",
+  "insertRight": "उजवीकडे जोडा",
+  "duplicate": "प्रत बनवा",
+  "delete": "हटवा",
+  "wrapCellContent": "पाठ लपेटा",
+  "clear": "सेल्स रिकामे करा",
+  "switchPrimaryFieldTooltip": "प्राथमिक फील्डचा प्रकार बदलू शकत नाही",
+  "textFieldName": "मजकूर",
+  "checkboxFieldName": "चेकबॉक्स",
+  "dateFieldName": "तारीख",
+  "updatedAtFieldName": "शेवटचे अपडेट",
+  "createdAtFieldName": "तयार झाले",
+  "numberFieldName": "संख्या",
+  "singleSelectFieldName": "सिंगल सिलेक्ट",
+  "multiSelectFieldName": "मल्टीसिलेक्ट",
+  "urlFieldName": "URL",
+  "checklistFieldName": "चेकलिस्ट",
+  "relationFieldName": "संबंध",
+  "summaryFieldName": "AI सारांश",
+  "timeFieldName": "वेळ",
+  "mediaFieldName": "फाईल्स आणि मीडिया",
+  "translateFieldName": "AI भाषांतर",
+  "translateTo": "मध्ये भाषांतर करा",
+  "numberFormat": "संख्या स्वरूप",
+  "dateFormat": "तारीख स्वरूप",
+  "includeTime": "वेळ जोडा",
+  "isRange": "शेवटची तारीख",
+  "dateFormatFriendly": "महिना दिवस, वर्ष",
+  "dateFormatISO": "वर्ष-महिना-दिनांक",
+  "dateFormatLocal": "महिना/दिवस/वर्ष",
+  "dateFormatUS": "वर्ष/महिना/दिवस",
+  "dateFormatDayMonthYear": "दिवस/महिना/वर्ष",
+  "timeFormat": "वेळ स्वरूप",
+  "invalidTimeFormat": "अवैध स्वरूप",
+  "timeFormatTwelveHour": "१२ तास",
+  "timeFormatTwentyFourHour": "२४ तास",
+  "clearDate": "तारीख हटवा",
+  "dateTime": "तारीख व वेळ",
+  "startDateTime": "सुरुवातीची तारीख व वेळ",
+  "endDateTime": "शेवटची तारीख व वेळ",
+  "failedToLoadDate": "तारीख मूल्य लोड करण्यात अयशस्वी",
+  "selectTime": "वेळ निवडा",
+  "selectDate": "तारीख निवडा",
+  "visibility": "दृश्यता",
+  "propertyType": "गुणधर्माचा प्रकार",
+  "addSelectOption": "पर्याय जोडा",
+  "typeANewOption": "नवीन पर्याय लिहा",
+  "optionTitle": "पर्याय",
+  "addOption": "पर्याय जोडा",
+  "editProperty": "गुणधर्म संपादित करा",
+  "newProperty": "नवीन गुणधर्म",
+  "openRowDocument": "पृष्ठ म्हणून उघडा",
+  "deleteFieldPromptMessage": "तुम्हाला खात्री आहे का? हा गुणधर्म आणि त्याचा डेटा हटवला जाईल",
+  "clearFieldPromptMessage": "तुम्हाला खात्री आहे का? या कॉलममधील सर्व सेल्स रिकामे होतील",
+  "newColumn": "नवीन कॉलम",
+  "format": "स्वरूप",
+  "reminderOnDateTooltip": "या सेलमध्ये अनुस्मारक शेड्यूल केले आहे",
+  "optionAlreadyExist": "पर्याय आधीच अस्तित्वात आहे"
+},
+    "rowPage": {
+  "newField": "नवीन फील्ड जोडा",
+  "fieldDragElementTooltip": "मेनू उघडण्यासाठी क्लिक करा",
+  "showHiddenFields": {
+    "one": "{count} लपलेले फील्ड दाखवा",
+    "many": "{count} लपलेली फील्ड दाखवा",
+    "other": "{count} लपलेली फील्ड दाखवा"
+  },
+  "hideHiddenFields": {
+    "one": "{count} लपलेले फील्ड लपवा",
+    "many": "{count} लपलेली फील्ड लपवा",
+    "other": "{count} लपलेली फील्ड लपवा"
+  },
+  "openAsFullPage": "पूर्ण पृष्ठ म्हणून उघडा",
+  "moreRowActions": "अधिक पंक्ती क्रिया"
+},
+"sort": {
+  "ascending": "चढत्या क्रमाने",
+  "descending": "उतरत्या क्रमाने",
+  "by": "द्वारे",
+  "empty": "सक्रिय सॉर्ट्स नाहीत",
+  "cannotFindCreatableField": "सॉर्टसाठी योग्य फील्ड सापडले नाही",
+  "deleteAllSorts": "सर्व सॉर्ट्स हटवा",
+  "addSort": "सॉर्ट जोडा",
+  "sortsActive": "सॉर्टिंग करत असताना {intention} करू शकत नाही",
+  "removeSorting": "या दृश्यातील सर्व सॉर्ट्स हटवायचे आहेत का?",
+  "fieldInUse": "या फील्डवर आधीच सॉर्टिंग चालू आहे"
+},
+"row": {
+  "label": "पंक्ती",
+  "duplicate": "प्रत बनवा",
+  "delete": "हटवा",
+  "titlePlaceholder": "शीर्षक नाही",
+  "textPlaceholder": "रिक्त",
+  "copyProperty": "गुणधर्म क्लिपबोर्डवर कॉपी केला",
+  "count": "संख्या",
+  "newRow": "नवीन पंक्ती",
+  "loadMore": "अधिक लोड करा",
+  "action": "क्रिया",
+  "add": "खाली जोडा वर क्लिक करा",
+  "drag": "हलवण्यासाठी ड्रॅग करा",
+  "deleteRowPrompt": "तुम्हाला खात्री आहे का की ही पंक्ती हटवायची आहे? ही क्रिया पूर्ववत करता येणार नाही.",
+  "deleteCardPrompt": "तुम्हाला खात्री आहे का की हे कार्ड हटवायचे आहे? ही क्रिया पूर्ववत करता येणार नाही.",
+  "dragAndClick": "हलवण्यासाठी ड्रॅग करा, मेनू उघडण्यासाठी क्लिक करा",
+  "insertRecordAbove": "वर रेकॉर्ड जोडा",
+  "insertRecordBelow": "खाली रेकॉर्ड जोडा",
+  "noContent": "माहिती नाही",
+  "reorderRowDescription": "पंक्तीचे पुन्हा क्रमांकन",
+  "createRowAboveDescription": "वर पंक्ती तयार करा",
+  "createRowBelowDescription": "खाली पंक्ती जोडा"
+},
+"selectOption": {
+  "create": "तयार करा",
+  "purpleColor": "जांभळा",
+  "pinkColor": "गुलाबी",
+  "lightPinkColor": "फिकट गुलाबी",
+  "orangeColor": "नारंगी",
+  "yellowColor": "पिवळा",
+  "limeColor": "लिंबू",
+  "greenColor": "हिरवा",
+  "aquaColor": "आक्वा",
+  "blueColor": "निळा",
+  "deleteTag": "टॅग हटवा",
+  "colorPanelTitle": "रंग",
+  "panelTitle": "पर्याय निवडा किंवा नवीन तयार करा",
+  "searchOption": "पर्याय शोधा",
+  "searchOrCreateOption": "पर्याय शोधा किंवा तयार करा",
+  "createNew": "नवीन तयार करा",
+  "orSelectOne": "किंवा पर्याय निवडा",
+  "typeANewOption": "नवीन पर्याय टाइप करा",
+  "tagName": "टॅग नाव"
+},
+"checklist": {
+  "taskHint": "कार्याचे वर्णन",
+  "addNew": "नवीन कार्य जोडा",
+  "submitNewTask": "तयार करा",
+  "hideComplete": "पूर्ण कार्ये लपवा",
+  "showComplete": "सर्व कार्ये दाखवा"
+},
+"url": {
+  "launch": "बाह्य ब्राउझरमध्ये लिंक उघडा",
+  "copy": "लिंक क्लिपबोर्डवर कॉपी करा",
+  "textFieldHint": "URL टाका",
+  "copiedNotification": "क्लिपबोर्डवर कॉपी केले!"
+},
+"relation": {
+  "relatedDatabasePlaceLabel": "संबंधित डेटाबेस",
+  "relatedDatabasePlaceholder": "काही नाही",
+  "inRelatedDatabase": "या मध्ये",
+  "rowSearchTextFieldPlaceholder": "शोध",
+  "noDatabaseSelected": "कोणताही डेटाबेस निवडलेला नाही, कृपया खालील यादीतून एक निवडा:",
+  "emptySearchResult": "कोणतीही नोंद सापडली नाही",
+  "linkedRowListLabel": "{count} लिंक केलेल्या पंक्ती",
+  "unlinkedRowListLabel": "आणखी एक पंक्ती लिंक करा"
+},
+"menuName": "ग्रिड",
+"referencedGridPrefix": "दृश्य",
+"calculate": "गणना करा",
+"calculationTypeLabel": {
+  "none": "काही नाही",
+  "average": "सरासरी",
+  "max": "कमाल",
+  "median": "मध्यम",
+  "min": "किमान",
+  "sum": "बेरीज",
+  "count": "मोजणी",
+  "countEmpty": "रिकाम्यांची मोजणी",
+  "countEmptyShort": "रिक्त",
+  "countNonEmpty": "रिक्त नसलेल्यांची मोजणी",
+  "countNonEmptyShort": "भरलेले"
+},
+"media": {
+  "rename": "पुन्हा नाव द्या",
+  "download": "डाउनलोड करा",
+  "expand": "मोठे करा",
+  "delete": "हटवा",
+  "moreFilesHint": "+{}",
+  "addFileOrImage": "फाईल किंवा लिंक जोडा",
+  "attachmentsHint": "{}",
+  "addFileMobile": "फाईल जोडा",
+  "extraCount": "+{}",
+  "deleteFileDescription": "तुम्हाला खात्री आहे का की ही फाईल हटवायची आहे? ही क्रिया पूर्ववत करता येणार नाही.",
+  "showFileNames": "फाईलचे नाव दाखवा",
+  "downloadSuccess": "फाईल डाउनलोड झाली",
+  "downloadFailedToken": "फाईल डाउनलोड अयशस्वी, वापरकर्ता टोकन अनुपलब्ध",
+  "setAsCover": "कव्हर म्हणून सेट करा",
+  "openInBrowser": "ब्राउझरमध्ये उघडा",
+  "embedLink": "फाईल लिंक एम्बेड करा"
+  }
+},
+  "document": {
+  "menuName": "दस्तऐवज",
+  "date": {
+    "timeHintTextInTwelveHour": "01:00 PM",
+    "timeHintTextInTwentyFourHour": "13:00"
+  },
+  "creating": "तयार करत आहे...",
+  "slashMenu": {
+    "board": {
+      "selectABoardToLinkTo": "लिंक करण्यासाठी बोर्ड निवडा",
+      "createANewBoard": "नवीन बोर्ड तयार करा"
+    },
+    "grid": {
+      "selectAGridToLinkTo": "लिंक करण्यासाठी ग्रिड निवडा",
+      "createANewGrid": "नवीन ग्रिड तयार करा"
+    },
+    "calendar": {
+      "selectACalendarToLinkTo": "लिंक करण्यासाठी दिनदर्शिका निवडा",
+      "createANewCalendar": "नवीन दिनदर्शिका तयार करा"
+    },
+    "document": {
+      "selectADocumentToLinkTo": "लिंक करण्यासाठी दस्तऐवज निवडा"
+    },
+    "name": {
+      "textStyle": "मजकुराची शैली",
+      "list": "यादी",
+      "toggle": "टॉगल",
+      "fileAndMedia": "फाईल व मीडिया",
+      "simpleTable": "सोपे टेबल",
+      "visuals": "दृश्य घटक",
+      "document": "दस्तऐवज",
+      "advanced": "प्रगत",
+      "text": "मजकूर",
+      "heading1": "शीर्षक 1",
+      "heading2": "शीर्षक 2",
+      "heading3": "शीर्षक 3",
+      "image": "प्रतिमा",
+      "bulletedList": "बुलेट यादी",
+      "numberedList": "क्रमांकित यादी",
+      "todoList": "करण्याची यादी",
+      "doc": "दस्तऐवज",
+      "linkedDoc": "पृष्ठाशी लिंक करा",
+      "grid": "ग्रिड",
+      "linkedGrid": "लिंक केलेला ग्रिड",
+      "kanban": "कानबन",
+      "linkedKanban": "लिंक केलेला कानबन",
+      "calendar": "दिनदर्शिका",
+      "linkedCalendar": "लिंक केलेली दिनदर्शिका",
+      "quote": "उद्धरण",
+      "divider": "विभाजक",
+      "table": "टेबल",
+      "callout": "महत्त्वाचा मजकूर",
+      "outline": "रूपरेषा",
+      "mathEquation": "गणिती समीकरण",
+      "code": "कोड",
+      "toggleList": "टॉगल यादी",
+      "toggleHeading1": "टॉगल शीर्षक 1",
+      "toggleHeading2": "टॉगल शीर्षक 2",
+      "toggleHeading3": "टॉगल शीर्षक 3",
+      "emoji": "इमोजी",
+      "aiWriter": "AI ला काहीही विचारा",
+      "dateOrReminder": "दिनांक किंवा स्मरणपत्र",
+      "photoGallery": "फोटो गॅलरी",
+      "file": "फाईल",
+      "twoColumns": "२ स्तंभ",
+      "threeColumns": "३ स्तंभ",
+      "fourColumns": "४ स्तंभ"
+    },
+    "subPage": {
+      "name": "दस्तऐवज",
+      "keyword1": "उपपृष्ठ",
+      "keyword2": "पृष्ठ",
+      "keyword3": "चाइल्ड पृष्ठ",
+      "keyword4": "पृष्ठ जोडा",
+      "keyword5": "एम्बेड पृष्ठ",
+      "keyword6": "नवीन पृष्ठ",
+      "keyword7": "पृष्ठ तयार करा",
+      "keyword8": "दस्तऐवज"
+    }
+  },
+  "selectionMenu": {
+    "outline": "रूपरेषा",
+    "codeBlock": "कोड ब्लॉक"
+  },
+  "plugins": {
+    "referencedBoard": "संदर्भित बोर्ड",
+    "referencedGrid": "संदर्भित ग्रिड",
+    "referencedCalendar": "संदर्भित दिनदर्शिका",
+    "referencedDocument": "संदर्भित दस्तऐवज",
+    "aiWriter": {
+      "userQuestion": "AI ला काहीही विचारा",
+      "continueWriting": "लेखन सुरू ठेवा",
+      "fixSpelling": "स्पेलिंग व व्याकरण सुधारणा",
+      "improveWriting": "लेखन सुधारित करा",
+      "summarize": "सारांश द्या",
+      "explain": "स्पष्टीकरण द्या",
+      "makeShorter": "लहान करा",
+      "makeLonger": "मोठे करा"
+    },
+      "autoGeneratorMenuItemName": "AI लेखक",
+"autoGeneratorTitleName": "AI: काहीही लिहिण्यासाठी AI ला विचारा...",
+"autoGeneratorLearnMore": "अधिक जाणून घ्या",
+"autoGeneratorGenerate": "उत्पन्न करा",
+"autoGeneratorHintText": "AI ला विचारा...",
+"autoGeneratorCantGetOpenAIKey": "AI की मिळवू शकलो नाही",
+"autoGeneratorRewrite": "पुन्हा लिहा",
+"smartEdit": "AI ला विचारा",
+"aI": "AI",
+"smartEditFixSpelling": "स्पेलिंग आणि व्याकरण सुधारा",
+"warning": "⚠️ AI उत्तरं चुकीची किंवा दिशाभूल करणारी असू शकतात.",
+"smartEditSummarize": "सारांश द्या",
+"smartEditImproveWriting": "लेखन सुधारित करा",
+"smartEditMakeLonger": "लांब करा",
+"smartEditCouldNotFetchResult": "AI कडून उत्तर मिळवता आले नाही",
+"smartEditCouldNotFetchKey": "AI की मिळवता आली नाही",
+"smartEditDisabled": "सेटिंग्जमध्ये AI कनेक्ट करा",
+"appflowyAIEditDisabled": "AI वैशिष्ट्ये सक्षम करण्यासाठी साइन इन करा",
+"discardResponse": "AI उत्तर फेकून द्यायचं आहे का?",
+"createInlineMathEquation": "समीकरण तयार करा",
+"fonts": "फॉन्ट्स",
+"insertDate": "तारीख जोडा",
+"emoji": "इमोजी",
+"toggleList": "टॉगल यादी",
+"emptyToggleHeading": "रिकामे टॉगल h{}. मजकूर जोडण्यासाठी क्लिक करा.",
+"emptyToggleList": "रिकामी टॉगल यादी. मजकूर जोडण्यासाठी क्लिक करा.",
+"emptyToggleHeadingWeb": "रिकामे टॉगल h{level}. मजकूर जोडण्यासाठी क्लिक करा",
+"quoteList": "उद्धरण यादी",
+"numberedList": "क्रमांकित यादी",
+"bulletedList": "बुलेट यादी",
+"todoList": "करण्याची यादी",
+"callout": "ठळक मजकूर",
+"simpleTable": {
+  "moreActions": {
+    "color": "रंग",
+    "align": "पंक्तिबद्ध करा",
+    "delete": "हटा",
+    "duplicate": "डुप्लिकेट करा",
+    "insertLeft": "डावीकडे घाला",
+    "insertRight": "उजवीकडे घाला",
+    "insertAbove": "वर घाला",
+    "insertBelow": "खाली घाला",
+    "headerColumn": "हेडर स्तंभ",
+    "headerRow": "हेडर ओळ",
+    "clearContents": "सामग्री साफ करा",
+    "setToPageWidth": "पृष्ठाच्या रुंदीप्रमाणे सेट करा",
+    "distributeColumnsWidth": "स्तंभ समान करा",
+    "duplicateRow": "ओळ डुप्लिकेट करा",
+    "duplicateColumn": "स्तंभ डुप्लिकेट करा",
+    "textColor": "मजकूराचा रंग",
+    "cellBackgroundColor": "सेलचा पार्श्वभूमी रंग",
+    "duplicateTable": "टेबल डुप्लिकेट करा"
+  },
+  "clickToAddNewRow": "नवीन ओळ जोडण्यासाठी क्लिक करा",
+  "clickToAddNewColumn": "नवीन स्तंभ जोडण्यासाठी क्लिक करा",
+  "clickToAddNewRowAndColumn": "नवीन ओळ आणि स्तंभ जोडण्यासाठी क्लिक करा",
+  "headerName": {
+    "table": "टेबल",
+    "alignText": "मजकूर पंक्तिबद्ध करा"
+  }
+},
+"cover": {
+  "changeCover": "कव्हर बदला",
+  "colors": "रंग",
+  "images": "प्रतिमा",
+  "clearAll": "सर्व साफ करा",
+  "abstract": "ऍबस्ट्रॅक्ट",
+  "addCover": "कव्हर जोडा",
+  "addLocalImage": "स्थानिक प्रतिमा जोडा",
+  "invalidImageUrl": "अवैध प्रतिमा URL",
+  "failedToAddImageToGallery": "प्रतिमा गॅलरीत जोडता आली नाही",
+  "enterImageUrl": "प्रतिमा URL लिहा",
+  "add": "जोडा",
+  "back": "मागे",
+  "saveToGallery": "गॅलरीत जतन करा",
+  "removeIcon": "आयकॉन काढा",
+  "removeCover": "कव्हर काढा",
+  "pasteImageUrl": "प्रतिमा URL पेस्ट करा",
+  "or": "किंवा",
+  "pickFromFiles": "फाईल्समधून निवडा",
+  "couldNotFetchImage": "प्रतिमा मिळवता आली नाही",
+  "imageSavingFailed": "प्रतिमा जतन करणे अयशस्वी",
+  "addIcon": "आयकॉन जोडा",
+  "changeIcon": "आयकॉन बदला",
+  "coverRemoveAlert": "हे हटवल्यानंतर कव्हरमधून काढले जाईल.",
+  "alertDialogConfirmation": "तुम्हाला खात्री आहे का? तुम्हाला पुढे जायचे आहे?"
+},
+"mathEquation": {
+  "name": "गणिती समीकरण",
+  "addMathEquation": "TeX समीकरण जोडा",
+  "editMathEquation": "गणिती समीकरण संपादित करा"
+},
+"optionAction": {
+  "click": "क्लिक",
+  "toOpenMenu": "मेनू उघडण्यासाठी",
+  "drag": "ओढा",
+  "toMove": "हलवण्यासाठी",
+  "delete": "हटा",
+  "duplicate": "डुप्लिकेट करा",
+  "turnInto": "मध्ये बदला",
+  "moveUp": "वर हलवा",
+  "moveDown": "खाली हलवा",
+  "color": "रंग",
+  "align": "पंक्तिबद्ध करा",
+  "left": "डावीकडे",
+  "center": "मध्यभागी",
+  "right": "उजवीकडे",
+  "defaultColor": "डिफॉल्ट",
+  "depth": "खोली",
+  "copyLinkToBlock": "ब्लॉकसाठी लिंक कॉपी करा"
+},
+      "image": {
+  "addAnImage": "प्रतिमा जोडा",
+  "copiedToPasteBoard": "प्रतिमेची लिंक क्लिपबोर्डवर कॉपी केली गेली आहे",
+  "addAnImageDesktop": "प्रतिमा जोडा",
+  "addAnImageMobile": "एक किंवा अधिक प्रतिमा जोडण्यासाठी क्लिक करा",
+  "dropImageToInsert": "प्रतिमा ड्रॉप करून जोडा",
+  "imageUploadFailed": "प्रतिमा अपलोड करण्यात अयशस्वी",
+  "imageDownloadFailed": "प्रतिमा डाउनलोड करण्यात अयशस्वी, कृपया पुन्हा प्रयत्न करा",
+  "imageDownloadFailedToken": "युजर टोकन नसल्यामुळे प्रतिमा डाउनलोड करण्यात अयशस्वी, कृपया पुन्हा प्रयत्न करा",
+  "errorCode": "त्रुटी कोड"
+},
+"photoGallery": {
+  "name": "फोटो गॅलरी",
+  "imageKeyword": "प्रतिमा",
+  "imageGalleryKeyword": "प्रतिमा गॅलरी",
+  "photoKeyword": "फोटो",
+  "photoBrowserKeyword": "फोटो ब्राउझर",
+  "galleryKeyword": "गॅलरी",
+  "addImageTooltip": "प्रतिमा जोडा",
+  "changeLayoutTooltip": "लेआउट बदला",
+  "browserLayout": "ब्राउझर",
+  "gridLayout": "ग्रिड",
+  "deleteBlockTooltip": "संपूर्ण गॅलरी हटवा"
+},
+"math": {
+  "copiedToPasteBoard": "समीकरण क्लिपबोर्डवर कॉपी केले गेले आहे"
+},
+"urlPreview": {
+  "copiedToPasteBoard": "लिंक क्लिपबोर्डवर कॉपी केली गेली आहे",
+  "convertToLink": "एंबेड लिंकमध्ये रूपांतर करा"
+},
+"outline": {
+  "addHeadingToCreateOutline": "सामग्री यादी तयार करण्यासाठी शीर्षके जोडा.",
+  "noMatchHeadings": "जुळणारी शीर्षके आढळली नाहीत."
+},
+"table": {
+  "addAfter": "नंतर जोडा",
+  "addBefore": "आधी जोडा",
+  "delete": "हटा",
+  "clear": "सामग्री साफ करा",
+  "duplicate": "डुप्लिकेट करा",
+  "bgColor": "पार्श्वभूमीचा रंग"
+},
+"contextMenu": {
+  "copy": "कॉपी करा",
+  "cut": "कापा",
+  "paste": "पेस्ट करा",
+  "pasteAsPlainText": "साध्या मजकूराच्या स्वरूपात पेस्ट करा"
+},
+"action": "कृती",
+"database": {
+  "selectDataSource": "डेटा स्रोत निवडा",
+  "noDataSource": "डेटा स्रोत नाही",
+  "selectADataSource": "डेटा स्रोत निवडा",
+  "toContinue": "पुढे जाण्यासाठी",
+  "newDatabase": "नवीन डेटाबेस",
+  "linkToDatabase": "डेटाबेसशी लिंक करा"
+},
+"date": "तारीख",
+"video": {
+  "label": "व्हिडिओ",
+  "emptyLabel": "व्हिडिओ जोडा",
+  "placeholder": "व्हिडिओ लिंक पेस्ट करा",
+  "copiedToPasteBoard": "व्हिडिओ लिंक क्लिपबोर्डवर कॉपी केली गेली आहे",
+  "insertVideo": "व्हिडिओ जोडा",
+  "invalidVideoUrl": "ही URL सध्या समर्थित नाही.",
+  "invalidVideoUrlYouTube": "YouTube सध्या समर्थित नाही.",
+  "supportedFormats": "समर्थित स्वरूप: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+},
+"file": {
+  "name": "फाईल",
+  "uploadTab": "अपलोड",
+  "uploadMobile": "फाईल निवडा",
+  "uploadMobileGallery": "फोटो गॅलरीमधून",
+  "networkTab": "लिंक एम्बेड करा",
+  "placeholderText": "फाईल अपलोड किंवा एम्बेड करा",
+  "placeholderDragging": "फाईल ड्रॉप करून अपलोड करा",
+  "dropFileToUpload": "फाईल ड्रॉप करून अपलोड करा",
+  "fileUploadHint": "फाईल ड्रॅग आणि ड्रॉप करा किंवा क्लिक करा ",
+  "fileUploadHintSuffix": "ब्राउझ करा",
+  "networkHint": "फाईल लिंक पेस्ट करा",
+  "networkUrlInvalid": "अवैध URL. कृपया तपासा आणि पुन्हा प्रयत्न करा.",
+  "networkAction": "एम्बेड",
+  "fileTooBigError": "फाईल खूप मोठी आहे, कृपया 10MB पेक्षा कमी फाईल अपलोड करा",
+  "renameFile": {
+    "title": "फाईलचे नाव बदला",
+    "description": "या फाईलसाठी नवीन नाव लिहा",
+    "nameEmptyError": "फाईलचे नाव रिकामे असू शकत नाही."
+  },
+  "uploadedAt": "{} रोजी अपलोड केले",
+  "linkedAt": "{} रोजी लिंक जोडली",
+  "failedToOpenMsg": "उघडण्यात अयशस्वी, फाईल सापडली नाही"
+},
+"subPage": {
+  "handlingPasteHint": " - (पेस्ट प्रक्रिया करत आहे)",
+  "errors": {
+    "failedDeletePage": "पृष्ठ हटवण्यात अयशस्वी",
+    "failedCreatePage": "पृष्ठ तयार करण्यात अयशस्वी",
+    "failedMovePage": "हे पृष्ठ हलवण्यात अयशस्वी",
+    "failedDuplicatePage": "पृष्ठ डुप्लिकेट करण्यात अयशस्वी",
+    "failedDuplicateFindView": "पृष्ठ डुप्लिकेट करण्यात अयशस्वी - मूळ दृश्य सापडले नाही"
+  }
+},
+     "cannotMoveToItsChildren": "मुलांमध्ये हलवू शकत नाही"
+},
+"outlineBlock": {
+  "placeholder": "सामग्री सूची"
+},
+"textBlock": {
+  "placeholder": "कमांडसाठी '/' टाइप करा"
+},
+"title": {
+  "placeholder": "शीर्षक नाही"
+},
+"imageBlock": {
+  "placeholder": "प्रतिमा जोडण्यासाठी क्लिक करा",
+  "upload": {
+    "label": "अपलोड",
+    "placeholder": "प्रतिमा अपलोड करण्यासाठी क्लिक करा"
+  },
+  "url": {
+    "label": "प्रतिमेची URL",
+    "placeholder": "प्रतिमेची URL टाका"
+  },
+  "ai": {
+    "label": "AI द्वारे प्रतिमा तयार करा",
+    "placeholder": "AI द्वारे प्रतिमा तयार करण्यासाठी कृपया संकेत द्या"
+  },
+  "stability_ai": {
+    "label": "Stability AI द्वारे प्रतिमा तयार करा",
+    "placeholder": "Stability AI द्वारे प्रतिमा तयार करण्यासाठी कृपया संकेत द्या"
+  },
+  "support": "प्रतिमेचा कमाल आकार 5MB आहे. समर्थित स्वरूप: JPEG, PNG, GIF, SVG",
+  "error": {
+    "invalidImage": "अवैध प्रतिमा",
+    "invalidImageSize": "प्रतिमेचा आकार 5MB पेक्षा कमी असावा",
+    "invalidImageFormat": "प्रतिमेचे स्वरूप समर्थित नाही. समर्थित स्वरूप: JPEG, PNG, JPG, GIF, SVG, WEBP",
+    "invalidImageUrl": "अवैध प्रतिमेची URL",
+    "noImage": "अशी फाईल किंवा निर्देशिका नाही",
+    "multipleImagesFailed": "एक किंवा अधिक प्रतिमा अपलोड करण्यात अयशस्वी, कृपया पुन्हा प्रयत्न करा"
+  },
+  "embedLink": {
+    "label": "लिंक एम्बेड करा",
+    "placeholder": "प्रतिमेची लिंक पेस्ट करा किंवा टाका"
+  },
+  "unsplash": {
+    "label": "Unsplash"
+  },
+  "searchForAnImage": "प्रतिमा शोधा",
+  "pleaseInputYourOpenAIKey": "कृपया सेटिंग्ज पृष्ठात आपला AI की प्रविष्ट करा",
+  "saveImageToGallery": "प्रतिमा जतन करा",
+  "failedToAddImageToGallery": "प्रतिमा जतन करण्यात अयशस्वी",
+  "successToAddImageToGallery": "प्रतिमा 'Photos' मध्ये जतन केली",
+  "unableToLoadImage": "प्रतिमा लोड करण्यात अयशस्वी",
+  "maximumImageSize": "कमाल प्रतिमा अपलोड आकार 10MB आहे",
+  "uploadImageErrorImageSizeTooBig": "प्रतिमेचा आकार 10MB पेक्षा कमी असावा",
+  "imageIsUploading": "प्रतिमा अपलोड होत आहे",
+  "openFullScreen": "पूर्ण स्क्रीनमध्ये उघडा",
+  "interactiveViewer": {
+    "toolbar": {
+      "previousImageTooltip": "मागील प्रतिमा",
+      "nextImageTooltip": "पुढील प्रतिमा",
+      "zoomOutTooltip": "लहान करा",
+      "zoomInTooltip": "मोठी करा",
+      "changeZoomLevelTooltip": "झूम पातळी बदला",
+      "openLocalImage": "प्रतिमा उघडा",
+      "downloadImage": "प्रतिमा डाउनलोड करा",
+      "closeViewer": "इंटरअॅक्टिव्ह व्ह्युअर बंद करा",
+      "scalePercentage": "{}%",
+      "deleteImageTooltip": "प्रतिमा हटवा"
+    }
+  }
+},
+    "codeBlock": {
+  "language": {
+    "label": "भाषा",
+    "placeholder": "भाषा निवडा",
+    "auto": "स्वयंचलित"
+  },
+  "copyTooltip": "कॉपी करा",
+  "searchLanguageHint": "भाषा शोधा",
+  "codeCopiedSnackbar": "कोड क्लिपबोर्डवर कॉपी झाला!"
+},
+"inlineLink": {
+  "placeholder": "लिंक पेस्ट करा किंवा टाका",
+  "openInNewTab": "नवीन टॅबमध्ये उघडा",
+  "copyLink": "लिंक कॉपी करा",
+  "removeLink": "लिंक काढा",
+  "url": {
+    "label": "लिंक URL",
+    "placeholder": "लिंक URL टाका"
+  },
+  "title": {
+    "label": "लिंक शीर्षक",
+    "placeholder": "लिंक शीर्षक टाका"
+  }
+},
+"mention": {
+  "placeholder": "कोणीतरी, पृष्ठ किंवा तारीख नमूद करा...",
+  "page": {
+    "label": "पृष्ठाला लिंक करा",
+    "tooltip": "पृष्ठ उघडण्यासाठी क्लिक करा"
+  },
+  "deleted": "हटवले गेले",
+  "deletedContent": "ही सामग्री अस्तित्वात नाही किंवा हटवण्यात आली आहे",
+  "noAccess": "प्रवेश नाही",
+  "deletedPage": "हटवलेले पृष्ठ",
+  "trashHint": " - ट्रॅशमध्ये",
+  "morePages": "अजून पृष्ठे"
+},
+"toolbar": {
+  "resetToDefaultFont": "डीफॉल्ट फॉन्टवर परत जा",
+  "textSize": "मजकूराचा आकार",
+  "textColor": "मजकूराचा रंग",
+  "h1": "मथळा 1",
+  "h2": "मथळा 2",
+  "h3": "मथळा 3",
+  "alignLeft": "डावीकडे संरेखित करा",
+  "alignRight": "उजवीकडे संरेखित करा",
+  "alignCenter": "मध्यभागी संरेखित करा",
+  "link": "लिंक",
+  "textAlign": "मजकूर संरेखन",
+  "moreOptions": "अधिक पर्याय",
+  "font": "फॉन्ट",
+  "inlineCode": "इनलाइन कोड",
+  "suggestions": "सूचना",
+  "turnInto": "मध्ये रूपांतरित करा",
+  "equation": "समीकरण",
+  "insert": "घाला",
+  "linkInputHint": "लिंक पेस्ट करा किंवा पृष्ठे शोधा",
+  "pageOrURL": "पृष्ठ किंवा URL",
+  "linkName": "लिंकचे नाव",
+  "linkNameHint": "लिंकचे नाव प्रविष्ट करा"
+},
+"errorBlock": {
+  "theBlockIsNotSupported": "ब्लॉक सामग्री पार्स करण्यात अक्षम",
+  "clickToCopyTheBlockContent": "ब्लॉक सामग्री कॉपी करण्यासाठी क्लिक करा",
+  "blockContentHasBeenCopied": "ब्लॉक सामग्री कॉपी केली आहे.",
+  "parseError": "{} ब्लॉक पार्स करताना त्रुटी आली.",
+  "copyBlockContent": "ब्लॉक सामग्री कॉपी करा"
+},
+"mobilePageSelector": {
+  "title": "पृष्ठ निवडा",
+  "failedToLoad": "पृष्ठ यादी लोड करण्यात अयशस्वी",
+  "noPagesFound": "कोणतीही पृष्ठे सापडली नाहीत"
+},
+"attachmentMenu": {
+  "choosePhoto": "फोटो निवडा",
+  "takePicture": "फोटो काढा",
+  "chooseFile": "फाईल निवडा"
+  }
+  },
+  "board": {
+  "column": {
+    "label": "स्तंभ",
+    "createNewCard": "नवीन",
+    "renameGroupTooltip": "गटाचे नाव बदलण्यासाठी क्लिक करा",
+    "createNewColumn": "नवीन गट जोडा",
+    "addToColumnTopTooltip": "वर नवीन कार्ड जोडा",
+    "addToColumnBottomTooltip": "खाली नवीन कार्ड जोडा",
+    "renameColumn": "स्तंभाचे नाव बदला",
+    "hideColumn": "लपवा",
+    "newGroup": "नवीन गट",
+    "deleteColumn": "हटवा",
+    "deleteColumnConfirmation": "हा गट आणि त्यामधील सर्व कार्ड्स हटवले जातील. तुम्हाला खात्री आहे का?"
+  },
+  "hiddenGroupSection": {
+    "sectionTitle": "लपवलेले गट",
+    "collapseTooltip": "लपवलेले गट लपवा",
+    "expandTooltip": "लपवलेले गट पाहा"
+  },
+  "cardDetail": "कार्ड तपशील",
+  "cardActions": "कार्ड क्रिया",
+  "cardDuplicated": "कार्डची प्रत तयार झाली",
+  "cardDeleted": "कार्ड हटवले गेले",
+  "showOnCard": "कार्ड तपशिलावर दाखवा",
+  "setting": "सेटिंग",
+  "propertyName": "गुणधर्माचे नाव",
+  "menuName": "बोर्ड",
+  "showUngrouped": "गटात नसलेली कार्ड्स दाखवा",
+  "ungroupedButtonText": "गट नसलेली",
+  "ungroupedButtonTooltip": "ज्या कार्ड्स कोणत्याही गटात नाहीत",
+  "ungroupedItemsTitle": "बोर्डमध्ये जोडण्यासाठी क्लिक करा",
+  "groupBy": "या आधारावर गट करा",
+  "groupCondition": "गट स्थिती",
+  "referencedBoardPrefix": "याचे दृश्य",
+  "notesTooltip": "नोट्स आहेत",
+  "mobile": {
+    "editURL": "URL संपादित करा",
+    "showGroup": "गट दाखवा",
+    "showGroupContent": "हा गट बोर्डवर दाखवायचा आहे का?",
+    "failedToLoad": "बोर्ड दृश्य लोड होण्यात अयशस्वी"
+  },
+  "dateCondition": {
+    "weekOf": "{} - {} ची आठवडा",
+    "today": "आज",
+    "yesterday": "काल",
+    "tomorrow": "उद्या",
+    "lastSevenDays": "शेवटचे ७ दिवस",
+    "nextSevenDays": "पुढील ७ दिवस",
+    "lastThirtyDays": "शेवटचे ३० दिवस",
+    "nextThirtyDays": "पुढील ३० दिवस"
+  },
+  "noGroup": "गटासाठी कोणताही गुणधर्म निवडलेला नाही",
+  "noGroupDesc": "बोर्ड दृश्य दाखवण्यासाठी गट करण्याचा एक गुणधर्म आवश्यक आहे",
+  "media": {
+    "cardText": "{} {}",
+    "fallbackName": "फायली"
+  }
+},
+  "calendar": {
+  "menuName": "कॅलेंडर",
+  "defaultNewCalendarTitle": "नाव नाही",
+  "newEventButtonTooltip": "नवीन इव्हेंट जोडा",
+  "navigation": {
+    "today": "आज",
+    "jumpToday": "आजवर जा",
+    "previousMonth": "मागील महिना",
+    "nextMonth": "पुढील महिना",
+    "views": {
+      "day": "दिवस",
+      "week": "आठवडा",
+      "month": "महिना",
+      "year": "वर्ष"
+    }
+  },
+  "mobileEventScreen": {
+    "emptyTitle": "सध्या कोणतेही इव्हेंट नाहीत",
+    "emptyBody": "या दिवशी इव्हेंट तयार करण्यासाठी प्लस बटणावर क्लिक करा."
+  },
+  "settings": {
+    "showWeekNumbers": "आठवड्याचे क्रमांक दाखवा",
+    "showWeekends": "सप्ताहांत दाखवा",
+    "firstDayOfWeek": "आठवड्याची सुरुवात",
+    "layoutDateField": "कॅलेंडर मांडणी दिनांकानुसार",
+    "changeLayoutDateField": "मांडणी फील्ड बदला",
+    "noDateTitle": "तारीख नाही",
+    "noDateHint": {
+      "zero": "नियोजित नसलेली इव्हेंट्स येथे दिसतील",
+      "one": "{count} नियोजित नसलेली इव्हेंट",
+      "other": "{count} नियोजित नसलेल्या इव्हेंट्स"
+    },
+    "unscheduledEventsTitle": "नियोजित नसलेल्या इव्हेंट्स",
+    "clickToAdd": "कॅलेंडरमध्ये जोडण्यासाठी क्लिक करा",
+    "name": "कॅलेंडर सेटिंग्ज",
+    "clickToOpen": "रेकॉर्ड उघडण्यासाठी क्लिक करा"
+  },
+  "referencedCalendarPrefix": "याचे दृश्य",
+  "quickJumpYear": "या वर्षावर जा",
+  "duplicateEvent": "इव्हेंट डुप्लिकेट करा"
+},
+  "errorDialog": {
+  "title": "@:appName त्रुटी",
+  "howToFixFallback": "या गैरसोयीबद्दल आम्ही दिलगीर आहोत! कृपया GitHub पेजवर त्रुटीबद्दल माहिती देणारे एक issue सबमिट करा.",
+  "howToFixFallbackHint1": "या गैरसोयीबद्दल आम्ही दिलगीर आहोत! कृपया ",
+  "howToFixFallbackHint2": " पेजवर त्रुटीचे वर्णन करणारे issue सबमिट करा.",
+  "github": "GitHub वर पहा"
+},
+"search": {
+  "label": "शोध",
+  "sidebarSearchIcon": "पृष्ठ शोधा आणि पटकन जा",
+  "placeholder": {
+    "actions": "कृती शोधा..."
+  }
+},
+"message": {
+  "copy": {
+    "success": "कॉपी झाले!",
+    "fail": "कॉपी करू शकत नाही"
+  }
+},
+"unSupportBlock": "सध्याचा व्हर्जन या ब्लॉकला समर्थन देत नाही.",
+"views": {
+  "deleteContentTitle": "तुम्हाला हे {pageType} हटवायचे आहे का?",
+  "deleteContentCaption": "हे {pageType} हटवल्यास, तुम्ही ते trash मधून पुनर्संचयित करू शकता."
+},
+  "colors": {
+  "custom": "सानुकूल",
+  "default": "डीफॉल्ट",
+  "red": "लाल",
+  "orange": "संत्रा",
+  "yellow": "पिवळा",
+  "green": "हिरवा",
+  "blue": "निळा",
+  "purple": "जांभळा",
+  "pink": "गुलाबी",
+  "brown": "तपकिरी",
+  "gray": "करड्या रंगाचा"
+},
+  "emoji": {
+  "emojiTab": "इमोजी",
+  "search": "इमोजी शोधा",
+  "noRecent": "अलीकडील कोणतेही इमोजी नाहीत",
+  "noEmojiFound": "कोणतेही इमोजी सापडले नाहीत",
+  "filter": "फिल्टर",
+  "random": "योगायोगाने",
+  "selectSkinTone": "त्वचेचा टोन निवडा",
+  "remove": "इमोजी काढा",
+  "categories": {
+    "smileys": "स्मायली आणि भावना",
+    "people": "लोक",
+    "animals": "प्राणी आणि निसर्ग",
+    "food": "अन्न",
+    "activities": "क्रिया",
+    "places": "स्थळे",
+    "objects": "वस्तू",
+    "symbols": "चिन्हे",
+    "flags": "ध्वज",
+    "nature": "निसर्ग",
+    "frequentlyUsed": "नेहमी वापरलेले"
+  },
+  "skinTone": {
+    "default": "डीफॉल्ट",
+    "light": "हलका",
+    "mediumLight": "मध्यम-हलका",
+    "medium": "मध्यम",
+    "mediumDark": "मध्यम-गडद",
+    "dark": "गडद"
+  },
+  "openSourceIconsFrom": "खुल्या स्रोताचे आयकॉन्स"
+},
+  "inlineActions": {
+  "noResults": "निकाल नाही",
+  "recentPages": "अलीकडील पृष्ठे",
+  "pageReference": "पृष्ठ संदर्भ",
+  "docReference": "दस्तऐवज संदर्भ",
+  "boardReference": "बोर्ड संदर्भ",
+  "calReference": "कॅलेंडर संदर्भ",
+  "gridReference": "ग्रिड संदर्भ",
+  "date": "तारीख",
+  "reminder": {
+    "groupTitle": "स्मरणपत्र",
+    "shortKeyword": "remind"
+  },
+  "createPage": "\"{}\" उप-पृष्ठ तयार करा"
+},
+  "datePicker": {
+  "dateTimeFormatTooltip": "सेटिंग्जमध्ये तारीख आणि वेळ फॉरमॅट बदला",
+  "dateFormat": "तारीख फॉरमॅट",
+  "includeTime": "वेळ समाविष्ट करा",
+  "isRange": "शेवटची तारीख",
+  "timeFormat": "वेळ फॉरमॅट",
+  "clearDate": "तारीख साफ करा",
+  "reminderLabel": "स्मरणपत्र",
+  "selectReminder": "स्मरणपत्र निवडा",
+  "reminderOptions": {
+    "none": "काहीही नाही",
+    "atTimeOfEvent": "इव्हेंटच्या वेळी",
+    "fiveMinsBefore": "५ मिनिटे आधी",
+    "tenMinsBefore": "१० मिनिटे आधी",
+    "fifteenMinsBefore": "१५ मिनिटे आधी",
+    "thirtyMinsBefore": "३० मिनिटे आधी",
+    "oneHourBefore": "१ तास आधी",
+    "twoHoursBefore": "२ तास आधी",
+    "onDayOfEvent": "इव्हेंटच्या दिवशी",
+    "oneDayBefore": "१ दिवस आधी",
+    "twoDaysBefore": "२ दिवस आधी",
+    "oneWeekBefore": "१ आठवडा आधी",
+    "custom": "सानुकूल"
+  }
+},
+  "relativeDates": {
+  "yesterday": "काल",
+  "today": "आज",
+  "tomorrow": "उद्या",
+  "oneWeek": "१ आठवडा"
+},
+  "notificationHub": {
+  "title": "सूचना",
+  "mobile": {
+    "title": "अपडेट्स"
+  },
+  "emptyTitle": "सर्व पूर्ण झाले!",
+  "emptyBody": "कोणतीही प्रलंबित सूचना किंवा कृती नाहीत. शांततेचा आनंद घ्या.",
+  "tabs": {
+    "inbox": "इनबॉक्स",
+    "upcoming": "आगामी"
+  },
+  "actions": {
+    "markAllRead": "सर्व वाचलेल्या म्हणून चिन्हित करा",
+    "showAll": "सर्व",
+    "showUnreads": "न वाचलेल्या"
+  },
+  "filters": {
+    "ascending": "आरोही",
+    "descending": "अवरोही",
+    "groupByDate": "तारीखेनुसार गटबद्ध करा",
+    "showUnreadsOnly": "फक्त न वाचलेल्या दाखवा",
+    "resetToDefault": "डीफॉल्टवर रीसेट करा"
+  }
+},
+  "reminderNotification": {
+  "title": "स्मरणपत्र",
+  "message": "तुम्ही विसरण्याआधी हे तपासण्याचे लक्षात ठेवा!",
+  "tooltipDelete": "हटवा",
+  "tooltipMarkRead": "वाचले म्हणून चिन्हित करा",
+  "tooltipMarkUnread": "न वाचले म्हणून चिन्हित करा"
+},
+  "findAndReplace": {
+  "find": "शोधा",
+  "previousMatch": "मागील जुळणारे",
+  "nextMatch": "पुढील जुळणारे",
+  "close": "बंद करा",
+  "replace": "बदला",
+  "replaceAll": "सर्व बदला",
+  "noResult": "कोणतेही निकाल नाहीत",
+  "caseSensitive": "केस सेंसिटिव्ह",
+  "searchMore": "अधिक निकालांसाठी शोधा"
+},
+  "error": {
+  "weAreSorry": "आम्ही क्षमस्व आहोत",
+  "loadingViewError": "हे दृश्य लोड करण्यात अडचण येत आहे. कृपया तुमचे इंटरनेट कनेक्शन तपासा, अ‍ॅप रीफ्रेश करा, आणि समस्या कायम असल्यास आमच्याशी संपर्क साधा.",
+  "syncError": "इतर डिव्हाइसमधून डेटा सिंक झाला नाही",
+  "syncErrorHint": "कृपया हे पृष्ठ शेवटचे जिथे संपादित केले होते त्या डिव्हाइसवर उघडा, आणि मग सध्याच्या डिव्हाइसवर पुन्हा उघडा.",
+  "clickToCopy": "एरर कोड कॉपी करण्यासाठी क्लिक करा"
+},
+  "editor": {
+  "bold": "जाड",
+  "bulletedList": "बुलेट यादी",
+  "bulletedListShortForm": "बुलेट",
+  "checkbox": "चेकबॉक्स",
+  "embedCode": "कोड एम्बेड करा",
+  "heading1": "H1",
+  "heading2": "H2",
+  "heading3": "H3",
+  "highlight": "हायलाइट",
+  "color": "रंग",
+  "image": "प्रतिमा",
+  "date": "तारीख",
+  "page": "पृष्ठ",
+  "italic": "तिरका",
+  "link": "लिंक",
+  "numberedList": "क्रमांकित यादी",
+  "numberedListShortForm": "क्रमांकित",
+  "toggleHeading1ShortForm": "Toggle H1",
+  "toggleHeading2ShortForm": "Toggle H2",
+  "toggleHeading3ShortForm": "Toggle H3",
+  "quote": "कोट",
+  "strikethrough": "ओढून टाका",
+  "text": "मजकूर",
+  "underline": "अधोरेखित",
+  "fontColorDefault": "डीफॉल्ट",
+  "fontColorGray": "धूसर",
+  "fontColorBrown": "तपकिरी",
+  "fontColorOrange": "केशरी",
+  "fontColorYellow": "पिवळा",
+  "fontColorGreen": "हिरवा",
+  "fontColorBlue": "निळा",
+  "fontColorPurple": "जांभळा",
+  "fontColorPink": "पिंग",
+  "fontColorRed": "लाल",
+  "backgroundColorDefault": "डीफॉल्ट पार्श्वभूमी",
+  "backgroundColorGray": "धूसर पार्श्वभूमी",
+  "backgroundColorBrown": "तपकिरी पार्श्वभूमी",
+  "backgroundColorOrange": "केशरी पार्श्वभूमी",
+  "backgroundColorYellow": "पिवळी पार्श्वभूमी",
+  "backgroundColorGreen": "हिरवी पार्श्वभूमी",
+  "backgroundColorBlue": "निळी पार्श्वभूमी",
+  "backgroundColorPurple": "जांभळी पार्श्वभूमी",
+  "backgroundColorPink": "पिंग पार्श्वभूमी",
+  "backgroundColorRed": "लाल पार्श्वभूमी",
+  "backgroundColorLime": "लिंबू पार्श्वभूमी",
+  "backgroundColorAqua": "पाण्याचा पार्श्वभूमी",
+  "done": "पूर्ण",
+  "cancel": "रद्द करा",
+  "tint1": "टिंट 1",
+  "tint2": "टिंट 2",
+  "tint3": "टिंट 3",
+  "tint4": "टिंट 4",
+  "tint5": "टिंट 5",
+  "tint6": "टिंट 6",
+  "tint7": "टिंट 7",
+  "tint8": "टिंट 8",
+  "tint9": "टिंट 9",
+  "lightLightTint1": "जांभळा",
+  "lightLightTint2": "पिंग",
+  "lightLightTint3": "फिकट पिंग",
+  "lightLightTint4": "केशरी",
+  "lightLightTint5": "पिवळा",
+  "lightLightTint6": "लिंबू",
+  "lightLightTint7": "हिरवा",
+  "lightLightTint8": "पाणी",
+  "lightLightTint9": "निळा",
+  "urlHint": "URL",
+  "mobileHeading1": "Heading 1",
+  "mobileHeading2": "Heading 2",
+  "mobileHeading3": "Heading 3",
+  "mobileHeading4": "Heading 4",
+  "mobileHeading5": "Heading 5",
+  "mobileHeading6": "Heading 6",
+  "textColor": "मजकूराचा रंग",
+  "backgroundColor": "पार्श्वभूमीचा रंग",
+  "addYourLink": "तुमची लिंक जोडा",
+  "openLink": "लिंक उघडा",
+  "copyLink": "लिंक कॉपी करा",
+  "removeLink": "लिंक काढा",
+  "editLink": "लिंक संपादित करा",
+  "linkText": "मजकूर",
+  "linkTextHint": "कृपया मजकूर प्रविष्ट करा",
+  "linkAddressHint": "कृपया URL प्रविष्ट करा",
+  "highlightColor": "हायलाइट रंग",
+  "clearHighlightColor": "हायलाइट काढा",
+  "customColor": "स्वतःचा रंग",
+  "hexValue": "Hex मूल्य",
+  "opacity": "अपारदर्शकता",
+  "resetToDefaultColor": "डीफॉल्ट रंगावर रीसेट करा",
+  "ltr": "LTR",
+  "rtl": "RTL",
+  "auto": "स्वयंचलित",
+  "cut": "कट",
+  "copy": "कॉपी",
+  "paste": "पेस्ट",
+  "find": "शोधा",
+  "select": "निवडा",
+  "selectAll": "सर्व निवडा",
+  "previousMatch": "मागील जुळणारे",
+  "nextMatch": "पुढील जुळणारे",
+  "closeFind": "बंद करा",
+  "replace": "बदला",
+  "replaceAll": "सर्व बदला",
+  "regex": "Regex",
+  "caseSensitive": "केस सेंसिटिव्ह",
+  "uploadImage": "प्रतिमा अपलोड करा",
+  "urlImage": "URL प्रतिमा",
+  "incorrectLink": "चुकीची लिंक",
+  "upload": "अपलोड",
+  "chooseImage": "प्रतिमा निवडा",
+  "loading": "लोड करत आहे",
+  "imageLoadFailed": "प्रतिमा लोड करण्यात अयशस्वी",
+  "divider": "विभाजक",
+  "table": "तक्त्याचे स्वरूप",
+  "colAddBefore": "यापूर्वी स्तंभ जोडा",
+  "rowAddBefore": "यापूर्वी पंक्ती जोडा",
+  "colAddAfter": "यानंतर स्तंभ जोडा",
+  "rowAddAfter": "यानंतर पंक्ती जोडा",
+  "colRemove": "स्तंभ काढा",
+  "rowRemove": "पंक्ती काढा",
+  "colDuplicate": "स्तंभ डुप्लिकेट",
+  "rowDuplicate": "पंक्ती डुप्लिकेट",
+  "colClear": "सामग्री साफ करा",
+  "rowClear": "सामग्री साफ करा",
+  "slashPlaceHolder": "'/' टाइप करा आणि घटक जोडा किंवा टाइप सुरू करा",
+  "typeSomething": "काहीतरी लिहा...",
+  "toggleListShortForm": "टॉगल",
+  "quoteListShortForm": "कोट",
+  "mathEquationShortForm": "सूत्र",
+  "codeBlockShortForm": "कोड"
+},
+  "favorite": {
+  "noFavorite": "कोणतेही आवडते पृष्ठ नाही",
+  "noFavoriteHintText": "पृष्ठाला डावीकडे स्वाइप करा आणि ते आवडत्या यादीत जोडा",
+  "removeFromSidebar": "साइडबारमधून काढा",
+  "addToSidebar": "साइडबारमध्ये पिन करा"
+},
+"cardDetails": {
+  "notesPlaceholder": "/ टाइप करा ब्लॉक घालण्यासाठी, किंवा टाइप करायला सुरुवात करा"
+},
+"blockPlaceholders": {
+  "todoList": "करण्याची यादी",
+  "bulletList": "यादी",
+  "numberList": "क्रमांकित यादी",
+  "quote": "कोट",
+  "heading": "मथळा {}"
+},
+"titleBar": {
+  "pageIcon": "पृष्ठ चिन्ह",
+  "language": "भाषा",
+  "font": "फॉन्ट",
+  "actions": "क्रिया",
+  "date": "तारीख",
+  "addField": "फील्ड जोडा",
+  "userIcon": "वापरकर्त्याचे चिन्ह"
+},
+"noLogFiles": "कोणतीही लॉग फाइल्स नाहीत",
+"newSettings": {
+  "myAccount": {
+    "title": "माझे खाते",
+    "subtitle": "तुमचा प्रोफाइल सानुकूल करा, खाते सुरक्षा व्यवस्थापित करा, AI कीज पहा किंवा लॉगिन करा.",
+    "profileLabel": "खाते नाव आणि प्रोफाइल चित्र",
+    "profileNamePlaceholder": "तुमचे नाव प्रविष्ट करा",
+    "accountSecurity": "खाते सुरक्षा",
+    "2FA": "2-स्टेप प्रमाणीकरण",
+    "aiKeys": "AI कीज",
+    "accountLogin": "खाते लॉगिन",
+    "updateNameError": "नाव अपडेट करण्यात अयशस्वी",
+    "updateIconError": "चिन्ह अपडेट करण्यात अयशस्वी",
+    "aboutAppFlowy": "@:appName विषयी",
+    "deleteAccount": {
+      "title": "खाते हटवा",
+      "subtitle": "तुमचे खाते आणि सर्व डेटा कायमचे हटवा.",
+      "description": "तुमचे खाते कायमचे हटवले जाईल आणि सर्व वर्कस्पेसमधून प्रवेश काढून टाकला जाईल.",
+      "deleteMyAccount": "माझे खाते हटवा",
+      "dialogTitle": "खाते हटवा",
+      "dialogContent1": "तुम्हाला खात्री आहे की तुम्ही तुमचे खाते कायमचे हटवू इच्छिता?",
+      "dialogContent2": "ही क्रिया पूर्ववत केली जाऊ शकत नाही. हे सर्व वर्कस्पेसमधून प्रवेश हटवेल, खाजगी वर्कस्पेस मिटवेल, आणि सर्व शेअर्ड वर्कस्पेसमधून काढून टाकेल.",
+      "confirmHint1": "कृपया पुष्टीसाठी \"@:newSettings.myAccount.deleteAccount.confirmHint3\" टाइप करा.",
+      "confirmHint2": "मला समजले आहे की ही क्रिया अपरिवर्तनीय आहे आणि माझे खाते व सर्व संबंधित डेटा कायमचा हटवला जाईल.",
+      "confirmHint3": "DELETE MY ACCOUNT",
+      "checkToConfirmError": "हटवण्यासाठी पुष्टी बॉक्स निवडणे आवश्यक आहे",
+      "failedToGetCurrentUser": "वर्तमान वापरकर्त्याचा ईमेल मिळवण्यात अयशस्वी",
+      "confirmTextValidationFailed": "तुमचा पुष्टी मजकूर \"@:newSettings.myAccount.deleteAccount.confirmHint3\" शी जुळत नाही",
+      "deleteAccountSuccess": "खाते यशस्वीरित्या हटवले गेले"
+    }
+  },
+  "workplace": {
+    "name": "वर्कस्पेस",
+    "title": "वर्कस्पेस सेटिंग्स",
+    "subtitle": "तुमचा वर्कस्पेस लुक, थीम, फॉन्ट, मजकूर लेआउट, तारीख, वेळ आणि भाषा सानुकूल करा.",
+    "workplaceName": "वर्कस्पेसचे नाव",
+    "workplaceNamePlaceholder": "वर्कस्पेसचे नाव टाका",
+    "workplaceIcon": "वर्कस्पेस चिन्ह",
+    "workplaceIconSubtitle": "एक प्रतिमा अपलोड करा किंवा इमोजी वापरा. हे साइडबार आणि सूचना मध्ये दर्शवले जाईल.",
+    "renameError": "वर्कस्पेसचे नाव बदलण्यात अयशस्वी",
+    "updateIconError": "चिन्ह अपडेट करण्यात अयशस्वी",
+    "chooseAnIcon": "चिन्ह निवडा",
+    "appearance": {
+      "name": "दृश्यरूप",
+      "themeMode": {
+        "auto": "स्वयंचलित",
+        "light": "प्रकाश मोड",
+        "dark": "गडद मोड"
+      },
+      "language": "भाषा"
+    }
+  },
+  "syncState": {
+    "syncing": "सिंक्रोनायझ करत आहे",
+    "synced": "सिंक्रोनायझ झाले",
+    "noNetworkConnected": "नेटवर्क कनेक्ट केलेले नाही"
+  }
+},
+  "pageStyle": {
+  "title": "पृष्ठ शैली",
+  "layout": "लेआउट",
+  "coverImage": "मुखपृष्ठ प्रतिमा",
+  "pageIcon": "पृष्ठ चिन्ह",
+  "colors": "रंग",
+  "gradient": "ग्रेडियंट",
+  "backgroundImage": "पार्श्वभूमी प्रतिमा",
+  "presets": "पूर्वनियोजित",
+  "photo": "फोटो",
+  "unsplash": "Unsplash",
+  "pageCover": "पृष्ठ कव्हर",
+  "none": "काही नाही",
+  "openSettings": "सेटिंग्स उघडा",
+  "photoPermissionTitle": "@:appName तुमच्या फोटो लायब्ररीमध्ये प्रवेश करू इच्छित आहे",
+  "photoPermissionDescription": "तुमच्या कागदपत्रांमध्ये प्रतिमा जोडण्यासाठी @:appName ला तुमच्या फोटोंमध्ये प्रवेश आवश्यक आहे",
+  "cameraPermissionTitle": "@:appName तुमच्या कॅमेऱ्याला प्रवेश करू इच्छित आहे",
+  "cameraPermissionDescription": "कॅमेऱ्यातून प्रतिमा जोडण्यासाठी @:appName ला तुमच्या कॅमेऱ्याचा प्रवेश आवश्यक आहे",
+  "doNotAllow": "परवानगी देऊ नका",
+  "image": "प्रतिमा"
+},
+"commandPalette": {
+  "placeholder": "शोधा किंवा प्रश्न विचारा...",
+  "bestMatches": "सर्वोत्तम जुळवणी",
+  "recentHistory": "अलीकडील इतिहास",
+  "navigateHint": "नेव्हिगेट करण्यासाठी",
+  "loadingTooltip": "आम्ही निकाल शोधत आहोत...",
+  "betaLabel": "बेटा",
+  "betaTooltip": "सध्या आम्ही फक्त दस्तऐवज आणि पृष्ठ शोध समर्थन करतो",
+  "fromTrashHint": "कचरापेटीतून",
+  "noResultsHint": "आपण जे शोधत आहात ते सापडले नाही, कृपया दुसरा शब्द वापरून शोधा.",
+  "clearSearchTooltip": "शोध फील्ड साफ करा"
+},
+"space": {
+  "delete": "हटवा",
+  "deleteConfirmation": "हटवा: ",
+  "deleteConfirmationDescription": "या स्पेसमधील सर्व पृष्ठे हटवली जातील आणि कचरापेटीत टाकली जातील, आणि प्रकाशित पृष्ठे अनपब्लिश केली जातील.",
+  "rename": "स्पेसचे नाव बदला",
+  "changeIcon": "चिन्ह बदला",
+  "manage": "स्पेस व्यवस्थापित करा",
+  "addNewSpace": "स्पेस तयार करा",
+  "collapseAllSubPages": "सर्व उपपृष्ठे संकुचित करा",
+  "createNewSpace": "नवीन स्पेस तयार करा",
+  "createSpaceDescription": "तुमचे कार्य अधिक चांगल्या प्रकारे आयोजित करण्यासाठी अनेक सार्वजनिक व खाजगी स्पेस तयार करा.",
+  "spaceName": "स्पेसचे नाव",
+  "spaceNamePlaceholder": "उदा. मार्केटिंग, अभियांत्रिकी, HR",
+  "permission": "स्पेस परवानगी",
+  "publicPermission": "सार्वजनिक",
+  "publicPermissionDescription": "पूर्ण प्रवेशासह सर्व वर्कस्पेस सदस्य",
+  "privatePermission": "खाजगी",
+  "privatePermissionDescription": "फक्त तुम्हाला या स्पेसमध्ये प्रवेश आहे",
+  "spaceIconBackground": "पार्श्वभूमीचा रंग",
+  "spaceIcon": "चिन्ह",
+  "dangerZone": "धोकादायक क्षेत्र",
+  "unableToDeleteLastSpace": "शेवटची स्पेस हटवता येणार नाही",
+  "unableToDeleteSpaceNotCreatedByYou": "तुमच्याद्वारे तयार न केलेली स्पेस हटवता येणार नाही",
+  "enableSpacesForYourWorkspace": "तुमच्या वर्कस्पेससाठी स्पेस सक्षम करा",
+  "title": "स्पेसेस",
+  "defaultSpaceName": "सामान्य",
+  "upgradeSpaceTitle": "स्पेस सक्षम करा",
+  "upgradeSpaceDescription": "तुमच्या वर्कस्पेसचे अधिक चांगल्या प्रकारे व्यवस्थापन करण्यासाठी अनेक सार्वजनिक आणि खाजगी स्पेस तयार करा.",
+  "upgrade": "अपग्रेड",
+  "upgradeYourSpace": "अनेक स्पेस तयार करा",
+  "quicklySwitch": "पुढील स्पेसवर पटकन स्विच करा",
+  "duplicate": "स्पेस डुप्लिकेट करा",
+  "movePageToSpace": "पृष्ठ स्पेसमध्ये हलवा",
+  "cannotMovePageToDatabase": "पृष्ठ डेटाबेसमध्ये हलवता येणार नाही",
+  "switchSpace": "स्पेस स्विच करा",
+  "spaceNameCannotBeEmpty": "स्पेसचे नाव रिकामे असू शकत नाही",
+  "success": {
+    "deleteSpace": "स्पेस यशस्वीरित्या हटवली",
+    "renameSpace": "स्पेसचे नाव यशस्वीरित्या बदलले",
+    "duplicateSpace": "स्पेस यशस्वीरित्या डुप्लिकेट केली",
+    "updateSpace": "स्पेस यशस्वीरित्या अपडेट केली"
+  },
+  "error": {
+    "deleteSpace": "स्पेस हटवण्यात अयशस्वी",
+    "renameSpace": "स्पेसचे नाव बदलण्यात अयशस्वी",
+    "duplicateSpace": "स्पेस डुप्लिकेट करण्यात अयशस्वी",
+    "updateSpace": "स्पेस अपडेट करण्यात अयशस्वी"
+  },
+  "createSpace": "स्पेस तयार करा",
+  "manageSpace": "स्पेस व्यवस्थापित करा",
+  "renameSpace": "स्पेसचे नाव बदला",
+  "mSpaceIconColor": "स्पेस चिन्हाचा रंग",
+  "mSpaceIcon": "स्पेस चिन्ह"
+},
+  "publish": {
+  "hasNotBeenPublished": "हे पृष्ठ अजून प्रकाशित केलेले नाही",
+  "spaceHasNotBeenPublished": "स्पेस प्रकाशित करण्यासाठी समर्थन नाही",
+  "reportPage": "पृष्ठाची तक्रार करा",
+  "databaseHasNotBeenPublished": "डेटाबेस प्रकाशित करण्यास समर्थन नाही.",
+  "createdWith": "यांनी तयार केले",
+  "downloadApp": "AppFlowy डाउनलोड करा",
+  "copy": {
+    "codeBlock": "कोड ब्लॉकची सामग्री क्लिपबोर्डवर कॉपी केली गेली आहे",
+    "imageBlock": "प्रतिमा लिंक क्लिपबोर्डवर कॉपी केली गेली आहे",
+    "mathBlock": "गणितीय समीकरण क्लिपबोर्डवर कॉपी केले गेले आहे",
+    "fileBlock": "फाइल लिंक क्लिपबोर्डवर कॉपी केली गेली आहे"
+  },
+  "containsPublishedPage": "या पृष्ठात एक किंवा अधिक प्रकाशित पृष्ठे आहेत. तुम्ही पुढे गेल्यास ती अनपब्लिश होतील. तुम्हाला हटवणे चालू ठेवायचे आहे का?",
+  "publishSuccessfully": "यशस्वीरित्या प्रकाशित झाले",
+  "unpublishSuccessfully": "यशस्वीरित्या अनपब्लिश झाले",
+  "publishFailed": "प्रकाशित करण्यात अयशस्वी",
+  "unpublishFailed": "अनपब्लिश करण्यात अयशस्वी",
+  "noAccessToVisit": "या पृष्ठावर प्रवेश नाही...",
+  "createWithAppFlowy": "AppFlowy ने वेबसाइट तयार करा",
+  "fastWithAI": "AI सह जलद आणि सोपे.",
+  "tryItNow": "आत्ताच वापरून पहा",
+  "onlyGridViewCanBePublished": "फक्त Grid view प्रकाशित केला जाऊ शकतो",
+  "database": {
+    "zero": "{} निवडलेले दृश्य प्रकाशित करा",
+    "one": "{} निवडलेली दृश्ये प्रकाशित करा",
+    "many": "{} निवडलेली दृश्ये प्रकाशित करा",
+    "other": "{} निवडलेली दृश्ये प्रकाशित करा"
+  },
+  "mustSelectPrimaryDatabase": "प्राथमिक दृश्य निवडणे आवश्यक आहे",
+  "noDatabaseSelected": "कोणताही डेटाबेस निवडलेला नाही, कृपया किमान एक डेटाबेस निवडा.",
+  "unableToDeselectPrimaryDatabase": "प्राथमिक डेटाबेस अननिवड करता येणार नाही",
+  "saveThisPage": "या टेम्पलेटपासून सुरू करा",
+  "duplicateTitle": "तुम्हाला हे कुठे जोडायचे आहे",
+  "selectWorkspace": "वर्कस्पेस निवडा",
+  "addTo": "मध्ये जोडा",
+  "duplicateSuccessfully": "तुमच्या वर्कस्पेसमध्ये जोडले गेले",
+  "duplicateSuccessfullyDescription": "AppFlowy स्थापित केले नाही? तुम्ही 'डाउनलोड' वर क्लिक केल्यावर डाउनलोड आपोआप सुरू होईल.",
+  "downloadIt": "डाउनलोड करा",
+  "openApp": "अ‍ॅपमध्ये उघडा",
+  "duplicateFailed": "डुप्लिकेट करण्यात अयशस्वी",
+  "membersCount": {
+    "zero": "सदस्य नाहीत",
+    "one": "1 सदस्य",
+    "many": "{count} सदस्य",
+    "other": "{count} सदस्य"
+  },
+  "useThisTemplate": "हा टेम्पलेट वापरा"
+},
+"web": {
+  "continue": "पुढे जा",
+  "or": "किंवा",
+  "continueWithGoogle": "Google सह पुढे जा",
+  "continueWithGithub": "GitHub सह पुढे जा",
+  "continueWithDiscord": "Discord सह पुढे जा",
+  "continueWithApple": "Apple सह पुढे जा",
+  "moreOptions": "अधिक पर्याय",
+  "collapse": "आकुंचन",
+  "signInAgreement": "\"पुढे जा\" क्लिक करून, तुम्ही AppFlowy च्या अटींना सहमती दिली आहे",
+  "signInLocalAgreement": "\"सुरुवात करा\" क्लिक करून, तुम्ही AppFlowy च्या अटींना सहमती दिली आहे",
+  "and": "आणि",
+  "termOfUse": "वापर अटी",
+  "privacyPolicy": "गोपनीयता धोरण",
+  "signInError": "साइन इन त्रुटी",
+  "login": "साइन अप किंवा लॉग इन करा",
+  "fileBlock": {
+    "uploadedAt": "{time} रोजी अपलोड केले",
+    "linkedAt": "{time} रोजी लिंक जोडली",
+    "empty": "फाईल अपलोड करा किंवा एम्बेड करा",
+    "uploadFailed": "अपलोड अयशस्वी, कृपया पुन्हा प्रयत्न करा",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+  "importNotion": "Notion वरून आयात करा",
+  "import": "आयात करा",
+  "importSuccess": "यशस्वीरित्या अपलोड केले",
+  "importSuccessMessage": "आम्ही तुम्हाला आयात पूर्ण झाल्यावर सूचित करू. त्यानंतर, तुम्ही साइडबारमध्ये तुमची आयात केलेली पृष्ठे पाहू शकता.",
+  "importFailed": "आयात अयशस्वी, कृपया फाईल फॉरमॅट तपासा",
+  "dropNotionFile": "तुमची Notion zip फाईल येथे ड्रॉप करा किंवा ब्राउझ करा",
+  "error": {
+    "pageNameIsEmpty": "पृष्ठाचे नाव रिकामे आहे, कृपया दुसरे नाव वापरून पहा"
+  }
+},
+  "globalComment": {
+  "comments": "टिप्पण्या",
+  "addComment": "टिप्पणी जोडा",
+  "reactedBy": "यांनी प्रतिक्रिया दिली",
+  "addReaction": "प्रतिक्रिया जोडा",
+  "reactedByMore": "आणि {count} इतर",
+  "showSeconds": {
+    "one": "1 सेकंदापूर्वी",
+    "other": "{count} सेकंदांपूर्वी",
+    "zero": "आत्ताच",
+    "many": "{count} सेकंदांपूर्वी"
+  },
+  "showMinutes": {
+    "one": "1 मिनिटापूर्वी",
+    "other": "{count} मिनिटांपूर्वी",
+    "many": "{count} मिनिटांपूर्वी"
+  },
+  "showHours": {
+    "one": "1 तासापूर्वी",
+    "other": "{count} तासांपूर्वी",
+    "many": "{count} तासांपूर्वी"
+  },
+  "showDays": {
+    "one": "1 दिवसापूर्वी",
+    "other": "{count} दिवसांपूर्वी",
+    "many": "{count} दिवसांपूर्वी"
+  },
+  "showMonths": {
+    "one": "1 महिन्यापूर्वी",
+    "other": "{count} महिन्यांपूर्वी",
+    "many": "{count} महिन्यांपूर्वी"
+  },
+  "showYears": {
+    "one": "1 वर्षापूर्वी",
+    "other": "{count} वर्षांपूर्वी",
+    "many": "{count} वर्षांपूर्वी"
+  },
+  "reply": "उत्तर द्या",
+  "deleteComment": "टिप्पणी हटवा",
+  "youAreNotOwner": "तुम्ही या टिप्पणीचे मालक नाही",
+  "confirmDeleteDescription": "तुम्हाला ही टिप्पणी हटवायची आहे याची खात्री आहे का?",
+  "hasBeenDeleted": "हटवले गेले",
+  "replyingTo": "याला उत्तर देत आहे",
+  "noAccessDeleteComment": "तुम्हाला ही टिप्पणी हटवण्याची परवानगी नाही",
+  "collapse": "संकुचित करा",
+  "readMore": "अधिक वाचा",
+  "failedToAddComment": "टिप्पणी जोडण्यात अयशस्वी",
+  "commentAddedSuccessfully": "टिप्पणी यशस्वीरित्या जोडली गेली.",
+  "commentAddedSuccessTip": "तुम्ही नुकतीच एक टिप्पणी जोडली किंवा उत्तर दिले आहे. वर जाऊन ताजी टिप्पण्या पाहायच्या का?"
+},
+  "template": {
+  "asTemplate": "टेम्पलेट म्हणून जतन करा",
+  "name": "टेम्पलेट नाव",
+  "description": "टेम्पलेट वर्णन",
+  "about": "टेम्पलेट माहिती",
+  "deleteFromTemplate": "टेम्पलेटमधून हटवा",
+  "preview": "टेम्पलेट पूर्वदृश्य",
+  "categories": "टेम्पलेट श्रेणी",
+  "isNewTemplate": "नवीन टेम्पलेटमध्ये पिन करा",
+  "featured": "वैशिष्ट्यीकृतमध्ये पिन करा",
+  "relatedTemplates": "संबंधित टेम्पलेट्स",
+  "requiredField": "{field} आवश्यक आहे",
+  "addCategory": "\"{category}\" जोडा",
+  "addNewCategory": "नवीन श्रेणी जोडा",
+  "addNewCreator": "नवीन निर्माता जोडा",
+  "deleteCategory": "श्रेणी हटवा",
+  "editCategory": "श्रेणी संपादित करा",
+  "editCreator": "निर्माता संपादित करा",
+  "category": {
+    "name": "श्रेणीचे नाव",
+    "icon": "श्रेणी चिन्ह",
+    "bgColor": "श्रेणी पार्श्वभूमीचा रंग",
+    "priority": "श्रेणी प्राधान्य",
+    "desc": "श्रेणीचे वर्णन",
+    "type": "श्रेणी प्रकार",
+    "icons": "श्रेणी चिन्हे",
+    "colors": "श्रेणी रंग",
+    "byUseCase": "वापराच्या आधारे",
+    "byFeature": "वैशिष्ट्यांनुसार",
+    "deleteCategory": "श्रेणी हटवा",
+    "deleteCategoryDescription": "तुम्हाला ही श्रेणी हटवायची आहे का?",
+    "typeToSearch": "श्रेणी शोधण्यासाठी टाइप करा..."
+  },
+  "creator": {
+    "label": "टेम्पलेट निर्माता",
+    "name": "निर्मात्याचे नाव",
+    "avatar": "निर्मात्याचा अवतार",
+    "accountLinks": "निर्मात्याचे खाते दुवे",
+    "uploadAvatar": "अवतार अपलोड करण्यासाठी क्लिक करा",
+    "deleteCreator": "निर्माता हटवा",
+    "deleteCreatorDescription": "तुम्हाला हा निर्माता हटवायचा आहे का?",
+    "typeToSearch": "निर्माते शोधण्यासाठी टाइप करा..."
+  },
+  "uploadSuccess": "टेम्पलेट यशस्वीरित्या अपलोड झाले",
+  "uploadSuccessDescription": "तुमचे टेम्पलेट यशस्वीरित्या अपलोड झाले आहे. आता तुम्ही ते टेम्पलेट गॅलरीमध्ये पाहू शकता.",
+  "viewTemplate": "टेम्पलेट पहा",
+  "deleteTemplate": "टेम्पलेट हटवा",
+  "deleteSuccess": "टेम्पलेट यशस्वीरित्या हटवले गेले",
+  "deleteTemplateDescription": "याचा वर्तमान पृष्ठ किंवा प्रकाशित स्थितीवर परिणाम होणार नाही. तुम्हाला हे टेम्पलेट हटवायचे आहे का?",
+  "addRelatedTemplate": "संबंधित टेम्पलेट जोडा",
+  "removeRelatedTemplate": "संबंधित टेम्पलेट हटवा",
+  "uploadAvatar": "अवतार अपलोड करा",
+  "searchInCategory": "{category} मध्ये शोधा",
+  "label": "टेम्पलेट्स"
+},
+  "fileDropzone": {
+  "dropFile": "फाइल अपलोड करण्यासाठी येथे क्लिक करा किंवा ड्रॅग करा",
+  "uploading": "अपलोड करत आहे...",
+  "uploadFailed": "अपलोड अयशस्वी",
+  "uploadSuccess": "अपलोड यशस्वी",
+  "uploadSuccessDescription": "फाइल यशस्वीरित्या अपलोड झाली आहे",
+  "uploadFailedDescription": "फाइल अपलोड अयशस्वी झाली आहे",
+  "uploadingDescription": "फाइल अपलोड होत आहे"
+},
+  "gallery": {
+  "preview": "पूर्ण स्क्रीनमध्ये उघडा",
+  "copy": "कॉपी करा",
+  "download": "डाउनलोड",
+  "prev": "मागील",
+  "next": "पुढील",
+  "resetZoom": "झूम रिसेट करा",
+  "zoomIn": "झूम इन",
+  "zoomOut": "झूम आउट"
+},
+  "invitation": {
+  "join": "सामील व्हा",
+  "on": "वर",
+  "invitedBy": "यांनी आमंत्रित केले",
+  "membersCount": {
+    "zero": "{count} सदस्य",
+    "one": "{count} सदस्य",
+    "many": "{count} सदस्य",
+    "other": "{count} सदस्य"
+  },
+  "tip": "तुम्हाला खालील माहितीच्या आधारे या कार्यक्षेत्रात सामील होण्यासाठी आमंत्रित करण्यात आले आहे. ही माहिती चुकीची असल्यास, कृपया प्रशासकाशी संपर्क साधा.",
+  "joinWorkspace": "वर्कस्पेसमध्ये सामील व्हा",
+  "success": "तुम्ही यशस्वीरित्या वर्कस्पेसमध्ये सामील झाला आहात",
+  "successMessage": "आता तुम्ही सर्व पृष्ठे आणि कार्यक्षेत्रे वापरू शकता.",
+  "openWorkspace": "AppFlowy उघडा",
+  "alreadyAccepted": "तुम्ही आधीच आमंत्रण स्वीकारले आहे",
+  "errorModal": {
+    "title": "काहीतरी चुकले आहे",
+    "description": "तुमचे सध्याचे खाते {email} कदाचित या वर्कस्पेसमध्ये प्रवेशासाठी पात्र नाही. कृपया योग्य खात्याने लॉग इन करा किंवा वर्कस्पेस मालकाशी संपर्क साधा.",
+    "contactOwner": "मालकाशी संपर्क करा",
+    "close": "मुख्यपृष्ठावर परत जा",
+    "changeAccount": "खाते बदला"
+  }
+},
+  "requestAccess": {
+  "title": "या पृष्ठासाठी प्रवेश नाही",
+  "subtitle": "तुम्ही या पृष्ठाच्या मालकाकडून प्रवेशासाठी विनंती करू शकता. मंजुरीनंतर तुम्हाला हे पृष्ठ पाहता येईल.",
+  "requestAccess": "प्रवेशाची विनंती करा",
+  "backToHome": "मुख्यपृष्ठावर परत जा",
+  "tip": "तुम्ही सध्या <link/> म्हणून लॉग इन आहात.",
+  "mightBe": "कदाचित तुम्हाला <login/> दुसऱ्या खात्याने लॉग इन करणे आवश्यक आहे.",
+  "successful": "विनंती यशस्वीपणे पाठवली गेली",
+  "successfulMessage": "मालकाने मंजुरी दिल्यावर तुम्हाला सूचित केले जाईल.",
+  "requestError": "प्रवेशाची विनंती अयशस्वी",
+  "repeatRequestError": "तुम्ही यासाठी आधीच विनंती केली आहे"
+},
+  "approveAccess": {
+  "title": "वर्कस्पेसमध्ये सामील होण्यासाठी विनंती मंजूर करा",
+  "requestSummary": "<user/> यांनी <workspace/> मध्ये सामील होण्यासाठी आणि <page/> पाहण्यासाठी विनंती केली आहे",
+  "upgrade": "अपग्रेड",
+  "downloadApp": "AppFlowy डाउनलोड करा",
+  "approveButton": "मंजूर करा",
+  "approveSuccess": "मंजूर यशस्वी",
+  "approveError": "मंजुरी अयशस्वी. कृपया वर्कस्पेस मर्यादा ओलांडलेली नाही याची खात्री करा",
+  "getRequestInfoError": "विनंतीची माहिती मिळवण्यात अयशस्वी",
+  "memberCount": {
+    "zero": "कोणतेही सदस्य नाहीत",
+    "one": "1 सदस्य",
+    "many": "{count} सदस्य",
+    "other": "{count} सदस्य"
+  },
+  "alreadyProTitle": "वर्कस्पेस योजना मर्यादा गाठली आहे",
+  "alreadyProMessage": "अधिक सदस्यांसाठी <email/> शी संपर्क साधा",
+  "repeatApproveError": "तुम्ही ही विनंती आधीच मंजूर केली आहे",
+  "ensurePlanLimit": "कृपया खात्री करा की योजना मर्यादा ओलांडलेली नाही. जर ओलांडली असेल तर वर्कस्पेस योजना <upgrade/> करा किंवा <download/> करा.",
+  "requestToJoin": "मध्ये सामील होण्यासाठी विनंती केली",
+  "asMember": "सदस्य म्हणून"
+},
+  "upgradePlanModal": {
+  "title": "Pro प्लॅनवर अपग्रेड करा",
+  "message": "{name} ने फ्री सदस्य मर्यादा गाठली आहे. अधिक सदस्य आमंत्रित करण्यासाठी Pro प्लॅनवर अपग्रेड करा.",
+  "upgradeSteps": "AppFlowy वर तुमची योजना कशी अपग्रेड करावी:",
+  "step1": "1. सेटिंग्जमध्ये जा",
+  "step2": "2. 'योजना' वर क्लिक करा",
+  "step3": "3. 'योजना बदला' निवडा",
+  "appNote": "नोंद:",
+  "actionButton": "अपग्रेड करा",
+  "downloadLink": "अ‍ॅप डाउनलोड करा",
+  "laterButton": "नंतर",
+  "refreshNote": "यशस्वी अपग्रेडनंतर, तुमची नवीन वैशिष्ट्ये सक्रिय करण्यासाठी <refresh/> वर क्लिक करा.",
+  "refresh": "येथे"
+},
+  "breadcrumbs": {
+  "label": "ब्रेडक्रम्स"
+},
+  "time": {
+  "justNow": "आत्ताच",
+  "seconds": {
+    "one": "1 सेकंद",
+    "other": "{count} सेकंद"
+  },
+  "minutes": {
+    "one": "1 मिनिट",
+    "other": "{count} मिनिटे"
+  },
+  "hours": {
+    "one": "1 तास",
+    "other": "{count} तास"
+  },
+  "days": {
+    "one": "1 दिवस",
+    "other": "{count} दिवस"
+  },
+  "weeks": {
+    "one": "1 आठवडा",
+    "other": "{count} आठवडे"
+  },
+  "months": {
+    "one": "1 महिना",
+    "other": "{count} महिने"
+  },
+  "years": {
+    "one": "1 वर्ष",
+    "other": "{count} वर्षे"
+  },
+  "ago": "पूर्वी",
+  "yesterday": "काल",
+  "today": "आज"
+},
+  "members": {
+  "zero": "सदस्य नाहीत",
+  "one": "1 सदस्य",
+  "many": "{count} सदस्य",
+  "other": "{count} सदस्य"
+},
+  "tabMenu": {
+  "close": "बंद करा",
+  "closeDisabledHint": "पिन केलेले टॅब बंद करता येत नाही, कृपया आधी अनपिन करा",
+  "closeOthers": "इतर टॅब बंद करा",
+  "closeOthersHint": "हे सर्व अनपिन केलेले टॅब्स बंद करेल या टॅब वगळता",
+  "closeOthersDisabledHint": "सर्व टॅब पिन केलेले आहेत, बंद करण्यासाठी कोणतेही टॅब सापडले नाहीत",
+  "favorite": "आवडते",
+  "unfavorite": "आवडते काढा",
+  "favoriteDisabledHint": "हे दृश्य आवडते म्हणून जतन करता येत नाही",
+  "pinTab": "पिन करा",
+  "unpinTab": "अनपिन करा"
+},
+  "openFileMessage": {
+  "success": "फाइल यशस्वीरित्या उघडली",
+  "fileNotFound": "फाइल सापडली नाही",
+  "noAppToOpenFile": "ही फाइल उघडण्यासाठी कोणतेही अ‍ॅप उपलब्ध नाही",
+  "permissionDenied": "ही फाइल उघडण्यासाठी परवानगी नाही",
+  "unknownError": "फाइल उघडण्यात अयशस्वी"
+},
+  "inviteMember": {
+  "requestInviteMembers": "तुमच्या वर्कस्पेसमध्ये आमंत्रित करा",
+  "inviteFailedMemberLimit": "सदस्य मर्यादा गाठली आहे, कृपया ",
+  "upgrade": "अपग्रेड करा",
+  "addEmail": "email@example.com, email2@example.com...",
+  "requestInvites": "आमंत्रण पाठवा",
+  "inviteAlready": "तुम्ही या ईमेलला आधीच आमंत्रित केले आहे: {email}",
+  "inviteSuccess": "आमंत्रण यशस्वीपणे पाठवले",
+  "description": "खाली ईमेल कॉमा वापरून टाका. शुल्क सदस्य संख्येवर आधारित असते.",
+  "emails": "ईमेल"
+},
+  "quickNote": {
+  "label": "झटपट नोंद",
+  "quickNotes": "झटपट नोंदी",
+  "search": "झटपट नोंदी शोधा",
+  "collapseFullView": "पूर्ण दृश्य लपवा",
+  "expandFullView": "पूर्ण दृश्य उघडा",
+  "createFailed": "झटपट नोंद तयार करण्यात अयशस्वी",
+  "quickNotesEmpty": "कोणत्याही झटपट नोंदी नाहीत",
+  "emptyNote": "रिकामी नोंद",
+  "deleteNotePrompt": "निवडलेली नोंद कायमची हटवली जाईल. तुम्हाला नक्की ती हटवायची आहे का?",
+  "addNote": "नवीन नोंद",
+  "noAdditionalText": "अधिक माहिती नाही"
+},
+  "subscribe": {
+  "upgradePlanTitle": "योजना तुलना करा आणि निवडा",
+  "yearly": "वार्षिक",
+  "save": "{discount}% बचत",
+  "monthly": "मासिक",
+  "priceIn": "किंमत येथे: ",
+  "free": "फ्री",
+  "pro": "प्रो",
+  "freeDescription": "2 सदस्यांपर्यंत वैयक्तिक वापरकर्त्यांसाठी सर्व काही आयोजित करण्यासाठी",
+  "proDescription": "प्रकल्प आणि टीम नॉलेज व्यवस्थापित करण्यासाठी लहान टीमसाठी",
+  "proDuration": {
+    "monthly": "प्रति सदस्य प्रति महिना\nमासिक बिलिंग",
+    "yearly": "प्रति सदस्य प्रति महिना\nवार्षिक बिलिंग"
+  },
+  "cancel": "खालच्या योजनेवर जा",
+  "changePlan": "प्रो योजनेवर अपग्रेड करा",
+  "everythingInFree": "फ्री योजनेतील सर्व काही +",
+  "currentPlan": "सध्याची योजना",
+  "freeDuration": "कायम",
+  "freePoints": {
+    "first": "1 सहकार्यात्मक वर्कस्पेस (2 सदस्यांपर्यंत)",
+    "second": "अमर्यादित पृष्ठे आणि ब्लॉक्स",
+    "three": "5 GB संचयन",
+    "four": "बुद्धिमान शोध",
+    "five": "20 AI प्रतिसाद",
+    "six": "मोबाईल अ‍ॅप",
+    "seven": "रिअल-टाइम सहकार्य"
+  },
+  "proPoints": {
+    "first": "अमर्यादित संचयन",
+    "second": "10 वर्कस्पेस सदस्यांपर्यंत",
+    "three": "अमर्यादित AI प्रतिसाद",
+    "four": "अमर्यादित फाइल अपलोड्स",
+    "five": "कस्टम नेमस्पेस"
+  },
+  "cancelPlan": {
+    "title": "आपल्याला जाताना पाहून वाईट वाटते",
+    "success": "आपली सदस्यता यशस्वीरित्या रद्द झाली आहे",
+    "description": "आपल्याला जाताना वाईट वाटते. कृपया आम्हाला सुधारण्यासाठी तुमचे अभिप्राय कळवा. खालील काही प्रश्नांना उत्तर द्या.",
+    "commonOther": "इतर",
+    "otherHint": "आपले उत्तर येथे लिहा",
+    "questionOne": {
+      "question": "तुम्ही AppFlowy Pro सदस्यता का रद्द केली?",
+      "answerOne": "खर्च खूप जास्त आहे",
+      "answerTwo": "वैशिष्ट्ये अपेक्षेनुसार नव्हती",
+      "answerThree": "चांगला पर्याय सापडला",
+      "answerFour": "खर्च योग्य ठरण्यासाठी वापर पुरेसा नव्हता",
+      "answerFive": "सेवा समस्या किंवा तांत्रिक अडचणी"
+    },
+    "questionTwo": {
+      "question": "तुम्ही भविष्यात AppFlowy Pro पुन्हा घेण्याची शक्यता किती आहे?",
+      "answerOne": "खूप शक्यता आहे",
+      "answerTwo": "काहीशी शक्यता आहे",
+      "answerThree": "निश्चित नाही",
+      "answerFour": "अल्प शक्यता आहे",
+      "answerFive": "शक्यता नाही"
+    },
+    "questionThree": {
+      "question": "सदस्यतेदरम्यान कोणते Pro फिचर तुम्हाला सर्वात जास्त उपयोगी वाटले?",
+      "answerOne": "मल्टी-यूजर सहकार्य",
+      "answerTwo": "लांब कालावधीसाठी आवृत्ती इतिहास",
+      "answerThree": "अमर्यादित AI प्रतिसाद",
+      "answerFour": "स्थानिक AI मॉडेल्सचा प्रवेश"
+    },
+    "questionFour": {
+      "question": "AppFlowy बाबत तुमचा एकूण अनुभव कसा होता?",
+      "answerOne": "छान",
+      "answerTwo": "चांगला",
+      "answerThree": "सामान्य",
+      "answerFour": "थोडासा वाईट",
+      "answerFive": "असंतोषजनक"
+    }
+  }
+},
+  "ai": {
+  "contentPolicyViolation": "संवेदनशील सामग्रीमुळे प्रतिमा निर्मिती अयशस्वी झाली. कृपया तुमचे इनपुट पुन्हा लिहा आणि पुन्हा प्रयत्न करा.",
+  "textLimitReachedDescription": "तुमच्या वर्कस्पेसमध्ये मोफत AI प्रतिसाद संपले आहेत. अनलिमिटेड प्रतिसादांसाठी प्रो योजना घेण्याचा किंवा AI अ‍ॅड-ऑन खरेदी करण्याचा विचार करा.",
+  "imageLimitReachedDescription": "तुमचे मोफत AI प्रतिमा कोटा संपले आहे. कृपया प्रो योजना घ्या किंवा AI अ‍ॅड-ऑन खरेदी करा.",
+  "limitReachedAction": {
+    "textDescription": "तुमच्या वर्कस्पेसमध्ये मोफत AI प्रतिसाद संपले आहेत. अधिक प्रतिसाद मिळवण्यासाठी कृपया",
+    "imageDescription": "तुमचे मोफत AI प्रतिमा कोटा संपले आहे. कृपया",
+    "upgrade": "अपग्रेड करा",
+    "toThe": "या योजनेवर",
+    "proPlan": "प्रो योजना",
+    "orPurchaseAn": "किंवा खरेदी करा",
+    "aiAddon": "AI अ‍ॅड-ऑन"
+  },
+  "editing": "संपादन करत आहे",
+  "analyzing": "विश्लेषण करत आहे",
+  "continueWritingEmptyDocumentTitle": "लेखन सुरू ठेवता आले नाही",
+  "continueWritingEmptyDocumentDescription": "तुमच्या दस्तऐवजातील मजकूर वाढवण्यात अडचण येत आहे. कृपया एक छोटं परिचय लिहा, मग आम्ही पुढे नेऊ!",
+  "more": "अधिक"
+},
+  "autoUpdate": {
+  "criticalUpdateTitle": "अद्यतन आवश्यक आहे",
+  "criticalUpdateDescription": "तुमचा अनुभव सुधारण्यासाठी आम्ही सुधारणा केल्या आहेत! कृपया {currentVersion} वरून {newVersion} वर अद्यतन करा.",
+  "criticalUpdateButton": "अद्यतन करा",
+  "bannerUpdateTitle": "नवीन आवृत्ती उपलब्ध!",
+  "bannerUpdateDescription": "नवीन वैशिष्ट्ये आणि सुधारणांसाठी. अद्यतनासाठी 'Update' क्लिक करा.",
+  "bannerUpdateButton": "अद्यतन करा",
+  "settingsUpdateTitle": "नवीन आवृत्ती ({newVersion}) उपलब्ध!",
+  "settingsUpdateDescription": "सध्याची आवृत्ती: {currentVersion} (अधिकृत बिल्ड) → {newVersion}",
+  "settingsUpdateButton": "अद्यतन करा",
+  "settingsUpdateWhatsNew": "काय नवीन आहे"
+},
+  "lockPage": {
+  "lockPage": "लॉक केलेले",
+  "reLockPage": "पुन्हा लॉक करा",
+  "lockTooltip": "अनवधानाने संपादन टाळण्यासाठी पृष्ठ लॉक केले आहे. अनलॉक करण्यासाठी क्लिक करा.",
+  "pageLockedToast": "पृष्ठ लॉक केले आहे. कोणी अनलॉक करेपर्यंत संपादन अक्षम आहे.",
+  "lockedOperationTooltip": "पृष्ठ अनवधानाने संपादनापासून वाचवण्यासाठी लॉक केले आहे."
+},
+  "suggestion": {
+  "accept": "स्वीकारा",
+  "keep": "जसे आहे तसे ठेवा",
+  "discard": "रद्द करा",
+  "close": "बंद करा",
+  "tryAgain": "पुन्हा प्रयत्न करा",
+  "rewrite": "पुन्हा लिहा",
+  "insertBelow": "खाली टाका"
+}
+}

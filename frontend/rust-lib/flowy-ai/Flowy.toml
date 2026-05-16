@@ -1,0 +1,3 @@
+# Check out the FlowyConfig (located in flowy_toml.rs) for more details.
+proto_input = ["src/entities.rs", "src/event_map.rs", "src/notification.rs"]
+event_files = ["src/event_map.rs"]

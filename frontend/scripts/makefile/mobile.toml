@@ -1,0 +1,148 @@
+
+[tasks.env_check]
+dependencies = ["echo_env", "install_flutter_protobuf"]
+condition = { env_set = [
+  "BUILD_FLAG",
+  "RUST_COMPILE_TARGET",
+  "CRATE_TYPE",
+  "TARGET_OS",
+], channels = [
+  "stable",
+] }
+
+[tasks.appflowy-core-dev-ios]
+category = "Build"
+dependencies = ["env_check", "set-app-version"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-ios",
+  "post-mobile-ios",
+  "restore-crate-type",
+] }
+
+[tasks.sdk-build-ios]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+    
+    # Set environment variables for iOS simulator builds to fix bindgen issues
+    # This prevents the "stdbool.h file not found" error when building for iOS simulator
+    # Fix the issue:
+    # error: version 'sim' in target triple 'arm64-apple-ios-sim' is invalid
+    # rocksdb/include/rocksdb/c.h:65:10: fatal error: 'stdbool.h' file not found
+    #
+
+    if [[ "${RUST_COMPILE_TARGET}" == *"ios-sim"* ]]; then
+      echo "🔧 Setting up environment for iOS Simulator build..."
+      export SDKROOT="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+      export BINDGEN_EXTRA_CLANG_ARGS="-target arm64-apple-ios14.0-simulator -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path)"
+      echo "📱 SDKROOT: $SDKROOT"
+      echo "🛠️  BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+    fi
+    
+    if [ "${BUILD_FLAG}" = "debug" ]; then
+      echo "🚀 🚀 🚀  Building iOS SDK for debug"
+      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    else
+      echo "🚀 🚀 🚀  Building iOS SDK  for release"
+      cargo lipo --release --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    fi
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.appflowy-core-dev-android]
+category = "Build"
+dependencies = ["env_check", "set-app-version"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-android",
+  "post-mobile-android",
+  "restore-crate-type",
+] }
+
+# only use in CI job
+[tasks.appflowy-core-dev-android-ci]
+category = "Build"
+dependencies = ["env_check", "set-app-version"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-android-ci",
+  "post-mobile-android",
+  "restore-crate-type",
+] }
+
+[tasks.sdk-build-android]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+    if [ "${BUILD_FLAG}" = "debug" ]; then
+      echo "🚀 🚀 🚀  Building Android SDK for debug"
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    else
+      echo "🚀 🚀 🚀  Building Android SDK for release"
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
+    fi
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+# only use in CI job
+[tasks.sdk-build-android-ci]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+    cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.post-mobile-ios]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core for iOS platform build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
+    rm -f ${dart_ffi_dir}/${lib}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    rm -f ${dart_ffi_dir}/Classes/binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.post-mobile-android]
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core for Android platform build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/android/app/src/main
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ to ${dart_ffi_dir}/"
+    rm -r ${dart_ffi_dir}/jniLibs
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ \
+    ${dart_ffi_dir}/
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    rm -f ${dart_ffi_dir}/Classes/binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"

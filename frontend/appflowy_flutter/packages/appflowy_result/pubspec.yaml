@@ -1,0 +1,11 @@
+name: appflowy_result
+description: "A new Flutter package project."
+version: 0.0.1
+homepage: https://github.com/appflowy-io/appflowy
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dev_dependencies:
+  flutter_lints: ^3.0.0

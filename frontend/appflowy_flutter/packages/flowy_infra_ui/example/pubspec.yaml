@@ -1,0 +1,27 @@
+name: flowy_infra_ui_example
+description: Demonstrates how to use the flowy_infra_ui plugin.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  flutter: ">=3.22.0"
+  sdk: ">=3.1.5 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flowy_infra_ui:
+    path: ../
+
+  cupertino_icons: ^1.0.2
+  provider:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true

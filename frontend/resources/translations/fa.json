@@ -1,0 +1,707 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "من",
+  "welcomeText": "به @:appName خوش آمدید",
+  "welcomeTo": "خوش آمدید به",
+  "githubStarText": "به گیت‌هاب ما ستاره دهید",
+  "subscribeNewsletterText": "اشتراک در خبرنامه",
+  "letsGoButtonText": "شروع کنید",
+  "title": "عنوان",
+  "youCanAlso": "همچنین می‌توانید",
+  "and": "و",
+  "failedToOpenUrl": "خطا در بازکردن نشانی وب: {}",
+  "blockActions": {
+    "addBelowTooltip": "برای افزودن در زیر کلیک کنید",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "برای افزودن در بالا",
+    "dragTooltip": "برای حرکت بکشید",
+    "openMenuTooltip": "برای باز کردن منو کلیک کنید"
+  },
+  "signUp": {
+    "buttonText": "ثبت نام",
+    "title": "ثبت نام در @:appName",
+    "getStartedText": "شروع کنید",
+    "emptyPasswordError": "رمز عبور نمی تواند خالی باشد",
+    "repeatPasswordEmptyError": "تکرار رمز عبور نمی‌تواند خالی باشد",
+    "unmatchedPasswordError": "تکرار رمز عبور مشابه رمز عبور نیست",
+    "alreadyHaveAnAccount": "از قبل حساب دارید؟",
+    "emailHint": "ایمیل",
+    "passwordHint": "رمز عبور",
+    "repeatPasswordHint": "تکرار رمز عبور",
+    "signUpWith": "ثبت نام با:"
+  },
+  "signIn": {
+    "loginTitle": "ورود به @:appName",
+    "loginButtonText": "ورود",
+    "loginStartWithAnonymous": "ادامه دادن با یک جلسه ناشناس",
+    "continueAnonymousUser": "ادامه دادن به صورت کاربر مهمان",
+    "buttonText": "ورود",
+    "signingInText": "در حال ورود...",
+    "forgotPassword": "رمز عبور را فراموش کرده اید؟",
+    "emailHint": "ایمیل",
+    "passwordHint": "رمز عبور",
+    "dontHaveAnAccount": "آیا حساب کاربری ندارید؟",
+    "createAccount": "ساخت حساب کاربری",
+    "repeatPasswordEmptyError": "تکرار رمز عبور نمی‌تواند خالی باشد",
+    "unmatchedPasswordError": "تکرار رمز عبور مشابه رمز عبور نیست",
+    "syncPromptMessage": "همگام سازی داده ها ممکن است کمی طول بکشد. لطفا این صفحه را نبندید",
+    "or": "یا",
+    "signInWithGoogle": "ادامه دادن با گوگل",
+    "signInWithGithub": "ادامه دادن با گیتهاب",
+    "signInWithDiscord": "ادامه دادن با دیسکورد",
+    "signInWithApple": "ادامه دادن با اپل",
+    "continueAnotherWay": "ادامه دادن از طریق دیگر",
+    "signUpWithGoogle": "ثبت نام با گوگل",
+    "signUpWithGithub": "ثبت نام با گیتهاب",
+    "signUpWithDiscord": "ثبت نام با دیسکورد",
+    "signInWith": "ثبت نام با:",
+    "signInWithEmail": "ادامه دادن با ایمیل",
+    "signInWithMagicLink": "ادامه",
+    "pleaseInputYourEmail": "لطفا آدرس ایمیل خود را وارد کنید",
+    "settings": "تنظیمات",
+    "invalidEmail": "لطفا یک آدرس ایمیل معتبر وارد کنید",
+    "alreadyHaveAnAccount": "حساب کاربری دارید؟",
+    "logIn": "ورود",
+    "generalError": "مشکلی پیش آمد. لطفاً بعداً دوباره امتحان کنید",
+    "anonymous": "ناشناس",
+    "loginAsGuestButtonText": "شروع کنید"
+  },
+  "workspace": {
+    "chooseWorkspace": "فضای کار خود را انتخاب کنید",
+    "defaultName": "فضای کار من",
+    "create": "ایجاد فضای کار",
+    "new": "فضای کار جدید",
+    "learnMore": "بیشتر بدانید",
+    "renameWorkspace": "حذف فضای کار",
+    "workspaceNameCannotBeEmpty": "اسم فضای کار نمی‌تواند خالی باشد",
+    "hint": "فضای کار",
+    "notFoundError": "فضای کاری پیدا نشد"
+  },
+  "shareAction": {
+    "buttonText": "اشتراک گذاری",
+    "workInProgress": "به زودی",
+    "markdown": "Markdown",
+    "copyLink": "کپی کردن لینک"
+  },
+  "moreAction": {
+    "small": "کوچک",
+    "medium": "متوسط",
+    "large": "بزرگ",
+    "fontSize": "اندازه قلم",
+    "import": "اضافه کردن",
+    "moreOptions": "گزینه های بیشتر"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "سند از نسخه 0.1.0",
+    "databaseFromV010": "پایگاه داده از نسخه 0.1.0",
+    "csv": "CSV",
+    "database": "پایگاه داده"
+  },
+  "disclosureAction": {
+    "rename": "تغییر نام",
+    "delete": "حذف",
+    "duplicate": "تکرار کردن",
+    "unfavorite": "حذف از موارد دلخواه",
+    "favorite": "افزودن به موارد دلخواه",
+    "openNewTab": "باز کردن در یک برگه جدید",
+    "moveTo": "انتقال به",
+    "addToFavorites": "افزودن به موارد دلخواه",
+    "copyLink": "کپی کردن لینک"
+  },
+  "blankPageTitle": "صفحه خالی",
+  "newPageText": "صفحه جدید",
+  "trash": {
+    "text": "سطل زباله",
+    "restoreAll": "بازیابی همه",
+    "deleteAll": "حذف همه",
+    "pageHeader": {
+      "fileName": "نام فایل",
+      "lastModified": "آخرین بازنگری",
+      "created": "ایجاد شده"
+    },
+    "confirmDeleteAll": {
+      "title": "آیا می‌خواهید که همه صفحه‌ها را در سطل زباله حذف کنید؟",
+      "caption": "این عمل قابل بازگشت نیست."
+    },
+    "confirmRestoreAll": {
+      "title": "آیا می‌خواهید که همه صفحه‌ها را در سطل زباله بازیابی کنید؟",
+      "caption": "این عمل قابل بازگشت نیست."
+    }
+  },
+  "deletePagePrompt": {
+    "text": "این صفحه در سطل زباله است",
+    "restore": "بازیابی صفحه",
+    "deletePermanent": "حذف دائمی"
+  },
+  "dialogCreatePageNameHint": "نام صفحه",
+  "questionBubble": {
+    "shortcuts": "میانبرها",
+    "whatsNew": "تازه‌ترین‌ها",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "اطلاعات اشکال‌زدایی",
+      "success": "طلاعات اشکال زدایی در کلیپ بورد کپی شد!",
+      "fail": "نمی توان اطلاعات اشکال زدایی را در کلیپ بورد کپی کرد"
+    },
+    "feedback": "بازخورد",
+    "help": "پشتیبانی و مستندات"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "حذف، تغییر نام، و موارد دیگر...",
+    "addPageTooltip": "یک صفحه در داخل اضافه کنید",
+    "defaultNewPageName": "بدون عنوان",
+    "renameDialog": "تغییر نام"
+  },
+  "toolbar": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "bold": "پررنگ",
+    "italic": "ایتالیک",
+    "underline": "با خط در زیر",
+    "strike": "با خط در وسط",
+    "numList": "فهرست شماره‌گذاری شده",
+    "bulletList": "فهرست موردی",
+    "checkList": "چک‌لیست",
+    "inlineCode": "کد درونی",
+    "quote": "Quote Block",
+    "header": "سربرگ",
+    "highlight": "برجسته کردن",
+    "color": "رنگ",
+    "addLink": "افزودن لینک",
+    "link": "لینک"
+  },
+  "tooltip": {
+    "lightMode": "تغییر به مود روشن",
+    "darkMode": "تغییر به مود تاریک",
+    "openAsPage": "باز کردن به عنوان صفحه",
+    "addNewRow": "اضافه کردن سطر جدید",
+    "openMenu": "برای باز کردن منو کلیک کنید",
+    "dragRow": "برای مرتب کردن مجدد ردیف فشار طولانی دهید",
+    "viewDataBase": "مشاهده پایگاه داده",
+    "referencePage": "این {name} ارجاع داده شده است",
+    "addBlockBelow": "یک بلوک در زیر اضافه کنید"
+  },
+  "sideBar": {
+    "closeSidebar": "بستن نوار کناری",
+    "openSidebar": "باز کردن نوار کناری",
+    "personal": "شخصی",
+    "favorites": "مورد علاقه",
+    "clickToHidePersonal": "برای پنهان کردن قسمت شخصی کلیک کنید",
+    "clickToHideFavorites": "برای پنهان کردن بخش دلخواه کلیک کنید",
+    "addAPage": "افزودن یک صفحه"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "متن به یادداشت تبدیل شود",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "مخاطبین",
+    "whatsHappening": "این هفته چه اتفاقی می‌افتد؟",
+    "addContact": "افزودن مخاطب",
+    "editContact": "ویرایش مخاطب"
+  },
+  "button": {
+    "ok": "باشه",
+    "done": "انجام شد",
+    "cancel": "لغو",
+    "signIn": "ورود",
+    "signOut": "خروج",
+    "complete": "کامل شد",
+    "save": "ذخیره‌سازی",
+    "generate": "تولید‌کردن",
+    "esc": "ESC",
+    "keep": "نگه داشتن",
+    "tryAgain": "دوباره تلاش کنید",
+    "discard": "در نظر نگرفتن",
+    "replace": "جایگزین کردن",
+    "insertBelow": "جاگذاری در پایین",
+    "upload": "بارگذاری",
+    "edit": "ویرایش",
+    "delete": "حذف کردن",
+    "duplicate": "تکرار کردن",
+    "putback": "بازگشت"
+  },
+  "label": {
+    "welcome": "خوش آمدید!",
+    "firstName": "نام",
+    "middleName": "نام میانی",
+    "lastName": "نام خانوادگی",
+    "stepX": "Step {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "امکان اتصال به حساب شما وجود ندارد.",
+      "failedMsg": "لطفا مطمئن شوید که فرآیند ورود را در مرورگر خود تکمیل کرده اید."
+    },
+    "google": {
+      "title": "ورود با اکانت گوگل",
+      "instruction1": "برای دسترسی به مخاطبان خود در گوگل، می‌بایست به به این برنامه از طریق مرورگر خود دسترسی دهید.",
+      "instruction2": "این کد را با کلیک کردن روی آیکون یا انتخاب متن در کلیپ بورد خود کپی کنید:",
+      "instruction3": "به لینک زیر در مرورگر وب خود بروید و کد بالا را وارد کنید:",
+      "instruction4": "پس از تکمیل ثبت نام، دکمه زیر را فشار دهید:"
+    }
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "menu": {
+      "appearance": "ظاهر برنامه",
+      "language": "زبان‌ها",
+      "user": "کاربر",
+      "files": "فایل‌ها",
+      "open": "باز کردن تنظیمات",
+      "logout": "خروج",
+      "logoutPrompt": "آیا مطمئن هستید که می‌خواهید خارج شوید؟",
+      "syncSetting": "تنظیمات همگام‌سازی",
+      "enableSync": "فعال کردن همگام‌سازی",
+      "historicalUserList": "سابقه ورود کاربر",
+      "historicalUserListTooltip": "این لیست اکانت‌های ناشناس شما را نمایش می‌دهد. می‌توانید روی یک حساب برای مشاهده جزییات آن کلیک کنید. حساب‌های ناشناس با کلیک کردن روی دکمه شروع‌کنید ایجاد می‌شوند",
+      "openHistoricalUser": "برای باز کردن حساب ناشناس کلیک کنید"
+    },
+    "appearance": {
+      "resetSetting": "تنظیم کردن از اول",
+      "fontFamily": {
+        "label": "خانواده فونت",
+        "search": "جستجو"
+      },
+      "themeMode": {
+        "label": "حالت تم",
+        "light": "حالت روشن",
+        "dark": "حالت تاریک",
+        "system": "اعمال حالت"
+      },
+      "themeUpload": {
+        "button": "بارگذاری",
+        "description": "تم قالب @:appName خود را با استفاده از دکمه زیر آپلود کنید.",
+        "loading": "لطفاً منتظر بمانید تا تم قالب شما را اعتبارسنجی و آپلود کنیم...",
+        "uploadSuccess": "تم قالب شما با موفقیت آپلود شد",
+        "deletionFailure": "تم حذف نشد. سعی کنید آن را به صورت دستی حذف کنید.",
+        "filePickerDialogTitle": "یک فایل .flowy_plugin را انتخاب کنید",
+        "urlUploadFailure": "نشانی اینترنتی باز نشد: {}",
+        "failure": "تم قالب آپلود شده نامعتبر است."
+      },
+      "theme": "تم قالب",
+      "builtInsLabel": "قالب‌های پیش‌ساخته",
+      "pluginsLabel": "پلاگین‌ها"
+    },
+    "files": {
+      "copy": "کپی",
+      "defaultLocation": "خواندن فایل‌ها و مکان ذخیره داده‌ها",
+      "exportData": "از داده‌های خود خروجی بگیرید",
+      "doubleTapToCopy": "برای کپی کردن دوبار کلیک کنید",
+      "restoreLocation": "بازیابی به مسیر پیش فرض @:appName",
+      "customizeLocation": "پوشه دیگری باز کنید",
+      "restartApp": "لطفاً برنامه را مجدداً راه اندازی کنید تا تغییرات اعمال شوند.",
+      "exportDatabase": "از پایگاه داده‌ها خروجی بگیرید",
+      "selectFiles": "فایل‌هایی را که می‌خواهید از آنها خروجی بگیرید انتخاب کنید",
+      "selectAll": "انتخاب همه",
+      "deselectAll": "لغو انتخاب همه",
+      "createNewFolder": "ایجاد یک پوشه جدید",
+      "createNewFolderDesc": "کجا می خواهید داده‌های خود را ذخیره کنید",
+      "defineWhereYourDataIsStored": "محل ذخیره داده های خود را مشخص کنید",
+      "open": "باز کردن",
+      "openFolder": "باز کردن یک پوشه موجود",
+      "openFolderDesc": "خواندن و نوشتن آن در یک پوشه @:appName موجود",
+      "folderHintText": "نام پوشه",
+      "location": "ایجاد یک پوشه جدید",
+      "locationDesc": "یک نام برای پوشه داده @:appName خود انتخاب کنید",
+      "browser": "مرورگر",
+      "create": "ایجاد کردن",
+      "set": "تنظیم کردن",
+      "folderPath": "مسیری برای ذخیره پوشه",
+      "locationCannotBeEmpty": "مسیر نمی‌تواند خالی باشد",
+      "pathCopiedSnackbar": "مسیر ذخیره‌سازی فایل در کلیپ‌بورد کپی شد!",
+      "changeLocationTooltips": "تغییر دایرکتوری داده",
+      "change": "تغییر",
+      "openLocationTooltips": "باز کردن یک فهرست پوشه دیگر",
+      "openCurrentDataFolder": "باز کردن فهرست پوشه فعلی",
+      "recoverLocationTooltips": "بازنشانی به فهرست داده های پیش فرض @:appName",
+      "exportFileSuccess": "خروجی گرفتن از فایل با موفقیت انجام شد.",
+      "exportFileFail": "خروجی گرفتن از فایل انجام نشد!",
+      "export": "خروجی گرفتن"
+    },
+    "user": {
+      "name": "نام",
+      "selectAnIcon": "انتخاب یک آیکون",
+      "pleaseInputYourOpenAIKey": "لطفا کلید AI خود را وارد کنید",
+      "clickToLogout": "برای خروج از کاربر فعلی کلیک کنید"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "میانبرها",
+      "command": "دستور",
+      "keyBinding": "میانبرهای کیبورد",
+      "addNewCommand": "اضافه کردن فرمان جدید",
+      "updateShortcutStep": "کلید ترکیبی دلخواه را فشار دهید و ENTER را فشار دهید",
+      "shortcutIsAlreadyUsed": "این میانبر قبلاً برای: {conflict} استفاده شده است",
+      "resetToDefault": "بازگشت به میانبرهای پیش‌فرض",
+      "couldNotLoadErrorMsg": "میانبرها بارگذاری نشد، دوباره امتحان کنید",
+      "couldNotSaveErrorMsg": "میانبرها ذخیره نشد، دوباره امتحان کنید"
+    }
+  },
+  "grid": {
+    "deleteView": "آیا مطمئن هستید که می خواهید این نما را حذف کنید؟",
+    "createView": "جدید",
+    "settings": {
+      "filter": "فیلتر",
+      "sort": "مرتب کردن",
+      "sortBy": "مرتب سازی بر اساس",
+      "properties": "ویژگی‌ها",
+      "reorderPropertiesTooltip": "برای مرتب کردن مجدد بکشید",
+      "group": "گروه",
+      "addFilter": "افزودن فیلتر",
+      "deleteFilter": "حذف فیلتر",
+      "filterBy": "فیلتر بر اساس...",
+      "typeAValue": "یک مقدار را تایپ کنید...",
+      "layout": "طرح‌بندی",
+      "databaseLayout": "طرح‌بندی"
+    },
+    "textFilter": {
+      "contains": "شامل",
+      "doesNotContain": "شامل نمی‌شود",
+      "endsWith": "پایان با",
+      "startWith": "شروع با",
+      "is": "هست",
+      "isNot": "نیست",
+      "isEmpty": "خالی است",
+      "isNotEmpty": "خالی نیست",
+      "choicechipPrefix": {
+        "isNot": "مخالف",
+        "startWith": "شروع با",
+        "endWith": "پایان با",
+        "isEmpty": "خالی است",
+        "isNotEmpty": "خالی نیست"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "بررسی شده",
+      "isUnchecked": "بررسی نشده",
+      "choicechipPrefix": {
+        "is": "است"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "کامل است",
+      "isIncomplted": "کامل نیست"
+    },
+    "selectOptionFilter": {
+      "is": "است",
+      "isNot": "نیست",
+      "contains": "شامل",
+      "doesNotContain": "شامل نیست",
+      "isEmpty": "خالی است",
+      "isNotEmpty": "خالی نیست"
+    },
+    "field": {
+      "hide": "پنهان کردن",
+      "insertLeft": "درج در چپ",
+      "insertRight": "درج در راست",
+      "duplicate": "تکرار کردن",
+      "delete": "حذف کردن",
+      "textFieldName": "متن",
+      "checkboxFieldName": "موارد انتخابی",
+      "dateFieldName": "تاریخ",
+      "updatedAtFieldName": "آخرین زمان بازنگری",
+      "createdAtFieldName": "زمان ایجاد",
+      "numberFieldName": "شماره‌ها",
+      "singleSelectFieldName": "انتخاب",
+      "multiSelectFieldName": "چند‌انتخابی",
+      "urlFieldName": "نشانی اینترنتی",
+      "checklistFieldName": "چک لیست",
+      "numberFormat": "قالب شماره",
+      "dateFormat": "قالب تاریخ",
+      "includeTime": "شامل کردن زمان",
+      "dateFormatFriendly": "Month Day, Year",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Day/Year",
+      "dateFormatUS": "Year/Month/Day",
+      "dateFormatDayMonthYear": "Day/Month/Year",
+      "timeFormat": "قالب زمان",
+      "invalidTimeFormat": "قالب نامعتبر",
+      "timeFormatTwelveHour": "دوازده ساعته",
+      "timeFormatTwentyFourHour": "بیست‌و‌چهار ساعته",
+      "clearDate": "پاک کردن",
+      "addSelectOption": "افزودن یک گزینه",
+      "optionTitle": "گزینه‌ها",
+      "addOption": "افزودن گزینه",
+      "editProperty": "ویرایش ویژگی",
+      "newProperty": "ویژگی جدید",
+      "deleteFieldPromptMessage": "آیا مطمئن هستید؟ این ویژگی حذف خواهد شد",
+      "newColumn": "ستون جدید"
+    },
+    "sort": {
+      "ascending": "صعودی",
+      "descending": "نزولی",
+      "deleteAllSorts": "حذف همه مرتب‌سازی‌ها",
+      "addSort": "اضافه کردن مرتب‌سازی"
+    },
+    "row": {
+      "duplicate": "تکرار کردن",
+      "delete": "حذف کردن",
+      "textPlaceholder": "خالی",
+      "copyProperty": "ویژگی در کلیپ‌بورد کپی شد.",
+      "count": "شمارش",
+      "newRow": "سطر جدید",
+      "action": "اعمال"
+    },
+    "selectOption": {
+      "create": "ایجاد",
+      "purpleColor": "بنفش",
+      "pinkColor": "صورتی",
+      "lightPinkColor": "صورتی روشن",
+      "orangeColor": "نارنجی",
+      "yellowColor": "زرد",
+      "limeColor": "لیمویی",
+      "greenColor": "سبز",
+      "aquaColor": "آکوا",
+      "blueColor": "آبی",
+      "deleteTag": "حذف برچسب",
+      "colorPanelTitle": "رنگ‌ها",
+      "panelTitle": "یک گزینه انتخاب یا ایجاد کنید.",
+      "searchOption": "جستجوی یک گزینه"
+    },
+    "checklist": {
+      "addNew": "یک مورد اضافه کنید"
+    },
+    "menuName": "شبکه‌ای",
+    "referencedGridPrefix": "نمایش"
+  },
+  "document": {
+    "menuName": "سند",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "یک بورد برای لینک کردن انتخاب کنید.",
+        "createANewBoard": "ایجاد یک بورد جدید"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "یک شبکه‌ نمایش برای لینک کردن انتخاب کنید.",
+        "createANewGrid": "ایجاد یک شبکه نمایش جدید"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "یک تقویم برای لینک کردن انتخاب کنید.",
+        "createANewCalendar": "ایجاد یک تقویم جدید"
+      }
+    },
+    "selectionMenu": {
+      "outline": "طرح کلی"
+    },
+    "plugins": {
+      "referencedBoard": "بورد مرجع",
+      "referencedGrid": "شبکه‌نمایش مرجع",
+      "referencedCalendar": "تقویم مرجع",
+      "autoGeneratorMenuItemName": "AI نویسنده",
+      "autoGeneratorTitleName": "از هوش مصنوعی بخواهید هر چیزی بنویسد...",
+      "autoGeneratorLearnMore": "بیشتر بدانید",
+      "autoGeneratorGenerate": "بنویس",
+      "autoGeneratorHintText": "از AI بپرسید ...",
+      "autoGeneratorCantGetOpenAIKey": "کلید AI را نمی توان دریافت کرد",
+      "autoGeneratorRewrite": "بازنویس",
+      "smartEdit": "دستیاران هوشمند",
+      "smartEditFixSpelling": "اصلاح نگارش",
+      "warning": "⚠️ پاسخ‌های هوش مصنوعی می‌توانند نادرست یا گمراه‌کننده باشند",
+      "smartEditSummarize": "خلاصه‌نویسی",
+      "smartEditImproveWriting": "بهبود نگارش",
+      "smartEditMakeLonger": "به نوشته اضافه کن",
+      "smartEditCouldNotFetchResult": "نتیجه‌ای از AI گرفته نشد",
+      "smartEditCouldNotFetchKey": "کلید AI واکشی نشد",
+      "smartEditDisabled": "به AI در تنظیمات وصل شوید",
+      "discardResponse": "آیا می خواهید پاسخ های هوش مصنوعی را حذف کنید؟",
+      "createInlineMathEquation": "ایجاد معادله",
+      "toggleList": "Toggle لیست",
+      "cover": {
+        "changeCover": "تغییر جلد",
+        "colors": "رنگ‌ها",
+        "images": "تصویر‌ها",
+        "clearAll": "پاک کردن همه",
+        "abstract": "چکیده",
+        "addCover": "افزودن جلد",
+        "addLocalImage": "افزودن تصویر",
+        "invalidImageUrl": "مسیر تصویر نامعتبر است",
+        "failedToAddImageToGallery": "افزودن تصویر به گالری انجام نشد",
+        "enterImageUrl": "مسیر تصویر را وارد کنید",
+        "add": "افزودن",
+        "back": "بازگشت",
+        "saveToGallery": "ذخیره در گالری",
+        "removeIcon": "حذف Icon",
+        "pasteImageUrl": "وارد کردن مسیر تصویر",
+        "or": "یا",
+        "pickFromFiles": "انتخاب از فایل‌ها",
+        "couldNotFetchImage": "تصویر واکشی نشد",
+        "imageSavingFailed": "ذخیره تصویر انجام نشد",
+        "addIcon": "افزودن آیکون",
+        "coverRemoveAlert": "پس از حذف از روی جلد حذف خواهد شد.",
+        "alertDialogConfirmation": "آیا مطمئن هستید که می‌خواهید ادامه دهید؟"
+      },
+      "mathEquation": {
+        "addMathEquation": "اضافه کردن معادله ریاضی",
+        "editMathEquation": "ویرایش کردن معادله ریاضی"
+      },
+      "optionAction": {
+        "click": "کلیک کنید",
+        "toOpenMenu": " برای باز کردن منو",
+        "delete": "حذف کردن",
+        "duplicate": "تکرار کردن",
+        "turnInto": "تبدیل به",
+        "moveUp": "بالا بردن",
+        "moveDown": "پایین آوردن",
+        "color": "رنگ",
+        "align": "هم‌تراز کردن",
+        "left": "چپ",
+        "center": "وسط",
+        "right": "راست",
+        "defaultColor": "پیش فرض"
+      },
+      "image": {
+        "copiedToPasteBoard": "لینک تصویر در کلیپ‌بورد کپی شده است"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "برای ایجاد فهرست مطالب سر‌فصل‌ها را وارد کنید"
+      },
+      "openAI": "AI"
+    },
+    "textBlock": {
+      "placeholder": "برای دستورات '/' را تایپ کنید"
+    },
+    "title": {
+      "placeholder": "بدون عنوان"
+    },
+    "imageBlock": {
+      "placeholder": "برای افزودن تصویر کلیک کنید",
+      "upload": {
+        "label": "بارگذاری",
+        "placeholder": "برای بارگذاری تصویر کلیک کنید"
+      },
+      "url": {
+        "label": "لینک تصویر",
+        "placeholder": "لینک تصویر را وارد کنید"
+      },
+      "support": "محدودیت اندازه تصویر 5 مگابایت است. فرمت‌های پشتیبانی شده: JPEG، PNG، GIF، SVG",
+      "error": {
+        "invalidImage": "تصویر نامعتبر",
+        "invalidImageSize": "اندازه تصویر باید کمتر از 5 مگابایت باشد",
+        "invalidImageFormat": "فرمت تصویر پشتیبانی نمی‌شود. فرمت‌های پشتیبانی شده: JPEG، PNG، GIF، SVG",
+        "invalidImageUrl": "مسیر تصویر نامعتبر است"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "زبان",
+        "placeholder": "انتخاب زبان"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "پیست کنید یا مسیر را تایپ کنید",
+      "openInNewTab": "باز کردن در برگه جدید",
+      "copyLink": "کپی لینک",
+      "removeLink": "حذف لینک",
+      "url": {
+        "label": "لینک",
+        "placeholder": "لینک را وارد کنید"
+      },
+      "title": {
+        "label": "عنوان لینک",
+        "placeholder": "عنوان لینک را وارد کنید"
+      }
+    },
+    "mention": {
+      "placeholder": "یک شخص یا یک صفحه یا تاریخ را ذکر کنید...",
+      "page": {
+        "label": "لینک به صفحه",
+        "tooltip": "برای باز کردن صفحه کلیک کنید"
+      }
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "ایجاد"
+    },
+    "menuName": "بورد",
+    "referencedBoardPrefix": "نمای",
+    "mobile": {
+      "showGroup": "نمایش گروه",
+      "showGroupContent": "آیا مطمئن هستید که می خواهید این گروه را روی تابلو نشان دهید؟",
+      "failedToLoad": "نمای تخته بارگیری نشد"
+    }
+  },
+  "calendar": {
+    "menuName": "تقویم",
+    "defaultNewCalendarTitle": "بدون عنوان",
+    "navigation": {
+      "today": "امروز",
+      "jumpToday": "برو به امروز",
+      "previousMonth": "ماه قبل",
+      "nextMonth": "ماه بعد"
+    },
+    "settings": {
+      "showWeekNumbers": "نمایش اعداد هفته",
+      "showWeekends": "نمایش تعطیلات آخر هفته",
+      "firstDayOfWeek": "شروع هفته در",
+      "layoutDateField": "طرح‌بندی تقویم با",
+      "noDateTitle": "بدون تاریخ",
+      "clickToAdd": "برای افزودن به تقویم کلیک کنید",
+      "name": "طرح‌بندی تقویم",
+      "noDateHint": "رویدادهای برنامه‌ریزی نشده در اینجا نشان داده می‌شوند"
+    },
+    "referencedCalendarPrefix": "نمای"
+  },
+  "errorDialog": {
+    "title": "خطای @:appName",
+    "howToFixFallback": "بابت مشکل پیش آمده متأسفیم! مشکل و شرح آن را در صفحه GitHub ما ارسال کنید.",
+    "github": "مشاهده در GitHub"
+  },
+  "search": {
+    "label": "جستجو",
+    "placeholder": {
+      "actions": "جستجوی اعمال..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "کپی شد!",
+      "fail": "نمی‌توان کپی کرد"
+    }
+  },
+  "unSupportBlock": "نسخه فعلی از این بلوک پشتیبانی نمی‌کند.",
+  "views": {
+    "deleteContentTitle": "آیا مطمئن هستید که می‌خواهید {pageType} را حذف کنید؟",
+    "deleteContentCaption": "اگر این {pageType} را حذف کنید، می‌توانید آن را از سطل زباله بازیابی کنید."
+  },
+  "colors": {
+    "custom": "سفارشی",
+    "default": "پیش‌فرض",
+    "red": "قرمز",
+    "orange": "نارنجی",
+    "yellow": "زرد",
+    "green": "سبز",
+    "blue": "آبی",
+    "purple": "بنفش",
+    "pink": "صورتی",
+    "brown": "قهوه‌ای",
+    "gray": "خاکستری"
+  },
+  "emoji": {
+    "filter": "فیلتر",
+    "random": "تصادفی",
+    "selectSkinTone": "انتخاب رنگ پوست",
+    "remove": "حذف ایموجی",
+    "categories": {
+      "smileys": "لبخندی‌ها",
+      "people": "آدمک‌ها",
+      "animals": "حیوانات و طبیعت",
+      "food": "غذا و نوشیدنی",
+      "activities": "فعالیت‌ها",
+      "places": "مسافرت",
+      "objects": "اشیا",
+      "symbols": "نماد‌ها",
+      "flags": "پرچم‌ها",
+      "nature": "طبیعت",
+      "frequentlyUsed": "استفاده‌شده"
+    }
+  }
+}

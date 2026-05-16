@@ -1,0 +1,62 @@
+[package]
+name = "flowy-server"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+
+[dependencies]
+tracing.workspace = true
+futures-util = "0.3.26"
+serde.workspace = true
+serde_json.workspace = true
+thiserror = "1.0"
+tokio = { workspace = true, features = ["sync"] }
+lazy_static = "1.4.0"
+bytes = { workspace = true, features = ["serde"] }
+anyhow.workspace = true
+arc-swap.workspace = true
+uuid.workspace = true
+collab = { workspace = true }
+collab-plugins = { workspace = true }
+collab-document = { workspace = true }
+collab-entity = { workspace = true }
+collab-database = { workspace = true }
+collab-user = { workspace = true }
+lib-infra = { workspace = true }
+flowy-user-pub = { workspace = true }
+flowy-folder-pub = { workspace = true }
+flowy-database-pub = { workspace = true }
+flowy-document-pub = { workspace = true }
+flowy-error = { workspace = true, features = ["impl_from_serde", "impl_from_reqwest", "impl_from_url", "impl_from_appflowy_cloud"] }
+flowy-server-pub = { workspace = true }
+flowy-search-pub = { workspace = true }
+flowy-storage = { workspace = true }
+flowy-storage-pub = { workspace = true }
+flowy-ai-pub = { workspace = true }
+tokio-util = "0.7"
+tokio-stream = { workspace = true, features = ["sync"] }
+rand = "0.8.5"
+semver = "1.0.23"
+flowy-sqlite = { workspace = true }
+flowy-ai = { workspace = true }
+chrono.workspace = true
+workspace-template.workspace = true
+
+[dependencies.client-api]
+workspace = true
+features = [
+  "collab-sync",
+  "test_util",
+  "enable_brotli",
+  # Uncomment the following line to enable verbose logging for sync
+  # "sync_verbose_log",
+]
+
+[dev-dependencies]
+uuid.workspace = true
+serde_json.workspace = true
+

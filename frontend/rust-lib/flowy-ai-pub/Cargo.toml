@@ -1,0 +1,20 @@
+[package]
+name = "flowy-ai-pub"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-infra = { workspace = true }
+flowy-error = { workspace = true }
+client-api = { workspace = true }
+futures.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+uuid.workspace = true
+flowy-sqlite = { workspace = true }
+chrono.workspace = true
+twox-hash = { version = "2.1.0", features = ["xxhash64"] }
+flowy-user-pub = { workspace = true }
+tracing.workspace = true

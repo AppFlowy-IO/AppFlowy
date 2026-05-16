@@ -1,0 +1,67 @@
+[package]
+name = "flowy-error"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+flowy-derive.workspace = true
+protobuf.workspace = true
+bytes.workspace = true
+anyhow.workspace = true
+thiserror = "1.0"
+validator.workspace = true
+tokio = { workspace = true, features = ["sync", "rt"] }
+
+fancy-regex = { version = "0.11.0" }
+lib-dispatch = { workspace = true, optional = true }
+serde_json.workspace = true
+serde_repr.workspace = true
+serde.workspace = true
+reqwest = { version = "0.11.14", optional = true, features = [
+  "native-tls-vendored",
+] }
+flowy-sqlite = { workspace = true, optional = true }
+r2d2 = { version = "0.8", optional = true }
+url = { version = "2.2", optional = true }
+collab = { workspace = true }
+collab-database = { workspace = true, optional = true }
+collab-document = { workspace = true, optional = true }
+collab-plugins = { workspace = true, optional = true }
+collab-folder = { workspace = true, optional = true }
+client-api = { workspace = true, optional = true }
+tantivy = { workspace = true, optional = true }
+uuid.workspace = true
+ollama-rs.workspace = true
+
+
+[features]
+default = [
+  "impl_from_dispatch_error",
+  "impl_from_serde",
+  "impl_from_reqwest",
+  "impl_from_sqlite",
+]
+impl_from_dispatch_error = ["lib-dispatch"]
+impl_from_serde = []
+impl_from_reqwest = ["reqwest"]
+impl_from_collab_persistence = ["collab-plugins"]
+impl_from_collab_document = [
+  "collab-document",
+  "impl_from_reqwest",
+  "collab-plugins",
+]
+impl_from_collab_folder = ["collab-folder"]
+impl_from_collab_database = ["collab-database"]
+impl_from_url = ["url"]
+impl_from_tantivy = ["tantivy"]
+
+impl_from_sqlite = ["flowy-sqlite", "r2d2"]
+impl_from_appflowy_cloud = ["client-api"]
+dart = ["flowy-codegen/dart"]
+
+[build-dependencies]
+flowy-codegen = { workspace = true, features = ["proto_gen"] }

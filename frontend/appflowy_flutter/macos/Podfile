@@ -1,0 +1,89 @@
+MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED = '10.14'
+
+platform :osx, MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'ephemeral', 'Flutter-Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure \"flutter pub get\" is executed first"
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Flutter-Generated.xcconfig, then run \"flutter pub get\""
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_macos_podfile_setup
+
+def build_specify_archs_only
+  if ENV.has_key?('BUILD_ACTIVE_ARCHS_ONLY')
+    xcodeproj_path = File.dirname(__FILE__) + '/Runner.xcodeproj'
+    project = Xcodeproj::Project.open(xcodeproj_path)
+    project.targets.each do |target|
+      if target.name == 'Runner'
+        target.build_configurations.each do |config|
+          config.build_settings['ONLY_ACTIVE_ARCH'] = ENV['BUILD_ACTIVE_ARCHS_ONLY']
+        end
+      end
+    end
+    project.save()
+  end
+
+  if ENV.has_key?('BUILD_ARCHS')
+    xcodeproj_path = File.dirname(__FILE__) + '/Runner.xcodeproj'
+    project = Xcodeproj::Project.open(xcodeproj_path)
+    project.targets.each do |target|
+      if target.name == 'Runner'
+        target.build_configurations.each do |config|
+          config.build_settings['ARCHS'] = ENV['BUILD_ARCHS']
+        end
+      end
+    end
+    project.save()
+  end
+end
+
+build_specify_archs_only()
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_macos_build_settings(target)
+  end
+
+  installer.aggregate_targets.each do |target|
+    target.xcconfigs.each do |variant, xcconfig|
+      xcconfig_path = target.client_root + target.xcconfig_relative_path(variant)
+      IO.write(xcconfig_path, IO.read(xcconfig_path).gsub("DT_TOOLCHAIN_DIR", "TOOLCHAIN_DIR"))
+    end
+  end
+
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if config.base_configuration_reference.is_a? Xcodeproj::Project::Object::PBXFileReference
+        xcconfig_path = config.base_configuration_reference.real_path
+        IO.write(xcconfig_path, IO.read(xcconfig_path).gsub("DT_TOOLCHAIN_DIR", "TOOLCHAIN_DIR"))
+      end
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED
+    end
+  end
+end
