@@ -385,6 +385,7 @@ class ViewTitle extends StatefulWidget {
 class _ViewTitleState extends State<ViewTitle> {
   final popoverController = PopoverController();
   final textEditingController = TextEditingController();
+  ViewTitleState? _latestViewTitleState;
 
   @override
   void dispose() {
@@ -416,6 +417,7 @@ class _ViewTitleState extends State<ViewTitle> {
           widget.onUpdated();
         },
         builder: (context, state) {
+          _latestViewTitleState = state;
           // root view
           if (widget.view.parentViewId.isEmpty) {
             return Row(
@@ -467,22 +469,7 @@ class _ViewTitleState extends State<ViewTitle> {
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 6),
-      popupBuilder: (context) {
-        // icon + textfield
-        _resetTextEditingController(state);
-        return RenameViewPopover(
-          view: widget.view,
-          name: widget.view.name,
-          popoverController: popoverController,
-          icon: widget.view.defaultIcon(),
-          emoji: state.icon,
-          tabs: const [
-            PickerTabType.emoji,
-            PickerTabType.icon,
-            PickerTabType.custom,
-          ],
-        );
-      },
+      popupBuilder: _buildRenamePopover,
       child: SizedBox(
         height: 32.0,
         child: FlowyButton(
@@ -491,6 +478,33 @@ class _ViewTitleState extends State<ViewTitle> {
           text: _buildIconAndName(context, state, true),
         ),
       ),
+    );
+  }
+
+  Widget _buildRenamePopover(BuildContext context) {
+    final state = _latestViewTitleState;
+    if (state == null) {
+      // fallback to current bloc state if called before builder set it
+      final s = context.read<ViewTitleBloc>().state;
+      _resetTextEditingController(s);
+      return RenameViewPopover(
+        view: widget.view,
+        name: widget.view.name,
+        popoverController: popoverController,
+        icon: widget.view.defaultIcon(),
+        emoji: s.icon,
+        tabs: const [PickerTabType.emoji, PickerTabType.icon, PickerTabType.custom],
+      );
+    }
+
+    _resetTextEditingController(state);
+    return RenameViewPopover(
+      view: widget.view,
+      name: widget.view.name,
+      popoverController: popoverController,
+      icon: widget.view.defaultIcon(),
+      emoji: state.icon,
+      tabs: const [PickerTabType.emoji, PickerTabType.icon, PickerTabType.custom],
     );
   }
 
