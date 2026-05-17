@@ -318,7 +318,7 @@ impl NestedBlock {
       // <aside>😁Hello</aside>
       CALLOUT => {
         html.push_str(&format!(
-          "<{}>{}{}</{}>",
+          "<{}>{}{}",
           ASIDE_TAG_NAME,
           self
             .data
@@ -327,8 +327,11 @@ impl NestedBlock {
             .to_string()
             .trim_matches('\"'),
           text_html,
-          ASIDE_TAG_NAME
         ));
+        html.push_str(&convert_nested_block_children_to_html(Arc::new(
+          self.to_owned(),
+        )));
+        html.push_str(&format!("</{}>", ASIDE_TAG_NAME));
       },
       // <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo" />
       IMAGE => {

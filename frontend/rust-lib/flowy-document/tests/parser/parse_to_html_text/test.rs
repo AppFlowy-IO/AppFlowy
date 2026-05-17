@@ -19,6 +19,7 @@ async fn block_tests() {
   let test_cases = generate_test_cases!(
     heading,
     callout,
+    callout_nested,
     paragraph,
     divider,
     image,
