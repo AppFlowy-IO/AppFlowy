@@ -187,6 +187,17 @@ class _ToggleListBlockComponentWidgetState
   int? get level => node.attributes[ToggleListBlockKeys.level] as int?;
 
   @override
+  void didUpdateWidget(ToggleListBlockComponentWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldCollapsed =
+        oldWidget.node.attributes[ToggleListBlockKeys.collapsed] as bool? ??
+            false;
+    if (oldCollapsed != collapsed) {
+      _readOnlyCollapsed = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _effectiveCollapsed
         ? buildComponent(context)
