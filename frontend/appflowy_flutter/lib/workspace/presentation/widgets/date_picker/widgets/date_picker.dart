@@ -128,17 +128,22 @@ class _DatePickerState extends State<DatePicker> {
           rangeHighlightColor: Theme.of(context).colorScheme.secondaryContainer,
         ),
         calendarBuilders: CalendarBuilders(
-          dowBuilder: (context, day) {
-            final locale = context.locale.toLanguageTag();
-            final label = DateFormat.E(locale).format(day);
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Center(
-                child: Text(label, style: calendarStyle.dowTextStyle),
-              ),
-            );
-          },
+  dowBuilder: (context, day) {
+    final locale = context.locale.toLanguageTag();
+    final label = DateFormat.E(locale).format(day);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0), // 8.0'den 4.0'e çektik ki dikey alan rahatlasın
+      child: Center(
+        child: Text(
+          label, 
+          style: calendarStyle.dowTextStyle,
+          maxLines: 1, // Taşmayı engelleyecek kural 1
+          overflow: TextOverflow.ellipsis, // Taşmayı engelleyecek kural 2
         ),
+      ),
+    );
+  },
+),
         selectedDayPredicate: (day) =>
             widget.isRange ? false : isSameDay(widget.selectedDay, day),
         onFormatChanged: (calendarFormat) =>
@@ -155,13 +160,13 @@ class _DatePickerState extends State<DatePicker> {
 
 class _CalendarStyle {
   _CalendarStyle.desktop({
-    required this.selectedColor,
-    required this.dowTextStyle,
-  })  : rowHeight = 33,
-        dowHeight = 35,
-        headerVisible = false,
-        headerStyle = const HeaderStyle(),
-        availableGestures = AvailableGestures.horizontalSwipe;
+  required this.selectedColor,
+  required this.dowTextStyle,
+})  : rowHeight = 38, // 33'ten 38'e çıkardık, hücreler dikeyde nefes alacak
+      dowHeight = 35,
+      headerVisible = false,
+      headerStyle = const HeaderStyle(),
+      availableGestures = AvailableGestures.horizontalSwipe;
 
   _CalendarStyle.mobile({required this.dowTextStyle})
       : rowHeight = 48,
