@@ -1,5 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/selection_controller.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class GridShortcuts extends StatelessWidget {
   const GridShortcuts({required this.child, super.key});
@@ -8,37 +16,54 @@ class GridShortcuts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: bindKeys([]),
-      child: Actions(
-        dispatcher: LoggingActionDispatcher(),
-        actions: const {},
-        child: child,
-      ),
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.delete): () => _deleteSelectedRows(context),
+        const SingleActivator(LogicalKeyboardKey.backspace): () => _deleteSelectedRows(context),
+        const SingleActivator(LogicalKeyboardKey.escape): () => _clearSelection(context),
+        const SingleActivator(LogicalKeyboardKey.keyA, control: true): () => _selectAllRows(context),
+        const SingleActivator(LogicalKeyboardKey.keyA, meta: true): () => _selectAllRows(context),
+      },
+      child: child,
     );
   }
-}
 
-Map<ShortcutActivator, Intent> bindKeys(List<LogicalKeyboardKey> keys) {
-  return {for (final key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
-}
+  void _deleteSelectedRows(BuildContext context) {
+    final primaryFocus = FocusManager.instance.primaryFocus;
+    if (primaryFocus != null && primaryFocus.context != null) {
+      bool isTextInputFocused = false;
+      primaryFocus.context!.visitAncestorElements((element) {
+        if (element.widget is EditableText || element.widget is TextField) {
+          isTextInputFocused = true;
+          return false;
+        }
+        return true;
+      });
+      if (isTextInputFocused) return;
+    }
 
-class KeyboardKeyIdent extends Intent {
-  const KeyboardKeyIdent(this.key);
+    final selection = context.read<GridSelectionController>();
+    if (selection.hasSelection) {
+      final selectedIds = selection.selectedRowIds.toList();
+      final viewId = context.read<GridBloc>().viewId;
 
-  final KeyboardKey key;
-}
+      showConfirmDeletionDialog(
+        context: context,
+        name: LocaleKeys.grid_row_label.tr(),
+        description: LocaleKeys.grid_row_deleteRowPrompt.tr(),
+        onConfirm: () {
+          RowBackendService.deleteRows(viewId, selectedIds);
+          selection.clearSelection();
+        },
+      );
+    }
+  }
 
-class LoggingActionDispatcher extends ActionDispatcher {
-  @override
-  Object? invokeAction(
-    covariant Action<Intent> action,
-    covariant Intent intent, [
-    BuildContext? context,
-  ]) {
-    // print('Action invoked: $action($intent) from $context');
-    super.invokeAction(action, intent, context);
+  void _clearSelection(BuildContext context) {
+    context.read<GridSelectionController>().clearSelection();
+  }
 
-    return null;
+  void _selectAllRows(BuildContext context) {
+    context.read<GridSelectionController>().selectAll();
   }
 }

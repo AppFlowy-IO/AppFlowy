@@ -21,6 +21,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +38,7 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row.dart';
 import 'widgets/shortcuts.dart';
+import 'widgets/selection_controller.dart';
 
 class ToggleExtensionNotifier extends ChangeNotifier {
   bool _isToggled = false;
@@ -131,9 +133,14 @@ class _GridPageState extends State<GridPage> {
     shrinkWrapped: widget.shrinkWrap,
   )..add(const GridEvent.initial());
 
+  late final GridSelectionController selectionController = GridSelectionController(
+    getRowInfos: () => gridBloc.state.rowInfos,
+  );
+
   @override
   void dispose() {
     gridBloc.close();
+    selectionController.dispose();
     super.dispose();
   }
 
@@ -149,35 +156,38 @@ class _GridPageState extends State<GridPage> {
             ..add(PageAccessLevelEvent.initial()),
         ),
       ],
-      child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
-        listener: (context, state) {
-          final action = state.action;
-          if (action?.type == ActionType.openRow &&
-              action?.objectId == widget.view.id) {
-            final rowId = action!.arguments?[ActionArgumentKeys.rowId];
-            if (rowId != null) {
-              // If Reminder in existing database is pressed
-              // then open the row
-              _openRow(context, rowId);
+      child: ChangeNotifierProvider<GridSelectionController>.value(
+        value: selectionController,
+        child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
+          listener: (context, state) {
+            final action = state.action;
+            if (action?.type == ActionType.openRow &&
+                action?.objectId == widget.view.id) {
+              final rowId = action!.arguments?[ActionArgumentKeys.rowId];
+              if (rowId != null) {
+                // If Reminder in existing database is pressed
+                // then open the row
+                _openRow(context, rowId);
+              }
             }
-          }
-        },
-        child: BlocConsumer<GridBloc, GridState>(
-          listener: listener,
-          builder: (context, state) => state.loadingState.map(
-            idle: (_) => const SizedBox.shrink(),
-            loading: (_) => const Center(
-              child: CircularProgressIndicator.adaptive(),
-            ),
-            finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(
-                child: GridPageContent(
-                  key: ValueKey(widget.view.id),
-                  view: widget.view,
-                  shrinkWrap: widget.shrinkWrap,
-                ),
+          },
+          child: BlocConsumer<GridBloc, GridState>(
+            listener: listener,
+            builder: (context, state) => state.loadingState.map(
+              idle: (_) => const SizedBox.shrink(),
+              loading: (_) => const Center(
+                child: CircularProgressIndicator.adaptive(),
               ),
-              (err) => Center(child: AppFlowyErrorPage(error: err)),
+              finish: (result) => result.successOrFail.fold(
+                (_) => GridShortcuts(
+                  child: GridPageContent(
+                    key: ValueKey(widget.view.id),
+                    view: widget.view,
+                    shrinkWrap: widget.shrinkWrap,
+                  ),
+                ),
+                (err) => Center(child: AppFlowyErrorPage(error: err)),
+              ),
             ),
           ),
         ),
@@ -363,6 +373,7 @@ class _GridRows extends StatefulWidget {
 class _GridRowsState extends State<_GridRows> {
   bool showFloatingCalculations = false;
   bool isAtBottom = false;
+  int? _dragStartRowIndex;
 
   @override
   void initState() {
@@ -454,6 +465,56 @@ class _GridRowsState extends State<_GridRows> {
         ),
       );
     }
+
+    final horizontalPadding = context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
+    final compactMode = context.read<GridBloc>().databaseController.compactModeNotifier.value;
+    final rowHeight = compactMode ? 32.0 : 36.0;
+
+    child = Listener(
+      onPointerDown: (PointerDownEvent event) {
+        final localX = event.localPosition.dx;
+        final localY = event.localPosition.dy;
+        if (localX >= paddingLeft && localX <= paddingLeft + horizontalPadding) {
+          final scrollOffset = widget.scrollController.verticalController.offset;
+          final absoluteY = localY + scrollOffset;
+          final clickedRowIndex = (absoluteY ~/ rowHeight);
+          
+          final selection = context.read<GridSelectionController>();
+          final rowInfos = selection.getRowInfos();
+          if (clickedRowIndex >= 0 && clickedRowIndex < rowInfos.length) {
+            final isShift = HardwareKeyboard.instance.isShiftPressed;
+            final isMeta = HardwareKeyboard.instance.isMetaPressed || HardwareKeyboard.instance.isControlPressed;
+            
+            _dragStartRowIndex = clickedRowIndex;
+            selection.selectRow(
+              rowInfos[clickedRowIndex].rowId,
+              isMultiSelect: isMeta,
+              isRangeSelect: isShift,
+            );
+          }
+        }
+      },
+      onPointerMove: (PointerMoveEvent event) {
+        if (_dragStartRowIndex != null) {
+          final localY = event.localPosition.dy;
+          final scrollOffset = widget.scrollController.verticalController.offset;
+          final absoluteY = localY + scrollOffset;
+          final currentRowIndex = (absoluteY ~/ rowHeight);
+          
+          final selection = context.read<GridSelectionController>();
+          final rowInfos = selection.getRowInfos();
+          final clampedIndex = currentRowIndex.clamp(0, rowInfos.length - 1);
+          selection.selectRange(_dragStartRowIndex!, clampedIndex);
+        }
+      },
+      onPointerUp: (PointerUpEvent event) {
+        _dragStartRowIndex = null;
+      },
+      onPointerCancel: (PointerCancelEvent event) {
+        _dragStartRowIndex = null;
+      },
+      child: child,
+    );
 
     if (widget.shrinkWrap) {
       return child;
