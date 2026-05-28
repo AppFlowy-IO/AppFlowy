@@ -124,11 +124,12 @@ class _RowLeadingState extends State<_RowLeading> {
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       popupBuilder: (_) {
         final bloc = context.read<RowBloc>();
-        final selectionController = context.read<GridSelectionController>();
         return MultiProvider(
           providers: [
             BlocProvider.value(value: context.read<GridBloc>()),
-            ChangeNotifierProvider.value(value: selectionController),
+            ChangeNotifierProvider<GridSelectionController>.value(
+              value: context.read<GridSelectionController>(),
+            ),
           ],
           child: RowActionMenu(
             viewId: bloc.viewId,
@@ -330,7 +331,7 @@ class RowContent extends StatelessWidget {
         builder: (context, compactMode, _) {
           return Container(
             width: GridSize.newPropertyButtonWidth,
-            constraints: BoxConstraints(minHeight: compactMode ? 32 : 36),
+            constraints: BoxConstraints(minHeight: compactMode ? GridSize.compactRowHeight : GridSize.rowHeight),
             decoration: BoxDecoration(
               border: Border(
                 bottom:

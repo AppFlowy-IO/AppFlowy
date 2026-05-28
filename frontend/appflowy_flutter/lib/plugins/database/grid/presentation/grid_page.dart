@@ -468,7 +468,7 @@ class _GridRowsState extends State<_GridRows> {
 
     final horizontalPadding = context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
     final compactMode = context.read<GridBloc>().databaseController.compactModeNotifier.value;
-    final rowHeight = compactMode ? 32.0 : 36.0;
+    final rowHeight = compactMode ? GridSize.compactRowHeight : GridSize.rowHeight;
 
     child = Listener(
       onPointerDown: (PointerDownEvent event) {
@@ -503,7 +503,8 @@ class _GridRowsState extends State<_GridRows> {
           
           final selection = context.read<GridSelectionController>();
           final rowInfos = selection.getRowInfos();
-          final clampedIndex = currentRowIndex.clamp(0, rowInfos.length - 1);
+          if (rowInfos.isEmpty) return;
+          final clampedIndex = currentRowIndex.clamp(0, rowInfos.length - 1).toInt();
           selection.selectRange(_dragStartRowIndex!, clampedIndex);
         }
       },
