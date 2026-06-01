@@ -42,6 +42,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 ## User Installation
 
 - [Download AppFlowy Desktop (macOS, Windows, and Linux)](https://github.com/AppFlowy-IO/AppFlowy/releases)
+  - On minimal Linux desktop environments, install `zenity` before using the AppImage or `.tar.gz` archive so AppFlowy's folder picker can open correctly. Flatpak typically includes the required portal integration.
 - Other
   channels: [FlatHub](https://flathub.org/apps/io.appflowy.AppFlowy), [Snapcraft](https://snapcraft.io/appflowy), [Sourceforge](https://sourceforge.net/projects/appflowy/)
 - Available on
