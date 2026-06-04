@@ -46,6 +46,8 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     customFormatGreaterEqual,
     customFormatDashGreater,
     customFormatDoubleHyphenEmDash,
+    customFormatDoubleAngleLeftGuillemet,
+    customFormatDoubleAngleRightGuillemet,
 
     customFormatNumberToNumberedList,
     customFormatSignToHeading,
