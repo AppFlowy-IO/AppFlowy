@@ -45,7 +45,10 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
             snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
             (setting) => _renderContent(context, setting),
-            (err) => FlowyErrorPage.message(err.toString(), howToFix: ""),
+            (err) => FlowyErrorPage.message(
+              LocaleKeys.error_syncError.tr(),
+              howToFix: LocaleKeys.error_syncErrorHint.tr(),
+            ),
           );
         }
 
@@ -113,7 +116,10 @@ class CustomAppFlowyCloudView extends StatelessWidget {
             snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
             (setting) => _renderContent(setting),
-            (err) => FlowyErrorPage.message(err.toString(), howToFix: ""),
+            (err) => FlowyErrorPage.message(
+              LocaleKeys.error_syncError.tr(),
+              howToFix: LocaleKeys.error_syncErrorHint.tr(),
+            ),
           );
         } else {
           return const Center(
