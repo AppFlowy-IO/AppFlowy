@@ -242,6 +242,17 @@ class _FindMenuState extends State<FindMenu> {
   void _searchPattern() {
     widget.searchService.findAndHighlight(textController.text);
     _setState();
+
+    // after update selection, the editor will request focus.
+    // here's a workaround to request the focus back to the text field.
+    Future.delayed(
+      const Duration(milliseconds: 50),
+      () {
+        if (mounted) {
+          widget.focusNode.requestFocus();
+        }
+      },
+    );
   }
 
   void _setState() {
