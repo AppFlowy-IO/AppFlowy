@@ -45,10 +45,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
             snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
             (setting) => _renderContent(context, setting),
-            (err) => FlowyErrorPage.message(
-              LocaleKeys.error_syncError.tr(),
-              howToFix: LocaleKeys.error_syncErrorHint.tr(),
-            ),
+            (err) => _cloudConfigErrorPage(err),
           );
         }
 
@@ -116,10 +113,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
             snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
             (setting) => _renderContent(setting),
-            (err) => FlowyErrorPage.message(
-              LocaleKeys.error_syncError.tr(),
-              howToFix: LocaleKeys.error_syncErrorHint.tr(),
-            ),
+            (err) => _cloudConfigErrorPage(err),
           );
         } else {
           return const Center(
@@ -165,6 +159,31 @@ class CustomAppFlowyCloudView extends StatelessWidget {
       ),
     );
   }
+}
+
+FlowyErrorPage _cloudConfigErrorPage(FlowyError err) {
+  Log.error('Failed to load cloud config: ${err.msg}');
+
+  final isNetworkError = _looksLikeNetworkError(err);
+  return FlowyErrorPage.message(
+    isNetworkError
+        ? LocaleKeys.newSettings_syncState_noNetworkConnected.tr()
+        : LocaleKeys.error_syncError.tr(),
+    howToFix: isNetworkError
+        ? LocaleKeys.error_loadingViewError.tr()
+        : LocaleKeys.error_syncErrorHint.tr(),
+  );
+}
+
+bool _looksLikeNetworkError(FlowyError err) {
+  final message = err.msg.toLowerCase();
+  return message.contains('network') ||
+      message.contains('socket') ||
+      message.contains('connection') ||
+      message.contains('timeout') ||
+      message.contains('timed out') ||
+      message.contains('unavailable') ||
+      message.contains('dns');
 }
 
 class AppFlowyCloudURLs extends StatelessWidget {
