@@ -635,7 +635,7 @@
         "logoutLabel": "登出"
       },
       "isUpToDate": "@:appName 已更新!",
-      "officialVersion": "版本 {version} (Official build)"
+      "officialVersion": "版本 {version} (官方構建)"
     },
     "workspacePage": {
       "menuLabel": "工作區",
