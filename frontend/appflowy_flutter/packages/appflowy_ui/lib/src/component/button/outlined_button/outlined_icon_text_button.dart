@@ -20,6 +20,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
     this.size = AFButtonSize.m,
     this.padding,
     this.borderRadius,
+    this.iconGap,
     this.disabled = false,
     this.alignment = MainAxisAlignment.center,
   });
@@ -33,6 +34,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    double? iconGap,
     bool disabled = false,
     MainAxisAlignment alignment = MainAxisAlignment.center,
   }) {
@@ -44,6 +46,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
+      iconGap: iconGap,
       disabled: disabled,
       alignment: alignment,
       borderColor: (context, isHovering, disabled, isFocused) {
@@ -88,6 +91,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    double? iconGap,
     bool disabled = false,
     MainAxisAlignment alignment = MainAxisAlignment.center,
   }) {
@@ -99,6 +103,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
+      iconGap: iconGap,
       disabled: disabled,
       alignment: alignment,
       borderColor: (context, isHovering, disabled, isFocused) {
@@ -138,6 +143,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    double? iconGap,
     MainAxisAlignment alignment = MainAxisAlignment.center,
   }) {
     return AFOutlinedIconTextButton._(
@@ -148,6 +154,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
+      iconGap: iconGap,
       disabled: true,
       alignment: alignment,
       textColor: (context, isHovering, disabled) {
@@ -185,6 +192,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
   final AFButtonSize size;
   final EdgeInsetsGeometry? padding;
   final double? borderRadius;
+  final double? iconGap;
   final MainAxisAlignment alignment;
 
   final AFOutlinedIconBuilder iconBuilder;
@@ -211,7 +219,7 @@ class AFOutlinedIconTextButton extends StatelessWidget {
           mainAxisAlignment: alignment,
           children: [
             iconBuilder(context, isHovering, disabled),
-            SizedBox(width: theme.spacing.s),
+            SizedBox(width: iconGap ?? theme.spacing.s),
             Text(
               text,
               style: size.buildTextStyle(context).copyWith(

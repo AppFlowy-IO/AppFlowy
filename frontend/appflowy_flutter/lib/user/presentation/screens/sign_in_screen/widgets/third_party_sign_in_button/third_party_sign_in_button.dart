@@ -110,10 +110,12 @@ class MobileThirdPartySignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return AFOutlinedIconTextButton.normal(
       text: type.labelText,
       onTap: onTap,
       size: AFButtonSize.l,
+      iconGap: theme.spacing.m,
       iconBuilder: (context, isHovering, disabled) {
         return FlowySvg(
           type.icon,
@@ -137,10 +139,12 @@ class DesktopThirdPartySignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return AFOutlinedIconTextButton.normal(
       text: type.labelText,
       onTap: onTap,
       size: AFButtonSize.l,
+      iconGap: theme.spacing.m,
       iconBuilder: (context, isHovering, disabled) {
         return FlowySvg(
           type.icon,
