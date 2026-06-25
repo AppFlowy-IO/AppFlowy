@@ -11,12 +11,12 @@
   "and": "y",
   "failedToOpenUrl": "No se pudo abrir la URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Haga clic para agregar a continuación",
+    "addBelowTooltip": "Haz clic para agregar a continuación",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opción+clic",
     "addAboveTooltip": "para agregar arriba",
     "dragTooltip": "Arrastre para mover",
-    "openMenuTooltip": "Haga clic para abrir el menú"
+    "openMenuTooltip": "Haz clic para abrir el menú"
   },
   "signUp": {
     "buttonText": "Registro",
@@ -25,7 +25,7 @@
     "emptyPasswordError": "La contraseña no puede estar en blanco",
     "repeatPasswordEmptyError": "La contraseña repetida no puede estar vacía",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
-    "alreadyHaveAnAccount": "¿Ya posee una cuenta?",
+    "alreadyHaveAnAccount": "¿Ya tienes una cuenta?",
     "emailHint": "Correo electrónico",
     "passwordHint": "Contraseña",
     "repeatPasswordHint": "Repetir contraseña",
@@ -34,14 +34,14 @@
   "signIn": {
     "loginTitle": "Ingresa a @:appName",
     "loginButtonText": "Ingresar",
-    "loginStartWithAnonymous": "Comience una sesión anónima",
+    "loginStartWithAnonymous": "Comienza una sesión anónima",
     "continueAnonymousUser": "Continuar con una sesión anónima",
     "buttonText": "Ingresar",
     "signingInText": "Iniciando sesión...",
-    "forgotPassword": "¿Olvidó su contraseña?",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
     "emailHint": "Correo",
     "passwordHint": "Contraseña",
-    "dontHaveAnAccount": "¿No posee credenciales?",
+    "dontHaveAnAccount": "¿No tienes una cuenta?",
     "createAccount": "Crear una cuenta",
     "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
@@ -59,7 +59,7 @@
     "signInWithEmail": "Iniciar sesión con correo electrónico",
     "signInWithMagicLink": "Iniciar sesión con enlace mágico",
     "signUpWithMagicLink": "Registrarse con enlace mágico",
-    "pleaseInputYourEmail": "Por favor, introduzca su dirección de correo electrónico",
+    "pleaseInputYourEmail": "Por favor, introduce tu dirección de correo electrónico",
     "settings": "Configuración",
     "magicLinkSent": "Enlace mágico enviado a tu correo electrónico, por favor revisa tu bandeja de entrada",
     "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
@@ -77,7 +77,7 @@
     "learnMore": "Más información",
     "reset": "Restablecer espacio de trabajo",
     "renameWorkspace": "Cambiar el nombre del espacio de trabajo",
-    "resetWorkspacePrompt": "Al restablecer el espacio de trabajo se eliminarán todas las páginas y datos que contiene. ¿Está seguro de que desea restablecer el espacio de trabajo? Alternativamente, puede comunicarse con el equipo de soporte para restaurar el espacio de trabajo.",
+    "resetWorkspacePrompt": "Al restablecer el espacio de trabajo se eliminarán todas las páginas y datos que contiene. ¿Estás seguro de que deseas restablecer el espacio de trabajo? Alternativamente, puedes comunicarte con el equipo de soporte para restaurar el espacio de trabajo.",
     "hint": "Espacio de trabajo",
     "notFoundError": "Espacio de trabajo no encontrado",
     "failedToLoad": "¡Algo salió mal! No se pudo cargar el espacio de trabajo. Intente cerrar cualquier instancia abierta de @:appName y vuelva a intentarlo.",
@@ -85,13 +85,13 @@
       "reportIssue": "Reportar un problema",
       "reportIssueOnGithub": "Informar un problema en Github",
       "exportLogFiles": "Exportar archivos de registro (logs)",
-      "reachOut": "Comuníquese con Discord"
+      "reachOut": "Comunícate con Discord"
     },
     "menuTitle": "Espacios de trabajo",
-    "deleteWorkspaceHintText": "¿Está seguro de que desea eliminar el espacio de trabajo? Esta acción no se puede deshacer.",
+    "deleteWorkspaceHintText": "¿Estás seguro de que deseas eliminar el espacio de trabajo? Esta acción no se puede deshacer.",
     "createSuccess": "Espacio de trabajo creado exitosamente",
     "createFailed": "No se pudo crear el espacio de trabajo",
-    "createLimitExceeded": "Has alcanzado el límite máximo de espacio de trabajo permitido para su cuenta. Si necesita espacios de trabajo adicionales para continuar su trabajo, solicítelos en Github",
+    "createLimitExceeded": "Has alcanzado el límite máximo de espacio de trabajo permitido para tu cuenta. Si necesitas espacios de trabajo adicionales para continuar tu trabajo, solicítalos en Github",
     "deleteSuccess": "Espacio de trabajo eliminado correctamente",
     "deleteFailed": "No se pudo eliminar el espacio de trabajo",
     "openSuccess": "Espacio de trabajo abierto correctamente",
@@ -103,12 +103,12 @@
     "cannotDeleteTheOnlyWorkspace": "No se puede eliminar el único espacio de trabajo",
     "fetchWorkspacesFailed": "No se pudieron recuperar los espacios de trabajo",
     "leaveCurrentWorkspace": "Salir del espacio de trabajo",
-    "leaveCurrentWorkspacePrompt": "¿Está seguro de que desea abandonar el espacio de trabajo actual?"
+    "leaveCurrentWorkspacePrompt": "¿Estás seguro de que deseas abandonar el espacio de trabajo actual?"
   },
   "shareAction": {
     "buttonText": "Compartir",
     "workInProgress": "Próximamente",
-    "markdown": "Marcador",
+    "markdown": "Markdown",
     "html": "HTML",
     "clipboard": "Copiar al portapapeles",
     "csv": "CSV",
@@ -146,7 +146,7 @@
     "favorite": "Añadir a los favoritos",
     "openNewTab": "Abrir en una pestaña nueva",
     "moveTo": "Mover a",
-    "addToFavorites": "Añadira los favoritos",
+    "addToFavorites": "Añadir a los favoritos",
     "copyLink": "Copiar Enlace",
     "move": "Mover"
   },
@@ -162,7 +162,7 @@
     "serverUnavailable": "Servicio temporalmente no disponible. Por favor, inténtelo de nuevo más tarde.",
     "aiServerUnavailable": "🌈 ¡Uh-oh! 🌈. Un unicornio se comió nuestra respuesta. ¡Por favor, intenta de nuevo!",
     "retry": "Rever",
-    "clickToRetry": "Haga clic para volver a intentarlo",
+    "clickToRetry": "Haz clic para volver a intentarlo",
     "regenerateAnswer": "Regenerar",
     "question1": "Cómo utilizar Kanban para gestionar tareas",
     "question2": "Explica el método GTD",
@@ -202,12 +202,12 @@
     },
     "mobile": {
       "actions": "Acciones de papelera",
-      "empty": "La papelera está vacío",
+      "empty": "La papelera está vacía",
       "emptyDescription": "No tienes ningún archivo eliminado",
-      "isDeleted": "esta eliminado",
-      "isRestored": "esta restaurado"
+      "isDeleted": "está eliminado",
+      "isRestored": "está restaurado"
     },
-    "confirmDeleteTitle": "¿Está seguro de que desea eliminar esta página de forma permanente?"
+    "confirmDeleteTitle": "¿Estás seguro de que deseas eliminar esta página de forma permanente?"
   },
   "deletePagePrompt": {
     "text": "Esta página está en la Papelera",
@@ -218,7 +218,7 @@
   "questionBubble": {
     "shortcuts": "Atajos",
     "whatsNew": "¿Qué hay de nuevo?",
-    "markdown": "Reducción",
+    "markdown": "Markdown",
     "debug": {
       "name": "Información de depuración",
       "success": "¡Información copiada!",
@@ -258,7 +258,7 @@
     "darkMode": "Cambiar a modo Oscuro",
     "openAsPage": "Abrir como una página",
     "addNewRow": "Agregar una nueva fila",
-    "openMenu": "Haga clic para abrir el menú",
+    "openMenu": "Haz clic para abrir el menú",
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
     "referencePage": "Se hace referencia a este {nombre}",
@@ -273,9 +273,9 @@
     "workspace": "Espacio de trabajo",
     "favorites": "Favoritos",
     "clickToHidePrivate": "Haz clic para ocultar el espacio privado\nLas páginas que creaste aquí solo son visibles para ti",
-    "clickToHideWorkspace": "Haga clic para ocultar el espacio de trabajo\nLas páginas que creaste aquí son visibles para todos los miembros",
-    "clickToHidePersonal": "Haga clic para ocultar la sección personal",
-    "clickToHideFavorites": "Haga clic para ocultar la sección de favoritos",
+    "clickToHideWorkspace": "Haz clic para ocultar el espacio de trabajo\nLas páginas que creaste aquí son visibles para todos los miembros",
+    "clickToHidePersonal": "Haz clic para ocultar la sección personal",
+    "clickToHideFavorites": "Haz clic para ocultar la sección de favoritos",
     "addAPage": "Añadir una página",
     "addAPageToPrivate": "Agregar una página al espacio privado",
     "addAPageToWorkspace": "Agregar una página al espacio de trabajo",
@@ -289,7 +289,7 @@
     "favoriteSpace": "Favoritos",
     "RecentSpace": "Reciente",
     "Spaces": "Espacios",
-    "aiImageResponseLimit": "Se ha quedado sin respuestas de imágenes de IA.\n\nVaya a Configuración -> Plan -> Haga clic en AI Max para obtener más respuestas de imágenes de IA",
+    "aiImageResponseLimit": "Se ha quedado sin respuestas de imágenes de IA.\n\nVe a Configuración -> Plan -> Haz clic en AI Max para obtener más respuestas de imágenes de IA",
     "purchaseStorageSpace": "Comprar espacio de almacenamiento",
     "purchaseAIResponse": "Compra "
   },
@@ -336,23 +336,23 @@
     "rename": "Renombrar",
     "helpCenter": "Centro de ayuda",
     "add": "Añadir",
-    "yes": "Si",
+    "yes": "Sí",
     "no": "No",
     "clear": "Limpiar",
     "remove": "Eliminar",
     "dontRemove": "no quitar",
     "copyLink": "Copiar enlace",
     "align": "Alinear",
-    "login": "Inciar sessión",
+    "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "deleteAccount": "Borrar cuenta",
     "back": "Atrás",
     "signInGoogle": "Inicia sesión con Google",
     "signInGithub": "Iniciar sesión con Github",
-    "signInDiscord": "Iniciar sesión con discordia",
+    "signInDiscord": "Iniciar sesión con Discord",
     "more": "Más",
     "create": "Crear",
-    "close": "Cerca",
+    "close": "Cerrar",
     "next": "Próximo",
     "previous": "Anterior",
     "submit": "Entregar",
@@ -373,10 +373,10 @@
     },
     "google": {
       "title": "Ingresar con Google",
-      "instruction1": "Para importar sus contactos de Google, debe autorizar esta aplicación usando su navegador web.",
-      "instruction2": "Copie este código al presionar el icono o al seleccionar el texto:",
-      "instruction3": "Navege al siguiente enlace en su navegador web, e ingrese el código anterior:",
-      "instruction4": "Presione el botón de abajo cuando haya completado su registro:"
+      "instruction1": "Para importar tus contactos de Google, debes autorizar esta aplicación usando tu navegador web.",
+      "instruction2": "Copia este código al presionar el ícono o al seleccionar el texto:",
+      "instruction3": "Navega al siguiente enlace en tu navegador web, e ingresa el código anterior:",
+      "instruction4": "Presiona el botón de abajo cuando hayas completado tu registro:"
     }
   },
   "settings": {
@@ -411,9 +411,9 @@
       "files": "archivos",
       "notifications": "Notificaciones",
       "open": "Abrir ajustes",
-      "logout": "Cerrar session",
+      "logout": "Cerrar sesión",
       "logoutPrompt": "¿Estás seguro de cerrar sesión?",
-      "selfEncryptionLogoutPrompt": "¿Está seguro de que quieres cerrar la sesión? Asegúrese de haber copiado el codigo de cifrado.",
+      "selfEncryptionLogoutPrompt": "¿Estás seguro de que quieres cerrar sesión? Asegúrate de haber copiado el código de cifrado.",
       "syncSetting": "Configuración de sincronización",
       "cloudSettings": "Configuración de la nube",
       "enableSync": "Habilitar sincronización",
@@ -421,30 +421,30 @@
       "cloudURL": "URL base",
       "invalidCloudURLScheme": "Esquema no válido",
       "cloudServerType": "servidor en la nube",
-      "cloudServerTypeTip": "Tenga en cuenta que es posible que se cierre la sesión de su cuenta actual después de cambiar el servidor en la nube.",
+      "cloudServerTypeTip": "Ten en cuenta que es posible que se cierre la sesión de tu cuenta actual después de cambiar el servidor en la nube.",
       "cloudLocal": "Local",
       "cloudAppFlowy": "Nube @:appName",
       "cloudAppFlowySelfHost": "@:appName Cloud autohospedado",
       "appFlowyCloudUrlCanNotBeEmpty": "La URL de la nube no puede estar vacía",
-      "clickToCopy": "Haga clic para copiar",
-      "selfHostStart": "Si no tiene un servidor, consulte la",
+      "clickToCopy": "Haz clic para copiar",
+      "selfHostStart": "Si no tienes un servidor, consulta la",
       "selfHostContent": "documento",
-      "selfHostEnd": "para obtener orientación sobre cómo autohospedar su propio servidor",
-      "cloudURLHint": "Ingrese la URL base de su servidor",
+      "selfHostEnd": "para obtener orientación sobre cómo autohospedar tu propio servidor",
+      "cloudURLHint": "Ingresa la URL base de tu servidor",
       "cloudWSURL": "URL del conector web / websocket",
-      "cloudWSURLHint": "Ingrese la dirección websocket de su servidor",
+      "cloudWSURLHint": "Ingresa la dirección websocket de tu servidor",
       "restartApp": "Reiniciar",
-      "restartAppTip": "Reinicie la aplicación para que se apliquen los cambios. Tenga en cuenta que esto podría cerrar la sesión de su cuenta actual.",
+      "restartAppTip": "Reinicia la aplicación para que se apliquen los cambios. Ten en cuenta que esto podría cerrar la sesión de tu cuenta actual.",
       "changeServerTip": "Después de cambiar el servidor, debes hacer clic en el botón reiniciar para que los cambios surtan efecto",
       "enableEncryptPrompt": "Activa el cifrado para proteger tus datos con esta clave. Guárdalo de forma segura; una vez habilitado, no se puede desactivar. Si se pierden, tus datos se vuelven irrecuperables. Haz clic para copiar",
-      "inputEncryptPrompt": "Introduzca su secreto de cifrado para",
-      "clickToCopySecret": "Haga clic para copiar el código secreto",
-      "configServerSetting": "Configure los ajustes de su servidor",
+      "inputEncryptPrompt": "Introduce tu secreto de cifrado para",
+      "clickToCopySecret": "Haz clic para copiar el código secreto",
+      "configServerSetting": "Configura los ajustes de tu servidor",
       "configServerGuide": "Después de seleccionar \"Inicio rápido\", navega hasta \"Configuración\" y luego \"Configuración de la nube\" para configurar tu servidor autoalojado.",
-      "inputTextFieldHint": "Su código secreto",
+      "inputTextFieldHint": "Tu código secreto",
       "historicalUserList": "Historial de inicio de sesión del usuario",
       "historicalUserListTooltip": "Esta lista muestra tus cuentas anónimas. Puedes hacer clic en una cuenta para ver sus detalles. Las cuentas anónimas se crean haciendo clic en el botón \"Comenzar\".",
-      "openHistoricalUser": "Haga clic para abrir la cuenta anónima",
+      "openHistoricalUser": "Haz clic para abrir la cuenta anónima",
       "customPathPrompt": "Almacenar la carpeta de datos de @:appName en una carpeta sincronizada en la nube, como Google Drive, puede presentar riesgos. Si se accede a la base de datos dentro de esta carpeta o se modifica desde varias ubicaciones al mismo tiempo, se pueden producir conflictos de sincronización y posibles daños en los datos",
       "importAppFlowyData": "Importar datos desde una carpeta externa de @:appName",
       "importingAppFlowyDataTip": "La importación de datos está en curso. Por favor no cierres la aplicación.",
@@ -467,10 +467,10 @@
         "defaultFont": "Fuente predeterminada"
       },
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Modo de tema",
         "light": "Modo Claro",
         "dark": "Modo Oscuro",
-        "system": "Adapt to System"
+        "system": "Adaptar al sistema"
       },
       "fontScaleFactor": "Factor de escala de fuente",
       "documentSettings": {
@@ -502,9 +502,9 @@
       "themeUpload": {
         "button": "Subir",
         "uploadTheme": "Subir tema",
-        "description": "Cargue su propio tema @:appName usando el botón de abajo.",
-        "loading": "Espere mientras validamos y cargamos su tema...",
-        "uploadSuccess": "Su tema se ha subido con éxito",
+        "description": "Carga tu propio tema @:appName usando el botón de abajo.",
+        "loading": "Espera mientras validamos y cargamos tu tema...",
+        "uploadSuccess": "Tu tema se ha subido con éxito",
         "deletionFailure": "No se pudo eliminar el tema. Intenta eliminarlo manualmente.",
         "filePickerDialogTitle": "Elija un archivo .flowy_plugin",
         "urlUploadFailure": "No se pudo abrir la URL: {}",
@@ -565,24 +565,24 @@
       "doubleTapToCopy": "Toca dos veces para copiar la ruta",
       "restoreLocation": "Restaurar a la ruta predeterminada de @:appName",
       "customizeLocation": "Abrir otra carpeta",
-      "restartApp": "Reinicie la aplicación para que los cambios surtan efecto.",
+      "restartApp": "Reinicia la aplicación para que los cambios surtan efecto.",
       "exportDatabase": "Exportar base de datos",
-      "selectFiles": "Seleccione los archivos que necesitan ser exportados",
+      "selectFiles": "Selecciona los archivos que necesitan ser exportados",
       "selectAll": "Seleccionar todo",
       "deselectAll": "Deseleccionar todo",
       "createNewFolder": "Crear una nueva carpeta",
       "createNewFolderDesc": "Dinos dónde quieres almacenar tus datos",
-      "defineWhereYourDataIsStored": "Defina dónde se almacenan sus datos",
+      "defineWhereYourDataIsStored": "Define dónde se almacenan tus datos",
       "open": "Abierto",
       "openFolder": "Abrir una carpeta existente",
-      "openFolderDesc": "Léalo y escríbalo en su carpeta @:appName existente",
+      "openFolderDesc": "Léela y escríbela en tu carpeta @:appName existente",
       "folderHintText": "nombre de la carpeta",
       "location": "Creando una nueva carpeta",
-      "locationDesc": "Elija un nombre para su carpeta de datos de @:appName",
+      "locationDesc": "Elige un nombre para tu carpeta de datos de @:appName",
       "browser": "Navegar",
       "create": "Crear",
       "set": "Colocar",
-      "folderPath": "Ruta para almacenar su carpeta",
+      "folderPath": "Ruta para almacenar tu carpeta",
       "locationCannotBeEmpty": "La ruta no puede estar vacía",
       "pathCopiedSnackbar": "¡La ruta de almacenamiento de archivos se copió al portapapeles!",
       "changeLocationTooltips": "Cambiar el directorio de datos",
@@ -602,13 +602,13 @@
       "name": "Nombre",
       "email": "Correo electrónico",
       "tooltipSelectIcon": "Seleccionar icono",
-      "selectAnIcon": "Seleccione un icono",
+      "selectAnIcon": "Selecciona un icono",
       "pleaseInputYourOpenAIKey": "por favor ingrese su clave AI",
-      "clickToLogout": "Haga clic para cerrar la sesión del usuario actual.",
+      "clickToLogout": "Haz clic para cerrar sesión.",
       "pleaseInputYourStabilityAIKey": "por favor ingrese su clave de estabilidad AI"
     },
     "mobile": {
-      "personalInfo": "Informacion personal",
+      "personalInfo": "Información personal",
       "username": "Nombre de usuario",
       "usernameEmptyError": "El nombre de usuario no puede estar vacío",
       "about": "Acerca de",
@@ -626,10 +626,10 @@
     },
     "shortcuts": {
       "shortcutsLabel": "Atajos",
-      "command": "Commando",
+      "command": "Comando",
       "keyBinding": "Atajos",
       "addNewCommand": "Añadir nuevo comando",
-      "updateShortcutStep": "Presione la combinación de teclas deseada y presione ENTER",
+      "updateShortcutStep": "Presiona la combinación de teclas deseada y presiona ENTER",
       "shortcutIsAlreadyUsed": "Este atajo ya se utiliza para: {conflict}",
       "resetToDefault": "Restablecer los atajos predeterminados",
       "couldNotLoadErrorMsg": "No se pudieron cargar los atajos. Inténtalo de nuevo.",
@@ -647,14 +647,14 @@
     }
   },
   "grid": {
-    "deleteView": "¿Está seguro de que desea eliminar esta vista?",
+    "deleteView": "¿Estás seguro de que deseas eliminar esta vista?",
     "createView": "Nuevo",
     "title": {
-      "placeholder": "Sin títutlo"
+      "placeholder": "Sin título"
     },
     "settings": {
       "filter": "Filtrar",
-      "sort": "Clasificar",
+      "sort": "Ordenar",
       "sortBy": "Ordenar por",
       "properties": "Propiedades",
       "reorderPropertiesTooltip": "Arrastre para reordenar las propiedades",
@@ -682,33 +682,33 @@
       "startWith": "Comienza con",
       "is": "Es",
       "isNot": "No es",
-      "isEmpty": "Esta vacio",
+      "isEmpty": "Está vacío",
       "isNotEmpty": "No está vacío",
       "choicechipPrefix": {
         "isNot": "No",
         "startWith": "Comienza con",
         "endWith": "Termina con",
-        "isEmpty": "esta vacio",
+        "isEmpty": "Está vacío",
         "isNotEmpty": "no está vacío"
       }
     },
     "checkboxFilter": {
       "isChecked": "Comprobado",
-      "isUnchecked": "Desenfrenado",
+      "isUnchecked": "Desmarcado",
       "choicechipPrefix": {
         "is": "es"
       }
     },
     "checklistFilter": {
-      "isComplete": "Esta completo",
-      "isIncomplted": "esta incompleto"
+      "isComplete": "Está completo",
+      "isIncomplted": "Está incompleto"
     },
     "selectOptionFilter": {
       "is": "Es",
       "isNot": "No es",
       "contains": "Contiene",
       "doesNotContain": "No contiene",
-      "isEmpty": "Esta vacio",
+      "isEmpty": "Está vacío",
       "isNotEmpty": "No está vacío"
     },
     "dateFilter": {
@@ -718,14 +718,14 @@
       "onOrBefore": "Es en o antes",
       "onOrAfter": "Es en o después",
       "between": "Está entre",
-      "empty": "Esta vacio",
+      "empty": "Está vacío",
       "notEmpty": "No está vacío",
       "choicechipPrefix": {
         "before": "Antes",
         "after": "Después",
         "onOrBefore": "En o antes",
         "onOrAfter": "Sobre o después",
-        "isEmpty": "Está vacio",
+        "isEmpty": "Está vacío",
         "isNotEmpty": "No está vacío"
       }
     },
@@ -787,7 +787,7 @@
       "addOption": "Añadir opción",
       "editProperty": "Editar propiedad",
       "newProperty": "Nueva propiedad",
-      "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada",
+      "deleteFieldPromptMessage": "¿Estás seguro? Esta propiedad será eliminada",
       "clearFieldPromptMessage": "¿Estás seguro? Se vaciarán todas las celdas de esta columna.",
       "newColumn": "Nueva columna",
       "format": "Formato",
@@ -796,7 +796,7 @@
     },
     "rowPage": {
       "newField": "Agregar un nuevo campo",
-      "fieldDragElementTooltip": "Haga clic para abrir el menú",
+      "fieldDragElementTooltip": "Haz clic para abrir el menú",
       "showHiddenFields": {
         "one": "Mostrar {count} campo oculto",
         "many": "Mostrar {count} campos ocultos",
@@ -814,9 +814,9 @@
       "by": "Por",
       "empty": "Sin ordenamiento activo",
       "cannotFindCreatableField": "No se encuentra un campo adecuado para ordenar",
-      "deleteAllSorts": "Eliminar todos filtros",
-      "addSort": "Agregar clasificación",
-      "removeSorting": "¿Le gustaría eliminar la ordenación?",
+      "deleteAllSorts": "Eliminar todos los ordenamientos",
+      "addSort": "Agregar ordenamiento",
+      "removeSorting": "¿Deseas eliminar el ordenamiento?",
       "fieldInUse": "Ya estás ordenando por este campo",
       "deleteSort": "Borrar ordenar"
     },
@@ -829,7 +829,7 @@
       "count": "Contar",
       "newRow": "Nueva fila",
       "action": "Acción",
-      "add": "Haga clic en agregar a continuación",
+      "add": "Haz clic para agregar a continuación",
       "drag": "Arrastre para mover",
       "dragAndClick": "Arrastra para mover, haz clic para abrir el menú",
       "insertRecordAbove": "Insertar registro arriba",
@@ -1049,10 +1049,10 @@
       "placeholder": "Intitulado"
     },
     "imageBlock": {
-      "placeholder": "Haga clic para agregar imagen",
+      "placeholder": "Haz clic para agregar imagen",
       "upload": {
         "label": "Subir",
-        "placeholder": "Haga clic para cargar la imagen"
+        "placeholder": "Haz clic para cargar la imagen"
       },
       "url": {
         "label": "URL de la imagen",
@@ -1079,7 +1079,7 @@
         "placeholder": "Pega o escribe el enlace de una imagen"
       },
       "unsplash": {
-        "label": "Desempaquetar"
+        "label": "Unsplash"
       },
       "searchForAnImage": "Buscar una imagen",
       "pleaseInputYourOpenAIKey": "ingresa tu clave AI en la página de Configuración",
@@ -1109,7 +1109,7 @@
       "removeLink": "Remover enlace",
       "url": {
         "label": "URL del enlace",
-        "placeholder": "Introduzca la URL del enlace"
+        "placeholder": "Introduce la URL del enlace"
       },
       "title": {
         "label": "Título del enlace",
@@ -1120,7 +1120,7 @@
       "placeholder": "Menciona una persona, una página o fecha...",
       "page": {
         "label": "Enlace a la página",
-        "tooltip": "Haga clic para abrir la página"
+        "tooltip": "Haz clic para abrir la página"
       },
       "deleted": "Eliminado",
       "deletedContent": "Este contenido no existe o ha sido eliminado."
@@ -1168,7 +1168,7 @@
     "showUngrouped": "Mostrar elementos desagrupados",
     "ungroupedButtonText": "Desagrupados",
     "ungroupedButtonTooltip": "Contiene tarjetas que no pertenecen a ningún grupo.",
-    "ungroupedItemsTitle": "Haga clic para agregar al tablero",
+    "ungroupedItemsTitle": "Haz clic para agregar al tablero",
     "groupBy": "Agrupar por",
     "referencedBoardPrefix": "Vista de",
     "notesTooltip": "Notas en el interior",
@@ -1201,7 +1201,7 @@
       "changeLayoutDateField": "Cambiar campo de diseño",
       "noDateTitle": "Sin cita",
       "unscheduledEventsTitle": "Eventos no programados",
-      "clickToAdd": "Haga clic para agregar al calendario",
+      "clickToAdd": "Haz clic para agregar al calendario",
       "name": "Diseño de calendario",
       "noDateHint": "Los eventos no programados se mostrarán aquí"
     },
@@ -1228,7 +1228,7 @@
   },
   "unSupportBlock": "La versión actual no es compatible con este bloque.",
   "views": {
-    "deleteContentTitle": "¿Está seguro de que desea eliminar {pageType}?",
+    "deleteContentTitle": "¿Estás seguro de que deseas eliminar {pageType}?",
     "deleteContentCaption": "si elimina este {pageType}, puede restaurarlo de la papelera."
   },
   "colors": {
@@ -1353,9 +1353,9 @@
   },
   "findAndReplace": {
     "find": "Encontrar",
-    "previousMatch": "Partido anterior",
-    "nextMatch": "Próximo partido",
-    "close": "Cerca",
+    "previousMatch": "Coincidencia anterior",
+    "nextMatch": "Siguiente coincidencia",
+    "close": "Cerrar",
     "replace": "Reemplazar",
     "replaceAll": "Reemplaza todo",
     "noResult": "No hay resultados",
@@ -1573,7 +1573,7 @@
     "backgroundImage": "Imagen de fondo",
     "presets": "Preajustes",
     "photo": "Foto",
-    "unsplash": "Desempaquetar",
+    "unsplash": "Unsplash",
     "pageCover": "Portada de página",
     "none": "Ninguno"
   },
