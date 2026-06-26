@@ -27,6 +27,19 @@ abstract class DatabaseFilter extends Equatable {
   });
 
   factory DatabaseFilter.fromPB(FilterPB filterPB) {
+    if (filterPB.filterType == FilterType.And ||
+        filterPB.filterType == FilterType.Or) {
+      return GroupFilter(
+        filterId: filterPB.id,
+        filterType: filterPB.filterType,
+        children: filterPB.children.map(DatabaseFilter.fromPB).toList(),
+      );
+    }
+
+    if (!filterPB.hasData()) {
+      return PlaceholderFilter(filterId: filterPB.id);
+    }
+
     final FilterDataPB(:fieldId, :fieldType) = filterPB.data;
     switch (fieldType) {
       case FieldType.RichText:
@@ -88,7 +101,7 @@ abstract class DatabaseFilter extends Equatable {
           end: data.hasEnd() ? data.end.toDateTime() : null,
         );
       default:
-        throw ArgumentError();
+        return PlaceholderFilter(filterId: filterPB.id);
     }
   }
 
@@ -745,4 +758,50 @@ final class TimeFilter extends DatabaseFilter {
 
   @override
   List<Object?> get props => [filterId, fieldId, condition, content];
+}
+
+final class PlaceholderFilter extends DatabaseFilter {
+  const PlaceholderFilter({required super.filterId})
+      : super(fieldId: '', fieldType: FieldType.RichText);
+
+  @override
+  String get conditionName => "";
+
+  @override
+  bool get canAttachContent => false;
+
+  @override
+  String getContentDescription(FieldInfo field) => "";
+
+  @override
+  Uint8List writeToBuffer() => Uint8List(0);
+
+  @override
+  List<Object?> get props => [filterId];
+}
+
+final class GroupFilter extends DatabaseFilter {
+  const GroupFilter({
+    required super.filterId,
+    required this.filterType,
+    required this.children,
+  }) : super(fieldId: '', fieldType: FieldType.RichText);
+
+  final FilterType filterType;
+  final List<DatabaseFilter> children;
+
+  @override
+  String get conditionName => filterType == FilterType.And ? "And" : "Or";
+
+  @override
+  bool get canAttachContent => false;
+
+  @override
+  String getContentDescription(FieldInfo field) => "";
+
+  @override
+  Uint8List writeToBuffer() => Uint8List(0);
+
+  @override
+  List<Object?> get props => [filterId, filterType, children];
 }

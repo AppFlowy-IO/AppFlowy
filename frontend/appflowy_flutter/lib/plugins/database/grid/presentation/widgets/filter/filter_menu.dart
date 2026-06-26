@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -35,21 +36,28 @@ class FilterMenu extends StatelessWidget {
         },
         builder: (context, state) {
           final List<Widget> children = [];
-          children.addAll(
-            state.filters
-                .map(
-                  (filter) => FilterMenuItem(
-                    key: ValueKey(filter.filterId),
-                    filterId: filter.filterId,
-                    fieldType: state.fields
-                        .firstWhere(
-                          (element) => element.id == filter.fieldId,
-                        )
-                        .fieldType,
-                  ),
-                )
-                .toList(),
-          );
+          void addFilters(List<DatabaseFilter> filters) {
+            for (final filter in filters) {
+              if (filter is GroupFilter) {
+                addFilters(filter.children);
+              } else {
+                final field = state.fields.firstWhereOrNull(
+                  (element) => element.id == filter.fieldId,
+                );
+                if (field != null) {
+                  children.add(
+                    FilterMenuItem(
+                      key: ValueKey(filter.filterId),
+                      filterId: filter.filterId,
+                      fieldType: field.fieldType,
+                    ),
+                  );
+                }
+              }
+            }
+          }
+
+          addFilters(state.filters);
 
           if (state.fields.isNotEmpty) {
             children.add(
