@@ -207,7 +207,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                           padding: EdgeInsets.fromLTRB(
                             horizontalPadding + paddingLeft,
                             0,
-                            horizontalPadding,
+                            horizontalPadding + (isCalendar ? paddingLeft : 0),
                             0,
                           ),
                           child: child,
@@ -217,14 +217,20 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       return child;
                     },
                   ),
-                  pageSettingBarExtensionFromState(context, state),
+                  pageSettingBarExtensionFromState(
+                    context,
+                    state,
+                    horizontalPadding,
+                  ),
                   wrapContent(
                     layout: layout,
                     child: Padding(
-                      padding:
-                          (isCalendar && widget.shrinkWrap || showActionWrapper)
-                              ? EdgeInsets.only(left: 42 - horizontalPadding)
-                              : EdgeInsets.zero,
+                      padding: (widget.shrinkWrap || showActionWrapper)
+                          ? EdgeInsets.only(
+                              left: 42 - horizontalPadding,
+                              right: isCalendar ? paddingLeft : 0,
+                            )
+                          : EdgeInsets.zero,
                       child: Provider(
                         create: (_) => DatabasePluginWidgetBuilderSize(
                           horizontalPadding: horizontalPadding,
@@ -313,6 +319,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   Widget pageSettingBarExtensionFromState(
     BuildContext context,
     DatabaseTabBarState state,
+    double horizontalPadding,
   ) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
@@ -322,8 +329,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         state.tabBarControllerByViewId[tabBar.viewId]!.controller;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal:
-            context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+        horizontal: horizontalPadding,
       ),
       child: tabBar.builder.settingBarExtension(
         context,
