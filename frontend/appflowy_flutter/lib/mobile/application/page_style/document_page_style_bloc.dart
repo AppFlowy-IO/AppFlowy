@@ -434,6 +434,7 @@ class PageStyleCover {
 
   bool get isPresets => isPureColor || isGradient || isBuiltInImage;
   bool get isPhoto => isCustomImage || isLocalImage;
+  bool get isAlignEnable => isPhoto || isUnsplashImage || isBuiltInImage;
 
   bool get isNone => type == PageStyleCoverImageType.none;
   bool get isPureColor => type == PageStyleCoverImageType.pureColor;
