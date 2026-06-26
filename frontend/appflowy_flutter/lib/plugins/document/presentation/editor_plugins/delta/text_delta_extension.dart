@@ -32,6 +32,10 @@ extension TextDeltaExtension on Delta {
           if (mentionPageId != null) {
             text += await getMentionPageName(mentionPageId);
             continue;
+          } else if (mentionType == MentionType.allMembers.name) {
+            final label = mention?[MentionBlockKeys.label] ?? 'all';
+            text += '@$label';
+            continue;
           } else if (mentionType == MentionType.externalLink.name) {
             final url = mention?[MentionBlockKeys.url] ?? '';
             final info = await LinkInfoCache.get(url);
