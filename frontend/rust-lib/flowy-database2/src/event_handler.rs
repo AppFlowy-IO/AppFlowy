@@ -1212,15 +1212,63 @@ pub(crate) async fn update_relation_cell_handler(
   //   .validate_row_ids_exist(&params)
   //   .await?;
 
+  let mut is_bidirectional = false;
+  if let Some(field) = database_editor.get_field(&cell_id.field_id).await {
+    if let Some(type_option_data) =
+      field.get_any_type_option(collab_database::fields::FieldType::Relation)
+    {
+      let bytes =
+        crate::services::field::type_option_to_pb(type_option_data, &FieldType::Relation);
+      if let Ok(pb) = RelationTypeOptionPB::try_from(bytes.as_ref()) {
+        if pb.bidirectional && pb.database_id == database_editor.get_database_id().await {
+          is_bidirectional = true;
+        }
+      }
+    }
+  }
+
   // update the cell in the database
   database_editor
     .update_cell_with_changeset(
       &view_id,
       &cell_id.row_id,
       &cell_id.field_id,
-      BoxAny::new(params),
+      BoxAny::new(params.clone()),
     )
     .await?;
+
+  if is_bidirectional {
+    for row_id in params.inserted_row_ids {
+      let reverse_params = RelationCellChangeset {
+        inserted_row_ids: vec![cell_id.row_id.clone()],
+        removed_row_ids: vec![],
+      };
+      let _ = database_editor
+        .update_cell_with_changeset(
+          &view_id,
+          &row_id.to_string(),
+          &cell_id.field_id,
+          BoxAny::new(reverse_params),
+        )
+        .await;
+    }
+
+    for row_id in params.removed_row_ids {
+      let reverse_params = RelationCellChangeset {
+        inserted_row_ids: vec![],
+        removed_row_ids: vec![cell_id.row_id.clone()],
+      };
+      let _ = database_editor
+        .update_cell_with_changeset(
+          &view_id,
+          &row_id.to_string(),
+          &cell_id.field_id,
+          BoxAny::new(reverse_params),
+        )
+        .await;
+    }
+  }
+
   Ok(())
 }
 
