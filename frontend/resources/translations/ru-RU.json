@@ -11,13 +11,12 @@
   "and": "и",
   "failedToOpenUrl": "Не удалось открыть URL: {}",
   "blockActions": {
-    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
-    "addAboveCmd": "Alt+клик",
-    "addAboveMacCmd": "Option+клик",
-     "settings": "Настройки"
-    "addAboveTooltip": "чтобы добавить выше",
-    "dragTooltip": "Перетащите, чтобы переместить",
-    "openMenuTooltip": "Нажмите, чтобы открыть меню"
+  "addBelowTooltip": "Нажмите, чтобы добавить ниже",
+  "addAboveCmd": "Alt+клик",
+  "addAboveMacCmd": "Option+клик",
+  "settings": "Настройки",
+  "addAboveTooltip": "чтобы добавить выше",
+  "dragTooltip": "Перетащите, чтобы переместить"
   },
   "signUp": {
     "buttonText": "Зарегистрироваться",
@@ -3387,3 +3386,4 @@
     "insertBelow": "Вставить ниже"
   }
 }
+
