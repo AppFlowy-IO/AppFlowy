@@ -21,6 +21,8 @@ import '../../../../widgets/row/accessory/cell_accessory.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
 import '../../layout/sizes.dart';
 import 'action.dart';
+import '../selection_controller.dart';
+
 
 class GridRow extends StatelessWidget {
   const GridRow({
@@ -81,7 +83,18 @@ class GridRow extends StatelessWidget {
       );
     }
 
-    return rowContent;
+    return Consumer<GridSelectionController>(
+      builder: (context, selection, child) {
+        final isSelected = selection.isSelected(rowId);
+        return Container(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          child: child,
+        );
+      },
+      child: rowContent,
+    );
   }
 }
 
@@ -111,8 +124,13 @@ class _RowLeadingState extends State<_RowLeading> {
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       popupBuilder: (_) {
         final bloc = context.read<RowBloc>();
-        return BlocProvider.value(
-          value: context.read<GridBloc>(),
+        return MultiProvider(
+          providers: [
+            BlocProvider.value(value: context.read<GridBloc>()),
+            ChangeNotifierProvider<GridSelectionController>.value(
+              value: context.read<GridSelectionController>(),
+            ),
+          ],
           child: RowActionMenu(
             viewId: bloc.viewId,
             rowId: bloc.rowId,
@@ -313,7 +331,7 @@ class RowContent extends StatelessWidget {
         builder: (context, compactMode, _) {
           return Container(
             width: GridSize.newPropertyButtonWidth,
-            constraints: BoxConstraints(minHeight: compactMode ? 32 : 36),
+            constraints: BoxConstraints(minHeight: compactMode ? GridSize.compactRowHeight : GridSize.rowHeight),
             decoration: BoxDecoration(
               border: Border(
                 bottom:
