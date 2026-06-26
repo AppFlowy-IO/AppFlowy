@@ -10,6 +10,10 @@ const _dashGreater = '→';
 const _hyphen = '-';
 const _emDash = '—'; // This is an em dash — not a single dash - !!
 
+const _leftAngle = '<';
+const _leftGuillemet = '«';
+const _rightGuillemet = '»';
+
 /// format '=' + '>' into an ⇒
 ///
 /// - support
@@ -61,6 +65,46 @@ final CharacterShortcutEvent customFormatDoubleHyphenEmDash =
     editorState: editorState,
     character: _hyphen,
     replacement: _emDash,
+  ),
+);
+
+/// format two left angle brackets into a left guillemet
+///
+/// '<<' into '«'
+///
+/// - support
+///   - desktop
+///   - mobile
+///   - web
+///
+final CharacterShortcutEvent customFormatDoubleAngleLeftGuillemet =
+    CharacterShortcutEvent(
+  key: 'format double left angle bracket into a left guillemet',
+  character: _leftAngle,
+  handler: (editorState) async => _handleDoubleCharacterReplacement(
+    editorState: editorState,
+    character: _leftAngle,
+    replacement: _leftGuillemet,
+  ),
+);
+
+/// format two right angle brackets into a right guillemet
+///
+/// '>>' into '»'
+///
+/// - support
+///   - desktop
+///   - mobile
+///   - web
+///
+final CharacterShortcutEvent customFormatDoubleAngleRightGuillemet =
+    CharacterShortcutEvent(
+  key: 'format double right angle bracket into a right guillemet',
+  character: _greater,
+  handler: (editorState) async => _handleDoubleCharacterReplacement(
+    editorState: editorState,
+    character: _greater,
+    replacement: _rightGuillemet,
   ),
 );
 
