@@ -57,7 +57,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Flutter build
         uses: ./.github/actions/flutter_build
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Flutter build
         uses: ./.github/actions/flutter_build
@@ -110,7 +110,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Flutter build
         uses: ./.github/actions/flutter_build
@@ -137,7 +137,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -190,7 +190,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -230,7 +230,7 @@ jobs:
 
     steps:
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
@@ -288,7 +288,7 @@ jobs:
           fi
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install flutter
         id: flutter
@@ -316,7 +316,7 @@ jobs:
           flutter config --enable-linux-desktop
         shell: bash
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -353,7 +353,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Flutter Integration Test ${{ matrix.test_number }}
         uses: ./.github/actions/flutter_integration_test
