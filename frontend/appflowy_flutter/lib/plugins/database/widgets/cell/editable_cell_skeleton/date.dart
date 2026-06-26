@@ -122,6 +122,40 @@ String getDateCellStrFromCellData(FieldInfo field, DateCellData cellData) {
   }
 }
 
+/// Returns a human-readable string representing the time remaining until the given date
+/// or how long overdue it is
+/// e.g., "3 days left", "2 hours left", "5 minutes left" (for future dates)
+///       "2 days overdue", "3 hours overdue" (for past dates)
+/// Returns an empty string if cellData.dateTime is null
+String getTimeRemainingFromCellData(DateCellData cellData) {
+  if (cellData.dateTime == null) {
+    return "";
+  }
+
+  final now = DateTime.now();
+  final targetDate = cellData.dateTime!;
+  final difference = targetDate.difference(now);
+
+  // Calculate absolute time difference
+  final absDifference = difference.abs();
+  final days = absDifference.inDays;
+  final hours = absDifference.inHours;
+  final minutes = absDifference.inMinutes;
+
+  // Determine if it's overdue or upcoming
+  final isOverdue = difference.isNegative;
+
+  if (days > 0) {
+    return "$days day${days == 1 ? '' : 's'} ${isOverdue ? 'overdue' : 'left'}";
+  } else if (hours > 0) {
+    return "$hours hour${hours == 1 ? '' : 's'} ${isOverdue ? 'overdue' : 'left'}";
+  } else if (minutes > 0) {
+    return "$minutes min${minutes == 1 ? '' : 's'} ${isOverdue ? 'overdue' : 'left'}";
+  } else {
+    return isOverdue ? "Overdue" : "Less than a minute";
+  }
+}
+
 extension GetDateFormatExtension on DateFormatPB {
   String get pattern => switch (this) {
         DateFormatPB.Local => 'MM/dd/y',
