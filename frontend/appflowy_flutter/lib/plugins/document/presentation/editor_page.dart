@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../inline_actions/handlers/hashtag_reference.dart';
 import 'editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'editor_plugins/toolbar_item/custom_format_toolbar_items.dart';
 import 'editor_plugins/toolbar_item/custom_hightlight_color_toolbar_item.dart';
@@ -88,6 +89,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     ],
   );
 
+  late final InlineActionsService hashtagActionsService = InlineActionsService(
+    context: context,
+    handlers: [
+      HashtagReferenceService(),
+    ],
+  );
+
   late final List<CommandShortcutEvent> commandShortcuts = [
     ...commandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
@@ -121,6 +129,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       documentBloc,
       styleCustomizer,
       inlineActionsService,
+      hashtagActionsService,
       (editorState, node) => _customSlashMenuItems(
         editorState: editorState,
         node: node,
@@ -329,6 +338,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       effectiveScrollController.dispose();
     }
     inlineActionsService.dispose();
+    hashtagActionsService.dispose();
     editorScrollController.dispose();
 
     super.dispose();
