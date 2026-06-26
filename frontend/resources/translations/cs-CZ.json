@@ -606,19 +606,42 @@
         "publishNameContainsInvalidCharacters": "Název cesty obsahuje neplatné znaky, zkuste prosím jiný.",
         "publishNameTooShort": "Název cesty je příliš krátký, zkuste prosím jiný",
         "publishNameTooLong": "Název cesty je příliš dlouhý, zkuste prosím jiný",
-        "publishNameAlreadyInUse": "Název cesty se již používá, zkuste prosím jiný"
+        "publishNameAlreadyInUse": "Název cesty se již používá, zkuste prosím jiný",
+        "publishPermissionDenied": "Nastavení publikování může spravovat pouze vlastník pracovního prostoru nebo publikující",
+        "publishNameCannotBeEmpty": "Název cesty nemůže být prázdný, zkuste prosím jiný"
+      },
+      "success": {
+        "namespaceUpdated": "Jmenný prostor byl úspěšně aktualizován",
+        "setHomepageSuccess": "Domovská stránka úspěšně nastavena",
+        "updatePathNameSuccess": "Název cesty byl úspěšně aktualizován",
+        "removeHomePageSuccess": "Domovská stránka byla úspěšně odstraněna"
       }
     },
     "accountPage": {
+      "menuLabel": "Účet a aplikace",
+      "title": "Můj účet",
+      "general": {
+        "title": "Název účtu a profilový obrázek",
+        "changeProfilePicture": "Změnit profilový obrázek"
+      },
+      "email": {
+        "title": "E-mail",
+        "actions": {
+          "change": "Změnit e-mailovou adresu"
+        }
+      },
       "login": {
         "title": "Přihlášení k účtu",
         "loginLabel": "Přihlásit se",
         "logoutLabel": "Odhlásit se"
-      }
+      },
+      "isUpToDate": "@:appName je aktuální!",
+      "officialVersion": "Verze {version} (官方構建)"
     },
     "workspacePage": {
       "menuLabel": "Pracovní prostor",
       "title": "Pracovní prostor",
+      "description": "Přizpůsobte si vzhled pracovního prostoru, motiv, písmo, rozvržení textu, formát data/času a jazyk.",
       "workspaceName": {
         "title": "Název pracovního prostoru"
       },
@@ -627,26 +650,58 @@
         "description": "Nahrajte obrázek nebo použijte emoji pro svůj pracovní prostor. Ikona se zobrazí v postranním panelu a v oznámeních."
       },
       "appearance": {
+        "title": "Vzhled",
+        "description": "Přizpůsobte si vzhled pracovního prostoru, motiv, písmo, rozvržení textu, datum, čas a jazyk.",
         "options": {
+          "system": "Auto",
           "light": "Světlý",
           "dark": "Tmavý"
         }
       },
+      "resetCursorColor": {
+        "title": "Obnovit barvu ukazatele dokumentu",
+        "description": "Opravdu chcete resetovat barvu ukazatele?"
+      },
+      "resetSelectionColor": {
+        "title": "Obnovit barvu výběru dokumentu",
+        "description": "Opravdu chcete resetovat barvu výběru?"
+      },
+      "resetWidth": {
+        "resetSuccess": "Šířka dokumentu úspěšně resetována"
+      },
+      "theme": {
+        "title": "Motiv",
+        "description": "Vyberte přednastavený motiv nebo nahrajte svůj vlastní.",
+        "uploadCustomThemeTooltip": "Nahrát vlastní motiv",
+        "failedToLoadThemes": "Načtení motivů se nezdařilo, zkontrolujte prosím nastavení oprávnění v Nastavení systému > Soukromí a zabezpečení > Soubory a složky > @:appName"
+      },
+      "workspaceFont": {
+        "title": "Písmo pracovního prostoru",
+        "noFontHint": "Nenalezeno žádné písmo, zkuste jiný výraz."
+      },
       "textDirection": {
+        "title": "Směr textu",
         "leftToRight": "Zleva doprava",
-        "rightToLeft": "Zprava doleva"
+        "rightToLeft": "Zprava doleva",
+        "auto": "Auto",
+        "enableRTLItems": "Povolit položky panelu nástrojů RTL"
       },
       "layoutDirection": {
+        "title": "Směr rozvržení",
         "leftToRight": "Zleva doprava",
         "rightToLeft": "Zprava doleva"
       },
       "dateTime": {
         "title": "Datum a čas",
+        "example": "{} v {} ({})",
         "24HourTime": "24 hodinový čas",
         "dateFormat": {
           "label": "Formát datumu",
           "local": "Místní",
-          "us": "US"
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Přátelský",
+          "dmy": "D/M/R"
         }
       },
       "language": {
@@ -658,7 +713,122 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Opustit pracovní prostor",
+        "content": "Opravdu chcete opustit tento pracovní prostor? Ztratíte přístup ke všem stránkám a datům v něm.",
+        "success": "Úspěšně jste opustili pracovní prostor.",
         "fail": "Nepodařilo se opustit pracovní prostor."
+      },
+      "manageWorkspace": {
+        "title": "Správa pracovního prostoru",
+        "leaveWorkspace": "Opustit pracovní prostor",
+        "deleteWorkspace": "Smazat pracovní prostor"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Správa dat",
+      "title": "Správa dat",
+      "description": "Správa místního úložiště dat nebo importujte stávající data do @:appName .",
+      "dataStorage": {
+        "title": "Umístění úložiště souborů",
+        "tooltip": "Místo, kde jsou uloženy vaše soubory",
+        "actions": {
+          "change": "Změnit cestu",
+          "open": "Otevřít složku",
+          "openTooltip": "Otevřít aktuální umístění složky s daty",
+          "copy": "Kopírovat cestu",
+          "copiedHint": "Cesta zkopírována!",
+          "resetTooltip": "Obnovit na výchozí umístění"
+        },
+        "resetDialog": {
+          "title": "Jste si jistí?",
+          "description": "Obnovením cesty k výchozímu umístění dat se vaše data neodstraní. Pokud chcete znovu importovat aktuální data, měli byste nejprve zkopírovat cestu k aktuálnímu umístění."
+        }
+      },
+      "importData": {
+        "title": "Import dat",
+        "tooltip": "Importovat data ze záloh/složek dat @:appName",
+        "description": "Zkopírovat data z externí datové složky @:appName",
+        "action": "Procházet soubory"
+      },
+      "encryption": {
+        "title": "Šifrování",
+        "tooltip": "Spravujte, jak jsou vaše data ukládána a šifrována",
+        "descriptionNoEncryption": "Zapnutím šifrování budou zašifrována všechna data. Tuto akci nelze vrátit zpět.",
+        "descriptionEncrypted": "Vaše data jsou šifrována.",
+        "action": "Zašífrovat data",
+        "dialog": {
+          "title": "Zašifrovat všechna vaše data?",
+          "description": "Šifrování všech vašich dat zajistí jejich bezpečnost. Tuto akci NELZE vrátit zpět. Jste si jisti, že chcete pokračovat?"
+        }
+      },
+      "cache": {
+        "title": "Vymazat mezipaměť",
+        "description": "Pomozte vyřešit problémy, jako je nenačítání obrázků, chybějící stránky v prostoru a nenačítání písem. Toto neovlivní vaše data.",
+        "dialog": {
+          "title": "Vymazat mezipaměť",
+          "description": "Pomozte vyřešit problémy, jako je nenačítání obrázků, chybějící stránky v pracovním prostoru a nenačítání písem. Toto neovlivní vaše data.",
+          "successHint": "Mezipaměť vymazána!"
+        }
+      },
+      "data": {
+        "fixYourData": "Opravte svá data",
+        "fixButton": "Opravit",
+        "fixYourDataDescription": "Pokud máte problémy s daty, můžete se je pokusit vyřešit zde."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Zkratky",
+      "title": "Zkratky",
+      "editBindingHint": "Zadejte novou klávesovou zkratku ",
+      "searchHint": "Vyhledávání",
+      "actions": {
+        "resetDefault": "Obnovit výchozí"
+      },
+      "errorPage": {
+        "message": "Nepodařilo se načíst zkratky: {}",
+        "howToFix": "Zkuste to prosím znovu, pokud problém přetrvává, kontaktujte nás prosím na GitHubu."
+      },
+      "resetDialog": {
+        "title": "Obnovit zkratky",
+        "description": "Tímto se všechny vaše klávesové zkratky resetují na výchozí hodnoty, tuto akci nelze později vrátit zpět. Jste si jisti, že chcete pokračovat?",
+        "buttonLabel": "Obnovit"
+      },
+      "conflictDialog": {
+        "title": "{} se aktuálně používá",
+        "confirmLabel": "Pokračovat"
+      },
+      "editTooltip": "Stisknutím spustíte úpravu klávesové zkratky",
+      "keybindings": {
+        "toggleToDoList": "Přepnout na seznam úkolů",
+        "insertNewParagraphInCodeblock": "Vložit nový odstavec",
+        "pasteInCodeblock": "Vložit do kódového bloku",
+        "selectAllCodeblock": "Vybrat vše",
+        "indentLineCodeblock": "Vložit dvě mezery na začátek řádku",
+        "outdentLineCodeblock": "Odstranit dvě mezery na začátku řádku",
+        "twoSpacesCursorCodeblock": "Vložit dvě mezery za ukazatel",
+        "copy": "Kopírovat výběr",
+        "paste": "Vložit do obsahu",
+        "cut": "Vyjmout výběr",
+        "alignLeft": "Zarovnat text doleva",
+        "alignCenter": "Zarovnat text na střed",
+        "alignRight": "Zarovnat text doprava",
+        "insertInlineMathEquation": "Vložit matematický vzorec do řádku",
+        "undo": "Zpět",
+        "redo": "Předělat",
+        "convertToParagraph": "Převést blok na odstavec",
+        "moveCursorBeginning": "Přesunout ukazatel na začátek",
+        "moveCursorLeftWord": "Posunout ukazatel o jedno slovo doleva",
+        "end": "Přejít dolů",
+        "toggleBold": "Přepnout tučně",
+        "toggleItalic": "Přepnout kurzívu",
+        "toggleUnderline": "Přepnout podtržení",
+        "toggleStrikethrough": "Přepnout přeškrtnutí",
+        "toggleCode": "Přepnout vložený kód",
+        "toggleHighlight": "Přepnout zvýraznění",
+        "indent": "Odsazení",
+        "outdent": "Vsazení",
+        "exit": "Ukončit úpravy",
+        "pageUp": "Posunout o jednu stránku nahoru",
+        "selectAll": "Vybrat vše"
       }
     },
     "menu": {
@@ -1240,18 +1410,35 @@
         "one": "{} nenaplánovaná událost",
         "other": "{} nenaplánovaných událostí"
       },
+      "unscheduledEventsTitle": "Neplánované události",
       "clickToAdd": "Přidat do kalendáře",
-      "name": "Rozložení kalendáře"
+      "name": "Rozložení kalendáře",
+      "clickToOpen": "Kliknutím otevřete záznam"
     },
-    "referencedCalendarPrefix": "Pohled na"
+    "referencedCalendarPrefix": "Pohled na",
+    "quickJumpYear": "Přejít na",
+    "duplicateEvent": "Duplikovat událost"
   },
   "errorDialog": {
     "title": "Chyba @:appName",
     "howToFixFallback": "Omlouváme se za nepříjemnost! Pošlete hlášení na náš GitHub, kde popíšete chybu na kterou jste narazili.",
+    "howToFixFallbackHint1": "Omlouváme se za nepříjemnosti! Nahlaste nám problém na našich stránkách. ",
+    "howToFixFallbackHint2": " stránka, která popisuje vaši chybu.",
     "github": "Zobrazit na GitHubu"
   },
   "search": {
     "label": "Hledat",
+    "sidebarSearchIcon": "Vyhledávání s rychlým přechodem na stránku",
+    "searchOrAskAI": "Hledejte nebo se zeptejte na AI",
+    "searchFieldHint": "Vyhledejte nebo se zeptejte v {}...",
+    "askAIAnything": "Zeptejte se AI na cokoliv",
+    "askAIFor": "Zeptejte se AI",
+    "searching": "Hledání...",
+    "seeMore": "Zobrazit více",
+    "showMore": "Zobrazit více",
+    "somethingWentWrong": "Něco se pokazilo",
+    "pageNotExist": "Tato stránka neexistuje",
+    "tryAgainOrLater": "Zkuste to prosím znovu později.",
     "placeholder": {
       "actions": "Hledat - příkazy..."
     }
@@ -1321,7 +1508,21 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Formát data a času změníte v Nastavení"
+    "dateTimeFormatTooltip": "Formát data a času změníte v Nastavení",
+    "reminderOptions": {
+      "atTimeOfEvent": "Čas události",
+      "fiveMinsBefore": "5 minut před",
+      "tenMinsBefore": "10 minut před",
+      "fifteenMinsBefore": "15 minut před",
+      "thirtyMinsBefore": "30 minut před",
+      "oneHourBefore": "1 hodinu před",
+      "twoHoursBefore": "2 hodiny před",
+      "onDayOfEvent": "V den události",
+      "oneDayBefore": "1 den předtím",
+      "twoDaysBefore": "2 dny předtím",
+      "oneWeekBefore": "1 týden předtím",
+      "custom": "Vlastní"
+    }
   },
   "relativeDates": {
     "yesterday": "Včera",
@@ -1331,6 +1532,17 @@
   },
   "notificationHub": {
     "title": "Upozornění",
+    "closeNotification": "Zavřít oznámení",
+    "viewNotifications": "Zobrazit oznámení",
+    "noNotifications": "Zatím žádná oznámení",
+    "mentionedYou": "Vás zmínil",
+    "archivedTooltip": "Archivovat toto oznámení",
+    "unarchiveTooltip": "Zrušit archivaci tohoto oznámení",
+    "markAsReadTooltip": "Označit toto oznámení jako přečtené",
+    "markAsArchivedSucceedToast": "Úspěšně archivováno",
+    "markAllAsArchivedSucceedToast": "Vše úspěšně archivováno",
+    "markAsReadSucceedToast": "Úspěšně označeno jako přečtené",
+    "markAllAsReadSucceedToast": "Označit vše jako úspěšně přečtené",
     "emptyTitle": "Nic Vám neuteklo!",
     "emptyBody": "Žádné nevyřízené akce nebo upozornění. Užijte si klid.",
     "tabs": {
@@ -1374,6 +1586,7 @@
   "editor": {
     "bold": "Tučné",
     "bulletedList": "Odrážkový seznam",
+    "bulletedListShortForm": "Odrážky",
     "checkbox": "Zaškrtávací políčko",
     "embedCode": "Vložit kód (embed)",
     "heading1": "Nadpis 1",
@@ -1382,9 +1595,15 @@
     "highlight": "Zvýrazenění",
     "color": "Barva",
     "image": "Obrázek",
+    "date": "Datum",
+    "page": "Stránka",
     "italic": "Kurzíva",
     "link": "Odkaz",
     "numberedList": "Číslovaný seznam",
+    "numberedListShortForm": "Číslované",
+    "toggleHeading1ShortForm": "Přepnout H1",
+    "toggleHeading2ShortForm": "Přepnout H2",
+    "toggleHeading3ShortForm": "Přepnout H3",
     "quote": "Citace",
     "strikethrough": "Přeškrtnutí",
     "text": "Text",
@@ -1409,6 +1628,8 @@
     "backgroundColorPurple": "Fialové pozadí",
     "backgroundColorPink": "Růžové pozadí",
     "backgroundColorRed": "Červené pozadí",
+    "backgroundColorLime": "Vápno pozadí",
+    "backgroundColorAqua": "Aqua pozadí",
     "done": "Hotovo",
     "cancel": "Zrušit",
     "tint1": "Odstín 1",
@@ -1433,6 +1654,7 @@
     "mobileHeading1": "Nadpis 1",
     "mobileHeading2": "Nadpis 2",
     "mobileHeading3": "Nadpis 3",
+    "mobileHeading4": "Nadpis 4",
     "textColor": "Barva textu",
     "backgroundColor": "Barva pozadí",
     "addYourLink": "Přidejte odkaz",
@@ -1486,7 +1708,9 @@
   },
   "favorite": {
     "noFavorite": "Žádné oblíbené stránky",
-    "noFavoriteHintText": "Swipnutím doleva přidáte stránku do oblíbených"
+    "noFavoriteHintText": "Swipnutím doleva přidáte stránku do oblíbených",
+    "removeFromSidebar": "Odebrat z postranního panelu",
+    "addToSidebar": "Připnout na postranní panel"
   },
   "cardDetails": {
     "notesPlaceholder": "Napište / k "
@@ -1502,6 +1726,31 @@
     "pageIcon": "Ikona stránky",
     "language": "Jazyk",
     "font": "Písmo",
-    "actions": "Příkazy"
+    "actions": "Příkazy",
+    "date": "Datum",
+    "addField": "Přidat pole",
+    "userIcon": "Ikona uživatele"
+  },
+  "noLogFiles": "Nejsou zde žádné soubory protokolů",
+  "newSettings": {
+    "myAccount": {
+      "title": "Účet a aplikace",
+      "subtitle": "Přizpůsobte si profil, spravujte zabezpečení účtu, otevírejte klíče umělé inteligence nebo se přihlaste ke svému účtu.",
+      "profileLabel": "Název účtu a profilový obrázek",
+      "profileNamePlaceholder": "Zadejte své jméno",
+      "accountSecurity": "Zabezpečení účtu",
+      "2FA": "Dvoufázové ověřování",
+      "aiKeys": "AI klíče",
+      "accountLogin": "Přihlášení k účtu",
+      "updateNameError": "Aktualizace jména se nezdařilo",
+      "updateIconError": "Aktualizace ikony se nezdařilo",
+      "aboutAppFlowy": "O aplikaci @:appName",
+      "deleteAccount": {
+        "title": "Smazat účet",
+        "subtitle": "Trvale smažte svůj účet a všechna svá data.",
+        "description": "Trvale smažte svůj účet a odeberte přístup ze všech pracovních prostorů.",
+        "deleteMyAccount": "Smazat můj účet"
+      }
+    }
   }
 }
