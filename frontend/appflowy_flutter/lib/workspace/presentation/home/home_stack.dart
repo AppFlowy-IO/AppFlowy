@@ -29,8 +29,10 @@ import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:window_manager/window_manager.dart';
-
 import 'home_layout.dart';
+
+import '../widgets/tags/tag_search_bar.dart';
+
 
 typedef NavigationCallback = void Function(String id);
 
@@ -77,6 +79,17 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
                     context.read<TabsBloc>().add(TabsEvent.selectTab(index));
                     setState(() => selectedIndex = index);
                   }
+                },
+              ),
+            ),
+
+            //tag feature 
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TagSearchBar(
+                onChanged: (query) {
+                  // TEMP: just prints text
+                  debugPrint('Search query: $query');
                 },
               ),
             ),
