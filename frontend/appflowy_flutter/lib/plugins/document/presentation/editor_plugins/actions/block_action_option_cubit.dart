@@ -44,6 +44,9 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       case OptionAction.copyLinkToBlock:
         await _copyLinkToBlock(node);
         break;
+      case OptionAction.copyText:
+        await _copyText(node);
+        break;
       case OptionAction.setToPageWidth:
         await _setToPageWidth(node);
         break;
@@ -257,6 +260,29 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     );
 
     emit(BlockActionOptionState()); // Emit a new state to trigger UI update
+  }
+
+  Future<void> _copyText(Node node) async {
+    List<Node> nodes = [node];
+
+    final selection = editorState.selection;
+    final selectionType = editorState.selectionType;
+    
+    if (selectionType == SelectionType.block && selection != null) {
+      nodes = editorState.getNodesInSelection(selection.normalized);
+    }
+
+    final text = nodes.map((n) {
+      final delta = n.delta;
+      if (delta == null) return '';
+      return delta.toPlainText();
+    }).join('\n');
+
+    await getIt<ClipboardService>().setData(
+      ClipboardServiceData(plainText: text),
+    );
+
+    emit(BlockActionOptionState());
   }
 
   static Future<bool> turnIntoBlock(
