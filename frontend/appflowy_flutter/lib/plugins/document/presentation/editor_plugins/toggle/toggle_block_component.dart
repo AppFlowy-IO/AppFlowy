@@ -180,11 +180,26 @@ class _ToggleListBlockComponentWidgetState
 
   bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
 
+  bool? _readOnlyCollapsed;
+
+  bool get _effectiveCollapsed => _readOnlyCollapsed ?? collapsed;
+
   int? get level => node.attributes[ToggleListBlockKeys.level] as int?;
 
   @override
+  void didUpdateWidget(ToggleListBlockComponentWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldCollapsed =
+        oldWidget.node.attributes[ToggleListBlockKeys.collapsed] as bool? ??
+            false;
+    if (oldCollapsed != collapsed) {
+      _readOnlyCollapsed = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return collapsed
+    return _effectiveCollapsed
         ? buildComponent(context)
         : buildComponentWithChildren(context);
   }
@@ -241,7 +256,7 @@ class _ToggleListBlockComponentWidgetState
       child: Container(
         key: blockComponentKey,
         color: withBackgroundColor ||
-                (backgroundColor != Colors.transparent && collapsed)
+                (backgroundColor != Colors.transparent && _effectiveCollapsed)
             ? backgroundColor
             : null,
         child: child,
@@ -295,7 +310,7 @@ class _ToggleListBlockComponentWidgetState
   Widget _buildPlaceholder() {
     // if the toggle block is collapsed or it contains children, don't show the
     // placeholder.
-    if (collapsed || node.children.isNotEmpty) {
+    if (_effectiveCollapsed || node.children.isNotEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -375,8 +390,8 @@ class _ToggleListBlockComponentWidgetState
     }
 
     final turns = switch (textDirection) {
-      TextDirection.ltr => collapsed ? 0.0 : 0.25,
-      TextDirection.rtl => collapsed ? -0.5 : -0.75,
+      TextDirection.ltr => _effectiveCollapsed ? 0.0 : 0.25,
+      TextDirection.rtl => _effectiveCollapsed ? -0.5 : -0.75,
     };
 
     return Container(
@@ -402,6 +417,12 @@ class _ToggleListBlockComponentWidgetState
   }
 
   Future<void> onCollapsed() async {
+    if (!editorState.editable) {
+      setState(() {
+        _readOnlyCollapsed = !_effectiveCollapsed;
+      });
+      return;
+    }
     final transaction = editorState.transaction
       ..updateNode(node, {
         ToggleListBlockKeys.collapsed: !collapsed,
