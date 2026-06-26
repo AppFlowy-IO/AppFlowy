@@ -1,0 +1,24 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "callout",
+      "data": {
+        "icon": "📌"
+      },
+      "children": [
+        {
+          "type": "paragraph",
+          "data": {
+            "delta": [
+              {
+                "insert": "CALLOUT 1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
