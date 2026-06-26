@@ -1,5 +1,5 @@
 use chrono::Local;
-use std::{fmt, io::Write};
+use std::{cell::RefCell, fmt, io::Write};
 
 use serde::ser::{SerializeMap, Serializer};
 use serde_json::Value;
@@ -19,6 +19,10 @@ const LOG_TARGET_PATH: &str = "log.target";
 
 const RESERVED_FIELDS: [&str; 3] = [LEVEL, TIME, MESSAGE];
 const IGNORE_FIELDS: [&str; 2] = [LOG_MODULE_PATH, LOG_TARGET_PATH];
+
+thread_local! {
+  static LOG_BUFFER: RefCell<Vec<u8>> = RefCell::new(Vec::with_capacity(1024));
+}
 
 pub struct FlowyFormattingLayer<'a, W: MakeWriter<'static> + 'static> {
   make_writer: W,
@@ -73,34 +77,37 @@ where
     span: &SpanRef<'a, S>,
     ty: Type,
     ctx: &Context<'_, S>,
-  ) -> Result<Vec<u8>, std::io::Error> {
-    let mut buffer = Vec::new();
-    let mut serializer = serde_json::Serializer::new(&mut buffer);
-    let mut map_serializer = serializer.serialize_map(None)?;
-    let message = format_span_context(span, ty, ctx);
-    self.serialize_fields(&mut map_serializer, &message, span.metadata().level())?;
-    if self.with_target {
-      map_serializer.serialize_entry("target", &span.metadata().target())?;
-    }
+  ) -> Result<(), std::io::Error> {
+    LOG_BUFFER.with(|buf| {
+      let mut b = buf.borrow_mut();
+      b.clear();
+      let mut serializer = serde_json::Serializer::new(&mut *b);
+      let mut map_serializer = serializer.serialize_map(None)?;
+      let message = format_span_context(span, ty, ctx);
+      self.serialize_fields(&mut map_serializer, &message, span.metadata().level())?;
+      if self.with_target {
+        map_serializer.serialize_entry("target", &span.metadata().target())?;
+      }
 
-    // map_serializer.serialize_entry("line", &span.metadata().line())?;
-    // map_serializer.serialize_entry("file", &span.metadata().file())?;
-
-    let extensions = span.extensions();
-    if let Some(visitor) = extensions.get::<JsonStorage>() {
-      for (key, value) in visitor.values() {
-        if !RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
-          map_serializer.serialize_entry(key, value)?;
-        } else {
-          tracing::debug!(
-            "{} is a reserved field in the bunyan log format. Skipping it.",
-            key
-          );
+      let extensions = span.extensions();
+      if let Some(visitor) = extensions.get::<JsonStorage>() {
+        for (key, value) in visitor.values() {
+          if !RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
+            map_serializer.serialize_entry(key, value)?;
+          } else {
+            tracing::debug!(
+              "{} is a reserved field in the bunyan log format. Skipping it.",
+              key
+            );
+          }
         }
       }
-    }
-    map_serializer.end()?;
-    Ok(buffer)
+      map_serializer.end()?;
+
+      // write newline and emit
+      b.write_all(b"\n")?;
+      self.make_writer.make_writer().write_all(&b)
+    })
   }
 
   fn emit(&self, mut buffer: Vec<u8>) -> Result<(), std::io::Error> {
@@ -190,11 +197,11 @@ where
     let mut event_visitor = JsonStorage::default();
     event.record(&mut event_visitor);
 
-    // Opting for a closure to use the ? operator and get more linear code.
-    let format = || {
-      let mut buffer = Vec::new();
+    LOG_BUFFER.with(|buf| {
+      let mut b = buf.borrow_mut();
+      b.clear();
 
-      let mut serializer = serde_json::Serializer::new(&mut buffer);
+      let mut serializer = serde_json::Serializer::new(&mut *b);
       let mut map_serializer = serializer.serialize_map(None)?;
 
       let message = format_event_message(&current_span, event, &event_visitor, &ctx);
@@ -202,18 +209,13 @@ where
       if self.with_target {
         map_serializer.serialize_entry("target", event.metadata().target())?;
       }
-      // map_serializer.serialize_entry("line", &event.metadata().line())?;
-      // map_serializer.serialize_entry("file", &event.metadata().file())?;
 
-      // Add all the other fields associated with the event, expect the message we
-      // already used.
       for (key, value) in event_visitor.values().iter().filter(|(&key, _)| {
         key != "message" && !RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key)
       }) {
         map_serializer.serialize_entry(key, value)?;
       }
 
-      // Add all the fields from the current span, if we have one.
       if let Some(span) = &current_span {
         let extensions = span.extensions();
         if let Some(visitor) = extensions.get::<JsonStorage>() {
@@ -230,13 +232,11 @@ where
         }
       }
       map_serializer.end()?;
-      Ok(buffer)
-    };
 
-    let result: std::io::Result<Vec<u8>> = format();
-    if let Ok(formatted) = result {
-      let _ = self.emit(formatted);
-    }
+      b.write_all(b"\n")?;
+      let _ = self.make_writer.make_writer().write_all(&b);
+      Ok(())
+    })?;
   }
 
   fn on_new_span(&self, _attrs: &Attributes, id: &Id, ctx: Context<'_, S>) {
