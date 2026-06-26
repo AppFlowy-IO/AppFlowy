@@ -30,7 +30,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 
 // space name > ... > view_title
-class ViewTitleBar extends StatelessWidget {
+class ViewTitleBar extends StatefulWidget {
   const ViewTitleBar({
     super.key,
     required this.view,
@@ -39,12 +39,30 @@ class ViewTitleBar extends StatelessWidget {
   final ViewPB view;
 
   @override
+  State<ViewTitleBar> createState() => _ViewTitleBarState();
+}
+
+class _ViewTitleBarState extends State<ViewTitleBar> {
+  late List<Widget> _cachedBreadcrumbs = <Widget>[];
+  String _cachedKey = '';
+
+  @override
+  void didUpdateWidget(covariant ViewTitleBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Invalidate cached breadcrumbs when the main view identity changes
+    if (oldWidget.view.id != widget.view.id || oldWidget.view.name != widget.view.name) {
+      _cachedBreadcrumbs = <Widget>[];
+      _cachedKey = '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => ViewTitleBarBloc(
-            view: view,
+            view: widget.view,
           ),
         ),
       ],
@@ -80,19 +98,28 @@ class ViewTitleBar extends StatelessWidget {
               if (ancestors.isEmpty) {
                 return const SizedBox.shrink();
               }
+
+              // Build a cache key from inputs that influence breadcrumb widgets.
+              final currentKey = '${ancestors.map((a) => a.id).join(',')}|${state.isDeleted}|${pageAccessLevelState.isEditable}|${pageAccessLevelState.sectionType.name}';
+
+              if (_cachedKey != currentKey || _cachedBreadcrumbs.isEmpty) {
+                _cachedBreadcrumbs = _buildViewTitles(
+                  context,
+                  ancestors,
+                  state.isDeleted,
+                  pageAccessLevelState.isEditable,
+                  pageAccessLevelState,
+                );
+                _cachedKey = currentKey;
+              }
+
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
                   height: 24,
                   child: Row(
                     children: [
-                      ..._buildViewTitles(
-                        context,
-                        ancestors,
-                        state.isDeleted,
-                        pageAccessLevelState.isEditable,
-                        pageAccessLevelState,
-                      ),
+                      ..._cachedBreadcrumbs,
                       HSpace(theme.spacing.m),
                       _buildLockPageStatus(context),
                     ],
