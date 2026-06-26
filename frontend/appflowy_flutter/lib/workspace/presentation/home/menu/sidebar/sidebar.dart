@@ -34,10 +34,14 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/note_creation_notifier.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:collection/collection.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -311,20 +315,141 @@ class _SidebarState extends State<_Sidebar> {
   // mute the update button during the current application lifecycle.
   final _muteUpdateButton = ValueNotifier(false);
 
+  /// Subscription to workspace bloc state changes used for the event-driven
+  /// workspace-switch step before note creation.
+  StreamSubscription<UserWorkspaceState>? _workspaceSubscription;
+
+  /// Guards against dispatching the same workspace-switch event multiple times
+  /// while the switch is still in progress.
+  String? _pendingWorkspaceSwitchId;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScrollChanged);
+    getIt<CreateNoteService>().addListener(_onCreateNoteRequested);
+    _workspaceSubscription = context
+        .read<UserWorkspaceBloc>()
+        .stream
+        .listen(_onWorkspaceStateChanged);
   }
 
   @override
   void dispose() {
+    _workspaceSubscription?.cancel();
+    getIt<CreateNoteService>().removeListener(_onCreateNoteRequested);
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
     _scrollOffset.dispose();
     _isHovered.dispose();
     super.dispose();
+  }
+
+  // ── Deep-link: create new note ──────────────────────────────────────────
+
+  /// Called when [CreateNoteService] notifies a new pending request.
+  void _onCreateNoteRequested() {
+    if (!mounted) return;
+    final params = getIt<CreateNoteService>().pending;
+    if (params == null) return;
+    _maybeCreateNote(params);
+  }
+
+  /// Called on every [UserWorkspaceBloc] state change so a pending
+  /// workspace-switch can be completed without any polling timer.
+  void _onWorkspaceStateChanged(UserWorkspaceState _) {
+    if (!mounted) return;
+    final params = getIt<CreateNoteService>().pending;
+    if (params == null) return;
+    _maybeCreateNote(params);
+  }
+
+  /// Checks whether the correct workspace is active; if not, dispatches a
+  /// workspace switch exactly once and returns – [_onWorkspaceStateChanged]
+  /// will re-invoke this method when the switch completes.
+  void _maybeCreateNote(CreateNoteParams params) {
+    final currentWorkspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
+
+    if (params.workspaceId != null &&
+        params.workspaceId != currentWorkspaceId) {
+      if (_pendingWorkspaceSwitchId != params.workspaceId) {
+        _pendingWorkspaceSwitchId = params.workspaceId;
+        _switchToWorkspace(params.workspaceId!);
+      }
+      return;
+    }
+
+    _pendingWorkspaceSwitchId = null;
+    _createNoteFromParams(params);
+  }
+
+  void _switchToWorkspace(String workspaceId) {
+    final workspaceBloc = context.read<UserWorkspaceBloc>();
+    final target = workspaceBloc.state.workspaces.firstWhereOrNull(
+      (w) => w.workspaceId == workspaceId,
+    );
+    if (target == null) {
+      workspaceBloc.add(
+        UserWorkspaceEvent.fetchWorkspaces(initialWorkspaceId: workspaceId),
+      );
+    } else {
+      workspaceBloc.add(
+        UserWorkspaceEvent.openWorkspace(
+          workspaceId: workspaceId,
+          workspaceType: target.workspaceType,
+        ),
+      );
+    }
+  }
+
+  Future<void> _createNoteFromParams(CreateNoteParams params) async {
+    // Consume immediately to prevent duplicate creation if the bloc fires
+    // another state change before the async call completes.
+    getIt<CreateNoteService>().consume();
+
+    final parentViewId = params.parentViewId?.isNotEmpty == true
+        ? params.parentViewId!
+        : context.read<SpaceBloc>().state.currentSpace?.id ?? '';
+
+    if (parentViewId.isEmpty) {
+      Log.error('NewNoteDeepLink: no parentViewId available, aborting');
+      return;
+    }
+
+    // Convert Markdown → DocumentDataPB bytes. A malformed payload must not
+    // block note creation; fall back to an empty document instead.
+    List<int>? initialDataBytes;
+    final content = params.content;
+    if (content != null && content.isNotEmpty) {
+      try {
+        final document = customMarkdownToDocument(content);
+        initialDataBytes =
+            DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+      } catch (e) {
+        Log.warn(
+          'NewNoteDeepLink: Markdown conversion failed, '
+          'creating empty note – $e',
+        );
+      }
+    }
+
+    final result = await ViewBackendService.createView(
+      layoutType: ViewLayoutPB.Document,
+      parentViewId: parentViewId,
+      name: params.name,
+      openAfterCreate: true,
+      initialDataBytes: initialDataBytes,
+    );
+
+    result.fold(
+      (view) {
+        Log.info('NewNoteDeepLink: created "${view.name}" (${view.id})');
+        if (mounted) context.read<TabsBloc>().openPlugin(view);
+      },
+      (error) => Log.error('NewNoteDeepLink: failed to create note – $error'),
+    );
   }
 
   @override

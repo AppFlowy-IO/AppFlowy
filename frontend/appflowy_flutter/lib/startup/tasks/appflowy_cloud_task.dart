@@ -9,6 +9,7 @@ import 'package:appflowy/startup/tasks/deeplink/deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/expire_login_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/invitation_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/login_deeplink_handler.dart';
+import 'package:appflowy/startup/tasks/deeplink/new_note_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/open_app_deeplink_handler.dart';
 import 'package:appflowy/startup/tasks/deeplink/payment_deeplink_handler.dart';
 import 'package:appflowy/user/application/auth/auth_error.dart';
@@ -30,6 +31,7 @@ class AppFlowyCloudDeepLink {
       ..register(PaymentDeepLinkHandler())
       ..register(InvitationDeepLinkHandler())
       ..register(ExpireLoginDeepLinkHandler())
+      ..register(NewNoteDeepLinkHandler())
       ..register(OpenAppDeepLinkHandler());
 
     _deepLinkSubscription = _AppLinkWrapper.instance.listen(
