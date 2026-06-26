@@ -407,16 +407,25 @@ class _MobileToolbarState extends State<_MobileToolbar>
             var keyboardHeight = height;
             if (defaultTargetPlatform == TargetPlatform.android) {
               if (!showingMenu) {
-                // take the max value of the keyboard height and the view padding
-                // to make sure the toolbar is above the keyboard
-                keyboardHeight = max(
-                  keyboardHeight,
-                  MediaQuery.of(context).viewInsets.bottom,
-                );
+                final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+                // Always use viewInsets when keyboard is visible to ensure accurate positioning
+                // This prevents the toolbar from being hidden behind the keyboard
+                if (viewInsetsBottom > 0) {
+                  keyboardHeight = viewInsetsBottom;
+                } else {
+                  // Use cached height when keyboard is hiding
+                  keyboardHeight = max(keyboardHeight, _globalCachedKeyboardHeight);
+                }
               }
             }
             if (keyboardHeight > 0) {
+              // Only cache the raw height without safety padding
               _globalCachedKeyboardHeight = keyboardHeight;
+              
+              // Add small safety margin on Android to account for keyboard toolbar
+              if (defaultTargetPlatform == TargetPlatform.android) {
+                keyboardHeight += 8.0;
+              }
             }
             return SizedBox(
               height: keyboardHeight,
