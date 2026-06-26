@@ -635,7 +635,7 @@
         "logoutLabel": "Log out"
       },
       "isUpToDate": "@:appName is up to date!",
-      "officialVersion": "Version {version} (官方構建)"
+      "officialVersion": "Version {version} (Official build)"
     },
     "workspacePage": {
       "menuLabel": "Workspace",
