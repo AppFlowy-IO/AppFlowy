@@ -126,15 +126,15 @@ class AlignOptionAction extends PopoverActionCell {
   }
 
   Future<void> onAlignChanged(OptionAlignType align) async {
-    if (align == this.align) {
-      return;
-    }
     final selection = editorState.selection;
     if (selection == null) {
       return;
     }
     final node = editorState.getNodeAtPath(selection.start.path);
     if (node == null) {
+      return;
+    }
+    if (align == this.align && node.type != SimpleTableBlockKeys.type) {
       return;
     }
     // the align attribute for simple table is not same as the align type,
