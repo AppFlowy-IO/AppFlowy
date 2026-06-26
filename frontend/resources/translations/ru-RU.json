@@ -14,6 +14,7 @@
     "addBelowTooltip": "Нажмите, чтобы добавить ниже",
     "addAboveCmd": "Alt+клик",
     "addAboveMacCmd": "Option+клик",
+     "settings": "Настройки"
     "addAboveTooltip": "чтобы добавить выше",
     "dragTooltip": "Перетащите, чтобы переместить",
     "openMenuTooltip": "Нажмите, чтобы открыть меню"
