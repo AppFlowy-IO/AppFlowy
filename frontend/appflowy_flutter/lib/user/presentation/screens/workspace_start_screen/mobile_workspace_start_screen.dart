@@ -37,6 +37,7 @@ class _MobileWorkspaceStartScreenState
     final style = Theme.of(context);
     final size = MediaQuery.of(context).size;
     const double spacing = 16.0;
+    final hasWorkspaces = widget.workspaceState.workspaces.isNotEmpty;
     final List<DropdownMenuEntry<WorkspacePB>> workspaceEntries =
         <DropdownMenuEntry<WorkspacePB>>[];
     for (final WorkspacePB workspace in widget.workspaceState.workspaces) {
@@ -48,7 +49,7 @@ class _MobileWorkspaceStartScreenState
       );
     }
 
-// render the workspace dropdown menu if success, otherwise render error page
+    // render the workspace dropdown menu if success, otherwise render error page
     final body = widget.workspaceState.successOrFailure.fold(
       (_) {
         return Padding(
@@ -106,21 +107,18 @@ class _MobileWorkspaceStartScreenState
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 56),
                 ),
-                onPressed: () {
-                  if (selectedWorkspace == null) {
-                    // If user didn't choose any workspace, pop to the initial workspace(first workspace)
-                    _popToWorkspace(
-                      context,
-                      widget.workspaceState.workspaces.first,
-                    );
-                    return;
-                  }
-                  // pop to the selected workspace
-                  _popToWorkspace(
-                    context,
-                    selectedWorkspace!,
-                  );
-                },
+                onPressed:
+                    hasWorkspaces
+                        ? () {
+                          final workspace =
+                              selectedWorkspace ??
+                              widget.workspaceState.workspaces.first;
+
+                          // If user didn't choose any workspace, pop to the
+                          // initial workspace(first workspace).
+                          _popToWorkspace(context, workspace);
+                        }
+                        : null,
                 child: Text(LocaleKeys.signUp_getStartedText.tr()),
               ),
               const VSpace(spacing),
