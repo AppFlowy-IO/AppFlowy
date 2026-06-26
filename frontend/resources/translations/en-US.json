@@ -54,6 +54,7 @@
     "signInWithGoogle": "Continue with Google",
     "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
+    "signInWithSSO": "Enterprise Login (SSO)",
     "signInWithApple": "Continue with Apple",
     "continueAnotherWay": "Continue another way",
     "signUpWithGoogle": "Sign up with Google",

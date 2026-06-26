@@ -139,6 +139,13 @@ extension ProviderTypePBExtension on ProviderTypePB {
         return ProviderTypePB.Discord;
       case 'apple':
         return ProviderTypePB.Apple;
+      // The UI SSO button emits 'sso' as the provider string. We map it to
+      // ProviderTypePB.Oidc because GoTrue's /sso endpoint handles both SAML
+      // and OIDC via domain-based routing. The backend AuthProvider enum uses
+      // the canonical name 'oidc', so this client-side mapping bridges the
+      // UI label to the correct backend variant.
+      case 'sso':
+        return ProviderTypePB.Oidc;
       default:
         throw UnimplementedError();
     }
