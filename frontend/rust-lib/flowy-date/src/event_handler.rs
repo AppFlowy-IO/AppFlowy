@@ -25,12 +25,24 @@ pub(crate) async fn query_date_handler(
       let year_match = year_regex().find(&query).unwrap();
       let formatted = year_match
         .and_then(|capture| capture.as_str().parse::<i32>().ok())
-        .and_then(|year| NaiveDate::from_ymd_opt(year, naive_date.month0(), naive_date.day0()))
+        .and_then(|year| NaiveDate::from_ymd_opt(year, naive_date.month(), naive_date.day()))
         .map(|date| date.to_string())
         .unwrap_or_else(|| naive_date.to_string());
 
       data_result_ok(DateResultPB { date: formatted })
     },
     None => Err(FlowyError::internal().with_context("Failed to parse date from")),
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[tokio::test]
+  async fn parses_year_from_query() {
+    let data = AFPluginData(DateQueryPB { query: "June 5 2024".into() });
+    let result = query_date_handler(data).await.expect("handler should succeed");
+    assert_eq!(result.date, "2024-06-05");
   }
 }
