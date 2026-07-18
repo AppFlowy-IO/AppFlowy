@@ -12,7 +12,7 @@ use collab_database::rows::{RowChange, RowId};
 use collab_database::views::{DatabaseViewChange, RowOrder};
 use dashmap::DashMap;
 use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
-use futures::StreamExt;
+use futures::{StreamExt, future::join_all};
 
 use std::sync::Arc;
 use tracing::{error, trace, warn};
@@ -40,13 +40,13 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
 
 pub(crate) async fn observe_rows_change(
   database_id: &str,
-  database: &Arc<RwLock<Database>>,
+  database_editor: &Arc<DatabaseEditor>,
   notification_sender: &Arc<DebounceNotificationSender>,
 ) {
   let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let sub = database.read().await.subscribe_row_change();
+  let weak_editor = Arc::downgrade(database_editor);
+  let sub = database_editor.database.read().await.subscribe_row_change();
   if let Some(mut row_change) = sub {
     tokio::spawn(async move {
       while let Ok(row_change) = row_change.recv().await {
@@ -54,7 +54,7 @@ pub(crate) async fn observe_rows_change(
           "[Database Observe]: {} row change:{:?}",
           database_id, row_change
         );
-        if let Some(database) = weak_database.upgrade() {
+        if let Some(editor) = weak_editor.upgrade() {
           match row_change {
             RowChange::DidUpdateCell {
               field_id,
@@ -64,10 +64,23 @@ pub(crate) async fn observe_rows_change(
               let cell_id = format!("{}:{}", row_id, field_id);
               notify_cell(&notification_sender, &cell_id);
 
-              let views = database.read().await.get_all_database_views_meta();
-              for view in views {
-                notify_row(&notification_sender, &view.id, &field_id, &row_id);
+              let view_ids = editor
+                .database
+                .read()
+                .await
+                .get_all_database_views_meta()
+                .into_iter()
+                .map(|view| view.id)
+                .collect::<Vec<_>>();
+              for view_id in &view_ids {
+                notify_row(&notification_sender, view_id, &field_id, &row_id);
               }
+              join_all(
+                view_ids
+                  .iter()
+                  .map(|view_id| editor.did_update_row(view_id, &row_id, &field_id, None)),
+              )
+              .await;
             },
             _ => {
               warn!("unhandled row change: {:?}", row_change);
