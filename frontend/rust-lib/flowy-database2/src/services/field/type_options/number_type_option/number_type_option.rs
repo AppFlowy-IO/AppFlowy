@@ -120,9 +120,32 @@ impl CellDataChangeset for NumberTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _cell: Option<Cell>,
+    cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let num_str = changeset.trim().to_string();
+
+    // For currency/percent formats, the Dart cell editor is always populated with
+    // the formatted display string (e.g. "€3.000.000,00"), not the raw value, and
+    // resubmits that same text through this changeset on every focus change. If
+    // nothing was actually edited, the changeset is byte-for-byte the existing
+    // cell's own formatted display value — re-running it through the formatter as
+    // if it were new raw input can corrupt it (locale-specific grouping separators
+    // get misread as decimal points). Detect that no-op case and keep the existing
+    // cell untouched instead of re-parsing its own formatted output.
+    if self.format != NumberFormat::Num {
+      if let Some(existing_cell) = &cell {
+        let existing_data = NumberCellData::from(existing_cell);
+        if let Ok(existing_formatted) = self.format_cell_data(&existing_data) {
+          if existing_formatted.to_string() == num_str {
+            return Ok((
+              existing_cell.clone(),
+              NumberCellData::from(existing_formatted.to_string()),
+            ));
+          }
+        }
+      }
+    }
+
     let number_cell_data = NumberCellData(num_str);
     let formatter = self.format_cell_data(&number_cell_data)?;
 
@@ -198,4 +221,43 @@ lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
   pub(crate) static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
   pub(crate) static ref START_WITH_DOT_NUM_REGEX: Regex = Regex::new(r"^\.\d+").unwrap();
+}
+
+#[cfg(test)]
+mod currency_changeset_tests {
+  use super::*;
+
+  // The cell editor always displays the formatted string and resubmits it
+  // unchanged on focus loss, so re-applying that same formatted text must be
+  // a no-op rather than being re-parsed as new raw input.
+  #[test]
+  fn resubmitting_the_formatted_display_value_is_a_no_op() {
+    let mut type_option = NumberTypeOption::new();
+    type_option.set_format(NumberFormat::EUR);
+
+    let (cell, cell_data) =
+      CellDataChangeset::apply_changeset(&type_option, "3000000".to_string(), None).unwrap();
+    assert_eq!(NumberCellData::from(&cell).0, "3000000");
+
+    let (_cell2, cell_data2) =
+      CellDataChangeset::apply_changeset(&type_option, cell_data.0.clone(), Some(cell.clone()))
+        .unwrap();
+    assert_eq!(
+      cell_data2.0, cell_data.0,
+      "value must survive a round-trip through its own formatted display string"
+    );
+  }
+
+  #[test]
+  fn a_genuine_edit_still_applies() {
+    let mut type_option = NumberTypeOption::new();
+    type_option.set_format(NumberFormat::EUR);
+
+    let (cell, _) =
+      CellDataChangeset::apply_changeset(&type_option, "3000000".to_string(), None).unwrap();
+
+    let (_cell2, cell_data2) =
+      CellDataChangeset::apply_changeset(&type_option, "5000000".to_string(), Some(cell)).unwrap();
+    assert_eq!(cell_data2.0, "€5.000.000");
+  }
 }
