@@ -365,6 +365,13 @@ pub struct CreateOrphanViewPayloadPB {
 
   #[pb(index = 4)]
   pub initial_data: Vec<u8>,
+
+  /// The id this orphan view should report as its parent when its ancestor
+  /// chain is walked (e.g. for breadcrumbs). It is never added to that
+  /// view's visible children. Defaults to the orphan view's own id, i.e.
+  /// a self-referencing parent, when omitted.
+  #[pb(index = 5, one_of)]
+  pub parent_view_id: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -423,9 +430,15 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let parent_view_id = match self.parent_view_id {
+      Some(parent_view_id) => {
+        Uuid::parse_str(&parent_view_id).map_err(|_| ErrorCode::InvalidParams)?
+      },
+      None => view_id,
+    };
 
     Ok(CreateViewParams {
-      parent_view_id: view_id,
+      parent_view_id,
       name,
       layout: self.layout,
       view_id,

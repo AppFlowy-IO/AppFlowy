@@ -347,3 +347,42 @@ async fn create_orphan_child_view_and_get_its_ancestors_test() {
   assert_eq!(ancestors[0].name, "Orphan View");
   assert_eq!(ancestors[0].id, view_id);
 }
+
+#[tokio::test]
+async fn create_orphan_view_with_explicit_parent_and_get_its_ancestors_test() {
+  let test = EventIntegrationTest::new_anon().await;
+  let real_parent = test.get_all_workspace_views().await[0].clone();
+
+  let orphan_view_id = Uuid::new_v4().to_string();
+  test
+    .create_orphan_view_with_parent(
+      "Row Document",
+      &orphan_view_id,
+      Some(&real_parent.id),
+      ViewLayoutPB::Document,
+    )
+    .await;
+
+  // the orphan view should report the real view as its parent instead of itself
+  let orphan_ancestors = test.get_view_ancestors(&orphan_view_id).await;
+  assert_eq!(orphan_ancestors.last().unwrap().id, orphan_view_id);
+  assert!(orphan_ancestors.iter().any(|v| v.id == real_parent.id));
+
+  // a normal child view created inside the orphan view should inherit the full ancestor chain
+  let child = test
+    .create_view(&orphan_view_id, "Nested Document".to_string())
+    .await;
+  let child_ancestors = test.get_view_ancestors(&child.id).await;
+  assert_eq!(child_ancestors.last().unwrap().id, child.id);
+  assert!(child_ancestors.iter().any(|v| v.id == orphan_view_id));
+  assert!(child_ancestors.iter().any(|v| v.id == real_parent.id));
+
+  // the orphan view must still stay hidden from the real parent's visible children
+  let real_parent_reloaded = test.get_view(&real_parent.id).await;
+  assert!(
+    !real_parent_reloaded
+      .child_views
+      .iter()
+      .any(|v| v.id == orphan_view_id)
+  );
+}

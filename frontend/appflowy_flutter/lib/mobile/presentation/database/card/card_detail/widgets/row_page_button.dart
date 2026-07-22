@@ -138,6 +138,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
         name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
         viewId: widget.documentId,
         layoutType: ViewLayoutPB.Document,
+        parentViewId: widget.databaseController.viewId,
       );
       view = result.fold((s) => s, (f) => null);
     }

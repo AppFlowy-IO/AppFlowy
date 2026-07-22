@@ -18,13 +18,14 @@ part 'row_document_bloc.freezed.dart';
 class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
   RowDocumentBloc({
     required this.rowId,
-    required String viewId,
+    required this.viewId,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         super(RowDocumentState.initial()) {
     _dispatch();
   }
 
   final String rowId;
+  final String viewId;
   final RowBackendService _rowBackendSvc;
 
   void _dispatch() {
@@ -94,12 +95,16 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
     );
   }
 
-  Future<ViewPB?> _createRowDocumentView(String viewId) async {
+  // `rowDocumentViewId` is the id of the row's own document view (becomes the
+  // orphan view's view_id); `viewId` (the bloc's field) is the database view
+  // and is passed as the orphan's parent_view_id for breadcrumb resolution.
+  Future<ViewPB?> _createRowDocumentView(String rowDocumentViewId) async {
     final result = await ViewBackendService.createOrphanView(
-      viewId: viewId,
+      viewId: rowDocumentViewId,
       name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       desc: '',
       layoutType: ViewLayoutPB.Document,
+      parentViewId: viewId,
     );
     return result.fold(
       (view) => view,

@@ -83,12 +83,20 @@ class ViewBackendService {
     /// The initial data should be a JSON that represent the DocumentDataPB.
     /// Currently, only support create document with initial data.
     List<int>? initialDataBytes,
+
+    /// The id this orphan view should report as its parent for breadcrumb/
+    /// ancestor purposes. It is never added to that view's visible children.
+    /// Defaults to the orphan view's own id (self-referencing) when omitted.
+    String? parentViewId,
   }) {
     final payload = CreateOrphanViewPayloadPB.create()
       ..viewId = viewId
       ..name = name
       ..layout = layoutType
       ..initialData = initialDataBytes ?? [];
+    if (parentViewId != null) {
+      payload.parentViewId = parentViewId;
+    }
 
     return FolderEventCreateOrphanView(payload).send();
   }
