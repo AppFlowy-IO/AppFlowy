@@ -657,6 +657,10 @@
           "dark": "Dark"
         }
       },
+      "appZoom": {
+        "title": "Zoom",
+        "label": "App zoom level"
+      },
       "resetCursorColor": {
         "title": "Reset document cursor color",
         "description": "Are you sure you want to reset the cursor color?"

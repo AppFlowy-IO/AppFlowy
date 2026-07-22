@@ -1,13 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_trailing.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/font_size_stepper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:scaled_app/scaled_app.dart';
 
 import '../setting.dart';
 
@@ -71,20 +69,11 @@ class _DisplaySizeSettingState extends State<DisplaySizeSetting> {
   }
 
   Future<void> _setScale(double value) async {
-    if (FlowyRunner.currentMode == IntegrationMode.integrationTest) {
-      // The integration test will fail if we check the scale factor in the test.
-      // #0      ScaledWidgetsFlutterBinding.Eval ()
-      // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
-      // ignore: invalid_use_of_visible_for_testing_member
-      appflowyScaleFactor = value;
-    } else {
-      ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => value;
-    }
     if (mounted) {
       setState(() {
         scaleFactor = value;
       });
     }
-    await windowSizeManager.setScaleFactor(value);
+    await applyAppScaleFactor(value);
   }
 }

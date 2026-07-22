@@ -4,6 +4,7 @@ import 'notifications_settings_test.dart' as notifications_settings_test;
 import 'settings_billing_test.dart' as settings_billing_test;
 import 'shortcuts_settings_test.dart' as shortcuts_settings_test;
 import 'sign_in_page_settings_test.dart' as sign_in_page_settings_test;
+import 'workspace_zoom_test.dart' as workspace_zoom_test;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -12,4 +13,5 @@ void main() {
   settings_billing_test.main();
   shortcuts_settings_test.main();
   sign_in_page_settings_test.main();
+  workspace_zoom_test.main();
 }
