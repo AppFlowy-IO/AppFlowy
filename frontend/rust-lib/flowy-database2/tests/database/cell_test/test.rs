@@ -204,3 +204,111 @@ async fn time_cell_data_test() {
     assert_eq!(cell.0.unwrap_or_default(), 75);
   }
 }
+
+#[tokio::test]
+async fn move_calendar_event_shifts_ranged_end_date_test() {
+  let test = DatabaseCellTest::new().await;
+  let date_field = test.get_first_field(FieldType::DateTime).await;
+  let row_id = test.rows[0].id.clone();
+
+  // start: 2024-01-01T00:00:00Z, end: two days later
+  let start = 1704067200;
+  let end = start + 2 * 86400;
+  test
+    .update_cell(
+      &test.view_id,
+      &date_field.id,
+      &row_id,
+      BoxAny::new(DateCellChangeset {
+        timestamp: Some(start),
+        end_timestamp: Some(end),
+        is_range: Some(true),
+        ..Default::default()
+      }),
+    )
+    .await;
+
+  // drag the event forward by one day
+  let new_start = start + 86400;
+  test
+    .editor
+    .move_calendar_event(&test.view_id, &row_id, &date_field.id, new_start)
+    .await
+    .unwrap();
+
+  let cell = test.editor.get_cell(&date_field.id, &row_id).await.unwrap();
+  let cell_data = DateCellData::from(&cell);
+  assert_eq!(cell_data.timestamp, Some(new_start));
+  assert_eq!(cell_data.end_timestamp, Some(end + 86400));
+  assert!(cell_data.is_range);
+}
+
+#[tokio::test]
+async fn move_calendar_event_shifts_ranged_end_date_backward_test() {
+  let test = DatabaseCellTest::new().await;
+  let date_field = test.get_first_field(FieldType::DateTime).await;
+  let row_id = test.rows[0].id.clone();
+
+  // start: 2024-01-02T00:00:00Z, end: two days later
+  let start = 1704067200 + 86400;
+  let end = start + 2 * 86400;
+  test
+    .update_cell(
+      &test.view_id,
+      &date_field.id,
+      &row_id,
+      BoxAny::new(DateCellChangeset {
+        timestamp: Some(start),
+        end_timestamp: Some(end),
+        is_range: Some(true),
+        ..Default::default()
+      }),
+    )
+    .await;
+
+  // drag the event backward by one day
+  let new_start = start - 86400;
+  test
+    .editor
+    .move_calendar_event(&test.view_id, &row_id, &date_field.id, new_start)
+    .await
+    .unwrap();
+
+  let cell = test.editor.get_cell(&date_field.id, &row_id).await.unwrap();
+  let cell_data = DateCellData::from(&cell);
+  assert_eq!(cell_data.timestamp, Some(new_start));
+  assert_eq!(cell_data.end_timestamp, Some(end - 86400));
+  assert!(cell_data.is_range);
+}
+
+#[tokio::test]
+async fn move_calendar_event_single_date_test() {
+  let test = DatabaseCellTest::new().await;
+  let date_field = test.get_first_field(FieldType::DateTime).await;
+  let row_id = test.rows[0].id.clone();
+
+  let start = 1704067200;
+  test
+    .update_cell(
+      &test.view_id,
+      &date_field.id,
+      &row_id,
+      BoxAny::new(DateCellChangeset {
+        timestamp: Some(start),
+        ..Default::default()
+      }),
+    )
+    .await;
+
+  let new_start = start + 86400;
+  test
+    .editor
+    .move_calendar_event(&test.view_id, &row_id, &date_field.id, new_start)
+    .await
+    .unwrap();
+
+  let cell = test.editor.get_cell(&date_field.id, &row_id).await.unwrap();
+  let cell_data = DateCellData::from(&cell);
+  assert_eq!(cell_data.timestamp, Some(new_start));
+  assert_eq!(cell_data.end_timestamp, None);
+}

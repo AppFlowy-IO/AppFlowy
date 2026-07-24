@@ -9,6 +9,7 @@ use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
 use crate::services::field::checklist_filter::ChecklistCellChangeset;
+use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   SelectOptionCellChangeset, StringCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
@@ -26,6 +27,7 @@ use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
+use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::{Field, TypeOptionData};
@@ -1398,6 +1400,38 @@ impl DatabaseEditor {
       .await
       .ok()?;
     view.v_get_calendar_event(row_id).await
+  }
+
+  /// Moves a calendar event to `new_timestamp`. If the event's date cell spans a range
+  /// (start + end date), the end date is shifted by the same amount as the start date so the
+  /// event keeps its original duration, instead of collapsing to a single day.
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn move_calendar_event(
+    &self,
+    view_id: &str,
+    row_id: &RowId,
+    field_id: &str,
+    new_timestamp: i64,
+  ) -> FlowyResult<()> {
+    let old_cell_data = self
+      .get_cell(field_id, row_id)
+      .await
+      .map(|cell| DateCellData::from(&cell));
+    let end_timestamp = old_cell_data
+      .filter(|old| old.is_range)
+      .and_then(|old| old.timestamp.zip(old.end_timestamp))
+      .map(|(old_timestamp, old_end_timestamp)| {
+        old_end_timestamp + (new_timestamp - old_timestamp)
+      });
+
+    let cell_changeset = DateCellChangeset {
+      timestamp: Some(new_timestamp),
+      end_timestamp,
+      ..Default::default()
+    };
+    self
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
+      .await
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]

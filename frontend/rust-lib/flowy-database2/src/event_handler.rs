@@ -998,19 +998,15 @@ pub(crate) async fn move_calendar_event_handler(
   let manager = upgrade_manager(manager)?;
   let data = data.into_inner();
   let cell_id: CellIdParams = data.cell_path.try_into()?;
-  let cell_changeset = DateCellChangeset {
-    timestamp: Some(data.timestamp),
-    ..Default::default()
-  };
   let database_editor = manager
     .get_database_editor_with_view_id(&cell_id.view_id)
     .await?;
   database_editor
-    .update_cell_with_changeset(
+    .move_calendar_event(
       &cell_id.view_id,
       &cell_id.row_id,
       &cell_id.field_id,
-      BoxAny::new(cell_changeset),
+      data.timestamp,
     )
     .await?;
   Ok(())
