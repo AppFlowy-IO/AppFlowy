@@ -39,14 +39,14 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
 }
 
 pub(crate) async fn observe_rows_change(
-  database_id: &str,
-  database: &Arc<RwLock<Database>>,
+  database_id: &Uuid,
+  database_editor: &Arc<DatabaseEditor>,
   notification_sender: &Arc<DebounceNotificationSender>,
 ) {
   let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let sub = database.read().await.subscribe_row_change();
+  let weak_database_editor = Arc::downgrade(database_editor);
+  let sub = database_editor.database.read().await.subscribe_row_change();
   if let Some(mut row_change) = sub {
     tokio::spawn(async move {
       while let Ok(row_change) = row_change.recv().await {
@@ -54,7 +54,7 @@ pub(crate) async fn observe_rows_change(
           "[Database Observe]: {} row change:{:?}",
           database_id, row_change
         );
-        if let Some(database) = weak_database.upgrade() {
+        if let Some(database_editor) = weak_database_editor.upgrade() {
           match row_change {
             RowChange::DidUpdateCell {
               field_id,
@@ -64,9 +64,27 @@ pub(crate) async fn observe_rows_change(
               let cell_id = format!("{}:{}", row_id, field_id);
               notify_cell(&notification_sender, &cell_id);
 
-              let views = database.read().await.get_all_database_views_meta();
+              let views = database_editor
+                .database
+                .read()
+                .await
+                .get_all_database_views_meta();
               for view in views {
                 notify_row(&notification_sender, &view.id, &field_id, &row_id);
+              }
+
+              // Re-evaluate filters/sorts/calculations for the changed row on every view.
+              // Required for remote (synced) cell changes, which never go through
+              // DatabaseEditor::did_update_row. Redundant-but-harmless on local edits (the
+              // Dart RowList applies duplicate show/hide notifications idempotently).
+              // Cheap even with many views: filter_controller/sort_controller only spawn
+              // a recompute task when they actually hold filters/sorts (see their
+              // `did_receive_row_changed`), and the calculation controller looks up the
+              // field's calculation before doing any work.
+              for view_editor in database_editor.database_views.editors().await {
+                view_editor
+                  .v_did_update_row_from_sync(row_id.clone(), field_id.clone())
+                  .await;
               }
             },
             _ => {

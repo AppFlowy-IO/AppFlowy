@@ -97,7 +97,6 @@ impl DatabaseEditor {
     // Receive database sync state and send to frontend via the notification
     observe_sync_state(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
-    observe_rows_change(&database_id, &database, &notification_sender).await;
 
     // Used to cache the view of the database for fast access.
     let editor_by_view_id = Arc::new(RwLock::new(EditorByViewId::default()));
@@ -147,6 +146,7 @@ impl DatabaseEditor {
     });
     observe_block_event(&database_id, &this).await;
     observe_view_change(&database_id, &this).await;
+    observe_rows_change(&database_id, &this, &notification_sender).await;
     Ok(this)
   }
 

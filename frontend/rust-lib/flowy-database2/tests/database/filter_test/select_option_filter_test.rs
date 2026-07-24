@@ -145,6 +145,53 @@ async fn grid_filter_single_select_is_test2() {
   test.assert_number_of_visible_rows(2).await;
 }
 
+/// Regression test for #8806: a filtered view must update when a row's cell changes via a
+/// synced (remote) update, not just via a local edit. `update_single_select_cell_via_sync`
+/// writes directly to the collab row, bypassing `update_cell`/`did_update_row` — the same path
+/// a change synced in from another device takes.
+#[tokio::test]
+async fn grid_filter_single_select_is_synced_row_change_test() {
+  let mut test = DatabaseFilterTest::new().await;
+  let field = test.get_first_field(FieldType::SingleSelect).await;
+  let row_details = test.get_rows().await;
+  let mut options = test.get_single_select_type_option(&field.id).await;
+  let option = options.remove(0);
+  let row_count = test.rows.len();
+
+  // Create Single-Select "Is" filter
+  test
+    .create_data_filter(
+      None,
+      FieldType::SingleSelect,
+      BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionFilterConditionPB::OptionIs,
+        option_ids: vec![option.id.clone()],
+      }),
+      Some(FilterRowChanged {
+        showing_num_of_rows: 0,
+        hiding_num_of_rows: row_count - 2,
+      }),
+    )
+    .await;
+  test.assert_number_of_visible_rows(2).await;
+
+  // Simulate a row change synced in from another device: it must still trigger the filter to
+  // re-evaluate and emit an incremental FilterNotification showing the row. Asserting via
+  // `assert_future_changed` (not just `assert_number_of_visible_rows`, which re-opens the view
+  // and re-filters from scratch) is what actually exercises the broken notification path.
+  test
+    .update_single_select_cell_via_sync(
+      row_details[1].id.clone(),
+      option.id.clone(),
+      Some(FilterRowChanged {
+        showing_num_of_rows: 1,
+        hiding_num_of_rows: 0,
+      }),
+    )
+    .await;
+  test.assert_number_of_visible_rows(3).await;
+}
+
 #[tokio::test]
 async fn grid_filter_multi_select_contains_test() {
   let mut test = DatabaseFilterTest::new().await;

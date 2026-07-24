@@ -1285,6 +1285,13 @@ impl DatabaseViewEditor {
     }
   }
 
+  /// Re-runs filters/sorts/calculations for a single row whose cell changed via a remote sync.
+  /// There is no local `did_update_row` call on the sync path, so callers observing
+  /// `RowChange::DidUpdateCell` from a synced collab update must trigger this explicitly.
+  pub async fn v_did_update_row_from_sync(&self, row_id: RowId, field_id: String) {
+    self.gen_did_update_row_view_tasks(row_id, Some(field_id)).await;
+  }
+
   async fn gen_did_update_row_view_tasks(&self, row_id: RowId, field_id: Option<String>) {
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
