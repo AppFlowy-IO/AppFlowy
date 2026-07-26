@@ -70,11 +70,18 @@ where
 pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()> {
   let src_path = src_path.as_ref();
 
-  // Check if source path exists
+  // Check if source path exists and is a directory
   if !src_path.exists() {
     return Err(io::Error::new(
       io::ErrorKind::NotFound,
       "Source path not found",
+    ));
+  }
+
+  if !src_path.is_dir() {
+    return Err(io::Error::new(
+      io::ErrorKind::InvalidInput,
+      "Source path must be a directory",
     ));
   }
 
@@ -84,6 +91,10 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
       io::ErrorKind::InvalidInput,
       "Source and destination paths cannot be the same",
     ));
+  }
+
+  if let Some(parent) = dest_path.parent() {
+    fs::create_dir_all(parent)?;
   }
 
   // Create a file at the destination path to write the ZIP file
@@ -97,13 +108,12 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
       .strip_prefix(src_path)
       .map_err(|_| io::Error::new(io::ErrorKind::Other, "Invalid path"))?;
 
+    let normalized_name = normalize_zip_path(name)?;
+
     // If the entry is a file, add it to the ZIP archive
     if path.is_file() {
-      let file_name = name
-        .to_str()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file name"))?;
       zip.start_file::<_, ()>(
-        file_name,
+        normalized_name,
         FileOptions::default().compression_method(CompressionMethod::Deflated),
       )?;
 
@@ -113,10 +123,12 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
 
       // If the entry is a directory, add it to the ZIP archive
     } else if path.is_dir() {
-      let dir_name = name
-        .to_str()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid directory name"))?;
-      if !dir_name.is_empty() {
+      if !normalized_name.is_empty() {
+        let dir_name = if normalized_name.ends_with('/') {
+          normalized_name
+        } else {
+          format!("{}/", normalized_name)
+        };
         zip.add_directory::<_, ()>(
           dir_name,
           FileOptions::default().compression_method(CompressionMethod::Deflated),
@@ -128,6 +140,13 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
   // Finish the ZIP archive
   zip.finish()?;
   Ok(())
+}
+
+fn normalize_zip_path(path: &Path) -> io::Result<String> {
+  let file_name = path
+    .to_str()
+    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid path for zip entry"))?;
+  Ok(file_name.replace('\\', "/"))
 }
 pub fn unzip_and_replace(
   zip_path: impl AsRef<Path>,
@@ -174,6 +193,9 @@ pub fn unzip_and_replace(
       // Recursively copy directory contents
       copy_dir_all(entry.path(), &target_file)?;
     } else {
+      if let Some(parent) = target_file.parent() {
+        fs::create_dir_all(parent)?;
+      }
       fs::copy(entry.path(), &target_file)?;
     }
     // Remove the original file/directory after copying
