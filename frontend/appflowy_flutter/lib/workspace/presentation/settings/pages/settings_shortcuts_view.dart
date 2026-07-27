@@ -527,7 +527,17 @@ extension CommandLabel on CommandShortcutEvent {
   String get afLabel {
     String? label;
 
-    if (key == toggleToggleListCommand.key) {
+    if (key == closeTabCommand.key) {
+      label = 'Close current tab';
+    } else if (key == nextTabCommand.key) {
+      label = 'Go to next tab';
+    } else if (key == previousTabCommand.key) {
+      label = 'Go to previous tab';
+    } else if (key == collapseSidebarCommand.key) {
+      label = 'Collapse sidebar menu';
+    } else if (key == toggleThemeModeCommand.key) {
+      label = 'Toggle theme mode';
+    } else if (key == toggleToggleListCommand.key) {
       label = LocaleKeys.settings_shortcutsPage_keybindings_toggleToDoList.tr();
     } else if (key == insertNewParagraphNextToCodeBlockCommand('').key) {
       label = LocaleKeys
