@@ -47,6 +47,11 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     customFormatDashGreater,
     customFormatDoubleHyphenEmDash,
 
+    customFormatCopyright,
+    customFormatRegistered,
+    customFormatSoundRecording,
+    customFormatTrademark,
+
     customFormatNumberToNumberedList,
     customFormatSignToHeading,
 
