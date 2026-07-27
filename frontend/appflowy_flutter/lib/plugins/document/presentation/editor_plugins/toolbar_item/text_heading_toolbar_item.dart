@@ -229,14 +229,16 @@ enum TextHeadingCommand {
 
 void formatNodeToText(EditorState editorState) {
   final selection = editorState.selection!;
-  final node = editorState.getNodeAtPath(selection.start.path)!;
-  final delta = (node.delta ?? Delta()).toJson();
+  // Read the delta from the node being transformed. `formatNode` runs this
+  // callback for every node in the selection, so reading it once from
+  // `selection.start` wrote the first block's text over every other block and
+  // destroyed their content.
   editorState.formatNode(
     selection,
     (node) => node.copyWith(
       type: ParagraphBlockKeys.type,
       attributes: {
-        blockComponentDelta: delta,
+        blockComponentDelta: (node.delta ?? Delta()).toJson(),
         blockComponentBackgroundColor:
             node.attributes[blockComponentBackgroundColor],
         blockComponentTextDirection:
