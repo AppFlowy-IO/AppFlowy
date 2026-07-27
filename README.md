@@ -87,6 +87,15 @@ are **greatly appreciated**. Please look
 at [Contributing to AppFlowy](https://docs.appflowy.io/docs/documentation/software-contributions/contributing-to-appflowy)
 for details.
 
+### Quick Start for Contributors
+
+To start contributing code or documentation:
+1. **Fork** the repository and clone it to your local machine.
+2. Create a **dedicated feature branch** for each issue (e.g., `git checkout -b fix/issue-name`).
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/) format (e.g., `fix(settings): resolve alignment issues (#1234)`).
+4. Run code formatting (`flutter format .`) and analysis (`flutter linter` / `flutter analyze`) before pushing.
+5. Push to your fork and submit a **Pull Request** to the main `AppFlowy-IO/AppFlowy` repository!
+
 If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly
 easier to use or understand, **Congratulations!** If your administrative and managerial work behind the scenes sustains
 the community, **Congratulations!** You are now an official contributor to AppFlowy.
@@ -95,7 +104,7 @@ the community, **Congratulations!** You are now an official contributor to AppFl
 
 [![translation badge](https://inlang.com/badge?url=github.com/AppFlowy-IO/AppFlowy)](https://inlang.com/editor/github.com/AppFlowy-IO/AppFlowy?ref=badge)
 
-To add translations, you can manually edit the JSON translation files in `/frontend/resources/translations`, use
+To add translations, you can manually edit the JSON translation files in `/frontend/appflowy_flutter/assets/translations`, use
 the [inlang online editor](https://inlang.com/editor/github.com/AppFlowy-IO/AppFlowy), or
 run `npx inlang machine translate` to add missing translations.
 
