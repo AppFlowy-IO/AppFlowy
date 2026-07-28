@@ -1,0 +1,3468 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "මම",
+  "welcomeText": "@:appName වෙත සාදරයෙන් පිළිගනිමු",
+  "welcomeTo": "වෙත සාදරයෙන් පිළිගනිමු",
+  "githubStarText": "GitHub මත තරු කරන්න",
+  "subscribeNewsletterText": "පුවත් පත්‍රිකාවට දායක වන්න",
+  "letsGoButtonText": "ඉක්මන් ආරම්භය",
+  "title": "මාතෘකාව",
+  "youCanAlso": "ඔබටත් පුළුවන්",
+  "and": "සහ",
+  "failedToOpenUrl": "url විවෘත කිරීමට අසමත් විය: {}",
+  "blockActions": {
+    "addBelowTooltip": "පහත එක් කිරීමට ක්ලික් කරන්න",
+    "addAboveCmd": "Alt + ක්ලික් කරන්න",
+    "addAboveMacCmd": "විකල්පය + ක්ලික් කරන්න",
+    "addAboveTooltip": "ඉහත එකතු කිරීමට",
+    "dragTooltip": "චලනය කිරීමට අදින්න",
+    "openMenuTooltip": "මෙනුව විවෘත කිරීමට ක්ලික් කරන්න"
+  },
+  "signUp": {
+    "buttonText": "ලියාපදිංචි වන්න",
+    "title": "@:appName දක්වා ලියාපදිංචි වන්න",
+    "getStartedText": "ආරම්භ කරන්න",
+    "emptyPasswordError": "මුරපදය හිස් විය නොහැක",
+    "repeatPasswordEmptyError": "නැවත නැවත මුරපදය හිස් විය නොහැක",
+    "unmatchedPasswordError": "නැවත නැවත මුරපදය මුරපදයට සමාන නොවේ",
+    "alreadyHaveAnAccount": "දැනටමත් ගිණුමක් තිබේද?",
+    "emailHint": "ඊමේල් කරන්න",
+    "passwordHint": "මුරපදය",
+    "repeatPasswordHint": "මුරපදය නැවත කරන්න",
+    "signUpWith": "සමඟ ලියාපදිංචි වන්න:"
+  },
+  "signIn": {
+    "loginTitle": "@:appName වෙත පිවිසෙන්න",
+    "loginButtonText": "ඇතුල් වන්න",
+    "loginStartWithAnonymous": "නිර්නාමික සැසියක් සමඟින් ඉදිරියට යන්න",
+    "continueAnonymousUser": "නිර්නාමික සැසියක් සමඟින් ඉදිරියට යන්න",
+    "continueWithLocalModel": "දේශීය ආකෘතිය සමඟ ඉදිරියට යන්න",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "නිර්නාමික මාදිලිය",
+    "buttonText": "පුරන්න",
+    "signingInText": "පුරනය වෙමින්...",
+    "forgotPassword": "මුරපදය අමතක වුණා ද?",
+    "emailHint": "ඊමේල් කරන්න",
+    "passwordHint": "මුරපදය",
+    "dontHaveAnAccount": "ගිණුමක් නැද්ද?",
+    "createAccount": "ගිණුම තනන්න",
+    "repeatPasswordEmptyError": "නැවත නැවත මුරපදය හිස් විය නොහැක",
+    "unmatchedPasswordError": "නැවත නැවත මුරපදය මුරපදයට සමාන නොවේ",
+    "passwordMustContain": "මුරපදය අවම වශයෙන් එක් අකුරක්, එක් අංකයක් සහ එක් සංකේතයක් අඩංගු විය යුතුය.",
+    "syncPromptMessage": "දත්ත සමමුහුර්ත කිරීමට යම් කාලයක් ගත විය හැක. කරුණාකර මෙම පිටුව වසා නොගන්න",
+    "or": "හෝ",
+    "signInWithGoogle": "Google සමඟින් ඉදිරියට යන්න",
+    "signInWithGithub": "GitHub සමඟින් ඉදිරියට යන්න",
+    "signInWithDiscord": "Discord සමඟින් ඉදිරියට යන්න",
+    "signInWithApple": "Apple සමඟ ඉදිරියට යන්න",
+    "continueAnotherWay": "වෙනත් ආකාරයකින් ඉදිරියට යන්න",
+    "signUpWithGoogle": "Google සමඟ ලියාපදිංචි වන්න",
+    "signUpWithGithub": "Github සමඟ ලියාපදිංචි වන්න",
+    "signUpWithDiscord": "Discord සමඟ ලියාපදිංචි වන්න",
+    "signInWith": "දිගටම කරගෙන යන්න:",
+    "signInWithEmail": "ඊමේල් සමඟ ඉදිරියට යන්න",
+    "signInWithMagicLink": "දිගටම කරගෙන යන්න",
+    "signUpWithMagicLink": "මැජික් සබැඳිය සමඟ ලියාපදිංචි වන්න",
+    "pleaseInputYourEmail": "කරුණාකර ඔබගේ විද්‍යුත් තැපැල් ලිපිනය ඇතුලත් කරන්න",
+    "settings": "සැකසීම්",
+    "magicLinkSent": "මැජික් සබැඳිය යවන ලදි!",
+    "invalidEmail": "කරණාකර වලංගු ඊතැපැල් ලිපිනයක් ඇතුළු කරන්න",
+    "alreadyHaveAnAccount": "දැනටමත් ගිණුමක් තිබේද?",
+    "logIn": "ඇතුල් වන්න",
+    "generalError": "යමක් වැරදී ඇත. කරුණාකර පසුව නැවත උත්සාහ කරන්න",
+    "limitRateError": "ආරක්ෂක හේතූන් මත, ඔබට සෑම තත්පර 60කට වරක් මැජික් සබැඳියක් පමණක් ඉල්ලා සිටිය හැක",
+    "magicLinkSentDescription": "ඔබේ විද්‍යුත් තැපෑලට Magic Link එකක් යවා ඇත. ඔබගේ පිවිසුම සම්පූර්ණ කිරීමට සබැඳිය ක්ලික් කරන්න. සබැඳිය මිනිත්තු 5කට පසු කල් ඉකුත් වේ.",
+    "tokenHasExpiredOrInvalid": "කේතය කල් ඉකුත් වී හෝ වලංගු නොවේ. කරුණාකර නැවත උත්සාහ කරන්න.",
+    "signingIn": "පුරනය වෙමින්...",
+    "checkYourEmail": "ඔබගේ විද්‍යුත් තැපෑල පරීක්ෂා කරන්න",
+    "temporaryVerificationLinkSent": "තාවකාලික සත්‍යාපන සබැඳියක් යවා ඇත.\nකරුණාකර ඔබගේ එන ලිපි පරීක්ෂා කරන්න",
+    "temporaryVerificationCodeSent": "තාවකාලික සත්‍යාපන කේතයක් යවා ඇත.\nකරුණාකර ඔබගේ එන ලිපි පරීක්ෂා කරන්න",
+    "continueToSignIn": "පුරනය වීම දිගටම කරගෙන යන්න",
+    "continueWithLoginCode": "පිවිසුම් කේතය සමඟ ඉදිරියට යන්න",
+    "backToLogin": "නැවත පිවිසීමට",
+    "enterCode": "කේතය ඇතුලත් කරන්න",
+    "enterCodeManually": "කේතය අතින් ඇතුල් කරන්න",
+    "continueWithEmail": "ඊමේල් සමඟ ඉදිරියට යන්න",
+    "enterPassword": "මුරපදය ඇතුළත් කරන්න",
+    "loginAs": "ලෙස ලොග් වන්න",
+    "invalidVerificationCode": "කරුණාකර වලංගු සත්‍යාපන කේතයක් ඇතුළු කරන්න",
+    "tooFrequentVerificationCodeRequest": "ඔබ බොහෝ ඉල්ලීම් කර ඇත. කරුණාකර පසුව නැවත උත්සාහ කරන්න.",
+    "invalidLoginCredentials": "ඔබගේ මුරපදය වැරදියි, කරුණාකර නැවත උත්සාහ කරන්න",
+    "resetPassword": "මුරපදය යළි පිහිටුවන්න",
+    "resetPasswordDescription": "ඔබගේ මුරපදය නැවත සැකසීමට ඔබගේ විද්‍යුත් තැපෑල ඇතුලත් කරන්න",
+    "continueToResetPassword": "මුරපදය යළි පිහිටුවීම දිගටම කරගෙන යන්න",
+    "resetPasswordSuccess": "මුරපදය යළි පිහිටුවීම සාර්ථකයි",
+    "resetPasswordFailed": "මුරපදය යළි පිහිටුවීම අසාර්ථක විය",
+    "resetPasswordLinkSent": "මුරපදය යළි පිහිටුවීමේ සබැඳියක් ඔබගේ විද්‍යුත් තැපෑලට යවා ඇත. කරුණාකර ඔබගේ එන ලිපි පරීක්ෂා කරන්න",
+    "resetPasswordLinkExpired": "මුරපද යළි පිහිටුවීමේ සබැඳිය කල් ඉකුත් වී ඇත. කරුණාකර නව සබැඳියක් ඉල්ලන්න.",
+    "resetPasswordLinkInvalid": "මුරපද යළි පිහිටුවීමේ සබැඳිය වලංගු නොවේ. කරුණාකර නව සබැඳියක් ඉල්ලන්න.",
+    "enterNewPasswordFor": "සඳහා නව මුරපදය ඇතුළත් කරන්න",
+    "newPassword": "නව මුරපදය",
+    "enterNewPassword": "නව මුරපදය ඇතුළත් කරන්න",
+    "confirmPassword": "මුරපදය තහවුරු කරන්න",
+    "confirmNewPassword": "නව මුරපදය ඇතුළත් කරන්න",
+    "newPasswordCannotBeEmpty": "නව මුරපදය හිස් විය නොහැක",
+    "confirmPasswordCannotBeEmpty": "මුරපදය හිස් විය නොහැකි බව තහවුරු කරන්න",
+    "passwordsDoNotMatch": "මුරපද නොගැලපේ",
+    "verifying": "සත්‍යාපනය කරමින්...",
+    "continueWithPassword": "මුරපදය සමඟ ඉදිරියට යන්න",
+    "youAreInLocalMode": "ඔබ දේශීය මාදිලියේ සිටී.",
+    "loginToAppFlowyCloud": "AppFlowy Cloud වෙත පිවිසෙන්න"
+  },
+  "workspace": {
+    "chooseWorkspace": "ඔබේ වැඩබිම තෝරන්න",
+    "defaultName": "මගේ වැඩබිම",
+    "create": "වැඩබිම සාදන්න",
+    "new": "නව වැඩබිම",
+    "importFromNotion": "Notion වෙතින් ආයාත කරන්න",
+    "learnMore": "තවත් හදාරන්න",
+    "reset": "වැඩබිම නැවත සකසන්න",
+    "renameWorkspace": "වැඩබිම නැවත නම් කරන්න",
+    "workspaceNameCannotBeEmpty": "කාර්ය ඉඩේ නම හිස් විය නොහැක",
+    "resetWorkspacePrompt": "වැඩබිම යළි පිහිටුවීමෙන් එහි ඇති සියලුම පිටු සහ දත්ත මකා දමයි. ඔබට වැඩබිම යළි පිහිටුවීමට අවශ්‍ය බව විශ්වාසද? විකල්පයක් ලෙස, ඔබට වැඩබිම ප්‍රතිසාධනය කිරීමට සහායක කණ්ඩායම සම්බන්ධ කර ගත හැක",
+    "hint": "වැඩබිම",
+    "notFoundError": "වැඩබිම හමු නොවීය",
+    "failedToLoad": "යමක් වැරදී ඇත! වැඩබිම පූරණය කිරීමට අසමත් විය. @:appName හි ඕනෑම විවෘත අවස්ථාවක් වසා නැවත උත්සාහ කරන්න.",
+    "errorActions": {
+      "reportIssue": "ගැටලුවක් වාර්තා කරන්න",
+      "reportIssueOnGithub": "Github හි ගැටලුවක් වාර්තා කරන්න",
+      "exportLogFiles": "ලොග් ගොනු අපනයනය කරන්න",
+      "reachOut": "Discord වෙත ළඟා වන්න"
+    },
+    "menuTitle": "වැඩබිම්",
+    "deleteWorkspaceHintText": "ඔබට කාර්ය ඉඩ මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව පසුගමනය කළ නොහැකි අතර, ඔබ විසින් ප්‍රකාශයට පත් කර ඇති පිටු කිසිවක් ප්‍රකාශනය නොකෙරෙනු ඇත.",
+    "createSuccess": "වැඩබිම සාර්ථකව නිර්මාණය කරන ලදී",
+    "createFailed": "වැඩ ඉඩ තැනීමට අසමත් විය",
+    "createLimitExceeded": "ඔබ ඔබේ ගිණුම සඳහා අවසර දී ඇති උපරිම කාර්ය ඉඩ සීමාවට ළඟා වී ඇත. ඔබට ඔබේ වැඩ කරගෙන යාමට අමතර වැඩබිම් අවශ්‍ය නම්, කරුණාකර Github වෙතින් ඉල්ලන්න",
+    "deleteSuccess": "කාර්ය ඉඩ සාර්ථකව මකා ඇත",
+    "deleteFailed": "කාර්ය ඉඩ මැකීමට අසමත් විය",
+    "openSuccess": "වැඩබිම සාර්ථකව විවෘත කරන ලදී",
+    "openFailed": "වැඩබිම විවෘත කිරීමට අසමත් විය",
+    "renameSuccess": "වැඩබිම සාර්ථකව නැවත නම් කරන ලදී",
+    "renameFailed": "කාර්ය ඉඩ නැවත නම් කිරීමට අසමත් විය",
+    "updateIconSuccess": "කාර්ය ඉඩ නිරූපකය සාර්ථකව යාවත්කාලීන කරන ලදී",
+    "updateIconFailed": "යාවත්කාලීන කළ කාර්ය ඉඩ නිරූපකය අසාර්ථක විය",
+    "cannotDeleteTheOnlyWorkspace": "එකම කාර්ය ඉඩ මකා දැමිය නොහැක",
+    "fetchWorkspacesFailed": "වැඩබිම් ලබා ගැනීමට අසමත් විය",
+    "leaveCurrentWorkspace": "වැඩබිම හැර යන්න",
+    "leaveCurrentWorkspacePrompt": "ඔබට වත්මන් වැඩබිම හැර යාමට අවශ්‍ය බව විශ්වාසද?"
+  },
+  "shareAction": {
+    "buttonText": "බෙදාගන්න",
+    "workInProgress": "ඉක්මණින් පැමිණෙන",
+    "markdown": "සලකුණු කිරීම",
+    "html": "HTML",
+    "clipboard": "පසුරු පුවරුවට පිටපත් කරන්න",
+    "csv": "CSV",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "publishToTheWeb": "වෙබ් වෙත ප්‍රකාශ කරන්න",
+    "publishToTheWebHint": "AppFlowy සමඟ වෙබ් අඩවියක් සාදන්න",
+    "publish": "ප්‍රකාශ කරන්න",
+    "unPublish": "ප්‍රකාශනය ඉවත් කරන්න",
+    "visitSite": "අඩවියට පිවිසෙන්න",
+    "exportAsTab": "ලෙස අපනයනය කරන්න",
+    "publishTab": "ප්‍රකාශ කරන්න",
+    "shareTab": "බෙදාගන්න",
+    "publishOnAppFlowy": "AppFlowy මත පළ කරන්න",
+    "shareTabTitle": "සහයෝගයෙන් කටයුතු කිරීමට ආරාධනා කරන්න",
+    "shareTabDescription": "ඕනෑම අයෙකු සමඟ පහසු සහයෝගීතාවය සඳහා",
+    "copyLinkSuccess": "සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී",
+    "copyShareLink": "බෙදාගැනීමේ සබැඳිය පිටපත් කරන්න",
+    "copyLinkFailed": "සබැඳිය පසුරු පුවරුවට පිටපත් කිරීමට අසමත් විය",
+    "copyLinkToBlockSuccess": "අවහිර සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී",
+    "copyLinkToBlockFailed": "අවහිර සබැඳිය පසුරු පුවරුවට පිටපත් කිරීමට අසමත් විය",
+    "manageAllSites": "සියලුම අඩවි කළමනාකරණය කරන්න",
+    "updatePathName": "මාර්ගයේ නම යාවත්කාලීන කරන්න"
+  },
+  "moreAction": {
+    "small": "කුඩා",
+    "medium": "මධ්යම",
+    "large": "විශාල",
+    "fontSize": "අකුරු ප්රමාණය",
+    "import": "ආනයනය කරන්න",
+    "moreOptions": "තවත් විකල්ප",
+    "wordCount": "වචන ගණන: {}",
+    "charCount": "අක්ෂර ගණන: {}",
+    "createdAt": "නිර්මාණය කළේ: {}",
+    "deleteView": "මකන්න",
+    "duplicateView": "අනුපිටපත් කරන්න",
+    "wordCountLabel": "වචන ගණන:",
+    "charCountLabel": "අක්ෂර ගණන:",
+    "createdAtLabel": "සාදන ලදී:",
+    "syncedAtLabel": "සමමුහුර්ත:",
+    "saveAsNewPage": "පිටුවට පණිවිඩ එක් කරන්න",
+    "saveAsNewPageDisabled": "පණිවිඩ නොමැත"
+  },
+  "importPanel": {
+    "textAndMarkdown": "පෙළ සහ සලකුණු කිරීම",
+    "documentFromV010": "v0.1.0 වෙතින් ලේඛනය",
+    "databaseFromV010": "දත්ත සමුදාය v0.1.0 වෙතින්",
+    "notionZip": "සංකල්ප අපනයන Zip ගොනුව",
+    "csv": "CSV",
+    "database": "දත්ත සමුදාය"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "ගොනුවක් ඇද දමන්න, ක්ලික් කරන්න",
+      "placeholderUpload": "උඩුගත කරන්න",
+      "placeholderRight": ", හෝ පින්තුර සබැඳියක් අලවන්න.",
+      "dropToUpload": "උඩුගත කිරීමට ගොනුවක් දමන්න",
+      "change": "වෙනස් කරන්න"
+    }
+  },
+  "disclosureAction": {
+    "rename": "නැවත නම් කරන්න",
+    "delete": "මකන්න",
+    "duplicate": "අනුපිටපත් කරන්න",
+    "unfavorite": "ප්‍රියතමයන් වෙතින් ඉවත් කරන්න",
+    "favorite": "ප්‍රියතමයන් වෙත එක් කරන්න",
+    "openNewTab": "නව ටැබ් එකකින් විවෘත කරන්න",
+    "moveTo": "වෙත යන්න",
+    "addToFavorites": "ප්‍රියතමයන් වෙත එක් කරන්න",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "changeIcon": "නිරූපකය වෙනස් කරන්න",
+    "collapseAllPages": "සියලුම උපපිටු හකුළන්න",
+    "movePageTo": "වෙත පිටුව ගෙන යන්න",
+    "move": "චලනය කරන්න",
+    "lockPage": "පිටුව අගුළු දමන්න"
+  },
+  "blankPageTitle": "හිස් පිටුව",
+  "newPageText": "නව පිටුව",
+  "newDocumentText": "නව ලේඛනය",
+  "newGridText": "නව ජාලකය",
+  "newCalendarText": "නව දින දර්ශනය",
+  "newBoardText": "නව පුවරුව",
+  "chat": {
+    "newChat": "AI කතාබස්",
+    "inputMessageHint": "@:appName AI අසන්න",
+    "inputLocalAIMessageHint": "@:appName දේශීය AI අසන්න",
+    "unsupportedCloudPrompt": "මෙම විශේෂාංගය ලබා ගත හැක්කේ @:appName Cloud භාවිතා කරන විට පමණි",
+    "relatedQuestion": "යෝජනා කර ඇත",
+    "serverUnavailable": "සම්බන්ධතාවය නැති විය. කරුණාකර ඔබගේ අන්තර්ජාලය පරීක්ෂා කර බලන්න",
+    "aiServerUnavailable": "AI සේවාව තාවකාලිකව නොමැත. කරුණාකර පසුව නැවත උත්සාහ කරන්න.",
+    "retry": "නැවත උත්සාහ කරන්න",
+    "clickToRetry": "නැවත උත්සාහ කිරීමට ක්ලික් කරන්න",
+    "regenerateAnswer": "නැවත උත්පාදනය කරන්න",
+    "question1": "කාර්යයන් කළමනාකරණය කිරීමට Kanban භාවිතා කරන්නේ කෙසේද",
+    "question2": "GTD ක්‍රමය පැහැදිලි කරන්න",
+    "question3": "ඇයි රස්ට් භාවිතා කරන්නේ",
+    "question4": "මගේ කුස්සියේ ඇති දේ සමඟ වට්ටෝරුව",
+    "question5": "මගේ පිටුව සඳහා නිදර්ශනයක් සාදන්න",
+    "question6": "මගේ ඉදිරි සතිය සඳහා කළ යුතු දේ ලැයිස්තුවක් අඳින්න",
+    "aiMistakePrompt": "AI වැරදි කළ හැකිය. වැදගත් තොරතුරු පරීක්ෂා කරන්න.",
+    "chatWithFilePrompt": "ඔබට ගොනුව සමඟ කතාබස් කිරීමට අවශ්‍යද?",
+    "indexFileSuccess": "ගොනුව සුචිගත කිරීම සාර්ථකයි",
+    "inputActionNoPages": "පිටු ප්‍රතිඵල නැත",
+    "referenceSource": {
+      "zero": "මූලාශ්‍ර 0ක් හමු විය",
+      "one": "{count} මූලාශ්‍රය හමු විය",
+      "other": "{count} මූලාශ්‍ර හමු විය"
+    },
+    "clickToMention": "පිටුවක් සඳහන් කරන්න",
+    "uploadFile": "PDF, පෙළ හෝ සලකුණු ගොනු අමුණන්න",
+    "questionDetail": "ආයුබෝවන් {} ! අද මම ඔබට උදව් කරන්නේ කෙසේද?",
+    "indexingFile": "{} සුචිගත කිරීම",
+    "generatingResponse": "ප්රතිචාර උත්පාදනය කිරීම",
+    "selectSources": "මූලාශ්ර තෝරන්න",
+    "currentPage": "වත්මන් පිටුව",
+    "sourcesLimitReached": "ඔබට තෝරා ගත හැක්කේ ඉහළ මට්ටමේ ලේඛන සහ එහි දරුවන් 3ක් දක්වා පමණි",
+    "sourceUnsupported": "අපි මේ අවස්ථාවේ දත්ත සමුදායන් සමඟ කතාබස් කිරීමට සහාය නොදක්වමු",
+    "regenerate": "නැවත උත්සාහ කරන්න",
+    "addToPageButton": "පිටුවට පණිවිඩයක් එක් කරන්න",
+    "addToPageTitle": "වෙත පණිවිඩයක් එක් කරන්න...",
+    "addToNewPage": "නව පිටුවක් සාදන්න",
+    "addToNewPageName": "\" {} \" වෙතින් උපුටා ගන්නා ලද පණිවිඩ",
+    "addToNewPageSuccessToast": "වෙත පණිවිඩයක් එක් කරන ලදී",
+    "openPagePreviewFailedToast": "පිටුව විවෘත කිරීමට අසමත් විය",
+    "changeFormat": {
+      "actionButton": "ආකෘතිය වෙනස් කරන්න",
+      "confirmButton": "මෙම ආකෘතිය සමඟ නැවත උත්පාදනය කරන්න",
+      "textOnly": "පෙළ",
+      "imageOnly": "රූපය පමණි",
+      "textAndImage": "පෙළ සහ රූපය",
+      "text": "ඡේදය",
+      "bullet": "බුලට් ලැයිස්තුව",
+      "number": "අංකිත ලැයිස්තුව",
+      "table": "මේසය",
+      "blankDescription": "ආකෘති ප්රතිචාරය",
+      "defaultDescription": "ස්වයංක්‍රීය ප්‍රතිචාර ආකෘතිය",
+      "textWithImageDescription": "රූපය සහිත @:chat .changeFormat.text",
+      "numberWithImageDescription": "රූපය සහිත @:chat .changeFormat.number",
+      "bulletWithImageDescription": "රූපය සහිත @:chat .changeFormat.bullet",
+      "tableWithImageDescription": "රූපය සහිත @:chat .changeFormat.table"
+    },
+    "switchModel": {
+      "label": "මාදිලිය මාරු කරන්න",
+      "localModel": "දේශීය ආකෘතිය",
+      "cloudModel": "වලාකුළු ආකෘතිය",
+      "autoModel": "ඔටෝ"
+    },
+    "selectBanner": {
+      "saveButton": "වෙත එක් කරන්න …",
+      "selectMessages": "පණිවිඩ තෝරන්න",
+      "nSelected": "{} තෝරා ඇත",
+      "allSelected": "සියල්ල තෝරා ඇත"
+    },
+    "stopTooltip": "උත්පාදනය නවත්වන්න"
+  },
+  "trash": {
+    "text": "කුණු කූඩය",
+    "restoreAll": "සියල්ල ප්‍රතිසාධනය කරන්න",
+    "restore": "ප්‍රතිෂ්ඨාපනය කරන්න",
+    "deleteAll": "සියල්ල මකන්න",
+    "pageHeader": {
+      "fileName": "ගොනු නාමය",
+      "lastModified": "අවසන් වරට වෙනස් කරන ලදී",
+      "created": "නිර්මාණය කළා"
+    },
+    "confirmDeleteAll": {
+      "title": "සියලුම පිටු කුණු කූඩයේ",
+      "caption": "ඔබට කුණු කූඩයේ ඇති සියල්ල මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව පසුගමනය කළ නොහැක."
+    },
+    "confirmRestoreAll": {
+      "title": "කුණු කූඩයේ ඇති සියලුම පිටු ප්‍රතිසාධනය කරන්න",
+      "caption": "මෙම ක්‍රියාව පසුගමනය කළ නොහැක."
+    },
+    "restorePage": {
+      "title": "ප්‍රතිසාධනය: {}",
+      "caption": "ඔබට මෙම පිටුව ප්‍රතිසාධනය කිරීමට අවශ්‍ය බව විශ්වාසද?"
+    },
+    "mobile": {
+      "actions": "අපද්‍රව්‍ය ක්‍රියා",
+      "empty": "කුණු කූඩය තුළ පිටු හෝ හිස්තැන් නැත",
+      "emptyDescription": "ඔබට අවශ්‍ය නොවන දේවල් කුණු කූඩයට ගෙන යන්න.",
+      "isDeleted": "මකා ඇත",
+      "isRestored": "ප්රතිෂ්ඨාපනය වේ"
+    },
+    "confirmDeleteTitle": "ඔබට මෙම පිටුව ස්ථිරවම මැකීමට අවශ්‍ය බව විශ්වාසද?"
+  },
+  "deletePagePrompt": {
+    "text": "මෙම පිටුව කුණු කූඩයේ ඇත",
+    "restore": "පිටුව ප්‍රතිසාධනය කරන්න",
+    "deletePermanent": "ස්ථිරවම මකන්න",
+    "deletePermanentDescription": "ඔබට මෙම පිටුව ස්ථිරවම මැකීමට අවශ්‍ය බව විශ්වාසද? මෙය ආපසු හැරවිය නොහැකි ය."
+  },
+  "dialogCreatePageNameHint": "පිටුවේ නම",
+  "questionBubble": {
+    "shortcuts": "කෙටිමං",
+    "whatsNew": "මොනවද අළුත්?",
+    "helpAndDocumentation": "උදව් සහ ලියකියවිලි",
+    "getSupport": "සහාය ලබා ගන්න",
+    "markdown": "සලකුණු කිරීම",
+    "debug": {
+      "name": "දෝශ නිරාකරණ තොරතුරු",
+      "success": "නිදොස් කිරීමේ තොරතුරු පසුරු පුවරුවට පිටපත් කරන ලදී!",
+      "fail": "නිදොස් කිරීමේ තොරතුරු පසුරු පුවරුවට පිටපත් කළ නොහැක"
+    },
+    "feedback": "ප්රතිපෝෂණ"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "ඉවත් කරන්න, නැවත නම් කරන්න, සහ තවත්...",
+    "addPageTooltip": "ඉක්මනින් ඇතුළත පිටුවක් එක් කරන්න",
+    "defaultNewPageName": "මාතෘකා රහිත",
+    "renameDialog": "නැවත නම් කරන්න",
+    "pageNameSuffix": "පිටපත් කරන්න"
+  },
+  "noPagesInside": "ඇතුළත පිටු නොමැත",
+  "toolbar": {
+    "undo": "අහෝසි කරන්න",
+    "redo": "නැවත කරන්න",
+    "bold": "නිර්භීත",
+    "italic": "ඇල අකුරු",
+    "underline": "යටින් ඉරි",
+    "strike": "පහර හරහා",
+    "numList": "අංකිත ලැයිස්තුව",
+    "bulletList": "බුලටිත ලැයිස්තුව",
+    "checkList": "පිරික්සුම් ලැයිස්තුව",
+    "inlineCode": "පේළිගත කේතය",
+    "quote": "උපුටා දැක්වීම් වාරණ",
+    "header": "ශීර්ෂකය",
+    "highlight": "ඉස්මතු කරන්න",
+    "color": "වර්ණය",
+    "addLink": "සබැඳිය එක් කරන්න"
+  },
+  "tooltip": {
+    "lightMode": "ආලෝක මාදිලියට මාරු වන්න",
+    "darkMode": "අඳුරු මාදිලියට මාරු වන්න",
+    "openAsPage": "පිටුවක් ලෙස විවෘත කරන්න",
+    "addNewRow": "නව පේළියක් එක් කරන්න",
+    "openMenu": "මෙනුව විවෘත කිරීමට ක්ලික් කරන්න",
+    "dragRow": "පේළිය නැවත සකස් කිරීමට අදින්න",
+    "viewDataBase": "දත්ත සමුදාය බලන්න",
+    "referencePage": "මෙම {name} යොමු කර ඇත",
+    "addBlockBelow": "පහත බ්ලොක් එකක් එක් කරන්න",
+    "aiGenerate": "උත්පාදනය කරන්න"
+  },
+  "sideBar": {
+    "closeSidebar": "පැති තීරුව වසන්න",
+    "openSidebar": "පැති තීරුව විවෘත කරන්න",
+    "expandSidebar": "සම්පූර්ණ පිටුව ලෙස දිග හරින්න",
+    "personal": "පුද්ගලික",
+    "private": "පුද්ගලිකයි",
+    "workspace": "වැඩබිම",
+    "favorites": "ප්රියතම",
+    "clickToHidePrivate": "පුද්ගලික ඉඩ සැඟවීමට ක්ලික් කරන්න\nඔබ මෙහි සාදන ලද පිටු ඔබට පමණක් දෘශ්‍යමාන වේ",
+    "clickToHideWorkspace": "කාර්ය ඉඩ සැඟවීමට ක්ලික් කරන්න\nඔබ මෙහි සාදන ලද පිටු සෑම සාමාජිකයෙකුටම දෘශ්‍යමාන වේ",
+    "clickToHidePersonal": "පුද්ගලික ඉඩ සැඟවීමට ක්ලික් කරන්න",
+    "clickToHideFavorites": "ප්රියතම ඉඩ සැඟවීමට ක්ලික් කරන්න",
+    "addAPage": "නව පිටුවක් එක් කරන්න",
+    "addAPageToPrivate": "පුද්ගලික අවකාශයට පිටුවක් එක් කරන්න",
+    "addAPageToWorkspace": "වැඩබිමට පිටුවක් එක් කරන්න",
+    "recent": "මෑත",
+    "today": "අද",
+    "thisWeek": "මෙම සතිය",
+    "others": "පෙර ප්‍රියතමයන්",
+    "earlier": "කලින්",
+    "justNow": "මේ දැන්",
+    "minutesAgo": "මිනිත්තු {count} කට පෙර",
+    "lastViewed": "අවසන් වරට බැලුවා",
+    "favoriteAt": "ප්රියතම",
+    "emptyRecent": "මෑත පිටු නොමැත",
+    "emptyRecentDescription": "ඔබ පිටු බලන විට, ඒවා පහසුවෙන් ලබා ගැනීම සඳහා මෙහි දිස් වනු ඇත.",
+    "emptyFavorite": "ප්‍රියතම පිටු නොමැත",
+    "emptyFavoriteDescription": "පිටු ප්‍රියතමයන් ලෙස ලකුණු කරන්න—ඉක්මන් ප්‍රවේශය සඳහා ඒවා මෙහි ලැයිස්තුගත කරනු ඇත!",
+    "removePageFromRecent": "මෑත පිටුවෙන් මෙම පිටුව ඉවත් කරන්නද?",
+    "removeSuccess": "සාර්ථකව ඉවත් කරන ලදී",
+    "favoriteSpace": "ප්රියතම",
+    "RecentSpace": "මෑත",
+    "Spaces": "අවකාශ",
+    "upgradeToPro": "Pro වෙත උත්ශ්‍රේණි කරන්න",
+    "upgradeToAIMax": "අසීමිත AI අගුළු හරින්න",
+    "storageLimitDialogTitle": "ඔබගේ නොමිලේ ගබඩාව අවසන් වී ඇත. අසීමිත ආචයනය අගුලු හැරීමට උත්ශ්‍රේණි කරන්න",
+    "storageLimitDialogTitleIOS": "ඔබගේ නොමිලේ ගබඩාව අවසන් වී ඇත.",
+    "aiResponseLimitTitle": "ඔබට නොමිලේ AI ප්‍රතිචාර අවසන් වී ඇත. අසීමිත ප්‍රතිචාර අගුලු හැරීමට Pro Plan වෙත උත්ශ්‍රේණි කරන්න හෝ AI ඇඩෝනයක් මිලදී ගන්න",
+    "aiResponseLimitDialogTitle": "AI ප්‍රතිචාර සීමාව ළඟා විය",
+    "aiResponseLimit": "ඔබට නොමිලේ AI ප්‍රතිචාර අවසන් වී ඇත.\n\nතවත් AI ප්‍රතිචාර ලබා ගැනීමට Settings -> Plan -> AI Max හෝ Pro Plan ක්ලික් කරන්න",
+    "askOwnerToUpgradeToPro": "ඔබගේ කාර්ය ඉඩ නිදහස් ගබඩාව අවසන් වෙමින් පවතී. Pro Plan වෙත උත්ශ්‍රේණි කිරීමට කරුණාකර ඔබගේ වැඩ ඉඩ හිමිකරුගෙන් ඉල්ලා සිටින්න",
+    "askOwnerToUpgradeToProIOS": "ඔබගේ කාර්ය ඉඩ නිදහස් ගබඩාව අවසන් වෙමින් පවතී.",
+    "askOwnerToUpgradeToAIMax": "ඔබගේ වැඩබිම නොමිලේ AI ප්‍රතිචාර වලින් අවසන් වී ඇත. සැලැස්ම උත්ශ්‍රේණි කිරීමට හෝ AI ඇඩෝන මිලදී ගැනීමට කරුණාකර ඔබේ වැඩබිම් හිමිකරුගෙන් ඉල්ලා සිටින්න",
+    "askOwnerToUpgradeToAIMaxIOS": "ඔබගේ වැඩබිම නොමිලේ AI ප්‍රතිචාර වලින් අවසන් වේ.",
+    "purchaseAIMax": "ඔබගේ වැඩබිම AI රූප ප්‍රතිචාර වලින් අවසන් වී ඇත. AI Max මිලදී ගැනීමට කරුණාකර ඔබේ වැඩ ඉඩ හිමිකරුගෙන් ඉල්ලා සිටින්න",
+    "aiImageResponseLimit": "ඔබට AI රූප ප්‍රතිචාර අවසන් වී ඇත.\n\nතවත් AI රූප ප්‍රතිචාර ලබා ගැනීමට Settings -> Plan -> AI Max ක්ලික් කරන්න",
+    "purchaseStorageSpace": "ගබඩා ඉඩ මිලදී ගන්න",
+    "singleFileProPlanLimitationDescription": "ඔබ නිදහස් සැලැස්මේ අවසර දී ඇති උපරිම ගොනු උඩුගත කිරීමේ ප්‍රමාණය ඉක්මවා ඇත. විශාල ගොනු උඩුගත කිරීමට කරුණාකර Pro Plan වෙත උත්ශ්‍රේණි කරන්න",
+    "purchaseAIResponse": "මිලදී ගැනීම",
+    "askOwnerToUpgradeToLocalAI": "AI On-device සබල කිරීමට වැඩ ඉඩ හිමිකරුගෙන් විමසන්න",
+    "upgradeToAILocal": "අවසාන පුද්ගලිකත්වය සඳහා ඔබගේ උපාංගයේ දේශීය ආකෘති ධාවනය කරන්න",
+    "upgradeToAILocalDesc": "PDF සමඟ කතාබස් කරන්න, ඔබේ ලිවීම වැඩි දියුණු කරන්න, සහ දේශීය AI භාවිතයෙන් වගු ස්වයංක්‍රීයව පුරවන්න"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "සටහන සලකුණු කිරීමට අපනයනය කරන ලදී",
+      "path": "ලේඛන / ගලා යන"
+    }
+  },
+  "contactsPage": {
+    "title": "සම්බන්ධතා",
+    "whatsHappening": "මේ සතියේ මොකද වෙන්නේ?",
+    "addContact": "සම්බන්ධතා එකතු කරන්න",
+    "editContact": "සම්බන්ධතා සංස්කරණය කරන්න"
+  },
+  "button": {
+    "ok": "හරි",
+    "confirm": "තහවුරු කරන්න",
+    "done": "කළා",
+    "cancel": "අවලංගු කරන්න",
+    "signIn": "පුරන්න",
+    "signOut": "වරන්න",
+    "complete": "සම්පූර්ණයි",
+    "change": "වෙනස් කරන්න",
+    "save": "සුරකින්න",
+    "generate": "උත්පාදනය කරන්න",
+    "esc": "පිට වීම",
+    "keep": "තබා ගන්න",
+    "tryAgain": "නැවත උත්සාහ කරන්න",
+    "discard": "ඉවතලන්න",
+    "replace": "ආදේශ කරන්න",
+    "insertBelow": "පහතින් ඇතුල් කරන්න",
+    "insertAbove": "ඉහලින් ඇතුල් කරන්න",
+    "upload": "උඩුගත කරන්න",
+    "edit": "සංස්කරණය කරන්න",
+    "delete": "මකන්න",
+    "copy": "පිටපත් කරන්න",
+    "duplicate": "අනුපිටපත් කරන්න",
+    "putback": "ආපසු දමන්න",
+    "update": "යාවත්කාලීන කරන්න",
+    "share": "බෙදාගන්න",
+    "removeFromFavorites": "ප්‍රියතමයන් වෙතින් ඉවත් කරන්න",
+    "removeFromRecent": "Recent වලින් ඉවත් කරන්න",
+    "addToFavorites": "ප්‍රියතමයන් වෙත එක් කරන්න",
+    "favoriteSuccessfully": "කැමති සාර්ථකත්වය",
+    "unfavoriteSuccessfully": "අකමැති සාර්ථකත්වය",
+    "duplicateSuccessfully": "සාර්ථකව අනුපිටපත් කරන ලදී",
+    "rename": "නැවත නම් කරන්න",
+    "helpCenter": "උපකාරක මධ්යස්ථානය",
+    "add": "එකතු කරන්න",
+    "yes": "ඔව්",
+    "no": "නැත",
+    "clear": "පැහැදිලියි",
+    "remove": "ඉවත් කරන්න",
+    "dontRemove": "ඉවත් කරන්න එපා",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "align": "පෙළගස්වන්න",
+    "login": "ඇතුල් වන්න",
+    "logout": "ලොග් අවුට් වෙන්න",
+    "deleteAccount": "ගිණුම මකන්න",
+    "back": "ආපසු",
+    "signInGoogle": "Google සමඟින් ඉදිරියට යන්න",
+    "signInGithub": "GitHub සමඟින් ඉදිරියට යන්න",
+    "signInDiscord": "Discord සමඟින් ඉදිරියට යන්න",
+    "more": "තව",
+    "create": "නිර්මාණය කරන්න",
+    "close": "වසන්න",
+    "next": "ඊළඟ",
+    "previous": "පෙර",
+    "submit": "ඉදිරිපත් කරන්න",
+    "download": "බාගන්න",
+    "backToHome": "ආපසු නිවසට",
+    "viewing": "බැලීම",
+    "editing": "සංස්කරණය කරනවා",
+    "gotIt": "තේරුම් ගත්තා ද",
+    "retry": "නැවත උත්සාහ කරන්න",
+    "uploadFailed": "උඩුගත කිරීම අසාර්ථක විය.",
+    "copyLinkOriginal": "සබැඳිය මුල් පිටපතට පිටපත් කරන්න"
+  },
+  "label": {
+    "welcome": "සාදරයෙන් පිළිගනිමු!",
+    "firstName": "මුල් නම",
+    "middleName": "මැද නම",
+    "lastName": "අවසන් නම",
+    "stepX": "පියවර {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "ඔබගේ ගිණුමට සම්බන්ධ විය නොහැක.",
+      "failedMsg": "කරුණාකර ඔබ ඔබගේ බ්‍රවුසරයේ පුරනය වීමේ ක්‍රියාවලිය සම්පූර්ණ කර ඇති බව සහතික කර ගන්න."
+    },
+    "google": {
+      "title": "GOOGLE පුරනය වීම",
+      "instruction1": "ඔබගේ Google සම්බන්ධතා ආයාත කිරීම සඳහා, ඔබට ඔබගේ වෙබ් බ්‍රවුසරය භාවිතයෙන් මෙම යෙදුම අනුමත කිරීමට අවශ්‍ය වනු ඇත.",
+      "instruction2": "අයිකනය ක්ලික් කිරීමෙන් හෝ පෙළ තේරීමෙන් මෙම කේතය ඔබේ පසුරු පුවරුවට පිටපත් කරන්න:",
+      "instruction3": "ඔබගේ වෙබ් බ්‍රවුසරයේ පහත සබැඳිය වෙත සංචාලනය කර ඉහත කේතය ඇතුලත් කරන්න:",
+      "instruction4": "ඔබ ලියාපදිංචිය සම්පූර්ණ කළ පසු පහත බොත්තම ඔබන්න:"
+    }
+  },
+  "settings": {
+    "title": "සැකසීම්",
+    "popupMenuItem": {
+      "settings": "සැකසීම්",
+      "members": "සාමාජිකයන්",
+      "trash": "කුණු කූඩය",
+      "helpAndDocumentation": "උදව් සහ ලියකියවිලි",
+      "getSupport": "සහාය ලබා ගන්න"
+    },
+    "sites": {
+      "title": "අඩවි",
+      "namespaceTitle": "නාම අවකාශය",
+      "namespaceDescription": "ඔබගේ නාම අවකාශය සහ මුල් පිටුව කළමනාකරණය කරන්න",
+      "namespaceHeader": "නාම අවකාශය",
+      "homepageHeader": "මුල් පිටුව",
+      "updateNamespace": "නාම අවකාශය යාවත්කාලීන කරන්න",
+      "removeHomepage": "මුල් පිටුව ඉවත් කරන්න",
+      "selectHomePage": "පිටුවක් තෝරන්න",
+      "clearHomePage": "මෙම නාම අවකාශය සඳහා මුල් පිටුව හිස් කරන්න",
+      "customUrl": "අභිරුචි URL",
+      "homePage": {
+        "upgradeToPro": "මුල් පිටුවක් සැකසීමට Pro Plan වෙත උත්ශ්‍රේණි කරන්න"
+      },
+      "namespace": {
+        "description": "මෙම වෙනස් කිරීම මෙම නාම අවකාශයේ සජීවීව ප්‍රකාශිත සියලුම පිටු සඳහා අදාළ වේ",
+        "tooltip": "ඕනෑම නුසුදුසු නාම අවකාශ ඉවත් කිරීමේ අයිතිය අප සතුය",
+        "updateExistingNamespace": "පවතින නාම අවකාශය යාවත්කාලීන කරන්න",
+        "upgradeToPro": "අභිරුචි නාම අවකාශයකට හිමිකම් පෑමට Pro Plan වෙත උත්ශ්‍රේණි කරන්න",
+        "redirectToPayment": "ගෙවීම් පිටුවට හරවා යවමින්...",
+        "onlyWorkspaceOwnerCanSetHomePage": "මුල් පිටුවක් සැකසිය හැක්කේ වැඩබිම් හිමිකරුට පමණි",
+        "pleaseAskOwnerToSetHomePage": "Pro Plan වෙත උත්ශ්‍රේණි කිරීමට කරුණාකර වැඩ ඉඩ හිමිකරුගෙන් ඉල්ලා සිටින්න"
+      },
+      "publishedPage": {
+        "title": "සියලුම ප්‍රකාශිත පිටු",
+        "description": "ඔබේ ප්‍රකාශිත පිටු කළමනාකරණය කරන්න",
+        "page": "පිටුව",
+        "pathName": "මාර්ගයේ නම",
+        "date": "ප්‍රකාශිත දිනය",
+        "emptyHinText": "ඔබට මෙම කාර්ය ඉඩෙහි ප්‍රකාශිත පිටු නොමැත",
+        "noPublishedPages": "ප්‍රකාශිත පිටු නොමැත",
+        "settings": "ප්‍රකාශන සැකසීම්",
+        "clickToOpenPageInApp": "යෙදුම තුළ පිටුව විවෘත කරන්න",
+        "clickToOpenPageInBrowser": "බ්‍රවුසරයේ පිටුව විවෘත කරන්න"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Pro Plan සඳහා ගෙවීම් සබැඳිය උත්පාදනය කිරීමට අසමත් විය",
+        "failedToUpdateNamespace": "නාම අවකාශය යාවත්කාලීන කිරීමට අසමත් විය",
+        "proPlanLimitation": "නාම අවකාශය යාවත්කාලීන කිරීමට ඔබ Pro Plan වෙත උත්ශ්‍රේණි කළ යුතුය",
+        "namespaceAlreadyInUse": "නාම අවකාශය දැනටමත් ගෙන ඇත, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "invalidNamespace": "වලංගු නොවන නාම අවකාශයක්, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "namespaceLengthAtLeast2Characters": "නාම අවකාශය අවම වශයෙන් අක්ෂර 2 ක් දිග විය යුතුය",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "නාම අවකාශය යාවත්කාලීන කළ හැක්කේ කාර්ය ඉඩ හිමිකරුට පමණි",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "මුල් පිටුව ඉවත් කළ හැක්කේ වැඩ ඉඩ හිමිකරුට පමණි",
+        "setHomepageFailed": "මුල් පිටුව සැකසීමට අසමත් විය",
+        "namespaceTooLong": "නාම අවකාශය දිගු වැඩියි, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "namespaceTooShort": "නාම අවකාශය කෙටි වැඩියි, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "namespaceIsReserved": "නාම අවකාශය වෙන් කර ඇත, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "updatePathNameFailed": "මාර්ගයේ නම යාවත්කාලීන කිරීමට අසමත් විය",
+        "removeHomePageFailed": "මුල් පිටුව ඉවත් කිරීමට අසමත් විය",
+        "publishNameContainsInvalidCharacters": "මාර්ග නාමයේ වලංගු නොවන අක්ෂර(ය) අඩංගු වේ, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "publishNameTooShort": "මාර්ගයේ නම කෙටි වැඩියි, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "publishNameTooLong": "මාර්ගයේ නම දිග වැඩියි, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "publishNameAlreadyInUse": "මාර්ගයේ නම දැනටමත් භාවිතයේ ඇත, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "namespaceContainsInvalidCharacters": "නාම අවකාශයේ වලංගු නොවන අක්ෂර(ය) අඩංගු වේ, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න",
+        "publishPermissionDenied": "ප්‍රකාශන සැකසීම් කළමනාකරණය කළ හැක්කේ කාර්ය ඉඩ හිමිකරුට හෝ පිටු ප්‍රකාශකයාට පමණි",
+        "publishNameCannotBeEmpty": "මාර්ගයේ නම හිස් විය නොහැක, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න"
+      },
+      "success": {
+        "namespaceUpdated": "නාම අවකාශය සාර්ථකව යාවත්කාලීන කරන ලදී",
+        "setHomepageSuccess": "මුල් පිටුව සාර්ථකව සකසන්න",
+        "updatePathNameSuccess": "මාර්ගයේ නම සාර්ථකව යාවත්කාලීන කරන ලදී",
+        "removeHomePageSuccess": "මුල් පිටුව සාර්ථකව ඉවත් කරන්න"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "ගිණුම සහ යෙදුම",
+      "title": "මගේ ගිණුම",
+      "general": {
+        "title": "ගිණුමේ නම සහ පැතිකඩ රූපය",
+        "changeProfilePicture": "පැතිකඩ පින්තූරය වෙනස් කරන්න"
+      },
+      "email": {
+        "title": "ඊමේල් කරන්න",
+        "actions": {
+          "change": "ඊමේල් වෙනස් කරන්න"
+        }
+      },
+      "login": {
+        "title": "ගිණුමට ඇතුල් වීම",
+        "loginLabel": "ඇතුල් වන්න",
+        "logoutLabel": "ලොග් අවුට් වෙන්න"
+      },
+      "isUpToDate": "@:appName යාවත්කාලීනයි!",
+      "officialVersion": "{version} අනුවාදය (නිල ගොඩනැගීම)"
+    },
+    "workspacePage": {
+      "menuLabel": "වැඩබිම",
+      "title": "වැඩබිම",
+      "description": "ඔබගේ වැඩබිම පෙනුම, තේමාව, අකුරු, පෙළ පිරිසැලසුම, දිනය-/කාල ආකෘතිය සහ භාෂාව අභිරුචිකරණය කරන්න.",
+      "workspaceName": {
+        "title": "වැඩබිම නම"
+      },
+      "workspaceIcon": {
+        "title": "වැඩබිම් නිරූපකය",
+        "description": "රූපයක් උඩුගත කරන්න හෝ ඔබේ වැඩබිම සඳහා ඉමොජියක් භාවිත කරන්න. අයිකනය ඔබගේ පැති තීරුවේ සහ දැනුම්දීම් පෙන්වයි."
+      },
+      "appearance": {
+        "title": "පෙනුම",
+        "description": "ඔබගේ වැඩබිම පෙනුම, තේමාව, අකුරු, පෙළ පිරිසැලසුම, දිනය, වේලාව සහ භාෂාව අභිරුචිකරණය කරන්න.",
+        "options": {
+          "system": "ඔටෝ",
+          "light": "ආලෝකය",
+          "dark": "අඳුරු"
+        }
+      },
+      "resetCursorColor": {
+        "title": "ලේඛන කර්සරයේ වර්ණය නැවත සකසන්න",
+        "description": "ඔබට කර්සරයේ වර්ණය නැවත සැකසීමට අවශ්‍ය බව විශ්වාසද?"
+      },
+      "resetSelectionColor": {
+        "title": "ලේඛන තේරීමේ වර්ණය නැවත සකසන්න",
+        "description": "ඔබට තේරීමේ වර්ණය නැවත සැකසීමට අවශ්‍ය බව විශ්වාසද?"
+      },
+      "resetWidth": {
+        "resetSuccess": "ලේඛන පළල සාර්ථකව යළි පිහිටුවන්න"
+      },
+      "theme": {
+        "title": "තේමාව",
+        "description": "පෙර සැකසූ තේමාවක් තෝරන්න, නැතහොත් ඔබේම අභිරුචි තේමාවක් උඩුගත කරන්න.",
+        "uploadCustomThemeTooltip": "අභිරුචි තේමාවක් උඩුගත කරන්න",
+        "failedToLoadThemes": "තේමා පූරණය කිරීමට අපොහොසත් විය, කරුණාකර පද්ධති සැකසීම් > පෞද්ගලිකත්වය සහ ආරක්ෂාව > ගොනු සහ ෆෝල්ඩර > @:appName තුළ ඔබේ අවසර සැකසීම් පරීක්ෂා කරන්න"
+      },
+      "workspaceFont": {
+        "title": "වැඩ ඉඩ අකුරු",
+        "noFontHint": "අකුරු හමු නොවිණි, වෙනත් පදයක් උත්සාහ කරන්න."
+      },
+      "textDirection": {
+        "title": "පෙළ දිශාව",
+        "leftToRight": "වමේ සිට දකුණට",
+        "rightToLeft": "දකුණේ සිට වමට",
+        "auto": "ඔටෝ",
+        "enableRTLItems": "RTL මෙවලම් තීරු අයිතම සබල කරන්න"
+      },
+      "layoutDirection": {
+        "title": "පිරිසැලසුම් දිශාව",
+        "leftToRight": "වමේ සිට දකුණට",
+        "rightToLeft": "දකුණේ සිට වමට"
+      },
+      "dateTime": {
+        "title": "දිනය සහ වේලාව",
+        "example": "{} හි {} ( {} )",
+        "24HourTime": "පැය 24ක කාලය",
+        "dateFormat": {
+          "label": "දින ආකෘතිය",
+          "local": "දේශීය",
+          "us": "එ.ජ",
+          "iso": "ISO",
+          "friendly": "මිත්රශීලී",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "භාෂාව"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "කාර්ය ඉඩ මකන්න",
+        "content": "ඔබට මෙම කාර්ය ඉඩ මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව පසුගමනය කළ නොහැකි අතර, ඔබ විසින් ප්‍රකාශයට පත් කර ඇති පිටු කිසිවක් ප්‍රකාශනය නොකෙරෙනු ඇත."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "වැඩබිම හැර යන්න",
+        "content": "ඔබට මෙම වැඩබිම හැර යාමට අවශ්‍ය බව විශ්වාසද? ඔබට එහි ඇති සියලුම පිටු සහ දත්ත වෙත ප්‍රවේශය අහිමි වනු ඇත.",
+        "success": "ඔබ සාර්ථකව වැඩබිම හැර ගොස් ඇත.",
+        "fail": "වැඩබිම හැර යාම අසාර්ථක විය."
+      },
+      "manageWorkspace": {
+        "title": "වැඩබිම කළමනාකරණය කරන්න",
+        "leaveWorkspace": "වැඩබිම හැර යන්න",
+        "deleteWorkspace": "කාර්ය ඉඩ මකන්න"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "දත්ත කළමනාකරණය කරන්න",
+      "title": "දත්ත කළමනාකරණය කරන්න",
+      "description": "දත්ත දේශීය ආචයනය කළමනාකරණය කරන්න හෝ ඔබේ පවතින දත්ත @:appName වෙත ආයාත කරන්න.",
+      "dataStorage": {
+        "title": "ගොනු ගබඩා ස්ථානය",
+        "tooltip": "ඔබගේ ගොනු ගබඩා කර ඇති ස්ථානය",
+        "actions": {
+          "change": "මාර්ගය වෙනස් කරන්න",
+          "open": "ෆෝල්ඩරය විවෘත කරන්න",
+          "openTooltip": "වත්මන් දත්ත ෆෝල්ඩර ස්ථානය විවෘත කරන්න",
+          "copy": "මාර්ගය පිටපත් කරන්න",
+          "copiedHint": "මාර්ගය පිටපත් කර ඇත!",
+          "resetTooltip": "පෙරනිමි ස්ථානයට යළි පිහිටුවන්න"
+        },
+        "resetDialog": {
+          "title": "ඔයාට විශ්වාස ද?",
+          "description": "පෙරනිමි දත්ත ස්ථානයට මාර්ගය යළි පිහිටුවීමෙන් ඔබේ දත්ත මකා නොදමනු ඇත. ඔබට ඔබගේ වත්මන් දත්ත නැවත ආයාත කිරීමට අවශ්‍ය නම්, ඔබ ප්‍රථමයෙන් ඔබගේ වත්මන් ස්ථානයෙහි මාර්ගය පිටපත් කළ යුතුය."
+        }
+      },
+      "importData": {
+        "title": "දත්ත ආයාත කරන්න",
+        "tooltip": "@:appName උපස්ථ/දත්ත ෆෝල්ඩර වලින් දත්ත ආයාත කරන්න",
+        "description": "බාහිර @:appName දත්ත ෆෝල්ඩරයකින් දත්ත පිටපත් කරන්න",
+        "action": "ගොනුව පිරික්සන්න"
+      },
+      "encryption": {
+        "title": "සංකේතනය",
+        "tooltip": "ඔබගේ දත්ත ගබඩා කර සංකේතනය කරන ආකාරය කළමනාකරණය කරන්න",
+        "descriptionNoEncryption": "සංකේතනය ක්‍රියාත්මක කිරීමෙන් සියලු දත්ත සංකේතනය කරනු ඇත. මෙය ආපසු හැරවිය නොහැක.",
+        "descriptionEncrypted": "ඔබගේ දත්ත සංකේතනය කර ඇත.",
+        "action": "දත්ත සංකේතනය කරන්න",
+        "dialog": {
+          "title": "ඔබගේ සියලු දත්ත සංකේතනය කරන්නද?",
+          "description": "ඔබගේ සියලු දත්ත සංකේතනය කිරීම ඔබගේ දත්ත සුරක්ෂිතව සහ සුරක්ෂිතව තබා ගනු ඇත. මෙම ක්‍රියාව පසුගමනය කළ නොහැක. ඔබට දිගටම කරගෙන යාමට අවශ්‍ය බව විශ්වාසද?"
+        }
+      },
+      "cache": {
+        "title": "හැඹිලිය හිස් කරන්න",
+        "description": "රූපය පූරණය නොවීම, අවකාශයක පිටු අතුරුදහන් වීම සහ අකුරු පූරණය නොවීම වැනි ගැටළු විසඳීමට උදවු කරන්න. මෙය ඔබගේ දත්ත වලට බලපාන්නේ නැත.",
+        "dialog": {
+          "title": "හැඹිලිය හිස් කරන්න",
+          "description": "රූපය පූරණය නොවීම, අවකාශයක පිටු අතුරුදහන් වීම සහ අකුරු පූරණය නොවීම වැනි ගැටළු විසඳීමට උදවු කරන්න. මෙය ඔබගේ දත්ත වලට බලපාන්නේ නැත.",
+          "successHint": "හැඹිලිය හිස් කළා!"
+        }
+      },
+      "data": {
+        "fixYourData": "ඔබගේ දත්ත නිවැරදි කරන්න",
+        "fixButton": "නිවැරදි කරන්න",
+        "fixYourDataDescription": "ඔබ ඔබේ දත්ත සමඟ ගැටලු අත්විඳින්නේ නම්, ඔබට එය මෙතැනින් විසඳීමට උත්සාහ කළ හැක."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "කෙටිමං",
+      "title": "කෙටිමං",
+      "editBindingHint": "නව බැඳීමක් ඇතුළත් කරන්න",
+      "searchHint": "සොයන්න",
+      "actions": {
+        "resetDefault": "පෙරනිමිය යළි පිහිටුවන්න"
+      },
+      "errorPage": {
+        "message": "කෙටිමං පූරණය කිරීමට අසමත් විය: {}",
+        "howToFix": "කරුණාකර නැවත උත්සාහ කරන්න, ගැටලුව දිගටම පවතින්නේ නම් කරුණාකර GitHub වෙත සම්බන්ධ වන්න."
+      },
+      "resetDialog": {
+        "title": "කෙටිමං යළි පිහිටුවන්න",
+        "description": "මෙය ඔබගේ සියලුම යතුරු බැඳීම් පෙරනිමියට නැවත සකසනු ඇත, ඔබට මෙය පසුව පසුගමනය කළ නොහැක, ඔබට ඉදිරියට යාමට අවශ්‍ය බව විශ්වාසද?",
+        "buttonLabel": "යළි පිහිටුවන්න"
+      },
+      "conflictDialog": {
+        "title": "{} දැනට භාවිතා වේ",
+        "descriptionPrefix": "මෙම යතුරු බැඳීම දැනට භාවිතා කරනු ලබන්නේ",
+        "descriptionSuffix": ". ඔබ මෙම යතුරු බැඳීම ප්‍රතිස්ථාපනය කළහොත්, එය {} වෙතින් ඉවත් කරනු ලැබේ.",
+        "confirmLabel": "දිගටම කරගෙන යන්න"
+      },
+      "editTooltip": "යතුරු බැඳීම සංස්කරණය කිරීම ආරම්භ කිරීමට ඔබන්න",
+      "keybindings": {
+        "toggleToDoList": "ලැයිස්තුව කිරීමට ටොගල් කරන්න",
+        "insertNewParagraphInCodeblock": "නව ඡේදයක් ඇතුල් කරන්න",
+        "pasteInCodeblock": "කෝඩ්බ්ලොක් එකේ අලවන්න",
+        "selectAllCodeblock": "සියල්ල තෝරන්න",
+        "indentLineCodeblock": "පේළියේ ආරම්භයේදී හිස් දෙකක් ඇතුල් කරන්න",
+        "outdentLineCodeblock": "පේළියේ ආරම්භයේ ඇති හිස්තැන් දෙකක් මකන්න",
+        "twoSpacesCursorCodeblock": "කර්සරයේ හිස්තැන් දෙකක් ඇතුල් කරන්න",
+        "copy": "පිටපත් තේරීම",
+        "paste": "අන්තර්ගතයේ අලවන්න",
+        "cut": "තේරීම කපා",
+        "alignLeft": "පෙළ වමට පෙළගස්වන්න",
+        "alignCenter": "පෙළ මැද පෙළගස්වන්න",
+        "alignRight": "පෙළ දකුණට පෙළගස්වන්න",
+        "insertInlineMathEquation": "පේළිගත ගණිත සමීකරණය ඇතුල් කරන්න",
+        "undo": "අහෝසි කරන්න",
+        "redo": "නැවත කරන්න",
+        "convertToParagraph": "වාරණ ඡේදයට පරිවර්තනය කරන්න",
+        "backspace": "මකන්න",
+        "deleteLeftWord": "වම් වචනය මකන්න",
+        "deleteLeftSentence": "වම් වාක්‍යය මකන්න",
+        "delete": "නිවැරදි අක්ෂරය මකන්න",
+        "deleteMacOS": "වම් අක්ෂරය මකන්න",
+        "deleteRightWord": "නිවැරදි වචනය මකන්න",
+        "moveCursorLeft": "කර්සරය වමට ගෙන යන්න",
+        "moveCursorBeginning": "කර්සරය ආරම්භයට ගෙන යන්න",
+        "moveCursorLeftWord": "කර්සරය එක වචනයක් වමට ගෙන යන්න",
+        "moveCursorLeftSelect": "කර්සරය තෝරා වමට ගෙන යන්න",
+        "moveCursorBeginSelect": "කර්සරය තෝරන්න සහ ආරම්භයට ගෙන යන්න",
+        "moveCursorLeftWordSelect": "කර්සරය එක වචනයක් වමට තෝරා ගෙන යන්න",
+        "moveCursorRight": "කර්සරය දකුණට ගෙන යන්න",
+        "moveCursorEnd": "කර්සරය අවසානය දක්වා ගෙන යන්න",
+        "moveCursorRightWord": "කර්සරය එක වචනයක් දකුණට ගෙන යන්න",
+        "moveCursorRightSelect": "කර්සරය දකුණට තෝරා ගෙන යන්න",
+        "moveCursorEndSelect": "කර්සරය තෝරා අවසානය දක්වා ගෙන යන්න",
+        "moveCursorRightWordSelect": "කර්සරය හරි එක වචනයක් තෝරා ගෙන යන්න",
+        "moveCursorUp": "කර්සරය ඉහළට ගෙන යන්න",
+        "moveCursorTopSelect": "කර්සරය තෝරා ඉහළට ගෙන යන්න",
+        "moveCursorTop": "කර්සරය ඉහළට ගෙන යන්න",
+        "moveCursorUpSelect": "කර්සරය තෝරන්න සහ ඉහළට ගෙන යන්න",
+        "moveCursorBottomSelect": "කර්සරය තෝරන්න සහ පහළට ගෙන යන්න",
+        "moveCursorBottom": "කර්සරය පහළට ගෙන යන්න",
+        "moveCursorDown": "කර්සරය පහළට ගෙන යන්න",
+        "moveCursorDownSelect": "කර්සරය තෝරන්න සහ පහළට ගෙන යන්න",
+        "home": "ඉහළට අනුචලනය කරන්න",
+        "end": "පහළට අනුචලනය කරන්න",
+        "toggleBold": "තදබල ටොගල් කරන්න",
+        "toggleItalic": "ඇල අකුරු ටොගල් කරන්න",
+        "toggleUnderline": "යටි ඉරි ටොගල් කරන්න",
+        "toggleStrikethrough": "වැඩ වර්ජන ටොගල් කරන්න",
+        "toggleCode": "පේළිගත කේතය ටොගල් කරන්න",
+        "toggleHighlight": "උද්දීපනය ටොගල් කරන්න",
+        "showLinkMenu": "සබැඳි මෙනුව පෙන්වන්න",
+        "openInlineLink": "පේළිගත සබැඳිය විවෘත කරන්න",
+        "openLinks": "තෝරාගත් සියලුම සබැඳි විවෘත කරන්න",
+        "indent": "ඉන්ඩෙන්ට්",
+        "outdent": "අවුට්ඩන්ට්",
+        "exit": "සංස්කරණයෙන් පිටවන්න",
+        "pageUp": "එක් පිටුවක් ඉහළට අනුචලනය කරන්න",
+        "pageDown": "එක් පිටුවක් පහළට අනුචලනය කරන්න",
+        "selectAll": "සියල්ල තෝරන්න",
+        "pasteWithoutFormatting": "හැඩතල ගැන්වීමකින් තොරව අන්තර්ගතය අලවන්න",
+        "showEmojiPicker": "ඉමොජි පිකර් පෙන්වන්න",
+        "enterInTableCell": "වගුවේ රේඛීය බිඳීමක් එක් කරන්න",
+        "leftInTableCell": "වගුවේ එක් කොටුවක් වමට ගෙන යන්න",
+        "rightInTableCell": "වගුවේ එක් කොටුවක් දකුණට ගෙන යන්න",
+        "upInTableCell": "වගුවේ එක් කොටුවක් ඉහළට ගෙන යන්න",
+        "downInTableCell": "වගුවේ එක් කොටුවක් පහළට ගෙන යන්න",
+        "tabInTableCell": "වගුවේ ඇති ඊළඟ කොටුව වෙත යන්න",
+        "shiftTabInTableCell": "වගුවේ කලින් ලබා ගත හැකි කොටුව වෙත යන්න",
+        "backSpaceInTableCell": "සෛලය ආරම්භයේ නතර කරන්න"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "කේත බ්ලොක් එක අසල නව ඡේදයක් ඇතුල් කරන්න",
+        "codeBlockIndentLines": "කේත බ්ලොක් එකේ රේඛාව ආරම්භයේදී හිස් දෙකක් ඇතුල් කරන්න",
+        "codeBlockOutdentLines": "කේත බ්ලොක් එකේ රේඛාව ආරම්භයේ ඇති හිස්තැන් දෙකක් මකන්න",
+        "codeBlockAddTwoSpaces": "කේත බ්ලොක් එකේ කර්සරයේ ස්ථාන දෙකක් ඇතුල් කරන්න",
+        "codeBlockSelectAll": "කේත බ්ලොක් එකක් තුළ ඇති සියලුම අන්තර්ගතයන් තෝරන්න",
+        "codeBlockPasteText": "කේත බ්ලොක් එකේ පෙළ අලවන්න",
+        "textAlignLeft": "පෙළ වමට පෙළගස්වන්න",
+        "textAlignCenter": "පෙළ මැදට පෙළගස්වන්න",
+        "textAlignRight": "පෙළ දකුණට පෙළගස්වන්න"
+      },
+      "couldNotLoadErrorMsg": "කෙටිමං පූරණය කළ නොහැකි විය, නැවත උත්සාහ කරන්න",
+      "couldNotSaveErrorMsg": "කෙටිමං සුරැකීමට නොහැකි විය, නැවත උත්සාහ කරන්න"
+    },
+    "aiPage": {
+      "title": "AI සැකසුම්",
+      "menuLabel": "AI සැකසුම්",
+      "keys": {
+        "enableAISearchTitle": "AI සෙවීම",
+        "aiSettingsDescription": "AppFlowy AI බල ගැන්වීමට ඔබ කැමති මාදිලිය තෝරන්න. දැන් GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, සහ Ollama හි ඇති මාදිලි ඇතුළත් වේ",
+        "loginToEnableAIFeature": "AI විශේෂාංග සබල වන්නේ @:appName Cloud සමඟින් පුරනය වීමෙන් පසුව පමණි. ඔබට @:appName ගිණුමක් නොමැති නම්, ලියාපදිංචි වීමට 'මගේ ගිණුම' වෙත යන්න",
+        "llmModel": "භාෂා ආකෘතිය",
+        "globalLLMModel": "ගෝලීය භාෂා ආකෘතිය",
+        "readOnlyField": "මෙම ක්ෂේත්‍රය කියවීමට පමණි",
+        "llmModelType": "භාෂා ආදර්ශ වර්ගය",
+        "downloadLLMPrompt": "{} බාගන්න",
+        "downloadAppFlowyOfflineAI": "AI නොබැඳි පැකේජය බාගැනීමෙන් AI හට ඔබගේ උපාංගයේ ධාවනය කිරීමට හැකි වේ. ඔබට දිගටම කරගෙන යාමට අවශ්‍යද?",
+        "downloadLLMPromptDetail": "{} දේශීය මාදිලිය බාගැනීමෙන් {} ගබඩාව දක්වා ගත වේ. ඔබට දිගටම කරගෙන යාමට අවශ්‍යද?",
+        "downloadBigFilePrompt": "බාගැනීම සම්පූර්ණ කිරීමට මිනිත්තු 10ක් පමණ ගත විය හැක",
+        "downloadAIModelButton": "බාගන්න",
+        "downloadingModel": "බාගත කිරීම",
+        "localAILoaded": "දේශීය AI ආකෘතිය සාර්ථකව එක් කර භාවිතයට සූදානම්",
+        "localAIStart": "දේශීය AI ආරම්භ වේ. එය මන්දගාමී නම්, එය අක්‍රිය කර ක්‍රියාත්මක කිරීමට උත්සාහ කරන්න",
+        "localAILoading": "දේශීය AI කතාබස් ආකෘතිය පූරණය වෙමින් පවතී...",
+        "localAIStopped": "දේශීය AI නතර විය",
+        "localAIRunning": "දේශීය AI ක්‍රියාත්මක වේ",
+        "localAINotReadyRetryLater": "දේශීය AI ආරම්භ වෙමින් පවතී, කරුණාකර පසුව නැවත උත්සාහ කරන්න",
+        "localAIDisabled": "ඔබ දේශීය AI භාවිතා කරයි, නමුත් එය අබල කර ඇත. කරුණාකර එය සබල කිරීමට සැකසීම් වෙත යන්න හෝ වෙනස් මාදිලිය උත්සාහ කරන්න",
+        "localAIInitializing": "දේශීය AI පූරණය වේ. මෙය ඔබගේ උපාංගය මත පදනම්ව තත්පර කිහිපයක් ගත විය හැක",
+        "localAINotReadyTextFieldPrompt": "දේශීය AI පූරණය වන අතරතුර ඔබට සංස්කරණය කළ නොහැක",
+        "localAIDisabledTextFieldPrompt": "දේශීය AI අබල කර ඇති අතරතුර ඔබට සංස්කරණය කළ නොහැක",
+        "failToLoadLocalAI": "දේශීය AI ආරම්භ කිරීමට අසමත් විය.",
+        "restartLocalAI": "යළි අරඹන්න",
+        "disableLocalAITitle": "දේශීය AI අබල කරන්න",
+        "disableLocalAIDescription": "ඔබට දේශීය AI අක්‍රිය කිරීමට අවශ්‍යද?",
+        "localAIToggleTitle": "AppFlowy දේශීය AI (LAI)",
+        "localAIToggleSubTitle": "අවසාන පුද්ගලිකත්වය සහ ආරක්ෂාව සඳහා AppFlowy තුළ වඩාත්ම දියුණු දේශීය AI මාදිලි ධාවනය කරන්න",
+        "offlineAIInstruction1": "අනුගමනය කරන්න",
+        "offlineAIInstruction2": "උපදෙස්",
+        "offlineAIInstruction3": "නොබැඳි AI සබල කිරීමට.",
+        "offlineAIDownload1": "ඔබ AppFlowy AI බාගත කර නොමැති නම්, කරුණාකර",
+        "offlineAIDownload2": "බාගත කරන්න",
+        "offlineAIDownload3": "එය මුලින්ම",
+        "activeOfflineAI": "ක්රියාකාරී",
+        "downloadOfflineAI": "බාගන්න",
+        "openModelDirectory": "ෆෝල්ඩරය විවෘත කරන්න",
+        "laiNotReady": "දේශීය AI යෙදුම නිවැරදිව ස්ථාපනය කර නැත.",
+        "ollamaNotReady": "Ollama සේවාදායකය සූදානම් නැත.",
+        "pleaseFollowThese": "කරුණාකර මේවා අනුගමනය කරන්න",
+        "instructions": "උපදෙස්",
+        "installOllamaLai": "Ollama සහ AppFlowy Local AI පිහිටුවීමට.",
+        "modelsMissing": "අවශ්‍ය ආකෘති සොයාගත නොහැක:",
+        "downloadModel": "ඒවා බාගත කිරීමට."
+      }
+    },
+    "planPage": {
+      "menuLabel": "සැලසුම් කරන්න",
+      "title": "මිලකරණ සැලැස්ම",
+      "planUsage": {
+        "title": "සැලසුම් භාවිත සාරාංශය",
+        "storageLabel": "ගබඩා කිරීම",
+        "storageUsage": "{} GB හි {}",
+        "unlimitedStorageLabel": "අසීමිත ගබඩාව",
+        "collaboratorsLabel": "සාමාජිකයන්",
+        "collaboratorsUsage": "{} හි {}",
+        "aiResponseLabel": "AI ප්‍රතිචාර",
+        "aiResponseUsage": "{} හි {}",
+        "unlimitedAILabel": "අසීමිත ප්‍රතිචාර",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI මැක්ස්",
+        "aiOnDeviceBadge": "AI Mac සඳහා උපාංගය මත",
+        "memberProToggle": "තවත් සාමාජිකයින් සහ අසීමිත AI සහ අමුත්තන්ගේ ප්‍රවේශය",
+        "aiMaxToggle": "අසීමිත AI සහ උසස් මාදිලි සඳහා ප්රවේශය",
+        "aiOnDeviceToggle": "අවසාන පෞද්ගලිකත්වය සඳහා දේශීය AI",
+        "aiCredit": {
+          "title": "@:appName AI ණය එකතු කරන්න",
+          "price": "{}",
+          "priceDescription": "ණය 1,000ක් සඳහා",
+          "purchase": "AI මිලදී ගන්න",
+          "info": "වැඩබිමකට Ai බැර 1,000ක් එක් කරන්න සහ පහත දක්වා ඇති පරිදි වඩාත් දක්ෂ, වේගවත් ප්‍රතිඵල සඳහා අභිරුචිකරණය කළ හැකි AI ඔබේ කාර්ය ප්‍රවාහයට බාධාවකින් තොරව ඒකාබද්ධ කරන්න:",
+          "infoItemOne": "දත්ත ගබඩාවකට ප්‍රතිචාර 10,000ක්",
+          "infoItemTwo": "වැඩබිමකට ප්‍රතිචාර 1,000ක්"
+        },
+        "currentPlan": {
+          "bannerLabel": "වත්මන් සැලැස්ම",
+          "freeTitle": "නොමිලේ",
+          "proTitle": "Pro",
+          "teamTitle": "කණ්ඩායම",
+          "freeInfo": "සෑම දෙයක්ම සංවිධානය කිරීමට සාමාජිකයින් 2 දෙනෙකු දක්වා පුද්ගලයින් සඳහා පරිපූර්ණයි",
+          "proInfo": "සාමාජිකයින් 10 දක්වා කුඩා සහ මධ්‍යම කණ්ඩායම් සඳහා පරිපූර්ණයි.",
+          "teamInfo": "සියලුම ඵලදායී සහ හොඳින් සංවිධානය වූ කණ්ඩායම් සඳහා පරිපූර්ණයි..",
+          "upgrade": "සැලැස්ම වෙනස් කරන්න",
+          "canceledInfo": "ඔබගේ සැලසුම අවලංගු කර ඇත, ඔබ {} හි නොමිලේ සැලැස්මට පහත හෙලනු ඇත."
+        },
+        "addons": {
+          "title": "ඇඩෝන",
+          "addLabel": "එකතු කරන්න",
+          "activeLabel": "එකතු කරන ලදී",
+          "aiMax": {
+            "title": "AI මැක්ස්",
+            "description": "උසස් AI මාදිලි මගින් බල ගැන්වෙන අසීමිත AI ප්‍රතිචාර, සහ මසකට AI රූප 50",
+            "price": "{}",
+            "priceInfo": "එක් පරිශීලකයෙකුට මසකට වාර්ෂිකව බිල් කරනු ලැබේ"
+          },
+          "aiOnDevice": {
+            "title": "AI Mac සඳහා උපාංගය මත",
+            "description": "Mistral 7B, LLAMA 3, සහ තවත් දේශීය මාදිලි ඔබේ යන්ත්‍රයේ ධාවනය කරන්න",
+            "price": "{}",
+            "priceInfo": "එක් පරිශීලකයෙකුට මසකට වාර්ෂිකව බිල් කරනු ලැබේ",
+            "recommend": "M1 හෝ නව ඒවා නිර්දේශ කරන්න"
+          }
+        },
+        "deal": {
+          "bannerLabel": "අලුත් අවුරුදු ගනුදෙනුව!",
+          "title": "ඔබේ කණ්ඩායම වර්ධනය කරන්න!",
+          "info": "ප්‍රෝ සහ කණ්ඩායම් සැලසුම් සඳහා 10%ක වට්ටමක් උත්ශ්‍රේණි කර ඉතිරි කරන්න! @:appName AI ඇතුළු ප්‍රබල නව විශේෂාංග සමඟින් ඔබේ වැඩබිමේ ඵලදායිතාව ඉහළ නංවන්න.",
+          "viewPlans": "සැලසුම් බලන්න"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "බිල්පත්",
+      "title": "බිල්පත්",
+      "plan": {
+        "title": "සැලසුම් කරන්න",
+        "freeLabel": "නොමිලේ",
+        "proLabel": "Pro",
+        "planButtonLabel": "සැලැස්ම වෙනස් කරන්න",
+        "billingPeriod": "බිල්පත් කාලය",
+        "periodButtonLabel": "සංස්කරණ කාල සීමාව"
+      },
+      "paymentDetails": {
+        "title": "ගෙවීම් විස්තර",
+        "methodLabel": "ගෙවීම් ක්රමය",
+        "methodButtonLabel": "සංස්කරණ ක්රමය"
+      },
+      "addons": {
+        "title": "ඇඩෝන",
+        "addLabel": "එකතු කරන්න",
+        "removeLabel": "ඉවත් කරන්න",
+        "renewLabel": "අලුත් කරන්න",
+        "aiMax": {
+          "label": "AI මැක්ස්",
+          "description": "අසීමිත AI සහ උසස් මාදිලි අගුළු හරින්න",
+          "activeDescription": "මීළඟ ඉන්වොයිසිය {} ට නියමිතයි",
+          "canceledDescription": "AI Max {} දක්වා පවතිනු ඇත"
+        },
+        "aiOnDevice": {
+          "label": "AI Mac සඳහා උපාංගය මත",
+          "description": "ඔබගේ උපාංගයේ අසීමිත AI උපාංගය මත අගුලු හරින්න",
+          "activeDescription": "මීළඟ ඉන්වොයිසිය {} ට නියමිතයි",
+          "canceledDescription": "Mac සඳහා AI On-device {} දක්වා ලබා ගත හැක"
+        },
+        "removeDialog": {
+          "title": "{} ඉවත් කරන්න",
+          "description": "ඔබට {plan} ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද? ඔබට {plan} හි විශේෂාංග සහ ප්‍රතිලාභ වෙත ප්‍රවේශය වහාම අහිමි වනු ඇත."
+        }
+      },
+      "currentPeriodBadge": "වත්මන්",
+      "changePeriod": "කාල සීමාව වෙනස් කරන්න",
+      "planPeriod": "{} කාල සීමාව",
+      "monthlyInterval": "මාසිකව",
+      "monthlyPriceInfo": "ආසනයකට මාසිකව අය කෙරේ",
+      "annualInterval": "වාර්ෂිකව",
+      "annualPriceInfo": "ආසනයකට වාර්ෂිකව බිල්පත්"
+    },
+    "comparePlanDialog": {
+      "title": "සංසන්දනය කර සැලැස්ම තෝරන්න",
+      "planFeatures": "සැලසුම් කරන්න\nවිශේෂාංග",
+      "current": "වත්මන්",
+      "actions": {
+        "upgrade": "උත්ශ්‍රේණි කරන්න",
+        "downgrade": "පහත හෙලීම",
+        "current": "වත්මන්"
+      },
+      "freePlan": {
+        "title": "නොමිලේ",
+        "description": "සෑම දෙයක්ම සංවිධානය කිරීමට සාමාජිකයින් 2 දක්වා පුද්ගලයින් සඳහා",
+        "price": "{}",
+        "priceInfo": "සදහටම නිදහස්"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "ව්‍යාපෘති කළමනාකරණය කිරීමට සහ කණ්ඩායම් දැනුම සඳහා කුඩා කණ්ඩායම් සඳහා",
+        "price": "{}",
+        "priceInfo": "එක් පරිශීලකයෙකුට මසකට \nවාර්ෂිකව බිල්පත් {} මාසික බිල්පත්"
+      },
+      "planLabels": {
+        "itemOne": "වැඩබිම්",
+        "itemTwo": "සාමාජිකයන්",
+        "itemThree": "ගබඩා කිරීම",
+        "itemFour": "තත්‍ය කාලීන සහයෝගිතාව",
+        "itemFive": "ආගන්තුක සංස්කාරකවරුන්",
+        "itemSix": "AI ප්‍රතිචාර",
+        "itemSeven": "AI පින්තූර",
+        "itemFileUpload": "ගොනු උඩුගත කිරීම්",
+        "customNamespace": "අභිරුචි නාම අවකාශය",
+        "tooltipFive": "සාමාජිකයන් නොවන අය සමඟ නිශ්චිත පිටු සමඟ සහයෝගයෙන් කටයුතු කරන්න",
+        "tooltipSix": "ජීවිත කාලය යනු කිසි විටෙක යළි නොසැකසූ ප්‍රතිචාර ගණනයි",
+        "intelligentSearch": "බුද්ධිමත් සෙවීම",
+        "tooltipSeven": "ඔබගේ වැඩබිම සඳහා URL හි කොටසක් අභිරුචිකරණය කිරීමට ඔබට ඉඩ සලසයි",
+        "customNamespaceTooltip": "අභිරුචි ප්‍රකාශිත අඩවි URL"
+      },
+      "freeLabels": {
+        "itemOne": "වැඩබිමකට අය කෙරේ",
+        "itemTwo": "2 දක්වා",
+        "itemThree": "5 GB",
+        "itemFour": "ඔව්",
+        "itemFive": "ඔව්",
+        "itemSix": "10 ජීවිත කාලය",
+        "itemSeven": "2 ජීවිත කාලය",
+        "itemFileUpload": "7 MB දක්වා",
+        "intelligentSearch": "බුද්ධිමත් සෙවීම"
+      },
+      "proLabels": {
+        "itemOne": "වැඩබිමකට අය කෙරේ",
+        "itemTwo": "10 දක්වා",
+        "itemThree": "අසීමිතයි",
+        "itemFour": "ඔව්",
+        "itemFive": "100 දක්වා",
+        "itemSix": "අසීමිතයි",
+        "itemSeven": "මසකට පින්තූර 50 ක්",
+        "itemFileUpload": "අසීමිතයි",
+        "intelligentSearch": "බුද්ධිමත් සෙවීම"
+      },
+      "paymentSuccess": {
+        "title": "ඔබ දැන් {} සැලැස්මේ සිටී!",
+        "description": "ඔබගේ ගෙවීම සාර්ථකව සකසන ලද අතර ඔබගේ සැලසුම @:appName {} වෙත උත්ශ්‍රේණි කර ඇත. ඔබට සැලසුම් පිටුවෙහි ඔබගේ සැලසුම් විස්තර නැරඹිය හැක"
+      },
+      "downgradeDialog": {
+        "title": "ඔබට ඔබගේ සැලසුම පහත හෙලීමට අවශ්‍ය බව විශ්වාසද?",
+        "description": "ඔබගේ සැලසුම පහත හෙලීමෙන් ඔබව නිදහස් සැලැස්ම වෙත ආපසු හරවනු ඇත. සාමාජිකයින්ට මෙම වැඩබිමට ප්‍රවේශය අහිමි විය හැකි අතර ඔබට නිදහස් සැලැස්මේ ගබඩා සීමාවන් සපුරාලීමට ඉඩ නිදහස් කිරීමට අවශ්‍ය විය හැක.",
+        "downgradeLabel": "පහත් කිරීමේ සැලැස්ම"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "ඔබ යනවා දැකීම ගැන කණගාටුයි",
+      "description": "ඔබ යන එක ගැන අපට කණගාටුයි. @:appName වැඩිදියුණු කිරීමට අපට උදවු කිරීමට ඔබගේ ප්‍රතිපෝෂණ ඇසීමට අපි කැමතියි. කරුණාකර ප්‍රශ්න කිහිපයකට පිළිතුරු දීමට මොහොතක් ගත කරන්න.",
+      "commonOther": "වෙනත්",
+      "otherHint": "ඔබේ පිළිතුර මෙහි ලියන්න",
+      "questionOne": {
+        "question": "ඔබගේ @:appName Pro දායකත්වය අවලංගු කිරීමට ඔබව පෙලඹවූයේ කුමක්ද?",
+        "answerOne": "වියදම වැඩියි",
+        "answerTwo": "විශේෂාංග අපේක්ෂාවන් සපුරාලන්නේ නැත",
+        "answerThree": "වඩා හොඳ විකල්පයක් සොයා ගත්තා",
+        "answerFour": "වියදම සාධාරණීකරණය කිරීමට එය ප්රමාණවත් ලෙස භාවිතා නොකළේය",
+        "answerFive": "සේවා ගැටළුව හෝ තාක්ෂණික දුෂ්කරතා"
+      },
+      "questionTwo": {
+        "question": "අනාගතයේදී ඔබ @:appName Pro වෙත නැවත දායක වීම ගැන සලකා බැලීමට කොපමණ ඉඩ තිබේද?",
+        "answerOne": "බොහෝ දුරට ඉඩ ඇත",
+        "answerTwo": "තරමක් දුරට ඉඩ ඇත",
+        "answerThree": "විශ්වාස නැහැ",
+        "answerFour": "විය නොහැක",
+        "answerFive": "බොහෝ දුරට ඉඩ නැත"
+      },
+      "questionThree": {
+        "question": "ඔබේ දායකත්වය අතරතුර ඔබ වැඩිපුරම අගය කළේ කුමන Pro විශේෂාංගයද?",
+        "answerOne": "බහු-පරිශීලක සහයෝගීතාව",
+        "answerTwo": "දිගුකාලීන අනුවාද ඉතිහාසය",
+        "answerThree": "අසීමිත AI ප්‍රතිචාර",
+        "answerFour": "දේශීය AI ආකෘති වෙත ප්‍රවේශය"
+      },
+      "questionFour": {
+        "question": "@:appName සමඟ ඔබේ සමස්ත අත්දැකීම විස්තර කරන්නේ කෙසේද?",
+        "answerOne": "නියමයි",
+        "answerTwo": "හොඳයි",
+        "answerThree": "සාමාන්යය",
+        "answerFour": "සාමාන්‍යයට වඩා අඩුයි",
+        "answerFive": "තෘප්තිමත් නොවේ"
+      }
+    },
+    "common": {
+      "uploadingFile": "ගොනුව උඩුගත වෙමින් පවතී. කරුණාකර යෙදුමෙන් ඉවත් නොවන්න",
+      "uploadNotionSuccess": "ඔබගේ Notion zip ගොනුව සාර්ථකව උඩුගත කර ඇත. ආයාත කිරීම අවසන් වූ පසු, ඔබට තහවුරු කිරීමේ විද්‍යුත් තැපෑලක් ලැබෙනු ඇත",
+      "reset": "යළි පිහිටුවන්න"
+    },
+    "menu": {
+      "appearance": "පෙනුම",
+      "language": "භාෂාව",
+      "user": "පරිශීලක",
+      "files": "ගොනු",
+      "notifications": "දැනුම්දීම්",
+      "open": "විවෘත සැකසුම්",
+      "logout": "ලොග් අවුට් වෙන්න",
+      "logoutPrompt": "ඔබට පිටවීමට අවශ්‍ය බව විශ්වාසද?",
+      "selfEncryptionLogoutPrompt": "ඔබට පිටවීමට අවශ්‍ය බව විශ්වාසද? කරුණාකර ඔබ සංකේතාංකන රහස පිටපත් කර ඇති බවට සහතික වන්න",
+      "syncSetting": "සමමුහුර්ත සැකසීම",
+      "cloudSettings": "වලාකුළු සැකසුම්",
+      "enableSync": "සමමුහුර්ත කිරීම සබල කරන්න",
+      "enableSyncLog": "සමමුහුර්ත ලොග් කිරීම සබල කරන්න",
+      "enableSyncLogWarning": "සමමුහුර්ත ගැටළු හඳුනා ගැනීමට උදවු කිරීම ගැන ඔබට ස්තුතියි. මෙය ඔබගේ ලේඛන සංස්කරණ දේශීය ගොනුවකට ලොග් කරනු ඇත. කරුණාකර ඉවත් වී සබල කිරීමෙන් පසු යෙදුම නැවත විවෘත කරන්න",
+      "enableEncrypt": "දත්ත සංකේතනය කරන්න",
+      "cloudURL": "මූලික URL",
+      "webURL": "වෙබ් URL",
+      "invalidCloudURLScheme": "වලංගු නොවන යෝජනා ක්‍රමයක්",
+      "cloudServerType": "වලාකුළු සේවාදායකය",
+      "cloudServerTypeTip": "වලාකුළු සේවාදායකය මාරු කිරීමෙන් පසු එය ඔබගේ ජංගම ගිණුමෙන් ඉවත් විය හැකි බව කරුණාවෙන් සලකන්න",
+      "cloudLocal": "දේශීය",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName Cloud ස්වයං-සත්කාරක",
+      "appFlowyCloudUrlCanNotBeEmpty": "Cloud url හිස් විය නොහැක",
+      "clickToCopy": "පසුරු පුවරුවට පිටපත් කරන්න",
+      "selfHostStart": "ඔබට සේවාදායකයක් නොමැති නම්, කරුණාකර යොමු කරන්න",
+      "selfHostContent": "ලේඛනය",
+      "selfHostEnd": "ඔබේම සේවාදායකය ස්වයං-සත්කාරක කරන්නේ කෙසේද යන්න පිළිබඳ මග පෙන්වීම සඳහා",
+      "pleaseInputValidURL": "කරුණාකර වලංගු URL එකක් ඇතුල් කරන්න",
+      "changeUrl": "ස්වයං-සත්කාරක url {} වෙත වෙනස් කරන්න",
+      "cloudURLHint": "ඔබගේ සේවාදායකයේ මූලික URL ඇතුලත් කරන්න",
+      "webURLHint": "ඔබගේ වෙබ් සේවාදායකයේ මූලික URL ඇතුලත් කරන්න",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "ඔබගේ සේවාදායකයේ වෙබ්සොකට් ලිපිනය ඇතුළත් කරන්න",
+      "restartApp": "යළි අරඹන්න",
+      "restartAppTip": "වෙනස්කම් බලාත්මක වීමට යෙදුම නැවත ආරම්භ කරන්න. මෙය ඔබගේ ජංගම ගිණුමෙන් ඉවත් විය හැකි බව කරුණාවෙන් සලකන්න.",
+      "changeServerTip": "සේවාදායකය වෙනස් කිරීමෙන් පසු, වෙනස්කම් බලාත්මක වීමට ඔබ නැවත ආරම්භ බොත්තම ක්ලික් කළ යුතුය",
+      "enableEncryptPrompt": "මෙම රහස සමඟ ඔබේ දත්ත සුරක්ෂිත කිරීමට සංකේතනය සක්‍රිය කරන්න. එය ආරක්ෂිතව ගබඩා කරන්න; සක්රිය කළ පසු, එය අක්රිය කළ නොහැක. නැති වුවහොත්, ඔබේ දත්ත ආපසු ලබාගත නොහැකි වනු ඇත. පිටපත් කිරීමට ක්ලික් කරන්න",
+      "inputEncryptPrompt": "සඳහා ඔබගේ සංකේතාංකන රහස ඇතුලත් කරන්න",
+      "clickToCopySecret": "රහස පිටපත් කිරීමට ක්ලික් කරන්න",
+      "configServerSetting": "ඔබගේ සේවාදායක සැකසුම් වින්‍යාස කරන්න",
+      "configServerGuide": "'ඉක්මන් ආරම්භය' තේරීමෙන් පසු, ඔබේ ස්වයං-සත්කාරක සේවාදායකය වින්‍යාස කිරීමට 'සැකසීම්' වෙත ගොස් පසුව \"වලාකුළු සැකසීම්\" වෙත යන්න.",
+      "inputTextFieldHint": "ඔබේ රහස",
+      "historicalUserList": "පරිශීලක පිවිසුම් ඉතිහාසය",
+      "historicalUserListTooltip": "මෙම ලැයිස්තුව ඔබගේ නිර්නාමික ගිණුම් පෙන්වයි. ඔබට එහි විස්තර බැලීමට ගිණුමක් මත ක්ලික් කළ හැකිය. 'ආරම්භ කරන්න' බොත්තම ක්ලික් කිරීමෙන් නිර්නාමික ගිණුම් නිර්මාණය වේ",
+      "openHistoricalUser": "නිර්නාමික ගිණුම විවෘත කිරීමට ක්ලික් කරන්න",
+      "customPathPrompt": "Google Drive වැනි වලාකුළු සමමුහුර්ත ෆෝල්ඩරයක @:appName දත්ත ෆෝල්ඩරය ගබඩා කිරීම අවදානම් ඇති කළ හැක. මෙම ෆෝල්ඩරය තුළ ඇති දත්ත සමුදාය එකවර ස්ථාන කිහිපයකින් ප්‍රවේශ වී හෝ වෙනස් කරන්නේ නම්, එය සමමුහුර්ත කිරීමේ ගැටුම් සහ විභව දත්ත දූෂණයට හේතු විය හැක.",
+      "importAppFlowyData": "බාහිර @:appName ෆෝල්ඩරයෙන් දත්ත ආයාත කරන්න",
+      "importingAppFlowyDataTip": "දත්ත ආයාත කිරීම සිදු වෙමින් පවතී. කරුණාකර යෙදුම වසා නොගන්න",
+      "importAppFlowyDataDescription": "බාහිර @:appName දත්ත ෆෝල්ඩරයකින් දත්ත පිටපත් කර වත්මන් AppFlowy දත්ත ෆෝල්ඩරයට ආයාත කරන්න",
+      "importSuccess": "@:appName දත්ත ෆෝල්ඩරය සාර්ථකව ආයාත කරන ලදී",
+      "importFailed": "@:appName දත්ත ෆෝල්ඩරය ආයාත කිරීම අසාර්ථක විය",
+      "importGuide": "වැඩි විස්තර සඳහා, කරුණාකර යොමු ලේඛනය පරීක්ෂා කරන්න"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "දැනුම්දීම් සබල කරන්න",
+        "hint": "ස්ථානීය දැනුම්දීම් දිස්වීම නැවැත්වීමට අක්‍රිය කරන්න."
+      },
+      "showNotificationsIcon": {
+        "label": "දැනුම්දීම් නිරූපකය පෙන්වන්න",
+        "hint": "පැති තීරුවේ දැනුම්දීම් නිරූපකය සැඟවීමට ටොගල් කරන්න."
+      },
+      "archiveNotifications": {
+        "allSuccess": "සියලුම දැනුම්දීම් සාර්ථකව සංරක්ෂණය කරන ලදී",
+        "success": "දැනුම්දීම සාර්ථකව සංරක්ෂණය කරන ලදී"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "සියල්ල සාර්ථකව කියවූ ලෙස ලකුණු කරන ලදී",
+        "success": "සාර්ථකව කියවූ ලෙස ලකුණු කර ඇත"
+      },
+      "action": {
+        "markAsRead": "කියවූ ලෙස ලකුණු කරන්න",
+        "multipleChoice": "තවත් තෝරන්න",
+        "archive": "සංරක්ෂිතය"
+      },
+      "settings": {
+        "settings": "සැකසීම්",
+        "markAllAsRead": "සියල්ල කියවූ ලෙස ලකුණු කරන්න",
+        "archiveAll": "සියල්ල සංරක්ෂණය කරන්න"
+      },
+      "emptyInbox": {
+        "title": "Inbox Zero!",
+        "description": "මෙහි දැනුම්දීම් ලැබීමට සිහිකැඳවීම් සකසන්න."
+      },
+      "emptyUnread": {
+        "title": "නොකියවූ දැනුම්දීම් නැත",
+        "description": "ඔබ සියල්ල අසු වී ඇත!"
+      },
+      "emptyArchived": {
+        "title": "සංරක්ෂණය කර නැත",
+        "description": "සංරක්ෂිත දැනුම්දීම් මෙහි දිස් වනු ඇත."
+      },
+      "tabs": {
+        "inbox": "එන ලිපි",
+        "unread": "නොකියවූ",
+        "archived": "සංරක්ෂණය කර ඇත"
+      },
+      "refreshSuccess": "දැනුම්දීම් සාර්ථකව නැවුම් කරන ලදී",
+      "titles": {
+        "notifications": "දැනුම්දීම්",
+        "reminder": "සිහිකැඳවීම"
+      }
+    },
+    "appearance": {
+      "resetSetting": "යළි පිහිටුවන්න",
+      "fontFamily": {
+        "label": "අකුරු පවුල",
+        "search": "සොයන්න",
+        "defaultFont": "පද්ධතිය"
+      },
+      "themeMode": {
+        "label": "තේමා මාදිලිය",
+        "light": "ආලෝක මාදිලිය",
+        "dark": "අඳුරු මාදිලිය",
+        "system": "පද්ධතියට අනුගත වන්න"
+      },
+      "fontScaleFactor": "අකුරු පරිමාණ සාධකය",
+      "displaySize": "සංදර්ශක ප්‍රමාණය",
+      "documentSettings": {
+        "cursorColor": "ලේඛන කර්සරයේ වර්ණය",
+        "selectionColor": "ලේඛන තේරීමේ වර්ණය",
+        "width": "ලේඛන පළල",
+        "changeWidth": "වෙනස් කරන්න",
+        "pickColor": "වර්ණයක් තෝරන්න",
+        "colorShade": "වර්ණ සෙවන",
+        "opacity": "පාරාන්ධතාව",
+        "hexEmptyError": "Hex වර්ණය හිස් විය නොහැක",
+        "hexLengthError": "Hex අගය ඉලක්කම් 6ක් දිග විය යුතුය",
+        "hexInvalidError": "වලංගු නොවන hex අගය",
+        "opacityEmptyError": "පාරාන්ධතාවය හිස් විය නොහැක",
+        "opacityRangeError": "පාරාන්ධතාව 1 සහ 100 අතර විය යුතුය",
+        "app": "යෙදුම",
+        "flowy": "ගලා යන",
+        "apply": "අයදුම් කරන්න"
+      },
+      "layoutDirection": {
+        "label": "පිරිසැලසුම් දිශාව",
+        "hint": "ඔබගේ තිරය මත වමේ සිට දකුණට හෝ දකුණේ සිට වමට අන්තර්ගත ගලායාම පාලනය කරන්න.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "පෙරනිමි පෙළ දිශාව",
+        "hint": "පෙළ පෙරනිමිය ලෙස වමේ සිට දකුණෙන් ආරම්භ විය යුතුද යන්න සඳහන් කරන්න.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "ඔටෝ",
+        "fallback": "පිරිසැලසුම් දිශාවට සමානයි"
+      },
+      "themeUpload": {
+        "button": "උඩුගත කරන්න",
+        "uploadTheme": "තේමාව උඩුගත කරන්න",
+        "description": "පහත බොත්තම භාවිතයෙන් ඔබේම @:appName තේමාව උඩුගත කරන්න.",
+        "loading": "අපි ඔබගේ තේමාව වලංගු කර උඩුගත කරන තෙක් කරුණාකර රැඳී සිටින්න...",
+        "uploadSuccess": "ඔබගේ තේමාව සාර්ථකව උඩුගත කරන ලදී",
+        "deletionFailure": "තේමාව මැකීමට අසමත් විය. එය අතින් මකා දැමීමට උත්සාහ කරන්න.",
+        "filePickerDialogTitle": ".flowy_plugin ගොනුවක් තෝරන්න",
+        "urlUploadFailure": "url විවෘත කිරීමට අසමත් විය: {}"
+      },
+      "theme": "තේමාව",
+      "builtInsLabel": "බිල්ට් තේමා",
+      "pluginsLabel": "ප්ලගීන",
+      "dateFormat": {
+        "label": "දින ආකෘතිය",
+        "local": "දේශීය",
+        "us": "එ.ජ",
+        "iso": "ISO",
+        "friendly": "මිත්රශීලී",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "කාල ආකෘතිය",
+        "twelveHour": "පැය දොළහක්",
+        "twentyFourHour": "පැය විසි හතරයි"
+      },
+      "showNamingDialogWhenCreatingPage": "පිටුවක් සාදන විට නම් කිරීමේ සංවාදය පෙන්වන්න",
+      "enableRTLToolbarItems": "RTL මෙවලම් තීරු අයිතම සබල කරන්න",
+      "members": {
+        "title": "සාමාජිකයන්",
+        "inviteMembers": "සාමාජිකයින්ට ආරාධනා කරන්න",
+        "inviteHint": "ඊමේල් මගින් ආරාධනා කරන්න",
+        "sendInvite": "ආරාධනා කරන්න",
+        "copyInviteLink": "ආරාධනා සබැඳිය පිටපත් කරන්න",
+        "label": "සාමාජිකයන්",
+        "user": "පරිශීලක",
+        "role": "භූමිකාව",
+        "removeFromWorkspace": "Workspace වෙතින් ඉවත් කරන්න",
+        "removeFromWorkspaceSuccess": "වැඩබිමෙන් සාර්ථකව ඉවත් කරන්න",
+        "removeFromWorkspaceFailed": "කාර්ය ඉඩෙන් ඉවත් කිරීම අසාර්ථක විය",
+        "owner": "හිමිකරු",
+        "guest": "අමුත්තා",
+        "member": "සාමාජික",
+        "memberHintText": "සාමාජිකයෙකුට පිටු කියවීමට සහ සංස්කරණය කිරීමට හැකිය",
+        "guestHintText": "අමුත්තෙකුට අවසරය ඇතිව ඇතැම් පිටු කියවීමට, ප්‍රතිචාර දැක්වීමට, අදහස් දැක්වීමට සහ සංස්කරණය කිරීමට හැකිය.",
+        "emailInvalidError": "වලංගු නොවන විද්‍යුත් තැපෑලක්, කරුණාකර පරීක්ෂා කර නැවත උත්සාහ කරන්න",
+        "emailSent": "විද්‍යුත් තැපෑල යවා ඇත, කරුණාකර එන ලිපි පරීක්ෂා කරන්න",
+        "members": "සාමාජිකයන්",
+        "membersCount": {
+          "zero": "{} සාමාජිකයින්",
+          "one": "{} සාමාජික",
+          "other": "{} සාමාජිකයින්"
+        },
+        "inviteFailedDialogTitle": "Pro Plan වෙත උත්ශ්‍රේණි කරන්න",
+        "inviteFailedMemberLimit": "මෙම වැඩබිම නිදහස් සීමාවට පැමිණ ඇත. කරුණාකර තවත් සාමාජිකයින් අගුළු ඇරීමට Pro වෙත උත්ශ්‍රේණි කරන්න.",
+        "inviteFailedMemberLimitMobile": "ඔබේ වැඩබිම සාමාජික සීමාවට පැමිණ ඇත.",
+        "memberLimitExceeded": "කරුණාකර තවත් සාමාජිකයින්ට ආරාධනා කිරීමට සාමාජික සීමාව ළඟා විය",
+        "memberLimitExceededUpgrade": "උත්ශ්රේණි කිරීම",
+        "memberLimitExceededPro": "ඔබට තවත් සාමාජිකයින් සම්බන්ධ කර ගැනීමට අවශ්‍ය නම්, සාමාජික සීමාව ළඟා විය",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "failedToAddMember": "සාමාජිකයා එක් කිරීමට අසමත් විය",
+        "addMemberSuccess": "සාමාජිකයා සාර්ථකව එකතු කරන ලදී",
+        "removeMember": "සාමාජිකයා ඉවත් කරන්න",
+        "areYouSureToRemoveMember": "ඔබට මෙම සාමාජිකයා ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?",
+        "inviteMemberSuccess": "ආරාධනා පත්‍රය සාර්ථකව යවා ඇත",
+        "failedToInviteMember": "සාමාජිකයාට ආරාධනා කිරීමට අසමත් විය",
+        "workspaceMembersError": "අපොයි, යමක් වැරදී ඇත",
+        "workspaceMembersErrorDescription": "අපට මේ අවස්ථාවේ සාමාජික ලැයිස්තුව පූරණය කළ නොහැකි විය. කරුණාකර පසුව නැවත උත්සාහ කරන්න",
+        "inviteLinkToAddMember": "සාමාජිකයෙකු එක් කිරීමට සබැඳියට ආරාධනා කරන්න",
+        "clickToCopyLink": "සබැඳිය පිටපත් කිරීමට ක්ලික් කරන්න",
+        "or": "හෝ",
+        "generateANewLink": "නව සබැඳියක් උත්පාදනය කරන්න",
+        "inviteMemberByEmail": "ඊමේල් මගින් සාමාජිකයාට ආරාධනා කරන්න",
+        "inviteMemberHintText": "ඊමේල් මගින් ආරාධනා කරන්න",
+        "resetInviteLink": "ආරාධනා සබැඳිය යළි පිහිටුවන්නද?",
+        "resetInviteLinkDescription": "යළි පිහිටුවීම මඟින් සියලුම අභ්‍යවකාශ සාමාජිකයින් සඳහා වත්මන් සබැඳිය අක්‍රිය කර නව එකක් උත්පාදනය කරනු ඇත. පැරණි සබැඳිය තවදුරටත් වලංගු නොවේ.",
+        "adminPanel": "පරිපාලක මණ්ඩලය",
+        "reset": "යළි පිහිටුවන්න",
+        "resetInviteLinkSuccess": "ආරාධනා සබැඳිය යළි පිහිටුවීම සාර්ථකව",
+        "resetInviteLinkFailed": "ආරාධනා සබැඳිය යළි පිහිටුවීම අසාර්ථක විය",
+        "resetInviteLinkFailedDescription": "කරුණාකර පසුව නැවත උත්සාහ කරන්න",
+        "memberPageDescription1": "වෙත පිවිසෙන්න",
+        "memberPageDescription2": "ආගන්තුක සහ උසස් පරිශීලක කළමනාකරණය සඳහා.",
+        "noInviteLink": "ඔබ තවම ආරාධනා සබැඳියක් ජනනය කර නැත.",
+        "copyLink": "සබැඳිය පිටපත් කරන්න",
+        "generatedLinkSuccessfully": "සබැඳිය සාර්ථකව ජනනය කරන ලදී",
+        "generatedLinkFailed": "සබැඳිය උත්පාදනය කිරීමට අසමත් විය",
+        "resetLinkSuccessfully": "සබැඳිය සාර්ථකව යළි පිහිටුවන්න",
+        "resetLinkFailed": "සබැඳිය යළි පිහිටුවීම අසාර්ථක විය"
+      }
+    },
+    "files": {
+      "copy": "පිටපත් කරන්න",
+      "defaultLocation": "ගොනු සහ දත්ත ගබඩා ස්ථානය කියවන්න",
+      "exportData": "ඔබගේ දත්ත අපනයනය කරන්න",
+      "doubleTapToCopy": "මාර්ගය පිටපත් කිරීමට දෙවරක් තට්ටු කරන්න",
+      "restoreLocation": "@:appName පෙරනිමි මාර්ගයට ප්‍රතිසාධනය කරන්න",
+      "customizeLocation": "වෙනත් ෆෝල්ඩරයක් විවෘත කරන්න",
+      "restartApp": "වෙනස්කම් බලාත්මක වීමට කරුණාකර යෙදුම නැවත ආරම්භ කරන්න.",
+      "exportDatabase": "අපනයන දත්ත සමුදාය",
+      "selectFiles": "අපනයනය කිරීමට අවශ්‍ය ගොනු තෝරන්න",
+      "selectAll": "සියල්ල තෝරන්න",
+      "deselectAll": "සියල්ල තේරීම ඉවත් කරන්න",
+      "createNewFolder": "නව ෆෝල්ඩරයක් සාදන්න",
+      "createNewFolderDesc": "ඔබට ඔබගේ දත්ත ගබඩා කිරීමට අවශ්‍ය ස්ථානය අපට කියන්න",
+      "defineWhereYourDataIsStored": "ඔබගේ දත්ත ගබඩා කර ඇති ස්ථානය නිර්වචනය කරන්න",
+      "open": "විවෘත කරන්න",
+      "openFolder": "පවතින ෆෝල්ඩරයක් විවෘත කරන්න",
+      "openFolderDesc": "එය ඔබගේ පවතින @:appName ෆෝල්ඩරයට කියවා ලියන්න",
+      "folderHintText": "ෆෝල්ඩරයේ නම",
+      "location": "නව ෆෝල්ඩරයක් නිර්මාණය කිරීම",
+      "locationDesc": "ඔබේ @:appName දත්ත ෆෝල්ඩරය සඳහා නමක් තෝරන්න",
+      "browser": "බ්‍රවුස් කරන්න",
+      "create": "නිර්මාණය කරන්න",
+      "set": "සකසන්න",
+      "folderPath": "ඔබගේ ෆෝල්ඩරය ගබඩා කිරීමට මාර්ගය",
+      "locationCannotBeEmpty": "මාර්ගය හිස් විය නොහැක",
+      "pathCopiedSnackbar": "ගොනු ගබඩා මාර්ගය පසුරු පුවරුවට පිටපත් කර ඇත!",
+      "changeLocationTooltips": "දත්ත නාමාවලිය වෙනස් කරන්න",
+      "change": "වෙනස් කරන්න",
+      "openLocationTooltips": "වෙනත් දත්ත නාමාවලියක් විවෘත කරන්න",
+      "openCurrentDataFolder": "වත්මන් දත්ත නාමාවලිය විවෘත කරන්න",
+      "recoverLocationTooltips": "@:appName හි පෙරනිමි දත්ත නාමාවලිය වෙත යළි පිහිටුවන්න",
+      "exportFileSuccess": "ගොනුව සාර්ථකව අපනයනය කරන්න!",
+      "exportFileFail": "නිර්යාත ගොනුව අසාර්ථක විය!",
+      "export": "අපනයනය කරන්න",
+      "clearCache": "හැඹිලිය හිස් කරන්න",
+      "clearCacheDesc": "පින්තූර පූරණය නොවීම හෝ අකුරු නිවැරදිව නොපෙන්වීම සම්බන්ධයෙන් ඔබට ගැටළු ඇතිනම්, ඔබගේ හැඹිලිය හිස් කිරීමට උත්සාහ කරන්න. මෙම ක්‍රියාව ඔබගේ පරිශීලක දත්ත ඉවත් නොකරනු ඇත.",
+      "areYouSureToClearCache": "හැඹිලිය හිස් කිරීමට ඔබට විශ්වාසද?",
+      "clearCacheSuccess": "හැඹිලිය සාර්ථකව හිස් කරන ලදී!"
+    },
+    "user": {
+      "name": "නම",
+      "email": "ඊමේල් කරන්න",
+      "tooltipSelectIcon": "අයිකනය තෝරන්න",
+      "selectAnIcon": "අයිකනයක් තෝරන්න",
+      "pleaseInputYourOpenAIKey": "කරුණාකර ඔබේ AI යතුර ඇතුළත් කරන්න",
+      "clickToLogout": "වත්මන් පරිශීලකයා ඉවත් කිරීමට ක්ලික් කරන්න"
+    },
+    "mobile": {
+      "personalInfo": "පුද්ගලික තොරතුරු",
+      "username": "පරිශීලක නාමය",
+      "usernameEmptyError": "පරිශීලක නාමය හිස් විය නොහැක",
+      "about": "ගැන",
+      "pushNotifications": "තල්ලු දැනුම්දීම්",
+      "support": "සහාය",
+      "joinDiscord": "Discord තුළ අප හා එක්වන්න",
+      "privacyPolicy": "රහස්යතා ප්රතිපත්තිය",
+      "userAgreement": "පරිශීලක ගිවිසුම",
+      "termsAndConditions": "නියම සහ කොන්දේසි",
+      "userprofileError": "පරිශීලක පැතිකඩ පූරණය කිරීමට අසමත් විය",
+      "userprofileErrorDescription": "ගැටලුව තවමත් පවතින්නේ දැයි පරීක්ෂා කිරීමට කරුණාකර ලොග් අවුට් වී නැවත ලොග් වීමට උත්සාහ කරන්න.",
+      "selectLayout": "පිරිසැලසුම තෝරන්න",
+      "selectStartingDay": "ආරම්භක දිනය තෝරන්න",
+      "version": "අනුවාදය"
+    }
+  },
+  "grid": {
+    "deleteView": "ඔබට මෙම දසුන මැකීමට අවශ්‍ය බව විශ්වාසද?",
+    "createView": "අලුත්",
+    "title": {
+      "placeholder": "මාතෘකා රහිත"
+    },
+    "settings": {
+      "filter": "පෙරහන",
+      "sort": "වර්ග කරන්න",
+      "sortBy": "අනුව තෝරන්න",
+      "properties": "දේපල",
+      "reorderPropertiesTooltip": "ගුණාංග නැවත ඇණවුම් කිරීමට අදින්න",
+      "group": "කණ්ඩායම",
+      "addFilter": "පෙරහන එකතු කරන්න",
+      "deleteFilter": "පෙරහන මකන්න",
+      "filterBy": "පෙරහන් කරන්න",
+      "typeAValue": "අගයක් ටයිප් කරන්න...",
+      "layout": "පිරිසැලසුම",
+      "compactMode": "සංයුක්ත මාදිලිය",
+      "databaseLayout": "පිරිසැලසුම",
+      "viewList": {
+        "zero": "බැලීම් 0",
+        "one": "{count} දසුන",
+        "other": "{count} දසුන්"
+      },
+      "editView": "දර්ශනය සංස්කරණය කරන්න",
+      "boardSettings": "පුවරු සැකසුම්",
+      "calendarSettings": "දින දර්ශන සැකසුම්",
+      "createView": "නව දසුනක්",
+      "duplicateView": "අනුපිටපත් දසුන",
+      "deleteView": "දර්ශනය මකන්න",
+      "numberOfVisibleFields": "{} පෙන්වා ඇත"
+    },
+    "filter": {
+      "empty": "සක්‍රිය පෙරහන් නැත",
+      "addFilter": "පෙරහන එකතු කරන්න",
+      "cannotFindCreatableField": "පෙරීමට සුදුසු ක්ෂේත්‍රයක් සොයාගත නොහැක",
+      "conditon": "තත්ත්වය",
+      "where": "කොහෙද"
+    },
+    "textFilter": {
+      "contains": "අඩංගු වේ",
+      "doesNotContain": "අඩංගු නොවේ",
+      "endsWith": "සමඟ අවසන් වේ",
+      "startWith": "සමඟ ආරම්භ වේ",
+      "is": "වේ",
+      "isNot": "නොවේ",
+      "isEmpty": "හිස් ය",
+      "isNotEmpty": "හිස් නොවේ",
+      "choicechipPrefix": {
+        "isNot": "නැත",
+        "startWith": "සමඟ ආරම්භ වේ",
+        "endWith": "සමඟ අවසන් වේ",
+        "isEmpty": "හිස් ය",
+        "isNotEmpty": "හිස් නොවේ"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "පරීක්ෂා කළා",
+      "isUnchecked": "පරීක්ෂා නොකළ",
+      "choicechipPrefix": {
+        "is": "වේ"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "සම්පූර්ණයි",
+      "isIncomplted": "අසම්පූර්ණයි"
+    },
+    "selectOptionFilter": {
+      "is": "වේ",
+      "isNot": "නොවේ",
+      "contains": "අඩංගු වේ",
+      "doesNotContain": "අඩංගු නොවේ",
+      "isEmpty": "හිස් ය",
+      "isNotEmpty": "හිස් නොවේ"
+    },
+    "dateFilter": {
+      "is": "ක්‍රියාත්මකයි",
+      "before": "පෙර වේ",
+      "after": "පසු වේ",
+      "onOrBefore": "මත හෝ පෙර වේ",
+      "onOrAfter": "මත හෝ පසුව වේ",
+      "between": "අතර වේ",
+      "empty": "හිස් ය",
+      "notEmpty": "හිස් නොවේ",
+      "startDate": "ආරම්භක දිනය",
+      "endDate": "අවසන් දිනය",
+      "choicechipPrefix": {
+        "before": "කලින්",
+        "after": "පසු",
+        "between": "අතර",
+        "onOrBefore": "හෝ ඊට පෙර",
+        "onOrAfter": "මත හෝ පසුව",
+        "isEmpty": "හිස් ය",
+        "isNotEmpty": "හිස් නොවේ"
+      }
+    },
+    "numberFilter": {
+      "equal": "සමාන වේ",
+      "notEqual": "සමාන නොවේ",
+      "lessThan": "ට වඩා අඩුය",
+      "greaterThan": "වඩා විශාල වේ",
+      "lessThanOrEqualTo": "ට වඩා අඩු හෝ සමාන වේ",
+      "greaterThanOrEqualTo": "වඩා විශාල හෝ සමාන වේ",
+      "isEmpty": "හිස් ය",
+      "isNotEmpty": "හිස් නොවේ"
+    },
+    "field": {
+      "label": "දේපල",
+      "hide": "දේපල සඟවන්න",
+      "show": "දේපල පෙන්වන්න",
+      "insertLeft": "වමට ඇතුළු කරන්න",
+      "insertRight": "දකුණට ඇතුළු කරන්න",
+      "duplicate": "අනුපිටපත් කරන්න",
+      "delete": "මකන්න",
+      "wrapCellContent": "පෙළ එතුම",
+      "clear": "පිරිසිදු සෛල",
+      "switchPrimaryFieldTooltip": "ප්‍රාථමික ක්ෂේත්‍රයේ ක්ෂේත්‍ර වර්ගය වෙනස් කළ නොහැක",
+      "textFieldName": "පෙළ",
+      "checkboxFieldName": "පිරික්සුම් කොටුව",
+      "dateFieldName": "දිනය",
+      "updatedAtFieldName": "අවසන් වරට වෙනස් කරන ලදී",
+      "createdAtFieldName": "දී නිර්මාණය කරන ලදී",
+      "numberFieldName": "අංක",
+      "singleSelectFieldName": "තෝරන්න",
+      "multiSelectFieldName": "බහු තේරීම",
+      "urlFieldName": "URL",
+      "checklistFieldName": "පිරික්සුම් ලැයිස්තුව",
+      "relationFieldName": "සම්බන්ධය",
+      "summaryFieldName": "AI සාරාංශය",
+      "timeFieldName": "කාලය",
+      "mediaFieldName": "ගොනු සහ මාධ්‍ය",
+      "translateFieldName": "AI පරිවර්තනය",
+      "translateTo": "වෙත පරිවර්තනය කරන්න",
+      "numberFormat": "අංක ආකෘතිය",
+      "dateFormat": "දින ආකෘතිය",
+      "includeTime": "කාලය ඇතුළත් කරන්න",
+      "isRange": "අවසන් දිනය",
+      "dateFormatFriendly": "මාසයේ දිනය, වර්ෂය",
+      "dateFormatISO": "වසර-මාස-දිනය",
+      "dateFormatLocal": "මාසය/දිනය/වසර",
+      "dateFormatUS": "වර්ෂය/මාසය/දිනය",
+      "dateFormatDayMonthYear": "දිනය/මාසය/වසර",
+      "timeFormat": "කාල ආකෘතිය",
+      "invalidTimeFormat": "වලංගු නොවන ආකෘතිය",
+      "timeFormatTwelveHour": "පැය 12 යි",
+      "timeFormatTwentyFourHour": "පැය 24 යි",
+      "clearDate": "පැහැදිලි දිනය",
+      "dateTime": "දිනය වේලාව",
+      "startDateTime": "ආරම්භක දිනය වේලාව",
+      "endDateTime": "අවසන් දිනය වේලාව",
+      "failedToLoadDate": "දින අගය පූරණය කිරීමට අසමත් විය",
+      "selectTime": "කාලය තෝරන්න",
+      "selectDate": "දිනය තෝරන්න",
+      "visibility": "දෘශ්‍යතාව",
+      "propertyType": "දේපල වර්ගය",
+      "addSelectOption": "විකල්පයක් එක් කරන්න",
+      "typeANewOption": "නව විකල්පයක් ටයිප් කරන්න",
+      "optionTitle": "විකල්ප",
+      "addOption": "විකල්පය එකතු කරන්න",
+      "editProperty": "දේපල සංස්කරණය කරන්න",
+      "newProperty": "නව දේපල",
+      "openRowDocument": "පිටුවක් ලෙස විවෘත කරන්න",
+      "deleteFieldPromptMessage": "ඔයාට විශ්වාස ද? මෙම දේපල සහ එහි සියලු දත්ත මකා දැමෙනු ඇත",
+      "clearFieldPromptMessage": "ඔයාට විශ්වාස ද? මෙම තීරුවේ ඇති සියලුම කොටු හිස් වනු ඇත",
+      "newColumn": "නව තීරුව",
+      "format": "ආකෘතිය",
+      "reminderOnDateTooltip": "මෙම කොටුවට නියමිත සිහිකැඳවීමක් ඇත",
+      "optionAlreadyExist": "විකල්පය දැනටමත් පවතී"
+    },
+    "rowPage": {
+      "newField": "නව ක්ෂේත්‍රයක් එක් කරන්න",
+      "fieldDragElementTooltip": "මෙනුව විවෘත කිරීමට ක්ලික් කරන්න",
+      "showHiddenFields": {
+        "one": "{count} සැඟවුණු ක්ෂේත්‍රය පෙන්වන්න",
+        "many": "{count} සැඟවුණු ක්ෂේත්‍ර පෙන්වන්න",
+        "other": "{count} සැඟවුණු ක්ෂේත්‍ර පෙන්වන්න"
+      },
+      "hideHiddenFields": {
+        "one": "{count} සැඟවුණු ක්ෂේත්‍රය සඟවන්න",
+        "many": "{count} සැඟවුණු ක්ෂේත්‍ර සඟවන්න",
+        "other": "{count} සැඟවුණු ක්ෂේත්‍ර සඟවන්න"
+      },
+      "openAsFullPage": "සම්පූර්ණ පිටුවක් ලෙස විවෘත කරන්න",
+      "viewDatabase": "මුල් දත්ත සමුදාය බලන්න",
+      "moreRowActions": "තවත් පේළි ක්‍රියා"
+    },
+    "sort": {
+      "ascending": "නැගීම",
+      "descending": "බැස යනවා",
+      "by": "විසින්",
+      "empty": "සක්‍රිය වර්ග නැත",
+      "cannotFindCreatableField": "වර්ග කිරීමට සුදුසු ක්ෂේත්‍රයක් සොයාගත නොහැක",
+      "deleteAllSorts": "සියලු වර්ගවල මකන්න",
+      "addSort": "වර්ග කිරීම එකතු කරන්න",
+      "sortsActive": "වර්ග කිරීමේදී {intention} කළ නොහැක",
+      "removeSorting": "ඔබ මෙම දසුනේ ඇති සියලුම වර්ග ඉවත් කර ඉදිරියට යාමට කැමතිද?",
+      "fieldInUse": "ඔබ දැනටමත් මෙම ක්ෂේත්‍රය අනුව වර්ග කරමින් සිටී"
+    },
+    "row": {
+      "label": "පේළිය",
+      "duplicate": "අනුපිටපත් කරන්න",
+      "delete": "මකන්න",
+      "titlePlaceholder": "මාතෘකා රහිත",
+      "textPlaceholder": "හිස්",
+      "copyProperty": "දේපල පසුරු පුවරුවට පිටපත් කරන ලදී",
+      "count": "ගණන් කරන්න",
+      "newRow": "නව පේළිය",
+      "loadMore": "වැඩිපුර පටවන්න",
+      "action": "ක්‍රියාව",
+      "add": "පහත එකතු කිරීමට ක්ලික් කරන්න",
+      "drag": "චලනය කිරීමට අදින්න",
+      "deleteRowPrompt": "ඔබට මෙම පේළිය මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව පසුගමනය කළ නොහැක.",
+      "deleteCardPrompt": "ඔබට මෙම කාඩ්පත මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව පසුගමනය කළ නොහැක.",
+      "dragAndClick": "ගෙන යාමට අදින්න, මෙනුව විවෘත කිරීමට ක්ලික් කරන්න",
+      "insertRecordAbove": "ඉහත වාර්තාව ඇතුල් කරන්න",
+      "insertRecordBelow": "පහත වාර්තාව ඇතුල් කරන්න",
+      "noContent": "අන්තර්ගතයක් නැත",
+      "reorderRowDescription": "පේළිය නැවත සකස් කරන්න",
+      "createRowAboveDescription": "ඉහත පේළියක් සාදන්න",
+      "createRowBelowDescription": "පහත පේළියක් ඇතුල් කරන්න"
+    },
+    "selectOption": {
+      "create": "නිර්මාණය කරන්න",
+      "purpleColor": "දම් පාට",
+      "pinkColor": "රෝස",
+      "lightPinkColor": "ලා රෝස",
+      "orangeColor": "දොඩම්",
+      "yellowColor": "කහ",
+      "limeColor": "දෙහි",
+      "greenColor": "කොළ පාටයි",
+      "aquaColor": "ඇක්වා",
+      "blueColor": "නිල්",
+      "deleteTag": "ටැගය මකන්න",
+      "colorPanelTitle": "වර්ණය",
+      "panelTitle": "විකල්පයක් තෝරන්න හෝ එකක් සාදන්න",
+      "searchOption": "විකල්පයක් සොයන්න",
+      "searchOrCreateOption": "විකල්පයක් සොයන්න හෝ එකක් සාදන්න",
+      "createNew": "අලුත් එකක් හදන්න",
+      "orSelectOne": "නැතහොත් විකල්පයක් තෝරන්න",
+      "typeANewOption": "නව විකල්පයක් ටයිප් කරන්න",
+      "tagName": "ටැග් නම"
+    },
+    "checklist": {
+      "taskHint": "කාර්යය විස්තරය",
+      "addNew": "නව කාර්යයක් එක් කරන්න",
+      "submitNewTask": "නිර්මාණය කරන්න",
+      "hideComplete": "සම්පූර්ණ කරන ලද කාර්යයන් සඟවන්න",
+      "showComplete": "සියලුම කාර්යයන් පෙන්වන්න"
+    },
+    "url": {
+      "launch": "බ්‍රවුසරයේ සබැඳිය විවෘත කරන්න",
+      "copy": "සබැඳිය පසුරු පුවරුවට පිටපත් කරන්න",
+      "textFieldHint": "URL එකක් ඇතුල් කරන්න"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "අදාළ දත්ත සමුදාය",
+      "relatedDatabasePlaceholder": "කිසිවක් නැත",
+      "inRelatedDatabase": "තුළ",
+      "rowSearchTextFieldPlaceholder": "සොයන්න",
+      "noDatabaseSelected": "දත්ත සමුදායක් තෝරා නැත, කරුණාකර පහත ලැයිස්තුවෙන් පළමුව එකක් තෝරන්න:",
+      "emptySearchResult": "වාර්තා හමු නොවීය",
+      "linkedRowListLabel": "{count} සම්බන්ධිත පේළි",
+      "unlinkedRowListLabel": "වෙනත් පේළියක් සම්බන්ධ කරන්න"
+    },
+    "menuName": "ජාලකය",
+    "referencedGridPrefix": "දැක්ම",
+    "calculate": "ගණනය කරන්න",
+    "calculationTypeLabel": {
+      "none": "කිසිවක් නැත",
+      "average": "සාමාන්යය",
+      "max": "උපරිම",
+      "median": "මධ්යස්ථ",
+      "min": "අවම",
+      "sum": "එකතුව",
+      "count": "ගණන් කරන්න",
+      "countEmpty": "හිස් ගණන් කරන්න",
+      "countEmptyShort": "හිස්",
+      "countNonEmpty": "ගණන් කරන්න හිස් නැහැ",
+      "countNonEmptyShort": "පුරවා ඇත"
+    },
+    "media": {
+      "rename": "නැවත නම් කරන්න",
+      "download": "බාගන්න",
+      "expand": "පුළුල් කරන්න",
+      "delete": "මකන්න",
+      "moreFilesHint": "+ {}",
+      "addFileOrImage": "ගොනුව හෝ සබැඳිය එක් කරන්න",
+      "attachmentsHint": "{}",
+      "addFileMobile": "ගොනුව එක් කරන්න",
+      "extraCount": "+ {}",
+      "deleteFileDescription": "ඔබට මෙම ගොනුව මැකීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්රියාව ආපසු හැරවිය නොහැකි ය.",
+      "showFileNames": "ගොනු නාමය පෙන්වන්න",
+      "downloadSuccess": "ගොනුව බාගත කර ඇත",
+      "downloadFailedToken": "ගොනුව බාගැනීම අසාර්ථක විය, පරිශීලක ටෝකනය නොමැත",
+      "setAsCover": "ආවරණයක් ලෙස සකසන්න",
+      "openInBrowser": "බ්‍රවුසරයේ විවෘත කරන්න",
+      "embedLink": "ගොනු සබැඳිය ඇතුළත් කරන්න"
+    }
+  },
+  "document": {
+    "menuName": "ලේඛනය",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 ප.ව",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "creating": "නිර්මාණය කරමින්...",
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "සම්බන්ධ කිරීමට මණ්ඩලයක් තෝරන්න",
+        "createANewBoard": "නව මණ්ඩලයක් සාදන්න"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "සම්බන්ධ කිරීමට ජාලයක් තෝරන්න",
+        "createANewGrid": "නව ජාලකයක් සාදන්න"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "සම්බන්ධ කිරීමට දින දර්ශනයක් තෝරන්න",
+        "createANewCalendar": "නව දින දර්ශනයක් සාදන්න"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "සම්බන්ධ කිරීමට ලේඛනයක් තෝරන්න"
+      },
+      "name": {
+        "textStyle": "පෙළ විලාසය",
+        "list": "ලැයිස්තුව",
+        "toggle": "ටොගල් කරන්න",
+        "fileAndMedia": "ගොනු සහ මාධ්‍ය",
+        "simpleTable": "සරල වගුව",
+        "visuals": "දර්ශන",
+        "document": "ලේඛනය",
+        "advanced": "උසස්",
+        "text": "පෙළ",
+        "heading1": "ශීර්ෂය 1",
+        "heading2": "ශීර්ෂය 2",
+        "heading3": "ශීර්ෂය 3",
+        "image": "රූපය",
+        "bulletedList": "බුලටිත ලැයිස්තුව",
+        "numberedList": "අංකිත ලැයිස්තුව",
+        "todoList": "කළ යුතු දේ ලැයිස්තුව",
+        "doc": "ඩොක්ටර්",
+        "linkedDoc": "පිටුවට සබැඳිය",
+        "grid": "ජාලකය",
+        "linkedGrid": "සම්බන්ධිත ජාලකය",
+        "kanban": "කන්බන්",
+        "linkedKanban": "සම්බන්ධිත Kanban",
+        "calendar": "දින දර්ශනය",
+        "linkedCalendar": "සම්බන්ධිත දින දර්ශනය",
+        "quote": "උපුටා ගැනීම",
+        "divider": "බෙදුම්කරු",
+        "table": "මේසය",
+        "callout": "කෑගසන්න",
+        "outline": "දළ සටහන",
+        "mathEquation": "ගණිත සමීකරණය",
+        "code": "කේතය",
+        "toggleList": "ලැයිස්තුව ටොගල් කරන්න",
+        "toggleHeading1": "ශීර්ෂය 1 ටොගල් කරන්න",
+        "toggleHeading2": "2 මාතෘකාව ටොගල් කරන්න",
+        "toggleHeading3": "3 ශීර්ෂය ටොගල් කරන්න",
+        "emoji": "ඉමොජි",
+        "aiWriter": "ඕනෑම දෙයක් AI ගෙන් විමසන්න",
+        "dateOrReminder": "දිනය හෝ මතක් කිරීම",
+        "photoGallery": "ඡායාරූප ගැලරිය",
+        "file": "ගොනුව",
+        "twoColumns": "2 තීරු",
+        "threeColumns": "3 තීරු",
+        "fourColumns": "4 තීරු"
+      },
+      "subPage": {
+        "name": "ලේඛනය",
+        "keyword1": "උප පිටුව",
+        "keyword2": "පිටුව",
+        "keyword3": "ළමා පිටුව",
+        "keyword4": "පිටුව ඇතුළු කරන්න",
+        "keyword5": "කාවැද්දූ පිටුව",
+        "keyword6": "නව පිටුව",
+        "keyword7": "පිටුව සාදන්න",
+        "keyword8": "ලේඛනය"
+      }
+    },
+    "selectionMenu": {
+      "outline": "දළ සටහන",
+      "codeBlock": "කේත බ්ලොක්"
+    },
+    "plugins": {
+      "referencedBoard": "යොමු මණ්ඩලය",
+      "referencedGrid": "යොමු ජාලය",
+      "referencedCalendar": "යොමු දින දර්ශනය",
+      "referencedDocument": "යොමු ලේඛනය",
+      "aiWriter": {
+        "userQuestion": "ඕනෑම දෙයක් AI ගෙන් විමසන්න",
+        "continueWriting": "දිගටම ලියන්න",
+        "fixSpelling": "අක්ෂර වින්‍යාසය සහ ව්‍යාකරණ නිවැරදි කරන්න",
+        "improveWriting": "ලිවීම වැඩි දියුණු කරන්න",
+        "summarize": "සාරාංශ කරන්න",
+        "explain": "පැහැදිලි කරන්න",
+        "makeShorter": "කෙටි කරන්න",
+        "makeLonger": "දිගු කරන්න"
+      },
+      "autoGeneratorMenuItemName": "AI ලේඛකයා",
+      "autoGeneratorTitleName": "AI: ඕනෑම දෙයක් ලිවීමට AI ට කියන්න...",
+      "autoGeneratorLearnMore": "තවත් හදාරන්න",
+      "autoGeneratorGenerate": "උත්පාදනය කරන්න",
+      "autoGeneratorHintText": "AI අහන්න...",
+      "autoGeneratorCantGetOpenAIKey": "AI යතුර ලබා ගත නොහැක",
+      "autoGeneratorRewrite": "නැවත ලියන්න",
+      "smartEdit": "AI අහන්න",
+      "aI": "AI",
+      "smartEditFixSpelling": "අක්ෂර වින්‍යාසය සහ ව්‍යාකරණ නිවැරදි කරන්න",
+      "warning": "⚠️ AI ප්‍රතිචාර සාවද්‍ය හෝ නොමඟ යවන සුළු විය හැක.",
+      "smartEditSummarize": "සාරාංශ කරන්න",
+      "smartEditImproveWriting": "ලිවීම වැඩි දියුණු කරන්න",
+      "smartEditMakeLonger": "දිගු කරන්න",
+      "smartEditCouldNotFetchResult": "AI වෙතින් ප්‍රතිඵල ලබා ගැනීමට නොහැකි විය",
+      "smartEditCouldNotFetchKey": "AI යතුර ලබා ගැනීමට නොහැකි විය",
+      "smartEditDisabled": "සැකසීම් තුළ AI සම්බන්ධ කරන්න",
+      "appflowyAIEditDisabled": "AI විශේෂාංග සබල කිරීමට පුරන්න",
+      "discardResponse": "ඔබට AI ප්‍රතිචාරය ඉවත දැමීමට අවශ්‍ය බව විශ්වාසද?",
+      "createInlineMathEquation": "සමීකරණය සාදන්න",
+      "fonts": "අකුරු",
+      "insertDate": "දිනය ඇතුල් කරන්න",
+      "emoji": "ඉමොජි",
+      "toggleList": "ලැයිස්තුව ටොගල් කරන්න",
+      "emptyToggleHeading": "හිස් ටොගල් h {} . අන්තර්ගතය එක් කිරීමට ක්ලික් කරන්න.",
+      "emptyToggleList": "හිස් ටොගල් ලැයිස්තුව. අන්තර්ගතය එක් කිරීමට ක්ලික් කරන්න.",
+      "emptyToggleHeadingWeb": "හිස් ටොගල් h {level} . අන්තර්ගතය එක් කිරීමට ක්ලික් කරන්න",
+      "quoteList": "උපුටා දැක්වීම් ලැයිස්තුව",
+      "numberedList": "අංකිත ලැයිස්තුව",
+      "bulletedList": "බුලටිත ලැයිස්තුව",
+      "todoList": "ටෝඩෝ ලැයිස්තුව",
+      "callout": "කෑගසන්න",
+      "simpleTable": {
+        "moreActions": {
+          "color": "වර්ණය",
+          "align": "පෙළගස්වන්න",
+          "delete": "මකන්න",
+          "duplicate": "අනුපිටපත් කරන්න",
+          "insertLeft": "වමට ඇතුළු කරන්න",
+          "insertRight": "දකුණට ඇතුළු කරන්න",
+          "insertAbove": "ඉහලින් ඇතුල් කරන්න",
+          "insertBelow": "පහතින් ඇතුල් කරන්න",
+          "headerColumn": "ශීර්ෂ තීරුව",
+          "headerRow": "ශීර්ෂ පේළිය",
+          "clearContents": "අන්තර්ගතය පැහැදිලි කරන්න",
+          "setToPageWidth": "පිටු පළලට සකසන්න",
+          "distributeColumnsWidth": "තීරු ඒකාකාරව බෙදා හරින්න",
+          "duplicateRow": "අනුපිටපත් පේළිය",
+          "duplicateColumn": "අනුපිටපත් තීරුව",
+          "textColor": "පෙළ වර්ණය",
+          "cellBackgroundColor": "සෛල පසුබිම් වර්ණය",
+          "duplicateTable": "අනුපිටපත් වගුව"
+        },
+        "clickToAddNewRow": "නව පේළියක් එක් කිරීමට ක්ලික් කරන්න",
+        "clickToAddNewColumn": "නව තීරුවක් එක් කිරීමට ක්ලික් කරන්න",
+        "clickToAddNewRowAndColumn": "නව පේළියක් සහ තීරුවක් එක් කිරීමට ක්ලික් කරන්න",
+        "headerName": {
+          "table": "මේසය",
+          "alignText": "පෙළ පෙළගස්වන්න"
+        }
+      },
+      "cover": {
+        "changeCover": "කවරය වෙනස් කරන්න",
+        "colors": "වර්ණ",
+        "images": "රූප",
+        "clearAll": "සියල්ල හිස් කරන්න",
+        "abstract": "වියුක්ත",
+        "addCover": "ආවරණය එක් කරන්න",
+        "addLocalImage": "දේශීය රූපය එක් කරන්න",
+        "invalidImageUrl": "වලංගු නොවන රූප URL",
+        "failedToAddImageToGallery": "ගැලරියට රූපය එක් කිරීමට අසමත් විය",
+        "enterImageUrl": "පින්තුර URL ඇතුලත් කරන්න",
+        "add": "එකතු කරන්න",
+        "back": "ආපසු",
+        "saveToGallery": "ගැලරිය වෙත සුරකින්න",
+        "removeIcon": "නිරූපකය ඉවත් කරන්න",
+        "removeCover": "ආවරණය ඉවත් කරන්න",
+        "pasteImageUrl": "රූප URL එක අලවන්න",
+        "or": "හෝ",
+        "pickFromFiles": "ගොනු වලින් තෝරන්න",
+        "couldNotFetchImage": "රූපය ලබා ගැනීමට නොහැකි විය",
+        "imageSavingFailed": "පින්තූර සුරැකීම අසාර්ථක විය",
+        "addIcon": "නිරූපකය එක් කරන්න",
+        "changeIcon": "නිරූපකය වෙනස් කරන්න",
+        "coverRemoveAlert": "එය මකා දැමූ පසු ආවරණයෙන් ඉවත් කරනු ලැබේ.",
+        "alertDialogConfirmation": "ඔබට විශ්වාසද, ඔබට ඉදිරියට යාමට අවශ්‍යද?"
+      },
+      "mathEquation": {
+        "name": "ගණිත සමීකරණය",
+        "addMathEquation": "TeX සමීකරණයක් එක් කරන්න",
+        "editMathEquation": "ගණිත සමීකරණය සංස්කරණය කරන්න"
+      },
+      "optionAction": {
+        "click": "ක්ලික් කරන්න",
+        "toOpenMenu": "මෙනුව විවෘත කිරීමට",
+        "drag": "ඇදගෙන යන්න",
+        "toMove": "චලනය කිරීමට",
+        "delete": "මකන්න",
+        "duplicate": "අනුපිටපත් කරන්න",
+        "turnInto": "බවට පත් කරන්න",
+        "moveUp": "ඉහළට ගමන් කරන්න",
+        "moveDown": "පහළට ගමන් කරන්න",
+        "color": "වර්ණය",
+        "align": "පෙළගස්වන්න",
+        "left": "වම",
+        "center": "මධ්යස්ථානය",
+        "right": "හරි",
+        "defaultColor": "පෙරනිමිය",
+        "depth": "ගැඹුර",
+        "copyLinkToBlock": "අවහිර කිරීමට සබැඳිය පිටපත් කරන්න"
+      },
+      "image": {
+        "addAnImage": "පින්තූර එකතු කරන්න",
+        "copiedToPasteBoard": "පින්තූර සබැඳිය පසුරු පුවරුවට පිටපත් කර ඇත",
+        "addAnImageDesktop": "රූපයක් එක් කරන්න",
+        "addAnImageMobile": "පින්තූර එකක් හෝ කිහිපයක් එක් කිරීමට ක්ලික් කරන්න",
+        "dropImageToInsert": "ඇතුළු කිරීමට පින්තූර අතහරින්න",
+        "imageUploadFailed": "රූපය උඩුගත කිරීම අසාර්ථක විය",
+        "imageDownloadFailed": "රූපය බාගැනීම අසාර්ථක විය, කරුණාකර නැවත උත්සාහ කරන්න",
+        "imageDownloadFailedToken": "පරිශීලක ටෝකනය නැතිවීම නිසා පින්තූර බාගැනීම අසාර්ථක විය, කරුණාකර නැවත උත්සාහ කරන්න",
+        "errorCode": "දෝෂ කේතය"
+      },
+      "photoGallery": {
+        "name": "ඡායාරූප ගැලරිය",
+        "imageKeyword": "රූපය",
+        "imageGalleryKeyword": "රූප ගැලරිය",
+        "photoKeyword": "ඡායාරූපය",
+        "photoBrowserKeyword": "ඡායාරූප බ්රවුසරය",
+        "galleryKeyword": "ගැලරිය",
+        "addImageTooltip": "රූපය එක් කරන්න",
+        "changeLayoutTooltip": "පිරිසැලසුම වෙනස් කරන්න",
+        "browserLayout": "බ්රවුසරය",
+        "gridLayout": "ජාලකය",
+        "deleteBlockTooltip": "සම්පූර්ණ ගැලරිය මකන්න"
+      },
+      "math": {
+        "copiedToPasteBoard": "ගණිත සමීකරණය පසුරු පුවරුවට පිටපත් කර ඇත"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "සබැඳිය පසුරු පුවරුවට පිටපත් කර ඇත",
+        "convertToLink": "කාවැද්දූ සබැඳිය වෙත පරිවර්තනය කරන්න"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "පටුනක් සෑදීමට ශීර්ෂ එකතු කරන්න.",
+        "noMatchHeadings": "ගැළපෙන ශීර්ෂයන් හමු නොවීය."
+      },
+      "table": {
+        "addAfter": "පසුව එකතු කරන්න",
+        "addBefore": "කලින් එකතු කරන්න",
+        "delete": "මකන්න",
+        "clear": "අන්තර්ගතය පැහැදිලි කරන්න",
+        "duplicate": "අනුපිටපත් කරන්න",
+        "bgColor": "පසුබිම් වර්ණය"
+      },
+      "contextMenu": {
+        "copy": "පිටපත් කරන්න",
+        "cut": "කපනවා",
+        "paste": "අලවන්න",
+        "pasteAsPlainText": "සරල අකුරු ලෙස අලවන්න"
+      },
+      "action": "ක්රියාවන්",
+      "database": {
+        "selectDataSource": "දත්ත මූලාශ්රය තෝරන්න",
+        "noDataSource": "දත්ත මූලාශ්‍රයක් නැත",
+        "selectADataSource": "දත්ත මූලාශ්රයක් තෝරන්න",
+        "toContinue": "දිගටම කරගෙන යාමට",
+        "newDatabase": "නව දත්ත සමුදාය",
+        "linkToDatabase": "දත්ත සමුදායට සබැඳිය"
+      },
+      "date": "දිනය",
+      "video": {
+        "label": "වීඩියෝ",
+        "emptyLabel": "වීඩියෝවක් එක් කරන්න",
+        "placeholder": "වීඩියෝ සබැඳිය අලවන්න",
+        "copiedToPasteBoard": "වීඩියෝ සබැඳිය පසුරු පුවරුවට පිටපත් කර ඇත",
+        "insertVideo": "වීඩියෝ එකතු කරන්න",
+        "invalidVideoUrl": "මූලාශ්‍ර URL එක තවම සහාය නොදක්වයි.",
+        "invalidVideoUrlYouTube": "YouTube තවමත් සහාය නොදක්වයි.",
+        "supportedFormats": "සහාය දක්වන ආකෘති: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "ගොනුව",
+        "uploadTab": "උඩුගත කරන්න",
+        "uploadMobile": "ගොනුවක් තෝරන්න",
+        "uploadMobileGallery": "ඡායාරූප ගැලරිය වෙතින්",
+        "networkTab": "සබැඳිය ඇතුළත් කරන්න",
+        "placeholderText": "ගොනුවක් උඩුගත කිරීම හෝ කාවැද්දීම",
+        "placeholderDragging": "උඩුගත කිරීමට ගොනුව අතහරින්න",
+        "dropFileToUpload": "උඩුගත කිරීමට ගොනුවක් දමන්න",
+        "fileUploadHint": "ගොනුවක් ඇද දමන්න හෝ ක්ලික් කරන්න",
+        "fileUploadHintSuffix": "බ්‍රවුස් කරන්න",
+        "networkHint": "ගොනු සබැඳියක් අලවන්න",
+        "networkUrlInvalid": "වලංගු නොවන URL. URL එක පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+        "networkAction": "Embed",
+        "fileTooBigError": "ගොනු ප්‍රමාණය ඉතා විශාලයි, කරුණාකර 10MB ට වඩා අඩු ප්‍රමාණයකින් ගොනුවක් උඩුගත කරන්න",
+        "renameFile": {
+          "title": "ගොනුව නැවත නම් කරන්න",
+          "description": "මෙම ගොනුව සඳහා නව නම ඇතුළත් කරන්න",
+          "nameEmptyError": "ගොනු නාමය හිස්ව තැබිය නොහැක."
+        },
+        "uploadedAt": "{} මත උඩුගත කරන ලදී",
+        "linkedAt": "{} හි සබැඳිය එක් කරන ලදී",
+        "failedToOpenMsg": "විවෘත කිරීමට අසමත් විය, ගොනුව හමු නොවීය"
+      },
+      "subPage": {
+        "handlingPasteHint": "- (හැසිරවීම පේස්ට්)",
+        "errors": {
+          "failedDeletePage": "පිටුව මැකීමට අසමත් විය",
+          "failedCreatePage": "පිටුව සෑදීමට අසමත් විය",
+          "failedMovePage": "මෙම ලේඛනයට පිටුව ගෙන යාමට අසමත් විය",
+          "failedDuplicatePage": "පිටුව අනුපිටපත් කිරීමට අසමත් විය",
+          "failedDuplicateFindView": "පිටුව අනුපිටපත් කිරීමට අසමත් විය - මුල් දසුන හමු නොවීය"
+        }
+      },
+      "cannotMoveToItsChildren": "එහි දරුවන් වෙත ගමන් කළ නොහැක",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "ලෙස අලවන්න",
+          "mention": "සඳහන් කරන්න",
+          "URL": "URL",
+          "bookmark": "පිටු සලකුණ",
+          "embed": "Embed"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "සඳහන් කිරීමට පරිවර්තනය කරන්න",
+          "toUrl": "URL වෙත පරිවර්තනය කරන්න",
+          "toEmbed": "Embed වෙත පරිවර්තනය කරන්න",
+          "toBookmark": "Bookmark බවට පරිවර්තනය කරන්න",
+          "copyLink": "සබැඳිය පිටපත් කරන්න",
+          "replace": "ආදේශ කරන්න",
+          "reload": "නැවත පූරණය කරන්න",
+          "removeLink": "සබැඳිය ඉවත් කරන්න",
+          "pasteHint": "https://... හි අලවන්න",
+          "unableToDisplay": "ප්රදර්ශනය කළ නොහැක"
+        }
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "අන්තර්ගත වගුව"
+    },
+    "textBlock": {
+      "placeholder": "විධාන සඳහා '/' ටයිප් කරන්න"
+    },
+    "title": {
+      "placeholder": "මාතෘකා රහිත"
+    },
+    "imageBlock": {
+      "placeholder": "පින්තුර(ය) එක් කිරීමට ක්ලික් කරන්න",
+      "upload": {
+        "label": "උඩුගත කරන්න",
+        "placeholder": "පින්තූරය උඩුගත කිරීමට ක්ලික් කරන්න"
+      },
+      "url": {
+        "label": "රූප URL",
+        "placeholder": "පින්තුර URL ඇතුලත් කරන්න"
+      },
+      "ai": {
+        "label": "AI වෙතින් රූපය උත්පාදනය කරන්න",
+        "placeholder": "කරුණාකර රූපය උත්පාදනය කිරීමට AI සඳහා විමසුම ඇතුළත් කරන්න"
+      },
+      "stability_ai": {
+        "label": "ස්ථාවර AI වෙතින් රූපය උත්පාදනය කරන්න",
+        "placeholder": "කරුණාකර රූපය උත්පාදනය කිරීමට ස්ථායිතා AI සඳහා විමසුම ඇතුළත් කරන්න"
+      },
+      "support": "රූප ප්‍රමාණයේ සීමාව 5MB වේ. සහාය දක්වන ආකෘති: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "වලංගු නොවන රූපයක්",
+        "invalidImageSize": "රූපයේ ප්‍රමාණය 5MB ට වඩා අඩු විය යුතුය",
+        "invalidImageFormat": "රූප ආකෘතියට සහය නොදක්වයි. සහාය දක්වන ආකෘති: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "වලංගු නොවන රූප URL",
+        "noImage": "එවැනි ගොනුවක් හෝ ඩිරෙක්ටරියක් නැත",
+        "multipleImagesFailed": "පින්තූර එකක් හෝ කිහිපයක් උඩුගත කිරීමට අසමත් විය, කරුණාකර නැවත උත්සාහ කරන්න"
+      },
+      "embedLink": {
+        "label": "සබැඳිය ඇතුළත් කරන්න",
+        "placeholder": "පින්තුර සබැඳියක් අලවන්න හෝ ටයිප් කරන්න"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "රූපයක් සොයන්න",
+      "pleaseInputYourOpenAIKey": "කරුණාකර ඔබගේ AI යතුර සැකසීම් පිටුවට ඇතුළත් කරන්න",
+      "saveImageToGallery": "රූපය සුරකින්න",
+      "failedToAddImageToGallery": "රූපය සුරැකීමට අසමත් විය",
+      "successToAddImageToGallery": "පින්තූරය ඡායාරූප වෙත සුරකින ලදී",
+      "unableToLoadImage": "රූපය පූරණය කළ නොහැක",
+      "maximumImageSize": "උපරිම සහය දක්වන උඩුගත රූප ප්‍රමාණය 10MB වේ",
+      "uploadImageErrorImageSizeTooBig": "රූපයේ ප්‍රමාණය 10MB ට වඩා අඩු විය යුතුය",
+      "imageIsUploading": "පින්තූරය උඩුගත වෙමින් පවතී",
+      "openFullScreen": "සම්පූර්ණ තිරයේ විවෘත කරන්න",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "පෙර රූපය",
+          "nextImageTooltip": "ඊළඟ රූපය",
+          "zoomOutTooltip": "විශාලනය කරන්න",
+          "zoomInTooltip": "විශාලනය කරන්න",
+          "changeZoomLevelTooltip": "විශාලන මට්ටම වෙනස් කරන්න",
+          "openLocalImage": "රූපය විවෘත කරන්න",
+          "downloadImage": "රූපය බාගන්න",
+          "closeViewer": "අන්තර් ක්‍රියාකාරී නරඹන්නා වසන්න",
+          "scalePercentage": "{} %",
+          "deleteImageTooltip": "රූපය මකන්න"
+        }
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "භාෂාව",
+        "placeholder": "භාෂාව තෝරන්න",
+        "auto": "ඔටෝ"
+      },
+      "copyTooltip": "පිටපත් කරන්න",
+      "searchLanguageHint": "භාෂාවක් සොයන්න",
+      "codeCopiedSnackbar": "කේතය පසුරු පුවරුවට පිටපත් කරන ලදී!"
+    },
+    "inlineLink": {
+      "placeholder": "සබැඳියක් අලවන්න හෝ ටයිප් කරන්න",
+      "openInNewTab": "නව ටැබයක විවෘත කරන්න",
+      "copyLink": "සබැඳිය පිටපත් කරන්න",
+      "removeLink": "සබැඳිය ඉවත් කරන්න",
+      "url": {
+        "label": "සබැඳි URL",
+        "placeholder": "සබැඳි URL ඇතුලත් කරන්න"
+      },
+      "title": {
+        "label": "සබැඳි මාතෘකාව",
+        "placeholder": "සබැඳි මාතෘකාව ඇතුළත් කරන්න"
+      }
+    },
+    "mention": {
+      "placeholder": "පුද්ගලයෙකු හෝ පිටුවක් හෝ දිනයක් සඳහන් කරන්න...",
+      "page": {
+        "label": "පිටුවට සබැඳිය",
+        "tooltip": "පිටුව විවෘත කිරීමට ක්ලික් කරන්න"
+      },
+      "deleted": "මකා දමන ලදී",
+      "deletedContent": "මෙම අන්තර්ගතය නොපවතී හෝ මකා ඇත",
+      "noAccess": "ප්‍රවේශය නැත",
+      "deletedPage": "මකා දැමූ පිටුව",
+      "trashHint": "- කුණු කූඩයේ",
+      "morePages": "තවත් පිටු"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "පෙරනිමියට යළි පිහිටුවන්න",
+      "textSize": "පෙළ ප්රමාණය",
+      "textColor": "පෙළ වර්ණය",
+      "h1": "ශීර්ෂය 1",
+      "h2": "ශීර්ෂය 2",
+      "h3": "ශීර්ෂය 3",
+      "alignLeft": "වමට පෙළගස්වන්න",
+      "alignRight": "දකුණට පෙළගස්වන්න",
+      "alignCenter": "මධ්‍යස්ථානය පෙළගස්වන්න",
+      "link": "සබැඳිය",
+      "textAlign": "පෙළ පෙළගැස්වීම",
+      "moreOptions": "තවත් විකල්ප",
+      "font": "අකුරු",
+      "inlineCode": "පේළිගත කේතය",
+      "suggestions": "යෝජනා",
+      "turnInto": "බවට පත් කරන්න",
+      "equation": "සමීකරණය",
+      "insert": "ඇතුල් කරන්න",
+      "linkInputHint": "සබැඳි හෝ සෙවුම් පිටු අලවන්න",
+      "pageOrURL": "පිටුව හෝ URL",
+      "linkName": "සබැඳියේ නම",
+      "linkNameHint": "සබැඳියේ නම ඇතුළත් කරන්න"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "අවහිර අන්තර්ගතය විග්‍රහ කිරීමට නොහැක",
+      "clickToCopyTheBlockContent": "වාරණ අන්තර්ගතය පිටපත් කිරීමට ක්ලික් කරන්න",
+      "blockContentHasBeenCopied": "අවහිර අන්තර්ගතය පිටපත් කර ඇත.",
+      "parseError": "{} වාරණ විග්‍රහ කිරීමේදී දෝෂයක් ඇති විය.",
+      "copyBlockContent": "අවහිර අන්තර්ගතය පිටපත් කරන්න"
+    },
+    "mobilePageSelector": {
+      "title": "පිටුව තෝරන්න",
+      "failedToLoad": "පිටු ලැයිස්තුව පූරණය කිරීමට අසමත් විය",
+      "noPagesFound": "පිටු කිසිවක් හමු නොවීය"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "ඡායාරූපය තෝරන්න",
+      "takePicture": "පින්තූරයක් ගන්න",
+      "chooseFile": "ගොනුව තෝරන්න"
+    }
+  },
+  "board": {
+    "column": {
+      "label": "තීරුව",
+      "createNewCard": "අලුත්",
+      "renameGroupTooltip": "කණ්ඩායම නැවත නම් කිරීමට ඔබන්න",
+      "createNewColumn": "නව කණ්ඩායමක් එක් කරන්න",
+      "addToColumnTopTooltip": "ඉහළට නව කාඩ්පතක් එක් කරන්න",
+      "addToColumnBottomTooltip": "පහළින් නව කාඩ්පතක් එක් කරන්න",
+      "renameColumn": "නැවත නම් කරන්න",
+      "hideColumn": "සඟවන්න",
+      "newGroup": "නව කණ්ඩායම",
+      "deleteColumn": "මකන්න",
+      "deleteColumnConfirmation": "මෙය මෙම කණ්ඩායම සහ එහි ඇති සියලුම කාඩ්පත් මකනු ඇත. ඔබට දිගටම කරගෙන යාමට අවශ්‍ය බව විශ්වාසද?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "සැඟවුණු කණ්ඩායම්",
+      "collapseTooltip": "සැඟවුණු කණ්ඩායම් සඟවන්න",
+      "expandTooltip": "සැඟවුණු කණ්ඩායම් බලන්න"
+    },
+    "cardDetail": "කාඩ්පත් විස්තර",
+    "cardActions": "කාඩ්පත් ක්රියා",
+    "cardDuplicated": "කාඩ්පත අනුපිටපත් කර ඇත",
+    "cardDeleted": "කාඩ්පත මකා ඇත",
+    "showOnCard": "කාඩ්පත් විස්තර මත පෙන්වන්න",
+    "setting": "සැකසීම",
+    "propertyName": "දේපල නම",
+    "menuName": "මණ්ඩලය",
+    "showUngrouped": "සමූහගත නොකළ අයිතම පෙන්වන්න",
+    "ungroupedButtonText": "සමූහගත නොකළ",
+    "ungroupedButtonTooltip": "කිසිදු කණ්ඩායමකට අයත් නොවන කාඩ්පත් අඩංගු වේ",
+    "ungroupedItemsTitle": "පුවරුවට එක් කිරීමට ක්ලික් කරන්න",
+    "groupBy": "කණ්ඩායම් වශයෙන්",
+    "groupCondition": "කණ්ඩායම් තත්ත්වය",
+    "referencedBoardPrefix": "දැක්ම",
+    "notesTooltip": "ඇතුළත සටහන්",
+    "mobile": {
+      "editURL": "URL සංස්කරණය කරන්න",
+      "showGroup": "කණ්ඩායම පෙන්වන්න",
+      "showGroupContent": "ඔබට මෙම කණ්ඩායම පුවරුවේ පෙන්වීමට අවශ්‍ය බව විශ්වාසද?",
+      "failedToLoad": "පුවරු දසුන පූරණය කිරීමට අසමත් විය"
+    },
+    "dateCondition": {
+      "weekOf": "{} - {} සතිය",
+      "today": "අද",
+      "yesterday": "ඊයේ",
+      "tomorrow": "හෙට",
+      "lastSevenDays": "පසුගිය දින 7",
+      "nextSevenDays": "ඉදිරි දින 7",
+      "lastThirtyDays": "පසුගිය දින 30",
+      "nextThirtyDays": "ඉදිරි දින 30"
+    },
+    "noGroup": "දේපල අනුව කණ්ඩායමක් නොමැත",
+    "noGroupDesc": "පුවරු බැලීම් සංදර්ශන කිරීම සඳහා කණ්ඩායම් කිරීමට දේපලක් අවශ්‍ය වේ",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "ගොනු"
+    }
+  },
+  "calendar": {
+    "menuName": "දින දර්ශනය",
+    "defaultNewCalendarTitle": "මාතෘකා රහිත",
+    "newEventButtonTooltip": "නව සිදුවීමක් එක් කරන්න",
+    "navigation": {
+      "today": "අද",
+      "jumpToday": "අදට පනින්න",
+      "previousMonth": "පෙර මාසය",
+      "nextMonth": "ලබන මාසය",
+      "views": {
+        "day": "දවස",
+        "week": "සතිය",
+        "month": "මාසය",
+        "year": "වසර"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "තවමත් සිදුවීම් නොමැත",
+      "emptyBody": "මෙම දිනයේ සිදුවීමක් නිර්මාණය කිරීමට ප්ලස් බොත්තම ඔබන්න."
+    },
+    "settings": {
+      "showWeekNumbers": "සති අංක පෙන්වන්න",
+      "showWeekends": "සති අන්ත පෙන්වන්න",
+      "firstDayOfWeek": "සතිය ආරම්භ කරන්න",
+      "layoutDateField": "විසින් පිරිසැලසුම් දින දර්ශනය",
+      "changeLayoutDateField": "පිරිසැලසුම් ක්ෂේත්‍රය වෙනස් කරන්න",
+      "noDateTitle": "දිනයක් නැත",
+      "noDateHint": {
+        "zero": "සැලසුම් නොකළ සිදුවීම් මෙහි පෙන්වනු ඇත",
+        "one": "{count} කාලසටහන් නොකළ සිදුවීම",
+        "other": "{count} කාලසටහන් නොකළ සිදුවීම්"
+      },
+      "unscheduledEventsTitle": "සැලසුම් නොකළ සිදුවීම්",
+      "clickToAdd": "දින දර්ශනයට එක් කිරීමට ක්ලික් කරන්න",
+      "name": "දින දර්ශන සැකසුම්",
+      "clickToOpen": "වාර්තාව විවෘත කිරීමට ක්ලික් කරන්න"
+    },
+    "referencedCalendarPrefix": "දැක්ම",
+    "quickJumpYear": "වෙත පනින්න",
+    "duplicateEvent": "අනුපිටපත් සිදුවීම"
+  },
+  "errorDialog": {
+    "title": "@:appName දෝෂයකි",
+    "howToFixFallback": "සිදු වූ අපහසුතාවය ගැන අපට කණගාටුයි! ඔබගේ දෝෂය විස්තර කරන අපගේ GitHub පිටුවෙහි ගැටලුවක් ඉදිරිපත් කරන්න.",
+    "howToFixFallbackHint1": "සිදු වූ අපහසුතාවය ගැන අපට කණගාටුයි! අපගේ ගැටලුවක් ඉදිරිපත් කරන්න",
+    "howToFixFallbackHint2": "ඔබගේ දෝෂය විස්තර කරන පිටුව.",
+    "github": "GitHub මත බලන්න"
+  },
+  "search": {
+    "label": "සොයන්න",
+    "sidebarSearchIcon": "සොයන්න සහ ඉක්මනින් පිටුවකට පනින්න",
+    "searchOrAskAI": "සොයන්න හෝ AI විමසන්න",
+    "searchFieldHint": "{} හි ප්‍රශ්නයක් සොයන්න හෝ අසන්න ...",
+    "askAIAnything": "ඕනෑම දෙයක් AI ගෙන් විමසන්න",
+    "askAIFor": "AI අහන්න",
+    "searching": "සොයමින්...",
+    "noResultForSearching": "ගැළපීම් හමු නොවීය",
+    "noResultForSearchingHint": "විවිධ ප්‍රශ්න හෝ මූල පද උත්සාහ කරන්න.\n සමහර පිටු කුණු කූඩයේ තිබිය හැක.",
+    "noResultForSearchingHintWithoutTrash": "විවිධ ප්‍රශ්න හෝ මූල පද උත්සාහ කරන්න\n සමහර පිටු වල තිබිය හැක",
+    "bestMatch": "හොඳම තරගය",
+    "seeMore": "තව බලන්න",
+    "showMore": "තව පෙන්වන්න",
+    "somethingWentWrong": "යමක් වැරදී ඇත",
+    "pageNotExist": "මෙම පිටුව නොපවතී",
+    "tryAgainOrLater": "කරුණාකර පසුව නැවත උත්සාහ කරන්න",
+    "placeholder": {
+      "actions": "සෙවීම් ක්‍රියා..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "පසුරු පුවරුවට පිටපත් කර ඇත",
+      "fail": "පිටපත් කිරීමට නොහැකි විය"
+    }
+  },
+  "unSupportBlock": "වත්මන් අනුවාදය මෙම අවහිර කිරීමට සහය නොදක්වයි.",
+  "views": {
+    "deleteContentTitle": "ඔබට {pageType} මැකීමට අවශ්‍ය බව විශ්වාසද?",
+    "deleteContentCaption": "ඔබ මෙම {pageType} මකා දැමුවහොත්, ඔබට එය කුණු කූඩයෙන් ප්‍රතිසාධනය කළ හැක."
+  },
+  "colors": {
+    "custom": "අභිරුචි",
+    "default": "පෙරනිමිය",
+    "red": "රතු",
+    "orange": "දොඩම්",
+    "yellow": "කහ",
+    "green": "කොළ පාටයි",
+    "blue": "නිල්",
+    "purple": "දම් පාට",
+    "pink": "රෝස",
+    "brown": "දුඹුරු",
+    "gray": "අළු"
+  },
+  "emoji": {
+    "emojiTab": "ඉමොජි",
+    "search": "ඉමොජි සොයන්න",
+    "noRecent": "මෑත ඉමොජි නැත",
+    "noEmojiFound": "ඉමොජි හමු නොවීය",
+    "filter": "පෙරහන",
+    "random": "අහඹු",
+    "selectSkinTone": "සමේ වර්ණය තෝරන්න",
+    "remove": "ඉමොජි ඉවත් කරන්න",
+    "categories": {
+      "smileys": "සිනහව සහ හැඟීම්",
+      "people": "මිනිසුන්",
+      "animals": "ස්වභාවය",
+      "food": "ආහාර",
+      "activities": "ක්රියාකාරකම්",
+      "places": "ස්ථාන",
+      "objects": "වස්තූන්",
+      "symbols": "සංකේත",
+      "flags": "කොඩි",
+      "nature": "ස්වභාවය",
+      "frequentlyUsed": "නිතර භාවිතා වේ"
+    },
+    "skinTone": {
+      "default": "පෙරනිමිය",
+      "light": "ආලෝකය",
+      "mediumLight": "මධ්යම-ආලෝකය",
+      "medium": "මධ්යම",
+      "mediumDark": "මධ්යම-අඳුරු",
+      "dark": "අඳුරු"
+    },
+    "openSourceIconsFrom": "වෙතින් විවෘත මූලාශ්‍ර අයිකන"
+  },
+  "inlineActions": {
+    "noResults": "ප්‍රතිඵල නැත",
+    "recentPages": "මෑත පිටු",
+    "pageReference": "පිටු යොමුව",
+    "docReference": "ලේඛන යොමුව",
+    "boardReference": "මණ්ඩල යොමුව",
+    "calReference": "දින දර්ශන යොමුව",
+    "gridReference": "ජාල යොමුව",
+    "date": "දිනය",
+    "reminder": {
+      "groupTitle": "සිහිකැඳවීම",
+      "shortKeyword": "මතක් කරනවා"
+    },
+    "createPage": "\" {} \" උප පිටුව සාදන්න"
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "සැකසුම් තුළ දිනය සහ වේලාව ආකෘතිය වෙනස් කරන්න",
+    "dateFormat": "දින ආකෘතිය",
+    "includeTime": "කාලය ඇතුළත් කරන්න",
+    "isRange": "අවසන් දිනය",
+    "timeFormat": "කාල ආකෘතිය",
+    "clearDate": "පැහැදිලි දිනය",
+    "reminderLabel": "සිහිකැඳවීම",
+    "selectReminder": "මතක් කිරීම තෝරන්න",
+    "reminderOptions": {
+      "none": "කිසිවක් නැත",
+      "atTimeOfEvent": "සිදුවීමේ වේලාව",
+      "fiveMinsBefore": "මිනිත්තු 5 කට පෙර",
+      "tenMinsBefore": "මිනිත්තු 10 කට පෙර",
+      "fifteenMinsBefore": "මිනිත්තු 15 කට පෙර",
+      "thirtyMinsBefore": "මිනිත්තු 30 කට පෙර",
+      "oneHourBefore": "පැය 1 කට පෙර",
+      "twoHoursBefore": "පැය 2 කට පෙර",
+      "onDayOfEvent": "උත්සවයේ දිනයේ",
+      "oneDayBefore": "1 දිනකට පෙර",
+      "twoDaysBefore": "දින 2 කට පෙර",
+      "oneWeekBefore": "සති 1 කට පෙර",
+      "custom": "අභිරුචි"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "ඊයේ",
+    "today": "අද",
+    "tomorrow": "හෙට",
+    "oneWeek": "සති 1 යි"
+  },
+  "notificationHub": {
+    "title": "දැනුම්දීම්",
+    "closeNotification": "දැනුම්දීම වසන්න",
+    "viewNotifications": "දැනුම්දීම් බලන්න",
+    "noNotifications": "තවම දැනුම්දීම් නැත",
+    "mentionedYou": "ඔබව සඳහන් කළා",
+    "archivedTooltip": "මෙම දැනුම්දීම සංරක්ෂණය කරන්න",
+    "unarchiveTooltip": "මෙම දැනුම්දීම සංරක්ෂණය ඉවත් කරන්න",
+    "markAsReadTooltip": "මෙම දැනුම්දීම කියවූ ලෙස සලකුණු කරන්න",
+    "markAsArchivedSucceedToast": "සාර්ථකව සංරක්ෂණය කරන ලදී",
+    "markAllAsArchivedSucceedToast": "සියල්ල සාර්ථකව සංරක්ෂණය කරන ලදී",
+    "markAsReadSucceedToast": "සාර්ථකව කියවූ ලෙස ලකුණු කරන්න",
+    "markAllAsReadSucceedToast": "සියල්ල සාර්ථකව කියවූ ලෙස ලකුණු කරන්න",
+    "today": "අද",
+    "older": "වැඩිහිටි",
+    "mobile": {
+      "title": "යාවත්කාලීන"
+    },
+    "emptyTitle": "සියල්ල අල්ලා!",
+    "emptyBody": "පොරොත්තු දැනුම්දීම් හෝ ක්‍රියා නැත. සන්සුන්කම භුක්ති විඳින්න.",
+    "tabs": {
+      "inbox": "එන ලිපි",
+      "upcoming": "ඉදිරියට"
+    },
+    "actions": {
+      "markAllRead": "සියල්ල කියවූ ලෙස ලකුණු කරන්න",
+      "showAll": "සියල්ල",
+      "showUnreads": "නොකියවූ"
+    },
+    "filters": {
+      "ascending": "නැගීම",
+      "descending": "බැස යනවා",
+      "groupByDate": "දිනය අනුව කණ්ඩායම් කරන්න",
+      "showUnreadsOnly": "නොකියවූ ඒවා පමණක් පෙන්වන්න",
+      "resetToDefault": "පෙරනිමියට යළි පිහිටුවන්න"
+    }
+  },
+  "reminderNotification": {
+    "title": "සිහිකැඳවීම",
+    "message": "අමතක වීමට පෙර මෙය පරීක්ෂා කිරීමට මතක තබා ගන්න!",
+    "tooltipDelete": "මකන්න",
+    "tooltipMarkRead": "කියවූ ලෙස ලකුණු කරන්න",
+    "tooltipMarkUnread": "නොකියවූ ලෙස ලකුණු කරන්න"
+  },
+  "findAndReplace": {
+    "find": "සොයන්න",
+    "previousMatch": "පෙර තරගය",
+    "nextMatch": "ඊළඟ තරගය",
+    "close": "වසන්න",
+    "replace": "ආදේශ කරන්න",
+    "replaceAll": "සියල්ල ප්රතිස්ථාපනය කරන්න",
+    "noResult": "ප්‍රතිඵල නැත",
+    "caseSensitive": "විෂය සංවේදී",
+    "searchMore": "තවත් ප්‍රතිඵල සෙවීමට සොයන්න"
+  },
+  "error": {
+    "weAreSorry": "අපිට සමාවෙන්න",
+    "loadingViewError": "අපට මෙම දසුන පූරණය කිරීමේ ගැටලුවක් ඇත. කරුණාකර ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කරන්න, යෙදුම නැවුම් කරන්න, සහ ගැටලුව දිගටම පවතින්නේ නම් කණ්ඩායම වෙත ළඟා වීමට පසුබට නොවන්න.",
+    "syncError": "වෙනත් උපාංගයකින් දත්ත සමමුහුර්ත කර නැත",
+    "syncErrorHint": "කරුණාකර මෙම පිටුව අවසන් වරට සංස්කරණය කළ උපාංගයේ නැවත විවෘත කරන්න, ඉන්පසු එය වත්මන් උපාංගයේ නැවත විවෘත කරන්න.",
+    "clickToCopy": "දෝෂ කේතය පිටපත් කිරීමට ක්ලික් කරන්න"
+  },
+  "editor": {
+    "bold": "නිර්භීත",
+    "bulletedList": "බුලටිත ලැයිස්තුව",
+    "bulletedListShortForm": "බුලට් කර ඇත",
+    "checkbox": "පිරික්සුම් කොටුව",
+    "embedCode": "Embed Code",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "ඉස්මතු කරන්න",
+    "color": "වර්ණය",
+    "image": "රූපය",
+    "date": "දිනය",
+    "page": "පිටුව",
+    "italic": "ඇල අකුරු",
+    "link": "සබැඳිය",
+    "numberedList": "අංකිත ලැයිස්තුව",
+    "numberedListShortForm": "අංකනය කර ඇත",
+    "toggleHeading1ShortForm": "H1 ටොගල් කරන්න",
+    "toggleHeading2ShortForm": "H2 ටොගල් කරන්න",
+    "toggleHeading3ShortForm": "H3 ටොගල් කරන්න",
+    "quote": "උපුටා ගැනීම",
+    "strikethrough": "පහර හරහා",
+    "text": "පෙළ",
+    "underline": "යටින් ඉරි",
+    "fontColorDefault": "පෙරනිමිය",
+    "fontColorGray": "අළු",
+    "fontColorBrown": "දුඹුරු",
+    "fontColorOrange": "දොඩම්",
+    "fontColorYellow": "කහ",
+    "fontColorGreen": "කොළ පාටයි",
+    "fontColorBlue": "නිල්",
+    "fontColorPurple": "දම් පාට",
+    "fontColorPink": "රෝස",
+    "fontColorRed": "රතු",
+    "backgroundColorDefault": "පෙරනිමි පසුබිම",
+    "backgroundColorGray": "අළු පසුබිම",
+    "backgroundColorBrown": "දුඹුරු පසුබිම",
+    "backgroundColorOrange": "තැඹිලි පසුබිම",
+    "backgroundColorYellow": "කහ පසුබිම",
+    "backgroundColorGreen": "හරිත පසුබිම",
+    "backgroundColorBlue": "නිල් පසුබිම",
+    "backgroundColorPurple": "දම් පාට පසුබිම",
+    "backgroundColorPink": "රෝස පසුබිම",
+    "backgroundColorRed": "රතු පසුබිම",
+    "backgroundColorLime": "දෙහි පසුබිම",
+    "backgroundColorAqua": "Aqua පසුබිම",
+    "done": "කළා",
+    "cancel": "අවලංගු කරන්න",
+    "tint1": "ටින්ට් 1",
+    "tint2": "ටින්ට් 2",
+    "tint3": "ටින්ට් 3",
+    "tint4": "ටින්ට් 4",
+    "tint5": "ටින්ට් 5",
+    "tint6": "ටින්ට් 6",
+    "tint7": "ටින්ට් 7",
+    "tint8": "ටින්ට් 8",
+    "tint9": "ටින්ට් 9",
+    "lightLightTint1": "දම් පාට",
+    "lightLightTint2": "රෝස",
+    "lightLightTint3": "ලා රෝස",
+    "lightLightTint4": "දොඩම්",
+    "lightLightTint5": "කහ",
+    "lightLightTint6": "දෙහි",
+    "lightLightTint7": "කොළ පාටයි",
+    "lightLightTint8": "ඇක්වා",
+    "lightLightTint9": "නිල්",
+    "urlHint": "URL",
+    "mobileHeading1": "ශීර්ෂය 1",
+    "mobileHeading2": "ශීර්ෂය 2",
+    "mobileHeading3": "ශීර්ෂය 3",
+    "mobileHeading4": "ශීර්ෂය 4",
+    "mobileHeading5": "ශීර්ෂය 5",
+    "mobileHeading6": "ශීර්ෂය 6",
+    "textColor": "පෙළ වර්ණය",
+    "backgroundColor": "පසුබිම් වර්ණය",
+    "addYourLink": "ඔබගේ සබැඳිය එක් කරන්න",
+    "openLink": "සබැඳිය විවෘත කරන්න",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "removeLink": "සබැඳිය ඉවත් කරන්න",
+    "editLink": "සබැඳිය සංස්කරණය කරන්න",
+    "convertTo": "බවට පරිවර්තනය කරන්න",
+    "linkText": "පෙළ",
+    "linkTextHint": "කරුණාකර පෙළ ඇතුලත් කරන්න",
+    "linkAddressHint": "කරුණාකර URL ඇතුලත් කරන්න",
+    "highlightColor": "වර්ණ උද්දීපනය කරන්න",
+    "clearHighlightColor": "පැහැදිලි උද්දීපන වර්ණය",
+    "customColor": "අභිරුචි වර්ණය",
+    "hexValue": "හෙක්ස් අගය",
+    "opacity": "පාරාන්ධතාව",
+    "resetToDefaultColor": "පෙරනිමි වර්ණයට යළි පිහිටුවන්න",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "ඔටෝ",
+    "cut": "කපනවා",
+    "copy": "පිටපත් කරන්න",
+    "paste": "අලවන්න",
+    "find": "සොයන්න",
+    "select": "තෝරන්න",
+    "selectAll": "සියල්ල තෝරන්න",
+    "previousMatch": "පෙර තරගය",
+    "nextMatch": "ඊළඟ තරගය",
+    "closeFind": "වසන්න",
+    "replace": "ආදේශ කරන්න",
+    "replaceAll": "සියල්ල ප්රතිස්ථාපනය කරන්න",
+    "regex": "රෙජෙක්ස්",
+    "caseSensitive": "විෂය සංවේදී",
+    "uploadImage": "රූපය උඩුගත කරන්න",
+    "urlImage": "URL රූපය",
+    "incorrectLink": "වැරදි සබැඳිය",
+    "upload": "උඩුගත කරන්න",
+    "chooseImage": "රූපයක් තෝරන්න",
+    "loading": "පැටවීම",
+    "imageLoadFailed": "රූපය පැටවීම අසාර්ථක විය",
+    "divider": "බෙදුම්කරු",
+    "table": "මේසය",
+    "colAddBefore": "කලින් එකතු කරන්න",
+    "rowAddBefore": "කලින් එකතු කරන්න",
+    "colAddAfter": "පසුව එකතු කරන්න",
+    "rowAddAfter": "පසුව එකතු කරන්න",
+    "colRemove": "ඉවත් කරන්න",
+    "rowRemove": "ඉවත් කරන්න",
+    "colDuplicate": "අනුපිටපත් කරන්න",
+    "rowDuplicate": "අනුපිටපත් කරන්න",
+    "colClear": "අන්තර්ගතය පැහැදිලි කරන්න",
+    "rowClear": "අන්තර්ගතය පැහැදිලි කරන්න",
+    "slashPlaceHolder": "බ්ලොක් එකක් ඇතුළු කිරීමට '/' ටයිප් කරන්න, නැතහොත් ටයිප් කිරීම ආරම්භ කරන්න",
+    "typeSomething": "යමක් ටයිප් කරන්න...",
+    "toggleListShortForm": "ටොගල් කරන්න",
+    "quoteListShortForm": "උපුටා ගැනීම",
+    "mathEquationShortForm": "සූත්රය",
+    "codeBlockShortForm": "කේතය"
+  },
+  "favorite": {
+    "noFavorite": "ප්‍රියතම පිටුවක් නැත",
+    "noFavoriteHintText": "ඔබගේ ප්‍රියතමයන් වෙත එය එක් කිරීමට පිටුව වමට ස්වයිප් කරන්න",
+    "removeFromSidebar": "පැති තීරුවෙන් ඉවත් කරන්න",
+    "addToSidebar": "පැති තීරුවට අමුණන්න"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "බ්ලොක් එකක් ඇතුළු කිරීමට a / ඇතුළු කරන්න, නැතහොත් ටයිප් කිරීම ආරම්භ කරන්න"
+  },
+  "blockPlaceholders": {
+    "todoList": "කළ යුතු දේ",
+    "bulletList": "ලැයිස්තුව",
+    "numberList": "ලැයිස්තුව",
+    "quote": "උපුටා ගැනීම",
+    "heading": "ශීර්ෂය {}"
+  },
+  "titleBar": {
+    "pageIcon": "පිටු නිරූපකය",
+    "language": "භාෂාව",
+    "font": "අකුරු",
+    "actions": "ක්රියාවන්",
+    "date": "දිනය",
+    "addField": "ක්ෂේත්රය එකතු කරන්න",
+    "userIcon": "පරිශීලක නිරූපකය"
+  },
+  "noLogFiles": "ලොග් ගොනු නොමැත",
+  "newSettings": {
+    "myAccount": {
+      "title": "ගිණුම සහ යෙදුම",
+      "subtitle": "ඔබගේ පැතිකඩ අභිරුචිකරණය කරන්න, ගිණුම් ආරක්ෂාව කළමනාකරණය කරන්න, AI යතුරු විවෘත කරන්න, හෝ ඔබගේ ගිණුමට පුරනය වන්න.",
+      "profileLabel": "ගිණුමේ නම සහ පැතිකඩ රූපය",
+      "profileNamePlaceholder": "ඔබගේ නම ඇතුලත් කරන්න",
+      "accountSecurity": "ගිණුම් ආරක්ෂාව",
+      "2FA": "2-පියවර සත්‍යාපනය",
+      "aiKeys": "AI යතුරු",
+      "accountLogin": "ගිණුමට පිවිසීම",
+      "updateNameError": "නම යාවත්කාලීන කිරීමට අසමත් විය",
+      "updateIconError": "නිරූපකය යාවත්කාලීන කිරීමට අසමත් විය",
+      "aboutAppFlowy": "@:appName ගැන",
+      "deleteAccount": {
+        "title": "ගිණුම මකන්න",
+        "subtitle": "ඔබගේ ගිණුම සහ ඔබගේ සියලු දත්ත ස්ථිරවම මකන්න.",
+        "description": "ඔබගේ ගිණුම ස්ථිරවම මකා සියලු වැඩබිම් වලින් ප්‍රවේශය ඉවත් කරන්න.",
+        "deleteMyAccount": "මගේ ගිණුම මකන්න",
+        "dialogTitle": "ගිණුම මකන්න",
+        "dialogContent1": "ඔබට ඔබගේ ගිණුම ස්ථිරවම මැකීමට අවශ්‍ය බව විශ්වාසද?",
+        "dialogContent2": "මෙම ක්‍රියාව පසුගමනය කළ නොහැකි අතර, සියලු වැඩබිම්වලින් ප්‍රවේශය ඉවත් කරනු ඇත, පුද්ගලික වැඩබිම් ඇතුළුව ඔබේ සම්පූර්ණ ගිණුම මකා දමමින්, සහ සියලු බෙදාගත් වැඩබිම්වලින් ඔබව ඉවත් කරයි.",
+        "confirmHint1": "තහවුරු කිරීමට කරුණාකර \" @:newSettings .myAccount.deleteAccount.confirmHint3\" ටයිප් කරන්න.",
+        "confirmHint2": "මෙම ක්‍රියාව ආපසු හැරවිය නොහැකි බව මට වැටහෙන අතර මගේ ගිණුම සහ සියලු ආශ්‍රිත දත්ත ස්ථිරවම මකනු ඇත.",
+        "confirmHint3": "මගේ ගිණුම මකන්න",
+        "checkToConfirmError": "මකාදැමීම තහවුරු කිරීමට ඔබ කොටුව සලකුණු කළ යුතුය",
+        "failedToGetCurrentUser": "වත්මන් පරිශීලක ඊමේල් ලබා ගැනීමට අසමත් විය",
+        "confirmTextValidationFailed": "ඔබගේ තහවුරු කිරීමේ පෙළ \" @:newSettings .myAccount.deleteAccount.confirmHint3\" නොගැලපේ",
+        "deleteAccountSuccess": "ගිණුම සාර්ථකව මකා ඇත"
+      },
+      "password": {
+        "title": "මුරපදය",
+        "confirmPassword": "මුරපදය තහවුරු කරන්න",
+        "changePassword": "මුරපදය වෙනස් කරන්න",
+        "currentPassword": "වත්මන් මුර පදය",
+        "newPassword": "නව මුරපදය",
+        "confirmNewPassword": "නව මුරපදය තහවුරු කරන්න",
+        "setupPassword": "මුරපදය සකසන්න",
+        "error": {
+          "currentPasswordIsRequired": "වත්මන් මුරපදය අවශ්ය වේ",
+          "newPasswordIsRequired": "නව මුරපදයක් අවශ්‍ය වේ",
+          "confirmPasswordIsRequired": "මුරපදය තහවුරු කිරීම අවශ්ය වේ",
+          "passwordsDoNotMatch": "මුරපද නොගැලපේ",
+          "newPasswordIsSameAsCurrent": "නව මුරපදය වත්මන් මුරපදයට සමාන වේ",
+          "currentPasswordIsIncorrect": "වත්මන් මුරපදය වැරදියි",
+          "passwordShouldBeAtLeast6Characters": "මුරපදය අවම වශයෙන් {min} අක්ෂර විය යුතුය",
+          "passwordCannotBeLongerThan72Characters": "මුරපදය {max} අක්ෂර වලට වඩා දිගු විය නොහැක"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "මුරපදය සාර්ථකව යාවත්කාලීන කරන ලදී",
+          "passwordUpdatedFailed": "මුරපදය යාවත්කාලීන කිරීමට අසමත් විය",
+          "passwordSetupSuccessfully": "මුරපද සැකසීම සාර්ථකයි",
+          "passwordSetupFailed": "මුරපදය පිහිටුවීමට අසමත් විය"
+        },
+        "hint": {
+          "enterYourPassword": "ඔබගේ මුරපදය ඇතුලත් කරන්න",
+          "confirmYourPassword": "ඔබගේ මුරපදය තහවුරු කරන්න",
+          "enterYourCurrentPassword": "ඔබගේ වත්මන් මුරපදය ඇතුලත් කරන්න",
+          "enterYourNewPassword": "ඔබගේ නව මුරපදය ඇතුලත් කරන්න",
+          "confirmYourNewPassword": "ඔබගේ නව මුරපදය තහවුරු කරන්න"
+        }
+      },
+      "myAccount": "මගේ ගිණුම",
+      "myProfile": "මගේ පැතිකඩ"
+    },
+    "workplace": {
+      "name": "රැකියා ස්ථානය",
+      "title": "සේවා ස්ථාන සැකසීම්",
+      "subtitle": "ඔබගේ වැඩබිම පෙනුම, තේමාව, අකුරු, පෙළ පිරිසැලසුම, දිනය, වේලාව සහ භාෂාව අභිරුචිකරණය කරන්න.",
+      "workplaceName": "රැකියා ස්ථානයේ නම",
+      "workplaceNamePlaceholder": "රැකියා ස්ථානයේ නම ඇතුළත් කරන්න",
+      "workplaceIcon": "සේවා ස්ථාන නිරූපකය",
+      "workplaceIconSubtitle": "රූපයක් උඩුගත කරන්න හෝ ඔබේ වැඩබිම සඳහා ඉමොජියක් භාවිත කරන්න. අයිකනය ඔබගේ පැති තීරුවේ සහ දැනුම්දීම් පෙන්වයි.",
+      "renameError": "සේවා ස්ථානය නැවත නම් කිරීමට අසමත් විය",
+      "updateIconError": "නිරූපකය යාවත්කාලීන කිරීමට අසමත් විය",
+      "chooseAnIcon": "අයිකනයක් තෝරන්න",
+      "appearance": {
+        "name": "පෙනුම",
+        "themeMode": {
+          "auto": "ඔටෝ",
+          "light": "ආලෝකය",
+          "dark": "අඳුරු"
+        },
+        "language": "භාෂාව"
+      }
+    },
+    "syncState": {
+      "syncing": "සමමුහුර්ත කිරීම",
+      "synced": "සමමුහුර්ත කර ඇත",
+      "noNetworkConnected": "ජාලයක් සම්බන්ධ නැත"
+    }
+  },
+  "pageStyle": {
+    "title": "පිටු විලාසය",
+    "layout": "පිරිසැලසුම",
+    "coverImage": "ආවරණ රූපය",
+    "pageIcon": "පිටු නිරූපකය",
+    "colors": "වර්ණ",
+    "gradient": "Gradient",
+    "backgroundImage": "පසුබිම් රූපය",
+    "presets": "පෙරසිටුවීම්",
+    "photo": "ඡායාරූපය",
+    "unsplash": "Unsplash",
+    "pageCover": "පිටු කවරය",
+    "none": "කිසිවක් නැත",
+    "openSettings": "විවෘත සැකසුම්",
+    "photoPermissionTitle": "@:appName ඔබේ ඡායාරූප පුස්තකාලයට ප්‍රවේශ වීමට කැමතියි",
+    "photoPermissionDescription": "@:appName හට ඔබේ ලේඛනවලට පින්තූර එක් කිරීමට ඉඩ දීමට ඔබේ ඡායාරූප වෙත ප්‍රවේශය අවශ්‍ය වේ",
+    "cameraPermissionTitle": "@:appName ඔබේ කැමරාවට ප්‍රවේශ වීමට කැමතියි",
+    "cameraPermissionDescription": "@:appName හට කැමරාවෙන් ඔබේ ලේඛනවලට පින්තූර එක් කිරීමට ඉඩ දීමට ඔබේ කැමරාවට ප්‍රවේශය අවශ්‍යයි",
+    "doNotAllow": "ඉඩ දෙන්න එපා",
+    "image": "රූපය"
+  },
+  "commandPalette": {
+    "placeholder": "සොයන්න හෝ ප්‍රශ්නයක් අසන්න...",
+    "bestMatches": "හොඳම තරඟ",
+    "aiOverview": "AI දළ විශ්ලේෂණය",
+    "aiOverviewSource": "යොමු මූලාශ්ර",
+    "aiOverviewMoreDetails": "වැඩි විස්තර",
+    "aiAskFollowUp": "පසු විපරම් විමසන්න",
+    "pagePreview": "අන්තර්ගත පෙරදසුන",
+    "clickToOpenPage": "පිටුව විවෘත කිරීමට ක්ලික් කරන්න",
+    "recentHistory": "මෑත ඉතිහාසය",
+    "navigateHint": "සැරිසැරීමට",
+    "loadingTooltip": "අපි ප්‍රතිඵල සොයනවා...",
+    "betaLabel": "බීටා",
+    "betaTooltip": "අපි දැනට සහය දක්වන්නේ ලේඛනවල පිටු සහ අන්තර්ගතය සෙවීමට පමණි",
+    "fromTrashHint": "කුණු කූඩයෙන්",
+    "noResultsHint": "ඔබ සොයන දේ අපට හමු නොවීය, වෙනත් පදයක් සෙවීමට උත්සාහ කරන්න.",
+    "clearSearchTooltip": "පැහැදිලි ආදානය",
+    "location": "ස්ථානය",
+    "created": "නිර්මාණය කළා",
+    "edited": "සංස්කරණය කළා"
+  },
+  "space": {
+    "delete": "මකන්න",
+    "deleteConfirmation": "මකන්න:",
+    "deleteConfirmationDescription": "මෙම අවකාශය තුළ ඇති සියලුම පිටු මකා දමා අපද්‍රව්‍ය වෙත ගෙන යනු ඇති අතර, ප්‍රකාශිත පිටු ප්‍රකාශනය ඉවත් කරනු ඇත.",
+    "rename": "අවකාශය නැවත නම් කරන්න",
+    "changeIcon": "නිරූපකය වෙනස් කරන්න",
+    "manage": "අවකාශය කළමනාකරණය කරන්න",
+    "addNewSpace": "අවකාශය සාදන්න",
+    "collapseAllSubPages": "සියලුම උපපිටු හකුළන්න",
+    "createNewSpace": "නව ඉඩක් සාදන්න",
+    "createSpaceDescription": "ඔබේ වැඩ කටයුතු වඩා හොඳින් සංවිධානය කිරීමට බහු පොදු සහ පෞද්ගලික අවකාශයන් සාදන්න.",
+    "spaceName": "අවකාශයේ නම",
+    "spaceNamePlaceholder": "උදා. අලෙවිකරණය, ඉංජිනේරු, මානව සම්පත්",
+    "permission": "අභ්යවකාශ අවසරය",
+    "publicPermission": "පොදු",
+    "publicPermissionDescription": "සම්පූර්ණ ප්‍රවේශය සහිත සියලුම වැඩබිම් සාමාජිකයින්",
+    "privatePermission": "පුද්ගලිකයි",
+    "privatePermissionDescription": "ඔබට පමණක් මෙම අවකාශයට ප්‍රවේශ විය හැක",
+    "spaceIconBackground": "පසුබිම් වර්ණය",
+    "spaceIcon": "නිරූපකය",
+    "dangerZone": "අවදානම් කලාපය",
+    "unableToDeleteLastSpace": "අවසාන ඉඩ මකා දැමිය නොහැක",
+    "unableToDeleteSpaceNotCreatedByYou": "වෙනත් අය විසින් සාදන ලද හිස්තැන් මකා දැමිය නොහැක",
+    "enableSpacesForYourWorkspace": "ඔබේ වැඩබිම සඳහා ඉඩ සබල කරන්න",
+    "title": "අවකාශ",
+    "defaultSpaceName": "ජෙනරාල්",
+    "upgradeSpaceTitle": "ඉඩ සබල කරන්න",
+    "upgradeSpaceDescription": "ඔබේ වැඩබිම වඩා හොඳින් සංවිධානය කිරීමට බහු පොදු සහ පෞද්ගලික අවකාශයන් සාදන්න.",
+    "upgrade": "යාවත්කාලීන කරන්න",
+    "upgradeYourSpace": "බහු අවකාශයන් සාදන්න",
+    "quicklySwitch": "ඊළඟ අවකාශයට ඉක්මනින් මාරු වන්න",
+    "duplicate": "අනුපිටපත් අවකාශය",
+    "movePageToSpace": "පිටුව අවකාශයට ගෙන යන්න",
+    "cannotMovePageToDatabase": "පිටුව දත්ත සමුදායට ගෙන යා නොහැක",
+    "switchSpace": "ඉඩ මාරු කරන්න",
+    "spaceNameCannotBeEmpty": "අවකාශයේ නම හිස් විය නොහැක",
+    "success": {
+      "deleteSpace": "අවකාශය සාර්ථකව මකා ඇත",
+      "renameSpace": "අවකාශය සාර්ථකව නැවත නම් කරන ලදී",
+      "duplicateSpace": "අවකාශය සාර්ථකව අනුපිටපත් කරන ලදී",
+      "updateSpace": "අවකාශය සාර්ථකව යාවත්කාලීන කරන ලදී"
+    },
+    "error": {
+      "deleteSpace": "ඉඩ මැකීමට අසමත් විය",
+      "renameSpace": "අවකාශය නැවත නම් කිරීමට අසමත් විය",
+      "duplicateSpace": "ඉඩ අනුපිටපත් කිරීමට අසමත් විය",
+      "updateSpace": "ඉඩ යාවත්කාලීන කිරීමට අසමත් විය"
+    },
+    "createSpace": "අවකාශය සාදන්න",
+    "manageSpace": "අවකාශය කළමනාකරණය කරන්න",
+    "renameSpace": "අවකාශය නැවත නම් කරන්න",
+    "mSpaceIconColor": "අවකාශ නිරූපක වර්ණය",
+    "mSpaceIcon": "අභ්යවකාශ නිරූපකය"
+  },
+  "publish": {
+    "hasNotBeenPublished": "මෙම පිටුව තවම ප්‍රකාශයට පත් කර නොමැත",
+    "spaceHasNotBeenPublished": "තවම ඉඩක් ප්‍රකාශනය කිරීමට සහය දක්වා නැත",
+    "reportPage": "වාර්තා පිටුව",
+    "databaseHasNotBeenPublished": "දත්ත සමුදායක් ප්‍රකාශයට පත් කිරීම තවමත් සහාය නොදක්වයි.",
+    "createdWith": "සමඟ නිර්මාණය කරන ලදී",
+    "downloadApp": "AppFlowy බාගන්න",
+    "copy": {
+      "codeBlock": "කේත අවහිරයේ අන්තර්ගතය පසුරු පුවරුවට පිටපත් කර ඇත",
+      "imageBlock": "පින්තූර සබැඳිය පසුරු පුවරුවට පිටපත් කර ඇත",
+      "mathBlock": "ගණිත සමීකරණය පසුරු පුවරුවට පිටපත් කර ඇත",
+      "fileBlock": "ගොනු සබැඳිය පසුරු පුවරුවට පිටපත් කර ඇත"
+    },
+    "containsPublishedPage": "මෙම පිටුවේ ප්‍රකාශිත පිටු එකක් හෝ කිහිපයක් අඩංගු වේ. ඔබ දිගටම කරගෙන ගියහොත්, ඒවා ප්‍රකාශයට පත් නොකෙරෙනු ඇත. ඔබට මකාදැමීම කරගෙන යාමට අවශ්‍යද?",
+    "publishSuccessfully": "සාර්ථකව ප්‍රකාශයට පත් කරන ලදී",
+    "unpublishSuccessfully": "සාර්ථකව ප්‍රකාශයට පත් නොකළේය",
+    "publishFailed": "ප්‍රකාශනය කිරීමට අසමත් විය",
+    "unpublishFailed": "ප්‍රකාශනය නොකිරීමට අසමත් විය",
+    "noAccessToVisit": "මෙම පිටුවට ප්‍රවේශය නැත...",
+    "createWithAppFlowy": "AppFlowy සමඟ වෙබ් අඩවියක් සාදන්න",
+    "fastWithAI": "AI සමඟ වේගවත් සහ පහසු.",
+    "tryItNow": "දැන් එය උත්සාහ කරන්න",
+    "onlyGridViewCanBePublished": "ප්‍රකාශනය කළ හැක්කේ ජාල දසුන පමණි",
+    "database": {
+      "zero": "{} තෝරාගත් දසුන ප්‍රකාශනය කරන්න",
+      "one": "{} තෝරාගත් දසුන් ප්‍රකාශ කරන්න",
+      "many": "{} තෝරාගත් දසුන් ප්‍රකාශ කරන්න",
+      "other": "{} තෝරාගත් දසුන් ප්‍රකාශ කරන්න"
+    },
+    "mustSelectPrimaryDatabase": "මූලික දර්ශනය තෝරාගත යුතුය",
+    "noDatabaseSelected": "දත්ත සමුදායක් තෝරා නැත, කරුණාකර අවම වශයෙන් එක් දත්ත සමුදායක් තෝරන්න.",
+    "unableToDeselectPrimaryDatabase": "ප්‍රාථමික දත්ත සමුදාය තේරීම ඉවත් කළ නොහැක",
+    "saveThisPage": "මෙම අච්චුව සමඟ ආරම්භ කරන්න",
+    "duplicateTitle": "ඔබ එකතු කිරීමට කැමති තැන",
+    "selectWorkspace": "වැඩබිමක් තෝරන්න",
+    "addTo": "වෙත එක් කරන්න",
+    "duplicateSuccessfully": "ඔබගේ වැඩබිමට එක් කරන ලදී",
+    "duplicateSuccessfullyDescription": "AppFlowy ස්ථාපනය කර නොමැතිද? ඔබ 'බාගන්න' ක්ලික් කිරීමෙන් පසු බාගැනීම ස්වයංක්‍රීයව ආරම්භ වේ.",
+    "downloadIt": "බාගන්න",
+    "openApp": "යෙදුම තුළ විවෘත කරන්න",
+    "duplicateFailed": "අනුපිටපත් කිරීම අසාර්ථක විය",
+    "membersCount": {
+      "zero": "සාමාජිකයන් නැත",
+      "one": "1 සාමාජික",
+      "many": "{count} සාමාජිකයින්",
+      "other": "{count} සාමාජිකයින්"
+    },
+    "useThisTemplate": "අච්චුව භාවිතා කරන්න"
+  },
+  "web": {
+    "continue": "දිගටම කරගෙන යන්න",
+    "or": "හෝ",
+    "continueWithGoogle": "Google සමඟින් ඉදිරියට යන්න",
+    "continueWithGithub": "GitHub සමඟින් ඉදිරියට යන්න",
+    "continueWithDiscord": "Discord සමඟින් ඉදිරියට යන්න",
+    "continueWithApple": "Apple සමඟ ඉදිරියට යන්න",
+    "moreOptions": "තවත් විකල්ප",
+    "collapse": "හකුළන්න",
+    "signInAgreement": "ඉහත \"ඉදිරියට යන්න\" ක්ලික් කිරීමෙන්, ඔබ එකඟ විය \nAppFlowy ගේ",
+    "signInLocalAgreement": "ඉහත \"ආරම්භ කරන්න\" ක්ලික් කිරීමෙන්, ඔබ එකඟ විය \nAppFlowy ගේ",
+    "and": "සහ",
+    "termOfUse": "කොන්දේසි",
+    "privacyPolicy": "රහස්යතා ප්රතිපත්තිය",
+    "signInError": "පුරනය වීමේ දෝෂයකි",
+    "login": "ලියාපදිංචි වන්න හෝ පුරනය වන්න",
+    "fileBlock": {
+      "uploadedAt": "{time} මත උඩුගත කරන ලදී",
+      "linkedAt": "{time} හි සබැඳිය එක් කරන ලදී",
+      "empty": "ගොනුවක් උඩුගත කිරීම හෝ කාවැද්දීම",
+      "uploadFailed": "උඩුගත කිරීම අසාර්ථක විය, කරුණාකර නැවත උත්සාහ කරන්න",
+      "retry": "නැවත උත්සාහ කරන්න"
+    },
+    "importNotion": "Notion වෙතින් ආයාත කරන්න",
+    "import": "ආනයනය කරන්න",
+    "importSuccess": "සාර්ථකව උඩුගත කරන ලදී",
+    "importSuccessMessage": "ආයාත කිරීම සම්පූර්ණ වූ විට අපි ඔබට දන්වන්නෙමු. ඊට පසු, ඔබට පැති තීරුවේ ආනයනය කළ පිටු නැරඹිය හැකිය.",
+    "importFailed": "ආයාත කිරීම අසාර්ථක විය, කරුණාකර ගොනු ආකෘතිය පරීක්ෂා කරන්න",
+    "dropNotionFile": "උඩුගත කිරීමට ඔබගේ Notion zip ගොනුව මෙහි දමන්න, නැතහොත් බ්‍රවුස් කිරීමට ක්ලික් කරන්න",
+    "error": {
+      "pageNameIsEmpty": "පිටුවේ නම හිස්ය, කරුණාකර වෙනත් එකක් උත්සාහ කරන්න"
+    }
+  },
+  "globalComment": {
+    "comments": "අදහස්",
+    "addComment": "අදහසක් එක් කරන්න",
+    "reactedBy": "විසින් ප්රතික්රියා කරන ලදී",
+    "addReaction": "ප්රතික්රියාව එකතු කරන්න",
+    "reactedByMore": "සහ {count} වෙනත් අය",
+    "showSeconds": {
+      "one": "තත්පර 1කට පෙර",
+      "other": "තත්පර {count} පෙර",
+      "zero": "මේ දැන්",
+      "many": "තත්පර {count} පෙර"
+    },
+    "showMinutes": {
+      "one": "මිනිත්තු 1 කට පෙර",
+      "other": "මිනිත්තු {count} කට පෙර",
+      "many": "මිනිත්තු {count} කට පෙර"
+    },
+    "showHours": {
+      "one": "පැය 1කට පෙර",
+      "other": "පැය {count} කට පෙර",
+      "many": "පැය {count} කට පෙර"
+    },
+    "showDays": {
+      "one": "දින 1කට පෙර",
+      "other": "{count} දින පෙර",
+      "many": "{count} දින පෙර"
+    },
+    "showMonths": {
+      "one": "මාස 1 කට පෙර",
+      "other": "මාස {count} කට පෙර",
+      "many": "මාස {count} කට පෙර"
+    },
+    "showYears": {
+      "one": "1 වසරකට පෙර",
+      "other": "වසර {count} කට පෙර",
+      "many": "වසර {count} කට පෙර"
+    },
+    "reply": "පිළිතුරු දෙන්න",
+    "deleteComment": "අදහස මකන්න",
+    "youAreNotOwner": "මෙම අදහසෙහි හිමිකරු ඔබ නොවේ",
+    "confirmDeleteDescription": "ඔබට මෙම අදහස මැකීමට අවශ්‍ය බව විශ්වාසද?",
+    "hasBeenDeleted": "මකා දමන ලදී",
+    "replyingTo": "පිළිතුරු දෙමින්",
+    "noAccessDeleteComment": "ඔබට මෙම අදහස මැකීමට අවසර නැත",
+    "collapse": "හකුළන්න",
+    "readMore": "තවත් කියවන්න",
+    "failedToAddComment": "අදහස් එක් කිරීමට අසමත් විය",
+    "commentAddedSuccessfully": "අදහස සාර්ථකව එකතු කරන ලදී.",
+    "commentAddedSuccessTip": "ඔබ දැන් අදහසක් එක් කර හෝ පිළිතුරු දී ඇත. නවතම අදහස් බැලීමට ඔබ ඉහළට යාමට කැමතිද?"
+  },
+  "template": {
+    "asTemplate": "අච්චුවක් ලෙස සුරකින්න",
+    "name": "සැකිල්ල නම",
+    "description": "සැකිලි විස්තරය",
+    "about": "ගැන සැකිල්ල",
+    "deleteFromTemplate": "සැකිලි වලින් මකන්න",
+    "preview": "සැකිලි පෙරදසුන",
+    "categories": "සැකිලි කාණ්ඩ",
+    "isNewTemplate": "නව අච්චුවකට PIN",
+    "featured": "විශේෂාංග වෙත PIN",
+    "relatedTemplates": "අදාළ සැකිලි",
+    "requiredField": "{field} අවශ්‍යයි",
+    "addCategory": "\" {category} \" එකතු කරන්න",
+    "addNewCategory": "නව කාණ්ඩයක් එක් කරන්න",
+    "addNewCreator": "නව නිර්මාපකයෙකු එක් කරන්න",
+    "deleteCategory": "ප්‍රවර්ගය මකන්න",
+    "editCategory": "ප්‍රවර්ගය සංස්කරණය කරන්න",
+    "editCreator": "නිර්මාණකරු සංස්කරණය කරන්න",
+    "category": {
+      "name": "කාණ්ඩයේ නම",
+      "icon": "ප්‍රවර්ග නිරූපකය",
+      "bgColor": "කාණ්ඩයේ පසුබිම් වර්ණය",
+      "priority": "ප්‍රවර්ග ප්‍රමුඛතාවය",
+      "desc": "වර්ග විස්තරය",
+      "type": "ප්රවර්ග වර්ගය",
+      "icons": "ප්‍රවර්ග අයිකන",
+      "colors": "කාණ්ඩයේ වර්ණ",
+      "byUseCase": "භාවිත නඩුවෙන්",
+      "byFeature": "විශේෂාංගය අනුව",
+      "deleteCategory": "ප්‍රවර්ගය මකන්න",
+      "deleteCategoryDescription": "ඔබට මෙම ප්‍රවර්ගය මැකීමට අවශ්‍ය බව විශ්වාසද?",
+      "typeToSearch": "ප්‍රවර්ග සෙවීමට ටයිප් කරන්න..."
+    },
+    "creator": {
+      "label": "ආකෘති නිර්මාණකරු",
+      "name": "නිර්මාපකයාගේ නම",
+      "avatar": "නිර්මාපක අවතාරය",
+      "accountLinks": "නිර්මාපක ගිණුම් සබැඳි",
+      "uploadAvatar": "avatar උඩුගත කිරීමට ක්ලික් කරන්න",
+      "deleteCreator": "නිර්මාපකයා මකන්න",
+      "deleteCreatorDescription": "ඔබට මෙම නිර්මාපකයා මැකීමට අවශ්‍ය බව විශ්වාසද?",
+      "typeToSearch": "නිර්මාණකරුවන් සෙවීමට ටයිප් කරන්න..."
+    },
+    "uploadSuccess": "අච්චුව සාර්ථකව උඩුගත කරන ලදී",
+    "uploadSuccessDescription": "ඔබගේ අච්චුව සාර්ථකව උඩුගත කර ඇත. ඔබට දැන් එය සැකිලි ගැලරිය තුළ නැරඹිය හැක.",
+    "viewTemplate": "අච්චුව බලන්න",
+    "deleteTemplate": "අච්චුව මකන්න",
+    "deleteSuccess": "අච්චුව සාර්ථකව මකන ලදී",
+    "deleteTemplateDescription": "මෙය වත්මන් පිටුවට හෝ ප්‍රකාශිත තත්ත්වයට බලපාන්නේ නැත. ඔබට මෙම අච්චුව මැකීමට අවශ්‍ය බව විශ්වාසද?",
+    "addRelatedTemplate": "අදාළ අච්චුව එක් කරන්න",
+    "removeRelatedTemplate": "අදාළ අච්චුව ඉවත් කරන්න",
+    "uploadAvatar": "අවතාරය උඩුගත කරන්න",
+    "searchInCategory": "{category} හි සොයන්න",
+    "label": "සැකිලි"
+  },
+  "fileDropzone": {
+    "dropFile": "උඩුගත කිරීමට ගොනුව මෙම ප්‍රදේශයට ක්ලික් කරන්න හෝ අදින්න",
+    "uploading": "උඩුගත කරමින්...",
+    "uploadFailed": "උඩුගත කිරීම අසාර්ථක විය",
+    "uploadSuccess": "උඩුගත කිරීම සාර්ථකයි",
+    "uploadSuccessDescription": "ගොනුව සාර්ථකව උඩුගත කර ඇත",
+    "uploadFailedDescription": "ගොනු උඩුගත කිරීම අසාර්ථක විය",
+    "uploadingDescription": "ගොනුව උඩුගත වෙමින් පවතී"
+  },
+  "gallery": {
+    "preview": "සම්පූර්ණ තිරයේ විවෘත කරන්න",
+    "copy": "පිටපත් කරන්න",
+    "download": "බාගන්න",
+    "prev": "පෙර",
+    "next": "ඊළඟ",
+    "resetZoom": "විශාලනය නැවත සකසන්න",
+    "zoomIn": "විශාලනය කරන්න",
+    "zoomOut": "විශාලනය කරන්න"
+  },
+  "invitation": {
+    "join": "එක්වන්න",
+    "on": "මත",
+    "invitedBy": "විසින් ආරාධනා කරන ලදී",
+    "membersCount": {
+      "zero": "{count} සාමාජිකයින්",
+      "one": "{count} සාමාජික",
+      "many": "{count} සාමාජිකයින්",
+      "other": "{count} සාමාජිකයින්"
+    },
+    "tip": "පහත සම්බන්ධතා තොරතුරු සමඟින් මෙම වැඩබිමට සම්බන්ධ වීමට ඔබට ආරාධනා කර ඇත. මෙය වැරදි නම්, ආරාධනය යලි යැවීමට ඔබේ පරිපාලක අමතන්න.",
+    "joinWorkspace": "වැඩබිමට සම්බන්ධ වන්න",
+    "success": "ඔබ සාර්ථකව වැඩබිමට සම්බන්ධ වී ඇත",
+    "successMessage": "ඔබට දැන් එහි ඇති සියලුම පිටු සහ වැඩබිම් වෙත ප්‍රවේශ විය හැක.",
+    "openWorkspace": "AppFlowy විවෘත කරන්න",
+    "alreadyAccepted": "ඔබ දැනටමත් ආරාධනාව පිළිගෙන ඇත",
+    "errorModal": {
+      "title": "යමක් වැරදී ඇත",
+      "description": "ඔබගේ වත්මන් ගිණුම {email} හට මෙම කාර්ය ඉඩට ප්‍රවේශය නොමැති විය හැක. කරුණාකර නිවැරදි ගිණුමෙන් ලොග් වන්න හෝ උදවු සඳහා වැඩපොළ හිමිකරු අමතන්න.",
+      "contactOwner": "අයිතිකරු අමතන්න",
+      "close": "ආපසු නිවසට",
+      "changeAccount": "ගිණුම වෙනස් කරන්න"
+    }
+  },
+  "requestAccess": {
+    "title": "මෙම පිටුවට ප්‍රවේශය නැත",
+    "subtitle": "ඔබට මෙම පිටුවේ හිමිකරුගෙන් ප්‍රවේශය ඉල්ලා සිටිය හැක. අනුමත වූ පසු, ඔබට පිටුව නැරඹිය හැකිය.",
+    "requestAccess": "ප්රවේශය ඉල්ලන්න",
+    "backToHome": "ආපසු නිවසට",
+    "tip": "ඔබ දැනට <link/> ලෙස පුරනය වී ඇත.",
+    "mightBe": "ඔබට වෙනත් ගිණුමකින් <ලොගින් වීමට/> අවශ්‍ය විය හැක.",
+    "successful": "ඉල්ලීම සාර්ථකව යවා ඇත",
+    "successfulMessage": "හිමිකරු ඔබගේ ඉල්ලීම අනුමත කළ පසු ඔබට දැනුම් දෙනු ලැබේ.",
+    "requestError": "ප්‍රවේශය ඉල්ලීම අසාර්ථක විය",
+    "repeatRequestError": "ඔබ දැනටමත් මෙම පිටුවට ප්‍රවේශය ඉල්ලා ඇත"
+  },
+  "approveAccess": {
+    "title": "Workspace Join Request අනුමත කරන්න",
+    "requestSummary": "<user/> <workspace/> හා සම්බන්ධ වීමට සහ <page/> වෙත ප්‍රවේශ වීමට ඉල්ලීම් කරයි",
+    "upgrade": "උත්ශ්රේණි කිරීම",
+    "downloadApp": "AppFlowy බාගන්න",
+    "approveButton": "අනුමත කරන්න",
+    "approveSuccess": "සාර්ථකව අනුමත කරන ලදී",
+    "approveError": "අනුමත කිරීමට අපොහොසත් විය, වැඩ බිම් සැලසුම් සීමාව නොඉක්මවන බව සහතික කරන්න",
+    "getRequestInfoError": "ඉල්ලීම් තොරතුරු ලබා ගැනීමට අසමත් විය",
+    "memberCount": {
+      "zero": "සාමාජිකයන් නැත",
+      "one": "1 සාමාජික",
+      "many": "{count} සාමාජිකයින්",
+      "other": "{count} සාමාජිකයින්"
+    },
+    "alreadyProTitle": "ඔබ වැඩබිම් සැලසුම් සීමාවට ළඟා වී ඇත",
+    "alreadyProMessage": "තවත් සාමාජිකයින් අගුළු ඇරීමට <email/> සම්බන්ධ කර ගැනීමට ඔවුන්ගෙන් ඉල්ලා සිටින්න",
+    "repeatApproveError": "ඔබ දැනටමත් මෙම ඉල්ලීම අනුමත කර ඇත",
+    "ensurePlanLimit": "වැඩ බිම් සැලසුම් සීමාව නොඉක්මවන බවට සහතික වන්න. සීමාව ඉක්මවා ඇත්නම්, <upgrade/> වැඩබිම් සැලැස්ම හෝ <download/> සලකා බලන්න.",
+    "requestToJoin": "සම්බන්ධ වන ලෙස ඉල්ලා සිටියේය",
+    "asMember": "සාමාජිකයෙකු ලෙස"
+  },
+  "upgradePlanModal": {
+    "title": "Pro වෙත උත්ශ්‍රේණි කරන්න",
+    "message": "{name} නොමිලේ සාමාජික සීමාවට පැමිණ ඇත. තවත් සාමාජිකයින්ට ආරාධනා කිරීමට Pro Plan වෙත උත්ශ්‍රේණි කරන්න.",
+    "upgradeSteps": "AppFlowy හි ඔබගේ සැලසුම උත්ශ්‍රේණි කරන්නේ කෙසේද:",
+    "step1": "1. සැකසීම් වෙත යන්න",
+    "step2": "2. 'සැලැස්ම' මත ක්ලික් කරන්න",
+    "step3": "3. 'සැලසුම වෙනස් කරන්න' තෝරන්න",
+    "appNote": "සටහන:",
+    "actionButton": "උත්ශ්‍රේණි කරන්න",
+    "downloadLink": "යෙදුම බාගත කරන්න",
+    "laterButton": "පසුව",
+    "refreshNote": "සාර්ථක උත්ශ්‍රේණිගත කිරීමෙන් පසුව, ඔබගේ නව විශේෂාංග සක්‍රිය කිරීමට <refresh/> ක්ලික් කරන්න.",
+    "refresh": "මෙතන"
+  },
+  "breadcrumbs": {
+    "label": "පාන් කුඩු"
+  },
+  "time": {
+    "justNow": "මේ දැන්",
+    "seconds": {
+      "one": "තත්පර 1",
+      "other": "තත්පර {count}"
+    },
+    "minutes": {
+      "one": "විනාඩි 1 යි",
+      "other": "මිනිත්තු {count}"
+    },
+    "hours": {
+      "one": "පැය 1 යි",
+      "other": "පැය {count}"
+    },
+    "days": {
+      "one": "දින 1 යි",
+      "other": "{count} දින"
+    },
+    "weeks": {
+      "one": "සති 1 යි",
+      "other": "සති {count}"
+    },
+    "months": {
+      "one": "මාස 1 යි",
+      "other": "මාස {count}"
+    },
+    "years": {
+      "one": "වසර 1 යි",
+      "other": "වසර {count}"
+    },
+    "ago": "කලින්",
+    "yesterday": "ඊයේ",
+    "today": "අද"
+  },
+  "members": {
+    "zero": "සාමාජිකයන් නැත",
+    "one": "1 සාමාජික",
+    "many": "{count} සාමාජිකයින්",
+    "other": "{count} සාමාජිකයින්"
+  },
+  "tabMenu": {
+    "close": "වසන්න",
+    "closeDisabledHint": "අමුණන ලද ටැබයක් වැසීමට නොහැක, කරුණාකර පළමුව ඇමුණුම ඉවත් කරන්න",
+    "closeOthers": "වෙනත් ටැබ් වසන්න",
+    "closeOthersHint": "මෙය මෙම එක හැර අන්පින් නොකළ සියලුම ටැබ් වසා දමනු ඇත",
+    "closeOthersDisabledHint": "සියලුම ටැබ් අමුණා ඇත, වැසීමට ටැබ් කිසිවක් සොයාගත නොහැක",
+    "favorite": "ප්රියතම",
+    "unfavorite": "ප්රියතම නොවන",
+    "favoriteDisabledHint": "මෙම දසුන ප්‍රිය කළ නොහැක",
+    "pinTab": "පින් කරන්න",
+    "unpinTab": "ඇමුණුම ඉවත් කරන්න"
+  },
+  "openFileMessage": {
+    "success": "ගොනුව සාර්ථකව විවෘත විය",
+    "fileNotFound": "ගොනුව හමු නොවිණි",
+    "noAppToOpenFile": "මෙම ගොනුව විවෘත කිරීමට යෙදුමක් නැත",
+    "permissionDenied": "මෙම ගොනුව විවෘත කිරීමට අවසර නැත",
+    "unknownError": "ගොනුව විවෘත කිරීම අසාර්ථක විය"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "ඔබේ වැඩබිමට ආරාධනා කරන්න",
+    "inviteFailedMemberLimit": "කරුණාකර සාමාජික සීමාව ළඟා වී ඇත",
+    "upgrade": "උත්ශ්රේණි කිරීම",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "ආරාධනා යවන්න",
+    "inviteAlready": "ඔබ දැනටමත් මෙම විද්‍යුත් තැපෑලට ආරාධනා කර ඇත: {email}",
+    "inviteSuccess": "ආරාධනාව සාර්ථකව යවා ඇත",
+    "description": "ඒවා අතර කොමා සමග පහත ඊමේල් ආදානය කරන්න. ගාස්තු සාමාජිකයන් ගණන මත පදනම් වේ.",
+    "emails": "ඊමේල් කරන්න"
+  },
+  "quickNote": {
+    "label": "ඉක්මන් සටහන",
+    "quickNotes": "ඉක්මන් සටහන්",
+    "search": "ඉක්මන් සටහන් සොයන්න",
+    "collapseFullView": "සම්පූර්ණ දසුන හකුළන්න",
+    "expandFullView": "සම්පූර්ණ දර්ශනය පුළුල් කරන්න",
+    "createFailed": "ඉක්මන් සටහනක් සෑදීමට අසමත් විය",
+    "quickNotesEmpty": "ඉක්මන් සටහන් නැත",
+    "emptyNote": "හිස් සටහන",
+    "deleteNotePrompt": "තෝරාගත් සටහන ස්ථිරවම මකනු ඇත. ඔබට එය මැකීමට අවශ්‍ය බව විශ්වාසද?",
+    "addNote": "නව සටහන",
+    "noAdditionalText": "අමතර පෙළ නැත"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "සංසන්දනය කර සැලැස්ම තෝරන්න",
+    "yearly": "වාර්ෂිකව",
+    "save": "{discount} % සුරකින්න",
+    "monthly": "මාසිකව",
+    "priceIn": "මිල",
+    "free": "නොමිලේ",
+    "pro": "Pro",
+    "freeDescription": "සෑම දෙයක්ම සංවිධානය කිරීමට සාමාජිකයින් 2 දක්වා පුද්ගලයින් සඳහා",
+    "proDescription": "ව්‍යාපෘති කළමනාකරණය කිරීමට සහ කණ්ඩායම් දැනුම සඳහා කුඩා කණ්ඩායම් සඳහා",
+    "proDuration": {
+      "monthly": "එක් සාමාජිකයෙකුට මසකට\nමාසික බිල්පත්",
+      "yearly": "එක් සාමාජිකයෙකුට මසකට\nවාර්ෂිකව බිල්පත්"
+    },
+    "cancel": "පහත හෙලීම",
+    "changePlan": "Pro Plan වෙත උත්ශ්‍රේණි කරන්න",
+    "everythingInFree": "සෑම දෙයක්ම නොමිලේ +",
+    "currentPlan": "වත්මන්",
+    "freeDuration": "සදහටම",
+    "freePoints": {
+      "first": "සාමාජිකයින් 2ක් දක්වා 1 සහයෝගී වැඩබිම",
+      "second": "අසීමිත පිටු සහ වාරණ",
+      "three": "5 GB ආචයනය",
+      "four": "බුද්ධිමත් සෙවීම",
+      "five": "20 AI ප්‍රතිචාර",
+      "six": "ජංගම යෙදුම",
+      "seven": "තත්‍ය කාලීන සහයෝගිතාව"
+    },
+    "proPoints": {
+      "first": "අසීමිත ගබඩාව",
+      "second": "වැඩබිම් සාමාජිකයින් 10ක් දක්වා",
+      "three": "අසීමිත AI ප්‍රතිචාර",
+      "four": "අසීමිත ගොනු උඩුගත කිරීම්",
+      "five": "අභිරුචි නාම අවකාශය"
+    },
+    "cancelPlan": {
+      "title": "ඔබ යනවා දැකීම ගැන කණගාටුයි",
+      "success": "ඔබගේ දායකත්වය සාර්ථකව අවලංගු කර ඇත",
+      "description": "ඔබ යන එක ගැන අපට කණගාටුයි. AppFlowy වැඩිදියුණු කිරීමට අපට උදවු කිරීමට ඔබගේ ප්‍රතිපෝෂණ ඇසීමට අපි කැමතියි. කරුණාකර ප්‍රශ්න කිහිපයකට පිළිතුරු දීමට මොහොතක් ගත කරන්න.",
+      "commonOther": "වෙනත්",
+      "otherHint": "ඔබේ පිළිතුර මෙහි ලියන්න",
+      "questionOne": {
+        "question": "ඔබගේ AppFlowy Pro දායකත්වය අවලංගු කිරීමට ඔබව පෙලඹවූයේ කුමක්ද?",
+        "answerOne": "වියදම වැඩියි",
+        "answerTwo": "විශේෂාංග අපේක්ෂාවන් සපුරාලන්නේ නැත",
+        "answerThree": "වඩා හොඳ විකල්පයක් සොයා ගත්තා",
+        "answerFour": "වියදම සාධාරණීකරණය කිරීමට එය ප්රමාණවත් ලෙස භාවිතා නොකළේය",
+        "answerFive": "සේවා ගැටළුව හෝ තාක්ෂණික දුෂ්කරතා"
+      },
+      "questionTwo": {
+        "question": "ඔබ අනාගතයේදී AppFlowy Pro වෙත නැවත දායක වීම ගැන සලකා බැලීමට කොපමණ ඉඩ තිබේද?",
+        "answerOne": "බොහෝ දුරට ඉඩ ඇත",
+        "answerTwo": "තරමක් දුරට ඉඩ ඇත",
+        "answerThree": "විශ්වාස නැහැ",
+        "answerFour": "විය නොහැක",
+        "answerFive": "බොහෝ දුරට ඉඩ නැත"
+      },
+      "questionThree": {
+        "question": "ඔබේ දායකත්වය අතරතුර ඔබ වැඩිපුරම අගය කළේ කුමන Pro විශේෂාංගයද?",
+        "answerOne": "බහු-පරිශීලක සහයෝගීතාව",
+        "answerTwo": "දිගුකාලීන අනුවාද ඉතිහාසය",
+        "answerThree": "අසීමිත AI ප්‍රතිචාර",
+        "answerFour": "දේශීය AI ආකෘති වෙත ප්‍රවේශය"
+      },
+      "questionFour": {
+        "question": "AppFlowy සමඟ ඔබේ සමස්ත අත්දැකීම විස්තර කරන්නේ කෙසේද?",
+        "answerOne": "නියමයි",
+        "answerTwo": "හොඳයි",
+        "answerThree": "සාමාන්යය",
+        "answerFour": "සාමාන්‍යයට වඩා අඩුයි",
+        "answerFive": "තෘප්තිමත් නොවේ"
+      }
+    }
+  },
+  "ai": {
+    "contentPolicyViolation": "සංවේදී අන්තර්ගතය හේතුවෙන් රූප උත්පාදනය අසාර්ථක විය. කරුණාකර ඔබේ ආදානය නැවත සකස් කර නැවත උත්සාහ කරන්න",
+    "textLimitReachedDescription": "ඔබගේ වැඩබිමේ නොමිලේ AI ප්‍රතිචාර අවසන් වී ඇත. අසීමිත ප්‍රතිචාර අගුලු හැරීමට Pro Plan වෙත උත්ශ්‍රේණි කරන්න හෝ AI ඇඩෝනයක් මිලදී ගන්න",
+    "imageLimitReachedDescription": "ඔබ ඔබගේ නොමිලේ AI රූප කෝටාව භාවිතා කර ඇත. අසීමිත ප්‍රතිචාර අගුලු හැරීමට කරුණාකර Pro සැලැස්මට උත්ශ්‍රේණි කරන්න හෝ AI ඇඩෝනයක් මිල දී ගන්න",
+    "limitReachedAction": {
+      "textDescription": "ඔබගේ වැඩබිමේ නොමිලේ AI ප්‍රතිචාර අවසන් වී ඇත. වැඩි ප්‍රතිචාර ලබා ගැනීමට, කරුණාකර",
+      "imageDescription": "ඔබ ඔබගේ නොමිලේ AI රූප කෝටාව භාවිතා කර ඇත. කරුණාකර",
+      "upgrade": "උත්ශ්රේණි කිරීම",
+      "toThe": "වෙත",
+      "proPlan": "Pro සැලැස්ම",
+      "orPurchaseAn": "හෝ මිලදී ගන්න",
+      "aiAddon": "AI ඇඩෝනය"
+    },
+    "editing": "සංස්කරණය කරනවා",
+    "analyzing": "විශ්ලේෂණය කිරීම",
+    "continueWritingEmptyDocumentTitle": "දිගටම ලිවීමේ දෝෂයකි",
+    "continueWritingEmptyDocumentDescription": "අපට ඔබේ ලේඛනයේ අන්තර්ගතය පුළුල් කිරීමේ ගැටලුවක් තිබේ. කුඩා හැඳින්වීමක් ලියන්න, අපට එය එතැනින් ගත හැකිය!",
+    "more": "තව",
+    "customPrompt": {
+      "browsePrompts": "විමසුම් බ්‍රවුස් කරන්න",
+      "usePrompt": "වහා භාවිතා කරන්න",
+      "featured": "විශේෂාංගගත",
+      "custom": "අභිරුචි",
+      "customPrompt": "අභිරුචි විමසුම්",
+      "databasePrompts": "ඔබගේම දත්ත සමුදායෙන් විමසීම් පූරණය කරන්න",
+      "selectDatabase": "දත්ත සමුදාය තෝරන්න",
+      "promptDatabase": "ඉක්මන් දත්ත සමුදාය",
+      "configureDatabase": "දත්ත සමුදාය වින්‍යාස කරන්න",
+      "title": "මාතෘකාව",
+      "content": "අන්තර්ගතය",
+      "example": "උදාහරණය",
+      "category": "ප්රවර්ගය",
+      "selectField": "ක්ෂේත්රය තෝරන්න",
+      "loading": "පැටවීම",
+      "invalidDatabase": "වලංගු නොවන දත්ත සමුදාය",
+      "invalidDatabaseHelp": "දත්ත සමුදායේ අවම වශයෙන් පෙළ ගුණාංග දෙකක් ඇති බව සහතික කර ගන්න:\n ◦ ක්ෂණික නම සඳහා භාවිතා කරන එකක්\n ◦ කඩිනම් අන්තර්ගතය සඳහා භාවිතා කරන එකක්\nඔබට ඉක්මන් උදාහරණය සහ ප්‍රවර්ගය සඳහා විකල්ප වශයෙන් ගුණාංග එකතු කළ හැක.",
+      "noResults": "ප්‍රේරක කිසිවක් හමු නොවීය",
+      "all": "සියල්ල",
+      "development": "සංවර්ධනය",
+      "writing": "ලිවීම",
+      "healthAndFitness": "සෞඛ්‍යය සහ යෝග්‍යතාවය",
+      "business": "ව්යාපාර",
+      "marketing": "අලෙවිකරණය",
+      "travel": "සංචාරය කරන්න",
+      "others": "වෙනත්",
+      "prompt": "ඉක්මන් කරන්න",
+      "promptExample": "ඉක්මන් උදාහරණය",
+      "sampleOutput": "නියැදි ප්රතිදානය",
+      "contentSeo": "අන්තර්ගතය/SEO",
+      "emailMarketing": "විද්‍යුත් තැපැල් අලෙවිකරණය",
+      "paidAds": "ගෙවූ දැන්වීම්",
+      "prCommunication": "PR/සන්නිවේදනය",
+      "recruiting": "බඳවා ගැනීම",
+      "sales": "විකුණුම්",
+      "socialMedia": "සමාජ මාධ්ය",
+      "strategy": "උපාය මාර්ගය",
+      "caseStudies": "සිද්ධි අධ්‍යයනය",
+      "salesCopy": "විකුණුම් පිටපත",
+      "education": "අධ්යාපනය",
+      "work": "වැඩ කරන්න",
+      "podcastProduction": "පොඩ්කාස්ට් නිෂ්පාදනය",
+      "copyWriting": "පිටපත් ලිවීම",
+      "customerSuccess": "පාරිභෝගික සාර්ථකත්වය"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "ඉදිරියට යාමට යාවත්කාලීන කිරීම අවශ්‍යයි",
+    "criticalUpdateDescription": "අපි ඔබේ අත්දැකීම් වැඩිදියුණු කිරීමට වැඩිදියුණු කිරීම් සිදු කර ඇත! යෙදුම දිගටම භාවිතා කිරීමට කරුණාකර {currentVersion} සිට {newVersion} දක්වා යාවත්කාලීන කරන්න.",
+    "criticalUpdateButton": "යාවත්කාලීන කරන්න",
+    "bannerUpdateTitle": "නව අනුවාදය තිබේ!",
+    "bannerUpdateDescription": "නවතම විශේෂාංග සහ නිවැරදි කිරීම් ලබා ගන්න. දැන් ස්ථාපනය කිරීමට \"යාවත්කාලීන කරන්න\" ක්ලික් කරන්න",
+    "bannerUpdateButton": "යාවත්කාලීන කරන්න",
+    "settingsUpdateTitle": "නව අනුවාදය ( {newVersion} ) තිබේ!",
+    "settingsUpdateDescription": "වත්මන් අනුවාදය: {currentVersion} (නිල ගොඩනැගීම) → {newVersion}",
+    "settingsUpdateButton": "යාවත්කාලීන කරන්න",
+    "settingsUpdateWhatsNew": "මොනවද අළුත්"
+  },
+  "lockPage": {
+    "lockPage": "අගුලු දමා ඇත",
+    "reLockPage": "නැවත අගුලු දමන්න",
+    "lockTooltip": "අහම්බෙන් සංස්කරණය කිරීම වැළැක්වීම සඳහා පිටුව අගුළු දමා ඇත. අගුළු ඇරීමට ක්ලික් කරන්න.",
+    "pageLockedToast": "පිටුව අගුළු දමා ඇත. යමෙකු එය අගුළු හරින තෙක් සංස්කරණය කිරීම අබල කර ඇත.",
+    "lockedOperationTooltip": "අහම්බෙන් සංස්කරණය කිරීම වැළැක්වීම සඳහා පිටුව අගුළු දමා ඇත."
+  },
+  "suggestion": {
+    "accept": "පිළිගන්න",
+    "keep": "තබා ගන්න",
+    "discard": "ඉවතලන්න",
+    "close": "වසන්න",
+    "tryAgain": "නැවත උත්සාහ කරන්න",
+    "rewrite": "නැවත ලියන්න",
+    "insertBelow": "පහතින් ඇතුල් කරන්න"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "බලන්න",
+      "comment": "අදහස් දක්වන්න",
+      "edit": "සංස්කරණය කරන්න",
+      "fullAccess": "සම්පූර්ණ ප්රවේශය"
+    },
+    "inviteByEmail": "ඊමේල් මගින් ආරාධනා කරන්න",
+    "invite": "ආරාධනා කරන්න",
+    "anyoneAtWorkspace": "{workspace} හි ඕනෑම කෙනෙකුට",
+    "anyoneInGroupWithLinkCanEdit": "මෙම සමූහයේ සබැඳිය සහිත ඕනෑම අයෙකුට සංස්කරණය කළ හැක",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "copiedLinkToClipboard": "සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී",
+    "removeAccess": "ප්රවේශය ඉවත් කරන්න",
+    "turnIntoMember": "සාමාජිකයෙකු බවට පත් කරන්න",
+    "you": "(ඔබ)",
+    "guest": "අමුත්තා",
+    "onlyFullAccessCanInvite": "අන් අයට ආරාධනා කළ හැක්කේ පූර්ණ ප්‍රවේශය ඇති පරිශීලකයාට පමණි",
+    "invitationSent": "ආරාධනාව යවන ලදී",
+    "emailAlreadyInList": "ඊමේල් දැනටමත් ලැයිස්තුවේ ඇත",
+    "upgradeToProToInviteGuests": "තවත් අමුත්තන්ට ආරාධනා කිරීමට කරුණාකර Pro සැලැස්මකට උත්ශ්‍රේණි කරන්න",
+    "maxGuestsReached": "ඔබ උපරිම අමුත්තන් සංඛ්‍යාවට ළඟා වී ඇත",
+    "removedGuestSuccessfully": "අමුත්තා සාර්ථකව ඉවත් කරන ලදී",
+    "updatedAccessLevelSuccessfully": "ප්‍රවේශ මට්ටම සාර්ථකව යාවත්කාලීන කරන ලදී",
+    "turnedIntoMemberSuccessfully": "සාර්ථකව සාමාජිකයෙකු බවට පත් විය",
+    "peopleAboveCanAccessWithLink": "ඉහත පුද්ගලයින්ට සබැඳිය සමඟ ප්‍රවේශ විය හැක",
+    "cantMakeChanges": "වෙනස්කම් කරන්න බැහැ",
+    "canMakeAnyChanges": "ඕනෑම වෙනස්කමක් කළ හැක",
+    "generalAccess": "සාමාන්ය ප්රවේශය",
+    "peopleWithAccess": "ප්රවේශය ඇති පුද්ගලයින්",
+    "peopleAboveCanAccessWithTheLink": "ඉහත පුද්ගලයින්ට සබැඳිය සමඟ ප්‍රවේශ විය හැක",
+    "upgrade": "උත්ශ්‍රේණි කරන්න",
+    "toProPlanToInviteGuests": "මෙම පිටුවට අමුත්තන්ට ආරාධනා කිරීමට Pro සැලැස්මට",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "අමුත්තන්ට ආරාධනා කිරීමට උත්ශ්‍රේණි කරන්න",
+        "member": "අමුත්තන්ට ආරාධනා කිරීමට උත්ශ්‍රේණි කරන්න",
+        "guest": "අමුත්තන්ට ආරාධනා කිරීමට උත්ශ්‍රේණි කරන්න"
+      },
+      "description": {
+        "owner": "ඔබගේ වැඩබිම දැනට නිදහස් සැලැස්මේ ඇත. බාහිර පරිශීලකයින්ට මෙම පිටුවට අමුත්තන් ලෙස ප්‍රවේශ වීමට ඉඩ දීමට Pro සැලැස්මට උත්ශ්‍රේණි කරන්න.",
+        "member": "සමහර ආරාධිතයන් ඔබේ වැඩබිමෙන් පිටත සිටිති. ඔවුන්ට ආරාධිතයන් ලෙස ආරාධනා කිරීමට, Pro සැලැස්මට උත්ශ්‍රේණි කිරීමට කරුණාකර ඔබේ වැඩ ඉඩ හිමිකරු අමතන්න.",
+        "guest": "සමහර ආරාධිතයන් ඔබේ වැඩබිමෙන් පිටත සිටිති. ඔවුන්ට ආරාධිතයන් ලෙස ආරාධනා කිරීමට, Pro සැලැස්මට උත්ශ්‍රේණි කිරීමට කරුණාකර ඔබේ වැඩ ඉඩ හිමිකරු අමතන්න."
+      }
+    }
+  },
+  "shareSection": {
+    "shared": "මාත් එක්ක බෙදාගත්තා"
+  }
+}
