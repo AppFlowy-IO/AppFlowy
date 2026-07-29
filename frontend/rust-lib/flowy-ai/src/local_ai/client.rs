@@ -33,22 +33,6 @@ pub enum AIProvider {
   OpenAI,
 }
 
-impl AIProvider {
-  pub fn from_index(index: i64) -> Self {
-    match index {
-      1 => AIProvider::OpenAI,
-      _ => AIProvider::Ollama,
-    }
-  }
-
-  pub fn index(&self) -> i64 {
-    match self {
-      AIProvider::Ollama => 0,
-      AIProvider::OpenAI => 1,
-    }
-  }
-}
-
 /// A chat/embedding backend. Both variants expose the same operations so the rest of the crate
 /// never branches on the provider.
 pub enum AIClient {
@@ -197,15 +181,7 @@ impl AIClient {
       },
     };
 
-    if let Some(actual) = embeddings.iter().map(|e| e.len()).find(|n| *n != EMBEDDING_DIMENSION) {
-      return Err(FlowyError::local_ai().with_context(format!(
-        "embedding model '{}' returned {}-dimensional vectors, but {} are required. \
-         Pick a model that supports {0} dimensions, or one that honours the `dimensions` parameter \
-         (for example text-embedding-3-small).",
-        model, actual, EMBEDDING_DIMENSION
-      )));
-    }
-
+    ensure_dimensions(model, &embeddings)?;
     Ok(embeddings)
   }
 
@@ -295,6 +271,26 @@ impl AIClient {
         Ok(Box::pin(stream))
       },
     }
+  }
+}
+
+/// Rejects vectors the store cannot hold. Extracted from `embed` so the guard and its message are
+/// testable without a live endpoint.
+fn ensure_dimensions(model: &str, embeddings: &[Vec<f32>]) -> FlowyResult<()> {
+  match embeddings
+    .iter()
+    .map(|e| e.len())
+    .find(|n| *n != EMBEDDING_DIMENSION)
+  {
+    None => Ok(()),
+    Some(actual) => Err(FlowyError::local_ai().with_context(format!(
+      "embedding model '{model}' returned {actual}-dimensional vectors, but {required} are \
+       required. Pick a model that supports {required} dimensions, or one that honours the \
+       `dimensions` parameter (for example text-embedding-3-small).",
+      model = model,
+      actual = actual,
+      required = EMBEDDING_DIMENSION,
+    ))),
   }
 }
 
@@ -408,6 +404,31 @@ mod tests {
       structured.response_format,
       Some(ResponseFormat::JsonObject)
     ));
+  }
+
+  #[test]
+  fn dimension_guard_accepts_correct_size_and_rejects_others() {
+    assert!(ensure_dimensions("m", &[vec![0.0; EMBEDDING_DIMENSION]]).is_ok());
+    assert!(ensure_dimensions("m", &[]).is_ok());
+    // A single bad vector in an otherwise valid batch must still be caught.
+    let mixed = vec![vec![0.0; EMBEDDING_DIMENSION], vec![0.0; 1536]];
+    assert!(ensure_dimensions("m", &mixed).is_err());
+  }
+
+  /// The message must report the *required* dimension, not echo the model name back. A previous
+  /// revision used `{0}`, which silently resolved to the model argument.
+  #[test]
+  fn dimension_error_reports_required_size_not_model_name() {
+    let err = ensure_dimensions("text-embedding-3-large", &[vec![0.0; 3072]]).unwrap_err();
+    let msg = err.to_string();
+
+    assert!(msg.contains("returned 3072-dimensional"), "{msg}");
+    assert!(msg.contains("but 768 are required"), "{msg}");
+    assert!(msg.contains("supports 768 dimensions"), "{msg}");
+    assert!(
+      !msg.contains("supports text-embedding-3-large dimensions"),
+      "model name leaked into the dimension slot: {msg}"
+    );
   }
 
   #[test]
