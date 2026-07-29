@@ -1,15 +1,17 @@
 use crate::embeddings::scheduler::EmbeddingScheduler;
+use crate::local_ai::client::AIClient;
 use arc_swap::ArcSwapOption;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use lib_infra::util::get_operating_system;
-use ollama_rs::Ollama;
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock};
 use tracing::{error, info, warn};
 
 pub struct EmbedContext {
-  ollama: ArcSwapOption<Ollama>,
+  client: ArcSwapOption<AIClient>,
+  /// Embedding model name for the active client. Provider-specific, so it travels with the client.
+  embedding_model: ArcSwapOption<String>,
   vector_db: ArcSwapOption<VectorSqliteDB>,
   scheduler: ArcSwapOption<EmbeddingScheduler>,
 }
@@ -19,7 +21,8 @@ impl EmbedContext {
     static INSTANCE: OnceLock<Arc<EmbedContext>> = OnceLock::new();
     INSTANCE.get_or_init(|| {
       Arc::new(EmbedContext {
-        ollama: ArcSwapOption::empty(),
+        client: ArcSwapOption::empty(),
+        embedding_model: ArcSwapOption::empty(),
         vector_db: ArcSwapOption::empty(),
         scheduler: Default::default(),
       })
@@ -50,19 +53,31 @@ impl EmbedContext {
     }
   }
 
-  pub fn set_ollama(&self, ollama: Option<Arc<Ollama>>) {
-    if let Some(ollama) = ollama {
-      if let Some(o) = self.ollama.load().as_ref() {
-        if o.uri() == ollama.uri() {
-          info!("[Embedding] Ollama does not change");
-          return;
-        }
+  pub fn set_client(&self, client: Option<Arc<AIClient>>, embedding_model: &str) {
+    if let Some(client) = client {
+      let unchanged = self
+        .client
+        .load()
+        .as_ref()
+        .is_some_and(|c| c.same_as(&client))
+        && self
+          .embedding_model
+          .load()
+          .as_ref()
+          .is_some_and(|m| m.as_str() == embedding_model);
+      if unchanged {
+        info!("[Embedding] ai client does not change");
+        return;
       }
 
-      self.ollama.store(Some(ollama));
+      self.client.store(Some(client));
+      self
+        .embedding_model
+        .store(Some(Arc::new(embedding_model.to_string())));
       self.try_create_scheduler();
     } else {
-      self.ollama.store(None);
+      self.client.store(None);
+      self.embedding_model.store(None);
       if let Some(s) = self.scheduler.swap(None) {
         info!("[Embedding] Stopping scheduler");
         let _ = s.stop_tx.send(());
@@ -80,9 +95,13 @@ impl EmbedContext {
   }
 
   fn try_create_scheduler(&self) {
-    if let (Some(ollama), Some(vector_db)) = (self.ollama.load_full(), self.vector_db.load_full()) {
+    if let (Some(client), Some(model), Some(vector_db)) = (
+      self.client.load_full(),
+      self.embedding_model.load_full(),
+      self.vector_db.load_full(),
+    ) {
       info!("[Embedding] Creating scheduler");
-      match EmbeddingScheduler::new(ollama, vector_db) {
+      match EmbeddingScheduler::new(client, model.to_string(), vector_db) {
         Ok(s) => {
           info!("[Embedding] create scheduler successfully");
           self.scheduler.store(Some(s));
@@ -90,7 +109,7 @@ impl EmbedContext {
         Err(err) => error!("[Embedding] Failed to create scheduler: {}", err),
       }
     } else {
-      info!("[Embedding] Ollama or vector db is not initialized, remove embedding scheduler");
+      info!("[Embedding] ai client or vector db is not initialized, remove embedding scheduler");
       self.scheduler.store(None);
     }
   }

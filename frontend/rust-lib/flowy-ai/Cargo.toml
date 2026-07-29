@@ -41,6 +41,9 @@ base64 = "0.21.5"
 futures-util = "0.3.30"
 flowy-storage-pub = { workspace = true }
 ollama-rs.workspace = true
+# Already compiled as a non-optional dependency of the langchain-rust fork; used directly here for
+# the OpenAI-compatible backend because langchain's OpenAiEmbedder cannot request `dimensions`.
+async-openai = "0.28.1"
 schemars = "0.8.22"
 twox-hash = { version = "2.1.0", features = ["xxhash64"] }
 async-trait.workspace = true

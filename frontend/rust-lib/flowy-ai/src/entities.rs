@@ -1,3 +1,4 @@
+use crate::local_ai::client::AIProvider;
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
 use flowy_ai_pub::cloud::{
@@ -671,8 +672,37 @@ impl From<PredefinedFormatPB> for ResponseFormat {
   }
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ProtoBuf_Enum)]
+pub enum AIProviderPB {
+  /// Talks to an Ollama server; `server_url` is the Ollama host and `api_key` is unused.
+  #[default]
+  Ollama = 0,
+  /// Talks to any endpoint implementing the OpenAI REST API. `server_url` is the API base
+  /// (for example `https://api.openai.com/v1`) and `api_key` is sent as the bearer token.
+  OpenAI = 1,
+}
+
+impl From<AIProvider> for AIProviderPB {
+  fn from(value: AIProvider) -> Self {
+    match value {
+      AIProvider::Ollama => AIProviderPB::Ollama,
+      AIProvider::OpenAI => AIProviderPB::OpenAI,
+    }
+  }
+}
+
+impl From<AIProviderPB> for AIProvider {
+  fn from(value: AIProviderPB) -> Self {
+    match value {
+      AIProviderPB::Ollama => AIProvider::Ollama,
+      AIProviderPB::OpenAI => AIProvider::OpenAI,
+    }
+  }
+}
+
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct LocalAISettingPB {
+  /// Ollama host, or the OpenAI-compatible API base, depending on `provider`.
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub server_url: String,
@@ -684,6 +714,14 @@ pub struct LocalAISettingPB {
   #[pb(index = 3)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub embedding_model_name: String,
+
+  #[pb(index = 4)]
+  pub provider: AIProviderPB,
+
+  /// Bearer token for OpenAI-compatible providers. Not validated: local servers such as LM Studio
+  /// and llama.cpp accept requests without one.
+  #[pb(index = 5)]
+  pub api_key: String,
 }
 
 impl From<LocalAISetting> for LocalAISettingPB {
@@ -692,6 +730,8 @@ impl From<LocalAISetting> for LocalAISettingPB {
       server_url: value.ollama_server_url,
       global_chat_model: value.chat_model_name,
       embedding_model_name: value.embedding_model_name,
+      provider: value.provider.into(),
+      api_key: value.api_key,
     }
   }
 }
@@ -702,6 +742,8 @@ impl From<LocalAISettingPB> for LocalAISetting {
       ollama_server_url: value.server_url,
       chat_model_name: value.global_chat_model,
       embedding_model_name: value.embedding_model_name,
+      provider: value.provider.into(),
+      api_key: value.api_key,
     }
   }
 }

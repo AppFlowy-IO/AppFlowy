@@ -23,7 +23,7 @@ use flowy_ai_pub::user_service::AIUserService;
 use flowy_database_pub::cloud::{SummaryRowContent, TranslateRowContent};
 use flowy_error::{FlowyError, FlowyResult};
 use futures_util::StreamExt;
-use ollama_rs::Ollama;
+use crate::local_ai::client::AIClient;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ use tokio::sync::RwLock;
 use tracing::warn;
 use uuid::Uuid;
 
-type OllamaClientRef = Arc<RwLock<Option<Weak<Ollama>>>>;
+type AIClientRef = Arc<RwLock<Option<Weak<AIClient>>>>;
 
 pub struct LLMChatInfo {
   pub chat_id: Uuid,
@@ -47,7 +47,7 @@ pub type RetrieversSources = RwLock<Vec<Arc<dyn MultipleSourceRetrieverStore>>>;
 pub struct LLMChatController {
   chat_by_id: DashMap<Uuid, Arc<RwLock<LLMChat>>>,
   store: RwLock<Option<SqliteVectorStore>>,
-  client: OllamaClientRef,
+  client: AIClientRef,
   user_service: Weak<dyn AIUserService>,
   retriever_sources: RetrieversSources,
 }
@@ -73,11 +73,12 @@ impl LLMChatController {
   #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
   pub async fn initialize(
     &self,
-    ollama: Weak<Ollama>,
+    client: Weak<AIClient>,
+    embedding_model: String,
     vector_db: Weak<flowy_sqlite_vec::db::VectorSqliteDB>,
   ) {
-    let store = SqliteVectorStore::new(ollama.clone(), vector_db);
-    *self.client.write().await = Some(ollama);
+    let store = SqliteVectorStore::new(client.clone(), embedding_model, vector_db);
+    *self.client.write().await = Some(client);
     *self.store.write().await = Some(store);
   }
 
@@ -94,9 +95,9 @@ impl LLMChatController {
       .read()
       .await
       .as_ref()
-      .ok_or_else(|| FlowyError::local_ai().with_context("Ollama client not initialized"))?
+      .ok_or_else(|| FlowyError::local_ai().with_context("AI client not initialized"))?
       .upgrade()
-      .ok_or_else(|| FlowyError::local_ai().with_context("Ollama client has been dropped"))?
+      .ok_or_else(|| FlowyError::local_ai().with_context("AI client has been dropped"))?
       .clone();
     let entry = self.chat_by_id.entry(info.chat_id);
     let retriever_sources = self

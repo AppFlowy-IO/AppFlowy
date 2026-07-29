@@ -1,41 +1,30 @@
-use crate::embeddings::indexer::EmbeddingModel;
+use crate::local_ai::client::AIClient;
 use flowy_error::FlowyResult;
-use ollama_rs::Ollama;
-use ollama_rs::generation::embeddings::GenerateEmbeddingsResponse;
-use ollama_rs::generation::embeddings::request::GenerateEmbeddingsRequest;
 use std::sync::Arc;
 
+/// Pairs the configured backend with the embedding model to use.
+///
+/// The model name lives here because it is provider-specific (`nomic-embed-text:latest` for Ollama
+/// versus `text-embedding-3-small` for OpenAI-compatible endpoints) and callers should not need to
+/// know which backend is active. Regardless of provider the vectors are always
+/// [`crate::local_ai::client::EMBEDDING_DIMENSION`] long.
 #[derive(Debug, Clone)]
-pub enum Embedder {
-  Ollama(OllamaEmbedder),
+pub struct Embedder {
+  client: Arc<AIClient>,
+  model: String,
 }
 
 impl Embedder {
-  pub async fn embed(
-    &self,
-    request: GenerateEmbeddingsRequest,
-  ) -> FlowyResult<GenerateEmbeddingsResponse> {
-    match self {
-      Embedder::Ollama(ollama) => ollama.embed(request).await,
-    }
+  pub fn new(client: Arc<AIClient>, model: String) -> Self {
+    Self { client, model }
   }
 
-  pub fn model(&self) -> EmbeddingModel {
-    EmbeddingModel::NomicEmbedText
+  /// Returns one vector per input string, in the same order.
+  pub async fn embed(&self, input: Vec<String>) -> FlowyResult<Vec<Vec<f32>>> {
+    self.client.embed(&self.model, input).await
   }
-}
 
-#[derive(Debug, Clone)]
-pub struct OllamaEmbedder {
-  pub ollama: Arc<Ollama>,
-}
-
-impl OllamaEmbedder {
-  pub async fn embed(
-    &self,
-    request: GenerateEmbeddingsRequest,
-  ) -> FlowyResult<GenerateEmbeddingsResponse> {
-    let resp = self.ollama.generate_embeddings(request).await?;
-    Ok(resp)
+  pub fn model_name(&self) -> &str {
+    &self.model
   }
 }
