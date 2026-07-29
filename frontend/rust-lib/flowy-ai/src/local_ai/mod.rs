@@ -1,3 +1,4 @@
+pub mod client;
 pub mod controller;
 mod request;
 pub mod resource;

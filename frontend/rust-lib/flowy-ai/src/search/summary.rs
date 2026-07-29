@@ -1,7 +1,6 @@
+use crate::local_ai::client::AIClient;
 use flowy_error::FlowyError;
-use ollama_rs::Ollama;
-use ollama_rs::generation::chat::request::ChatMessageRequest;
-use ollama_rs::generation::chat::{ChatMessage, MessageRole};
+use langchain_rust::schemas::Message;
 use ollama_rs::generation::parameters::{FormatType, JsonStructure};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -60,7 +59,7 @@ fn convert_documents_to_text(documents: Vec<LLMDocument>) -> String {
 }
 
 pub async fn summarize_documents(
-  client: &Ollama,
+  client: &AIClient,
   question: &str,
   model_name: &str,
   documents: Vec<LLMDocument>,
@@ -68,32 +67,30 @@ pub async fn summarize_documents(
   let documents_text = convert_documents_to_text(documents);
   let context = format!("{}\n\n##Context##\n{}", SYSTEM_PROMPT, documents_text);
   let messages = vec![
-    ChatMessage::new(MessageRole::System, context),
-    ChatMessage::new(MessageRole::User, question.to_string()),
+    Message::new_system_message(context),
+    Message::new_human_message(question),
   ];
 
   let format = FormatType::StructuredJson(JsonStructure::new::<SummarySearchSchema>());
-  let request = ChatMessageRequest::new(model_name.to_string(), messages).format(format);
-  match client.send_chat_messages(request).await {
-    Ok(resp) => {
-      if resp.final_data.is_some() {
-        let resp: SummarySearchSchema = serde_json::from_str(&resp.message.content)?;
-        let resp = SummarySearchResponse {
-          summaries: vec![SearchSummary {
-            content: resp.answer,
-            highlights: resp.highlights,
-            sources: resp
-              .sources
-              .into_iter()
-              .flat_map(|s| Uuid::parse_str(&s).ok())
-              .collect(),
-          }],
-        };
-        Ok(resp)
-      } else {
-        Ok(SummarySearchResponse { summaries: vec![] })
-      }
+  match client
+    .chat(model_name, &messages, Some(&format), None)
+    .await
+  {
+    Ok(result) if !result.generation.trim().is_empty() => {
+      let resp: SummarySearchSchema = serde_json::from_str(&result.generation)?;
+      Ok(SummarySearchResponse {
+        summaries: vec![SearchSummary {
+          content: resp.answer,
+          highlights: resp.highlights,
+          sources: resp
+            .sources
+            .into_iter()
+            .flat_map(|s| Uuid::parse_str(&s).ok())
+            .collect(),
+        }],
+      })
     },
+    Ok(_) => Ok(SummarySearchResponse { summaries: vec![] }),
     Err(err) => {
       error!("Error generating summary: {}", err);
       Ok(SummarySearchResponse { summaries: vec![] })
@@ -103,12 +100,12 @@ pub async fn summarize_documents(
 
 #[cfg(test)]
 mod tests {
+  use crate::local_ai::client::{AIClient, AIProvider};
   use crate::search::summary::{LLMDocument, summarize_documents};
-  use ollama_rs::Ollama;
 
   #[tokio::test]
   async fn summarize_documents_test() {
-    let ollama = Ollama::try_new("http://localhost:11434").unwrap();
+    let ollama = AIClient::new(AIProvider::Ollama, "http://localhost:11434", "").unwrap();
     let docs = vec![
       ("Rust is a multiplayer survival game developed by Facepunch Studios, first released in early access in December 2013 and fully launched in February 2018. It has since become one of the most popular games in the survival genre, known for its harsh environment, intricate crafting system, and player-driven dynamics. The game is available on Windows, macOS, and PlayStation, with a community-driven approach to updates and content additions.", uuid::Uuid::new_v4()),
       ("Rust is a modern, system-level programming language designed with a focus on performance, safety, and concurrency. It was created by Mozilla and first released in 2010, with its 1.0 version launched in 2015. Rust is known for providing the control and performance of languages like C and C++, but with built-in safety features that prevent common programming errors, such as memory leaks, data races, and buffer overflows.", uuid::Uuid::new_v4()),
