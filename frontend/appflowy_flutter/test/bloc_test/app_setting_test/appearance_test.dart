@@ -1,3 +1,6 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -81,6 +84,60 @@ void main() {
       verify: (bloc) {
         expect(bloc.state.appTheme.themeName, AppTheme.fallback.themeName);
       },
+    );
+
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'hide sub-pages in sidebar is disabled by default',
+      setUp: () =>
+          getIt<KeyValueStorage>().remove(KVKeys.hideSubPagesInSidebar),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        dateTimeSettings,
+        AppTheme.fallback,
+      ),
+      wait: blocResponseDuration(),
+      verify: (bloc) {
+        expect(bloc.state.hideSubPagesInSidebar, false);
+      },
+    );
+
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'hide sub-pages in sidebar is written to local storage',
+      setUp: () =>
+          getIt<KeyValueStorage>().remove(KVKeys.hideSubPagesInSidebar),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        dateTimeSettings,
+        AppTheme.fallback,
+      ),
+      act: (bloc) => bloc.setHideSubPagesInSidebar(true),
+      verify: (bloc) async {
+        expect(bloc.state.hideSubPagesInSidebar, true);
+        expect(
+          await getIt<KeyValueStorage>()
+              .getWithFormat(KVKeys.hideSubPagesInSidebar, bool.parse),
+          true,
+        );
+      },
+      tearDown: () =>
+          getIt<KeyValueStorage>().remove(KVKeys.hideSubPagesInSidebar),
+    );
+
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'hide sub-pages in sidebar is restored from local storage on launch',
+      setUp: () => getIt<KeyValueStorage>()
+          .set(KVKeys.hideSubPagesInSidebar, true.toString()),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        dateTimeSettings,
+        AppTheme.fallback,
+      ),
+      wait: blocResponseDuration(),
+      verify: (bloc) {
+        expect(bloc.state.hideSubPagesInSidebar, true);
+      },
+      tearDown: () =>
+          getIt<KeyValueStorage>().remove(KVKeys.hideSubPagesInSidebar),
     );
   });
 }

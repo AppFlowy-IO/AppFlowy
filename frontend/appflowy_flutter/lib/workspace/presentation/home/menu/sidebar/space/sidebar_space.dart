@@ -3,6 +3,7 @@ import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -121,6 +122,9 @@ class _SpaceState extends State<_Space> {
   Widget build(BuildContext context) {
     final currentWorkspace =
         context.watch<UserWorkspaceBloc>().state.currentWorkspace;
+    final hideSubPages = context.select<AppearanceSettingsCubit, bool>(
+      (cubit) => cubit.state.hideSubPagesInSidebar,
+    );
     return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
         if (state.spaces.isEmpty) {
@@ -156,6 +160,7 @@ class _SpaceState extends State<_Space> {
                   isExpandedNotifier: isExpandedNotifier,
                   space: currentSpace,
                   isHovered: isHovered,
+                  shouldRenderChildren: !hideSubPages,
                   onSelected: (context, view) {
                     if (HardwareKeyboard.instance.isControlPressed) {
                       context.read<TabsBloc>().openTab(view);
