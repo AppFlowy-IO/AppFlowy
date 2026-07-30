@@ -69,6 +69,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
           ),
         ) {
     readTextScaleFactor();
+    readHideSubPagesInSidebar();
   }
 
   final AppearanceSettingsPB _appearanceSettings;
@@ -93,6 +94,30 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
         ) ??
         1.0;
     emit(state.copyWith(textScaleFactor: textScaleFactor.clamp(0.7, 1.0)));
+  }
+
+  Future<void> setHideSubPagesInSidebar(bool hideSubPagesInSidebar) async {
+    // only saved in local storage, this value is not synced across devices
+    await getIt<KeyValueStorage>().set(
+      KVKeys.hideSubPagesInSidebar,
+      hideSubPagesInSidebar.toString(),
+    );
+
+    emit(state.copyWith(hideSubPagesInSidebar: hideSubPagesInSidebar));
+  }
+
+  Future<void> readHideSubPagesInSidebar() async {
+    final hideSubPagesInSidebar = await getIt<KeyValueStorage>().getWithFormat(
+          KVKeys.hideSubPagesInSidebar,
+          // tolerate a corrupted value instead of failing the cubit creation
+          (value) => bool.tryParse(value) ?? false,
+        ) ??
+        false;
+    // this runs unawaited from the constructor, the cubit may be gone by now
+    if (isClosed) {
+      return;
+    }
+    emit(state.copyWith(hideSubPagesInSidebar: hideSubPagesInSidebar));
   }
 
   /// Update selected theme in the user's settings and emit an updated state
@@ -396,6 +421,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required Color? documentCursorColor,
     required Color? documentSelectionColor,
     required double textScaleFactor,
+    @Default(false) bool hideSubPagesInSidebar,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
