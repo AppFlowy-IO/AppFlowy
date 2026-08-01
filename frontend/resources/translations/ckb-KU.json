@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "من",
-  "welcomeText": "@:appName بەخێربێن بۆ",
+  "welcomeText": "{appName} بەخێربێن بۆ",
   "welcomeTo": "بەخێربێن بۆ",
   "githubStarText": "بە گیتهابەکەمان ئەستێرە بدەن",
   "subscribeNewsletterText": "سەبسکرایبی هەواڵنامە بکە",

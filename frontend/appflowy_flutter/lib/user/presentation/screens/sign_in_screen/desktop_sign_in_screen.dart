@@ -43,7 +43,7 @@ class _DesktopSignInScreenState extends State<DesktopSignInScreen>
 
                 // logo and title
                 FlowyLogoTitle(
-                  title: LocaleKeys.welcomeText.tr(),
+                  title: LocaleKeys.welcomeText.tr(namedArgs: {'appName': LocaleKeys.appName.tr()}),
                   logoSize: Size.square(36),
                 ),
                 VSpace(theme.spacing.xxl),

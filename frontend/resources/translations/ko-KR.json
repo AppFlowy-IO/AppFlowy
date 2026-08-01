@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "나",
-  "welcomeText": "@:appName에 오신 것을 환영합니다",
+  "welcomeText": "{appName}에 오신 것을 환영합니다",
   "welcomeTo": "환영합니다",
   "githubStarText": "GitHub에서 별표",
   "subscribeNewsletterText": "뉴스레터 구독",

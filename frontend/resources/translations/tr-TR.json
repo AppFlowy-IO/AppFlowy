@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Kullanıcı",
-  "welcomeText": "@:appName'ye Hoş Geldiniz",
+  "welcomeText": "{appName}'ye Hoş Geldiniz",
   "welcomeTo": "Hoş Geldiniz",
   "githubStarText": "GitHub'da Yıldız Ver",
   "subscribeNewsletterText": "Bültenimize Abone Ol",

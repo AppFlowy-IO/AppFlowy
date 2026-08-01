@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Я",
-  "welcomeText": "Ласкаво просимо в @:appName",
+  "welcomeText": "Ласкаво просимо в {appName}",
   "welcomeTo": "Ласкаво просимо до",
   "githubStarText": "Поставити зірку на GitHub",
   "subscribeNewsletterText": "Підпишіться на розсилку новин",

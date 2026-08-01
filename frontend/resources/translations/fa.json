@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "من",
-  "welcomeText": "به @:appName خوش آمدید",
+  "welcomeText": "به {appName} خوش آمدید",
   "welcomeTo": "خوش آمدید به",
   "githubStarText": "به گیت‌هاب ما ستاره دهید",
   "subscribeNewsletterText": "اشتراک در خبرنامه",

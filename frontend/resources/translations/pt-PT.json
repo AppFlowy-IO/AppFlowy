@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Eu",
-  "welcomeText": "Bem vindo ao @:appName",
+  "welcomeText": "Bem vindo ao {appName}",
   "githubStarText": "Dar uma estrela no Github",
   "subscribeNewsletterText": "Inscreve-te no Newsletter",
   "letsGoButtonText": "Bora",
