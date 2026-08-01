@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Jag",
-  "welcomeText": "Välkommen till @:appName",
+  "welcomeText": "Välkommen till {appName}",
   "welcomeTo": "Välkommen till",
   "githubStarText": "Stjärna på GitHub",
   "subscribeNewsletterText": "Prenumerera på nyhetsbrev",

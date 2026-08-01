@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Saya",
-  "welcomeText": "Selamat datang di @:appName",
+  "welcomeText": "Selamat datang di {appName}",
   "welcomeTo": "Selamat datang di",
   "githubStarText": "Bintangi GitHub",
   "subscribeNewsletterText": "Berlangganan buletin",

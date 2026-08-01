@@ -44,7 +44,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
       children: [
         const Spacer(),
         FlowyLogoTitle(
-          title: LocaleKeys.welcomeText.tr(),
+          title: LocaleKeys.welcomeText.tr(namedArgs: {'appName': LocaleKeys.appName.tr()}),
           logoSize: Size.square(UniversalPlatform.isMobile ? 80 : 40),
         ),
         const VSpace(32),

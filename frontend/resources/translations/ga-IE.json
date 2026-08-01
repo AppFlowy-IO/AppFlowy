@@ -1,7 +1,7 @@
 {
   "appName": "Appflowy",
   "defaultUsername": "Liom",
-  "welcomeText": "Fáilte go @:appName",
+  "welcomeText": "Fáilte go {appName}",
   "welcomeTo": "Fáilte chuig",
   "githubStarText": "Réalta ar GitHub",
   "subscribeNewsletterText": "Liostáil le Nuachtlitir",

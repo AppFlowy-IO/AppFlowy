@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Me",
-  "welcomeText": "እንኳን በደህና መጡ @:appName መተግበሪያ ስም",
+  "welcomeText": "እንኳን በደህና መጡ {appName} መተግበሪያ ስም",
   "githubStarText": "በ Github ላይ ኮከብ",
   "subscribeNewsletterText": "ለዜና ጽሑፍ ይመዝገቡ",
   "letsGoButtonText": "ፈጣን ጅምር",

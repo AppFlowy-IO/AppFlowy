@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Ni",
-  "welcomeText": "Ongietorri @:appName -ra",
+  "welcomeText": "Ongietorri {appName} -ra",
   "githubStarText": "Izarra GitHub-en",
   "subscribeNewsletterText": "Harpidetu buletinera",
   "letsGoButtonText": "Hasi",

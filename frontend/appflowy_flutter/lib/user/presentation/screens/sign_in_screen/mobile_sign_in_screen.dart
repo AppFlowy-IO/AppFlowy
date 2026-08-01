@@ -32,7 +32,7 @@ class MobileSignInScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Spacer(),
-                FlowyLogoTitle(title: LocaleKeys.welcomeText.tr()),
+                FlowyLogoTitle(title: LocaleKeys.welcomeText.tr(namedArgs: {'appName': LocaleKeys.appName.tr()})),
                 VSpace(theme.spacing.xxl),
                 isLocalAuthEnabled
                     ? const SignInAnonymousButtonV3()

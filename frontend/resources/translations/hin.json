@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "मैं",
-  "welcomeText": " @:appName में आपका स्वागत है",
+  "welcomeText": " {appName} में आपका स्वागत है",
   "githubStarText": "गिटहब पर स्टार करे",
   "subscribeNewsletterText": "समाचार पत्रिका के लिए सदस्यता लें",
   "letsGoButtonText": "जल्दी शुरू करे",

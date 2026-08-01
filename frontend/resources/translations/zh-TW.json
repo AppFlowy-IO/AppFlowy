@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "我",
-  "welcomeText": "歡迎使用 @:appName",
+  "welcomeText": "歡迎使用 {appName}",
   "welcomeTo": "歡迎來到",
   "githubStarText": "在 GitHub 上按讚/星標",
   "subscribeNewsletterText": "訂閱電子報",
