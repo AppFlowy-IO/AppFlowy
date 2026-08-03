@@ -2086,7 +2086,7 @@
         "auto": "Auto"
       },
       "copyTooltip": "Copy",
-      "wrapTooltip": "Wrap code",
+      "wrapTooltip": "Wrap code lines",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },
