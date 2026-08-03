@@ -910,7 +910,8 @@
       "language": {
         "label": "Langue",
         "placeholder": "Choisir la langue"
-      }
+      },
+      "wrapTooltip": "Envelopper le code"
     },
     "inlineLink": {
       "placeholder": "Coller ou saisir un lien",

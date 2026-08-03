@@ -1490,6 +1490,7 @@
         "auto": "אוטו׳"
       },
       "copyTooltip": "העתקת תוכן למקטע קוד",
+      "wrapTooltip": "גלישת קוד",
       "searchLanguageHint": "חיפוש אחר שפה",
       "codeCopiedSnackbar": "הקוד הועתק ללוח הגזירים!"
     },

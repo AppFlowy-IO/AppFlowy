@@ -1599,7 +1599,8 @@
         "placeholder": "选择语言",
         "auto": "自动"
       },
-      "copyTooltip": "复制代码块的内容"
+      "copyTooltip": "复制代码块的内容",
+      "wrapTooltip": "代码自动换行"
     },
     "inlineLink": {
       "placeholder": "粘贴或输入链接",

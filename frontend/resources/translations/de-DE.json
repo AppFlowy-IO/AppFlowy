@@ -2031,6 +2031,7 @@
         "auto": "Auto"
       },
       "copyTooltip": "Inhalt des Codeblocks kopieren",
+      "wrapTooltip": "Code umbrechen",
       "searchLanguageHint": "Nach einer Sprache suchen",
       "codeCopiedSnackbar": "Code in die Zwischenablage kopiert!"
     },

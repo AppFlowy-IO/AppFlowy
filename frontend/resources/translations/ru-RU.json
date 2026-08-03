@@ -2179,6 +2179,7 @@
         "auto": "Авто"
       },
       "copyTooltip": "Копировать",
+      "wrapTooltip": "Переносить код",
       "searchLanguageHint": "Поиск языка",
       "codeCopiedSnackbar": "Код скопирован в буфер обмена!"
     },

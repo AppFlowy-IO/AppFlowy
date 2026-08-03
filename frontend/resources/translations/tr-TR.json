@@ -2024,6 +2024,7 @@
         "auto": "Otomatik"
       },
       "copyTooltip": "Kopyala",
+      "wrapTooltip": "Kodu kaydır",
       "searchLanguageHint": "Bir dil arayın",
       "codeCopiedSnackbar": "Kod panoya kopyalandı!"
     },

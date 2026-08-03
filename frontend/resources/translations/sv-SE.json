@@ -593,7 +593,8 @@
       "language": {
         "label": "Språk",
         "placeholder": "Välj språk"
-      }
+      },
+      "wrapTooltip": "Radbryt kod"
     },
     "inlineLink": {
       "placeholder": "Klistra in eller skriv en länk",

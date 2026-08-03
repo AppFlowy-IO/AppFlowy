@@ -593,7 +593,8 @@
       "language": {
         "label": "زبان",
         "placeholder": "انتخاب زبان"
-      }
+      },
+      "wrapTooltip": "شکستن خطوط کد"
     },
     "inlineLink": {
       "placeholder": "پیست کنید یا مسیر را تایپ کنید",

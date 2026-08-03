@@ -2071,6 +2071,7 @@
         "auto": "자동"
       },
       "copyTooltip": "복사",
+      "wrapTooltip": "코드 줄 바꿈",
       "searchLanguageHint": "언어 검색",
       "codeCopiedSnackbar": "코드가 클립보드에 복사되었습니다!"
     },

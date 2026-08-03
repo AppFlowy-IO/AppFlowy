@@ -1995,6 +1995,7 @@
         "auto": "自動"
       },
       "copyTooltip": "コピー",
+      "wrapTooltip": "コードを折り返す",
       "searchLanguageHint": "言語を検索",
       "codeCopiedSnackbar": "コードがクリップボードにコピーされました！"
     },

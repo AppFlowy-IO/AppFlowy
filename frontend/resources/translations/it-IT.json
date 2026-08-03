@@ -1765,7 +1765,8 @@
       "language": {
         "label": "Lingua",
         "placeholder": "Seleziona la lingua"
-      }
+      },
+      "wrapTooltip": "Testo del codice a capo"
     },
     "inlineLink": {
       "placeholder": "Incolla o digita un link",

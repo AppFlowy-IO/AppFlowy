@@ -1973,6 +1973,7 @@
         "auto": "อัตโนมัติ"
       },
       "copyTooltip": "สำเนา",
+      "wrapTooltip": "ตัดบรรทัดโค้ด",
       "searchLanguageHint": "ค้นหาภาษา",
       "codeCopiedSnackbar": "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว!"
     },
