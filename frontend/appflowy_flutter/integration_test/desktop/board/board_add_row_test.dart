@@ -14,20 +14,45 @@ import '../../shared/util.dart';
 const defaultFirstCardName = 'Card 1';
 const defaultLastCardName = 'Card 3';
 
-Finder _footerTextField() => find.descendant(
-      of: find.byType(BoardColumnFooter).at(1),
+// The default board created by the test setup contains the columns
+// "No Status", "To Do", "Doing" and "Done" (see board_group_test.dart).
+// The footer tests target the "To Do" column and use the "No Status" column
+// as a neutral "click outside" target.
+const footerTargetColumnName = 'To Do';
+const outsideClickColumnName = 'No Status';
+
+Future<void> _initializeBoard(WidgetTester tester) async {
+  await tester.initializeAppFlowy();
+  await tester.tapAnonymousSignInButton();
+  await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+}
+
+/// Returns the [BoardColumnFooter] whose column is named [groupName].
+///
+/// This is more robust than `find.byType(BoardColumnFooter).at(1)` because it
+/// is based on the column's business name and does not depend on the order or
+/// the number of board columns.
+Finder _footerOfColumnNamed(String groupName) => find.byWidgetPredicate(
+      (widget) =>
+          widget is BoardColumnFooter &&
+          widget.columnData.headerData.groupName == groupName,
+    );
+
+Finder _textFieldInFooter(Finder footer) => find.descendant(
+      of: footer,
       matching: find.byType(TextField),
     );
+
+Future<void> _openFooterEditor(WidgetTester tester, Finder footer) async {
+  await tester.tapButton(footer);
+}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('board add row test:', () {
     testWidgets('from header', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final firstCard = find.byType(RowCard).first;
 
@@ -74,10 +99,7 @@ void main() {
     });
 
     testWidgets('from footer', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final lastCard = find.byType(RowCard).last;
 
@@ -89,18 +111,11 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
       const newCardName = 'Card 4';
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(BoardColumnFooter),
-          matching: find.byType(TextField),
-        ),
-        newCardName,
-      );
+      await tester.enterText(_textFieldInFooter(footer), newCardName);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
@@ -118,18 +133,14 @@ void main() {
 
     testWidgets('footer: empty title submit does not create a card',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final cardsBefore = find.byType(RowCard).evaluate().length;
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
-      await tester.showKeyboard(_footerTextField());
+      await tester.showKeyboard(_textFieldInFooter(footer));
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
@@ -139,24 +150,21 @@ void main() {
     testWidgets(
         'footer: clicking outside cancels creation and clears the draft',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final cardsBefore = find.byType(RowCard).evaluate().length;
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
       const draft = 'abc';
-      await tester.enterText(_footerTextField(), draft);
+      await tester.enterText(_textFieldInFooter(footer), draft);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       // Click outside the input: start creating a card in another column.
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(0),
+      await _openFooterEditor(
+        tester,
+        _footerOfColumnNamed(outsideClickColumnName),
       );
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
@@ -165,28 +173,22 @@ void main() {
       expect(find.text(draft), findsNothing);
 
       // Reopening the input must show a clean, empty text field.
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
-      final reopened = tester.widget<TextField>(_footerTextField());
+      await _openFooterEditor(tester, footer);
+      final reopened = tester.widget<TextField>(_textFieldInFooter(footer));
       expect(reopened.controller!.text, isEmpty);
     });
 
     testWidgets('footer: escape cancels creation and clears the draft',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final cardsBefore = find.byType(RowCard).evaluate().length;
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
       const draft = 'abc';
-      await tester.enterText(_footerTextField(), draft);
+      await tester.enterText(_textFieldInFooter(footer), draft);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
@@ -197,28 +199,22 @@ void main() {
       expect(find.text(draft), findsNothing);
 
       // Reopening the input must show a clean, empty text field.
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
-      final reopened = tester.widget<TextField>(_footerTextField());
+      await _openFooterEditor(tester, footer);
+      final reopened = tester.widget<TextField>(_textFieldInFooter(footer));
       expect(reopened.controller!.text, isEmpty);
     });
 
     testWidgets('footer: pressing enter twice creates only one card',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final cardsBefore = find.byType(RowCard).evaluate().length;
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
       const newCardName = 'Card 4';
-      await tester.enterText(_footerTextField(), newCardName);
+      await tester.enterText(_textFieldInFooter(footer), newCardName);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
@@ -236,26 +232,23 @@ void main() {
     testWidgets(
         'footer: submitting then clicking outside does not create a duplicate',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      await _initializeBoard(tester);
 
       final cardsBefore = find.byType(RowCard).evaluate().length;
 
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(1),
-      );
+      final footer = _footerOfColumnNamed(footerTargetColumnName);
+      await _openFooterEditor(tester, footer);
 
       const newCardName = 'Card 4';
-      await tester.enterText(_footerTextField(), newCardName);
+      await tester.enterText(_textFieldInFooter(footer), newCardName);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       // The input stays open after submitting; clicking outside must not
       // submit the (now cleared) draft a second time.
-      await tester.tapButton(
-        find.byType(BoardColumnFooter).at(0),
+      await _openFooterEditor(
+        tester,
+        _footerOfColumnNamed(outsideClickColumnName),
       );
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
