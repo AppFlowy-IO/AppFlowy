@@ -466,7 +466,6 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
       onKeyEvent: (node, event) {
         if (_focusNode.hasFocus &&
             event.logicalKey == LogicalKeyboardKey.escape) {
-          _cancelCreating();
           _focusNode.unfocus();
           return KeyEventResult.handled;
         }
