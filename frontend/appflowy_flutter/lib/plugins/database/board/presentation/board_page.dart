@@ -473,7 +473,7 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
       },
     )..addListener(() {
         if (!_focusNode.hasFocus) {
-          setState(() => _isCreating = false);
+          _cancelCreating();
         }
       });
   }
@@ -483,6 +483,11 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
     _textController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _cancelCreating() {
+    _textController.clear();
+    setState(() => _isCreating = false);
   }
 
   @override
@@ -530,6 +535,9 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
         controller: _textController,
         focusNode: _focusNode,
         onSubmitted: (name) {
+          if (name.trim().isEmpty) {
+            return;
+          }
           context.read<BoardBloc>().add(
                 BoardEvent.createRow(
                   widget.columnData.id,
