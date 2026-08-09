@@ -2036,7 +2036,11 @@ impl FolderManager {
       if let Some(view) = view {
         let view_id = Uuid::from_str(view_id)?;
         if let Ok(handler) = self.get_handler(&view.layout) {
-          handler.delete_view(&view_id).await?;
+          // Emptying the trash is idempotent. A stale database view can remain
+          // in the folder trash after its backing database collab has already
+          // been removed, so the database handler reports RecordNotFound even
+          // though there is no resource left to delete.
+          ignore_missing_view_error(handler.delete_view(&view_id).await)?;
         }
       }
     }
@@ -2542,6 +2546,36 @@ impl FolderManager {
         Self::flatten_child_views(&child_views, flattened_views);
       }
     }
+  }
+}
+
+/// Treat a missing backing resource as a successful delete.
+///
+/// Trash cleanup may race with, or follow, deletion of a view's backing
+/// collab. In that case handlers return `RecordNotFound`, but the requested
+/// end state (the resource is absent) has already been reached.
+fn ignore_missing_view_error(result: FlowyResult<()>) -> FlowyResult<()> {
+  match result {
+    Err(error) if error.is_record_not_found() => Ok(()),
+    result => result,
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn missing_backing_view_is_a_successful_delete() {
+    assert!(ignore_missing_view_error(Err(FlowyError::record_not_found())).is_ok());
+  }
+
+  #[test]
+  fn non_missing_delete_errors_are_propagated() {
+    let error = FlowyError::internal().with_context("delete failed");
+    let result = ignore_missing_view_error(Err(error));
+
+    assert_eq!(result.unwrap_err().code, ErrorCode::Internal);
   }
 }
 
