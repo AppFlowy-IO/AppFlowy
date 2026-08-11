@@ -65,23 +65,23 @@
     "signUpWithMagicLink": "使用 Magic Link 註冊",
     "pleaseInputYourEmail": "請輸入您的電郵地址",
     "settings": "設定",
-    "magicLinkSent": "我們己發送 Magic Link 到您的電子郵件，點擊連結登入",
+    "magicLinkSent": "Magic Link 已傳送！",
     "invalidEmail": "請輸入有效的電郵地址",
     "alreadyHaveAnAccount": "已經有帳戶？",
     "logIn": "登入",
     "generalError": "出了些問題。請稍後再試",
     "limitRateError": "出於安全原因，您只能每 60 秒申請一次 Magic Link",
-    "magicLinkSentDescription": "連結已發送到您的電子信箱。點擊連結即可登入。連結將在 5 分鐘後過期。",
-    "tokenHasExpiredOrInvalid": "此代碼已過期或無效，請重新嘗試。",
+    "magicLinkSentDescription": "Magic Link 已傳送到您的電子信箱。點選連結即可完成登入。連結將在 5 分鐘後失效。",
+    "tokenHasExpiredOrInvalid": "此驗證碼已過期或無效，請再試一次。",
     "signingIn": "正在登入…",
     "checkYourEmail": "檢查您的電子郵件信箱",
-    "temporaryVerificationLinkSent": "已發送一封暫時驗證連結。 請查看您的收件匣，地址為:",
-    "temporaryVerificationCodeSent": "已發送一封暫時驗證碼。 請查看您的收件匣，地址為:",
+    "temporaryVerificationLinkSent": "暫時驗證連結已傳送。\n請查看以下電子信箱的收件匣：",
+    "temporaryVerificationCodeSent": "暫時驗證碼已傳送。\n請查看以下電子信箱的收件匣：",
     "continueToSignIn": "繼續登入",
-    "continueWithLoginCode": "繼續使用登入代碼",
+    "continueWithLoginCode": "繼續使用登入驗證碼",
     "backToLogin": "返回登入頁面",
-    "enterCode": "輸入代碼",
-    "enterCodeManually": "手動輸入代碼",
+    "enterCode": "輸入驗證碼",
+    "enterCodeManually": "手動輸入驗證碼",
     "continueWithEmail": "繼續使用電子郵件信箱",
     "enterPassword": "輸入密碼",
     "loginAs": "身分登入以",
@@ -93,7 +93,7 @@
     "continueToResetPassword": "繼續重設密碼",
     "resetPasswordSuccess": "密碼已成功重設",
     "resetPasswordFailed": "密碼重設失敗",
-    "resetPasswordLinkSent": "一封密碼重置連結已發送至您的電子郵件信箱。請查看您的收件匣於",
+    "resetPasswordLinkSent": "密碼重設連結已傳送。請查看以下電子信箱的收件匣：",
     "resetPasswordLinkExpired": "密碼重置連結已過期，請重新要求新的連結。",
     "resetPasswordLinkInvalid": "密碼重置連結無效，請重新要求新的連結。",
     "enterNewPasswordFor": "輸入新密碼為",
@@ -131,8 +131,8 @@
     },
     "menuTitle": "工作區",
     "deleteWorkspaceHintText": "您確定要刪除工作區嗎？ 此動作無法復原，您已發布的任何頁面都將會取消發布。",
-    "createSuccess": "成功創建工作區",
-    "createFailed": "無法創建工作區",
+    "createSuccess": "工作區建立成功",
+    "createFailed": "無法建立工作區",
     "createLimitExceeded": "您已達到帳戶允許的最大工作區限制。如果您需要額外的工作空間，請在 Github 上申請",
     "deleteSuccess": "工作區刪除成功",
     "deleteFailed": "工作區刪除失敗",
@@ -247,7 +247,7 @@
     "question2": "解釋 GTD 方法",
     "question3": "為什麼要使用 Rust",
     "question4": "用廚房裡現有的食材製作食譜",
-    "question5": "為我的頁面創建插圖",
+    "question5": "為我的頁面建立插圖",
     "question6": "為我即將到來的下週擬定待辦事項清單",
     "aiMistakePrompt": "AI 可能會犯錯，請檢查重要資訊。",
     "chatWithFilePrompt": "您想與檔案聊天嗎？",
@@ -443,8 +443,8 @@
     "singleFileProPlanLimitationDescription": "您已超過免費方案允許的最大檔案上傳容量。請升級到專業版以上傳更大的檔案",
     "purchaseAIResponse": "購買",
     "askOwnerToUpgradeToLocalAI": "要求工作區擁有者啟用 AI 裝置端功能",
-    "upgradeToAILocal": "在您的設備上執行本地模型，以獲得終極隱私保護",
-    "upgradeToAILocalDesc": "在您的設備上執行本地模型，以獲得終極隱私保護"
+    "upgradeToAILocal": "在您的裝置上執行本機模型，享有最高等級的隱私保護",
+    "upgradeToAILocalDesc": "使用本機 AI 與 PDF 對話、改善寫作內容並自動填入表格"
   },
   "notifications": {
     "export": {
@@ -531,7 +531,7 @@
   },
   "oAuth": {
     "err": {
-      "failedTitle": "無法連接至您的帳號。",
+      "failedTitle": "無法連線至您的帳號。",
       "failedMsg": "請確認您已在瀏覽器中完成登入程序。"
     },
     "google": {
@@ -874,7 +874,7 @@
         "codeBlockNewParagraph": "在程式碼區塊旁邊插入一個新段落",
         "codeBlockIndentLines": "在程式碼區塊開頭插入兩個空格",
         "codeBlockOutdentLines": "刪除程式碼區塊開頭的兩個空格",
-        "codeBlockAddTwoSpaces": "在程式碼區塊中光標位置插入兩個空格",
+        "codeBlockAddTwoSpaces": "在程式碼區塊的游標位置插入兩個空格",
         "codeBlockSelectAll": "選取程式碼區塊內的所有內容",
         "codeBlockPasteText": "將文字貼到程式碼區塊中",
         "textAlignLeft": "將文字左對齊",
@@ -975,7 +975,7 @@
           "canceledInfo": "您的方案已取消，您將在 {} 時降級為免費方案。"
         },
         "addons": {
-          "title": "附加組件",
+          "title": "附加元件",
           "addLabel": "新增",
           "activeLabel": "已新增",
           "aiMax": {
@@ -1017,7 +1017,7 @@
         "methodButtonLabel": "編輯方式"
       },
       "addons": {
-        "title": "附加組件",
+        "title": "附加元件",
         "addLabel": "新增",
         "removeLabel": "移除",
         "renewLabel": "續訂",
@@ -1065,7 +1065,7 @@
         "title": "專業版",
         "description": "適合小型團隊，用來管理專案與團隊知識",
         "price": "{}",
-        "priceInfo": "每位用戶每月\n按年計費\n\n{} 按月計費"
+        "priceInfo": "每位使用者每月\n按年計費\n\n{} 按月計費"
       },
       "planLabels": {
         "itemOne": "工作區",
@@ -1132,13 +1132,13 @@
         "question": "您未來考慮重新訂閱 @:appName Pro 的可能性有多大?",
         "answerOne": "很有可能",
         "answerTwo": "有可能",
-        "answerThree": "不确定",
+        "answerThree": "不確定",
         "answerFour": "不太可能",
         "answerFive": "不太可能"
       },
       "questionThree": {
         "question": "您在訂閱期間最重視哪個Pro功能?",
-        "answerOne": "多用戶協作",
+        "answerOne": "多使用者協作",
         "answerTwo": "更長的歷史版本記錄時間",
         "answerThree": "無限的 AI 回應",
         "answerFour": "存取本地 AI 模型"
@@ -1354,7 +1354,7 @@
         "memberHintText": "成員可以閱讀、評論和編輯頁面。邀請其他成員和訪客",
         "guestHintText": "訪客可以閱讀、做出回應、發表評論，並且可以在獲得許可的情況下編輯頁面",
         "emailInvalidError": "電子郵件無效，請檢查並再次嘗試",
-        "emailSent": "已發送電子郵件，請查看收件匣",
+        "emailSent": "電子郵件已傳送，請查看收件匣",
         "members": "成員",
         "membersCount": {
           "zero": "{} 個成員",
@@ -1372,7 +1372,7 @@
         "addMemberSuccess": "成員新增成功",
         "removeMember": "刪除成員",
         "areYouSureToRemoveMember": "確定要刪除該成員?",
-        "inviteMemberSuccess": "邀請已成功發送",
+        "inviteMemberSuccess": "邀請已成功傳送",
         "failedToInviteMember": "邀請成員失敗",
         "workspaceMembersError": "哎呀，出錯了",
         "workspaceMembersErrorDescription": "我們目前無法載入成員清單。請稍後再試",
@@ -1627,7 +1627,7 @@
       "addOption": "新增選項",
       "editProperty": "編輯屬性",
       "newProperty": "新增屬性",
-      "openRowDocument": "作為頁面打開",
+      "openRowDocument": "以頁面方式開啟",
       "deleteFieldPromptMessage": "您確定嗎? 這個屬性將被刪除",
       "clearFieldPromptMessage": "確定操作，該列中的所有單元格都將被清空",
       "newColumn": "新增欄位",
@@ -1648,8 +1648,8 @@
         "many": "隱藏 {count} 個隱藏欄位",
         "other": "隱藏 {count} 個隱藏欄位"
       },
-      "openAsFullPage": "以整頁形式打開",
-      "viewDatabase": "查看原始資料庫",
+      "openAsFullPage": "以完整頁面開啟",
+      "viewDatabase": "檢視原始資料庫",
       "moreRowActions": "更多列動作"
     },
     "sort": {
@@ -1983,8 +1983,8 @@
         "dropImageToInsert": "將圖片拖曳至此插入",
         "imageUploadFailed": "圖片上傳失敗",
         "imageDownloadFailed": "圖片下載失敗，請再試一次",
-        "imageDownloadFailedToken": "圖片下載因缺少用戶憑證而失敗，請再試一次\n",
-        "errorCode": "錯誤代碼"
+        "imageDownloadFailedToken": "圖片下載失敗，因為缺少使用者憑證，請再試一次",
+        "errorCode": "錯誤碼"
       },
       "photoGallery": {
         "name": "照片庫",
@@ -2004,7 +2004,7 @@
       },
       "urlPreview": {
         "copiedToPasteBoard": "連結已複製到剪貼簿",
-        "convertToLink": "轉換為嵌入鏈接"
+        "convertToLink": "轉換為內嵌連結"
       },
       "outline": {
         "addHeadingToCreateOutline": "新增標題以建立目錄。",
@@ -2065,7 +2065,7 @@
           "nameEmptyError": "檔案名稱不能為空。"
         },
         "uploadedAt": "已上傳至 {}",
-        "linkedAt": "連結已添加於 {}",
+        "linkedAt": "連結已新增於 {}",
         "failedToOpenMsg": "開啟失敗，找不到檔案。"
       },
       "subPage": {
@@ -2075,7 +2075,7 @@
           "failedCreatePage": "建立頁面失敗",
           "failedMovePage": "將頁面移至此文件失敗",
           "failedDuplicatePage": "複製頁面失敗",
-          "failedDuplicateFindView": "複製頁面失敗 - 找不到原始視圖"
+          "failedDuplicateFindView": "複製頁面失敗 - 找不到原始檢視"
         }
       },
       "cannotMoveToItsChildren": "無法移動到其子代",
@@ -2544,7 +2544,7 @@
     "bulletedList": "項目符號清單",
     "bulletedListShortForm": "項目符號",
     "checkbox": "核取方塊",
-    "embedCode": "嵌入代碼",
+    "embedCode": "嵌入程式碼",
     "heading1": "標題 1",
     "heading2": "標題 2",
     "heading3": "標題 3",
@@ -2644,7 +2644,7 @@
     "closeFind": "關閉",
     "replace": "取代",
     "replaceAll": "全部取代",
-    "regex": "正則表達式",
+    "regex": "正規表示式",
     "caseSensitive": "區分大小寫",
     "uploadImage": "上傳圖片",
     "urlImage": "網址圖片",
@@ -2768,10 +2768,10 @@
       "subtitle": "自訂您的工作區外觀、主題、字體、文字佈局、日期、時間和語言",
       "workplaceName": "工作區名稱",
       "workplaceNamePlaceholder": "輸入工作區名稱",
-      "workplaceIcon": "工作區圖標",
-      "workplaceIconSubtitle": "為您的工作區上傳圖像或表情符號。圖示將顯示在您的側邊欄和通知中",
+      "workplaceIcon": "工作區圖示",
+      "workplaceIconSubtitle": "為您的工作區上傳圖片或使用表情符號。圖示會顯示在側邊欄和通知中。",
       "renameError": "工作區重新命名失敗",
-      "updateIconError": "更新圖像失敗",
+      "updateIconError": "更新圖示失敗",
       "chooseAnIcon": "選擇一個圖示",
       "appearance": {
         "name": "外觀",
@@ -2786,7 +2786,7 @@
     "syncState": {
       "syncing": "同步中",
       "synced": "已同步",
-      "noNetworkConnected": "沒有連線網絡"
+      "noNetworkConnected": "未連線至網路"
     }
   },
   "pageStyle": {
@@ -2838,9 +2838,9 @@
     "rename": "重新命名空間",
     "changeIcon": "變更圖示",
     "manage": "管理空間",
-    "addNewSpace": "創建空間",
+    "addNewSpace": "建立空間",
     "collapseAllSubPages": "折疊所有子頁面",
-    "createNewSpace": "創建新空間",
+    "createNewSpace": "建立新空間",
     "createSpaceDescription": "建立多個公開與私人空間，以更好地整理您的工作。",
     "spaceName": "空間名稱",
     "spaceNamePlaceholder": "例如行銷、工程、人力資源",
@@ -2860,7 +2860,7 @@
     "upgradeSpaceTitle": "啟用空間",
     "upgradeSpaceDescription": "建立多個公開和私人空間，以更好地組織您的工作區。",
     "upgrade": "更新",
-    "upgradeYourSpace": "創建多個空間",
+    "upgradeYourSpace": "建立多個空間",
     "quicklySwitch": "快速切換到下一個空間",
     "duplicate": "副本空間",
     "movePageToSpace": "將頁面移動到空間",
@@ -2920,11 +2920,11 @@
     "saveThisPage": "使用此範本開始",
     "duplicateTitle": "您想將其新增到哪裡?",
     "selectWorkspace": "選擇工作區",
-    "addTo": "添加",
+    "addTo": "新增至",
     "duplicateSuccessfully": "已新增至您的工作區",
     "duplicateSuccessfullyDescription": "尚未安裝AppFlowy？點擊「下載」後，下載將自動開始。",
     "downloadIt": "下載",
-    "openApp": "在應用程式中打開",
+    "openApp": "在應用程式中開啟",
     "duplicateFailed": "副本失敗",
     "membersCount": {
       "zero": "沒有成員",
@@ -2952,7 +2952,7 @@
     "login": "註冊或登入",
     "fileBlock": {
       "uploadedAt": "已上傳於 {time}",
-      "linkedAt": "連結已添加於 {time}",
+      "linkedAt": "連結已新增於 {time}",
       "empty": "上傳或嵌入檔案",
       "uploadFailed": "上傳失敗，請重試",
       "retry": "重試"
@@ -3034,12 +3034,12 @@
     "addNewCreator": "新增創作者",
     "deleteCategory": "刪除類別",
     "editCategory": "編輯類別",
-    "editCreator": "編輯創建者",
+    "editCreator": "編輯創作者",
     "category": {
       "name": "類別名稱",
       "icon": "類別圖示",
       "bgColor": "類別背景顏色",
-      "priority": "類別優先級",
+      "priority": "類別優先順序",
       "desc": "類別描述",
       "type": "類別類型",
       "icons": "類別圖示",
@@ -3056,7 +3056,7 @@
       "avatar": "創作者頭像",
       "accountLinks": "創作者帳戶連結",
       "uploadAvatar": "點擊上傳頭像",
-      "deleteCreator": "刪除創建者",
+      "deleteCreator": "刪除創作者",
       "deleteCreatorDescription": "您確定要刪除此創作者嗎?",
       "typeToSearch": "輸入以搜尋創作者..."
     },
@@ -3101,7 +3101,7 @@
       "many": "{count} 名成員",
       "other": "{count} 名成員"
     },
-    "tip": "您已收到邀請，使用下方聯絡資訊加入這個工作區。如果資訊有誤，請聯繫您的管理員重新發送邀請。",
+    "tip": "您已收到邀請，可使用下方聯絡資訊加入這個工作區。如果資訊有誤，請聯絡您的管理員重新傳送邀請。",
     "joinWorkspace": "加入工作區",
     "success": "您已成功加入工作區",
     "successMessage": "現在您可以存取其中的所有頁面和工作區。",
@@ -3122,7 +3122,7 @@
     "backToHome": "返回首頁",
     "tip": "您目前以 <link/> 身分登入。",
     "mightBe": "您可能需要使用不同的帳戶 <login/>",
-    "successful": "請求已成功發送",
+    "successful": "請求已成功傳送",
     "successfulMessage": "當擁有者批准您的請求時，您會收到通知。",
     "requestError": "請求存取權失敗",
     "repeatRequestError": "您已經要求存取此頁面"
@@ -3143,7 +3143,7 @@
       "other": "{count} 名成員"
     },
     "alreadyProTitle": "您已達到工作區方案限制",
-    "alreadyProMessage": "請他們聯繫 <email/>> 以解鎖更多成員。",
+    "alreadyProMessage": "請他們聯絡 <email/> 以解鎖更多成員。",
     "repeatApproveError": "您已經批准此請求",
     "ensurePlanLimit": "請確認工作區方案限制是否已達上限。如果已達上限，請考慮 <upgrade/> 工作區方案或 <ownload/>。",
     "requestToJoin": "已請求加入",
@@ -3230,9 +3230,9 @@
     "inviteFailedMemberLimit": "成員限制已達到，請...",
     "upgrade": "升級",
     "addEmail": "email@example.com, email2@example.com...",
-    "requestInvites": "發送邀請",
+    "requestInvites": "傳送邀請",
     "inviteAlready": "您已經邀請了這個電子郵件: {email}",
-    "inviteSuccess": "邀請已成功發送",
+    "inviteSuccess": "邀請已成功傳送",
     "description": "在下方輸入電子郵件地址，以逗號分隔。費用將根據成員數量計算。",
     "emails": "電子郵件"
   },
@@ -3325,8 +3325,8 @@
   },
   "ai": {
     "contentPolicyViolation": "圖片生成因敏感內容而失敗。請重新措辭您的輸入並再次嘗試。",
-    "textLimitReachedDescription": "您的工作區已用完免費的 AI 回應。升級至專業版或購買 AI 附加組件以解鎖無限回應",
-    "imageLimitReachedDescription": "您已用完免費的 AI 圖片配額。請升級至專業版或購買 AI 附加組件以解鎖無限回應。",
+    "textLimitReachedDescription": "您的工作區已用完免費的 AI 回應。升級至專業版或購買 AI 附加元件以解鎖無限回應",
+    "imageLimitReachedDescription": "您已用完免費的 AI 圖片配額。請升級至專業版或購買 AI 附加元件以解鎖無限回應。",
     "limitReachedAction": {
       "textDescription": "您的工作區已用完免費的 AI 回應。要獲得更多回應，請…",
       "imageDescription": "您已用完免費的 AI 圖片配額。請…",
@@ -3334,7 +3334,7 @@
       "toThe": "到",
       "proPlan": "專業方案",
       "orPurchaseAn": "或購買一個",
-      "aiAddon": "AI 插件"
+      "aiAddon": "AI 附加元件"
     },
     "editing": "編輯中",
     "analyzing": "分析中",
