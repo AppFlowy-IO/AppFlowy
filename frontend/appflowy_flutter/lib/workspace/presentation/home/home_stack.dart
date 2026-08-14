@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -31,6 +30,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'home_layout.dart';
+import 'secondary_view_resizer.dart';
 
 typedef NavigationCallback = void Function(String id);
 
@@ -55,8 +55,6 @@ class HomeStack extends StatefulWidget {
 }
 
 class _HomeStackState extends State<HomeStack> with WindowListener {
-  int selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TabsBloc>.value(
@@ -70,22 +68,22 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
               padding: EdgeInsets.only(left: widget.layout.menuSpacing),
               child: TabsManager(
                 onIndexChanged: (index) {
-                  if (selectedIndex != index) {
+                  if (state.currentIndex != index) {
                     // Unfocus editor to hide selection toolbar
                     FocusScope.of(context).unfocus();
 
                     context.read<TabsBloc>().add(TabsEvent.selectTab(index));
-                    setState(() => selectedIndex = index);
                   }
                 },
               ),
             ),
             Expanded(
               child: IndexedStack(
-                index: selectedIndex,
+                index: state.currentIndex,
                 children: state.pageManagers
                     .map(
                       (pm) => LayoutBuilder(
+                        key: ObjectKey(pm),
                         builder: (context, constraints) {
                           return Row(
                             children: [
@@ -142,28 +140,20 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       ],
     );
 
-    return FlowyTooltip(
-      richMessage: textSpan,
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) {
-          final isMenuExpanded = context.read<HomeSettingBloc>().isMenuExpanded;
-          final status =
-              isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
-          context
-              .read<HomeSettingBloc>()
-              .add(HomeSettingEvent.changeMenuStatus(status));
-        },
-        child: FlowyHover(
-          child: Container(
-            width: 24,
-            padding: const EdgeInsets.all(4),
-            child: const RotatedBox(
-              quarterTurns: 2,
-              child: FlowySvg(FlowySvgs.hide_menu_s),
-            ),
-          ),
-        ),
+    return FlowyIconButton(
+      width: 24,
+      richTooltipText: textSpan,
+      iconPadding: const EdgeInsets.all(4),
+      onPressed: () {
+        final isMenuExpanded = context.read<HomeSettingBloc>().isMenuExpanded;
+        final status = isMenuExpanded ? MenuStatus.hidden : MenuStatus.expanded;
+        context
+            .read<HomeSettingBloc>()
+            .add(HomeSettingEvent.changeMenuStatus(status));
+      },
+      icon: const RotatedBox(
+        quarterTurns: 2,
+        child: FlowySvg(FlowySvgs.hide_menu_s),
       ),
     );
   }
@@ -237,15 +227,10 @@ class _SecondaryViewState extends State<SecondaryView>
   late final ValueNotifier<double> widthNotifier;
 
   late final AnimationController animationController;
-  late Animation<double> widthAnimation;
+  late final CurvedAnimation curveAnimation;
   late final Animation<Offset> offsetAnimation;
 
   late bool hasSecondaryView;
-
-  CurvedAnimation get curveAnimation => CurvedAnimation(
-        parent: animationController,
-        curve: Curves.easeOut,
-      );
 
   @override
   void initState() {
@@ -253,27 +238,28 @@ class _SecondaryViewState extends State<SecondaryView>
     widget.pageManager.showSecondaryPluginNotifier
         .addListener(onShowSecondaryChanged);
     final width = widget.pageManager.showSecondaryPluginNotifier.value
-        ? max(450.0, widget.adaptedPercentageWidth)
+        ? max(secondaryViewMinimumWidth, widget.adaptedPercentageWidth)
         : 0.0;
-    widthNotifier = ValueNotifier<double>(width)
-      ..addListener(updateWidthAnimation);
+    widthNotifier = ValueNotifier<double>(width);
 
     animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
+      value: width > 0.0 ? 1.0 : 0.0,
       vsync: this,
     );
+    curveAnimation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    );
 
-    widthAnimation = Tween<double>(
-      begin: 0.0,
-      end: width,
-    ).animate(curveAnimation);
     offsetAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
     ).animate(curveAnimation);
 
+    hasSecondaryView = widget.pageManager.secondaryNotifier.plugin.pluginType !=
+        PluginType.blank;
     widget.pageManager.secondaryNotifier.addListener(onSecondaryViewChanged);
-    onSecondaryViewChanged();
 
     overlayController.show();
   }
@@ -283,6 +269,8 @@ class _SecondaryViewState extends State<SecondaryView>
     widget.pageManager.showSecondaryPluginNotifier
         .removeListener(onShowSecondaryChanged);
     widget.pageManager.secondaryNotifier.removeListener(onSecondaryViewChanged);
+    curveAnimation.dispose();
+    animationController.dispose();
     widthNotifier.dispose();
     super.dispose();
   }
@@ -315,12 +303,17 @@ class _SecondaryViewState extends State<SecondaryView>
                   },
                   child: isShowing || !hasSecondaryView
                       ? const SizedBox.shrink()
-                      : GestureDetector(
-                          onTap: () => widget.pageManager
-                              .showSecondaryPluginNotifier.value = true,
-                          child: Container(
-                            height: 36,
+                      : FlowyHover(
+                          style: HoverStyle(
+                            borderRadius: getBorderRadius(),
+                            border: getBorder(context),
+                          ),
+                          child: FlowyIconButton(
                             width: 36,
+                            tooltipText: LocaleKeys.sideBar_openSidebar.tr(),
+                            radius: getBorderRadius(),
+                            onPressed: () => widget.pageManager
+                                .showSecondaryPluginNotifier.value = true,
                             decoration: BoxDecoration(
                               borderRadius: getBorderRadius(),
                               color: Theme.of(context).colorScheme.surface,
@@ -336,17 +329,9 @@ class _SecondaryViewState extends State<SecondaryView>
                                 ),
                               ],
                             ),
-                            child: FlowyHover(
-                              style: HoverStyle(
-                                borderRadius: getBorderRadius(),
-                                border: getBorder(context),
-                              ),
-                              child: const Center(
-                                child: FlowySvg(
-                                  FlowySvgs.rename_s,
-                                  size: Size.square(16.0),
-                                ),
-                              ),
+                            icon: const FlowySvg(
+                              FlowySvgs.hide_menu_s,
+                              size: Size.square(16.0),
                             ),
                           ),
                         ),
@@ -365,13 +350,14 @@ class _SecondaryViewState extends State<SecondaryView>
               valueListenable: widthNotifier,
               builder: (context, value, child) {
                 return AnimatedBuilder(
-                  animation: Listenable.merge([
-                    widthAnimation,
-                    offsetAnimation,
-                  ]),
+                  animation: curveAnimation,
                   builder: (context, child) {
+                    // The animated width is equivalent to a
+                    // Tween(begin: 0, end: value).animate(curveAnimation),
+                    // computed directly so that dragging the resizer does
+                    // not allocate a new Tween on every width update.
                     return Container(
-                      width: widthAnimation.value,
+                      width: value * curveAnimation.value,
                       alignment: Alignment(
                         offsetAnimation.value.dx,
                         offsetAnimation.value.dy,
@@ -380,7 +366,6 @@ class _SecondaryViewState extends State<SecondaryView>
                         alignment: AlignmentDirectional.centerStart,
                         maxWidth: value,
                         child: SecondaryViewResizer(
-                          pageManager: widget.pageManager,
                           notifier: widthNotifier,
                           child: Column(
                             children: [
@@ -427,135 +412,34 @@ class _SecondaryViewState extends State<SecondaryView>
   }
 
   void onSecondaryViewChanged() {
-    hasSecondaryView = widget.pageManager.secondaryNotifier.plugin.pluginType !=
+    final hasView = widget.pageManager.secondaryNotifier.plugin.pluginType !=
         PluginType.blank;
-  }
-
-  void onShowSecondaryChanged() async {
-    if (widget.pageManager.showSecondaryPluginNotifier.value) {
-      widthNotifier.value = max(450.0, widget.adaptedPercentageWidth);
-      updateWidthAnimation();
-      await animationController.forward();
-    } else {
-      updateWidthAnimation();
-      await animationController.reverse();
-      setState(() => widthNotifier.value = 0.0);
+    if (hasSecondaryView != hasView) {
+      setState(() => hasSecondaryView = hasView);
     }
   }
 
-  void updateWidthAnimation() {
-    widthAnimation = Tween<double>(
-      begin: 0.0,
-      end: widthNotifier.value,
-    ).animate(curveAnimation);
+  void onShowSecondaryChanged() async {
+    try {
+      if (widget.pageManager.showSecondaryPluginNotifier.value) {
+        widthNotifier.value = max(
+          secondaryViewMinimumWidth,
+          widget.adaptedPercentageWidth,
+        );
+        await animationController.forward().orCancel;
+      } else {
+        await animationController.reverse().orCancel;
+        if (mounted) {
+          widthNotifier.value = 0.0;
+        }
+      }
+    } on TickerCanceled {
+      // A new animation or disposal can cancel the current ticker.
+    }
   }
 
   @override
   bool get wantKeepAlive => true;
-}
-
-class SecondaryViewResizer extends StatefulWidget {
-  const SecondaryViewResizer({
-    super.key,
-    required this.pageManager,
-    required this.notifier,
-    required this.child,
-  });
-
-  final PageManager pageManager;
-  final ValueNotifier<double> notifier;
-  final Widget child;
-
-  @override
-  State<SecondaryViewResizer> createState() => _SecondaryViewResizerState();
-}
-
-class _SecondaryViewResizerState extends State<SecondaryViewResizer> {
-  final overlayController = OverlayPortalController();
-  final layerLink = LayerLink();
-
-  bool isHover = false;
-  bool isDragging = false;
-  Timer? showHoverTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    overlayController.show();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return OverlayPortal(
-      controller: overlayController,
-      overlayChildBuilder: (context) {
-        return CompositedTransformFollower(
-          showWhenUnlinked: false,
-          link: layerLink,
-          targetAnchor: Alignment.center,
-          followerAnchor: Alignment.center,
-          child: Center(
-            child: MouseRegion(
-              cursor: SystemMouseCursors.resizeLeftRight,
-              onEnter: (_) {
-                showHoverTimer = Timer(const Duration(milliseconds: 500), () {
-                  setState(() => isHover = true);
-                });
-              },
-              onExit: (_) {
-                showHoverTimer?.cancel();
-                setState(() => isHover = false);
-              },
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onHorizontalDragStart: (_) => setState(() => isDragging = true),
-                onHorizontalDragUpdate: (details) {
-                  final newWidth = MediaQuery.sizeOf(context).width -
-                      details.globalPosition.dx;
-                  if (newWidth >= 450.0) {
-                    widget.notifier.value = newWidth;
-                  }
-                },
-                onHorizontalDragEnd: (_) => setState(() => isDragging = false),
-                child: TweenAnimationBuilder(
-                  tween: ColorTween(
-                    end: isHover || isDragging
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.transparent,
-                  ),
-                  duration: const Duration(milliseconds: 100),
-                  builder: (context, color, child) {
-                    return SizedBox(
-                      width: 11,
-                      child: Center(
-                        child: Container(
-                          color: color,
-                          width: 2,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CompositedTransformTarget(
-            link: layerLink,
-            child: Container(
-              width: 1,
-              color: Theme.of(context).dividerColor,
-            ),
-          ),
-          Flexible(child: widget.child),
-        ],
-      ),
-    );
-  }
 }
 
 class FadingIndexedStack extends StatefulWidget {
@@ -587,9 +471,13 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   void didUpdateWidget(FadingIndexedStack oldWidget) {
     if (oldWidget.index == widget.index) return;
     _targetOpacity = 0;
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) => setState(() => _targetOpacity = 1),
-    );
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      // The widget can be removed before the callback fires (for example
+      // when its tab is closed right after a plugin switch).
+      if (mounted) {
+        setState(() => _targetOpacity = 1);
+      }
+    });
     super.didUpdateWidget(oldWidget);
   }
 
