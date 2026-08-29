@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_arrow_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/math_equation/math_equation_shortcut.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/custom_delete_command.dart';
@@ -23,6 +24,9 @@ List<CommandShortcutEvent> commandShortcutEvents = [
   backspaceToTitle,
   removeToggleHeadingStyle,
 
+  // Before arrowUpToTitle / standard arrow-up so a multi-line code block
+  // keeps the caret inside the block instead of jumping to the previous node.
+  arrowUpInCodeBlock,
   arrowUpToTitle,
   arrowLeftToTitle,
 
