@@ -174,7 +174,8 @@
     "changeIcon": "Simgeyi değiştir",
     "collapseAllPages": "Tüm alt sayfaları daralt",
     "movePageTo": "Sayfayı şuraya taşı",
-    "move": "Taşı"
+    "move": "Taşı",
+    "lockPage": "Sayfayı kilitle"
   },
   "blankPageTitle": "Boş sayfa",
   "newPageText": "Yeni sayfa",
@@ -245,6 +246,14 @@
       "selectMessages": "Mesajları seç",
       "nSelected": "{} seçildi",
       "allSelected": "Tümü seçildi"
+    },
+    "currentPage": "Geçerli sayfa",
+    "stopTooltip": "Oluşturmayı durdur",
+    "switchModel": {
+      "autoModel": "Otomatik",
+      "cloudModel": "Bulut Modeli",
+      "label": "Modeli değiştir",
+      "localModel": "Yerel Model"
     }
   },
   "trash": {
@@ -461,7 +470,8 @@
     "gotIt": "Anladım",
     "retry": "Tekrar dene",
     "uploadFailed": "Yükleme başarısız.",
-    "copyLinkOriginal": "Orijinal bağlantıyı kopyala"
+    "copyLinkOriginal": "Orijinal bağlantıyı kopyala",
+    "change": "Değiştir"
   },
   "label": {
     "welcome": "Hoş Geldiniz!",
@@ -1710,7 +1720,18 @@
         "aiWriter": "Yapay Zeka Yazar",
         "dateOrReminder": "Tarih veya Hatırlatıcı",
         "photoGallery": "Fotoğraf Galerisi",
-        "file": "Dosya"
+        "file": "Dosya",
+        "advanced": "Gelişmiş",
+        "document": "Belge",
+        "fileAndMedia": "Dosya ve Medya",
+        "fourColumns": "4 Sütun",
+        "list": "Liste",
+        "simpleTable": "Basit Tablo",
+        "textStyle": "Metin Stili",
+        "threeColumns": "3 Sütun",
+        "toggle": "Aç/Kapa",
+        "twoColumns": "2 Sütun",
+        "visuals": "Görseller"
       },
       "subPage": {
         "name": "Belge",
@@ -1947,7 +1968,38 @@
           "failedDuplicateFindView": "Sayfa çoğaltılamadı - orijinal görünüm bulunamadı"
         }
       },
-      "cannotMoveToItsChildren": "Alt öğelerine taşınamaz"
+      "cannotMoveToItsChildren": "Alt öğelerine taşınamaz",
+      "aiWriter": {
+        "continueWriting": "Yazmaya devam et",
+        "explain": "Açıkla",
+        "fixSpelling": "Yazım ve dilbilgisini düzelt",
+        "improveWriting": "Yazıyı iyileştir",
+        "makeLonger": "Uzalt",
+        "makeShorter": "Kısalt",
+        "summarize": "Özetle",
+        "userQuestion": "AI'ya herhangi bir şey sor"
+      },
+      "linkPreview": {
+        "linkPreviewMenu": {
+          "copyLink": "Bağlantıyı Kopyala",
+          "pasteHint": "https://... yapıştırın",
+          "reload": "Yeniden yükle",
+          "removeLink": "Bağlantıyı Kaldır",
+          "replace": "Değiştir",
+          "toBookmark": "Yer İmine Dönüştür",
+          "toEmbed": "Gömülüye Dönüştür",
+          "toMetion": "Bahsetmeye Dönüştür",
+          "toUrl": "URL'ye Dönüştür",
+          "unableToDisplay": "görüntülenemiyor"
+        },
+        "typeSelection": {
+          "URL": "URL",
+          "bookmark": "Yer imi",
+          "embed": "Gömülü",
+          "mention": "Bahsetme",
+          "pasteAs": "Olarak yapıştır"
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "İçindekiler"
@@ -2055,7 +2107,26 @@
       "morePages": "daha fazla sayfa"
     },
     "toolbar": {
-      "resetToDefaultFont": "Varsayılana sıfırla"
+      "resetToDefaultFont": "Varsayılana sıfırla",
+      "alignCenter": "Ortaya hizala",
+      "alignLeft": "Sola hizala",
+      "alignRight": "Sağa hizala",
+      "equation": "Denklem",
+      "font": "Yazı tipi",
+      "h1": "Başlık 1",
+      "h2": "Başlık 2",
+      "h3": "Başlık 3",
+      "inlineCode": "Satır içi kod",
+      "insert": "Ekle",
+      "link": "Bağlantı",
+      "linkInputHint": "Bağlantı yapıştırın veya sayfa arayın",
+      "linkName": "Bağlantı Adı",
+      "linkNameHint": "Bağlantı adını girin",
+      "moreOptions": "Diğer seçenekler",
+      "pageOrURL": "Sayfa veya URL",
+      "suggestions": "Öneriler",
+      "textAlign": "Metin hizalama",
+      "textColor": "Metin rengi"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Mevcut sürüm bu Bloğu desteklemiyor.",
@@ -2584,7 +2655,16 @@
     "betaTooltip": "Şu anda yalnızca sayfalarda ve belgelerde içerik aramayı destekliyoruz",
     "fromTrashHint": "Çöp kutusundan",
     "noResultsHint": "Aradığınızı bulamadık, başka bir terim aramayı deneyin.",
-    "clearSearchTooltip": "Arama alanını temizle"
+    "clearSearchTooltip": "Arama alanını temizle",
+    "aiAskFollowUp": "Takip sorusu sor",
+    "aiOverview": "AI özeti",
+    "aiOverviewMoreDetails": "Daha fazla ayrıntı",
+    "aiOverviewSource": "Kaynak referansları",
+    "clickToOpenPage": "Sayfayı açmak için tıklayın",
+    "created": "Oluşturuldu",
+    "edited": "Düzenlendi",
+    "location": "Konum",
+    "pagePreview": "İçerik önizlemesi"
   },
   "space": {
     "delete": "Sil",
@@ -3079,5 +3159,17 @@
   },
   "ai": {
     "contentPolicyViolation": "Hassas içerik nedeniyle görsel oluşturma başarısız oldu. Lütfen girdinizi yeniden düzenleyip tekrar deneyin"
+  },
+  "autoUpdate": {
+    "bannerUpdateButton": "Güncelle",
+    "bannerUpdateDescription": "En son özellikler ve düzeltmeleri alın. Yüklemek için \"Güncelle\"ye tıklayın",
+    "bannerUpdateTitle": "Yeni Sürüm Mevcut!",
+    "criticalUpdateButton": "Güncelle",
+    "criticalUpdateDescription": "Deneyiminizi iyileştirmek için güncellemeler yaptık! Lütfen {currentVersion} sürümünden {newVersion} sürümüne güncelleyin",
+    "criticalUpdateTitle": "Devam etmek için güncelleme gerekli",
+    "settingsUpdateButton": "Güncelle",
+    "settingsUpdateDescription": "Mevcut sürüm: {currentVersion} (Resmi derleme) → {newVersion}",
+    "settingsUpdateTitle": "Yeni Sürüm ({newVersion}) Mevcut!",
+    "settingsUpdateWhatsNew": "Yenilikler"
   }
 }
