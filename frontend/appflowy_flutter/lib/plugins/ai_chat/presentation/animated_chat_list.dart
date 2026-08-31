@@ -84,11 +84,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
   void initState() {
     super.initState();
 
-    assert(
-      chatController.messages.map((m) => m.id).toSet().length ==
-          chatController.messages.length,
-      'Messages must have unique IDs.',
-    );
+    _validateMessageIds(chatController.messages);
     oldList = List.from(chatController.messages);
     operationsSubscription = chatController.operationsStream.listen((event) {
       setState(() {
@@ -104,6 +100,12 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
+
+          if (oldList.any((m) => m.id == event.message?.id)) {
+            Log.warn(
+              '[chat animated list] Inserting message with duplicate ID: ${event.message?.id}',
+            );
+          }
 
           _onInserted(event.index!, event.message!);
           oldList = List.from(chatController.messages);
@@ -123,6 +125,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
           break;
         case ChatOperationType.set:
           final newList = chatController.messages;
+          _validateMessageIds(newList);
 
           final updates = diffutil
               .calculateDiff<Message>(
@@ -160,6 +163,21 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
     itemPositionsListener.itemPositions.addListener(() {
       _handleLoadPreviousMessages();
     });
+  }
+
+  void _validateMessageIds(List<Message> messageList) {
+    assert(
+      messageList.map((m) => m.id).toSet().length == messageList.length,
+      'Messages must have unique IDs.',
+    );
+    final seen = <String>{};
+    for (final message in messageList) {
+      if (!seen.add(message.id)) {
+        Log.warn(
+          '[chat animated list] Duplicate message ID detected: ${message.id}',
+        );
+      }
+    }
   }
 
   @override
@@ -210,6 +228,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
 
             final message = messages[index];
             return MessageHeightCalculator(
+              key: ValueKey('${message.id}_$index'),
               messageId: message.id,
               onHeightMeasured: _cacheMessageHeight,
               child: widget.itemBuilder(
