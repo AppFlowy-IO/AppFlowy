@@ -28,9 +28,23 @@ final zoomOutKeyCodes = [KeyCode.minus, KeyCode.numpadSubtract];
 @visibleForTesting
 final resetZoomKeyCodes = [KeyCode.digit0, KeyCode.numpad0];
 
-// Use a global value to store the zoom level and update it in the hotkeys.
-@visibleForTesting
-double appflowyScaleFactor = 1.0;
+// Use a global ValueNotifier to store the zoom level and update it in the hotkeys.
+final ValueNotifier<double> appflowyScaleFactorNotifier = ValueNotifier(1.0);
+double get appflowyScaleFactor => appflowyScaleFactorNotifier.value;
+set appflowyScaleFactor(double val) => appflowyScaleFactorNotifier.value = val;
+
+Future<void> scaleApp(double scaleFactor) async {
+  final fixedScale = double.parse(scaleFactor.toStringAsFixed(2));
+  appflowyScaleFactor = fixedScale;
+  if (FlowyRunner.currentMode != IntegrationMode.integrationTest) {
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => fixedScale;
+  }
+  await WindowSizeManager().setScaleFactor(fixedScale);
+}
+
+Future<void> resetAppScale() async {
+  await scaleApp(1.0);
+}
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -124,12 +138,28 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       ),
       keyDownHandler: (_) => _selectTab(context, -1),
     ),
+    HotKeyItem(
+      hotKey: HotKey(
+        Platform.isMacOS ? KeyCode.bracketLeft : KeyCode.arrowLeft,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.alt],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _selectTab(context, -1),
+    ),
 
     // Go to next tab
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.pageDown,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _selectTab(context, 1),
+    ),
+    HotKeyItem(
+      hotKey: HotKey(
+        Platform.isMacOS ? KeyCode.bracketRight : KeyCode.arrowRight,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.alt],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
@@ -254,16 +284,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   }
 
   Future<void> _scale(double scaleFactor) async {
-    if (FlowyRunner.currentMode == IntegrationMode.integrationTest) {
-      // The integration test will fail if we check the scale factor in the test.
-      // #0      ScaledWidgetsFlutterBinding.Eval ()
-      // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
-      appflowyScaleFactor = double.parse(scaleFactor.toStringAsFixed(2));
-    } else {
-      ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scaleFactor;
-    }
-
-    await windowSizeManager.setScaleFactor(scaleFactor);
+    await scaleApp(scaleFactor);
   }
 
   void colappsedMenus(BuildContext context) {

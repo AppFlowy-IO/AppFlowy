@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -116,7 +117,11 @@ class SettingsWorkspaceView extends StatelessWidget {
               ],
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_appearance_title.tr(),
-                children: const [AppearanceSelector()],
+                children: const [
+                  AppearanceSelector(),
+                  VSpace(16),
+                  _ZoomLevelSetting(),
+                ],
               ),
               const VSpace(16),
               // const SettingsCategorySpacer(),
@@ -1385,6 +1390,30 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
               widget.onPaddingChanged(value);
             },
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ZoomLevelSetting extends StatelessWidget {
+  const _ZoomLevelSetting();
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<double>(
+      valueListenable: appflowyScaleFactorNotifier,
+      builder: (context, scale, _) {
+        final percentage = (scale * 100).round();
+        return SettingListTile(
+          label: 'Zoom level',
+          hint: 'Zoom in (Ctrl/Cmd +) / Zoom out (Ctrl/Cmd -)',
+          trailing: [
+            FlowyText.medium('$percentage%'),
+            const HSpace(8),
+          ],
+          resetTooltipText: 'Reset zoom',
+          onResetRequested: percentage == 100 ? null : () => resetAppScale(),
         );
       },
     );
