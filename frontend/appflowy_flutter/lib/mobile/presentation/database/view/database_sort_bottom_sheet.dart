@@ -168,7 +168,7 @@ class _Overview extends StatelessWidget {
                         color: Colors.transparent,
                         child: child,
                       ),
-                      onReorder: (oldIndex, newIndex) => context
+                      onReorderItem: (oldIndex, newIndex) => context
                           .read<SortEditorBloc>()
                           .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
                       itemCount: state.sorts.length,

@@ -245,7 +245,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
             final item = emojiCategoryGroup.emoji[index];
             return _buildEmoji(emojiSize, emojiCategoryGroup, item);
           },
-          cacheExtent: 10,
+          scrollCacheExtent: const ScrollCacheExtent.pixels(10),
         ),
       ),
     );

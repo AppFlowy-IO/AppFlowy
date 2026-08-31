@@ -83,7 +83,6 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             /// TODO: this is a workaround to reorder the favorite views
             isReordering = true;
             final pinnedViews = state.pinnedViews.toList();
-            if (oldIndex < newIndex) newIndex -= 1;
             final target = pinnedViews.removeAt(oldIndex);
             pinnedViews.insert(newIndex, target);
             emit(state.copyWith(pinnedViews: pinnedViews));

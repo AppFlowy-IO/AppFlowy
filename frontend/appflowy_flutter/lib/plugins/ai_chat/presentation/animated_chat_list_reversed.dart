@@ -60,7 +60,11 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
   void initState() {
     super.initState();
 
-    // TODO: Add assert for messages having same id
+    assert(
+      _chatController.messages.map((m) => m.id).toSet().length ==
+          _chatController.messages.length,
+      'Messages must have unique IDs.',
+    );
     _oldList = List.from(_chatController.messages);
     _operationsSubscription = _chatController.operationsStream.listen((event) {
       switch (event.type) {

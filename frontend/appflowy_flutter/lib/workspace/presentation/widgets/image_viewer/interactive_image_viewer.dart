@@ -157,6 +157,13 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
     });
   }
 
+  void _onControllerChanged() => setState(() {});
+
+  void _resetZoom() {
+    controller.value = Matrix4.identity();
+    _onControllerChanged();
+  }
+
   void _zoom(double scaleStep, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final scenePointBefore = controller.toScene(center);
@@ -168,9 +175,13 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
 
     // Create a new transformation
     final newMatrix = Matrix4.identity()
-      ..translate(scenePointBefore.dx, scenePointBefore.dy)
-      ..scale(newScale / currentScale)
-      ..translate(-scenePointBefore.dx, -scenePointBefore.dy);
+      ..translateByVector3(
+        Vector3(scenePointBefore.dx, scenePointBefore.dy, 0.0),
+      )
+      ..scaleByVector3(Vector3.all(newScale / currentScale))
+      ..translateByVector3(
+        Vector3(-scenePointBefore.dx, -scenePointBefore.dy, 0.0),
+      );
 
     // Apply the new transformation
     controller.value = newMatrix * controller.value;
@@ -184,7 +195,7 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
 
     // Apply the translation
     controller.value = Matrix4.identity()
-      ..translate(-dx, -dy)
+      ..translateByVector3(Vector3(-dx, -dy, 0.0))
       ..multiply(controller.value);
 
     _onControllerChanged();

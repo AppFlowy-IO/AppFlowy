@@ -175,10 +175,7 @@ class HiddenGroupList extends StatelessWidget {
                 bloc: context.read<BoardBloc>(),
               ),
             ),
-            onReorder: (oldIndex, newIndex) {
-              if (oldIndex < newIndex) {
-                newIndex--;
-              }
+            onReorderItem: (oldIndex, newIndex) {
               final fromGroupId = state.hiddenGroups[oldIndex].groupId;
               final toGroupId = state.hiddenGroups[newIndex].groupId;
               context

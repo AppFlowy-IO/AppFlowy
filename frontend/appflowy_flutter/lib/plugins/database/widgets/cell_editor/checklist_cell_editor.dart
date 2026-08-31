@@ -142,7 +142,7 @@ class ChecklistItemList extends StatelessWidget {
         itemBuilder: (context, index) => itemList[index],
         itemCount: itemList.length,
         padding: const EdgeInsets.symmetric(vertical: 6.0),
-        onReorder: (from, to) {
+        onReorderItem: (from, to) {
           context
               .read<ChecklistCellBloc>()
               .add(ChecklistCellEvent.reorderTask(from, to));

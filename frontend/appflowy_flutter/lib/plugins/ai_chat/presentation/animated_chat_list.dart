@@ -84,7 +84,11 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
   void initState() {
     super.initState();
 
-    // TODO: Add assert for messages having same id
+    assert(
+      chatController.messages.map((m) => m.id).toSet().length ==
+          chatController.messages.length,
+      'Messages must have unique IDs.',
+    );
     oldList = List.from(chatController.messages);
     operationsSubscription = chatController.operationsStream.listen((event) {
       setState(() {

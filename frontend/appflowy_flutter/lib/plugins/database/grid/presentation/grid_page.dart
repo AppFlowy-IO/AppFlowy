@@ -523,7 +523,7 @@ class _GridRowsState extends State<_GridRows> {
         : state.rowInfos.length + 1;
 
     return ReorderableListView.builder(
-      cacheExtent: 500,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(500),
       scrollController: widget.scrollController.verticalController,
       physics: const ClampingScrollPhysics(),
       buildDefaultDragHandles: false,
@@ -535,9 +535,7 @@ class _GridRowsState extends State<_GridRows> {
           child: Opacity(opacity: .5, child: child),
         ),
       ),
-      onReorder: (fromIndex, newIndex) {
-        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-
+      onReorderItem: (fromIndex, toIndex) {
         if (state.sorts.isNotEmpty) {
           showCancelAndDeleteDialog(
             context: context,

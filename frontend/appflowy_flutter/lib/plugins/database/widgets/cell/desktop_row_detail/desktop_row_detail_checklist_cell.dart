@@ -215,7 +215,7 @@ class _ChecklistItems extends StatelessWidget {
             buildDefaultDragHandles: false,
             itemCount: children.length,
             itemBuilder: (_, index) => children[index],
-            onReorder: (from, to) {
+            onReorderItem: (from, to) {
               context
                   .read<ChecklistCellBloc>()
                   .add(ChecklistCellEvent.reorderTask(from, to));

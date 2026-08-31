@@ -205,9 +205,6 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     int toIndex,
     Emitter<RowDetailState> emit,
   ) async {
-    if (fromIndex < toIndex) {
-      toIndex--;
-    }
     final fromId = state.visibleCells[fromIndex].fieldId;
     final toId = state.visibleCells[toIndex].fieldId;
 

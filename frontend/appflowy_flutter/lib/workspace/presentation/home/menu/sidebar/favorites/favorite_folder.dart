@@ -107,7 +107,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
             ),
           );
         },
-        onReorder: (oldIndex, newIndex) {
+        onReorderItem: (oldIndex, newIndex) {
           favoriteBloc.add(FavoriteEvent.reorder(oldIndex, newIndex));
         },
       ),
