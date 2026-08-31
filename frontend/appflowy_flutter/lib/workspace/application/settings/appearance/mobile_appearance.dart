@@ -230,7 +230,7 @@ class MobileAppearance extends BaseAppearance {
         ),
       ),
       colorScheme: colorTheme,
-      indicatorColor: Colors.blue,
+      tabBarTheme: const TabBarThemeData(indicatorColor: Colors.blue),
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,

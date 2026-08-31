@@ -156,10 +156,6 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     int toIndex,
     Emitter<ChecklistCellState> emit,
   ) async {
-    if (fromIndex < toIndex) {
-      toIndex--;
-    }
-
     final tasks = state.showIncompleteOnly
         ? state.tasks.where((task) => !task.isSelected).toList()
         : state.tasks;

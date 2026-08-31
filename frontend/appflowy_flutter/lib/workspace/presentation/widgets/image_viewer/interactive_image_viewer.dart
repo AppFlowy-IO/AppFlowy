@@ -168,9 +168,14 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
 
     // Create a new transformation
     final newMatrix = Matrix4.identity()
-      ..translate(scenePointBefore.dx, scenePointBefore.dy)
-      ..scale(newScale / currentScale)
-      ..translate(-scenePointBefore.dx, -scenePointBefore.dy);
+      ..translateByDouble(scenePointBefore.dx, scenePointBefore.dy, 0.0, 1.0)
+      ..scaleByDouble(
+        newScale / currentScale,
+        newScale / currentScale,
+        1.0,
+        1.0,
+      )
+      ..translateByDouble(-scenePointBefore.dx, -scenePointBefore.dy, 0.0, 1.0);
 
     // Apply the new transformation
     controller.value = newMatrix * controller.value;
@@ -184,10 +189,8 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
 
     // Apply the translation
     controller.value = Matrix4.identity()
-      ..translate(-dx, -dy)
+      ..translateByDouble(-dx, -dy, 0.0, 1.0)
       ..multiply(controller.value);
-
-    _onControllerChanged();
   }
 }
 

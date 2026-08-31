@@ -60,9 +60,6 @@ class DatabasePropertyBloc
             emit(state.copyWith(fieldContexts: fields));
           },
           moveField: (fromIndex, toIndex) async {
-            if (fromIndex < toIndex) {
-              toIndex--;
-            }
             final fromId = state.fieldContexts[fromIndex].field.id;
             final toId = state.fieldContexts[toIndex].field.id;
 

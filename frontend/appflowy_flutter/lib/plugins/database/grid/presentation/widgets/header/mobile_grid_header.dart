@@ -166,10 +166,7 @@ class _GridHeaderState extends State<_GridHeader> {
                 .read<GridHeaderBloc>()
                 .add(GridHeaderEvent.startEditingNewField(fieldId)),
           ),
-          onReorder: (int oldIndex, int newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
+          onReorderItem: (int oldIndex, int newIndex) {
             oldIndex++;
             newIndex++;
             context

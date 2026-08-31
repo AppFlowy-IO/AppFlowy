@@ -535,9 +535,7 @@ class _GridRowsState extends State<_GridRows> {
           child: Opacity(opacity: .5, child: child),
         ),
       ),
-      onReorder: (fromIndex, newIndex) {
-        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-
+      onReorderItem: (fromIndex, toIndex) {
         if (state.sorts.isNotEmpty) {
           showCancelAndDeleteDialog(
             context: context,

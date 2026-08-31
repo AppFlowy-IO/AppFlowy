@@ -200,6 +200,7 @@ Future<void> insertLocalFile(
   }
 
   if (errorMsg != null) {
+    if (!context.mounted) return;
     return showSnackBarMessage(context, errorMsg);
   }
 
@@ -249,7 +250,9 @@ Future<void> insertLocalFiles(
     }
 
     if (errorMsg != null) {
-      showSnackBarMessage(context, errorMsg);
+      if (context.mounted) {
+        showSnackBarMessage(context, errorMsg);
+      }
       continue;
     }
 

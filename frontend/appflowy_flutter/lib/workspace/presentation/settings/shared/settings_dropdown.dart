@@ -76,7 +76,7 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
               ),
               alignment: Alignment.bottomLeft,
             ),
-            inputDecorationTheme: InputDecorationTheme(
+            inputDecorationTheme: InputDecorationThemeData(
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 12,
                 horizontal: 18,

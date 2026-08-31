@@ -94,10 +94,10 @@ dependencies:
   image_picker: ^1.0.4
 
   #  third party packages
-  intl: ^0.19.0
+  intl: ">=0.19.0 <0.21.0"
   json_annotation: ^4.8.1
   keyboard_height_plugin: ^0.1.5
-  leak_tracker: ^10.0.0
+  leak_tracker: ">=10.0.0 <12.0.0"
   linked_scroll_controller: ^0.2.0
 
   # Notifications
@@ -149,7 +149,7 @@ dependencies:
   talker_bloc_logger: ^4.8.1
   talker: ^4.7.1
 
-  analyzer: 6.11.0
+  analyzer: ">=6.11.0 <8.0.0"
 
   html: any
 dev_dependencies:
@@ -174,6 +174,13 @@ dev_dependencies:
   url_launcher_platform_interface: any
 
 dependency_overrides:
+  intl: 0.20.2
+  leak_tracker: ^11.0.1
+  analyzer: 7.3.0
+  dart_style: 3.0.1
+  json_serializable: ^6.9.4
+  freezed: ^2.5.8
+  source_gen: ^2.0.0
   http: ^1.0.0
   device_info_plus: ^11.2.2
 

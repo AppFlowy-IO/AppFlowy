@@ -40,7 +40,7 @@ class _SortEditorState extends State<SortEditor> {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
         return ReorderableListView.builder(
-          onReorder: (oldIndex, newIndex) => context
+          onReorderItem: (oldIndex, newIndex) => context
               .read<SortEditorBloc>()
               .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
           itemCount: state.sorts.length,
