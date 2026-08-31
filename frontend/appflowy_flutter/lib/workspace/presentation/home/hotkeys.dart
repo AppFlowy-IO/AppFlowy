@@ -144,7 +144,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.alt],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => _selectTab(context, -1),
+      keyDownHandler: (_) =>
+          context.read<TabsBloc>().add(const TabsEvent.goBack()),
     ),
 
     // Go to next tab
@@ -162,7 +163,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.alt],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => _selectTab(context, 1),
+      keyDownHandler: (_) =>
+          context.read<TabsBloc>().add(const TabsEvent.goForward()),
     ),
 
     // Rename current view
