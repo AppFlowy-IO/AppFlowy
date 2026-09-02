@@ -96,7 +96,7 @@ the community, **Congratulations!** You are now an official contributor to AppFl
 [Translate AppFlowy on Fink](https://fink.inlang.com/github.com/AppFlowy-IO/AppFlowy?ref=badge)
 
 To add translations, you can manually edit the JSON translation files in `/frontend/resources/translations`, use
-the [inlang online editor](https://fink.inlang.com/github.com/AppFlowy-IO/AppFlowy), or
+the [Fink online editor](https://fink.inlang.com/github.com/AppFlowy-IO/AppFlowy), or
 run `npx inlang machine translate` to add missing translations.
 
 ## Join the community to build AppFlowy together
