@@ -1156,7 +1156,8 @@
       "language": {
         "label": "Jazyk",
         "placeholder": "Vyberte jazyk"
-      }
+      },
+      "wrapTooltip": "Zalamovat kód"
     },
     "inlineLink": {
       "placeholder": "Vložte nebo napište odkaz",

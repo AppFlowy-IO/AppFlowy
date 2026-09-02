@@ -1790,6 +1790,7 @@
         "auto": "Tự động"
       },
       "copyTooltip": "Sao chép",
+      "wrapTooltip": "Ngắt dòng mã",
       "searchLanguageHint": "Tìm kiếm một ngôn ngữ",
       "codeCopiedSnackbar": "Đã sao chép mã vào bảng tạm!"
     },

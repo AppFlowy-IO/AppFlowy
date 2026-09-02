@@ -2206,6 +2206,7 @@
         "auto": "Auto"
       },
       "copyTooltip": "Copier le contenu du bloc de code",
+      "wrapTooltip": "Envelopper le code",
       "searchLanguageHint": "Rechercher une langue",
       "codeCopiedSnackbar": "Code copié dans le presse-papier !"
     },

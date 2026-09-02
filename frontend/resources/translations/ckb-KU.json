@@ -830,7 +830,8 @@
       "language": {
         "label": "زمان",
         "placeholder": "هەڵبژاردنی زمان"
-      }
+      },
+      "wrapTooltip": "پێچانەوەی کۆد"
     },
     "inlineLink": {
       "placeholder": "ڕێڕەوەکە بلکێنە یان بینووسە",

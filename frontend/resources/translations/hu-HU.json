@@ -529,7 +529,8 @@
       "language": {
         "label": "Nyelv",
         "placeholder": "Válasszon nyelvet"
-      }
+      },
+      "wrapTooltip": "Kód tördelése"
     },
     "inlineLink": {
       "placeholder": "Illesszen be vagy írjon be egy hivatkozást",

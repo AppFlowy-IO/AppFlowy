@@ -687,7 +687,8 @@
       "language": {
         "label": "Linguagem",
         "placeholder": "Selecione o idioma"
-      }
+      },
+      "wrapTooltip": "Quebrar linhas do código"
     },
     "inlineLink": {
       "placeholder": "Cole ou digite um link",

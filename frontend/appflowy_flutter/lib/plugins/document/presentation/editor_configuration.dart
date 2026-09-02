@@ -878,12 +878,12 @@ MathEquationBlockComponentBuilder _buildMathEquationBlockComponentBuilder(
   );
 }
 
-CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
+AppFlowyCodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
   EditorStyleCustomizer styleCustomizer,
 ) {
-  return CodeBlockComponentBuilder(
+  return AppFlowyCodeBlockComponentBuilder(
     styleBuilder: styleCustomizer.codeBlockStyleBuilder,
     configuration: configuration,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),

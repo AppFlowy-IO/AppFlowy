@@ -2206,6 +2206,7 @@
         "auto": "آلي"
       },
       "copyTooltip": "نسخ",
+      "wrapTooltip": "لف الكود",
       "searchLanguageHint": "ابحث عن لغة",
       "codeCopiedSnackbar": "تم نسخ الكود إلى الحافظة!"
     },
