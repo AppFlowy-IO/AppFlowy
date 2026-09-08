@@ -178,6 +178,29 @@ void main() {
       );
 
   group('AppFlowy date picker:', () {
+    testWidgets('supports dates before the Unix epoch', (tester) async {
+      await tester.pumpWidget(
+        const WidgetTestApp(
+          child: _MockDatePicker(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final calendar = tester.widget<TableCalendar>(
+        find.byType(TableCalendar),
+      );
+      expect(calendar.firstDay, DateTime.utc(1900));
+
+      final dateTextField = find.byKey(
+        const ValueKey('date_time_text_field_date'),
+      );
+      await tester.enterText(dateTextField, 'Jan 25, 1958');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(getMockState(tester).data.dateTime, DateTime(1958, 1, 25));
+    });
+
     testWidgets('default state', (tester) async {
       await tester.pumpWidget(
         const WidgetTestApp(
