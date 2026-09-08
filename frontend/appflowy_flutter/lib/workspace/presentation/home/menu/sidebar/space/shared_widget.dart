@@ -342,23 +342,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return KeyboardListener(
+    return Focus(
       focusNode: focusNode,
       autofocus: true,
-      onKeyEvent: (event) {
-        if (widget.enableKeyboardListener) {
-          if (event is KeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.escape) {
-            Navigator.of(context).pop();
-          } else if (event is KeyUpEvent &&
-              event.logicalKey == LogicalKeyboardKey.enter) {
-            widget.onConfirm(context);
-            if (widget.closeOnAction) {
-              Navigator.of(context).pop();
-            }
-          }
-        }
-      },
+      onKeyEvent: _handleKeyEvent,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(theme.borderRadius.xl),
@@ -387,6 +374,30 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         ),
       ),
     );
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!widget.enableKeyboardListener) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      Navigator.of(context).pop();
+      return KeyEventResult.handled;
+    }
+
+    if (event is KeyUpEvent &&
+        event.logicalKey == LogicalKeyboardKey.enter) {
+      widget.onConfirm(context);
+      if (widget.closeOnAction) {
+        Navigator.of(context).pop();
+      }
+      // Consume Enter so macOS does not emit its unhandled-key beep.
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   Widget _buildTitle() {
