@@ -96,6 +96,7 @@ void main() {
       await tester.sendKeyUpEvent(LogicalKeyboardKey.enter),
       isTrue,
     );
+    await tester.pumpAndSettle();
     verify(() => callback.confirm()).called(1);
 
     verifyNever(() => callback.confirm());
