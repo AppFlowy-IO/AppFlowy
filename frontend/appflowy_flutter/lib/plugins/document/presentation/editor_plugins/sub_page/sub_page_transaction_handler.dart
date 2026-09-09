@@ -14,7 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 
 bool documentContainsSubPageReference(Node node, String viewId) {
-  if (node.attributes[SubPageBlockKeys.viewId] == viewId) {
+  if (node.type == SubPageBlockKeys.type &&
+      node.attributes[SubPageBlockKeys.viewId] == viewId) {
     return true;
   }
   return node.children.any(

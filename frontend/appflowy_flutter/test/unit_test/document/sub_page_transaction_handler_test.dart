@@ -22,5 +22,15 @@ void main() {
 
     expect(documentContainsSubPageReference(root, 'page-id'), isTrue);
     expect(documentContainsSubPageReference(root, 'other-page'), isFalse);
+    expect(
+      documentContainsSubPageReference(
+        Node(
+          type: 'grid',
+          attributes: {SubPageBlockKeys.viewId: 'page-id'},
+        ),
+        'page-id',
+      ),
+      isFalse,
+    );
   });
 }
