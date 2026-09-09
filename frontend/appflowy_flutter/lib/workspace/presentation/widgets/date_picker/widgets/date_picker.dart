@@ -6,9 +6,10 @@ import 'package:universal_platform/universal_platform.dart';
 
 // Dates are also used for values such as birthdays, which can predate Unix
 // epoch. Keep the lower bound broad enough for historical dates while avoiding
-// the impractically large range before the Gregorian calendar.
-final kFirstDay = DateTime.utc(1900);
-final kLastDay = DateTime.utc(2100);
+// the impractically large range before the Gregorian calendar. Keep both
+// bounds local because calendar and text-field dates are represented locally.
+final kFirstDay = DateTime(1900);
+final kLastDay = DateTime(2100);
 
 class DatePicker extends StatefulWidget {
   const DatePicker({

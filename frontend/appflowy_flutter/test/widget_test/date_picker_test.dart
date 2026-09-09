@@ -189,16 +189,16 @@ void main() {
       final calendar = tester.widget<TableCalendar>(
         find.byType(TableCalendar),
       );
-      expect(calendar.firstDay, DateTime.utc(1900));
+      expect(calendar.firstDay, DateTime(1900));
 
       final dateTextField = find.byKey(
         const ValueKey('date_time_text_field_date'),
       );
-      await tester.enterText(dateTextField, 'Jan 25, 1958');
+      await tester.enterText(dateTextField, 'Jan 1, 1900');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
-      expect(getMockState(tester).data.dateTime, DateTime(1958, 1, 25));
+      expect(getMockState(tester).data.dateTime, DateTime(1900));
     });
 
     testWidgets('default state', (tester) async {
