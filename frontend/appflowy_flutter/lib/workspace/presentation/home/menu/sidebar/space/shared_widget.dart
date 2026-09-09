@@ -387,13 +387,16 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
       return KeyEventResult.handled;
     }
 
-    if (event is KeyUpEvent &&
-        event.logicalKey == LogicalKeyboardKey.enter) {
-      widget.onConfirm(context);
-      if (widget.closeOnAction) {
-        Navigator.of(context).pop();
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      if (event is KeyUpEvent) {
+        widget.onConfirm(context);
+        if (widget.closeOnAction) {
+          Navigator.of(context).pop();
+        }
       }
-      // Consume Enter so macOS does not emit its unhandled-key beep.
+      // Consume the full Enter sequence so macOS does not emit its
+      // unhandled-key beep. Confirm only on key up to preserve the existing
+      // behavior and avoid repeats while the key is held.
       return KeyEventResult.handled;
     }
 
