@@ -1,0 +1,9 @@
+click "My Workspace"
+click "Settings"
+scroll down on "Account & App"
+scroll down on "Language"
+click "Delete account"
+click "Delete account"
+check that "Delete account" is not clickable
+reload
+check that page does not contain "Delete account"

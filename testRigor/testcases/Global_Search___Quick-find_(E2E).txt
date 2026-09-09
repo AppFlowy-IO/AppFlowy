@@ -1,0 +1,39 @@
+// ============================================================
+// Global Search / Quick-find (E2E) — AppFlowy Web
+// 1) Empty-state search for a nonsense query
+// 2) Create a page, then search for it by title
+// Use `enter ... into input` for the modal field (only input while
+// the Quick-find palette is open). Do not use AI clicks
+// ============================================================
+Login using password
+check that page contains "New page"
+// ---- Empty-state search ----
+click "Search"
+check that page contains "TAB"
+check that page contains "Recent pages"
+enter "zzqqxxnomatchquery" into input
+check that page does not contain "Recent pages"
+check that page contains "No search results"
+check that page contains "Ask AI"
+type escape
+// ---- Create a page with a unique title ----
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+check that page contains "Enter a / to insert a block, or start typing"
+check that page contains "Untitled"
+triple click "Untitled"
+generate from regex "sq[a-z]{5}" and save as "newTitle"
+type stored value "newTitle"
+type enter
+check that page contains stored value "newTitle"
+click 2nd button to the right of "Share" in the context of "Add icon"
+check that page contains "New page"
+// ---- Search for the page just created ----
+click "Search"
+check that page contains "TAB"
+enter stored value "newTitle" into input
+check that page does not contain "No search results"
+check that page contains stored value "newTitle"
+type escape

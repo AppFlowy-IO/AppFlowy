@@ -42,3 +42,6 @@ frontend/*.deb
 **/Cargo.toml.bak
 
 **/.cargo/**
+
+# testRigor local run artifacts
+testRigor/.run/

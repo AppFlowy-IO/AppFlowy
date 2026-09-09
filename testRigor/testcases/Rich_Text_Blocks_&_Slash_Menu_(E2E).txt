@@ -1,0 +1,49 @@
+// ============================================================
+// Rich Text Blocks & Slash Menu (E2E) — AppFlowy Web
+// Insert block types via the slash menu (type "/name" then Enter
+// selects the top match) and assert each renders
+// Stay in the new-page dialog — do not Escape (that closes it)
+// ============================================================
+Login using password
+check that page contains "New page"
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+check that page contains "Enter a / to insert a block, or start typing"
+enter enter
+// ---- Heading ----
+type "/heading"
+type enter
+type "Heading One"
+type enter
+check that page contains "Heading One"
+// ---- To-do list ----
+type "/todo"
+type enter
+type "Todo item one"
+type enter
+check that page contains "Todo item one"
+// ---- Quote ----
+type "/quote"
+type enter
+type "Quote text here"
+type enter
+check that page contains "Quote text here"
+// ---- Callout ----
+type "/callout"
+type enter
+type "Callout content"
+type enter
+check that page contains "Callout content"
+// ---- Code block ----
+type "/code"
+type enter
+type "codeword123"
+check that page contains "codeword123"
+// ---- Clean up (dialog: ... is left of the close X) ----
+click on "the more options (...) button at the top-right of the document dialog, to the left of the close (X) button" using ai
+check that page contains "Delete"
+click "Delete"
+click "Delete" to the right of "Cancel" if exists
+check that page does not contain "Heading One"

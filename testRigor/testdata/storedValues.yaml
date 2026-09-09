@@ -1,0 +1,4 @@
+storedValues:
+- key: testVariable
+  value: this is a name.
+  type: TEXT

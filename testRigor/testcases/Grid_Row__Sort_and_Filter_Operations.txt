@@ -1,0 +1,64 @@
+Login using password
+check that page contains "New page"
+// ---- create a Grid via the slash menu ----
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+check that page contains "Enter a / to insert a block, or start typing"
+enter enter
+enter "/grid"
+enter enter
+check that page contains "New row"
+// ---- populate the Name column (each value anchors the next row) ----
+click below "Name"
+enter "Apple"
+type escape
+check that page contains "Apple"
+click below "Apple"
+enter "Banana"
+type escape
+check that page contains "Banana"
+click below "Banana"
+enter "Cherry"
+type escape
+check that page contains "Cherry"
+// ---- Editing a text cell while a sort is active should cause the grid to re-sort live to the new position ----
+click 2nd button above "New property"
+click "Name" below "Sort by"
+// Dismiss the sort panel (Escape does not close it). It covers the top Name cells
+click "New Database"
+check that page contains "Apple" above "Banana"
+custom enter "Zapple" into "Apple"
+check that page doesn't contain exactly "Apple"
+check that page doesn't contain "Zapple" above "Banana"
+check that page contains "Zapple" below "Banana" below "Cherry"
+click "Name" roughly to the left of "Add Filter"
+check that page contains "Delete sorts"
+click "Delete sorts"
+custom enter "Apple" into "Zapple"
+// ---- check the "Done" box on the Apple row only ----
+click on "the Done checkbox on the Apple row" using ai
+check that page "shows Apple's Done checkbox checked and Banana/Cherry unchecked" using ai
+// ---- add a filter on the Done checkbox field (defaults to "is checked") ----
+click "Add Filter"
+check that page contains "Filter by"
+click "Done" below "Filter by"
+// Dismiss the filter panel so it does not cover Name cells
+click "New Database"
+// ---- only the checked row (Apple) should remain ----
+// Avoid is not visible / does not contain on Banana|Cherry (false positives)
+check that page contains "Checked"
+check that page contains "Apple"
+check that page "shows a filtered grid with only the Apple row visible" using ai
+// ---- unchecking Apple under an active Done:Checked filter should drop the row ----
+click on "the Done checkbox on the Apple row" using ai
+click "New Database"
+check that page "shows a filtered grid with no Apple, Banana, or Cherry name cells" using ai
+// ---- delete the filter and confirm all rows return ----
+click on "the three-dot menu on the Done filter chip" using ai
+check that page contains "Delete filter"
+click "Delete filter"
+check that page contains "Apple"
+check that page contains "Banana"
+check that page contains "Cherry"

@@ -1,0 +1,157 @@
+# Required repository secrets:
+#   TESTRIGOR_API_KEY        — Personal Auth Token (username → API Tokens)
+#                              (falls back to TESTRIGOR_AUTH_TOKEN if set)
+#
+# Required repository variable:
+#   TESTRIGOR_TEST_SUITE_ID  — suite ID from the suite URL
+#
+# Optional repository variable:
+#   APPFLOWY_WEB_URL         — app under test (default: https://appflowy.com/app)
+
+name: testRigor
+
+on:
+  # Runs on push to feature branches — not on main.
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - ".github/workflows/testrigor.yml"
+      - "testRigor/**"
+
+  workflow_dispatch:
+
+concurrency:
+  group: testrigor-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testrigor:
+    name: Run testRigor suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      TESTRIGOR_TEST_SUITE_ID: ${{ vars.TESTRIGOR_TEST_SUITE_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install testRigor CLI
+        run: |
+          set -euo pipefail
+          npm install -g testrigor-cli
+          testrigor --version
+
+      - name: Run testRigor suite
+        env:
+          TESTRIGOR_API_KEY: ${{ secrets.TESTRIGOR_API_KEY }}
+          TESTRIGOR_AUTH_TOKEN: ${{ secrets.TESTRIGOR_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # CLI expects TESTRIGOR_API_KEY (PAT). Allow the older suite auth-token secret as fallback.
+          if [ -z "${TESTRIGOR_API_KEY:-}" ] && [ -n "${TESTRIGOR_AUTH_TOKEN:-}" ]; then
+            export TESTRIGOR_API_KEY="${TESTRIGOR_AUTH_TOKEN}"
+          fi
+
+          if [ -z "${TESTRIGOR_API_KEY:-}" ]; then
+            echo "::error::Missing secret TESTRIGOR_API_KEY (or TESTRIGOR_AUTH_TOKEN)"
+            exit 1
+          fi
+
+          if [ -z "${TESTRIGOR_TEST_SUITE_ID:-}" ]; then
+            echo "::error::Missing variable TESTRIGOR_TEST_SUITE_ID"
+            exit 1
+          fi
+
+          APP_URL="${{ vars.APPFLOWY_WEB_URL }}"
+          if [ -z "${APP_URL}" ]; then
+            APP_URL="https://appflowy.com/app"
+          fi
+          echo "App under test: ${APP_URL}"
+          echo "Suite ID: ${TESTRIGOR_TEST_SUITE_ID}"
+
+          mkdir -p testRigor/.run
+
+          # Sync mode (no --async): exit code gates the job.
+          # --explicit-mutations: local testRigor/testcases (+ rules) is authoritative —
+          # only those cases are kept/updated on the suite and executed. Remote-only
+          # cases not present as files are dropped from the suite.
+          testrigor test-suite run "${TESTRIGOR_TEST_SUITE_ID}" \
+            --url "${APP_URL}" \
+            --test-cases-path "testRigor/testcases/**/*.{txt,yaml,yml}" \
+            --rules-path "testRigor/rules/**/*.{txt,yaml,yml}" \
+            --explicit-mutations \
+            --branch "${GITHUB_REF_NAME}" \
+            --commit "${GITHUB_SHA}" \
+            --junit-report-save-path "testRigor/.run/report.xml" \
+            --verbose
+
+      # Diagnostic only: the JUnit report identifies cases as "Test Case UUID=" with
+      # an empty uuid, so a failure cannot be mapped back to a file without this.
+      - name: Report per-case results
+        if: always()
+        env:
+          TESTRIGOR_API_KEY: ${{ secrets.TESTRIGOR_API_KEY }}
+          TESTRIGOR_AUTH_TOKEN: ${{ secrets.TESTRIGOR_AUTH_TOKEN }}
+        run: |
+          set -uo pipefail
+
+          TOKEN="${TESTRIGOR_API_KEY:-}"
+          if [ -z "${TOKEN}" ]; then TOKEN="${TESTRIGOR_AUTH_TOKEN:-}"; fi
+          if [ -z "${TOKEN}" ]; then
+            echo "No token available; skipping per-case report."
+            exit 0
+          fi
+
+          curl -sS --max-time 60 \
+            -H "Accept: application/json" \
+            -H "auth-token: ${TOKEN}" \
+            "https://app.testrigor.com/api/v1/apps/${TESTRIGOR_TEST_SUITE_ID}/status?branchName=${GITHUB_REF_NAME}" \
+            -o testRigor/.run/status.json || true
+
+          python3 - <<'PY'
+          import json, os, sys
+
+          path = "testRigor/.run/status.json"
+          try:
+              with open(path, encoding="utf-8") as fh:
+                  data = json.load(fh)
+          except Exception as exc:
+              print(f"Could not parse {path}: {exc}")
+              sys.exit(0)
+
+          print(f"status: {data.get('status')}")
+          print(f"details: {data.get('detailsUrl')}")
+
+          errors = data.get("errors") or []
+          if not errors:
+              print("No per-case errors reported.")
+              sys.exit(0)
+
+          for err in errors:
+              names = ", ".join(
+                  tc.get("name", "?") for tc in (err.get("affectedTestCases") or [])
+              ) or "?"
+              print("")
+              print(f"[{err.get('severity')}/{err.get('category')}] {names}")
+              print(f"  error: {err.get('error')}")
+              print(f"  step:  {err.get('greatestStepN')}  occurrences: {err.get('occurrences')}")
+              print(f"  url:   {err.get('detailsUrl')}")
+
+          sys.exit(0)
+          PY
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testrigor-junit-report
+          path: testRigor/.run/report.xml
+          if-no-files-found: ignore
