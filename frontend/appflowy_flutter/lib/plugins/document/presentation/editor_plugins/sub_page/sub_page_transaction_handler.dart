@@ -13,6 +13,16 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 
+bool documentContainsSubPageReference(Node node, String viewId) {
+  if (node.type == SubPageBlockKeys.type &&
+      node.attributes[SubPageBlockKeys.viewId] == viewId) {
+    return true;
+  }
+  return node.children.any(
+    (child) => documentContainsSubPageReference(child, viewId),
+  );
+}
+
 class SubPageTransactionHandler extends BlockTransactionHandler {
   SubPageTransactionHandler() : super(type: SubPageBlockKeys.type);
 
@@ -38,7 +48,12 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
     for (final node in removed) {
       if (!context.mounted) return;
-      await _subPageDeleted(context, node);
+      await _subPageDeleted(
+        context,
+        editorState,
+        node,
+        parentViewId: viewId,
+      );
     }
 
     for (final node in added) {
@@ -56,18 +71,35 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
   Future<void> _subPageDeleted(
     BuildContext context,
-    Node node,
-  ) async {
+    EditorState editorState,
+    Node node, {
+    required String parentViewId,
+  }) async {
     if (node.type != type) {
       return;
     }
 
-    final view = node.attributes[SubPageBlockKeys.viewId];
-    if (view == null) {
+    final viewId = node.attributes[SubPageBlockKeys.viewId] as String?;
+    if (viewId == null) {
       return;
     }
 
-    final result = await ViewBackendService.deleteView(viewId: view);
+    // A moved block is represented by deleting the old node and inserting a
+    // copy. Do not delete the page while another block still references it.
+    if (documentContainsSubPageReference(editorState.document.root, viewId)) {
+      return;
+    }
+
+    // Moving a page from the sidebar updates its parent before the old block
+    // is removed from the document. That removal must not move the page to
+    // trash.
+    final viewOrResult = await ViewBackendService.getView(viewId);
+    final view = viewOrResult.toNullable();
+    if (view == null || view.parentViewId != parentViewId) {
+      return;
+    }
+
+    final result = await ViewBackendService.deleteView(viewId: viewId);
     result.fold(
       (_) {},
       (error) {
