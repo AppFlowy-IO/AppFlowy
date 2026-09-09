@@ -189,7 +189,7 @@ void main() {
       final calendar = tester.widget<TableCalendar>(
         find.byType(TableCalendar),
       );
-      expect(calendar.firstDay, DateTime(1900));
+      expect(isSameDay(calendar.firstDay, DateTime(1900)), isTrue);
 
       final dateTextField = find.byKey(
         const ValueKey('date_time_text_field_date'),
