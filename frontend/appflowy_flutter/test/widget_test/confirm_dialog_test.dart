@@ -86,7 +86,17 @@ void main() {
 
     expect(find.byType(ConfirmPopup), findsOneWidget);
 
-    await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+    expect(
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter),
+      isTrue,
+    );
+    verifyNever(() => callback.confirm());
+
+    expect(
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.enter),
+      isTrue,
+    );
+    await tester.pumpAndSettle();
     verify(() => callback.confirm()).called(1);
 
     verifyNever(() => callback.confirm());
