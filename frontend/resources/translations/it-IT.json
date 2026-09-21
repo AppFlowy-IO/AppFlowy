@@ -395,7 +395,7 @@
     "openMenu": "Fare clic per aprire il menu",
     "dragRow": "Premere a lungo per riordinare la riga",
     "viewDataBase": "Visualizza banca dati",
-    "referencePage": "Questo {nome} è referenziato",
+    "referencePage": "Questo {name} è referenziato",
     "addBlockBelow": "Aggiungi un blocco qui sotto",
     "aiGenerate": "Genera"
   },
@@ -641,7 +641,7 @@
         "logoutLabel": "Disconnettiti"
       },
       "isUpToDate": "@:appName è aggiornato!",
-      "officialVersion": "Versione {versione} (官方構建)"
+      "officialVersion": "Versione {version} (官方構建)"
     },
     "workspacePage": {
       "menuLabel": "Area di lavoro",

@@ -238,7 +238,7 @@
     "openMenu": "Cliquez pour ouvrir le menu",
     "dragRow": "Appuyez longuement pour réorganiser la ligne",
     "viewDataBase": "Voir la base de données",
-    "referencePage": "Ce {nom} est référencé",
+    "referencePage": "Ce {name} est référencé",
     "addBlockBelow": "Ajouter un bloc ci-dessous"
   },
   "sideBar": {

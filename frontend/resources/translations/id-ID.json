@@ -202,7 +202,7 @@
     "openMenu": "Klik untuk membuka menu",
     "dragRow": "Tekan lama untuk menyusun ulang baris",
     "viewDataBase": "Lihat basis data",
-    "referencePage": "{nama} ini direferensikan",
+    "referencePage": "{name} ini direferensikan",
     "addBlockBelow": "Tambahkan blok di bawah ini"
   },
   "sideBar": {

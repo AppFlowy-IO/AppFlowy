@@ -175,7 +175,7 @@
     "openMenu": "Feu clic per obrir el menú",
     "dragRow": "Premeu llargament per reordenar la fila",
     "viewDataBase": "Veure base de dades",
-    "referencePage": "Es fa referència a aquest {nom}",
+    "referencePage": "Es fa referència a aquest {name}",
     "addBlockBelow": "Afegeix un bloc a continuació"
   },
   "sideBar": {
