@@ -218,7 +218,7 @@
     "firstName": "የመጀመሪያ ስም",
     "middleName": "የአባት ስም",
     "lastName": "የአያት ስም",
-    "stepX": "ደረጃ {x}"
+    "stepX": "ደረጃ {X}"
   },
   "oAuth": {
     "err": {

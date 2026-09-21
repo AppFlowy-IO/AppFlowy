@@ -139,7 +139,7 @@
     "openMenu": "Egin klik menua irekitzeko",
     "dragRow": "Luze sakatu errenkada berrantolatzeko",
     "viewDataBase": "Ikusi datu-basea",
-    "referencePage": "{izena} honi erreferentzia egiten zaio",
+    "referencePage": "{name} honi erreferentzia egiten zaio",
     "addBlockBelow": "Gehitu bloke bat behean"
   },
   "sideBar": {

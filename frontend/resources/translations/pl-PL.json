@@ -206,7 +206,7 @@
     "openMenu": "Kliknij, aby otworzyć menu",
     "dragRow": "Naciśnij i przytrzymaj, aby zmienić kolejność wierszy",
     "viewDataBase": "Zobacz bazę danych",
-    "referencePage": "Odwołuje się do tego {nazwa}",
+    "referencePage": "Odwołuje się do tego {name}",
     "addBlockBelow": "Dodaj blok poniżej"
   },
   "sideBar": {
