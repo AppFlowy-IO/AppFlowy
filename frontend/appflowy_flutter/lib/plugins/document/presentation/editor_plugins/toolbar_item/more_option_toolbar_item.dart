@@ -210,6 +210,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
                 fontWeight: FontWeight.w400,
               ),
             ),
+          buildCommandItem(MoreOptionCommand.clearFormatting),
         ],
       ),
     );
@@ -348,7 +349,8 @@ enum MoreOptionCommand {
   ),
   font(FlowySvgs.type_font_m),
   strikethrough(FlowySvgs.type_strikethrough_m),
-  formula(FlowySvgs.type_formula_m);
+  formula(FlowySvgs.type_formula_m),
+  clearFormatting(FlowySvgs.eraser_m);
 
   const MoreOptionCommand(this.svg);
 
@@ -368,6 +370,8 @@ enum MoreOptionCommand {
         return LocaleKeys.editor_strikethrough.tr();
       case formula:
         return LocaleKeys.document_toolbar_equation.tr();
+      case clearFormatting:
+        return LocaleKeys.document_toolbar_clearFormatting.tr();
     }
   }
 
@@ -389,6 +393,18 @@ enum MoreOptionCommand {
         final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
         showLinkCreateMenu(context, editorState, selection, viewId);
       }
+    } else if (this == clearFormatting) {
+      await editorState.formatDelta(selection, {
+        AppFlowyRichTextKeys.bold: null,
+        AppFlowyRichTextKeys.italic: null,
+        AppFlowyRichTextKeys.underline: null,
+        AppFlowyRichTextKeys.strikethrough: null,
+        AppFlowyRichTextKeys.code: null,
+        AppFlowyRichTextKeys.fontFamily: null,
+        AppFlowyRichTextKeys.href: null,
+        AppFlowyRichTextKeys.backgroundColor: null,
+        AppFlowyRichTextKeys.textColor: null,
+      });
     } else if (this == strikethrough) {
       await editorState.toggleAttribute(name);
     } else if (this == formula) {

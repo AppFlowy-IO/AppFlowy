@@ -2228,7 +2228,8 @@
       "linkInputHint": "Paste link or search pages",
       "pageOrURL": "Page or URL",
       "linkName": "Link Name",
-      "linkNameHint": "Input link name"
+      "linkNameHint": "Input link name",
+      "clearFormatting": "Clear formatting"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
