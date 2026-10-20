@@ -160,46 +160,48 @@ class MobileHiddenGroup extends StatelessWidget {
     final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary);
+
+    final List<Widget> cells;
     if (primaryField == null) {
-      return const SizedBox.shrink();
+      cells = const [];
+    } else {
+      cells = group.rows.map(
+        (item) {
+          final cellContext =
+              databaseController.rowCache.loadCells(item).firstWhereOrNull(
+                    (cellContext) => cellContext.fieldId == primaryField.id,
+                  );
+          if (cellContext == null) {
+            return null;
+          }
+
+          return TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.bodyMedium,
+              foregroundColor: AFThemeExtension.of(context).onBackground,
+              visualDensity: VisualDensity.compact,
+            ),
+            child: CardCellBuilder(
+              databaseController: context.read<BoardBloc>().databaseController,
+            ).build(
+              cellContext: cellContext,
+              styleMap: {FieldType.RichText: _titleCellStyle(context)},
+              hasNotes: !item.isDocumentEmpty,
+            ),
+            onPressed: () {
+              context.push(
+                MobileRowDetailPage.routeName,
+                extra: {
+                  MobileRowDetailPage.argRowId: item.id,
+                  MobileRowDetailPage.argDatabaseController:
+                      context.read<BoardBloc>().databaseController,
+                },
+              );
+            },
+          );
+        },
+      ).whereNotNull().toList();
     }
-
-    final cells = group.rows.map(
-      (item) {
-        final cellContext =
-            databaseController.rowCache.loadCells(item).firstWhereOrNull(
-                  (cellContext) => cellContext.fieldId == primaryField.id,
-                );
-        if (cellContext == null) {
-          return null;
-        }
-
-        return TextButton(
-          style: TextButton.styleFrom(
-            textStyle: Theme.of(context).textTheme.bodyMedium,
-            foregroundColor: AFThemeExtension.of(context).onBackground,
-            visualDensity: VisualDensity.compact,
-          ),
-          child: CardCellBuilder(
-            databaseController: context.read<BoardBloc>().databaseController,
-          ).build(
-            cellContext: cellContext,
-            styleMap: {FieldType.RichText: _titleCellStyle(context)},
-            hasNotes: !item.isDocumentEmpty,
-          ),
-          onPressed: () {
-            context.push(
-              MobileRowDetailPage.routeName,
-              extra: {
-                MobileRowDetailPage.argRowId: item.id,
-                MobileRowDetailPage.argDatabaseController:
-                    context.read<BoardBloc>().databaseController,
-              },
-            );
-          },
-        );
-      },
-    ).whereNotNull().toList();
 
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
