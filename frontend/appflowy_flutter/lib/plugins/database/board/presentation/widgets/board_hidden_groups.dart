@@ -214,8 +214,6 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
   @override
   Widget build(BuildContext context) {
     final databaseController = widget.bloc.databaseController;
-    final primaryField = databaseController.fieldController.fieldInfos
-        .firstWhereOrNull((element) => element.isPrimary)!;
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithCenterAligned,
@@ -227,7 +225,6 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
           child: HiddenGroupPopupItemList(
             viewId: databaseController.viewId,
             groupId: widget.group.groupId,
-            primaryFieldId: primaryField.id,
             rowCache: databaseController.rowCache,
           ),
         );
@@ -383,13 +380,11 @@ class HiddenGroupPopupItemList extends StatelessWidget {
     super.key,
     required this.groupId,
     required this.viewId,
-    required this.primaryFieldId,
     required this.rowCache,
   });
 
   final String groupId;
   final String viewId;
-  final String primaryFieldId;
   final RowCache rowCache;
 
   @override
@@ -406,6 +401,59 @@ class HiddenGroupPopupItemList extends StatelessWidget {
               return const SizedBox.shrink();
             }
             final bloc = context.read<BoardBloc>();
+            final primaryField = bloc
+                .databaseController.fieldController.fieldInfos
+                .firstWhereOrNull((element) => element.isPrimary);
+
+            final rowWidgets = primaryField == null
+                ? const <Widget>[]
+                : group.rows.map(
+                    (item) {
+                      final rowController = RowController(
+                        rowMeta: item,
+                        viewId: viewId,
+                        rowCache: rowCache,
+                      );
+                      rowController.initialize();
+
+                      final databaseController =
+                          context.read<BoardBloc>().databaseController;
+
+                      final cellContext =
+                          rowCache.loadCells(item).firstWhereOrNull(
+                                (cellContext) =>
+                                    cellContext.fieldId == primaryField.id,
+                              );
+                      if (cellContext == null) {
+                        return null;
+                      }
+
+                      return HiddenGroupPopupItem(
+                        cellContext: cellContext,
+                        rowController: rowController,
+                        rowMeta: item,
+                        cellBuilder: CardCellBuilder(
+                          databaseController: databaseController,
+                        ),
+                        onPressed: () {
+                          FlowyOverlay.show(
+                            context: context,
+                            builder: (_) => BlocProvider.value(
+                              value: context.read<UserWorkspaceBloc>(),
+                              child: RowDetailPage(
+                                databaseController: databaseController,
+                                rowController: rowController,
+                                userProfile:
+                                    context.read<BoardBloc>().userProfile,
+                              ),
+                            ),
+                          );
+                          PopoverContainer.of(context).close();
+                        },
+                      );
+                    },
+                  ).whereNotNull();
+
             final cells = <Widget>[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -416,45 +464,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              ...group.rows.map(
-                (item) {
-                  final rowController = RowController(
-                    rowMeta: item,
-                    viewId: viewId,
-                    rowCache: rowCache,
-                  );
-                  rowController.initialize();
-
-                  final databaseController =
-                      context.read<BoardBloc>().databaseController;
-
-                  return HiddenGroupPopupItem(
-                    cellContext: rowCache.loadCells(item).firstWhere(
-                          (cellContext) =>
-                              cellContext.fieldId == primaryFieldId,
-                        ),
-                    rowController: rowController,
-                    rowMeta: item,
-                    cellBuilder: CardCellBuilder(
-                      databaseController: databaseController,
-                    ),
-                    onPressed: () {
-                      FlowyOverlay.show(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: context.read<UserWorkspaceBloc>(),
-                          child: RowDetailPage(
-                            databaseController: databaseController,
-                            rowController: rowController,
-                            userProfile: context.read<BoardBloc>().userProfile,
-                          ),
-                        ),
-                      );
-                      PopoverContainer.of(context).close();
-                    },
-                  );
-                },
-              ),
+              ...rowWidgets,
             ];
 
             return ListView.separated(
