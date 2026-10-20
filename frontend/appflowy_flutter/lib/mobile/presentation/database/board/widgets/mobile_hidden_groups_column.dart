@@ -159,14 +159,20 @@ class MobileHiddenGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
     final primaryField = databaseController.fieldController.fieldInfos
-        .firstWhereOrNull((element) => element.isPrimary)!;
+        .firstWhereOrNull((element) => element.isPrimary);
+    if (primaryField == null) {
+      return const SizedBox.shrink();
+    }
 
     final cells = group.rows.map(
       (item) {
         final cellContext =
-            databaseController.rowCache.loadCells(item).firstWhere(
+            databaseController.rowCache.loadCells(item).firstWhereOrNull(
                   (cellContext) => cellContext.fieldId == primaryField.id,
                 );
+        if (cellContext == null) {
+          return null;
+        }
 
         return TextButton(
           style: TextButton.styleFrom(
@@ -193,7 +199,7 @@ class MobileHiddenGroup extends StatelessWidget {
           },
         );
       },
-    ).toList();
+    ).whereNotNull().toList();
 
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,

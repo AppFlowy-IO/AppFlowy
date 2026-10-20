@@ -112,7 +112,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createRow: (groupId, position, title, targetRowId) async {
             final primaryField = databaseController.fieldController.fieldInfos
-                .firstWhereOrNull((element) => element.isPrimary)!;
+                .firstWhereOrNull((element) => element.isPrimary);
+            if (primaryField == null) {
+              Log.error('Failed to create row: primary field not found');
+              return;
+            }
             final void Function(RowDataBuilder)? cellBuilder = title == null
                 ? null
                 : (builder) => builder.insertText(primaryField, title);

@@ -214,14 +214,18 @@ class _HiddenGroupCardState extends State<HiddenGroupCard> {
   @override
   Widget build(BuildContext context) {
     final databaseController = widget.bloc.databaseController;
-    final primaryField = databaseController.fieldController.fieldInfos
-        .firstWhereOrNull((element) => element.isPrimary)!;
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithCenterAligned,
       triggerActions: PopoverTriggerFlags.none,
       constraints: const BoxConstraints(maxWidth: 234, maxHeight: 300),
       popupBuilder: (popoverContext) {
+        final primaryField = databaseController.fieldController.fieldInfos
+            .firstWhereOrNull((element) => element.isPrimary);
+        if (primaryField == null) {
+          return const SizedBox.shrink();
+        }
+
         return BlocProvider.value(
           value: context.read<BoardBloc>(),
           child: HiddenGroupPopupItemList(
@@ -428,11 +432,15 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   final databaseController =
                       context.read<BoardBloc>().databaseController;
 
+                  final cellContext = rowCache.loadCells(item).firstWhereOrNull(
+                        (cellContext) => cellContext.fieldId == primaryFieldId,
+                      );
+                  if (cellContext == null) {
+                    return null;
+                  }
+
                   return HiddenGroupPopupItem(
-                    cellContext: rowCache.loadCells(item).firstWhere(
-                          (cellContext) =>
-                              cellContext.fieldId == primaryFieldId,
-                        ),
+                    cellContext: cellContext,
                     rowController: rowController,
                     rowMeta: item,
                     cellBuilder: CardCellBuilder(
@@ -454,7 +462,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                     },
                   );
                 },
-              ),
+              ).whereNotNull(),
             ];
 
             return ListView.separated(
