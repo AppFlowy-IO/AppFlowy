@@ -36,6 +36,9 @@
     "loginButtonText": "Oturum Aç",
     "loginStartWithAnonymous": "Anonim oturumla başla",
     "continueAnonymousUser": "Anonim oturumla devam et",
+    "continueWithLocalModel": "Yerel modelle devam et",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "anonymousMode": "Anonim mod",
     "buttonText": "Oturum Aç",
     "signingInText": "Oturum açılıyor...",
     "forgotPassword": "Parolamı Unuttum?",
@@ -45,6 +48,7 @@
     "createAccount": "Hesap oluştur",
     "repeatPasswordEmptyError": "Parola tekrarı alanı boş bırakılamaz",
     "unmatchedPasswordError": "Parola tekrarı parolayla eşleşmiyor",
+    "passwordMustContain": "Parola en az bir harf, bir rakam ve bir sembol içermelidir.",
     "syncPromptMessage": "Verilerin senkronize edilmesi biraz zaman alabilir. Lütfen bu sayfayı kapatmayın",
     "or": "VEYA",
     "signInWithGoogle": "Google ile devam et",
@@ -68,7 +72,43 @@
     "generalError": "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
     "limitRateError": "Güvenlik önlemi olarak, sihirli bağlantı talepleri 60 saniyede bir ile sınırlandırılmıştır.",
     "magicLinkSentDescription": "E-posta adresinize sihirli bir bağlantı gönderdik. Giriş yapmak için bu bağlantıya tıklayın. Bağlantı 5 dakika içinde geçersiz hale gelecektir.",
-    "anonymous": "Anonim"
+    "anonymous": "Anonim",
+    "tokenHasExpiredOrInvalid": "Kodun süresi doldu veya geçersiz. Lütfen tekrar deneyin.",
+    "signingIn": "Giriş yapılıyor...",
+    "checkYourEmail": "E-postanızı kontrol edin",
+    "temporaryVerificationLinkSent": "Geçici bir doğrulama bağlantısı gönderildi.\nLütfen gelen kutunuzu kontrol edin:",
+    "temporaryVerificationCodeSent": "Geçici bir doğrulama kodu gönderildi.\nLütfen gelen kutunuzu kontrol edin:",
+    "continueToSignIn": "Giriş yapmaya devam et",
+    "continueWithLoginCode": "Giriş koduyla devam et",
+    "backToLogin": "Girişe geri dön",
+    "enterCode": "Kodu girin",
+    "enterCodeManually": "Kodu elle girin",
+    "continueWithEmail": "E-posta ile devam et",
+    "enterPassword": "Parolayı girin",
+    "loginAs": "Şu hesapla giriş yap:",
+    "invalidVerificationCode": "Lütfen geçerli bir doğrulama kodu girin",
+    "tooFrequentVerificationCodeRequest": "Çok fazla istekte bulundunuz. Lütfen daha sonra tekrar deneyin.",
+    "invalidLoginCredentials": "Parolanız yanlış, lütfen tekrar deneyin",
+    "resetPassword": "Parolayı sıfırla",
+    "resetPasswordDescription": "Parolanızı sıfırlamak için e-postanızı girin",
+    "continueToResetPassword": "Parola sıfırlamaya devam et",
+    "resetPasswordSuccess": "Parola başarıyla sıfırlandı",
+    "resetPasswordFailed": "Parola sıfırlanamadı",
+    "resetPasswordLinkSent": "E-postanıza bir parola sıfırlama bağlantısı gönderildi. Lütfen gelen kutunuzu kontrol edin:",
+    "resetPasswordLinkExpired": "Parola sıfırlama bağlantısının süresi dolmuş. Lütfen yeni bir bağlantı isteyin.",
+    "resetPasswordLinkInvalid": "Parola sıfırlama bağlantısı geçersiz. Lütfen yeni bir bağlantı isteyin.",
+    "enterNewPasswordFor": "Şu hesap için yeni parola girin: ",
+    "newPassword": "Yeni parola",
+    "enterNewPassword": "Yeni parolayı girin",
+    "confirmPassword": "Parolayı onayla",
+    "confirmNewPassword": "Yeni parolayı girin",
+    "newPasswordCannotBeEmpty": "Yeni parola boş olamaz",
+    "confirmPasswordCannotBeEmpty": "Parola onayı boş olamaz",
+    "passwordsDoNotMatch": "Parolalar eşleşmiyor",
+    "verifying": "Doğrulanıyor...",
+    "continueWithPassword": "Parola ile devam et",
+    "youAreInLocalMode": "Yerel moddasınız.",
+    "loginToAppFlowyCloud": "AppFlowy Cloud'a Giriş Yap"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma alanınızı seçin",
@@ -151,7 +191,8 @@
     "charCountLabel": "Karakter sayısı: ",
     "createdAtLabel": "Oluşturulma: ",
     "syncedAtLabel": "Senkronize edilme: ",
-    "saveAsNewPage": "Mesajları sayfaya ekle"
+    "saveAsNewPage": "Mesajları sayfaya ekle",
+    "saveAsNewPageDisabled": "Kullanılabilir mesaj yok"
   },
   "importPanel": {
     "textAndMarkdown": "Metin ve Markdown",
@@ -160,6 +201,15 @@
     "notionZip": "Notion Dışa Aktarılmış Zip Dosyası",
     "csv": "CSV",
     "database": "Veritabanı"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Bir dosyayı sürükleyip bırakın, ",
+      "placeholderUpload": "yüklemek",
+      "placeholderRight": " için tıklayın veya bir görsel bağlantısı yapıştırın.",
+      "dropToUpload": "Yüklemek için bir dosya bırakın",
+      "change": "Değiştir"
+    }
   },
   "disclosureAction": {
     "rename": "Yeniden adlandır",
@@ -174,7 +224,8 @@
     "changeIcon": "Simgeyi değiştir",
     "collapseAllPages": "Tüm alt sayfaları daralt",
     "movePageTo": "Sayfayı şuraya taşı",
-    "move": "Taşı"
+    "move": "Taşı",
+    "lockPage": "Sayfayı kilitle"
   },
   "blankPageTitle": "Boş sayfa",
   "newPageText": "Yeni sayfa",
@@ -214,6 +265,7 @@
     "indexingFile": "{} indeksleniyor",
     "generatingResponse": "Yanıt oluşturuluyor",
     "selectSources": "Kaynakları Seç",
+    "currentPage": "Geçerli sayfa",
     "sourcesLimitReached": "En fazla 3 üst düzey belge ve alt öğelerini seçebilirsiniz",
     "sourceUnsupported": "Şu anda veritabanlarıyla sohbet etmeyi desteklemiyoruz",
     "regenerate": "Tekrar dene",
@@ -240,12 +292,19 @@
       "bulletWithImageDescription": "@:chat.changeFormat.bullet ve görsel",
       "tableWithImageDescription": "@:chat.changeFormat.table ve görsel"
     },
+    "switchModel": {
+      "label": "Model değiştir",
+      "localModel": "Yerel Model",
+      "cloudModel": "Bulut Modeli",
+      "autoModel": "Otomatik"
+    },
     "selectBanner": {
       "saveButton": "Şuraya ekle …",
       "selectMessages": "Mesajları seç",
       "nSelected": "{} seçildi",
       "allSelected": "Tümü seçildi"
-    }
+    },
+    "stopTooltip": "Oluşturmayı durdur"
   },
   "trash": {
     "text": "Çöp Kutusu",
@@ -288,6 +347,8 @@
   "questionBubble": {
     "shortcuts": "Kısayollar",
     "whatsNew": "Yenilikler",
+    "helpAndDocumentation": "Yardım ve belgeler",
+    "getSupport": "Destek al",
     "markdown": "Markdown",
     "debug": {
       "name": "Hata Ayıklama Bilgisi",
@@ -408,6 +469,7 @@
     "signIn": "Giriş Yap",
     "signOut": "Çıkış Yap",
     "complete": "Tamamla",
+    "change": "Değiştir",
     "save": "Kaydet",
     "generate": "Oluştur",
     "esc": "ESC",
@@ -489,7 +551,9 @@
       "settings": "Ayarlar",
       "members": "Üyeler",
       "trash": "Çöp Kutusu",
-      "helpAndSupport": "Yardım ve Destek"
+      "helpAndSupport": "Yardım ve Destek",
+      "helpAndDocumentation": "Yardım ve belgeler",
+      "getSupport": "Destek Al"
     },
     "sites": {
       "title": "Siteler",
@@ -502,6 +566,9 @@
       "selectHomePage": "Bir sayfa seç",
       "clearHomePage": "Bu alan adı için ana sayfayı temizle",
       "customUrl": "Özel URL",
+      "homePage": {
+        "upgradeToPro": "Bir ana sayfa ayarlamak için Pro Plana yükseltin"
+      },
       "namespace": {
         "description": "Bu değişiklik, bu alan adında yayınlanan tüm canlı sayfalara uygulanacak",
         "tooltip": "Uygunsuz alan adlarını kaldırma hakkını saklı tutarız",
@@ -570,7 +637,9 @@
         "title": "Hesap girişi",
         "loginLabel": "Giriş yap",
         "logoutLabel": "Çıkış yap"
-      }
+      },
+      "isUpToDate": "@:appName güncel!",
+      "officialVersion": "Sürüm {version} (Resmi derleme)"
     },
     "workspacePage": {
       "menuLabel": "Çalışma Alanı",
@@ -606,7 +675,8 @@
       "theme": {
         "title": "Tema",
         "description": "Önceden ayarlanmış bir tema seçin veya kendi özel temanızı yükleyin.",
-        "uploadCustomThemeTooltip": "Özel tema yükle"
+        "uploadCustomThemeTooltip": "Özel tema yükle",
+        "failedToLoadThemes": "Temalar yüklenemedi, lütfen Sistem Ayarları > Gizlilik ve Güvenlik > Dosyalar ve Klasörler > @:appName altındaki izin ayarlarınızı kontrol edin"
       },
       "workspaceFont": {
         "title": "Çalışma alanı yazı tipi",
@@ -746,6 +816,7 @@
         "alignLeft": "Metni sola hizala",
         "alignCenter": "Metni ortala",
         "alignRight": "Metni sağa hizala",
+        "insertInlineMathEquation": "Satır içi matematik denklemi ekle",
         "undo": "Geri al",
         "redo": "Yinele",
         "convertToParagraph": "Bloğu paragrafa dönüştür",
@@ -825,6 +896,8 @@
         "aiSettingsDescription": "AppFlowy Yapay Zeka'yı güçlendirmek için tercih ettiğiniz modeli seçin. Şu anda GPT 4-o, Claude 3,5, Llama 3.1 ve Mistral 7B içerir",
         "loginToEnableAIFeature": "Yapay Zeka özellikleri yalnızca @:appName Cloud ile giriş yaptıktan sonra etkinleştirilir. Bir @:appName hesabınız yoksa, kaydolmak için 'Hesabım'a gidin",
         "llmModel": "Dil Modeli",
+        "globalLLMModel": "Genel Dil Modeli",
+        "readOnlyField": "Bu alan salt okunur",
         "llmModelType": "Dil Modeli Türü",
         "downloadLLMPrompt": "{} İndir",
         "downloadAppFlowyOfflineAI": "Yapay Zeka çevrimdışı paketini indirmek, Yapay Zeka'nın cihazınızda çalışmasını sağlayacak. Devam etmek istiyor musunuz?",
@@ -836,11 +909,18 @@
         "localAIStart": "Yerel Yapay Zeka Sohbeti başlatılıyor...",
         "localAILoading": "Yerel Yapay Zeka Sohbet Modeli yükleniyor...",
         "localAIStopped": "Yerel Yapay Zeka durduruldu",
+        "localAIRunning": "Yerel Yapay Zeka çalışıyor",
+        "localAINotReadyRetryLater": "Yerel Yapay Zeka başlatılıyor, lütfen daha sonra tekrar deneyin",
+        "localAIDisabled": "Yerel Yapay Zeka kullanıyorsunuz ancak devre dışı bırakılmış. Etkinleştirmek için lütfen ayarlara gidin veya farklı bir model deneyin",
+        "localAIInitializing": "Yerel Yapay Zeka yükleniyor. Cihazınıza bağlı olarak bu işlem birkaç saniye sürebilir",
+        "localAINotReadyTextFieldPrompt": "Yerel Yapay Zeka yüklenirken düzenleme yapamazsınız",
+        "localAIDisabledTextFieldPrompt": "Yerel Yapay Zeka devre dışıyken düzenleme yapamazsınız",
         "failToLoadLocalAI": "Yerel Yapay Zeka başlatılamadı",
         "restartLocalAI": "Yerel Yapay Zeka'yı Yeniden Başlat",
         "disableLocalAITitle": "Yerel Yapay Zeka'yı devre dışı bırak",
         "disableLocalAIDescription": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
         "localAIToggleTitle": "Yerel Yapay Zeka'yı etkinleştirmek veya devre dışı bırakmak için değiştirin",
+        "localAIToggleSubTitle": "En üst düzey gizlilik ve güvenlik için en gelişmiş yerel yapay zeka modellerini @:appName içinde çalıştırın",
         "offlineAIInstruction1": "Çevrimdışı Yapay Zeka'yı etkinleştirmek için",
         "offlineAIInstruction2": "talimatları",
         "offlineAIInstruction3": "takip edin.",
@@ -849,7 +929,14 @@
         "offlineAIDownload3": "önce",
         "activeOfflineAI": "Etkin",
         "downloadOfflineAI": "İndir",
-        "openModelDirectory": "Klasörü aç"
+        "openModelDirectory": "Klasörü aç",
+        "laiNotReady": "Yerel Yapay Zeka uygulaması düzgün yüklenmedi.",
+        "ollamaNotReady": "Ollama sunucusu hazır değil.",
+        "pleaseFollowThese": "Lütfen bu",
+        "instructions": "yönergeleri izleyin",
+        "installOllamaLai": "ve Ollama ile AppFlowy Yerel Yapay Zeka'yı kurun.",
+        "modelsMissing": "Gerekli modeller bulunamadı: ",
+        "downloadModel": "ve modelleri indirin."
       }
     },
     "planPage": {
@@ -991,8 +1078,10 @@
         "itemFour": "Gerçek zamanlı işbirliği",
         "itemFive": "Mobil uygulama",
         "itemSix": "Yapay Zeka Yanıtları",
+        "itemSeven": "Yapay Zeka Görselleri",
         "itemFileUpload": "Dosya yüklemeleri",
         "customNamespace": "Özel alan adı",
+        "tooltipFive": "Üye olmayanlarla belirli sayfalarda iş birliği yapın",
         "tooltipSix": "Ömür boyu demek, yanıt sayısının asla sıfırlanmayacağı anlamına gelir",
         "intelligentSearch": "Akıllı arama",
         "tooltipSeven": "Çalışma alanınızın URL'sinin bir kısmını özelleştirmenize olanak tanır",
@@ -1005,6 +1094,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "10 ömür boyu",
+        "itemSeven": "2 ömür boyu",
         "itemFileUpload": "7 MB'a kadar",
         "intelligentSearch": "Akıllı arama"
       },
@@ -1015,6 +1105,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "Sınırsız",
+        "itemSeven": "Ayda 50 görsel",
         "itemFileUpload": "Sınırsız",
         "intelligentSearch": "Akıllı arama"
       },
@@ -1288,7 +1379,28 @@
         "inviteMemberSuccess": "Davet başarıyla gönderildi",
         "failedToInviteMember": "Üye davet edilemedi",
         "workspaceMembersError": "Hay aksi, bir şeyler yanlış gitti",
-        "workspaceMembersErrorDescription": "Şu anda üye listesini yükleyemedik. Lütfen daha sonra tekrar deneyin"
+        "workspaceMembersErrorDescription": "Şu anda üye listesini yükleyemedik. Lütfen daha sonra tekrar deneyin",
+        "inviteLinkToAddMember": "Üye eklemek için davet bağlantısı",
+        "clickToCopyLink": "Bağlantıyı kopyalamak için tıklayın",
+        "or": "veya",
+        "generateANewLink": "yeni bir bağlantı oluşturun",
+        "inviteMemberByEmail": "E-posta ile üye davet et",
+        "inviteMemberHintText": "E-posta ile davet et",
+        "resetInviteLink": "Davet bağlantısı sıfırlansın mı?",
+        "resetInviteLinkDescription": "Sıfırlama, tüm alan üyeleri için geçerli bağlantıyı devre dışı bırakır ve yeni bir tane oluşturur. Eski bağlantı artık çalışmaz.",
+        "adminPanel": "Yönetici Paneli",
+        "reset": "Sıfırla",
+        "resetInviteLinkSuccess": "Davet bağlantısı başarıyla sıfırlandı",
+        "resetInviteLinkFailed": "Davet bağlantısı sıfırlanamadı",
+        "resetInviteLinkFailedDescription": "Lütfen daha sonra tekrar deneyin",
+        "memberPageDescription1": "Konuk ve gelişmiş kullanıcı yönetimi için",
+        "memberPageDescription2": "sayfasına erişin.",
+        "noInviteLink": "Henüz bir davet bağlantısı oluşturmadınız.",
+        "copyLink": "Bağlantıyı kopyala",
+        "generatedLinkSuccessfully": "Bağlantı başarıyla oluşturuldu",
+        "generatedLinkFailed": "Bağlantı oluşturulamadı",
+        "resetLinkSuccessfully": "Bağlantı başarıyla sıfırlandı",
+        "resetLinkFailed": "Bağlantı sıfırlanamadı"
       }
     },
     "files": {
@@ -1375,6 +1487,7 @@
       "filterBy": "Filtreleme ölçütü",
       "typeAValue": "Bir değer yazın...",
       "layout": "Düzen",
+      "compactMode": "Kompakt mod",
       "databaseLayout": "Düzen",
       "viewList": {
         "zero": "0 görünüm",
@@ -1540,6 +1653,7 @@
         "other": "{count} gizli alanı gizle"
       },
       "openAsFullPage": "Tam sayfa olarak aç",
+      "viewDatabase": "Özgün veritabanını görüntüle",
       "moreRowActions": "Daha fazla satır işlemi"
     },
     "sort": {
@@ -1679,6 +1793,14 @@
         "selectADocumentToLinkTo": "Bağlanacak bir Belge seçin"
       },
       "name": {
+        "textStyle": "Metin Stili",
+        "list": "Liste",
+        "toggle": "Açılır Liste",
+        "fileAndMedia": "Dosya ve Medya",
+        "simpleTable": "Basit Tablo",
+        "visuals": "Görseller",
+        "document": "Belge",
+        "advanced": "Gelişmiş",
         "text": "Metin",
         "heading1": "Başlık 1",
         "heading2": "Başlık 2",
@@ -1710,7 +1832,10 @@
         "aiWriter": "Yapay Zeka Yazar",
         "dateOrReminder": "Tarih veya Hatırlatıcı",
         "photoGallery": "Fotoğraf Galerisi",
-        "file": "Dosya"
+        "file": "Dosya",
+        "twoColumns": "2 Sütun",
+        "threeColumns": "3 Sütun",
+        "fourColumns": "4 Sütun"
       },
       "subPage": {
         "name": "Belge",
@@ -1733,6 +1858,16 @@
       "referencedGrid": "Referans Tablo",
       "referencedCalendar": "Referans Takvim",
       "referencedDocument": "Referans Belge",
+      "aiWriter": {
+        "userQuestion": "Yapay zekaya her şeyi sorun",
+        "continueWriting": "Yazmaya devam et",
+        "fixSpelling": "Yazım ve dil bilgisi hatalarını düzelt",
+        "improveWriting": "Yazıyı geliştir",
+        "summarize": "Özetle",
+        "explain": "Açıkla",
+        "makeShorter": "Kısalt",
+        "makeLonger": "Uzat"
+      },
       "autoGeneratorMenuItemName": "Yapay Zeka Yazar",
       "autoGeneratorTitleName": "Yapay Zeka: Yapay zekadan herhangi bir şey yazmasını isteyin...",
       "autoGeneratorLearnMore": "Daha fazla bilgi",
@@ -1947,7 +2082,28 @@
           "failedDuplicateFindView": "Sayfa çoğaltılamadı - orijinal görünüm bulunamadı"
         }
       },
-      "cannotMoveToItsChildren": "Alt öğelerine taşınamaz"
+      "cannotMoveToItsChildren": "Alt öğelerine taşınamaz",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Olarak yapıştır",
+          "mention": "Bahsetme",
+          "URL": "URL",
+          "bookmark": "Yer İşareti",
+          "embed": "Yerleştirme"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Bahsetmeye Dönüştür",
+          "toUrl": "URL'ye Dönüştür",
+          "toEmbed": "Yerleştirmeye Dönüştür",
+          "toBookmark": "Yer İşaretine Dönüştür",
+          "copyLink": "Bağlantıyı Kopyala",
+          "replace": "Değiştir",
+          "reload": "Yeniden Yükle",
+          "removeLink": "Bağlantıyı Kaldır",
+          "pasteHint": "https://... yapıştırın",
+          "unableToDisplay": "görüntülenemiyor"
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "İçindekiler"
@@ -2055,7 +2211,28 @@
       "morePages": "daha fazla sayfa"
     },
     "toolbar": {
-      "resetToDefaultFont": "Varsayılana sıfırla"
+      "resetToDefaultFont": "Varsayılana sıfırla",
+      "textSize": "Metin boyutu",
+      "textColor": "Metin rengi",
+      "h1": "Başlık 1",
+      "h2": "Başlık 2",
+      "h3": "Başlık 3",
+      "alignLeft": "Sola hizala",
+      "alignRight": "Sağa hizala",
+      "alignCenter": "Ortala",
+      "link": "Bağlantı",
+      "textAlign": "Metin hizalama",
+      "moreOptions": "Daha fazla seçenek",
+      "font": "Yazı tipi",
+      "inlineCode": "Satır içi kod",
+      "suggestions": "Öneriler",
+      "turnInto": "Şuna dönüştür",
+      "equation": "Denklem",
+      "insert": "Ekle",
+      "linkInputHint": "Bağlantı yapıştırın veya sayfaları arayın",
+      "pageOrURL": "Sayfa veya URL",
+      "linkName": "Bağlantı Adı",
+      "linkNameHint": "Bağlantı adını girin"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Mevcut sürüm bu Bloğu desteklemiyor.",
@@ -2184,6 +2361,20 @@
   "search": {
     "label": "Ara",
     "sidebarSearchIcon": "Ara ve hızlıca bir sayfaya git",
+    "searchOrAskAI": "Ara veya Yapay Zekaya Sor",
+    "searchFieldHint": "{} içinde ara veya soru sor...",
+    "askAIAnything": "Yapay zekaya her şeyi sorun",
+    "askAIFor": "Yapay Zekaya Sor",
+    "searching": "Aranıyor...",
+    "noResultForSearching": "Eşleşme bulunamadı",
+    "noResultForSearchingHint": "Farklı sorular veya anahtar kelimeler deneyin.\n Bazı sayfalar Çöp Kutusu'nda olabilir.",
+    "noResultForSearchingHintWithoutTrash": "Farklı sorular veya anahtar kelimeler deneyin\n Bazı sayfalar şurada olabilir: ",
+    "bestMatch": "En iyi eşleşme",
+    "seeMore": "Daha fazla gör",
+    "showMore": "Daha fazla göster",
+    "somethingWentWrong": "Bir şeyler ters gitti",
+    "pageNotExist": "Bu sayfa mevcut değil",
+    "tryAgainOrLater": "Lütfen daha sonra tekrar deneyin",
     "placeholder": {
       "actions": "Eylemleri ara..."
     }
@@ -2292,6 +2483,19 @@
   },
   "notificationHub": {
     "title": "Bildirimler",
+    "closeNotification": "Bildirimi kapat",
+    "viewNotifications": "Bildirimleri görüntüle",
+    "noNotifications": "Henüz bildirim yok",
+    "mentionedYou": "Sizden bahsetti",
+    "archivedTooltip": "Bu bildirimi arşivle",
+    "unarchiveTooltip": "Bu bildirimi arşivden çıkar",
+    "markAsReadTooltip": "Bu bildirimi okundu olarak işaretle",
+    "markAsArchivedSucceedToast": "Başarıyla arşivlendi",
+    "markAllAsArchivedSucceedToast": "Tümü başarıyla arşivlendi",
+    "markAsReadSucceedToast": "Başarıyla okundu olarak işaretlendi",
+    "markAllAsReadSucceedToast": "Tümü başarıyla okundu olarak işaretlendi",
+    "today": "Bugün",
+    "older": "Daha eski",
     "mobile": {
       "title": "Güncellemeler"
     },
@@ -2420,6 +2624,7 @@
     "copyLink": "Bağlantıyı kopyala",
     "removeLink": "Bağlantıyı kaldır",
     "editLink": "Bağlantıyı düzenle",
+    "convertTo": "Şuna dönüştür",
     "linkText": "Metin",
     "linkTextHint": "Lütfen metin girin",
     "linkAddressHint": "Lütfen URL girin",
@@ -2509,6 +2714,7 @@
       "accountLogin": "Hesap Girişi",
       "updateNameError": "Ad güncellenemedi",
       "updateIconError": "İkon güncellenemedi",
+      "aboutAppFlowy": "@:appName Hakkında",
       "deleteAccount": {
         "title": "Hesabı Sil",
         "subtitle": "Hesabınızı ve tüm verilerinizi kalıcı olarak silin.",
@@ -2524,7 +2730,41 @@
         "failedToGetCurrentUser": "Mevcut kullanıcı e-postası alınamadı",
         "confirmTextValidationFailed": "Onay metniniz \"@:newSettings.myAccount.deleteAccount.confirmHint3\" ile eşleşmiyor",
         "deleteAccountSuccess": "Hesap başarıyla silindi"
-      }
+      },
+      "password": {
+        "title": "Parola",
+        "confirmPassword": "Parolayı Onayla",
+        "changePassword": "Parolayı Değiştir",
+        "currentPassword": "Mevcut Parola",
+        "newPassword": "Yeni Parola",
+        "confirmNewPassword": "Yeni Parolayı Onayla",
+        "setupPassword": "Parola Belirle",
+        "error": {
+          "currentPasswordIsRequired": "Mevcut parola zorunludur",
+          "newPasswordIsRequired": "Yeni parola zorunludur",
+          "confirmPasswordIsRequired": "Parola onayı zorunludur",
+          "passwordsDoNotMatch": "Parolalar eşleşmiyor",
+          "newPasswordIsSameAsCurrent": "Yeni parola mevcut parola ile aynı olamaz",
+          "currentPasswordIsIncorrect": "Mevcut parola yanlış",
+          "passwordShouldBeAtLeast6Characters": "Parola en az {min} karakter olmalıdır",
+          "passwordCannotBeLongerThan72Characters": "Parola en fazla {max} karakter olabilir"
+        },
+        "toast": {
+          "passwordUpdatedSuccessfully": "Parola başarıyla güncellendi",
+          "passwordUpdatedFailed": "Parola güncellenemedi",
+          "passwordSetupSuccessfully": "Parola başarıyla belirlendi",
+          "passwordSetupFailed": "Parola belirlenemedi"
+        },
+        "hint": {
+          "enterYourPassword": "Parolanızı girin",
+          "confirmYourPassword": "Parolanızı onaylayın",
+          "enterYourCurrentPassword": "Mevcut parolanızı girin",
+          "enterYourNewPassword": "Yeni parolanızı girin",
+          "confirmYourNewPassword": "Yeni parolanızı onaylayın"
+        }
+      },
+      "myAccount": "Hesabım",
+      "myProfile": "Profilim"
     },
     "workplace": {
       "name": "Çalışma alanı",
@@ -2577,6 +2817,12 @@
   "commandPalette": {
     "placeholder": "Ara veya bir soru sor...",
     "bestMatches": "En iyi eşleşmeler",
+    "aiOverview": "Yapay Zeka Özeti",
+    "aiOverviewSource": "Referans kaynaklar",
+    "aiOverviewMoreDetails": "Daha fazla ayrıntı",
+    "aiAskFollowUp": "Takip sorusu sor",
+    "pagePreview": "İçerik önizlemesi",
+    "clickToOpenPage": "Sayfayı açmak için tıklayın",
     "recentHistory": "Son geçmiş",
     "navigateHint": "gezinmek için",
     "loadingTooltip": "Sonuçları arıyoruz...",
@@ -2584,7 +2830,10 @@
     "betaTooltip": "Şu anda yalnızca sayfalarda ve belgelerde içerik aramayı destekliyoruz",
     "fromTrashHint": "Çöp kutusundan",
     "noResultsHint": "Aradığınızı bulamadık, başka bir terim aramayı deneyin.",
-    "clearSearchTooltip": "Arama alanını temizle"
+    "clearSearchTooltip": "Arama alanını temizle",
+    "location": "Konum",
+    "created": "Oluşturulma",
+    "edited": "Düzenlenme"
   },
   "space": {
     "delete": "Sil",
@@ -2699,6 +2948,7 @@
     "moreOptions": "Daha fazla seçenek",
     "collapse": "Daralt",
     "signInAgreement": "Yukarıdaki \"Devam et\" düğmesine tıklayarak AppFlowy'nin şunlarını kabul etmiş olursunuz:",
+    "signInLocalAgreement": "Yukarıdaki \"Hemen Başla\" düğmesine tıklayarak \nAppFlowy'nin şunlarını kabul etmiş olursunuz: ",
     "and": "ve",
     "termOfUse": "Kullanım Koşulları",
     "privacyPolicy": "Gizlilik Politikası",
@@ -3078,6 +3328,145 @@
     }
   },
   "ai": {
-    "contentPolicyViolation": "Hassas içerik nedeniyle görsel oluşturma başarısız oldu. Lütfen girdinizi yeniden düzenleyip tekrar deneyin"
+    "contentPolicyViolation": "Hassas içerik nedeniyle görsel oluşturma başarısız oldu. Lütfen girdinizi yeniden düzenleyip tekrar deneyin",
+    "textLimitReachedDescription": "Çalışma alanınızın ücretsiz yapay zeka yanıtları bitti. Sınırsız yanıtın kilidini açmak için Pro Plana yükseltin veya bir yapay zeka eklentisi satın alın",
+    "imageLimitReachedDescription": "Ücretsiz yapay zeka görsel kotanızı doldurdunuz. Sınırsız yanıtın kilidini açmak için lütfen Pro Plana yükseltin veya bir yapay zeka eklentisi satın alın",
+    "limitReachedAction": {
+      "textDescription": "Çalışma alanınızın ücretsiz yapay zeka yanıtları bitti. Daha fazla yanıt almak için lütfen",
+      "imageDescription": "Ücretsiz yapay zeka görsel kotanızı doldurdunuz. Lütfen",
+      "upgrade": "yükseltme yapıp",
+      "toThe": "şu plana geçin:",
+      "proPlan": "Pro Plan",
+      "orPurchaseAn": "veya şunu satın alın:",
+      "aiAddon": "Yapay Zeka eklentisi"
+    },
+    "editing": "Düzenleniyor",
+    "analyzing": "Analiz ediliyor",
+    "continueWritingEmptyDocumentTitle": "Yazmaya devam etme hatası",
+    "continueWritingEmptyDocumentDescription": "Belgenizdeki içeriği genişletirken sorun yaşıyoruz. Kısa bir giriş yazın, gerisini biz halledelim!",
+    "more": "Daha Fazla",
+    "customPrompt": {
+      "browsePrompts": "İstemlere göz at",
+      "usePrompt": "İstemi kullan",
+      "featured": "Öne Çıkanlar",
+      "custom": "Özel",
+      "customPrompt": "Özel İstemler",
+      "databasePrompts": "Kendi veritabanınızdan istem yükleyin",
+      "selectDatabase": "Veritabanı seçin",
+      "promptDatabase": "İstem veritabanı",
+      "configureDatabase": "Veritabanını Yapılandır",
+      "title": "Başlık",
+      "content": "İçerik",
+      "example": "Örnek",
+      "category": "Kategori",
+      "selectField": "Alan seçin",
+      "loading": "Yükleniyor",
+      "invalidDatabase": "Geçersiz Veritabanı",
+      "invalidDatabaseHelp": "Veritabanının en az iki metin özelliğine sahip olduğundan emin olun:\n ◦ Biri istem adı için kullanılır\n ◦ Biri istem içeriği için kullanılır\nİsteğe bağlı olarak istem örneği ve kategorisi için de özellikler ekleyebilirsiniz.",
+      "noResults": "İstem bulunamadı",
+      "all": "Tümü",
+      "development": "Geliştirme",
+      "writing": "Yazarlık",
+      "healthAndFitness": "Sağlık ve Spor",
+      "business": "İşletme",
+      "marketing": "Pazarlama",
+      "travel": "Seyahat",
+      "others": "Diğer",
+      "prompt": "İstem",
+      "promptExample": "İstem Örneği",
+      "sampleOutput": "Örnek çıktı",
+      "contentSeo": "İçerik/SEO",
+      "emailMarketing": "E-posta Pazarlaması",
+      "paidAds": "Ücretli Reklamlar",
+      "prCommunication": "Halkla İlişkiler/İletişim",
+      "recruiting": "İşe Alım",
+      "sales": "Satış",
+      "socialMedia": "Sosyal Medya",
+      "strategy": "Strateji",
+      "caseStudies": "Vaka Çalışmaları",
+      "salesCopy": "Satış Metni",
+      "education": "Eğitim",
+      "work": "İş",
+      "podcastProduction": "Podcast Yapımı",
+      "copyWriting": "Metin Yazarlığı",
+      "customerSuccess": "Müşteri Başarısı"
+    }
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Devam etmek için güncelleme gerekli",
+    "criticalUpdateDescription": "Deneyiminizi geliştirmek için iyileştirmeler yaptık! Uygulamayı kullanmaya devam etmek için lütfen {currentVersion} sürümünden {newVersion} sürümüne güncelleyin.",
+    "criticalUpdateButton": "Güncelle",
+    "bannerUpdateTitle": "Yeni sürüm var!",
+    "bannerUpdateDescription": "En son özellikleri ve düzeltmeleri edinin. Şimdi yüklemek için \"Güncelle\"ye tıklayın",
+    "bannerUpdateButton": "Güncelle",
+    "settingsUpdateTitle": "Yeni sürüm var ({newVersion})!",
+    "settingsUpdateDescription": "Mevcut sürüm: {currentVersion} (Resmi derleme) → {newVersion}",
+    "settingsUpdateButton": "Güncelle",
+    "settingsUpdateWhatsNew": "Yenilikler"
+  },
+  "lockPage": {
+    "lockPage": "Kilitli",
+    "reLockPage": "Yeniden kilitle",
+    "lockTooltip": "Yanlışlıkla düzenlemeyi önlemek için sayfa kilitlendi. Kilidi açmak için tıklayın.",
+    "pageLockedToast": "Sayfa kilitlendi. Biri kilidi açana kadar düzenleme devre dışıdır.",
+    "lockedOperationTooltip": "Yanlışlıkla düzenlemeyi önlemek için sayfa kilitlendi."
+  },
+  "suggestion": {
+    "accept": "Kabul et",
+    "keep": "Koru",
+    "discard": "Reddet",
+    "close": "Kapat",
+    "tryAgain": "Tekrar dene",
+    "rewrite": "Yeniden yaz",
+    "insertBelow": "Altına ekle"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "view": "Görüntüleme",
+      "comment": "Yorum yapma",
+      "edit": "Düzenleme",
+      "fullAccess": "Tam erişim"
+    },
+    "inviteByEmail": "E-posta ile davet et",
+    "invite": "Davet et",
+    "anyoneAtWorkspace": "{workspace} çalışma alanındaki herkes",
+    "anyoneInGroupWithLinkCanEdit": "Bağlantıya sahip bu gruptaki herkes düzenleyebilir",
+    "copyLink": "Bağlantıyı kopyala",
+    "copiedLinkToClipboard": "Bağlantı panoya kopyalandı",
+    "removeAccess": "Erişimi kaldır",
+    "turnIntoMember": "Üyeye dönüştür",
+    "you": "(Siz)",
+    "guest": "Konuk",
+    "onlyFullAccessCanInvite": "Yalnızca tam erişime sahip kullanıcılar başkalarını davet edebilir",
+    "invitationSent": "Davet gönderildi",
+    "emailAlreadyInList": "Bu e-posta zaten listede",
+    "upgradeToProToInviteGuests": "Daha fazla konuk davet etmek için lütfen Pro plana yükseltin",
+    "maxGuestsReached": "Maksimum konuk sayısına ulaştınız",
+    "removedGuestSuccessfully": "Konuk başarıyla kaldırıldı",
+    "updatedAccessLevelSuccessfully": "Erişim düzeyi başarıyla güncellendi",
+    "turnedIntoMemberSuccessfully": "Başarıyla üyeye dönüştürüldü",
+    "peopleAboveCanAccessWithLink": "Yukarıdaki kişiler bağlantı ile erişebilir",
+    "cantMakeChanges": "Değişiklik yapamaz",
+    "canMakeAnyChanges": "Her türlü değişikliği yapabilir",
+    "generalAccess": "Genel erişim",
+    "peopleWithAccess": "Erişimi olan kişiler",
+    "peopleAboveCanAccessWithTheLink": "Yukarıdaki kişiler bağlantı ile erişebilir",
+    "upgrade": "Pro plana yükseltin",
+    "toProPlanToInviteGuests": " ve bu sayfaya konuk davet edin",
+    "upgradeToInviteGuest": {
+      "title": {
+        "owner": "Konuk davet etmek için yükseltin",
+        "member": "Konuk davet etmek için yükseltin",
+        "guest": "Konuk davet etmek için yükseltin"
+      },
+      "description": {
+        "owner": "Çalışma alanınız şu anda Ücretsiz planda. Harici kullanıcıların bu sayfaya konuk olarak erişmesine izin vermek için Pro plana yükseltin.",
+        "member": "Bazı davetliler çalışma alanınızın dışında. Onları konuk olarak davet etmek için lütfen çalışma alanı sahibinizle iletişime geçerek Pro plana yükseltmesini isteyin.",
+        "guest": "Bazı davetliler çalışma alanınızın dışında. Onları konuk olarak davet etmek için lütfen çalışma alanı sahibinizle iletişime geçerek Pro plana yükseltmesini isteyin."
+      }
+    }
+  },
+  "shareSection": {
+    "shared": "Benimle paylaşılanlar"
   }
 }
