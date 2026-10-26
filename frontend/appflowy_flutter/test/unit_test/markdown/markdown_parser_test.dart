@@ -11,25 +11,14 @@ void main() {
   group('export markdown to document', () {
     test('file block', () async {
       final document = Document.blank()
-        ..insert(
-          [0],
-          [
-            fileNode(
-              name: 'file.txt',
-              url: 'https://file.com',
-            ),
-          ],
-        );
+        ..insert([0], [fileNode(name: 'file.txt', url: 'https://file.com')]);
       final markdown = await customDocumentToMarkdown(document);
       expect(markdown, '[file.txt](https://file.com)\n');
     });
 
     test('link preview', () async {
       final document = Document.blank()
-        ..insert(
-          [0],
-          [linkPreviewNode(url: 'https://www.link_preview.com')],
-        );
+        ..insert([0], [linkPreviewNode(url: 'https://www.link_preview.com')]);
       final markdown = await customDocumentToMarkdown(document);
       expect(
         markdown,
@@ -46,52 +35,78 @@ void main() {
           [
             multiImageNode(
               images: [
-                ImageBlockData(
-                  url: png1,
-                  type: CustomImageType.external,
-                ),
-                ImageBlockData(
-                  url: png2,
-                  type: CustomImageType.external,
-                ),
+                ImageBlockData(url: png1, type: CustomImageType.external),
+                ImageBlockData(url: png2, type: CustomImageType.external),
               ],
             ),
           ],
         );
       final markdown = await customDocumentToMarkdown(document);
-      expect(
-        markdown,
-        '![]($png1)\n![]($png2)',
-      );
+      expect(markdown, '![]($png1)\n![]($png2)');
     });
 
     test('subpage block', () async {
       const testSubpageId = 'testSubpageId';
       final subpageNode = pageMentionNode(testSubpageId);
-      final document = Document.blank()
-        ..insert(
-          [0],
-          [subpageNode],
-        );
+      final document = Document.blank()..insert([0], [subpageNode]);
       final markdown = await customDocumentToMarkdown(document);
-      expect(
-        markdown,
-        '[]($testSubpageId)\n',
-      );
+      expect(markdown, '[]($testSubpageId)\n');
     });
 
     test('date or reminder', () async {
       final dateTime = DateTime.now();
+      final document = Document.blank()..insert([0], [dateMentionNode()]);
+      final markdown = await customDocumentToMarkdown(document);
+      expect(markdown, '${DateFormat.yMMMd().format(dateTime)}\n');
+    });
+
+    test('external link mention', () async {
+      const url = 'https://appflowy.com/';
       final document = Document.blank()
         ..insert(
           [0],
-          [dateMentionNode()],
+          [
+            paragraphNode(
+              delta: Delta()
+                ..insert(
+                  MentionBlockKeys.mentionChar,
+                  attributes: {
+                    MentionBlockKeys.mention: {
+                      MentionBlockKeys.type: MentionType.externalLink.name,
+                      MentionBlockKeys.url: url,
+                    },
+                  },
+                ),
+            ),
+          ],
         );
       final markdown = await customDocumentToMarkdown(document);
-      expect(
-        markdown,
-        '${DateFormat.yMMMd().format(dateTime)}\n',
-      );
+      expect(markdown, '[$url]($url)\n');
+    });
+
+    test('external link mention inside checkbox', () async {
+      const url = 'https://appflowy.com/';
+      final document = Document.blank()
+        ..insert(
+          [0],
+          [
+            todoListNode(
+              checked: false,
+              delta: Delta()
+                ..insert(
+                  MentionBlockKeys.mentionChar,
+                  attributes: {
+                    MentionBlockKeys.mention: {
+                      MentionBlockKeys.type: MentionType.externalLink.name,
+                      MentionBlockKeys.url: url,
+                    },
+                  },
+                ),
+            ),
+          ],
+        );
+      final markdown = await customDocumentToMarkdown(document);
+      expect(markdown, '- [ ] [$url]($url)\n');
     });
   });
 }

@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/link_preview_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/export/document_link_resolver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -21,8 +23,8 @@ final CommandShortcutEvent customCopyCommand = CommandShortcutEvent(
   handler: _copyCommandHandler,
 );
 
-CommandShortcutEventHandler _copyCommandHandler =
-    (editorState) => handleCopyCommand(editorState);
+CommandShortcutEventHandler _copyCommandHandler = (editorState) =>
+    handleCopyCommand(editorState);
 
 KeyEventResult handleCopyCommand(
   EditorState editorState, {
@@ -45,7 +47,8 @@ KeyEventResult handleCopyCommand(
     }
 
     // plain text.
-    text = node.delta?.toPlainText();
+    final delta = node.delta;
+    text = delta != null ? resolveDeltaForExport(delta).toPlainText() : null;
 
     // in app json
     final document = Document.blank()
@@ -53,30 +56,42 @@ KeyEventResult handleCopyCommand(
     inAppJson = jsonEncode(document.toJson());
 
     // html
-    html = documentToHTML(document);
+    final exportDoc = resolveDocumentLinksForExport(document);
+    html = documentToHTML(
+      exportDoc,
+      customParsers: [const HTMLLinkPreviewNodeParser()],
+    );
   } else {
     // plain text.
-    text = editorState.getTextInSelection(selection).join('\n');
+    final List<String> textList = [];
+    final nodes = editorState.getNodesInSelection(selection);
+    for (final node in nodes) {
+      final delta = node.delta;
+      if (delta == null) {
+        continue;
+      }
+      final startIndex = node == nodes.first ? selection.startIndex : 0;
+      final endIndex = node == nodes.last ? selection.endIndex : delta.length;
+      final slicedDelta = delta.slice(startIndex, endIndex);
+      textList.add(resolveDeltaForExport(slicedDelta).toPlainText());
+    }
+    text = textList.join('\n');
 
-    final document = _buildCopiedDocument(
-      editorState,
-      selection,
-      isCut: isCut,
-    );
+    final document = _buildCopiedDocument(editorState, selection, isCut: isCut);
 
     inAppJson = jsonEncode(document.toJson());
 
     // html
-    html = documentToHTML(document);
+    final exportDoc = resolveDocumentLinksForExport(document);
+    html = documentToHTML(
+      exportDoc,
+      customParsers: [const HTMLLinkPreviewNodeParser()],
+    );
   }
 
   () async {
     await getIt<ClipboardService>().setData(
-      ClipboardServiceData(
-        plainText: text,
-        html: html,
-        inAppJson: inAppJson,
-      ),
+      ClipboardServiceData(plainText: text, html: html, inAppJson: inAppJson),
     );
   }();
 
@@ -110,10 +125,7 @@ Document _buildCopiedDocument(
     }
   }
   final document = Document.blank()
-    ..insert(
-      [0],
-      filteredNodes.map((e) => e.deepCopy()),
-    );
+    ..insert([0], filteredNodes.map((e) => e.deepCopy()));
   return document;
 }
 

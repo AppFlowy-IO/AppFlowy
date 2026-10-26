@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/sub_page_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/workspace/application/export/document_link_resolver.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:archive/archive.dart';
@@ -10,10 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
-Document customMarkdownToDocument(
-  String markdown, {
-  double? tableWidth,
-}) {
+Document customMarkdownToDocument(String markdown, {double? tableWidth}) {
   return markdownToDocument(
     markdown,
     markdownParsers: [
@@ -31,8 +29,10 @@ Future<String> customDocumentToMarkdown(
 }) async {
   final List<Future<ArchiveFile>> fileFutures = [];
 
+  final resolvedDocument = resolveDocumentLinksForExport(document);
+
   /// create root Archive and directory
-  final id = document.root.id,
+  final id = resolvedDocument.root.id,
       archive = Archive(),
       resourceDir = ArchiveFile('$id/', 0, null)..isFile = false,
       fileName = p.basenameWithoutExtension(path),
@@ -41,7 +41,7 @@ Future<String> customDocumentToMarkdown(
   String markdown = '';
   try {
     markdown = documentToMarkdown(
-      document,
+      resolvedDocument,
       lineBreak: lineBreak,
       customParsers: [
         const MathEquationNodeParser(),
