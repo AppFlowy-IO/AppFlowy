@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/export/document_link_resolver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:html/dom.dart' as dom;
@@ -14,7 +15,11 @@ class LinkPreviewNodeParser extends NodeParser {
     if (href == null) {
       return '';
     }
-    return '[$href]($href)\n';
+    final url = href.toString();
+    if (!isSafeExportUrl(url)) {
+      return '$url\n';
+    }
+    return '[$url]($url)\n';
   }
 }
 
@@ -43,9 +48,15 @@ class HTMLLinkPreviewNodeParser extends HTMLNodeParser {
     if (href == null || (href is String && href.isEmpty)) {
       return [];
     }
+    final url = href.toString();
+    if (!isSafeExportUrl(url)) {
+      final paragraph = dom.Element.tag(HTMLTags.paragraph)
+        ..append(dom.Text(url));
+      return [paragraph];
+    }
     final anchor = dom.Element.tag(HTMLTags.anchor)
-      ..attributes['href'] = href.toString()
-      ..append(dom.Text(href.toString()));
+      ..attributes['href'] = url
+      ..append(dom.Text(url));
     final paragraph = dom.Element.tag(HTMLTags.paragraph)..append(anchor);
     return [paragraph];
   }

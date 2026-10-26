@@ -1,18 +1,44 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/shared/mention_block_keys.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+const safeExportUrlSchemes = {'http', 'https', 'mailto', 'ftp'};
+
+/// Validates whether a given URL uses a safe scheme for export as a clickable link.
+///
+/// Unsafe schemes (such as `javascript:`, `vbscript:`, `data:`) must not be rendered
+/// as active links in exported HTML or pasted content.
+bool isSafeExportUrl(String? url) {
+  if (url == null || url.trim().isEmpty) return false;
+  final trimmed = url.trim();
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) return false;
+  if (uri.hasScheme) {
+    return safeExportUrlSchemes.contains(uri.scheme.toLowerCase());
+  }
+  final colonIndex = trimmed.indexOf(':');
+  if (colonIndex != -1) {
+    final slashIndex = trimmed.indexOf('/');
+    if (slashIndex == -1 || colonIndex < slashIndex) {
+      final scheme = trimmed.substring(0, colonIndex).toLowerCase();
+      return safeExportUrlSchemes.contains(scheme);
+    }
+  }
+  return true;
+}
+
 /// Converts special link elements (mentions with external links, URL bookmarks,
 /// and embeds) within a [Document] into standard link representations
 /// expected by downstream exporters (Markdown, HTML, clipboard).
+///
+/// Preserves the original document root node ID, type, and attributes so that
+/// downstream export archive and resource paths remain stable and deterministic.
 Document resolveDocumentLinksForExport(Document document) {
-  final newDocument = Document.blank();
   final resolvedChildren = document.root.children
       .map(_resolveNodeForExport)
       .toList();
-  newDocument.insert([0], resolvedChildren);
-  return newDocument;
+  return Document(root: document.root.copyWith(children: resolvedChildren));
 }
 
 Node _resolveNodeForExport(Node node) {
@@ -22,11 +48,18 @@ Node _resolveNodeForExport(Node node) {
   if (node.type == LinkPreviewBlockKeys.type) {
     final url = node.attributes[LinkPreviewBlockKeys.url] as String?;
     if (url != null && url.isNotEmpty) {
-      return paragraphNode(
-        delta: Delta()
-          ..insert(url, attributes: {AppFlowyRichTextKeys.href: url}),
-        children: resolvedChildren,
-      );
+      if (isSafeExportUrl(url)) {
+        return paragraphNode(
+          delta: Delta()
+            ..insert(url, attributes: {AppFlowyRichTextKeys.href: url}),
+          children: resolvedChildren,
+        );
+      } else {
+        return paragraphNode(
+          delta: Delta()..insert(url),
+          children: resolvedChildren,
+        );
+      }
     }
   }
 
@@ -39,7 +72,12 @@ Node _resolveNodeForExport(Node node) {
       final url = node.attributes[LinkPreviewBlockKeys.url] as String?;
       if (url != null && url.isNotEmpty) {
         resolvedDelta = Delta()
-          ..insert(url, attributes: {AppFlowyRichTextKeys.href: url});
+          ..insert(
+            url,
+            attributes: isSafeExportUrl(url)
+                ? {AppFlowyRichTextKeys.href: url}
+                : null,
+          );
       }
     }
 
@@ -64,16 +102,25 @@ Delta resolveDeltaForExport(Delta delta) {
         final remainingAttributes = Map<String, dynamic>.from(attributes!)
           ..remove(MentionBlockKeys.mention);
 
-        // 1. External link mention -> convert to standard link with URL as text
+        // 1. External link mention -> convert to standard link with URL as text if safe
         final url = mention[MentionBlockKeys.url] as String?;
         if (url != null && url.isNotEmpty) {
-          newDelta.insert(
-            url,
-            attributes: {
-              ...remainingAttributes,
-              AppFlowyRichTextKeys.href: url,
-            },
-          );
+          if (isSafeExportUrl(url)) {
+            newDelta.insert(
+              url,
+              attributes: {
+                ...remainingAttributes,
+                AppFlowyRichTextKeys.href: url,
+              },
+            );
+          } else {
+            newDelta.insert(
+              url,
+              attributes: remainingAttributes.isNotEmpty
+                  ? remainingAttributes
+                  : null,
+            );
+          }
           continue;
         }
 

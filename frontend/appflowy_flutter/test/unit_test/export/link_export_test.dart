@@ -1,14 +1,36 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/link_preview_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/mention_block_keys.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/export/document_link_resolver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _TestClipboardService extends ClipboardService {
+  ClipboardServiceData? lastData;
+
+  @override
+  Future<void> setData(ClipboardServiceData data) async {
+    lastData = data;
+  }
+}
 
 void main() {
   group('Issue 9041 - Preserve links on export', () {
     const url = 'https://appflowy.com/';
+    late _TestClipboardService testClipboard;
+
+    setUpAll(() {
+      testClipboard = _TestClipboardService();
+      if (getIt.isRegistered<ClipboardService>()) {
+        getIt.unregister<ClipboardService>();
+      }
+      getIt.registerSingleton<ClipboardService>(testClipboard);
+    });
 
     Document createTestDocument() {
       // 1. Mention
@@ -103,11 +125,7 @@ void main() {
       'HTML export preserves all links without emitting <null>\$</null>',
       () {
         final document = createTestDocument();
-        final resolvedDoc = resolveDocumentLinksForExport(document);
-        final html = documentToHTML(
-          resolvedDoc,
-          customParsers: [const HTMLLinkPreviewNodeParser()],
-        );
+        final html = exportDocumentToHTML(document);
 
         expect(html.contains(r'$'), isFalse);
         expect(html.contains('<null>'), isFalse);
@@ -125,20 +143,77 @@ void main() {
       },
     );
 
-    test(
-      'Plain text / clipboard export preserves all URLs without emitting \$',
-      () {
-        final document = createTestDocument();
-        final resolvedDoc = resolveDocumentLinksForExport(document);
-        final plainTexts = resolvedDoc.root.children
-            .map((n) => n.delta?.toPlainText() ?? '')
-            .where((s) => s.isNotEmpty)
-            .join('\n');
+    test('Production clipboard copy (handleCopyCommand) preserves URLs and HTML links', () async {
+      final document = createTestDocument();
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection(
+        start: const Position(path: [0], offset: 0),
+        end: Position(
+          path: [document.root.children.length - 1],
+          offset: document.root.children.last.delta?.length ?? 0,
+        ),
+      );
 
-        expect(plainTexts.contains(r'$'), isFalse);
-        expect(plainTexts, equals('$url\n$url\n$url\n$url\n$url\n$url'));
-      },
-    );
+      final result = handleCopyCommand(editorState);
+      expect(result, equals(KeyEventResult.handled));
+
+      // Allow async clipboard write to settle
+      await Future.delayed(Duration.zero);
+
+      expect(testClipboard.lastData, isNotNull);
+      final plainText = testClipboard.lastData!.plainText!;
+      final html = testClipboard.lastData!.html!;
+
+      expect(plainText.contains(r'$'), isFalse);
+      expect(plainText, equals('$url\n$url\n$url\n$url\n$url\n$url'));
+
+      expect(html.contains(r'$'), isFalse);
+      expect(html.contains('<null>'), isFalse);
+      expect(html.contains('href="$url"'), isTrue);
+    });
+
+    test('Preserves document root ID for stable export archive names', () {
+      final document = createTestDocument();
+      final originalId = document.root.id;
+      final resolvedDoc = resolveDocumentLinksForExport(document);
+      expect(resolvedDoc.root.id, equals(originalId));
+    });
+
+    test('Unsafe schemes (e.g. javascript:) are exported as plain text, not active links', () async {
+      const unsafeUrl = 'javascript:alert(1)';
+      final document = Document.blank()
+        ..insert(
+          [0],
+          [
+            paragraphNode(
+              delta: Delta()
+                ..insert(
+                  MentionBlockKeys.mentionChar,
+                  attributes: {
+                    MentionBlockKeys.mention: {
+                      MentionBlockKeys.type: MentionType.externalLink.name,
+                      MentionBlockKeys.url: unsafeUrl,
+                    },
+                  },
+                ),
+            ),
+            Node(
+              type: LinkPreviewBlockKeys.type,
+              attributes: {LinkPreviewBlockKeys.url: unsafeUrl},
+            ),
+          ],
+        );
+
+      // Markdown export renders plain text rather than active markdown link
+      final markdown = await customDocumentToMarkdown(document);
+      expect(markdown.contains(']($unsafeUrl)'), isFalse);
+      expect(markdown, equals('$unsafeUrl\n$unsafeUrl\n'));
+
+      // HTML export renders plain paragraph rather than active anchor
+      final html = exportDocumentToHTML(document);
+      expect(html.contains('href'), isFalse);
+      expect(html, equals('<p>$unsafeUrl</p><p>$unsafeUrl</p>'));
+    });
 
     test('Preserves surrounding text with mentions', () async {
       final document = Document.blank()
@@ -165,11 +240,7 @@ void main() {
       final markdown = await customDocumentToMarkdown(document);
       expect(markdown, 'Check out [$url]($url) for more details!\n');
 
-      final resolvedDoc = resolveDocumentLinksForExport(document);
-      final html = documentToHTML(
-        resolvedDoc,
-        customParsers: [const HTMLLinkPreviewNodeParser()],
-      );
+      final html = exportDocumentToHTML(document);
       expect(
         html,
         '<p>Check out <a href="$url">$url</a> for more details!</p>',
@@ -184,11 +255,7 @@ void main() {
       final markdown = await customDocumentToMarkdown(document);
       expect(markdown, '- [ ] [$url]($url)\n');
 
-      final resolvedDoc = resolveDocumentLinksForExport(document);
-      final html = documentToHTML(
-        resolvedDoc,
-        customParsers: [const HTMLLinkPreviewNodeParser()],
-      );
+      final html = exportDocumentToHTML(document);
       expect(html, '<div><input type="checkbox"><a href="$url">$url</a></div>');
     });
   });

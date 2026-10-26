@@ -32,7 +32,7 @@ Future<String> customDocumentToMarkdown(
   final resolvedDocument = resolveDocumentLinksForExport(document);
 
   /// create root Archive and directory
-  final id = resolvedDocument.root.id,
+  final id = document.root.id,
       archive = Archive(),
       resourceDir = ArchiveFile('$id/', 0, null)..isFile = false,
       fileName = p.basenameWithoutExtension(path),

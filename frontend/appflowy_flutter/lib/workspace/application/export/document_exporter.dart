@@ -14,6 +14,16 @@ import 'package:easy_localization/easy_localization.dart';
 
 enum DocumentExportType { json, markdown, text, html }
 
+/// Converts a [Document] into an HTML string, resolving links (mentions, bookmarks, embeds)
+/// into standard anchors while filtering unsafe URL schemes.
+String exportDocumentToHTML(Document document) {
+  final resolvedDocument = resolveDocumentLinksForExport(document);
+  return documentToHTML(
+    resolvedDocument,
+    customParsers: [const HTMLLinkPreviewNodeParser()],
+  );
+}
+
 class DocumentExporter {
   const DocumentExporter(this.view);
 
@@ -36,24 +46,18 @@ class DocumentExporter {
         case DocumentExportType.json:
           return FlowyResult.success(jsonEncode(document));
         case DocumentExportType.markdown:
-          final resolvedDocument = resolveDocumentLinksForExport(document);
           if (path != null) {
-            await customDocumentToMarkdown(resolvedDocument, path: path);
+            await customDocumentToMarkdown(document, path: path);
             return FlowyResult.success('');
           } else {
             return FlowyResult.success(
-              await customDocumentToMarkdown(resolvedDocument),
+              await customDocumentToMarkdown(document),
             );
           }
         case DocumentExportType.text:
           throw UnimplementedError();
         case DocumentExportType.html:
-          final resolvedDocument = resolveDocumentLinksForExport(document);
-          final html = documentToHTML(
-            resolvedDocument,
-            customParsers: [const HTMLLinkPreviewNodeParser()],
-          );
-          return FlowyResult.success(html);
+          return FlowyResult.success(exportDocumentToHTML(document));
       }
     }, (error) => FlowyResult.failure(error));
   }
