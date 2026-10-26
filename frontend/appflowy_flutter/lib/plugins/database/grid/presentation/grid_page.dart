@@ -593,7 +593,8 @@ class _GridRowsState extends State<_GridRows> {
     required int index,
     Animation<double>? animation,
   }) {
-    final databaseController = context.read<GridBloc>().databaseController;
+    final gridBloc = context.read<GridBloc>();
+    final databaseController = gridBloc.databaseController;
     final DatabaseController(:viewId, :rowCache) = databaseController;
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
@@ -611,6 +612,10 @@ class _GridRowsState extends State<_GridRows> {
       viewId: viewId,
       index: index,
       editable: context.watch<PageAccessLevelBloc>().state.isEditable,
+      focusPrimaryCell: !gridBloc.state.openRowDetail &&
+          gridBloc.state.createdRow?.id == rowId,
+      onPrimaryCellFocused: () =>
+          gridBloc.add(const GridEvent.resetCreatedRow()),
       rowController: RowController(
         viewId: viewId,
         rowMeta: rowMeta,

@@ -34,6 +34,8 @@ class GridRow extends StatelessWidget {
     required this.index,
     this.shrinkWrap = false,
     required this.editable,
+    this.focusPrimaryCell = false,
+    this.onPrimaryCellFocused,
   });
 
   final FieldController fieldController;
@@ -45,6 +47,8 @@ class GridRow extends StatelessWidget {
   final int index;
   final bool shrinkWrap;
   final bool editable;
+  final bool focusPrimaryCell;
+  final VoidCallback? onPrimaryCellFocused;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +56,8 @@ class GridRow extends StatelessWidget {
       fieldController: fieldController,
       cellBuilder: cellBuilder,
       onExpand: () => openDetailPage(context),
+      focusPrimaryCell: focusPrimaryCell,
+      onPrimaryCellFocused: onPrimaryCellFocused,
     );
 
     if (!shrinkWrap) {
@@ -241,11 +247,15 @@ class RowContent extends StatelessWidget {
     required this.fieldController,
     required this.cellBuilder,
     required this.onExpand,
+    required this.focusPrimaryCell,
+    this.onPrimaryCellFocused,
   });
 
   final FieldController fieldController;
   final VoidCallback onExpand;
   final EditableCellBuilder cellBuilder;
+  final bool focusPrimaryCell;
+  final VoidCallback? onPrimaryCellFocused;
 
   @override
   Widget build(BuildContext context) {
@@ -275,6 +285,15 @@ class RowContent extends StatelessWidget {
           cellContext,
           EditableCellStyle.desktopGrid,
         );
+        if (focusPrimaryCell && fieldInfo.field.isPrimary) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) {
+              return;
+            }
+            child.requestFocus.notify();
+            onPrimaryCellFocused?.call();
+          });
+        }
         return CellContainer(
           width: fieldInfo.width!.toDouble(),
           isPrimary: fieldInfo.field.isPrimary,

@@ -313,6 +313,17 @@ abstract class GridEditableTextCell<T extends EditableCellWidget>
   SingleListenerFocusNode get focusNode;
 
   @override
+  void didUpdateWidget(covariant T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      widget.cellContainerNotifier.isFocus = focusNode.hasFocus;
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     widget.shortcutHandlers[CellKeyboardKey.onEnter] =

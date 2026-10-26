@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -32,6 +34,36 @@ void main() {
       expect(actual.slice(0, 3), orderedEquals(expected));
       expect(actual.length, equals(4));
       tester.assertNumberOfRowsInGridPage(4);
+
+      final createdRow = find.byKey(ValueKey('grid_row_${actual.last}'));
+      final primaryTextField = find.descendant(
+        of: createdRow,
+        matching: find.byType(TextField),
+      );
+      expect(primaryTextField, findsOneWidget);
+      expect(
+        tester.widget<TextField>(primaryTextField).focusNode?.hasFocus,
+        isTrue,
+      );
+      final primaryCell = find.descendant(
+        of: createdRow,
+        matching: find.byType(EditableTextCell),
+      );
+      expect(primaryCell, findsOneWidget);
+      expect(
+        tester
+            .widget<EditableTextCell>(primaryCell)
+            .cellContainerNotifier
+            .isFocus,
+        isTrue,
+      );
+
+      tester.testTextInput.enterText('New row title');
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<TextField>(primaryTextField).controller?.text,
+        equals('New row title'),
+      );
     });
 
     testWidgets('create from a row\'s menu', (tester) async {
