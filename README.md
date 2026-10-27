@@ -25,19 +25,30 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
-<p align="center"><img src="https://appflowy.com/_next/static/media/tasks.796c753e.png" alt="AppFlowy Kanban Board for To-dos"  /></p>
-<p align="center"><img src="https://appflowy.com/_next/static/media/Grid.9e30484b.png" alt="AppFlowy Databases for Tasks and Projects"  /></p>
-<p align="center"><img src="https://appflowy.com/_next/static/media/sites.a8d5b2b9.png" alt="AppFlowy Sites for Beautiful documentation"  /></p>
-<p align="center"><img src="https://appflowy.com/_next/static/media/ai.e1460982.png" alt="AppFlowy AI" /></p>
-<p align="center"><img src="https://appflowy.com/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
-
-<br></br>
-<p align="center" >
-    <img src="https://github.com/user-attachments/assets/5841c491-b564-4a26-b9b6-191def430911" alt="Work across devices" width="1040px" /></p>
-<p align="center" >
-    <img src="https://github.com/user-attachments/assets/c2ba6bb8-746c-4743-9393-d008a669be95" alt="Work across devices" width="1040px" /></p>
-<p align="center" >
-    <img src="https://github.com/user-attachments/assets/e83dd1a3-4975-4d0e-91a1-9eb6e0d248cd" alt="Work across devices" width="1040px" /></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1c12d629-40a0-4f35-9451-97498cf31a25" alt="AppFlowy Kanban Board for To-dos" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0cff82d3-3e40-4057-a5fa-b2e9be8dd863" alt="AppFlowy Databases for Tasks and Projects" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/388224f4-0792-4e75-96d1-f1c671b298a3" alt="Database row page with comments" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ae0cadf2-bb6f-496e-8f84-4916dce1fa62" alt="Beautiful docs for notes and reports" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/619ea154-f714-4859-ad28-4f0bdf5028f7" alt="Team wikis with ask AI" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5841c491-b564-4a26-b9b6-191def430911" alt="Mobile workspace and AI summaries" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c2ba6bb8-746c-4743-9393-d008a669be95" alt="Mobile collaboration and database properties" width="1040" />
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e83dd1a3-4975-4d0e-91a1-9eb6e0d248cd" alt="Mobile document editing and blocks" width="1040" />
+</p>
 
 ## User Installation
 
