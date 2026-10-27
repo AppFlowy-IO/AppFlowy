@@ -22,6 +22,7 @@ class DateCardCellStyle extends CardCellStyle {
 class DateCardCell extends CardCell<DateCardCellStyle> {
   const DateCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -54,7 +55,7 @@ class _DateCellState extends State<DateCardCell> {
           );
 
           if (dateStr.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           return Container(

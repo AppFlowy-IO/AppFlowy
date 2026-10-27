@@ -20,6 +20,7 @@ class ChecklistCardCellStyle extends CardCellStyle {
 class ChecklistCardCell extends CardCell<ChecklistCardCellStyle> {
   const ChecklistCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -47,7 +48,7 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {
           if (state.tasks.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
           return Padding(
             padding: widget.style.padding,

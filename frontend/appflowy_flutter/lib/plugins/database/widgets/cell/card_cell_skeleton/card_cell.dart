@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 abstract class CardCell<T extends CardCellStyle> extends StatefulWidget {
-  const CardCell({super.key, required this.style});
+  const CardCell({super.key, required this.style, this.placeholder});
 
   final T style;
+  final Widget? placeholder;
+
+  Widget get emptyPlaceholder => placeholder ?? const SizedBox.shrink();
 }
 
 abstract class CardCellStyle {

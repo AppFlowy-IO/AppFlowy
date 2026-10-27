@@ -608,6 +608,28 @@ class _BoardCard extends StatefulWidget {
 
 class _BoardCardState extends State<_BoardCard> {
   bool _isEditing = false;
+  late final BoardActionsCubit _boardActions;
+
+  @override
+  void initState() {
+    super.initState();
+    _boardActions = context.read<BoardActionsCubit>();
+  }
+
+  @override
+  void dispose() {
+    if (_isEditing) {
+      final groupId = widget.afGroupData.id;
+      final rowId = widget.groupItem.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_boardActions.isClosed) {
+          _boardActions
+              .endEditing(GroupedRowId(groupId: groupId, rowId: rowId));
+        }
+      });
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -624,9 +646,10 @@ class _BoardCardState extends State<_BoardCard> {
       listener: (context, state) {
         state.maybeMap(
           startEditingRow: (value) {
-            if (value.groupedRowId.rowId == widget.groupItem.id &&
-                value.groupedRowId.groupId == groupData.group.groupId) {
-              setState(() => _isEditing = true);
+            final isEditing = value.groupedRowId.rowId == widget.groupItem.id &&
+                value.groupedRowId.groupId == groupData.group.groupId;
+            if (_isEditing != isEditing) {
+              setState(() => _isEditing = isEditing);
             }
           },
           endEditingRow: (_) {
@@ -703,6 +726,7 @@ class _BoardCardState extends State<_BoardCard> {
             );
           },
           child: RowCard(
+            enablePropertyEditing: true,
             fieldController: databaseController.fieldController,
             rowMeta: rowMeta,
             viewId: boardBloc.viewId,

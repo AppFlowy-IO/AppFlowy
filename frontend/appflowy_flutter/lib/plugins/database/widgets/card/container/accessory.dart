@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 enum AccessoryType {
   edit,
   more,
+  open,
 }
 
 abstract mixin class CardAccessory implements Widget {
@@ -38,16 +39,18 @@ class CardAccessoryContainer extends StatelessWidget {
       );
     }).toList();
 
-    children.insert(
-      1,
-      VerticalDivider(
-        width: 1,
-        thickness: 1,
-        color: Theme.of(context).brightness == Brightness.light
-            ? const Color(0xFF1F2329).withValues(alpha: 0.12)
-            : const Color(0xff59647a),
-      ),
-    );
+    if (children.length > 1) {
+      children.insert(
+        1,
+        VerticalDivider(
+          width: 1,
+          thickness: 1,
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xFF1F2329).withValues(alpha: 0.12)
+              : const Color(0xff59647a),
+        ),
+      );
+    }
 
     return _wrapDecoration(
       context,

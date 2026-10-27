@@ -31,16 +31,21 @@ class TextCardCellStyle extends CardCellStyle {
 class TextCardCell extends CardCell<TextCardCellStyle> with EditableCell {
   const TextCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
     this.showNotes = false,
     this.editableNotifier,
+    this.enableTitleEditing = false,
   });
 
   final DatabaseController databaseController;
   final CellContext cellContext;
   final bool showNotes;
+
+  /// Allows the title to regain focus throughout a board card's edit session.
+  final bool enableTitleEditing;
 
   @override
   final EditableCardNotifier? editableNotifier;
@@ -164,7 +169,7 @@ class _TextCellState extends State<TextCardCell> {
         final content = state.content ?? "";
 
         return content.isEmpty
-            ? const SizedBox.shrink()
+            ? widget.emptyPlaceholder
             : Container(
                 padding: widget.style.padding,
                 alignment: AlignmentDirectional.centerStart,
@@ -211,8 +216,9 @@ class _TextCellState extends State<TextCardCell> {
     return BlocSelector<TextCellBloc, TextCellState, bool>(
       selector: (state) => state.enableEdit,
       builder: (context, isEditing) {
+        final canEdit = isEditing || widget.enableTitleEditing;
         return IgnorePointer(
-          ignoring: !isEditing,
+          ignoring: !canEdit,
           child: CallbackShortcuts(
             bindings: {
               const SingleActivator(LogicalKeyboardKey.escape): () =>
@@ -228,8 +234,8 @@ class _TextCellState extends State<TextCardCell> {
               maxLines: null,
               minLines: 1,
               textInputAction: TextInputAction.done,
-              readOnly: !isEditing,
-              enableInteractiveSelection: isEditing,
+              readOnly: !canEdit,
+              enableInteractiveSelection: canEdit,
               style: widget.style.titleTextStyle,
               decoration: InputDecoration(
                 contentPadding: widget.style.padding,

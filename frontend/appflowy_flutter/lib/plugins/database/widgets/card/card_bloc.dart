@@ -21,12 +21,14 @@ class CardBloc extends Bloc<CardEvent, CardState> {
     required this.viewId,
     required bool isEditing,
     required this.rowController,
+    this.showAllFieldsWhenEditing = false,
   }) : super(
           CardState.initial(
             _makeCells(
               fieldController,
               groupFieldId,
               rowController,
+              includeHiddenFields: showAllFieldsWhenEditing && isEditing,
             ),
             isEditing,
             rowController.rowMeta,
@@ -40,6 +42,7 @@ class CardBloc extends Bloc<CardEvent, CardState> {
   final String? groupFieldId;
   final String viewId;
   final RowController rowController;
+  final bool showAllFieldsWhenEditing;
 
   VoidCallback? _rowCallback;
 
@@ -69,7 +72,17 @@ class CardBloc extends Bloc<CardEvent, CardState> {
           },
           setIsEditing: (bool isEditing) {
             if (isEditing != state.isEditing) {
-              emit(state.copyWith(isEditing: isEditing));
+              emit(
+                state.copyWith(
+                  isEditing: isEditing,
+                  cells: _makeCells(
+                    fieldController,
+                    groupFieldId,
+                    rowController,
+                    includeHiddenFields: showAllFieldsWhenEditing && isEditing,
+                  ),
+                ),
+              );
             }
           },
           didUpdateRowMeta: (rowMeta) {
@@ -84,8 +97,12 @@ class CardBloc extends Bloc<CardEvent, CardState> {
     rowController.addListener(
       onRowChanged: (cellMap, reason) {
         if (!isClosed) {
-          final cells =
-              _makeCells(fieldController, groupFieldId, rowController);
+          final cells = _makeCells(
+            fieldController,
+            groupFieldId,
+            rowController,
+            includeHiddenFields: showAllFieldsWhenEditing && state.isEditing,
+          );
           add(CardEvent.didReceiveCells(cells, reason));
         }
       },
@@ -101,16 +118,19 @@ class CardBloc extends Bloc<CardEvent, CardState> {
 List<CellMeta> _makeCells(
   FieldController fieldController,
   String? groupFieldId,
-  RowController rowController,
-) {
-  // Only show the non-hidden cells and cells that aren't of the grouping field
+  RowController rowController, {
+  bool includeHiddenFields = false,
+}) {
+  // A board card's edit session exposes every field, including its group field.
+  // Reading mode respects the configured visibility and column grouping.
   final cellContext = rowController.loadCells();
 
   cellContext.removeWhere((cellContext) {
     final fieldInfo = fieldController.getField(cellContext.fieldId);
     return fieldInfo == null ||
-        !(fieldInfo.visibility?.isVisibleState() ?? false) ||
-        (groupFieldId != null && cellContext.fieldId == groupFieldId);
+        (!includeHiddenFields &&
+            (!(fieldInfo.visibility?.isVisibleState() ?? false) ||
+                (groupFieldId != null && cellContext.fieldId == groupFieldId)));
   });
   return cellContext
       .map(

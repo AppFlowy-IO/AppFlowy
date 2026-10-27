@@ -51,6 +51,25 @@ enum PopoverClickHandler {
   gestureDetector,
 }
 
+/// Connects popover keyboard focus to its owning control when requested.
+class PopoverFocusScope extends InheritedWidget {
+  const PopoverFocusScope({
+    super.key,
+    required this.parentNode,
+    required super.child,
+  });
+
+  final FocusNode parentNode;
+
+  static FocusNode? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<PopoverFocusScope>()
+      ?.parentNode;
+
+  @override
+  bool updateShouldNotify(PopoverFocusScope oldWidget) =>
+      parentNode != oldWidget.parentNode;
+}
+
 class Popover extends StatefulWidget {
   const Popover({
     super.key,
@@ -350,11 +369,13 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildOverlayContent(bool shouldAddMask) {
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
-      },
-      child: FocusScope(
+    final parentNode = PopoverFocusScope.maybeOf(context);
+    final child = FocusScope(
+      parentNode: parentNode,
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
+        },
         child: Stack(
           children: [
             if (shouldAddMask) _buildMask(),
@@ -363,6 +384,10 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+    // Keep the same focus connection for nested property popovers as well.
+    return parentNode == null
+        ? child
+        : PopoverFocusScope(parentNode: parentNode, child: child);
   }
 
   Widget _buildMask() {
