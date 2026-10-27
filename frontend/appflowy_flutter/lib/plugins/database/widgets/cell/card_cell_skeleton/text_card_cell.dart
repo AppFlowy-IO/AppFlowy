@@ -216,7 +216,7 @@ class _TextCellState extends State<TextCardCell> {
     return BlocSelector<TextCellBloc, TextCellState, bool>(
       selector: (state) => state.enableEdit,
       builder: (context, isEditing) {
-        final canEdit = isEditing || widget.enableTitleEditing;
+        final bool canEdit = isEditing || widget.enableTitleEditing;
         return IgnorePointer(
           ignoring: !canEdit,
           child: CallbackShortcuts(

@@ -619,8 +619,8 @@ class _BoardCardState extends State<_BoardCard> {
   @override
   void dispose() {
     if (_isEditing) {
-      final groupId = widget.afGroupData.id;
-      final rowId = widget.groupItem.id;
+      final String groupId = widget.afGroupData.id;
+      final String rowId = widget.groupItem.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_boardActions.isClosed) {
           _boardActions
@@ -646,8 +646,9 @@ class _BoardCardState extends State<_BoardCard> {
       listener: (context, state) {
         state.maybeMap(
           startEditingRow: (value) {
-            final isEditing = value.groupedRowId.rowId == widget.groupItem.id &&
-                value.groupedRowId.groupId == groupData.group.groupId;
+            final bool isEditing =
+                value.groupedRowId.rowId == widget.groupItem.id &&
+                    value.groupedRowId.groupId == groupData.group.groupId;
             if (_isEditing != isEditing) {
               setState(() => _isEditing = isEditing);
             }

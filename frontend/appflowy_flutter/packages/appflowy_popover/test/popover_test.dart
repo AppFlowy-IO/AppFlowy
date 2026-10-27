@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  for (final connectFocus in [false, true]) {
+  for (final bool connectFocus in [false, true]) {
     testWidgets('Escape closes the popup; owner focus is opt-in: $connectFocus',
         (tester) async {
-      final controller = PopoverController();
-      final ownerNode = FocusNode();
-      final ownerScope = FocusScopeNode();
+      final PopoverController controller = PopoverController();
+      final FocusNode ownerNode = FocusNode();
+      final FocusScopeNode ownerScope = FocusScopeNode();
       var ownerTabCount = 0;
       Widget anchor = Popover(
         controller: controller,

@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -177,15 +178,16 @@ class _RowCardState extends State<RowCard> {
       ),
       child: Builder(
         builder: (context) {
-          final isEditing = context.watch<CardBloc>().state.isEditing;
-          final accessories = !widget.styleConfiguration.showAccessory
-              ? const <CardAccessory>[]
-              : isEditing && widget.enablePropertyEditing
-                  ? const <CardAccessory>[OpenCardAccessory()]
-                  : const <CardAccessory>[
-                      EditCardAccessory(),
-                      MoreCardOptionsAccessory(),
-                    ];
+          final bool isEditing = context.watch<CardBloc>().state.isEditing;
+          final List<CardAccessory> accessories =
+              !widget.styleConfiguration.showAccessory
+                  ? const <CardAccessory>[]
+                  : isEditing && widget.enablePropertyEditing
+                      ? const <CardAccessory>[OpenCardAccessory()]
+                      : const <CardAccessory>[
+                          EditCardAccessory(),
+                          MoreCardOptionsAccessory(),
+                        ];
           return TapRegion(
             enabled: widget.enablePropertyEditing && isEditing,
             onTapOutside: (_) {
@@ -246,11 +248,11 @@ class _RowCardState extends State<RowCard> {
   }
 
   void _finishEditing() {
-    final focusManager = FocusManager.instance;
-    focusManager.primaryFocus?.unfocus();
     // Text editors save on focus loss. Deliver that notification before the
     // card rebuilds and removes the editor, including on an outside tap down.
-    focusManager.applyFocusChangesIfNeeded();
+    FocusManager.instance
+      ..primaryFocus?.unfocus()
+      ..applyFocusChangesIfNeeded();
     _cardBloc.add(const CardEvent.setIsEditing(false));
   }
 
@@ -292,12 +294,14 @@ class _CardContent extends StatefulWidget {
 }
 
 class _CardContentState extends State<_CardContent> {
-  final _focusScope = FocusScopeNode(debugLabel: 'Board card');
-  final _doneFocusNode = FocusNode(debugLabel: 'Board card Done');
-  final _fieldFocusNodes = <String, BoardCardFocusNode>{};
+  final FocusScopeNode _focusScope = FocusScopeNode(debugLabel: 'Board card');
+  final FocusNode _doneFocusNode = FocusNode(debugLabel: 'Board card Done');
+  final Map<String, BoardCardFocusNode> _fieldFocusNodes =
+      <String, BoardCardFocusNode>{};
 
   BoardCardFocusNode? _focusNodeFor(CellMeta cell) {
-    final field = widget.cellBuilder.databaseController.fieldController
+    final FieldInfo? field = widget
+        .cellBuilder.databaseController.fieldController
         .getField(cell.fieldId);
     if (!widget.enablePropertyEditing ||
         field == null ||
@@ -313,7 +317,7 @@ class _CardContentState extends State<_CardContent> {
   }
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
-    final keyboard = HardwareKeyboard.instance;
+    final HardwareKeyboard keyboard = HardwareKeyboard.instance;
     if (!widget.isEditing ||
         event.logicalKey != LogicalKeyboardKey.tab ||
         keyboard.isControlPressed ||
@@ -324,24 +328,24 @@ class _CardContentState extends State<_CardContent> {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.handled;
     }
-    final targets = <FocusNode>[
+    final List<FocusNode> targets = <FocusNode>[
       ...widget.cells.map(_focusNodeFor).whereType<BoardCardFocusNode>(),
       _doneFocusNode,
     ];
-    final current = targets.indexWhere((target) => target.hasFocus);
+    final int current = targets.indexWhere((target) => target.hasFocus);
     if (current == -1) {
       return KeyEventResult.ignored;
     }
 
     // Commit the focused input before closing its popup or changing editors.
-    final focusManager = FocusManager.instance;
-    focusManager.primaryFocus?.unfocus();
-    focusManager.applyFocusChangesIfNeeded();
+    FocusManager.instance
+      ..primaryFocus?.unfocus()
+      ..applyFocusChangesIfNeeded();
     while (PopoverState.rootEntry.isNotEmpty) {
       PopoverState.rootEntry.popEntry();
     }
-    final step = keyboard.isShiftPressed ? -1 : 1;
-    final next = targets[(current + step) % targets.length];
+    final int step = keyboard.isShiftPressed ? -1 : 1;
+    final FocusNode next = targets[(current + step) % targets.length];
     if (next is BoardCardFocusNode) {
       next.startEditing();
     } else {
@@ -352,7 +356,7 @@ class _CardContentState extends State<_CardContent> {
 
   @override
   void dispose() {
-    for (final node in _fieldFocusNodes.values) {
+    for (final BoardCardFocusNode node in _fieldFocusNodes.values) {
       node.dispose();
     }
     _doneFocusNode.dispose();
@@ -362,7 +366,7 @@ class _CardContentState extends State<_CardContent> {
 
   @override
   Widget build(BuildContext context) {
-    final child = Column(
+    final Column child = Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -389,7 +393,7 @@ class _CardContentState extends State<_CardContent> {
         ),
       ],
     );
-    final content = widget.enablePropertyEditing
+    final Widget content = widget.enablePropertyEditing
         ? FocusScope(
             node: _focusScope,
             onKeyEvent: _onKeyEvent,
@@ -482,7 +486,7 @@ class _CardContentCellState extends State<_CardContentCell> {
   }
 
   void _onFieldsChanged(List<FieldInfo> fields) {
-    final field = fields.firstWhereOrNull(
+    final FieldInfo? field = fields.firstWhereOrNull(
       (field) => field.id == widget.cellMeta.fieldId,
     );
     if (mounted && field != null && field != _fieldInfo) {
@@ -491,7 +495,7 @@ class _CardContentCellState extends State<_CardContentCell> {
   }
 
   void listener() {
-    final isEditing = cellNotifier!.isCellEditing.value;
+    final bool isEditing = cellNotifier!.isCellEditing.value;
     if (widget.enablePropertyEditing && !isEditing) {
       // Changing focus between fields must not end the card's edit session.
       return;
@@ -520,8 +524,9 @@ class _CardContentCellState extends State<_CardContentCell> {
     if (widget.isTitle) {
       widget.focusNode?.onRequestEditing = null;
     }
-    cellNotifier?.isCellEditing.removeListener(listener);
-    cellNotifier?.dispose();
+    cellNotifier
+      ?..isCellEditing.removeListener(listener)
+      ..dispose();
     _fieldController?.removeListener(
       onFieldsListener: _onFieldsChanged,
     );
@@ -530,13 +535,14 @@ class _CardContentCellState extends State<_CardContentCell> {
 
   @override
   Widget build(BuildContext context) {
-    final field = widget.cellBuilder.databaseController.fieldController
+    final FieldInfo? field = widget
+        .cellBuilder.databaseController.fieldController
         .getField(widget.cellMeta.fieldId);
     if (widget.enablePropertyEditing &&
         field != null &&
         !field.isPrimary &&
         BoardCardCell.canEdit(field.fieldType)) {
-      final cellContext = widget.cellMeta.cellContext();
+      final CellContext cellContext = widget.cellMeta.cellContext();
       return BoardCardCell(
         key: ValueKey('${field.id}:${field.fieldType.value}'),
         databaseController: widget.cellBuilder.databaseController,
@@ -570,7 +576,8 @@ class _CardContentCellState extends State<_CardContentCell> {
         ),
       );
     }
-    final child = BlocListener<CardBloc, CardState>(
+    final BlocListener<CardBloc, CardState> child =
+        BlocListener<CardBloc, CardState>(
       listenWhen: (previous, current) =>
           previous.isEditing != current.isEditing,
       listener: (context, state) {

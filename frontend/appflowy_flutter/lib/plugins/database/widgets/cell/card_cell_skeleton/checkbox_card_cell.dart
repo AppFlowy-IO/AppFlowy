@@ -57,7 +57,7 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
       },
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
-          final child = Container(
+          final Container child = Container(
             alignment: AlignmentDirectional.centerStart,
             padding: widget.style.padding,
             child: Row(

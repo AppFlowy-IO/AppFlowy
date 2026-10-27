@@ -369,25 +369,27 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildOverlayContent(bool shouldAddMask) {
-    final parentNode = PopoverFocusScope.maybeOf(context);
-    final child = FocusScope(
-      parentNode: parentNode,
-      child: CallbackShortcuts(
-        bindings: {
-          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
-        },
-        child: Stack(
-          children: [
-            if (shouldAddMask) _buildMask(),
-            _buildPopoverContainer(),
-          ],
-        ),
-      ),
+    final FocusNode? parentNode = PopoverFocusScope.maybeOf(context);
+    final Stack content = Stack(
+      children: [
+        if (shouldAddMask) _buildMask(),
+        _buildPopoverContainer(),
+      ],
+    );
+    final CallbackShortcuts shortcuts = CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
+      },
+      // Preserve the original focus structure unless the owner opts in.
+      child: parentNode == null ? FocusScope(child: content) : content,
     );
     // Keep the same focus connection for nested property popovers as well.
     return parentNode == null
-        ? child
-        : PopoverFocusScope(parentNode: parentNode, child: child);
+        ? shortcuts
+        : PopoverFocusScope(
+            parentNode: parentNode,
+            child: FocusScope(parentNode: parentNode, child: shortcuts),
+          );
   }
 
   Widget _buildMask() {

@@ -96,11 +96,11 @@ class _BoardCardCellState extends State<BoardCardCell> {
       return;
     }
 
-    final style = widget.fieldType == FieldType.Checklist ||
+    final EditableCellStyle style = widget.fieldType == FieldType.Checklist ||
             widget.fieldType == FieldType.Media
         ? EditableCellStyle.desktopGrid
         : EditableCellStyle.desktopRowDetail;
-    final editor = EditableCellBuilder(
+    final EditableCellWidget editor = EditableCellBuilder(
       databaseController: widget.databaseController,
     ).buildStyled(widget.cellContext, style);
 
@@ -112,10 +112,11 @@ class _BoardCardCellState extends State<BoardCardCell> {
       if (!mounted || _editor != editor) {
         return;
       }
-      editor.requestFocus.notify();
       // Some popover editors only notify when they close. Mark them active
       // after mounting, so a text editor's initial unfocused state is ignored.
-      editor.cellContainerNotifier.isFocus = true;
+      editor
+        ..requestFocus.notify()
+        ..cellContainerNotifier.isFocus = true;
       _openingEditor = false;
     });
   }
@@ -150,12 +151,12 @@ class _BoardCardCellState extends State<BoardCardCell> {
 
   @override
   Widget build(BuildContext context) {
-    final child = GestureDetector(
+    final GestureDetector child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => _startEditing(),
       child: _buildCell(),
     );
-    final focusNode = widget.focusNode;
+    final BoardCardFocusNode? focusNode = widget.focusNode;
     return focusNode == null
         ? child
         : PopoverFocusScope(
@@ -169,7 +170,7 @@ class _BoardCardCellState extends State<BoardCardCell> {
   }
 
   Widget _buildCell() {
-    final editor = _editor;
+    final EditableCellWidget? editor = _editor;
     if (editor != null) {
       return CallbackShortcuts(
         bindings: {
@@ -182,7 +183,7 @@ class _BoardCardCellState extends State<BoardCardCell> {
       );
     }
 
-    final child = MouseRegion(
+    final MouseRegion child = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: widget.child,
     );

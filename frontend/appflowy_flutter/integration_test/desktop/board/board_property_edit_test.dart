@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/domain/cell_service.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_shortcut_container.dart';
+import 'package:appflowy/plugins/database/board/presentation/widgets/board_focus_scope.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/card/container/accessory.dart';
 import 'package:appflowy/plugins/database/widgets/cell/board_card_cell.dart';
@@ -21,6 +22,8 @@ import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,21 +40,23 @@ void main() {
   group('edit board card properties', () {
     testWidgets('expand button only appears when hovering an editing card',
         (tester) async {
-      final (card, _) = await _createBoardField(
+      final (RowCard card, FieldPB _) = await _createBoardField(
         tester,
         FieldType.RichText,
         startEditing: false,
       );
-      final expand = find.descendant(
+      final Finder expand = find.descendant(
         of: _card(card),
         matching: find.byType(OpenCardAccessory),
       );
-      final pencil = find.descendant(
+      final Finder pencil = find.descendant(
         of: _card(card),
         matching: find.byType(EditCardAccessory),
       );
-      final outside = tester.getRect(_card(card)).topRight + const Offset(8, 8);
-      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      final Offset outside =
+          tester.getRect(_card(card)).topRight + const Offset(8, 8);
+      final TestGesture mouse =
+          await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: outside);
       try {
         await tester.pumpAndSettle();
@@ -74,7 +79,7 @@ void main() {
               .svg,
           FlowySvgs.full_view_s,
         );
-        final accessories = find.descendant(
+        final Finder accessories = find.descendant(
           of: _card(card),
           matching: find.byType(CardAccessoryContainer),
         );
@@ -110,13 +115,13 @@ void main() {
       }
     });
 
-    for (final editTitle in [false, true]) {
+    for (final bool editTitle in [false, true]) {
       testWidgets(
           'expand button saves the active ${editTitle ? 'title' : 'property'} and opens the card',
           (tester) async {
-        final (card, description) =
+        final (RowCard card, FieldPB description) =
             await _createBoardField(tester, FieldType.RichText);
-        final field = editTitle
+        final FieldPB field = editTitle
             ? card.fieldController.fieldInfos
                 .firstWhere((field) => field.isPrimary)
                 .field
@@ -124,16 +129,17 @@ void main() {
         if (!editTitle) {
           await tester.tapButton(_property(card, field));
         }
-        final input = editTitle
+        final Finder input = editTitle
             ? find.descendant(of: _card(card), matching: find.byType(TextField))
             : _propertyInput(card, field);
-        const value = 'Saved by the expand button';
+        const String value = 'Saved by the expand button';
         await tester.enterText(input, value);
-        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        final TestGesture mouse =
+            await tester.createGesture(kind: PointerDeviceKind.mouse);
         await mouse.addPointer(location: tester.getCenter(_card(card)));
         try {
           await tester.pumpAndSettle();
-          final expand = find.descendant(
+          final Finder expand = find.descendant(
             of: _card(card),
             matching: find.byType(OpenCardAccessory),
           );
@@ -161,16 +167,16 @@ void main() {
       });
     }
 
-    for (final isEditing in [false, true]) {
+    for (final bool isEditing in [false, true]) {
       testWidgets(
           'empty card space opens the card in ${isEditing ? 'editing' : 'reading'} mode',
           (tester) async {
-        final (card, description) = await _createBoardField(
+        final (RowCard card, FieldPB description) = await _createBoardField(
           tester,
           FieldType.RichText,
           startEditing: isEditing,
         );
-        const value = 'Saved before opening the card';
+        const String value = 'Saved before opening the card';
         if (isEditing) {
           await tester.tapButton(_property(card, description));
           await tester.enterText(_propertyInput(card, description), value);
@@ -189,8 +195,8 @@ void main() {
           );
         }
 
-        final cardRect = tester.getRect(_card(card));
-        final emptySpace = cardRect.topLeft + const Offset(2, 2);
+        final Rect cardRect = tester.getRect(_card(card));
+        final Offset emptySpace = cardRect.topLeft + const Offset(2, 2);
         expect(cardRect.contains(emptySpace), isTrue);
         expect(
           tester.getRect(_property(card, description)).contains(emptySpace),
@@ -218,14 +224,14 @@ void main() {
       testWidgets(
           'property clicks do not open the card in ${isEditing ? 'editing' : 'reading'} mode',
           (tester) async {
-        final (card, created) = await _createBoardField(
+        final (RowCard card, FieldPB created) = await _createBoardField(
           tester,
           FieldType.CreatedTime,
           startEditing: isEditing,
         );
-        final completed =
+        final FieldPB completed =
             await _addField(card, FieldType.Checkbox, 'Completed');
-        final description =
+        final FieldPB description =
             await _addField(card, FieldType.RichText, 'Description');
         await CellBackendService.updateCell(
           viewId: card.viewId,
@@ -233,7 +239,7 @@ void main() {
               CellContext(fieldId: description.id, rowId: card.rowMeta.id),
           data: 'Click to edit this property',
         );
-        final timestamp = find.descendant(
+        final Finder timestamp = find.descendant(
           of: _card(card),
           matching: find.byWidgetPredicate(
             (widget) =>
@@ -241,14 +247,14 @@ void main() {
                 widget.cellContext.fieldId == created.id,
           ),
         );
-        final timestampText =
+        final Finder timestampText =
             find.descendant(of: timestamp, matching: find.byType(Text));
         await tester.pumpUntilFound(timestampText);
         expect(timestampText, findsOneWidget);
         await tester.tapButton(timestampText, warnIfMissed: true);
         expect(find.byType(RowDetailPage), findsNothing);
 
-        final checkbox = find.descendant(
+        final Finder checkbox = find.descendant(
           of: _card(card),
           matching: find.byWidgetPredicate(
             (widget) =>
@@ -272,7 +278,7 @@ void main() {
         expect(find.byType(RowDetailPage), findsNothing);
 
         await tester.tapButton(_property(card, description));
-        final input = _propertyInput(card, description);
+        final Finder input = _propertyInput(card, description);
         await tester.tapButton(input, warnIfMissed: true);
         expect(find.byType(RowDetailPage), findsNothing);
         await tester.enterText(input, 'Edited without opening the card');
@@ -296,7 +302,7 @@ void main() {
           await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
           await tester.tapButton(timestampText);
           await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-          final focusScope = tester
+          final BoardFocusScope focusScope = tester
               .widget<BoardShortcutContainer>(
                 find.byType(BoardShortcutContainer),
               )
@@ -310,16 +316,16 @@ void main() {
       });
     }
 
-    for (final useDone in [true, false]) {
+    for (final bool useDone in [true, false]) {
       testWidgets(
           'click the title to edit and save with ${useDone ? 'Done' : 'an outside click'}',
           (tester) async {
-        final (card, description) =
+        final (RowCard card, FieldPB description) =
             await _createBoardField(tester, FieldType.RichText);
-        final title = card.fieldController.fieldInfos
+        final FieldPB title = card.fieldController.fieldInfos
             .firstWhere((field) => field.isPrimary)
             .field;
-        final titleInput = find.descendant(
+        final Finder titleInput = find.descendant(
           of: _card(card),
           matching: find.descendant(
             of: find.byWidgetPredicate(
@@ -389,11 +395,12 @@ void main() {
 
     testWidgets('click an empty title to resume editing after Enter',
         (tester) async {
-      final (card, _) = await _createBoardField(tester, FieldType.RichText);
-      final title = card.fieldController.fieldInfos
+      final (RowCard card, FieldPB _) =
+          await _createBoardField(tester, FieldType.RichText);
+      final FieldPB title = card.fieldController.fieldInfos
           .firstWhere((field) => field.isPrimary)
           .field;
-      final titleInput = find.descendant(
+      final Finder titleInput = find.descendant(
         of: _card(card),
         matching: find.byType(TextField),
       );
@@ -411,11 +418,11 @@ void main() {
 
     testWidgets('Tab and Shift Tab save and edit fields in card order',
         (tester) async {
-      final (card, description) =
+      final (RowCard card, FieldPB description) =
           await _createBoardField(tester, FieldType.RichText);
-      final effort = await _addField(card, FieldType.Number, 'Effort');
-      final link = await _addField(card, FieldType.URL, 'Link');
-      final time = await _addField(card, FieldType.Time, 'Time');
+      final FieldPB effort = await _addField(card, FieldType.Number, 'Effort');
+      final FieldPB link = await _addField(card, FieldType.URL, 'Link');
+      final FieldPB time = await _addField(card, FieldType.Time, 'Time');
       await tester.pumpAndSettle();
 
       await tester.tapButton(_property(card, description));
@@ -449,7 +456,7 @@ void main() {
 
       // The last field leads to Done; Shift+Tab reopens that last field.
       await _pressTab(tester);
-      final done = find.descendant(
+      final Finder done = find.descendant(
         of: _card(card),
         matching: find.byType(DoneCardButton),
       );
@@ -462,12 +469,12 @@ void main() {
 
     testWidgets('Tab navigates from the title through the grouping popup',
         (tester) async {
-      final (card, description) =
+      final (RowCard card, FieldPB description) =
           await _createBoardField(tester, FieldType.RichText);
-      final title = card.fieldController.fieldInfos
+      final FieldPB title = card.fieldController.fieldInfos
           .firstWhere((field) => field.isPrimary)
           .field;
-      final titleInput = find.descendant(
+      final Finder titleInput = find.descendant(
         of: _card(card),
         matching: find.byType(TextField),
       );
@@ -489,17 +496,19 @@ void main() {
 
     testWidgets('Tab skips read-only fields and focuses checkbox properties',
         (tester) async {
-      final (card, effort) = await _createBoardField(tester, FieldType.Number);
+      final (RowCard card, FieldPB effort) =
+          await _createBoardField(tester, FieldType.Number);
       await _addField(card, FieldType.CreatedTime, 'Created');
-      final completed = await _addField(card, FieldType.Checkbox, 'Completed');
-      final description =
+      final FieldPB completed =
+          await _addField(card, FieldType.Checkbox, 'Completed');
+      final FieldPB description =
           await _addField(card, FieldType.RichText, 'Description');
       await tester.pumpAndSettle();
       await tester.tapButton(_property(card, effort));
       await tester.enterText(_propertyInput(card, effort), '3');
       await _pressTab(tester);
 
-      final checkbox = tester.widget<CheckboxCardCell>(
+      final CheckboxCardCell checkbox = tester.widget<CheckboxCardCell>(
         find.descendant(
           of: _card(card),
           matching: find.byWidgetPredicate(
@@ -526,7 +535,7 @@ void main() {
       await _expectSavedText(tester, card, effort, '3');
     });
 
-    for (final (fieldType, editorType) in [
+    for (final (FieldType fieldType, Type editorType) in [
       (FieldType.DateTime, DateCellEditor),
       (FieldType.Checklist, ChecklistCellEditor),
       (FieldType.Media, MediaCellEditor),
@@ -534,8 +543,10 @@ void main() {
     ]) {
       testWidgets('Tab leaves the $fieldType popup and Shift Tab reopens it',
           (tester) async {
-        final (card, field) = await _createBoardField(tester, fieldType);
-        final effort = await _addField(card, FieldType.Number, 'Effort');
+        final (RowCard card, FieldPB field) =
+            await _createBoardField(tester, fieldType);
+        final FieldPB effort =
+            await _addField(card, FieldType.Number, 'Effort');
         await tester.pumpAndSettle();
         await tester.tapButton(_property(card, field));
         expect(find.byType(editorType), findsOneWidget);
@@ -570,15 +581,16 @@ void main() {
 
     testWidgets('Done saves filled fields and hides fields left empty',
         (tester) async {
-      final (card, description) = await _createBoardField(
+      final (RowCard card, FieldPB description) = await _createBoardField(
         tester,
         FieldType.RichText,
         startEditing: false,
       );
-      final effort = await _addField(card, FieldType.Number, 'Effort');
-      final reference = await _addField(card, FieldType.URL, 'Reference');
+      final FieldPB effort = await _addField(card, FieldType.Number, 'Effort');
+      final FieldPB reference =
+          await _addField(card, FieldType.URL, 'Reference');
       await tester.pumpAndSettle();
-      for (final field in [description, effort, reference]) {
+      for (final FieldPB field in [description, effort, reference]) {
         expect(
           find.descendant(
             of: _property(card, field),
@@ -589,7 +601,7 @@ void main() {
       }
 
       await _beginCardEditing(tester, card);
-      for (final field in [description, effort, reference]) {
+      for (final FieldPB field in [description, effort, reference]) {
         expect(
           find.descendant(
             of: _property(card, field),
@@ -599,7 +611,7 @@ void main() {
         );
       }
 
-      final descriptionProperty = _property(card, description);
+      final Finder descriptionProperty = _property(card, description);
       await tester.tapButton(descriptionProperty);
       await tester.enterText(
         find.descendant(
@@ -608,7 +620,7 @@ void main() {
         ),
         'Written on the board',
       );
-      final effortProperty = _property(card, effort);
+      final Finder effortProperty = _property(card, effort);
       await tester.tapButton(effortProperty);
       await tester.enterText(
         find.descendant(of: effortProperty, matching: find.byType(TextField)),
@@ -650,7 +662,7 @@ void main() {
         findsOneWidget,
       );
       await tester.tapButton(descriptionProperty, warnIfMissed: true);
-      final reopenedInput = find.descendant(
+      final Finder reopenedInput = find.descendant(
         of: descriptionProperty,
         matching: find.byType(TextField),
       );
@@ -671,16 +683,18 @@ void main() {
       );
     });
 
-    for (final (fieldType, value) in [
+    for (final (FieldType fieldType, String value) in [
       (FieldType.RichText, 'Saved by clicking outside'),
       (FieldType.Number, '12'),
     ]) {
       testWidgets('outside click saves $fieldType and finishes card editing',
           (tester) async {
-        final (card, field) = await _createBoardField(tester, fieldType);
-        final emptyField = await _addField(card, FieldType.URL, 'Reference');
+        final (RowCard card, FieldPB field) =
+            await _createBoardField(tester, fieldType);
+        final FieldPB emptyField =
+            await _addField(card, FieldType.URL, 'Reference');
         await tester.pumpAndSettle();
-        final property = _property(card, field);
+        final Finder property = _property(card, field);
         await tester.tapButton(property);
         await tester.enterText(
           find.descendant(of: property, matching: find.byType(TextField)),
@@ -727,10 +741,12 @@ void main() {
 
     testWidgets('outside clicks save the date before finishing card editing',
         (tester) async {
-      final (card, field) = await _createBoardField(tester, FieldType.DateTime);
-      final emptyField = await _addField(card, FieldType.URL, 'Reference');
+      final (RowCard card, FieldPB field) =
+          await _createBoardField(tester, FieldType.DateTime);
+      final FieldPB emptyField =
+          await _addField(card, FieldType.URL, 'Reference');
       await tester.pumpAndSettle();
-      final property = _property(card, field);
+      final Finder property = _property(card, field);
       await tester.tapButton(property);
       expect(find.byType(DateCellEditor), findsOneWidget);
       await tester.selectDay(content: DateTime.now().day);
@@ -749,7 +765,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      final savedDate =
+      final DateCellDataPB savedDate =
           DateCellDataPB.fromBuffer((await _getCell(card, field)).data);
       expect(savedDate.hasTimestamp(), isTrue);
 
@@ -774,9 +790,9 @@ void main() {
 
     testWidgets('editing another card finishes the previous card session',
         (tester) async {
-      final (firstCard, field) =
+      final (RowCard firstCard, FieldPB field) =
           await _createBoardField(tester, FieldType.RichText);
-      final secondCard = tester.widget<RowCard>(
+      final RowCard secondCard = tester.widget<RowCard>(
         find.ancestor(of: find.text('Card 2'), matching: find.byType(RowCard)),
       );
       await _beginCardEditing(tester, secondCard);
@@ -806,8 +822,9 @@ void main() {
 
     testWidgets('the grouping property can be changed during editing',
         (tester) async {
-      final (card, _) = await _createBoardField(tester, FieldType.RichText);
-      final status = card.fieldController.fieldInfos
+      final (RowCard card, FieldPB _) =
+          await _createBoardField(tester, FieldType.RichText);
+      final FieldPB status = card.fieldController.fieldInfos
           .firstWhere((field) => field.id == card.groupingFieldId)
           .field;
       await tester.tapButton(_property(card, status));
@@ -826,14 +843,15 @@ void main() {
       );
     });
 
-    for (final (fieldType, value) in [
+    for (final (FieldType fieldType, String value) in [
       (FieldType.RichText, 'Description edited on the board'),
       (FieldType.Number, '42'),
     ]) {
       testWidgets('edit and clear $fieldType without opening the card',
           (tester) async {
-        final (card, field) = await _createBoardField(tester, fieldType);
-        final property = _property(card, field);
+        final (RowCard card, FieldPB field) =
+            await _createBoardField(tester, fieldType);
+        final Finder property = _property(card, field);
 
         expect(
           find.descendant(of: property, matching: find.text(field.name)),
@@ -842,7 +860,7 @@ void main() {
         await tester.tapButton(property);
         expect(find.byType(RowDetailPage), findsNothing);
 
-        final input = find.descendant(
+        final Finder input = find.descendant(
           of: property,
           matching: find.byType(TextField),
         );
@@ -891,10 +909,14 @@ void main() {
       });
     }
 
-    for (final fieldType in [FieldType.SingleSelect, FieldType.MultiSelect]) {
+    for (final FieldType fieldType in [
+      FieldType.SingleSelect,
+      FieldType.MultiSelect,
+    ]) {
       testWidgets('edit $fieldType from the board', (tester) async {
-        final (card, field) = await _createBoardField(tester, fieldType);
-        final property = _property(card, field);
+        final (RowCard card, FieldPB field) =
+            await _createBoardField(tester, fieldType);
+        final Finder property = _property(card, field);
 
         await tester.tapButton(property);
         expect(find.byType(SelectOptionCellEditor), findsOneWidget);
@@ -906,7 +928,7 @@ void main() {
           find.descendant(of: property, matching: find.text('Urgent')),
         );
 
-        final data = SelectOptionCellDataPB.fromBuffer(
+        final SelectOptionCellDataPB data = SelectOptionCellDataPB.fromBuffer(
           (await _getCell(card, field)).data,
         );
         expect(data.selectOptions.map((option) => option.name), ['Urgent']);
@@ -927,8 +949,9 @@ void main() {
     }
 
     testWidgets('set and clear a date from the board', (tester) async {
-      final (card, field) = await _createBoardField(tester, FieldType.DateTime);
-      final property = _property(card, field);
+      final (RowCard card, FieldPB field) =
+          await _createBoardField(tester, FieldType.DateTime);
+      final Finder property = _property(card, field);
 
       await tester.tapButton(property);
       expect(find.byType(DateCellEditor), findsOneWidget);
@@ -936,7 +959,7 @@ void main() {
       await tester.selectDay(content: DateTime.now().day);
       await tester.dismissCellEditor();
 
-      final data =
+      final DateCellDataPB data =
           DateCellDataPB.fromBuffer((await _getCell(card, field)).data);
       expect(data.hasTimestamp(), isTrue);
       expect(find.byType(RowDetailPage), findsNothing);
@@ -951,12 +974,13 @@ void main() {
 
     testWidgets('show empty properties only during the card edit session',
         (tester) async {
-      final (card, field) = await _createBoardField(
+      final (RowCard card, FieldPB field) = await _createBoardField(
         tester,
         FieldType.RichText,
         startEditing: false,
       );
-      final settings = FieldSettingsBackendService(viewId: card.viewId);
+      final FieldSettingsBackendService settings =
+          FieldSettingsBackendService(viewId: card.viewId);
       expect(
         find.descendant(
           of: _property(card, field),
@@ -1014,18 +1038,19 @@ void main() {
     });
 
     testWidgets('timestamps have no inline editor', (tester) async {
-      final (card, field) =
+      final (RowCard card, FieldPB field) =
           await _createBoardField(tester, FieldType.CreatedTime);
       expect(_property(card, field), findsNothing);
     });
 
-    for (final (fieldType, editorType) in [
+    for (final (FieldType fieldType, Type editorType) in [
       (FieldType.Checklist, ChecklistCellEditor),
       (FieldType.Media, MediaCellEditor),
       (FieldType.Relation, RelationCellEditor),
     ]) {
       testWidgets('open the $fieldType editor from the board', (tester) async {
-        final (card, field) = await _createBoardField(tester, fieldType);
+        final (RowCard card, FieldPB field) =
+            await _createBoardField(tester, fieldType);
         await tester.tapButton(_property(card, field));
         expect(find.byType(editorType), findsOneWidget);
         expect(find.byType(RowDetailPage), findsNothing);
@@ -1038,8 +1063,9 @@ void main() {
 
     testWidgets('checkboxes remain editable without opening the card',
         (tester) async {
-      final (card, field) = await _createBoardField(tester, FieldType.Checkbox);
-      final checkbox = find.descendant(
+      final (RowCard card, FieldPB field) =
+          await _createBoardField(tester, FieldType.Checkbox);
+      final Finder checkbox = find.descendant(
         of: _card(card),
         matching: find.byWidgetPredicate(
           (widget) =>
@@ -1060,7 +1086,7 @@ void main() {
 
     testWidgets('property gestures preserve card selection and dragging',
         (tester) async {
-      final (card, field) = await _createBoardField(
+      final (RowCard card, FieldPB field) = await _createBoardField(
         tester,
         FieldType.Number,
         startEditing: false,
@@ -1070,7 +1096,7 @@ void main() {
         cellContext: CellContext(fieldId: field.id, rowId: card.rowMeta.id),
         data: '42',
       );
-      final property = _property(card, field);
+      final Finder property = _property(card, field);
       await tester.pumpUntilFound(
         find.descendant(of: property, matching: find.text('42')),
       );
@@ -1078,7 +1104,7 @@ void main() {
       await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
       await tester.tapButton(property);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-      final focusScope = tester
+      final BoardFocusScope focusScope = tester
           .widget<BoardShortcutContainer>(find.byType(BoardShortcutContainer))
           .focusScope;
       expect(
@@ -1091,7 +1117,7 @@ void main() {
       );
       expect(find.byType(RowDetailPage), findsNothing);
 
-      final target = tester.getCenter(find.text('Doing'));
+      final Offset target = tester.getCenter(find.text('Doing'));
       await tester.timedDrag(
         property,
         target - tester.getCenter(property),
@@ -1161,23 +1187,25 @@ Future<(RowCard, FieldPB)> _createBoardField(
   await tester.pumpUntilFound(tester.findPageName(gettingStarted));
   await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
-  final card = tester.widget<RowCard>(
+  final RowCard card = tester.widget<RowCard>(
     find.ancestor(
       of: find.text('Card 1'),
       matching: find.byType(RowCard),
     ),
   );
-  final result = await FieldBackendService.createField(
+  final FlowyResult<FieldPB, FlowyError> result =
+      await FieldBackendService.createField(
     viewId: card.viewId,
     fieldType: fieldType,
     fieldName: 'Inline ${fieldType.name}',
   );
-  final field = result.fold(
+  final FieldPB field = result.fold(
     (field) => field,
     (error) => throw TestFailure('Create property: $error'),
   );
-  final settings = await FieldSettingsBackendService(viewId: card.viewId)
-      .updateFieldSettings(
+  final FlowyResult<void, FlowyError> settings =
+      await FieldSettingsBackendService(viewId: card.viewId)
+          .updateFieldSettings(
     fieldId: field.id,
     fieldVisibility: FieldVisibility.AlwaysShown,
   );
@@ -1222,8 +1250,8 @@ Future<void> _finishCardEditing(WidgetTester tester, RowCard card) async {
 }
 
 Future<void> _tapOutsideCard(WidgetTester tester, RowCard card) async {
-  final cardRect = tester.getRect(_card(card));
-  final outside = cardRect.topRight + const Offset(8, 8);
+  final Rect cardRect = tester.getRect(_card(card));
+  final Offset outside = cardRect.topRight + const Offset(8, 8);
   expect(cardRect.contains(outside), isFalse);
   await tester.tapAt(outside);
   await tester.pumpAndSettle();
@@ -1237,7 +1265,7 @@ Future<void> _expectSavedText(
 ) async {
   // Text saves are debounced. Wait for persistence rather than relying on
   // animations settling, which can finish before the save timer fires.
-  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  final DateTime deadline = DateTime.now().add(const Duration(seconds: 10));
   String content(CellPB cell) => field.fieldType == FieldType.URL
       ? URLCellDataPB.fromBuffer(cell.data).content
       : utf8.decode(cell.data);
@@ -1250,7 +1278,8 @@ Future<void> _expectSavedText(
 }
 
 Future<CellPB> _getCell(RowCard card, FieldPB field) async {
-  final result = await CellBackendService.getCell(
+  final FlowyResult<CellPB, FlowyError> result =
+      await CellBackendService.getCell(
     viewId: card.viewId,
     cellContext: CellContext(fieldId: field.id, rowId: card.rowMeta.id),
   );
@@ -1261,7 +1290,8 @@ Future<CellPB> _getCell(RowCard card, FieldPB field) async {
 }
 
 Future<FieldPB> _addField(RowCard card, FieldType type, String name) async {
-  final result = await FieldBackendService.createField(
+  final FlowyResult<FieldPB, FlowyError> result =
+      await FieldBackendService.createField(
     viewId: card.viewId,
     fieldType: type,
     fieldName: name,

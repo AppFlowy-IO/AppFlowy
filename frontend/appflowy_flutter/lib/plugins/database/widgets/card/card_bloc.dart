@@ -97,7 +97,7 @@ class CardBloc extends Bloc<CardEvent, CardState> {
     rowController.addListener(
       onRowChanged: (cellMap, reason) {
         if (!isClosed) {
-          final cells = _makeCells(
+          final List<CellMeta> cells = _makeCells(
             fieldController,
             groupFieldId,
             rowController,
