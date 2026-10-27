@@ -8,7 +8,8 @@ use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_ai_pub::entities::{UnindexedCollab, UnindexedCollabMetadata};
 use flowy_ai_pub::persistence::{
-  batch_upsert_index_collab, select_indexed_collab_ids, IndexCollabRecordTable,
+  batch_upsert_index_collab, delete_index_collab_records, select_indexed_collab_ids,
+  IndexCollabRecordTable,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
@@ -66,6 +67,23 @@ impl FullIndexedDataWriter {
     );
     let mut consumers = self.consumers.write().await;
     consumers.push(consumer);
+  }
+
+  /// Forget which documents have been indexed in this workspace, so the next
+  /// [Self::full_index_unindexed_documents] indexes all of them again.
+  pub fn reset_indexed_records(&self) -> FlowyResult<()> {
+    let logged_user = self.logged_user.upgrade().ok_or_else(|| {
+      FlowyError::unauthorized()
+        .with_context("[Indexing] Failed to upgrade AuthenticateUser when resetting index")
+    })?;
+    let uid = logged_user.user_id()?;
+    let mut conn = logged_user.get_sqlite_db(uid)?;
+    let count = delete_index_collab_records(&mut conn, self.workspace_id.to_string())?;
+    info!(
+      "[Indexing] reset {} indexed records for workspace: {}",
+      count, self.workspace_id
+    );
+    Ok(())
   }
 
   pub fn cancel_indexing(&self) {

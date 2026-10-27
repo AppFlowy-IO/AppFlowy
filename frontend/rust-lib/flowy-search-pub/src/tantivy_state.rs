@@ -2,14 +2,23 @@ use collab_folder::ViewIcon;
 use std::fs;
 use std::path::PathBuf;
 use tantivy::directory::MmapDirectory;
-use tantivy::schema::Value;
+use tantivy::query::{
+  BooleanQuery, EmptyQuery, FuzzyTermQuery, Occur, PhraseQuery, Query, TermQuery,
+};
+use tantivy::schema::{IndexRecordOption, Value};
 use tantivy::{Index, IndexReader, IndexWriter, TantivyDocument, Term};
-use tracing::{error, trace, warn};
+use tracing::{error, info, trace, warn};
 use uuid::Uuid;
 
 use crate::entities::{ResultIcon, TanvitySearchResponseItem};
 use crate::schema::LocalSearchTantivySchema;
+use crate::tokenizer::{CJK_AWARE_TOKENIZER, cjk_aware_analyzer, is_cjk};
 use flowy_error::{FlowyError, FlowyResult};
+
+/// Bump the directory name whenever the schema or the tokenizer changes, so that the
+/// index is rebuilt instead of mixing documents tokenized in different ways.
+const INDEX_DIR_NAME: &str = "documents_v2";
+const LEGACY_INDEX_DIR_NAMES: [&str; 1] = ["documents"];
 
 /// Holds the Tantivy index state for a workspace's documents.
 pub struct DocumentTantivyState {
@@ -19,6 +28,9 @@ pub struct DocumentTantivyState {
   pub writer: IndexWriter,
   pub reader: IndexReader,
   pub workspace_id: Uuid,
+  /// True when the index was created from scratch on open. Documents that were indexed
+  /// before (e.g. into a legacy index directory) have to be indexed again.
+  pub created: bool,
   // Cached fields for better performance
   field_workspace_id: tantivy::schema::Field,
   field_object_id: tantivy::schema::Field,
@@ -30,7 +42,19 @@ pub struct DocumentTantivyState {
 
 impl DocumentTantivyState {
   pub fn new(workspace_id: &Uuid, path: PathBuf) -> FlowyResult<Self> {
-    let index_path = path.join(workspace_id.to_string()).join("documents");
+    let workspace_path = path.join(workspace_id.to_string());
+    for legacy in LEGACY_INDEX_DIR_NAMES {
+      let legacy_path = workspace_path.join(legacy);
+      if legacy_path.exists() {
+        info!("[Tantivy] Removing legacy index: {:?}", legacy_path);
+        if let Err(err) = fs::remove_dir_all(&legacy_path) {
+          warn!("[Tantivy] Failed to remove legacy index: {:?}", err);
+        }
+      }
+    }
+
+    let index_path = workspace_path.join(INDEX_DIR_NAME);
+    let created = !index_path.join("meta.json").exists();
     if !index_path.exists() {
       fs::create_dir_all(&index_path).map_err(|e| {
         error!("Failed to create index directory: {:?}", e);
@@ -41,6 +65,9 @@ impl DocumentTantivyState {
     let schema = LocalSearchTantivySchema::new();
     let dir = MmapDirectory::open(&index_path)?;
     let index = Index::open_or_create(dir, schema.0.clone())?;
+    index
+      .tokenizers()
+      .register(CJK_AWARE_TOKENIZER, cjk_aware_analyzer());
     let writer = index.writer(15_000_000)?; // 15 MB buffer
     let reader = index.reader()?;
 
@@ -77,6 +104,7 @@ impl DocumentTantivyState {
       writer,
       reader,
       workspace_id: *workspace_id,
+      created,
       field_workspace_id,
       field_object_id,
       field_content,
@@ -330,15 +358,7 @@ impl DocumentTantivyState {
     let reader = self.reader.clone();
     let searcher = reader.searcher();
 
-    // Use cached fields for query parser
-    let mut qp = tantivy::query::QueryParser::for_index(
-      &self.index,
-      vec![self.field_content, self.field_name],
-    );
-    // Enable fuzzy matching for name field (better user experience for typos)
-    qp.set_field_fuzzy(self.field_name, true, 2, true);
-
-    let query = qp.parse_query(query)?;
+    let query = self.build_query(query);
     let top_docs = searcher.search(&query, &tantivy::collector::TopDocs::with_limit(limit))?;
 
     let mut results = Vec::with_capacity(top_docs.len());
@@ -446,5 +466,78 @@ impl DocumentTantivyState {
     }
 
     Ok(results)
+  }
+
+  /// Builds a query that matches any of the words in `query` (OR), like the default
+  /// query parser did, but tokenizes it with the same analyzer as the indexed text:
+  /// - a run of CJK characters becomes a phrase query, so it matches a substring of the
+  ///   text, e.g. "映画" matches "明日映画をみる";
+  /// - any other word matches a whole word in the content and, allowing typos and
+  ///   prefixes, in the name.
+  ///
+  /// Query syntax characters are treated as plain separators, so user input can never
+  /// fail to parse.
+  fn build_query(&self, query: &str) -> Box<dyn Query> {
+    let mut analyzer = cjk_aware_analyzer();
+    let mut stream = analyzer.token_stream(query);
+    let mut cjk_runs: Vec<Vec<String>> = vec![];
+    let mut words: Vec<String> = vec![];
+    let mut last_cjk_end = None;
+    while stream.advance() {
+      let token = stream.token();
+      if token.text.chars().next().is_some_and(is_cjk) {
+        match cjk_runs.last_mut() {
+          Some(run) if last_cjk_end == Some(token.offset_from) => run.push(token.text.clone()),
+          _ => cjk_runs.push(vec![token.text.clone()]),
+        }
+        last_cjk_end = Some(token.offset_to);
+      } else {
+        words.push(token.text.clone());
+        last_cjk_end = None;
+      }
+    }
+
+    let mut clauses: Vec<(Occur, Box<dyn Query>)> = vec![];
+    for run in &cjk_runs {
+      for field in [self.field_content, self.field_name] {
+        let terms: Vec<Term> = run
+          .iter()
+          .map(|text| Term::from_field_text(field, text))
+          .collect();
+        let query: Box<dyn Query> = if terms.len() == 1 {
+          Box::new(TermQuery::new(
+            terms[0].clone(),
+            IndexRecordOption::WithFreqs,
+          ))
+        } else {
+          Box::new(PhraseQuery::new(terms))
+        };
+        clauses.push((Occur::Should, query));
+      }
+    }
+    for word in &words {
+      clauses.push((
+        Occur::Should,
+        Box::new(TermQuery::new(
+          Term::from_field_text(self.field_content, word),
+          IndexRecordOption::WithFreqs,
+        )),
+      ));
+      // Fuzzy matching for name field (better user experience for typos)
+      clauses.push((
+        Occur::Should,
+        Box::new(FuzzyTermQuery::new_prefix(
+          Term::from_field_text(self.field_name, word),
+          2,
+          true,
+        )),
+      ));
+    }
+
+    if clauses.is_empty() {
+      Box::new(EmptyQuery)
+    } else {
+      Box::new(BooleanQuery::new(clauses))
+    }
   }
 }
