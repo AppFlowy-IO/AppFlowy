@@ -1,7 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
@@ -11,13 +14,16 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../cell/board_card_cell.dart';
 import '../cell/card_cell_builder.dart';
 import '../cell/card_cell_skeleton/card_cell.dart';
 import 'card_bloc.dart';
@@ -43,6 +49,7 @@ class RowCard extends StatefulWidget {
     this.groupId,
     required this.userProfile,
     this.isCompact = false,
+    this.enablePropertyEditing = false,
   });
 
   final FieldController fieldController;
@@ -78,6 +85,9 @@ class RowCard extends StatefulWidget {
   /// This is used to determine eg. the Cover height.
   final bool isCompact;
 
+  /// Enables property editors on desktop board cards.
+  final bool enablePropertyEditing;
+
   @override
   State<RowCard> createState() => _RowCardState();
 }
@@ -101,6 +111,7 @@ class _RowCardState extends State<RowCard> {
       groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
       rowController: rowController,
+      showAllFieldsWhenEditing: widget.enablePropertyEditing,
     )..add(const CardEvent.initial());
   }
 
@@ -126,7 +137,8 @@ class _RowCardState extends State<RowCard> {
         listenWhen: (previous, current) =>
             previous.isEditing != current.isEditing,
         listener: (context, state) {
-          if (!state.isEditing) {
+          if (!state.isEditing &&
+              (!widget.enablePropertyEditing || widget.isEditing)) {
             widget.onEndEditing();
           }
         },
@@ -154,12 +166,6 @@ class _RowCardState extends State<RowCard> {
   }
 
   Widget _desktop() {
-    final accessories = widget.styleConfiguration.showAccessory
-        ? const <CardAccessory>[
-            EditCardAccessory(),
-            MoreCardOptionsAccessory(),
-          ]
-        : null;
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
@@ -172,24 +178,51 @@ class _RowCardState extends State<RowCard> {
       ),
       child: Builder(
         builder: (context) {
-          return RowCardContainer(
-            buildAccessoryWhen: () =>
-                !context.watch<CardBloc>().state.isEditing,
-            accessories: accessories ?? [],
-            openAccessory: _handleOpenAccessory,
-            onTap: widget.onTap,
-            onShiftTap: widget.onShiftTap,
-            child: BlocBuilder<CardBloc, CardState>(
-              builder: (context, state) {
-                return _CardContent(
-                  rowMeta: state.rowMeta,
-                  cellBuilder: widget.cellBuilder,
-                  styleConfiguration: widget.styleConfiguration,
-                  cells: state.cells,
-                  userProfile: widget.userProfile,
-                  isCompact: widget.isCompact,
-                );
-              },
+          final bool isEditing = context.watch<CardBloc>().state.isEditing;
+          final List<CardAccessory> accessories =
+              !widget.styleConfiguration.showAccessory
+                  ? const <CardAccessory>[]
+                  : isEditing && widget.enablePropertyEditing
+                      ? const <CardAccessory>[OpenCardAccessory()]
+                      : const <CardAccessory>[
+                          EditCardAccessory(),
+                          MoreCardOptionsAccessory(),
+                        ];
+          return TapRegion(
+            enabled: widget.enablePropertyEditing && isEditing,
+            onTapOutside: (_) {
+              // A property popup handles its own outside click first. In
+              // particular, closing the date picker keeps its saved selection
+              // and leaves the card open for further editing.
+              if (PopoverState.rootEntry.isEmpty) {
+                _finishEditing();
+              }
+            },
+            child: RowCardContainer(
+              buildAccessoryWhen: () =>
+                  !isEditing || widget.enablePropertyEditing,
+              accessories: accessories,
+              openAccessory: (type) => _handleOpenAccessory(context, type),
+              onTap: _openCard,
+              onShiftTap: widget.onShiftTap,
+              child: BlocBuilder<CardBloc, CardState>(
+                builder: (context, state) {
+                  return _CardContent(
+                    rowMeta: state.rowMeta,
+                    cellBuilder: widget.cellBuilder,
+                    styleConfiguration: widget.styleConfiguration,
+                    cells: state.cells,
+                    userProfile: widget.userProfile,
+                    isCompact: widget.isCompact,
+                    enablePropertyEditing: widget.enablePropertyEditing,
+                    isEditing: state.isEditing,
+                    onDone: _finishEditing,
+                    onShiftTap: widget.onShiftTap == null
+                        ? null
+                        : () => widget.onShiftTap!(context),
+                  );
+                },
+              ),
             ),
           );
         },
@@ -197,7 +230,10 @@ class _RowCardState extends State<RowCard> {
     );
   }
 
-  void _handleOpenAccessory(AccessoryType newAccessoryType) {
+  void _handleOpenAccessory(
+    BuildContext context,
+    AccessoryType newAccessoryType,
+  ) {
     switch (newAccessoryType) {
       case AccessoryType.edit:
         widget.onStartEditing();
@@ -205,11 +241,30 @@ class _RowCardState extends State<RowCard> {
       case AccessoryType.more:
         popoverController.show();
         break;
+      case AccessoryType.open:
+        _openCard(context);
+        break;
     }
+  }
+
+  void _finishEditing() {
+    // Text editors save on focus loss. Deliver that notification before the
+    // card rebuilds and removes the editor, including on an outside tap down.
+    FocusManager.instance
+      ..primaryFocus?.unfocus()
+      ..applyFocusChangesIfNeeded();
+    _cardBloc.add(const CardEvent.setIsEditing(false));
+  }
+
+  void _openCard(BuildContext context) {
+    if (widget.enablePropertyEditing && _cardBloc.state.isEditing) {
+      _finishEditing();
+    }
+    widget.onTap(context);
   }
 }
 
-class _CardContent extends StatelessWidget {
+class _CardContent extends StatefulWidget {
   const _CardContent({
     required this.rowMeta,
     required this.cellBuilder,
@@ -217,6 +272,10 @@ class _CardContent extends StatelessWidget {
     required this.styleConfiguration,
     this.userProfile,
     this.isCompact = false,
+    this.enablePropertyEditing = false,
+    this.onShiftTap,
+    required this.isEditing,
+    required this.onDone,
   });
 
   final RowMetaPB rowMeta;
@@ -225,32 +284,128 @@ class _CardContent extends StatelessWidget {
   final RowCardStyleConfiguration styleConfiguration;
   final UserProfilePB? userProfile;
   final bool isCompact;
+  final bool enablePropertyEditing;
+  final VoidCallback? onShiftTap;
+  final bool isEditing;
+  final VoidCallback onDone;
+
+  @override
+  State<_CardContent> createState() => _CardContentState();
+}
+
+class _CardContentState extends State<_CardContent> {
+  final FocusScopeNode _focusScope = FocusScopeNode(debugLabel: 'Board card');
+  final FocusNode _doneFocusNode = FocusNode(debugLabel: 'Board card Done');
+  final Map<String, BoardCardFocusNode> _fieldFocusNodes =
+      <String, BoardCardFocusNode>{};
+
+  BoardCardFocusNode? _focusNodeFor(CellMeta cell) {
+    final FieldInfo? field = widget
+        .cellBuilder.databaseController.fieldController
+        .getField(cell.fieldId);
+    if (!widget.enablePropertyEditing ||
+        field == null ||
+        !(field.isPrimary ||
+            field.fieldType == FieldType.Checkbox ||
+            BoardCardCell.canEdit(field.fieldType))) {
+      return null;
+    }
+    return _fieldFocusNodes.putIfAbsent(
+      cell.fieldId,
+      () => BoardCardFocusNode(debugLabel: field.name),
+    );
+  }
+
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
+    final HardwareKeyboard keyboard = HardwareKeyboard.instance;
+    if (!widget.isEditing ||
+        event.logicalKey != LogicalKeyboardKey.tab ||
+        keyboard.isControlPressed ||
+        keyboard.isAltPressed ||
+        keyboard.isMetaPressed) {
+      return KeyEventResult.ignored;
+    }
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.handled;
+    }
+    final List<FocusNode> targets = <FocusNode>[
+      ...widget.cells.map(_focusNodeFor).whereType<BoardCardFocusNode>(),
+      _doneFocusNode,
+    ];
+    final int current = targets.indexWhere((target) => target.hasFocus);
+    if (current == -1) {
+      return KeyEventResult.ignored;
+    }
+
+    // Commit the focused input before closing its popup or changing editors.
+    FocusManager.instance
+      ..primaryFocus?.unfocus()
+      ..applyFocusChangesIfNeeded();
+    while (PopoverState.rootEntry.isNotEmpty) {
+      PopoverState.rootEntry.popEntry();
+    }
+    final int step = keyboard.isShiftPressed ? -1 : 1;
+    final FocusNode next = targets[(current + step) % targets.length];
+    if (next is BoardCardFocusNode) {
+      next.startEditing();
+    } else {
+      next.requestFocus();
+    }
+    return KeyEventResult.handled;
+  }
+
+  @override
+  void dispose() {
+    for (final BoardCardFocusNode node in _fieldFocusNodes.values) {
+      node.dispose();
+    }
+    _doneFocusNode.dispose();
+    _focusScope.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final child = Column(
+    final Column child = Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         CardCover(
-          cover: rowMeta.cover,
-          userProfile: userProfile,
-          isCompact: isCompact,
+          cover: widget.rowMeta.cover,
+          userProfile: widget.userProfile,
+          isCompact: widget.isCompact,
         ),
         Padding(
-          padding: styleConfiguration.cardPadding,
+          padding: widget.styleConfiguration.cardPadding,
           child: Column(
-            children: _makeCells(context, rowMeta, cells),
+            children: [
+              ..._makeCells(context, widget.rowMeta, widget.cells),
+              if (widget.enablePropertyEditing && widget.isEditing)
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: DoneCardButton(
+                    onPressed: widget.onDone,
+                    focusNode: _doneFocusNode,
+                  ),
+                ),
+            ],
           ),
         ),
       ],
     );
-    return styleConfiguration.hoverStyle == null
-        ? child
-        : FlowyHover(
-            style: styleConfiguration.hoverStyle,
-            buildWhenOnHover: () => !context.read<CardBloc>().state.isEditing,
+    final Widget content = widget.enablePropertyEditing
+        ? FocusScope(
+            node: _focusScope,
+            onKeyEvent: _onKeyEvent,
             child: child,
+          )
+        : child;
+    return widget.styleConfiguration.hoverStyle == null
+        ? content
+        : FlowyHover(
+            style: widget.styleConfiguration.hoverStyle,
+            buildWhenOnHover: () => !context.read<CardBloc>().state.isEditing,
+            child: content,
           );
   }
 
@@ -262,11 +417,16 @@ class _CardContent extends StatelessWidget {
     return cells
         .mapIndexed(
           (int index, CellMeta cellMeta) => _CardContentCell(
-            cellBuilder: cellBuilder,
+            key: ValueKey(cellMeta.fieldId),
+            cellBuilder: widget.cellBuilder,
             cellMeta: cellMeta,
             rowMeta: rowMeta,
             isTitle: index == 0,
-            styleMap: styleConfiguration.cellStyleMap,
+            styleMap: widget.styleConfiguration.cellStyleMap,
+            enablePropertyEditing: widget.enablePropertyEditing,
+            isEditing: widget.isEditing,
+            onShiftTap: widget.onShiftTap,
+            focusNode: _focusNodeFor(cellMeta),
           ),
         )
         .toList();
@@ -275,11 +435,16 @@ class _CardContent extends StatelessWidget {
 
 class _CardContentCell extends StatefulWidget {
   const _CardContentCell({
+    super.key,
     required this.cellBuilder,
     required this.cellMeta,
     required this.rowMeta,
     required this.isTitle,
     required this.styleMap,
+    required this.enablePropertyEditing,
+    required this.isEditing,
+    this.onShiftTap,
+    this.focusNode,
   });
 
   final CellMeta cellMeta;
@@ -287,6 +452,10 @@ class _CardContentCell extends StatefulWidget {
   final CardCellBuilder cellBuilder;
   final CardCellStyleMap styleMap;
   final bool isTitle;
+  final bool enablePropertyEditing;
+  final bool isEditing;
+  final VoidCallback? onShiftTap;
+  final BoardCardFocusNode? focusNode;
 
   @override
   State<_CardContentCell> createState() => _CardContentCellState();
@@ -294,29 +463,121 @@ class _CardContentCell extends StatefulWidget {
 
 class _CardContentCellState extends State<_CardContentCell> {
   late final EditableCardNotifier? cellNotifier;
+  FieldController? _fieldController;
+  FieldInfo? _fieldInfo;
 
   @override
   void initState() {
     super.initState();
-    cellNotifier = widget.isTitle ? EditableCardNotifier() : null;
+    cellNotifier = widget.isTitle
+        ? EditableCardNotifier(isEditing: widget.isEditing)
+        : null;
     cellNotifier?.isCellEditing.addListener(listener);
+    if (widget.isTitle) {
+      widget.focusNode?.onRequestEditing = _editTitle;
+    }
+    if (widget.enablePropertyEditing) {
+      _fieldController = widget.cellBuilder.databaseController.fieldController;
+      _fieldInfo = _fieldController?.getField(widget.cellMeta.fieldId);
+      _fieldController?.addListener(
+        onReceiveFields: _onFieldsChanged,
+      );
+    }
+  }
+
+  void _onFieldsChanged(List<FieldInfo> fields) {
+    final FieldInfo? field = fields.firstWhereOrNull(
+      (field) => field.id == widget.cellMeta.fieldId,
+    );
+    if (mounted && field != null && field != _fieldInfo) {
+      setState(() => _fieldInfo = field);
+    }
   }
 
   void listener() {
-    final isEditing = cellNotifier!.isCellEditing.value;
+    final bool isEditing = cellNotifier!.isCellEditing.value;
+    if (widget.enablePropertyEditing && !isEditing) {
+      // Changing focus between fields must not end the card's edit session.
+      return;
+    }
     context.read<CardBloc>().add(CardEvent.setIsEditing(isEditing));
+  }
+
+  void _editTitle() {
+    if (widget.isEditing) {
+      cellNotifier?.isCellEditing.value = true;
+      Scrollable.ensureVisible(context);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _CardContentCell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isTitle && oldWidget.focusNode != widget.focusNode) {
+      oldWidget.focusNode?.onRequestEditing = null;
+      widget.focusNode?.onRequestEditing = _editTitle;
+    }
   }
 
   @override
   void dispose() {
-    cellNotifier?.isCellEditing.removeListener(listener);
-    cellNotifier?.dispose();
+    if (widget.isTitle) {
+      widget.focusNode?.onRequestEditing = null;
+    }
+    cellNotifier
+      ?..isCellEditing.removeListener(listener)
+      ..dispose();
+    _fieldController?.removeListener(
+      onFieldsListener: _onFieldsChanged,
+    );
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CardBloc, CardState>(
+    final FieldInfo? field = widget
+        .cellBuilder.databaseController.fieldController
+        .getField(widget.cellMeta.fieldId);
+    if (widget.enablePropertyEditing &&
+        field != null &&
+        !field.isPrimary &&
+        BoardCardCell.canEdit(field.fieldType)) {
+      final CellContext cellContext = widget.cellMeta.cellContext();
+      return BoardCardCell(
+        key: ValueKey('${field.id}:${field.fieldType.value}'),
+        databaseController: widget.cellBuilder.databaseController,
+        cellContext: cellContext,
+        fieldType: field.fieldType,
+        fieldName: field.name,
+        isCardEditing: widget.isEditing,
+        focusNode: widget.focusNode,
+        onShiftTap: widget.onShiftTap,
+        child: widget.cellBuilder.build(
+          cellContext: cellContext,
+          styleMap: widget.styleMap,
+          hasNotes: false,
+          placeholder: widget.isEditing
+              ? Padding(
+                  padding: widget.styleMap[field.fieldType]?.padding ??
+                      const EdgeInsets.all(4),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      field.name,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).hintColor,
+                            fontSize: 11,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+              : null,
+        ),
+      );
+    }
+    final BlocListener<CardBloc, CardState> child =
+        BlocListener<CardBloc, CardState>(
       listenWhen: (previous, current) =>
           previous.isEditing != current.isEditing,
       listener: (context, state) {
@@ -326,9 +587,33 @@ class _CardContentCellState extends State<_CardContentCell> {
         cellContext: widget.cellMeta.cellContext(),
         styleMap: widget.styleMap,
         cellNotifier: cellNotifier,
+        enableTitleEditing:
+            widget.enablePropertyEditing && widget.isTitle && widget.isEditing,
         hasNotes: !widget.rowMeta.isDocumentEmpty,
+        focusNode:
+            field?.fieldType == FieldType.Checkbox ? widget.focusNode : null,
       ),
     );
+    if (widget.enablePropertyEditing && !widget.isTitle) {
+      // A property row belongs to its control, including read-only values and
+      // the label/padding around a checkbox. Only card space opens the row.
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (HardwareKeyboard.instance.isShiftPressed) {
+            widget.onShiftTap?.call();
+          }
+        },
+        child: child,
+      );
+    }
+    return widget.isTitle && widget.focusNode != null
+        ? Focus(
+            focusNode: widget.focusNode,
+            skipTraversal: true,
+            child: child,
+          )
+        : child;
   }
 }
 
@@ -420,6 +705,22 @@ class CardCover extends StatelessWidget {
   }
 }
 
+class DoneCardButton extends StatelessWidget {
+  const DoneCardButton({super.key, required this.onPressed, this.focusNode});
+
+  final VoidCallback onPressed;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      focusNode: focusNode,
+      child: Text(LocaleKeys.button_done.tr()),
+    );
+  }
+}
+
 class EditCardAccessory extends StatelessWidget with CardAccessory {
   const EditCardAccessory({super.key});
 
@@ -436,6 +737,24 @@ class EditCardAccessory extends StatelessWidget with CardAccessory {
 
   @override
   AccessoryType get type => AccessoryType.edit;
+}
+
+class OpenCardAccessory extends StatelessWidget with CardAccessory {
+  const OpenCardAccessory({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: FlowySvg(
+        FlowySvgs.full_view_s,
+        color: Theme.of(context).hintColor,
+      ),
+    );
+  }
+
+  @override
+  AccessoryType get type => AccessoryType.open;
 }
 
 class MoreCardOptionsAccessory extends StatelessWidget with CardAccessory {

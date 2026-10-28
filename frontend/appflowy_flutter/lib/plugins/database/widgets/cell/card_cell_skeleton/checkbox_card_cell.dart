@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/checkbox_cell_bl
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'card_cell.dart';
@@ -29,16 +30,20 @@ class CheckboxCardCell extends CardCell<CheckboxCardCellStyle> {
     required super.style,
     required this.databaseController,
     required this.cellContext,
+    this.focusNode,
   });
 
   final DatabaseController databaseController;
   final CellContext cellContext;
+  final FocusNode? focusNode;
 
   @override
   State<CheckboxCardCell> createState() => _CheckboxCellState();
 }
 
 class _CheckboxCellState extends State<CheckboxCardCell> {
+  bool _showFocus = false;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -52,7 +57,7 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
       },
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
-          return Container(
+          final Container child = Container(
             alignment: AlignmentDirectional.centerStart,
             padding: widget.style.padding,
             child: Row(
@@ -78,6 +83,35 @@ class _CheckboxCellState extends State<CheckboxCardCell> {
                   ),
                 ],
               ],
+            ),
+          );
+          if (widget.focusNode == null) {
+            return child;
+          }
+          return FocusableActionDetector(
+            focusNode: widget.focusNode,
+            onShowFocusHighlight: (show) => setState(() => _showFocus = show),
+            shortcuts: const {
+              SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+            },
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) {
+                  context
+                      .read<CheckboxCellBloc>()
+                      .add(const CheckboxCellEvent.select());
+                  return null;
+                },
+              ),
+            },
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: _showFocus
+                    ? Border.all(color: Theme.of(context).colorScheme.primary)
+                    : null,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: child,
             ),
           );
         },

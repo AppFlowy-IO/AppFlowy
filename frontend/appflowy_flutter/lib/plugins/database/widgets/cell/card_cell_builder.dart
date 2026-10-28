@@ -30,6 +30,9 @@ class CardCellBuilder {
     required CellContext cellContext,
     required CardCellStyleMap styleMap,
     EditableCardNotifier? cellNotifier,
+    Widget? placeholder,
+    FocusNode? focusNode,
+    bool enableTitleEditing = false,
     required bool hasNotes,
   }) {
     final fieldType = databaseController.fieldController
@@ -41,18 +44,21 @@ class CardCellBuilder {
     final style = styleMap[fieldType];
     return switch (fieldType) {
       FieldType.Checkbox => CheckboxCardCell(
+          focusNode: focusNode,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
           cellContext: cellContext,
         ),
       FieldType.Checklist => ChecklistCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
           cellContext: cellContext,
         ),
       FieldType.DateTime => DateCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
@@ -65,18 +71,22 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.SingleSelect || FieldType.MultiSelect => SelectOptionCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
           cellContext: cellContext,
         ),
       FieldType.Number => NumberCardCell(
+          placeholder: placeholder,
           style: isStyleOrNull(style),
           databaseController: databaseController,
           cellContext: cellContext,
           key: key,
         ),
       FieldType.RichText => TextCardCell(
+          enableTitleEditing: enableTitleEditing,
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
@@ -85,12 +95,14 @@ class CardCellBuilder {
           showNotes: hasNotes,
         ),
       FieldType.URL => URLCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
           cellContext: cellContext,
         ),
       FieldType.Relation => RelationCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
@@ -103,6 +115,7 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.Time => TimeCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
@@ -115,6 +128,7 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.Media => MediaCardCell(
+          placeholder: placeholder,
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,

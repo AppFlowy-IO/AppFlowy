@@ -18,6 +18,7 @@ void main() {
     testWidgets('edit item in ToDo card', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
+      await tester.pumpUntilFound(tester.findPageName(gettingStarted));
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';

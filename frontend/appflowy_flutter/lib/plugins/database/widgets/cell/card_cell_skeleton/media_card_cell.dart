@@ -25,6 +25,7 @@ class MediaCardCellStyle extends CardCellStyle {
 class MediaCardCell extends CardCell<MediaCardCellStyle> {
   const MediaCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -50,7 +51,7 @@ class _MediaCellState extends State<MediaCardCell> {
       child: BlocBuilder<MediaCellBloc, MediaCellState>(
         builder: (context, state) {
           if (state.files.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           return Padding(

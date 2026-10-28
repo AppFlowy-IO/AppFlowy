@@ -24,6 +24,7 @@ class SelectOptionCardCellStyle extends CardCellStyle {
 class SelectOptionCardCell extends CardCell<SelectOptionCardCellStyle> {
   const SelectOptionCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -54,7 +55,7 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
         },
         builder: (context, state) {
           if (state.selectedOptions.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           final children = state.selectedOptions

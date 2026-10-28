@@ -23,6 +23,7 @@ class RelationCardCellStyle extends CardCellStyle {
 class RelationCardCell extends CardCell<RelationCardCellStyle> {
   const RelationCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -50,7 +51,7 @@ class _RelationCellState extends State<RelationCardCell> {
       child: BlocBuilder<RelationCellBloc, RelationCellState>(
         builder: (context, state) {
           if (state.rows.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           final children = state.rows.map(

@@ -19,6 +19,7 @@ class TimeCardCellStyle extends CardCellStyle {
 class TimeCardCell extends CardCell<TimeCardCellStyle> {
   const TimeCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -47,7 +48,7 @@ class _TimeCellState extends State<TimeCardCell> {
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           return Container(

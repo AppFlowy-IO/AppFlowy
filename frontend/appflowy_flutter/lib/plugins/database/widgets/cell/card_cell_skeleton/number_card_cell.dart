@@ -19,6 +19,7 @@ class NumberCardCellStyle extends CardCellStyle {
 class NumberCardCell extends CardCell<NumberCardCellStyle> {
   const NumberCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -47,7 +48,7 @@ class _NumberCellState extends State<NumberCardCell> {
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
 
           return Container(

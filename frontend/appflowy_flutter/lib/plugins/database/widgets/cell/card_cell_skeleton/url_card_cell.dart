@@ -19,6 +19,7 @@ class URLCardCellStyle extends CardCellStyle {
 class URLCardCell extends CardCell<URLCardCellStyle> {
   const URLCardCell({
     super.key,
+    super.placeholder,
     required super.style,
     required this.databaseController,
     required this.cellContext,
@@ -47,7 +48,7 @@ class _URLCellState extends State<URLCardCell> {
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
-            return const SizedBox.shrink();
+            return widget.emptyPlaceholder;
           }
           return Container(
             alignment: AlignmentDirectional.centerStart,
