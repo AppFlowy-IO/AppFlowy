@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+use serde::ser::SerializeSeq;
+
 #[derive(Clone, Default, Queryable, Insertable, Identifiable)]
 #[diesel(table_name = chat_table)]
 #[diesel(primary_key(chat_id))]
@@ -26,9 +28,20 @@ pub struct ChatTable {
 
 impl ChatTable {
   pub fn new(chat_id: String, metadata: Value, rag_ids: Vec<Uuid>, is_sync: bool) -> Self {
-    let rag_ids = rag_ids.iter().map(|v| v.to_string()).collect::<Vec<_>>();
+    // Serialize rag ids without allocating an intermediate Vec<String>.
+    fn serialize_rag_ids_from_uuids(rag_ids: &[Uuid]) -> String {
+      let mut buf = Vec::new();
+      let mut serializer = serde_json::Serializer::new(&mut buf);
+      let mut seq = serializer.serialize_seq(Some(rag_ids.len())).unwrap();
+      for id in rag_ids.iter() {
+        seq.serialize_element(&id.to_string()).unwrap();
+      }
+      seq.end().unwrap();
+      String::from_utf8(buf).unwrap_or_default()
+    }
+
     let metadata = serialize_chat_metadata(&metadata);
-    let rag_ids = Some(serialize_rag_ids(&rag_ids));
+    let rag_ids = Some(serialize_rag_ids_from_uuids(&rag_ids));
     Self {
       chat_id,
       created_at: timestamp(),
