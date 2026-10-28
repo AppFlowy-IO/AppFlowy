@@ -190,6 +190,10 @@ void main() {
         find.byType(TableCalendar),
       );
       expect(isSameDay(calendar.firstDay, DateTime(1900)), isTrue);
+      // Calendar-day equality alone also accepts UTC bounds.
+      expect(kFirstDay.isUtc, isFalse);
+      expect(kLastDay.isUtc, isFalse);
+      expect(isSameDay(calendar.lastDay, DateTime(2100)), isTrue);
 
       final dateTextField = find.byKey(
         const ValueKey('date_time_text_field_date'),
