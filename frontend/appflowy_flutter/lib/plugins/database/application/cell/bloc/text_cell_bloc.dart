@@ -97,7 +97,34 @@ class TextCellState with _$TextCellState {
   }) = _TextCellState;
 
   factory TextCellState.initial(TextCellController cellController) {
-    final cellData = cellController.getCellData();
+    // 1. Standart text verisini okumayı dene
+    String? cellData = cellController.getCellData();
+    
+    // 2. Eğer text verisi yoksa veya boşsa, eski verinin MultiSelect olup olmadığını kontrol et
+    if (cellData == null || cellData.trim().isEmpty) {
+      try {
+        // Kontrolcünün bağlı olduğu alt hücre verisine (Protobuf) erişiyoruz
+        final rawCell = cellController.cell;
+        
+        // Eğer hücre verisi varsa ve içinde MultiSelect etiketleri (SelectOptionCellDataPB) barındırıyorsa
+        if (rawCell != null && rawCell.hasSelectOptionCellData()) {
+          final selectData = rawCell.selectOptionCellData;
+          
+          // Etiketlerin isimlerini alıp aralarına virgül koyarak düz metne (String) çeviriyoruz
+          if (selectData.options.isNotEmpty) {
+            cellData = selectData.options
+                .map((option) => option.name)
+                .join(', ');
+                
+            // Veritabanının kalıcı olarak güncellenmesi için backend'e hemen yeni metni kaydediyoruz
+            cellController.saveCellData(cellData, debounce: false);
+          }
+        }
+      } catch (_) {
+        // Herhangi bir Protobuf tip uyuşmazlığı durumunda uygulamanın crash olmasını engelliyoruz
+      }
+    }
+
     final wrap = cellController.fieldInfo.wrapCellContent ?? true;
     ValueNotifier<String>? emoji;
     ValueNotifier<bool>? hasDocument;
