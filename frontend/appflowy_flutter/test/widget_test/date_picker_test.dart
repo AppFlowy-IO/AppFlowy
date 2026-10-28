@@ -178,6 +178,33 @@ void main() {
       );
 
   group('AppFlowy date picker:', () {
+    testWidgets('supports dates before the Unix epoch', (tester) async {
+      await tester.pumpWidget(
+        const WidgetTestApp(
+          child: _MockDatePicker(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final calendar = tester.widget<TableCalendar>(
+        find.byType(TableCalendar),
+      );
+      expect(isSameDay(calendar.firstDay, DateTime(1900)), isTrue);
+      // Calendar-day equality alone also accepts UTC bounds.
+      expect(kFirstDay.isUtc, isFalse);
+      expect(kLastDay.isUtc, isFalse);
+      expect(isSameDay(calendar.lastDay, DateTime(2100)), isTrue);
+
+      final dateTextField = find.byKey(
+        const ValueKey('date_time_text_field_date'),
+      );
+      await tester.enterText(dateTextField, 'Jan 1, 1900');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(getMockState(tester).data.dateTime, DateTime(1900));
+    });
+
     testWidgets('default state', (tester) async {
       await tester.pumpWidget(
         const WidgetTestApp(
