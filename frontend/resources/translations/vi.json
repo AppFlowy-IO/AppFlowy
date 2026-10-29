@@ -5,5 +5,10 @@
       "showGroupContent": "Bạn có chắc chắn muốn hiển thị nhóm này trên bảng không?",
       "failedToLoad": "Không tải được chế độ xem bảng"
     }
+  },
+  "document": {
+    "codeBlock": {
+      "wrapTooltip": "Ngắt dòng mã"
+    }
   }
 }

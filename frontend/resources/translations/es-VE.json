@@ -1099,6 +1099,7 @@
         "auto": "Auto"
       },
       "copyTooltip": "Copiar el contenido del bloque de código.",
+      "wrapTooltip": "Ajustar código",
       "searchLanguageHint": "Buscar un idioma",
       "codeCopiedSnackbar": "¡Código copiado al portapapeles!"
     },

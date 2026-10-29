@@ -8,6 +8,7 @@ export 'base/cover_title_command.dart';
 export 'base/toolbar_extension.dart';
 export 'bulleted_list/bulleted_list_icon.dart';
 export 'callout/callout_block_component.dart';
+export 'code_block/code_block_component.dart';
 export 'code_block/code_block_language_selector.dart';
 export 'code_block/code_block_menu_item.dart';
 export 'columns/simple_column_block_component.dart';

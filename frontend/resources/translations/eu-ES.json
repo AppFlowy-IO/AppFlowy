@@ -527,7 +527,8 @@
       "language": {
         "label": "Hizkuntza",
         "placeholder": "Hautatu hizkuntza"
-      }
+      },
+      "wrapTooltip": "Egokitu kodea"
     },
     "inlineLink": {
       "placeholder": "Itsatsi edo idatzi esteka bat",

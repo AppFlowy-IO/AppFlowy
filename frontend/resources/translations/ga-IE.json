@@ -115,5 +115,10 @@
     "import": "Iompórtáil",
     "createdAt": "Cruthaithe: {}",
     "deleteView": "Scrios"
+  },
+  "document": {
+    "codeBlock": {
+      "wrapTooltip": "Timfhilleadh cód"
+    }
   }
 }

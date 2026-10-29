@@ -738,7 +738,8 @@
       "language": {
         "label": "Bahasa",
         "placeholder": "Pilih bahasa"
-      }
+      },
+      "wrapTooltip": "Bungkus kode"
     },
     "inlineLink": {
       "placeholder": "Tempel atau ketik tautan",

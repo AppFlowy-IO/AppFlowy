@@ -1778,6 +1778,7 @@
         "auto": "Авто"
       },
       "copyTooltip": "Скопіюйте вміст блоку коду",
+      "wrapTooltip": "Переносити код",
       "searchLanguageHint": "Пошук мови",
       "codeCopiedSnackbar": "Код скопійовано в буфер обміну!"
     },

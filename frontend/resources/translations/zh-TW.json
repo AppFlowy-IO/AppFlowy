@@ -2176,6 +2176,7 @@
         "auto": "自動"
       },
       "copyTooltip": "複製",
+      "wrapTooltip": "程式碼換行",
       "searchLanguageHint": "搜尋語言",
       "codeCopiedSnackbar": "程式碼已複製到剪貼簿"
     },

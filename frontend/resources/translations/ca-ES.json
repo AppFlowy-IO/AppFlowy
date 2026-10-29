@@ -734,7 +734,8 @@
       "language": {
         "label": "Llenguatge",
         "placeholder": "Escolliu l'idioma"
-      }
+      },
+      "wrapTooltip": "Ajusta el codi"
     },
     "inlineLink": {
       "placeholder": "Enganxeu o escriviu un enllaç",

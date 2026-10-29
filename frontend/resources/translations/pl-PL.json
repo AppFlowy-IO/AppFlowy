@@ -805,7 +805,8 @@
       "language": {
         "label": "Język",
         "placeholder": "Wybierz język"
-      }
+      },
+      "wrapTooltip": "Zawijaj kod"
     },
     "inlineLink": {
       "placeholder": "Wklej lub wpisz link",
