@@ -32,7 +32,11 @@ To contribute to `AppFlowy_Flutter` codebase specifically (coding contribution) 
 
 ### What OS should I use for development?
 
-We support all OS for Development i.e. Linux, MacOS and Windows. However, most of us promote macOS and Linux over Windows. We have detailed [docs](https://docs.appflowy.io/docs/documentation/appflowy/from-source/environment-setup) on how to setup `AppFlowy_Flutter` on your local system respectively per operating system.
+We support all OS for Development i.e. Linux, macOS and Windows. We have detailed documentation on how to setup `AppFlowy_Flutter` on your local system for each operating system:
+
+- [Build from Source Guide](../../doc/BUILD_FROM_SOURCE.md) - Comprehensive setup instructions for all platforms
+- [Android-specific Guide](android/README.md) - Detailed Android build instructions including Windows support
+- [Online Documentation](https://docs.appflowy.io/docs/documentation/appflowy/from-source/environment-setup) - Additional setup resources
 
 ### Getting Started ❇
 
