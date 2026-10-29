@@ -2648,6 +2648,7 @@ dependencies = [
  "lib-infra",
  "once_cell",
  "tantivy",
+ "tempfile",
  "tokio",
  "tracing",
  "uuid",

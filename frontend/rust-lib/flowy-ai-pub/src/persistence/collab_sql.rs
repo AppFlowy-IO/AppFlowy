@@ -68,6 +68,19 @@ pub fn upsert_index_collab(
   Ok(())
 }
 
+pub fn delete_index_collab_records(
+  conn: &mut SqliteConnection,
+  workspace_id: String,
+) -> FlowyResult<usize> {
+  let count = diesel::delete(
+    index_collab_record_table::table
+      .filter(index_collab_record_table::workspace_id.eq(workspace_id)),
+  )
+  .execute(conn)?;
+
+  Ok(count)
+}
+
 pub fn select_indexed_collab_ids(
   conn: &mut SqliteConnection,
   workspace_id: String,

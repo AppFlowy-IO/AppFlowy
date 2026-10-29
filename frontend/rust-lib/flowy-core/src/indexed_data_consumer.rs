@@ -155,6 +155,16 @@ impl SearchFullIndexConsumer {
       state: Arc::downgrade(&strong),
     })
   }
+
+  /// True when the search index was created from scratch, e.g. after its schema or
+  /// tokenizer changed, so every document has to be indexed again. Returns true only
+  /// once per opened index.
+  pub async fn take_needs_full_reindex(&self) -> bool {
+    match self.state.upgrade() {
+      Some(state) => std::mem::take(&mut state.write().await.created),
+      None => false,
+    }
+  }
 }
 
 #[async_trait]
