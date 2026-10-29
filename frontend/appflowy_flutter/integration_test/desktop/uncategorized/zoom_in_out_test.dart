@@ -16,7 +16,7 @@ void main() {
     Future<void> resetAppFlowyScaleFactor(
       WindowSizeManager windowSizeManager,
     ) async {
-      appflowyScaleFactor = 1.0;
+      appflowyScaleFactor.value = 1.0;
       await windowSizeManager.setScaleFactor(1.0);
     }
 
@@ -61,7 +61,7 @@ void main() {
           );
 
           final scaleFactor = await windowSizeManager.getScaleFactor();
-          expect(currentScaleFactor, appflowyScaleFactor);
+          expect(currentScaleFactor, appflowyScaleFactor.value);
           expect(currentScaleFactor, scaleFactor);
         }
       }
@@ -82,7 +82,7 @@ void main() {
         await tester.pumpAndSettle();
 
         final scaleFactor = await windowSizeManager.getScaleFactor();
-        expect(1.0, appflowyScaleFactor);
+        expect(1.0, appflowyScaleFactor.value);
         expect(1.0, scaleFactor);
       }
     });
@@ -116,7 +116,7 @@ void main() {
           currentScaleFactor -= 0.1;
 
           final scaleFactor = await windowSizeManager.getScaleFactor();
-          expect(currentScaleFactor, appflowyScaleFactor);
+          expect(currentScaleFactor, appflowyScaleFactor.value);
           expect(currentScaleFactor, scaleFactor);
         }
       }

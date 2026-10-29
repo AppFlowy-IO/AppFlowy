@@ -28,9 +28,35 @@ final zoomOutKeyCodes = [KeyCode.minus, KeyCode.numpadSubtract];
 @visibleForTesting
 final resetZoomKeyCodes = [KeyCode.digit0, KeyCode.numpad0];
 
-// Use a global value to store the zoom level and update it in the hotkeys.
-@visibleForTesting
-double appflowyScaleFactor = 1.0;
+// Use a global notifier to store the zoom level so any widget (e.g. the
+// workspace settings zoom control) can reflect changes made via hotkeys.
+final ValueNotifier<double> appflowyScaleFactor = ValueNotifier(1.0);
+
+/// Applies [scaleFactor] to the running app and persists it.
+///
+/// This is the single source of truth for changing the app zoom, shared by the
+/// zoom hotkeys and the zoom control in the workspace settings.
+Future<void> applyAppScaleFactor(double scaleFactor) async {
+  final value = double.parse(
+    scaleFactor
+        .clamp(
+          WindowSizeManager.minScaleFactor,
+          WindowSizeManager.maxScaleFactor,
+        )
+        .toStringAsFixed(2),
+  );
+
+  if (FlowyRunner.currentMode != IntegrationMode.integrationTest) {
+    // The integration test will fail if we check the scale factor in the test.
+    // #0      ScaledWidgetsFlutterBinding.Eval ()
+    // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => value;
+  }
+
+  appflowyScaleFactor.value = value;
+
+  await WindowSizeManager().setScaleFactor(value);
+}
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -239,32 +265,14 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
   Future<void> _scaleWithStep(double step) async {
     final currentScaleFactor = await windowSizeManager.getScaleFactor();
+    final requestedScale = currentScaleFactor + step;
 
-    double textScale = (currentScaleFactor + step).clamp(
-      WindowSizeManager.minScaleFactor,
-      WindowSizeManager.maxScaleFactor,
-    );
+    Log.info('scale the app from $currentScaleFactor to $requestedScale');
 
-    // only keep 2 decimal places
-    textScale = double.parse(textScale.toStringAsFixed(2));
-
-    Log.info('scale the app from $currentScaleFactor to $textScale');
-
-    await _scale(textScale);
+    await _scale(requestedScale);
   }
 
-  Future<void> _scale(double scaleFactor) async {
-    if (FlowyRunner.currentMode == IntegrationMode.integrationTest) {
-      // The integration test will fail if we check the scale factor in the test.
-      // #0      ScaledWidgetsFlutterBinding.Eval ()
-      // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
-      appflowyScaleFactor = double.parse(scaleFactor.toStringAsFixed(2));
-    } else {
-      ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scaleFactor;
-    }
-
-    await windowSizeManager.setScaleFactor(scaleFactor);
-  }
+  Future<void> _scale(double scaleFactor) => applyAppScaleFactor(scaleFactor);
 
   void colappsedMenus(BuildContext context) {
     final bloc = context.read<HomeSettingBloc>();

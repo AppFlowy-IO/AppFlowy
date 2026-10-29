@@ -31,18 +31,18 @@ void main() {
       matching: find.byType(Slider),
     );
     await tester.slideToValue(slider, 0.8);
-    expect(appflowyScaleFactor, 0.8);
+    expect(appflowyScaleFactor.value, 0.8);
 
     await tester.slideToValue(slider, 0.9);
-    expect(appflowyScaleFactor, 0.9);
+    expect(appflowyScaleFactor.value, 0.9);
 
     await tester.slideToValue(slider, 1.0);
-    expect(appflowyScaleFactor, 1.0);
+    expect(appflowyScaleFactor.value, 1.0);
 
     await tester.slideToValue(slider, 1.1);
-    expect(appflowyScaleFactor, 1.1);
+    expect(appflowyScaleFactor.value, 1.1);
 
     await tester.slideToValue(slider, 1.2);
-    expect(appflowyScaleFactor, 1.2);
+    expect(appflowyScaleFactor.value, 1.2);
   });
 }

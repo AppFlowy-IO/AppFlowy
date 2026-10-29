@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
@@ -27,6 +28,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     if (UniversalPlatform.isMobile) {
       final scale = await windowSizeManager.getScaleFactor();
       ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scale;
+      appflowyScaleFactor.value = scale;
       return;
     }
 
@@ -80,9 +82,10 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     }
 
     unawaited(
-      windowSizeManager.getScaleFactor().then(
-            (v) => ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => v,
-          ),
+      windowSizeManager.getScaleFactor().then((v) {
+        ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => v;
+        appflowyScaleFactor.value = v;
+      }),
     );
   }
 
