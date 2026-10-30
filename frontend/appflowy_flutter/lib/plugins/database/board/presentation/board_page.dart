@@ -129,7 +129,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
       final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
       if (fromRow != null) {
         widget.databaseController.moveGroupRow(
-          fromRow: fromRow,
+          fromRow: [fromRow],
           toRow: toRow,
           fromGroupId: groupId,
           toGroupId: groupId,
@@ -142,7 +142,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
       final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
       if (fromRow != null) {
         widget.databaseController.moveGroupRow(
-          fromRow: fromRow,
+          fromRow: [fromRow],
           toRow: toRow,
           fromGroupId: fromGroupId,
           toGroupId: toGroupId,
@@ -303,6 +303,9 @@ class _BoardContentState extends State<_BoardContent> {
                       context.read<BoardBloc>().databaseController,
                   rowMeta: value.rowMeta,
                 );
+              },
+              setFocus: (value) {
+                widget.focusScope.focusedGroupedRows = value.groupedRowIds;
               },
               orElse: () {},
             );

@@ -822,15 +822,17 @@ pub(crate) async fn move_group_row_handler(
   let database_editor = manager
     .get_database_editor_with_view_id(&params.view_id)
     .await?;
-  database_editor
-    .move_group_row(
-      &params.view_id,
-      &params.from_group_id,
-      &params.to_group_id,
-      params.from_row_id,
-      params.to_row_id,
-    )
-    .await?;
+  for from_row_id in params.from_row_ids {
+    database_editor
+      .move_group_row(
+        &params.view_id,
+        &params.from_group_id,
+        &params.to_group_id,
+        from_row_id,
+        params.to_row_id.clone(),
+      )
+      .await?;
+  }
   Ok(())
 }
 
