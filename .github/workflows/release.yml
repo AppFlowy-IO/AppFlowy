@@ -6,7 +6,7 @@ on:
       - "*"
 
 env:
-  FLUTTER_VERSION: "3.27.4"
+  FLUTTER_VERSION: "3.47.0"
   RUST_TOOLCHAIN: "1.85.0"
 
 jobs:
