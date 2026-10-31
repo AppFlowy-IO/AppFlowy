@@ -149,33 +149,15 @@ class _ResetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onReset,
-      child: FlowyHover(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 4.0,
-            horizontal: 6,
-          ),
-          child: Row(
-            children: [
-              const FlowySvg(
-                FlowySvgs.restore_s,
-                size: Size.square(20),
-              ),
-              const HSpace(6),
-              SizedBox(
-                height: 16,
-                child: FlowyText.regular(
-                  LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
-                ),
-              ),
-            ],
-          ),
-        ),
+    return AFGhostIconTextButton.primary(
+      text: LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
+      onTap: onReset ?? () {},
+      iconBuilder: (context, isHovering, disabled) => FlowySvg(
+        FlowySvgs.restore_s,
+        size: Size.square(20),
+        color: AFThemeExtension.of(context).textColor,
       ),
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 6),
     );
   }
 }
@@ -339,10 +321,12 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
-                child: isEditing
-                    ? _renderKeybindEditor()
-                    : _renderKeybindings(isHovering),
+              Flexible(
+                fit: FlexFit.loose,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: isEditing ? _renderKeybindEditor() : _renderKeybindings(isHovering),
+                ),
               ),
             ],
           ),
