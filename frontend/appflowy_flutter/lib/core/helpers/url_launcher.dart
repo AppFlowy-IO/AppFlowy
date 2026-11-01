@@ -12,6 +12,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/util/link_util.dart'
+    show isCustomUrL;
 
 typedef OnFailureCallback = void Function(Uri uri);
 
@@ -39,10 +42,12 @@ Future<bool> afLaunchUri(
     );
   }
 
-  // on Linux or Android or Windows, add http scheme to the url if it is not present
+  // on Linux or Android, add http scheme to the url if it is not present
+  final isNotCustomUrlOnWindows =
+      UniversalPlatform.isWindows && !isCustomUrL(url);
   if ((UniversalPlatform.isLinux ||
           UniversalPlatform.isAndroid ||
-          UniversalPlatform.isWindows) &&
+          isNotCustomUrlOnWindows) &&
       !isURL(url, {'require_protocol': true})) {
     uri = Uri.parse('https://$url');
   }
