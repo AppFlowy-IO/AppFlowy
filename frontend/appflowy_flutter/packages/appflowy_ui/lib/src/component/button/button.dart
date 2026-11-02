@@ -14,3 +14,7 @@ export 'ghost_button/ghost_text_button.dart';
 export 'outlined_button/outlined_button.dart';
 export 'outlined_button/outlined_icon_text_button.dart';
 export 'outlined_button/outlined_text_button.dart';
+// Overlay buttons
+export 'overlay_button/overlay_button.dart';
+export 'overlay_button/overlay_text_button.dart';
+export 'overlay_button/overlay_icon_button.dart';
