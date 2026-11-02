@@ -155,6 +155,21 @@ impl SearchFullIndexConsumer {
       state: Arc::downgrade(&strong),
     })
   }
+
+  /// True when the search index was created from scratch, e.g. after its schema or
+  /// tokenizer changed, and every document still has to be indexed again.
+  pub async fn needs_full_reindex(&self) -> bool {
+    match self.state.upgrade() {
+      Some(state) => state.read().await.needs_full_reindex,
+      None => false,
+    }
+  }
+
+  pub async fn mark_full_reindexed(&self) {
+    if let Some(state) = self.state.upgrade() {
+      state.write().await.mark_full_reindexed();
+    }
+  }
 }
 
 #[async_trait]

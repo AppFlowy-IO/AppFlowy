@@ -188,6 +188,16 @@ impl AppLifeCycleImpl {
 
       match SearchFullIndexConsumer::new(&workspace_id_cloned, user_paths.tanvity_index_path(uid)) {
         Ok(consumer) => {
+          if consumer.needs_full_reindex().await {
+            info!("[Indexing] search index was rebuilt, reindex all documents");
+            match new_full_indexed_data_writer.reset_indexed_records() {
+              Ok(()) => consumer.mark_full_reindexed().await,
+              Err(err) => error!(
+                "[Indexing] Failed to reset indexed records, retry on next start: {:?}",
+                err
+              ),
+            }
+          }
           new_full_indexed_data_writer
             .register_full_indexed_consumer(Box::new(consumer))
             .await;
