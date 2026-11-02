@@ -157,12 +157,17 @@ impl SearchFullIndexConsumer {
   }
 
   /// True when the search index was created from scratch, e.g. after its schema or
-  /// tokenizer changed, so every document has to be indexed again. Returns true only
-  /// once per opened index.
-  pub async fn take_needs_full_reindex(&self) -> bool {
+  /// tokenizer changed, and every document still has to be indexed again.
+  pub async fn needs_full_reindex(&self) -> bool {
     match self.state.upgrade() {
-      Some(state) => std::mem::take(&mut state.write().await.created),
+      Some(state) => state.read().await.needs_full_reindex,
       None => false,
+    }
+  }
+
+  pub async fn mark_full_reindexed(&self) {
+    if let Some(state) = self.state.upgrade() {
+      state.write().await.mark_full_reindexed();
     }
   }
 }

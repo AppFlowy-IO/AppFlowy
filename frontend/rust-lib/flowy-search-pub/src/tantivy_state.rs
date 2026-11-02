@@ -3,7 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 use tantivy::directory::MmapDirectory;
 use tantivy::query::{
-  BooleanQuery, EmptyQuery, FuzzyTermQuery, Occur, PhraseQuery, Query, TermQuery,
+  BooleanQuery, ConstScoreQuery, EmptyQuery, FuzzyTermQuery, Occur, PhraseQuery, Query, TermQuery,
 };
 use tantivy::schema::{IndexRecordOption, Value};
 use tantivy::{Index, IndexReader, IndexWriter, TantivyDocument, Term};
@@ -19,6 +19,9 @@ use flowy_error::{FlowyError, FlowyResult};
 /// index is rebuilt instead of mixing documents tokenized in different ways.
 const INDEX_DIR_NAME: &str = "documents_v2";
 const LEGACY_INDEX_DIR_NAMES: [&str; 1] = ["documents"];
+/// Exists in the index directory until all documents have been queued for indexing again
+/// after the index was created, so a failed attempt is retried on the next start.
+const REINDEX_PENDING_FILE: &str = "reindex_pending";
 
 /// Holds the Tantivy index state for a workspace's documents.
 pub struct DocumentTantivyState {
@@ -28,9 +31,9 @@ pub struct DocumentTantivyState {
   pub writer: IndexWriter,
   pub reader: IndexReader,
   pub workspace_id: Uuid,
-  /// True when the index was created from scratch on open. Documents that were indexed
-  /// before (e.g. into a legacy index directory) have to be indexed again.
-  pub created: bool,
+  /// True when the index was created from scratch and its documents have not been
+  /// queued for indexing again yet (see [Self::mark_full_reindexed]).
+  pub needs_full_reindex: bool,
   // Cached fields for better performance
   field_workspace_id: tantivy::schema::Field,
   field_object_id: tantivy::schema::Field,
@@ -61,6 +64,13 @@ impl DocumentTantivyState {
         FlowyError::internal().with_context("Failed to create folder index")
       })?;
     }
+    let reindex_pending_path = index_path.join(REINDEX_PENDING_FILE);
+    if created {
+      if let Err(err) = fs::write(&reindex_pending_path, b"") {
+        warn!("[Tantivy] Failed to write reindex marker: {:?}", err);
+      }
+    }
+    let needs_full_reindex = created || reindex_pending_path.exists();
 
     let schema = LocalSearchTantivySchema::new();
     let dir = MmapDirectory::open(&index_path)?;
@@ -104,7 +114,7 @@ impl DocumentTantivyState {
       writer,
       reader,
       workspace_id: *workspace_id,
-      created,
+      needs_full_reindex,
       field_workspace_id,
       field_object_id,
       field_content,
@@ -112,6 +122,22 @@ impl DocumentTantivyState {
       field_icon,
       field_icon_type,
     })
+  }
+
+  /// Call after all documents have been queued for indexing again.
+  pub fn mark_full_reindexed(&mut self) {
+    let path = self
+      .path
+      .join(self.workspace_id.to_string())
+      .join(INDEX_DIR_NAME)
+      .join(REINDEX_PENDING_FILE);
+    if let Err(err) = fs::remove_file(&path) {
+      if err.kind() != std::io::ErrorKind::NotFound {
+        warn!("[Tantivy] Failed to remove reindex marker: {:?}", err);
+        return;
+      }
+    }
+    self.needs_full_reindex = false;
   }
 
   pub fn add_document(
@@ -471,9 +497,10 @@ impl DocumentTantivyState {
   /// Builds a query that matches any of the words in `query` (OR), like the default
   /// query parser did, but tokenizes it with the same analyzer as the indexed text:
   /// - a run of CJK characters becomes a phrase query, so it matches a substring of the
-  ///   text, e.g. "映画" matches "明日映画をみる";
+  ///   text, e.g. "映画" matches "明日映画をみる". A match always scores at least 1.0, so
+  ///   that characters which appear in most documents are not dropped by a score threshold;
   /// - any other word matches a whole word in the content and, allowing typos and
-  ///   prefixes, in the name.
+  ///   prefixes, in the name. Shorter words allow fewer typos.
   ///
   /// Query syntax characters are treated as plain separators, so user input can never
   /// fail to parse.
@@ -512,6 +539,10 @@ impl DocumentTantivyState {
         } else {
           Box::new(PhraseQuery::new(terms))
         };
+        clauses.push((
+          Occur::Should,
+          Box::new(ConstScoreQuery::new(query.box_clone(), 1.0)),
+        ));
         clauses.push((Occur::Should, query));
       }
     }
@@ -528,7 +559,7 @@ impl DocumentTantivyState {
         Occur::Should,
         Box::new(FuzzyTermQuery::new_prefix(
           Term::from_field_text(self.field_name, word),
-          2,
+          fuzzy_distance(word),
           true,
         )),
       ));
@@ -539,5 +570,15 @@ impl DocumentTantivyState {
     } else {
       Box::new(BooleanQuery::new(clauses))
     }
+  }
+}
+
+/// Number of typos allowed when matching `word` against names. Short words allow fewer
+/// typos, otherwise a two-letter word would match almost every name.
+fn fuzzy_distance(word: &str) -> u8 {
+  match word.chars().count() {
+    0..=2 => 0,
+    3..=5 => 1,
+    _ => 2,
   }
 }

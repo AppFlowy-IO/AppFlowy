@@ -25,7 +25,9 @@ pub fn is_cjk(c: char) -> bool {
     | 0x31F0..=0x31FF   // Katakana Phonetic Extensions
     | 0x3400..=0x4DBF   // CJK Unified Ideographs Extension A
     | 0x4E00..=0x9FFF   // CJK Unified Ideographs
+    | 0xA960..=0xA97F   // Hangul Jamo Extended-A
     | 0xAC00..=0xD7AF   // Hangul Syllables
+    | 0xD7B0..=0xD7FF   // Hangul Jamo Extended-B
     | 0xF900..=0xFAFF   // CJK Compatibility Ideographs
     | 0xFF66..=0xFF9F   // Halfwidth Katakana
     | 0x20000..=0x3FFFF // CJK Unified Ideographs Extension B and later
@@ -36,7 +38,8 @@ pub fn is_cjk(c: char) -> bool {
 /// - every CJK character becomes a single token, so a phrase query over consecutive
 ///   characters matches any substring (e.g. "映画" in "明日映画をみる");
 /// - other runs of alphanumeric characters become one token (e.g. "movie" in "明日movie見る");
-/// - everything else is a separator.
+/// - everything else is a separator. A separator leaves a gap in the token positions, so a
+///   phrase query never matches across it (e.g. "映画" does not match "映，画").
 #[derive(Clone, Default)]
 pub struct CjkAwareTokenizer {
   token: Token,
@@ -61,13 +64,25 @@ impl Tokenizer for CjkAwareTokenizer {
   }
 }
 
+impl CjkAwareTokenStream<'_> {
+  fn next_position(&mut self, after_separator: bool) {
+    // `Token::reset` sets the position to usize::MAX, so the first token gets position 0.
+    self.token.position = if self.token.position == usize::MAX {
+      0
+    } else {
+      self.token.position + 1 + usize::from(after_separator)
+    };
+  }
+}
+
 impl TokenStream for CjkAwareTokenStream<'_> {
   fn advance(&mut self) -> bool {
     self.token.text.clear();
-    self.token.position = self.token.position.wrapping_add(1);
 
+    let mut after_separator = false;
     while let Some((offset, c)) = self.chars.next() {
       if is_cjk(c) {
+        self.next_position(after_separator);
         self.token.offset_from = offset;
         self.token.offset_to = offset + c.len_utf8();
         self.token.text.push(c);
@@ -75,6 +90,7 @@ impl TokenStream for CjkAwareTokenStream<'_> {
       }
 
       if c.is_alphanumeric() {
+        self.next_position(after_separator);
         let mut end = offset + c.len_utf8();
         while let Some(&(next_offset, next)) = self.chars.peek() {
           if is_cjk(next) || !next.is_alphanumeric() {
@@ -88,6 +104,8 @@ impl TokenStream for CjkAwareTokenStream<'_> {
         self.token.text.push_str(&self.text[offset..end]);
         return true;
       }
+
+      after_separator = true;
     }
 
     false
@@ -146,6 +164,27 @@ mod tests {
       .map(|t| t.0)
       .collect();
     assert_eq!(texts, vec!["watch", "movie", "tomorrow"]);
+  }
+
+  #[test]
+  fn separator_leaves_position_gap_test() {
+    assert_eq!(
+      tokens("映，画 a"),
+      vec![
+        ("映".to_string(), 0),
+        ("画".to_string(), 2),
+        ("a".to_string(), 4),
+      ]
+    );
+  }
+
+  #[test]
+  fn split_hangul_jamo_extended_test() {
+    let texts: Vec<String> = tokens("\u{A960}\u{D7B0}")
+      .into_iter()
+      .map(|t| t.0)
+      .collect();
+    assert_eq!(texts, vec!["\u{A960}", "\u{D7B0}"]);
   }
 
   #[test]

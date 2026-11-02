@@ -8,7 +8,7 @@ fn setup() -> (tempfile::TempDir, Uuid, DocumentTantivyState) {
   let dir = tempfile::tempdir().unwrap();
   let workspace_id = Uuid::new_v4();
   let mut state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
-  assert!(state.created);
+  assert!(state.needs_full_reindex);
 
   let docs = [
     ("1", "明日映画をみる", "予定"),
@@ -110,12 +110,70 @@ fn search_long_japanese_sentence_test() {
 }
 
 #[test]
+fn search_common_cjk_character_test() {
+  // A character that appears in most documents has a low BM25 score, but every match
+  // must still pass the score threshold.
+  let dir = tempfile::tempdir().unwrap();
+  let workspace_id = Uuid::new_v4();
+  let mut state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
+  for i in 0..10 {
+    let name = if i < 8 {
+      format!("映像メモ{i}")
+    } else {
+      format!("日記{i}")
+    };
+    state
+      .add_document(&i.to_string(), Some(String::new()), Some(name), None)
+      .unwrap();
+  }
+  state.reader.reload().unwrap();
+  assert_eq!(
+    search(&state, &workspace_id, "映"),
+    vec!["0", "1", "2", "3", "4", "5", "6", "7"]
+  );
+}
+
+#[test]
+fn search_does_not_match_across_punctuation_test() {
+  let dir = tempfile::tempdir().unwrap();
+  let workspace_id = Uuid::new_v4();
+  let mut state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
+  state
+    .add_document("1", Some(String::new()), Some("映，画".to_string()), None)
+    .unwrap();
+  state
+    .add_document("2", Some(String::new()), Some("映画".to_string()), None)
+    .unwrap();
+  state.reader.reload().unwrap();
+  assert_eq!(search(&state, &workspace_id, "映画"), vec!["2"]);
+}
+
+#[test]
+fn search_short_latin_word_test() {
+  let (_dir, workspace_id, state) = setup();
+  // Short words only match as a prefix, without typos.
+  assert_eq!(search(&state, &workspace_id, "mo"), vec!["2", "3"]);
+  assert!(search(&state, &workspace_id, "xy").is_empty());
+}
+
+#[test]
 fn reopen_existing_index_test() {
-  let (dir, workspace_id, state) = setup();
+  let (dir, workspace_id, mut state) = setup();
+  state.mark_full_reindexed();
+  assert!(!state.needs_full_reindex);
   drop(state);
   let state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
-  assert!(!state.created);
+  assert!(!state.needs_full_reindex);
   assert_eq!(search(&state, &workspace_id, "映画"), vec!["1", "4"]);
+}
+
+#[test]
+fn retry_full_reindex_until_marked_test() {
+  let (dir, workspace_id, state) = setup();
+  // The reindex was not completed (e.g. resetting the indexed records failed).
+  drop(state);
+  let state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
+  assert!(state.needs_full_reindex);
 }
 
 #[test]
@@ -127,6 +185,6 @@ fn remove_legacy_index_test() {
   std::fs::write(legacy.join("meta.json"), "{}").unwrap();
 
   let state = DocumentTantivyState::new(&workspace_id, dir.path().to_path_buf()).unwrap();
-  assert!(state.created);
+  assert!(state.needs_full_reindex);
   assert!(!legacy.exists());
 }
