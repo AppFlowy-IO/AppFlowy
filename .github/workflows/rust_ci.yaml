@@ -39,7 +39,7 @@ jobs:
           sudo docker image prune --all --force
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -56,7 +56,7 @@ jobs:
             frontend/rust-lib
 
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
