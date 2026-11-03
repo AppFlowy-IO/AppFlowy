@@ -1,0 +1,106 @@
+// ============================================================
+// Invite new user and accept workspace invite (E2E) — AppFlowy Web
+// Validates the invited user's browser via invite link:
+// generate link → Guest opens it → sign up → Join workspace → access
+// Settings nav uses "People" (renamed from "Members")
+// ============================================================
+// ---- Owner: fresh account ----
+Sign up using password
+check that page contains "New page"
+save saved value "username" as "ownerEmail"
+save value "My Workspace" as "workspaceName"
+// ---- Owner: generate invite link ----
+click "My Workspace"
+check that page contains "Settings"
+click "Settings"
+check that page contains "People"
+click "People"
+check that page contains "Invite member by email"
+click "generate a new link"
+check that page contains "Copied link to clipboard" or "Invite link generated"
+store clipboard value as "inviteUrl"
+type escape
+// ============================================================
+// PART — Invited user browser validation
+// ============================================================
+start browser "Guest" and switch
+open url stored value "inviteUrl"
+check that url contains "invited"
+check that page contains "Sign up here"
+// Sign up as the invitee
+click "Sign up here"
+generate unique email, then enter into "Please enter your email address" and save as "inviteEmail"
+enter stored value "password" into "Password"
+enter stored value "password" into "Repeat Password"
+click "Sign Up"
+check that email to saved value "inviteEmail" was received
+click "Login to AppFlowy"
+switch to tab 1
+click "Back to login"
+enter saved value "inviteEmail" into "Please enter your email address"
+click "Continue with password"
+enter stored value "password" into "Password"
+click "Continue"
+// Accept the invitation — wait for workspace UI to finish loading
+check that page contains "You've been invited to join"
+check that page contains saved value "workspaceName"
+click "Join workspace"
+check that page contains "New page"
+check that page contains "Getting started"
+check that page contains "Search"
+check that page contains saved value "workspaceName"
+// Invitee People view: self listed as Member
+click on "the My Workspace switcher at the top-left of the sidebar" using ai
+check that page contains "Settings"
+check that page contains "Create workspace"
+click "Settings"
+check that page contains "People"
+click "People"
+check that page contains saved value "inviteEmail"
+check that page contains "Member" roughly below saved value "inviteEmail"
+type escape
+// Invitee can create a page in the shared workspace
+// Do not enter into "Title" (contenteditable is not interactable)
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+check that page contains "Enter a / to insert a block, or start typing"
+check that page contains "Untitled"
+triple click "Untitled"
+generate from regex "ig[a-z]{5}" and save as "guestPage"
+type stored value "guestPage"
+type enter
+check that page contains stored value "guestPage"
+click 2nd button to the right of "Share" in the context of "Add icon"
+check that page contains "New page"
+// Owner confirms invitee is a Member
+switch to browser "default"
+click on "the My Workspace switcher at the top-left of the sidebar" using ai
+check that page contains "Settings"
+click "Settings"
+check that page contains "People"
+click "People"
+check that page contains saved value "inviteEmail"
+check that page contains "Member" roughly below saved value "inviteEmail"
+type escape
+// Clean up invitee (Member settings lack Language — avoid Delete account rule)
+switch to browser "Guest"
+click on "the My Workspace switcher at the top-left of the sidebar" using ai
+check that page contains "Settings"
+click "Settings"
+click "Account & App"
+scroll down until page contains "Delete account"
+click "Delete account"
+click "Delete account"
+check that page contains "Welcome to AppFlowy"
+// Clean up owner
+switch to browser "default"
+click on "the My Workspace switcher at the top-left of the sidebar" using ai
+check that page contains "Settings"
+click "Settings"
+click "Account & App"
+scroll down until page contains "Delete account"
+click "Delete account"
+click "Delete account"
+check that page contains "Welcome to AppFlowy"

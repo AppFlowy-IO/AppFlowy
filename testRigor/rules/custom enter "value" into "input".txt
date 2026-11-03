@@ -1,0 +1,5 @@
+click stored value "input"
+type ctrl + a
+type delete
+type stored value "value"
+type enter

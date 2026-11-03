@@ -1,0 +1,89 @@
+// ============================================================
+// Document Lifecycle (E2E) — AppFlowy Web
+// create -> edit -> delete -> restore -> publish -> clean up
+// Do not enter into "Title" (contenteditable is not interactable
+// retries re-click Add and open the Share overlay)
+// Stay in the new-page dialog — do not Escape (that closes it)
+// Expand to full page before delete so Trash is not covered
+// Short unique titles stay visible in the sidebar after restore
+// ============================================================
+Login using password
+check that page contains "New page"
+// PART 1 — Create
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+check that page contains "Enter a / to insert a block, or start typing"
+check that page contains "Untitled"
+triple click "Untitled"
+generate from regex "dq[a-z]{5}" and save as "newTitle"
+type stored value "newTitle"
+type enter
+check that page contains stored value "newTitle"
+enter enter
+type "QA body text"
+type enter
+check that page contains "QA body text"
+click on "the expand (open as page) icon at the top-left of the document dialog" using ai
+check that page contains stored value "newTitle"
+check that page contains "Share"
+// PART 2 — Delete (full-page: Share | ★ | ⋯)
+click on "the more options (...) button at the top-right of the page, to the right of the star favorite icon" using ai
+check that page contains "Delete"
+click "Delete"
+click "Delete" to the right of "Cancel" if exists
+check that page does not contain stored value "newTitle"
+// PART 3 — Restore (do not assert "Trash" — that matches the icon tooltip)
+click on "the trash bin icon at the bottom-left of the sidebar" using ai
+check that page contains "Restore All"
+check that page contains "Delete All"
+check that page contains stored value "newTitle" below "File name"
+hover over stored value "newTitle" below "File name"
+click on "the Restore icon (counterclockwise arrow) on the same row as the stored file name in the trash list, not Restore All and not the row delete/trash icon" using ai
+check that page does not contain stored value "newTitle" below "File name"
+// Leave Trash via Shared (does not toggle General). Expand General with
+// the chevron (2nd control left of the label), then open the page
+click "Shared"
+check that page contains "Shared"
+hover over "General"
+click 2nd button to the left of "General"
+check that page contains stored value "newTitle"
+click stored value "newTitle"
+// PART 4 — Publish
+check that page contains "My Workspace"
+check that page does not contain "Comments"
+click "Share"
+click "Publish"
+click "Publish" roughly below "Create a website with AppFlowy"
+click "Visit site"
+check that page contains stored value "newTitle"
+check that page does not contain "My Workspace"
+scroll down until page contains "Comments"
+// Comments toggle
+generate unique name , then enter into "Add a comment" and save as "newComment"
+click "Add"
+check that page contains saved value "newComment" roughly below "Comments"
+switch to tab 1
+enter "0" into input to the right of "Comments"
+switch to tab 2
+reload
+check that page contains stored value "newTitle"
+check that page does not contain "Comments"
+// Template toggle
+check that page contains "Start with this template"
+switch to tab 1
+enter "0" into input to the right of "Duplicate as template"
+switch to tab 2
+reload
+check that page contains stored value "newTitle"
+check that page does not contain "Start with this template"
+// Clean Up — full-page: Share | ★ | ⋯
+switch to tab 1
+type escape
+check that page contains "Share"
+click on "the more options (...) button at the top-right of the page, to the right of the star favorite icon" using ai
+check that page contains "Delete"
+click "Delete"
+click "Delete" to the right of "Cancel" if exists
+check that page does not contain stored value "newTitle"

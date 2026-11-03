@@ -1,0 +1,84 @@
+// ============================================================
+// Workspace Management (E2E) — AppFlowy Web (login-based)
+// create -> rename -> invite member by email -> delete workspace
+// ============================================================
+login using password
+check that page contains "New page"
+click "New page"
+check that page contains "Where would you like to add"
+click "General"
+click "Add"
+// Do not enter into "Title" (contenteditable is not interactable). Wait for the
+// editor to render, then set the title by replacing the "Untitled" placeholder.
+check that page contains "Enter a / to insert a block, or start typing"
+check that page contains "Untitled"
+triple click "Untitled"
+generate unique name and save it as "pageTitle"
+type stored value "pageTitle"
+type enter
+check that page contains stored value "pageTitle"
+// Type into the focused editor; the placeholder is not addressable as an input.
+generate unique name and save as "textBody"
+type stored value "textBody"
+type enter
+check that page contains stored value "textBody"
+// Close the page dialog with the same descriptor the passing cases use. The
+// loose "2nd button above and on the right of pageTitle" can land on the
+// sidebar space chevron, collapsing "General" and hiding its pages.
+click 2nd button to the right of "Share" in the context of "Add icon"
+check that page contains "New page"
+check that page doesn't contain saved value "textBody"
+// 1. Fetch workspaces
+// Do not click "General" — the section is already expanded (it holds the page
+// just created), so clicking the label collapses it and hides its pages. The
+// default pages only exist in that section, so no spatial qualifier is needed.
+check that page contains "General"
+check that page contains "Getting started"
+check that page contains "To-dos"
+click "My Workspace"
+// 2. Create workspace
+click "Create workspace"
+// Enter a workspace name
+generate unique name , then enter into "name" and save as "workspaceName"
+// Submit
+click "Create"
+// Verify it becomes the active workspace
+check that page doesn't contain "My Workspace"
+// The new workspace's default pages are seeded asynchronously, so give the
+// switch some slack before asserting them (the check itself waits 30s).
+wait 10 seconds
+check that page contains "Getting started"
+click saved value "workspaceName"
+// The switcher lists both workspaces; their order is not guaranteed (the active
+// one is not necessarily last), so assert membership rather than a spatial relation.
+check that page contains "My Workspace"
+check that page contains saved value "workspaceName"
+// ============================================================
+// PART 3 — Invite a new member by email (owner side)
+// ============================================================
+click on "My Workspace"
+click "Settings"
+// Settings nav uses "People" (renamed from "Members").
+check that page contains "People"
+click "People"
+check that page contains "Invite member by email"
+generate unique email, then enter into "Invite by email" and save as "inviteEmail"
+click "Invite"
+check that page contains "Invitation sent successfully"
+check that page contains saved value "inviteEmail" below saved value "username"
+check that page contains "Pending" roughly below saved value "inviteEmail"
+enter escape
+// Accept invite from second user
+start browser "Guest" and switch
+check that email to saved value "inviteEmail" was received
+click link "Join Workspace"
+check that url contains "invited"
+check that page contains "Sign up here"
+save saved value "inviteEmail" as "username"
+Sign up using password
+check that page contains saved value "workspaceName"
+Delete account
+switch to browser "default"
+check that page doesn't contain "Pending" roughly below saved value "inviteEmail"
+type escape
+Delete account

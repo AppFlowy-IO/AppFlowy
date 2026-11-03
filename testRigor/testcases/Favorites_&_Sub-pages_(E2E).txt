@@ -1,0 +1,44 @@
+// ============================================================
+// Favorites & Sub-pages (E2E) — AppFlowy Web
+// Create a page, favorite/unfavorite, nest a sub-page via slash
+// menu, verify breadcrumb, then clean up
+// ============================================================
+Login using password
+check that page contains "New page"
+// ---- Create parent + open as full page ----
+click "New page"
+click "General"
+click "Add"
+generate from regex "fp[a-z]{5}", then enter into "Title" and save as "newTitle"
+check that page contains stored value "newTitle"
+click on "the expand (open as page) icon at the top-left of the document dialog" using ai
+check that page contains stored value "newTitle"
+check that page contains "Share"
+// ---- Favorite ----
+click on "the star (favorite) icon in the top-right toolbar of the open page" using ai
+check that page contains "Favorites"
+check that page contains stored value "newTitle" roughly below "Favorites" roughly above "General"
+// ---- Unfavorite (tooltip — breadcrumb collides with spatial Favorites/General band) ----
+click on "the star (favorite) icon in the top-right toolbar of the open page" using ai
+wait 1 second
+hover over "the star (favorite) icon in the top-right toolbar of the open page" using ai
+check that page contains "Add to Favorites"
+// ---- Create sub-page via slash menu ----
+enter "/" into "Enter a / to insert a block, or start typing"
+wait 1 second
+type "sub page"
+click "Document"
+generate from regex "fc[a-z]{5}", then enter into "Title" and save as "childTitle"
+check that page contains stored value "childTitle"
+click on "the expand (open as page) icon at the top-left of the document dialog" using ai
+check that page contains stored value "childTitle"
+// ---- Verify nesting via breadcrumb (horizontal: parent is left of child) ----
+check that page contains stored value "newTitle" to the left of stored value "childTitle"
+click stored value "newTitle" to the left of stored value "childTitle"
+check that page contains stored value "childTitle"
+// ---- Clean up parent ----
+click on "the more options (...) button at the top-right of the page, to the right of the star favorite icon" using ai
+check that page contains "Delete"
+click "Delete"
+click "Delete" to the right of "Cancel" if exists
+check that page does not contain stored value "newTitle"

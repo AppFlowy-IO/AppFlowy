@@ -1,0 +1,4 @@
+click on 1st button to the right of "Share"
+check that page contains "Delete"
+click "Delete"
+check that page does not contain stored value "newTitle"
