@@ -1,7 +1,7 @@
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// A showcase page for the AFMenu, AFMenuSection, and AFTextMenuItem components.
 class MenuPage extends StatefulWidget {

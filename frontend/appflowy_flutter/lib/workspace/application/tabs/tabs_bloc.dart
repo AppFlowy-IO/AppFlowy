@@ -33,6 +33,22 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
   DateTime? _lastOpenTime;
   static const _deduplicationWindow = Duration(milliseconds: 500);
 
+  final List<int> _tabHistory = [0];
+  int _historyPointer = 0;
+
+  void _recordHistory(int index) {
+    if (_historyPointer >= 0 &&
+        _historyPointer < _tabHistory.length &&
+        _tabHistory[_historyPointer] == index) {
+      return;
+    }
+    if (_historyPointer < _tabHistory.length - 1) {
+      _tabHistory.removeRange(_historyPointer + 1, _tabHistory.length);
+    }
+    _tabHistory.add(index);
+    _historyPointer = _tabHistory.length - 1;
+  }
+
   @override
   Future<void> close() {
     state.dispose();
@@ -47,8 +63,35 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             if (index != state.currentIndex &&
                 index >= 0 &&
                 index < state.pages) {
+              _recordHistory(index);
               emit(state.copyWith(currentIndex: index));
               _setLatestOpenView();
+            }
+          },
+          goBack: () {
+            while (_historyPointer > 0) {
+              _historyPointer--;
+              final targetIndex = _tabHistory[_historyPointer];
+              if (targetIndex >= 0 &&
+                  targetIndex < state.pages &&
+                  targetIndex != state.currentIndex) {
+                emit(state.copyWith(currentIndex: targetIndex));
+                _setLatestOpenView();
+                break;
+              }
+            }
+          },
+          goForward: () {
+            while (_historyPointer < _tabHistory.length - 1) {
+              _historyPointer++;
+              final targetIndex = _tabHistory[_historyPointer];
+              if (targetIndex >= 0 &&
+                  targetIndex < state.pages &&
+                  targetIndex != state.currentIndex) {
+                emit(state.copyWith(currentIndex: targetIndex));
+                _setLatestOpenView();
+                break;
+              }
             }
           },
           moveTab: () {},
@@ -74,7 +117,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            emit(state.openView(plugin));
+            final newState = state.openView(plugin);
+            _recordHistory(newState.currentIndex);
+            emit(newState);
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
@@ -97,7 +142,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
+            final newState =
+                state.openPlugin(plugin: plugin, setLatest: setLatest);
+            _recordHistory(newState.currentIndex);
+            emit(newState);
             if (setLatest) {
               // the space view should be filtered out.
               if (view != null && view.isSpace) {
@@ -314,6 +362,10 @@ class TabsEvent with _$TabsEvent {
   const factory TabsEvent.closeCurrentTab() = _CloseCurrentTab;
 
   const factory TabsEvent.selectTab(int index) = _SelectTab;
+
+  const factory TabsEvent.goBack() = _GoBack;
+
+  const factory TabsEvent.goForward() = _GoForward;
 
   const factory TabsEvent.togglePin(String pluginId) = _TogglePin;
 

@@ -81,6 +81,7 @@ class SidebarSectionsBloc
               name: name,
               viewSection: section,
               index: index,
+              setAsCurrent: true,
             );
             result.fold(
               (view) => emit(

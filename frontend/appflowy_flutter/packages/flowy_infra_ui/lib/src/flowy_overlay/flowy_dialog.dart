@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const _overlayContainerPadding = EdgeInsets.symmetric(vertical: 12);
 const overlayContainerMaxWidth = 760.0;
@@ -42,26 +43,36 @@ class FlowyDialog extends StatelessWidget {
     final windowSize = MediaQuery.of(context).size;
     final size = windowSize * 0.7;
 
-    return SimpleDialog(
-      alignment: alignment,
-      insetPadding: insetPadding ?? _defaultInsetPadding,
-      contentPadding: EdgeInsets.zero,
-      backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
-      title: title,
-      shape: shape ??
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      children: [
-        Material(
-          type: MaterialType.transparency,
-          child: Container(
-            height: expandHeight ? size.height : null,
-            width: width ?? size.width,
-            constraints: constraints,
-            child: child,
-          ),
-        )
-      ],
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          Navigator.of(context, rootNavigator: true).maybePop();
+        },
+      },
+      child: FocusScope(
+        autofocus: true,
+        child: SimpleDialog(
+          alignment: alignment,
+          insetPadding: insetPadding ?? _defaultInsetPadding,
+          contentPadding: EdgeInsets.zero,
+          backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
+          title: title,
+          shape: shape ??
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          children: [
+            Material(
+              type: MaterialType.transparency,
+              child: Container(
+                height: expandHeight ? size.height : null,
+                width: width ?? size.width,
+                constraints: constraints,
+                child: child,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
