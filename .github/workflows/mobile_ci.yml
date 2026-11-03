@@ -69,7 +69,7 @@ jobs:
           done
 
       - name: Slack Notification
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3
         if: always()
         with:
           status: ${{ steps.check_status.outputs.success == 'true' && 'success' || 'failure' }}

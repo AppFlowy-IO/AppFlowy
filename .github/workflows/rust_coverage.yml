@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: ${{ matrix.job.target }}
@@ -31,7 +31,7 @@ jobs:
 
       - name: Install flutter
         id: flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -43,7 +43,7 @@ jobs:
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
         with:
           prefix-key: ${{ matrix.job.os }}
 
