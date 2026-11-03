@@ -7,6 +7,7 @@ import 'package:appflowy/features/shared_section/presentation/widgets/shared_sec
 import 'package:appflowy/features/shared_section/presentation/widgets/shared_section_loading.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -35,6 +36,9 @@ class SharedSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
     final repository = RustSharePagesRepositoryImpl();
+    final hideSubPages = context.select<AppearanceSettingsCubit, bool>(
+      (cubit) => cubit.state.hideSubPagesInSidebar,
+    );
 
     return BlocProvider(
       create: (_) => SharedSectionBloc(
@@ -74,6 +78,7 @@ class SharedSection extends StatelessWidget {
               if (state.isExpanded)
                 SharedPageList(
                   sharedPages: state.sharedPages,
+                  shouldRenderChildren: !hideSubPages,
                   onSetEditing: (context, value) {
                     context.read<ViewBloc>().add(ViewEvent.setIsEditing(value));
                   },

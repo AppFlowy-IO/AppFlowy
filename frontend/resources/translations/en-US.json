@@ -690,6 +690,11 @@
         "leftToRight": "Left to right",
         "rightToLeft": "Right to left"
       },
+      "sidebar": {
+        "title": "Sidebar",
+        "hideSubPages": "Hide sub-pages",
+        "hideSubPagesHint": "Show only top-level pages in the sidebar. Sub-pages stay accessible from their parent page, search and breadcrumbs."
+      },
       "dateTime": {
         "title": "Date & time",
         "example": "{} at {} ({})",

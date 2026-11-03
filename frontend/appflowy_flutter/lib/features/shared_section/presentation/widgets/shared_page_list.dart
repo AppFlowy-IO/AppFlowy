@@ -18,6 +18,7 @@ class SharedPageList extends StatelessWidget {
     required this.onSelected,
     required this.onTertiarySelected,
     required this.onSetEditing,
+    this.shouldRenderChildren = true,
   });
 
   final SharedPages sharedPages;
@@ -25,6 +26,8 @@ class SharedPageList extends StatelessWidget {
   final ViewItemOnSelected onTertiarySelected;
   final SharedPageActionsButtonCallback onAction;
   final SharedPageActionsButtonSetEditingCallback onSetEditing;
+
+  final bool shouldRenderChildren;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +42,7 @@ class SharedPageList extends StatelessWidget {
           isFirstChild: view.id == sharedPages.first.view.id,
           view: view,
           level: 0,
+          shouldRenderChildren: shouldRenderChildren,
           isDraggable: false, // disable draggable for shared pages
           leftPadding: HomeSpaceViewSizes.leftPadding,
           isFeedback: false,

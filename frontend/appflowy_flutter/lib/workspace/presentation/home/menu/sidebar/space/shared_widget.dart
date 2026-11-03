@@ -601,6 +601,7 @@ class SpacePages extends StatelessWidget {
     this.disableSelectedStatus = false,
     this.onTertiarySelected,
     this.shouldIgnoreView,
+    this.shouldRenderChildren = true,
   });
 
   final ViewPB space;
@@ -611,6 +612,8 @@ class SpacePages extends StatelessWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+
+  final bool shouldRenderChildren;
 
   @override
   Widget build(BuildContext context) {
@@ -638,6 +641,7 @@ class SpacePages extends StatelessWidget {
                     isFirstChild: view.id == childViews.first.id,
                     view: view,
                     level: 0,
+                    shouldRenderChildren: shouldRenderChildren,
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,

@@ -1,5 +1,6 @@
 import 'package:appflowy/features/workspace/logic/workspace_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -44,6 +45,9 @@ class _SectionFolderState extends State<SectionFolder> {
 
   @override
   Widget build(BuildContext context) {
+    final hideSubPages = context.select<AppearanceSettingsCubit, bool>(
+      (cubit) => cubit.state.hideSubPagesInSidebar,
+    );
     return MouseRegion(
       onEnter: (_) => isHovered.value = true,
       onExit: (_) => isHovered.value = false,
@@ -56,7 +60,7 @@ class _SectionFolderState extends State<SectionFolder> {
               _buildHeader(context),
               // Pages
               const VSpace(4.0),
-              ..._buildViews(context, state, isHovered),
+              ..._buildViews(context, state, isHovered, hideSubPages),
               // Add a placeholder if there are no views
               _buildDraggablePlaceholder(context),
             ],
@@ -94,6 +98,7 @@ class _SectionFolderState extends State<SectionFolder> {
     BuildContext context,
     FolderState state,
     ValueNotifier<bool> isHovered,
+    bool hideSubPages,
   ) {
     if (!state.isExpanded) {
       return [];
@@ -107,6 +112,7 @@ class _SectionFolderState extends State<SectionFolder> {
         isFirstChild: view.id == widget.views.first.id,
         view: view,
         level: 0,
+        shouldRenderChildren: !hideSubPages,
         leftPadding: HomeSpaceViewSizes.leftPadding,
         isFeedback: false,
         isHovered: isHovered,

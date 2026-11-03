@@ -162,6 +162,12 @@ class SettingsWorkspaceView extends StatelessWidget {
               const SettingsCategorySpacer(),
 
               SettingsCategory(
+                title: LocaleKeys.settings_workspacePage_sidebar_title.tr(),
+                children: const [HideSubPagesInSidebarSwitcher()],
+              ),
+              const SettingsCategorySpacer(),
+
+              SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_dateTime_title.tr(),
                 children: [
                   const _DateTimeFormatLabel(),
@@ -459,6 +465,31 @@ class EnableRTLItemsSwitcher extends StatelessWidget {
           onChanged: (value) => context
               .read<AppearanceSettingsCubit>()
               .setEnableRTLToolbarItems(value),
+        ),
+      ],
+    );
+  }
+}
+
+@visibleForTesting
+class HideSubPagesInSidebarSwitcher extends StatelessWidget {
+  const HideSubPagesInSidebarSwitcher({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingListTile(
+      label: LocaleKeys.settings_workspacePage_sidebar_hideSubPages.tr(),
+      hint: LocaleKeys.settings_workspacePage_sidebar_hideSubPagesHint.tr(),
+      trailing: [
+        Toggle(
+          key: const Key('HideSubPagesInSidebarToggle'),
+          value: context
+              .watch<AppearanceSettingsCubit>()
+              .state
+              .hideSubPagesInSidebar,
+          onChanged: (value) => context
+              .read<AppearanceSettingsCubit>()
+              .setHideSubPagesInSidebar(value),
         ),
       ],
     );

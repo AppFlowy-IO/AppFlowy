@@ -323,6 +323,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           height: widget.height,
           isPlaceholder: widget.isPlaceholder,
           isHovered: widget.isHovered,
+          shouldRenderChildren: widget.shouldRenderChildren,
           leftIconBuilder: widget.leftIconBuilder,
           rightIconsBuilder: widget.rightIconsBuilder,
           extendBuilder: widget.extendBuilder,
@@ -450,6 +451,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
+    this.shouldRenderChildren = true,
     required this.leftIconBuilder,
     required this.rightIconsBuilder,
     required this.extendBuilder,
@@ -480,6 +482,9 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool isPlaceholder;
   final bool? disableSelectedStatus;
   final ValueNotifier<bool>? isHovered;
+
+  // render the child views of the view
+  final bool shouldRenderChildren;
   final ViewItemLeftIconBuilder? leftIconBuilder;
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
@@ -713,6 +718,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       isExpanded: widget.isExpanded,
       leftPadding: widget.leftPadding,
       isHovered: widget.isHovered,
+      shouldRenderChildren: widget.shouldRenderChildren,
     );
   }
 
@@ -921,6 +927,7 @@ class ViewItemDefaultLeftIcon extends StatelessWidget {
     required this.isExpanded,
     required this.leftPadding,
     required this.isHovered,
+    this.shouldRenderChildren = true,
   });
 
   final ViewPB view;
@@ -929,13 +936,18 @@ class ViewItemDefaultLeftIcon extends StatelessWidget {
   final double leftPadding;
   final ValueNotifier<bool>? isHovered;
 
+  // when the child views are not rendered, the expand/collapse icon would be a
+  // no-op, so fall back to the plain indent instead.
+  final bool shouldRenderChildren;
+
   @override
   Widget build(BuildContext context) {
     if (isReferencedDatabaseView(view, parentView)) {
       return const _DotIconWidget();
     }
 
-    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+    if (!shouldRenderChildren ||
+        context.read<ViewBloc>().state.view.childViews.isEmpty) {
       return HSpace(leftPadding);
     }
 

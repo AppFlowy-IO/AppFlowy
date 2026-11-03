@@ -79,6 +79,11 @@ class KVKeys {
   /// The value is a boolean string
   static const String showNotificationIcon = 'showNotificationIcon';
 
+  /// The key for saving whether the nested pages are hidden in the sidebar
+  ///
+  /// The value is a boolean string
+  static const String hideSubPagesInSidebar = 'hideSubPagesInSidebar';
+
   /// The key for saving the last opened workspace id
   ///
   /// The workspace id is a string.
