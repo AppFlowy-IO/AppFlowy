@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../desktop_grid/desktop_grid_number_cell.dart';
@@ -111,6 +112,26 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
 
   @override
   String? onCopy() => cellBloc.state.content;
+
+  @override
+  String? onCut() {
+    final text = cellBloc.state.content;
+    cellBloc.add(const NumberCellEvent.updateCell(''));
+    return text;
+  }
+
+  @override
+  Future<void> onPaste() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData?.text != null) {
+      cellBloc.add(NumberCellEvent.updateCell(clipboardData!.text!));
+    }
+  }
+
+  @override
+  void onDelete() {
+    cellBloc.add(const NumberCellEvent.updateCell(''));
+  }
 
   @override
   Future<void> focusChanged() async {
