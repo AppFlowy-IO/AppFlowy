@@ -99,5 +99,65 @@ void main() {
 
       editorState.dispose();
     });
+
+    test('turn << into «', () async {
+      final document = Document.blank()
+        ..insert([
+          0,
+        ], [
+          paragraphNode(text: '<'),
+        ]);
+
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection.collapsed(
+        Position(path: [0], offset: 1),
+      );
+
+      final result =
+          await customFormatDoubleAngleLeftGuillemet.execute(editorState);
+      expect(result, true);
+
+      expect(editorState.document.root.children.length, 1);
+      final node = editorState.document.root.children[0];
+      expect(node.delta!.toPlainText(), '«');
+
+      // use undo to revert the change
+      undoCommand.execute(editorState);
+      expect(editorState.document.root.children.length, 1);
+      final nodeAfterUndo = editorState.document.root.children[0];
+      expect(nodeAfterUndo.delta!.toPlainText(), '<<');
+
+      editorState.dispose();
+    });
+
+    test('turn >> into »', () async {
+      final document = Document.blank()
+        ..insert([
+          0,
+        ], [
+          paragraphNode(text: '>'),
+        ]);
+
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection.collapsed(
+        Position(path: [0], offset: 1),
+      );
+
+      final result =
+          await customFormatDoubleAngleRightGuillemet.execute(editorState);
+      expect(result, true);
+
+      expect(editorState.document.root.children.length, 1);
+      final node = editorState.document.root.children[0];
+      expect(node.delta!.toPlainText(), '»');
+
+      // use undo to revert the change
+      undoCommand.execute(editorState);
+      expect(editorState.document.root.children.length, 1);
+      final nodeAfterUndo = editorState.document.root.children[0];
+      expect(nodeAfterUndo.delta!.toPlainText(), '>>');
+
+      editorState.dispose();
+    });
   });
 }
