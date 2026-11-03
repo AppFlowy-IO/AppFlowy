@@ -45,12 +45,16 @@ pub struct RelationCellChangesetPB {
 pub struct RelationTypeOptionPB {
   #[pb(index = 1)]
   pub database_id: String,
+
+  #[pb(index = 2)]
+  pub bidirectional: bool,
 }
 
 impl From<RelationTypeOption> for RelationTypeOptionPB {
   fn from(value: RelationTypeOption) -> Self {
     RelationTypeOptionPB {
       database_id: value.database_id,
+      bidirectional: false,
     }
   }
 }

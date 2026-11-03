@@ -27,7 +27,7 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
     final typeOption = _parseTypeOptionData(field.typeOptionData);
 
     return BlocProvider(
-      create: (_) => RelationDatabaseListCubit(),
+      create: (_) => RelationDatabaseListCubit()..fetchDatabases(),
       child: Builder(
         builder: (context) {
           return Column(
@@ -93,6 +93,51 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
                   );
                 },
               ),
+              BlocBuilder<RelationDatabaseListCubit, RelationDatabaseListState>(
+                builder: (context, state) {
+                  final currentDatabaseMeta =
+                      state.databaseMetas.firstWhereOrNull(
+                    (meta) => meta.viewId == viewId,
+                  );
+                  final isSelfRelation = currentDatabaseMeta != null &&
+                      currentDatabaseMeta.databaseId == typeOption.databaseId;
+
+                  if (!isSelfRelation) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Column(
+                    children: [
+                      VSpace(GridSize.typeOptionSeparatorHeight),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        height: GridSize.popoverItemHeight,
+                        child: Row(
+                          children: [
+                            const FlowyText.regular(
+                              "Separate columns",
+                              fontSize: 12,
+                            ),
+                            const Spacer(),
+                            FlowySwitch(
+                              value: !typeOption.bidirectional,
+                              onChanged: (value) {
+                                final newTypeOption = _updateTypeOption(
+                                  typeOption: typeOption,
+                                  bidirectional: !value,
+                                );
+                                onTypeOptionUpdated(
+                                  newTypeOption.writeToBuffer(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           );
         },
@@ -106,11 +151,17 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
 
   RelationTypeOptionPB _updateTypeOption({
     required RelationTypeOptionPB typeOption,
-    required String databaseId,
+    String? databaseId,
+    bool? bidirectional,
   }) {
     typeOption.freeze();
     return typeOption.rebuild((typeOption) {
-      typeOption.databaseId = databaseId;
+      if (databaseId != null) {
+        typeOption.databaseId = databaseId;
+      }
+      if (bidirectional != null) {
+        typeOption.bidirectional = bidirectional;
+      }
     });
   }
 }
