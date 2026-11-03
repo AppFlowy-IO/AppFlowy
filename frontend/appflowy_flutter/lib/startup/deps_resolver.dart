@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/application/settings/appearance/mobile_appear
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/note_creation_notifier.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -137,6 +138,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   getIt.registerLazySingleton<SubscriptionSuccessListenable>(
     () => SubscriptionSuccessListenable(),
   );
+  getIt.registerLazySingleton<CreateNoteService>(() => CreateNoteService());
 }
 
 void _resolveHomeDeps(GetIt getIt) {
