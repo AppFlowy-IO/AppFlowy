@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_all_members_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -12,13 +13,15 @@ enum MentionType {
   page,
   date,
   externalLink,
-  childPage;
+  childPage,
+  allMembers;
 
   static MentionType fromString(String value) => switch (value) {
         'page' => page,
         'date' => date,
         'externalLink' => externalLink,
         'childPage' => childPage,
+        'allMembers' => allMembers,
         // Backwards compatibility
         'reminder' => date,
         _ => throw UnimplementedError(),
@@ -58,6 +61,10 @@ class MentionBlockKeys {
   static const includeTime = 'include_time';
   static const reminderId = 'reminder_id'; // ReminderID
   static const reminderOption = 'reminder_option';
+  static const workspaceId = 'workspace_id';
+  static const memberCount = 'member_count';
+  static const memberEmails = 'member_emails';
+  static const label = 'label';
 
   static const mentionChar = '\$';
 
@@ -89,6 +96,22 @@ class MentionBlockKeys {
         if (reminderId != null) MentionBlockKeys.reminderId: reminderId,
         if (reminderOption != null)
           MentionBlockKeys.reminderOption: reminderOption,
+      },
+    };
+  }
+
+  static Map<String, dynamic> buildMentionAllMembersAttributes({
+    required String workspaceId,
+    required List<String> memberEmails,
+    String label = 'all',
+  }) {
+    return {
+      MentionBlockKeys.mention: {
+        MentionBlockKeys.type: MentionType.allMembers.name,
+        MentionBlockKeys.workspaceId: workspaceId,
+        MentionBlockKeys.memberCount: memberEmails.length,
+        MentionBlockKeys.memberEmails: memberEmails,
+        MentionBlockKeys.label: label,
       },
     };
   }
@@ -172,6 +195,11 @@ class MentionBlock extends StatelessWidget {
           editorState: editorState,
           node: node,
           index: index,
+        );
+      case MentionType.allMembers:
+        return MentionAllMembersBlock(
+          mention: mention,
+          textStyle: textStyle,
         );
     }
   }
