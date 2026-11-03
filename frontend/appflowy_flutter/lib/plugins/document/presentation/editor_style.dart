@@ -26,6 +26,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
+import 'editor_plugins/hashtag/hashtag_block.dart';
+import 'editor_plugins/hashtag/hashtag_block_keys.dart';
 import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
 
 class EditorStyleCustomizer {
@@ -407,6 +409,20 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
+          textStyle: newStyle,
+        ),
+      );
+    }
+
+    final hashtag =
+        attributes[HashtagBlockKeys.hashtag] as Map<String, dynamic>?;
+    if (hashtag != null) {
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        style: newStyle,
+        child: HashtagBlock(
+          key: ValueKey(hashtag[HashtagBlockKeys.name]),
+          data: hashtag,
           textStyle: newStyle,
         ),
       );

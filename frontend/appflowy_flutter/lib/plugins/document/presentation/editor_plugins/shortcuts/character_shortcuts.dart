@@ -13,12 +13,15 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy/plugins/inline_actions/hashtag_actions_command.dart';
+
 
 List<CharacterShortcutEvent> buildCharacterShortcutEvents(
   BuildContext context,
   DocumentBloc documentBloc,
   EditorStyleCustomizer styleCustomizer,
   InlineActionsService inlineActionsService,
+  InlineActionsService hashtagActionsService,
   SlashMenuItemsBuilder slashMenuItemsBuilder,
 ) {
   return [
@@ -69,6 +72,10 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
       style: styleCustomizer.inlineActionsMenuStyleBuilder(),
     ),
 
+    hashtagActionsCommand(
+      hashtagActionsService,
+      style: styleCustomizer.inlineActionsMenuStyleBuilder(),
+    ),
     /// Inline page menu
     /// - Using `[[`
     pageReferenceShortcutBrackets(
