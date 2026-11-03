@@ -64,7 +64,7 @@ enum OptionAction {
   moveUp,
   moveDown,
   copyLinkToBlock,
-
+  copyText,
   /// callout background color
   color,
   divider,
@@ -99,6 +99,8 @@ enum OptionAction {
         return FlowySvgs.tag_s;
       case OptionAction.copyLinkToBlock:
         return FlowySvgs.share_tab_copy_s;
+      case OptionAction.copyText:            
+        return FlowySvgs.text_s;
       case OptionAction.setToPageWidth:
         return FlowySvgs.table_set_to_page_width_s;
       case OptionAction.distributeColumnsEvenly:
@@ -126,6 +128,8 @@ enum OptionAction {
         return LocaleKeys.document_plugins_optionAction_depth.tr();
       case OptionAction.copyLinkToBlock:
         return LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr();
+      case OptionAction.copyText:
+        return 'Copy text';
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
       case OptionAction.setToPageWidth:

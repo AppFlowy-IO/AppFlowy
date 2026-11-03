@@ -167,6 +167,7 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     standardActions.add(OptionAction.copyLinkToBlock);
   }
 
+  standardActions.add(OptionAction.copyText);
   standardActions.add(OptionAction.turnInto);
 
   if (SimpleTableBlockKeys.type == type) {
