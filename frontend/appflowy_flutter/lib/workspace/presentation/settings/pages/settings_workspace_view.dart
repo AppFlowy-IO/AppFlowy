@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -119,6 +120,8 @@ class SettingsWorkspaceView extends StatelessWidget {
                 children: const [AppearanceSelector()],
               ),
               const VSpace(16),
+              const _UIScaleFactorDisplay(),
+              const SettingsCategorySpacer(),
               // const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_theme_title.tr(),
@@ -1387,6 +1390,71 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
           ),
         );
       },
+    );
+  }
+}
+
+class _UIScaleFactorDisplay extends StatefulWidget {
+  const _UIScaleFactorDisplay();
+
+  @override
+  State<_UIScaleFactorDisplay> createState() => _UIScaleFactorDisplayState();
+}
+
+class _UIScaleFactorDisplayState extends State<_UIScaleFactorDisplay>
+    with WidgetsBindingObserver {
+  final WindowSizeManager _windowSizeManager = WindowSizeManager();
+  double _scaleFactor = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadScaleFactor();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Reload scale factor when the app regains focus, in case it was
+    // changed via keyboard shortcuts while the settings page was open.
+    if (state == AppLifecycleState.resumed) {
+      _loadScaleFactor();
+    }
+  }
+
+  Future<void> _loadScaleFactor() async {
+    final factor = await _windowSizeManager.getScaleFactor();
+    if (mounted) {
+      setState(() => _scaleFactor = factor);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage = (_scaleFactor * 100).round();
+    final modifierKey =
+        Theme.of(context).platform == TargetPlatform.macOS ? '⌘' : 'Ctrl';
+    // TODO: move these strings to LocaleKeys for localization
+    return SettingsCategory(
+      title: 'UI Scale',
+      description:
+          'Current zoom: $percentage%. Use $modifierKey+/- to adjust, or $modifierKey+0 to reset.',
+      children: [
+        Row(
+          children: [
+            FlowyText.semibold(
+              '$percentage%',
+              fontSize: 16,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
