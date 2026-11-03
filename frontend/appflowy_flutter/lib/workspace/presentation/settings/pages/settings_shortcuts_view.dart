@@ -351,7 +351,10 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     );
   }
 
-  Widget _renderKeybindings(bool isHovering) => Row(
+  Widget _renderKeybindings(bool isHovering) => Wrap(
+  spacing: 8,
+  runSpacing: 4,
+  alignment: WrapAlignment.end,
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
