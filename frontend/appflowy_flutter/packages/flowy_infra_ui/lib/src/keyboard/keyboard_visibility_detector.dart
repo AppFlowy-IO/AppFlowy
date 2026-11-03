@@ -31,7 +31,7 @@ class _KeyboardVisibilityDetectorState
     super.initState();
     _keyboardSubscription =
         _platform.onKeyboardVisibilityChange.listen((newValue) {
-      setState(() {
+      if (mounted) setState(() {
         isKeyboardVisible = newValue;
         if (widget.onKeyboardVisibilityChange != null) {
           widget.onKeyboardVisibilityChange!(newValue);
