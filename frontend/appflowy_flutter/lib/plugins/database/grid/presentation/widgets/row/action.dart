@@ -10,6 +10,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import '../selection_controller.dart';
+
 
 class RowActionMenu extends StatelessWidget {
   const RowActionMenu({
@@ -132,11 +135,21 @@ enum RowAction {
         RowBackendService.duplicateRow(viewId, rowId);
         break;
       case delete:
+        final selection = context.read<GridSelectionController>();
+        final rowsToDelete = selection.isSelected(rowId)
+            ? selection.selectedRowIds.toList()
+            : [rowId];
+
         showConfirmDeletionDialog(
           context: context,
           name: LocaleKeys.grid_row_label.tr(),
           description: LocaleKeys.grid_row_deleteRowPrompt.tr(),
-          onConfirm: () => RowBackendService.deleteRows(viewId, [rowId]),
+          onConfirm: () {
+            RowBackendService.deleteRows(viewId, rowsToDelete);
+            if (selection.isSelected(rowId)) {
+              selection.clearSelection();
+            }
+          },
         );
         break;
     }

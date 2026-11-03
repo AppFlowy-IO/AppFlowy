@@ -12,6 +12,10 @@ class GridSize {
 
   static double get footerHeight => 36 * scale;
 
+  static double get rowHeight => 36 * scale;
+
+  static double get compactRowHeight => 32 * scale;
+
   static double get horizontalHeaderPadding =>
       UniversalPlatform.isDesktop ? 40 * scale : 16 * scale;
 
