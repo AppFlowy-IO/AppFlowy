@@ -133,7 +133,7 @@ class _MobileThirdPartySignIn extends StatefulWidget {
 }
 
 class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
-  static const padding = 8.0;
+  static const padding = 12.0;
 
   bool isExpanded = false;
 
