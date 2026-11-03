@@ -84,7 +84,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
             ),
             buildDefaultDragHandles: false,
             shrinkWrap: true,
-            onReorder: (from, to) {
+            onReorderItem: (from, to) {
               context
                   .read<DatabasePropertyBloc>()
                   .add(DatabasePropertyEvent.moveField(from, to));

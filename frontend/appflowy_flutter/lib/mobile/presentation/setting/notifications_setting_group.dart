@@ -25,7 +25,7 @@ class _NotificationsSettingGroupState extends State<NotificationsSettingGroup> {
         MobileSettingItem(
           name: LocaleKeys.settings_mobile_pushNotifications.tr(),
           trailing: Switch.adaptive(
-            activeColor: theme.colorScheme.primary,
+            activeTrackColor: theme.colorScheme.primary,
             value: isPushNotificationOn,
             onChanged: (bool value) {
               setState(() {

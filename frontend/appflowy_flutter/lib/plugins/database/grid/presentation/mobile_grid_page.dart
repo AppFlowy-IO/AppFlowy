@@ -322,8 +322,7 @@ class _GridRows extends StatelessWidget {
         color: Colors.transparent,
         child: child,
       ),
-      onReorder: (fromIndex, newIndex) {
-        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+      onReorderItem: (fromIndex, toIndex) {
         if (fromIndex == toIndex) {
           return;
         }

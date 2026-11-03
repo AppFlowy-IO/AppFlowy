@@ -58,7 +58,7 @@ class RowPropertyList extends StatelessWidget {
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          onReorder: (from, to) => context
+          onReorderItem: (from, to) => context
               .read<RowDetailBloc>()
               .add(RowDetailEvent.reorderField(from, to)),
           buildDefaultDragHandles: false,

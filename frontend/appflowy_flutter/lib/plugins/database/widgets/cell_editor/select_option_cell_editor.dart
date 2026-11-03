@@ -181,10 +181,7 @@ class _OptionList extends StatelessWidget {
             popoverMutex: popoverMutex,
           );
         },
-        onReorder: (oldIndex, newIndex) {
-          if (oldIndex < newIndex) {
-            newIndex--;
-          }
+        onReorderItem: (oldIndex, newIndex) {
           final fromOptionId = state.options[oldIndex].id;
           final toOptionId = state.options[newIndex].id;
           context.read<SelectOptionCellEditorBloc>().add(

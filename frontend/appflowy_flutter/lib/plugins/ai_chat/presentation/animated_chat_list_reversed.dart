@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:appflowy_backend/log.dart';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -34,19 +35,19 @@ class ChatAnimatedListReversed extends StatefulWidget {
   final VoidCallback? onLoadPreviousMessages;
 
   @override
-  ChatAnimatedListReversedState createState() =>
-      ChatAnimatedListReversedState();
+  State<ChatAnimatedListReversed> createState() =>
+      _ChatAnimatedListReversedState();
 }
 
-class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
+class _ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
-  late final ChatController _chatController = Provider.of<ChatController>(
-    context,
-    listen: false,
-  );
+  final GlobalKey<SliverAnimatedListState> _listKey =
+      GlobalKey<SliverAnimatedListState>();
+  late final ChatController _chatController =
+      Provider.of<ChatController>(context, listen: false);
+
   late List<Message> _oldList;
-  late StreamSubscription<ChatOperation> _operationsSubscription;
+  late final StreamSubscription<ChatOperation> _operationsSubscription;
 
   late final AnimationController _scrollToBottomController;
   late final Animation<double> _scrollToBottomAnimation;
@@ -60,7 +61,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
   void initState() {
     super.initState();
 
-    // TODO: Add assert for messages having same id
+    _validateMessageIds(_chatController.messages);
     _oldList = List.from(_chatController.messages);
     _operationsSubscription = _chatController.operationsStream.listen((event) {
       switch (event.type) {
@@ -73,6 +74,13 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
+
+          if (_oldList.any((m) => m.id == event.message?.id)) {
+            Log.warn(
+              '[chat animated list reversed] Inserting message with duplicate ID: ${event.message?.id}',
+            );
+          }
+
           _onInserted(event.index!, event.message!);
           _oldList = List.from(_chatController.messages);
           break;
@@ -90,6 +98,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
           break;
         case ChatOperationType.set:
           final newList = _chatController.messages;
+          _validateMessageIds(newList);
 
           final updates = diffutil
               .calculateDiff<Message>(
@@ -123,6 +132,21 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLoadPreviousMessages();
     });
+  }
+
+  void _validateMessageIds(List<Message> messageList) {
+    assert(
+      messageList.map((m) => m.id).toSet().length == messageList.length,
+      'Messages must have unique IDs.',
+    );
+    final seen = <String>{};
+    for (final message in messageList) {
+      if (!seen.add(message.id)) {
+        Log.warn(
+          '[chat animated list reversed] Duplicate message ID detected: ${message.id}',
+        );
+      }
+    }
   }
 
   @override
@@ -181,10 +205,13 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
                 ) {
                   final message = _chatController.messages[
                       max(_chatController.messages.length - 1 - index, 0)];
-                  return widget.itemBuilder(
-                    context,
-                    animation,
-                    message,
+                  return KeyedSubtree(
+                    key: ValueKey('${message.id}_$index'),
+                    child: widget.itemBuilder(
+                      context,
+                      animation,
+                      message,
+                    ),
                   );
                 },
               ),

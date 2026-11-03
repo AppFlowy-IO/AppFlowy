@@ -108,7 +108,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
               );
             },
             shrinkWrap: true,
-            onReorder: (from, to) {
+            onReorderItem: (from, to) {
               from++;
               to++;
               context

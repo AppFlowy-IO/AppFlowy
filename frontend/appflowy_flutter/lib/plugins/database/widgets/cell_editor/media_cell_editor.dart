@@ -72,11 +72,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                     ),
                   ),
                   itemCount: state.files.length,
-                  onReorder: (from, to) {
-                    if (from < to) {
-                      to--;
-                    }
-
+                  onReorderItem: (from, to) {
                     context
                         .read<MediaCellBloc>()
                         .add(MediaCellEvent.reorderFiles(from: from, to: to));

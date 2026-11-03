@@ -89,10 +89,6 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
             result.fold((l) => null, (err) => Log.error(err));
           },
           reorderSort: (fromIndex, toIndex) async {
-            if (fromIndex < toIndex) {
-              toIndex--;
-            }
-
             final fromId = state.sorts[fromIndex].sortId;
             final toId = state.sorts[toIndex].sortId;
 
