@@ -116,7 +116,10 @@ class SettingsWorkspaceView extends StatelessWidget {
               ],
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_appearance_title.tr(),
-                children: const [AppearanceSelector()],
+                children: const [
+                  AppearanceSelector(),
+                  _UIScaleSetting(),
+                ],
               ),
               const VSpace(16),
               // const SettingsCategorySpacer(),
@@ -1384,6 +1387,36 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
 
               widget.onPaddingChanged(value);
             },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _UIScaleSetting extends StatelessWidget {
+  const _UIScaleSetting();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        final percentage = (state.textScaleFactor * 100).round();
+        return Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: Row(
+            children: [
+              FlowyText.regular(
+                'UI Zoom Level',
+                fontSize: 16,
+              ),
+              const Spacer(),
+              FlowyText.medium(
+                '$percentage%',
+                fontSize: 14,
+                color: AFThemeExtension.of(context).secondaryTextColor,
+              ),
+            ],
           ),
         );
       },
