@@ -23,6 +23,7 @@ class DatabaseBlockKeys {
 const overflowTypes = {
   DatabaseBlockKeys.gridType,
   DatabaseBlockKeys.boardType,
+  DatabaseBlockKeys.calendarType,
 };
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {

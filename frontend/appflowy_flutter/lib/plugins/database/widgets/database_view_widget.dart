@@ -61,9 +61,7 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
     double? horizontalPadding = 0.0;
     final databasePluginWidgetBuilderSize =
         Provider.of<DatabasePluginWidgetBuilderSize?>(context);
-    if (view.layout == ViewLayoutPB.Grid || view.layout == ViewLayoutPB.Board) {
-      horizontalPadding = 40.0;
-    }
+    horizontalPadding = 40.0;
     if (databasePluginWidgetBuilderSize != null) {
       horizontalPadding = databasePluginWidgetBuilderSize.horizontalPadding;
     }
