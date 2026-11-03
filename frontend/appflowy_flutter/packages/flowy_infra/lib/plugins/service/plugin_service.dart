@@ -14,7 +14,7 @@ class FlowyPluginService {
   static final FlowyPluginService _instance = FlowyPluginService._();
   static FlowyPluginService get instance => _instance;
 
-  PluginLocationService _locationService = PluginLocationService(
+  late PluginLocationService _locationService = PluginLocationService(
     fallback: getApplicationDocumentsDirectory(),
   );
 
@@ -22,9 +22,22 @@ class FlowyPluginService {
       _locationService = locationService;
 
   Future<Iterable<Directory>> get _targets async {
-    final location = await _locationService.location;
-    final targets = location.listSync().where(FlowyDynamicPlugin.isPlugin);
-    return targets.map<Directory>((entity) => entity as Directory).toList();
+    final locations = await _locationService.allLocations;
+    final seen = <String>{};
+    final targets = <Directory>[];
+    for (final location in locations) {
+      if (!location.existsSync()) continue;
+      for (final entity in location.listSync()) {
+        if (FlowyDynamicPlugin.isPlugin(entity)) {
+          final dir = entity as Directory;
+          final name = p.basename(dir.path);
+          if (seen.add(name)) {
+            targets.add(dir);
+          }
+        }
+      }
+    }
+    return targets;
   }
 
   /// Searches the [PluginLocationService.location] for plugins and compiles them.

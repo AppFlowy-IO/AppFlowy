@@ -25,6 +25,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/plugins/service/location_service.dart';
+import 'package:flowy_infra/plugins/service/plugin_service.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
@@ -32,6 +34,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -53,6 +57,8 @@ class InitAppWidgetTask extends LaunchTask {
     await NotificationService.initialize();
 
     await loadIconGroups();
+
+    await _initPluginLocation();
 
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
@@ -318,4 +324,24 @@ Future<AppTheme> appTheme(String themeName) async {
       return AppTheme.fallback;
     }
   }
+}
+
+/// Configures [FlowyPluginService] to store plugins in a stable directory
+/// under the platform app-support path (e.g. Application Support on macOS,
+/// AppData\Roaming on Windows, ~/.local/share on Linux). The legacy
+/// Documents directory is kept as a read-only fallback for themes imported
+/// with older versions.
+Future<void> _initPluginLocation() async {
+  final appSupport = await getApplicationSupportDirectory();
+  final pluginsDir = Directory(p.join(appSupport.path, 'plugins'));
+  if (!pluginsDir.existsSync()) {
+    pluginsDir.createSync(recursive: true);
+  }
+
+  FlowyPluginService.instance.setLocation(
+    PluginLocationService(
+      fallback: Future.value(pluginsDir),
+      additionalLocations: [getApplicationDocumentsDirectory()],
+    ),
+  );
 }
