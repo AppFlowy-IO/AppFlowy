@@ -11,6 +11,7 @@ use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
 use crate::local_ai::chat::{LLMChatController, LLMChatInfo};
+use crate::local_ai::client::{AIClient, AIProvider};
 use crate::stream_message::StreamMessage;
 use arc_swap::ArcSwapOption;
 use flowy_ai_pub::cloud::AIModel;
@@ -20,8 +21,6 @@ use flowy_ai_pub::persistence::{
 use flowy_ai_pub::user_service::AIUserService;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
-use ollama_rs::Ollama;
-use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::path::PathBuf;
@@ -34,6 +33,12 @@ pub struct LocalAISetting {
   pub ollama_server_url: String,
   pub chat_model_name: String,
   pub embedding_model_name: String,
+  /// `#[serde(default)]` on the new fields keeps settings stored before OpenAI-compatible support
+  /// existed deserializable; without it every existing user silently falls back to defaults.
+  #[serde(default)]
+  pub provider: AIProvider,
+  #[serde(default)]
+  pub api_key: String,
 }
 
 impl Default for LocalAISetting {
@@ -42,6 +47,8 @@ impl Default for LocalAISetting {
       ollama_server_url: "http://localhost:11434".to_string(),
       chat_model_name: "llama3.1:latest".to_string(),
       embedding_model_name: "nomic-embed-text:latest".to_string(),
+      provider: AIProvider::Ollama,
+      api_key: String::new(),
     }
   }
 }
@@ -54,7 +61,7 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Weak<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
-  pub(crate) ollama: ArcSwapOption<Ollama>,
+  pub(crate) ollama: ArcSwapOption<AIClient>,
 }
 
 impl Deref for LocalAIController {
@@ -100,34 +107,48 @@ impl LocalAIController {
     if !self.is_enabled_on_workspace(workspace_id) {
       #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
       {
-        trace!("[Local AI] local ai is disabled, clear ollama client",);
+        trace!("[Local AI] local ai is disabled, clear ai client",);
         let shared = crate::embeddings::context::EmbedContext::shared();
-        shared.set_ollama(None);
+        shared.set_client(None, "");
         self.ollama.store(None);
       }
       return;
     }
 
     let setting = self.resource.get_llm_setting();
-    if let Some(ollama) = self.ollama.load_full() {
-      if ollama.url_str() == setting.ollama_server_url {
-        info!("[Local AI] ollama client is already initialized");
+    if let Some(client) = self.ollama.load_full() {
+      if client.matches(
+        setting.provider,
+        &setting.ollama_server_url,
+        &setting.api_key,
+      ) {
+        info!("[Local AI] ai client is already initialized");
         return;
       }
     }
 
-    info!("[Local AI] reloading ollama client");
-    match Ollama::try_new(&setting.ollama_server_url).map(Arc::new) {
+    info!("[Local AI] reloading {:?} client", setting.provider);
+    match AIClient::new(
+      setting.provider,
+      &setting.ollama_server_url,
+      &setting.api_key,
+    )
+    .map(Arc::new)
+    {
       Ok(new_ollama) => {
         #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
         {
-          info!("[Local AI] reload ollama client successfully");
+          info!("[Local AI] reload ai client successfully");
           let shared = crate::embeddings::context::EmbedContext::shared();
-          shared.set_ollama(Some(new_ollama.clone()));
+          shared.set_client(Some(new_ollama.clone()), &setting.embedding_model_name);
           if let Some(vc) = shared.get_vector_db() {
             self
               .llm_controller
-              .initialize(Arc::downgrade(&new_ollama), Arc::downgrade(&vc))
+              .initialize(
+                Arc::downgrade(&new_ollama),
+                setting.embedding_model_name.clone(),
+                Arc::downgrade(&vc),
+              )
               .await;
           } else {
             error!("[Local AI] vector db is not initialized");
@@ -255,14 +276,14 @@ impl LocalAIController {
   {
     match self.ollama.load_full() {
       None => vec![],
-      Some(ollama) => ollama
-        .list_local_models()
+      Some(client) => client
+        .list_models()
         .await
         .map(|models| {
           models
             .into_iter()
-            .filter(|m| filter_fn(&m.name.to_lowercase()))
-            .map(|m| AIModel::local(m.name, String::new()))
+            .filter(|name| filter_fn(&name.to_lowercase()))
+            .map(|name| AIModel::local(name, String::new()))
             .collect()
         })
         .unwrap_or_default(),
@@ -274,25 +295,17 @@ impl LocalAIController {
     let mut conn = self.user_service.sqlite_connection(uid)?;
     match select_local_ai_model(&mut conn, model_name) {
       None => {
-        let ollama = self
+        let client = self
           .ollama
           .load_full()
-          .ok_or_else(|| FlowyError::local_ai().with_context("ollama is not initialized"))?;
+          .ok_or_else(|| FlowyError::local_ai().with_context("ai client is not initialized"))?;
 
-        let request = GenerateEmbeddingsRequest::new(
-          model_name.to_string(),
-          EmbeddingsInput::Single("Hello".to_string()),
-        );
-
-        let model_type = match ollama.generate_embeddings(request).await {
-          Ok(value) => {
-            if value.embeddings.is_empty() {
-              ModelType::Chat
-            } else {
-              ModelType::Embedding
-            }
-          },
-          Err(_) => ModelType::Chat,
+        // Probe by embedding: a chat model rejects the embeddings endpoint. `embed` also enforces
+        // the 768-dimension requirement, so a wrongly-sized embedding model is classified as Chat
+        // rather than being silently accepted and failing later at insert time.
+        let model_type = match client.embed(model_name, vec!["Hello".to_string()]).await {
+          Ok(embeddings) if !embeddings.is_empty() => ModelType::Embedding,
+          _ => ModelType::Chat,
         };
 
         upsert_local_ai_model(

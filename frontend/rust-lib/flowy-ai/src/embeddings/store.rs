@@ -1,7 +1,8 @@
 use crate::embeddings::document_indexer::split_text_into_chunks;
-use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
+use crate::embeddings::embedder::Embedder;
 use crate::embeddings::indexer::{EmbeddingModel, IndexerProvider};
 use crate::local_ai::chat::retriever::MultipleSourceRetrieverStore;
+use crate::local_ai::client::AIClient;
 use async_trait::async_trait;
 use flowy_ai_pub::cloud::CollabType;
 use flowy_ai_pub::entities::{RAG_IDS, SOURCE_ID};
@@ -9,10 +10,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite_vec::db::VectorSqliteDB;
 use flowy_sqlite_vec::entities::{EmbeddedContent, SqliteEmbeddedDocument};
 use futures::stream::{self, StreamExt};
-use langchain_rust::llm::client::OllamaClient;
 use langchain_rust::schemas::Document;
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
-use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::error::Error;
@@ -22,28 +21,33 @@ use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct SqliteVectorStore {
-  ollama: Weak<OllamaClient>,
+  client: Weak<AIClient>,
+  embedding_model: String,
   vector_db: Weak<VectorSqliteDB>,
   indexer_provider: Arc<IndexerProvider>,
 }
 
 impl SqliteVectorStore {
-  pub fn new(ollama: Weak<OllamaClient>, vector_db: Weak<VectorSqliteDB>) -> Self {
+  pub fn new(
+    client: Weak<AIClient>,
+    embedding_model: String,
+    vector_db: Weak<VectorSqliteDB>,
+  ) -> Self {
     Self {
-      ollama,
+      client,
+      embedding_model,
       vector_db,
       indexer_provider: IndexerProvider::new(),
     }
   }
 
   pub(crate) fn create_embedder(&self) -> Result<Embedder, FlowyError> {
-    let ollama = self
-      .ollama
+    let client = self
+      .client
       .upgrade()
-      .ok_or_else(|| FlowyError::internal().with_context("Ollama reference was dropped"))?;
+      .ok_or_else(|| FlowyError::internal().with_context("AI client reference was dropped"))?;
 
-    let embedder = Embedder::Ollama(OllamaEmbedder { ollama });
-    Ok(embedder)
+    Ok(Embedder::new(client, self.embedding_model.clone()))
   }
 
   pub(crate) async fn select_all_embedded_documents(
@@ -107,12 +111,7 @@ impl MultipleSourceRetrieverStore for SqliteVectorStore {
 
     // Create embedder and generate embedding for query
     let embedder = self.create_embedder()?;
-    let request = GenerateEmbeddingsRequest::new(
-      embedder.model().name().to_string(),
-      EmbeddingsInput::Single(query.to_string()),
-    );
-
-    let embedding = embedder.embed(request).await?.embeddings;
+    let embedding = embedder.embed(vec![query.to_string()]).await?;
     if embedding.is_empty() {
       return Ok(Vec::new());
     }

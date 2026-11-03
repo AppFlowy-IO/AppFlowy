@@ -1,5 +1,6 @@
-use crate::embeddings::embedder::{Embedder, OllamaEmbedder};
-use crate::embeddings::indexer::IndexerProvider;
+use crate::embeddings::embedder::Embedder;
+use crate::embeddings::indexer::{EmbeddingModel, IndexerProvider};
+use crate::local_ai::client::AIClient;
 use crate::search::summary::{LLMDocument, summarize_documents};
 use flowy_ai_pub::cloud::search_dto::{
   SearchContentType, SearchDocumentResponseItem, SearchResult, SearchSummaryResult, Summary,
@@ -8,8 +9,6 @@ use flowy_ai_pub::entities::{EmbeddingRecord, UnindexedCollab, UnindexedData};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::internal::derives::multiconnection::chrono::Utc;
 use flowy_sqlite_vec::db::VectorSqliteDB;
-use ollama_rs::Ollama;
-use ollama_rs::generation::embeddings::request::{EmbeddingsInput, GenerateEmbeddingsRequest};
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
@@ -23,14 +22,16 @@ pub struct EmbeddingScheduler {
   indexer_provider: Arc<IndexerProvider>,
   write_embedding_tx: UnboundedSender<EmbeddingRecord>,
   generate_embedding_tx: mpsc::Sender<UnindexedCollab>,
-  ollama: Arc<Ollama>,
+  client: Arc<AIClient>,
+  embedding_model: String,
   vector_db: Arc<VectorSqliteDB>,
   pub(crate) stop_tx: tokio::sync::broadcast::Sender<()>,
 }
 
 impl EmbeddingScheduler {
   pub fn new(
-    ollama: Arc<Ollama>,
+    client: Arc<AIClient>,
+    embedding_model: String,
     vector_db: Arc<VectorSqliteDB>,
   ) -> FlowyResult<Arc<EmbeddingScheduler>> {
     let indexer_provider = IndexerProvider::new();
@@ -42,7 +43,8 @@ impl EmbeddingScheduler {
       indexer_provider,
       write_embedding_tx,
       generate_embedding_tx,
-      ollama,
+      client,
+      embedding_model,
       vector_db,
       stop_tx,
     });
@@ -67,10 +69,10 @@ impl EmbeddingScheduler {
   }
 
   pub(crate) fn create_embedder(&self) -> Result<Embedder, FlowyError> {
-    let embedder = Embedder::Ollama(OllamaEmbedder {
-      ollama: self.ollama.clone(),
-    });
-    Ok(embedder)
+    Ok(Embedder::new(
+      self.client.clone(),
+      self.embedding_model.clone(),
+    ))
   }
 
   pub async fn index_collab(&self, data: UnindexedCollab) -> FlowyResult<()> {
@@ -99,13 +101,8 @@ impl EmbeddingScheduler {
     query: &str,
   ) -> FlowyResult<Vec<SearchDocumentResponseItem>> {
     let embedder = self.create_embedder()?;
-    let request = GenerateEmbeddingsRequest::new(
-      embedder.model().name().to_string(),
-      EmbeddingsInput::Single(query.to_string()),
-    );
-
-    let resp = embedder.embed(request).await?;
-    match resp.embeddings.first() {
+    let embeddings = embedder.embed(vec![query.to_string()]).await?;
+    match embeddings.first() {
       None => Ok(vec![]),
       Some(query_embed) => {
         let result = self
@@ -155,7 +152,7 @@ impl EmbeddingScheduler {
       })
       .collect::<Vec<_>>();
 
-    let resp = summarize_documents(&self.ollama, question, model_name, docs)
+    let resp = summarize_documents(&self.client, question, model_name, docs)
       .await
       .map_err(|err| {
         error!("[Embedding] Failed to generate summary: {}", err);
@@ -295,7 +292,7 @@ async fn spawn_generate_embeddings(
                 match indexer.create_embedded_chunks_from_text(
                   record.object_id,
                   paragraphs,
-                  embedder.model(),
+                  EmbeddingModel::NomicEmbedText,
                 ) {
                   Ok(mut chunks) => {
                     if let Some(fragment_ids) = existing_embeddings.get(&record.object_id) {

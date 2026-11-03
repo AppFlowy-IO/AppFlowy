@@ -305,14 +305,14 @@ impl ModelSource for LocalAiSource {
   async fn list_chat_models(&self, _workspace_id: &Uuid) -> Vec<Model> {
     match self.controller.ollama.load_full() {
       None => vec![],
-      Some(ollama) => ollama
-        .list_local_models()
+      Some(client) => client
+        .list_models()
         .await
         .map(|models| {
           models
             .into_iter()
-            .filter(|m| !m.name.contains("embed"))
-            .map(|m| AIModel::local(m.name, String::new()))
+            .filter(|name| !name.contains("embed"))
+            .map(|name| AIModel::local(name, String::new()))
             .collect()
         })
         .unwrap_or_default(),

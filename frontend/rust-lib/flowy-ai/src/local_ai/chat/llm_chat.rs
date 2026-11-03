@@ -19,7 +19,7 @@ use langchain_rust::memory::SimpleMemory;
 use langchain_rust::prompt_args;
 use langchain_rust::schemas::{Document, Message};
 use langchain_rust::vectorstore::{VecStoreOptions, VectorStore};
-use ollama_rs::Ollama;
+use crate::local_ai::client::AIClient;
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -30,7 +30,7 @@ pub struct LLMChat {
   store: Option<SqliteVectorStore>,
   chain: ConversationalRetrieverChain,
   #[allow(dead_code)]
-  client: Arc<Ollama>,
+  client: Arc<AIClient>,
   prompt: AFContextPrompt,
   info: LLMChatInfo,
 }
@@ -38,7 +38,7 @@ pub struct LLMChat {
 impl LLMChat {
   pub fn new(
     info: LLMChatInfo,
-    client: Arc<Ollama>,
+    client: Arc<AIClient>,
     store: Option<SqliteVectorStore>,
     user_service: Option<Weak<dyn AIUserService>>,
     retriever_sources: Vec<Weak<dyn MultipleSourceRetrieverStore>>,
