@@ -30,7 +30,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 
 // space name > ... > view_title
-class ViewTitleBar extends StatelessWidget {
+class ViewTitleBar extends StatefulWidget {
   const ViewTitleBar({
     super.key,
     required this.view,
@@ -39,12 +39,30 @@ class ViewTitleBar extends StatelessWidget {
   final ViewPB view;
 
   @override
+  State<ViewTitleBar> createState() => _ViewTitleBarState();
+}
+
+class _ViewTitleBarState extends State<ViewTitleBar> {
+  late List<Widget> _cachedBreadcrumbs = <Widget>[];
+  String _cachedKey = '';
+
+  @override
+  void didUpdateWidget(covariant ViewTitleBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Invalidate cached breadcrumbs when the main view identity changes
+    if (oldWidget.view.id != widget.view.id || oldWidget.view.name != widget.view.name) {
+      _cachedBreadcrumbs = <Widget>[];
+      _cachedKey = '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => ViewTitleBarBloc(
-            view: view,
+            view: widget.view,
           ),
         ),
       ],
@@ -80,23 +98,56 @@ class ViewTitleBar extends StatelessWidget {
               if (ancestors.isEmpty) {
                 return const SizedBox.shrink();
               }
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  height: 24,
-                  child: Row(
-                    children: [
-                      ..._buildViewTitles(
-                        context,
-                        ancestors,
-                        state.isDeleted,
-                        pageAccessLevelState.isEditable,
-                        pageAccessLevelState,
+
+              // Build a cache key from inputs that influence breadcrumb widgets.
+              final currentKey = '${ancestors.map((a) => a.id).join(',')}|${state.isDeleted}|${pageAccessLevelState.isEditable}|${pageAccessLevelState.sectionType.name}';
+
+              if (_cachedKey != currentKey || _cachedBreadcrumbs.isEmpty) {
+                _cachedBreadcrumbs = _buildViewTitles(
+                  context,
+                  ancestors,
+                  state.isDeleted,
+                  pageAccessLevelState.isEditable,
+                  pageAccessLevelState,
+                );
+                _cachedKey = currentKey;
+              }
+
+              // Use a horizontally scrolling lazy ListView to avoid building the
+              // entire breadcrumb list eagerly when the viewport only needs a
+              // windowed subset of items.
+              return SizedBox(
+                height: 24,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.zero,
+                  itemCount: ancestors.length - 1, // skip workspace root at index 0
+                  separatorBuilder: (context, index) => const FlowySvg(FlowySvgs.title_bar_divider_s),
+                  itemBuilder: (context, index) {
+                    final i = index + 1; // align with original loop starting at 1
+                    final view = ancestors[i];
+                    final isLast = i == ancestors.length - 1;
+                    if (state.isDeleted && i == ancestors.length - 1) {
+                      // When deleted, fall back to the deleted title builder
+                      return Row(children: _buildDeletedTitle(context, ancestors.last));
+                    }
+
+                    return FlowyTooltip(
+                      key: ValueKey(view.id),
+                      message: view.name,
+                      child: ViewTitle(
+                        view: view,
+                        behavior: isLast && !view.isLocked && pageAccessLevelState.isEditable
+                            ? ViewTitleBehavior.editable
+                            : ViewTitleBehavior.uneditable,
+                        onUpdated: () {
+                          if (context.mounted) {
+                            context.read<ViewTitleBarBloc>().add(const ViewTitleBarEvent.reload());
+                          }
+                        },
                       ),
-                      HSpace(theme.spacing.m),
-                      _buildLockPageStatus(context),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               );
             },
@@ -358,6 +409,7 @@ class ViewTitle extends StatefulWidget {
 class _ViewTitleState extends State<ViewTitle> {
   final popoverController = PopoverController();
   final textEditingController = TextEditingController();
+  ViewTitleState? _latestViewTitleState;
 
   @override
   void dispose() {
@@ -389,6 +441,7 @@ class _ViewTitleState extends State<ViewTitle> {
           widget.onUpdated();
         },
         builder: (context, state) {
+          _latestViewTitleState = state;
           // root view
           if (widget.view.parentViewId.isEmpty) {
             return Row(
@@ -440,22 +493,7 @@ class _ViewTitleState extends State<ViewTitle> {
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 6),
-      popupBuilder: (context) {
-        // icon + textfield
-        _resetTextEditingController(state);
-        return RenameViewPopover(
-          view: widget.view,
-          name: widget.view.name,
-          popoverController: popoverController,
-          icon: widget.view.defaultIcon(),
-          emoji: state.icon,
-          tabs: const [
-            PickerTabType.emoji,
-            PickerTabType.icon,
-            PickerTabType.custom,
-          ],
-        );
-      },
+      popupBuilder: _buildRenamePopover,
       child: SizedBox(
         height: 32.0,
         child: FlowyButton(
@@ -464,6 +502,33 @@ class _ViewTitleState extends State<ViewTitle> {
           text: _buildIconAndName(context, state, true),
         ),
       ),
+    );
+  }
+
+  Widget _buildRenamePopover(BuildContext context) {
+    final state = _latestViewTitleState;
+    if (state == null) {
+      // fallback to current bloc state if called before builder set it
+      final s = context.read<ViewTitleBloc>().state;
+      _resetTextEditingController(s);
+      return RenameViewPopover(
+        view: widget.view,
+        name: widget.view.name,
+        popoverController: popoverController,
+        icon: widget.view.defaultIcon(),
+        emoji: s.icon,
+        tabs: const [PickerTabType.emoji, PickerTabType.icon, PickerTabType.custom],
+      );
+    }
+
+    _resetTextEditingController(state);
+    return RenameViewPopover(
+      view: widget.view,
+      name: widget.view.name,
+      popoverController: popoverController,
+      icon: widget.view.defaultIcon(),
+      emoji: state.icon,
+      tabs: const [PickerTabType.emoji, PickerTabType.icon, PickerTabType.custom],
     );
   }
 
