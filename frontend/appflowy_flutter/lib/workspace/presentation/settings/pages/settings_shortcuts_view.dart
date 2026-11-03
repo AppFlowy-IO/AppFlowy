@@ -153,23 +153,27 @@ class _ResetButton extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: onReset,
       child: FlowyHover(
-        child: Padding(
+        cursor: SystemMouseCursors.click,
+        builder: (ctx, isHovering) => Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4.0,
             horizontal: 6,
           ),
           child: Row(
             children: [
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.restore_s,
                 size: Size.square(20),
+                color: isHovering ? Theme.of(context).colorScheme.primary : null,
               ),
               const HSpace(6),
               SizedBox(
                 height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  color: isHovering
+                      ? Theme.of(context).colorScheme.primary
+                      : AFThemeExtension.of(context).strongText,
                 ),
               ),
             ],
@@ -339,10 +343,11 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   ),
                 ),
               ),
-              Expanded(
-                child: isEditing
-                    ? _renderKeybindEditor()
-                    : _renderKeybindings(isHovering),
+              Flexible(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: isEditing ? _renderKeybindEditor() : _renderKeybindings(isHovering),
+                ),
               ),
             ],
           ),
@@ -352,6 +357,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   }
 
   Widget _renderKeybindings(bool isHovering) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
@@ -360,7 +366,6 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           ] else ...[
             const SizedBox(height: 24),
           ],
-          const Spacer(),
           if (isHovering)
             GestureDetector(
               onTap: () {
