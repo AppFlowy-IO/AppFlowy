@@ -85,6 +85,19 @@
   "newCalendarText": "Ny kalender",
   "newBoardText": "Ny tavla",
   "noPagesInside": "Inga sidor här",
+  "colors": {
+    "custom": "Egen",
+    "default": "Standard",
+    "red": "Röd",
+    "orange": "Orange",
+    "yellow": "Gul",
+    "green": "Grön",
+    "blue": "Blå",
+    "purple": "Lila",
+    "pink": "Rosa",
+    "brown": "Brun",
+    "gray": "Grå"
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
