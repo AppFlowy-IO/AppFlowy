@@ -129,6 +129,26 @@
       "custom": "Egen"
     }
   },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Dra och släpp en fil, klicka för att ",
+      "placeholderUpload": "läsa in",
+      "placeholderRight": ", eller klistra in en bildlänk.",
+      "dropToUpload": "Släpp filen här för att läsa in den",
+      "change": "Byt"
+    }
+  },
+  "findAndReplace": {
+    "find": "Sök",
+    "previousMatch": "Föregående träff",
+    "nextMatch": "Nästa träff",
+    "close": "Stäng",
+    "replace": "Ersätt",
+    "replaceAll": "Ersätt alla",
+    "noResult": "Inga resultat",
+    "caseSensitive": "Skiftlägeskänslig",
+    "searchMore": "Sök för att hitta fler resultat"
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
