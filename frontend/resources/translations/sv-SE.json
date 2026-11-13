@@ -138,6 +138,16 @@
     "addNote": "Ny anteckning",
     "noAdditionalText": "Ingen ytterligare text"
   },
+  "cardDetails": {
+    "notesPlaceholder": "Skriv / för att infoga ett block, eller börja skriva"
+  },
+  "blockPlaceholders": {
+    "todoList": "Att göra",
+    "bulletList": "Lista",
+    "numberList": "Lista",
+    "quote": "Citat",
+    "heading": "Rubrik {}"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
