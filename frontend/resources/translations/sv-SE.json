@@ -98,6 +98,12 @@
     "brown": "Brun",
     "gray": "Grå"
   },
+  "relativeDates": {
+    "yesterday": "I går",
+    "today": "I dag",
+    "tomorrow": "I morgon",
+    "oneWeek": "1 vecka"
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
