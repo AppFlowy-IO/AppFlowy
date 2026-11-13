@@ -80,6 +80,11 @@
   },
   "blankPageTitle": "Tom sida",
   "newPageText": "Ny sida",
+  "newDocumentText": "Nytt dokument",
+  "newGridText": "Nytt rutnät",
+  "newCalendarText": "Ny kalender",
+  "newBoardText": "Ny tavla",
+  "noPagesInside": "Inga sidor här",
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
