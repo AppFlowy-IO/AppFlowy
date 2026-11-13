@@ -117,6 +117,14 @@
     "removeFromSidebar": "Ta bort från sidofältet",
     "addToSidebar": "Fäst i sidofältet"
   },
+  "noLogFiles": "Det finns inga loggfiler",
+  "openFileMessage": {
+    "success": "Filen öppnades",
+    "fileNotFound": "Filen hittades inte",
+    "noAppToOpenFile": "Ingen app kan öppna filen",
+    "permissionDenied": "Du har inte behörighet att öppna filen",
+    "unknownError": "Det gick inte att öppna filen"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
