@@ -175,6 +175,28 @@
     "requestError": "Det gick inte att begära åtkomst",
     "repeatRequestError": "Du har redan begärt åtkomst till sidan"
   },
+  "approveAccess": {
+    "title": "Godkänn begäran om att gå med i arbetsytan",
+    "requestSummary": "<user/> vill gå med i <workspace/> och få åtkomst till <page/>",
+    "upgrade": "uppgradera",
+    "downloadApp": "Hämta AppFlowy",
+    "approveButton": "Godkänn",
+    "approveSuccess": "Godkänd",
+    "approveError": "Det gick inte att godkänna. Kontrollera att arbetsytans abonnemangsgräns inte har överskridits.",
+    "getRequestInfoError": "Det gick inte att hämta information om begäran",
+    "memberCount": {
+      "zero": "Inga medlemmar",
+      "one": "1 medlem",
+      "many": "{count} medlemmar",
+      "other": "{count} medlemmar"
+    },
+    "alreadyProTitle": "Du har nått abonnemangsgränsen för arbetsytan",
+    "alreadyProMessage": "Be personen kontakta <email/> för att få fler medlemsplatser",
+    "repeatApproveError": "Du har redan godkänt den här begäran",
+    "ensurePlanLimit": "Kontrollera att arbetsytans abonnemangsgräns inte har överskridits. Om gränsen har överskridits kan du <upgrade/> arbetsytans abonnemang eller <download/>.",
+    "requestToJoin": "vill gå med",
+    "asMember": "som medlem"
+  },
   "titleBar": {
     "pageIcon": "Sidans ikon",
     "language": "Språk",
