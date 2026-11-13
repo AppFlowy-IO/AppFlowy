@@ -149,6 +149,43 @@
     "caseSensitive": "Skiftlägeskänslig",
     "searchMore": "Sök för att hitta fler resultat"
   },
+  "notificationHub": {
+    "title": "Aviseringar",
+    "closeNotification": "Stäng avisering",
+    "viewNotifications": "Visa aviseringar",
+    "noNotifications": "Inga aviseringar ännu",
+    "mentionedYou": "Nämnde dig",
+    "archivedTooltip": "Arkivera avisering",
+    "unarchiveTooltip": "Återställ avisering",
+    "markAsReadTooltip": "Markera avisering som läst",
+    "markAsArchivedSucceedToast": "Arkiverades",
+    "markAllAsArchivedSucceedToast": "Alla arkiverades",
+    "markAsReadSucceedToast": "Markerades som läst",
+    "markAllAsReadSucceedToast": "Alla markerades som lästa",
+    "today": "I dag",
+    "older": "Äldre",
+    "mobile": {
+      "title": "Uppdateringar"
+    },
+    "emptyTitle": "Du är ikapp!",
+    "emptyBody": "Inga väntande aviseringar eller åtgärder. Njut av lugnet.",
+    "tabs": {
+      "inbox": "Inkorg",
+      "upcoming": "Kommande"
+    },
+    "actions": {
+      "markAllRead": "Markera alla som lästa",
+      "showAll": "Alla",
+      "showUnreads": "Olästa"
+    },
+    "filters": {
+      "ascending": "Stigande",
+      "descending": "Fallande",
+      "groupByDate": "Gruppera efter datum",
+      "showUnreadsOnly": "Visa endast olästa",
+      "resetToDefault": "Återställ standardvärden"
+    }
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
