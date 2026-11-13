@@ -104,6 +104,13 @@
     "tomorrow": "I morgon",
     "oneWeek": "1 vecka"
   },
+  "reminderNotification": {
+    "title": "Påminnelse",
+    "message": "Kom ihåg att kontrollera detta innan du glömmer bort det!",
+    "tooltipDelete": "Ta bort",
+    "tooltipMarkRead": "Markera som läst",
+    "tooltipMarkUnread": "Markera som oläst"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
