@@ -104,6 +104,31 @@
     "tomorrow": "I morgon",
     "oneWeek": "1 vecka"
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
+    "dateFormat": "Datumformat",
+    "includeTime": "Inkludera tid",
+    "isRange": "Slutdatum",
+    "timeFormat": "Tidsformat",
+    "clearDate": "Rensa datum",
+    "reminderLabel": "Påminnelse",
+    "selectReminder": "Välj påminnelse",
+    "reminderOptions": {
+      "none": "Ingen",
+      "atTimeOfEvent": "Vid händelsens tidpunkt",
+      "fiveMinsBefore": "5 min före",
+      "tenMinsBefore": "10 min före",
+      "fifteenMinsBefore": "15 min före",
+      "thirtyMinsBefore": "30 min före",
+      "oneHourBefore": "1 timme före",
+      "twoHoursBefore": "2 timmar före",
+      "onDayOfEvent": "På dagen för händelsen",
+      "oneDayBefore": "1 dag före",
+      "twoDaysBefore": "2 dagar före",
+      "oneWeekBefore": "1 vecka före",
+      "custom": "Egen"
+    }
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
