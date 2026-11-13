@@ -125,6 +125,19 @@
     "permissionDenied": "Du har inte behörighet att öppna filen",
     "unknownError": "Det gick inte att öppna filen"
   },
+  "quickNote": {
+    "label": "Snabbanteckning",
+    "quickNotes": "Snabbanteckningar",
+    "search": "Sök bland snabbanteckningar",
+    "collapseFullView": "Minska vyn",
+    "expandFullView": "Utöka vyn",
+    "createFailed": "Kunde inte skapa snabbanteckning",
+    "quickNotesEmpty": "Inga snabbanteckningar",
+    "emptyNote": "Tom anteckning",
+    "deleteNotePrompt": "Den valda anteckningen tas bort permanent. Vill du fortsätta?",
+    "addNote": "Ny anteckning",
+    "noAdditionalText": "Ingen ytterligare text"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
