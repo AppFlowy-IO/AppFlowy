@@ -111,6 +111,12 @@
     "tooltipMarkRead": "Markera som läst",
     "tooltipMarkUnread": "Markera som oläst"
   },
+  "favorite": {
+    "noFavorite": "Inga favoritsidor",
+    "noFavoriteHintText": "Svep sidan åt vänster för att lägga till den bland dina favoriter",
+    "removeFromSidebar": "Ta bort från sidofältet",
+    "addToSidebar": "Fäst i sidofältet"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
