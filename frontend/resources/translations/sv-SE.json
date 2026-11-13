@@ -148,6 +148,21 @@
     "quote": "Citat",
     "heading": "Rubrik {}"
   },
+  "inlineActions": {
+    "noResults": "Inga resultat",
+    "recentPages": "Senaste sidorna",
+    "pageReference": "Hänvisning till sida",
+    "docReference": "Hänvisning till dokument",
+    "boardReference": "Hänvisning till tavla",
+    "calReference": "Hänvisning till kalender",
+    "gridReference": "Hänvisning till rutnät",
+    "date": "Datum",
+    "reminder": {
+      "groupTitle": "Påminnelse",
+      "shortKeyword": "påminn"
+    },
+    "createPage": "Skapa undersidan \"{}\""
+  },
   "titleBar": {
     "pageIcon": "Sidans ikon",
     "language": "Språk",
