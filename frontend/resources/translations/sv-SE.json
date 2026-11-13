@@ -148,6 +148,15 @@
     "quote": "Citat",
     "heading": "Rubrik {}"
   },
+  "titleBar": {
+    "pageIcon": "Sidikon",
+    "language": "Språk",
+    "font": "Typsnitt",
+    "actions": "Åtgärder",
+    "date": "Datum",
+    "addField": "Lägg till fält",
+    "userIcon": "Användarikon"
+  },
   "datePicker": {
     "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
     "dateFormat": "Datumformat",
