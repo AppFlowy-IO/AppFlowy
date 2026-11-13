@@ -80,6 +80,238 @@
   },
   "blankPageTitle": "Tom sida",
   "newPageText": "Ny sida",
+  "newDocumentText": "Nytt dokument",
+  "newGridText": "Nytt rutnät",
+  "newCalendarText": "Ny kalender",
+  "newBoardText": "Ny tavla",
+  "noPagesInside": "Inga sidor här",
+  "colors": {
+    "custom": "Egen",
+    "default": "Standard",
+    "red": "Röd",
+    "orange": "Orange",
+    "yellow": "Gul",
+    "green": "Grön",
+    "blue": "Blå",
+    "purple": "Lila",
+    "pink": "Rosa",
+    "brown": "Brun",
+    "gray": "Grå"
+  },
+  "relativeDates": {
+    "yesterday": "I går",
+    "today": "I dag",
+    "tomorrow": "I morgon",
+    "oneWeek": "1 vecka"
+  },
+  "reminderNotification": {
+    "title": "Påminnelse",
+    "message": "Kom ihåg att kontrollera detta innan du glömmer bort det!",
+    "tooltipDelete": "Ta bort",
+    "tooltipMarkRead": "Markera som läst",
+    "tooltipMarkUnread": "Markera som oläst"
+  },
+  "favorite": {
+    "noFavorite": "Inga favoritsidor",
+    "noFavoriteHintText": "Svep sidan åt vänster för att lägga till den bland dina favoriter",
+    "removeFromSidebar": "Ta bort från sidofältet",
+    "addToSidebar": "Fäst i sidofältet"
+  },
+  "noLogFiles": "Det finns inga loggfiler",
+  "openFileMessage": {
+    "success": "Filen öppnades",
+    "fileNotFound": "Filen hittades inte",
+    "noAppToOpenFile": "Ingen app kan öppna filen",
+    "permissionDenied": "Du har inte behörighet att öppna filen",
+    "unknownError": "Det gick inte att öppna filen"
+  },
+  "quickNote": {
+    "label": "Snabbanteckning",
+    "quickNotes": "Snabbanteckningar",
+    "search": "Sök bland snabbanteckningar",
+    "collapseFullView": "Minska vyn",
+    "expandFullView": "Utöka vyn",
+    "createFailed": "Kunde inte skapa snabbanteckning",
+    "quickNotesEmpty": "Inga snabbanteckningar",
+    "emptyNote": "Tom anteckning",
+    "deleteNotePrompt": "Den valda anteckningen tas bort permanent. Vill du fortsätta?",
+    "addNote": "Ny anteckning",
+    "noAdditionalText": "Ingen ytterligare text"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Skriv / för att infoga ett block, eller börja skriva"
+  },
+  "blockPlaceholders": {
+    "todoList": "Att göra",
+    "bulletList": "Lista",
+    "numberList": "Lista",
+    "quote": "Citat",
+    "heading": "Rubrik {}"
+  },
+  "inlineActions": {
+    "noResults": "Inga resultat",
+    "recentPages": "Senaste sidorna",
+    "pageReference": "Hänvisning till sida",
+    "docReference": "Hänvisning till dokument",
+    "boardReference": "Hänvisning till tavla",
+    "calReference": "Hänvisning till kalender",
+    "gridReference": "Hänvisning till rutnät",
+    "date": "Datum",
+    "reminder": {
+      "groupTitle": "Påminnelse",
+      "shortKeyword": "påminn"
+    },
+    "createPage": "Skapa undersidan \"{}\""
+  },
+  "requestAccess": {
+    "title": "Du har inte åtkomst till den här sidan",
+    "subtitle": "Du kan begära åtkomst från sidans ägare. När begäran har godkänts kan du visa sidan.",
+    "requestAccess": "Begär åtkomst",
+    "backToHome": "Tillbaka till startsidan",
+    "tip": "Du är inloggad som <link/>.",
+    "mightBe": "Du kanske behöver <login/> med ett annat konto.",
+    "successful": "Begäran har skickats",
+    "successfulMessage": "Du får en avisering när sidans ägare godkänner din begäran.",
+    "requestError": "Det gick inte att begära åtkomst",
+    "repeatRequestError": "Du har redan begärt åtkomst till sidan"
+  },
+  "approveAccess": {
+    "title": "Godkänn begäran om att gå med i arbetsytan",
+    "requestSummary": "<user/> vill gå med i <workspace/> och få åtkomst till <page/>",
+    "upgrade": "uppgradera",
+    "downloadApp": "Hämta AppFlowy",
+    "approveButton": "Godkänn",
+    "approveSuccess": "Godkänd",
+    "approveError": "Det gick inte att godkänna. Kontrollera att arbetsytans abonnemangsgräns inte har överskridits.",
+    "getRequestInfoError": "Det gick inte att hämta information om begäran",
+    "memberCount": {
+      "zero": "Inga medlemmar",
+      "one": "1 medlem",
+      "many": "{count} medlemmar",
+      "other": "{count} medlemmar"
+    },
+    "alreadyProTitle": "Du har nått abonnemangsgränsen för arbetsytan",
+    "alreadyProMessage": "Be personen kontakta <email/> för att få fler medlemsplatser",
+    "repeatApproveError": "Du har redan godkänt den här begäran",
+    "ensurePlanLimit": "Kontrollera att arbetsytans abonnemangsgräns inte har överskridits. Om gränsen har överskridits kan du <upgrade/> arbetsytans abonnemang eller <download/>.",
+    "requestToJoin": "vill gå med",
+    "asMember": "som medlem"
+  },
+  "invitation": {
+    "join": "Gå med",
+    "on": "på",
+    "invitedBy": "Inbjuden av",
+    "membersCount": {
+      "zero": "{count} medlemmar",
+      "one": "{count} medlem",
+      "many": "{count} medlemmar",
+      "other": "{count} medlemmar"
+    },
+    "tip": "Du har bjudits in att gå med i den här arbetsytan med kontaktuppgifterna nedan. Om något inte stämmer kan du kontakta administratören och be om en ny inbjudan.",
+    "joinWorkspace": "Gå med i arbetsytan",
+    "success": "Du har gått med i arbetsytan",
+    "successMessage": "Du har nu åtkomst till alla sidor och arbetsytor som ingår i den.",
+    "openWorkspace": "Öppna AppFlowy",
+    "alreadyAccepted": "Du har redan accepterat inbjudan",
+    "errorModal": {
+      "title": "Något gick fel",
+      "description": "Ditt nuvarande konto {email} kanske inte har åtkomst till den här arbetsytan. Logga in med rätt konto eller kontakta arbetsytans ägare om du behöver hjälp.",
+      "contactOwner": "Kontakta ägaren",
+      "close": "Tillbaka till startsidan",
+      "changeAccount": "Byt konto"
+    }
+  },
+  "titleBar": {
+    "pageIcon": "Sidans ikon",
+    "language": "Språk",
+    "font": "Typsnitt",
+    "actions": "Åtgärder",
+    "date": "Datum",
+    "addField": "Lägg till fält",
+    "userIcon": "Användarikon"
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Ändra datum- och tidsformatet i inställningarna",
+    "dateFormat": "Datumformat",
+    "includeTime": "Inkludera tid",
+    "isRange": "Slutdatum",
+    "timeFormat": "Tidsformat",
+    "clearDate": "Rensa datum",
+    "reminderLabel": "Påminnelse",
+    "selectReminder": "Välj påminnelse",
+    "reminderOptions": {
+      "none": "Ingen",
+      "atTimeOfEvent": "Vid händelsens tidpunkt",
+      "fiveMinsBefore": "5 min före",
+      "tenMinsBefore": "10 min före",
+      "fifteenMinsBefore": "15 min före",
+      "thirtyMinsBefore": "30 min före",
+      "oneHourBefore": "1 timme före",
+      "twoHoursBefore": "2 timmar före",
+      "onDayOfEvent": "På dagen för händelsen",
+      "oneDayBefore": "1 dag före",
+      "twoDaysBefore": "2 dagar före",
+      "oneWeekBefore": "1 vecka före",
+      "custom": "Egen"
+    }
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Dra och släpp en fil, klicka för att ",
+      "placeholderUpload": "läsa in",
+      "placeholderRight": ", eller klistra in en bildlänk.",
+      "dropToUpload": "Släpp filen här för att läsa in den",
+      "change": "Byt"
+    }
+  },
+  "findAndReplace": {
+    "find": "Sök",
+    "previousMatch": "Föregående träff",
+    "nextMatch": "Nästa träff",
+    "close": "Stäng",
+    "replace": "Ersätt",
+    "replaceAll": "Ersätt alla",
+    "noResult": "Inga resultat",
+    "caseSensitive": "Skiftlägeskänslig",
+    "searchMore": "Sök för att hitta fler resultat"
+  },
+  "notificationHub": {
+    "title": "Aviseringar",
+    "closeNotification": "Stäng avisering",
+    "viewNotifications": "Visa aviseringar",
+    "noNotifications": "Inga aviseringar ännu",
+    "mentionedYou": "Nämnde dig",
+    "archivedTooltip": "Arkivera avisering",
+    "unarchiveTooltip": "Återställ avisering",
+    "markAsReadTooltip": "Markera avisering som läst",
+    "markAsArchivedSucceedToast": "Arkiverades",
+    "markAllAsArchivedSucceedToast": "Alla arkiverades",
+    "markAsReadSucceedToast": "Markerades som läst",
+    "markAllAsReadSucceedToast": "Alla markerades som lästa",
+    "today": "I dag",
+    "older": "Äldre",
+    "mobile": {
+      "title": "Uppdateringar"
+    },
+    "emptyTitle": "Du är ikapp!",
+    "emptyBody": "Inga väntande aviseringar eller åtgärder. Njut av lugnet.",
+    "tabs": {
+      "inbox": "Inkorg",
+      "upcoming": "Kommande"
+    },
+    "actions": {
+      "markAllRead": "Markera alla som lästa",
+      "showAll": "Alla",
+      "showUnreads": "Olästa"
+    },
+    "filters": {
+      "ascending": "Stigande",
+      "descending": "Fallande",
+      "groupByDate": "Gruppera efter datum",
+      "showUnreadsOnly": "Visa endast olästa",
+      "resetToDefault": "Återställ standardvärden"
+    }
+  },
   "trash": {
     "text": "Skräp",
     "restoreAll": "Återställ alla",
