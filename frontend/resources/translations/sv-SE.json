@@ -163,6 +163,18 @@
     },
     "createPage": "Skapa undersidan \"{}\""
   },
+  "requestAccess": {
+    "title": "Du har inte åtkomst till den här sidan",
+    "subtitle": "Du kan begära åtkomst från sidans ägare. När begäran har godkänts kan du visa sidan.",
+    "requestAccess": "Begär åtkomst",
+    "backToHome": "Tillbaka till startsidan",
+    "tip": "Du är inloggad som <link/>.",
+    "mightBe": "Du kanske behöver <login/> med ett annat konto.",
+    "successful": "Begäran har skickats",
+    "successfulMessage": "Du får en avisering när sidans ägare godkänner din begäran.",
+    "requestError": "Det gick inte att begära åtkomst",
+    "repeatRequestError": "Du har redan begärt åtkomst till sidan"
+  },
   "titleBar": {
     "pageIcon": "Sidans ikon",
     "language": "Språk",
