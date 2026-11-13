@@ -197,6 +197,30 @@
     "requestToJoin": "vill gå med",
     "asMember": "som medlem"
   },
+  "invitation": {
+    "join": "Gå med",
+    "on": "på",
+    "invitedBy": "Inbjuden av",
+    "membersCount": {
+      "zero": "{count} medlemmar",
+      "one": "{count} medlem",
+      "many": "{count} medlemmar",
+      "other": "{count} medlemmar"
+    },
+    "tip": "Du har bjudits in att gå med i den här arbetsytan med kontaktuppgifterna nedan. Om något inte stämmer kan du kontakta administratören och be om en ny inbjudan.",
+    "joinWorkspace": "Gå med i arbetsytan",
+    "success": "Du har gått med i arbetsytan",
+    "successMessage": "Du har nu åtkomst till alla sidor och arbetsytor som ingår i den.",
+    "openWorkspace": "Öppna AppFlowy",
+    "alreadyAccepted": "Du har redan accepterat inbjudan",
+    "errorModal": {
+      "title": "Något gick fel",
+      "description": "Ditt nuvarande konto {email} kanske inte har åtkomst till den här arbetsytan. Logga in med rätt konto eller kontakta arbetsytans ägare om du behöver hjälp.",
+      "contactOwner": "Kontakta ägaren",
+      "close": "Tillbaka till startsidan",
+      "changeAccount": "Byt konto"
+    }
+  },
   "titleBar": {
     "pageIcon": "Sidans ikon",
     "language": "Språk",
