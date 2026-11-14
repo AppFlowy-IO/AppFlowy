@@ -2416,8 +2416,8 @@
     "membersCount": {
       "zero": "Không có thành viên",
       "one": "1 thành viên",
-      "many": "{đếm} thành viên",
-      "other": "{đếm} thành viên"
+      "many": "{count} thành viên",
+      "other": "{count} thành viên"
     },
     "useThisTemplate": "Sử dụng mẫu"
   },
@@ -2447,7 +2447,7 @@
     "addComment": "Thêm bình luận",
     "reactedBy": "phản ứng bởi",
     "addReaction": "Thêm phản ứng",
-    "reactedByMore": "và {đếm} người khác",
+    "reactedByMore": "và {count} người khác",
     "showSeconds": {
       "one": "1 giây trước",
       "other": "{count} giây trước",
@@ -2476,8 +2476,8 @@
     },
     "showYears": {
       "one": "1 năm trước",
-      "other": "{đếm} năm trước",
-      "many": "{đếm} năm trước"
+      "other": "{count} năm trước",
+      "many": "{count} năm trước"
     },
     "reply": "Hồi đáp",
     "deleteComment": "Xóa bình luận",

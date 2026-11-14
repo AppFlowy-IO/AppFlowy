@@ -294,7 +294,7 @@
     "openMenu": "Menü öffnen",
     "dragRow": "Gedrückt halten, um die Zeile neu anzuordnen",
     "viewDataBase": "Datenbank ansehen",
-    "referencePage": "Auf diesen {Name} wird verwiesen",
+    "referencePage": "Auf diesen {name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
     "aiGenerate": "Erzeugen",
     "urlLaunchAccessory": "Im Browser öffnen",
@@ -2700,8 +2700,8 @@
     "signInError": "Anmeldefehler",
     "login": "Registrieren oder anmelden",
     "fileBlock": {
-      "uploadedAt": "Hochgeladen am {Zeit}",
-      "linkedAt": "Link hinzugefügt am {Zeit}",
+      "uploadedAt": "Hochgeladen am {time}",
+      "linkedAt": "Link hinzugefügt am {time}",
       "empty": "Hochladen oder Einbetten einer Datei"
     },
     "importNotion": "Importieren aus Notion",
