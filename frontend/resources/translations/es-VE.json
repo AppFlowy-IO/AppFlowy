@@ -261,7 +261,7 @@
     "openMenu": "Haga clic para abrir el menú",
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
-    "referencePage": "Se hace referencia a este {nombre}",
+    "referencePage": "Se hace referencia a este {name}",
     "addBlockBelow": "Añadir un bloque a continuación",
     "aiGenerate": "Generar"
   },
