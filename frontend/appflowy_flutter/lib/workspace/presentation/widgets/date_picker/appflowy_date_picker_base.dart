@@ -21,7 +21,6 @@ abstract class AppFlowyDatePicker extends StatefulWidget {
     required this.dateFormat,
     required this.timeFormat,
     this.firstDayOfWeek,
-    this.startingDayOfWeek,
     this.onDaySelected,
     this.onRangeSelected,
     this.onIncludeTimeChanged,
@@ -36,10 +35,9 @@ abstract class AppFlowyDatePicker extends StatefulWidget {
   final TimeFormatPB timeFormat;
 
   final int? firstDayOfWeek;
-  final StartingDayOfWeek? startingDayOfWeek;
 
-  StartingDayOfWeek get resolvedStartingDayOfWeek =>
-      startingDayOfWeek ?? startingDayOfWeekFromInt(firstDayOfWeek);
+  StartingDayOfWeek get startingDayOfWeek =>
+      startingDayOfWeekFromInt(firstDayOfWeek);
 
   /// Called when the date is picked, whether by submitting a date from the top
   /// or by selecting a date in the calendar. Will not be called if isRange is

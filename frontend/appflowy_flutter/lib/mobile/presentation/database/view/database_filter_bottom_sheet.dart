@@ -6,6 +6,8 @@ import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_fi
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
@@ -13,6 +15,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_select_option_editor.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -1081,8 +1084,16 @@ class _DateTimeFilterContentEditorState
 
   @override
   Widget build(BuildContext context) {
+    final firstDayOfWeek =
+        context.read<CalendarBloc?>()?.state.settings?.firstDayOfWeek ??
+            context
+                .read<CalendarSettingBloc?>()
+                ?.state
+                .layoutSetting
+                ?.firstDayOfWeek;
     return MobileDatePicker(
       isRange: isRange,
+      startingDayOfWeek: startingDayOfWeekFromInt(firstDayOfWeek),
       selectedDay: isRange ? widget.filter.start : widget.filter.timestamp,
       startDay: isRange ? widget.filter.start : null,
       endDay: isRange ? widget.filter.end : null,

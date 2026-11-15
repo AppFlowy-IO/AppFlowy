@@ -3,6 +3,8 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
@@ -16,10 +18,12 @@ class MobileDateCellEditScreen extends StatefulWidget {
     super.key,
     required this.controller,
     this.showAsFullScreen = true,
+    this.firstDayOfWeek,
   });
 
   final DateCellController controller;
   final bool showAsFullScreen;
+  final int? firstDayOfWeek;
 
   static const routeName = '/edit_date_cell';
 
@@ -28,6 +32,8 @@ class MobileDateCellEditScreen extends StatefulWidget {
 
   // bool value, default is true
   static const fullScreen = 'full_screen';
+
+  static const firstDayOfWeekArg = 'first_day_of_week';
 
   @override
   State<MobileDateCellEditScreen> createState() =>
@@ -79,6 +85,13 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
           final dateCellBloc = context.read<DateCellEditorBloc>();
+          final firstDayOfWeek = widget.firstDayOfWeek ??
+              context.read<CalendarBloc?>()?.state.settings?.firstDayOfWeek ??
+              context
+                  .read<CalendarSettingBloc?>()
+                  ?.state
+                  .layoutSetting
+                  ?.firstDayOfWeek;
           return MobileAppFlowyDatePicker(
             dateTime: state.dateTime,
             endDateTime: state.endDateTime,
@@ -87,6 +100,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             dateFormat: state.dateTypeOptionPB.dateFormat,
             timeFormat: state.dateTypeOptionPB.timeFormat,
             reminderOption: state.reminderOption,
+            firstDayOfWeek: firstDayOfWeek,
             onDaySelected: (selectedDay) {
               dateCellBloc.add(DateCellEditorEvent.updateDateTime(selectedDay));
             },

@@ -424,8 +424,15 @@ void showEventDetails({
   FlowyOverlay.show(
     context: context,
     builder: (BuildContext overlayContext) {
-      return BlocProvider.value(
-        value: context.read<UserWorkspaceBloc>(),
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider.value(
+            value: context.read<UserWorkspaceBloc>(),
+          ),
+          BlocProvider.value(
+            value: context.read<CalendarBloc>(),
+          ),
+        ],
         child: RowDetailPage(
           rowController: rowController,
           databaseController: databaseController,
@@ -516,16 +523,19 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
       showMobileBottomSheet(
         context,
         builder: (_) {
-          return Column(
-            children: [
-              FlowyText(
-                LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
-              ),
-              UnscheduleEventsList(
-                databaseController: widget.databaseController,
-                unscheduleEvents: events,
-              ),
-            ],
+          return BlocProvider.value(
+            value: context.read<CalendarBloc>(),
+            child: Column(
+              children: [
+                FlowyText(
+                  LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
+                ),
+                UnscheduleEventsList(
+                  databaseController: widget.databaseController,
+                  unscheduleEvents: events,
+                ),
+              ],
+            ),
           );
         },
       );

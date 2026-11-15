@@ -28,7 +28,6 @@ class DesktopAppFlowyDatePicker extends AppFlowyDatePicker {
     required super.dateFormat,
     required super.timeFormat,
     super.firstDayOfWeek,
-    super.startingDayOfWeek,
     super.onDaySelected,
     super.onRangeSelected,
     super.onIncludeTimeChanged,
@@ -108,7 +107,7 @@ class DesktopAppFlowyDatePickerState
             const VSpace(14),
             DatePicker(
               isRange: isRange,
-              startingDayOfWeek: widget.resolvedStartingDayOfWeek,
+              startingDayOfWeek: widget.startingDayOfWeek,
               onDaySelected: (selectedDay, focusedDay) {
                 onDateSelectedFromDatePicker(selectedDay, null);
               },

@@ -28,7 +28,6 @@ class MobileAppFlowyDatePicker extends AppFlowyDatePicker {
     required super.dateFormat,
     required super.timeFormat,
     super.firstDayOfWeek,
-    super.startingDayOfWeek,
     super.onDaySelected,
     super.onRangeSelected,
     super.onIncludeTimeChanged,
@@ -67,7 +66,7 @@ class _MobileAppFlowyDatePickerState
         FlowyOptionDecorateBox(
           child: MobileDatePicker(
             isRange: isRange,
-            startingDayOfWeek: widget.resolvedStartingDayOfWeek,
+            startingDayOfWeek: widget.startingDayOfWeek,
             selectedDay: dateTime,
             startDay: isRange ? startDateTime : null,
             endDay: isRange ? endDateTime : null,

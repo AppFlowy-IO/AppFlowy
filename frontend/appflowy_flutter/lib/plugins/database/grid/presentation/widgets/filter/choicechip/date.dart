@@ -1,5 +1,7 @@
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -198,6 +200,16 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
           child: SingleFilterBlocSelector<DateTimeFilter>(
             filterId: widget.filterId,
             builder: (context, filter, field) {
+              final firstDayOfWeek = context
+                      .read<CalendarBloc?>()
+                      ?.state
+                      .settings
+                      ?.firstDayOfWeek ??
+                  context
+                      .read<CalendarSettingBloc?>()
+                      ?.state
+                      .layoutSetting
+                      ?.firstDayOfWeek;
               return DesktopAppFlowyDatePicker(
                 isRange: isRange,
                 includeTime: false,
@@ -205,6 +217,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                 timeFormat: TimeFormatPB.TwentyFourHour,
                 dateTime: isRange ? filter.start : filter.timestamp,
                 endDateTime: isRange ? filter.end : null,
+                firstDayOfWeek: firstDayOfWeek,
                 onDaySelected: (selectedDay) {
                   final newFilter = isRange
                       ? filter.copyWithRange(start: selectedDay, end: null)
