@@ -2,8 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
@@ -119,13 +118,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             dateFormat: appearance.dateFormat,
             timeFormat: appearance.timeFormat,
             selectedReminderOption: _reminderOption,
-            firstDayOfWeek:
-                context.read<CalendarBloc?>()?.state.settings?.firstDayOfWeek ??
-                    context
-                        .read<CalendarSettingBloc?>()
-                        ?.state
-                        .layoutSetting
-                        ?.firstDayOfWeek,
+            firstDayOfWeek: resolveFirstDayOfWeek(context),
             onIncludeTimeChanged: (includeTime, dateTime, _) {
               _includeTime = includeTime;
 

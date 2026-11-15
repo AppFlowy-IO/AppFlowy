@@ -21,6 +21,7 @@ import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_b
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -53,6 +54,8 @@ class InitAppWidgetTask extends LaunchTask {
     await NotificationService.initialize();
 
     await loadIconGroups();
+
+    await UserFirstDayOfWeek.load();
 
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =

@@ -3,11 +3,10 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -85,13 +84,10 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
           final dateCellBloc = context.read<DateCellEditorBloc>();
-          final firstDayOfWeek = widget.firstDayOfWeek ??
-              context.read<CalendarBloc?>()?.state.settings?.firstDayOfWeek ??
-              context
-                  .read<CalendarSettingBloc?>()
-                  ?.state
-                  .layoutSetting
-                  ?.firstDayOfWeek;
+          final firstDayOfWeek = resolveFirstDayOfWeek(
+            context,
+            explicitFirstDayOfWeek: widget.firstDayOfWeek,
+          );
           return MobileAppFlowyDatePicker(
             dateTime: state.dateTime,
             endDateTime: state.endDateTime,

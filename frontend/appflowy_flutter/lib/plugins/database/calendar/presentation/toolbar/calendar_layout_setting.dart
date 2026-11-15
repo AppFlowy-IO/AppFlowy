@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -291,6 +292,7 @@ class FirstDayOfWeek extends StatelessWidget {
             dayIndex: dayIndex,
             isSelected: firstDayOfWeek == dayIndex,
             onTap: (index) {
+              UserFirstDayOfWeek.set(index);
               onUpdated(index);
               popoverMutex.close();
             },

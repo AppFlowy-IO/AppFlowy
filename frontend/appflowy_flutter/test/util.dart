@@ -3,6 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -22,6 +23,7 @@ class AppFlowyUnitTest {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     _pathProviderInitialized();
+    await UserFirstDayOfWeek.load();
 
     await FlowyRunner.run(
       AppFlowyApplicationUnitTest(),

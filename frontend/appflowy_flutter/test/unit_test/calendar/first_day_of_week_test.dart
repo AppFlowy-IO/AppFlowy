@@ -1,6 +1,8 @@
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:calendar_view/calendar_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -41,6 +43,61 @@ void main() {
       expect(startingDayOfWeekFromInt(5), StartingDayOfWeek.friday);
       // 6 = Saturday (Issue #9134)
       expect(startingDayOfWeekFromInt(6), StartingDayOfWeek.saturday);
+    });
+
+    test('UserFirstDayOfWeek caching and fallback resolution', () {
+      UserFirstDayOfWeek.resetForTesting();
+      expect(UserFirstDayOfWeek.get(), isNull);
+
+      UserFirstDayOfWeek.set(6);
+      expect(UserFirstDayOfWeek.get(), 6);
+
+      UserFirstDayOfWeek.set(1);
+      expect(UserFirstDayOfWeek.get(), 1);
+
+      UserFirstDayOfWeek.set(0);
+      expect(UserFirstDayOfWeek.get(), 0);
+
+      UserFirstDayOfWeek.resetForTesting();
+      expect(UserFirstDayOfWeek.get(), isNull);
+    });
+
+    testWidgets(
+        'resolveFirstDayOfWeek resolves explicit, user preference and fallback',
+        (tester) async {
+      UserFirstDayOfWeek.resetForTesting();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              // 1. Explicit override takes precedence
+              expect(
+                resolveFirstDayOfWeek(context, explicitFirstDayOfWeek: 6),
+                6,
+              );
+              expect(
+                resolveFirstDayOfWeek(context, explicitFirstDayOfWeek: 1),
+                1,
+              );
+
+              // 2. Unset fallback returns null
+              expect(resolveFirstDayOfWeek(context), isNull);
+
+              // 3. User preference fallback (e.g. set in calendar settings)
+              UserFirstDayOfWeek.set(6);
+              expect(resolveFirstDayOfWeek(context), 6);
+
+              UserFirstDayOfWeek.set(1);
+              expect(resolveFirstDayOfWeek(context), 1);
+
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      UserFirstDayOfWeek.resetForTesting();
     });
   });
 }
