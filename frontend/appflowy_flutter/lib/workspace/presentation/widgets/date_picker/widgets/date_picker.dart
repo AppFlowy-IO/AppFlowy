@@ -7,11 +7,32 @@ import 'package:universal_platform/universal_platform.dart';
 final kFirstDay = DateTime.utc(1970);
 final kLastDay = DateTime.utc(2100);
 
+StartingDayOfWeek startingDayOfWeekFromInt(int? dayOfWeek) {
+  switch (dayOfWeek) {
+    case 1:
+      return StartingDayOfWeek.monday;
+    case 2:
+      return StartingDayOfWeek.tuesday;
+    case 3:
+      return StartingDayOfWeek.wednesday;
+    case 4:
+      return StartingDayOfWeek.thursday;
+    case 5:
+      return StartingDayOfWeek.friday;
+    case 6:
+      return StartingDayOfWeek.saturday;
+    case 0:
+    default:
+      return StartingDayOfWeek.sunday;
+  }
+}
+
 class DatePicker extends StatefulWidget {
   const DatePicker({
     super.key,
     required this.isRange,
     this.calendarFormat = CalendarFormat.month,
+    this.startingDayOfWeek = StartingDayOfWeek.sunday,
     this.startDay,
     this.endDay,
     this.selectedDay,
@@ -24,6 +45,7 @@ class DatePicker extends StatefulWidget {
 
   final bool isRange;
   final CalendarFormat calendarFormat;
+  final StartingDayOfWeek startingDayOfWeek;
 
   final DateTime? startDay;
   final DateTime? endDay;
@@ -79,6 +101,7 @@ class _DatePickerState extends State<DatePicker> {
         firstDay: kFirstDay,
         lastDay: kLastDay,
         focusedDay: widget.focusedDay,
+        startingDayOfWeek: widget.startingDayOfWeek,
         rowHeight: calendarStyle.rowHeight,
         calendarFormat: _calendarFormat,
         daysOfWeekHeight: calendarStyle.dowHeight,

@@ -401,9 +401,13 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   WeekDays _weekdayFromInt(int dayOfWeek) {
-    // dayOfWeek starts from Sunday, WeekDays starts from Monday
-    return WeekDays.values[(dayOfWeek - 1) % 7];
+    return calendarWeekDayFromInt(dayOfWeek);
   }
+}
+
+WeekDays calendarWeekDayFromInt(int dayOfWeek) {
+  // dayOfWeek starts from Sunday, WeekDays starts from Monday
+  return WeekDays.values[(dayOfWeek - 1) % 7];
 }
 
 void showEventDetails({

@@ -22,6 +22,7 @@ class DatePickerOptions {
     this.dateFormat = UserDateFormatPB.Friendly,
     this.timeFormat = UserTimeFormatPB.TwentyFourHour,
     this.selectedReminderOption,
+    this.firstDayOfWeek,
     this.onDaySelected,
     this.onRangeSelected,
     this.onIncludeTimeChanged,
@@ -36,6 +37,7 @@ class DatePickerOptions {
   final UserDateFormatPB dateFormat;
   final UserTimeFormatPB timeFormat;
   final ReminderOption? selectedReminderOption;
+  final int? firstDayOfWeek;
 
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
@@ -51,6 +53,7 @@ class DatePickerOptions {
     UserDateFormatPB? dateFormat,
     UserTimeFormatPB? timeFormat,
     ReminderOption? selectedReminderOption,
+    int? firstDayOfWeek,
     DaySelectedCallback? onDaySelected,
     RangeSelectedCallback? onRangeSelected,
     IncludeTimeChangedCallback? onIncludeTimeChanged,
@@ -66,6 +69,7 @@ class DatePickerOptions {
       timeFormat: timeFormat ?? this.timeFormat,
       selectedReminderOption:
           selectedReminderOption ?? this.selectedReminderOption,
+      firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
       onDaySelected: onDaySelected ?? this.onDaySelected,
       onRangeSelected: onRangeSelected ?? this.onRangeSelected,
       onIncludeTimeChanged: onIncludeTimeChanged ?? this.onIncludeTimeChanged,
@@ -208,6 +212,7 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
           dateFormat: options.dateFormat.simplified,
           timeFormat: options.timeFormat.simplified,
           dateTime: options.selectedDay,
+          firstDayOfWeek: options.firstDayOfWeek,
           popoverMutex: widget.popoverMutex,
           reminderOption: options.selectedReminderOption ?? ReminderOption.none,
           onDaySelected: options.onDaySelected == null

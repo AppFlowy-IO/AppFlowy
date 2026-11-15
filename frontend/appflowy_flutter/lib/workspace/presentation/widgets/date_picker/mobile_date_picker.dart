@@ -27,6 +27,8 @@ class MobileAppFlowyDatePicker extends AppFlowyDatePicker {
     super.reminderOption = ReminderOption.none,
     required super.dateFormat,
     required super.timeFormat,
+    super.firstDayOfWeek,
+    super.startingDayOfWeek,
     super.onDaySelected,
     super.onRangeSelected,
     super.onIncludeTimeChanged,
@@ -65,6 +67,7 @@ class _MobileAppFlowyDatePickerState
         FlowyOptionDecorateBox(
           child: MobileDatePicker(
             isRange: isRange,
+            startingDayOfWeek: widget.resolvedStartingDayOfWeek,
             selectedDay: dateTime,
             startDay: isRange ? startDateTime : null,
             endDay: isRange ? endDateTime : null,

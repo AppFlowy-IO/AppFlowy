@@ -106,7 +106,7 @@ class MobileCalendarViewLayoutSettings extends StatelessWidget {
       ),
       FlowyOptionTile.checkbox(
         text: symbols.WEEKDAYS[0],
-        isSelected: firstDayOfWeek! == 0,
+        isSelected: (firstDayOfWeek ?? 0) == 0,
         onTap: () {
           context.read<CalendarSettingBloc>().add(
                 const CalendarSettingEvent.updateLayoutSetting(
@@ -123,6 +123,18 @@ class MobileCalendarViewLayoutSettings extends StatelessWidget {
           context.read<CalendarSettingBloc>().add(
                 const CalendarSettingEvent.updateLayoutSetting(
                   firstDayOfWeek: 1,
+                ),
+              );
+        },
+      ),
+      FlowyOptionTile.checkbox(
+        text: symbols.WEEKDAYS[6],
+        isSelected: firstDayOfWeek == 6,
+        showTopBorder: false,
+        onTap: () {
+          context.read<CalendarSettingBloc>().add(
+                const CalendarSettingEvent.updateLayoutSetting(
+                  firstDayOfWeek: 6,
                 ),
               );
         },

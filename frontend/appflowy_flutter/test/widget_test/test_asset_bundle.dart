@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:appflowy/generated/codegen_loader.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,10 @@ class TestAssetBundle extends CachingAssetBundle {
   Future<String> loadString(String key, {bool cache = true}) async {
     // overriding this method to avoid limit of 10KB per asset
     try {
+      final file = File(key);
+      if (file.existsSync()) {
+        return file.readAsString();
+      }
       final data = await load(key);
       return utf8.decode(data.buffer.asUint8List());
     } catch (err) {
@@ -27,7 +33,14 @@ class TestAssetBundle extends CachingAssetBundle {
   }
 
   @override
-  Future<ByteData> load(String key) async => rootBundle.load(key);
+  Future<ByteData> load(String key) async {
+    final file = File(key);
+    if (file.existsSync()) {
+      final bytes = await file.readAsBytes();
+      return ByteData.sublistView(bytes);
+    }
+    return rootBundle.load(key);
+  }
 }
 
 final testAssetBundle = TestAssetBundle();
@@ -42,6 +55,10 @@ class TestBundleAssetLoader extends AssetLoader {
 
   @override
   Future<Map<String, dynamic>> load(String path, Locale locale) async {
+    final codegenMap = await const CodegenLoader().load(path, locale);
+    if (codegenMap != null) {
+      return codegenMap;
+    }
     final localePath = getLocalePath(path, locale);
     return json.decode(await testAssetBundle.loadString(localePath));
   }

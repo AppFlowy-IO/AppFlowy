@@ -277,16 +277,19 @@ class FirstDayOfWeek extends StatelessWidget {
       triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(-14, 0),
-      popupBuilder: (context) {
-        final symbols =
-            DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
-        // starts from sunday
-        const len = 2;
-        final items = symbols.WEEKDAYS.take(len).indexed.map((entry) {
+      popupBuilder: (popoverContext) {
+        final languageTag =
+            EasyLocalization.of(context)?.locale.toLanguageTag() ??
+                EasyLocalization.of(popoverContext)?.locale.toLanguageTag() ??
+                'en_US';
+        final symbols = DateFormat.EEEE(languageTag).dateSymbols;
+        // starts from sunday (0), monday (1), saturday (6)
+        const supportedDays = [0, 1, 6];
+        final items = supportedDays.map((dayIndex) {
           return StartFromButton(
-            title: entry.$2,
-            dayIndex: entry.$1,
-            isSelected: firstDayOfWeek == entry.$1,
+            title: symbols.WEEKDAYS[dayIndex],
+            dayIndex: dayIndex,
+            isSelected: firstDayOfWeek == dayIndex,
             onTap: (index) {
               onUpdated(index);
               popoverMutex.close();
@@ -295,13 +298,13 @@ class FirstDayOfWeek extends StatelessWidget {
         }).toList();
 
         return SizedBox(
-          width: 100,
+          width: 120,
           child: ListView.separated(
             shrinkWrap: true,
             itemBuilder: (_, index) => items[index],
             separatorBuilder: (_, __) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
-            itemCount: len,
+            itemCount: items.length,
           ),
         );
       },
