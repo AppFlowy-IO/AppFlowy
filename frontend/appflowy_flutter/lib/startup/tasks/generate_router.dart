@@ -725,6 +725,8 @@ GoRoute _mobileDateCellEditScreenRoute() {
       final args = state.extra as Map<String, dynamic>;
       final controller = args[MobileDateCellEditScreen.dateCellController];
       final fullScreen = args[MobileDateCellEditScreen.fullScreen];
+      final firstDayOfWeek =
+          args[MobileDateCellEditScreen.firstDayOfWeekArg] as int?;
       return CustomTransitionPage(
         transitionsBuilder: (_, __, ___, child) => child,
         fullscreenDialog: true,
@@ -734,6 +736,7 @@ GoRoute _mobileDateCellEditScreenRoute() {
         child: MobileDateCellEditScreen(
           controller: controller,
           showAsFullScreen: fullScreen ?? true,
+          firstDayOfWeek: firstDayOfWeek,
         ),
       );
     },

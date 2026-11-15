@@ -13,6 +13,8 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_select_option_editor.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -1081,8 +1083,10 @@ class _DateTimeFilterContentEditorState
 
   @override
   Widget build(BuildContext context) {
+    final firstDayOfWeek = resolveFirstDayOfWeek(context);
     return MobileDatePicker(
       isRange: isRange,
+      startingDayOfWeek: startingDayOfWeekFromInt(firstDayOfWeek),
       selectedDay: isRange ? widget.filter.start : widget.filter.timestamp,
       startDay: isRange ? widget.filter.start : null,
       endDay: isRange ? widget.filter.end : null,

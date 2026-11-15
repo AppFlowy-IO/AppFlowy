@@ -3,7 +3,9 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/da
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker_base.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_time_text_field.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
@@ -11,11 +13,11 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:time/time.dart';
 
 import '../../integration_test/shared/util.dart';
+import '../util.dart';
 import 'test_material_app.dart';
 
 const _mockDatePickerDelay = Duration(milliseconds: 200);
@@ -45,11 +47,13 @@ class _MockDatePicker extends StatefulWidget {
     this.data,
     this.dateFormat,
     this.timeFormat,
+    this.firstDayOfWeek,
   });
 
   final _DatePickerDataStub? data;
   final DateFormatPB? dateFormat;
   final TimeFormatPB? timeFormat;
+  final int? firstDayOfWeek;
 
   @override
   State<_MockDatePicker> createState() => _MockDatePickerState();
@@ -103,6 +107,7 @@ class _MockDatePickerState extends State<_MockDatePicker> {
       isRange: data.isRange,
       dateFormat: dateFormat,
       timeFormat: timeFormat,
+      firstDayOfWeek: widget.firstDayOfWeek,
       onDaySelected: (date) async {
         await Future.delayed(_mockDatePickerDelay);
         setState(() {
@@ -146,9 +151,7 @@ class _MockDatePickerState extends State<_MockDatePicker> {
 
 void main() {
   setUpAll(() async {
-    SharedPreferences.setMockInitialValues({});
-    EasyLocalization.logger.enableLevels = [];
-    await EasyLocalization.ensureInitialized();
+    await AppFlowyUnitTest.ensureInitialized();
   });
 
   Finder dayInDatePicker(int day) {
@@ -908,6 +911,65 @@ void main() {
       expect(afState.endDateTime, expected);
       expect(mockState.data.dateTime, start);
       expect(mockState.data.endDateTime, expected);
+    });
+
+    testWidgets('respects firstDayOfWeek = 6 (Saturday)', (tester) async {
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: const _MockDatePicker(
+            firstDayOfWeek: 6,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final tableCalendarFinder = find.byType(TableCalendar);
+      expect(tableCalendarFinder, findsOneWidget);
+      final tableCalendar = tester.widget<TableCalendar>(tableCalendarFinder);
+      expect(tableCalendar.startingDayOfWeek, StartingDayOfWeek.saturday);
+    });
+
+    testWidgets('respects firstDayOfWeek = 1 (Monday)', (tester) async {
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: const _MockDatePicker(
+            firstDayOfWeek: 1,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final tableCalendarFinder = find.byType(TableCalendar);
+      expect(tableCalendarFinder, findsOneWidget);
+      final tableCalendar = tester.widget<TableCalendar>(tableCalendarFinder);
+      expect(tableCalendar.startingDayOfWeek, StartingDayOfWeek.monday);
+    });
+
+    testWidgets(
+        'MobileAppFlowyDatePicker forwards options.firstDayOfWeek: 6 (Saturday)',
+        (tester) async {
+      final options = DatePickerOptions(
+        firstDayOfWeek: 6,
+      );
+
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: MobileAppFlowyDatePicker(
+            dateTime: DateTime(2026, 11, 15),
+            includeTime: false,
+            isRange: false,
+            dateFormat: DateFormatPB.Friendly,
+            timeFormat: TimeFormatPB.TwentyFourHour,
+            firstDayOfWeek: options.firstDayOfWeek,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final tableCalendarFinder = find.byType(TableCalendar);
+      expect(tableCalendarFinder, findsOneWidget);
+      final tableCalendar = tester.widget<TableCalendar>(tableCalendarFinder);
+      expect(tableCalendar.startingDayOfWeek, StartingDayOfWeek.saturday);
     });
   });
 }

@@ -27,6 +27,7 @@ class DesktopAppFlowyDatePicker extends AppFlowyDatePicker {
     super.reminderOption = ReminderOption.none,
     required super.dateFormat,
     required super.timeFormat,
+    super.firstDayOfWeek,
     super.onDaySelected,
     super.onRangeSelected,
     super.onIncludeTimeChanged,
@@ -106,6 +107,7 @@ class DesktopAppFlowyDatePickerState
             const VSpace(14),
             DatePicker(
               isRange: isRange,
+              startingDayOfWeek: widget.startingDayOfWeek,
               onDaySelected: (selectedDay, focusedDay) {
                 onDateSelectedFromDatePicker(selectedDay, null);
               },

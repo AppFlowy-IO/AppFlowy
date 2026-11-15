@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -106,8 +107,9 @@ class MobileCalendarViewLayoutSettings extends StatelessWidget {
       ),
       FlowyOptionTile.checkbox(
         text: symbols.WEEKDAYS[0],
-        isSelected: firstDayOfWeek! == 0,
+        isSelected: (firstDayOfWeek ?? 0) == 0,
         onTap: () {
+          UserFirstDayOfWeek.set(0);
           context.read<CalendarSettingBloc>().add(
                 const CalendarSettingEvent.updateLayoutSetting(
                   firstDayOfWeek: 0,
@@ -120,9 +122,23 @@ class MobileCalendarViewLayoutSettings extends StatelessWidget {
         isSelected: firstDayOfWeek == 1,
         showTopBorder: false,
         onTap: () {
+          UserFirstDayOfWeek.set(1);
           context.read<CalendarSettingBloc>().add(
                 const CalendarSettingEvent.updateLayoutSetting(
                   firstDayOfWeek: 1,
+                ),
+              );
+        },
+      ),
+      FlowyOptionTile.checkbox(
+        text: symbols.WEEKDAYS[6],
+        isSelected: firstDayOfWeek == 6,
+        showTopBorder: false,
+        onTap: () {
+          UserFirstDayOfWeek.set(6);
+          context.read<CalendarSettingBloc>().add(
+                const CalendarSettingEvent.updateLayoutSetting(
+                  firstDayOfWeek: 6,
                 ),
               );
         },

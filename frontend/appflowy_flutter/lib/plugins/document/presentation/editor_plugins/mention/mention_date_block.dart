@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
@@ -117,6 +118,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             dateFormat: appearance.dateFormat,
             timeFormat: appearance.timeFormat,
             selectedReminderOption: _reminderOption,
+            firstDayOfWeek: resolveFirstDayOfWeek(context),
             onIncludeTimeChanged: (includeTime, dateTime, _) {
               _includeTime = includeTime;
 
@@ -387,6 +389,7 @@ class _DatePickerBottomSheet extends StatelessWidget {
             dateFormat: options.dateFormat.simplified,
             timeFormat: options.timeFormat.simplified,
             reminderOption: reminderOption,
+            firstDayOfWeek: options.firstDayOfWeek,
             onDaySelected: options.onDaySelected,
             onIncludeTimeChanged: options.onIncludeTimeChanged,
             onReminderSelected: onReminderSelected,

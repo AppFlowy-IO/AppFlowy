@@ -7,6 +7,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -198,6 +199,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
           child: SingleFilterBlocSelector<DateTimeFilter>(
             filterId: widget.filterId,
             builder: (context, filter, field) {
+              final firstDayOfWeek = resolveFirstDayOfWeek(context);
               return DesktopAppFlowyDatePicker(
                 isRange: isRange,
                 includeTime: false,
@@ -205,6 +207,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                 timeFormat: TimeFormatPB.TwentyFourHour,
                 dateTime: isRange ? filter.start : filter.timestamp,
                 endDateTime: isRange ? filter.end : null,
+                firstDayOfWeek: firstDayOfWeek,
                 onDaySelected: (selectedDay) {
                   final newFilter = isRange
                       ? filter.copyWithRange(start: selectedDay, end: null)

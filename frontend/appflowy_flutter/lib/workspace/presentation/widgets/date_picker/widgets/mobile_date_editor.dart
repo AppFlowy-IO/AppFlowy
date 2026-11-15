@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class MobileDatePicker extends StatefulWidget {
   const MobileDatePicker({
@@ -13,6 +14,7 @@ class MobileDatePicker extends StatefulWidget {
     this.endDay,
     required this.focusedDay,
     required this.isRange,
+    this.startingDayOfWeek = StartingDayOfWeek.sunday,
     this.onDaySelected,
     this.onRangeSelected,
     this.onPageChanged,
@@ -24,6 +26,7 @@ class MobileDatePicker extends StatefulWidget {
   final DateTime focusedDay;
 
   final bool isRange;
+  final StartingDayOfWeek startingDayOfWeek;
 
   final void Function(DateTime)? onDaySelected;
   final void Function(DateTime?, DateTime?)? onRangeSelected;
@@ -52,6 +55,7 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
   Widget _buildCalendar(BuildContext context) {
     return DatePicker(
       isRange: widget.isRange,
+      startingDayOfWeek: widget.startingDayOfWeek,
       onDaySelected: (selectedDay, _) {
         widget.onDaySelected?.call(selectedDay);
       },

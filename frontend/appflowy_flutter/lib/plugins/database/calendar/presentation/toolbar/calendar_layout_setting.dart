@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -277,17 +278,21 @@ class FirstDayOfWeek extends StatelessWidget {
       triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(-14, 0),
-      popupBuilder: (context) {
-        final symbols =
-            DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
-        // starts from sunday
-        const len = 2;
-        final items = symbols.WEEKDAYS.take(len).indexed.map((entry) {
+      popupBuilder: (popoverContext) {
+        final languageTag =
+            EasyLocalization.of(context)?.locale.toLanguageTag() ??
+                EasyLocalization.of(popoverContext)?.locale.toLanguageTag() ??
+                'en_US';
+        final symbols = DateFormat.EEEE(languageTag).dateSymbols;
+        // starts from sunday (0), monday (1), saturday (6)
+        const supportedDays = [0, 1, 6];
+        final items = supportedDays.map((dayIndex) {
           return StartFromButton(
-            title: entry.$2,
-            dayIndex: entry.$1,
-            isSelected: firstDayOfWeek == entry.$1,
+            title: symbols.WEEKDAYS[dayIndex],
+            dayIndex: dayIndex,
+            isSelected: firstDayOfWeek == dayIndex,
             onTap: (index) {
+              UserFirstDayOfWeek.set(index);
               onUpdated(index);
               popoverMutex.close();
             },
@@ -295,13 +300,13 @@ class FirstDayOfWeek extends StatelessWidget {
         }).toList();
 
         return SizedBox(
-          width: 100,
+          width: 120,
           child: ListView.separated(
             shrinkWrap: true,
             itemBuilder: (_, index) => items[index],
             separatorBuilder: (_, __) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
-            itemCount: len,
+            itemCount: items.length,
           ),
         );
       },

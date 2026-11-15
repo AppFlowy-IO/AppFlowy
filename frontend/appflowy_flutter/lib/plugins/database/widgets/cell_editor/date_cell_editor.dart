@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -16,10 +17,12 @@ class DateCellEditor extends StatefulWidget {
     super.key,
     required this.onDismissed,
     required this.cellController,
+    this.firstDayOfWeek,
   });
 
   final VoidCallback onDismissed;
   final DateCellController cellController;
+  final int? firstDayOfWeek;
 
   @override
   State<StatefulWidget> createState() => _DateCellEditor();
@@ -44,6 +47,10 @@ class _DateCellEditor extends State<DateCellEditor> {
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
           final dateCellBloc = context.read<DateCellEditorBloc>();
+          final firstDayOfWeek = resolveFirstDayOfWeek(
+            context,
+            explicitFirstDayOfWeek: widget.firstDayOfWeek,
+          );
           return DesktopAppFlowyDatePicker(
             dateTime: state.dateTime,
             endDateTime: state.endDateTime,
@@ -53,6 +60,7 @@ class _DateCellEditor extends State<DateCellEditor> {
             isRange: state.isRange,
             reminderOption: state.reminderOption,
             popoverMutex: popoverMutex,
+            firstDayOfWeek: firstDayOfWeek,
             options: [
               OptionGroup(
                 options: [

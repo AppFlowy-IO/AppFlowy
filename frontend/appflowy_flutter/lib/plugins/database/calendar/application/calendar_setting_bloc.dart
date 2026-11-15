@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/domain/layout_setting_listener.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:bloc/bloc.dart';
@@ -80,6 +81,7 @@ class CalendarSettingBloc
 
       if (firstDayOfWeek != null) {
         setting.firstDayOfWeek = firstDayOfWeek;
+        UserFirstDayOfWeek.set(firstDayOfWeek);
       }
 
       if (layoutFieldId != null) {

@@ -49,6 +49,10 @@ class KVKeys {
   ///  {'SidebarFolderCategoryType.value': true}
   static const String expandedFolders = 'expandedFolders';
 
+  /// The key for saving the user's preferred first day of the week.
+  /// 0: Sunday, 1: Monday, 6: Saturday.
+  static const String firstDayOfWeek = 'firstDayOfWeek';
+
   /// @deprecated in version 0.7.6
   /// The key for saving if showing the rename dialog when creating a new file
   ///

@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.d
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_first_day_of_week.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class DesktopRowDetailDateCellSkin extends IEditableDateCellSkin {
     DateCellState state,
     PopoverController popoverController,
   ) {
+    final firstDayOfWeek = resolveFirstDayOfWeek(context);
     final dateStr = getDateCellStrFromCellData(
       state.fieldInfo,
       state.cellData,
@@ -59,6 +61,7 @@ class DesktopRowDetailDateCellSkin extends IEditableDateCellSkin {
       popupBuilder: (BuildContext popoverContent) {
         return DateCellEditor(
           cellController: bloc.cellController,
+          firstDayOfWeek: firstDayOfWeek,
           onDismissed: () => cellContainerNotifier.isFocus = false,
         );
       },
