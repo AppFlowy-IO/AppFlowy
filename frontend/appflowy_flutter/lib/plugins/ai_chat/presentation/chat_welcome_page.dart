@@ -26,40 +26,47 @@ class ChatWelcomePage extends StatelessWidget {
   ];
 
   static final List<List<String>> mobileItems = [
-    [
-      LocaleKeys.chat_question1.tr(),
-      LocaleKeys.chat_question2.tr(),
-    ],
-    [
-      LocaleKeys.chat_question3.tr(),
-      LocaleKeys.chat_question4.tr(),
-    ],
-    [
-      LocaleKeys.chat_question5.tr(),
-      LocaleKeys.chat_question6.tr(),
-    ],
+    [LocaleKeys.chat_question1.tr(), LocaleKeys.chat_question2.tr()],
+    [LocaleKeys.chat_question3.tr(), LocaleKeys.chat_question4.tr()],
+    [LocaleKeys.chat_question5.tr(), LocaleKeys.chat_question6.tr()],
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const FlowySvg(
-          FlowySvgs.app_logo_xl,
-          size: Size.square(32),
-          blendMode: null,
-        ),
-        const VSpace(16),
-        FlowyText(
-          fontSize: 15,
-          LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
-        ),
-        UniversalPlatform.isDesktop ? const VSpace(32 - 16) : const VSpace(24),
-        ...UniversalPlatform.isDesktop
-            ? buildDesktopSampleQuestions(context)
-            : buildMobileSampleQuestions(context),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const FlowySvg(
+                  FlowySvgs.app_logo_xl,
+                  size: Size.square(32),
+                  blendMode: null,
+                ),
+                const VSpace(16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: FlowyText(
+                    LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
+                    fontSize: 15,
+                    textAlign: TextAlign.center,
+                    maxLines: null,
+                  ),
+                ),
+                UniversalPlatform.isDesktop
+                    ? const VSpace(32 - 16)
+                    : const VSpace(24),
+                ...UniversalPlatform.isDesktop
+                    ? buildDesktopSampleQuestions(context)
+                    : buildMobileSampleQuestions(context),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -77,26 +84,31 @@ class ChatWelcomePage extends StatelessWidget {
 
   Iterable<Widget> buildMobileSampleQuestions(BuildContext context) {
     return [
-      _AutoScrollingSampleQuestions(
-        key: const ValueKey('inf_scroll_1'),
-        onSelected: onSelectedQuestion,
-        questions: mobileItems[0],
-        offset: 60.0,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: _AutoScrollingSampleQuestions(
+          key: const ValueKey('inf_scroll_1'),
+          onSelected: onSelectedQuestion,
+          questions: mobileItems[0],
+        ),
       ),
       const VSpace(8),
-      _AutoScrollingSampleQuestions(
-        key: const ValueKey('inf_scroll_2'),
-        onSelected: onSelectedQuestion,
-        questions: mobileItems[1],
-        offset: -50.0,
-        reverse: true,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: _AutoScrollingSampleQuestions(
+          key: const ValueKey('inf_scroll_2'),
+          onSelected: onSelectedQuestion,
+          questions: mobileItems[1],
+        ),
       ),
       const VSpace(8),
-      _AutoScrollingSampleQuestions(
-        key: const ValueKey('inf_scroll_3'),
-        onSelected: onSelectedQuestion,
-        questions: mobileItems[2],
-        offset: 120.0,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: _AutoScrollingSampleQuestions(
+          key: const ValueKey('inf_scroll_3'),
+          onSelected: onSelectedQuestion,
+          questions: mobileItems[2],
+        ),
       ),
     ];
   }
@@ -201,9 +213,20 @@ class _AutoScrollingSampleQuestions extends StatefulWidget {
 
 class _AutoScrollingSampleQuestionsState
     extends State<_AutoScrollingSampleQuestions> {
-  late final scrollController = ScrollController(
-    initialScrollOffset: widget.offset,
-  );
+  late final ScrollController scrollController;
+  final Key centerKey = UniqueKey();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController(initialScrollOffset: widget.offset);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +234,7 @@ class _AutoScrollingSampleQuestionsState
       height: 36,
       child: InfiniteScrollView(
         scrollController: scrollController,
-        centerKey: UniqueKey(),
+        centerKey: centerKey,
         itemCount: widget.questions.length,
         itemBuilder: (context, index) {
           return WelcomeSampleQuestion(
@@ -233,12 +256,16 @@ class InfiniteScrollView extends StatelessWidget {
     required this.itemBuilder,
     required this.separatorBuilder,
     this.scrollController,
+    this.anchor = 0.0,
+    this.clipBehavior = Clip.hardEdge,
   });
 
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
   final Widget Function(BuildContext context, int index) separatorBuilder;
   final Key centerKey;
+  final double anchor;
+  final Clip clipBehavior;
 
   final ScrollController? scrollController;
 
@@ -248,19 +275,13 @@ class InfiniteScrollView extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: scrollController,
       center: centerKey,
-      anchor: 0.5,
+      anchor: anchor,
+      clipBehavior: clipBehavior,
       slivers: [
         _buildList(isForward: false),
-        SliverToBoxAdapter(
-          child: separatorBuilder.call(context, 0),
-        ),
-        SliverToBoxAdapter(
-          key: centerKey,
-          child: itemBuilder.call(context, 0),
-        ),
-        SliverToBoxAdapter(
-          child: separatorBuilder.call(context, 0),
-        ),
+        SliverToBoxAdapter(child: separatorBuilder.call(context, 0)),
+        SliverToBoxAdapter(key: centerKey, child: itemBuilder.call(context, 0)),
+        SliverToBoxAdapter(child: separatorBuilder.call(context, 0)),
         _buildList(isForward: true),
       ],
     );
