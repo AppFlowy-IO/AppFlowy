@@ -33,29 +33,40 @@ class ChatWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const FlowySvg(
-          FlowySvgs.app_logo_xl,
-          size: Size.square(32),
-          blendMode: null,
-        ),
-        const VSpace(16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: FlowyText(
-            LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
-            fontSize: 15,
-            textAlign: TextAlign.center,
-            maxLines: null,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const FlowySvg(
+                  FlowySvgs.app_logo_xl,
+                  size: Size.square(32),
+                  blendMode: null,
+                ),
+                const VSpace(16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: FlowyText(
+                    LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
+                    fontSize: 15,
+                    textAlign: TextAlign.center,
+                    maxLines: null,
+                  ),
+                ),
+                UniversalPlatform.isDesktop
+                    ? const VSpace(32 - 16)
+                    : const VSpace(24),
+                ...UniversalPlatform.isDesktop
+                    ? buildDesktopSampleQuestions(context)
+                    : buildMobileSampleQuestions(context),
+              ],
+            ),
           ),
-        ),
-        UniversalPlatform.isDesktop ? const VSpace(32 - 16) : const VSpace(24),
-        ...UniversalPlatform.isDesktop
-            ? buildDesktopSampleQuestions(context)
-            : buildMobileSampleQuestions(context),
-      ],
+        );
+      },
     );
   }
 
