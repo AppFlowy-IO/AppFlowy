@@ -48,6 +48,7 @@ class ChatWelcomePage extends StatelessWidget {
             LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
             fontSize: 15,
             textAlign: TextAlign.center,
+            maxLines: null,
           ),
         ),
         UniversalPlatform.isDesktop ? const VSpace(32 - 16) : const VSpace(24),
@@ -245,7 +246,7 @@ class InfiniteScrollView extends StatelessWidget {
     required this.separatorBuilder,
     this.scrollController,
     this.anchor = 0.0,
-    this.clipBehavior = Clip.none,
+    this.clipBehavior = Clip.hardEdge,
   });
 
   final int itemCount;
