@@ -74,6 +74,7 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
+            state.currentPageManager.recordHistory(view);
             emit(state.openView(plugin));
             _setLatestOpenView(view);
           },
@@ -97,6 +98,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
+            if (view != null) {
+              state.currentPageManager.recordHistory(view);
+            }
             emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
             if (setLatest) {
               // the space view should be filtered out.
@@ -300,6 +304,32 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
         view: view,
       ),
     );
+  }
+
+  void goBack() {
+    final pageManager = state.currentPageManager;
+    final view = pageManager.goBack();
+    if (view != null) {
+      pageManager.isNavigatingHistory = true;
+      try {
+        openPlugin(view);
+      } finally {
+        pageManager.isNavigatingHistory = false;
+      }
+    }
+  }
+
+  void goForward() {
+    final pageManager = state.currentPageManager;
+    final view = pageManager.goForward();
+    if (view != null) {
+      pageManager.isNavigatingHistory = true;
+      try {
+        openPlugin(view);
+      } finally {
+        pageManager.isNavigatingHistory = false;
+      }
+    }
   }
 }
 

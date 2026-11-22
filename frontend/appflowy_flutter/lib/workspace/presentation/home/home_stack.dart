@@ -22,6 +22,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,61 +63,82 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
     return BlocProvider<TabsBloc>.value(
       value: getIt<TabsBloc>(),
       child: BlocBuilder<TabsBloc, TabsState>(
-        builder: (context, state) => Column(
-          children: [
-            if (UniversalPlatform.isWindows)
-              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
-            Padding(
-              padding: EdgeInsets.only(left: widget.layout.menuSpacing),
-              child: TabsManager(
-                onIndexChanged: (index) {
-                  if (selectedIndex != index) {
-                    // Unfocus editor to hide selection toolbar
-                    FocusScope.of(context).unfocus();
+        builder: (context, state) => CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): () =>
+                context.read<TabsBloc>().goBack(),
+            const SingleActivator(LogicalKeyboardKey.arrowRight, alt: true): () =>
+                context.read<TabsBloc>().goForward(),
+            const SingleActivator(LogicalKeyboardKey.bracketLeft, meta: true): () =>
+                context.read<TabsBloc>().goBack(),
+            const SingleActivator(LogicalKeyboardKey.bracketRight, meta: true): () =>
+                context.read<TabsBloc>().goForward(),
+          },
+          child: Listener(
+            onPointerDown: (event) {
+              if (event.buttons == kBackMouseButton) {
+                context.read<TabsBloc>().goBack();
+              } else if (event.buttons == kForwardMouseButton) {
+                context.read<TabsBloc>().goForward();
+              }
+            },
+            child: Column(
+              children: [
+                if (UniversalPlatform.isWindows)
+                  WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
+                Padding(
+                  padding: EdgeInsets.only(left: widget.layout.menuSpacing),
+                  child: TabsManager(
+                    onIndexChanged: (index) {
+                      if (selectedIndex != index) {
+                        // Unfocus editor to hide selection toolbar
+                        FocusScope.of(context).unfocus();
 
-                    context.read<TabsBloc>().add(TabsEvent.selectTab(index));
-                    setState(() => selectedIndex = index);
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: IndexedStack(
-                index: selectedIndex,
-                children: state.pageManagers
-                    .map(
-                      (pm) => LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    pm.stackTopBar(layout: widget.layout),
-                                    Expanded(
-                                      child: PageStack(
-                                        pageManager: pm,
-                                        delegate: widget.delegate,
-                                        userProfile: widget.userProfile,
-                                      ),
+                        context.read<TabsBloc>().add(TabsEvent.selectTab(index));
+                        setState(() => selectedIndex = index);
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: IndexedStack(
+                    index: selectedIndex,
+                    children: state.pageManagers
+                        .map(
+                          (pm) => LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        pm.stackTopBar(layout: widget.layout),
+                                        Expanded(
+                                          child: PageStack(
+                                            pageManager: pm,
+                                            delegate: widget.delegate,
+                                            userProfile: widget.userProfile,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              SecondaryView(
-                                pageManager: pm,
-                                adaptedPercentageWidth:
-                                    constraints.maxWidth * 3 / 7,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
+                                  ),
+                                  SecondaryView(
+                                    pageManager: pm,
+                                    adaptedPercentageWidth:
+                                        constraints.maxWidth * 3 / 7,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -663,6 +685,42 @@ class PageManager {
   final showSecondaryPluginNotifier = ValueNotifier(false);
 
   Plugin get plugin => _notifier.plugin;
+
+  final List<ViewPB> _history = [];
+  int _historyIndex = -1;
+  bool isNavigatingHistory = false;
+
+  bool get canGoBack => _historyIndex > 0;
+  bool get canGoForward =>
+      _historyIndex >= 0 && _historyIndex < _history.length - 1;
+
+  void recordHistory(ViewPB view) {
+    if (isNavigatingHistory) {
+      return;
+    }
+    if (_historyIndex >= 0 &&
+        _historyIndex < _history.length &&
+        _history[_historyIndex].id == view.id) {
+      return;
+    }
+    if (_historyIndex >= 0 && _historyIndex < _history.length - 1) {
+      _history.removeRange(_historyIndex + 1, _history.length);
+    }
+    _history.add(view);
+    _historyIndex = _history.length - 1;
+  }
+
+  ViewPB? goBack() {
+    if (!canGoBack) return null;
+    _historyIndex--;
+    return _history[_historyIndex];
+  }
+
+  ViewPB? goForward() {
+    if (!canGoForward) return null;
+    _historyIndex++;
+    return _history[_historyIndex];
+  }
 
   void setPlugin(Plugin newPlugin, bool setLatest, [bool init = true]) {
     if (init) {
