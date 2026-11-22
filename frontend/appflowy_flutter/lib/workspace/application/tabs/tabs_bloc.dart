@@ -74,8 +74,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            state.currentPageManager.recordHistory(view);
-            emit(state.openView(plugin));
+            final nextState = state.openView(plugin);
+            nextState.currentPageManager.recordHistory(view);
+            emit(nextState);
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
@@ -98,10 +99,13 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            if (view != null) {
-              state.currentPageManager.recordHistory(view);
+            final nextState =
+                state.openPlugin(plugin: plugin, setLatest: setLatest);
+            if (view != null && !_isNavigatingHistory) {
+              nextState.currentPageManager.recordHistory(view);
             }
-            emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
+            _isNavigatingHistory = false;
+            emit(nextState);
             if (setLatest) {
               // the space view should be filtered out.
               if (view != null && view.isSpace) {
@@ -306,16 +310,14 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     );
   }
 
+  bool _isNavigatingHistory = false;
+
   void goBack() {
     final pageManager = state.currentPageManager;
     final view = pageManager.goBack();
     if (view != null) {
-      pageManager.isNavigatingHistory = true;
-      try {
-        openPlugin(view);
-      } finally {
-        pageManager.isNavigatingHistory = false;
-      }
+      _isNavigatingHistory = true;
+      openPlugin(view);
     }
   }
 
@@ -323,12 +325,8 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     final pageManager = state.currentPageManager;
     final view = pageManager.goForward();
     if (view != null) {
-      pageManager.isNavigatingHistory = true;
-      try {
-        openPlugin(view);
-      } finally {
-        pageManager.isNavigatingHistory = false;
-      }
+      _isNavigatingHistory = true;
+      openPlugin(view);
     }
   }
 }

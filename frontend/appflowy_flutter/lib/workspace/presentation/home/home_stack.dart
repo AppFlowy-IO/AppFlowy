@@ -65,10 +65,12 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
       child: BlocBuilder<TabsBloc, TabsState>(
         builder: (context, state) => CallbackShortcuts(
           bindings: {
-            const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): () =>
-                context.read<TabsBloc>().goBack(),
-            const SingleActivator(LogicalKeyboardKey.arrowRight, alt: true): () =>
-                context.read<TabsBloc>().goForward(),
+            if (!UniversalPlatform.isMacOS) ...{
+              const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): () =>
+                  context.read<TabsBloc>().goBack(),
+              const SingleActivator(LogicalKeyboardKey.arrowRight, alt: true): () =>
+                  context.read<TabsBloc>().goForward(),
+            },
             const SingleActivator(LogicalKeyboardKey.bracketLeft, meta: true): () =>
                 context.read<TabsBloc>().goBack(),
             const SingleActivator(LogicalKeyboardKey.bracketRight, meta: true): () =>
@@ -686,41 +688,14 @@ class PageManager {
 
   Plugin get plugin => _notifier.plugin;
 
-  final List<ViewPB> _history = [];
-  int _historyIndex = -1;
-  bool isNavigatingHistory = false;
+  final PageHistoryTracker historyTracker = PageHistoryTracker();
 
-  bool get canGoBack => _historyIndex > 0;
-  bool get canGoForward =>
-      _historyIndex >= 0 && _historyIndex < _history.length - 1;
+  bool get canGoBack => historyTracker.canGoBack;
+  bool get canGoForward => historyTracker.canGoForward;
 
-  void recordHistory(ViewPB view) {
-    if (isNavigatingHistory) {
-      return;
-    }
-    if (_historyIndex >= 0 &&
-        _historyIndex < _history.length &&
-        _history[_historyIndex].id == view.id) {
-      return;
-    }
-    if (_historyIndex >= 0 && _historyIndex < _history.length - 1) {
-      _history.removeRange(_historyIndex + 1, _history.length);
-    }
-    _history.add(view);
-    _historyIndex = _history.length - 1;
-  }
-
-  ViewPB? goBack() {
-    if (!canGoBack) return null;
-    _historyIndex--;
-    return _history[_historyIndex];
-  }
-
-  ViewPB? goForward() {
-    if (!canGoForward) return null;
-    _historyIndex++;
-    return _history[_historyIndex];
-  }
+  void recordHistory(ViewPB view) => historyTracker.recordHistory(view);
+  ViewPB? goBack() => historyTracker.goBack();
+  ViewPB? goForward() => historyTracker.goForward();
 
   void setPlugin(Plugin newPlugin, bool setLatest, [bool init = true]) {
     if (init) {
@@ -1090,4 +1065,41 @@ enum Edge {
       };
 
   bool get isVertical => !isHorizontal;
+}
+
+class PageHistoryTracker {
+  final List<ViewPB> _history = [];
+  int _historyIndex = -1;
+
+  List<ViewPB> get history => List.unmodifiable(_history);
+  int get historyIndex => _historyIndex;
+
+  bool get canGoBack => _historyIndex > 0;
+  bool get canGoForward =>
+      _historyIndex >= 0 && _historyIndex < _history.length - 1;
+
+  void recordHistory(ViewPB view) {
+    if (_historyIndex >= 0 &&
+        _historyIndex < _history.length &&
+        _history[_historyIndex].id == view.id) {
+      return;
+    }
+    if (_historyIndex >= 0 && _historyIndex < _history.length - 1) {
+      _history.removeRange(_historyIndex + 1, _history.length);
+    }
+    _history.add(view);
+    _historyIndex = _history.length - 1;
+  }
+
+  ViewPB? goBack() {
+    if (!canGoBack) return null;
+    _historyIndex--;
+    return _history[_historyIndex];
+  }
+
+  ViewPB? goForward() {
+    if (!canGoForward) return null;
+    _historyIndex++;
+    return _history[_historyIndex];
+  }
 }
