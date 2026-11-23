@@ -47,10 +47,9 @@ class MarkdownSimpleTableParser extends CustomMarkdownParser {
         .firstOrNull
         ?.children
         ?.whereType<md.Element>()
-        .where((e) => e.tag == 'tr')
-        .toList();
+        .where((e) => e.tag == 'tr');
 
-    if (th == null || tr == null || th.isEmpty || tr.isEmpty) {
+    if (th == null || th.isEmpty) {
       return [];
     }
 
@@ -74,10 +73,9 @@ class MarkdownSimpleTableParser extends CustomMarkdownParser {
       ),
     );
 
-    // Add body cells
-    for (var i = 0; i < tr.length; i++) {
-      final td = tr[i]
-          .children
+    // A single-row Markdown table has a header but no body.
+    for (final row in tr ?? const <md.Element>[]) {
+      final td = row.children
           ?.whereType<md.Element>()
           .where((e) => e.tag == 'td')
           .toList();

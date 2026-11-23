@@ -50,6 +50,51 @@ void main() {
     test('sample 5 - paste table from Apple Notes', () {
       checkTable(tableFromAppleNotes);
     });
+
+    test('pastes a single-row HTML table', () {
+      final nodes = EditorState.blank().convertHtmlToNodes('''
+<table>
+  <tr><td>Month</td><td>January</td></tr>
+</table>
+''');
+
+      expect(nodes.map((node) => node.type), [SimpleTableBlockKeys.type]);
+      final table = nodes.single;
+      expect(table.rowLength, 1);
+      expect(table.columnLength, 2);
+      expect(table.getCellText(0, 0), 'Month');
+      expect(table.getCellText(0, 1), 'January');
+    });
+
+    test('keeps a single-row Google Docs table in a mixed selection', () {
+      const url = 'https://example.com/agenda';
+      final nodes = EditorState.blank().convertHtmlToNodes('''
+<b id="docs-internal-guid-example" style="font-weight: normal;">
+  <h2>Planning</h2>
+  <div><table><tbody>
+    <tr><td><p>Agenda</p></td><td><p><a href="$url">Open</a></p></td></tr>
+  </tbody></table></div>
+  <ul><li><p>Confirm dates</p></li></ul>
+</b>
+''');
+
+      expect(nodes.map((node) => node.type), [
+        HeadingBlockKeys.type,
+        SimpleTableBlockKeys.type,
+        BulletedListBlockKeys.type,
+      ]);
+      expect(nodes.first.delta?.toPlainText(), 'Planning');
+      expect(nodes.last.delta?.toPlainText().trim(), 'Confirm dates');
+
+      final table = nodes[1];
+      expect(table.rowLength, 1);
+      expect(table.columnLength, 2);
+      expect(table.getCellText(0, 0), 'Agenda');
+      expect(table.getCellText(0, 1), 'Open');
+      final linkedCell = table.children.single.children[1].children.single;
+      final link = linkedCell.delta?.whereType<TextInsert>().single;
+      expect(link?.attributes?[AppFlowyRichTextKeys.href], url);
+    });
   });
 }
 
