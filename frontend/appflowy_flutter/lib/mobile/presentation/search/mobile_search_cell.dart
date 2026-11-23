@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_highlight.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
@@ -53,8 +54,9 @@ class MobileSearchResultCell extends StatelessWidget {
                 RichText(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  text: buildHighLightSpan(
+                  text: buildSearchHighlightSpan(
                     content: displayName,
+                    query: query,
                     normal: titleStyle,
                     highlight: titleStyle.copyWith(
                       backgroundColor: theme.fillColorScheme.themeSelect,
@@ -102,8 +104,9 @@ class MobileSearchResultCell extends StatelessWidget {
       RichText(
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
-        text: buildHighLightSpan(
+        text: buildSearchHighlightSpan(
           content: item.content,
+          query: query,
           normal: theme.textStyle.body
               .standard(color: theme.textColorScheme.secondary),
           highlight: theme.textStyle.body
@@ -114,28 +117,6 @@ class MobileSearchResultCell extends StatelessWidget {
         ),
       ),
     ];
-  }
-
-  TextSpan buildHighLightSpan({
-    required String content,
-    required TextStyle normal,
-    required TextStyle highlight,
-  }) {
-    final queryText = (query ?? '').trim();
-    if (queryText.isEmpty) {
-      return TextSpan(text: content, style: normal);
-    }
-    final contents = content.splitIncludeSeparator(queryText);
-    return TextSpan(
-      children: List.generate(contents.length, (index) {
-        final content = contents[index];
-        final isHighlight = content.toLowerCase() == queryText.toLowerCase();
-        return TextSpan(
-          text: content,
-          style: isHighlight ? highlight : normal,
-        );
-      }),
-    );
   }
 }
 
@@ -153,24 +134,5 @@ extension ViewPBToSearchResultItem on ViewPB {
       ),
       content: '',
     );
-  }
-}
-
-extension StringSplitExtension on String {
-  List<String> splitIncludeSeparator(String separator) {
-    final splits =
-        split(RegExp(RegExp.escape(separator), caseSensitive: false));
-    final List<String> contents = [];
-    int charIndex = 0;
-    final seperatorLength = separator.length;
-    for (int i = 0; i < splits.length; i++) {
-      contents.add(splits[i]);
-      charIndex += splits[i].length;
-      if (i != splits.length - 1) {
-        contents.add(substring(charIndex, charIndex + seperatorLength));
-        charIndex += seperatorLength;
-      }
-    }
-    return contents;
   }
 }

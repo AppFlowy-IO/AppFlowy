@@ -16,7 +16,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'mobile_search_cell.dart';
 
 class MobileSearchResult extends StatelessWidget {
-  const MobileSearchResult({super.key});
+  const MobileSearchResult({super.key, required this.resultType});
+
+  final SearchResultType resultType;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class MobileSearchResult extends StatelessWidget {
     if (query.isEmpty) {
       return const MobileSearchRecentList();
     }
-    return MobileSearchResultList();
+    return MobileSearchResultList(resultType: resultType);
   }
 }
 
@@ -83,20 +85,16 @@ class MobileSearchRecentList extends StatelessWidget {
 }
 
 class MobileSearchResultList extends StatelessWidget {
-  const MobileSearchResultList({super.key});
+  const MobileSearchResultList({super.key, required this.resultType});
+
+  final SearchResultType resultType;
 
   @override
   Widget build(BuildContext context) {
     final state = context.read<CommandPaletteBloc>().state,
         theme = AppFlowyTheme.of(context);
-    final isSearching = state.searching || state.generatingAIOverview,
-        cachedViews = state.cachedViews;
-    List<SearchResultItem> displayItems =
-        state.combinedResponseItems.values.toList();
-    if (cachedViews.isNotEmpty) {
-      displayItems =
-          displayItems.where((item) => cachedViews[item.id] != null).toList();
-    }
+    final isSearching = state.searching || state.generatingAIOverview;
+    final displayItems = state.visibleResults(resultType);
     final hasData = displayItems.isNotEmpty;
 
     if (isSearching && !hasData) {
@@ -105,7 +103,7 @@ class MobileSearchResultList extends StatelessWidget {
         child: Center(child: CircularProgressIndicator.adaptive()),
       );
     } else if (!hasData) {
-      return _NoResult();
+      return _NoResult(filtered: resultType != SearchResultType.all);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +157,9 @@ class MobileSearchResultList extends StatelessWidget {
 }
 
 class _NoResult extends StatelessWidget {
-  const _NoResult();
+  const _NoResult({required this.filtered});
+
+  final bool filtered;
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +184,10 @@ class _NoResult extends StatelessWidget {
           ),
           Text(
             textAlign: TextAlign.center,
-            LocaleKeys.search_noResultForSearchingHint.tr(),
+            (filtered
+                    ? LocaleKeys.search_noResultForContentType
+                    : LocaleKeys.search_noResultForSearchingHint)
+                .tr(),
             style: theme.textStyle.body.standard(color: textColor),
           ),
         ],

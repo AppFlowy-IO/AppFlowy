@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
@@ -312,7 +313,12 @@ class CommandPaletteBloc
     _ClearSearch event,
     Emitter<CommandPaletteState> emit,
   ) {
-    emit(CommandPaletteState.initial().copyWith(trash: state.trash));
+    emit(
+      CommandPaletteState.initial().copyWith(
+        trash: state.trash,
+        cachedViews: state.cachedViews,
+      ),
+    );
   }
 
   FutureOr<void> _onGoingToAskAI(
@@ -384,6 +390,19 @@ class SearchResultItem {
   final String? workspaceId;
 }
 
+enum SearchResultType {
+  all,
+  documents,
+  databases;
+
+  bool matches(ViewPB? view) => switch (this) {
+        SearchResultType.all => true,
+        SearchResultType.documents =>
+          view != null && view.layout == ViewLayoutPB.Document && !view.isSpace,
+        SearchResultType.databases => view?.layout.isDatabaseView ?? false,
+      };
+}
+
 @freezed
 class CommandPaletteState with _$CommandPaletteState {
   const CommandPaletteState._();
@@ -407,4 +426,11 @@ class CommandPaletteState with _$CommandPaletteState {
         searching: false,
         generatingAIOverview: false,
       );
+
+  List<SearchResultItem> visibleResults(SearchResultType type) {
+    return combinedResponseItems.values.where((item) {
+      final view = cachedViews[item.id];
+      return (cachedViews.isEmpty || view != null) && type.matches(view);
+    }).toList();
+  }
 }

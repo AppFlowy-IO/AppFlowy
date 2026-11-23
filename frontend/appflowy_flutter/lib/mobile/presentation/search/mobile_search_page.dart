@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_type_selector.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
@@ -84,6 +85,15 @@ class _MobileSearchPageState extends State<MobileSearchPage> {
       widget.userProfile.workspaceType == WorkspaceTypePB.ServerW;
 
   final focusNode = FocusNode();
+  SearchResultType _resultType = SearchResultType.all;
+
+  @override
+  void initState() {
+    super.initState();
+    context
+        .read<CommandPaletteBloc>()
+        .add(const CommandPaletteEvent.refreshCachedViews());
+  }
 
   @override
   void dispose() {
@@ -110,6 +120,13 @@ class _MobileSearchPageState extends State<MobileSearchPage> {
                         CommandPaletteEvent.searchChanged(search: value),
                       ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SearchResultTypeSelector(
+                    value: _resultType,
+                    onChanged: (type) => setState(() => _resultType = type),
+                  ),
+                ),
                 Flexible(
                   child: NotificationListener(
                     onNotification: (t) {
@@ -126,7 +143,7 @@ class _MobileSearchPageState extends State<MobileSearchPage> {
                         child: Column(
                           children: [
                             if (enableShowAISearch) MobileSearchAskAiEntrance(),
-                            MobileSearchResult(),
+                            MobileSearchResult(resultType: _resultType),
                           ],
                         ),
                       ),
