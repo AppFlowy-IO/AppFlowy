@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_cell.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/navigation_bloc_extension.dart';
@@ -12,6 +11,8 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'search_highlight.dart';
 
 class SearchSummaryCell extends StatefulWidget {
   const SearchSummaryCell({
@@ -246,7 +247,7 @@ class _TextInfo {
         child: Text.rich(
           TextSpan(
             children: [
-              _buildHighLightSpan(
+              buildSearchHighlightSpan(
                 content: text,
                 normal: normal,
                 query: query,
@@ -283,7 +284,7 @@ class _TextInfo {
         child: Text.rich(
           TextSpan(
             children: [
-              _buildHighLightSpan(
+              buildSearchHighlightSpan(
                 content: text,
                 normal: normal,
                 query: query,
@@ -297,29 +298,6 @@ class _TextInfo {
         ),
       );
     }
-  }
-
-  TextSpan _buildHighLightSpan({
-    required String content,
-    required TextStyle normal,
-    required TextStyle highlight,
-    String? query,
-  }) {
-    final queryText = (query ?? '').trim();
-    if (queryText.isEmpty) {
-      return TextSpan(text: content, style: normal);
-    }
-    final contents = content.splitIncludeSeparator(queryText);
-    return TextSpan(
-      children: List.generate(contents.length, (index) {
-        final content = contents[index];
-        final isHighlight = content.toLowerCase() == queryText.toLowerCase();
-        return TextSpan(
-          text: content,
-          style: isHighlight ? highlight : normal,
-        );
-      }),
-    );
   }
 }
 

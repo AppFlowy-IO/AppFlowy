@@ -61,7 +61,9 @@ class _SearchResultListState extends State<SearchResultList> {
         },
         child: BlocBuilder<SearchResultListBloc, SearchResultListState>(
           builder: (context, state) {
-            final hasHoverResult = state.hoveredResult != null;
+            final hoveredId = state.hoveredResult?.id;
+            final hasHoverResult =
+                widget.resultItems.any((item) => item.id == hoveredId);
             return LayoutBuilder(
               builder: (context, constrains) {
                 final maxWidth = constrains.maxWidth;
@@ -106,13 +108,7 @@ class _SearchResultListState extends State<SearchResultList> {
     final showAskingAI =
         workspaceState?.userProfile.workspaceType == WorkspaceTypePB.ServerW;
     if (widget.resultItems.isEmpty) return const SizedBox.shrink();
-    List<SearchResultItem> resultItems = widget.resultItems;
-    final hasCachedViews = widget.cachedViews.isNotEmpty;
-    if (hasCachedViews) {
-      resultItems = widget.resultItems
-          .where((item) => widget.cachedViews[item.id] != null)
-          .toList();
-    }
+    final resultItems = widget.resultItems;
     return ScrollControllerBuilder(
       builder: (context, controller) {
         final hoveredId = bloc.state.hoveredResult?.id;

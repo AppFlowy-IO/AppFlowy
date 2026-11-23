@@ -4,13 +4,16 @@ import 'dart:math';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_cell.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_type_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart' show CheckedPopupMenuItem;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -22,6 +25,47 @@ void main() {
   });
 
   group('Folder Search', () {
+    testWidgets('Filter workspace search by content type', (tester) async {
+      const query = 'SearchFilterFixture';
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: '$query notes');
+      await tester.createNewPageWithNameUnderParent(
+        name: '$query tracker',
+        layout: ViewLayoutPB.Grid,
+      );
+
+      await tester.toggleCommandPalette();
+      final searchField = find.descendant(
+        of: find.byType(SearchField),
+        matching: find.byType(FlowyTextField),
+      );
+      await tester.enterText(searchField, query);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      Iterable<String> resultNames() => tester
+          .widgetList<SearchResultCell>(find.byType(SearchResultCell))
+          .map((cell) => cell.item.displayName);
+
+      expect(resultNames(), containsAll(['$query notes', '$query tracker']));
+
+      Future<void> selectType(String label) async {
+        await tester.tap(find.byType(SearchResultTypeSelector));
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(CheckedPopupMenuItem<SearchResultType>, label),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await selectType(LocaleKeys.search_databases.tr());
+      expect(resultNames(), ['$query tracker']);
+      await selectType(LocaleKeys.search_documents.tr());
+      expect(resultNames(), ['$query notes']);
+      await selectType(LocaleKeys.search_allContentTypes.tr());
+      expect(resultNames(), containsAll(['$query notes', '$query tracker']));
+    });
+
     testWidgets('Search for views', (tester) async {
       const firstDocument = "ViewOne";
       const secondDocument = "ViewOna";

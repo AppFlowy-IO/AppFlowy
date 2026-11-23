@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_cell.dart';
 import 'package:appflowy/mobile/presentation/search/mobile_view_ancestors.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
@@ -16,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'page_preview.dart';
+import 'search_highlight.dart';
 
 class SearchResultCell extends StatefulWidget {
   const SearchResultCell({
@@ -131,8 +131,9 @@ class _SearchResultCellState extends State<SearchResultCell> {
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
-                        text: buildHighLightSpan(
+                        text: buildSearchHighlightSpan(
                           content: title,
+                          query: widget.query,
                           normal: titleStyle,
                           highlight: titleStyle.copyWith(
                             backgroundColor: theme.fillColorScheme.themeSelect,
@@ -171,28 +172,6 @@ class _SearchResultCellState extends State<SearchResultCell> {
     );
   }
 
-  TextSpan buildHighLightSpan({
-    required String content,
-    required TextStyle normal,
-    required TextStyle highlight,
-  }) {
-    final queryText = (widget.query ?? '').trim();
-    if (queryText.isEmpty) {
-      return TextSpan(text: content, style: normal);
-    }
-    final contents = content.splitIncludeSeparator(queryText);
-    return TextSpan(
-      children: List.generate(contents.length, (index) {
-        final content = contents[index];
-        final isHighlight = content.toLowerCase() == queryText.toLowerCase();
-        return TextSpan(
-          text: content,
-          style: isHighlight ? highlight : normal,
-        );
-      }),
-    );
-  }
-
   List<Widget> buildSummary(AppFlowyThemeData theme) {
     if (item.content.isEmpty) return [];
     final style = theme.textStyle.caption
@@ -205,8 +184,9 @@ class _SearchResultCellState extends State<SearchResultCell> {
         child: RichText(
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          text: buildHighLightSpan(
+          text: buildSearchHighlightSpan(
             content: item.content,
+            query: widget.query,
             normal: style,
             highlight: style.copyWith(
               backgroundColor: theme.fillColorScheme.themeSelect,

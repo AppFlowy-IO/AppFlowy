@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_type_selector.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/log.dart';
@@ -172,10 +173,17 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       );
 }
 
-class CommandPaletteModal extends StatelessWidget {
+class CommandPaletteModal extends StatefulWidget {
   const CommandPaletteModal({super.key, required this.shortcutBuilder});
 
   final Widget Function(Widget) shortcutBuilder;
+
+  @override
+  State<CommandPaletteModal> createState() => _CommandPaletteModalState();
+}
+
+class _CommandPaletteModalState extends State<CommandPaletteModal> {
+  SearchResultType _resultType = SearchResultType.all;
 
   @override
   Widget build(BuildContext context) {
@@ -204,8 +212,9 @@ class CommandPaletteModal extends StatelessWidget {
         builder: (context, state) {
           final theme = AppFlowyTheme.of(context);
           final noQuery = state.query?.isEmpty ?? true, hasQuery = !noQuery;
-          final hasResult = state.combinedResponseItems.isNotEmpty,
-              searching = state.searching;
+          final results = state.visibleResults(_resultType);
+          final hasResult = results.isNotEmpty;
+          final searching = state.searching;
           final spaceXl = theme.spacing.xl;
           return FlowyDialog(
             backgroundColor: theme.surfaceColorScheme.layer01,
@@ -218,13 +227,29 @@ class CommandPaletteModal extends StatelessWidget {
               minHeight: 640,
             ),
             expandHeight: false,
-            child: shortcutBuilder(
+            child: widget.shortcutBuilder(
               // Change mainAxisSize to max so Expanded works correctly.
               Padding(
                 padding: EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceXl, 0),
                 child: Column(
                   children: [
-                    SearchField(query: state.query, isLoading: searching),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: theme.spacing.m,
+                      children: [
+                        SearchResultTypeSelector(
+                          value: _resultType,
+                          onChanged: (type) =>
+                              setState(() => _resultType = type),
+                        ),
+                        Expanded(
+                          child: SearchField(
+                            query: state.query,
+                            isLoading: searching,
+                          ),
+                        ),
+                      ],
+                    ),
                     if (noQuery)
                       Flexible(
                         child: RecentViewsList(
@@ -234,9 +259,9 @@ class CommandPaletteModal extends StatelessWidget {
                     if (hasResult && hasQuery)
                       Flexible(
                         child: SearchResultList(
+                          key: ValueKey(_resultType),
                           cachedViews: state.cachedViews,
-                          resultItems:
-                              state.combinedResponseItems.values.toList(),
+                          resultItems: results,
                           resultSummaries: state.resultSummaries,
                         ),
                       )
@@ -245,7 +270,9 @@ class CommandPaletteModal extends StatelessWidget {
                     else if (hasQuery && !searching) ...[
                       if (showAskingAI) SearchAskAiEntrance(),
                       Expanded(
-                        child: const NoSearchResultsHint(),
+                        child: NoSearchResultsHint(
+                          filtered: _resultType != SearchResultType.all,
+                        ),
                       ),
                     ],
                     if (hasQuery && searching && !hasResult)
@@ -270,7 +297,9 @@ class CommandPaletteModal extends StatelessWidget {
 
 /// Updated _NoResultsHint now centers its content.
 class NoSearchResultsHint extends StatelessWidget {
-  const NoSearchResultsHint({super.key});
+  const NoSearchResultsHint({super.key, this.filtered = false});
+
+  final bool filtered;
 
   @override
   Widget build(BuildContext context) {
@@ -293,29 +322,37 @@ class NoSearchResultsHint extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const VSpace(4),
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              text: LocaleKeys.search_noResultForSearchingHintWithoutTrash.tr(),
+          if (filtered)
+            Text(
+              LocaleKeys.search_noResultForContentType.tr(),
+              textAlign: TextAlign.center,
               style: theme.textStyle.caption.standard(color: textColor),
-              children: [
-                TextSpan(
-                  text: LocaleKeys.trash_text.tr(),
-                  style: theme.textStyle.caption.underline(color: textColor),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      FlowyOverlay.pop(context);
-                      getIt<MenuSharedState>().latestOpenView = null;
-                      getIt<TabsBloc>().add(
-                        TabsEvent.openPlugin(
-                          plugin: makePlugin(pluginType: PluginType.trash),
-                        ),
-                      );
-                    },
-                ),
-              ],
+            )
+          else
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text:
+                    LocaleKeys.search_noResultForSearchingHintWithoutTrash.tr(),
+                style: theme.textStyle.caption.standard(color: textColor),
+                children: [
+                  TextSpan(
+                    text: LocaleKeys.trash_text.tr(),
+                    style: theme.textStyle.caption.underline(color: textColor),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        FlowyOverlay.pop(context);
+                        getIt<MenuSharedState>().latestOpenView = null;
+                        getIt<TabsBloc>().add(
+                          TabsEvent.openPlugin(
+                            plugin: makePlugin(pluginType: PluginType.trash),
+                          ),
+                        );
+                      },
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

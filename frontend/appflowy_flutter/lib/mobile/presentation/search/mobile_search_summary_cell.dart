@@ -2,9 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
-import 'package:appflowy/mobile/presentation/search/mobile_search_cell.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_highlight.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -205,7 +205,7 @@ class _TextInfo {
                 children: [
                   SelectionArea(
                     child: Text.rich(
-                      _buildHighLightSpan(
+                      buildSearchHighlightSpan(
                         content: text,
                         normal: normal,
                         query: query,
@@ -254,7 +254,7 @@ class _TextInfo {
             child: Text.rich(
               TextSpan(
                 children: [
-                  _buildHighLightSpan(
+                  buildSearchHighlightSpan(
                     content: text,
                     normal: normal,
                     query: query,
@@ -313,28 +313,5 @@ class _TextInfo {
         ],
       );
     }
-  }
-
-  TextSpan _buildHighLightSpan({
-    required String content,
-    required TextStyle normal,
-    required TextStyle highlight,
-    String? query,
-  }) {
-    final queryText = (query ?? '').trim();
-    if (queryText.isEmpty) {
-      return TextSpan(text: content, style: normal);
-    }
-    final contents = content.splitIncludeSeparator(queryText);
-    return TextSpan(
-      children: List.generate(contents.length, (index) {
-        final content = contents[index];
-        final isHighlight = content.toLowerCase() == queryText.toLowerCase();
-        return TextSpan(
-          text: content,
-          style: isHighlight ? highlight : normal,
-        );
-      }),
-    );
   }
 }
