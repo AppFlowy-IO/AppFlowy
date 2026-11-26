@@ -22,6 +22,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,61 +63,84 @@ class _HomeStackState extends State<HomeStack> with WindowListener {
     return BlocProvider<TabsBloc>.value(
       value: getIt<TabsBloc>(),
       child: BlocBuilder<TabsBloc, TabsState>(
-        builder: (context, state) => Column(
-          children: [
-            if (UniversalPlatform.isWindows)
-              WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
-            Padding(
-              padding: EdgeInsets.only(left: widget.layout.menuSpacing),
-              child: TabsManager(
-                onIndexChanged: (index) {
-                  if (selectedIndex != index) {
-                    // Unfocus editor to hide selection toolbar
-                    FocusScope.of(context).unfocus();
+        builder: (context, state) => CallbackShortcuts(
+          bindings: {
+            if (!UniversalPlatform.isMacOS) ...{
+              const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): () =>
+                  context.read<TabsBloc>().goBack(),
+              const SingleActivator(LogicalKeyboardKey.arrowRight, alt: true): () =>
+                  context.read<TabsBloc>().goForward(),
+            },
+            const SingleActivator(LogicalKeyboardKey.bracketLeft, meta: true): () =>
+                context.read<TabsBloc>().goBack(),
+            const SingleActivator(LogicalKeyboardKey.bracketRight, meta: true): () =>
+                context.read<TabsBloc>().goForward(),
+          },
+          child: Listener(
+            onPointerDown: (event) {
+              if (event.buttons == kBackMouseButton) {
+                context.read<TabsBloc>().goBack();
+              } else if (event.buttons == kForwardMouseButton) {
+                context.read<TabsBloc>().goForward();
+              }
+            },
+            child: Column(
+              children: [
+                if (UniversalPlatform.isWindows)
+                  WindowTitleBar(leftChildren: [_buildToggleMenuButton(context)]),
+                Padding(
+                  padding: EdgeInsets.only(left: widget.layout.menuSpacing),
+                  child: TabsManager(
+                    onIndexChanged: (index) {
+                      if (selectedIndex != index) {
+                        // Unfocus editor to hide selection toolbar
+                        FocusScope.of(context).unfocus();
 
-                    context.read<TabsBloc>().add(TabsEvent.selectTab(index));
-                    setState(() => selectedIndex = index);
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: IndexedStack(
-                index: selectedIndex,
-                children: state.pageManagers
-                    .map(
-                      (pm) => LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    pm.stackTopBar(layout: widget.layout),
-                                    Expanded(
-                                      child: PageStack(
-                                        pageManager: pm,
-                                        delegate: widget.delegate,
-                                        userProfile: widget.userProfile,
-                                      ),
+                        context.read<TabsBloc>().add(TabsEvent.selectTab(index));
+                        setState(() => selectedIndex = index);
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: IndexedStack(
+                    index: selectedIndex,
+                    children: state.pageManagers
+                        .map(
+                          (pm) => LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        pm.stackTopBar(layout: widget.layout),
+                                        Expanded(
+                                          child: PageStack(
+                                            pageManager: pm,
+                                            delegate: widget.delegate,
+                                            userProfile: widget.userProfile,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              SecondaryView(
-                                pageManager: pm,
-                                adaptedPercentageWidth:
-                                    constraints.maxWidth * 3 / 7,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
+                                  ),
+                                  SecondaryView(
+                                    pageManager: pm,
+                                    adaptedPercentageWidth:
+                                        constraints.maxWidth * 3 / 7,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -664,6 +688,26 @@ class PageManager {
 
   Plugin get plugin => _notifier.plugin;
 
+  final PageHistoryTracker historyTracker = PageHistoryTracker();
+
+  bool get canGoBack => historyTracker.canGoBack;
+  bool get canGoForward => historyTracker.canGoForward;
+
+  void recordHistory(
+    ViewPB view, {
+    Map<String, dynamic> arguments = const {},
+  }) =>
+      historyTracker.recordHistory(view, arguments: arguments);
+
+  ViewPB? goBack() => historyTracker.goBack();
+  ViewPB? goForward() => historyTracker.goForward();
+  PageHistoryEntry? peekBackEntry() => historyTracker.peekBackEntry();
+  PageHistoryEntry? peekForwardEntry() => historyTracker.peekForwardEntry();
+  PageHistoryEntry? goBackEntry() => historyTracker.goBackEntry();
+  PageHistoryEntry? goForwardEntry() => historyTracker.goForwardEntry();
+  void removeHistory(String viewId) => historyTracker.removeView(viewId);
+  void clearHistory() => historyTracker.clear();
+
   void setPlugin(Plugin newPlugin, bool setLatest, [bool init = true]) {
     if (init) {
       newPlugin.init();
@@ -1032,4 +1076,133 @@ enum Edge {
       };
 
   bool get isVertical => !isHorizontal;
+}
+
+class PageHistoryEntry {
+  const PageHistoryEntry({
+    required this.view,
+    this.arguments = const {},
+  });
+
+  final ViewPB view;
+  final Map<String, dynamic> arguments;
+}
+
+class PageHistoryTracker {
+  PageHistoryTracker({this.maxEntries = 50}) : assert(maxEntries > 0);
+
+  final int maxEntries;
+  final List<PageHistoryEntry> _entries = [];
+  int _historyIndex = -1;
+
+  List<ViewPB> get history =>
+      List.unmodifiable(_entries.map((entry) => entry.view));
+  List<PageHistoryEntry> get entries => List.unmodifiable(_entries);
+  int get historyIndex => _historyIndex;
+
+  bool get canGoBack => _historyIndex > 0;
+  bool get canGoForward =>
+      _historyIndex >= 0 && _historyIndex < _entries.length - 1;
+
+  void recordHistory(
+    ViewPB view, {
+    Map<String, dynamic> arguments = const {},
+  }) {
+    if (_historyIndex >= 0 &&
+        _historyIndex < _entries.length &&
+        _entries[_historyIndex].view.id == view.id &&
+        _argumentsEqual(_entries[_historyIndex].arguments, arguments)) {
+      return;
+    }
+    if (_historyIndex >= 0 && _historyIndex < _entries.length - 1) {
+      _entries.removeRange(_historyIndex + 1, _entries.length);
+    }
+    _entries.add(
+      PageHistoryEntry(
+        view: view,
+        arguments: arguments.isEmpty ? const {} : Map.unmodifiable(arguments),
+      ),
+    );
+    if (_entries.length > maxEntries) {
+      _entries.removeRange(0, _entries.length - maxEntries);
+    }
+    _historyIndex = _entries.length - 1;
+  }
+
+  PageHistoryEntry? peekBackEntry() =>
+      canGoBack ? _entries[_historyIndex - 1] : null;
+
+  PageHistoryEntry? peekForwardEntry() =>
+      canGoForward ? _entries[_historyIndex + 1] : null;
+
+  PageHistoryEntry? goBackEntry() {
+    if (!canGoBack) return null;
+    _historyIndex--;
+    return _entries[_historyIndex];
+  }
+
+  PageHistoryEntry? goForwardEntry() {
+    if (!canGoForward) return null;
+    _historyIndex++;
+    return _entries[_historyIndex];
+  }
+
+  ViewPB? goBack() => goBackEntry()?.view;
+
+  ViewPB? goForward() => goForwardEntry()?.view;
+
+  void removeView(String viewId) {
+    if (_entries.isEmpty) return;
+
+    final filtered = <PageHistoryEntry>[];
+    var newIndex = -1;
+    for (var i = 0; i < _entries.length; i++) {
+      final entry = _entries[i];
+      if (entry.view.id == viewId) {
+        continue;
+      }
+      if (filtered.isNotEmpty &&
+          filtered.last.view.id == entry.view.id &&
+          _argumentsEqual(filtered.last.arguments, entry.arguments)) {
+        if (i <= _historyIndex) {
+          newIndex = filtered.length - 1;
+        }
+        continue;
+      }
+      filtered.add(entry);
+      if (i <= _historyIndex) {
+        newIndex = filtered.length - 1;
+      }
+    }
+
+    _entries
+      ..clear()
+      ..addAll(filtered);
+    if (_entries.isEmpty) {
+      _historyIndex = -1;
+    } else if (newIndex < 0) {
+      _historyIndex = 0;
+    } else {
+      _historyIndex = newIndex;
+    }
+  }
+
+  void clear() {
+    _entries.clear();
+    _historyIndex = -1;
+  }
+
+  static bool _argumentsEqual(
+    Map<String, dynamic> a,
+    Map<String, dynamic> b,
+  ) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (final entry in a.entries) {
+      if (!b.containsKey(entry.key) || b[entry.key] != entry.value) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

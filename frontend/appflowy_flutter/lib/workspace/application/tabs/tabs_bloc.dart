@@ -32,6 +32,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
   String? _lastOpenedViewId;
   DateTime? _lastOpenTime;
   static const _deduplicationWindow = Duration(milliseconds: 500);
+  final Map<Plugin, PageManager> _historyNavigationTargets = Map.identity();
+  final Map<Plugin, Map<String, dynamic>> _pendingArguments = Map.identity();
+  Future<void> _pendingHistoryNav = Future.value();
 
   @override
   Future<void> close() {
@@ -74,15 +77,54 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            emit(state.openView(plugin));
+            final nextState = state.openView(plugin);
+            nextState.currentPageManager.recordHistory(view);
+            emit(nextState);
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
+            final targetPageManager = _historyNavigationTargets.remove(plugin);
+            final arguments = _pendingArguments.remove(plugin) ?? const {};
+            final resolvedView = view ??
+                (plugin.notifier is ViewPluginNotifier
+                    ? (plugin.notifier as ViewPluginNotifier).view
+                    : null);
+
+            if (targetPageManager != null) {
+              if (!state._pageManagers.contains(targetPageManager)) {
+                return;
+              }
+
+              final isCurrentTab = targetPageManager == state.currentPageManager;
+              final existingIndex = state._pageManagers.indexWhere(
+                (pm) => pm.plugin.id == plugin.id,
+              );
+              if (existingIndex != -1 &&
+                  state._pageManagers[existingIndex] != targetPageManager) {
+                emit(state.copyWith(currentIndex: existingIndex));
+              } else {
+                targetPageManager
+                  ..hideSecondaryPlugin()
+                  ..setSecondaryPlugin(BlankPagePlugin())
+                  ..setPlugin(plugin, setLatest && isCurrentTab);
+                emit(state.copyWith(pageManagers: [...state._pageManagers]));
+              }
+
+              if (setLatest && isCurrentTab) {
+                if (resolvedView != null && resolvedView.isSpace) {
+                  return;
+                }
+                _setLatestOpenView(resolvedView);
+                if (resolvedView != null) _expandAncestors(resolvedView);
+              }
+              return;
+            }
+
             final now = DateTime.now();
 
             // deduplicate. skip if same plugin and view were just opened
             if (_lastOpenedPluginId == plugin.id &&
-                _lastOpenedViewId == view?.id &&
+                _lastOpenedViewId == resolvedView?.id &&
                 _lastOpenTime != null) {
               final timeSinceLastOpen = now.difference(_lastOpenTime!);
               if (timeSinceLastOpen < _deduplicationWindow) {
@@ -91,20 +133,28 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             }
 
             _lastOpenedPluginId = plugin.id;
-            _lastOpenedViewId = view?.id;
+            _lastOpenedViewId = resolvedView?.id;
             _lastOpenTime = now;
 
             state.currentPageManager
               ..hideSecondaryPlugin()
               ..setSecondaryPlugin(BlankPagePlugin());
-            emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
+            final nextState =
+                state.openPlugin(plugin: plugin, setLatest: setLatest);
+            if (resolvedView != null) {
+              nextState.currentPageManager.recordHistory(
+                resolvedView,
+                arguments: arguments,
+              );
+            }
+            emit(nextState);
             if (setLatest) {
               // the space view should be filtered out.
-              if (view != null && view.isSpace) {
+              if (resolvedView != null && resolvedView.isSpace) {
                 return;
               }
-              _setLatestOpenView(view);
-              if (view != null) _expandAncestors(view);
+              _setLatestOpenView(resolvedView);
+              if (resolvedView != null) _expandAncestors(resolvedView);
             }
           },
           closeOtherTabs: (String pluginId) {
@@ -206,6 +256,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             pageManager
               ..hideSecondaryPlugin()
               ..expandSecondaryPlugin();
+            final notifier = pageManager.plugin.notifier;
+            if (notifier is ViewPluginNotifier) {
+              pageManager.recordHistory(notifier.view);
+            }
             _setLatestOpenView();
           },
           switchWorkspace: (workspaceId) {
@@ -222,7 +276,14 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
               for (final pm in pagesToClose) {
                 newstate.closeView(pm.plugin.id);
               }
+              for (final pm in newstate._pageManagers) {
+                pm.clearHistory();
+              }
               emit(newstate.copyWith(currentIndex: 0));
+            } else {
+              for (final pm in state._pageManagers) {
+                pm.clearHistory();
+              }
             }
           },
         );
@@ -294,12 +355,81 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     ViewPB view, {
     Map<String, dynamic> arguments = const {},
   }) {
+    final plugin = view.plugin(arguments: arguments);
+    if (arguments.isNotEmpty) {
+      _pendingArguments[plugin] = arguments;
+    }
     add(
       TabsEvent.openPlugin(
-        plugin: view.plugin(arguments: arguments),
+        plugin: plugin,
         view: view,
       ),
     );
+  }
+
+  void removeViewFromHistory(String viewId) {
+    for (final pm in state._pageManagers) {
+      pm.removeHistory(viewId);
+    }
+  }
+
+  void goBack() => _enqueueHistoryNavigation(forward: false);
+
+  void goForward() => _enqueueHistoryNavigation(forward: true);
+
+  void _enqueueHistoryNavigation({required bool forward}) {
+    final pageManager = state.currentPageManager;
+    _pendingHistoryNav = _pendingHistoryNav
+        .then((_) => _navigateHistory(pageManager, forward: forward))
+        .catchError((e, st) {
+      Log.error('History navigation error', e, st);
+    });
+  }
+
+  Future<void> _navigateHistory(
+    PageManager pageManager, {
+    required bool forward,
+  }) async {
+    if (!state._pageManagers.contains(pageManager)) {
+      return;
+    }
+
+    while (true) {
+      final entry = forward
+          ? pageManager.peekForwardEntry()
+          : pageManager.peekBackEntry();
+      if (entry == null) {
+        return;
+      }
+
+      final freshView = await ViewBackendService.getView(entry.view.id)
+          .then((result) => result.toNullable());
+      if (freshView == null) {
+        pageManager.removeHistory(entry.view.id);
+        continue;
+      }
+
+      if (!state._pageManagers.contains(pageManager)) {
+        return;
+      }
+
+      final stepped = forward
+          ? pageManager.goForwardEntry()
+          : pageManager.goBackEntry();
+      if (stepped == null || stepped.view.id != freshView.id) {
+        continue;
+      }
+
+      final plugin = freshView.plugin(arguments: stepped.arguments);
+      _historyNavigationTargets[plugin] = pageManager;
+      add(
+        TabsEvent.openPlugin(
+          plugin: plugin,
+          view: freshView,
+        ),
+      );
+      return;
+    }
   }
 }
 
