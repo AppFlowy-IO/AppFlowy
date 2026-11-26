@@ -693,9 +693,20 @@ class PageManager {
   bool get canGoBack => historyTracker.canGoBack;
   bool get canGoForward => historyTracker.canGoForward;
 
-  void recordHistory(ViewPB view) => historyTracker.recordHistory(view);
+  void recordHistory(
+    ViewPB view, {
+    Map<String, dynamic> arguments = const {},
+  }) =>
+      historyTracker.recordHistory(view, arguments: arguments);
+
   ViewPB? goBack() => historyTracker.goBack();
   ViewPB? goForward() => historyTracker.goForward();
+  PageHistoryEntry? peekBackEntry() => historyTracker.peekBackEntry();
+  PageHistoryEntry? peekForwardEntry() => historyTracker.peekForwardEntry();
+  PageHistoryEntry? goBackEntry() => historyTracker.goBackEntry();
+  PageHistoryEntry? goForwardEntry() => historyTracker.goForwardEntry();
+  void removeHistory(String viewId) => historyTracker.removeView(viewId);
+  void clearHistory() => historyTracker.clear();
 
   void setPlugin(Plugin newPlugin, bool setLatest, [bool init = true]) {
     if (init) {
@@ -1067,39 +1078,131 @@ enum Edge {
   bool get isVertical => !isHorizontal;
 }
 
+class PageHistoryEntry {
+  const PageHistoryEntry({
+    required this.view,
+    this.arguments = const {},
+  });
+
+  final ViewPB view;
+  final Map<String, dynamic> arguments;
+}
+
 class PageHistoryTracker {
-  final List<ViewPB> _history = [];
+  PageHistoryTracker({this.maxEntries = 50}) : assert(maxEntries > 0);
+
+  final int maxEntries;
+  final List<PageHistoryEntry> _entries = [];
   int _historyIndex = -1;
 
-  List<ViewPB> get history => List.unmodifiable(_history);
+  List<ViewPB> get history =>
+      List.unmodifiable(_entries.map((entry) => entry.view));
+  List<PageHistoryEntry> get entries => List.unmodifiable(_entries);
   int get historyIndex => _historyIndex;
 
   bool get canGoBack => _historyIndex > 0;
   bool get canGoForward =>
-      _historyIndex >= 0 && _historyIndex < _history.length - 1;
+      _historyIndex >= 0 && _historyIndex < _entries.length - 1;
 
-  void recordHistory(ViewPB view) {
+  void recordHistory(
+    ViewPB view, {
+    Map<String, dynamic> arguments = const {},
+  }) {
     if (_historyIndex >= 0 &&
-        _historyIndex < _history.length &&
-        _history[_historyIndex].id == view.id) {
+        _historyIndex < _entries.length &&
+        _entries[_historyIndex].view.id == view.id &&
+        _argumentsEqual(_entries[_historyIndex].arguments, arguments)) {
       return;
     }
-    if (_historyIndex >= 0 && _historyIndex < _history.length - 1) {
-      _history.removeRange(_historyIndex + 1, _history.length);
+    if (_historyIndex >= 0 && _historyIndex < _entries.length - 1) {
+      _entries.removeRange(_historyIndex + 1, _entries.length);
     }
-    _history.add(view);
-    _historyIndex = _history.length - 1;
+    _entries.add(
+      PageHistoryEntry(
+        view: view,
+        arguments: arguments.isEmpty ? const {} : Map.unmodifiable(arguments),
+      ),
+    );
+    if (_entries.length > maxEntries) {
+      _entries.removeRange(0, _entries.length - maxEntries);
+    }
+    _historyIndex = _entries.length - 1;
   }
 
-  ViewPB? goBack() {
+  PageHistoryEntry? peekBackEntry() =>
+      canGoBack ? _entries[_historyIndex - 1] : null;
+
+  PageHistoryEntry? peekForwardEntry() =>
+      canGoForward ? _entries[_historyIndex + 1] : null;
+
+  PageHistoryEntry? goBackEntry() {
     if (!canGoBack) return null;
     _historyIndex--;
-    return _history[_historyIndex];
+    return _entries[_historyIndex];
   }
 
-  ViewPB? goForward() {
+  PageHistoryEntry? goForwardEntry() {
     if (!canGoForward) return null;
     _historyIndex++;
-    return _history[_historyIndex];
+    return _entries[_historyIndex];
+  }
+
+  ViewPB? goBack() => goBackEntry()?.view;
+
+  ViewPB? goForward() => goForwardEntry()?.view;
+
+  void removeView(String viewId) {
+    if (_entries.isEmpty) return;
+
+    final filtered = <PageHistoryEntry>[];
+    var newIndex = -1;
+    for (var i = 0; i < _entries.length; i++) {
+      final entry = _entries[i];
+      if (entry.view.id == viewId) {
+        continue;
+      }
+      if (filtered.isNotEmpty &&
+          filtered.last.view.id == entry.view.id &&
+          _argumentsEqual(filtered.last.arguments, entry.arguments)) {
+        if (i <= _historyIndex) {
+          newIndex = filtered.length - 1;
+        }
+        continue;
+      }
+      filtered.add(entry);
+      if (i <= _historyIndex) {
+        newIndex = filtered.length - 1;
+      }
+    }
+
+    _entries
+      ..clear()
+      ..addAll(filtered);
+    if (_entries.isEmpty) {
+      _historyIndex = -1;
+    } else if (newIndex < 0) {
+      _historyIndex = 0;
+    } else {
+      _historyIndex = newIndex;
+    }
+  }
+
+  void clear() {
+    _entries.clear();
+    _historyIndex = -1;
+  }
+
+  static bool _argumentsEqual(
+    Map<String, dynamic> a,
+    Map<String, dynamic> b,
+  ) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (final entry in a.entries) {
+      if (!b.containsKey(entry.key) || b[entry.key] != entry.value) {
+        return false;
+      }
+    }
+    return true;
   }
 }

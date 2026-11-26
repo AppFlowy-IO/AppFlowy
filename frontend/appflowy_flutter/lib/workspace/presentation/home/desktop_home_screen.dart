@@ -337,6 +337,7 @@ class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
+    getIt<TabsBloc>().removeViewFromHistory(view.id);
     ViewBackendService.getView(view.parentViewId).then(
       (result) => result.fold(
         (parentView) {
