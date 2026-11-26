@@ -162,10 +162,11 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     OptionAction.duplicate,
   ];
 
-  // filter out the copy link to block option if in local mode
-  if (context.read<DocumentBloc?>()?.isLocalMode != true) {
-    standardActions.add(OptionAction.copyLinkToBlock);
-  }
+  // Copy link to block works in both local and cloud modes: the link is
+  // built from the current workspace/view ids, which are available in
+  // local mode as well (see _copyLinkToBlock). Keep the option visible
+  // everywhere so local (offline) users can copy block links too.
+  standardActions.add(OptionAction.copyLinkToBlock);
 
   standardActions.add(OptionAction.turnInto);
 
