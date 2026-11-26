@@ -396,7 +396,7 @@
     "openMenu": "Cliquer pour ouvrir le menu",
     "dragRow": "Appuyez longuement pour réorganiser la ligne",
     "viewDataBase": "Voir la base de données",
-    "referencePage": "Ce {nom} est référencé",
+    "referencePage": "Ce {name} est référencé",
     "addBlockBelow": "Ajouter un bloc ci-dessous",
     "aiGenerate": "Générer"
   },
@@ -3181,7 +3181,7 @@
     },
     "minutes": {
       "one": "1 minute",
-      "other": "{compter} minutes"
+      "other": "{count} minutes"
     },
     "hours": {
       "one": "1 heure",
