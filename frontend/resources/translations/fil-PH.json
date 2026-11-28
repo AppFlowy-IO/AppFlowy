@@ -1,0 +1,3450 @@
+{
+  "ai": {
+    "analyzing": "Sinusuri",
+    "contentPolicyViolation": "Nabigo ang pagbuo ng larawan dahil sa sensitibong nilalaman. Mangyaring muling paraphrase ang inyong input at subukang muli",
+    "continueWritingEmptyDocumentDescription": "Nahihirapan kaming palawakin ang nilalaman sa iyong dokumento. Sumulat ng maikling intro at magsisimula na kami mula roon!",
+    "continueWritingEmptyDocumentTitle": "Magpatuloy sa pagsulat error",
+    "customPrompt": {
+      "all": "Lahat",
+      "browsePrompts": "Mag-browse ng mga prompt",
+      "business": "Negosyo",
+      "caseStudies": "Mga Pag-aaral ng Kaso",
+      "category": "Kategorya",
+      "configureDatabase": "I-configure ang Database",
+      "content": "Nilalaman",
+      "contentSeo": "Nilalaman/SEO",
+      "copyWriting": "Copywriting",
+      "custom": "Custom",
+      "customPrompt": "Custom na mga Prompt",
+      "customerSuccess": "Tagumpay ng Kustomer",
+      "databasePrompts": "Mag-load ng mga prompt mula sa sarili mong database",
+      "development": "Pag-unlad",
+      "education": "Edukasyon",
+      "emailMarketing": "Email Marketing",
+      "example": "Halimbawa",
+      "featured": "Itinatampok",
+      "healthAndFitness": "Kalusugan at pagiging angkop",
+      "invalidDatabase": "Di-wastong Database",
+      "invalidDatabaseHelp": "Tiyakin na ang database ay may hindi bababa sa dalawang katangian ng teksto:\n◦ Isa na ginamit para sa pangalan ng prompt\n◦ Isa na ginagamit para sa nilalaman ng prompt\nMaaari ka ring opsyonal na magdagdag ng mga property para sa halimbawa ng prompt at kategorya.",
+      "loading": "naglo-load",
+      "marketing": "Marketing",
+      "noResults": "Walang natagpuang mga prompt",
+      "others": "Iba",
+      "paidAds": "Bayad na Patalastas",
+      "podcastProduction": "Produksyon ng Podcast",
+      "prCommunication": "PR/Komunikasyon",
+      "prompt": "Prompt",
+      "promptDatabase": "Database ng mga prompt",
+      "promptExample": "Halimbawa ng Prompt",
+      "recruiting": "Nangangalap",
+      "sales": "Mga benta",
+      "salesCopy": "Kopya ng Pagbebenta",
+      "sampleOutput": "Halimbawang output",
+      "selectDatabase": "Pumili ng database",
+      "selectField": "Pumili ng field",
+      "socialMedia": "Social Media",
+      "strategy": "Istratehiya",
+      "title": "Pamagat",
+      "travel": "Paglalakbay",
+      "usePrompt": "Gamitin ang prompt",
+      "work": "Trabaho",
+      "writing": "Pagsusulat"
+    },
+    "editing": "Pag-edit",
+    "imageLimitReachedDescription": "Naubos mo na ang iyong libreng quota ng AI image. Mangyaring i-upgrade sa Pro Plan o bumili ng AI add-on upang ma-unlock ang walang limitasyong mga sagot",
+    "limitReachedAction": {
+      "aiAddon": "Karagdagang AI",
+      "imageDescription": "Naubos mo na ang iyong libreng quota sa AI image. Pakiusap",
+      "orPurchaseAn": "o bumili ng isang",
+      "proPlan": "Pro Plan",
+      "textDescription": "Naubos na ang libreng AI na tugon sa iyong workspace. Upang makakuha ng karagdagang mga tugon, pakisuyo",
+      "toThe": "sa",
+      "upgrade": "mag-upgrade"
+    },
+    "more": "Higit pa",
+    "textLimitReachedDescription": "Naubos na ang libreng AI na tugon sa iyong workspace. Mag-upgrade sa Pro Plan o bumili ng AI add-on upang ma-unlock ang walang limitasyong tugon."
+  },
+  "and": "at",
+  "appName": "AppFlowy",
+  "approveAccess": {
+    "alreadyProMessage": "Hilingin sa kanila na makipag-ugnayan <email/> para i-unlock ang mas maraming miyembro",
+    "alreadyProTitle": "Naabot mo na ang limitasyon ng plano sa workspace",
+    "approveButton": "Aprubahan",
+    "approveError": "Nabigo ang pag-apruba, tiyaking hindi lumalampas sa limitasyon ng plano sa workspace",
+    "approveSuccess": "Matagumpay na naaprubahan",
+    "asMember": "bilang isang kasapi",
+    "downloadApp": "I-download ang AppFlowy",
+    "ensurePlanLimit": "Siguraduhing hindi lalampas ang limit ng plano ng workspace. Kung lalampas ang limit, isaalang-alang <upgrade/> ang plano ng workspace o <download/>.",
+    "getRequestInfoError": "Nabigong kunin ang impormasyon ng kahilingan",
+    "memberCount": {
+      "many": "{count} na miyembro",
+      "one": "1 miyembro",
+      "other": "{count} na miyembro",
+      "zero": "Walang mga miyembro"
+    },
+    "repeatApproveError": "Naaprubahan mo na ang kahilingang ito",
+    "requestToJoin": "humiling na sumali",
+    "title": "Aprubahan ang Kahilingan sa Pagsali sa Workspace",
+    "upgrade": "i-upgrade"
+  },
+  "autoUpdate": {
+    "bannerUpdateButton": "Walang ibinigay na teksto para isalin.",
+    "bannerUpdateDescription": "Kunin ang pinakabagong mga tampok at pag-aayos. I-click ang \"Update\" para i-install ngayon",
+    "bannerUpdateTitle": "Bagong Bersyon na!",
+    "criticalUpdateButton": "I-update",
+    "criticalUpdateDescription": "Nag‑upgrade kami para mapabuti ang iyong karanasan! Pak i‑update mula sa {currentVersion} patungo sa {newVersion} upang patuloy na magamit ang app.",
+    "criticalUpdateTitle": "Kailangan ng update upang magpatuloy",
+    "settingsUpdateButton": "Pag-update",
+    "settingsUpdateDescription": "Kasalukuyang bersyon: {currentVersion} (Opisyal na build) → {newVersion}",
+    "settingsUpdateTitle": "Bagong Bersyon ({newVersion}) na Available!",
+    "settingsUpdateWhatsNew": "Ano'ng bago"
+  },
+  "blankPageTitle": "",
+  "blockActions": {
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "idagdag sa itaas",
+    "addBelowTooltip": "I-klik upang magdagdag sa ibaba",
+    "dragTooltip": "I-drag upang lumipat",
+    "openMenuTooltip": "I-click para buksan ang menu"
+  },
+  "blockPlaceholders": {
+    "bulletList": "List",
+    "heading": "Pamagat {}",
+    "numberList": "Listahan",
+    "quote": "Quote",
+    "todoList": "Gawain"
+  },
+  "board": {
+    "cardActions": "Mga Aksyon sa Kard",
+    "cardDeleted": "Na-delete na ang card.",
+    "cardDetail": "Detalye ng Card",
+    "cardDuplicated": "Na-duplicate na ang card",
+    "column": {
+      "addToColumnBottomTooltip": "Magdagdag ng bagong kard sa ibaba",
+      "addToColumnTopTooltip": "Magdagdag ng bagong card sa itaas",
+      "createNewCard": "Bago",
+      "createNewColumn": "Magdagdag ng bagong grupo",
+      "deleteColumn": "",
+      "deleteColumnConfirmation": "I-delete nito ang grupong ito at lahat ng mga kard sa loob nito. Sigurado ka bang gusto mong magpatuloy?",
+      "hideColumn": "Itago",
+      "label": "Haligi",
+      "newGroup": "Bagong grupo",
+      "renameColumn": "Palitan ng pangalan",
+      "renameGroupTooltip": "Pindutin upang palitan ang pangalan ng grupo"
+    },
+    "dateCondition": {
+      "lastSevenDays": "Nakaraang 7 araw",
+      "lastThirtyDays": "Huling 30 araw",
+      "nextSevenDays": "Susunod na 7 araw",
+      "nextThirtyDays": "Susunod na 30 araw",
+      "today": "Ngayon",
+      "tomorrow": "Bukas",
+      "weekOf": "Linggo ng {} - {}",
+      "yesterday": "Kahapon"
+    },
+    "groupBy": "Pangkatin ayon sa",
+    "groupCondition": "Kondisyon ng grupo",
+    "hiddenGroupSection": {
+      "collapseTooltip": "Itago ang mga nakatagong grupo",
+      "expandTooltip": "Tingnan ang mga nakatagong grupo",
+      "sectionTitle": "Nakatagong mga Grupo"
+    },
+    "media": {
+      "cardText": "",
+      "fallbackName": ""
+    },
+    "menuName": "Lupon",
+    "mobile": {
+      "editURL": "I-edit ang URL",
+      "failedToLoad": "Nabigong i-load ang board view",
+      "showGroup": "Ipakita ang grupo",
+      "showGroupContent": "Sigurado ka bang gusto mong ipakita ang grupong ito sa board?"
+    },
+    "noGroup": "Walang property ng pag-group by",
+    "noGroupDesc": "Ang mga view ng board ay nangangailangan ng isang property upang pag-grupuhin para maipakita.",
+    "notesTooltip": "Mga tala sa loob",
+    "propertyName": "Pangalan ng ari-arian",
+    "referencedBoardPrefix": "Tanawin ng",
+    "setting": "Settings",
+    "showOnCard": "Ipakita sa detalye ng kard",
+    "showUngrouped": "Ipakita ang mga hindi naka-grupong item",
+    "ungroupedButtonText": "Hindi nakagrupo",
+    "ungroupedButtonTooltip": "Naglalaman ng mga kard na hindi kabilang sa anumang grupo.",
+    "ungroupedItemsTitle": "I-click para maidagdag sa board"
+  },
+  "breadcrumbs": {
+    "label": "Mga tinapay"
+  },
+  "button": {
+    "add": "Magdagdag",
+    "addToFavorites": "Idagdag sa Mga Paborito",
+    "align": "Ayusin",
+    "back": "Bumalik",
+    "backToHome": "Bumalik sa Home",
+    "cancel": "",
+    "change": "Palitan",
+    "clear": "Malinaw",
+    "close": "Isara",
+    "complete": "Kumpleto",
+    "confirm": "Kumpirmahin",
+    "copy": "Kopya",
+    "copyLink": "Kopyahin ang Link",
+    "copyLinkOriginal": "Kopyahin ang link sa orihinal",
+    "create": "Maaaring pakilinaw kung ano ang nais mong likhain?",
+    "delete": "",
+    "deleteAccount": "Tanggalin ang account",
+    "discard": "Itapon",
+    "done": "Tapos",
+    "dontRemove": "Huwag alisin",
+    "download": "I-download",
+    "duplicate": "Duplicate",
+    "duplicateSuccessfully": "Naduplicate nang matagumpay",
+    "edit": "I-edit",
+    "editing": "Pag-edit",
+    "esc": "ESC",
+    "favoriteSuccessfully": "Tagumpay sa pag-favorite",
+    "generate": "Bumuo",
+    "gotIt": "Naintindihan",
+    "helpCenter": "Sentro ng Tulong",
+    "insertAbove": "Ipasok sa itaas",
+    "insertBelow": "Ilagay sa ibaba",
+    "keep": "Panatilihin",
+    "login": "Mag-login",
+    "logout": "Mag-logout",
+    "more": "Higit pa",
+    "next": "Susunod",
+    "no": "Hindi",
+    "ok": "Ok",
+    "previous": "Nakaraang",
+    "putback": "Ibalik",
+    "remove": "Alisin",
+    "removeFromFavorites": "Alisin sa Mga Paborito",
+    "removeFromRecent": "Alisin mula sa Kamakailan",
+    "rename": "Palitan ang pangalan",
+    "replace": "Palitan",
+    "retry": "",
+    "save": "I-save",
+    "share": "Ibahagi",
+    "signIn": "Mag-sign In",
+    "signInDiscord": "Magpatuloy gamit ang Discord",
+    "signInGithub": "Magpatuloy sa GitHub",
+    "signInGoogle": "Magpatuloy gamit ang Google",
+    "signOut": "Mag-sign out",
+    "submit": "Ipadala",
+    "tryAgain": "",
+    "unfavoriteSuccessfully": "Hindi paboritong tagumpay",
+    "update": "I-update",
+    "upload": "Mangyaring i-paste o i-type ang teksto na nais mong isalin.",
+    "uploadFailed": "Nabigong mag-upload.",
+    "viewing": "Pagtingin",
+    "yes": "Oo"
+  },
+  "calendar": {
+    "defaultNewCalendarTitle": "Walang Pamagat",
+    "duplicateEvent": "Doblehin ang event",
+    "menuName": "Kalendaryo",
+    "mobileEventScreen": {
+      "emptyBody": "Pindutin ang plus na button upang lumikha ng isang kaganapan sa araw na ito.",
+      "emptyTitle": "Wala pang kaganapan"
+    },
+    "navigation": {
+      "jumpToday": "Pumunta sa Ngayon",
+      "nextMonth": "Susunod na buwan",
+      "previousMonth": "Nakaraang Buwan",
+      "today": "Ngayon",
+      "views": {
+        "day": "Araw",
+        "month": "Buwan",
+        "week": "Linggo",
+        "year": "Taon"
+      }
+    },
+    "newEventButtonTooltip": "Magdagdag ng bagong kaganapan",
+    "quickJumpYear": "Tumalon sa",
+    "referencedCalendarPrefix": "Tanawin ng",
+    "settings": {
+      "changeLayoutDateField": "Palitan ang field ng layout",
+      "clickToAdd": "I-click upang idagdag sa kalendaryo",
+      "clickToOpen": "I-click upang buksan ang record",
+      "firstDayOfWeek": "Simulan ang linggo sa",
+      "layoutDateField": "Iayos ang kalendaryo ayon kay",
+      "name": "Mga setting ng kalendaryo",
+      "noDateHint": {
+        "one": "{count} hindi nakaiskedyul na pangyayari",
+        "other": "{count} hindi nakaiskedyul na mga kaganapan",
+        "zero": "Ang mga hindi nakaiskedyul na pangyayari ay lalabas dito"
+      },
+      "noDateTitle": "Walang Petsa",
+      "showWeekNumbers": "Ipakita ang mga numero ng linggo",
+      "showWeekends": "Ipakita ang mga weekend",
+      "unscheduledEventsTitle": "Hindi nakaiskedyul na mga pangyayari"
+    }
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Maglagay ng / upang magpasok ng bloke, o magsimulang mag-type."
+  },
+  "chat": {
+    "addToNewPage": "Lumikha ng bagong pahina",
+    "addToNewPageName": "Mga mensahe na kinuha mula sa \"{}\"",
+    "addToNewPageSuccessToast": "Idinagdag ang mensahe sa",
+    "addToPageButton": "Magdagdag ng mensahe sa page",
+    "addToPageTitle": "Magdagdag ng mensahe sa...",
+    "aiMistakePrompt": "Maaaring magkamali ang AI. Suriin ang mahalagang impormasyon.",
+    "aiServerUnavailable": "Ang AI service ay pansamantalang hindi magagamit. Pakisubukang muli mamaya.",
+    "changeFormat": {
+      "actionButton": "Palitan ang format",
+      "blankDescription": "",
+      "bullet": "Listahan ng bullet",
+      "bulletWithImageDescription": "@:chatPalitan ang format ng bullet gamit ang larawan",
+      "confirmButton": "",
+      "defaultDescription": "Format ng awtomatikong tugon",
+      "imageOnly": "",
+      "number": "Listahang may numero",
+      "numberWithImageDescription": "@:chat.baguhinAngFormat.numero na may larawan",
+      "table": "Mesa",
+      "tableWithImageDescription": "@:chat.changeFormat.table na may larawan",
+      "text": "Talata",
+      "textAndImage": "Teksto at Larawan",
+      "textOnly": "Teksto",
+      "textWithImageDescription": "@:chat.changeFormat.text na may larawan"
+    },
+    "chatWithFilePrompt": "Gusto mo bang makipag-usap sa file?",
+    "clickToMention": "Pahina 42",
+    "clickToRetry": "I-click upang subukang muli",
+    "currentPage": "Kasalukuyang pahina",
+    "generatingResponse": "Lumilikha ng sagot",
+    "indexFileSuccess": "Matagumpay na na-index ang file",
+    "indexingFile": "Pag-index ng {}",
+    "inputActionNoPages": "Walang resulta ng pahina",
+    "inputLocalAIMessageHint": "Magtanong @:appName Lokal na AI",
+    "inputMessageHint": "Tanong @:appName AI",
+    "newChat": "AI Chat",
+    "openPagePreviewFailedToast": "Nabigong buksan ang pahina",
+    "question1": "Paano gamitin ang Kanban para pamahalaan ang mga gawain",
+    "question2": "Ipaliwanag ang pamamaraang GTD",
+    "question3": "Bakit gumamit ng Rust",
+    "question4": "Ano ang mga sangkap na meron ka sa kusina? Ilista mo sila nang buo para makagawa ako ng recipe na swak sa mga ito.",
+    "question5": "Paumanhin, ngunit bilang isang text‑based na AI, hindi ako makakalikha ng mga larawan o ilustrasyon. Maaari kitang tulungan sa pagbuo ng mga konsepto, paglalarawan, o mga ideya para sa iyong ilustrasyon, o magbigay ng mga mungkahi kung paano mo ito magagawa gamit ang mga graphic design tool. Sabihin mo lang kung anong uri ng ilustrasyon ang kailangan mo, at tutulungan kitang mag‑brainstorm!",
+    "question6": "Gumawa ng listahan ng mga gagawin para sa susunod na linggo",
+    "questionDetail": "Hi {}! Paano kita matutulungan ngayon?",
+    "referenceSource": {
+      "one": "{count} (na) source ang natagpuan",
+      "other": "Nakahanap ng {count} (na) source",
+      "zero": "0 sources found"
+    },
+    "regenerate": "",
+    "regenerateAnswer": "",
+    "relatedQuestion": "Inirerekomenda",
+    "retry": "",
+    "selectBanner": {
+      "allSelected": "Lahat napili",
+      "nSelected": "{} napili",
+      "saveButton": "Idagdag sa …",
+      "selectMessages": "Pumili ng mga mensahe"
+    },
+    "selectSources": "Pumili ng Mga Pinagmulan",
+    "serverUnavailable": "Nawala ang koneksyon. Paki-check ang iyong internet at",
+    "sourceUnsupported": "Hindi pa namin sinusuportahan ang pakikipag-usap sa mga database sa oras na ito.",
+    "sourcesLimitReached": "Maaari ka lamang pumili ng hanggang 3 top-level na dokumento at ang mga anak nito",
+    "stopTooltip": "Itigil ang paggawa",
+    "switchModel": {
+      "autoModel": "Auto",
+      "cloudModel": "Modelo ng Ulap",
+      "label": "Palitan ang modelo",
+      "localModel": "Lokal na Modelo"
+    },
+    "unsupportedCloudPrompt": "Ang tampok na ito ay magagamit lamang kapag ginagamit @:appName Ulap",
+    "uploadFile": "Mag-attach ng mga PDF, teksto, o mga markdown na file"
+  },
+  "colors": {
+    "blue": "Asul",
+    "brown": "Kayumanggi",
+    "custom": "Pasadya",
+    "default": "Default",
+    "gray": "Kulay-abo",
+    "green": "berde",
+    "orange": "Kahel",
+    "pink": "Rosas",
+    "purple": "Lila",
+    "red": "Pula",
+    "yellow": "Dilaw"
+  },
+  "commandPalette": {
+    "aiAskFollowUp": "Magtanong ng follow-up",
+    "aiOverview": "Pangkalahatang-ideya ng AI",
+    "aiOverviewMoreDetails": "Maaari mo bang ibigay ang karagdagang detalye o konteksto para matulungan kitang mabigyan ng tamang sagot?",
+    "aiOverviewSource": "Mga sangguniang pinagkunan",
+    "bestMatches": "Pinakamagandang tugma",
+    "betaLabel": "BETA",
+    "betaTooltip": "Sa kasalukuyan, sinusuportahan lamang namin ang paghahanap ng mga pahina at nilalaman sa mga dokumento.",
+    "clearSearchTooltip": "Malinaw na input",
+    "clickToOpenPage": "I-click upang buksan ang pahina",
+    "created": "Nilikha",
+    "edited": "Binago",
+    "fromTrashHint": "Mula sa basura",
+    "loadingTooltip": "Naghahanap kami ng mga resulta...",
+    "location": "Lokasyon",
+    "navigateHint": "mag-navigate",
+    "noResultsHint": "Wala kaming nahanap na hinahanap mo, subukang maghanap ng ibang termino.",
+    "pagePreview": "Preview ng nilalaman",
+    "placeholder": "Maghanap o magtanong...",
+    "recentHistory": "Kamakailang kasaysayan"
+  },
+  "contactsPage": {
+    "addContact": "Magdagdag ng Contact",
+    "editContact": "I-edit ang Contact",
+    "title": "Mga Kontak",
+    "whatsHappening": "Ano ang mga pangyayari ngayong linggo?"
+  },
+  "datePicker": {
+    "clearDate": "Linisin ang petsa",
+    "dateFormat": "Format ng petsa",
+    "dateTimeFormatTooltip": "Palitan ang format ng petsa at oras sa mga setting",
+    "includeTime": "Isama ang oras",
+    "isRange": "Petsa ng pagtatapos",
+    "reminderLabel": "Paalaala",
+    "reminderOptions": {
+      "atTimeOfEvent": "Oras ng pangyayari",
+      "custom": "Pasadya",
+      "fifteenMinsBefore": "15 minuto bago",
+      "fiveMinsBefore": "5 mins bago",
+      "none": "",
+      "onDayOfEvent": "Sa araw ng kaganapan",
+      "oneDayBefore": "1 araw bago",
+      "oneHourBefore": "1 oras bago",
+      "oneWeekBefore": "1 linggo bago",
+      "tenMinsBefore": "10 minuto bago",
+      "thirtyMinsBefore": "30 minuto bago",
+      "twoDaysBefore": "2 araw bago",
+      "twoHoursBefore": "2 oras bago"
+    },
+    "selectReminder": "Pumili ng paalala",
+    "timeFormat": "Format ng oras"
+  },
+  "defaultUsername": "Ako",
+  "deletePagePrompt": {
+    "deletePermanent": "Permanenteng tanggalin",
+    "deletePermanentDescription": "Sigurado ka ba na gusto mong permanenteng burahin ang pahinang ito? Ito ay hindi na maibabalik.",
+    "restore": "Ibalik ang pahina",
+    "text": "Ang pahinang ito ay nasa Trash"
+  },
+  "dialogCreatePageNameHint": "Pangalan ng pahina",
+  "disclosureAction": {
+    "addToFavorites": "Idagdag sa Mga Paborito",
+    "changeIcon": "Baguhin ang icon",
+    "collapseAllPages": "Ipatiklop ang lahat ng subpages",
+    "copyLink": "Kopyahin ang link",
+    "delete": "",
+    "duplicate": "Duplikado",
+    "favorite": "Idagdag sa Mga Paborito",
+    "lockPage": "I-lock ang pahina",
+    "move": "Lipat",
+    "movePageTo": "Ilipat ang pahina sa",
+    "moveTo": "Lumipat sa",
+    "openNewTab": "Buksan sa bagong tab",
+    "rename": "Palitan ang pangalan",
+    "unfavorite": "Alisin sa Mga Paborito"
+  },
+  "document": {
+    "attachmentMenu": {
+      "chooseFile": "Pumili ng file",
+      "choosePhoto": "Pumili ng larawan",
+      "takePicture": "Kumuha ng larawan"
+    },
+    "codeBlock": {
+      "codeCopiedSnackbar": "Kopyado na ang code sa clipboard!",
+      "copyTooltip": "Kopyahin",
+      "language": {
+        "auto": "Awto",
+        "label": "Wika",
+        "placeholder": "Pumili ng wika"
+      },
+      "searchLanguageHint": "Maghanap ng isang wika"
+    },
+    "creating": "Lumilikha...",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 ng hapon",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "errorBlock": {
+      "blockContentHasBeenCopied": "Nakopya na ang nilalaman ng block.",
+      "clickToCopyTheBlockContent": "I-klik upang kopyahin ang nilalaman ng bloke",
+      "copyBlockContent": "Kopyahin ang nilalaman ng bloke",
+      "parseError": "Nagkaroon ng error habang pinaparse ang {} block.",
+      "theBlockIsNotSupported": "Hindi ma-parse ang nilalaman ng bloke"
+    },
+    "imageBlock": {
+      "ai": {
+        "label": "Gumawa ng imahe mula sa AI",
+        "placeholder": "Pakilagay ang prompt para sa AI upang lumikha ng larawan."
+      },
+      "embedLink": {
+        "label": "I-embed ang link",
+        "placeholder": "I’m sorry, but I can’t process images. Please provide the text you’d like translated."
+      },
+      "error": {
+        "invalidImage": "Hindi wastong imahe",
+        "invalidImageFormat": "Ang format ng larawan ay hindi suportado. Mga suportadong format: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageSize": "Ang laki ng imahe ay dapat mas mababa sa 5 MB.",
+        "invalidImageUrl": "Di-wastong URL ng imahe",
+        "multipleImagesFailed": "Nabigo ang pag-upload ng isa o higit pang larawan, pakisubukang muli",
+        "noImage": "Walang ganoong file o direktory"
+      },
+      "failedToAddImageToGallery": "Nabigo sa pag-save ng imahe",
+      "imageIsUploading": "Ang larawan ay naglo-load.",
+      "interactiveViewer": {
+        "toolbar": {
+          "changeZoomLevelTooltip": "Baguhin ang antas ng pag-zoom",
+          "closeViewer": "Isara ang interactive viewer",
+          "deleteImageTooltip": "Burahin ang imahe",
+          "downloadImage": "Hindi ko magawang mag-download ng imahe.",
+          "nextImageTooltip": "Susunod na imahe",
+          "openLocalImage": "Buksan ang larawan",
+          "previousImageTooltip": "Nakaraang larawan",
+          "scalePercentage": "{}%",
+          "zoomInTooltip": "I-zoom in",
+          "zoomOutTooltip": "I-zoom out"
+        }
+      },
+      "maximumImageSize": "Ang pinakamataas na suportadong laki ng pag-upload ng larawan ay 10MB.",
+      "openFullScreen": "Buksan sa buong screen",
+      "placeholder": "I-click upang magdagdag ng mga larawan",
+      "pleaseInputYourOpenAIKey": "paki-lagay ang iyong AI key sa Settings page",
+      "saveImageToGallery": "Hindi ko magawang i-save ang larawan dito.",
+      "searchForAnImage": "Maghanap ng larawan",
+      "stability_ai": {
+        "label": "Bumuo ng larawan mula sa Stability AI",
+        "placeholder": "Mangyaring i-type ang prompt para sa Stability AI upang makabuo ng larawan"
+      },
+      "successToAddImageToGallery": "Iniligtas ang imahe sa Photos",
+      "support": "Ang limitasyon sa laki ng imahe ay 5MB. Mga suportadong format: JPEG, PNG, GIF, SVG",
+      "unableToLoadImage": "Hindi ma-load ang larawan",
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "upload": {
+        "label": "Mangyaring i-paste o i-type ang teksto na nais mong isalin.",
+        "placeholder": "I-klik para mag-upload ng larawan"
+      },
+      "uploadImageErrorImageSizeTooBig": "Ang laki ng imahe ay dapat mas mababa sa 10MB",
+      "url": {
+        "label": "URL ng Larawan",
+        "placeholder": "Ilagay ang URL ng larawan"
+      }
+    },
+    "inlineLink": {
+      "copyLink": "Kopyahin ang link",
+      "openInNewTab": "Buksan sa bagong tab",
+      "placeholder": "I-paste o i-type ang isang link",
+      "removeLink": "Alisin ang link",
+      "title": {
+        "label": "Pamagat ng Link",
+        "placeholder": "Ipasok ang pamagat ng link"
+      },
+      "url": {
+        "label": "URL ng Link",
+        "placeholder": "Ilagay ang URL ng link"
+      }
+    },
+    "mention": {
+      "deleted": "",
+      "deletedContent": "Walang ganoong nilalaman o ito ay tinanggal na.",
+      "deletedPage": "Tinanggal na pahina",
+      "morePages": "higit pang mga pahina",
+      "noAccess": "Walang Access",
+      "page": {
+        "label": "Link sa pahina",
+        "tooltip": "I-click upang buksan ang pahina"
+      },
+      "placeholder": "Banggitin ang isang tao, isang pahina, o isang petsa...",
+      "trashHint": "- nasa basurahan"
+    },
+    "menuName": "Dokumento",
+    "mobilePageSelector": {
+      "failedToLoad": "Nabigo ang pag-load ng listahan ng pahina",
+      "noPagesFound": "Walang nahanap na mga pahina",
+      "title": "Piliin ang pahina"
+    },
+    "outlineBlock": {
+      "placeholder": "Talaan ng Nilalaman"
+    },
+    "plugins": {
+      "aI": "AI",
+      "action": "Mga Aksyon",
+      "aiWriter": {
+        "continueWriting": "Patuloy na isulat",
+        "explain": "Ipaliwanag",
+        "fixSpelling": "Ayusin ang pagbaybay at balarila",
+        "improveWriting": "Pahusayin ang pagsulat",
+        "makeLonger": "Pakipahabain po ito nang higit pa.",
+        "makeShorter": "Gawing mas maikli",
+        "summarize": "Ibuod",
+        "userQuestion": "Magtanong ng kahit ano sa AI"
+      },
+      "appflowyAIEditDisabled": "Mag-sign in upang paganahin ang mga tampok ng AI",
+      "autoGeneratorCantGetOpenAIKey": "Hindi makakuha ng AI key",
+      "autoGeneratorGenerate": "Bumuo",
+      "autoGeneratorHintText": "Tanong sa AI ...",
+      "autoGeneratorLearnMore": "Alamin ang higit pa",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorRewrite": "Rewrite",
+      "autoGeneratorTitleName": "AI: Hilingin ang AI na magsulat ng kahit ano...",
+      "bulletedList": "- Listahan ng mga bullet",
+      "callout": "Pagtawag",
+      "cannotMoveToItsChildren": "Hindi maaaring ilipat sa mga anak nito",
+      "contextMenu": {
+        "copy": "Kopya",
+        "cut": "Gupitin",
+        "paste": "Idikit",
+        "pasteAsPlainText": "Idikit bilang plain text"
+      },
+      "cover": {
+        "abstract": "Abstrak",
+        "add": "Magdagdag",
+        "addCover": "Magdagdag ng Pabalat",
+        "addIcon": "Magdagdag ng icon",
+        "addLocalImage": "Magdagdag ng lokal na larawan",
+        "alertDialogConfirmation": "Sigurado ka ba, gusto mong magpatuloy?",
+        "back": "Bumalik",
+        "changeCover": "Baguhin ang Cover",
+        "changeIcon": "Baguhin ang icon",
+        "clearAll": "I-clear Lahat",
+        "colors": "Mga Kulay",
+        "couldNotFetchImage": "Hindi makuha ang imahe",
+        "coverRemoveAlert": "Aalisin ito mula sa takip pagkatapos itong mabura.",
+        "enterImageUrl": "Ilagay ang URL ng larawan",
+        "failedToAddImageToGallery": "Nabigong magdagdag ng larawan sa gallery",
+        "imageSavingFailed": "Nabigong I-save ang Larawan",
+        "images": "Mga Larawan",
+        "invalidImageUrl": "Di-wastong URL ng larawan",
+        "or": "O",
+        "pasteImageUrl": "I-paste ang URL ng imahe",
+        "pickFromFiles": "Pumili mula sa mga file",
+        "removeCover": "Alisin ang takip",
+        "removeIcon": "Alisin ang icon",
+        "saveToGallery": "I-save sa gallery"
+      },
+      "createInlineMathEquation": "Gumawa ng ekwasyon",
+      "database": {
+        "linkToDatabase": "Link sa Database",
+        "newDatabase": "Bagong Database",
+        "noDataSource": "Walang pinagmulan ng data",
+        "selectADataSource": "Pumili ng pinagmulan ng datos",
+        "selectDataSource": "Pumili ng pinagmulan ng data",
+        "toContinue": "upang magpatuloy"
+      },
+      "date": "Petsa",
+      "discardResponse": "Sigurado ka bang nais mong itapon ang tugon ng AI?",
+      "emoji": "Emoji",
+      "emptyToggleHeading": "Walang laman na toggle h{}. I-click upang magdagdag ng nilalaman.",
+      "emptyToggleHeadingWeb": "Walang laman na toggle h{level}. I-click upang magdagdag ng nilalaman",
+      "emptyToggleList": "Walang laman na listahan ng toggle. I-click upang magdagdag ng nilalaman.",
+      "file": {
+        "dropFileToUpload": "I-drop ang file para i-upload",
+        "failedToOpenMsg": "Nabigong buksan, hindi natagpuan ang file",
+        "fileTooBigError": "Masyadong malaki ang laki ng file, pakilagay ng file na mas maliit sa 10MB",
+        "fileUploadHint": "I-drag at i-drop ang file o i-click upang",
+        "fileUploadHintSuffix": "Hindi ko magawang mag-browse sa internet.",
+        "linkedAt": "Idinagdag ang link noong {}",
+        "name": "Talaksan",
+        "networkAction": "I-embed",
+        "networkHint": "I-paste ang link ng file",
+        "networkTab": "I-embed na link",
+        "networkUrlInvalid": "Hindi wastong URL. Suriin ang URL at subukang muli.",
+        "placeholderDragging": "Ilagay ang file upang i-upload",
+        "placeholderText": "I-upload o i-embed ang isang file",
+        "renameFile": {
+          "description": "Ilagay ang bagong pangalan para sa file na ito",
+          "nameEmptyError": "Hindi maaaring walang laman ang pangalan ng file.",
+          "title": "Palitan ang pangalan ng file"
+        },
+        "uploadMobile": "Pumili ng file",
+        "uploadMobileGallery": "Mula sa Photo Gallery",
+        "uploadTab": "I-upload",
+        "uploadedAt": "Na-upload noong {}"
+      },
+      "fonts": "Mga Font",
+      "image": {
+        "addAnImage": "Paumanhin, ngunit wala akong kakayahang magdagdag ng mga larawan sa kasalukuyang format.",
+        "addAnImageDesktop": "Paumanhin, hindi ako makakalikha o makakapagdagdag ng mga larawan.",
+        "addAnImageMobile": "I-click upang magdagdag ng isa o higit pang mga larawan",
+        "copiedToPasteBoard": "Nakopya na ang link ng larawan sa clipboard",
+        "dropImageToInsert": "Drop images to insert",
+        "errorCode": "Kodigo ng error",
+        "imageDownloadFailed": "Nabigong i-download ang larawan, pakisubukang muli",
+        "imageDownloadFailedToken": "Nabigo ang pag-download ng larawan dahil sa nawawalang token ng user, pakisubukang muli",
+        "imageUploadFailed": "Nabigong i-upload ang larawan"
+      },
+      "insertDate": "Ipasok ang petsa",
+      "linkPreview": {
+        "linkPreviewMenu": {
+          "copyLink": "Kopyahin ang Link",
+          "pasteHint": "I-paste sa https://...",
+          "reload": "I-reload",
+          "removeLink": "Alisin ang Link",
+          "replace": "Palitan",
+          "toBookmark": "I-convert sa Bookmark",
+          "toEmbed": "",
+          "toMetion": "I-convert sa Mention",
+          "toUrl": "Convert%20to%20URL",
+          "unableToDisplay": "hindi maipapakita"
+        },
+        "typeSelection": {
+          "URL": "URL",
+          "bookmark": "Tanda",
+          "embed": "Isama",
+          "mention": "Banggit",
+          "pasteAs": "I-paste bilang"
+        }
+      },
+      "math": {
+        "copiedToPasteBoard": "Nakopya na ang matematika na ekwasyon sa clipboard"
+      },
+      "mathEquation": {
+        "addMathEquation": "$$E = mc^2$$",
+        "editMathEquation": "I-edit ang Equation ng Matematika",
+        "name": "Ekwasyon sa Matematika"
+      },
+      "numberedList": "1. Item uno\n2. Item dos\n3. Item tres\n4. Item quatro\n5. Item cinco",
+      "optionAction": {
+        "align": "Ayusin",
+        "center": "Sentro",
+        "click": "I-klik",
+        "color": "Kulay",
+        "copyLinkToBlock": "Kopyahin ang link sa bloke",
+        "defaultColor": "Default",
+        "delete": "",
+        "depth": "Lalim",
+        "drag": "I-drag",
+        "duplicate": "Duplicate",
+        "left": "Kaliwa",
+        "moveDown": "Ilipat pababa",
+        "moveUp": "Ilipat pataas",
+        "right": "Tama",
+        "toMove": "lumipat",
+        "toOpenMenu": "para buksan ang menu",
+        "turnInto": "Gawing"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Magdagdag ng mga pamagat upang lumikha ng isang talaan ng nilalaman.",
+        "noMatchHeadings": "Walang natagpuang mga pamagat na tumutugma."
+      },
+      "photoGallery": {
+        "addImageTooltip": "Magdagdag ng imahe",
+        "browserLayout": "Hindi ako makakagamit ng browser.",
+        "changeLayoutTooltip": "Baguhin ang layout",
+        "deleteBlockTooltip": "I-delete ang buong gallery",
+        "galleryKeyword": "galerya",
+        "gridLayout": "Grid",
+        "imageGalleryKeyword": "gallery ng larawan",
+        "imageKeyword": "Paumanhin, hindi ko kayang iproseso ang mga larawan.",
+        "name": "Gallery ng mga larawan",
+        "photoBrowserKeyword": "browser ng larawan",
+        "photoKeyword": ""
+      },
+      "quoteList": "Listahan ng quote",
+      "referencedBoard": "Tinukoy na Board",
+      "referencedCalendar": "Tinukoy na Kalendaryo",
+      "referencedDocument": "Tinukoy na Dokumento",
+      "referencedGrid": "Tinukoy na Grid",
+      "simpleTable": {
+        "clickToAddNewColumn": "I-click upang magdagdag ng bagong column",
+        "clickToAddNewRow": "I-click upang magdagdag ng bagong hilera",
+        "clickToAddNewRowAndColumn": "I-click upang magdagdag ng bagong row at column",
+        "headerName": {
+          "alignText": "Ihanay ang teksto",
+          "table": "Talahanayan"
+        },
+        "moreActions": {
+          "align": "I-align",
+          "cellBackgroundColor": "Kulay ng background ng selula",
+          "clearContents": "",
+          "color": "Kulay",
+          "delete": "Burahin",
+          "distributeColumnsWidth": "Pantayin ang mga haligi",
+          "duplicate": "Duplicate",
+          "duplicateColumn": "Kopyahin ang haligi",
+          "duplicateRow": "Kopyahin ang hilera",
+          "duplicateTable": "I-duplicate ang talahanayan",
+          "headerColumn": "Haligi ng header",
+          "headerRow": "Hilera ng header",
+          "insertAbove": "Ipasok sa itaas",
+          "insertBelow": "Ilagay sa ibaba",
+          "insertLeft": "Ipasok sa kaliwa",
+          "insertRight": "Ipasok kanan",
+          "setToPageWidth": "Itakda sa lapad ng pahina",
+          "textColor": "Kulay ng teksto"
+        }
+      },
+      "smartEdit": "Magtanong sa AI",
+      "smartEditCouldNotFetchKey": "Hindi makuha ang AI key",
+      "smartEditCouldNotFetchResult": "Hindi makuha ang resulta mula sa AI",
+      "smartEditDisabled": "Ikonekta ang AI sa Mga Setting",
+      "smartEditFixSpelling": "Ayusin ang pagbaybay at balarila",
+      "smartEditImproveWriting": "Pagbutihin ang pagsulat",
+      "smartEditMakeLonger": "Pakipahabain po ito nang higit pa.",
+      "smartEditSummarize": "Ibuod",
+      "subPage": {
+        "errors": {
+          "failedCreatePage": "Nabigong lumikha ng pahina",
+          "failedDeletePage": "Nabigong burahin ang pahina",
+          "failedDuplicateFindView": "Nabigo ang pag-duplicate ng pahina - hindi nahanap ang orihinal na view",
+          "failedDuplicatePage": "Nabigong kopyahin ang pahina",
+          "failedMovePage": "Nabigong ilipat ang pahina sa dokumentong ito"
+        },
+        "handlingPasteHint": "- (paghawak ng paste)"
+      },
+      "table": {
+        "addAfter": "Idagdag pagkatapos",
+        "addBefore": "Idagdag bago",
+        "bgColor": "Kulay ng background",
+        "clear": "Linisin ang nilalaman",
+        "delete": "Burahin",
+        "duplicate": "Duplicate"
+      },
+      "todoList": "Listahan ng mga gagawin",
+      "toggleList": "I-toggle listahan",
+      "urlPreview": {
+        "convertToLink": "Upang gawing embed link ang isang URL, ilagay ito sa loob ng isang HTML `&lt;iframe&gt;` tag o gamitin ang tamang format ng embed code ng platform na iyong ginagamit. Halimbawa, para sa YouTube video:\n\n```html\n&lt;iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/VIDEO_ID\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen&gt;&lt;/iframe&gt;\n```\n\nPalitan ang `VIDEO_ID` ng tamang ID ng video. Para sa iba pang mga serbisyo, hanapin ang kanilang embed code generator o sundin ang dokumentasyon nila para sa tamang format.",
+        "copiedToPasteBoard": "Na-copy ang link sa clipboard"
+      },
+      "video": {
+        "copiedToPasteBoard": "Ang link ng video ay nakopya na sa clipboard",
+        "emptyLabel": "Magdagdag ng video",
+        "insertVideo": "Magdagdag ng video",
+        "invalidVideoUrl": "Hindi pa sinusuportahan ang source URL.",
+        "invalidVideoUrlYouTube": "Hindi pa sinusuportahan ang YouTube.",
+        "label": "Bidyo",
+        "placeholder": "I-paste ang link ng video",
+        "supportedFormats": "Mga suportadong format: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "warning": "⚠️ Maaaring hindi tumpak o mapanlinlang ang mga sagot ng AI."
+    },
+    "selectionMenu": {
+      "codeBlock": "Bloke ng Kodigo",
+      "outline": "Balangkas"
+    },
+    "slashMenu": {
+      "board": {
+        "createANewBoard": "Gumawa ng bagong Board",
+        "selectABoardToLinkTo": "Pumili ng Board para i-link"
+      },
+      "calendar": {
+        "createANewCalendar": "Lumikha ng bagong Kalendaryo",
+        "selectACalendarToLinkTo": "Pumili ng Kalendaryo na ikakabit"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Pumili ng Dokumento na i-link"
+      },
+      "grid": {
+        "createANewGrid": "Gumawa ng bagong Grid",
+        "selectAGridToLinkTo": "Pumili ng Grid na i-link"
+      },
+      "name": {
+        "advanced": "Abante",
+        "aiWriter": "Magtanong ng kahit ano sa AI",
+        "bulletedList": "Listahan na may bala",
+        "calendar": "Kalendaryo",
+        "callout": "Pagtawag",
+        "code": "Code",
+        "dateOrReminder": "Petsa o Paalala",
+        "divider": "Dibider",
+        "doc": "Dok",
+        "document": "Dokumento",
+        "emoji": "Emoji",
+        "file": "Talaksan",
+        "fileAndMedia": "File at Media",
+        "fourColumns": "4 na Haligi",
+        "grid": "Grid",
+        "heading1": "Pamagat 1",
+        "heading2": "Pamagat 2",
+        "heading3": "Pamagat 3",
+        "image": "Larawan",
+        "kanban": "Kanban",
+        "linkedCalendar": "Kalendaryong Nakakabit",
+        "linkedDoc": "Link sa pahina",
+        "linkedGrid": "Pinag-ugnay na Grid",
+        "linkedKanban": "Kanban na Nakaugnay",
+        "list": "Listahan",
+        "mathEquation": "Ekwasyon sa Matematika",
+        "numberedList": "1. Item uno\n2. Item dos\n3. Item tres\n4. Item quatro\n5. Item cinco",
+        "outline": "Balangkas",
+        "photoGallery": "Gallery ng Larawan",
+        "quote": "\"Ang tunay na kaalaman ay hindi nakukuha sa pag-alam kung ano ang dapat mong sabihin, kundi sa pag-unawa kung kailan mo dapat ito sabihin.\"",
+        "simpleTable": "Simpleng Talahanayan",
+        "table": "Mesa",
+        "text": "Teksto",
+        "textStyle": "Estilo ng Teksto",
+        "threeColumns": "3 na Haligi",
+        "todoList": "Listahan ng gagawin",
+        "toggle": "I-toggle",
+        "toggleHeading1": "I-toggle ang heading 1",
+        "toggleHeading2": "I-toggle ang pamagat 2",
+        "toggleHeading3": "I-toggle ang heading 3",
+        "toggleList": "I-toggle ang listahan",
+        "twoColumns": "2 Haligi",
+        "visuals": "Mga Biswal"
+      },
+      "subPage": {
+        "keyword1": "sub page",
+        "keyword2": "pahina",
+        "keyword3": "child page",
+        "keyword4": "Ipasok ang Pahina",
+        "keyword5": "i-embed na pahina",
+        "keyword6": "bagong pahina",
+        "keyword7": "lumikha ng pahina",
+        "keyword8": "dokumento",
+        "name": "Dokumento"
+      }
+    },
+    "textBlock": {
+      "placeholder": "I-type ang '/' para sa mga utos"
+    },
+    "title": {
+      "placeholder": "Walang Pamagat"
+    },
+    "toolbar": {
+      "alignCenter": "I-align sa gitna",
+      "alignLeft": "I-align sa kaliwa",
+      "alignRight": "I-align sa kanan",
+      "equation": "Ekwasyon",
+      "font": "Font",
+      "h1": "Pamagat 1",
+      "h2": "Heading 2",
+      "h3": "Pamagat 3",
+      "inlineCode": "Kodigo sa loob ng linya",
+      "insert": "Ipasok",
+      "link": "I-link",
+      "linkInputHint": "Idikit ang link o maghanap ng mga pahina",
+      "linkName": "Pangalan ng Link",
+      "linkNameHint": "Ipasok ang pangalan ng link",
+      "moreOptions": "Higit pang mga opsyon",
+      "pageOrURL": "Pahina o URL",
+      "resetToDefaultFont": "I-reset sa default",
+      "suggestions": "Mga mungkahi",
+      "textAlign": "Pag-align ng teksto",
+      "textColor": "Kulay ng teksto",
+      "textSize": "Laki ng teksto",
+      "turnInto": "Gawing"
+    }
+  },
+  "editor": {
+    "addYourLink": "Idagdag ang iyong link",
+    "auto": "Auto",
+    "backgroundColor": "Kulay ng Background",
+    "backgroundColorAqua": "Aquang background",
+    "backgroundColorBlue": "Asul na background",
+    "backgroundColorBrown": "Kayumangging background",
+    "backgroundColorDefault": "Paunang background",
+    "backgroundColorGray": "Kulay-abong background",
+    "backgroundColorGreen": "Luntiang background",
+    "backgroundColorLime": "Luntiang background",
+    "backgroundColorOrange": "Kahel na background",
+    "backgroundColorPink": "Pink na background",
+    "backgroundColorPurple": "Lilang na background",
+    "backgroundColorRed": "Pulang background",
+    "backgroundColorYellow": "Dilaw na background",
+    "bold": "Bold",
+    "bulletedList": "- Listahan ng mga bullet",
+    "bulletedListShortForm": "May mga bullet",
+    "cancel": "",
+    "caseSensitive": "Case sensitive",
+    "checkbox": "Kahong tsek",
+    "chooseImage": "Paumanhin, hindi ako makakapag‑pili o magpakita ng mga larawan.",
+    "clearHighlightColor": "I-clear ang kulay ng pagbibigay-diin",
+    "closeFind": "Isara",
+    "codeBlockShortForm": "Code",
+    "colAddAfter": "after",
+    "colAddBefore": "Idagdag bago",
+    "colClear": "Linisin ang Nilalaman",
+    "colDuplicate": "Duplicate",
+    "colRemove": "Alisin",
+    "color": "Kulay",
+    "convertTo": "I-convert sa",
+    "copy": "Kopya",
+    "copyLink": "Kopyahin ang link",
+    "customColor": "Pasadyang kulay",
+    "cut": "Putol",
+    "date": "Petsa",
+    "divider": "Dibider",
+    "done": "Tapos na",
+    "editLink": "I-edit ang link",
+    "embedCode": "Embed Code",
+    "find": "Hanapin",
+    "fontColorBlue": "Asul",
+    "fontColorBrown": "Kayumanggi",
+    "fontColorDefault": "Default",
+    "fontColorGray": "Kulay-abo",
+    "fontColorGreen": "berde",
+    "fontColorOrange": "Kahel",
+    "fontColorPink": "Rosas",
+    "fontColorPurple": "Lila",
+    "fontColorRed": "Pula",
+    "fontColorYellow": "Dilaw",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "hexValue": "Halaga ng Hex",
+    "highlight": "Itampok",
+    "highlightColor": "Kulay ng highlight",
+    "image": "Larawan",
+    "imageLoadFailed": "Nabigo ang pag-load ng larawan",
+    "incorrectLink": "Maling Link",
+    "italic": "Kursibo",
+    "lightLightTint1": "Lila",
+    "lightLightTint2": "Rosas",
+    "lightLightTint3": "Malambot na Rosas",
+    "lightLightTint4": "Kahel",
+    "lightLightTint5": "Dilaw",
+    "lightLightTint6": "Dayap",
+    "lightLightTint7": "berde",
+    "lightLightTint8": "Tubig",
+    "lightLightTint9": "Asul",
+    "link": "Link",
+    "linkAddressHint": "Pakilagay ang URL",
+    "linkText": "Teksto",
+    "linkTextHint": "Mangyaring maglagay ng teksto",
+    "loading": "Naglo-load",
+    "ltr": "LTR",
+    "mathEquationShortForm": "Pormula",
+    "mobileHeading1": "Heading 1",
+    "mobileHeading2": "Pamagat 2",
+    "mobileHeading3": "Pamagat 3",
+    "mobileHeading4": "Pamagat 4",
+    "mobileHeading5": "Heading 5",
+    "mobileHeading6": "Pamagat 6",
+    "nextMatch": "Susunod na laban",
+    "numberedList": "Listahang may numero",
+    "numberedListShortForm": "Naka-number",
+    "opacity": "Kalabuan",
+    "openLink": "Buksan ang link",
+    "page": "Pahina",
+    "paste": "I-paste",
+    "previousMatch": "Nakaraang tugma",
+    "quote": "\"Ang tunay na kaalaman ay hindi nakukuha sa pag-alam kung ano ang dapat mong sabihin, kundi sa pag-unawa kung kailan mo dapat ito sabihin.\"",
+    "quoteListShortForm": "\"Ang tunay na kaalaman ay hindi nakukuha sa pag-alam kung ano ang dapat mong sabihin, kundi sa pag-unawa kung kailan mo dapat ito sabihin.\"",
+    "regex": "Regex",
+    "removeLink": "Alisin ang link",
+    "replace": "Palitan",
+    "replaceAll": "Palitan lahat",
+    "resetToDefaultColor": "I-reset sa default na kulay",
+    "rowAddAfter": "Idagdag pagkatapos",
+    "rowAddBefore": "Idagdag bago",
+    "rowClear": "Burahin ang Nilalaman",
+    "rowDuplicate": "Duplikado",
+    "rowRemove": "Alisin",
+    "rtl": "RTL",
+    "select": "Piliin",
+    "selectAll": "Piliin lahat",
+    "slashPlaceHolder": "I-type ang '/' para magpasok ng bloke, o magsimulang mag-type",
+    "strikethrough": "Tinatanggal na linya",
+    "table": "Talahanayan",
+    "text": "Teksto",
+    "textColor": "Kulay ng Teksto",
+    "tint1": "Kulay 1",
+    "tint2": "Tint 2",
+    "tint3": "Tint 3",
+    "tint4": "Kulay 4",
+    "tint5": "Tint 5",
+    "tint6": "Tint 6",
+    "tint7": "Tint 7",
+    "tint8": "Kulay 8",
+    "tint9": "Tint 9",
+    "toggleHeading1ShortForm": "I-toggle ang H1",
+    "toggleHeading2ShortForm": "I-toggle H2",
+    "toggleHeading3ShortForm": "I-toggle ang H3",
+    "toggleListShortForm": "Toggle",
+    "typeSomething": "Mag-type ng anuman...",
+    "underline": "Salungguhitan",
+    "upload": "Mangyaring i-paste o i-type ang teksto na nais mong isalin.",
+    "uploadImage": "Mag-upload ng Larawan",
+    "urlHint": "URL",
+    "urlImage": "Larawan ng URL"
+  },
+  "emoji": {
+    "categories": {
+      "activities": "Mga aktibidad",
+      "animals": "kalikasan",
+      "flags": "mga watawat",
+      "food": "mga pagkain",
+      "frequentlyUsed": "Madalas Ginagamit",
+      "nature": "kalikasan",
+      "objects": "mga bagay",
+      "people": "mga tao",
+      "places": "mga lugar",
+      "smileys": "Mga Smiley at Emosyon",
+      "symbols": "mga simbolo"
+    },
+    "emojiTab": "Emoji",
+    "filter": "Filter",
+    "noEmojiFound": "Walang nakitang emoji",
+    "noRecent": "Understood.",
+    "openSourceIconsFrom": "Mga open source na icon mula sa",
+    "random": "Random",
+    "remove": "",
+    "search": "Maghanap ng emoji",
+    "selectSkinTone": "Pumili ng kulay ng balat",
+    "skinTone": {
+      "dark": "Madilim",
+      "default": "Default",
+      "light": "Ilaw",
+      "medium": "Katamtaman",
+      "mediumDark": "Katamtamang madilim",
+      "mediumLight": "Katamtaman-Magaan"
+    }
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "change": "Palitan",
+      "dropToUpload": "Ihulog ang file para i-upload",
+      "placeholderLeft": "I-drag at i-drop ang file, i-click para",
+      "placeholderRight": "， o mag-paste ng link ng larawan.",
+      "placeholderUpload": "Mangyaring i-paste o i-type ang teksto na nais mong isalin."
+    }
+  },
+  "error": {
+    "clickToCopy": "I-klik upang kopyahin ang code ng error",
+    "loadingViewError": "Nagkakaroon kami ng problema sa pag-load ng view na ito. Pakitingnan ang iyong koneksyon sa internet, i-refresh ang app, at huwag mag-atubiling kontakin ang koponan kung magpapatuloy ang isyu.",
+    "syncError": "Ang data ay hindi naka-sync mula sa ibang device",
+    "syncErrorHint": "Pakibuksan muli ang pahinang ito sa device kung saan ito huling na-edit, pagkatapos ay buksan muli ito sa kasalukuyang device.",
+    "weAreSorry": "Pasensya na"
+  },
+  "errorDialog": {
+    "github": "Tingnan sa GitHub",
+    "howToFixFallback": "Paumanhin sa abala! Mag‑submit ng isyu sa aming pahina sa GitHub na naglalarawan ng iyong error.",
+    "howToFixFallbackHint1": "Paumanhin sa abala! Mag-submit ng isyu sa aming",
+    "howToFixFallbackHint2": "pahina na naglalarawan ng iyong error.",
+    "title": "@:appName Error"
+  },
+  "failedToOpenUrl": "Nabigong buksan ang URL: {}",
+  "favorite": {
+    "addToSidebar": "Ipin sa sidebar",
+    "noFavorite": "Walang paboritong pahina",
+    "noFavoriteHintText": "I-swipe ang pahina pakaliwa para idagdag ito sa iyong mga paborito",
+    "removeFromSidebar": "Alisin mula sa sidebar"
+  },
+  "fileDropzone": {
+    "dropFile": "I-click o i-drag ang file sa lugar na ito upang mag-upload",
+    "uploadFailed": "Nabigo ang pag-upload",
+    "uploadFailedDescription": "Nabigo ang pag-upload ng file",
+    "uploadSuccess": "Matagumpay ang pag-upload",
+    "uploadSuccessDescription": "Matagumpay na na-upload ang file",
+    "uploading": "",
+    "uploadingDescription": "Kasalukuyang ina-upload ang file"
+  },
+  "findAndReplace": {
+    "caseSensitive": "Case sensitive",
+    "close": "Isara",
+    "find": "Hanapin",
+    "nextMatch": "Susunod na laban",
+    "noResult": "Walang resulta",
+    "previousMatch": "Nakaraang laban",
+    "replace": "Palitan",
+    "replaceAll": "Palitan lahat",
+    "searchMore": "Maghanap upang makahanap ng higit pang mga resulta"
+  },
+  "gallery": {
+    "copy": "Kopyahin",
+    "download": "I-download",
+    "next": "Susunod",
+    "prev": "Nakaraang",
+    "preview": "Buksan sa buong screen",
+    "resetZoom": "I-reset ang zoom",
+    "zoomIn": "Palakihin",
+    "zoomOut": "Paliliitin"
+  },
+  "githubStarText": "I-star sa GitHub",
+  "globalComment": {
+    "addComment": "Magdagdag ng komento",
+    "addReaction": "Magdagdag ng reaksyon",
+    "collapse": "Bumagsak",
+    "commentAddedSuccessTip": "Kakakomento o kakasagot ka lang. Gusto mo bang pumunta sa taas para makita ang pinakabagong mga komento?",
+    "commentAddedSuccessfully": "Naidagdag nang matagumpay ang komento.",
+    "comments": "Mga Komento",
+    "confirmDeleteDescription": "Sigurado ka bang gusto mong burahin ang komentong ito?",
+    "deleteComment": "Hindi ko kayang burahin ang iyong komento. Kung nais mong alisin ito, mangyaring gawin ito sa platform kung saan mo ito inilathala.",
+    "failedToAddComment": "Nabigong magdagdag ng komento",
+    "hasBeenDeleted": "",
+    "noAccessDeleteComment": "Hindi ka pinapayagang burahin ang komento na ito.",
+    "reactedBy": "ni-react ni",
+    "reactedByMore": "at {count} iba pa",
+    "readMore": "Basahin pa",
+    "reply": "Sagutin",
+    "replyingTo": "Sumasagot kay",
+    "showDays": {
+      "many": "{count} araw ang nakalipas",
+      "one": "1 araw ang nakalipas",
+      "other": "{count} araw ang nakalipas"
+    },
+    "showHours": {
+      "many": "{count} oras ang nakalipas",
+      "one": "1 oras ang nakalipas",
+      "other": "{count} oras ang nakalipas"
+    },
+    "showMinutes": {
+      "many": "{count} minuto ang nakalipas",
+      "one": "1 minutong nakalipas",
+      "other": "{count} minuto ang nakalipas"
+    },
+    "showMonths": {
+      "many": "{count} buwan ang nakalipas",
+      "one": "1 buwan na ang nakalipas",
+      "other": "{count} na buwan ang nakalipas"
+    },
+    "showSeconds": {
+      "one": "1 segundo ang nakalipas",
+      "other": "{count} segundo ang nakalipas",
+      "zero": "Kamakailan lang"
+    },
+    "showYears": {
+      "many": "{count} taon na ang nakalipas",
+      "one": "1 taon na ang nakalipas"
+    },
+    "youAreNotOwner": "Hindi ikaw ang may-ari ng komentong ito"
+  },
+  "grid": {
+    "calculate": "Kalkulahin",
+    "calculationTypeLabel": {
+      "average": "Karaniwan",
+      "count": "Bilang",
+      "countEmpty": "Bilangin ang walang laman",
+      "countEmptyShort": "WALA LAMAN",
+      "countNonEmpty": "Bilang hindi walang laman",
+      "countNonEmptyShort": "NAPUNO",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "none": "",
+      "sum": "Kabuuan"
+    },
+    "checkboxFilter": {
+      "choicechipPrefix": {
+        "is": "ay"
+      },
+      "isChecked": "Nasuri",
+      "isUnchecked": "Hindi sinuri"
+    },
+    "checklist": {
+      "addNew": "Magdagdag ng bagong gawain",
+      "hideComplete": "Itago ang mga natapos na gawain",
+      "showComplete": "Ipakita ang lahat ng mga gawain",
+      "submitNewTask": "Gumawa",
+      "taskHint": "Paglalarawan ng gawain"
+    },
+    "checklistFilter": {
+      "isComplete": "Kumpleto na",
+      "isIncomplted": "Hindi kumpleto"
+    },
+    "createView": "Bago",
+    "dateFilter": {
+      "after": "Ay pagkatapos",
+      "before": "Bago ba",
+      "between": "Ay nasa pagitan",
+      "choicechipPrefix": {
+        "after": "Pagkatapos",
+        "before": "",
+        "between": "Sa pagitan",
+        "isEmpty": "Walang laman",
+        "isNotEmpty": "Hindi walang laman",
+        "onOrAfter": "Sa o pagkatapos",
+        "onOrBefore": "Sa o bago"
+      },
+      "empty": "Walang laman",
+      "endDate": "Petsa ng pagtatapos",
+      "is": "Naka-on",
+      "notEmpty": "Hindi walang laman",
+      "onOrAfter": "Ay sa o pagkatapos",
+      "onOrBefore": "Nasa o bago pa",
+      "startDate": "Petsa ng pagsisimula"
+    },
+    "deleteView": "Sigurado ka bang gusto mong tanggalin ang view na ito?",
+    "field": {
+      "addOption": "Magdagdag ng opsyon",
+      "addSelectOption": "Magdagdag ng opsyon",
+      "checkboxFieldName": "Checkbox",
+      "checklistFieldName": "Tseklist",
+      "clear": "Burahin ang mga cell",
+      "clearDate": "Linisin ang petsa",
+      "clearFieldPromptMessage": "Sigurado ka ba? Ang lahat ng cell sa column na ito ay mababakante",
+      "createdAtFieldName": "Nilikha noong",
+      "dateFieldName": "Petsa",
+      "dateFormat": "Format ng petsa",
+      "dateFormatDayMonthYear": "Araw/Buwan/Taon",
+      "dateFormatFriendly": "Buwan Araw, Taon",
+      "dateFormatISO": "Taon-Buwan-Araw",
+      "dateFormatLocal": "Buwan/Araw/Taon",
+      "dateFormatUS": "Taon/Buwan/Araw",
+      "dateTime": "Petsa oras",
+      "delete": "Burahin",
+      "deleteFieldPromptMessage": "Sigurado ka ba? Ang property na ito at lahat ng data nito ay buburahin",
+      "duplicate": "Kopyahin",
+      "editProperty": "I-edit ang property",
+      "endDateTime": "Petsa at oras ng pagtatapos",
+      "failedToLoadDate": "Nabigong i-load ang halaga ng petsa",
+      "format": "Pormat",
+      "hide": "Itago ang property",
+      "includeTime": "Isama ang oras",
+      "insertLeft": "Ipasok sa kaliwa",
+      "insertRight": "Ipasok kanan",
+      "invalidTimeFormat": "Invalid format",
+      "isRange": "Petsa ng pagtatapos",
+      "label": "Pag‑aari",
+      "mediaFieldName": "Mga file at media",
+      "multiSelectFieldName": "Multiselect",
+      "newColumn": "Bagong kolum",
+      "newProperty": "Bagong ari-arian",
+      "numberFieldName": "Mga Numero",
+      "numberFormat": "Format ng numero",
+      "openRowDocument": "Buksan bilang isang pahina",
+      "optionAlreadyExist": "Mayroon nang opsyon",
+      "optionTitle": "Mga Opsyon",
+      "propertyType": "Uri ng ari-arian",
+      "relationFieldName": "Relasyon",
+      "reminderOnDateTooltip": "Ang cell na ito ay may nakatakdang paalala.",
+      "selectDate": "Pumili ng petsa",
+      "selectTime": "Pumili ng oras",
+      "show": "Ipakita ang katangian",
+      "singleSelectFieldName": "Piliin",
+      "startDateTime": "Petsa at oras ng pagsisimula",
+      "summaryFieldName": "Buod ng AI",
+      "switchPrimaryFieldTooltip": "Hindi maaaring baguhin ang uri ng field ng pangunahing field",
+      "textFieldName": "Teksto",
+      "timeFieldName": "Oras",
+      "timeFormat": "Format ng oras",
+      "timeFormatTwelveHour": "12 oras",
+      "timeFormatTwentyFourHour": "24 na oras",
+      "translateFieldName": "AI Pagsasalin",
+      "translateTo": "Mangyaring isalin sa",
+      "typeANewOption": "I-type ang bagong opsyon",
+      "updatedAtFieldName": "Huling binago",
+      "urlFieldName": "URL",
+      "visibility": "Kalinawan",
+      "wrapCellContent": "Balutin ang teksto"
+    },
+    "filter": {
+      "addFilter": "Magdagdag ng filter",
+      "cannotFindCreatableField": "Hindi mahanap ang angkop na field para i-filter.",
+      "conditon": "Kondisyon",
+      "empty": "Walang aktibong filter",
+      "where": "Saan"
+    },
+    "media": {
+      "addFileMobile": "Hindi ko magawang magdagdag ng file dito.",
+      "addFileOrImage": "Magdagdag ng file o link",
+      "attachmentsHint": "",
+      "delete": "Burahin",
+      "deleteFileDescription": "Sigurado ka bang gusto mong burahin ang file na ito? Ang aksyong ito ay hindi na mababawi.",
+      "download": "I-download",
+      "downloadFailedToken": "Nabigong i-download ang file, hindi magagamit ang token ng gumagamit.",
+      "downloadSuccess": "Nai-download na ang file",
+      "embedLink": "I-embed ang link ng file",
+      "expand": "Palawakin",
+      "extraCount": "+{}",
+      "moreFilesHint": "+{}",
+      "openInBrowser": "Buksan sa browser",
+      "rename": "Palitan ang pangalan",
+      "setAsCover": "Itakda bilang pabalat",
+      "showFileNames": "Ipakita ang pangalan ng file"
+    },
+    "menuName": "Grid",
+    "numberFilter": {
+      "equal": "Katumbas",
+      "greaterThan": "Ay mas malaki kaysa",
+      "greaterThanOrEqualTo": "Ay mas malaki sa o katumbas ng",
+      "isEmpty": "Walang laman",
+      "isNotEmpty": "Hindi walang laman",
+      "lessThan": "Mas mababa kaysa sa",
+      "lessThanOrEqualTo": "Ay mas mababa o katumbas ng",
+      "notEqual": "Hindi katumbas"
+    },
+    "referencedGridPrefix": "Tanawin ng",
+    "relation": {
+      "emptySearchResult": "Walang nahanap na rekord",
+      "inRelatedDatabase": "Sa",
+      "noDatabaseSelected": "Walang napiling database, pakipili muna ang isa mula sa listahan sa ibaba:",
+      "relatedDatabasePlaceLabel": "Kaugnay na Database",
+      "relatedDatabasePlaceholder": "Wala",
+      "rowSearchTextFieldPlaceholder": "Hanapin",
+      "unlinkedRowListLabel": "Mag-link ng isa pang hilera"
+    },
+    "row": {
+      "action": "Aksyon",
+      "add": "I-click ang add sa ibaba",
+      "copyProperty": "Kinopya ang property sa clipboard",
+      "count": "Bilang",
+      "createRowAboveDescription": "lumikha ng isang hilera sa itaas",
+      "createRowBelowDescription": "magpasok ng isang hilera sa ibaba",
+      "delete": "Burahin",
+      "deleteCardPrompt": "Sigurado ka bang gusto mong burahin ang kard na ito? Ang aksyon na ito ay hindi na mababawi.",
+      "deleteRowPrompt": "Sigurado ka bang gusto mong tanggalin ang hilera na ito? Ang aksyong ito ay hindi na mababawi.",
+      "drag": "I-drag upang lumipat",
+      "dragAndClick": "I-drag para ilipat, i-click para buksan ang menu",
+      "duplicate": "Kopyahin",
+      "insertRecordAbove": "Ipasok ang tala sa itaas",
+      "insertRecordBelow": "Magpasok ng rekord sa ibaba",
+      "label": "Hanay",
+      "loadMore": "Mag-load pa",
+      "newRow": "Bagong hilera",
+      "noContent": "",
+      "reorderRowDescription": "i-reorder ang hilera",
+      "textPlaceholder": "Wala",
+      "titlePlaceholder": "Walang Pamagat"
+    },
+    "rowPage": {
+      "fieldDragElementTooltip": "I-click para buksan ang menu",
+      "hideHiddenFields": {
+        "many": "Itago ang {count} nakatagong field",
+        "one": "Itago ang {count} (na) nakatagong field",
+        "other": "Itago ang {count} nakatagong mga field"
+      },
+      "moreRowActions": "Higit pang mga aksyon sa hilera",
+      "newField": "Magdagdag ng bagong field",
+      "openAsFullPage": "Buksan bilang buong pahina",
+      "showHiddenFields": {
+        "many": "Ipakita ang {count} nakatagong mga field",
+        "one": "Ipakita ang {count} nakatagong field",
+        "other": "Ipakita ang {count} nakatagong mga field"
+      },
+      "viewDatabase": "Tingnan ang orihinal na Database"
+    },
+    "selectOption": {
+      "aquaColor": "Tubig",
+      "blueColor": "Asul",
+      "colorPanelTitle": "Kulay",
+      "create": "Maaaring pakilinaw kung ano ang nais mong likhain?",
+      "createNew": "Lumikha ng bago",
+      "deleteTag": "Burahin ang tag",
+      "greenColor": "berde",
+      "lightPinkColor": "Malambot na Rosas",
+      "limeColor": "Dayap",
+      "orSelectOne": "O pumili ng isang opsyon",
+      "orangeColor": "Kahel",
+      "panelTitle": "Pumili ng isang opsyon o lumikha ng isa",
+      "pinkColor": "Rosas",
+      "purpleColor": "Lila",
+      "searchOption": "Maghanap ng opsyon",
+      "searchOrCreateOption": "Maghanap ng opsyon o lumikha ng isa",
+      "tagName": "Pangalan ng tag",
+      "typeANewOption": "I-type ang bagong opsyon",
+      "yellowColor": "Dilaw"
+    },
+    "selectOptionFilter": {
+      "contains": "Naglalaman",
+      "doesNotContain": "Hindi naglalaman",
+      "is": "Ay",
+      "isEmpty": "Walang laman",
+      "isNot": "Hindi",
+      "isNotEmpty": "Hindi walang laman"
+    },
+    "settings": {
+      "addFilter": "Magdagdag ng Filter",
+      "boardSettings": "Mga setting ng board",
+      "calendarSettings": "Mga setting ng kalendaryo",
+      "compactMode": "Compact mode",
+      "createView": "Bagong view",
+      "databaseLayout": "Layout",
+      "deleteFilter": "Tanggalin ang filter",
+      "deleteView": "I-delete ang view",
+      "duplicateView": "Kopyahin ang view",
+      "editView": "I-edit  Tingnan",
+      "filter": "",
+      "filterBy": "Salain ayon sa",
+      "group": "Grupo",
+      "layout": "Layout",
+      "properties": "Mga Katangian",
+      "reorderPropertiesTooltip": "I-drag upang muling ayusin ang mga katangian",
+      "sort": "Ayusin",
+      "sortBy": "I-sort ayon sa",
+      "typeAValue": "I-type ang halaga...",
+      "viewList": {
+        "other": "{{count}} na view",
+        "zero": "0 view"
+      }
+    },
+    "sort": {
+      "addSort": "Magdagdag ng pag-uuri",
+      "ascending": "Pataas",
+      "by": "Ni",
+      "cannotFindCreatableField": "Hindi makahanap ng angkop na field para sa pag-aayos",
+      "deleteAllSorts": "Burahin lahat ng uri",
+      "descending": "Pababa",
+      "empty": "Walang aktibong pag-uuri",
+      "fieldInUse": "Nakaayos ka na ayon sa field na ito",
+      "removeSorting": "Nais mo bang alisin ang lahat ng uri sa view na ito at magpatuloy?",
+      "sortsActive": "Hindi maaaring {intention} habang nagso-sort"
+    },
+    "textFilter": {
+      "choicechipPrefix": {
+        "endWith": "Nagtatapos sa",
+        "isEmpty": "walang laman",
+        "isNot": "Hindi",
+        "isNotEmpty": "ay hindi blangko",
+        "startWith": "Nagsisimula sa"
+      },
+      "contains": "Naglalaman",
+      "doesNotContain": "Hindi naglalaman",
+      "endsWith": "Nagtatapos sa",
+      "is": "Ay",
+      "isEmpty": "Walang laman",
+      "isNot": "Hindi",
+      "isNotEmpty": "Hindi walang laman",
+      "startWith": "Nagsisimula sa"
+    },
+    "title": {
+      "placeholder": "Walang Pamagat"
+    },
+    "url": {
+      "copy": "Kopyahin ang link sa clipboard",
+      "launch": "Buksan ang link sa browser",
+      "textFieldHint": "Maglagay ng URL"
+    }
+  },
+  "importPanel": {
+    "csv": "CSV",
+    "database": "Database",
+    "databaseFromV010": "Database mula sa v0.1.0",
+    "documentFromV010": "Dokumento mula sa v0.1.0",
+    "notionZip": "Naka-export na Zip File ng Notion",
+    "textAndMarkdown": "Teksto &amp; Markdown"
+  },
+  "inlineActions": {
+    "boardReference": "Sanggunian ng lupon",
+    "calReference": "Sanggunian ng Kalendaryo",
+    "createPage": "Gumawa ng sub-page na \"{}\"",
+    "date": "Petsa",
+    "docReference": "Sanggunian ng dokumento",
+    "gridReference": "Sanggunian ng grid",
+    "noResults": "Walang resulta",
+    "pageReference": "Sanggunian ng pahina",
+    "recentPages": "Kamakailang mga pahina",
+    "reminder": {
+      "groupTitle": "Paalala",
+      "shortKeyword": "paalalahanan"
+    }
+  },
+  "invitation": {
+    "alreadyAccepted": "Tinanggap mo na ang imbitasyon",
+    "errorModal": {
+      "changeAccount": "Palitan ang account",
+      "close": "Bumalik sa tahanan",
+      "contactOwner": "Makipag-ugnayan sa may-ari",
+      "description": "Maaaring wala ang iyong kasalukuyang account na {email} ng access sa workspace na ito. Mangyaring mag-log in gamit ang tamang account o makipag-ugnayan sa may-ari ng workspace para sa tulong.",
+      "title": "May nangyaring mali"
+    },
+    "invitedBy": "Inimbitahan ni",
+    "join": "Sumali",
+    "joinWorkspace": "Sumali sa workspace",
+    "membersCount": {
+      "many": "{count} na miyembro",
+      "one": "{count} na miyembro",
+      "other": "{count} na miyembro",
+      "zero": "{count} na miyembro"
+    },
+    "on": "bukas",
+    "openWorkspace": "Buksan ang AppFlowy",
+    "success": "Matagumpay kang sumali sa workspace",
+    "successMessage": "Maaari mo nang ma-access ang lahat ng mga pahina at workspace sa loob nito.",
+    "tip": "Inanyayahan kang sumali sa workspace na ito gamit ang impormasyong pangkontak sa ibaba. Kung mali ito, makipag-ugnayan sa iyong administrador upang muling ipadala ang paanyaya."
+  },
+  "inviteMember": {
+    "addEmail": "email@example.com, email2@example.com...",
+    "description": "Ipasok ang mga email sa ibaba na may mga kuwit sa pagitan nila. Ang mga singil ay batay sa bilang ng mga miyembro.",
+    "emails": "Email",
+    "inviteAlready": "Nakatawag ka na ng email na ito: {email}",
+    "inviteFailedMemberLimit": "Naabot na ang limitasyon sa miyembro, pakiusap",
+    "inviteSuccess": "Matagumpay na naipadala ang paanyaya",
+    "requestInviteMembers": "Anyayahan sa iyong workspace",
+    "requestInvites": "Magpadala ng mga imbitasyon",
+    "upgrade": "i-upgrade"
+  },
+  "label": {
+    "firstName": "Unang Pangalan",
+    "lastName": "Apelyido",
+    "middleName": "Panggitnang Pangalan",
+    "stepX": "Hakbang {X}",
+    "welcome": "Maligayang pagdating!"
+  },
+  "letsGoButtonText": "Mabilis na Pagsisimula",
+  "lockPage": {
+    "lockPage": "Naka-lock",
+    "lockTooltip": "Naka-lock ang pahina upang maiwasan ang aksidenteng pag-edit. I-click upang i-unlock.",
+    "lockedOperationTooltip": "Naka-lock ang pahina upang maiwasan ang hindi sinasadyang pag-edit.",
+    "pageLockedToast": "Naka-lock ang pahina. Hindi maaaring mag-edit hangga't hindi ito binubuksan ng ibang tao.",
+    "reLockPage": "I-lock muli"
+  },
+  "members": {
+    "many": "{count} na miyembro",
+    "one": "1 miyembro",
+    "other": "{count} na miyembro",
+    "zero": "Walang mga miyembro"
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Mabilis na magdagdag ng pahina sa loob",
+    "defaultNewPageName": "Walang Pamagat",
+    "moreButtonToolTip": "Alisin, palitan ng pangalan, at higit pa...",
+    "pageNameSuffix": "Kopya",
+    "renameDialog": "Palitan ng pangalan"
+  },
+  "message": {
+    "copy": {
+      "fail": "Hindi makopya",
+      "success": "Kinopya sa clipboard"
+    }
+  },
+  "moreAction": {
+    "charCount": "Bilang ng mga karakter: {}",
+    "charCountLabel": "Character count:",
+    "createdAt": "Nilikha: {}",
+    "createdAtLabel": "Nilikha:",
+    "deleteView": "",
+    "duplicateView": "Duplicate",
+    "fontSize": "Laki ng font",
+    "import": "I-import",
+    "large": "malaki",
+    "medium": "katamtaman",
+    "moreOptions": "Higit pang mga opsyon",
+    "saveAsNewPage": "Magdagdag ng mga mensahe sa pahina",
+    "saveAsNewPageDisabled": "Walang mga mensaheng magagamit",
+    "small": "maliit",
+    "syncedAtLabel": "Naka-sync:",
+    "wordCount": "Bilang ng salita: {}",
+    "wordCountLabel": "Bilang ng salita:"
+  },
+  "newBoardText": "Bagong board",
+  "newCalendarText": "Bagong kalendaryo",
+  "newDocumentText": "Bagong dokumento",
+  "newGridText": "Bagong grid",
+  "newPageText": "Bagong pahina",
+  "newSettings": {
+    "myAccount": {
+      "2FA": "2-Hakbang na Pagpapatotoo",
+      "aboutAppFlowy": "Tungkol @:appName",
+      "accountLogin": "Pag-login ng Account",
+      "accountSecurity": "Seguridad ng account",
+      "aiKeys": "Mga susi ng AI",
+      "deleteAccount": {
+        "checkToConfirmError": "Kailangan mong lagyan ng tsek ang kahon upang kumpirmahin ang pagbura.",
+        "confirmHint1": "@:newSettings.myAccount.deleteAccount.confirmHint3",
+        "confirmHint2": "Nauunawaan ko na ang aksyong ito ay hindi na mababago at permanenteng tatanggalin ang aking account at lahat ng kaugnay na datos.",
+        "confirmHint3": "Maaari naming tulungan kang i-delete ang iyong account. Mangyaring magbigay ng karagdagang impormasyon o makipag-ugnayan sa aming support team sa support@example.com upang maisakatuparan ito.",
+        "confirmTextValidationFailed": "Hindi tumutugma ang iyong teksto ng kumpirmasyon@:newSettings.myAccount.deleteAccount.confirmHint3",
+        "deleteAccountSuccess": "Matagumpay na na-delete ang account",
+        "deleteMyAccount": "I-delete ang aking account",
+        "description": "Permanenteng burahin ang iyong account at alisin ang access sa lahat ng mga workspace.",
+        "dialogContent1": "Sigurado ka bang gusto mong permanenteng tanggalin ang iyong account?",
+        "dialogContent2": "Hindi na maibabalik ang pagkilos na ito, at tatangalin nito ang iyong access sa lahat ng mga workspace, buburahin nito ang buong account mo, kabilang ang mga pribadong workspace, at aalisin ka sa lahat ng mga shared workspace.",
+        "dialogTitle": "Tanggalin ang account",
+        "failedToGetCurrentUser": "Nabigong kunin ang email ng kasalukuyang gumagamit",
+        "subtitle": "Permanenteng tanggalin ang iyong account at ang lahat ng iyong data.",
+        "title": "Tanggalin ang Account"
+      },
+      "myAccount": "Ang Aking Account",
+      "myProfile": "Aking Profile",
+      "password": {
+        "changePassword": "Baguhin ang password",
+        "confirmNewPassword": "Kumpirmahin ang bagong password",
+        "confirmPassword": "Kumpirmahin ang password",
+        "currentPassword": "Kasalukuyang password",
+        "error": {
+          "confirmPasswordIsRequired": "Kinakailangan ang kumpirmahin ang password",
+          "currentPasswordIsIncorrect": "Maling password",
+          "currentPasswordIsRequired": "Kailangan ang kasalukuyang password",
+          "newPasswordIsRequired": "Kailangan ng bagong password",
+          "newPasswordIsSameAsCurrent": "Ang bagong password ay katulad ng kasalukuyang password",
+          "passwordCannotBeLongerThan72Characters": "Hindi maaaring lumagpas sa {max} na mga karakter ang password",
+          "passwordShouldBeAtLeast6Characters": "Ang password ay dapat may hindi bababa sa {min} na mga karakter",
+          "passwordsDoNotMatch": "Hindi tugma ang mga password"
+        },
+        "hint": {
+          "confirmYourNewPassword": "Kumpirmahin ang iyong bagong password",
+          "confirmYourPassword": "Kumpirmahin ang iyong password",
+          "enterYourCurrentPassword": "Ilagay ang iyong kasalukuyang password",
+          "enterYourNewPassword": "Ilagay ang iyong bagong password",
+          "enterYourPassword": "Ilagay ang iyong password"
+        },
+        "newPassword": "Bagong password",
+        "setupPassword": "Itakda ang password",
+        "title": "Password",
+        "toast": {
+          "passwordSetupFailed": "Nabigo ang pag-set up ng password",
+          "passwordSetupSuccessfully": "Matagumpay na na-set up ang password",
+          "passwordUpdatedFailed": "Nabigong i-update ang password",
+          "passwordUpdatedSuccessfully": "Matagumpay na na-update ang password"
+        }
+      },
+      "profileLabel": "Pangalan ng account at Larawan ng profile",
+      "profileNamePlaceholder": "Ilagay ang iyong pangalan",
+      "subtitle": "I-customize ang iyong profile, pamahalaan ang seguridad ng account, buksan ang mga susi ng AI, o mag-login sa iyong account.",
+      "title": "Account at App",
+      "updateIconError": "Nabigong i-update ang icon",
+      "updateNameError": "Nabigong i-update ang pangalan"
+    },
+    "syncState": {
+      "noNetworkConnected": "Walang konektadong network",
+      "synced": "Naka-sync",
+      "syncing": "Nagsi-sync"
+    },
+    "workplace": {
+      "appearance": {
+        "language": "Wika",
+        "name": "Hitsura",
+        "themeMode": {
+          "auto": "Awto",
+          "dark": "Madilim",
+          "light": "Ilaw"
+        }
+      },
+      "chooseAnIcon": "Pumili ng icon",
+      "name": "Lugar ng trabaho",
+      "renameError": "Nabigo ang pagbabago ng pangalan ng workplace",
+      "subtitle": "I-customize ang hitsura ng iyong workspace, tema, font, layout ng teksto, petsa, oras, at wika.",
+      "title": "Mga Setting ng Workplace",
+      "updateIconError": "Nabigong i-update ang icon",
+      "workplaceIcon": "Icon ng Workplace",
+      "workplaceIconSubtitle": "Mag-upload ng larawan o gumamit ng emoji para sa iyong workspace. Ang icon ay lalabas sa iyong sidebar at mga abiso.",
+      "workplaceName": "Pangalan ng Lugar ng Trabaho",
+      "workplaceNamePlaceholder": "Ilagay ang pangalan ng workplace"
+    }
+  },
+  "noLogFiles": "Walang mga log file",
+  "noPagesInside": "Walang mga pahina sa loob",
+  "notificationHub": {
+    "actions": {
+      "markAllRead": "Markahan lahat bilang nabasa",
+      "showAll": "Lahat",
+      "showUnreads": "Hindi pa nabasa"
+    },
+    "archivedTooltip": "I-archive ang abiso na ito",
+    "closeNotification": "Isara ang abiso",
+    "emptyBody": "Walang nakabinbing mga abiso o aksyon. Tamasa ang katahimikan.",
+    "emptyTitle": "Lahat ay na-catch up na!",
+    "filters": {
+      "ascending": "Pataas",
+      "descending": "Pababa",
+      "groupByDate": "Pangkatin ayon sa petsa",
+      "resetToDefault": "I-reset sa default",
+      "showUnreadsOnly": "Ipakita lamang ang hindi pa nababasa"
+    },
+    "markAllAsArchivedSucceedToast": "Nai-archive nang matagumpay ang lahat",
+    "markAllAsReadSucceedToast": "Matagumpay na na-mark ang lahat bilang nabasa",
+    "markAsArchivedSucceedToast": "Matagumpay na naka-archive",
+    "markAsReadSucceedToast": "Matagumpay na na-mark bilang nabasa",
+    "markAsReadTooltip": "Markahan ang notification na ito bilang nabasa",
+    "mentionedYou": "Binanggit ka",
+    "mobile": {
+      "title": "Mga Update"
+    },
+    "noNotifications": "Wala pang mga abiso",
+    "older": "Mas matanda",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Darating"
+    },
+    "title": "Mga Notification",
+    "today": "Ngayon",
+    "unarchiveTooltip": "I-unarchive ang notification na ito",
+    "viewNotifications": "Tingnan ang mga abiso"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Na-export na Tala sa Markdown",
+      "path": "Mga Dokumento/flowy"
+    }
+  },
+  "oAuth": {
+    "err": {
+      "failedMsg": "Mangyaring siguraduhin na natapos mo na ang proseso ng pag-sign in sa iyong browser.",
+      "failedTitle": "Hindi makakonekta sa iyong account."
+    },
+    "google": {
+      "instruction1": "Upang i-import ang iyong Google Contacts, kailangan mong pahintulutan ang application na ito gamit ang iyong web browser.",
+      "instruction2": "Kopyahin ang code na ito sa iyong clipboard sa pamamagitan ng pag-click sa icon o pagpili ng teksto:",
+      "instruction3": "Pumunta sa sumusunod na link sa iyong web browser, at ilagay ang code sa itaas:",
+      "instruction4": "Pindutin ang button sa ibaba kapag nakumpleto mo na ang pag-sign up:",
+      "title": "MAG-SIGN IN SA GOOGLE"
+    }
+  },
+  "openFileMessage": {
+    "fileNotFound": "Hindi nahanap ang file",
+    "noAppToOpenFile": "Walang app para buksan ang file na ito",
+    "permissionDenied": "Walang pahintulot na buksan ang file na ito",
+    "success": "Matagumpay na nabuksan ang file",
+    "unknownError": "Nabigong buksan ang file"
+  },
+  "pageStyle": {
+    "backgroundImage": "Larawan ng background",
+    "cameraPermissionDescription": "@:appName kailangan ng access sa iyong kamera upang payagan kang magdagdag ng mga larawan sa iyong mga dokumento mula sa kamera",
+    "cameraPermissionTitle": "@:appName Hindi ako maaaring magbigay ng access sa kamera.",
+    "colors": "Mga Kulay",
+    "coverImage": "Larawang pabalat",
+    "doNotAllow": "Huwag Pahintulutan",
+    "gradient": "Gradient",
+    "image": "Larawan",
+    "layout": "Layout",
+    "none": "",
+    "openSettings": "Buksan ang Mga Setting",
+    "pageCover": "Pabalat ng pahina",
+    "pageIcon": "Icon ng pahina",
+    "photo": "Larawan",
+    "photoPermissionDescription": "@:appName kailangan ng access sa iyong mga larawan upang payagan kang magdagdag ng mga imahe sa iyong mga dokumento.",
+    "photoPermissionTitle": "@:appName gusto sanang i-access ang iyong photo library",
+    "presets": "Mga preset",
+    "title": "Estilo ng pahina",
+    "unsplash": "Unsplash"
+  },
+  "publish": {
+    "addTo": "Idagdag sa",
+    "containsPublishedPage": "Ang pahinang ito ay naglalaman ng isa o higit pang nai-publish na mga pahina. Kung magpapatuloy ka, ang mga ito ay ia-unpublish. Gusto mo bang magpatuloy sa pagtanggal?",
+    "copy": {
+      "codeBlock": "Kinopya na sa clipboard ang nilalaman ng code block",
+      "fileBlock": "Nakopya na ang link ng file sa clipboard",
+      "imageBlock": "Nakopya na ang link ng larawan sa clipboard",
+      "mathBlock": "Nakopya na ang matematika na ekwasyon sa clipboard"
+    },
+    "createWithAppFlowy": "Lumikha ng isang website gamit ang AppFlowy",
+    "createdWith": "Ginawa gamit ang",
+    "database": {
+      "many": "I-publish ang {} mga napiling view",
+      "one": "I-publish ang {} na napiling view",
+      "other": "I-publish ang {} napiling mga view",
+      "zero": "I-publish ang {} na napiling view"
+    },
+    "databaseHasNotBeenPublished": "Ang pag-publish ng database ay hindi pa sinusuportahan.",
+    "downloadApp": "I-download ang AppFlowy",
+    "downloadIt": "I-download",
+    "duplicateFailed": "Naulit ang nabigo",
+    "duplicateSuccessfully": "Idinagdag sa iyong workspace",
+    "duplicateSuccessfullyDescription": "Wala kang AppFlowy na naka-install? Awtomatikong magsisimula ang pag-download pagkatapos mong i-click ang 'Download'.",
+    "duplicateTitle": "Saan mo gustong idagdag?",
+    "fastWithAI": "Mabilis at madali gamit ang AI.",
+    "hasNotBeenPublished": "Hindi pa nailalathala ang pahinang ito",
+    "membersCount": {
+      "many": "{count} na miyembro",
+      "one": "1 miyembro",
+      "other": "{count} na miyembro",
+      "zero": "Walang mga miyembro"
+    },
+    "mustSelectPrimaryDatabase": "Dapat piliin ang pangunahing view.",
+    "noAccessToVisit": "Walang access sa pahinang ito...",
+    "noDatabaseSelected": "Walang napiling database, pakipili ng kahit isang database.",
+    "onlyGridViewCanBePublished": "Grid view lamang ang maaaring i-publish",
+    "openApp": "Buksan sa app",
+    "publishFailed": "Nabigong i-publish",
+    "publishSuccessfully": "Published successfully",
+    "reportPage": "Pahina ng ulat",
+    "saveThisPage": "Magsimula sa template na ito",
+    "selectWorkspace": "Pumili ng workspace",
+    "spaceHasNotBeenPublished": "Hindi pa sinusuportahan ang pag-publish ng isang space",
+    "tryItNow": "Subukan mo na ngayon",
+    "unableToDeselectPrimaryDatabase": "Hindi ma-deselect ang pangunahing database",
+    "unpublishFailed": "Nabigong i-unpublish",
+    "unpublishSuccessfully": "Matagumpay na hindi nailathala",
+    "useThisTemplate": "Gamitin ang template"
+  },
+  "questionBubble": {
+    "debug": {
+      "fail": "Hindi makopya ang debug info sa clipboard",
+      "name": "Impormasyon sa Pag-debug",
+      "success": "Nakopya ang impormasyon ng debug sa clipboard!"
+    },
+    "feedback": "Puna",
+    "getSupport": "Kumuha ng suporta",
+    "helpAndDocumentation": "Tulong at dokumentasyon",
+    "markdown": "Markdown",
+    "shortcuts": "Mga shortcut",
+    "whatsNew": "Anong bago?"
+  },
+  "quickNote": {
+    "addNote": "Bagong Tala",
+    "collapseFullView": "I-collapse ang buong view",
+    "createFailed": "Nabigong lumikha ng Quick Note",
+    "deleteNotePrompt": "Ang napiling tala ay permanenteng mabubura. Sigurado ka bang nais mo itong burahin?",
+    "emptyNote": "Walang laman na tala",
+    "expandFullView": "Palawakin ang buong view",
+    "label": "Mabilisang Paalala",
+    "noAdditionalText": "",
+    "quickNotes": "Mabilis na Tala",
+    "quickNotesEmpty": "Walang Mabilis na Tala",
+    "search": "Hanapin ang Mabilis na Tala"
+  },
+  "relativeDates": {
+    "oneWeek": "1 linggo",
+    "today": "Ngayon",
+    "tomorrow": "Bukas",
+    "yesterday": "Kahapon"
+  },
+  "reminderNotification": {
+    "message": "Tandaan ito bago mo makalimutan!",
+    "title": "Paalala",
+    "tooltipDelete": "Burahin",
+    "tooltipMarkRead": "Markahan bilang nabasa",
+    "tooltipMarkUnread": "Markahan bilang hindi nabasa"
+  },
+  "requestAccess": {
+    "backToHome": "Bumalik sa home",
+    "mightBe": "Maaaring kailanganin mo <login/> gamit ang ibang account.",
+    "repeatRequestError": "Humiling ka na ng access sa pahinang ito.",
+    "requestAccess": "Humiling ng access",
+    "requestError": "Nabigo ang paghingi ng access",
+    "subtitle": "Maaari kang humiling ng access mula sa may-ari ng pahinang ito. Kapag naaprubahan, maaari mong makita ang pahina.",
+    "successful": "Matagumpay na naipadala ang kahilingan",
+    "successfulMessage": "Makakatanggap ka ng abiso kapag aprubado ng may-ari ang iyong kahilingan.",
+    "tip": "Kasalukuyan kang naka-log in bilang <link/>.",
+    "title": "Walang access sa pahinang ito"
+  },
+  "search": {
+    "askAIAnything": "Itanong sa AI ang kahit ano",
+    "askAIFor": "Magtanong sa AI",
+    "bestMatch": "Pinakamagandang tugma",
+    "label": "Hanapin",
+    "noResultForSearching": "Walang nahanap na tugma",
+    "noResultForSearchingHint": "Sumubok ng iba't ibang mga tanong o keyword.\nMaaaring nasa Basurahan ang ilang mga pahina.",
+    "noResultForSearchingHintWithoutTrash": "Subukan ang ibang mga tanong o keyword\nAng ilang mga pahina ay maaaring nasa",
+    "pageNotExist": "Walang ganitong pahina",
+    "placeholder": {
+      "actions": "Hanapin ang mga aksyon..."
+    },
+    "searchFieldHint": "Maghanap o magtanong sa {}...",
+    "searchOrAskAI": "Maghanap o magtanong sa AI",
+    "searching": "Naghahanap...",
+    "seeMore": "Tingnan ang higit pa",
+    "showMore": "Ipakita ang higit pa",
+    "sidebarSearchIcon": "Maghanap at mabilis na lumipat sa isang pahina",
+    "somethingWentWrong": "May nangyaring mali",
+    "tryAgainOrLater": "Pakisubukang muli mamaya"
+  },
+  "settings": {
+    "accountPage": {
+      "email": {
+        "actions": {
+          "change": "Baguhin ang email"
+        },
+        "title": "Email"
+      },
+      "general": {
+        "changeProfilePicture": "Baguhin ang larawan ng profile",
+        "title": "Pangalan ng account at larawan ng profile"
+      },
+      "isUpToDate": "@:appName ay napapanahon na!",
+      "login": {
+        "loginLabel": "Mag-login",
+        "logoutLabel": "Mag-logout",
+        "title": "Pag-login ng account"
+      },
+      "menuLabel": "Account at App",
+      "officialVersion": "Bersyon {version} (Opisyal na build)",
+      "title": "Aking account"
+    },
+    "aiPage": {
+      "keys": {
+        "activeOfflineAI": "Aktibo",
+        "aiSettingsDescription": "Piliin ang modelong gusto mong gamitin para sa AppFlowy AI. Kasalukuyang may GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, at mga modelong available sa Ollama.",
+        "disableLocalAIDescription": "Gusto mo bang i-disable ang lokal na AI?",
+        "disableLocalAITitle": "I-disable ang lokal na AI",
+        "downloadAIModelButton": "I-download",
+        "downloadAppFlowyOfflineAI": "Ang pag-download ng offline na pakete ng AI ay magpapahintulot sa AI na tumakbo sa iyong device. Gusto mo bang magpatuloy?",
+        "downloadBigFilePrompt": "Maaaring tumagal ng humigit-kumulang 10 minuto upang makumpleto ang pag-download",
+        "downloadLLMPrompt": "I-download {}",
+        "downloadLLMPromptDetail": "Ang pag-download ng {} lokal na modelo ay mag-aabot ng hanggang {} na espasyo ng imbakan. Gusto mo bang magpatuloy?",
+        "downloadModel": "para i-download ang mga ito.",
+        "downloadOfflineAI": "I-download",
+        "downloadingModel": "Nagda-download",
+        "enableAISearchTitle": "Paghahanap ng AI",
+        "failToLoadLocalAI": "Nabigong simulan ang lokal na AI.",
+        "globalLLMModel": "Pandaigdigang Modelo ng Wika",
+        "installOllamaLai": "para i-setup ang Ollama at AppFlowy Local AI.",
+        "instructions": "mga tagubilin",
+        "laiNotReady": "Hindi na-install nang maayos ang Local AI app.",
+        "llmModel": "Modelo ng Wika",
+        "llmModelType": "Uri ng Modelo ng Wika",
+        "localAIDisabled": "Gumagamit ka ng lokal na AI, ngunit ito ay hindi pinagana. Pumunta sa mga setting upang i-activate ito o subukang ibang modelo.",
+        "localAIDisabledTextFieldPrompt": "Hindi ka maaaring mag-edit habang naka-disable ang Local AI.",
+        "localAIInitializing": "Naglo-load ang lokal na AI. Maaaring tumagal ito ng ilang segundo depende sa iyong device",
+        "localAILoaded": "Matagumpay na naidagdag ang Lokal na AI Model at handa nang gamitin",
+        "localAILoading": "Naglo-load ang Lokal na AI Chat Model...",
+        "localAINotReadyRetryLater": "Ini-initialize ang lokal na AI, pakisubukang muli mamaya.",
+        "localAINotReadyTextFieldPrompt": "Hindi ka maaaring mag-edit habang naglo-load ang Local AI",
+        "localAIRunning": "Ang lokal na AI ay tumatakbo",
+        "localAIStart": "Nagsisimula na ang Local AI. Kung ito ay mabagal, subukang i-toggle ito off at on.",
+        "localAIStopped": "Huminto ang lokal na AI",
+        "localAIToggleSubTitle": "Patakbuhin ang pinaka-advanced na lokal na mga AI model sa loob ng AppFlowy para sa pinakamataas na privacy at seguridad",
+        "localAIToggleTitle": "AppFlowy Lokal na AI (LAI)",
+        "loginToEnableAIFeature": "Ang mga tampok ng AI ay naka-enable lamang pagkatapos mag-log in gamit ang @:appName Cloud. Kung wala ka ng isang @:appName account, pumunta sa 'My Account' para mag-sign up",
+        "modelsMissing": "Hindi makita ang mga kinakailangang modelo:",
+        "offlineAIDownload1": "Kung hindi mo pa na-download ang AppFlowy AI, pakibisita ang aming website para sa mga tagubilin sa pag-download.",
+        "offlineAIDownload2": "i-download",
+        "offlineAIDownload3": "una ito",
+        "offlineAIInstruction1": "Sundan ang",
+        "offlineAIInstruction2": "Tagubilin",
+        "offlineAIInstruction3": "upang paganahin ang offline AI.",
+        "ollamaNotReady": "Hindi pa handa ang server ng Ollama.",
+        "openModelDirectory": "Buksan ang folder",
+        "pleaseFollowThese": "Pakisunod ang mga ito.",
+        "readOnlyField": "Ang field na ito ay read-only.",
+        "restartLocalAI": "Sige, magsimula tayo muli."
+      },
+      "menuLabel": "Mga Setting ng AI",
+      "title": "AI Settings"
+    },
+    "appearance": {
+      "builtInsLabel": "Mga Built-in na Tema",
+      "dateFormat": {
+        "dmy": "A/B/T",
+        "friendly": "Palakaibigan",
+        "iso": "ISO",
+        "label": "Format ng petsa",
+        "local": "Lokal",
+        "us": "US"
+      },
+      "displaySize": "Laki ng Display",
+      "documentSettings": {
+        "app": "App",
+        "apply": "Ilapat",
+        "changeWidth": "Palitan",
+        "colorShade": "Kulay ng lilim",
+        "cursorColor": "Kulay ng cursor ng dokumento",
+        "flowy": "Flowy",
+        "hexEmptyError": "Hindi maaaring walang laman ang hex na kulay",
+        "hexInvalidError": "Di-wastong halaga ng hex",
+        "hexLengthError": "Ang hex value ay dapat 6 na digit ang haba.",
+        "opacity": "Opacity",
+        "opacityEmptyError": "Hindi maaaring walang laman ang opacity",
+        "opacityRangeError": "Ang opacity ay dapat nasa pagitan ng 1 at 100",
+        "pickColor": "Pumili ng kulay",
+        "selectionColor": "Kulay ng pagpili ng dokumento",
+        "width": "Lapad ng Dokumento"
+      },
+      "enableRTLToolbarItems": "Paganahin ang mga RTL toolbar item",
+      "fontFamily": {
+        "defaultFont": "Sistema",
+        "label": "Pamilya ng Font",
+        "search": "Hanapin"
+      },
+      "fontScaleFactor": "Salik ng Pag-Scale ng Font",
+      "layoutDirection": {
+        "hint": "Kontrolin ang daloy ng nilalaman sa iyong screen, mula kaliwa papuntang kanan o kanan papuntang kaliwa.",
+        "label": "Direksyon ng Layout",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "members": {
+        "addMemberSuccess": "Matagumpay na naidagdag ang miyembro",
+        "adminPanel": "Panel ng Admin",
+        "areYouSureToRemoveMember": "Sigurado ka bang gusto mong alisin ang miyembrong ito?",
+        "clickToCopyLink": "I-klik upang kopyahin ang link",
+        "copyInviteLink": "Kopyahin ang link ng paanyaya",
+        "copyLink": "Kopyahin ang link",
+        "emailInvalidError": "Di-wastong email, mangyaring i-check at subukang muli",
+        "emailSent": "Naipadala na ang email, paki-check ang inbox",
+        "failedToAddMember": "Nabigong idagdag ang miyembro",
+        "failedToInviteMember": "Nabigong imbitahan ang miyembro",
+        "generateANewLink": "bumuo ng bagong link",
+        "generatedLinkFailed": "Nabigong lumikha ng link",
+        "generatedLinkSuccessfully": "Matagumpay na nabuo ang link",
+        "guest": "Bisita",
+        "guestHintText": "Ang isang Bisita ay maaaring magbasa, mag-react, magkomento, at maaaring mag-edit ng ilang partikular na pahina kung may pahintulot.",
+        "inviteFailedDialogTitle": "Mag-upgrade sa Pro Plan",
+        "inviteFailedMemberLimit": "Naabot na ng workspace na ito ang libreng limitasyon. Mangyaring mag-upgrade sa Pro upang i-unlock ang mas maraming miyembro.",
+        "inviteFailedMemberLimitMobile": "Naabot na ng iyong workspace ang limitasyon ng miyembro.",
+        "inviteHint": "Imbitahan sa pamamagitan ng email",
+        "inviteLinkToAddMember": "Link ng imbitasyon para magdagdag ng miyembro",
+        "inviteMemberByEmail": "Anyayahan ang miyembro sa pamamagitan ng email",
+        "inviteMemberHintText": "Imbitahan sa pamamagitan ng email",
+        "inviteMemberSuccess": "Ang imbitasyon ay matagumpay na naipadala",
+        "inviteMembers": "Imbitahan ang mga miyembro",
+        "label": "Mga Miyembro",
+        "member": "Miyembro",
+        "memberHintText": "Ang isang miyembro ay maaaring magbasa at mag-edit ng mga pahina",
+        "memberLimitExceeded": "Naabot na ang limitasyon ng mga miyembro, upang mag-imbita pa ng mga miyembro, mangyaring",
+        "memberLimitExceededPro": "Naabot na ang limit ng miyembro, kung kailangan mo ng higit pang mga miyembro, makipag-ugnayan",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "memberLimitExceededUpgrade": "i-upgrade",
+        "memberPageDescription1": "I-access ang",
+        "memberPageDescription2": "para sa pamamahala ng mga bisita at advanced na user",
+        "members": "mga miyembro",
+        "membersCount": {
+          "one": "{} miyembro",
+          "other": "{} na miyembro",
+          "zero": "{} na miyembro"
+        },
+        "noInviteLink": "Wala ka pang nakagawa ng link ng paanyaya.",
+        "or": "o",
+        "owner": "May-ari",
+        "removeFromWorkspace": "Alisin sa Workspace",
+        "removeFromWorkspaceFailed": "Nabigong alisin mula sa workspace",
+        "removeFromWorkspaceSuccess": "Matagumpay na naalis sa workspace",
+        "removeMember": "Alisin ang Miyembro",
+        "reset": "I-reset ang",
+        "resetInviteLink": "I-reset ang link ng imbitasyon?",
+        "resetInviteLinkDescription": "Ang pag-reset ay magde-deactivate ng kasalukuyang link para sa lahat ng miyembro ng espasyo at lilikha ng bago. Ang lumang link ay hindi na magiging balido.",
+        "resetInviteLinkFailed": "Nabigong i-reset ang link ng paanyaya",
+        "resetInviteLinkFailedDescription": "Pakisubukang muli mamaya",
+        "resetInviteLinkSuccess": "Matagumpay na na-reset ang link ng imbitasyon",
+        "resetLinkFailed": "Nabigong i-reset ang link",
+        "resetLinkSuccessfully": "Matagumpay na na-reset ang link",
+        "role": "Tungkulin",
+        "sendInvite": "Imbitahan",
+        "title": "Mga Miyembro",
+        "user": "User",
+        "workspaceMembersError": "Oops, may nangyaring mali",
+        "workspaceMembersErrorDescription": "Hindi namin ma-load ang listahan ng mga miyembro sa ngayon. Pakisubukang muli mamaya."
+      },
+      "pluginsLabel": "Mga plugin",
+      "resetSetting": "I-reset",
+      "showNamingDialogWhenCreatingPage": "Ipakita ang dialog ng pagpapangalan kapag gumagawa ng pahina",
+      "textDirection": {
+        "auto": "AUTO",
+        "fallback": "Katulad ng direksyon ng layout",
+        "hint": "Tukuyin kung ang teksto ay dapat magsimula sa kaliwa o kanan bilang default.",
+        "label": "Default na Direksyon ng Teksto",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "theme": "Tema",
+      "themeMode": {
+        "dark": "Madilim na Mode",
+        "label": "Tema ng Mode",
+        "light": "Maliwanag na Mode",
+        "system": "Mag-adapt sa System"
+      },
+      "themeUpload": {
+        "button": "Mangyaring i-paste o i-type ang teksto na nais mong isalin.",
+        "deletionFailure": "Nabigong tanggalin ang tema. Subukang tanggalin ito nang manu-mano.",
+        "description": "I-upload mo ito @:appName tema gamit ang pindutang nasa ibaba.",
+        "filePickerDialogTitle": "Pumili ng .flowy_plugin file",
+        "loading": "Mangyaring maghintay habang sinusuri at ina-upload ang iyong tema...",
+        "uploadSuccess": "Matagumpay na na-upload ang iyong tema",
+        "uploadTheme": "I-upload ang tema",
+        "urlUploadFailure": "Nabigo sa pagbukas ng url: {}"
+      },
+      "timeFormat": {
+        "label": "Format ng oras",
+        "twelveHour": "Labindalawang oras",
+        "twentyFourHour": "Dalawampu't apat na oras"
+      }
+    },
+    "billingPage": {
+      "addons": {
+        "addLabel": "Magdagdag",
+        "aiMax": {
+          "activeDescription": "Susunod na invoice ay dapat bayaran sa {}",
+          "canceledDescription": "Ang AI Max ay magiging available hanggang {}",
+          "description": "Buksan ang walang limitasyong AI at mga advanced na modelo",
+          "label": "AI Max"
+        },
+        "aiOnDevice": {
+          "activeDescription": "Susunod na invoice na dapat bayaran noong {}",
+          "canceledDescription": "Ang AI On-device para sa Mac ay magiging available hanggang {}",
+          "description": "I-unlock ang walang limitasyong AI On-device sa iyong device.",
+          "label": "AI On-device para sa Mac"
+        },
+        "removeDialog": {
+          "description": "Sigurado ka bang gusto mong alisin ang {plan}? Agad kang mawawalan ng access sa mga feature at benepisyo ng {plan}.",
+          "title": "Alisin ang {}"
+        },
+        "removeLabel": "Alisin",
+        "renewLabel": "I-renew",
+        "title": "Mga add-on"
+      },
+      "annualInterval": "Taunan",
+      "annualPriceInfo": "bawat upuan na binabayaran taun-taon",
+      "changePeriod": "Palitan ang panahon",
+      "currentPeriodBadge": "KASALUKAN",
+      "menuLabel": "Billing",
+      "monthlyInterval": "Buwanan",
+      "monthlyPriceInfo": "bawat upuan, singil buwanan",
+      "paymentDetails": {
+        "methodButtonLabel": "I-edit ang metodo",
+        "methodLabel": "Paraan ng pagbabayad",
+        "title": "Mga detalye ng pagbabayad"
+      },
+      "plan": {
+        "billingPeriod": "Panahon ng pagsingil",
+        "freeLabel": "Libre",
+        "periodButtonLabel": "I-edit ang panahon",
+        "planButtonLabel": "Palitan ang plano",
+        "proLabel": "Pro",
+        "title": "Plano"
+      },
+      "planPeriod": "{} panahon",
+      "title": "Pagsingil"
+    },
+    "cancelSurveyDialog": {
+      "commonOther": "Iba",
+      "description": "Paumanhin na nalisan ka namin. Gusto naming marinig ang iyong puna upang matulungan kaming mapabuti ang aming serbisyo. @:appName. Mangyaring maglaan ng sandali upang sagutin ang ilang mga tanong.",
+      "otherHint": "Isulat ang iyong sagot dito",
+      "questionFour": {
+        "answerFive": "Hindi nasiyahan",
+        "answerFour": "Mas mababa sa karaniwan",
+        "answerOne": "Mahusay",
+        "answerThree": "Katamtaman",
+        "answerTwo": "Mabuti",
+        "question": "Paano mo ilalarawan ang kabuuang karanasan mo sa @:appName?"
+      },
+      "questionOne": {
+        "answerFive": "Problema sa serbisyo o teknikal na mga kahirapan",
+        "answerFour": "Hindi ito ginamit nang sapat upang makatwiran ang gastos",
+        "answerOne": "Masyadong mataas ang gastos",
+        "answerThree": "Nakahanap ng mas magandang alternatibo",
+        "answerTwo": "Hindi tumugma ang mga tampok sa inaasahan.",
+        "question": "Ano ang nag-udyok sa iyo na kanselahin ang iyong @:appName Pro subscription?"
+      },
+      "questionThree": {
+        "answerFour": "Pag-access sa mga lokal na modelo ng AI",
+        "answerOne": "Kolaborasyon ng maraming gumagamit",
+        "answerThree": "Walang limitasyong tugon ng AI",
+        "answerTwo": "Mas mahabang bersyon ng kasaysayan",
+        "question": "Aling Pro feature ang pinakamahalaga sa iyo noong naka-subscribe ka?"
+      },
+      "questionTwo": {
+        "answerFive": "Napakabihirang",
+        "answerFour": "Hindi malamang",
+        "answerOne": "Napaka-malamang",
+        "answerThree": "Hindi sigurado",
+        "answerTwo": "Medyo malamang",
+        "question": "Gaano mo kalamangang mag-isip na mag-subscribe muli? @:appName Pro sa hinaharap?"
+      },
+      "title": "Nakakalungkot makita kang umalis."
+    },
+    "common": {
+      "reset": "I-reset ang",
+      "uploadNotionSuccess": "Matagumpay na na-upload ang iyong Notion zip file. Kapag natapos na ang pag-import, makakatanggap ka ng kumpirmasyon sa email.",
+      "uploadingFile": "Nag-a-upload ang file. Pakihuwag isara ang app."
+    },
+    "comparePlanDialog": {
+      "actions": {
+        "current": "Kasalukuyan",
+        "downgrade": "Bawasan",
+        "upgrade": "I-upgrade"
+      },
+      "current": "Kasalukuyan",
+      "downgradeDialog": {
+        "description": "Ang pag-downgrade ng iyong plan ay magbabalik sa iyo sa Free plan. Maaaring mawalan ng access ang mga miyembro sa workspace na ito at maaaring kailangan mong magbakante ng espasyo upang matugunan ang mga limitasyon sa storage ng Free plan.",
+        "downgradeLabel": "I-downgrade ang plano",
+        "title": "Sigurado ka bang gusto mong ibaba ang iyong plano?"
+      },
+      "freeLabels": {
+        "intelligentSearch": "Matalinong paghahanap",
+        "itemFileUpload": "Hanggang 7 MB",
+        "itemFive": "oo",
+        "itemFour": "Oo",
+        "itemOne": "Sinisingil bawat workspace",
+        "itemSeven": "2 na buhay",
+        "itemSix": "10 habang-buhay",
+        "itemThree": "5 GB",
+        "itemTwo": "Hanggang 2"
+      },
+      "freePlan": {
+        "description": "Para sa mga indibidwal na hanggang 2 miyembro upang ayusin ang lahat.",
+        "price": "",
+        "priceInfo": "Libre magpakailanman",
+        "title": "Libre"
+      },
+      "paymentSuccess": {
+        "description": "Ang iyong bayad ay matagumpay na naproseso at ang iyong plano ay na-upgrade sa @:appName {}. Maaari mong tingnan ang mga detalye ng iyong plano sa pahina ng Plano.",
+        "title": "Nasa {} plan ka na ngayon!"
+      },
+      "planLabels": {
+        "customNamespace": "Pasadyang namespace",
+        "customNamespaceTooltip": "Pasadyang inilathalang URL ng site",
+        "intelligentSearch": "Matalinong paghahanap",
+        "itemFileUpload": "Mga pag-upload ng file",
+        "itemFive": "Mga panauhing editor",
+        "itemFour": "Real-time na pagtutulungan",
+        "itemOne": "Mga Workspace",
+        "itemSeven": "Mga Larawang AI",
+        "itemSix": "Mga Tugon ng AI",
+        "itemThree": "Imbakan",
+        "itemTwo": "Mga Miyembro",
+        "tooltipFive": "Makipagtulungan sa mga tiyak na pahina kasama ang mga hindi kasapi",
+        "tooltipSeven": "Pinapayagan kang i-customize ang bahagi ng URL para sa iyong workspace",
+        "tooltipSix": "Ang lifetime ay nangangahulugang ang bilang ng mga tugon ay hindi kailanman nirereset."
+      },
+      "proLabels": {
+        "intelligentSearch": "Matalinong paghahanap",
+        "itemFileUpload": "Walang hanggan",
+        "itemFive": "Hanggang 100",
+        "itemFour": "Oo",
+        "itemOne": "Sinisingil bawat workspace",
+        "itemSeven": "50 larawan bawat buwan",
+        "itemSix": "Walang limitasyon",
+        "itemThree": "Walang limitasyon",
+        "itemTwo": "Hanggang 10"
+      },
+      "proPlan": {
+        "description": "Para sa maliliit na koponan upang pamahalaan ang mga proyekto at kaalaman ng koponan",
+        "price": "",
+        "priceInfo": "Bawat gumagamit bawat buwan \nbinabayaran taun-taon\n\n{} sinisingil buwan-buwan",
+        "title": "Pro"
+      },
+      "title": "Ihambing &amp; piliin ang plano"
+    },
+    "files": {
+      "areYouSureToClearCache": "Sigurado ka bang i-clear ang cache?",
+      "browser": "Browse",
+      "change": "Palitan",
+      "changeLocationTooltips": "Palitan ang direktoryo ng data",
+      "clearCache": "Hindi ko kayang i-clear ang cache.",
+      "clearCacheDesc": "Kung nakakaranas ka ng mga isyu kung saan hindi naglo-load ang mga larawan o hindi tama ang pagpapakita ng mga font, subukang i-clear ang iyong cache. Hindi matatanggal ng aksyong ito ang iyong data ng user.",
+      "clearCacheSuccess": "Nabura na ang cache nang matagumpay!",
+      "copy": "Kopya",
+      "create": "Gumawa",
+      "createNewFolder": "Lumikha ng bagong folder",
+      "createNewFolderDesc": "Sabihin sa amin kung saan mo nais iimbak ang iyong data",
+      "customizeLocation": "Buksan ang ibang folder",
+      "defaultLocation": "Basahin ang mga file at lokasyon ng imbakan ng data",
+      "defineWhereYourDataIsStored": "Tukuyin kung saan naka-imbak ang iyong data",
+      "deselectAll": "Alisin ang lahat ng napili",
+      "doubleTapToCopy": "I-double tap para kopyahin ang path",
+      "export": "eksport",
+      "exportData": "I-export ang iyong data",
+      "exportDatabase": "I-export ang database",
+      "exportFileFail": "Nabigo ang pag-export ng file!",
+      "exportFileSuccess": "Matagumpay na na-export ang file!",
+      "folderHintText": "pangalan ng folder",
+      "folderPath": "Landas para i-imbak ang iyong folder",
+      "location": "Gumagawa ng bagong folder",
+      "locationCannotBeEmpty": "Hindi maaaring walang laman ang landas",
+      "locationDesc": "Pumili ng pangalan para sa iyong @:appName folder ng data",
+      "open": "Buksan",
+      "openCurrentDataFolder": "Buksan ang kasalukuyang direktoryo ng datos",
+      "openFolder": "Buksan ang isang umiiral na folder",
+      "openFolderDesc": "Basahin at isulat ito sa iyong kasalukuyan @:appName folder",
+      "openLocationTooltips": "Buksan ang ibang direktoryo ng data",
+      "pathCopiedSnackbar": "Kopyado na ang landas ng imbakan ng file sa clipboard!",
+      "recoverLocationTooltips": "I-reset sa @:appNamedefault na data directory",
+      "restartApp": "Pakirestart ang app para magkabisa ang mga pagbabago.",
+      "restoreLocation": "Ibalik sa @:appName default path",
+      "selectAll": "Piliin lahat",
+      "selectFiles": "Piliin ang mga file na kailangang i-export",
+      "set": "Itakda"
+    },
+    "manageDataPage": {
+      "cache": {
+        "description": "Tumulong sa paglutas ng mga isyu tulad ng hindi pag-load ng larawan, nawawalang mga pahina sa isang espasyo, at hindi pag-load ng mga font. Hindi nito maaapektuhan ang iyong data.",
+        "dialog": {
+          "description": "Tulungan ang paglutas ng mga isyu tulad ng hindi naglo-load na imahe, mga nawawalang pahina sa isang space, at mga font na hindi naglo-load. Hindi ito makakaapekto sa iyong data.",
+          "successHint": "Na-clear ang cache!",
+          "title": "Hindi ko kayang i-clear ang cache."
+        },
+        "title": "I-clear ang cache"
+      },
+      "data": {
+        "fixButton": "Ayusin",
+        "fixYourData": "Ayusin ang iyong data",
+        "fixYourDataDescription": "Kung nakakaranas ka ng mga problema sa iyong data, maaari mong subukang ayusin ito dito."
+      },
+      "dataStorage": {
+        "actions": {
+          "change": "Palitan ang landas",
+          "copiedHint": "Nakopya ang landas!",
+          "copy": "Kopyahin ang landas",
+          "open": "Buksan ang folder",
+          "openTooltip": "Buksan ang lokasyon ng kasalukuyang data folder",
+          "resetTooltip": "I-reset sa default na lokasyon"
+        },
+        "resetDialog": {
+          "description": "Ang pag-reset ng path sa default na lokasyon ng data ay hindi magbubura ng iyong data. Kung gusto mong i-import muli ang iyong kasalukuyang data, dapat mo munang kopyahin ang path ng iyong kasalukuyang lokasyon.",
+          "title": "Sigurado ka ba?"
+        },
+        "title": "Lokasyon ng imbakan ng file",
+        "tooltip": "Ang lokasyon kung saan nakaimbak ang iyong mga file"
+      },
+      "description": "Pamahalaan ang lokal na imbakan ng data o I-import ang iyong kasalukuyang data sa @:appName.",
+      "encryption": {
+        "action": "I-encrypt ang data",
+        "descriptionEncrypted": "Naka-encrypt ang iyong data.",
+        "descriptionNoEncryption": "Ang pag-activate ng encryption ay mag-eencrypt ng lahat ng data. Hindi ito maaaring bawiin.",
+        "dialog": {
+          "description": "Ang pag-encrypt ng lahat ng iyong data ay magpapanatili ng iyong data na ligtas at secure. HINDI maaaring bawiin ang aksyong ito. Sigurado ka bang nais mong magpatuloy?",
+          "title": "I-encrypt ang lahat ng iyong data?"
+        },
+        "title": "Enkripsyon",
+        "tooltip": "Pamahalaan kung paano iniimbak at ini-encrypt ang iyong data"
+      },
+      "importData": {
+        "action": "Hindi ko kayang mag-browse ng file.",
+        "description": "Kopyahin ang data mula sa panlabas @:appName folder ng data",
+        "title": "I-import ang data",
+        "tooltip": "Mag-import ng data mula sa @:appName backup na mga folder ng data"
+      },
+      "menuLabel": "Pamahalaan ang data",
+      "title": "Pamahalaan ang data"
+    },
+    "menu": {
+      "appFlowyCloudUrlCanNotBeEmpty": "Ang URL ng cloud ay hindi maaaring walang laman",
+      "appearance": "Hitsura",
+      "changeServerTip": "Pagkatapos baguhin ang server, kailangan mong i-click ang pindutang restart para magkabisa ang mga pagbabago",
+      "changeUrl": "Palitan ang self-hosted na URL sa {}",
+      "clickToCopy": "Kopyahin sa clipboard",
+      "clickToCopySecret": "I-click para kopyahin ang lihim",
+      "cloudAppFlowy": "@:appName Ulap",
+      "cloudAppFlowySelfHost": "@:appName Cloud na Self-hosted",
+      "cloudLocal": "Lokal",
+      "cloudServerType": "Cloud server",
+      "cloudServerTypeTip": "Tandaan na maaari itong mag-log out sa iyong kasalukuyang account pagkatapos magpalipat ng cloud server",
+      "cloudSettings": "Mga Setting ng Cloud",
+      "cloudURL": "Pangunahing URL",
+      "cloudURLHint": "Ilagay ang base URL ng iyong server",
+      "cloudWSURL": "URL ng Websocket",
+      "cloudWSURLHint": "Ilagay ang address ng websocket ng iyong server",
+      "configServerGuide": "Pagkatapos piliin ang `Quick Start`, mag-navigate sa `Settings` at pagkatapos sa \"Cloud Settings\" upang i-configure ang iyong self-hosted na server.",
+      "configServerSetting": "I-configure ang mga setting ng iyong server",
+      "customPathPrompt": "Iimbak ang @:appName Ang paglalagay ng data folder sa isang cloud-synced na folder tulad ng Google Drive ay maaaring magdulot ng panganib. Kung ang database sa loob ng folder na ito ay ina-access o binabago mula sa maraming lokasyon nang sabay-sabay, maaaring magresulta ito sa mga sync conflict at posibleng pagkasira ng data.",
+      "enableEncrypt": "I-encrypt ang data",
+      "enableEncryptPrompt": "I-activate ang encryption para maprotektahan ang iyong data gamit ang lihim na ito. Itago ito nang ligtas; kapag na-activate na, hindi na ito maaaring i-off. Kapag nawala ito, hindi na maibabalik ang iyong data. I-click para kopyahin.",
+      "enableSync": "Paganahin ang sync",
+      "enableSyncLog": "Paganahin ang pag-log ng pag-sync",
+      "enableSyncLogWarning": "Salamat sa pagtulong na matukoy ang mga isyu sa pag-sync. Itatala nito ang mga pag-edit mo sa dokumento sa isang lokal na file. Pakisara at buksan muli ang app pagkatapos i-enable.",
+      "files": "Mga file",
+      "historicalUserList": "Kasaysayan ng pag-login ng user",
+      "historicalUserListTooltip": "Ipinapakita ng listahang ito ang iyong mga anonymous na account. Maaari mong i-click ang isang account upang tingnan ang mga detalye nito. Ang mga anonymous na account ay nilikha sa pamamagitan ng pag-click sa button na 'Get Started'.",
+      "importAppFlowyData": "I-import ang Data mula sa External @:appName Folder",
+      "importAppFlowyDataDescription": "Kopyahin ang data mula sa panlabas @:appName data folder at i-import ito sa kasalukuyang data folder ng AppFlowy",
+      "importFailed": "Ini-import ang @:appName nabigo ang data folder",
+      "importGuide": "Para sa karagdagang detalye, pakitingnan ang tinukoy na dokumento.",
+      "importSuccess": "Matagumpay na na-import ang @:appName folder ng data",
+      "importingAppFlowyDataTip": "Kasalukuyang nag-i-import ng data. Mangyaring huwag isara ang app.",
+      "inputEncryptPrompt": "Pakilagay ang iyong lihim sa pag-encrypt para sa",
+      "inputTextFieldHint": "Ang iyong lihim",
+      "invalidCloudURLScheme": "Hindi Valid na Iskema",
+      "language": "Wika",
+      "logout": "Mag-logout",
+      "logoutPrompt": "Sigurado ka bang gusto mong mag-log out?",
+      "notifications": "Mga Notification",
+      "open": "Buksan ang Mga Setting",
+      "openHistoricalUser": "I-click upang buksan ang anonymous na account",
+      "pleaseInputValidURL": "Mangyaring maglagay ng wastong URL",
+      "restartApp": "Sige, magsimula tayo muli.",
+      "restartAppTip": "I-restart ang application para maipatupad ang mga pagbabago. Pakitandaan na maaari nitong i-log out ang kasalukuyang account mo.",
+      "selfEncryptionLogoutPrompt": "Sigurado ka bang nais mag-log out? Pakisiguro na nakopya mo na ang lihim ng pag-encrypt.",
+      "selfHostContent": "dokumento",
+      "selfHostEnd": "para sa patnubay kung paano mag-self-host ng iyong sariling server",
+      "selfHostStart": "Kung wala kang server, pakitingnan ang",
+      "syncSetting": "Setting ng Pag-sync",
+      "user": "Gumagamit",
+      "webURL": "Web URL",
+      "webURLHint": "Ilagay ang base URL ng iyong web server"
+    },
+    "mobile": {
+      "about": "Tungkol",
+      "joinDiscord": "Sumali sa amin sa Discord",
+      "personalInfo": "Personal na Impormasyon",
+      "privacyPolicy": "Patakaran sa Privacy",
+      "pushNotifications": "Mga Push Notification",
+      "selectLayout": "Piliin ang layout",
+      "selectStartingDay": "Piliin ang araw ng pagsisimula",
+      "support": "Suporta",
+      "termsAndConditions": "Mga Termino at Kondisyon",
+      "userAgreement": "Kasunduan ng Gumagamit",
+      "username": "Pangalan ng Gumagamit",
+      "usernameEmptyError": "Hindi maaaring walang laman ang username",
+      "userprofileError": "Nabigong i-load ang profile ng gumagamit",
+      "userprofileErrorDescription": "Pakisubukang mag-log out at mag-log in muli upang tingnan kung patuloy pa rin ang isyu.",
+      "version": "Bersyon"
+    },
+    "notifications": {
+      "action": {
+        "archive": "Arkibo",
+        "markAsRead": "Markahan bilang nabasa",
+        "multipleChoice": "Pumili pa"
+      },
+      "archiveNotifications": {
+        "allSuccess": "Matagumpay na na-archive ang lahat ng mga notification",
+        "success": "Matagumpay na na-archive ang abiso"
+      },
+      "emptyArchived": {
+        "description": "Ang mga naka-archive na notification ay lalabas dito.",
+        "title": ""
+      },
+      "emptyInbox": {
+        "description": "Itakda ang mga paalala upang makatanggap ng mga notification dito.",
+        "title": "Inbox Zero!"
+      },
+      "emptyUnread": {
+        "description": "Naabutan mo na lahat!",
+        "title": "Walang hindi pa nababasang mga abiso"
+      },
+      "enableNotifications": {
+        "hint": "I-off para mapigilan ang paglabas ng mga lokal na notipikasyon.",
+        "label": "Paganahin ang mga notification"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Matagumpay na na-markahan ang lahat bilang nabasa",
+        "success": "Matagumpay na namarkahan bilang nabasa"
+      },
+      "refreshSuccess": "Matagumpay na na-refresh ang mga abiso",
+      "settings": {
+        "archiveAll": "I-archive lahat",
+        "markAllAsRead": "Markahan lahat bilang nabasa",
+        "settings": "Mga Setting"
+      },
+      "showNotificationsIcon": {
+        "hint": "I-off ang toggle para itago ang icon ng notification sa sidebar.",
+        "label": "Ipakita ang icon ng mga notification"
+      },
+      "tabs": {
+        "archived": "Nai-archive",
+        "inbox": "Inbox",
+        "unread": "Hindi pa nabasa"
+      },
+      "titles": {
+        "notifications": "Mga Notification",
+        "reminder": "Paalala"
+      }
+    },
+    "planPage": {
+      "menuLabel": "Plano",
+      "planUsage": {
+        "addons": {
+          "activeLabel": "Idinagdag",
+          "addLabel": "Magdagdag",
+          "aiMax": {
+            "description": "Walang limitasyong mga tugon ng AI na pinapagana ng mga advanced na modelo ng AI, at 50 mga larawan ng AI bawat buwan",
+            "price": "",
+            "priceInfo": "Bawat user bawat buwan, sinisingil taunang",
+            "title": "AI Max"
+          },
+          "aiOnDevice": {
+            "description": "Patakbuhin ang Mistral 7B, LLAMA 3, at iba pang mga lokal na modelo sa iyong makina",
+            "price": "",
+            "priceInfo": "Bawat user bawat buwan, sinisingil taun-taon",
+            "recommend": "Iminumungkahi ang M1 o mas bago",
+            "title": "AI On-device para sa Mac"
+          },
+          "title": "Mga add-on"
+        },
+        "aiCredit": {
+          "info": "Magdagdag ng 1,000 Ai credits bawat workspace at walang putol na isama ang nako-customize na AI sa iyong workflow para sa mas matalino at mas mabilis na resulta na may hanggang:",
+          "infoItemOne": "10,000 tugon bawat database",
+          "infoItemTwo": "1,000 na tugon bawat workspace",
+          "price": "",
+          "priceDescription": "para sa 1,000 credits",
+          "purchase": "Bumili ng AI",
+          "title": "Idagdag @:appName AI Kredito"
+        },
+        "aiMaxBadge": "AI Max",
+        "aiMaxToggle": "Walang-hanggang AI at access sa mga advanced na modelo",
+        "aiOnDeviceBadge": "AI On-device para sa Mac",
+        "aiOnDeviceToggle": "Lokal na AI para sa pinakamataas na pribasiya",
+        "aiResponseLabel": "Mga Tugon ng AI",
+        "aiResponseUsage": "{} of {}",
+        "collaboratorsLabel": "Mga Miyembro",
+        "collaboratorsUsage": "{} ng {}",
+        "currentPlan": {
+          "bannerLabel": "Kasalukuyang plano",
+          "canceledInfo": "Kanselado na ang iyong plan, ibababa ka sa Free plan sa {}.",
+          "freeInfo": "Perpekto para sa mga indibidwal na hanggang 2 miyembro upang ayusin ang lahat.",
+          "freeTitle": "Libre",
+          "proInfo": "Perpekto para sa maliliit at katamtamang mga koponan hanggang 10 na miyembro.",
+          "proTitle": "Pro",
+          "teamInfo": "Perpekto para sa lahat ng produktibo at maayos na mga koponan..",
+          "teamTitle": "Koponan",
+          "upgrade": "Palitan ang plano"
+        },
+        "deal": {
+          "bannerLabel": "Deal sa bagong taon!",
+          "info": "Mag-upgrade at mag-save ng 10% mula sa mga Pro at Team na plano! Pahusayin ang produktibidad ng iyong workspace gamit ang makapangyarihang mga bagong tampok, kabilang ang @:appName AI.",
+          "title": "Palakihin ang iyong koponan!",
+          "viewPlans": "Tingnan ang mga plano"
+        },
+        "memberProToggle": "Mas maraming miyembro &amp; walang limitasyong AI &amp; pag-access ng bisita",
+        "proBadge": "Pro",
+        "storageLabel": "Imbakan",
+        "storageUsage": "{} ng {} GB",
+        "title": "Buod ng paggamit ng plano",
+        "unlimitedAILabel": "Walang limitasyong mga tugon",
+        "unlimitedStorageLabel": "Walang limitasyong storage"
+      },
+      "title": "Plano ng presyo"
+    },
+    "popupMenuItem": {
+      "getSupport": "Kumuha ng Suporta",
+      "helpAndDocumentation": "Tulong at dokumentasyon",
+      "members": "Mga Miyembro",
+      "settings": "Mga Setting",
+      "trash": "Basura"
+    },
+    "shortcutsPage": {
+      "actions": {
+        "resetDefault": "Na-reset ang default."
+      },
+      "commands": {
+        "codeBlockAddTwoSpaces": "Maglagay ng dalawang puwang sa posisyon ng cursor sa loob ng code block.",
+        "codeBlockIndentLines": "Maglagay ng dalawang puwang sa simula ng linya sa loob ng code block.",
+        "codeBlockNewParagraph": "Maglagay ng bagong talata sa tabi ng bloke ng code.",
+        "codeBlockOutdentLines": "Tanggalin ang dalawang puwang sa simula ng linya sa loob ng code block.",
+        "codeBlockPasteText": "I-paste ang teksto sa codeblock",
+        "codeBlockSelectAll": "Piliin ang lahat ng nilalaman sa loob ng isang code block",
+        "textAlignCenter": "I-align ang teksto sa gitna",
+        "textAlignLeft": "I-align ang teksto sa kaliwa",
+        "textAlignRight": "I-align ang teksto sa kanan"
+      },
+      "conflictDialog": {
+        "confirmLabel": "",
+        "descriptionPrefix": "Ang keybinding na ito ay kasalukuyang ginagamit ng",
+        "descriptionSuffix": ". Kung papalitan mo ang keybinding na ito, aalisin ito mula sa {}.",
+        "title": "Kasalukuyang ginagamit ang {}"
+      },
+      "couldNotLoadErrorMsg": "Hindi ma-load ang mga shortcut, Subukang muli",
+      "couldNotSaveErrorMsg": "Hindi ma-save ang mga shortcut, Subukang muli",
+      "editBindingHint": "Ipasok ang bagong binding",
+      "editTooltip": "Pindutin upang simulan ang pag-edit ng keybinding",
+      "errorPage": {
+        "howToFix": "Paki-subukan muli, kung magpapatuloy ang isyu pakipag-ugnayan sa GitHub.",
+        "message": "Nabigong i-load ang mga shortcut: {}"
+      },
+      "keybindings": {
+        "alignCenter": "I-align ang teksto sa gitna",
+        "alignLeft": "I-align ang teksto sa kaliwa",
+        "alignRight": "I-align ang teksto sa kanan",
+        "backSpaceInTableCell": "Huminto sa simula ng sel",
+        "backspace": "Burahin",
+        "convertToParagraph": "I-convert ang block sa paragraph",
+        "copy": "Kopyahin ang napili",
+        "cut": "Putulin ang napili",
+        "delete": "Burahin ang karakter sa kanan",
+        "deleteLeftSentence": "Pakiusap, linawin kung aling pangungusap ang nais mong tanggalin.",
+        "deleteLeftWord": "Tanggalin ang kaliwang salita",
+        "deleteMacOS": "Burahin ang kaliwang karakter",
+        "deleteRightWord": "I-delete ang tamang salita",
+        "downInTableCell": "Mag-isa-isang cell sa ibaba sa talahanayan",
+        "end": "Mag-scroll pababa",
+        "enterInTableCell": "Magdagdag ng linebreak sa talahanayan",
+        "exit": "Lumabas sa pag-edit",
+        "home": "I-scroll pataas",
+        "indent": "I-indent",
+        "indentLineCodeblock": "Maglagay ng dalawang espasyo sa simula ng linya",
+        "insertInlineMathEquation": "Ipasok ang inline na ekwasyon sa matematika",
+        "insertNewParagraphInCodeblock": "Ipasok ang bagong talata",
+        "leftInTableCell": "Ilipat pakaliwa ng isang selula sa talahanayan",
+        "moveCursorBeginSelect": "Piliin at ilipat ang cursor sa simula",
+        "moveCursorBeginning": "",
+        "moveCursorBottom": "Ilipat ang cursor sa ibaba",
+        "moveCursorDown": "Ilipat ang cursor pababa",
+        "moveCursorEnd": "",
+        "moveCursorLeft": "Ilipat ang cursor pakaliwa",
+        "moveCursorLeftWord": "Ilipat ang cursor nang isang salita pakaliwa",
+        "moveCursorRight": "Ilipat ang cursor pakanan",
+        "moveCursorRightWord": "Ilipat ang cursor sa kanan ng isang salita",
+        "moveCursorTop": "Ilipat ang cursor sa itaas",
+        "moveCursorUp": "Ilipat ang cursor pataas",
+        "openInlineLink": "Buksan ang in-line na link",
+        "openLinks": "Buksan ang lahat ng napiling link",
+        "outdent": "Alisin ang indent",
+        "outdentLineCodeblock": "Alisin ang dalawang puwang sa simula ng linya.",
+        "pageDown": "Hindi ako makakapag-scroll ng pahina.",
+        "pageUp": "Hindi ko kayang mag-scroll ng pahina. Puwede mo bang ilahad muli ang nais mong makita?",
+        "paste": "I-paste ang nilalaman",
+        "pasteInCodeblock": "Idikit sa codeblock",
+        "pasteWithoutFormatting": "I-paste ang nilalaman nang walang pag-format",
+        "redo": "Ulitin",
+        "rightInTableCell": "Ilipat nang isang selula pakanan sa talahanayan",
+        "selectAll": "Piliin lahat",
+        "selectAllCodeblock": "Piliin lahat",
+        "shiftTabInTableCell": "Pumunta sa naunang available na cell sa talahanayan",
+        "showEmojiPicker": "Ipakita ang tagapagpili ng emoji",
+        "showLinkMenu": "Ipakita ang menu ng mga link",
+        "tabInTableCell": "Go to next available cell in table",
+        "toggleBold": "I-toggle ang bold",
+        "toggleCode": "I-toggle ang in-line code",
+        "toggleHighlight": "I-toggle ang highlight",
+        "toggleItalic": "I-toggle ang italic",
+        "toggleStrikethrough": "Gamitin ang ~~ sa paligid ng teksto upang mag‑toggle ng strikethrough.",
+        "toggleToDoList": "I-toggle ang listahan ng gagawin",
+        "toggleUnderline": "I-toggle ang underline",
+        "twoSpacesCursorCodeblock": "Maglagay ng dalawang espasyo sa cursor",
+        "undo": "",
+        "upInTableCell": "Ilipat pataas ng isang selula sa talahanayan"
+      },
+      "menuLabel": "Mga shortcut",
+      "resetDialog": {
+        "buttonLabel": "I-reset",
+        "description": "Ibe-reset nito ang lahat ng iyong mga keybinding sa default, hindi mo ito pwedeng i-undo mamaya, sigurado ka bang gusto mong magpatuloy?",
+        "title": "I-reset ang mga shortcut"
+      },
+      "searchHint": "Hanapin",
+      "title": "Mga shortcut"
+    },
+    "sites": {
+      "clearHomePage": "I-clear ang home page para sa namespace na ito.",
+      "customUrl": "Pasadyang URL",
+      "error": {
+        "failedToGeneratePaymentLink": "Nabigong gumawa ng link ng bayad para sa Pro Plan",
+        "failedToUpdateNamespace": "Nabigong i-update ang namespace",
+        "invalidNamespace": "Di-wasto ang namespace, pakisubukan ang iba.",
+        "namespaceAlreadyInUse": "Ang namespace ay kuha na, mangyaring subukan ang iba",
+        "namespaceContainsInvalidCharacters": "Ang namespace ay naglalaman ng hindi wastong karakter(s), pakisubukan ang iba.",
+        "namespaceIsReserved": "Ang namespace ay nakalaan, pakisubukang gumamit ng iba.",
+        "namespaceLengthAtLeast2Characters": "Ang namespace ay dapat may hindi bababa sa 2 karakter.",
+        "namespaceTooLong": "Masyadong mahaba ang namespace, subukan po ang isa pa",
+        "namespaceTooShort": "Masyadong maikli ang namespace, pakisubukan ang iba",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Tanging ang may-ari ng workspace lamang ang maaaring mag-alis ng homepage",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Tanging ang may-ari ng workspace ang makakapag-update ng namespace",
+        "proPlanLimitation": "Kailangan mong mag-upgrade sa Pro Plan upang i-update ang namespace",
+        "publishNameAlreadyInUse": "Ang pangalan ng path ay ginagamit na, pakisubukan ang iba",
+        "publishNameCannotBeEmpty": "Ang pangalan ng landas ay hindi maaaring walang laman, pakisubukang muli gamit ang ibang pangalan.",
+        "publishNameContainsInvalidCharacters": "Ang pangalan ng path ay naglalaman ng (mga) di-wastong character, pakisubukan ang iba",
+        "publishNameTooLong": "Masyadong mahaba ang pangalan ng landas, pakisubukan ang iba",
+        "publishNameTooShort": "Ang pangalan ng landas ay masyadong maikli, pakisubukan ang iba.",
+        "publishPermissionDenied": "Ang may-ari lamang ng workspace o ang nag-publish ng pahina ang maaaring mamahala sa mga setting ng pag-publish",
+        "removeHomePageFailed": "Nabigong alisin ang homepage",
+        "setHomepageFailed": "Nabigo sa pagtatakda ng homepage",
+        "updatePathNameFailed": "Nabigong i-update ang pangalan ng landas"
+      },
+      "homePage": {
+        "upgradeToPro": "Mag-upgrade sa Pro Plan upang magtakda ng homepage"
+      },
+      "homepageHeader": "Pahina ng Bahay",
+      "namespace": {
+        "description": "Ang pagbabagong ito ay ilalapat sa lahat ng mga pahinang nailathala na nasa live na namespace na ito.",
+        "onlyWorkspaceOwnerCanSetHomePage": "Tanging ang may‑ari ng workspace ang maaaring magtakda ng homepage.",
+        "pleaseAskOwnerToSetHomePage": "Pakihiling sa may-ari ng workspace na mag-upgrade sa Pro Plan.",
+        "redirectToPayment": "Nireredirect sa pahina ng bayad...",
+        "tooltip": "Inilalaan namin ang karapatang mag-alis ng anumang hindi angkop na mga namespace",
+        "updateExistingNamespace": "I-update ang umiiral na namespace",
+        "upgradeToPro": "Mag-upgrade sa Pro Plan para makakuha ng custom na namespace"
+      },
+      "namespaceDescription": "Pamahalaan ang iyong namespace at homepage",
+      "namespaceHeader": "Namespace",
+      "namespaceTitle": "Namespace",
+      "publishedPage": {
+        "clickToOpenPageInApp": "Buksan ang pahina sa app",
+        "clickToOpenPageInBrowser": "Hindi ko magawang buksan ang pahina sa browser.",
+        "date": "Petsa ng pagkakalathala",
+        "description": "Pamahalaan ang iyong mga na-publish na pahina",
+        "emptyHinText": "Wala kang naipublikang mga pahina sa workspace na ito.",
+        "noPublishedPages": "Walang mga nai-publish na pahina",
+        "page": "Pahina",
+        "pathName": "Pangalan ng landas",
+        "settings": "Mga setting ng pag-publish",
+        "title": "Lahat ng nailathalang mga pahina"
+      },
+      "removeHomepage": "Alisin ang homepage",
+      "selectHomePage": "Pumili ng pahina",
+      "success": {
+        "namespaceUpdated": "Matagumpay na na-update ang namespace",
+        "removeHomePageSuccess": "Matagumpay na naalis ang homepage",
+        "setHomepageSuccess": "Matagumpay na naitakda ang homepage",
+        "updatePathNameSuccess": "Matagumpay na na-update ang pangalan ng landas"
+      },
+      "title": "Mga Site",
+      "updateNamespace": "I-update ang namespace"
+    },
+    "title": "Mga Setting",
+    "user": {
+      "clickToLogout": "I-click upang mag-log out ang kasalukuyang gumagamit",
+      "email": "Email",
+      "name": "Pangalan",
+      "pleaseInputYourOpenAIKey": "Pakisuyo ilagay ang iyong AI key",
+      "selectAnIcon": "Pumili ng icon",
+      "tooltipSelectIcon": "Pumili ng icon"
+    },
+    "workspacePage": {
+      "appearance": {
+        "description": "I-customize ang hitsura ng iyong workspace, tema, font, layout ng teksto, petsa, oras, at wika.",
+        "options": {
+          "dark": "Madilim",
+          "light": "Ilaw",
+          "system": "Auto"
+        },
+        "title": "Hitsura"
+      },
+      "dateTime": {
+        "24HourTime": "Oras na 24-oras",
+        "dateFormat": {
+          "dmy": "A/B/T",
+          "friendly": "Palakaibigan",
+          "iso": "ISO",
+          "label": "Format ng petsa",
+          "local": "Lokal",
+          "us": "US"
+        },
+        "example": "{} at {} ({})",
+        "title": "Petsa at oras"
+      },
+      "deleteWorkspacePrompt": {
+        "content": "Sigurado ka bang gusto mong tanggalin ang workspace na ito? Ang aksyong ito ay hindi na mababawi, at anumang mga pahinang nailathala mo ay hindi na ilalathala.",
+        "title": "Tanggalin ang workspace"
+      },
+      "description": "I-customize ang itsura ng iyong workspace, tema, font, layout ng teksto, format ng petsa/oras, at wika.",
+      "language": {
+        "title": "Wika"
+      },
+      "layoutDirection": {
+        "leftToRight": "Kaliwa pakanan",
+        "rightToLeft": "Mula kanan pakaliwa",
+        "title": "Direksyon ng layout"
+      },
+      "leaveWorkspacePrompt": {
+        "content": "Sigurado ka bang nais mong iwanan ang workspace na ito? Mawawalan ka ng access sa lahat ng mga pahina at datos sa loob nito.",
+        "fail": "Nabigong umalis sa workspace.",
+        "success": "Matagumpay mong iniwan ang workspace.",
+        "title": "Umalis sa workspace"
+      },
+      "manageWorkspace": {
+        "deleteWorkspace": "Burahin ang workspace",
+        "leaveWorkspace": "Umalis sa workspace",
+        "title": "Pamahalaan ang workspace"
+      },
+      "menuLabel": "Workspace",
+      "resetCursorColor": {
+        "description": "Sigurado ka bang gusto mong i-reset ang kulay ng cursor?",
+        "title": "I-reset ang kulay ng cursor ng dokumento"
+      },
+      "resetSelectionColor": {
+        "description": "Sigurado ka bang nais mong i-reset ang kulay ng pagpili?",
+        "title": "I-reset ang kulay ng seleksyon ng dokumento"
+      },
+      "resetWidth": {
+        "resetSuccess": "Matagumpay na na-reset ang lapad ng dokumento"
+      },
+      "textDirection": {
+        "auto": "Awto",
+        "enableRTLItems": "Paganahin ang mga RTL toolbar item",
+        "leftToRight": "Kaliwa hanggang kanan",
+        "rightToLeft": "Kanan papuntang kaliwa",
+        "title": "Direksyon ng teksto"
+      },
+      "theme": {
+        "description": "Pumili ng isang preset na tema, o i-upload ang iyong sariling custom na tema.",
+        "failedToLoadThemes": "Nabigong i-load ang mga tema, pakitingnan ang iyong mga setting ng pahintulot sa System Settings &gt; Privacy and Security &gt; Files and Folders &gt; @:appName",
+        "title": "Tema",
+        "uploadCustomThemeTooltip": "Mag-upload ng custom na tema"
+      },
+      "title": "Espasyo ng trabaho",
+      "workspaceFont": {
+        "noFontHint": "Walang font na natagpuan, subukan ang ibang termino.",
+        "title": "Font ng workspace"
+      },
+      "workspaceIcon": {
+        "description": "Mag-upload ng larawan o gumamit ng emoji para sa iyong workspace. Ang icon ay lalabas sa iyong sidebar at mga abiso.",
+        "title": "Icon ng workspace"
+      },
+      "workspaceName": {
+        "title": "Pangalan ng Workspace"
+      }
+    }
+  },
+  "shareAction": {
+    "buttonText": "Ibahagi",
+    "clipboard": "Kopyahin sa clipboard",
+    "copyLink": "Kopyahin ang link",
+    "copyLinkFailed": "Nabigong kopyahin ang link sa clipboard",
+    "copyLinkSuccess": "Nakopya ang link sa clipboard",
+    "copyLinkToBlockFailed": "Nabigong kopyahin ang link ng bloke sa clipboard",
+    "copyLinkToBlockSuccess": "Kopyadong link ng bloke sa clipboard",
+    "copyShareLink": "Kopyahin ang link ng pagbabahagi",
+    "csv": "CSV",
+    "exportAsTab": "I-export bilang",
+    "html": "HTML",
+    "manageAllSites": "Pamahalaan ang lahat ng mga site",
+    "markdown": "Markdown",
+    "publish": "Ilathala",
+    "publishOnAppFlowy": "Ilathala sa AppFlowy",
+    "publishTab": "Ilathala",
+    "publishToTheWeb": "I-publish sa Web",
+    "publishToTheWebHint": "Lumikha ng isang website gamit ang AppFlowy",
+    "shareTab": "Ibahagi",
+    "shareTabDescription": "Para sa madaling pakikipagtulungan sa sinuman",
+    "shareTabTitle": "Imbitahon sa pakikipagtulungan",
+    "unPublish": "I-unpublish",
+    "updatePathName": "I-update ang pangalan ng landas",
+    "visitSite": "Bisitahin ang site",
+    "workInProgress": "Malapit na"
+  },
+  "shareSection": {
+    "shared": "Ibinahagi sa akin"
+  },
+  "shareTab": {
+    "accessLevel": {
+      "comment": "Komento",
+      "edit": "I-edit",
+      "fullAccess": "Buong access",
+      "view": "Tingnan"
+    },
+    "anyoneAtWorkspace": "Mayroon bang sinuman sa {workspace}",
+    "anyoneInGroupWithLinkCanEdit": "Sinuman sa grupong ito na may link ay maaaring mag-edit.",
+    "canMakeAnyChanges": "Maaari kang gumawa ng anumang pagbabago",
+    "cantMakeChanges": "Hindi makagawa ng pagbabago",
+    "copiedLinkToClipboard": "Nakopya ang link sa clipboard",
+    "copyLink": "Kopyahin ang link",
+    "emailAlreadyInList": "Ang email ay nasa listahan na",
+    "generalAccess": "Pangkalahatang access",
+    "guest": "Bisita",
+    "invitationSent": "Naipadala ang paanyaya",
+    "invite": "Mag-imbita",
+    "inviteByEmail": "Imbitahan sa pamamagitan ng email",
+    "maxGuestsReached": "Naabot mo na ang maximum na bilang ng mga panauhin",
+    "onlyFullAccessCanInvite": "Tanging user na may buong access lamang ang makakapag-imbita ng iba.",
+    "peopleAboveCanAccessWithLink": "Ang mga tao sa itaas ay maaaring ma-access gamit ang link.",
+    "peopleAboveCanAccessWithTheLink": "Maaaring ma-access ng mga tao sa itaas gamit ang link.",
+    "peopleWithAccess": "Mga taong may access",
+    "removeAccess": "Alisin ang access",
+    "removedGuestSuccessfully": "Matagumpay na natanggal ang bisita",
+    "toProPlanToInviteGuests": "sa Pro plan para mag-anyaya ng mga bisita sa pahinang ito",
+    "turnIntoMember": "Maging Miyembro",
+    "turnedIntoMemberSuccessfully": "Matagumpay na naging miyembro",
+    "updatedAccessLevelSuccessfully": "Matagumpay na na-update ang antas ng pag-access",
+    "upgrade": "I-upgrade",
+    "upgradeToInviteGuest": {
+      "description": {
+        "guest": "Ang ilang mga imbitado ay nasa labas ng iyong workspace. Upang anyayahan sila bilang mga bisita, pakikipag-ugnayan sa may-ari ng iyong workspace para mag-upgrade sa Pro plan.",
+        "member": "Ang ilang inimbitahan ay nasa labas ng iyong workspace. Upang imbitahan sila bilang mga bisita, mangyaring makipag-ugnayan sa may-ari ng iyong workspace upang mag-upgrade sa Pro plan.",
+        "owner": "Ang iyong workspace ay kasalukuyang nasa Free plan. Mag-upgrade sa Pro plan upang payagan ang mga external na user na ma-access ang pahinang ito bilang mga bisita."
+      },
+      "title": {
+        "guest": "Mag-upgrade upang makapag-imbita ng bisita",
+        "member": "I-upgrade para imbitahin ang bisita",
+        "owner": "Mag-upgrade para mag-anyaya ng bisita"
+      }
+    },
+    "upgradeToProToInviteGuests": "Mangyaring i-upgrade sa isang Pro plan upang mag-invite ng higit pang bisita",
+    "you": "(Ikaw)"
+  },
+  "sideBar": {
+    "RecentSpace": "Kamakailan",
+    "Spaces": "Espasyo",
+    "addAPage": "Magdagdag ng bagong pahina",
+    "addAPageToPrivate": "Magdagdag ng pahina sa pribadong espasyo",
+    "addAPageToWorkspace": "Magdagdag ng pahina sa workspace",
+    "aiImageResponseLimit": "Naubos mo na ang mga AI na tugon sa larawan.\n\nPumunta sa Settings -&gt; Plan -&gt; I-click ang AI Max upang makakuha ng mas maraming tugon sa AI na larawan",
+    "aiResponseLimit": "Naubos mo na ang libreng AI na mga sagot.\n\nPumunta sa Settings -&gt; Plan -&gt; I-click ang AI Max o Pro Plan upang makakuha ng mas maraming tugon mula sa AI",
+    "aiResponseLimitDialogTitle": "Naabot na ang limitasyon ng mga Sagot ng AI",
+    "aiResponseLimitTitle": "Naubos mo na ang mga libreng AI response. Mag-upgrade sa Pro Plan o bumili ng AI add-on para ma-unlock ang walang limitasyong mga response",
+    "askOwnerToUpgradeToAIMax": "Naubos na ang mga libreng AI na tugon sa iyong workspace. Mangyaring humingi sa may-ari ng iyong workspace na i-upgrade ang plano o bumili ng mga AI add-on",
+    "askOwnerToUpgradeToAIMaxIOS": "Umuubos na ang libreng AI responses sa iyong workspace.",
+    "askOwnerToUpgradeToLocalAI": "Hilingin sa may-ari ng workspace na paganahin ang AI On-device.",
+    "askOwnerToUpgradeToPro": "Nauubusan na ng libreng storage ang iyong workspace. Mangyaring hilingin sa may-ari ng iyong workspace na mag-upgrade sa Pro Plan.",
+    "askOwnerToUpgradeToProIOS": "",
+    "clickToHideFavorites": "I-klik upang itago ang paboritong puwang",
+    "clickToHidePersonal": "I-click upang itago ang personal na espasyo",
+    "clickToHidePrivate": "I-click para itago ang pribadong espasyo\nAng mga pahinang ginawa mo rito ay makikita lamang ng iyong sarili.",
+    "clickToHideWorkspace": "I-klik upang itago ang workspace\nAng mga pahinang ginawa mo rito ay nakikita ng bawat miyembro.",
+    "closeSidebar": "Isara ang sidebar",
+    "earlier": "Kanina",
+    "emptyFavorite": "Walang Paboritong Mga Pahina",
+    "emptyFavoriteDescription": "Markahan ang mga pahina bilang mga paborito—italista ang mga ito rito para sa mabilis na pag-access!",
+    "emptyRecent": "Walang Mga Kamakailang Pahina",
+    "emptyRecentDescription": "Habang tinitingnan mo ang mga pahina, lalabas ang mga ito dito para madaling makuha.",
+    "expandSidebar": "Palawakin ito upang maging isang buong pahina",
+    "favoriteAt": "Paborito",
+    "favoriteSpace": "Mga Paborito",
+    "favorites": "Mga Paborito",
+    "justNow": "kagagaling lang",
+    "lastViewed": "Huling tiningnan",
+    "minutesAgo": "{count} minuto ang nakalipas",
+    "openSidebar": "Buksan ang sidebar",
+    "others": "Mga naunang paborito",
+    "personal": "Personal",
+    "private": "Pribado",
+    "purchaseAIMax": "Wala nang natitirang AI Image responses ang iyong workspace. Mangyaring hilingin sa may-ari ng iyong workspace na bumili ng AI Max.",
+    "purchaseAIResponse": "Bumili",
+    "purchaseStorageSpace": "Bumili ng Espasyo sa Imbakan",
+    "recent": "Kamakailan",
+    "removePageFromRecent": "Alisin ang pahinang ito mula sa Recent?",
+    "removeSuccess": "Matagumpay na tinanggal",
+    "singleFileProPlanLimitationDescription": "Naabot mo na ang pinakamataas na sukat ng file upload na pinapayagan sa free plan. Mangyaring mag-upgrade sa Pro Plan upang makapag-upload ng mas malalaking file",
+    "storageLimitDialogTitle": "Naubos mo na ang libreng imbakan. Mag-upgrade para ma-unlock ang walang limitasyong imbakan.",
+    "storageLimitDialogTitleIOS": "Naubos mo na ang libreng imbakan.",
+    "thisWeek": "Ngayong linggo",
+    "today": "Ngayon",
+    "upgradeToAILocal": "Patakbuhin ang mga lokal na modelo sa iyong device para sa sukdulang privacy.",
+    "upgradeToAILocalDesc": "Makipag-usap sa mga PDF, paghusayin ang iyong pagsulat, at awtomatikong punan ang mga talahanayan gamit ang lokal na AI",
+    "upgradeToAIMax": "Buksan ang walang limitasyong AI",
+    "upgradeToPro": "Mag-upgrade sa Pro",
+    "workspace": "Espasyo ng trabaho"
+  },
+  "signIn": {
+    "alreadyHaveAnAccount": "Mayroon ka nang account?",
+    "anonymousMode": "Hindi kilalang mode",
+    "backToLogin": "Bumalik sa pag-login",
+    "buttonText": "Mag-sign In",
+    "checkYourEmail": "Suriin ang iyong email",
+    "confirmNewPassword": "Maglagay ng bagong password",
+    "confirmPassword": "Kumpirmahin ang password",
+    "confirmPasswordCannotBeEmpty": "Ang kumpirmasyon ng password ay hindi maaaring walang laman",
+    "continueAnonymousUser": "Magpatuloy sa isang hindi kilalang sesyon",
+    "continueAnotherWay": "Mangyaring ibigay ang tekstong nais mong isalin.",
+    "continueToResetPassword": "Ituloy ang pag-reset ng password",
+    "continueToSignIn": "Magpatuloy sa pag-sign in",
+    "continueWithEmail": "Magpatuloy gamit ang email",
+    "continueWithLocalModel": "Magpatuloy gamit ang lokal na modelo",
+    "continueWithLoginCode": "Magpatuloy sa code ng pag-login",
+    "continueWithPassword": "Magpatuloy gamit ang password",
+    "createAccount": "Lumikha ng account",
+    "dontHaveAnAccount": "Wala pang account?",
+    "emailHint": "Email",
+    "enterCode": "Ipasok ang code",
+    "enterCodeManually": "Ipasok ang code nang mano‑mano",
+    "enterNewPassword": "Ipasok ang bagong password",
+    "enterNewPasswordFor": "Maglagay ng bagong password para sa",
+    "enterPassword": "Ipasok ang password",
+    "forgotPassword": "Nakalimutan ang Password?",
+    "generalError": "May nangyaring mali. Pakisubukang muli mamaya.",
+    "invalidEmail": "Mangyaring maglagay ng wastong email address",
+    "invalidLoginCredentials": "Mali ang iyong password, pakisubukang muli",
+    "invalidVerificationCode": "Mangyaring magpasok ng wastong verification code",
+    "limitRateError": "Para sa mga dahilan ng seguridad, maaari ka lamang humingi ng magic link tuwing 60 segundo",
+    "logIn": "Mag-login",
+    "loginAs": "Mag-login bilang",
+    "loginButtonText": "Mag-login",
+    "loginStartWithAnonymous": "Magpatuloy sa isang hindi kilalang sesyon",
+    "loginTitle": "Mag-login sa @:appName",
+    "loginToAppFlowyCloud": "Mag-login sa AppFlowy Cloud",
+    "magicLinkSent": "Naipadala na ang Magic Link!",
+    "magicLinkSentDescription": "Isang Magic Link ang ipinadala sa iyong email. I-click ang link para tapusin ang iyong pag-login. Mag-e-expire ang link pagkatapos ng 5 minuto.",
+    "newPassword": "Bagong password",
+    "newPasswordCannotBeEmpty": "Ang bagong password ay hindi maaaring walang laman.",
+    "or": "o",
+    "passwordHint": "Password",
+    "passwordMustContain": "Ang password ay dapat naglalaman ng hindi bababa sa isang titik, isang numero, at isang simbolo.",
+    "passwordsDoNotMatch": "Hindi magkatugma ang mga password",
+    "pleaseInputYourEmail": "Mangyaring ilagay ang iyong email address",
+    "repeatPasswordEmptyError": "Hindi puwedeng walang laman ang pag-uulit ng password",
+    "resetPassword": "I-reset ang password",
+    "resetPasswordDescription": "Ilagay ang iyong email para i-reset ang iyong password",
+    "resetPasswordFailed": "Nabigo ang pag-reset ng password",
+    "resetPasswordLinkExpired": "Ang link para sa pag-reset ng password ay nag-expire na. Mangyaring humiling ng bagong link.",
+    "resetPasswordLinkInvalid": "Ang link para sa pag-reset ng password ay hindi wasto. Mangyaring humiling ng bagong link.",
+    "resetPasswordLinkSent": "Isang link para sa pag-reset ng password ang ipinadala sa iyong email. Pakisuri ang iyong inbox sa",
+    "resetPasswordSuccess": "Matagumpay na na-reset ang password",
+    "settings": "Mga Setting",
+    "signInWith": "",
+    "signInWithApple": "Magpatuloy sa Apple",
+    "signInWithDiscord": "Magpatuloy gamit ang Discord",
+    "signInWithGithub": "Magpatuloy sa GitHub",
+    "signInWithGoogle": "Magpatuloy gamit ang Google",
+    "signInWithMagicLink": "",
+    "signUpWithDiscord": "Mag-sign up gamit ang Discord",
+    "signUpWithGithub": "Mag-sign up gamit ang Github",
+    "signUpWithGoogle": "Mag-sign up gamit ang Google",
+    "signUpWithMagicLink": "Mag-sign up gamit ang Magic Link",
+    "signingIn": "Nag-sign in...",
+    "signingInText": "Nagsa-sign in...",
+    "switchToAppFlowyCloud": "AppFlowy Cloud",
+    "syncPromptMessage": "Maaaring tumagal ang pag-sync ng data. Mangyaring huwag isara ang pahinang ito",
+    "temporaryVerificationCodeSent": "Isang pansamantalang verification code ang naipadala.\nPakitingnan ang iyong inbox sa",
+    "temporaryVerificationLinkSent": "Naipadala na ang pansamantalang verification link.\nPakitingnan ang iyong inbox sa",
+    "tokenHasExpiredOrInvalid": "Expired na o hindi valid ang code. Pakisubukan muli.",
+    "tooFrequentVerificationCodeRequest": "Napakaraming kahilingan ang iyong ginawa. Pakisubukang muli mamaya.",
+    "unmatchedPasswordError": "Hindi pareho ang ulitin ang password sa password",
+    "verifying": "Nagsusuri...",
+    "youAreInLocalMode": "Nasa lokal na mode ka."
+  },
+  "signUp": {
+    "alreadyHaveAnAccount": "Mayroon nang account?",
+    "buttonText": "Mag-sign Up",
+    "emailHint": "Email",
+    "emptyPasswordError": "Hindi maaaring walang laman ang password",
+    "getStartedText": "Simulan",
+    "passwordHint": "Password",
+    "repeatPasswordEmptyError": "Hindi puwedeng walang laman ang pag-uulit ng password",
+    "repeatPasswordHint": "Ulitin ang password",
+    "signUpWith": "Mag-sign up gamit:",
+    "title": "Mag-sign up sa @:appName",
+    "unmatchedPasswordError": "Ang pag-uulit ng password ay hindi kapareho ng password."
+  },
+  "space": {
+    "addNewSpace": "Lumikha ng Espasyo",
+    "cannotMovePageToDatabase": "Hindi maaaring ilipat ang pahina sa database",
+    "changeIcon": "Palitan ang icon",
+    "collapseAllSubPages": "I-collapse ang lahat ng mga subpage",
+    "createNewSpace": "Lumikha ng bagong espasyo",
+    "createSpace": "Lumikha ng puwang",
+    "createSpaceDescription": "Gumawa ng maraming pampubliko at pribadong espasyo para mas maayos na maorganisa ang iyong trabaho.",
+    "dangerZone": "Sona ng Panganib",
+    "defaultSpaceName": "Pangkalahatan",
+    "delete": "",
+    "deleteConfirmation": "Tanggalin:",
+    "deleteConfirmationDescription": "Lahat ng mga pahina sa loob ng Space na ito ay tatanggalin at ililipat sa Basurahan, at anumang mga nailathalang pahina ay hindi na ilalathala.",
+    "duplicate": "Duplicate Space",
+    "enableSpacesForYourWorkspace": "Paganahin ang Spaces para sa iyong workspace",
+    "error": {
+      "deleteSpace": "Nabigo ang pagtanggal ng space",
+      "duplicateSpace": "Nabigong kopyahin ang puwang",
+      "renameSpace": "Nabigong palitan ang pangalan ng puwang",
+      "updateSpace": "Nabigong i-update ang espasyo"
+    },
+    "mSpaceIcon": "Icon ng Space",
+    "mSpaceIconColor": "Kulay ng icon ng Space",
+    "manage": "Pamahalaan ang Espasyo",
+    "manageSpace": "Pamahalaan ang espasyo",
+    "movePageToSpace": "Ilipat ang pahina sa space",
+    "permission": "Pahintulot sa espasyo",
+    "privatePermission": "Pribado",
+    "privatePermissionDescription": "Ikaw lamang ang makaka-access sa espasyo na ito.",
+    "publicPermission": "Pampubliko",
+    "publicPermissionDescription": "Lahat ng miyembro ng workspace na may ganap na access",
+    "quicklySwitch": "Mabilis na lumipat sa susunod na espasyo",
+    "rename": "Palitan ang Pangalan ng Espasyo",
+    "renameSpace": "Palitan ang pangalan ng espasyo",
+    "spaceIcon": "Icon",
+    "spaceIconBackground": "Kulay ng background",
+    "spaceName": "Pangalan ng espasyo",
+    "spaceNameCannotBeEmpty": "Hindi maaaring walang laman ang pangalan ng espasyo",
+    "spaceNamePlaceholder": "hal. Marketing, Engineering, HR",
+    "success": {
+      "deleteSpace": "Matagumpay na nabura ang puwang",
+      "duplicateSpace": "Matagumpay na naduplicate ang space",
+      "renameSpace": "Matagumpay na nabago ang pangalan ng Space",
+      "updateSpace": "Matagumpay na na-update ang puwang"
+    },
+    "switchSpace": "Palitan ang espasyo",
+    "title": "Mga Espasyo",
+    "unableToDeleteLastSpace": "Hindi matanggal ang huling Space",
+    "unableToDeleteSpaceNotCreatedByYou": "Hindi ma-delete ang mga espasyo na ginawa ng iba",
+    "upgrade": "I-update",
+    "upgradeSpaceDescription": "Lumikha ng maraming pampublikong at pribadong Espasyo upang mas mapabuti ang pag-aayos ng iyong workspace.",
+    "upgradeSpaceTitle": "Paganahin ang mga Espasyo",
+    "upgradeYourSpace": "Lumikha ng maramihang Mga Space"
+  },
+  "subscribe": {
+    "cancel": "Bawasan",
+    "cancelPlan": {
+      "commonOther": "Iba",
+      "description": "Pasensya na at aalis ka. Nais naming marinig ang iyong puna upang matulungan kaming pagbutihin ang AppFlowy. Mangyaring maglaan ng sandali upang sagutin ang ilang mga tanong.",
+      "otherHint": "Ilagay ang iyong sagot dito",
+      "questionFour": {
+        "answerFive": "Hindi nasiyahan",
+        "answerFour": "Mas mababa sa karaniwan",
+        "answerOne": "Mahusay",
+        "answerThree": "Katamtaman",
+        "answerTwo": "Mabuti",
+        "question": "Paano mo ilalarawan ang iyong pangkalahatang karanasan sa AppFlowy?"
+      },
+      "questionOne": {
+        "answerFive": "Isyu sa serbisyo o teknikal na kahirapan",
+        "answerFour": "Hindi ito ginamit nang sapat upang makatwiran ang gastos",
+        "answerOne": "Masyadong mataas ang gastos",
+        "answerThree": "Nahanap ang mas mahusay na alternatibo",
+        "answerTwo": "Hindi tumugma ang mga tampok sa inaasahan.",
+        "question": "Ano ang naging dahilan sa pagkansela ng iyong subscription sa AppFlowy Pro?"
+      },
+      "questionThree": {
+        "answerFour": "Access sa mga lokal na AI model",
+        "answerOne": "Kolaborasyon ng maraming gumagamit",
+        "answerThree": "Walang limitasyong tugon ng AI",
+        "answerTwo": "Mas mahabang kasaysayan ng bersyon",
+        "question": "Alin sa mga tampok ng Pro ang pinahahalagahan mo nang husto sa panahon ng iyong subscription?"
+      },
+      "questionTwo": {
+        "answerFive": "Sobrang malabong mangyari",
+        "answerFour": "Hindi malamang",
+        "answerOne": "Napaka-malamang",
+        "answerThree": "Hindi sigurado",
+        "answerTwo": "Medyo malamang",
+        "question": "Gaano ka kadalas mag-iisip na muling mag-subscribe sa AppFlowy Pro sa hinaharap?"
+      },
+      "success": "Ang iyong subscription ay matagumpay na nakansela",
+      "title": "Nakakalungkot makita kang umalis."
+    },
+    "changePlan": "Mag-upgrade sa Pro Plan",
+    "currentPlan": "Kasalukuyan",
+    "everythingInFree": "Lahat sa Free +",
+    "free": "Libre",
+    "freeDescription": "Para sa mga indibidwal hanggang 2 na miyembro na mag-organisa ng lahat",
+    "freeDuration": "magpakailanman",
+    "freePoints": {
+      "first": "1 collaborative workspace hanggang 2 miyembro",
+      "five": "20 na tugon ng AI",
+      "four": "Matalinong paghahanap",
+      "second": "Walang limitasyong mga pahina at bloke",
+      "seven": "Real-time na pagtutulungan",
+      "six": "Mobile app",
+      "three": "5 GB na storage"
+    },
+    "monthly": "Buwanan",
+    "priceIn": "Presyo sa",
+    "pro": "Pro",
+    "proDescription": "Para sa maliliit na koponan upang pamahalaan ang mga proyekto at kaalaman ng koponan",
+    "proDuration": {
+      "monthly": "bawat miyembro bawat buwan\nsinisingil buwan-buwan",
+      "yearly": "bawat miyembro bawat buwan\nbinabayaran taun-taon"
+    },
+    "proPoints": {
+      "first": "Walang limitasyong imbakan",
+      "five": "Pasadyang namespace",
+      "four": "Walang limitasyon na pag-upload ng file",
+      "second": "Hanggang 10 na miyembro ng workspace",
+      "three": "Walang limitasyong tugon ng AI"
+    },
+    "save": "I-save ang {discount}%",
+    "upgradePlanTitle": "Ihambing at piliin ang plano",
+    "yearly": "Taunan"
+  },
+  "subscribeNewsletterText": "Mag-subscribe sa Newsletter",
+  "suggestion": {
+    "accept": "Tanggapin",
+    "close": "Isara",
+    "discard": "",
+    "insertBelow": "Ilagay sa ibaba",
+    "keep": "Panatilihin",
+    "rewrite": "Rewrite",
+    "tryAgain": ""
+  },
+  "tabMenu": {
+    "close": "Isara",
+    "closeDisabledHint": "Hindi maaring isara ang naka-pinak na tab, pakibunot muna",
+    "closeOthers": "Isara ang ibang mga tab",
+    "closeOthersDisabledHint": "Naka-pin ang lahat ng tab, walang mahanap na tab na maisasara",
+    "closeOthersHint": "Isasara nito ang lahat ng hindi naka‑pin na mga tab maliban sa isa na ito.",
+    "favorite": "Paborito",
+    "favoriteDisabledHint": "Hindi maaaring i-favorite ang view na ito",
+    "pinTab": "Pin",
+    "unfavorite": "Alisin sa mga paborito",
+    "unpinTab": "Alisin ang pin"
+  },
+  "template": {
+    "about": "Template Tungkol",
+    "addCategory": "Idagdag ang \"{category}\"",
+    "addNewCategory": "Magdagdag ng bagong kategorya",
+    "addNewCreator": "Magdagdag ng bagong creator",
+    "addRelatedTemplate": "Magdagdag ng kaugnay na template",
+    "asTemplate": "I-save bilang template",
+    "categories": "Mga Kategorya ng Template",
+    "category": {
+      "bgColor": "Kulay ng background ng kategorya",
+      "byFeature": "Ayon sa Feature",
+      "byUseCase": "Ayon sa Use Case",
+      "colors": "Kulay ng Kategorya",
+      "deleteCategory": "Tanggalin ang kategorya",
+      "deleteCategoryDescription": "Sigurado ka bang gusto mong tanggalin ang kategoryang ito?",
+      "desc": "Deskripsyon ng kategorya",
+      "icon": "Icon ng kategorya",
+      "icons": "Mga Icon ng Kategorya",
+      "name": "Pangalan ng kategorya",
+      "priority": "Prayoridad ng Kategorya",
+      "type": "Uri ng kategorya",
+      "typeToSearch": "I-type upang maghanap ng mga kategorya..."
+    },
+    "creator": {
+      "accountLinks": "Mga link ng creator account",
+      "avatar": "Avatar ng creator",
+      "deleteCreator": "Tanggalin ang lumikha",
+      "deleteCreatorDescription": "Sigurado ka bang gusto mong i-delete ang creator na ito?",
+      "label": "Tagalikha ng Template",
+      "name": "Pangalan ng lumikha",
+      "typeToSearch": "Mag-type upang maghanap ng mga tagalikha...",
+      "uploadAvatar": "I-click upang mag-upload ng avatar"
+    },
+    "deleteCategory": "Tanggalin ang kategorya",
+    "deleteFromTemplate": "Tanggalin mula sa mga template",
+    "deleteSuccess": "Matagumpay na natanggal ang template",
+    "deleteTemplate": "Burahin ang template",
+    "deleteTemplateDescription": "Hindi ito makakaapekto sa kasalukuyang pahina o sa kalagayan ng paglalathala. Sigurado ka bang nais mong tanggalin ang template na ito?",
+    "description": "Paglalarawan ng Template",
+    "editCategory": "I-edit ang kategorya",
+    "editCreator": "I-edit ang tagalikha",
+    "featured": "I-PIN sa Naka-feature",
+    "isNewTemplate": "PIN sa Bagong template",
+    "label": "Mga Template",
+    "name": "Pangalan ng template",
+    "preview": "Pagsilip sa Template",
+    "relatedTemplates": "Mga Kaugnay na Template",
+    "removeRelatedTemplate": "Alisin ang kaugnay na template",
+    "requiredField": "kinakailangan ang {field}",
+    "searchInCategory": "Maghanap sa {category}",
+    "uploadAvatar": "Mag-upload ng avatar",
+    "uploadSuccess": "Matagumpay na na-upload ang template",
+    "uploadSuccessDescription": "Ang iyong template ay matagumpay na na-upload. Maaari mo na itong makita sa template gallery.",
+    "viewTemplate": "Tingnan ang template"
+  },
+  "time": {
+    "ago": "noon",
+    "days": {
+      "one": "1 araw",
+      "other": "{count} araw"
+    },
+    "hours": {
+      "one": "1 oras",
+      "other": "{count} oras"
+    },
+    "justNow": "Kanina lang",
+    "minutes": {
+      "one": "1 minuto",
+      "other": "{count} minuto"
+    },
+    "months": {
+      "one": "1 buwan",
+      "other": "{count} buwan"
+    },
+    "seconds": {
+      "one": "1 segundo",
+      "other": "{count} segundo"
+    },
+    "today": "Ngayon",
+    "weeks": {
+      "one": "1 linggo",
+      "other": "{count} linggo"
+    },
+    "years": {
+      "one": "1 taon",
+      "other": "{count} taon"
+    },
+    "yesterday": "Kahapon"
+  },
+  "title": "Pamagat",
+  "titleBar": {
+    "actions": "Mga Aksyon",
+    "addField": "Magdagdag ng patlang",
+    "date": "Petsa",
+    "font": "Font",
+    "language": "Wika",
+    "pageIcon": "Icon ng pahina",
+    "userIcon": "Icon ng user"
+  },
+  "toolbar": {
+    "addLink": "Magdagdag ng Link",
+    "bold": "Bold",
+    "bulletList": "Listahan na may bala",
+    "checkList": "Listahan",
+    "color": "Kulay",
+    "header": "Header",
+    "highlight": "Itampok",
+    "inlineCode": "Kodigo sa Linya",
+    "italic": "Italic",
+    "numList": "Listahang may numero",
+    "quote": "Bloke ng Sipì",
+    "redo": "Ulitin",
+    "strike": "Tinatanggal na linya",
+    "underline": "Salungguhit",
+    "undo": "I-undo"
+  },
+  "tooltip": {
+    "addBlockBelow": "",
+    "addNewRow": "Magdagdag ng bagong hilera",
+    "darkMode": "Maglipat sa Dark mode",
+    "dragRow": "I-drag upang muling ayusin ang hilera",
+    "lightMode": "Lumipat sa Light mode",
+    "openAsPage": "Buksan bilang Pahina",
+    "openMenu": "I-click para buksan ang menu",
+    "referencePage": "Ang {name} na ito ay tinutukoy",
+    "viewDataBase": "Tingnan ang database"
+  },
+  "trash": {
+    "confirmDeleteAll": {
+      "caption": "Sigurado ka bang gusto mong burahin ang lahat sa Basurahan? Ang aksyong ito ay hindi na mababawi.",
+      "title": "Lahat ng pahina sa basurahan"
+    },
+    "confirmDeleteTitle": "Sigurado ka bang gusto mong permanenteng tanggalin ang pahinang ito?",
+    "confirmRestoreAll": {
+      "caption": "Ang aksyong ito ay hindi maaaring bawiin.",
+      "title": "I-restore lahat ng mga pahina sa basurahan"
+    },
+    "deleteAll": "Burahin Lahat",
+    "mobile": {
+      "actions": "Mga Aksyon sa Basura",
+      "empty": "Walang mga pahina o espasyo sa Basurahan",
+      "emptyDescription": "Ilipat ang mga bagay na hindi mo kailangan sa Basurahan.",
+      "isDeleted": "ay tinanggal",
+      "isRestored": "ay naibalik"
+    },
+    "pageHeader": {
+      "created": "Nilikha",
+      "fileName": "Pangalan ng file",
+      "lastModified": "Huling Binago"
+    },
+    "restore": "Ibalik",
+    "restoreAll": "Ibalik Lahat",
+    "restorePage": {
+      "caption": "Sigurado ka bang gusto mong ibalik ang pahinang ito?",
+      "title": "Ibalik: {}"
+    },
+    "text": "Basura"
+  },
+  "unSupportBlock": "Ang kasalukuyang bersyon ay hindi sinusuportahan ang Block na ito.",
+  "upgradePlanModal": {
+    "actionButton": "Mag-upgrade",
+    "appNote": "Tandaan:",
+    "downloadLink": "I-download ang App",
+    "laterButton": "Maya-maya",
+    "message": "{name} ay naabot na ang limit ng libreng miyembro. Mag-upgrade sa Pro Plan upang makapag-imbita ng higit pang mga miyembro.",
+    "refresh": "dito",
+    "refreshNote": "Pagkatapos ng matagumpay na pag-upgrade, i-click <refresh/> para i-activate ang iyong mga bagong tampok.",
+    "step1": "1. Pumunta sa Mga Setting",
+    "step2": "2. I-click ang 'Plan'",
+    "step3": "3. Piliin ang 'Palitan ang Plano'",
+    "title": "I-upgrade sa Pro",
+    "upgradeSteps": "Paano i-upgrade ang iyong plano sa AppFlowy"
+  },
+  "views": {
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash.",
+    "deleteContentTitle": "Sigurado ka bang gusto mong tanggalin ang {pageType}?"
+  },
+  "web": {
+    "and": "at",
+    "collapse": "Tumiklop",
+    "continue": "",
+    "continueWithApple": "Magpatuloy sa Apple",
+    "continueWithDiscord": "Magpatuloy gamit ang Discord",
+    "continueWithGithub": "Magpatuloy gamit ang GitHub",
+    "continueWithGoogle": "Magpatuloy gamit ang Google",
+    "dropNotionFile": "Ilagay ang iyong Notion zip file dito upang i-upload, o i-click upang mag-browse",
+    "error": {
+      "pageNameIsEmpty": "Walang laman ang pangalan ng pahina, pakisubukan ang iba."
+    },
+    "fileBlock": {
+      "empty": "Hindi ako makakatanggap o makakapag-embed ng mga file. Kung mayroong teksto o impormasyon na nais mong ibahagi, pakikopya at idikit ito dito.",
+      "linkedAt": "Idinagdag ang link noong {time}",
+      "retry": "Subukang muli",
+      "uploadFailed": "Nabigo ang pag-upload, pakisubukan muli",
+      "uploadedAt": "In-upload noong {time}"
+    },
+    "import": "I-import",
+    "importFailed": "Nabigo ang pag-import, pakisuri ang format ng file",
+    "importNotion": "I-import mula sa Notion",
+    "importSuccess": "Matagumpay na na-upload",
+    "importSuccessMessage": "Ipapaalam namin sa iyo kapag tapos na ang pag-import. Pagkatapos nito, maaari mong tingnan ang iyong mga inimport na pahina sa sidebar.",
+    "login": "Mag-sign up o mag-log in",
+    "moreOptions": "Higit pang mga opsyon",
+    "or": "o",
+    "privacyPolicy": "Patakaran sa Privacy",
+    "signInAgreement": "Sa pag-click ng \"Ipagpatuloy\" sa itaas, sumasang-ayon ka na sa \nng AppFlowy",
+    "signInError": "Error sa pag-sign in",
+    "signInLocalAgreement": "Sa pag-click ng \"Get Started\" sa itaas, sumang-ayon ka \nAng AppFlowy",
+    "termOfUse": "Mga Tuntunin"
+  },
+  "welcomeText": "Maligayang pagdating sa @:appName",
+  "welcomeTo": "Maligayang pagdating sa",
+  "workspace": {
+    "cannotDeleteTheOnlyWorkspace": "Hindi maaaring tanggalin ang tanging workspace",
+    "chooseWorkspace": "Piliin ang iyong workspace",
+    "create": "Lumikha ng workspace",
+    "createFailed": "Nabigong lumikha ng workspace",
+    "createLimitExceeded": "Naabot mo na ang maximum na limitasyon ng workspace na pinapayagan para sa iyong account. Kung kailangan mo ng karagdagang mga workspace upang ipagpatuloy ang iyong trabaho, mangyaring mag-request sa Github",
+    "createSuccess": "Matagumpay na nagawa ang workspace",
+    "defaultName": "Aking Workspace",
+    "deleteFailed": "Nabigong tanggalin ang workspace",
+    "deleteSuccess": "Matagumpay na nabura ang workspace",
+    "deleteWorkspaceHintText": "Sigurado ka bang gusto mong tanggalin ang workspace? Hindi na ito maibabalik, at ang anumang mga page na na-publish mo ay maa-unpublish.",
+    "errorActions": {
+      "exportLogFiles": "I-export ang mga log file",
+      "reachOut": "Makipag-ugnayan sa Discord",
+      "reportIssue": "Iulat ang isyu",
+      "reportIssueOnGithub": "Mag-ulat ng isyu sa Github"
+    },
+    "failedToLoad": "May nangyaring mali! Nabigong i-load ang workspace. Subukang isara ang anumang bukas na instance ng @:appName at subukan muli.",
+    "fetchWorkspacesFailed": "Nabigong kunin ang mga workspace",
+    "hint": "espasyo ng trabaho",
+    "importFromNotion": "Mag-import mula sa Notion",
+    "learnMore": "Matuto pa",
+    "leaveCurrentWorkspace": "Umalis sa workspace",
+    "leaveCurrentWorkspacePrompt": "Sigurado ka bang nais mong iwan ang kasalukuyang workspace?",
+    "menuTitle": "Mga Workspace",
+    "new": "Bagong workspace",
+    "notFoundError": "Hindi nahanap ang workspace",
+    "openFailed": "Nabigong buksan ang workspace",
+    "openSuccess": "Matagumpay na nabuksan ang workspace",
+    "renameFailed": "Nabigong palitan ang pangalan ng workspace",
+    "renameSuccess": "Matagumpay na napalitan ng pangalan ang workspace",
+    "renameWorkspace": "Palitan ang pangalan ng workspace",
+    "reset": "I-reset ang workspace",
+    "resetWorkspacePrompt": "Ang pag-reset ng workspace ay magtatanggal ng lahat ng pahina at data sa loob nito. Sigurado ka bang nais mong i-reset ang workspace? Bilang alternatibo, maaari kang makipag-ugnayan sa support team para ibalik ang workspace.",
+    "updateIconFailed": "Nabigo ang pag-update sa icon ng workspace",
+    "updateIconSuccess": "Matagumpay na na-update ang icon ng workspace",
+    "workspaceNameCannotBeEmpty": "Hindi maaaring walang laman ang pangalan ng workspace"
+  },
+  "youCanAlso": "Maaari mo ring"
+}

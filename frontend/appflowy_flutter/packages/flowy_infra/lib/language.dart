@@ -46,6 +46,8 @@ String languageFromLocale(Locale locale) {
       return "Euskera";
     case "el":
       return "Ελληνικά";
+    case "fil":
+      return "Filipino";
     case "fr":
       switch (locale.countryCode) {
         case "CA":
